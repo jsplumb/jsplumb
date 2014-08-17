@@ -1,3 +1,13 @@
+* 1.6.4
+
+	NEW FUNCTIONALITY
+
+	- Connection types support 'anchor' and 'anchors' parameters now.
+
+	MISCELLANEOUS
+
+	- YUI adapter now sets a 'base' url and retrieves everything via https.
+
 * 1.6.3
 
 	BACKWARDS COMPATIBILITY

@@ -29,7 +29,9 @@
 	
 	var Y;
 	
-	YUI().use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
+	YUI({
+		base:"https://yui-s.yahooapis.com/" + YUI.version + "/build/"
+	}).use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
 		Y = _Y;	
 		Y.on("domready", function() { jsPlumb.init(); });
 	});

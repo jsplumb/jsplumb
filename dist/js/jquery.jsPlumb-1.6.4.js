@@ -619,7 +619,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -1033,7 +1033,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -1106,7 +1106,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -1590,7 +1590,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -4662,7 +4662,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -5667,7 +5667,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -5879,6 +5879,14 @@
             //editable = t.editable;  // TODO
             this.setConnector(t.connector, doNotRepaint);
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+            if (t.anchor) {
+                this.endpoints[0].anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+                this.endpoints[1].anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+            }
+            else if (t.anchors) {
+                this.endpoints[0].anchor = this._jsPlumb.instance.makeAnchor(t.anchors[0]);
+                this.endpoints[1].anchor = this._jsPlumb.instance.makeAnchor(t.anchors[1]);
+            }
         },
         getTypeDescriptor : function() { return "connection"; },
         getAttachedElements : function() {
@@ -6132,7 +6140,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -7208,7 +7216,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -8616,7 +8624,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -8980,7 +8988,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9245,7 +9253,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9327,7 +9335,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9945,7 +9953,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10456,7 +10464,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
