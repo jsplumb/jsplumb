@@ -1,3 +1,9 @@
+* 1.6.5
+
+    ISSUES
+
+    248 - dynamic anchor create fail
+
 * 1.6.4
 
 	NEW FUNCTIONALITY
