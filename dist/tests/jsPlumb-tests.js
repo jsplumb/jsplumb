@@ -381,6 +381,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(!a1.equals(a2), "anchors are different");
 	});
 
+    test('simple makeAnchor, dynamicAnchors', function() {
+        expect(0);
+        var spec = [[0.2,0,0,-1],[1,0.2,1,0],[0.8,1,0,1],[0,0.8,-1,0]];
+        _jsPlumb.makeAnchor(spec);
+    })
+
 	test(": unknown anchor type should throw Error", function() {
 		try {
 			_addDiv("d1");_addDiv("d2");
