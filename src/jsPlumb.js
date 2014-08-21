@@ -2161,7 +2161,7 @@
 						}
 					}
 					else
-						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});
+						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:_currentInstance});
 
 				}
 				else {
@@ -2170,7 +2170,7 @@
 						orientation : (specimen.length >= 4) ? [ specimen[2], specimen[3] ] : [0,0],
 						offsets : (specimen.length >= 6) ? [ specimen[4], specimen[5] ] : [ 0, 0 ],
 						elementId:elementId,
-                        jsPlumbInstance:jsPlumbInstance,
+                        jsPlumbInstance:_currentInstance,
                         cssClass:specimen.length == 7 ? specimen[6] : null
 					};						
 					newAnchor = new jsPlumb.Anchor(anchorParams);
