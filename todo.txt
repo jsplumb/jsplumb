@@ -130,6 +130,14 @@ future
 
          FIDDLE for 1.6.x : http://jsfiddle.net/RpCv4/37/
 
+         -------------------------------------------------
+
+         Joining spans (that have the default word wrap )
+
+         http://jsfiddle.net/3s07zbnf/7/
+
+         the basic idea is to create a helper span that is inserted after the target.
+
 
 
     Performance
