@@ -418,9 +418,6 @@
 		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 		
 			if (!jsPlumbInstance.isSuspendDrawing()) {
-
-                console.cTimeStart("redraw " + elementId);
-
 				// get all the endpoints for this element
 				var ep = _amEndpoints[elementId] || [],
 					endpointConnections = connectionsByElementId[elementId] || [],
@@ -566,7 +563,6 @@
 					fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
 
                 var key = "paint connections (" + connectionsToPaint.length + ") " + elementId;
-                console.cTimeStart(key);
 
 				// paint all the connections
 				for (i = 0; i < connectionsToPaint.length; i++) {
@@ -575,10 +571,6 @@
                                //(connectionsToPaint[i].sourceId == targetId && connectionsToPaint[i].targetId == sourceId)) ? timestamp : null;
                     connectionsToPaint[i].paint({elId:elementId, timestamp:ts, recalc:false, clearEdits:clearEdits});
 				}
-
-                console.cTimeEnd(key);
-
-                console.cTimeEnd("redraw " + elementId);
 			}
 		};        
         
@@ -853,10 +845,7 @@
             };
         
         this.compute = function(params) {				
-            var xy = params.xy, wh = params.wh, timestamp = params.timestamp, txy = params.txy, twh = params.twh;				
-            
-            if(params.clearUserDefinedLocation)
-                userDefinedLocation = null;
+            var xy = params.xy, wh = params.wh, timestamp = params.timestamp, txy = params.txy, twh = params.twh;
 
             this.timestamp = timestamp;            
             

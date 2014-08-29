@@ -490,14 +490,12 @@
         };
 
 		var _updateSegmentProportions = function() {
-                console.cTimeStart("segment proportions");
                 var curLoc = 0;
                 for (var i = 0; i < segments.length; i++) {
                     var sl = segments[i].getLength();
                     segmentProportionalLengths[i] = sl / totalLength;
                     segmentProportions[i] = [curLoc, (curLoc += (sl / totalLength)) ];
                 }
-                console.cTimeEnd("segment proportions");
             },
 		
             /**
@@ -545,8 +543,6 @@
 		};
 
         var _prepareCompute = function(params) {
-            console.cTimeStart("anchor prepare");
-
             this.lineWidth = params.lineWidth;
             var segment = Biltong.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
@@ -597,8 +593,6 @@
                 points:[x, y, w, h, sx, sy, tx, ty ]
             };
             result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
-
-            console.cTimeEnd("anchor prepare");
             return result;
         };
 		

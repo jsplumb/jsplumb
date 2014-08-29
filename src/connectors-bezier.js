@@ -59,7 +59,6 @@
 
 		this._compute = function(paintInfo, p) {
 
-            console.cTimeStart("bezier compute");
 			var sp = p.sourcePos,
 				tp = p.targetPos,
 				_w = Math.abs(sp[0] - tp[0]),
@@ -75,8 +74,6 @@
 				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
 				cp1x:_CP[0], cp1y:_CP[1], cp2x:_CP2[0], cp2y:_CP2[1]
 			});
-
-            console.cTimeEnd("bezier compute");
 		};
 	};
 

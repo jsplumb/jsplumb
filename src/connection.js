@@ -332,9 +332,6 @@
         paint : function(params) {
                     
             if (!this._jsPlumb.instance.isSuspendDrawing() && this._jsPlumb.visible) {
-
-                console.cTimeStart("paint connection");
-                    
                 params = params || {};
                 var timestamp = params.timestamp,
                     // if the moving object is not the source we must transpose the two references.
@@ -352,8 +349,6 @@
                         
                     this.connector.resetBounds();
 
-                    console.cTimeStart("compute connection");
-
                     this.connector.compute({
                         sourcePos:sAnchorP,
                         targetPos:tAnchorP, 
@@ -364,11 +359,7 @@
                         targetInfo:targetInfo
                     });
 
-                    console.cTimeEnd("compute connection");
-
                     var overlayExtents = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
-
-                    console.cTimeStart("compute overlays");
 
                     // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
@@ -383,8 +374,6 @@
                         }
                     }
 
-                    console.cTimeEnd("compute overlays");
-
                     var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
                         outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 0),
                         extents = {
@@ -393,13 +382,8 @@
                             xmax : Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
                             ymax : Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                         };
-
-                    console.cTimeStart("paint connector");
                     // paint the connector.
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
-                    console.cTimeEnd("paint connector");
-
-                    console.cTimeStart("paint overlays");
                     // and then the overlays
                     for ( var j = 0; j < this._jsPlumb.overlays.length; j++) {
                         var p = this._jsPlumb.overlays[j];
@@ -407,11 +391,8 @@
                             p.paint(this._jsPlumb.overlayPlacements[j], extents);    
                         }
                     }
-                    console.cTimeEnd("paint overlays");
                 }
                 this._jsPlumb.lastPaintedAt = timestamp;
-
-                console.cTimeEnd("paint connection");
             }
         },
         /*
