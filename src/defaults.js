@@ -439,7 +439,6 @@
 		AbstractComponent.apply(this, arguments);
 
 		var segments = [],
-			editing = false,
 			totalLength = 0,
 			segmentProportions = [],
 			segmentProportionalLengths = [],
@@ -452,10 +451,6 @@
 			userProvidedSegments = null,
 			edited = false,
 			paintInfo = null;
-
-		// subclasses should override.
-		this.isEditable = function() { return false; };
-		this.setEdited = function(ed) { edited = ed; };
 
 		// to be overridden by subclasses.
 		this.getPath = function() { };
@@ -495,12 +490,14 @@
         };
 
 		var _updateSegmentProportions = function() {
+                console.cTimeStart("segment proportions");
                 var curLoc = 0;
                 for (var i = 0; i < segments.length; i++) {
                     var sl = segments[i].getLength();
                     segmentProportionalLengths[i] = sl / totalLength;
                     segmentProportions[i] = [curLoc, (curLoc += (sl / totalLength)) ];
                 }
+                console.cTimeEnd("segment proportions");
             },
 		
             /**
@@ -548,6 +545,8 @@
 		};
 
         var _prepareCompute = function(params) {
+            console.cTimeStart("anchor prepare");
+
             this.lineWidth = params.lineWidth;
             var segment = Biltong.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
@@ -559,11 +558,7 @@
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
                 h = Math.abs(params.targetPos[1] - params.sourcePos[1]);
-			
-            // SP: an early attempy at fixing #162; this fix caused #177, so reverted.	
-			//if (w == 0) w = 1;
-			//if (h == 0) h = 1;
-            
+
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
             // point each anchor at the other element.  this is also used when dragging a new connection.
@@ -602,6 +597,8 @@
                 points:[x, y, w, h, sx, sy, tx, ty ]
             };
             result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
+
+            console.cTimeEnd("anchor prepare");
             return result;
         };
 		

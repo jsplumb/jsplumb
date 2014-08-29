@@ -156,6 +156,9 @@
 			el to that parent's list of elements to update on drag (if it is not there already)
 		*/
 		this.endpointAdded = function(el) {
+
+            console.cTimeStart("endpoint added");
+
 			var b = document.body, id = _currentInstance.getId(el),
 				cLoc = jsPlumbAdapter.getOffset(el, _currentInstance),
 				p = el.parentNode, done = p == b;
@@ -181,6 +184,8 @@
 				}
 				p = p.parentNode;
 			}
+
+            console.cTimeEnd("endpoint added");
 		};
 
 		this.endpointDeleted = function(endpoint) {

@@ -134,9 +134,6 @@
         this._jsPlumb.paintStyleInUse = this.getPaintStyle();
         
         var _suspendedAt = _jsPlumb.getSuspendedAt();
-        _jsPlumb.updateOffset( { elId : this.sourceId, timestamp:_suspendedAt });
-        _jsPlumb.updateOffset( { elId : this.targetId, timestamp:_suspendedAt });
-
 //*
         if(!_jsPlumb.isSuspendDrawing()) {                    
             // paint the endpoints
@@ -335,30 +332,27 @@
         paint : function(params) {
                     
             if (!this._jsPlumb.instance.isSuspendDrawing() && this._jsPlumb.visible) {
+
+                console.cTimeStart("paint connection");
                     
                 params = params || {};
-                var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
+                var timestamp = params.timestamp,
                     // if the moving object is not the source we must transpose the two references.
                     swap = false,
                     tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
                     tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
                 if (timestamp == null || timestamp != this._jsPlumb.lastPaintedAt) {                        
-                    var sourceInfo = this._jsPlumb.instance.updateOffset( { elId : sId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
-                        targetInfo = this._jsPlumb.instance.updateOffset( { elId : tId, timestamp : timestamp }).o, // update the target if this is a forced repaint. otherwise, only the source has been moved.
+                    var sourceInfo = this._jsPlumb.instance.getOffset(sId),
+                        targetInfo = this._jsPlumb.instance.getOffset(tId),
                         sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
 
-                    if (params.clearEdits) {
-                        this._jsPlumb.overlayPositions = null;
-                        sE.anchor.clearUserDefinedLocation();
-                        tE.anchor.clearUserDefinedLocation();
-                        this.connector.setEdited(false);
-                    }
-                    
                     var sAnchorP = sE.anchor.getCurrentLocation({xy:[sourceInfo.left,sourceInfo.top], wh:[sourceInfo.width, sourceInfo.height], element:sE, timestamp:timestamp}),              
                         tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                                 
                         
                     this.connector.resetBounds();
+
+                    console.cTimeStart("compute connection");
 
                     this.connector.compute({
                         sourcePos:sAnchorP,
@@ -367,12 +361,15 @@
                         targetEndpoint:this.endpoints[tIdx],
                         lineWidth:this._jsPlumb.paintStyleInUse.lineWidth,                                          
                         sourceInfo:sourceInfo,
-                        targetInfo:targetInfo,
-                        clearEdits:params.clearEdits === true
-                    });                                                                                        
+                        targetInfo:targetInfo
+                    });
+
+                    console.cTimeEnd("compute connection");
 
                     var overlayExtents = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
-                                        
+
+                    console.cTimeStart("compute overlays");
+
                     // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
                     for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
@@ -386,6 +383,8 @@
                         }
                     }
 
+                    console.cTimeEnd("compute overlays");
+
                     var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
                         outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 0),
                         extents = {
@@ -395,8 +394,12 @@
                             ymax : Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                         };
 
+                    console.cTimeStart("paint connector");
                     // paint the connector.
-                    this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);  
+                    this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
+                    console.cTimeEnd("paint connector");
+
+                    console.cTimeStart("paint overlays");
                     // and then the overlays
                     for ( var j = 0; j < this._jsPlumb.overlays.length; j++) {
                         var p = this._jsPlumb.overlays[j];
@@ -404,8 +407,11 @@
                             p.paint(this._jsPlumb.overlayPlacements[j], extents);    
                         }
                     }
+                    console.cTimeEnd("paint overlays");
                 }
                 this._jsPlumb.lastPaintedAt = timestamp;
+
+                console.cTimeEnd("paint connection");
             }
         },
         /*
@@ -414,7 +420,7 @@
          */
         repaint : function(params) {
             params = params || {};            
-            this.paint({ elId : this.sourceId, recalc : !(params.recalc === false), timestamp:params.timestamp, clearEdits:params.clearEdits });
+            this.paint({ elId : this.sourceId, recalc : !(params.recalc === false), timestamp:params.timestamp});
         },
         prepareEndpoint : function(_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
             var e;

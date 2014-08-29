@@ -418,6 +418,9 @@
 		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 		
 			if (!jsPlumbInstance.isSuspendDrawing()) {
+
+                console.cTimeStart("redraw " + elementId);
+
 				// get all the endpoints for this element
 				var ep = _amEndpoints[elementId] || [],
 					endpointConnections = connectionsByElementId[elementId] || [],
@@ -436,7 +439,7 @@
 						top:ui.top + offsetToUI.top
 					};
 				}
-									
+
 				// valid for one paint cycle.
 				var myOffset = jsPlumbInstance.updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }),
 	                orientationCache = {};
@@ -444,7 +447,7 @@
 				// actually, first we should compute the orientation of this element to all other elements to which
 				// this element is connected with a continuous anchor (whether both ends of the connection have
 				// a continuous anchor or just one)
-	                        
+
 	            for (var i = 0; i < endpointConnections.length; i++) {
 	                var conn = endpointConnections[i][0],
 						sourceId = conn.sourceId,
@@ -504,7 +507,8 @@
 		                if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1))
 		                	jsPlumbUtil.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
 		            }
-	            }				
+	            }
+
 				// place Endpoints whose anchors are continuous but have no Connections
 				for (i = 0; i < ep.length; i++) {
 					if (ep[i].connections.length === 0 && ep[i].anchor.isContinuous) {
@@ -513,6 +517,8 @@
 						jsPlumbUtil.addWithFunction(anchorsToUpdate, elementId, function(a) { return a === elementId; });
 					}
 				}
+
+
 	            // now place all the continuous anchors we need to;
 	            for (i = 0; i < anchorsToUpdate.length; i++) {
 					placeAnchors(anchorsToUpdate[i], anchorLists[anchorsToUpdate[i]]);
@@ -524,6 +530,7 @@
 				for (i = 0; i < ep.length; i++) {				
                     ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s, recalc:doNotRecalcEndpoint !== true });
 				}
+
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
@@ -536,7 +543,7 @@
 
 				// paint all the standard and "dynamic connections", which are connections whose other anchor is
 				// static and therefore does need to be recomputed; we make sure that happens only one time.
-	
+
 				// TODO we could have compiled a list of these in the first pass through connections; might save some time.
 				for (i = 0; i < endpointConnections.length; i++) {
 					var otherEndpoint = endpointConnections[i][1];
@@ -552,11 +559,15 @@
 	                    jsPlumbUtil.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 					}
 				}
+
 				// paint current floating connection for this element, if there is one.
 				var fc = floatingConnections[elementId];
 				if (fc) 
 					fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
-				                
+
+                var key = "paint connections (" + connectionsToPaint.length + ") " + elementId;
+                console.cTimeStart(key);
+
 				// paint all the connections
 				for (i = 0; i < connectionsToPaint.length; i++) {
 					// if not a connection between the two elements in question dont use the timestamp.
@@ -564,6 +575,10 @@
                                //(connectionsToPaint[i].sourceId == targetId && connectionsToPaint[i].targetId == sourceId)) ? timestamp : null;
                     connectionsToPaint[i].paint({elId:elementId, timestamp:ts, recalc:false, clearEdits:clearEdits});
 				}
+
+                console.cTimeEnd(key);
+
+                console.cTimeEnd("redraw " + elementId);
 			}
 		};        
         
