@@ -1220,8 +1220,8 @@
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
         getDimensions : function() {
-// TODO determine whether we want to support the old way, for now, for IE8. probably.
-            return [1,1];//jsPlumb.getSize(this.getElement());
+// still support the old way, for now, for IE8. But from 2.0.0 this whole method will be gone. 
+            return jsPlumbUtil.oldIE ? jsPlumb.getSize(this.getElement()) : [1,1];
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";
