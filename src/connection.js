@@ -7,9 +7,10 @@
  * 
  * This file contains the code for Connections.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2014 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
+ * http://jsplumb.org
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
@@ -29,10 +30,7 @@
         };
     
     jsPlumb.Connection = function(params) {
-        var _newConnection = params.newConnection,
-            _newEndpoint = params.newEndpoint,
-            _gel = jsPlumb.getElementObject,
-            _ju = jsPlumbUtil;
+        var _newEndpoint = params.newEndpoint, _ju = jsPlumbUtil;
 
         this.connector = null;
         this.idPrefix = "_jsplumb_c_";
@@ -80,6 +78,10 @@
                 overlays:this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
             };
         };
+
+	// listen to mouseover and mouseout events passed from the container delegate.
+        this.bind("mouseover", function() { this.setHover(true);}.bind(this));
+        this.bind("mouseout", function() { this.setHover(false);}.bind(this));
         
 // INITIALISATION CODE			
                             
@@ -196,8 +198,7 @@
         // the very last thing we do is apply types, if there are any.
         var _types = [params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
         if (/[^\s]/.test(_types))
-            this.addType(_types, params.data, true);        
-
+            this.addType(_types, params.data, true);
         
 // END PAINTING    
     };
@@ -207,7 +208,6 @@
             if (t.detachable != null) this.setDetachable(t.detachable);
             if (t.reattach != null) this.setReattach(t.reattach);
             if (t.scope) this.scope = t.scope;
-            //editable = t.editable;  // TODO
             this.setConnector(t.connector, doNotRepaint);
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
             if (t.anchor) {
@@ -306,27 +306,17 @@
                 else
                     this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs));
             }
-            // binds mouse listeners to the current connector.
-            this.bindListeners(this.connector, this, function(state) {                
-                this.setHover(state, false);                
-            }.bind(this));
             
             this.canvas = this.connector.canvas;
             this.bgCanvas = this.connector.bgCanvas;
 
-            if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
+            // new: instead of binding listeners per connector, we now just have one delegate on the container.
+            // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
+            // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
+            this.canvas._jsPlumb = this;
+            if(this.bgCanvas) this.bgCanvas._jsPlumb = this;
 
-            if (this._jsPlumb.editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.connector.type] && this.connector.isEditable()) {
-                new jsPlumb.ConnectorEditors[this.connector.type]({
-                    connector:this.connector,
-                    connection:this,
-                    params:this._jsPlumb.params.editorParams || { }
-                });
-            }
-            else {                    
-                this._jsPlumb.editable = false;
-            }                
-                
+            if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
             if (!doNotRepaint) this.repaint();
         },
         paint : function(params) {
@@ -395,10 +385,6 @@
                 this._jsPlumb.lastPaintedAt = timestamp;
             }
         },
-        /*
-         * Function: repaint
-         * Repaints the Connection. No parameters exposed to public API.
-         */
         repaint : function(params) {
             params = params || {};            
             this.paint({ elId : this.sourceId, recalc : !(params.recalc === false), timestamp:params.timestamp});
