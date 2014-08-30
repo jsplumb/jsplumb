@@ -169,6 +169,9 @@
           else
             this.setHover(state);
         }.bind(this);
+
+        this.bind("mouseover", function() { internalHover(true); });
+        this.bind("mouseout", function() { internalHover(false); });
             
         // ANCHOR MANAGER
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
@@ -222,8 +225,6 @@
             }.bind(this);
 
             this.type = this.endpoint.type;
-            // bind listeners from endpoint to self, with the internal hover function defined above.
-            this.bindListeners(this.endpoint, this, internalHover);
         };
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							                    
@@ -237,7 +238,8 @@
         this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;        
         this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.                
-        this.canvas = this.endpoint.canvas;		
+        this.canvas = this.endpoint.canvas;
+        this.canvas._jsPlumb = this;
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
         jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
