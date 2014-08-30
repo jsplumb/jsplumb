@@ -27,11 +27,11 @@
 		this.type = "Bezier";
 		this.getCurviness = function() { return majorAnchor; };
 
-		this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, soo, too) {
+		this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
 			// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
 			// points around if so (code could be tightened up)
-			var /*soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint),
-				too = targetEndpoint.anchor.getOrientation(targetEndpoint),*/
+			var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint),
+				too = targetEndpoint.anchor.getOrientation(targetEndpoint),
 				perpendicular = soo[0] != too[0] || soo[1] == too[1],
 				p = [];
 
