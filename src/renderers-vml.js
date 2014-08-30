@@ -264,9 +264,6 @@
 				
 	};
 	jsPlumbUtil.extend(VmlConnector, VmlComponent, {
-		reattachListeners : function() {
-			if (this.canvas) this.reattachListenersForElement(this.canvas, this);
-		},
 		setVisible:function(v) {
 			if (this.canvas) {
 				this.canvas.style.display = v ? "block" : "none";
@@ -317,11 +314,7 @@
 			_applyStyles(vml, style, this);
 		};		
 	};
-	jsPlumbUtil.extend(VmlEndpoint, VmlComponent, {
-		reattachListeners : function() {
-			if (this._jsPlumb.vml) this.reattachListenersForElement(this._jsPlumb.vml, this);
-		}
-	});
+	jsPlumbUtil.extend(VmlEndpoint, VmlComponent);
 	
 // ******************************* vml segments *****************************************************	
 		
@@ -476,11 +469,6 @@
 				}    		
 			}
     	};
-    	
-    	this.reattachListeners = function() {
-			if (this.canvas) this.reattachListenersForElement(self.canvas, this);
-		};
-
 		this.cleanup = function() {
     		if (this.canvas != null) this._jsPlumb.instance.removeElement(this.canvas);
     	};
