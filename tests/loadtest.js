@@ -17,7 +17,7 @@ console.cTimeEnd = function(handle) {
     times[handle].e = new Date().getTime();
     times[handle].time_ms += (times[handle].e - times[handle].s);
     times[handle].time_sec = times[handle].time_ms / 1000;
-    times[handle].avg = times[handle]["time_ms"] / times[handle].calls;
+    times[handle].avg = times[handle].time_ms / times[handle].calls;
     indent -= 2;
 };
 
@@ -78,11 +78,13 @@ console.cTimeSummary = function() {
         },
 
         reset : function(thenRun) {
+            console.cTimeSummaryClear();
             endpoints = {};
-            empty(["numConnections", "createTime", "totalCreateTime", "averageCreateTime", "repaintTime", "averageRepaintTime", "demo" ]);
             var t = new Date().getTime();
             jsPlumb.reset();
             var t2 = new Date().getTime();
+
+            empty(["numConnections", "createTime", "totalCreateTime", "averageCreateTime", "repaintTime", "averageRepaintTime", "demo" ]);
             html("resetTime", (t2 - t) + "ms");
 
             if (thenRun !== false) window.setTimeout(jsPlumbLoadTest.run, 250);
@@ -90,7 +92,7 @@ console.cTimeSummary = function() {
 
         run : function() {
 
-            console.cTimeSummaryClear();
+
 
             var numElements = val("#txtElements"),
                 anchors = val("input[name='anchors']:checked"),
