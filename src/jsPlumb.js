@@ -679,7 +679,7 @@
                 // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
                 var _oneDelegate = function(id) {
                     // connections.
-                    _currentInstance.on(_container, id, "._jsPlumb_connector > *", function(e) { _oneDelegateHandler(id, e); });
+                    _currentInstance.on(_container, id, "._jsPlumb_connector, ._jsPlumb_connector > *", function(e) { _oneDelegateHandler(id, e); });
                     // endpoints. note they can have an enclosing div, or not.
                     _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *", function(e) { _oneDelegateHandler(id, e); });
                     // overlays
