@@ -35,7 +35,7 @@
         times[handle].e = new Date().getTime();
         times[handle].time_ms += (times[handle].e - times[handle].s);
         times[handle].time_sec = times[handle].time_ms / 1000;
-        times[handle].avg = times[handle]["time_ms"] / times[handle].calls;
+        times[handle].avg = times[handle].time_ms / times[handle].calls;
         indent -= 2;
     };
 
