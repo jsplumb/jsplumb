@@ -849,7 +849,6 @@
 		if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
 		if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);		
 		this._jsPlumb.instance.appendElement(this.canvas);
-		this.attachListeners(this.canvas, this);
 		
 		this.actuallyPaint = function(d, style, anchor) {
 			if (!this._jsPlumb.deleted) {
@@ -1161,8 +1160,19 @@
                 div.className = clazz;
                 this._jsPlumb.instance.appendElement(div);
                 this._jsPlumb.instance.getId(div);
-                this.attachListeners(div, this);
                 this.canvas = div;
+
+                // in IE the top left corner is what it placed at the desired location.  This will not
+                // be fixed. IE8 is not going to be supported for much longer.
+                var ts = "translate(-50%, -50%)";
+                div.style.webkitTransform = ts;
+                div.style.mozTransform = ts;
+                div.style.msTransform = ts;
+                div.style.oTransform = ts;
+                div.style.transform = ts;
+
+                // write the related component into the created element
+                div._jsPlumb = params.component;
 
                 if (params.visible === false)
                     div.style.display = "none";
@@ -1210,7 +1220,8 @@
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
         getDimensions : function() {
-            return jsPlumb.getSize(this.getElement());
+// TODO determine whether we want to support the old way, for now, for IE8. probably.
+            return [1,1];//jsPlumb.getSize(this.getElement());
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";
@@ -1239,16 +1250,10 @@
             var td = _getDimensions(this);
             return Math.max(td[0], td[1]);
         },
-        reattachListeners : function(connector) {
-            if (this._jsPlumb.div) {
-                this.reattachListenersForElement(this._jsPlumb.div, this, connector);
-            }
-        },
         paint : function(p, containerExtents) {
             if (!this._jsPlumb.initialised) {
                 this.getElement();
                 p.component.appendDisplayElement(this._jsPlumb.div);
-                this.attachListeners(this._jsPlumb.div, p.component);
                 this._jsPlumb.initialised = true;
             }
             this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
