@@ -1,5 +1,19 @@
+2.0.0
+
+- no IE8 (vml) support.
+- class names changed to "jsplumb-endpoint" syntax rather than "_jsPlumb_endpoint".
+- and what else?
 
 
+1.7.0  (next after 1.6.4)
+
+- Various performance enhancements:
+
+    - IE8 labels are centered through some extra code; every other browser uses translate(-50%,-50%), which gives an enormous performance boost.
+    - events on connections and endpoints and overlays are bound to a single delegate on the container, and no longer
+      on individual binds on the elements.
+    - 'reset' method re-work to _not_ call deleteEveryEndpoint, and instead to fast-track deletions. might need to add
+      reset functions to Mottle and Katavorio to support this.
 
 
 
