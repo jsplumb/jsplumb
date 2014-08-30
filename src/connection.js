@@ -19,11 +19,11 @@
     
     "use strict";
 
-    var makeConnector = function(_jsPlumb, renderMode, connectorName, connectorArgs) {
+    var makeConnector = function(_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
                     throw { msg:"jsPlumb: unknown connector type '" + connectorName + "'" };
 
-            return new jsPlumb.Connectors[renderMode][connectorName](connectorArgs);  
+            return new jsPlumb.Connectors[renderMode][connectorName](connectorArgs, forComponent);
         },
         _makeAnchor = function(anchorParams, elementId, _jsPlumb) {
             return (anchorParams) ? _jsPlumb.makeAnchor(anchorParams, elementId, _jsPlumb) : null;
@@ -299,12 +299,12 @@
                 renderMode = this._jsPlumb.instance.getRenderMode();
             
             if (_ju.isString(connectorSpec)) 
-                this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs); // lets you use a string as shorthand.
+                this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this); // lets you use a string as shorthand.
             else if (_ju.isArray(connectorSpec)) {
                 if (connectorSpec.length == 1)
-                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs);
+                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs, this);
                 else
-                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs));
+                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs), this);
             }
             
             this.canvas = this.connector.canvas;
@@ -313,7 +313,7 @@
             // new: instead of binding listeners per connector, we now just have one delegate on the container.
             // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
             // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
-            this.canvas._jsPlumb = this;
+            if(this.canvas) this.canvas._jsPlumb = this;
             if(this.bgCanvas) this.bgCanvas._jsPlumb = this;
 
             if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
