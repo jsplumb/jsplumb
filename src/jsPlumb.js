@@ -43,7 +43,8 @@
 				component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
 			}
 		},		
-		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
+		//events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
+        events = [ "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
 		eventFilters = { "mouseout":"mouseleave", "mouseexit":"mouseleave" },
 		_updateAttachedElements = function(component, state, timestamp, sourceElement) {
 			var affectedElements = component.getAttachedElements();
@@ -163,20 +164,7 @@
 			    	boundListeners.push([obj, type, fn]);
 			    	obj.bind(type, fn);
 			    },
-		    	domListeners = [],
-            	bindOne = function(o, c, evt, override) {
-					var filteredEvent = eventFilters[evt] || evt,
-						fn = function(ee) {
-							if (override && override(ee) === false) return;
-							c.fire(filteredEvent, c, ee);
-						};
-					domListeners.push([o, evt, fn, c]);
-					c._jsPlumb.instance.on(o, evt, fn);
-				},
-				unbindOne = function(o, evt, fn, c) {
-					var filteredEvent = eventFilters[evt] || evt;
-					c._jsPlumb.instance.off(o, evt, fn);
-				};
+		    	domListeners = [];
 
 			// sets the component associated with listener events. for instance, an overlay delegates
 			// its events back to a connector. but if the connector is swapped on the underlying connection,
@@ -186,55 +174,9 @@
 					domListeners[i][3] = c;
 			};
 
-            this.bindListeners = function(obj, _self, _hoverFunction) {
-                bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
-             	bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
-                bindAListener(obj, "contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
-                bindAListener(obj, "mouseleave", function(ep, e) {
-                    if (_self.isHover()) {
-                        _hoverFunction(false);
-                        _self.fire("mouseleave", _self, e);
-                    }
-                });
-                bindAListener(obj, "mouseenter", function(ep, e) {
-                    if (!_self.isHover()) {
-                        _hoverFunction(true);
-                        _self.fire("mouseenter", _self, e);
-                    }
-                });
-                bindAListener(obj, "mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
-                bindAListener(obj, "mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
-            };
 
-            this.unbindListeners = function() {
-            	for (var i = 0; i < boundListeners.length; i++) {
-            		var o = boundListeners[i];
-            		o[0].unbind(o[1], o[2]);
-            	}            	
-            	boundListeners = null;
-            };            
+
 		    
-		    this.attachListeners = function(o, c, overrides) {
-				overrides = overrides || {};
-				for (var i = 0, j = events.length; i < j; i++) {
-					bindOne(o, c, events[i], overrides[events[i]]); 			
-				}
-			};	
-			this.detachListeners = function() {
-				for (var i = 0; i < domListeners.length; i++) {
-					unbindOne(domListeners[i][0], domListeners[i][1], domListeners[i][2], domListeners[i][3]);
-				}
-				domListeners = null;
-			};	   		    
-		    
-		    this.reattachListenersForElement = function(o) {
-			    if (arguments.length > 1) {
-		    		for (var i = 0, j = events.length; i < j; i++)
-		    			unbindOne(o, events[i]);
-			    	for (i = 1, j = arguments.length; i < j; i++)
-		    			this.attachListeners(o, arguments[i]);
-		    	}
-		    };		    	    			                      
 		};
 
 		var _removeTypeCssHelper = function(component, typeIndex) {
@@ -378,12 +320,8 @@
 		    getHoverPaintStyle : function() {
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
-			cleanup:function() {
-				this.unbindListeners();
-				this.detachListeners();
-			},
 			destroy:function() {
-				this.cleanupListeners();
+				this.cleanupListeners(); // this is on EventGenerator
 				this.clone = null;
 				this._jsPlumb = null;
 			},
@@ -523,7 +461,7 @@
 						this.addOverlay(t.overlays[i], true);
 				}
 			},
-			setHover : function(hover, ignoreAttachedElements, timestamp) {            
+			setHover : function(hover, ignoreAttachedElements) {
 				if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
 	                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
 						this._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](this._jsPlumb.instance.hoverClass);
@@ -627,7 +565,7 @@
 					this._jsPlumb.overlays[i].cleanup();
 					this._jsPlumb.overlays[i].destroy();
 				}
-				this._jsPlumb.overlays.splice(0);
+				this._jsPlumb.overlays.length = 0;
 				this._jsPlumb.overlayPositions = null;
 			},
 			setVisible:function(v) {
@@ -716,6 +654,9 @@
 
 			var _container;
 			this.setContainer = function(c) {
+
+                // TODO if a _container already exists, unbind delegations from it
+
 				c = this.getDOMElement(c);
 				this.select().each(function(conn) {
 					conn.moveParent(c);
@@ -724,6 +665,30 @@
 					ep.moveParent(c);
 				});
 				_container = c;
+
+                var _oneDelegateHandler = function(id, e) {
+                    var t = e.srcElement || e.target,
+                        jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null);
+                    if (jp)
+                        jp.fire(id, e);
+                };
+
+                // delegate one event on the container to jsplumb elements. it might be possible to
+                // abstract this out: each of endpoint, connection and overlay could register themselves with
+                // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
+                // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
+                var _oneDelegate = function(id) {
+                    // connections.
+                    _currentInstance.on(_container, id, "._jsPlumb_connector > *", function(e) { _oneDelegateHandler(id, e); });
+                    // endpoints. note they can have an enclosing div, or not.
+                    _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *", function(e) { _oneDelegateHandler(id, e); });
+                    // overlays
+                    _currentInstance.on(_container, id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function(e) { _oneDelegateHandler(id, e); });
+                };
+
+                for (var i = 0; i < events.length; i++)
+                    _oneDelegate(events[i]);
+
 			};
 			this.getContainer = function() {
 				return _container;
@@ -739,7 +704,7 @@
 					_currentInstance.Defaults[i] = d[i];
 				}
 				if (d.Container)
-					this.setContainer(d.Container);
+					_currentInstance.setContainer(d.Container);
 
 				return _currentInstance;
 			};		
@@ -750,7 +715,6 @@
 			};
 		
 		    var log = null,
-		        resizeTimer = null,
 		        initialized = false,
 		        // TODO remove from window scope       
 		        connections = [],
@@ -784,10 +748,10 @@
 					if (_container)
 						_container.appendChild(el);
 					else if (!parent)
-						_currentInstance.appendToRoot(el);
+						this.appendToRoot(el);
 					else
-						jsPlumb.getDOMElement(parent).appendChild(el);
-				},		
+						this.getDOMElement(parent).appendChild(el);
+                }.bind(this),
 				
 				//
 				// YUI, for some reason, put the result of a Y.all call into an object that contains
@@ -1240,7 +1204,7 @@
 				draggableStates[elId] = state;
 				this.setDraggable(el, state);
 				return state;
-			});
+            }.bind(this));
 		},
 		/**
 		 * private method to do the business of toggling hiding/showing.
@@ -1591,7 +1555,9 @@
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0, j = endpoints.length; i < j; i++) {
+//                        console.cTimeStart("delete endpoint");
 						_currentInstance.deleteEndpoint(endpoints[i], true);
+  //                      console.cTimeEnd("delete endpoint");
 					}
 				}
 			}			
@@ -1709,7 +1675,7 @@
 						}
 					}
 				}
-				connections.splice(0);
+				connections.length = 0;
 			});
 			return _currentInstance;
 		};
@@ -2074,14 +2040,14 @@
 		// to be the offsetParent of the first element the user tries to connect.
 		var _ensureContainer = function(candidate) {
 			if (!_container && candidate) {
-				var can = _currentInstance.getDOMElement(candidate);
-				if (can.offsetParent) _container = can.offsetParent;
+				var can = _currentInstance.getDOMElement(candidate);				
+                		if (can.offsetParent) _currentInstance.setContainer(can.offsetParent);
 			}
 		};
 
 		var _getContainerFromDefaults = function() {
 			if (_currentInstance.Defaults.Container)
-				_container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
+                	  _currentInstance.setContainer(_currentInstance.Defaults.Container);
 		};
 		
 		/**
@@ -2851,17 +2817,43 @@
         };
 		
 		this.reset = function() {
+
+            //console.cTimeStart("delete every endpoint");
 			_currentInstance.deleteEveryEndpoint();
-			_currentInstance.unbind();
+            //_currentInstance.clear();
+            //console.cTimeEnd("delete every endpoint");
+
+            _currentInstance.unbind();
 			this.targetEndpointDefinitions = {};
 			this.sourceEndpointDefinitions = {};
-			connections.splice(0);
+			connections.length = 0;
 			_unbindRegisteredListeners();
 			_currentInstance.anchorManager.reset();
 			if (!jsPlumbAdapter.headless)
 				_currentInstance.dragManager.reset();
 		};
-		
+
+        var _clearObject = function(obj) {
+            obj.canvas && obj.canvas.parentNode && obj.canvas.parentNode.removeChild(obj.canvas);
+            obj.cleanup();
+            obj.destroy();
+        };
+
+        var _clearOverlayObject = function(obj) {
+            /*var overlays = obj.getOverlays();
+            for (var i = 0; i < overlays.length; i++) {
+                _clearObject(overlays[i]);
+            }*/
+            _clearObject(obj);
+        }
+
+        this.clear = function() {
+            _currentInstance.select().each(_clearOverlayObject);
+            _currentInstance.selectEndpoints().each(_clearOverlayObject);
+
+            endpointsByElement = {};
+            endpointsByUUID = {};
+        };
 
 		this.setDefaultScope = function(scope) {
 			DEFAULT_SCOPE = scope;
