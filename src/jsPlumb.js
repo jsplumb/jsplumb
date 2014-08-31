@@ -2834,7 +2834,8 @@
 		};
 
         var _clearObject = function(obj) {
-            obj.canvas && obj.canvas.parentNode && obj.canvas.parentNode.removeChild(obj.canvas);
+            if(obj.canvas && obj.canvas.parentNode)
+                   obj.canvas.parentNode.removeChild(obj.canvas);
             obj.cleanup();
             obj.destroy();
         };
@@ -2845,7 +2846,7 @@
                 _clearObject(overlays[i]);
             }*/
             _clearObject(obj);
-        }
+        };
 
         this.clear = function() {
             _currentInstance.select().each(_clearOverlayObject);
