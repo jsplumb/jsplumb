@@ -158,8 +158,7 @@
 		this.endpointAdded = function(el) {
 
 			var b = document.body, id = _currentInstance.getId(el),
-				cLoc = jsPlumbAdapter.getOffset(el, _currentInstance),
-				p = el.parentNode, done = p == b;
+				p = el.parentNode;
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
 
@@ -169,6 +168,7 @@
 					var idx = -1, pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
 
 					if (_delements[pid][id] == null) {
+                        var cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
 						_delements[pid][id] = {
 							id:id,
 							offset:{
