@@ -17,7 +17,7 @@
 
 
 if (typeof console != "undefined") {
-    ;
+
     (function () {
 
 
