@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.5
+ * Title:jsPlumb 1.7.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -324,7 +324,7 @@
 		 * event binding wrapper.  
 		 */
 		on : function(el, event, callback) {
-			var els = jsPlumbUtil.isString(el) || typeof el.length == "1.6.5" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
+			var els = jsPlumbUtil.isString(el) || typeof el.length == "1.7.0" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
 			for (var i = 0; i < els.length; i++)
 				Y.one(els[i]).on(event, callback);
 		},

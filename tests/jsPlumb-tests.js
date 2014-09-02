@@ -195,8 +195,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		// but you can tell jsPlumb about it after the fact
 		_jsPlumb.remove("output");		
-		_jsPlumb.recalculateOffsets(container);
-		_jsPlumb.repaint(container);			
+
 
 		equal(_jsPlumb.selectEndpoints({element:"output"}).length, 0, "no endpoints registered for in1");		
 	});
@@ -6091,86 +6090,6 @@ test(" jsPlumbUtil.extend, multiple parents", function() {
 	       	expect(0);
     });   
 
-// ******************** flowchart get segments ***************
-	test(" get segments from flowchart connector", function() {
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		d1.style.position="absolute";
-		d2.style.position="absolute";		
-		d1.style.left = "0px";
-		d2.style.left = "100px";
-		d1.style.top = "0px";
-		d2.style.top = "100px";
-		d1.style.width = "10px";d1.style.height = "10px";
-		d2.style.width = "10px";d2.style.height = "10px";
-
-		var c = _jsPlumb.connect({
-			source:d1,
-			target:d2,
-			connector:"Flowchart",
-			anchors:["Right", "Top"]
-		}),
-		s = c.getConnector().getPath();
-		//equal(s[0].start[0], 0);
-		equal(s[0].start[1], 0);
-		equal(s[0].end[0], 30);
-		equal(s[0].end[1], 0);
-		equal(s[1].start[0], 95);
-		equal(s[1].start[1], 0);
-		equal(s[1].end[0], 95);
-		equal(s[1].end[1], 65);
-
-		var c2 = _jsPlumb.connect({
-			source:d1,
-			target:d2,
-			connector:"Flowchart",
-			anchors:["Bottom", "Top"]
-		}),
-		s2 = c2.getConnector().getPath();
-		equal(s2.length, 3, "3 segments");
-		
-		equal(s2[0].start[0], 0);
-		equal(s2[0].start[1], 0);
-		equal(s2[0].end[0], 0);
-		equal(s2[0].end[1], 30);
-		
-		equal(s2[1].start[0], 0);
-		equal(s2[1].start[1], 45);
-		equal(s2[1].end[0], 100);
-		equal(s2[1].end[1], 45);
-
-		equal(s2[2].start[0], 100);
-		equal(s2[2].start[1], 45);
-		equal(s2[2].end[0], 100);
-		equal(s2[2].end[1], 60);
-
-
-		// now set the segments on the connection.
-		var c3 = _jsPlumb.connect({
-			source:d1,
-			target:d2,
-			connector:"Flowchart",
-			anchors:["Right", "Top"],
-			path:[
-				{ start:[5,5], end:[5,55] },
-				{ start:[5,55], end:[105,55] },
-				{ start:[105,55], end:[105,105] }
-			]
-		}),
-		s3 = c3.getConnector().getPath();
-		equal(s3[0].start[0], 5);
-		equal(s3[0].start[1], 5);
-		equal(s3[0].end[0], 5);
-		equal(s3[0].end[1], 55);
-		equal(s3[1].start[0], 5);
-		equal(s3[1].start[1], 55);
-		equal(s3[1].end[0], 105);
-		equal(s3[1].end[1],55);
-		equal(s3[2].start[0], 105);
-		equal(s3[2].start[1], 55);
-		equal(s3[2].end[0], 105);
-		equal(s3[2].end[1],105);
-	});
-
 	test(": jsPlumbUtil.isEmpty", function() {
 		var e = {};
 		equal(jsPlumbUtil.isEmpty(e), true, "e is empty");
@@ -6327,7 +6246,7 @@ test(" jsPlumbUtil.extend, multiple parents", function() {
 			endpointStyle:{ fillStyle:"blue" }
 		});
 
-		equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+		equal(c.endpoints[0].canvas.childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
 	});
 
 
@@ -6341,7 +6260,7 @@ test(" jsPlumbUtil.extend, multiple parents", function() {
 			endpointStyle:{ fillStyle:"blue" }
 		});
 
-		equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+		equal(c.endpoints[0].canvas.childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
 	});
 };
 

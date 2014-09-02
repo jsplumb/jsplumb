@@ -3,8 +3,7 @@
 // demo.  you don't need to concern yourself with what's going on in here.
 //
 ;(function() {
-	var list = [ 
-		[ "home", "Kitchen Sink" ],
+	var list = [
 		[ "flowchart", "Flowchart" ],
 		[ "statemachine", "State Machine" ], 
 		[ "draggableConnectors", "Drag and Drop"],

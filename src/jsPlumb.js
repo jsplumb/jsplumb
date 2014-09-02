@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.5
+ * Title:jsPlumb 1.7.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -2084,7 +2084,7 @@
 
                 // get the current size and offset, and store them
                 //s = document.getElementById(elId);
-                s = managedElements[elId].el;
+                s = managedElements[elId] ? managedElements[elId].el : null;
                 if (s != null) {
                     sizes[elId] = _currentInstance.getSize(s);
                     offsets[elId] = _getOffset(s, _currentInstance);

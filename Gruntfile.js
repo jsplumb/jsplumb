@@ -11,7 +11,6 @@ var versions = {
     libraryNames = [ "jQuery", "MooTools", "YUI3", "Vanilla" ],
     renderers = [ "svg", "vml" ],
     demos = [
-        [ "home", "Kitchen Sink" ],
         [ "flowchart", "Flowchart" ],
         [ "statemachine", "State Machine" ],
         [ "draggableConnectors", "Drag and Drop"],

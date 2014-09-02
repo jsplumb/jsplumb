@@ -133,7 +133,10 @@
 				paintStyle:{ fillStyle:example3Color, opacity:0.5 },
 				isSource:true,
 				scope:'yellow',
-				connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
+				connectorStyle:{
+                    strokeStyle:example3Color,
+                    lineWidth:4
+                },
 				connector : "Straight",
 				isTarget:true,
 				dropOptions : exampleDropOptions,
