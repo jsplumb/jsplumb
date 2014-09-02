@@ -19,6 +19,7 @@
 	"use strict";
 
 	 var _getDragManager = function(instance, isPlumbedComponent) {
+
 		var k = instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"],
 			e = _getEventManager(instance);
 			

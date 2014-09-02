@@ -6287,6 +6287,38 @@ test(" jsPlumbUtil.extend, multiple parents", function() {
 		ok(!jsPlumbAdapter.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
 	});
 
+    test(" : DOM adapter addClass and removeClass at the same time, pass as arrays", function() {
+        var d1 = _addDiv("d1");
+        jsPlumbAdapter.addClass(d1, "BAZ FOO BAR");
+        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
+        ok(jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has class BAR");
+
+        // add qux, remove foo and bar.
+        jsPlumbAdapter.updateClasses(d1, ["QUX", "BOZ"], ["FOO", "BAR"]);
+        ok(jsPlumbAdapter.hasClass(d1, "QUX"), "d1 has class QUX");
+        ok(jsPlumbAdapter.hasClass(d1, "BOZ"), "d1 has class BOZ");
+        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has not class FOO");
+        ok(!jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has not class BAR");
+    });
+
+    test(" : DOM adapter addClass and removeClass at the same time, pass as strings", function() {
+        var d1 = _addDiv("d1");
+        jsPlumbAdapter.addClass(d1, "BAZ FOO BAR");
+        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
+        ok(jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has class BAR");
+
+        // add qux, remove foo and bar.
+        jsPlumbAdapter.updateClasses(d1, "QUX BOZ", "FOO BAR");
+        ok(jsPlumbAdapter.hasClass(d1, "QUX"), "d1 has class QUX");
+        ok(jsPlumbAdapter.hasClass(d1, "BOZ"), "d1 has class BOZ");
+        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has not class FOO");
+        ok(!jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has not class BAR");
+    });
+
 	test("endpointStyle on connect method", function() {
 		_addDivs(["d1", "d2"]);
 		var c = _jsPlumb.connect({

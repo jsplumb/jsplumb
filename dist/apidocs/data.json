@@ -2084,7 +2084,7 @@
                 }
             ],
             "return": {
-                "description": "The Connection that was created.",
+                "description": "The Connection that was created, or null if either the source or target element was not found (in which case the missin element is also logged).",
                 "type": "Connection"
             },
             "class": "jsPlumbInstance"
@@ -2403,6 +2403,21 @@
                 "description": "Whether or not hover effects are currently suspended.",
                 "type": "Boolean"
             },
+            "class": "jsPlumbInstance"
+        },
+        {
+            "file": "doc/api/jsplumb-api.js",
+            "line": 318,
+            "description": "Sets whether or not hover effects should be suspended. jsPlumb uses this internally during various\ndrag/drop operations, and it is exposed because it might also be useful for you too.",
+            "itemtype": "method",
+            "name": "setHoverSuspended",
+            "params": [
+                {
+                    "name": "hover",
+                    "description": "whether or not to set hover suspended.",
+                    "type": "Boolean"
+                }
+            ],
             "class": "jsPlumbInstance"
         },
         {
@@ -4072,6 +4087,28 @@
         {
             "file": "doc/api/uicomponent.js",
             "line": 56,
+            "description": "Adds/removes classes at the same time, which reduces the number of reflows that occur in the page. Either parameter\nmay be null but of course if you pass only a single parameter to this method then it will be taken to be classesToAdd.",
+            "itemtype": "method",
+            "name": "updateClasses",
+            "params": [
+                {
+                    "name": "classesToAdd",
+                    "description": "",
+                    "type": "String|String[]",
+                    "optional": true
+                },
+                {
+                    "name": "classesToRemove",
+                    "description": "",
+                    "type": "String|String[]",
+                    "optional": true
+                }
+            ],
+            "class": "jsPlumbUIComponent"
+        },
+        {
+            "file": "doc/api/uicomponent.js",
+            "line": 64,
             "description": "This function sets a `type` for the given component. It replaces all existing types. For a full discussion of the concept\nof types, see the jsPlumb documentation.",
             "itemtype": "method",
             "name": "setType",
@@ -4099,7 +4136,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 65,
+            "line": 73,
             "description": "Gets the current type - or types - for this component.",
             "itemtype": "method",
             "name": "getType",
@@ -4111,7 +4148,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 71,
+            "line": 79,
             "description": "Clears all `types` for a given component.",
             "itemtype": "method",
             "name": "clearTypes",
@@ -4128,7 +4165,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 77,
+            "line": 85,
             "description": "Reapplies the current list of types with the given (optional) parameters. See the \njsPlumb documentation for a full discussion of types.",
             "itemtype": "method",
             "name": "reapplyTypes",
@@ -4144,7 +4181,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 84,
+            "line": 92,
             "description": "Returns whether or not the component currently has the given type.",
             "itemtype": "method",
             "name": "hasType",
@@ -4163,7 +4200,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 91,
+            "line": 99,
             "description": "Adds a type to the component. Note this is distinct from {@link #setType}, which overrides all current types - this function just adds a type to the existing list.",
             "itemtype": "method",
             "name": "addType",
@@ -4191,7 +4228,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 99,
+            "line": 107,
             "description": "Removes the given type from the component.",
             "itemtype": "method",
             "name": "removeType",
@@ -4213,7 +4250,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 106,
+            "line": 114,
             "description": "Toggles the given type on the component.",
             "itemtype": "method",
             "name": "toggleType",
@@ -4241,7 +4278,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 114,
+            "line": 122,
             "description": "Returns whether or not the object is currently in hover state",
             "itemtype": "method",
             "name": "isHover",
@@ -4253,7 +4290,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 120,
+            "line": 128,
             "description": "Sets the paint style to use when the mouse is hovering over the component. This is null by default.\nThe hover paint style is applied as extensions to the paintStyle; it does not entirely replace\nit. This is because people will most likely want to change just one thing when hovering, say the\ncolor for example, but leave the rest of the appearance the same.",
             "itemtype": "method",
             "name": "setHoverPaintStyle",
@@ -4294,7 +4331,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 133,
+            "line": 141,
             "description": "Sets/unsets the hover state of this component.",
             "itemtype": "method",
             "name": "setHover",
@@ -4316,7 +4353,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 140,
+            "line": 148,
             "description": "Sets the component's paint style and then repaints the component.",
             "itemtype": "method",
             "name": "setPaintStyle",

@@ -98,8 +98,7 @@
             // for bulk drawing operations this is recommended.
             if (!actuallyPaint || suspend) jsPlumb.setSuspendDrawing(true);
 
-            var //st = (new Date()).getTime(),
-                ww = window.offsetWidth,
+            var ww = window.offsetWidth,
                 x = 0, y = 0;
 
             for (var i = 0; i < numElements; i++) {
@@ -116,12 +115,7 @@
                 }
                 div.style.backgroundColor = "#123";
                 document.getElementById("demo").appendChild(div);
-                /*var _e = [];
-                for (var j = 0; j < jsPlumbLoadTest.anchors[anchors].length; j++) {
-                    _e.push(jsPlumb.addEndpoint( div, { anchor:jsPlumbLoadTest.anchors[anchors][j] }, jsPlumbLoadTest.endpoint ));
-                }*/
                 elements.push(div);
-                //endpoints["div-" + i] = _e;
             }
 
             var st = (new Date()).getTime();
@@ -131,34 +125,6 @@
                 }
 
             }
-
-            /*var connCount = 0, time = 0;
-            for (var i = 0; i < numElements; i++) {
-                for (var j = 0; j < numElements; j++) {
-                    if (i != j) {
-                        var ep1 = endpoints["div-" + i],
-                            ep2 = endpoints["div-" + j];
-
-                        for (var k = 0; k < ep1.length; k++) {
-                            for (var l = 0; l < ep2.length; l++) {
-                                var ct = (new Date()).getTime();
-                                var c = jsPlumb.connect({
-                                    source:ep1[k],
-                                    target:ep2[l],
-                                    paintStyle:{
-                                        lineWidth:1, strokeStyle:"red"
-                                    },
-                                    connector:"Bezier"
-                                });
-                                if (setLabel) c.setLabel("FOO");
-                                var ctt = (new Date()).getTime();
-                                time += (ctt - ct);
-                                connCount ++;
-                            }
-                        }
-                    }
-                }
-            }*/
 
             var t = (new Date()).getTime();
 

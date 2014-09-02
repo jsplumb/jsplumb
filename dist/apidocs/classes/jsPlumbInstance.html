@@ -636,6 +636,13 @@ A jsPlumbInstance manages a set of Endpoints and Connections.</p>
                             </li>
                         
                             <li class="index-item method">
+                                <a href="#method_setHoverSuspended">setHoverSuspended</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_setIdChanged">setIdChanged</a>
 
                                 
@@ -1893,7 +1900,7 @@ you have some common settings to share between multiple <code>connect</code> cal
                     
                         <span class="type"><a href="../classes/Connection.html" class="crosslink">Connection</a></span>:
                     
-                    <p>The Connection that was created.</p>
+                    <p>The Connection that was created, or null if either the source or target element was not found (in which case the missin element is also logged).</p>
 
                 
             </div>
@@ -7496,6 +7503,96 @@ to use a different key for the default scope.</p>
 </div>
 
                 
+                    <div id="method_setHoverSuspended" class="method item">
+    <h3 class="name"><code>setHoverSuspended</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>hover</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/doc_api_jsplumb-api.js.html#l318"><code>doc&#x2F;api&#x2F;jsplumb-api.js:318</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets whether or not hover effects should be suspended. jsPlumb uses this internally during various
+drag/drop operations, and it is exposed because it might also be useful for you too.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">hover</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>whether or not to set hover suspended.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method_setIdChanged" class="method item">
     <h3 class="name"><code>setIdChanged</code></h3>
 
@@ -8125,118 +8222,6 @@ method.</p>
             
                 <li class="arg">
                     
-                        <code class="optional">[doNotRepaintAfterwards=false]</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/doc_api_jsplumb-api.js.html#l694"><code>doc&#x2F;api&#x2F;jsplumb-api.js:694</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Sets whether or not drawing is suspended. you should use this when doing bulk painting, like when first drawing a UI.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">val</code>
-                        <span class="type">Boolean</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>Whether or not to suspend drawing.</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name optional">[doNotRepaintAfterwards=false]</code>
-                        <span class="type">Boolean</span>
-                        <span class="flag optional" title="This parameter is optional.">optional</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>If true, jsPlumb won&#39;t run a full repaint. Otherwise it will.</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_setSuspendDrawing" class="method item">
-    <h3 class="name"><code>setSuspendDrawing</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>val</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
                         <code class="optional">[repaintAfterwards=false]</code>
                     
                 </li>
@@ -8319,6 +8304,118 @@ it will save you a lot of time.</p>
 
                     <div class="param-description">
                         <p>Instructs jsPlumb to do a full repaint after changing the suspension state.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_setSuspendDrawing" class="method item">
+    <h3 class="name"><code>setSuspendDrawing</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>val</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[doNotRepaintAfterwards=false]</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/doc_api_jsplumb-api.js.html#l694"><code>doc&#x2F;api&#x2F;jsplumb-api.js:694</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets whether or not drawing is suspended. you should use this when doing bulk painting, like when first drawing a UI.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">val</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Whether or not to suspend drawing.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[doNotRepaintAfterwards=false]</code>
+                        <span class="type">Boolean</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>If true, jsPlumb won&#39;t run a full repaint. Otherwise it will.</p>
 
                     </div>
 

@@ -57,6 +57,10 @@
         this.endpointStyles = [];
             
         var _jsPlumb = this._jsPlumb.instance;
+
+        _jsPlumb.manage(this.sourceId, this.source);
+        _jsPlumb.manage(this.targetId, this.target);
+
         this._jsPlumb.visible = true;
         this._jsPlumb.editable = params.editable === true;    
         this._jsPlumb.params = {

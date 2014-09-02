@@ -215,6 +215,10 @@
 			removeClass : function(clazz) {
 			    jsPlumbAdapter.removeClass(this.canvas, clazz);
 			},
+
+            updateClasses : function(classesToAdd, classesToRemove) {
+                jsPlumbAdapter.updateClasses(this.canvas, classesToAdd, classesToRemove);
+            },
 			
 			setType : function(typeId, params, doNotRepaint) {	
 				this.clearTypes();			
@@ -723,6 +727,8 @@
 		        // to anything.         
 		        endpointsByElement = {},
 		        endpointsByUUID = {},
+                // SP new
+                managedElements = {},
 		        offsets = {},
 		        offsetTimestamps = {},
 		        floatingConnections = {},
@@ -1107,26 +1113,34 @@
 			factory method to prepare a new endpoint.  this should always be used instead of creating Endpoints
 			manually, since this method attaches event listeners and an id.
 		*/
-		_newEndpoint = function(params) {
-				var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
-				var _p = jsPlumb.extend({}, params);
-				_p._jsPlumb = _currentInstance;
-                _p.newConnection = _newConnection;
-                _p.newEndpoint = _newEndpoint;                
-                _p.endpointsByUUID = endpointsByUUID;             
-                _p.endpointsByElement = endpointsByElement;  
-                _p.finaliseConnection = _finaliseConnection;
-                _p.fireDetachEvent = fireDetachEvent;
-                _p.fireMoveEvent = fireMoveEvent;
-                _p.floatingConnections = floatingConnections;
-                _p.elementId = _getId(_p.source);                
-				var ep = new endpointFunc(_p);			
-				ep.id = "ep_" + _idstamp();
-				_eventFireProxy("click", "endpointClick", ep);
-				_eventFireProxy("dblclick", "endpointDblClick", ep);
-				_eventFireProxy("contextmenu", "contextmenu", ep);
-				if (!jsPlumbAdapter.headless)
-					_currentInstance.dragManager.endpointAdded(_p.source);
+		_newEndpoint = function(params, id) {
+            //console.cTimeStart("new endpoint");
+            var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
+            var _p = jsPlumb.extend({}, params);
+            _p._jsPlumb = _currentInstance;
+            _p.newConnection = _newConnection;
+            _p.newEndpoint = _newEndpoint;
+            _p.endpointsByUUID = endpointsByUUID;
+            _p.endpointsByElement = endpointsByElement;
+            _p.finaliseConnection = _finaliseConnection;
+            _p.fireDetachEvent = fireDetachEvent;
+            _p.fireMoveEvent = fireMoveEvent;
+            _p.floatingConnections = floatingConnections;
+            _p.elementId = id || _getId(_p.source);
+        //console.cTimeStart("endpoint constructor");
+            var ep = new endpointFunc(_p);
+        //console.cTimeEnd("endpoint constructor");
+            ep.id = "ep_" + _idstamp();
+
+            _manage(_p.elementId, _p.source);
+
+            ////console.cTimeStart("register endpoint");
+            if (!jsPlumbAdapter.headless)
+                _currentInstance.dragManager.endpointAdded(_p.source, id);
+            ////console.cTimeEnd("register endpoint");
+
+            //console.cTimeEnd("new endpoint");
+
 			return ep;
 		},
 		
@@ -1225,47 +1239,6 @@
 			// _operation(elId, f) call as a function. cos _toggleDraggable does
 			// that.
 		},
-		/**
-		 * updates the offset and size for a given element, and stores the
-		 * values. if 'offset' is not null we use that (it would have been
-		 * passed in from a drag call) because it's faster; but if it is null,
-		 * or if 'recalc' is true in order to force a recalculation, we get the current values.
-		 */
-		_updateOffset = this.updateOffset = function(params) {
-			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
-			if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
-			if (!recalc) {
-				if (timestamp && timestamp === offsetTimestamps[elId]) {			
-					return {o:params.offset || offsets[elId], s:sizes[elId]};
-				}
-			}			
-			if (recalc || !offset) { // if forced repaint or no offset available, we recalculate.
-				// get the current size and offset, and store them
-				s = document.getElementById(elId);
-				if (s != null) {						
-					sizes[elId] = _currentInstance.getSize(s);
-					offsets[elId] = _getOffset(s, _currentInstance);
-					offsetTimestamps[elId] = timestamp;
-				}
-			} else {
-				offsets[elId] = offset;
-                if (sizes[elId] == null) {
-                    s = document.getElementById(elId);
-                    if (s != null) sizes[elId] = _currentInstance.getSize(s);
-                }
-                offsetTimestamps[elId] = timestamp;
-            }
-			
-			if(offsets[elId] && !offsets[elId].right) {
-				offsets[elId].right = offsets[elId].left + sizes[elId][0];
-				offsets[elId].bottom = offsets[elId].top + sizes[elId][1];	
-				offsets[elId].width = sizes[elId][0];
-				offsets[elId].height = sizes[elId][1];	
-				offsets[elId].centerx = offsets[elId].left + (offsets[elId].width / 2);
-				offsets[elId].centery = offsets[elId].top + (offsets[elId].height / 2);				
-			}
-			return {o:offsets[elId], s:sizes[elId]};
-		},
 
 		// TODO comparison performance
 		_getCachedData = function(elId) {
@@ -1334,46 +1307,52 @@
 		this.SVG = "svg";
 		this.VML = "vml";				
 
-// --------------------------- jsPLumbInstance public API ---------------------------------------------------------
-					
-		
-		this.addEndpoint = function(el, params, referenceParams) {
-			referenceParams = referenceParams || {};
-			var p = jsPlumb.extend({}, referenceParams);
-			jsPlumb.extend(p, params);
-			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint;
-			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle;
+// --------------------------- jsPlumbInstance public API ---------------------------------------------------------
+
+
+        this.addEndpoint = function(el, params, referenceParams) {
+            referenceParams = referenceParams || {};
+            var p = jsPlumb.extend({}, referenceParams);
+            jsPlumb.extend(p, params);
+            p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint;
+            p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle;
             // YUI wrapper
-			el = _convertYUICollection(el);							
+            el = _convertYUICollection(el);
 
-			var results = [], 
-				inputs = (_ju.isArray(el) || (el.length != null && !_ju.isString(el))) ? el : [ el ];
-						
-			for (var i = 0, j = inputs.length; i < j; i++) {
-				var _el = _currentInstance.getDOMElement(inputs[i]), id = _getId(_el);
-				p.source = _el;
+            var results = [],
+                inputs = (_ju.isArray(el) || (el.length != null && !_ju.isString(el))) ? el : [ el ];
 
-				_ensureContainer(p.source);
-                _updateOffset({ elId : id, timestamp:_suspendedAt });
-				var e = _newEndpoint(p);
-				if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
-				_ju.addToList(endpointsByElement, id, e);
-				var myOffset = offsets[id], 
-					myWH = sizes[id],
-					anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e, timestamp:_suspendedAt }),
-					endpointPaintParams = { anchorLoc : anchorLoc, timestamp:_suspendedAt };
-				
-				if (_suspendDrawing) endpointPaintParams.recalc = false;
-				if (!_suspendDrawing) e.paint(endpointPaintParams);
-				
-				results.push(e);
-				e._doNotDeleteOnDetach = true; // mark this as being added via addEndpoint.				
-			}
-			
-			return results.length == 1 ? results[0] : results;
-		};
-		
-		
+            for (var i = 0, j = inputs.length; i < j; i++) {
+                p.source = _currentInstance.getDOMElement(inputs[i]);
+                _ensureContainer(p.source);
+
+                var id = _getId(p.source), e = _newEndpoint(p, id);
+
+                // SP new. here we have introduced a class-wide element manager, which is responsible
+                // for getting object dimensions and width/height, and for updating these values only
+                // when necessary (after a drag, or on a forced refresh call).
+                var myOffset = _manage(id, p.source).info.o;
+
+
+
+                if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
+                _ju.addToList(endpointsByElement, id, e);
+
+                if (!_suspendDrawing) {
+
+                    e.paint({
+                        anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: sizes[id], element: e, timestamp: _suspendedAt }),
+                        timestamp: _suspendedAt
+                    });
+                }
+
+                results.push(e);
+                e._doNotDeleteOnDetach = true; // mark this as being added via addEndpoint.
+            }
+
+            return results.length == 1 ? results[0] : results;
+        };
+
 		this.addEndpoints = function(el, endpoints, referenceParams) {
 			var results = [];
 			for ( var i = 0, j = endpoints.length; i < j; i++) {
@@ -1459,6 +1438,14 @@
 			// will return null (and log something) if either endpoint was full.  what would be nicer is to 
 			// create a dedicated 'error' object.
 			if (_p) {
+                if (_p.source == null && _p.sourceEndpoint == null) {
+                    jsPlumbUtil.log("Cannot establish connection - source does not exist");
+                    return;
+                }
+                if (_p.target == null && _p.targetEndpoint == null) {
+                    jsPlumbUtil.log("Cannot establish connection - target does not exist");
+                    return;
+                }
 				_ensureContainer(_p.source);
 				// create the connection.  it is not yet registered 
 				jpc = _newConnection(_p);
@@ -1555,13 +1542,15 @@
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0, j = endpoints.length; i < j; i++) {
-//                        console.cTimeStart("delete endpoint");
+//                        //console.cTimeStart("delete endpoint");
 						_currentInstance.deleteEndpoint(endpoints[i], true);
-  //                      console.cTimeEnd("delete endpoint");
+  //                      //console.cTimeEnd("delete endpoint");
 					}
 				}
 			}			
-			endpointsByElement = {};			
+			endpointsByElement = {};
+            // SP new
+            managedElements = {};
 			endpointsByUUID = {};
 			_currentInstance.anchorManager.reset();
 			_currentInstance.dragManager.reset();							
@@ -1998,8 +1987,7 @@
 		 */
 		this.getId = _getId;
 		this.getOffset = function(id) { 
-			var o = offsets[id]; 
-			return _updateOffset({elId:id});
+			return _updateOffset({elId:id}).o;
 		};
 		
 		this.appendElement = _appendElement;
@@ -2049,6 +2037,82 @@
 			if (_currentInstance.Defaults.Container)
                 	  _currentInstance.setContainer(_currentInstance.Defaults.Container);
 		};
+
+        // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
+        // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
+            // TODO make sure we add a test that this tracks a setId call.
+        var _manage = _currentInstance.manage = function(id, element) {
+            if (!managedElements[id]) {
+                managedElements[id] = {
+                    el:element,
+                    endpoints:[],
+                    connections:[]
+                };
+
+                managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
+
+             /*   if (!_suspendDrawing) {
+                    managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
+                }*/
+            }
+
+            return managedElements[id];
+        };
+
+        var _unmanage = function(id) {
+            delete managedElements[id];
+        };
+
+        /**
+         * updates the offset and size for a given element, and stores the
+         * values. if 'offset' is not null we use that (it would have been
+         * passed in from a drag call) because it's faster; but if it is null,
+         * or if 'recalc' is true in order to force a recalculation, we get the current values.
+         */
+        var _updateOffset = this.updateOffset = function(params) {
+
+            var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
+            if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
+            if (!recalc) {
+                if (timestamp && timestamp === offsetTimestamps[elId]) {
+                    return {o:params.offset || offsets[elId], s:sizes[elId]};
+                }
+            }
+            if (recalc || (!offset && offsets[elId] == null)) { // if forced repaint or no offset available, we recalculate.
+
+                //console.cTimeStart("updateOffset-" + params.elId);
+
+                // get the current size and offset, and store them
+                //s = document.getElementById(elId);
+                s = managedElements[elId].el;
+                if (s != null) {
+                    sizes[elId] = _currentInstance.getSize(s);
+                    offsets[elId] = _getOffset(s, _currentInstance);
+                    offsetTimestamps[elId] = timestamp;
+                }
+
+                //console.cTimeEnd("updateOffset-" + params.elId);
+            } else {
+                offsets[elId] = offset || offsets[elId];
+                if (sizes[elId] == null) {
+                    //s = document.getElementById(elId);
+                    s = managedElements[elId].el;
+                    if (s != null) sizes[elId] = _currentInstance.getSize(s);
+                }
+                offsetTimestamps[elId] = timestamp;
+            }
+
+            if(offsets[elId] && !offsets[elId].right) {
+                offsets[elId].right = offsets[elId].left + sizes[elId][0];
+                offsets[elId].bottom = offsets[elId].top + sizes[elId][1];
+                offsets[elId].width = sizes[elId][0];
+                offsets[elId].height = sizes[elId][1];
+                offsets[elId].centerx = offsets[elId].left + (offsets[elId].width / 2);
+                offsets[elId].centery = offsets[elId].top + (offsets[elId].height / 2);
+            }
+
+            return {o:offsets[elId], s:sizes[elId]};
+        };
 		
 		/**
 		 * callback from the current library to tell us to prepare ourselves (attach
@@ -2787,6 +2851,7 @@
             	_currentInstance.anchorManager.clearFor(info.id);						
             	_currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
+            _unmanage(info.id);
             if (info.el) _currentInstance.removeElement(info.el);
 			return _currentInstance;
         };
@@ -2818,10 +2883,10 @@
 		
 		this.reset = function() {
 
-            //console.cTimeStart("delete every endpoint");
+            ////console.cTimeStart("delete every endpoint");
 			_currentInstance.deleteEveryEndpoint();
             //_currentInstance.clear();
-            //console.cTimeEnd("delete every endpoint");
+            ////console.cTimeEnd("delete every endpoint");
 
             _currentInstance.unbind();
 			this.targetEndpointDefinitions = {};
@@ -2898,6 +2963,8 @@
 
 			this.anchorManager.changeId(id, newId);
 			if (this.dragManager) this.dragManager.changeId(id, newId);
+            managedElements[newId] = managedElements[id];
+            delete managedElements[id];
 
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0, ii = list.length; i < ii; i++) {

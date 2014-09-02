@@ -155,9 +155,11 @@
 			node, looking for a parent that has been registered as a draggable. if we find one, we add this
 			el to that parent's list of elements to update on drag (if it is not there already)
 		*/
-		this.endpointAdded = function(el) {
+		this.endpointAdded = function(el, id) {
 
-			var b = document.body, id = _currentInstance.getId(el),
+            id = id || _currentInstance.getId(el);
+
+			var b = document.body,
 				p = el.parentNode;
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
@@ -165,7 +167,7 @@
 			while (p != null && p != b) {
 				var pid = _currentInstance.getId(p, null, true);
 				if (pid && _draggables[pid]) {
-					var idx = -1, pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
+					var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
 
 					if (_delements[pid][id] == null) {
                         var cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
@@ -305,6 +307,35 @@
 			}
 			_setClassName(el, curClasses.join(" "));
 		},
+        _classManipNew = function(el, classesToAdd, classesToRemove) {
+
+            // TODO if classList exists, use it.
+
+            classesToAdd = classesToAdd == null ? [] : jsPlumbUtil.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
+            classesToRemove= classesToRemove== null ? [] : jsPlumbUtil.isArray(classesToRemove) ? classesToRemove: classesToRemove.split(/\s+/);
+
+            var className = _getClassName(el),
+                curClasses = className.split(/\s+/);
+
+            var _oneSet = function(add, classes) {
+                for (var i = 0; i < classes.length; i++) {
+                    if (add) {
+                        if (jsPlumbUtil.indexOf(curClasses, classes[i]) == -1)
+                            curClasses.push(classes[i]);
+                    }
+                    else {
+                        var idx = jsPlumbUtil.indexOf(curClasses, classes[i]);
+                        if (idx != -1)
+                            curClasses.splice(idx, 1);
+                    }
+                }
+            };
+
+            _oneSet(true, classesToAdd);
+            _oneSet(false, classesToRemove);
+
+            _setClassName(el, curClasses.join(" "));
+        },
 		_each = function(spec, fn) {
 			if (spec == null) return;
 			if (typeof spec === "string")
@@ -369,7 +400,7 @@
         },
 		addClass:function(el, clazz) {
 			_each(el, function(e) {
-				_classManip(e, true, clazz);
+				_classManipNew(e, clazz);
 			});
 		},
 		hasClass:function(el, clazz) {
@@ -381,9 +412,14 @@
 		},
 		removeClass:function(el, clazz) {
 			_each(el, function(e) {
-				_classManip(e, false, clazz);
+				_classManipNew(e, null, clazz);
 			});
 		},
+        updateClasses:function(el, toAdd, toRemove) {
+            _each(el, function(e) {
+                _classManipNew(e, toAdd, toRemove);
+            });
+        },
 		setClass:function(el, clazz) {
 			_each(el, function(e) {
 				_setClassName(e, clazz);
@@ -474,7 +510,7 @@
 			  el.style.left = xy[0] + "px";
 			  el.style.top = xy[1] + "px";
 		  }
-    },
+    }
 
 
 
