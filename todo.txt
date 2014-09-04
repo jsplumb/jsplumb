@@ -103,7 +103,7 @@ future
 
         ---
 
-        makeTarget when elements verlap:
+        makeTarget when elements overlap:
 
         https://groups.google.com/forum/?fromgroups#!topic/jsplumb/C9d217E34oo
 

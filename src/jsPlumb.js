@@ -1802,8 +1802,7 @@
 						if (doNotGetIds) r = input;
 						else { 
 							if (input.length) {
-								//input = _currentInstance.getElementObject(input);
-								for (var i = 0, j = input.length; i < j; i++) 
+								for (var i = 0, j = input.length; i < j; i++)
 									r.push(_info(input[i]).id);
 							}
 							else

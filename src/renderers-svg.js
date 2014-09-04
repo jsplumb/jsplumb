@@ -327,6 +327,7 @@
 					
 					if (self.bgPath == null) {
 						self.bgPath = _node("path", a);
+                        //jsPlumbAdapter.addClass(self.bgPath, "jsplumb-connector-path");
 				    	_appendAtIndex(self.svg, self.bgPath, 0);
 			    		//self.attachListeners(self.bgPath, self, mouseInOutFilters);
 					}
@@ -339,6 +340,7 @@
 				
 		    	if (self.path == null) {
 			    	self.path = _node("path", a);
+                    //jsPlumbAdapter.addClass(self.path, "jsplumb-connector-path");
 					_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
 			    	//self.attachListeners(self.path, self, mouseInOutFilters);
 		    	}

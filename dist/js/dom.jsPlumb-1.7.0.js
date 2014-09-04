@@ -1620,6 +1620,7 @@
                     //console.cTimeEnd("new k drag");
                     _reg(_el._katavorioDrag, _dragsByScope);
                     o.push(_el._katavorioDrag);
+                    katavorioParams.addClass(_el, _css.draggable);
                 }
             });
             //console.cTimeEnd("kat draggable");
@@ -1634,6 +1635,7 @@
                     _el._katavorioDrop = new Drop(_el, _prepareParams(params), _css, _scope);
                     _reg(_el._katavorioDrop, _dropsByScope);
                     o.push(_el._katavorioDrop);
+                    katavorioParams.addClass(_el, _css.droppable);
                 }
             });
             return o;
@@ -4612,8 +4614,7 @@ if (typeof console != "undefined") {
 						if (doNotGetIds) r = input;
 						else { 
 							if (input.length) {
-								//input = _currentInstance.getElementObject(input);
-								for (var i = 0, j = input.length; i < j; i++) 
+								for (var i = 0, j = input.length; i < j; i++)
 									r.push(_info(input[i]).id);
 							}
 							else
@@ -4894,7 +4895,7 @@ if (typeof console != "undefined") {
 
                 // get the current size and offset, and store them
                 //s = document.getElementById(elId);
-                s = managedElements[elId].el;
+                s = managedElements[elId] ? managedElements[elId].el : null;
                 if (s != null) {
                     sizes[elId] = _currentInstance.getSize(s);
                     offsets[elId] = _getOffset(s, _currentInstance);
@@ -9916,6 +9917,57 @@ if (typeof console != "undefined") {
 
 /*
  * jsPlumb
+ *
+ * Title:jsPlumb 1.7.0
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.
+ *
+ * This file contains the base class for library adapters. From 1.7.0 onwards all event management internal to jsPlumb is handled
+ * through Mottle, regardless of the underlying library. Dragging - and the events associated with it - is still handled
+ * by the library.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
+;(function() {
+    "use strict";
+
+    var _getEventManager = function(instance) {
+        var e = instance._mottle;
+        if (!e) {
+            e = instance._mottle = new Mottle();
+        }
+        return e;
+    };
+
+    jsPlumb.extend(jsPlumbInstance.prototype, {
+        getEventManager:function() {
+            return _getEventManager(this)
+        },
+        //           EVENTS
+        // e.originalEvent is for jQuery; in Vanilla jsPlumb we get the native event.
+
+        on : function(el, event, callback) {
+            // TODO: here we would like to map the tap event if we know its
+            // an internal bind to a click. we have to know its internal because only
+            // then can we be sure that the UP event wont be consumed (tap is a synthesized
+            // event from a mousedown followed by a mouseup).
+            //event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
+            this.getEventManager().on.apply(this, arguments);
+        },
+        off : function(el, event, callback) {
+            this.getEventManager().off.apply(this, arguments);
+        }
+    });
+
+
+}).call(this);
+/*
+ * jsPlumb
  * 
  * Title:jsPlumb 1.7.0
  * 
@@ -10955,6 +11007,7 @@ if (typeof console != "undefined") {
 					
 					if (self.bgPath == null) {
 						self.bgPath = _node("path", a);
+                        //jsPlumbAdapter.addClass(self.bgPath, "jsplumb-connector-path");
 				    	_appendAtIndex(self.svg, self.bgPath, 0);
 			    		//self.attachListeners(self.bgPath, self, mouseInOutFilters);
 					}
@@ -10967,6 +11020,7 @@ if (typeof console != "undefined") {
 				
 		    	if (self.path == null) {
 			    	self.path = _node("path", a);
+                    //jsPlumbAdapter.addClass(self.path, "jsplumb-connector-path");
 					_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
 			    	//self.attachListeners(self.path, self, mouseInOutFilters);
 		    	}
@@ -11743,7 +11797,7 @@ if (typeof console != "undefined") {
 	 var _getDragManager = function(instance, isPlumbedComponent) {
 
 		var k = instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"],
-			e = _getEventManager(instance);
+			e = instance.getEventManager();
 			
 		if (!k) {
 			k = new Katavorio( {
@@ -11777,14 +11831,6 @@ if (typeof console != "undefined") {
 		}
 		return k;
 	};
-
-	 var _getEventManager = function(instance) {
-		 var e = instance._mottle;
-		 if (!e) {
-			 e = instance._mottle = new Mottle();
-		 }
-		 return e;
-	 };
 	 
 	 var _animProps = function(o, p) {
 		var _one = function(pName) {
@@ -11816,7 +11862,7 @@ if (typeof console != "undefined") {
 		getElementObject:function(el) { return el; },
 		removeElement : function(element) {
 			_getDragManager(this).elementRemoved(element);
-			_getEventManager(this).remove(element);
+			this.getEventManager().remove(element);
 		},
 		//
 		// this adapter supports a rudimentary animation function. no easing is supported.  only
@@ -11930,27 +11976,18 @@ if (typeof console != "undefined") {
 		clearDragSelection:function() {
 			_getDragManager(this).deselectAll();
 		},
-//           EVENTS
-		trigger : function(el, event, originalEvent) { 
-			_getEventManager(this).trigger(el, event, originalEvent);
-		},
-		getOriginalEvent : function(e) { return e; },
-		on : function(el, event, callback) {
-			// TODO: here we would like to map the tap event if we know its
-			// an internal bind to a click. we have to know its internal because only
-			// then can we be sure that the UP event wont be consumed (tap is a synthesized
-			// event from a mousedown followed by a mouseup).
-			//event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-			_getEventManager(this).on.apply(this, arguments);
-		},
-		off : function(el, event, callback) {
-			_getEventManager(this).off.apply(this, arguments);
-		}
-	});
+        getOriginalEvent : function(e) { return e; },
+        // each adapter needs to use its own trigger method, because it triggers a drag. Mottle's trigger method
+        // works perfectly well but does not cause a drag to start with jQuery. Presumably this is due to some
+        // intricacy in the way in which jQuery UI's draggable method registers events.
+        trigger : function(el, event, originalEvent) {
+            this.getEventManager().trigger(el, event, originalEvent);
+        }
+    });
 
 	var ready = function (f) {
 		var _do = function() {
-			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "1.7.0" && document.body != null)
+			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "undefined" && document.body != null)
 	            f();	        
 	        else
 	            setTimeout(_do, 9);

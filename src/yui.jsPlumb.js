@@ -319,10 +319,10 @@
 		},
 		getOriginalEvent : function(e) {
 			return e._event;
-		},
+		}/*,
 		/**
 		 * event binding wrapper.  
-		 */
+		 *
 		on : function(el, event, callback) {
 			var els = jsPlumbUtil.isString(el) || typeof el.length == "1.7.0" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
 			for (var i = 0; i < els.length; i++)
@@ -332,9 +332,9 @@
 		
 		/**
 		 * event unbinding wrapper.  
-		 */
+		 *
 		off : function(el, event, callback) {
 			_getElementObject(el).detach(event, callback);
-		}
+		}*/
 	});
 })();

@@ -100,8 +100,8 @@
 				var options = _droppableOptions[id];
 				if (options) {
 					if (options.hoverClass) {
-						if (entering) el.addClass(options.hoverClass);
-						else el.removeClass(options.hoverClass);
+						if (entering) jsPlumbAdapter.addClass(el, options.hoverClass);
+						else jsPlumbAdapter.removeClass(el, options.hoverClass);
 					}
 				}
 			}
@@ -333,8 +333,7 @@
 			var filterFunc = function(entry) {
 				return entry.get("id") != el.get("id");
 			};
-			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
-			drag.droppables = droppables;
+            drag.droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
 		},
 		
 		dragEvents : {
@@ -357,19 +356,9 @@
 			originalEvent.stopPropagation();
 			_getElementObject(el).fireEvent(event, originalEvent);
 		},
-		
+
 		getOriginalEvent : function(e) {
-			return e.event;
-		},
-		on : function(el, event, callback) {
-			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
-			//el = _getElementObject(el);
-			for (var i = 0; i < els.length; i++)
-				els[i].addEvent(event, callback);
-		},
-		off : function(el, event, callback) {
-			el = _getElementObject(el);
-			el.removeEvent(event, callback);
+			return e.event || e;
 		},
 		reset:function() {
 

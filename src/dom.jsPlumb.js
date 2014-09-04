@@ -21,7 +21,7 @@
 	 var _getDragManager = function(instance, isPlumbedComponent) {
 
 		var k = instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"],
-			e = _getEventManager(instance);
+			e = instance.getEventManager();
 			
 		if (!k) {
 			k = new Katavorio( {
@@ -55,14 +55,6 @@
 		}
 		return k;
 	};
-
-	 var _getEventManager = function(instance) {
-		 var e = instance._mottle;
-		 if (!e) {
-			 e = instance._mottle = new Mottle();
-		 }
-		 return e;
-	 };
 	 
 	 var _animProps = function(o, p) {
 		var _one = function(pName) {
@@ -94,7 +86,7 @@
 		getElementObject:function(el) { return el; },
 		removeElement : function(element) {
 			_getDragManager(this).elementRemoved(element);
-			_getEventManager(this).remove(element);
+			this.getEventManager().remove(element);
 		},
 		//
 		// this adapter supports a rudimentary animation function. no easing is supported.  only
@@ -208,27 +200,18 @@
 		clearDragSelection:function() {
 			_getDragManager(this).deselectAll();
 		},
-//           EVENTS
-		trigger : function(el, event, originalEvent) { 
-			_getEventManager(this).trigger(el, event, originalEvent);
-		},
-		getOriginalEvent : function(e) { return e; },
-		on : function(el, event, callback) {
-			// TODO: here we would like to map the tap event if we know its
-			// an internal bind to a click. we have to know its internal because only
-			// then can we be sure that the UP event wont be consumed (tap is a synthesized
-			// event from a mousedown followed by a mouseup).
-			//event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-			_getEventManager(this).on.apply(this, arguments);
-		},
-		off : function(el, event, callback) {
-			_getEventManager(this).off.apply(this, arguments);
-		}
-	});
+        getOriginalEvent : function(e) { return e; },
+        // each adapter needs to use its own trigger method, because it triggers a drag. Mottle's trigger method
+        // works perfectly well but does not cause a drag to start with jQuery. Presumably this is due to some
+        // intricacy in the way in which jQuery UI's draggable method registers events.
+        trigger : function(el, event, originalEvent) {
+            this.getEventManager().trigger(el, event, originalEvent);
+        }
+    });
 
 	var ready = function (f) {
 		var _do = function() {
-			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "1.7.0" && document.body != null)
+			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "undefined" && document.body != null)
 	            f();	        
 	        else
 	            setTimeout(_do, 9);

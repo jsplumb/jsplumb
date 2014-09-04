@@ -207,42 +207,21 @@
 		animEvents:{
 			'step':"step", 'complete':'complete'
 		},
+        getOriginalEvent : function(e) { return e.originalEvent || e; },
+        /**
+         * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
+         * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
+         * from the originalEvent to put in an options object for YUI.
+         * @param el
+         * @param event
+         * @param originalEvent
+         */
+        trigger : function(el, event, originalEvent) {
+            var h = jQuery._data(_getElementObject(el)[0], "handle");
+            h(originalEvent);
+        }
 		
 // -------------------------------------- END DRAG/DROP	---------------------------------		
-
-// -------------------------------------- EVENTS	---------------------------------		
-
-		/**
-		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
-		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
-		 * from the originalEvent to put in an options object for YUI. 
-		 * @param el
-		 * @param event
-		 * @param originalEvent
-		 */
-		trigger : function(el, event, originalEvent) {
-			var h = jQuery._data(_getElementObject(el)[0], "handle");
-            h(originalEvent);
-		},
-		getOriginalEvent : function(e) {
-			return e.originalEvent;
-		},
-
-		// note: for jquery we support the delegation stuff here
-		on : function(el, event, callback) {
-			el = _getElementObject(el);
-			var a = []; a.push.apply(a, arguments);
-			el.on.apply(el, a.slice(1));
-		},				
-		
-		// note: for jquery we support the delegation stuff here
-		off : function(el, event, callback) {
-			el = _getElementObject(el);
-			var a = []; a.push.apply(a, arguments);
-			el.off.apply(el, a.slice(1));
-		}
-
-// -------------------------------------- END EVENTS	---------------------------------		
 
 	});
 

@@ -21,9 +21,9 @@ var versions = {
         [ "animation", "Animation" ]
     ],
     extraLibraries = {
-        jquery:[],
-        mootools:[],
-        yui:[],
+        jquery:[ get("MOTTLE") ],
+        mootools:[ get("MOTTLE") ],
+        yui:[ get("MOTTLE") ],
         dom:[ get("MOTTLE"), get("KATAVORIO") ]
     }
     objects = {
@@ -34,7 +34,7 @@ var versions = {
             "svg", "vml"
         ],
         common:[
-            'util.js', 'browser-util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js'
+            'util.js', 'browser-util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js'
         ]
     },
     optionList = function(grunt, type) {
