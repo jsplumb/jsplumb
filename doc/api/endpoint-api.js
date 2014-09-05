@@ -126,7 +126,13 @@
 /**
 * @method isVisible
 * @return {Boolean} Whether or not the Endpoint is currently visible.
-*/ 
+*/
+
+/**
+ * @method isConnectedTo
+ * @param {Endpoint} endpoint
+ * @return {Boolean} Whether or not this Endpoint is connected to the given Endpoint.
+ */
 
 /**
 * Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in 
