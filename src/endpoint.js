@@ -1008,6 +1008,18 @@
         isFloating : function() {
             return this.anchor != null && this.anchor.isFloating;
         },
+        isConnectedTo : function(endpoint) {
+            var found = false;
+            if (endpoint) {
+                for ( var i = 0; i < this.connections.length; i++) {
+                    if (this.connections[i].endpoints[1] == endpoint || this.connections[i].endpoints[0] == endpoint) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            return found;
+        },
         getConnectionCost : function() { return this._jsPlumb.connectionCost; },
         setConnectionCost : function(c) {
             this._jsPlumb.connectionCost = c; 
