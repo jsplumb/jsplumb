@@ -354,6 +354,16 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertConnectionCount(e4, 3);
 	});
 
+
+    test(': endpoint.isConnectdTo', function() {
+        var d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var e3 = _jsPlumb.addEndpoint(d3, {isSource:true, maxConnections:-1});
+        var e4 = _jsPlumb.addEndpoint(d4, {isSource:true, maxConnections:-1});
+        _jsPlumb.connect({sourceEndpoint:e3, targetEndpoint:e4});
+        ok(e3.isConnectedTo(e4), "e3 is connected to e4");
+        ok(e4.isConnectedTo(e3), "e4 is connected to e3");
+    });
+
 // ************** ANCHORS ********************************************	
 	
 	test(': anchors equal', function() {
