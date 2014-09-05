@@ -269,7 +269,7 @@
 	/*
 	 * Base class for SVG connectors.
 	 */ 
-	var SvgConnector = jsPlumb.ConnectorRenderers.svg = function(params) {
+	jsPlumb.ConnectorRenderers.svg = function(params) {
 		var self = this,
 			_super = SvgComponent.apply(this, [ { 
 				cssClass:params._jsPlumb.connectorClass, 
@@ -305,31 +305,19 @@
 					}, 
 	                outlineStyle = null,
 	                d = [self.x,self.y,self.w,self.h];
-					
-				/*var mouseInOutFilters = {
-					"mouseenter":function(e) {
-						var rt = e.relatedTarget;
-						return rt == null || (rt != self.path && rt != self.bgPath);
-					},
-					"mouseout":function(e) {
-						var rt = e.relatedTarget;
-						return rt == null || (rt != self.path && rt != self.bgPath);
-					}
-				};*/
-				
+
 				// outline style.  actually means drawing an svg object underneath the main one.
 				if (style.outlineColor) {
 					var outlineWidth = style.outlineWidth || 1,
 						outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
 					outlineStyle = jsPlumb.extend({}, style);
+                    delete outlineStyle.gradient;
 					outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
 					outlineStyle.lineWidth = outlineStrokeWidth;
 					
 					if (self.bgPath == null) {
 						self.bgPath = _node("path", a);
-                        //jsPlumbAdapter.addClass(self.bgPath, "jsplumb-connector-path");
-				    	_appendAtIndex(self.svg, self.bgPath, 0);
-			    		//self.attachListeners(self.bgPath, self, mouseInOutFilters);
+                        _appendAtIndex(self.svg, self.bgPath, 0);
 					}
 					else {
 						_attr(self.bgPath, a);
@@ -340,9 +328,7 @@
 				
 		    	if (self.path == null) {
 			    	self.path = _node("path", a);
-                    //jsPlumbAdapter.addClass(self.path, "jsplumb-connector-path");
-					_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
-			    	//self.attachListeners(self.path, self, mouseInOutFilters);
+                    _appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
 		    	}
 		    	else {
 		    		_attr(self.path, a);
