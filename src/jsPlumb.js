@@ -2588,6 +2588,9 @@
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {
 						var evt = this.getOriginalEvent(e);
+                        // on right mouse button, abort.
+                        if (e.which === 3 || e.button === 2) return;
+
 						var def = this.sourceEndpointDefinitions[idToRegisterAgainst];
 						elid = this.getId(this.getDOMElement(_el)); // elid might have changed since this method was called to configure the element.
 						
