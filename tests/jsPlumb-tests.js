@@ -5758,6 +5758,10 @@ test(" clearTypes", function() {
 		jsPlumbUtil.replace(d, f6, 99);
 		equal(d.foo.qux[6].qux, 99, f6 + " successful");
 
+        // null test
+        jsPlumbUtil.replace(null, f6, 99);
+        ok(true, "null argument ignored by util.replace");
+
 	})
 	
     
