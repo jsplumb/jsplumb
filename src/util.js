@@ -146,6 +146,7 @@ if (typeof console != "undefined") {
             return c;
         },
         replace:function(inObj, path, value) {
+            if (inObj == null) return;
             var q = inObj, t = q;
             path.replace(/([^\.])+/g, function(term, lc, pos, str) {
                 var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/),
