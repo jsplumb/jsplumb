@@ -1,14 +1,13 @@
 ;(function() {
 
-	var _initialised = false,		
-		listDiv = document.getElementById("list"),
+	var listDiv = document.getElementById("list"),
 
 		showConnectionInfo = function(s) {
-			list.innerHTML = s;
-			list.style.display = "block";
+			listDiv.innerHTML = s;
+			listDiv.style.display = "block";
 		},	
 		hideConnectionInfo = function() {
-			list.style.display = "none";
+			listDiv.style.display = "none";
 		},
 		connections = [],
 		updateConnections = function(conn, remove) {
@@ -60,6 +59,10 @@
 				// be fired.
 				updateConnections(info.connection, true);
 			});
+
+            instance.bind("click", function(component, originalEvent) {
+                alert("click!")
+            });
 
 			// configure some drop options for use by all endpoints.
 			var exampleDropOptions = {
