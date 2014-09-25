@@ -133,11 +133,11 @@
 			return sel;
 		},
 		// DRAG/DROP
-		destroyDraggable:function(el) {
-			_getDragManager(this).destroyDraggable(el);
+		destroyDraggable:function(el, isPlumbedComponent) {
+			_getDragManager(this, isPlumbedComponent).destroyDraggable(el);
 		},
-		destroyDroppable:function(el) {
-			_getDragManager(this).destroyDroppable(el);
+		destroyDroppable:function(el, isPlumbedComponent) {
+			_getDragManager(this, isPlumbedComponent).destroyDroppable(el);
 		},
 		initDraggable : function(el, options, isPlumbedComponent) {
 			_getDragManager(this, isPlumbedComponent).draggable(el, options);

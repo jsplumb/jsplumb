@@ -992,8 +992,8 @@
             this.endpoint = null;
             // drag/drop
             var i = jsPlumb.getElementObject(this.canvas);              
-            this._jsPlumb.instance.destroyDraggable(i);
-            this._jsPlumb.instance.destroyDroppable(i);
+            this._jsPlumb.instance.destroyDraggable(i, true);
+            this._jsPlumb.instance.destroyDroppable(i, true);
         },
         setHover : function(h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())
