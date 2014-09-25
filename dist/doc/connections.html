@@ -493,11 +493,11 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <p>There are two use cases supported by this method.  The first is the case that you want to drag a Connection from the element itself and have an Endpoint attached to the element when a Connection is established.  The second is a more specialised case: you want to drag a Connection from the element, but once the Connection is established you want jsPlumb to move it so that its source is on some other element.</p>
 
 <p>Here&#39;s an example code snippet for the basic use case of makeSource:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(someDiv, {
-  paintStyle:{ fillStyle:&quot;yellow&quot; },
-  endpoint:&quot;Blank&quot;,
-  anchor:&quot;BottomCenter&quot;
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span> <span class="p">},</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Blank&quot;</span><span class="p">,</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;BottomCenter&quot;</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>Notice again that the second argument is the same as the second argument to an <code>addEndpoint</code> call.  <code>makeSource</code> is, essentially, a type of <code>addEndpoint</code> call.  In this example we have told jsPlumb that we will support dragging Connections directly from <code>someDiv</code>.  Whenever a Connection is established between <code>someDiv</code> and some other element, jsPlumb assigns an Endpoint at BottomCenter of <code>someDiv</code>, fills it yellow, and sets that Endpoint as the newly created Connection&#39;s source. </p>
 
@@ -505,11 +505,11 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 
 <h5>Specifying drag source area</h5>
 
-<p>Configuring an element to be an entire Connection source using makeSource means that the element cannnot itself be draggable.  There would be no way for jsPlumb to distinguish between the user attempting to drag the element and attempting to drag a Connection from the element.  jsPlumb has two ways for you to handle this. </p>
+<p>Configuring an element to be an entire Connection source using <code>makeSource</code> means that the element cannot itself be draggable.  There would be no way for jsPlumb to distinguish between the user attempting to drag the element and attempting to drag a Connection from the element.  To handle this there is the <code>filter</code> parameter.</p>
 
 <h5>Supplying a <code>filter</code> parameter</h5>
 
-<p>This is the preferred way to handle the problem, but it works only in jQuery and Vanilla jsPlumb. How it works is that you supply a <code>filter</code> parameter to the makeSource call, which can be either a function object or a selector. Consider this markup:</p>
+<p>You can supply a <code>filter</code> parameter to the makeSource call, which can be either a function or a selector. Consider this markup:</p>
 <div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;foo&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;span&gt;</span>FOO<span class="nt">&lt;/span&gt;</span>
   <span class="nt">&lt;button&gt;</span>click me<span class="nt">&lt;/button&gt;</span>
@@ -547,26 +547,6 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 </code></pre></div>
 <p>In this example, if the filter returns anything other than a boolean false, the drag will begin. It&#39;s important to note that only boolean false will prevent a drag. False-y values will not. </p>
 
-<h5>Supplying a <code>parent</code> parameter</h5>
-
-<p>This was the original solution to the dragging problem, but it isn&#39;t as good as the filter solution we just discussed. However, if you are using MooTools or YUI then only this option will work for you.</p>
-
-<p>In this code snippet, note the <code>parent</code> parameter.  It instructs jsPlumb to configure the source Endpoint on the element specified - in this case, <code>someDiv</code> (the value of this parameter may be a String id or a selector).</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;someConnectionSourceDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span> <span class="p">},</span>
-  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Blank&quot;</span><span class="p">,</span>
-  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span>
-  <span class="nx">parent</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span>
-<span class="p">});</span>
-</code></pre></div>
-<p>If you just want to say &quot;use the parent of this element&quot;, you can supply &quot;parent&quot;:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;someConnectionSourceDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span> <span class="p">},</span>
-  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Blank&quot;</span><span class="p">,</span>
-  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span>
-  <span class="nx">parent</span><span class="o">:</span><span class="s2">&quot;parent&quot;</span>
-<span class="p">});</span>
-</code></pre></div>
 <p><a id="makeSourceOptions"></a></p>
 
 <h5>Endpoint options with makeSource</h5>
@@ -647,7 +627,7 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 
 <p>These are options that will be passed through to the supporting library&#39;s drag API.  jsPlumb passes everything you supply here through, inserting wrapping functions if necessary for the various lifecycle events that jsPlumb needs to know about.  So if, for example, you pass a function to be called when dragging starts, jsPlumb will wrap that function with a function that does what jsPlumb needs to do, then call yours.</p>
 
-<p>At the time of writing, jsPlumb supports jQuery, MooTools and YUI3, as well as having its own built-in support (actually supplied by a bundled library called <a href="https://github.com/jsplumb/katavorio">Katavorio</a>, and each of those libraries uses different terminology.  In addition, jQuery&#39;s API is more fully featured, providing easy support for setting the zIndex and opacity of elements being dragged, as well as the &#39;scope&#39; for a drag/drop (allowing you to specify more than one type of drag/drop pair), and hover classes for when a draggable is on the move or over a droppable. If you&#39;re using jQuery you can of course just supply these values on the dragOptions; to make it easier, jsPlumb&#39;s MooTools and YUI3 adapters recognize  these options and add appropriate callbacks for you.  The best drag library to use, though, is Katavorio, which is bundled in vanilla jsPlumb from 1.6.0 onwards: it supports everything jQuery drag supports, as well as multiple scopes and multiple element dragging.</p>
+<p>At the time of writing, jsPlumb supports jQuery, as well as having its own built-in support (actually supplied by a bundled library called <a href="https://github.com/jsplumb/katavorio">Katavorio</a>. If you&#39;re using jQuery you can supply jQuery drag option as values on the dragOptions; the best drag library to use, though, is Katavorio, which is bundled in vanilla jsPlumb from 1.6.0 onwards: it supports everything jQuery drag supports, as well as multiple scopes and multiple element dragging.</p>
 
 <p>Given that the options here are library-specific, and they are all well-documented, we&#39;re going to discuss just the three drag options that behave the same way in all (see below for hoverClass):</p>
 
@@ -657,13 +637,13 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <li><strong>scope</strong> - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.</li>
 </ul>
 
-<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a>, <a href="http://mootools.net/docs/more/Drag/Drag.Move">MooTools</a>, <a href="http://developer.yahoo.com/yui/3/dd">YUI3</a>, or <a href="https://github.com/jsplumb/katavorio">Katavorio</a> docs.    </p>
+<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a> or <a href="https://github.com/jsplumb/katavorio">Katavorio</a> docs.    </p>
 
 <h5>Drop Options</h5>
 
-<p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  MooTools does not have drop options like jQuery, Katavorio and YUI3 do; droppable functionality in MooTools is actually implemented by the Drag.Move class - the one used to initialise a draggable.  But when you setup an Endpoint in jsPlumb you should ignore that fact, and treat droppables like you would in jQuery, Karavorio or YUI3.  jsPlumb wires everything up for you under the hood.</p>
+<p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  </p>
 
-<p>There are three jQuery/Katavorio droppable options that jsPlumb treats as shortcuts in MooTools and YUI3, for the sake of consistency:</p>
+<p>Here are three common jQuery/Katavorio droppable options that you might want to consider using:</p>
 
 <ul>
 <li><strong>hoverClass</strong> - the CSS class to attach to the droppable when a draggable is hovering over it.</li>

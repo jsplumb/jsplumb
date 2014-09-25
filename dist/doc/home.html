@@ -104,9 +104,9 @@
 
 <p>jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. </p>
 
-<p>The latest version is 1.6.4. Starting with 1.6.0, jsPlumb ships with a version that has no external dependencies. This is referred to as &quot;vanilla&quot; jsPlumb; the filename has a prefix of <strong>dom-</strong>.</p>
+<p>The latest version is 1.7.0. From this version, jsPlumb no longer supports YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it&#39;s faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the event handling and drag/drop code are also projects managed by jsPlumb, you&#39;re more likely to get a feature request for requirements related to those sorts of things to happen.</p>
 
-<p>jQuery/MooTools/YUI adapter versions are still shipped in 1.6.x, but unless you have a specific need to use one of them, vanilla jsPlumb is recommended.</p>
+<p>This will be the final version (apart from bugfix releases in 1.7.x) to support IE8. The next major release will be 2.0.0, and this will work only in modern browsers that support SVG. </p>
 
 <h2>Required Imports and Basic Setup</h2>
 
@@ -137,7 +137,6 @@
 <li>jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.</li>
 <li>jQuery 2.0 does not support IE 6,7 or 8.</li>
 <li>Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)<br></li>
-<li>MooTools has a bug when using SVG in Firefox 11</li>
 </ul>
 
 <p><a name="setup"></a></p>
@@ -170,7 +169,7 @@
 <h5>Vanilla</h5>
 
 <p>No required imports. </p>
-<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-1.6.4-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-1.7.0-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div>
 <h6>Touch events</h6>
 
@@ -189,32 +188,6 @@
 <h6>Touch Events</h6>
 
 <p>There is a neat plugin you can use for this - <a href="http://touchpunch.furf.com/">jQuery UI Touch Punch</a>.  You need to include it in your page after both jQuery and jQueryUI. It does not, however, work with the <code>makeSource</code> functionality in jsPlumb. Better to use vanilla jsPlumb!</p>
-
-<h5>MooTools</h5>
-
-<ul>
-<li>MooTools Core 1.4.0 or higher.</li>
-<li>Drag.Move from MooTools More 1.4.0.1 or higher (if you wish to support drag and drop).</li>
-</ul>
-<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdnjs.cloudflare.com/ajax/libs/mootools/1.4.5/mootools-core-full-compat-yc.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdnjs.cloudflare.com/ajax/libs/mootools-more/1.4.0.1/mootools-more-yui-compressed.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/mootools.jsPlumb-1.6.4-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</code></pre></div>
-<h6>Touch Events</h6>
-
-<p>There is currently no solution to enable touch events with MooTools and jsPlumb. At least, none that I know of right now.  Maybe The Google can help you with this.</p>
-
-<h5>YUI3</h5>
-
-<ul>
-<li>YUI 3.3.x.  jsPlumb has been tested on 3.3.0 only; it is possible other 3.x.x versions will work.</li>
-</ul>
-<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;https://yui-s.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/yui.jsPlumb-1.6.4-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</code></pre></div>
-<h6>Touch Events</h6>
-
-<p>YUI supports touch events out of the box.</p>
 
 <p><a name="initializing"></a></p>
 
@@ -298,9 +271,7 @@
 
 <h4>Selectors/NodeLists</h4>
 
-<p>In each of jQuery, MooTools and YUI3 there is the concept of a &quot;selector&quot; - a list of elements conforming to some CSS path spec.  How you get a selector depends on the library in question.  For instance, in jQuery you use <code>$(&quot;.myClass&quot;)</code>, where MooTools has <code>$$(&quot;.myClass&quot;)</code> and YUI3 has <code>Y.all(&quot;.myClass&quot;)</code>.  YUI and MooTools also have a single element selector, equivalent to <code>document.getElementById</code>; a discussion of the relative engineering merit of these libraries compared to jQuery is, however, outside the scope of this documentation...</p>
-
-<p>jsPlumb supports selectors as arguments for elements.</p>
+<p>In jQuery there is the concept of a &quot;selector&quot; - a list of elements conforming to some CSS path spec, for instance <code>$(&quot;.myClass&quot;)</code>. Both the jQuery flavour, and also vanilla, jsPlumb support these selectors as arguments for elements (vanilla jsPlumb can do this because jQuery&#39;s selector object is <em>list-like</em>, ie. it has a <code>length</code> property).</p>
 
 <p>When using vanilla jsPlumb, you can use a <code>NodeList</code> - it is, effectively, the native equivalent of the selectors we just discussed.  There are several ways of getting a <code>NodeList</code> from the DOM; perhaps the most useful (supported in IE8+) is <code>document.querySelectorAll(&quot;some selector&quot;)</code>.</p>
 
@@ -391,7 +362,7 @@
 <li>Get a new instance of jsPlumb and specify the container to use in the constructor params:</li>
 </ul>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
-  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span>
+  <span class="nx">Container</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span>
 <span class="p">});</span>
 <span class="p">...</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span> <span class="nx">endpoint</span> <span class="nx">options</span> <span class="p">});</span>
@@ -434,7 +405,7 @@
 
 <h5>Drag Containment</h5>
 
-<p>A common request is for the ability to contain the area within which an element may be dragged. This is supported in every adapter (to a certain extent) except MooTools.</p>
+<p>A common request is for the ability to contain the area within which an element may be dragged. This is supported in both jQuery jsPlumb and vanilla jsPlumb (to a certain extent).</p>
 
 <h6>jQuery</h6>
 
@@ -456,22 +427,6 @@
    <span class="nx">containment</span><span class="o">:</span><span class="kc">true</span>
 <span class="p">});</span>
 </code></pre></div>
-<h6>YUI</h6>
-
-<p>Drag containment is also supported if you are using YUI - for this you can supply either a <code>constrain2Node</code> parameter (this is YUI&#39;s parameter name), or <code>containment</code>, as with jQuery, and jsPlumb will convert it:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;someSelector&quot;</span><span class="p">),</span> <span class="p">{</span>
-  <span class="nx">constrain2Node</span><span class="o">:</span><span class="nx">Y</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="s2">&quot;aNode&quot;</span><span class="p">)</span>
-<span class="p">});</span>
-</code></pre></div>
-<p>Note that YUI does not support the string <code>&quot;parent&quot;</code> as a value, and jsPlumb does not do anything to massage the argument you pass in.  So you cannot do this:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;someSelector&quot;</span><span class="p">),</span> <span class="p">{</span>
-  <span class="nx">constrain2Node</span><span class="o">:</span><span class="s2">&quot;parent&quot;</span>
-<span class="p">});</span>  
-</code></pre></div>
-<h6>MooTools</h6>
-
-<p>Drag containment is not supported in MooTools.</p>
-
 <h5>Dragging nested elements</h5>
 
 <p>jsPlumb takes nesting into account when handling draggable elements. For example, say you have this markup:</p>
@@ -520,7 +475,7 @@
 
 <h3>Selection while dragging</h3>
 
-<p>The default browser behaviour on mouse drag is to select elements in the DOM.  jQuery suppresses this behaviour, but MooTools and YUI do not. To assist with handling this, the each library adapter attaches this class to the <strong>body</strong> at drag start:</p>
+<p>The default browser behaviour on mouse drag is to select elements in the DOM.  jQuery suppresses this behaviour, but vanilla jsPlumb does not. To assist with handling this, however, this class is attached to the <strong>body</strong> at drag start:</p>
 <div class="highlight"><pre><code class="css language-css" data-lang="css"><span class="nt">_jsPlumb_drag_select</span>
 </code></pre></div>
 <p>The class is removed at drag end. </p>

@@ -171,53 +171,37 @@ anchor:[ &quot;TopCenter&quot;, &quot;BottomCenter&quot; ],
   dragAllowedWhenFull:false<br>
 }; 
 </pre>  </p></li>
-<li><p>Exactly the same as before, but shows how you can use <code>anchors</code> instead of <code>anchor</code>, if that makes you feel happier:
-<pre>
-var endpointOptions = {
-anchors:[ &quot;TopCenter&quot;, &quot;BottomCenter&quot; ], 
-isSource:true, 
-  isTarget:true,
-  connector : &quot;Straight&quot;,
-  connectorStyle: { lineWidth:20, strokeStyle:&#39;blue&#39; },
-  scope:&quot;blueline&quot;,
-  dragAllowedWhenFull:false<br>
-}; 
-</pre>  </p></li>
-<li><p>Define an Endpoint that is a 30px blue dot, creates Connections that are 20px wide straight lines, is both a source and target of new Connections, has a <code>scope</code> of <code>blueline</code>, and has an event handler that pops up an alert on drop (note: the event handler name means this example is jQuery - MooTools and YUI3 use different event handler names):
-<pre>
-var endpointOptions = { 
-isSource:true, 
-isTarget:true,
-  endpoint: [ &quot;Dot&quot;, { radius:30 } ],
-  style:{fillStyle:&#39;blue&#39;},
-  connector : &quot;Straight&quot;,
-  connectorStyle: { lineWidth:20, strokeStyle:&#39;blue&#39; },
-  scope:&quot;blueline&quot;,
-  dropOptions:{ 
-    drop:function(e, ui) { 
-      alert(&#39;drop!&#39;); 
-    } 
-  }<br>
-}; 
-</pre></p></li>
-<li><p>Same example as before, but this is for MooTools, and the Endpoint can support up to 5 connections (the default is 1):
-<pre>
-var endpointOptions = { 
-isSource:true, 
-  isTarget:true,
-  endpoint: [ &quot;Dot&quot;, { radius:30 } ],
-  style:{ fillStyle:&#39;blue&#39; },
-  maxConnections:5,
-  connector : &quot;Straight&quot;,
-  connectorStyle: { lineWidth:20, strokeStyle:&#39;blue&#39; },
-  scope:&quot;blueline&quot;,
-  dropOptions:{ 
-  onDrop:function(e, ui) { 
-      alert(&#39;drop!&#39;); 
-    } 
-  }<br>
-}; 
-</pre></p></li>
+<li><p>Exactly the same as before, but shows how you can use <code>anchors</code> instead of <code>anchor</code>, if that makes you feel happier:</p></li>
+</ul>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;TopCenter&quot;</span><span class="p">,</span> <span class="s2">&quot;BottomCenter&quot;</span> <span class="p">],</span> 
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connector</span> <span class="o">:</span> <span class="s2">&quot;Straight&quot;</span><span class="p">,</span>
+  <span class="nx">connectorStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">20</span><span class="p">,</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s1">&#39;blue&#39;</span> <span class="p">},</span>
+  <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;blueline&quot;</span><span class="p">,</span>
+  <span class="nx">dragAllowedWhenFull</span><span class="o">:</span><span class="kc">false</span>  
+<span class="p">};</span> 
+</code></pre></div>
+<ul>
+<li>Define an Endpoint that is a 30px blue dot, creates Connections that are 20px wide straight lines, is both a source and target of new Connections, has a <code>scope</code> of <code>blueline</code>, and has an event handler that pops up an alert on drop:</li>
+</ul>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">30</span> <span class="p">}</span> <span class="p">],</span>
+  <span class="nx">style</span><span class="o">:</span><span class="p">{</span><span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;blue&#39;</span><span class="p">},</span>
+  <span class="nx">connector</span> <span class="o">:</span> <span class="s2">&quot;Straight&quot;</span><span class="p">,</span>
+  <span class="nx">connectorStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">20</span><span class="p">,</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s1">&#39;blue&#39;</span> <span class="p">},</span>
+  <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;blueline&quot;</span><span class="p">,</span>
+  <span class="nx">dropOptions</span><span class="o">:</span><span class="p">{</span> 
+    <span class="nx">drop</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">ui</span><span class="p">)</span> <span class="p">{</span> 
+      <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;drop!&#39;</span><span class="p">);</span> 
+    <span class="p">}</span> 
+  <span class="p">}</span>  
+<span class="p">};</span> 
+</code></pre></div>
+<ul>
 <li><p>Same example again, but <code>maxConnections</code> being set to -1 means that the Endpoint has no maximum limit of Connections:
 <pre>
 var endpointOptions = { 
@@ -235,25 +219,7 @@ dropOptions:{
     } 
   }<br>
 }; 
-</pre></p></li>
-<li><p>Same example again, but for YUI3.  Note the drop callback is &quot;drop:hit&quot;:
-<pre>
-var endpointOptions = { 
-isSource:true, 
-isTarget:true,
-endpoint: [ &quot;Dot&quot;, { radius:30 } ],
-  style:{fillStyle:&#39;blue&#39;},
-  maxConnections:-1,
-  connector : &quot;Straight&quot;,
-  connectorStyle: { lineWidth:20, strokeStyle:&#39;blue&#39; },
-  scope:&quot;blueline&quot;,
-  dropOptions:{ 
-    &quot;drop:hit&quot;:function(e, ui) { 
-         alert(&#39;drop!&#39;); 
-      } 
-  }<br>
-}; 
-</pre>          </p></li>
+</pre>  </p></li>
 <li><p>Assign a UUID to the Endpoint options created above, and add as Endpoints to &quot;window1&quot; and &quot;window2&quot;:
 <pre>
 jsPlumb.addEndpoint(&quot;window1&quot;, { uuid:&quot;abcdefg&quot; }, endpointOptions );

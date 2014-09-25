@@ -796,7 +796,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 162,
+            "line": 168,
             "description": "Does not draw anything visible to the user. This Endpoint is probably not what you want if you need your users to be able to drag existing Connections - for that, use a Rectangle or Dot Endpoint and assign to it a CSS class that causes it to be transparent.",
             "extends": "Endpoint"
         },
@@ -809,7 +809,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 168,
+            "line": 174,
             "description": "A circular Endpoint with configurable radius.",
             "extends": "Endpoint",
             "is_constructor": 1,
@@ -851,7 +851,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 179,
+            "line": 185,
             "description": "A rectangular Endpoint with configurable width/height.",
             "extends": "Endpoint",
             "is_constructor": 1,
@@ -900,7 +900,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 191,
+            "line": 197,
             "description": "An Endpoint that uses an Image.",
             "extends": "Endpoint",
             "is_constructor": 1,
@@ -1807,6 +1807,24 @@
         {
             "file": "doc/api/endpoint-api.js",
             "line": 131,
+            "itemtype": "method",
+            "name": "isConnectedTo",
+            "params": [
+                {
+                    "name": "endpoint",
+                    "description": "",
+                    "type": "Endpoint"
+                }
+            ],
+            "return": {
+                "description": "Whether or not this Endpoint is connected to the given Endpoint.",
+                "type": "Boolean"
+            },
+            "class": "Endpoint"
+        },
+        {
+            "file": "doc/api/endpoint-api.js",
+            "line": 137,
             "description": "Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in \n  which you're going to provide some other way of breaking connections, if you need to break them at all. This property \n  is by default true; use it in conjunction with the `reattach` option on a connect call.",
             "itemtype": "method",
             "name": "setDragAllowedWhenFull",
@@ -1821,7 +1839,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 139,
+            "line": 145,
             "description": "Sets the DOM element this Endpoint is attached to.",
             "itemtype": "method",
             "name": "setElement",
@@ -1846,7 +1864,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 147,
+            "line": 153,
             "description": "Sets whether or not the Endpoint is enabled for drag/drop connections.",
             "itemtype": "method",
             "name": "setEnabled",
@@ -1861,7 +1879,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 153,
+            "line": 159,
             "description": "Sets whether or not the Endpoint is currently visible.",
             "itemtype": "method",
             "name": "setVisible",

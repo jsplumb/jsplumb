@@ -126,7 +126,6 @@
 <li>jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.</li>
 <li>jQuery 2.0 does not support 6,7 or 8.</li>
 <li>Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)<br></li>
-<li>MooTools has a bug when using SVG in Firefox 11</li>
 </ul>
 
 <p><a name="setup"></a></p>
@@ -151,37 +150,7 @@
 
 <h6>Touch Events</h6>
 
-<p>jQuery &lt;= 1.9.x does not support touch events, but there is a neat plugin you can use for this - [[jQuery UI Touch Punch|http://touchpunch.furf.com/]].  You need to include it in your page after both jQuery and jQueryUI.</p>
-
-<h5>MooTools</h5>
-
-<ul>
-<li>MooTools Core 1.2.4 or higher. jsPlumb has been tested with 1.2.4 and 1.3.3.</li>
-<li>Drag.Move from MooTools More 1.2.4.4 or higher (if you wish to support drag and drop).</li>
-</ul>
-
-<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.3/mootools-yui-compressed.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.4.0-all-min.js "&gt;&lt;/script&gt;
-</pre>
-
-<h6>Touch Events</h6>
-
-<p>There is currently no solution to enable touch events with MooTools and jsPlumb. At least, none that I know of right now.  Maybe The Google can help you with this.</p>
-
-<h5>YUI3</h5>
-
-<ul>
-<li>YUI 3.3.x.  jsPlumb has been tested on 3.3.0 only; it is possible other 3.x.x versions will work.</li>
-</ul>
-
-<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.4.0-all-min.js "&gt;&lt;/script&gt;
-</pre>
-
-<h6>Touch Events</h6>
-
-<p>YUI supports touch events out of the box.</p>
+<p>jQuery &lt;= 1.9.x does not support touch events, but there is a neat plugin you can use for this - [[jQuery UI Touch Punch|http://touchpunch.furf.com/]].  You need to include it in your page after both jQuery and jQueryUI. But note that it doesn&#39;t work properly with the <code>makeSource</code> method...better to use vanilla jsPlumb!</p>
 
 <p><a name="initializing"></a></p>
 
@@ -312,9 +281,9 @@ secondInstance.connect({ source:&quot;element4&quot;, target:&quot;element3&quot
 <p>Some examples:</p>
 
 <ul>
-<li><p>Set a container to use as the default container, using a jQuery selector (you can supply MooTools/YUI selectors if that&#39;s the library you&#39;re using), and then add an Endpoint.  The canvas (or SVG/VML element) created will be a child of the document body:
+<li><p>Set a container to use as the default container, using a jQuery selector (you can supply a selector, element id, or Element here), and then add an Endpoint.  The canvas (or SVG/VML element) created will be a child of the document body:
 <pre>
-jsPlumb.Defaults.Container = $(&quot;body&quot;);
+jsPlumb.setContainer($(&quot;body&quot;));
 ...
 jsPlumb.addEndpoint(someDiv, { endpoint options });
 </pre>          </p></li>
@@ -349,26 +318,15 @@ jsPlumb.addEndpoint(someDiv, { ..., container:&quot;containerId&quot; });
 <h5>Drag Containment</h5>
 
 <p>A common request is for the ability to contain the area within which an element may be dragged.  Remember that jsPlumb&#39;s <code>draggable</code> method is just a pass-through to the underlying library&#39;s drag functionality, so for jQuery this is as simple as providing a <code>containment</code> parameter:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.draggable($(&quot;someSelector&quot;), {
-  containment:&quot;parent&quot;
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;someSelector&quot;</span><span class="p">),</span> <span class="p">{</span>
+  <span class="nx">containment</span><span class="o">:</span><span class="s2">&quot;parent&quot;</span>
+<span class="p">});</span>
 </code></pre></div>
-<h6>YUI</h6>
-
-<p>Drag containment is also supported if you are using YUI - for this you can supply either a <code>constrain2Node</code> parameter (this is YUI&#39;s parameter name), or <code>containment</code>, as with jQuery, and jsPlumb will convert it:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.draggable($(&quot;someSelector&quot;), {
-  constrain2Node:Y.one(&quot;aNode&quot;)
-});
+<p>Right now in vanilla jsPlumb you can use this syntax to constrain dragging to a parent element:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;.someSelector&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">constrain</span><span class="o">:</span><span class="kc">true</span>
+<span class="p">});</span>
 </code></pre></div>
-<p>Note that YUI does not support the string <code>&quot;parent&quot;</code> as a value, and jsPlumb does not do anything to massage the argument you pass in.  So you cannot do this:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.draggable($(&quot;someSelector&quot;), {
-  constrain2Node:&quot;parent&quot;
-});  
-</code></pre></div>
-<h6>MooTools</h6>
-
-<p>Drag containment is not supported in MooTools.</p>
-
 <h5>Dragging nested elements</h5>
 
 <p>jsPlumb takes nesting into account when handling draggable elements. For example, say you have this markup:</p>

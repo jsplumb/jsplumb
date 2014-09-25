@@ -100,7 +100,55 @@
 </ul>
             </div>
             <div class="markdown-body">
-                <h2>1.6.3</h2>
+                <h2>1.7.0</h2>
+
+<h3>Changes between 1.6.4 and 1.7.0</h3>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li><p>Perhaps the biggest change between 1.6.4 and 1.7.0 is that YUI and MooTools are no longer supported.  It is recommended you use vanilla jsPlumb now. jQuery is still supported but it is neither as fast nor does it have as many features as vanilla jsPlumb.</p></li>
+<li><p>The <code>parent</code> argument to the <code>makeSource</code> function is no longer supported. It was being kept because neither YUI nor MooTools have the ability to support a drag filter, but now that those libraries are not supported this feature has been removed.  The <code>filter</code> approach is much more powerful.</p></li>
+</ul>
+
+<h4>New Functionality</h4>
+
+<p>Perhaps not strictly new functionality, but shiny enough to warrant being associated with the word &quot;new&quot;, is the fact that jsPlumb 1.7.0 is considerably faster than any previous version.  A rough comparison: the default settings for the load test in jsPlumb generate 360 connections in total between 10 elements. in 1.6.4 this test averages about 1600ms in Chrome on a Mac.  In 1.7.0 that number is about 600ms on the same computer.</p>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>214</strong> - Endpoint stays visible when should be terminated (right mouse button)</li>
+<li><strong>242</strong> - Distinguish drag\click for Vanilla jsPlumb</li>
+<li><strong>245</strong> - reinstate isConnectedTo method on Endpoint</li>
+<li><strong>246</strong> - outlineColor ignored when gradient defined in paintStyle<br></li>
+<li><strong>248</strong> - dynamic anchor create fail</li>
+<li><strong>258</strong> - Typo in documentation: s/container/Container </li>
+</ul>
+
+<h2>1.6.4</h2>
+
+<h3>Changes between 1.6.3 and 1.6.4</h3>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li>No issues</li>
+</ul>
+
+<h4>New Functionality</h4>
+
+<ul>
+<li>Connection types support &#39;anchor&#39; and &#39;anchors&#39; parameters now.</li>
+</ul>
+
+<h4>Miscellaneous</h4>
+
+<ul>
+<li>YUI adapter now sets a &#39;base&#39; url and retrieves everything via https.</li>
+</ul>
+
+<h2>1.6.3</h2>
 
 <h3>Changes between 1.6.2 and 1.6.3</h3>
 
@@ -110,7 +158,7 @@
 <li>No issues</li>
 </ul>
 
-<h3>New Functionality</h3>
+<h4>New Functionality</h4>
 
 <ul>
 <li>Added optional <code>allowLoopback</code> boolean parameter to vanilla jsPlumb&#39;s <code>makeTarget</code> method. </li>
