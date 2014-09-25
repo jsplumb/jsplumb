@@ -562,14 +562,9 @@
 				if (fc) 
 					fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
 
-                var key = "paint connections (" + connectionsToPaint.length + ") " + elementId;
-
 				// paint all the connections
 				for (i = 0; i < connectionsToPaint.length; i++) {
-					// if not a connection between the two elements in question dont use the timestamp.
-                    var ts  =timestamp;// ((connectionsToPaint[i].sourceId == sourceId && connectionsToPaint[i].targetId == targetId) ||
-                               //(connectionsToPaint[i].sourceId == targetId && connectionsToPaint[i].targetId == sourceId)) ? timestamp : null;
-                    connectionsToPaint[i].paint({elId:elementId, timestamp:ts, recalc:false, clearEdits:clearEdits});
+                    connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false, clearEdits:clearEdits});
 				}
 			}
 		};        
