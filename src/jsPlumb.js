@@ -905,6 +905,15 @@
 				}
 			}
 		},
+
+        _scopeMatch = function(e1, e2) {
+            var s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
+            for (var i = 0; i < s1.length; i++)
+                for (var j = 0; j < s2.length; j++)
+                    if (s2[j] == s1[i]) return true;
+
+            return false;
+        },
 		
 		/*
 		* prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
@@ -1029,6 +1038,10 @@
 					 newEndpoint._deleteOnDetach = true;
 				}
 			}
+
+            // last, ensure scopes match
+            if (_p.sourceEndpoint && _p.targetEndpoint)
+                if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) _p = null;
 			
 			return _p;
 		}.bind(_currentInstance),
@@ -2639,6 +2652,32 @@
 			this.sourceEndpointDefinitions = {};
 			return this;
 		};
+
+        var _getScope = function(el, types) {
+            types = jsPlumbUtil.isArray(types) ? types : [ types ];
+            var id = _getId(el);
+            for (var i = 0; i < types.length; i++) {
+                var def = this[types[i]][id];
+                if (def) return def.def.scope || this.Defaults.Scope;
+            }
+        }.bind(this);
+
+        var _setScope = function(el, scope, types) {
+            types = jsPlumbUtil.isArray(types) ? types : [ types ];
+            var id = _getId(el);
+            for (var i = 0; i < types.length; i++) {
+                var def = this[types[i]][id];
+                if (def) def.def.scope = scope;
+            }
+
+        }.bind(this);
+
+        this.getScope = function(el, scope) { return _getScope(el, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]); };
+        this.getSourceScope = function(el) { return _getScope(el, "sourceEndpointDefinitions"); };
+        this.getTargetScope = function(el) { return _getScope(el, "targetEndpointDefinitions"); };
+        this.setScope = function(el, scope) { _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]); };
+        this.setSourceScope = function(el, scope) { _setScope(el, scope, "sourceEndpointDefinitions"); };
+        this.setTargetScope = function(el, scope) { _setScope(el, scope, "targetEndpointDefinitions"); };
 		
 		// see api docs
 		this.unmakeEveryTarget = function() {

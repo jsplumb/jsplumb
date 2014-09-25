@@ -676,6 +676,48 @@
 */
 
 /**
+ * Sets the source scope of some element that has been configured as a connection source with &#x60;makeSource&#x60;
+ * @method setSourceScope
+ * @param {Element|String} el Element to set source scope for.
+ * @param {String} Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ */
+
+/**
+ * Sets the target scope of some element that has been configured as a connection source with &#x60;makeTarget&#x60;
+ * @method setTargetScope
+ * @param {Element|String} el Element to set target scope for.
+ * @param {String} Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ */
+
+/**
+ * Sets the source and target scope of some element that has been configured as a connection source and target with &#x60;makeTarget&#x60; and &#x60;makeSource&#x60;. If the element is only a source or only a target, this method will just set what it can.
+ * @method setScope
+ * @param {Element|String} el Element to set source and target scope for.
+ * @param {String} Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ */
+
+/**
+ * Gets the source scope of some element that has that has been configured as a connection source with &#x60;makeSource&#x60;
+ * @method getSourceScope
+ * @param {Element|String} Element to get source scope for.
+ * @return {String} Source scope, or the default scope if nothing was explicitly set.
+ */
+
+/**
+ * Gets the target scope of some element that has that has been configured as a connection source with &#x60;makeTarget&#x60;
+ * @method getTargetScope
+ * @param {Element|String} Element to get target scope for.
+ * @return {String} Target scope, or the default scope if nothing was explicitly set.
+ */
+
+/**
+ * Gets the source or target scope of some element that has that has been configured as a connection source with &#x60;makeTarget&#x60; and/or &#x60;makeSource&#x60;, defaulting to the source scope if the element has been configured for both.
+ * @method getScope
+ * @param {Element|String} Element to get source or target scope for.
+ * @return {String} Source or Target scope (you will get Source if the element is both a source and a target), or the default scope if nothing was explicitly set.
+ */
+
+/**
 * Sets the enabled state of one or more elements that were previously made a connection source with the makeSource
 * method.
 * @method setSourceEnabled

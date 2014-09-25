@@ -10,12 +10,7 @@ jsPlumb.ready(function() {
 			[ "Label", { 
 				location:0.1,
 				id:"label",
-				cssClass:"aLabel",
-                events:{
-                    "click":function() {
-
-                    }
-                }
+				cssClass:"aLabel"
 			}]
 		],
 		Container:"flowchart-demo"
@@ -54,6 +49,7 @@ jsPlumb.ready(function() {
 		connectorStyle:connectorPaintStyle,
 		hoverPaintStyle:endpointHoverStyle,
 		connectorHoverStyle:connectorHoverStyle,
+        dragOptions:{},
         overlays:[
         	[ "Label", { 
             	location:[0.5, 1.5], 
@@ -107,9 +103,7 @@ jsPlumb.ready(function() {
 		});			
 					
 		// make all the window divs draggable						
-		instance.draggable(jsPlumb.getSelector(".flowchart-demo .window"), {
-            grid: [20, 20]
-        });
+		instance.draggable(jsPlumb.getSelector(".flowchart-demo .window"), { grid: [20, 20] });		
 		// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector 
 		// method, or document.querySelectorAll:
 		//jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });

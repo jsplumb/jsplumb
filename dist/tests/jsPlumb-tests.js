@@ -1862,6 +1862,78 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
+
+    test(": endpoint source and target scope", function() {
+        var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
+        var e16 = _jsPlumb.addEndpoint(d16, {scope:"foo"});
+        var e18 = _jsPlumb.addEndpoint(d18, {scope:"bar"});
+        var e17 = _jsPlumb.addEndpoint(d17, { scope:"foo" }); // give it a non-default anchor, we will check this below.
+
+        var c = _jsPlumb.connect({source:e17, target:e16});
+        ok(c != null, "connection with matching scope established");
+
+        c = _jsPlumb.connect({source:e17, target:e18});
+        ok(c == null, "connection with non-matching scope not established");
+    });
+
+    test(": endpoint source and target scope, multiple scope", function() {
+        var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18"), d19 = _addDiv("d19");
+        var e16 = _jsPlumb.addEndpoint(d16, {scope:"foo baz", maxConnections:-1});
+        var e18 = _jsPlumb.addEndpoint(d18, {scope:"bar"});
+        var e17 = _jsPlumb.addEndpoint(d17, { scope:"baz", maxConnections:-1 }); // give it a non-default anchor, we will check this below.
+        var e19 = _jsPlumb.addEndpoint(d17, { scope:"foo" }); // give it a non-default anchor, we will check this below.
+
+        var c = _jsPlumb.connect({source:e17, target:e16});
+        ok(c != null, "connection with matching scope established");
+
+        c = _jsPlumb.connect({source:e17, target:e18});
+        ok(c == null, "connection with non-matching scope not established");
+
+        c = _jsPlumb.connect({source:e19, target:e16});
+        ok(c != null, "connection with second matching scope established");
+    });
+
+    test(": makeSource/makeTarget scope", function() {
+        var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
+        _jsPlumb.makeTarget(d16, {scope:"foo"});
+        _jsPlumb.makeTarget(d18, {scope:"bar"});
+        _jsPlumb.makeSource(d17, { scope:"foo" }); // give it a non-default anchor, we will check this below.
+        var c = _jsPlumb.connect({source:d17, target:d16});
+        ok(c != null, "connection with matching scope established");
+        c = _jsPlumb.connect({source:d17, target:d18});
+        ok(c == null, "connection with non-matching scope not established");
+    });
+
+    test(": makeSource, manipulate scope programmatically", function() {
+        var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
+        _jsPlumb.makeSource(d16, {scope:"foo"});
+        _jsPlumb.makeTarget(d17, {scope:"bar"});
+        _jsPlumb.makeTarget(d18, {scope:"qux"});
+
+        equal(_jsPlumb.getSourceScope(d16), "foo", "scope of makeSource element retrieved");
+        equal(_jsPlumb.getTargetScope(d17), "bar", "scope of makeTarget element retrieved");
+        // change scope of source, then try to connect, and it should fail.
+        _jsPlumb.setSourceScope(d16, "qux");
+        var c = _jsPlumb.connect({source:d16, target:d17});
+        ok(c == null, "connection was not established due to unmatched scopes");
+
+        _jsPlumb.setTargetScope(d17, "foo qux");
+        equal(_jsPlumb.getTargetScope(d17), "foo qux", "scope of makeTarget element retrieved");
+        c = _jsPlumb.connect({source:d16, target:d17});
+        ok(c != null, "connection was established now that scopes match");
+
+        _jsPlumb.makeSource(d17);
+        _jsPlumb.setScope(d17, "BAZ");
+        // use setScope method to set source _and_ target scope
+        equal(_jsPlumb.getTargetScope(d17), "BAZ", "scope of target element retrieved");
+        equal(_jsPlumb.getSourceScope(d17), "BAZ", "scope of source element retrieved");
+
+        // getScope will give us what it can, defaulting to source scope.
+        equal(_jsPlumb.getScope(d16), "qux", "source scope retrieved for d16");
+        equal(_jsPlumb.getScope(d18), "qux", "target scope retrieved for d18");
+        equal(_jsPlumb.getScope(d17), "BAZ", "source scope retrieved for d17, although target scope is set too");
+    });
+
     
 	test(": _jsPlumb.connect after makeSource (parameters)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
