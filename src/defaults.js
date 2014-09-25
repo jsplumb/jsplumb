@@ -355,22 +355,23 @@
         },
 	
         Bezier : function(params) {
-            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
-                curve = [	
-                    { x:params.x1, y:params.y1},
-                    { x:params.cp1x, y:params.cp1y },
-                    { x:params.cp2x, y:params.cp2y },
-                    { x:params.x2, y:params.y2 }
-                ],
-                // although this is not a strictly rigorous determination of bounds
-                // of a bezier curve, it works for the types of curves that this segment
-                // type produces.
-                bounds = {
-                    minX:Math.min(params.x1, params.x2, params.cp1x, params.cp2x),
-                    minY:Math.min(params.y1, params.y2, params.cp1y, params.cp2y),
-                    maxX:Math.max(params.x1, params.x2, params.cp1x, params.cp2x),
-                    maxY:Math.max(params.y1, params.y2, params.cp1y, params.cp2y)
-                };
+            this.curve = [
+                { x:params.x1, y:params.y1},
+                { x:params.cp1x, y:params.cp1y },
+                { x:params.cp2x, y:params.cp2y },
+                { x:params.x2, y:params.y2 }
+            ];
+
+            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments);
+            // although this is not a strictly rigorous determination of bounds
+            // of a bezier curve, it works for the types of curves that this segment
+            // type produces.
+            this.bounds = {
+                minX:Math.min(params.x1, params.x2, params.cp1x, params.cp2x),
+                minY:Math.min(params.y1, params.y2, params.cp1y, params.cp2y),
+                maxX:Math.max(params.x1, params.x2, params.cp1x, params.cp2x),
+                maxY:Math.max(params.y1, params.y2, params.cp1y, params.cp2y)
+            };
                 
             this.type = "Bezier";            
             
@@ -386,29 +387,29 @@
              * 0 to 1 inclusive. 
              */
             this.pointOnPath = function(location, absolute) {
-                location = _translateLocation(curve, location, absolute);                
-                return jsBezier.pointOnCurve(curve, location);
+                location = _translateLocation(this.curve, location, absolute);
+                return jsBezier.pointOnCurve(this.curve, location);
             };
             
             /**
              * returns the gradient of the segment at the given point.
              */
             this.gradientAtPoint = function(location, absolute) {
-                location = _translateLocation(curve, location, absolute);
-                return jsBezier.gradientAtPoint(curve, location);        	
+                location = _translateLocation(this.curve, location, absolute);
+                return jsBezier.gradientAtPoint(this.curve, location);
             };	              
             
             this.pointAlongPathFrom = function(location, distance, absolute) {
-                location = _translateLocation(curve, location, absolute);
-                return jsBezier.pointAlongCurveFrom(curve, location, distance);
+                location = _translateLocation(this.curve, location, absolute);
+                return jsBezier.pointAlongCurveFrom(this.curve, location, distance);
             };
             
             this.getLength = function() {
-                return jsBezier.getLength(curve);				
+                return jsBezier.getLength(this.curve);
             };
 
             this.getBounds = function() {
-                return bounds;
+                return this.bounds;
             };
         }
     };
@@ -1022,7 +1023,6 @@
     	    foldback = params.foldback || 0.623;
     	    	
     	this.computeMaxSize = function() { return self.width * 1.5; };    	
-    	//this.cleanup = function() { };  // nothing to clean up for Arrows    
     	this.draw = function(component, currentConnectionPaintStyle) {
 
             var hxy, mid, txy, tail, cxy;
@@ -1172,7 +1172,7 @@
                 div.style.transform = ts;
 
                 // write the related component into the created element
-                div._jsPlumb = params.component;
+                div._jsPlumb = this;
 
                 if (params.visible === false)
                     div.style.display = "none";
@@ -1243,8 +1243,10 @@
             this._jsPlumb.cachedDimensions = null;
         },
         cleanup : function() {
-            if (this._jsPlumb.div != null) 
+            if (this._jsPlumb.div != null) {
+                this._jsPlumb.div._jsPlumb = null;
                 this._jsPlumb.instance.removeElement(this._jsPlumb.div);
+            }
         },
         computeMaxSize : function() {
             var td = _getDimensions(this);
