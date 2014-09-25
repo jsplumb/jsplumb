@@ -16,8 +16,6 @@
 
 	var libs = [
 		[ "jquery", "jQuery"],
-		[ "mootools", "MooTools" ],
-		[ "yui", "YUI3" ],
 		[ "dom", "Vanilla"]
 	];
 
