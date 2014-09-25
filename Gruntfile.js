@@ -7,8 +7,8 @@ var versions = {
     },
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
 
-    libraries = [ "jquery", "mootools", "yui", "dom" ],
-    libraryNames = [ "jQuery", "MooTools", "YUI3", "Vanilla" ],
+    libraries = [ "jquery", "dom" ],
+    libraryNames = [ "jQuery", "Vanilla" ],
     renderers = [ "svg", "vml" ],
     demos = [
         [ "flowchart", "Flowchart" ],
@@ -22,8 +22,6 @@ var versions = {
     ],
     extraLibraries = {
         jquery:[ get("MOTTLE") ],
-        mootools:[ get("MOTTLE") ],
-        yui:[ get("MOTTLE") ],
         dom:[ get("MOTTLE"), get("KATAVORIO") ]
     }
     objects = {
@@ -164,7 +162,7 @@ module.exports = function(grunt) {
 				  '-W055':true
                 },
             files:{
-                src: ['src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
+                src: [ 'src/base-library-adapter.js', 'src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/jsPlumb.js']
             }
         },
         watch: {
