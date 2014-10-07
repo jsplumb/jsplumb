@@ -878,7 +878,7 @@
                                 // have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
                                 // the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
                                 // it only makes sense to have it on a target endpoint.
-                                _doContinue = _doContinue && this.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, this);
+                                _doContinue = _doContinue && this.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, this) && jpc.pending;
                                                                                                                     
                                 if (_doContinue) {
                                     continueFunction();
