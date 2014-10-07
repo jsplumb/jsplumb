@@ -165,10 +165,13 @@
         this.setAnchor(anchorParamsToUse, true);
         //console.cTimeEnd("set anchor");
 
-        // endpoint delegates to first connection for hover, if there is one.
+        // old behaviour: endpoint delegates to first connection for hover, if there is one.
+        // fixed bug #262: Why shall we only highlight/hover the first connection?
+        //                 Changed this so that all connected endpoints will be highlighted.
         var internalHover = function(state) {
           if (this.connections.length > 0)
-            this.connections[0].setHover(state, false);
+            for (var i = 0; i < this.connections.length; i++)
+              this.connections[i].setHover(state, false);
           else
             this.setHover(state);
         }.bind(this);
