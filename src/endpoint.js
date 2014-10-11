@@ -165,10 +165,13 @@
         this.setAnchor(anchorParamsToUse, true);
         //console.cTimeEnd("set anchor");
 
-        // endpoint delegates to first connection for hover, if there is one.
+        // old behaviour: endpoint delegates to first connection for hover, if there is one.
+        // fixed bug #262: Why shall we only highlight/hover the first connection?
+        //                 Changed this so that all connected endpoints will be highlighted.
         var internalHover = function(state) {
           if (this.connections.length > 0)
-            this.connections[0].setHover(state, false);
+            for (var i = 0; i < this.connections.length; i++)
+              this.connections[i].setHover(state, false);
           else
             this.setHover(state);
         }.bind(this);
@@ -878,7 +881,7 @@
                                 // have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
                                 // the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
                                 // it only makes sense to have it on a target endpoint.
-                                _doContinue = _doContinue && this.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, this);
+                                _doContinue = _doContinue && this.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, this) && jpc.pending;
                                                                                                                     
                                 if (_doContinue) {
                                     continueFunction();
