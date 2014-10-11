@@ -899,7 +899,7 @@
 						draggableStates[elId] = true;  
 						var draggable = draggableStates[elId];
 						options.disabled = draggable == null ? false : !draggable;
-						_currentInstance.initDraggable(element, options, false);
+						_currentInstance.initDraggable(element, options);
 						_currentInstance.dragManager.register(element);
 					}
 				}
@@ -2424,7 +2424,7 @@
 							return de != elInfo.el;
 						};
 					}
-					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
+					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, "internal");
 				}.bind(this);
 
 			// make an array if only given one element
@@ -2667,7 +2667,10 @@
             var id = _getId(el);
             for (var i = 0; i < types.length; i++) {
                 var def = this[types[i]][id];
-                if (def) def.def.scope = scope;
+                if (def) {
+                    def.def.scope = scope;
+                    if (this.scopeChange != null) this.scopeChange(el, id, endpointsByElement[id], scope, types[i]);
+                }
             }
 
         }.bind(this);
@@ -2770,6 +2773,12 @@
 				
 			return _currentInstance;
 		};
+
+        this.revalidate = function(el) {
+            var elId = _currentInstance.getId(el);
+            _currentInstance.updateOffset( { elId : elId, recalc : true } );
+            return _currentInstance.repaint(el);
+        };
 
 		// repaint every endpoint and connection.
 		this.repaintEverything = function(clearEdits) {	

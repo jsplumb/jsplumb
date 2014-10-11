@@ -116,12 +116,12 @@
 <p>You need to identify some element that is the parent of all of your nodes and the jsPlumb artefacts. This is probably fairly obvious. What you might not know about, though, is the <code>Container</code> concept in jsPlumb.  If you don&#39;t, I&#39;d encourage you to go [[read this page|home#container]] just quickly, because the best thing to do is to correctly configure a <code>Container</code> and then manipulate the <code>transform</code> property of that element.</p>
 
 <p>Let&#39;s say we have some <code>div</code> whose id is <code>drawing</code>, and we&#39;re going to use that as the <code>Container</code>:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="s2">&quot;drawing&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="s2">&quot;drawing&quot;</span><span class="p">);</span>
 </code></pre></div>
 <h4>CSS <code>transform</code> property</h4>
 
 <p>Now to set the zoom to 0.75, say, we change the <code>transform</code> property accordingly. Remember that <code>transform</code> is one of those properties that have several vendor prefix versions, so there are several ways to do what I&#39;ve got here, and, given that you&#39;re probably a computer programmer, you&#39;ve most likely got a favourite.  But anyway, here&#39;s something.</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#drawing&quot;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#drawing&quot;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span>
   <span class="s2">&quot;-webkit-transform&quot;</span><span class="o">:</span><span class="s2">&quot;scale(0.75)&quot;</span><span class="p">,</span>
   <span class="s2">&quot;-moz-transform&quot;</span><span class="o">:</span><span class="s2">&quot;scale(0.75)&quot;</span><span class="p">,</span>
   <span class="s2">&quot;-ms-transform&quot;</span><span class="o">:</span><span class="s2">&quot;scale(0.75)&quot;</span><span class="p">,</span>
@@ -132,12 +132,12 @@
 <h4>jsPlumb.setZoom</h4>
 
 <p>You now need to tell jsPlumb about the new zoom level:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setZoom</span><span class="p">(</span><span class="mf">0.75</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setZoom</span><span class="p">(</span><span class="mf">0.75</span><span class="p">);</span>
 </code></pre></div>
 <h4>A Helper Function</h4>
 
 <p>Maybe you&#39;d like to just grab this:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nb">window</span><span class="p">.</span><span class="nx">setZoom</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">zoom</span><span class="p">,</span> <span class="nx">instance</span><span class="p">,</span> <span class="nx">transformOrigin</span><span class="p">,</span> <span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nb">window</span><span class="p">.</span><span class="nx">setZoom</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">zoom</span><span class="p">,</span> <span class="nx">instance</span><span class="p">,</span> <span class="nx">transformOrigin</span><span class="p">,</span> <span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
   <span class="nx">transformOrigin</span> <span class="o">=</span> <span class="nx">transformOrigin</span> <span class="o">||</span> <span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span> <span class="p">];</span>
   <span class="nx">instance</span> <span class="o">=</span> <span class="nx">instance</span> <span class="o">||</span> <span class="nx">jsPlumb</span><span class="p">;</span>
   <span class="nx">el</span> <span class="o">=</span> <span class="nx">el</span> <span class="o">||</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">getContainer</span><span class="p">();</span>

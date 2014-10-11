@@ -599,12 +599,18 @@
 */
 
 /**
-* Repaints an element and its connections. This method gets new sizes for the elements before painting anything.
+* Repaints an element and its connections.
 * @method repaint
 * @param {String|Element|Selector} el The element in question.
 * @return {jsPlumbInstance} The current jsPlumb instance.
 * @see jsPlumbInstance#repaintEverything
 */
+
+/**
+ * Clears the offset and size cache for an element, then repaints it and its connections.
+ * @method revalidate
+ * @param {String|Element|Selector} el The element in question.
+ */
 
 /**
 * Repaints all connections and endpoints.

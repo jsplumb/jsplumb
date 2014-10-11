@@ -701,7 +701,7 @@
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
 
-                _jsPlumb.initDraggable(this.canvas, dragOptions, true);
+                _jsPlumb.initDraggable(this.canvas, dragOptions, "internal");
 
                 this.canvas._jsPlumbRelatedElement = this.element;
 
@@ -814,7 +814,7 @@
                                     if (!jpc.suspendedEndpoint) {  
                                         // if not an existing connection and
                                         if (params.draggable)
-                                            jsPlumb.initDraggable(this.element, dragOptions, true, _jsPlumb);
+                                            jsPlumb.initDraggable(this.element, dragOptions, "internal", _jsPlumb);
                                     }
                                     else {
                                         var suspendedElementId = jpc.suspendedEndpoint.elementId;
@@ -932,7 +932,7 @@
                 }.bind(this));
 
                 //console.cTimeStart("jsplumb init drop");
-                _jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
+                _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
                 //console.cTimeEnd("jsplumb init drop");
 
                 //console.cTimeEnd("init drop target");
@@ -992,8 +992,8 @@
             this.endpoint = null;
             // drag/drop
             var i = jsPlumb.getElementObject(this.canvas);              
-            this._jsPlumb.instance.destroyDraggable(i, true);
-            this._jsPlumb.instance.destroyDroppable(i, true);
+            this._jsPlumb.instance.destroyDraggable(i, "internal");
+            this._jsPlumb.instance.destroyDroppable(i, "internal");
         },
         setHover : function(h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())

@@ -16,6 +16,8 @@ jsPlumb.ready(function() {
 		Container:"statemachine-demo"
 	});
 
+    window.jsp = instance;
+
 	var windows = jsPlumb.getSelector(".statemachine-demo .w");
 
     // initialise draggable elements.

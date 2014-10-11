@@ -18,9 +18,11 @@
 
 	"use strict";
 
-	 var _getDragManager = function(instance, isPlumbedComponent) {
+	 var _getDragManager = function(instance, category) {
 
-		var k = instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"],
+        category = category || "main";
+        var key = "_katavorio_" + category;
+		var k = instance[key],
 			e = instance.getEventManager();
 			
 		if (!k) {
@@ -50,7 +52,7 @@
 					hover:"jsplumb-drag-hover"
 				}
 			});
-			instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"] = k;
+			instance[key] = k;
 			instance.bind("zoom", k.setZoom);
 		}
 		return k;
@@ -73,6 +75,10 @@
 	 };
 
 	jsPlumb.extend(jsPlumbInstance.prototype, {
+
+        scopeChange:function(el, elId, endpoints, scope, types) {
+            console.log("scope change for ", elId, scope, types);
+        },
 	
 		getDOMElement:function(el) { 
 			if (el == null) return null;
@@ -133,17 +139,17 @@
 			return sel;
 		},
 		// DRAG/DROP
-		destroyDraggable:function(el, isPlumbedComponent) {
-			_getDragManager(this, isPlumbedComponent).destroyDraggable(el);
+		destroyDraggable:function(el, category) {
+			_getDragManager(this, category).destroyDraggable(el);
 		},
-		destroyDroppable:function(el, isPlumbedComponent) {
-			_getDragManager(this, isPlumbedComponent).destroyDroppable(el);
+		destroyDroppable:function(el, category) {
+			_getDragManager(this, category).destroyDroppable(el);
 		},
-		initDraggable : function(el, options, isPlumbedComponent) {
-			_getDragManager(this, isPlumbedComponent).draggable(el, options);
+		initDraggable : function(el, options, category) {
+			_getDragManager(this, category).draggable(el, options);
 		},
-		initDroppable : function(el, options, isPlumbedComponent) { 
-			_getDragManager(this, isPlumbedComponent).droppable(el, options);
+		initDroppable : function(el, options, category) {
+			_getDragManager(this, category).droppable(el, options);
 		},
 		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
 		isDragSupported : function(el, options) { return true; },

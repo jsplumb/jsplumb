@@ -108,14 +108,14 @@ Depending on the method you are calling, the parameter names vary.</p>
 <h5>Connector Paint Styles</h5>
 
 <p>These are specified in a <code>paintStyle</code> parameter on a call to <code>jsPlumb.connect</code>:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
     paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
 });
 </code></pre></div>
 <p>or in the <code>connectorPaintStyle</code> parameter on a call to <code>jsPlumb.addEndpoint</code> or <code>jsPlumb.makeSource</code>:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
     paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
     connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
 });
@@ -130,13 +130,13 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 <h5>Endpoint Paint Styles</h5>
 
 <p>These are specified in a <code>paintStyle</code> parameter on a call to <code>addEndpoint</code>. This is the example from just above:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
     paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
     connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
 });
 </code></pre></div>
 <p>...or as the <code>endpointStyle</code> parameter to a <code>connect</code> call:     </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
     endpointStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
@@ -144,7 +144,7 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 });
 </code></pre></div>
 <p>... or as an entry in the <code>endpointStyles</code> array passed to a <code>jsPlumb.connect</code> call:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
     endpointStyles:[ 
@@ -155,7 +155,7 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 });
 </code></pre></div>
 <p>or as the <code>paintStyle</code> parameter passed to a <code>makeTarget</code> or <code>makeSource</code> call:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeTarget(&quot;el1&quot;, {
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.makeTarget(&quot;el1&quot;, {
     ...
     paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
     ...
@@ -203,7 +203,7 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 <p>Connectors and Endpoints both support the concept of a &quot;hover&quot; paint style - a paint style to use when the mouse is hovering over the component.  These are specified in the exact same format as paint styles discussed above, but hover paint styles also inherit any values from the main paint style.  This is because you will typically want to just change the color, or perhaps outline color, of a Connector or Endpoint when the mouse is hovering, but leave everything else the same.  So having hover paint styles inherit their values precludes you from having to define things in more than one place.</p>
 
 <p>The naming convention adopted for hover paint styles is pretty much to insert the word &#39;hover&#39; into the corresponding main paint style parameters.  Here are a couple of examples:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
     paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
@@ -213,7 +213,7 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 });
 </code></pre></div>
 <p>In this example we specified a hover style for both the Connector, and each of its Endpoints.  Here&#39;s the same thing, but using the plural version, to specify a different hover style for each Endpoint:   </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
     paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
@@ -226,7 +226,7 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 });
 </code></pre></div>
 <p>Calls to <code>addEndpoint</code>, <code>makeSource</code> and <code>makeTarget</code> can also specify various hover paint styles:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
     paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
     hoverPaintStyle:{ fillStyle:&quot;red&quot; },
     connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
@@ -273,7 +273,7 @@ jsPlumb.makeTarget(&quot;el3&quot;, {
 <h5>Connector gradients</h5>
 
 <p>To specify a linear gradient to use in a Connector, you must add a <code>gradient</code> object to your Connector&#39;s <code>paintStyle</code>, for instance:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
   <span class="nx">source</span> <span class="o">:</span> <span class="s2">&quot;window2&quot;</span><span class="p">,</span>
   <span class="nx">target</span> <span class="o">:</span> <span class="s2">&quot;window3&quot;</span><span class="p">,</span>
   <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span>
@@ -289,7 +289,7 @@ jsPlumb.makeTarget(&quot;el3&quot;, {
 <p>Notice the <code>gradient</code> object and the <code>stops</code> list inside it - the gradient consists of an arbitrary number of these &quot;color stops&quot;.  Each color stop is comprised of two values - [position, color].  Position must be a decimal value between 0 and 1 (inclusive), and indicates where the color stop is situated as a fraction of the length of the entire gradient.  Valid values for the colors in the stops list are the same as those that are valid for strokeStyle when describing a color.</p>
 
 <p>As mentioned, the stops list can hold an arbitrary number of entries.  Here&#39;s an example of a gradient that goes from red to blue to green, and back again through blue to red:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window2&#39;</span><span class="p">,</span>
   <span class="nx">target</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span>
   <span class="nx">paintStyle</span> <span class="o">:</span> <span class="p">{</span>
@@ -301,7 +301,7 @@ jsPlumb.makeTarget(&quot;el3&quot;, {
 <span class="p">});</span>
 </code></pre></div>
 <p><strong>Note:</strong> when using the VML renderer, jsPlumb will simply ignore the gradient directive, so it is best to ensure you also supply a <code>strokeStyle</code> in your paintStyle object, to give jsPlumb something to fall back on.  If you do not supply a <code>strokeStyle</code> your Connectors will be painted black.  The previous example might look like this, for instance:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window2&#39;</span><span class="p">,</span>
   <span class="nx">target</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span>
   <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span>
@@ -320,7 +320,7 @@ jsPlumb.makeTarget(&quot;el3&quot;, {
 <p>Endpoint gradients are specified using the same syntax as Connector gradients.  You put the gradient specifier either in the <code>endpoint</code> member, or if you are specifying different Endpoints for each end of the Connector, in one or both of the values in the <code>endpoints</code> array.  Also, this information applies to the case that you are creating standalone Endpoints that you will be configuring for drag and drop creation of new Connections. </p>
 
 <p>This is an example of an Endpoint gradient that is different for each Endpoint in the Connector.  This comes from the main demo; it is the Connector joining Window 2 to Window 3:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">w23Stroke</span> <span class="o">=</span> <span class="s1">&#39;rgb(189,11,11)&#39;</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">w23Stroke</span> <span class="o">=</span> <span class="s1">&#39;rgb(189,11,11)&#39;</span><span class="p">;</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window2&#39;</span><span class="p">,</span>
   <span class="nx">target</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span>
@@ -357,7 +357,7 @@ you want in this gradient, just like with Connector gradients.</p>
 <p>Radial gradients actually require more data than linear gradients - in a linear gradient we just move from one point to another, whereas in a radial gradient we move from one <em>circle</em> to another.  By default, jsPlumb will render a radial gradient using a source circle of the same radius as the Endpoint itself, and a target circle of 1/3 of the radius of the Endpoint (both circles share the same center as the Endpoint itself). This circle will be offset by radius/2 in each direction.</p>
 
 <p>You can supply your own values for these inside the gradient descriptor:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">w34Stroke</span> <span class="o">=</span> <span class="s1">&#39;rgba(50, 50, 200, 1)&#39;</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">w34Stroke</span> <span class="o">=</span> <span class="s1">&#39;rgba(50, 50, 200, 1)&#39;</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">w34HlStroke</span> <span class="o">=</span> <span class="s1">&#39;rgba(180, 180, 200, 1)&#39;</span><span class="p">;</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span>
@@ -380,7 +380,7 @@ you want in this gradient, just like with Connector gradients.</p>
 <p>Here we have instructed jsPlumb to make the gradient&#39;s inner radius 10px instead of the default 25/3 = 8 ish pixels, and the offset in each direction will be 5px, instead of the default radius / 2 = 12.5 pixels.</p>
 
 <p>It is also possible to specify the offset and inner radius as percentages - enter the values as strings with a &#39;%&#39; symbol on the end:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">w34Stroke</span> <span class="o">=</span> <span class="s1">&#39;rgba(50, 50, 200, 1)&#39;</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">w34Stroke</span> <span class="o">=</span> <span class="s1">&#39;rgba(50, 50, 200, 1)&#39;</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">w34HlStroke</span> <span class="o">=</span> <span class="s1">&#39;rgba(180, 180, 200, 1)&#39;</span><span class="p">;</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span> 

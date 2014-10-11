@@ -3092,7 +3092,7 @@ if (typeof console != "undefined") {
 						draggableStates[elId] = true;  
 						var draggable = draggableStates[elId];
 						options.disabled = draggable == null ? false : !draggable;
-						_currentInstance.initDraggable(element, options, false);
+						_currentInstance.initDraggable(element, options);
 						_currentInstance.dragManager.register(element);
 					}
 				}
@@ -4617,7 +4617,7 @@ if (typeof console != "undefined") {
 							return de != elInfo.el;
 						};
 					}
-					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
+					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, "internal");
 				}.bind(this);
 
 			// make an array if only given one element
@@ -4860,7 +4860,10 @@ if (typeof console != "undefined") {
             var id = _getId(el);
             for (var i = 0; i < types.length; i++) {
                 var def = this[types[i]][id];
-                if (def) def.def.scope = scope;
+                if (def) {
+                    def.def.scope = scope;
+                    if (this.scopeChange != null) this.scopeChange(el, id, endpointsByElement[id], scope, types[i]);
+                }
             }
 
         }.bind(this);
@@ -4963,6 +4966,12 @@ if (typeof console != "undefined") {
 				
 			return _currentInstance;
 		};
+
+        this.revalidate = function(el) {
+            var elId = _currentInstance.getId(el);
+            _currentInstance.updateOffset( { elId : elId, recalc : true } );
+            return _currentInstance.repaint(el);
+        };
 
 		// repaint every endpoint and connection.
 		this.repaintEverything = function(clearEdits) {	
@@ -5979,7 +5988,7 @@ if (typeof console != "undefined") {
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
 
-                _jsPlumb.initDraggable(this.canvas, dragOptions, true);
+                _jsPlumb.initDraggable(this.canvas, dragOptions, "internal");
 
                 this.canvas._jsPlumbRelatedElement = this.element;
 
@@ -6092,7 +6101,7 @@ if (typeof console != "undefined") {
                                     if (!jpc.suspendedEndpoint) {  
                                         // if not an existing connection and
                                         if (params.draggable)
-                                            jsPlumb.initDraggable(this.element, dragOptions, true, _jsPlumb);
+                                            jsPlumb.initDraggable(this.element, dragOptions, "internal", _jsPlumb);
                                     }
                                     else {
                                         var suspendedElementId = jpc.suspendedEndpoint.elementId;
@@ -6210,7 +6219,7 @@ if (typeof console != "undefined") {
                 }.bind(this));
 
                 //console.cTimeStart("jsplumb init drop");
-                _jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
+                _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
                 //console.cTimeEnd("jsplumb init drop");
 
                 //console.cTimeEnd("init drop target");
@@ -6270,8 +6279,8 @@ if (typeof console != "undefined") {
             this.endpoint = null;
             // drag/drop
             var i = jsPlumb.getElementObject(this.canvas);              
-            this._jsPlumb.instance.destroyDraggable(i, true);
-            this._jsPlumb.instance.destroyDroppable(i, true);
+            this._jsPlumb.instance.destroyDraggable(i, "internal");
+            this._jsPlumb.instance.destroyDroppable(i, "internal");
         },
         setHover : function(h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())

@@ -130,7 +130,7 @@
 <h3>jsPlumb Events</h3>
 
 <p>To bind an to event on jsPlumb itself (or a jsPlumb instance), use <code>jsPlumb.bind(event, callback)</code>:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.bind(&quot;connection&quot;, function(info) {
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.bind(&quot;connection&quot;, function(info) {
    .. update your model in here, maybe.
 });
 </code></pre></div>
@@ -272,7 +272,7 @@
 <h3>Connection Events</h3>
 
 <p>To bind to an event on a Connection, you also use the <code>bind</code> method:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var connection = jsPlumb.connect({source:&quot;d1&quot;, target:&quot;d2&quot;});
+<div class="highlight"><pre><code class="language-text" data-lang="text">var connection = jsPlumb.connect({source:&quot;d1&quot;, target:&quot;d2&quot;});
 connection.bind(&quot;click&quot;, function(conn) {
     console.log(&quot;you clicked on &quot;, conn);
 });
@@ -294,7 +294,7 @@ connection.bind(&quot;click&quot;, function(conn) {
 <h3>Endpoint Events</h3>
 
 <p>To bind to an event on a Endpoint, you again use the <code>bind</code> method:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var endpoint = jsPlumb.addEndpoint(&quot;d1&quot;, { someOptions } );
+<div class="highlight"><pre><code class="language-text" data-lang="text">var endpoint = jsPlumb.addEndpoint(&quot;d1&quot;, { someOptions } );
 endpoint.bind(&quot;click&quot;, function(endpoint) {
     console.log(&quot;you clicked on &quot;, endpoint);
 });
@@ -325,7 +325,7 @@ endpoint.bind(&quot;click&quot;, function(endpoint) {
 <p>Registering event listeners on an Overlay is a slightly different procedure - you provide them as arguments to the Overlay&#39;s constructor.  This is because you never actually act on an Overlay object.  </p>
 
 <p>Here&#39;s how to register a click listener on an Overlay:          </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
     overlays:[
@@ -355,10 +355,10 @@ endpoint.bind(&quot;click&quot;, function(endpoint) {
 <h3>Unbinding Events</h3>
 
 <p>On the jsPlumb object and on Connections and Endpoints, you can use the <code>unbind</code> method to remove a listener.  This method either takes the name of the event to unbind:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.unbind(&quot;click&quot;);
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.unbind(&quot;click&quot;);
 </code></pre></div>
 <p>...or no argument, meaning unbind all events:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var e = jsPlumb.addEndpoint(&quot;someDiv&quot;);
+<div class="highlight"><pre><code class="language-text" data-lang="text">var e = jsPlumb.addEndpoint(&quot;someDiv&quot;);
 e.bind(&quot;click&quot;, function() { ... });
 e.bind(&quot;dblclick&quot;, function() { ... });
 

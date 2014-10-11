@@ -1906,15 +1906,19 @@ var testSuite = function(renderMode, _jsPlumb) {
 
     test(": makeSource, manipulate scope programmatically", function() {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
-        _jsPlumb.makeSource(d16, {scope:"foo"});
-        _jsPlumb.makeTarget(d17, {scope:"bar"});
-        _jsPlumb.makeTarget(d18, {scope:"qux"});
+        _jsPlumb.makeSource(d16, {scope:"foo", isSource:true, maxConnections:-1});
+        _jsPlumb.makeTarget(d17, {scope:"bar", maxConnections:-1});
+        _jsPlumb.makeTarget(d18, {scope:"qux", maxConnections:-1});
 
         equal(_jsPlumb.getSourceScope(d16), "foo", "scope of makeSource element retrieved");
         equal(_jsPlumb.getTargetScope(d17), "bar", "scope of makeTarget element retrieved");
+
+        var c = _jsPlumb.connect({source:d16, target:d17});
+        ok(c == null, "connection was established");
+
         // change scope of source, then try to connect, and it should fail.
         _jsPlumb.setSourceScope(d16, "qux");
-        var c = _jsPlumb.connect({source:d16, target:d17});
+        c = _jsPlumb.connect({source:d16, target:d17});
         ok(c == null, "connection was not established due to unmatched scopes");
 
         _jsPlumb.setTargetScope(d17, "foo qux");
@@ -1932,6 +1936,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         equal(_jsPlumb.getScope(d16), "qux", "source scope retrieved for d16");
         equal(_jsPlumb.getScope(d18), "qux", "target scope retrieved for d18");
         equal(_jsPlumb.getScope(d17), "BAZ", "source scope retrieved for d17, although target scope is set too");
+
     });
 
     

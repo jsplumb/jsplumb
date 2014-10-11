@@ -109,7 +109,7 @@
 <h5>Detaching a single connection</h5>
 
 <p>To remove a single Connection, use <code>jsPlumb.detach</code>:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var conn = jsPlumb.connect({ some params});
+<div class="highlight"><pre><code class="language-text" data-lang="text">var conn = jsPlumb.connect({ some params});
 ...
 jsPlumb.detach(conn);
 </code></pre></div>
@@ -131,7 +131,7 @@ jsPlumb.detach(conn);
 <h5>Detaching all Connections from a single element</h5>
 
 <p>To detach all the Connections from some given element:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.detachAllConnections(el, [params])
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.detachAllConnections(el, [params])
 </code></pre></div>
 <p><strong>el</strong> may be:</p>
 
@@ -150,7 +150,7 @@ jsPlumb.detach(conn);
 <h4>Detaching all Connections from every element</h4>
 
 <p>To detach every Connection in jsPlumb:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.detachEveryConnection();
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.detachEveryConnection();
 </code></pre></div>
 <p>This leaves all Endpoints in place according to the deletion rules outlined in the description of <code>jsPlumb.detach</code> above.</p>
 
@@ -159,7 +159,7 @@ jsPlumb.detach(conn);
 <h5>Deleting a single Endpoint</h5>
 
 <p>To delete a single Endpoint:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var ep = jsPlumb.addEndpoint(someElement, { ... });
+<div class="highlight"><pre><code class="language-text" data-lang="text">var ep = jsPlumb.addEndpoint(someElement, { ... });
 ...
 jsPlumb.deleteEndpoint(ep);
 </code></pre></div>
@@ -173,7 +173,7 @@ jsPlumb.deleteEndpoint(ep);
 <h5>Deleting every Endpoint</h5>
 
 <p>To delete every Endpoint in jsPlumb:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.deleteEveryEndpoint();
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.deleteEveryEndpoint();
 </code></pre></div>
 <p>This has the effect of removing every Endpoint and also every Connection. </p>
 

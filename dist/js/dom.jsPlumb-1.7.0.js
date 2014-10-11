@@ -1433,7 +1433,7 @@
 
         this.abort = function() {
             if (downAt != null)
-                upListener();
+                this.upListener();
         };
 
         this.getDragElement = function() {
@@ -1460,7 +1460,6 @@
             matchingDroppables.length = 0;
             for (var i = 0; i < intersectingDroppables.length; i++)
                 intersectingDroppables[i].drop(this, e);
-            this.params.removeClass(dragEl, this.params.dragClass || css.drag);
         };
         this.moveBy = function(dx, dy, e) {
             intersectingDroppables.length = 0;
@@ -1486,9 +1485,9 @@
             this.downListener = null;
             this.upListener = null;
             this.moveListener = null;
-            this.params = null;
-            this.el = null;
-            dragEl = null;
+            //this.params = null;
+            //this.el = null;
+            //dragEl = null;
         };
 
         // init:register mousedown, and perhaps set a filter
@@ -1578,13 +1577,17 @@
                 }
             },
             _unreg = function(obj, map) {
+                var c = 0;
                 for(var i = 0; i < obj.scopes.length; i++) {
                     if (map[obj.scopes[i]]) {
                         var idx = katavorioParams.indexOf(map[obj.scopes[i]], obj);
-                        if (idx != -1)
+                        if (idx != -1) {
                             map[obj.scopes[i]].splice(idx, 1);
+                            c++;
+                        }
                     }
                 }
+                return c > 0 ;
             },
             _getMatchingDroppables = this.getMatchingDroppables = function(drag) {
                 var dd = [], _m = {};
@@ -1776,8 +1779,8 @@
         var _destroy = function(el, type, map) {
             el = _gel(el);
             if (el[type]) {
-                el[type].destroy();
-                _unreg(el[type], map);
+                if (_unreg(el[type], map))
+                    el[type].destroy();
                 el[type] = null;
             }
         };
@@ -1796,6 +1799,7 @@
         };
     };
 }).call(this);
+
 /*
  * jsPlumb
  *
@@ -3747,7 +3751,7 @@ if (typeof console != "undefined") {
 						draggableStates[elId] = true;  
 						var draggable = draggableStates[elId];
 						options.disabled = draggable == null ? false : !draggable;
-						_currentInstance.initDraggable(element, options, false);
+						_currentInstance.initDraggable(element, options);
 						_currentInstance.dragManager.register(element);
 					}
 				}
@@ -5272,7 +5276,7 @@ if (typeof console != "undefined") {
 							return de != elInfo.el;
 						};
 					}
-					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
+					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, "internal");
 				}.bind(this);
 
 			// make an array if only given one element
@@ -5515,7 +5519,10 @@ if (typeof console != "undefined") {
             var id = _getId(el);
             for (var i = 0; i < types.length; i++) {
                 var def = this[types[i]][id];
-                if (def) def.def.scope = scope;
+                if (def) {
+                    def.def.scope = scope;
+                    if (this.scopeChange != null) this.scopeChange(el, id, endpointsByElement[id], scope, types[i]);
+                }
             }
 
         }.bind(this);
@@ -5618,6 +5625,12 @@ if (typeof console != "undefined") {
 				
 			return _currentInstance;
 		};
+
+        this.revalidate = function(el) {
+            var elId = _currentInstance.getId(el);
+            _currentInstance.updateOffset( { elId : elId, recalc : true } );
+            return _currentInstance.repaint(el);
+        };
 
 		// repaint every endpoint and connection.
 		this.repaintEverything = function(clearEdits) {	
@@ -6634,7 +6647,7 @@ if (typeof console != "undefined") {
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
 
-                _jsPlumb.initDraggable(this.canvas, dragOptions, true);
+                _jsPlumb.initDraggable(this.canvas, dragOptions, "internal");
 
                 this.canvas._jsPlumbRelatedElement = this.element;
 
@@ -6747,7 +6760,7 @@ if (typeof console != "undefined") {
                                     if (!jpc.suspendedEndpoint) {  
                                         // if not an existing connection and
                                         if (params.draggable)
-                                            jsPlumb.initDraggable(this.element, dragOptions, true, _jsPlumb);
+                                            jsPlumb.initDraggable(this.element, dragOptions, "internal", _jsPlumb);
                                     }
                                     else {
                                         var suspendedElementId = jpc.suspendedEndpoint.elementId;
@@ -6865,7 +6878,7 @@ if (typeof console != "undefined") {
                 }.bind(this));
 
                 //console.cTimeStart("jsplumb init drop");
-                _jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
+                _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
                 //console.cTimeEnd("jsplumb init drop");
 
                 //console.cTimeEnd("init drop target");
@@ -6925,8 +6938,8 @@ if (typeof console != "undefined") {
             this.endpoint = null;
             // drag/drop
             var i = jsPlumb.getElementObject(this.canvas);              
-            this._jsPlumb.instance.destroyDraggable(i, true);
-            this._jsPlumb.instance.destroyDroppable(i, true);
+            this._jsPlumb.instance.destroyDraggable(i, "internal");
+            this._jsPlumb.instance.destroyDroppable(i, "internal");
         },
         setHover : function(h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())
@@ -11785,9 +11798,11 @@ if (typeof console != "undefined") {
 
 	"use strict";
 
-	 var _getDragManager = function(instance, isPlumbedComponent) {
+	 var _getDragManager = function(instance, category) {
 
-		var k = instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"],
+        category = category || "main";
+        var key = "_katavorio_" + category;
+		var k = instance[key],
 			e = instance.getEventManager();
 			
 		if (!k) {
@@ -11817,7 +11832,7 @@ if (typeof console != "undefined") {
 					hover:"jsplumb-drag-hover"
 				}
 			});
-			instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"] = k;
+			instance[key] = k;
 			instance.bind("zoom", k.setZoom);
 		}
 		return k;
@@ -11840,6 +11855,10 @@ if (typeof console != "undefined") {
 	 };
 
 	jsPlumb.extend(jsPlumbInstance.prototype, {
+
+        scopeChange:function(el, elId, endpoints, scope, types) {
+            console.log("scope change for ", elId, scope, types);
+        },
 	
 		getDOMElement:function(el) { 
 			if (el == null) return null;
@@ -11900,17 +11919,17 @@ if (typeof console != "undefined") {
 			return sel;
 		},
 		// DRAG/DROP
-		destroyDraggable:function(el, isPlumbedComponent) {
-			_getDragManager(this, isPlumbedComponent).destroyDraggable(el);
+		destroyDraggable:function(el, category) {
+			_getDragManager(this, category).destroyDraggable(el);
 		},
-		destroyDroppable:function(el, isPlumbedComponent) {
-			_getDragManager(this, isPlumbedComponent).destroyDroppable(el);
+		destroyDroppable:function(el, category) {
+			_getDragManager(this, category).destroyDroppable(el);
 		},
-		initDraggable : function(el, options, isPlumbedComponent) {
-			_getDragManager(this, isPlumbedComponent).draggable(el, options);
+		initDraggable : function(el, options, category) {
+			_getDragManager(this, category).draggable(el, options);
 		},
-		initDroppable : function(el, options, isPlumbedComponent) { 
-			_getDragManager(this, isPlumbedComponent).droppable(el, options);
+		initDroppable : function(el, options, category) {
+			_getDragManager(this, category).droppable(el, options);
 		},
 		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
 		isDragSupported : function(el, options) { return true; },

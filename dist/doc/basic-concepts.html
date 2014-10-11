@@ -129,14 +129,14 @@
 <h3>Connector, Endpoint, Anchor &amp; Overlay Definitions</h3>
 
 <p>Whenever you need to define a Connector, Endpoint, Anchor or Overlay, you must use a &quot;definition&quot; of it, rather than constructing one directly.  This definition can be either a string that nominates the artifact you want to create - see the <code>endpoint</code> parameter here:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;someDiv&quot;,
     target:&quot;someOtherDiv&quot;,
     endpoint:&quot;Rectangle&quot;
 });
 </code></pre></div>
 <p>...or an array consisting of both the artifact&#39;s name and the arguments you want to pass to its constructor:        </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
+<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;someDiv&quot;,
     target:&quot;someOtherDiv&quot;,
     endpoint:[ &quot;Rectangle&quot;, { 
@@ -147,7 +147,7 @@
 });
 </code></pre></div>
 <p>There is also a three-argument method that allows you to specify two sets of parameters, which jsPlumb will merge together for you. The idea behind this is that you will often want to define common characteristics somewhere and reuse them across a bunch of different calls:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var common = {
+<div class="highlight"><pre><code class="language-text" data-lang="text">var common = {
     cssClass    :   &quot;myCssClass&quot;,
     hoverClass  :   &quot;myHoverClass&quot;
 };
@@ -158,7 +158,7 @@ jsPlumb.connect({
 });
 </code></pre></div>
 <p>This syntax is supported for all Endpoint, Connector, Anchor and Overlay definitions.  Here&#39;s an example using definitions for all four:            </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var common = {
+<div class="highlight"><pre><code class="language-text" data-lang="text">var common = {
     cssClass:&quot;myCssClass&quot;
 };
 jsPlumb.connect({

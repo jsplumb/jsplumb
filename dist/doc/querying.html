@@ -200,12 +200,12 @@
 <ul>
 <li>Select all Connections and set their hover state to be false:</li>
 </ul>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">().</span><span class="nx">setHover</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">().</span><span class="nx">setHover</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
 </code></pre></div>
 <ul>
 <li>Select all Connections from &quot;d1&quot; and remove all Overlays:</li>
 </ul>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">}).</span><span class="nx">removeAllOverlays</span><span class="p">();</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">}).</span><span class="nx">removeAllOverlays</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><p>Select all connections in scope &quot;foo&quot; and set their paint style to be a thick blue line:
@@ -234,12 +234,12 @@ jsPlumb.select().removeClass(&quot;foo&quot;);
 <h5>Iterating through results</h5>
 
 <p>The return value of <code>jsPlumb.select</code> has a <code>.each</code> function that allows you to iterate through the list, performing an operation on each one:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// do something </span>
 <span class="p">});</span>
 </code></pre></div>
 <p><code>.each</code> is itself chainable:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>   
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>   
         <span class="c1">// do something </span>
 <span class="p">}).</span><span class="nx">setHover</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
@@ -263,10 +263,10 @@ jsPlumb.select().removeClass(&quot;foo&quot;);
 <h5>Retrieving connections for a single scope</h5>
 
 <p>To do this, you call <code>getConnections</code> with either no arguments, in which case jsPlumb uses the default scope, or with a string specifying one scope</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connectionList</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">();</span> <span class="c1">// you get a list of Connection objects that are in the default scope.</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connectionList</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">();</span> <span class="c1">// you get a list of Connection objects that are in the default scope.</span>
 </code></pre></div>
 <p>Compare this with:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connectionList</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">(</span><span class="s2">&quot;myScope&quot;</span><span class="p">);</span>     <span class="c1">// you get a list of Connection objects that are in &quot;myScope&quot;.</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connectionList</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">(</span><span class="s2">&quot;myScope&quot;</span><span class="p">);</span>     <span class="c1">// you get a list of Connection objects that are in &quot;myScope&quot;.</span>
 </code></pre></div>
 <p><a name="getConnectionsAdvanced"></a></p>
 
@@ -283,12 +283,12 @@ jsPlumb.select().removeClass(&quot;foo&quot;);
 <p>Each of these three parameters may be supplied as a string, which for source and target is an element id and for scope is the name of the scope, or a list of strings.  Also, you can pass &quot;*&quot; in as the value for any of these - a wildcard, meaning any value.  See the examples below.</p>
 
 <p><strong>Important:</strong> The return value of a call to <code>getConnection</code> using a JS object as parameter varies on how many scopes you defined.  If you defined only a single scope then jsPlumb returns you a list of Connections in that scope.  Otherwise the return value is a dictionary whose keys are  scope names, and whose values are lists of Connections. For example, the following call:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">({</span>
   <span class="nx">scope</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;someScope&quot;</span><span class="p">,</span> <span class="s2">&quot;someCustomScope&quot;</span><span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>would result in this output:            </p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">{</span>
   <span class="s2">&quot;someScope&quot;</span> <span class="o">:</span> <span class="p">[</span> <span class="mi">1</span><span class="p">..</span><span class="nx">n</span> <span class="nx">Connections</span> <span class="p">],</span>
   <span class="s2">&quot;someCustomScope&quot;</span><span class="o">:</span> <span class="p">[</span> <span class="mi">1</span><span class="p">..</span><span class="nx">m</span> <span class="nx">Connections</span> <span class="p">]</span>
 <span class="p">}</span>
@@ -296,12 +296,12 @@ jsPlumb.select().removeClass(&quot;foo&quot;);
 <p>This has tripped up many a developer who has been reluctant to take the time to read the documentation.  </p>
 
 <p>There is an optional second parameter that tells getConnections to flatten its output and just return you an array.  The previous example with this parameter would look like this:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">({</span>
   <span class="nx">scope</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;someScope&quot;</span><span class="p">,</span> <span class="s2">&quot;someCustomScope&quot;</span><span class="p">]</span>
 <span class="p">},</span> <span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
 <p>...and would result in this output:         </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">[ 1..n Connections ]
+<div class="highlight"><pre><code class="language-text" data-lang="text">[ 1..n Connections ]
 </code></pre></div>
 <p><a name="getConnectionsExamples"></a>
 The following examples show the various ways you can get connection information:</p>
@@ -478,13 +478,13 @@ jsPlumb.selectEndpoints({source:&quot;d1&quot;}).detachAll();
 <p>The return value of jsPlumb.selectEndpoints also has a <code>.each</code> function that allows you to iterate through the list, performing an operation on each one:
 ```javascript
 jsPlumb.selectEndpoints({scope:&quot;foo&quot;}).each(function(endpoint) {</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">    // do something 
+<div class="highlight"><pre><code class="language-text" data-lang="text">    // do something 
 </code></pre></div>
 <p>});
 ```</p>
 
 <p><code>.each</code> is itself chainable:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">selectEndpoints</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">endpoint</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">selectEndpoints</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">endpoint</span><span class="p">)</span> <span class="p">{</span>
 
         <span class="c1">// do something </span>
 
