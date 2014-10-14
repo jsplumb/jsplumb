@@ -5447,15 +5447,13 @@ if (typeof console != "undefined") {
         };
 
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
-
-        //console.cTimeStart("set anchor");
         this.setAnchor(anchorParamsToUse, true);
-        //console.cTimeEnd("set anchor");
 
-        // endpoint delegates to first connection for hover, if there is one.
         var internalHover = function(state) {
-          if (this.connections.length > 0)
-            this.connections[0].setHover(state, false);
+          if (this.connections.length > 0) {
+              for (var i = 0; i < this.connections.length; i++)
+                  this.connections[i].setHover(state, false);
+          }
           else
             this.setHover(state);
         }.bind(this);
@@ -5468,8 +5466,6 @@ if (typeof console != "undefined") {
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
         
         this.setEndpoint = function(ep) {
-
-            //console.cTimeStart("set endpoint");
 
             if (this.endpoint != null) {
                 this.endpoint.cleanup();
@@ -5491,8 +5487,6 @@ if (typeof console != "undefined") {
                 connectorTooltip:params.connectorTooltip,
                 endpoint:this
             };
-
-            //console.cTimeStart("actually create endpoint");
 
             if (_ju.isString(ep)) 
                 this.endpoint = _e(ep, endpointArgs);
@@ -5541,7 +5535,6 @@ if (typeof console != "undefined") {
         this.canvas = this.endpoint.canvas;
         this.canvas._jsPlumb = this;
 
-        //console.cTimeStart("adding classes");
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
         jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
@@ -5733,8 +5726,6 @@ if (typeof console != "undefined") {
 
         var draggingInitialised = false;
         this.initDraggable = function() {
-
-            //console.cTimeStart("initDraggable");
 
             // is this a connection source? we make it draggable and have the
             // drag listener maintain a connection with a floating endpoint.
@@ -5982,7 +5973,7 @@ if (typeof console != "undefined") {
                 }.bind(this);
 
                 dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
-                dragOptions.scope = dragOptions.scope || this.scope;
+                dragOptions.scope = this.scope || dragOptions.scope;
                 dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
                 // extracted drag handler function so can be used by makeSource
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
@@ -6005,8 +5996,6 @@ if (typeof console != "undefined") {
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
         var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
-
-            //console.cTimeStart("init drop target");
 
             if ((this.isTarget || forceInit) && jsPlumb.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
@@ -6165,7 +6154,7 @@ if (typeof console != "undefined") {
                                 // have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
                                 // the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
                                 // it only makes sense to have it on a target endpoint.
-                                _doContinue = _doContinue && this.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, this);
+                                _doContinue = _doContinue && this.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, this) && jpc.pending;
                                                                                                                     
                                 if (_doContinue) {
                                     continueFunction();
@@ -6218,11 +6207,7 @@ if (typeof console != "undefined") {
                     }
                 }.bind(this));
 
-                //console.cTimeStart("jsplumb init drop");
                 _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
-                //console.cTimeEnd("jsplumb init drop");
-
-                //console.cTimeEnd("init drop target");
             }
         }.bind(this);
         
@@ -6230,11 +6215,9 @@ if (typeof console != "undefined") {
         if (!this.anchor.isFloating)
             _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
 
-        //console.cTimeStart("addType");
-         // finally, set type if it was provided
+        // finally, set type if it was provided
          if (params.type)
             this.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
-        //console.cTimeEnd("addType");
 
         return this;        					
     };
@@ -8759,6 +8742,8 @@ if (typeof console != "undefined") {
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			return [anchorPoint[0], anchorPoint[1],10,0];
 		};
+
+        var clazz = params.cssClass ? " " + params.cssClass : "";
 		
 		this.canvas = document.createElement("div");
 		this.canvas.style.display = "block";
@@ -8766,8 +8751,8 @@ if (typeof console != "undefined") {
 		this.canvas.style.height = "1px";
 		this.canvas.style.background = "transparent";
 		this.canvas.style.position = "absolute";
-		this.canvas.className = this._jsPlumb.endpointClass;
-		jsPlumb.appendElement(this.canvas);
+		this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
+		this._jsPlumb.instance.appendElement(this.canvas);
 		
 		this.paint = function(style, anchor) {
 			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);	

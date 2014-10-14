@@ -2,7 +2,16 @@
 
     BACKWARDS COMPATIBILITY
 
+    - The biggest change between 1.6.4 and 1.7.0 is that YUI and MooTools are no longer supported.  It is recommended you use vanilla jsPlumb now. jQuery is still supported but it is neither as fast nor does it have as many features as vanilla jsPlumb.
     - Supplying a `parent` parameter to makeSource is no longer supported.
+
+    NEW FUNCTIONALITY
+
+    - Perhaps not strictly new functionality, but shiny enough to warrant being associated with the word "new", is the fact that jsPlumb 1.7.0 is
+      considerably faster than any previous version.  A rough comparison: the default settings for the load test in jsPlumb generate 360 connections
+      in total between 10 elements. in 1.6.4 this test averages about 1600ms in Chrome on a Mac.  In 1.7.0 that number is about 600ms on the same computer.
+      
+    - 'Blank' endpoint supports custom cssClass now (and also is assigned the default endpoint class, which was covered by issue 268)
 
     ISSUES
 
@@ -12,22 +21,10 @@
     246 - outlineColor ignored when gradient defined in paintStyle
     248 - dynamic anchor create fail
     258 - Typo in documentation: s/container/Container
-
-
-    ### Changes between 1.6.4 and 1.7.0
-
-    #### Backwards Compatibility
-
-    - The biggest change between 1.6.4 and 1.7.0 is that YUI and MooTools are no longer supported.  It is recommended you use vanilla jsPlumb now. jQuery is still supported but it is neither as fast nor does it have as many features as vanilla jsPlumb.
-    - The `parent` argument to the `makeSource` function is no longer supported. It was being kept because neither YUI nor
-    MooTools have the ability to support a drag filter, but now that those libraries are not supported this feature has
-    been removed.  The `filter` approach is much more powerful.
-
-    #### New Functionality
-
-    Perhaps not strictly new functionality, but shiny enough to warrant being associated with the word "new", is the fact that jsPlumb 1.7.0 is considerably faster than any previous version.  A rough comparison: the default settings for the load test in jsPlumb generate 360 connections in total between 10 elements. in 1.6.4 this test averages about 1600ms in Chrome on a Mac.  In 1.7.0 that number is about 600ms on the same computer.
-
-
+    260 - isSource and isTarget usage with makeSource and makeTarget causes broken connections
+    261 - two target endpoints close to each other: "TypeError: Cannot read property '0' of null".
+    262 - hoverPaintStyle only works for the first connection (maxConnections > 1)
+    268 - Endpoint "Blank" generates endpoint with class "undefined"
 
 
 * 1.6.4

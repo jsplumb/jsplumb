@@ -124,6 +124,15 @@
 <li><a href="#targetAnchorPositions">Target Anchors positions with makeTarget</a></li>
 </ul></li>
 </ul></li>
+<li><a href="#dragOptions">Drag Options</a></li>
+<li><a href="#dropOptions">Drop Options</a></li>
+<li><a href="#dragScope">Drag and Drop Scope</a>
+
+<ul>
+<li><a href="#multipleScopes">Multiple Scopes</a></li>
+<li><a href="#setScope">Changing the scope(s) of a source or target element</a></li>
+</ul></li>
+<li><a href="#disconnectreconnect">Disconnecting and Reconnecting</a></li>
 </ol>
 
 <p><a name="programmatic"></a></p>
@@ -623,7 +632,9 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <p><code>unmakeTarget</code> and <code>unmakeSource</code> both take as argument the same sorts of values that <code>makeTarget</code> and <code>makeSource</code> accept - a string id, or a selector, or an array of either of these:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.unmakeTarget(&quot;aDivId&quot;).unmakeSource($(&quot;.aSelector&quot;));
 </code></pre></div>
-<h5>Drag Options</h5>
+<p><a name="dragOptions"></a></p>
+
+<h4>Drag Options</h4>
 
 <p>These are options that will be passed through to the supporting library&#39;s drag API.  jsPlumb passes everything you supply here through, inserting wrapping functions if necessary for the various lifecycle events that jsPlumb needs to know about.  So if, for example, you pass a function to be called when dragging starts, jsPlumb will wrap that function with a function that does what jsPlumb needs to do, then call yours.</p>
 
@@ -639,7 +650,9 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 
 <p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a> or <a href="https://github.com/jsplumb/katavorio">Katavorio</a> docs.    </p>
 
-<h5>Drop Options</h5>
+<p><a name="dropOptions"></a></p>
+
+<h4>Drop Options</h4>
 
 <p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  </p>
 
@@ -653,7 +666,9 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 
 <p>For more information about drop options when using jQuery, see <a href="http://docs.jquery.com/UI/Droppable">here</a></p>
 
-<h5>Drag and Drop Scope</h5>
+<p><a name="dragScope"></a>        </p>
+
+<h4>Drag and Drop Scope</h4>
 
 <p>jsPlumb borrowed the concept of &#39;scope&#39; from jQuery&#39;s drag/drop implementation: the notion of which draggables can be dropped on which droppables.  In jsPlumb you can provide a &#39;scope&#39; entry when creating an Endpoint.  Here&#39;s the example grey Endpoint example with &#39;scope&#39; added:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
@@ -684,9 +699,35 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
   <span class="nx">dropOptions</span><span class="o">:</span><span class="p">{</span> <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;dropScope&quot;</span> <span class="p">}</span>
 <span class="p">};</span>
 </code></pre></div>
+<p><a name="multipleScopes"></a></p>
+
+<h5>Multiple Scopes</h5>
+
+<p>If you&#39;re using vanilla jsPlumb you can assign multiple scopes to some Endpoint, or element configured via <code>makeSource</code> or <code>makeTarget</code>. To do so, provide the scopes as a space-separated list, as you would with CSS classes:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo bar baz&quot;</span>
+<span class="p">};</span>
+</code></pre></div>
+<p><a name="setScope"></a></p>
+
+<h5>Changing the scope(s) of a source or target element</h5>
+
+<p>jsPlumb offers a few methods for changing the scope(s) of some element configured via <code>makeSource</code> or <code>makeTarget</code>:</p>
+
+<ul>
+<li><code>setScope(el, scopeString)</code> Sets both the source <em>and</em> target scope(s) for the given element.</li>
+<li><code>setSourceScope(el, scopeString)</code> Sets the source scope(s) for the given element.</li>
+<li><code>setTargetScope(el, scopeString)</code> Sets both the target scope(s) for the given element.</li>
+</ul>
+
 <p><a name="disconnectreconnect"></a></p>
 
-<h5>Disconnecting and Reconnecting</h5>
+<h4>Disconnecting and Reconnecting</h4>
 
 <p>By default, jsPlumb will allow you to detach connections from either Endpoint by dragging (assuming the Endpoint allows it; Blank Endpoints, for example, have nothing you can grab with the mouse). If you then drop a Connection you have dragged off an Endpoint, the Connection will be detached. This behaviour can be controlled using the <code>detachable</code> and <code>reattach</code>parameters, or their equivalents in the jsPlumb Defaults.</p>
 

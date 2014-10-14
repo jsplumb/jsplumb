@@ -36,6 +36,8 @@
 		var instance = jsPlumb.getInstance({
 			DragOptions : { cursor: 'pointer', zIndex:2000 },
 			PaintStyle : { strokeStyle:'#666' },
+            EndpointHoverStyle: { fillStyle:"orange" },
+            HoverPaintStyle: { strokeStyle:"orange" },
 			EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
 			Endpoint : "Rectangle",
 			Anchors : ["TopCenter", "TopCenter"],

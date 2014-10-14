@@ -2982,9 +2982,22 @@ var testSuite = function(renderMode, _jsPlumb) {
 		};		
 		ok(has("CSS"), "custom cssClass set correctly");
 		ok(has(_jsPlumb.endpointClass), "basic endpoint class set correctly");
-	});    
-	
-	test(": _jsPlumb.connect (overlays, long-hand version)", function() {
+	});
+
+    test(": _jsPlumb.addEndpoint (setting cssClass on blank Endpoint)", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e = _jsPlumb.addEndpoint(d1, {endpoint:"Blank", cssClass:"CSS"});
+        var has = function(clazz) {
+            var cn = e.endpoint.canvas.className,
+                cns = cn.constructor == String ? cn : cn.baseVal;
+
+            return cns.indexOf(clazz) != -1;
+        };
+        ok(has("CSS"), "custom cssClass set correctly");
+        ok(has(_jsPlumb.endpointClass), "basic endpoint class set correctly");
+    });
+
+    test(": _jsPlumb.connect (overlays, long-hand version)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 		var imageEventListener = function() { };
 		var arrowSpec = {width:40,length:40,location:0.7, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"}};

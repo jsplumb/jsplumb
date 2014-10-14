@@ -57,14 +57,16 @@ jsPlumb.ready(function() {
 				var t = evt.target || evt.srcElement;
 				return t.tagName !== "A";
 			},
-			isSource:true
+			isSource:true,
+            scope:"foo bar"
 		});			
         
 		// configure the .smallWindows as targets.
 		instance.makeTarget(smallWindows, {
 			//anchor:"TopCenter",				// you could supply this if you want, but it was set in the defaults above.					
 			dropOptions:{ hoverClass:"hover" },
-            uniqueEndpoint:true
+            uniqueEndpoint:true,
+            scope:"foo"
 		});	
 
         // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           

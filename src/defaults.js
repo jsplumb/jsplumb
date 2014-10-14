@@ -896,6 +896,8 @@
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			return [anchorPoint[0], anchorPoint[1],10,0];
 		};
+
+        var clazz = params.cssClass ? " " + params.cssClass : "";
 		
 		this.canvas = document.createElement("div");
 		this.canvas.style.display = "block";
@@ -903,8 +905,8 @@
 		this.canvas.style.height = "1px";
 		this.canvas.style.background = "transparent";
 		this.canvas.style.position = "absolute";
-		this.canvas.className = this._jsPlumb.endpointClass;
-		jsPlumb.appendElement(this.canvas);
+		this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
+		this._jsPlumb.instance.appendElement(this.canvas);
 		
 		this.paint = function(style, anchor) {
 			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);	

@@ -160,18 +160,13 @@
         };
 
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
-
-        //console.cTimeStart("set anchor");
         this.setAnchor(anchorParamsToUse, true);
-        //console.cTimeEnd("set anchor");
 
-        // old behaviour: endpoint delegates to first connection for hover, if there is one.
-        // fixed bug #262: Why shall we only highlight/hover the first connection?
-        //                 Changed this so that all connected endpoints will be highlighted.
         var internalHover = function(state) {
-          if (this.connections.length > 0)
-            for (var i = 0; i < this.connections.length; i++)
-              this.connections[i].setHover(state, false);
+          if (this.connections.length > 0) {
+              for (var i = 0; i < this.connections.length; i++)
+                  this.connections[i].setHover(state, false);
+          }
           else
             this.setHover(state);
         }.bind(this);
@@ -184,8 +179,6 @@
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
         
         this.setEndpoint = function(ep) {
-
-            //console.cTimeStart("set endpoint");
 
             if (this.endpoint != null) {
                 this.endpoint.cleanup();
@@ -207,8 +200,6 @@
                 connectorTooltip:params.connectorTooltip,
                 endpoint:this
             };
-
-            //console.cTimeStart("actually create endpoint");
 
             if (_ju.isString(ep)) 
                 this.endpoint = _e(ep, endpointArgs);
@@ -257,7 +248,6 @@
         this.canvas = this.endpoint.canvas;
         this.canvas._jsPlumb = this;
 
-        //console.cTimeStart("adding classes");
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
         jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
@@ -449,8 +439,6 @@
 
         var draggingInitialised = false;
         this.initDraggable = function() {
-
-            //console.cTimeStart("initDraggable");
 
             // is this a connection source? we make it draggable and have the
             // drag listener maintain a connection with a floating endpoint.
@@ -698,7 +686,7 @@
                 }.bind(this);
 
                 dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
-                dragOptions.scope = dragOptions.scope || this.scope;
+                dragOptions.scope = this.scope || dragOptions.scope;
                 dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
                 // extracted drag handler function so can be used by makeSource
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
@@ -721,8 +709,6 @@
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
         var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
-
-            //console.cTimeStart("init drop target");
 
             if ((this.isTarget || forceInit) && jsPlumb.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
@@ -934,11 +920,7 @@
                     }
                 }.bind(this));
 
-                //console.cTimeStart("jsplumb init drop");
                 _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
-                //console.cTimeEnd("jsplumb init drop");
-
-                //console.cTimeEnd("init drop target");
             }
         }.bind(this);
         
@@ -946,11 +928,9 @@
         if (!this.anchor.isFloating)
             _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
 
-        //console.cTimeStart("addType");
-         // finally, set type if it was provided
+        // finally, set type if it was provided
          if (params.type)
             this.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
-        //console.cTimeEnd("addType");
 
         return this;        					
     };
