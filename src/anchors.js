@@ -510,7 +510,7 @@
 				for (i = 0; i < ep.length; i++) {
 					if (ep[i].connections.length === 0 && ep[i].anchor.isContinuous) {
 						if (!anchorLists[elementId]) anchorLists[elementId] = { top:[], right:[], bottom:[], left:[] };
-						_updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints:[ep[i], ep[i]], paint:function(){}}, false, elementId, 0, false, "top", elementId, connectionsToPaint, endpointsToPaint);
+                        _updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints:[ep[i], ep[i]], paint:function(){}}, false, elementId, 0, false, ep[i].anchor.getDefaultFace(), elementId, connectionsToPaint, endpointsToPaint);
 						jsPlumbUtil.addWithFunction(anchorsToUpdate, elementId, function(a) { return a === elementId; });
 					}
 				}
@@ -585,6 +585,10 @@
                 cssClass = anchorParams.cssClass || "";
             
             for (var i = 0; i < faces.length; i++) { availableFaces[faces[i]] = true; }
+
+            this.getDefaultFace = function() {
+                return faces.length === 0 ? "top" : faces[0];
+            };
           
             // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
             // supported. if none supported we also return the request edge.

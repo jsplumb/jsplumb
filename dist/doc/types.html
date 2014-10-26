@@ -302,7 +302,9 @@
 
 <ul>
 <li><strong>paintStyle</strong></li>
+<li><strong>endpointStyle</strong> - If this and <code>paintStyle</code> are provided, this takes precedence</li>
 <li><strong>hoverPaintStyle</strong></li>
+<li><strong>endpointHoverStyle</strong> - If this and <code>hoverPaintStyle</code> are provided, this takes precedence</li>
 <li><strong>maxConnections</strong></li>
 <li><strong>connectorStyle</strong> - paint style for any Connections that use this Endpoint.</li>
 <li><strong>connectorHoverStyle</strong> - hover paint style for Connections from this Endpoint.</li>
@@ -313,6 +315,8 @@
 <li><strong>parameters</strong> - when you add/set a Type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.</li>
 <li><strong>overlays</strong> - when you have multiple Types applied to an Endpoint, you get the union of all the Overlays defined across the various types.</li>
 </ul>
+
+<p><strong>Note</strong> There are two sets of parameters you can use to set paint styles for Endpoints - <code>endpointStyle</code>/<code>endpointHoverStyle</code> and <code>paintStyle</code>/<code>hoverPaintStyle</code>.  The idea behind this is that when you use the <code>endpoint..</code> versions, you can use a single object to define a Type that is shared between Endpoints and Connectors.</p>
 
 <p>One thing to be aware of is that the parameters here that are passed to Connections are only passed from a source Endpoint, not targets. Here&#39;s an example of using Endpoint Types:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerEndpointTypes</span><span class="p">({</span>

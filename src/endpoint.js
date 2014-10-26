@@ -235,8 +235,8 @@
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");
 
-        this.setPaintStyle(params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
-        this.setHoverPaintStyle(params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
+        this.setPaintStyle(params.endpointStyle || params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
+        this.setHoverPaintStyle(params.endpointHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
         this._jsPlumb.paintStyleInUse = this.getPaintStyle();
 
         jsPlumb.extend(this, params, typeParameters);
@@ -957,6 +957,8 @@
             return this.connections;
         },
         applyType : function(t) {
+            this.setPaintStyle(t.endpointStyle || t.paintStyle);
+            this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle);
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
             jsPlumb.extend(this, t, typeParameters);

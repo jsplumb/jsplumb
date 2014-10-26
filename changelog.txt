@@ -10,7 +10,7 @@
     - Perhaps not strictly new functionality, but shiny enough to warrant being associated with the word "new", is the fact that jsPlumb 1.7.0 is
       considerably faster than any previous version.  A rough comparison: the default settings for the load test in jsPlumb generate 360 connections
       in total between 10 elements. in 1.6.4 this test averages about 1600ms in Chrome on a Mac.  In 1.7.0 that number is about 600ms on the same computer.
-      
+
     - 'Blank' endpoint supports custom cssClass now (and also is assigned the default endpoint class, which was covered by issue 268)
 
     ISSUES
@@ -24,7 +24,9 @@
     260 - isSource and isTarget usage with makeSource and makeTarget causes broken connections
     261 - two target endpoints close to each other: "TypeError: Cannot read property '0' of null".
     262 - hoverPaintStyle only works for the first connection (maxConnections > 1)
+    267 - continuous anchors with faces set do not paint on selected faces when not connected to anything
     268 - Endpoint "Blank" generates endpoint with class "undefined"
+    270 - Support `endpointStyle` in args to addEndpoint and makeSource/makeTarget
 
 
 * 1.6.4

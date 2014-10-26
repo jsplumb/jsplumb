@@ -4054,6 +4054,22 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.reset();
 		equal(_jsPlumb.anchorManager.getEndpointsFor("d4").length, 0);	
 	});
+
+    test(" Continuous anchor default face, no faces supplied", function() {
+        var d3 = _addDiv("d3"), ep = _jsPlumb.addEndpoint(d3, {
+            anchor:"Continuous"
+        });
+
+        equal(ep.anchor.getDefaultFace(), "top", "default is top when no faces specified");
+    });
+
+    test(" Continuous anchor default face, faces supplied", function() {
+        var d3 = _addDiv("d3"), ep = _jsPlumb.addEndpoint(d3, {
+            anchor:[ "Continuous", { faces:[ "bottom", "left" ] } ]
+        });
+
+        equal(ep.anchor.getDefaultFace(), "bottom", "default is bottom");
+    });
 	
     test(" setImage on Endpoint", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -5570,20 +5586,50 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e2.getPaintStyle().fillStyle, "blue", "fill style is correct");
 	});
 
-test(" clearTypes", function() {
-	_jsPlumb.registerEndpointType("basic", {
-		paintStyle:{fillStyle:"blue"},
-		cssClass:"FOO"
-	});
-	
-	var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
-	e.setType("basic");
-	equal(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
-	ok(jsPlumb.hasClass(e.canvas, "FOO"), "css class was set");
+    test(" clearTypes", function() {
+        _jsPlumb.registerEndpointType("basic", {
+            paintStyle:{fillStyle:"blue"},
+            cssClass:"FOO"
+        });
 
-	e.clearTypes();
-	ok(!jsPlumb.hasClass(e.canvas, "FOO"), "FOO css class was removed");
-});
+        var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
+        e.setType("basic");
+        equal(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
+        ok(jsPlumb.hasClass(e.canvas, "FOO"), "css class was set");
+
+        e.clearTypes();
+        ok(!jsPlumb.hasClass(e.canvas, "FOO"), "FOO css class was removed");
+    });
+
+    test(" new Endpoint, prefer endpointStyle to paintStyle.", function() {
+
+        var d = _addDiv('d1'),
+            e = _jsPlumb.addEndpoint(d, {
+                paintStyle:{fillStyle:"blue"},
+                endpointStyle:{fillStyle:"green"},
+                hoverPaintStyle:{fillStyle:"red"},
+                endpointHoverStyle:{fillStyle:"yellow"}
+            });
+
+        equal(e.getPaintStyle().fillStyle, "green", "fill style is correct");
+        e.setHover(true);
+        equal(e.getHoverPaintStyle().fillStyle, "yellow", "fill style is correct");
+    });
+
+    test(" Endpoint type, prefer endpointStyle to paintStyle.", function() {
+        _jsPlumb.registerEndpointType("basic", {
+            paintStyle:{fillStyle:"blue"},
+            endpointStyle:{fillStyle:"green"},
+            hoverPaintStyle:{fillStyle:"red"},
+            endpointHoverStyle:{fillStyle:"yellow"}
+        });
+
+        var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
+        e.setType("basic");
+        equal(e.getPaintStyle().fillStyle, "green", "fill style is correct");
+        e.setHover(true);
+        equal(e.getHoverPaintStyle().fillStyle, "yellow", "fill style is correct");
+    });
 	
 	test(" create connection from Endpoints - with connector settings in Endpoint type.", function() {
 			
