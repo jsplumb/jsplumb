@@ -720,6 +720,8 @@
 				_currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
 				return _currentInstance;
 			};
+
+            //_currentInstance.floatingConnections = {};ctions = {};
 		
 		    var log = null,
 		        initialized = false,
@@ -734,7 +736,7 @@
                 managedElements = {},
 		        offsets = {},
 		        offsetTimestamps = {},
-		        floatingConnections = {},
+
 		        draggableStates = {},		
 		        connectionBeingDragged = false,
 		        sizes = [],
@@ -1071,7 +1073,7 @@
 		//
 		// adds the connection to the backing model, fires an event if necessary and then redraws
 		//
-		_finaliseConnection = function(jpc, params, originalEvent, doInformAnchorManager) {
+		_finaliseConnection = _currentInstance.finaliseConnection = function(jpc, params, originalEvent, doInformAnchorManager) {
             params = params || {};
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
@@ -1109,7 +1111,6 @@
 			manually, since this method attaches event listeners and an id.
 		*/
 		_newEndpoint = function(params, id) {
-            //console.cTimeStart("new endpoint");
             var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
             var _p = jsPlumb.extend({}, params);
             _p._jsPlumb = _currentInstance;
@@ -1117,24 +1118,13 @@
             _p.newEndpoint = _newEndpoint;
             _p.endpointsByUUID = endpointsByUUID;
             _p.endpointsByElement = endpointsByElement;
-            _p.finaliseConnection = _finaliseConnection;
             _p.fireDetachEvent = fireDetachEvent;
-            _p.fireMoveEvent = fireMoveEvent;
-            _p.floatingConnections = floatingConnections;
             _p.elementId = id || _getId(_p.source);
-        //console.cTimeStart("endpoint constructor");
             var ep = new endpointFunc(_p);
-        //console.cTimeEnd("endpoint constructor");
             ep.id = "ep_" + _idstamp();
-
             _manage(_p.elementId, _p.source);
-
-            ////console.cTimeStart("register endpoint");
             if (!jsPlumbAdapter.headless)
                 _currentInstance.dragManager.endpointAdded(_p.source, id);
-            ////console.cTimeEnd("register endpoint");
-
-            //console.cTimeEnd("new endpoint");
 
 			return ep;
 		},
@@ -1536,7 +1526,7 @@
             _currentInstance.anchorManager.connectionDetached(params);
 		};	
 
-		var fireMoveEvent = function(params, evt) {
+		var fireMoveEvent = _currentInstance.fireMoveEvent = function(params, evt) {
 			_currentInstance.fire("connectionMoved", params, evt);
 		};
 
@@ -2225,6 +2215,9 @@
                 return negate ? !ok : ok;
 	        };
 
+
+        //this.
+
 		// see API docs
 		this.makeTarget = function(el, params, referenceParams) {
 
@@ -2254,13 +2247,99 @@
 
 					// store the definitions keyed against the element id.
 					// TODO why not just store inside the element itself?
-					this.targetEndpointDefinitions[elid] = {
-						def:p,
-						uniqueEndpoint:p.uniqueEndpoint,
-						maxConnections:maxConnections,
-						enabled:true
-					};
+                    var _def = {
+                        def:p,
+                        uniqueEndpoint:p.uniqueEndpoint,
+                        maxConnections:maxConnections,
+                        enabled:true
+                    };
+                    elInfo.el._jsPlumbTarget = _def;
 
+					this.targetEndpointDefinitions[elid] = _def;
+
+
+                    var _drop = p._jsPlumb.EndpointDropHandler({
+                        //endpoint:_ep,
+                        jsPlumb: _currentInstance,
+                        enabled:function() {
+                            return elInfo.el._jsPlumbTarget.enabled;
+                        },
+                        isFull:function(originalEvent) {
+                            var targetCount = _currentInstance.select({target:elid}).length;
+                            var def = elInfo.el._jsPlumbTarget;
+                            var full = def.maxConnections > 0 && targetCount >= def.maxConnections;
+                            if (full && onMaxConnections) {
+                                // TODO here we still have the id of the floating element, not the
+                                // actual target.
+                                onMaxConnections({
+                                    element:elInfo.el,
+                                    connection:jpc
+                                }, originalEvent);
+                            }
+                            return full;
+                        },
+                        element:elInfo.el,
+                        elementId:elid,
+                        isSource:false,
+                        isTarget:true,
+                        addClass:function(clazz) {
+                            //_ep.addClass(clazz)
+                            _currentInstance.addClass(elInfo.el, clazz);
+                        },
+                        removeClass:function(clazz) {
+                            //_ep.removeClass(clazz)
+                            _currentInstance.removeClass(elInfo.el, clazz);
+                        },
+                        onDrop:function(jpc) {
+                            var source = jpc.endpoints[0];
+                            source.anchor.locked = false;
+                        },
+                        isDropAllowed:function() {
+                            return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
+                        },
+                        getEndpoint:function(jpc) {
+                            // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
+                            // is set.
+                            var _el = _currentInstance.getElementObject(elInfo.el),
+                                def = _el._jsPlumbTarget,
+                                newEndpoint = def.endpoint;
+
+                            // if no cached endpoint, or there was one but it has been cleaned up
+                            // (ie. detached), then create a new one.
+                            if (newEndpoint == null || newEndpoint._jsPlumb == null)
+                                newEndpoint = _currentInstance.addEndpoint(_el, p);
+
+                            if (p.uniqueEndpoint) def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+                            // TODO test options to makeTarget to see if we should do this?
+                            newEndpoint._doNotDeleteOnDetach = false; // reset.
+                            newEndpoint._deleteOnDetach = true;
+
+                            // if connection is detachable, init the new endpoint to be draggable, to support that happening.
+                            if (jpc.isDetachable())
+                                newEndpoint.initDraggable();
+
+                            // if the anchor has a 'positionFinder' set, then delegate to that function to find
+                            // out where to locate the anchor.
+                            if (newEndpoint.anchor.positionFinder != null) {
+                                var dropPosition = _currentInstance.getUIPosition(arguments, this.getZoom()),
+                                    elPosition = _getOffset(_el, this),
+                                    elSize = _currentInstance.getSize(_el),
+                                    ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
+                                newEndpoint.anchor.x = ap[0];
+                                newEndpoint.anchor.y = ap[1];
+                                // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
+                                // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
+                                // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
+                                // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
+                                // the target is furthest away from the source.
+                            }
+
+                            return newEndpoint;
+                        }
+                    });
+
+
+                    /*
 					var _drop = function() {
 						this.currentlyDragging = false;
 						var originalEvent = this.getDropEvent(arguments),
@@ -2268,7 +2347,7 @@
 							draggable = this.getDOMElement(this.getDragObject(arguments)),
 							id = this.getAttribute(draggable, "dragId"),
 							scope = this.getAttribute(draggable, "originalScope"),
-							jpc = floatingConnections[id];
+							jpc = p._jsPlumb.floatingConnections[id];
 
 						if (jpc == null) return;
 
@@ -2325,15 +2404,22 @@
 							
 							// TODO this and the normal endpoint drop should
 							// be refactored to share more of the common code.
-							var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
-							fireMoveEvent({
-								index:idx,
-								originalSourceId:idx === 0 ? suspendedElementId : jpc.sourceId,
-								newSourceId:idx === 0 ? elid : jpc.sourceId,
-								originalTargetId:idx == 1 ? suspendedElementId : jpc.targetId,
-								newTargetId:idx == 1 ? elid : jpc.targetId,
-								connection:jpc
-							}, originalEvent);
+							var suspendedElementId = jpc.suspendedEndpoint.elementId,
+                                originalSourceId = idx === 0 ? suspendedElementId : jpc.sourceId,
+                                newSourceId = idx === 0 ? elid : jpc.sourceId,
+                                originalTargetId = idx == 1 ? suspendedElementId : jpc.targetId,
+                                newTargetId = idx == 1 ? elid : jpc.targetId;
+
+                          //  if (! (originalSourceId == newSourceId && originalTargetId == newTargetId) ) {
+                                fireMoveEvent({
+                                    index: idx,
+                                    originalSourceId: originalSourceId,
+                                    newSourceId: newSourceId,
+                                    originalTargetId: originalTargetId,
+                                    newTargetId: newTargetId,
+                                    connection: jpc
+                                }, originalEvent);
+                            //}
 						}
 
 						if (_continue) {
@@ -2412,6 +2498,7 @@
 							}							
 						}
 					}.bind(this);
+					*/
 					
 					// wrap drop events as needed and initialise droppable
 					var dropEvent = jsPlumb.dragEvents.drop;
@@ -2833,7 +2920,7 @@
             _currentInstance.doWhileSuspended(function() {
             	_currentInstance.removeAllEndpoints(info.id, true);
             	_currentInstance.dragManager.elementRemoved(info.id);
-            	delete floatingConnections[info.id];     
+            	delete _currentInstance.floatingConnections[info.id];
             	_currentInstance.anchorManager.clearFor(info.id);						
             	_currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
@@ -3062,7 +3149,11 @@
 			else
 				for (i in o2) o1[i] = o2[i];
 			return o1;
-		}
+		},
+        floatingConnections:{},
+        getFloatingAnchorIndex : function(jpc) {
+            return jpc.endpoints[0].isFloating() ? 0 : 1;
+        }
     }, jsPlumbAdapter);
 
 // --------------------- static instance + AMD registration -------------------------------------------	

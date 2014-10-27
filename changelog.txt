@@ -13,6 +13,9 @@
 
     - 'Blank' endpoint supports custom cssClass now (and also is assigned the default endpoint class, which was covered by issue 268)
 
+    - `setScope`, `setTargetScope` and `setSourceScope` methods added: these (supported in vanilla jsplumb only) allow you
+     to change the scope of a source or target element programmatically.
+
     ISSUES
 
     214 - Endpoint stays visible when should be terminated
@@ -20,6 +23,7 @@
     245 - reinstate isConnectedTo method on Endpoint
     246 - outlineColor ignored when gradient defined in paintStyle
     248 - dynamic anchor create fail
+    257 - allow for the scope of a makeSource element to be changed
     258 - Typo in documentation: s/container/Container
     260 - isSource and isTarget usage with makeSource and makeTarget causes broken connections
     261 - two target endpoints close to each other: "TypeError: Cannot read property '0' of null".

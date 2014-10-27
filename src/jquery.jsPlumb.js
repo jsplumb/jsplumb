@@ -105,8 +105,11 @@
 			// remove helper directive if present and no override
 			if (!options.doNotRemoveHelper)
 				options.helper = null;
-			if (isPlumbedComponent)
+
+
+			if (isPlumbedComponent == "internal")
 				options.scope = options.scope || jsPlumb.Defaults.Scope;
+
 			el.draggable(options);
 		},
 		
@@ -115,7 +118,7 @@
 		 */
 		initDroppable : function(el, options) {
 			options.scope = options.scope || jsPlumb.Defaults.Scope;
-			$(el).droppable(options);
+            $(el).droppable(options);
 		},
 		
 		isAlreadyDraggable : function(el) {
