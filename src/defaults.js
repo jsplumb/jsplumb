@@ -17,21 +17,6 @@
 ;(function() {	
 
 	"use strict";
-				
-	/**
-	 * 
-	 * Helper class to consume unused mouse events by components that are DOM elements and
-	 * are used by all of the different rendering modes.
-	 * 
-	 */
-	jsPlumb.DOMElementComponent = jsPlumbUtil.extend(jsPlumb.jsPlumbUIComponent, function(params) {		
-		// this component is safe to pipe this stuff to /dev/null.
-		this.mousemove = 
-		this.dblclick  = 
-		this.click = 
-		this.mousedown = 
-		this.mouseup = function(e) { };
-	});
 
 	jsPlumb.Segments = {
 
@@ -758,10 +743,10 @@
 	jsPlumbUtil.extend(jsPlumb.Endpoints.Rectangle, jsPlumb.Endpoints.AbstractEndpoint);
 
 	var DOMElementEndpoint = function(params) {
-		jsPlumb.DOMElementComponent.apply(this, arguments);
+        jsPlumb.jsPlumbUIComponent.apply(this, arguments);
 		this._jsPlumb.displayElements = [];
 	};
-	jsPlumbUtil.extend(DOMElementEndpoint, jsPlumb.DOMElementComponent, {
+	jsPlumbUtil.extend(DOMElementEndpoint, jsPlumb.jsPlumbUIComponent, {
 		getDisplayElements : function() { 
 			return this._jsPlumb.displayElements; 
 		},
@@ -934,7 +919,7 @@
 	 */
 	jsPlumb.Endpoints.Triangle = function(params) {        
 		this.type = "Triangle";
-        var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+        jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {  };
 		params.width = params.width || 55;
 		params.height = params.height || 55;
@@ -958,7 +943,7 @@
         this.isAppendedAtTopLevel = true;
 		this.component = params.component;
 		this.loc = params.location == null ? 0.5 : params.location;
-        this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;		
+        this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
 	};
     AbstractOverlay.prototype = {
         cleanup:function() {  
@@ -1070,20 +1055,19 @@
     			var d = { hxy:hxy, tail:tail, cxy:cxy },
     			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
     			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
-    			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth,
-                    info = {
-                        component:component, 
-                        d:d, 
-                        lineWidth:lineWidth, 
-                        strokeStyle:strokeStyle, 
-                        fillStyle:fillStyle,
-                        minX:Math.min(hxy.x, tail[0].x, tail[1].x),
-                        maxX:Math.max(hxy.x, tail[0].x, tail[1].x),
-                        minY:Math.min(hxy.y, tail[0].y, tail[1].y),
-                        maxY:Math.max(hxy.y, tail[0].y, tail[1].y)
-                    };    			
-						    
-                return info;
+    			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
+
+                return {
+                    component:component,
+                    d:d,
+                    lineWidth:lineWidth,
+                    strokeStyle:strokeStyle,
+                    fillStyle:fillStyle,
+                    minX:Math.min(hxy.x, tail[0].x, tail[1].x),
+                    maxX:Math.max(hxy.x, tail[0].x, tail[1].x),
+                    minY:Math.min(hxy.y, tail[0].y, tail[1].y),
+                    maxY:Math.max(hxy.y, tail[0].y, tail[1].y)
+                };
             }
             else return {component:component, minX:0,maxX:0,minY:0,maxY:0};
     	};
@@ -1141,8 +1125,15 @@
 	
 	// abstract superclass for overlays that add an element to the DOM.
     var AbstractDOMOverlay = function(params) {
-		jsPlumb.DOMElementComponent.apply(this, arguments);
+        jsPlumb.jsPlumbUIComponent.apply(this, arguments);
     	AbstractOverlay.apply(this, arguments);
+
+        // hand off fired events to associated component.
+        var _f = this.fire;
+        this.fire = function() {
+            _f.apply(this, arguments);
+            if (this.component) this.component.fire.apply(this.component, arguments);
+        };
 
 		this.id = params.id;
         this._jsPlumb.div = null;
@@ -1156,10 +1147,9 @@
 			if (this._jsPlumb.div == null) {
                 var div = this._jsPlumb.div = jsPlumb.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));
                 div.style.position   =   "absolute";     
-                var clazz = this._jsPlumb.instance.overlayClass + " " + 
-                    (this.cssClass ? this.cssClass : 
-                    params.cssClass ? params.cssClass : "");
-                div.className = clazz;
+                div.className = this._jsPlumb.instance.overlayClass + " " +
+                    (this.cssClass ? this.cssClass :
+                        params.cssClass ? params.cssClass : "");
                 this._jsPlumb.instance.appendElement(div);
                 this._jsPlumb.instance.getId(div);
                 this.canvas = div;
@@ -1220,7 +1210,7 @@
 	    	else return {minX:0,maxX:0,minY:0,maxY:0};
 	    };
 	};
-    jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
+    jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.jsPlumbUIComponent, AbstractOverlay], {
         getDimensions : function() {
 // still support the old way, for now, for IE8. But from 2.0.0 this whole method will be gone. 
             return jsPlumbUtil.oldIE ? jsPlumb.getSize(this.getElement()) : [1,1];
