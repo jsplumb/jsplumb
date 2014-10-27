@@ -730,10 +730,10 @@
                         isSource:this.isSource,
                         isTarget:this.isTarget,
                         addClass:function(clazz) {
-                            _ep.addClass(clazz)
+                            _ep.addClass(clazz);
                         },
                         removeClass:function(clazz) {
-                            _ep.removeClass(clazz)
+                            _ep.removeClass(clazz);
                         },
                         isDropAllowed:function() {
                             return _ep.isDropAllowed.apply(_ep, arguments);
