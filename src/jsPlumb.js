@@ -2487,7 +2487,13 @@
 
                         // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
                         // of a successful connection we'll switch to that endpoint.
-                        if (def.uniqueEndpoint && def.endpoint) ep.finalEndpoint = def.endpoint;
+                        //if (def.uniqueEndpoint && def.endpoint) ep.finalEndpoint = def.endpoint;
+                        if (def.uniqueEndpoint) {
+                            if (!def.endpoint)
+                                def.endpoint = ep;
+                            else
+                                ep.finalEndpoint = def.endpoint;
+                        }
 
 						// TODO test options to makeSource to see if we should do this?
 						ep._doNotDeleteOnDetach = false; // reset.
