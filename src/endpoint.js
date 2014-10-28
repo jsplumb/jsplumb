@@ -999,11 +999,21 @@
                         }, originalEvent);
                     }
 
-                    // TODO this is like the makeTarget drop code.
                     if (idx == 1)
                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
                     else
                         _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
+
+                    // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
+                    // that are subsequently deleted. So makeSource sets `finalEndpoint`, which is the Endpoint to
+                    // which the connection should be attached. The `detachFromConnection` call below results in the
+                    // temporary endpoint being cleaned up.
+                    if (jpc.endpoints[0].finalEndpoint) {
+                        var _toDelete = jpc.endpoints[0];
+                        _toDelete.detachFromConnection(jpc);
+                        jpc.endpoints[0] = jpc.endpoints[0].finalEndpoint;
+                        jpc.endpoints[0].addConnection(jpc);
+                    }
 
                     // finalise will inform the anchor manager and also add to
                     // connectionsByScope if necessary.

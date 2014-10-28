@@ -983,7 +983,7 @@
             };
 
             var _addEndpoint = function(el, def, idx) {
-            	return _currentInstance.addEndpoint(el, _mergeOverrides(tep.def, {
+            	return _currentInstance.addEndpoint(el, _mergeOverrides(def, {
             		anchor:_p.anchors ? _p.anchors[idx] : _p.anchor,
             		endpoint:_p.endpoints ? _p.endpoints[idx] : _p.endpoint,
             		paintStyle:_p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
@@ -991,55 +991,28 @@
             	}));
             };
 									
-			// if there's a target specified (which of course there should be), and there is no
-			// target endpoint specified, and 'newConnection' was not set to true, then we check to
-			// see if a prior call to makeTarget has provided us with the specs for the target endpoint, and
-			// we use those if so.  additionally, if the makeTarget call was specified with 'uniqueEndpoint' set
-			// to true, then if that target endpoint has already been created, we re-use it.
+			// check for makeSource/makeTarget specs.
 
-			var tid, tep, newEndpoint;
+            var _oneElementDef = function(type, idx, defs) {
+                if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
+                    var tid = _getId(_p[type]), tep = defs[tid];
 
-			// TODO: this code can be refactored to be a little dry.
-			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {
-				tid = _getId(_p.target);
-				tep = this.targetEndpointDefinitions[tid];
+                    if (tep) {
+                        // if not enabled, return.
+                        if (!tep.enabled) return false;
 
-				if (tep) {
-					
-					// if target not enabled, return.
-					if (!tep.enabled) return;
+                        var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
+                        if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
+                        if (newEndpoint.isFull()) return false;
+                        _p[type + "Endpoint"] = newEndpoint;
+                        newEndpoint._doNotDeleteOnDetach = false; // reset.
+                        newEndpoint._deleteOnDetach = true;
+                    }
+                }
+            };
 
-					// TODO this is dubious. i think it is there so that the endpoint can subsequently
-					// be dragged (ie it kicks off the draggable registration). but it is dubious.
-					tep.isTarget = true;
-
-					// check for max connections??						
-					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.target, tep.def, 1);
-					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
-					 _p.targetEndpoint = newEndpoint;
-					 // TODO test options to makeTarget to see if we should do this?
-					 newEndpoint._doNotDeleteOnDetach = false; // reset.
-					 newEndpoint._deleteOnDetach = true;					 
-				}
-			}
-
-			// same thing, but for source.
-			if (_p.source && !_p.source.endpoint && !_p.sourceEndpoint && !_p.newConnection) {
-				tid = _getId(_p.source);
-				tep = this.sourceEndpointDefinitions[tid];
-
-				if (tep) {
-					// if source not enabled, return.					
-					if (!tep.enabled) return;
-				
-					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.source, tep.def, 0);
-					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
-					 _p.sourceEndpoint = newEndpoint;
-					 // TODO test options to makeSource to see if we should do this?
-					 newEndpoint._doNotDeleteOnDetach = false; // reset.
-					 newEndpoint._deleteOnDetach = true;
-				}
-			}
+            if (_oneElementDef("source", 0, this.sourceEndpointDefinitions) === false) return;
+            if (_oneElementDef("target", 1, this.targetEndpointDefinitions) === false) return;
 
             // last, ensure scopes match
             if (_p.sourceEndpoint && _p.targetEndpoint)
@@ -2504,9 +2477,18 @@
 						tempEndpointParams.isTemporarySource = true;
 						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
 						tempEndpointParams.dragOptions = dragOptions;
+
+//                        ep = def.endpoint != null && def.endpoint._jsPlumb ? def.endpoint : this.addEndpoint(elid, tempEndpointParams);
+  //                      if (def.uniqueEndpoint) def.endpoint = ep;
+
 						ep = this.addEndpoint(elid, tempEndpointParams);
 						endpointAddedButNoDragYet = true;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
+
+                        // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
+                        // of a successful connection we'll switch to that endpoint.
+                        if (def.uniqueEndpoint && def.endpoint) ep.finalEndpoint = def.endpoint;
+
 						// TODO test options to makeSource to see if we should do this?
 						ep._doNotDeleteOnDetach = false; // reset.
 						ep._deleteOnDetach = true;
