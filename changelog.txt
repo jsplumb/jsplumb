@@ -28,8 +28,10 @@
     260 - isSource and isTarget usage with makeSource and makeTarget causes broken connections
     261 - two target endpoints close to each other: "TypeError: Cannot read property '0' of null".
     262 - hoverPaintStyle only works for the first connection (maxConnections > 1)
+    263 - TypeError: conn.endpoints is null
     267 - continuous anchors with faces set do not paint on selected faces when not connected to anything
     268 - Endpoint "Blank" generates endpoint with class "undefined"
+    269 - Source endpoint does not/cannot respect uniqueEndpoint setting
     270 - Support `endpointStyle` in args to addEndpoint and makeSource/makeTarget
 
 

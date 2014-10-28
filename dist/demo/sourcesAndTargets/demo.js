@@ -58,7 +58,9 @@ jsPlumb.ready(function() {
 				return t.tagName !== "A";
 			},
 			isSource:true,
-            scope:"foo bar"
+            scope:"foo",
+            uniqueEndpoint:true,
+            maxConnections:-1
 		});			
         
 		// configure the .smallWindows as targets.
