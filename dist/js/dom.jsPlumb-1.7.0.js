@@ -1337,7 +1337,8 @@
                         this.params.grid[1] * Math.floor(pos[1] / this.params.grid[1])
                 ];
         };
-        this.constrain = (this.params.constrain || this.params.containment) ? function(pos) {
+
+        this.constrain = typeof this.params.constrain === "function" ? this.params.constrain  : (this.params.constrain || this.params.containment) ? function(pos) {
             return [
                 Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
                 Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
@@ -1463,7 +1464,7 @@
         };
         this.moveBy = function(dx, dy, e) {
             intersectingDroppables.length = 0;
-            var cPos = this.constrain(this.toGrid(([posAtDown[0] + dx, posAtDown[1] + dy]))),
+            var cPos = this.constrain(this.toGrid(([posAtDown[0] + dx, posAtDown[1] + dy])), dragEl),
                 rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
             this.params.setPosition(dragEl, cPos);
             for (var i = 0; i < matchingDroppables.length; i++) {
@@ -5329,9 +5330,6 @@ if (typeof console != "undefined") {
 						tempEndpointParams.isTemporarySource = true;
 						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
 						tempEndpointParams.dragOptions = dragOptions;
-
-//                        ep = def.endpoint != null && def.endpoint._jsPlumb ? def.endpoint : this.addEndpoint(elid, tempEndpointParams);
-  //                      if (def.uniqueEndpoint) def.endpoint = ep;
 
 						ep = this.addEndpoint(elid, tempEndpointParams);
 						endpointAddedButNoDragYet = true;
@@ -11005,7 +11003,7 @@ if (typeof console != "undefined") {
 				cssClass:params._jsPlumb.endpointClass, 
 				originalArgs:arguments, 
 				pointerEventsSpec:"all",
-				useDivWrapper:false,
+				useDivWrapper:true,
 				_jsPlumb:params._jsPlumb
 			} ]);
 			

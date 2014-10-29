@@ -4671,9 +4671,6 @@ if (typeof console != "undefined") {
 						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
 						tempEndpointParams.dragOptions = dragOptions;
 
-//                        ep = def.endpoint != null && def.endpoint._jsPlumb ? def.endpoint : this.addEndpoint(elid, tempEndpointParams);
-  //                      if (def.uniqueEndpoint) def.endpoint = ep;
-
 						ep = this.addEndpoint(elid, tempEndpointParams);
 						endpointAddedButNoDragYet = true;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
@@ -10346,7 +10343,7 @@ if (typeof console != "undefined") {
 				cssClass:params._jsPlumb.endpointClass, 
 				originalArgs:arguments, 
 				pointerEventsSpec:"all",
-				useDivWrapper:false,
+				useDivWrapper:true,
 				_jsPlumb:params._jsPlumb
 			} ]);
 			
