@@ -383,7 +383,7 @@
 				cssClass:params._jsPlumb.endpointClass, 
 				originalArgs:arguments, 
 				pointerEventsSpec:"all",
-				useDivWrapper:false,
+				useDivWrapper:true,
 				_jsPlumb:params._jsPlumb
 			} ]);
 			
