@@ -1398,9 +1398,9 @@
         this.moveListener = function(e) {
             if (downAt) {
                 if (!moving) {
+                    this.params.events["start"]({el:this.el, pos:posAtDown, e:e, drag:this});
                     this.mark();
                     moving = true;
-                    this.params.events["start"]({el:this.el, pos:posAtDown, e:e, drag:this});
                 }
 
                 intersectingDroppables.length = 0;
@@ -11785,7 +11785,7 @@ if (typeof console != "undefined") {
 	jsPlumb.extend(jsPlumbInstance.prototype, {
 
         scopeChange:function(el, elId, endpoints, scope, types) {
-            console.log("scope change for ", elId, scope, types);
+
         },
 	
 		getDOMElement:function(el) { 
