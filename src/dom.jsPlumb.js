@@ -77,7 +77,7 @@
 	jsPlumb.extend(jsPlumbInstance.prototype, {
 
         scopeChange:function(el, elId, endpoints, scope, types) {
-            console.log("scope change for ", elId, scope, types);
+
         },
 	
 		getDOMElement:function(el) { 
