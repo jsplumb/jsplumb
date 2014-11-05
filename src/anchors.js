@@ -102,7 +102,6 @@
                 	a : [ sourceEdge, targetEdge ],
                     theta:theta,
                     theta2:theta2
-                	//TODO: set out.orientation ?
                 };
             },
                 // used by placeAnchors function
@@ -290,14 +289,15 @@
                 oIdx = [1,0][idx],
                 values = [ [ theta, order ], conn, aBoolean, otherElId, endpointId ],
                 listToAddTo = lists[edgeId],
-                listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null;
+                listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
+                i;
 
             if (listToRemoveFrom) {
                 var rIdx = jsPlumbUtil.findWithFunction(listToRemoveFrom, function(e) { return e[4] == endpointId; });
                 if (rIdx != -1) {
                     listToRemoveFrom.splice(rIdx, 1);
                     // get all connections from this list
-                    for (var i = 0; i < listToRemoveFrom.length; i++) {
+                    for (i = 0; i < listToRemoveFrom.length; i++) {
                         jsPlumbUtil.addWithFunction(connsToPaint, listToRemoveFrom[i][1], function(c) { return c.id == listToRemoveFrom[i][1].id; });
                         jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[idx].id; });
                         jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[oIdx].id; });
@@ -346,7 +346,6 @@
 
             // remove entry for previous target (if there)
             if (tIndex > -1) {
-
                 connectionsByElementId[oldTargetId].splice(tIndex, 1);
                 // add entry for new target
                 jsPlumbUtil.addToList(connectionsByElementId, newTargetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor]);         
@@ -531,10 +530,6 @@
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
-                    // dont use timestamp for this endpoint, as it is not for the current element and we may 
-                    // have needed to recalculate anchor position due to the element for the endpoint moving.
-                    //endpointsToPaint[i].paint( { timestamp : null, offset : cd, dimensions : cd.s });
-
                     endpointsToPaint[i].paint( { timestamp : timestamp, offset : cd, dimensions : cd.s });
 				}
 

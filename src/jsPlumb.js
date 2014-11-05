@@ -1317,19 +1317,19 @@
 		
 		this.animate = function(el, properties, options) {
 			options = options || {};
-			var ele = this.getElementObject(el), 
-				del = this.getDOMElement(el),
+			var ele = _currentInstance.getElementObject(el),
+				del = _currentInstance.getDOMElement(el),
 				id = _getId(del),
 				stepFunction = jsPlumb.animEvents.step,
 				completeFunction = jsPlumb.animEvents.complete;
 
 			options[stepFunction] = _ju.wrap(options[stepFunction], function() {
-				_currentInstance.repaint(id);
+				_currentInstance.revalidate(id);
 			});
 
 			// onComplete repaints, just to make sure everything looks good at the end of the animation.
 			options[completeFunction] = _ju.wrap(options[completeFunction], function() {
-				_currentInstance.repaint(id);
+				_currentInstance.revalidate(id);
 			});
 
 			_currentInstance.doAnimate(ele, properties, options);

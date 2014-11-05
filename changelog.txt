@@ -18,6 +18,7 @@
 
     ISSUES
 
+    178 - Detachable endpoints: different behaviour between connect() and mouse-based connections
     214 - Endpoint stays visible when should be terminated
     242 - Distinguish drag\click for Vanilla jsPlumb
     245 - reinstate isConnectedTo method on Endpoint
