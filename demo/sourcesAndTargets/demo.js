@@ -58,8 +58,6 @@ jsPlumb.ready(function() {
 				return t.tagName !== "A";
 			},
 			isSource:true,
-            scope:"foo",
-            uniqueEndpoint:true,
             maxConnections:-1
 		});			
         
@@ -67,8 +65,7 @@ jsPlumb.ready(function() {
 		instance.makeTarget(smallWindows, {
 			//anchor:"TopCenter",				// you could supply this if you want, but it was set in the defaults above.					
 			dropOptions:{ hoverClass:"hover" },
-            uniqueEndpoint:true,
-            scope:"foo"
+            uniqueEndpoint:true
 		});	
 
         // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           

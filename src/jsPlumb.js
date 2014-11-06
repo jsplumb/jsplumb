@@ -672,7 +672,7 @@
 
                 var _oneDelegateHandler = function(id, e) {
                     var t = e.srcElement || e.target,
-                        jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null);
+                        jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
                     if (jp) {
                         jp.fire(id, jp, e);
                         // jsplumb also fires every event coming from components
@@ -688,7 +688,7 @@
                     // connections.
                     _currentInstance.on(_container, id, "._jsPlumb_connector, ._jsPlumb_connector > *", function(e) { _oneDelegateHandler(id, e); });
                     // endpoints. note they can have an enclosing div, or not.
-                    _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *", function(e) { _oneDelegateHandler(id, e); });
+                    _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function(e) { _oneDelegateHandler(id, e); });
                     // overlays
                     _currentInstance.on(_container, id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function(e) { _oneDelegateHandler(id, e); });
                 };
@@ -1466,9 +1466,7 @@
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0, j = endpoints.length; i < j; i++) {
-                        console.cTimeStart("delete endpoint");
-						_currentInstance.deleteEndpoint(endpoints[i], true);
-                        console.cTimeEnd("delete endpoint");
+                        _currentInstance.deleteEndpoint(endpoints[i], true);
 					}
 				}
 			}			
@@ -1996,18 +1994,13 @@
             }
             if (recalc || (!offset && offsets[elId] == null)) { // if forced repaint or no offset available, we recalculate.
 
-                //console.cTimeStart("updateOffset-" + params.elId);
-
                 // get the current size and offset, and store them
-                //s = document.getElementById(elId);
                 s = managedElements[elId] ? managedElements[elId].el : null;
                 if (s != null) {
                     sizes[elId] = _currentInstance.getSize(s);
                     offsets[elId] = _getOffset(s, _currentInstance);
                     offsetTimestamps[elId] = timestamp;
                 }
-
-                //console.cTimeEnd("updateOffset-" + params.elId);
             } else {
                 offsets[elId] = offset || offsets[elId];
                 if (sizes[elId] == null) {
@@ -2756,13 +2749,8 @@
         };
 		
 		this.reset = function() {
-
             _currentInstance.setSuspendEvents(true);
-            console.cTimeStart("delete every endpoint");
 			_currentInstance.deleteEveryEndpoint();
-            //_currentInstance.clear();
-            console.cTimeEnd("delete every endpoint");
-
             _currentInstance.unbind();
 			this.targetEndpointDefinitions = {};
 			this.sourceEndpointDefinitions = {};
@@ -2778,10 +2766,6 @@
         };
 
         var _clearOverlayObject = function(obj) {
-            /*var overlays = obj.getOverlays();
-            for (var i = 0; i < overlays.length; i++) {
-                _clearObject(overlays[i]);
-            }*/
             _clearObject(obj);
         };
 

@@ -6396,7 +6396,7 @@ test(" jsPlumbUtil.extend, multiple parents", function() {
 			endpointStyle:{ fillStyle:"blue" }
 		});
 
-		equal(c.endpoints[0].canvas.childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+		equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
 	});
 
 
@@ -6410,7 +6410,7 @@ test(" jsPlumbUtil.extend, multiple parents", function() {
 			endpointStyle:{ fillStyle:"blue" }
 		});
 
-		equal(c.endpoints[0].canvas.childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+		equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
 	});
 };
 

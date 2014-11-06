@@ -15,46 +15,6 @@
  * Dual licensed under the MIT and GPL2 licenses.
  */
 
-
-if (typeof console != "undefined") {
-
-    (function () {
-
-
-        // add a few functions to the console.
-        var times = {}, indent = 0, handleMap = {};
-        console.cTimeStart = function (handle) {
-            //var h = (new Array(indent).join("-")) + handle;
-            var h = handle;
-            //handleMap[handle] = h;
-            times[h] = times[h] || {s: null, e: null, time_ms: 0, time_sec: 0, calls: 0, avg: 0};
-            times[h].s = new Date().getTime();
-            times[h].calls++;
-            indent += 2;
-        };
-
-        console.cTimeEnd = function (handle) {
-            //handle = handleMap[handle];
-            times[handle].e = new Date().getTime();
-            times[handle].time_ms += (times[handle].e - times[handle].s);
-            times[handle].time_sec = times[handle].time_ms / 1000;
-            times[handle].avg = times[handle].time_ms / times[handle].calls;
-            indent -= 2;
-        };
-
-        console.cTimeSummary = function () {
-            console.log("Cumulative");
-            console.table(times, [ "time_ms", "time_sec", "calls", "avg" ]);
-            //console.table(times);
-        };
-
-        console.cTimeSummaryClear = function () {
-            times = {};
-        };
-
-    })();
-}
-
 ;(function() {
 
   var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },

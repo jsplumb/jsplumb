@@ -1818,46 +1818,6 @@
  * Dual licensed under the MIT and GPL2 licenses.
  */
 
-
-if (typeof console != "undefined") {
-
-    (function () {
-
-
-        // add a few functions to the console.
-        var times = {}, indent = 0, handleMap = {};
-        console.cTimeStart = function (handle) {
-            //var h = (new Array(indent).join("-")) + handle;
-            var h = handle;
-            //handleMap[handle] = h;
-            times[h] = times[h] || {s: null, e: null, time_ms: 0, time_sec: 0, calls: 0, avg: 0};
-            times[h].s = new Date().getTime();
-            times[h].calls++;
-            indent += 2;
-        };
-
-        console.cTimeEnd = function (handle) {
-            //handle = handleMap[handle];
-            times[handle].e = new Date().getTime();
-            times[handle].time_ms += (times[handle].e - times[handle].s);
-            times[handle].time_sec = times[handle].time_ms / 1000;
-            times[handle].avg = times[handle].time_ms / times[handle].calls;
-            indent -= 2;
-        };
-
-        console.cTimeSummary = function () {
-            console.log("Cumulative");
-            console.table(times, [ "time_ms", "time_sec", "calls", "avg" ]);
-            //console.table(times);
-        };
-
-        console.cTimeSummaryClear = function () {
-            times = {};
-        };
-
-    })();
-}
-
 ;(function() {
 
   var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
@@ -3525,7 +3485,7 @@ if (typeof console != "undefined") {
 
                 var _oneDelegateHandler = function(id, e) {
                     var t = e.srcElement || e.target,
-                        jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null);
+                        jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
                     if (jp) {
                         jp.fire(id, jp, e);
                         // jsplumb also fires every event coming from components
@@ -3541,7 +3501,7 @@ if (typeof console != "undefined") {
                     // connections.
                     _currentInstance.on(_container, id, "._jsPlumb_connector, ._jsPlumb_connector > *", function(e) { _oneDelegateHandler(id, e); });
                     // endpoints. note they can have an enclosing div, or not.
-                    _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *", function(e) { _oneDelegateHandler(id, e); });
+                    _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function(e) { _oneDelegateHandler(id, e); });
                     // overlays
                     _currentInstance.on(_container, id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function(e) { _oneDelegateHandler(id, e); });
                 };
@@ -4319,9 +4279,7 @@ if (typeof console != "undefined") {
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0, j = endpoints.length; i < j; i++) {
-                        console.cTimeStart("delete endpoint");
-						_currentInstance.deleteEndpoint(endpoints[i], true);
-                        console.cTimeEnd("delete endpoint");
+                        _currentInstance.deleteEndpoint(endpoints[i], true);
 					}
 				}
 			}			
@@ -4849,18 +4807,13 @@ if (typeof console != "undefined") {
             }
             if (recalc || (!offset && offsets[elId] == null)) { // if forced repaint or no offset available, we recalculate.
 
-                //console.cTimeStart("updateOffset-" + params.elId);
-
                 // get the current size and offset, and store them
-                //s = document.getElementById(elId);
                 s = managedElements[elId] ? managedElements[elId].el : null;
                 if (s != null) {
                     sizes[elId] = _currentInstance.getSize(s);
                     offsets[elId] = _getOffset(s, _currentInstance);
                     offsetTimestamps[elId] = timestamp;
                 }
-
-                //console.cTimeEnd("updateOffset-" + params.elId);
             } else {
                 offsets[elId] = offset || offsets[elId];
                 if (sizes[elId] == null) {
@@ -5609,13 +5562,8 @@ if (typeof console != "undefined") {
         };
 		
 		this.reset = function() {
-
             _currentInstance.setSuspendEvents(true);
-            console.cTimeStart("delete every endpoint");
 			_currentInstance.deleteEveryEndpoint();
-            //_currentInstance.clear();
-            console.cTimeEnd("delete every endpoint");
-
             _currentInstance.unbind();
 			this.targetEndpointDefinitions = {};
 			this.sourceEndpointDefinitions = {};
@@ -5631,10 +5579,6 @@ if (typeof console != "undefined") {
         };
 
         var _clearOverlayObject = function(obj) {
-            /*var overlays = obj.getOverlays();
-            for (var i = 0; i < overlays.length; i++) {
-                _clearObject(overlays[i]);
-            }*/
             _clearObject(obj);
         };
 
@@ -6071,8 +6015,6 @@ if (typeof console != "undefined") {
                 this.endpoint = ep.clone();
             }
 
-            //console.cTimeEnd("actually create endpoint");
-
             // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
             // and the clone is left in its place while the original one goes off on a magical journey. 
             // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
@@ -6089,8 +6031,6 @@ if (typeof console != "undefined") {
             }.bind(this);
 
             this.type = this.endpoint.type;
-
-            //console.cTimeEnd("set endpoint");
         };
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");
@@ -6111,7 +6051,6 @@ if (typeof console != "undefined") {
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
         jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-        //console.cTimeEnd("adding classes");
 
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
@@ -6556,8 +6495,6 @@ if (typeof console != "undefined") {
 
                 draggingInitialised = true;
             }
-
-            //console.cTimeEnd("initDraggable");
         };
 
         // if marked as source or target at create time, init the dragging.

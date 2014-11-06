@@ -210,8 +210,6 @@
                 this.endpoint = ep.clone();
             }
 
-            //console.cTimeEnd("actually create endpoint");
-
             // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
             // and the clone is left in its place while the original one goes off on a magical journey. 
             // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
@@ -228,8 +226,6 @@
             }.bind(this);
 
             this.type = this.endpoint.type;
-
-            //console.cTimeEnd("set endpoint");
         };
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");
@@ -250,7 +246,6 @@
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
         jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-        //console.cTimeEnd("adding classes");
 
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
@@ -695,8 +690,6 @@
 
                 draggingInitialised = true;
             }
-
-            //console.cTimeEnd("initDraggable");
         };
 
         // if marked as source or target at create time, init the dragging.
