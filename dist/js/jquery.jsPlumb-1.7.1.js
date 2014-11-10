@@ -1144,7 +1144,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -1560,7 +1560,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -1633,7 +1633,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -2154,7 +2154,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -5146,7 +5146,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -5829,6 +5829,10 @@
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
 
+                dragOptions.canDrag = function() {
+                    return this.isSource || (this.isTarget && this.connections.length > 0);
+                }.bind(this);
+
                 _jsPlumb.initDraggable(this.canvas, dragOptions, "internal");
 
                 this.canvas._jsPlumbRelatedElement = this.element;
@@ -6206,7 +6210,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -6657,7 +6661,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -7731,7 +7735,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9130,11 +9134,11 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
- * This file contains the base class for library adapters. From 1.7.0 onwards all event management internal to jsPlumb is handled
+ * This file contains the base class for library adapters. From 1.7.1 onwards all event management internal to jsPlumb is handled
  * through Mottle, regardless of the underlying library. Dragging - and the events associated with it - is still handled
  * by the library.
  *
@@ -9181,7 +9185,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9545,7 +9549,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9810,7 +9814,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9893,7 +9897,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10484,7 +10488,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10981,7 +10985,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.0
+ * Title:jsPlumb 1.7.1
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
