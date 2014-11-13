@@ -87,14 +87,17 @@ jsPlumb.ready(function() {
 	instance.makeTarget(windows, {
 		dropOptions:{ hoverClass:"dragHover" },
 		anchor:"Continuous",
-		allowLoopback:true,
-		anchor:"Continuous"
+		allowLoopback:true
 	});
 
 	// and finally, make a couple of connections
-	instance.connect({ source:"opened", target:"phone1" });
+	//instance.connect({ source:"opened", target:"phone1" });
 	//instance.connect({ source:"phone1", target:"phone1" });
-	instance.connect({ source:"phone1", target:"inperson" });
+	//instance.connect({ source:"phone1", target:"inperson" });
+
+    instance.connect({ source:"inperson", target:"phone1", anchors:["Continuous", "ContinuousLeft"] });
+
+    instance.connect({ source:"phone1", target:"phone2" });
 
 	jsPlumb.fire("jsPlumbDemoLoaded", instance);
 

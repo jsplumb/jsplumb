@@ -1,11 +1,11 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.1
+ * Title:jsPlumb 1.7.2
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
- * This file contains the base class for library adapters. From 1.7.1 onwards all event management internal to jsPlumb is handled
+ * This file contains the base class for library adapters. From 1.7.2 onwards all event management internal to jsPlumb is handled
  * through Mottle, regardless of the underlying library. Dragging - and the events associated with it - is still handled
  * by the library.
  *

@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.1
+ * Title:jsPlumb 1.7.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -17,7 +17,7 @@
 ;(function() {	
 
     "use strict";
-    
+
     //
 	// manages anchors for all elements.
 	//
@@ -578,13 +578,13 @@
                 secondBest = clockwise ? clockwiseOptions : antiClockwiseOptions,
                 lastChoice = clockwise ? antiClockwiseOptions : clockwiseOptions,
                 cssClass = anchorParams.cssClass || "";
-            
+
             for (var i = 0; i < faces.length; i++) { availableFaces[faces[i]] = true; }
 
             this.getDefaultFace = function() {
                 return faces.length === 0 ? "top" : faces[0];
             };
-          
+
             // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
             // supported. if none supported we also return the request edge.
             this.verifyEdge = function(edge) {
@@ -598,7 +598,7 @@
             this.isEdgeSupported = function(edge) {
             	return availableFaces[edge] === true;
             };
-            
+
             this.compute = function(params) {
                 return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
             };
@@ -608,28 +608,24 @@
             this.getOrientation = function(endpoint) {
                 return continuousAnchorOrientations[endpoint.id] || [0,0];
             };
-            this.clearUserDefinedLocation = function() { 
-                delete userDefinedContinuousAnchorLocations[anchorParams.elementId]; 
+            this.clearUserDefinedLocation = function() {
+                delete userDefinedContinuousAnchorLocations[anchorParams.elementId];
             };
-            this.setUserDefinedLocation = function(loc) { 
-                userDefinedContinuousAnchorLocations[anchorParams.elementId] = loc; 
-            };            
+            this.setUserDefinedLocation = function(loc) {
+                userDefinedContinuousAnchorLocations[anchorParams.elementId] = loc;
+            };
             this.getCssClass = function() { return cssClass; };
             this.setCssClass = function(c) { cssClass = c; };
-        };        
+        };
         
         // continuous anchors
         jsPlumbInstance.continuousAnchorFactory = {
             get:function(params) {
-                var existing = continuousAnchors[params.elementId];
-                if (!existing) {
-                    existing = new ContinuousAnchor(params);                    
-                    continuousAnchors[params.elementId] = existing;
-                }
-                return existing;
+                return new ContinuousAnchor(params);
             },
             clear:function(elementId) {
-                delete continuousAnchors[elementId];
+                delete userDefinedContinuousAnchorLocations[elementId];
+                delete continuousAnchorLocations[elementId];
             }
         };
 	};
