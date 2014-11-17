@@ -2519,7 +2519,7 @@
 	                // lastly, if a filter was provided, set it as a dragFilter on the element,
 	                // to prevent the element drag function from kicking in when we want to
 	                // drag a new connection
-	                if (p.filter && jsPlumbUtil.isString(p.filter)) {
+	                if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
 	                	_currentInstance.setDragFilter(_el, p.filter);
 	                }
 				}.bind(this);
