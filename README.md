@@ -1,10 +1,10 @@
 # jsPlumb
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or 
-Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.7.2; this will be the final version 
+Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.7.3; this will be the final version 
 (apart from bugfix releases in 1.7.x) to support IE8. The next major release will be 2.0.0, and this will work only
  in modern browsers that support SVG. 
 
-**Note** From version 1.7.2, jsPlumb supports only jQuery as a support library. It is recommended that you use 
+**Note** From version 1.7.3, jsPlumb supports only jQuery as a support library. It is recommended that you use 
 vanilla jsPlumb wherever possible: it's faster than the jQuery version, it offers more features (multiple element
 dragging, multiple scopes), and since the event handling and drag/drop code are also projects managed by jsPlumb, you're
  more likely to get a feature request for those sorts of things to happen.
@@ -28,7 +28,7 @@ Vanilla jsPlumb (`dom.jsPlumb-x.x.x.js`) has no external dependencies and offers
 
 jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.x, 1.5.x, 1.6.x, 1.7.x, 1.8.x and 1.9.x. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. NOTE: jQuery 1.8.x only works with jQueryUI 1.8.22 and above.
 
-__There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ - see [this issue](http://bugs.jquery.com/ticket/10832). It means that mouse events do not get posted. There is another discussion of the issue [here](http://forum.jquery.com/topic/1.7.2-broke-svg-hover-events).
+__There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ - see [this issue](http://bugs.jquery.com/ticket/10832). It means that mouse events do not get posted. There is another discussion of the issue [here](http://forum.jquery.com/topic/1.7.3-broke-svg-hover-events).
 This issue is fixed in jQuery 1.8.
 
 
