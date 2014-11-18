@@ -47,7 +47,8 @@ jsPlumb.ready(function() {
 		instance.connect({uuids:["chartWindow2-bottom", "chartWindow4-top" ], overlays:overlays});
 		instance.connect({uuids:["chartWindow2-bottom", "chartWindow5-top" ], overlays:overlays});
 				
-		instance.draggable(windows);		
+		instance.draggable(windows);
+
 	});
 
 	jsPlumb.fire("jsPlumbDemoLoaded", instance);

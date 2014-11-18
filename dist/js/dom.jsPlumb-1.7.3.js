@@ -1141,10 +1141,681 @@
 
 }).call(this);
 
+/**
+ drag/drop functionality for use with jsPlumb but with
+ no knowledge of jsPlumb. supports multiple scopes (separated by whitespace), dragging
+ multiple elements, constrain to parent, drop filters, drag start filters, custom
+ css classes.
+
+ a lot of the functionality of this script is expected to be plugged in:
+
+ addClass
+ removeClass
+
+ addEvent
+ removeEvent
+
+ getPosition
+ setPosition
+ getSize
+
+ indexOf
+ intersects
+
+ the name came from here:
+
+ http://mrsharpoblunto.github.io/foswig.js/
+
+ copyright 2014 jsPlumb
+ */
+
+;(function() {
+
+    "use strict";
+
+    var getOffsetRect = function (elem) {
+        // (1)
+        var box = elem.getBoundingClientRect();
+
+        var body = document.body;
+        var docElem = document.documentElement;
+
+        // (2)
+        var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop;
+        var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
+
+        // (3)
+        var clientTop = docElem.clientTop || body.clientTop || 0;
+        var clientLeft = docElem.clientLeft || body.clientLeft || 0;
+
+        // (4)
+        var top  = box.top +  scrollTop - clientTop;
+        var left = box.left + scrollLeft - clientLeft;
+
+        return { top: Math.round(top), left: Math.round(left) };
+    };
+
+    var matchesSelector = function(el, selector, ctx) {
+        ctx = ctx || el.parentNode;
+        var possibles = ctx.querySelectorAll(selector);
+        for (var i = 0; i < possibles.length; i++) {
+            if (possibles[i] === el)
+                return true;
+        }
+        return false;
+    };
+
+    var iev = (function() {
+            var rv = -1;
+            if (navigator.appName == 'Microsoft Internet Explorer') {
+                var ua = navigator.userAgent,
+                    re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+                if (re.exec(ua) != null)
+                    rv = parseFloat(RegExp.$1);
+            }
+            return rv;
+        })(),
+        isIELT9 = iev > -1 && iev < 9,
+        _pl = function(e) {
+            if (isIELT9) {
+                return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
+            }
+            else {
+                var ts = _touches(e), t = _getTouch(ts, 0);
+                // this is for iPad. may not fly for Android.
+                return [t.pageX, t.pageY];
+            }
+        },
+        _getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
+        _touches = function(e) {
+            return e.touches && e.touches.length > 0 ? e.touches :
+                    e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
+                    e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
+                [ e ];
+        },
+        _classes = {
+            draggable:"katavorio-draggable",    // draggable elements
+            droppable:"katavorio-droppable",    // droppable elements
+            drag : "katavorio-drag",            // elements currently being dragged            
+            selected:"katavorio-drag-selected", // elements in current drag selection
+            active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
+            hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
+            noSelect : "katavorio-drag-no-select" // added to the body to provide a hook to suppress text selection
+        },
+        _defaultScope = "katavorio-drag-scope",
+        _events = [ "stop", "start", "drag", "drop", "over", "out" ],
+        _devNull = function() {},
+        _true = function() { return true; },
+        _foreach = function(l, fn, from) {
+            for (var i = 0; i < l.length; i++) {
+                if (l[i] != from)
+                    fn(l[i]);
+            }
+        },
+        _setDroppablesActive = function(dd, val, andHover, drag) {
+            _foreach(dd, function(e) {
+                e.setActive(val);
+                if (val) e.updatePosition();
+                if (andHover) e.setHover(drag, val);
+            });
+        },
+        _each = function(obj, fn) {
+            if (obj == null) return;
+            obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : [ obj ];
+            for (var i = 0; i < obj.length; i++)
+                fn.apply(obj[i], [ obj[i] ]);
+        },
+        _consume = function(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            else {
+                e.returnValue = false;
+            }
+        },
+        _defaultInputFilterSelector = "input,textarea,select,button",
+    //
+    // filters out events on all input elements, like textarea, checkbox, input, select.
+        _inputFilter = function(e, el, _katavorio) {
+            var t = e.srcElement || e.target;
+            return !matchesSelector(t, _katavorio.getInputFilterSelector(), el);
+        };
+
+    var Super = function(el, params, css, scope) {
+        this.params = params || {};
+        this.el = el;
+        this.params.addClass(this.el, this._class);
+        var enabled = true;
+        this.setEnabled = function(e) { enabled = e; };
+        this.isEnabled = function() { return enabled; };
+        this.toggleEnabled = function() { enabled = !enabled; };
+        this.setScope = function(scopes) {
+            this.scopes = scopes ? scopes.split(/\s+/) : [ scope ];
+        };
+        this.addScope = function(scopes) {
+            var m = {};
+            _each(this.scopes, function(s) { m[s] = true;});
+            _each(scopes ? scopes.split(/\s+/) : [], function(s) { m[s] = true;});
+            this.scopes = [];
+            for (var i in m) this.scopes.push(i);
+        };
+        this.removeScope = function(scopes) {
+            var m = {};
+            _each(this.scopes, function(s) { m[s] = true;});
+            _each(scopes ? scopes.split(/\s+/) : [], function(s) { delete m[s];});
+            this.scopes = [];
+            for (var i in m) this.scopes.push(i);
+        };
+        this.toggleScope = function(scopes) {
+            var m = {};
+            _each(this.scopes, function(s) { m[s] = true;});
+            _each(scopes ? scopes.split(/\s+/) : [], function(s) {
+                if (m[s]) delete m[s];
+                else m[s] = true;
+            });
+            this.scopes = [];
+            for (var i in m) this.scopes.push(i);
+        };
+        this.setScope(params.scope);
+        this.k = params.katavorio;
+        return params.katavorio;
+    };
+
+    var Drag = function(el, params, css, scope) {
+        this._class = css.draggable;
+        var k = Super.apply(this, arguments);
+        this.rightButtonCanDrag = this.params.rightButtonCanDrag;
+        var downAt = [0,0], posAtDown = null, moving = false,
+            consumeStartEvent = this.params.consumeStartEvent !== false,
+            dragEl = this.el,
+            clone = this.params.clone,
+            scroll = this.params.scroll;
+
+        this.toGrid = function(pos) {
+            return this.params.grid == null ? pos :
+                [
+                        this.params.grid[0] * Math.floor(pos[0] / this.params.grid[0]),
+                        this.params.grid[1] * Math.floor(pos[1] / this.params.grid[1])
+                ];
+        };
+
+        this.constrain = typeof this.params.constrain === "function" ? this.params.constrain  : (this.params.constrain || this.params.containment) ? function(pos) {
+            return [
+                Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
+                Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
+            ];
+        } : function(pos) { return pos; };
+
+        var filter = _true,
+            filterSpec = "",
+            filterExclude = this.params.filterExclude !== false,
+            _setFilter = this.setFilter = function(f, _exclude) {
+                if (f) {
+                    filterSpec = f;
+                    filterExclude = _exclude !== false;
+                    filter = function(e) {
+                        var t = e.srcElement || e.target;
+						var m;
+						if (typeof filterSpec === "string") { m = matchesSelector(t, f, el); }
+						else if (typeof filterSpec === "function") { m = f(e, el); }
+                        return filterExclude ? !m : m;
+                    };
+                }
+            };
+        this.canDrag = this.params.canDrag || _true;
+
+        var constrainRect,
+            matchingDroppables = [], intersectingDroppables = [];
+
+        this.downListener = function(e) {
+            var isNotRightClick = this.rightButtonCanDrag || (e.which !== 3 && e.button !== 2);
+            if (isNotRightClick && this.isEnabled() && this.canDrag()) {
+                var _f =  filter(e) && _inputFilter(e, this.el, this.k);
+                if (_f) {
+                    if (!clone)
+                        dragEl = this.el;
+                    else {
+                        dragEl = this.el.cloneNode(true);
+                        dragEl.setAttribute("id", null);
+                        dragEl.style.position = "absolute";
+                        // the clone node is added to the body; getOffsetRect gives us a value
+                        // relative to the body.
+                        var b = getOffsetRect(this.el);
+                        dragEl.style.left = b.left + "px";
+                        dragEl.style.top = b.top + "px";
+                        document.body.appendChild(dragEl);
+                    }
+                    consumeStartEvent && _consume(e);
+                    downAt = _pl(e);
+                    //
+                    this.params.bind(document, "mousemove", this.moveListener);
+                    this.params.bind(document, "mouseup", this.upListener);
+                    k.markSelection(this);
+                    this.params.addClass(document.body, css.noSelect);
+                }
+                else if (this.params.consumeFilteredEvents) {
+                    _consume(e);
+                }
+            }
+        }.bind(this);
+
+        this.moveListener = function(e) {
+            if (downAt) {
+                if (!moving) {
+                    this.params.events["start"]({el:this.el, pos:posAtDown, e:e, drag:this});
+                    this.mark();
+                    moving = true;
+                }
+
+                intersectingDroppables.length = 0;
+                var pos = _pl(e), dx = pos[0] - downAt[0], dy = pos[1] - downAt[1],
+                    z = this.params.ignoreZoom ? 1 : k.getZoom();
+                dx /= z;
+                dy /= z;
+                this.moveBy(dx, dy, e);
+                k.updateSelection(dx, dy, this);
+            }
+        }.bind(this);
+
+        this.upListener = function(e) {
+            downAt = null;
+            moving = false;
+            this.params.unbind(document, "mousemove", this.moveListener);
+            this.params.unbind(document, "mouseup", this.upListener);
+            this.params.removeClass(document.body, css.noSelect);
+            this.unmark(e);
+            k.unmarkSelection(this, e);
+            this.stop(e);
+            k.notifySelectionDragStop(this, e);
+            if (clone) {
+                dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
+                dragEl = null;
+            }
+        }.bind(this);
+
+        this.getFilter = function() { return filterSpec; };
+        this.isFilterExclude = function() { return filterExclude; };
+
+        this.abort = function() {
+            if (downAt != null)
+                this.upListener();
+        };
+
+        this.getDragElement = function() {
+            return dragEl || this.el;
+        };
+
+        this.stop = function(e) {
+            this.params.events["stop"]({el:dragEl, pos:this.params.getPosition(dragEl), e:e, drag:this});
+        };
+
+        this.mark = function() {
+            posAtDown = this.params.getPosition(dragEl);
+            this.size = this.params.getSize(dragEl);
+            matchingDroppables = k.getMatchingDroppables(this);
+            _setDroppablesActive(matchingDroppables, true, false, this);
+            this.params.addClass(dragEl, this.params.dragClass || css.drag);
+            if (this.params.constrain || this.params.containment) {
+                var cs = this.params.getSize(dragEl.parentNode);
+                constrainRect = { w:cs[0], h:cs[1] };
+            }
+        };
+        this.unmark = function(e) {
+            _setDroppablesActive(matchingDroppables, false, true, this);
+            matchingDroppables.length = 0;
+            for (var i = 0; i < intersectingDroppables.length; i++)
+                intersectingDroppables[i].drop(this, e);
+        };
+        this.moveBy = function(dx, dy, e) {
+            intersectingDroppables.length = 0;
+            var cPos = this.constrain(this.toGrid(([posAtDown[0] + dx, posAtDown[1] + dy])), dragEl),
+                rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
+            this.params.setPosition(dragEl, cPos);
+            for (var i = 0; i < matchingDroppables.length; i++) {
+                var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
+                if (this.params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
+                    intersectingDroppables.push(matchingDroppables[i]);
+                    matchingDroppables[i].setHover(this, true, e);
+                }
+                else if (matchingDroppables[i].el._katavorioDragHover) {
+                    matchingDroppables[i].setHover(this, false, e);
+                }
+            }
+            this.params.events["drag"]({el:this.el, pos:cPos, e:e, drag:this});
+
+            // test to see if the parent needs to be scrolled
+            if (scroll) {
+                var pnsl = dragEl.parentNode.scrollLeft, pnst = dragEl.parentNode.scrollTop;
+                console.log("scroll!", pnsl, pnst);
+            }
+        };
+        this.destroy = function() {
+            this.params.unbind(this.el, "mousedown", this.downListener);
+            this.params.unbind(document, "mousemove", this.moveListener);
+            this.params.unbind(document, "mouseup", this.upListener);
+            this.downListener = null;
+            this.upListener = null;
+            this.moveListener = null;
+            //this.params = null;
+            //this.el = null;
+            //dragEl = null;
+        };
+
+        // init:register mousedown, and perhaps set a filter
+        this.params.bind(this.el, "mousedown", this.downListener);
+
+        // if handle provded, use that.  otherwise, try to set a filter.
+        // note that a `handle` selector always results in filterExclude being set to false, ie.
+        // the selector defines the handle element(s).
+        if (this.params.handle)
+            _setFilter(this.params.handle, false);
+        else
+            _setFilter(this.params.filter, this.params.filterExclude);
+    };
+
+    var Drop = function(el, params, css, scope) {
+        this._class = css.droppable;
+        this.params = params || {};
+        this._activeClass = params.activeClass || css.active;
+        this._hoverClass = params.hoverClass || css.hover;
+        Super.apply(this, arguments)
+        var hover = false;
+
+        this.setActive = function(val) {
+            this.params[val ? "addClass" : "removeClass"](this.el, this._activeClass);
+        };
+
+        this.updatePosition = function() {
+            this.position = this.params.getPosition(this.el);
+            this.size = this.params.getSize(this.el);
+        };
+
+        this.canDrop = this.params.canDrop || function(drag) {
+            return true;
+        };
+
+        this.setHover = function(drag, val, e) {
+            // if turning off hover but this was not the drag that caused the hover, ignore.
+            if (val || this.el._katavorioDragHover == null || this.el._katavorioDragHover == drag.el._katavorio) {
+                this.params[val ? "addClass" : "removeClass"](this.el, this._hoverClass);
+                this.el._katavorioDragHover = val ? drag.el._katavorio : null;
+                if (hover !== val)
+                    this.params.events[val ? "over" : "out"]({el:this.el, e:e, drag:drag, drop:this});
+                hover = val;
+            }
+        };
+
+        this.drop = function(drag, event) {
+            this.params.events["drop"]({ drag:drag, e:event, drop:this });
+        };
+
+        this.destroy = function() {
+            this._class = null;
+            this._activeClass = null;
+            this._hoverClass = null;
+            //this.params = null;
+            hover = null;
+            //this.el = null;
+        };
+    };
+
+    var _uuid = function() {
+        return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
+        }));
+    };
+
+    var _gel = function(el) {
+        if (el == null) return null;
+        el = typeof el === "string" ? document.getElementById(el) : el;
+        if (el == null) return null;
+        el._katavorio = el._katavorio || _uuid();
+        return el;
+    };
+
+    this.Katavorio = function(katavorioParams) {
+
+        var _selection = [],
+            _selectionMap = {};
+        this._dragsByScope = {};
+        this._dropsByScope = {};
+        var _zoom = 1,
+            _reg = function(obj, map) {
+                for(var i = 0; i < obj.scopes.length; i++) {
+                    map[obj.scopes[i]] = map[obj.scopes[i]] || [];
+                    map[obj.scopes[i]].push(obj);
+                }
+            },
+            _unreg = function(obj, map) {
+                var c = 0;
+                for(var i = 0; i < obj.scopes.length; i++) {
+                    if (map[obj.scopes[i]]) {
+                        var idx = katavorioParams.indexOf(map[obj.scopes[i]], obj);
+                        if (idx != -1) {
+                            map[obj.scopes[i]].splice(idx, 1);
+                            c++;
+                        }
+                    }
+                }
+                return c > 0 ;
+            },
+            _getMatchingDroppables = this.getMatchingDroppables = function(drag) {
+                var dd = [], _m = {};
+                for (var i = 0; i < drag.scopes.length; i++) {
+                    var _dd = this._dropsByScope[drag.scopes[i]];
+                    if (_dd) {
+                        for (var j = 0; j < _dd.length; j++) {
+                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].el._katavorio] && _dd[j].el !== drag.el) {
+                                _m[_dd[j].el._katavorio] = true;
+                                dd.push(_dd[j]);
+                            }
+                        }
+                    }
+                }
+                return dd;
+            },
+            _prepareParams = function(p) {
+                p = p || {};
+                var _p = {
+                    events:{}
+                };
+                for (var i in katavorioParams) _p[i] = katavorioParams[i];
+                for (var i in p) _p[i] = p[i];
+                // events
+
+                for (var i = 0; i < _events.length; i++) {
+                    _p.events[_events[i]] = p[_events[i]] || _devNull;
+                }
+                _p.katavorio = this;
+                return _p;
+            }.bind(this),
+            _css = {},
+            overrideCss = katavorioParams.css || {},
+            _scope = katavorioParams.scope || _defaultScope;
+
+        // prepare map of css classes based on defaults frst, then optional overrides
+        for (var i in _classes) _css[i] = _classes[i];
+        for (var i in overrideCss) _css[i] = overrideCss[i];
+
+        var inputFilterSelector = katavorioParams.inputFilterSelector || _defaultInputFilterSelector;
+        /**
+         * Gets the selector identifying which input elements to filter from drag events.
+         * @method getInputFilterSelector
+         * @return {String} Current input filter selector.
+         */
+        this.getInputFilterSelector = function() { return inputFilterSelector; };
+
+        /**
+         * Sets the selector identifying which input elements to filter from drag events.
+         * @method setInputFilterSelector
+         * @param {String} selector Input filter selector to set.
+         * @return {Katavorio} Current instance; method may be chained.
+         */
+        this.setInputFilterSelector = function(selector) {
+            inputFilterSelector = selector;
+            return this;
+        };
+
+        this.draggable = function(el, params) {
+            var o = [];
+            _each(el, function(_el) {
+                _el = _gel(_el);
+                if (_el != null) {
+                    var p = _prepareParams(params);
+                    _el._katavorioDrag = new Drag(_el, p, _css, _scope);
+                    _reg(_el._katavorioDrag, this._dragsByScope);
+                    o.push(_el._katavorioDrag);
+                    katavorioParams.addClass(_el, _css.draggable);
+                }
+            }.bind(this));
+            return o;
+
+        };
+
+        this.droppable = function(el, params) {
+            var o = [];
+            _each(el, function(_el) {
+                _el = _gel(_el);
+                if (_el != null) {
+                    _el._katavorioDrop = new Drop(_el, _prepareParams(params), _css, _scope);
+                    _reg(_el._katavorioDrop, this._dropsByScope);
+                    o.push(_el._katavorioDrop);
+                    katavorioParams.addClass(_el, _css.droppable);
+                }
+            }.bind(this));
+            return o;
+        };
+
+        /**
+         * @name Katavorio#select
+         * @function
+         * @desc Adds an element to the current selection (for multiple node drag)
+         * @param {Element|String} DOM element - or id of the element - to add.
+         */
+        this.select = function(el) {
+            _each(el, function() {
+                var _el = _gel(this);
+                if (_el && _el._katavorioDrag) {
+                    if (!_selectionMap[_el._katavorio]) {
+                        _selection.push(_el._katavorioDrag);
+                        _selectionMap[_el._katavorio] = [ _el, _selection.length - 1 ];
+                        katavorioParams.addClass(_el, _css.selected);
+                    }
+                }
+            });
+            return this;
+        };
+
+        /**
+         * @name Katavorio#deselect
+         * @function
+         * @desc Removes an element from the current selection (for multiple node drag)
+         * @param {Element|String} DOM element - or id of the element - to remove.
+         */
+        this.deselect = function(el) {
+            _each(el, function() {
+                var _el = _gel(this);
+                if (_el && _el._katavorio) {
+                    var e = _selectionMap[_el._katavorio];
+                    if (e) {
+                        var _s = [];
+                        for (var i = 0; i < _selection.length; i++)
+                            if (_selection[i].el !== _el) _s.push(_selection[i]);
+                        _selection = _s;
+                        delete _selectionMap[_el._katavorio];
+                        katavorioParams.removeClass(_el, _css.selected);
+                    }
+                }
+            });
+            return this;
+        };
+
+        this.deselectAll = function() {
+            for (var i in _selectionMap) {
+                var d = _selectionMap[i];
+                katavorioParams.removeClass(d[0], _css.selected);
+            }
+
+            _selection.length = 0;
+            _selectionMap = {};
+        };
+
+        this.markSelection = function(drag) {
+            _foreach(_selection, function(e) { e.mark(); }, drag);
+        };
+
+        this.unmarkSelection = function(drag, event) {
+            _foreach(_selection, function(e) { e.unmark(event); }, drag);
+        };
+
+        this.getSelection = function() { return _selection.slice(0); };
+
+        this.updateSelection = function(dx, dy, drag) {
+            _foreach(_selection, function(e) { e.moveBy(dx, dy); }, drag);
+        };
+
+        this.notifySelectionDragStop = function(drag, evt) {
+            _foreach(_selection, function(e) { e.stop(evt); }, drag);
+        };
+
+        this.setZoom = function(z) { _zoom = z; };
+        this.getZoom = function() { return _zoom; };
+
+        // does the work of changing scopes
+        var _scopeManip = function(kObj, scopes, map, fn) {
+            if (kObj != null) {
+                _unreg(kObj, map);  // deregister existing scopes
+                kObj[fn](scopes); // set scopes
+                _reg(kObj, map); // register new ones
+            }
+        };
+
+        _each([ "set", "add", "remove", "toggle"], function(v) {
+            this[v + "Scope"] = function(el, scopes) {
+                _scopeManip(el._katavorioDrag, scopes, this._dragsByScope, v + "Scope");
+                _scopeManip(el._katavorioDrop, scopes, this._dropsByScope, v + "Scope");
+            }.bind(this);
+            this[v + "DragScope"] = function(el, scopes) {
+                _scopeManip(el._katavorioDrag, scopes, this._dragsByScope, v + "Scope");
+            }.bind(this);
+            this[v + "DropScope"] = function(el, scopes) {
+                _scopeManip(el._katavorioDrop, scopes, this._dropsByScope, v + "Scope");
+            }.bind(this);
+        }.bind(this));
+
+        this.getDragsForScope = function(s) { return this._dragsByScope[s]; };
+        this.getDropsForScope = function(s) { return this._dropsByScope[s]; };
+
+        var _destroy = function(el, type, map) {
+            el = _gel(el);
+            if (el[type]) {
+                if (_unreg(el[type], map))
+                    el[type].destroy();
+                el[type] = null;
+            }
+        };
+
+        this.elementRemoved = function(el) {
+            this.destroyDraggable(el);
+            this.destroyDroppable(el);
+        };
+
+        this.destroyDraggable = function(el) {
+            _destroy(el, "_katavorioDrag", this._dragsByScope);
+        };
+
+        this.destroyDroppable = function(el) {
+            _destroy(el, "_katavorioDrop", this._dropsByScope);
+        };
+    };
+}).call(this);
+
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -1560,7 +2231,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -1633,7 +2304,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -2154,7 +2825,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -4672,7 +5343,7 @@
 	                // lastly, if a filter was provided, set it as a dragFilter on the element,
 	                // to prevent the element drag function from kicking in when we want to
 	                // drag a new connection
-	                if (p.filter && jsPlumbUtil.isString(p.filter)) {
+	                if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
 	                	_currentInstance.setDragFilter(_el, p.filter);
 	                }
 				}.bind(this);
@@ -5146,7 +5817,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -6210,7 +6881,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -6661,7 +7332,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -7731,7 +8402,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9130,11 +9801,11 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
- * This file contains the base class for library adapters. From 1.7.2 onwards all event management internal to jsPlumb is handled
+ * This file contains the base class for library adapters. From 1.7.3 onwards all event management internal to jsPlumb is handled
  * through Mottle, regardless of the underlying library. Dragging - and the events associated with it - is still handled
  * by the library.
  *
@@ -9181,7 +9852,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9545,7 +10216,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9810,7 +10481,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9893,7 +10564,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10484,7 +11155,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10981,11 +11652,11 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.2
+ * Title:jsPlumb 1.7.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
- * This file contains the jQuery adapter.
+ * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
  *
  * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
@@ -10993,196 +11664,175 @@
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */  
-;(function($) {
-	
+ */
+;(function() {
+
 	"use strict";
 
-	var _getElementObject = function(el) {
-		return typeof(el) == "string" ? $("#" + el) : $(el);
-	};
+	 var _getDragManager = function(instance, category) {
 
-	$.extend(jsPlumbInstance.prototype, {
-
-// ---------------------------- DOM MANIPULATION ---------------------------------------		
-				
-		
-		/**
-		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
-		* a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
-		* two cases).  this is the opposite of getElementObject below.
-		*/
-		getDOMElement : function(el) {
-			if (el == null) return null;
-			if (typeof(el) == "string") return document.getElementById(el);
-			else if (el.context || el.length != null) return el[0];
-			else return el;
-		},
-		
-		/**
-		 * gets an "element object" from the given input.  this means an object that is used by the
-		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
-		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
-		 * function is used to find the element, using the given String as the element's id.
-		 * 
-		 */
-		getElementObject : _getElementObject,
-
-		/**
-		* removes an element from the DOM.  doing it via the library is
-		* safer from a memory perspective, as it ix expected that the library's 
-		* remove method will unbind any event listeners before removing the element from the DOM.
-		*/
-		removeElement:function(element) {
-			_getElementObject(element).remove();
-		},
-
-// ---------------------------- END DOM MANIPULATION ---------------------------------------
-
-// ---------------------------- MISCELLANEOUS ---------------------------------------
-
-		/**
-		 * animates the given element.
-		 */
-		doAnimate : function(el, properties, options) {
-			el.animate(properties, options);
-		},	
-		getSelector : function(context, spec) {
-            if (arguments.length == 2)
-                return _getElementObject(context).find(spec);
-            else
-                return $(context);
-		},
-
-// ---------------------------- END MISCELLANEOUS ---------------------------------------		
-
-// -------------------------------------- DRAG/DROP	---------------------------------
-		
-		destroyDraggable : function(el) {
-			if ($(el).data("draggable"))
-				$(el).draggable("destroy");
-		},
-
-		destroyDroppable : function(el) {
-			if ($(el).data("droppable"))
-				$(el).droppable("destroy");
-		},
-		/**
-		 * initialises the given element to be draggable.
-		 */
-		initDraggable : function(el, options, isPlumbedComponent) {
-			options = options || {};
-			el = $(el);
-
-			options.start = jsPlumbUtil.wrap(options.start, function() {
-				$("body").addClass(this.dragSelectClass);
-			}, false);
-
-			options.stop = jsPlumbUtil.wrap(options.stop, function() {
-				$("body").removeClass(this.dragSelectClass);
-			});
-
-			// remove helper directive if present and no override
-			if (!options.doNotRemoveHelper)
-				options.helper = null;
-
-
-			if (isPlumbedComponent == "internal")
-				options.scope = options.scope || jsPlumb.Defaults.Scope;
-
-			el.draggable(options);
-		},
-		
-		/**
-		 * initialises the given element to be droppable.
-		 */
-		initDroppable : function(el, options) {
-			options.scope = options.scope || jsPlumb.Defaults.Scope;
-            $(el).droppable(options);
-		},
-		
-		isAlreadyDraggable : function(el) {
-			return $(el).hasClass("ui-draggable");
-		},
-		
-		/**
-		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
-		 */
-		isDragSupported : function(el, options) {
-			return $(el).draggable;
-		},
-
-		/**
-		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
-		 */
-		isDropSupported : function(el, options) {
-			return $(el).droppable;
-		},
-		/**
-		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
-		 */
-		getDragObject : function(eventArgs) {
-			//return eventArgs[1].draggable || eventArgs[1].helper;
-			return eventArgs[1].helper || eventArgs[1].draggable;
-		},
-		
-		getDragScope : function(el) {
-			return $(el).draggable("option", "scope");
-		},
-
-		getDropEvent : function(args) {
-			return args[0];
-		},
-		
-		getDropScope : function(el) {
-			return $(el).droppable("option", "scope");
-		},
-		/**
-		 * takes the args passed to an event function and returns you an object that gives the
-		 * position of the object being moved, as a js object with the same params as the result of
-		 * getOffset, ie: { left: xxx, top: xxx }.
-		 * 
-		 * different libraries have different signatures for their event callbacks.  
-		 * see getDragObject as well
-		 */
-		getUIPosition : function(eventArgs, zoom, dontAdjustHelper) {
-			var ret;
-			zoom = zoom || 1;
-			if (eventArgs.length == 1) {
-				ret = { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
-			}
-			else {
-				var ui = eventArgs[1],
-				  _offset = ui.position;//ui.offset;
-				  
-				ret = _offset || ui.absolutePosition;
-				
-				// adjust ui position to account for zoom, because jquery ui does not do this.
-				if (!dontAdjustHelper) {
-					ui.position.left /= zoom;
-					ui.position.top /= zoom;
+        category = category || "main";
+        var key = "_katavorio_" + category;
+		var k = instance[key],
+			e = instance.getEventManager();
+			
+		if (!k) {
+			k = new Katavorio( {
+				bind:e.on,
+				unbind:e.off,
+				getSize:jsPlumb.getSize,
+				getPosition:function(el) {
+					var o = jsPlumbAdapter.getOffset(el, instance);
+					return [o.left, o.top];
+				},
+				setPosition:function(el, xy) {
+					el.style.left = xy[0] + "px";
+					el.style.top = xy[1] + "px";
+				},
+				addClass:jsPlumbAdapter.addClass,
+				removeClass:jsPlumbAdapter.removeClass,
+				intersects:Biltong.intersects,
+				indexOf:jsPlumbUtil.indexOf,
+				css:{
+					noSelect : instance.dragSelectClass,
+					droppable:"jsplumb-droppable",
+					draggable:"jsplumb-draggable",
+					drag:"jsplumb-drag",
+					selected:"jsplumb-drag-selected",
+					active:"jsplumb-drag-active",
+					hover:"jsplumb-drag-hover"
 				}
+			});
+			instance[key] = k;
+			instance.bind("zoom", k.setZoom);
+		}
+		return k;
+	};
+	 
+	 var _animProps = function(o, p) {
+		var _one = function(pName) {
+			if (p[pName]) {
+				if (jsPlumbUtil.isString(p[pName])) {
+					var m = p[pName].match(/-=/) ? -1 : 1,
+						v = p[pName].substring(2);
+					return o[pName] + (m * v);
+				}
+				else return p[pName];
 			}
-			return { left:ret.left, top: ret.top  };
+			else 
+				return o[pName];
+		};
+		return [ _one("left"), _one("top") ];
+	 };
+
+	jsPlumb.extend(jsPlumbInstance.prototype, {
+
+        scopeChange:function(el, elId, endpoints, scope, types) {
+
+        },
+	
+		getDOMElement:function(el) { 
+			if (el == null) return null;
+			// here we pluck the first entry if el was a list of entries.
+			// this is not my favourite thing to do, but previous versions of 
+			// jsplumb supported jquery selectors, and it is possible a selector 
+			// will be passed in here.
+			el = typeof el === "string" ? el : el.length != null ? el[0] : el;
+			return typeof el === "string" ? document.getElementById(el) : el; 
 		},
-		
-		isDragFilterSupported:function() { return true; },
-		
+		getElementObject:function(el) { return el; },
+		removeElement : function(element) {
+			_getDragManager(this).elementRemoved(element);
+			this.getEventManager().remove(element);
+		},
+		//
+		// this adapter supports a rudimentary animation function. no easing is supported.  only
+		// left/top properties are supported. property delta args are expected to be in the form
+		//
+		// +=x.xxxx
+		//
+		// or
+		//
+		// -=x.xxxx
+		//
+		doAnimate:function(el, properties, options) { 
+			options = options || {};
+			var o = jsPlumbAdapter.getOffset(el, this),
+				ap = _animProps(o, properties),
+				ldist = ap[0] - o.left,
+				tdist = ap[1] - o.top,
+				d = options.duration || 250,
+				step = 15, steps = d / step,
+				linc = (step / d) * ldist,
+				tinc = (step / d) * tdist,
+				idx = 0,
+				int = setInterval(function() {
+					jsPlumbAdapter.setPosition(el, {
+						left:o.left + (linc * (idx + 1)),
+						top:o.top + (tinc * (idx + 1))
+					});
+					if (options.step != null) options.step();
+					idx++;
+					if (idx >= steps) {
+						window.clearInterval(int);
+						if (options.complete != null) options.complete();
+					}
+				}, step);
+		},
+		getSelector:function(ctx, spec) { 
+			var sel = null;
+			if (arguments.length == 1) {
+				sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
+			}
+			else
+				sel = ctx.querySelectorAll(spec); 
+				
+			return sel;
+		},
+		// DRAG/DROP
+		destroyDraggable:function(el, category) {
+			_getDragManager(this, category).destroyDraggable(el);
+		},
+		destroyDroppable:function(el, category) {
+			_getDragManager(this, category).destroyDroppable(el);
+		},
+		initDraggable : function(el, options, category) {
+			_getDragManager(this, category).draggable(el, options);
+		},
+		initDroppable : function(el, options, category) {
+			_getDragManager(this, category).droppable(el, options);
+		},
+		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
+		isDragSupported : function(el, options) { return true; },
+		isDropSupported : function(el, options) { return true; },
+		getDragObject : function(eventArgs) { return eventArgs[0].drag.getDragElement(); },
+		getDragScope : function(el) {
+			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
+		},
+		getDropEvent : function(args) { return args[0].e; },
+		getDropScope : function(el) {
+			return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
+		},
+		getUIPosition : function(eventArgs, zoom) {
+			return {
+				left:eventArgs[0].pos[0],
+				top:eventArgs[0].pos[1]
+			};
+		},
 		setDragFilter : function(el, filter) {
-			if (jsPlumb.isAlreadyDraggable(el))
-				$(el).draggable("option", "cancel", filter);
+			if (el._katavorioDrag) {
+				el._katavorioDrag.setFilter(filter);
+			}
 		},
-		
-		setElementDraggable : function(el, draggable) {
-			$(el).draggable("option", "disabled", !draggable);
+		setElementDraggable : function(el, draggable) { 
+			el = jsPlumb.getDOMElement(el);
+			if (el._katavorioDrag)
+				el._katavorioDrag.setEnabled(draggable);
 		},
-		
-		setDragScope : function(el, scope) {
-			$(el).draggable("option", "scope", scope);
+		setDragScope : function(el, scope) { 
+			if (el._katavorioDrag)
+				el._katavorioDrag.k.setDragScope(el, scope);
 		},
-		/**
-         * mapping of drag events for jQuery
-         */
 		dragEvents : {
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
@@ -11190,25 +11840,41 @@
 		animEvents:{
 			'step':"step", 'complete':'complete'
 		},
-        getOriginalEvent : function(e) { return e.originalEvent || e; },
-        /**
-         * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
-         * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
-         * from the originalEvent to put in an options object for YUI.
-         * @param el
-         * @param event
-         * @param originalEvent
-         */
+		stopDrag : function(el) {
+			if (el._katavorioDrag)
+				el._katavorioDrag.abort();
+        },
+// 		MULTIPLE ELEMENT DRAG
+		// these methods are unique to this adapter, because katavorio
+		// supports dragging multiple elements.
+		addToDragSelection:function(spec) {
+			_getDragManager(this).select(spec);
+		},
+		removeFromDragSelection:function(spec) {
+			_getDragManager(this).deselect(spec);
+		},
+		clearDragSelection:function() {
+			_getDragManager(this).deselectAll();
+		},
+        getOriginalEvent : function(e) { return e; },
+        // each adapter needs to use its own trigger method, because it triggers a drag. Mottle's trigger method
+        // works perfectly well but does not cause a drag to start with jQuery. Presumably this is due to some
+        // intricacy in the way in which jQuery UI's draggable method registers events.
         trigger : function(el, event, originalEvent) {
-            var h = jQuery._data(_getElementObject(el)[0], "handle");
-            h(originalEvent);
+            this.getEventManager().trigger(el, event, originalEvent);
         }
+    });
+
+	var ready = function (f) {
+		var _do = function() {
+			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "undefined" && document.body != null)
+	            f();	        
+	        else
+	            setTimeout(_do, 9);
+		};
 		
-// -------------------------------------- END DRAG/DROP	---------------------------------		
-
-	});
-
-	$(document).ready(jsPlumb.init);
-
-})(jQuery);
-
+		_do();
+    };
+	ready(jsPlumb.init);
+	
+}).call(this);

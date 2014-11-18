@@ -2,7 +2,7 @@
     "project": {
         "name": "jsPlumb",
         "description": "pipe up your life",
-        "version": "1.7.2",
+        "version": "1.7.3",
         "url": ""
     },
     "files": {
