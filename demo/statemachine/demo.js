@@ -91,13 +91,9 @@ jsPlumb.ready(function() {
 	});
 
 	// and finally, make a couple of connections
-	//instance.connect({ source:"opened", target:"phone1" });
-	//instance.connect({ source:"phone1", target:"phone1" });
-	//instance.connect({ source:"phone1", target:"inperson" });
-
-    instance.connect({ source:"inperson", target:"phone1", anchors:["Continuous", "ContinuousLeft"] });
-
-    instance.connect({ source:"phone1", target:"phone2" });
+	instance.connect({ source:"opened", target:"phone1" });
+	instance.connect({ source:"phone1", target:"phone1" });
+	instance.connect({ source:"phone1", target:"inperson" });
 
 	jsPlumb.fire("jsPlumbDemoLoaded", instance);
 

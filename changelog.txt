@@ -1,3 +1,11 @@
+
+* 1.7.2
+
+
+- Reverted a minor bugfix introduced by the fix for issue 276
+- Updated continuous anchors to allow for several Continuous anchors to be in use on the one element.
+
+
 * 1.7.1
 
     This is a bugfix release.
