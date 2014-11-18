@@ -185,9 +185,7 @@
 			}
 			return { left:ret.left, top: ret.top  };
 		},
-		
-		isDragFilterSupported:function() { return true; },
-		
+
 		setDragFilter : function(el, filter) {
 			if (jsPlumb.isAlreadyDraggable(el))
 				$(el).draggable("option", "cancel", filter);

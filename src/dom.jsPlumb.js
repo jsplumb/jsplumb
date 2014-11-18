@@ -168,7 +168,6 @@
 				top:eventArgs[0].pos[1]
 			};
 		},
-		isDragFilterSupported:function() { return true; },
 		setDragFilter : function(el, filter) {
 			if (el._katavorioDrag) {
 				el._katavorioDrag.setFilter(filter);
