@@ -14,7 +14,7 @@
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;(function() {	
+;(function() {
 
     "use strict";
 
@@ -25,7 +25,7 @@
 		var _amEndpoints = {},
             continuousAnchors = {},
             continuousAnchorLocations = {},
-            userDefinedContinuousAnchorLocations = {},        
+            userDefinedContinuousAnchorLocations = {},
             continuousAnchorOrientations = {},
             Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
             axes = ["left", "top", "right", "bottom"],
@@ -33,13 +33,13 @@
 			self = this,
             anchorLists = {},
             jsPlumbInstance = params.jsPlumbInstance,
-            floatingConnections = {},            
+            floatingConnections = {},
             calculateOrientation = function(sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
-        
+
                 if (sourceId === targetId) return {
                     orientation:Orientation.IDENTITY,
                     a:["top", "top"]
-                };        
+                };
 
                 var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
                     theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx));
@@ -1058,7 +1058,7 @@
             }
             return o;
         };
-		
+
 		if (!_shapes[shape]) throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
 		
 		var da = _shapes[shape](params);
