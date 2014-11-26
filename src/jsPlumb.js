@@ -2989,3 +2989,9 @@
 // --------------------- end static instance + AMD registration -------------------------------------------		
 	
 })();
+
+if (typeof Package !== 'undefined') {
+  /*global d3:true*/  // Meteor.js creates a file-scope global for exporting. This comment prevents a potential JSHint warning.
+  jsPlumb = window.jsPlumb;
+  delete window.jsPlumb;
+}
