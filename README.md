@@ -2,14 +2,14 @@
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or 
 Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.7.2; this will be the final version 
 (apart from bugfix releases in 1.7.x) to support IE8. The next major release will be 2.0.0, and this will work only
- in modern browsers that support SVG. 
+ in modern browsers that support SVG.
 
-**Note** From version 1.7.2, jsPlumb supports only jQuery as a support library. It is recommended that you use 
+**Note** From version 1.7.2, jsPlumb supports only jQuery as a support library. It is recommended that you use
 vanilla jsPlumb wherever possible: it's faster than the jQuery version, it offers more features (multiple element
 dragging, multiple scopes), and since the event handling and drag/drop code are also projects managed by jsPlumb, you're
  more likely to get a feature request for those sorts of things to happen.
 
-If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc). 
+If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc).
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 ## Project Structure
