@@ -109,7 +109,7 @@
                 paintStyle:this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
                 endpoint:this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
                 hoverPaintStyle:this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
-                overlays:this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
+                overlays: jsPlumbUtil.merge(params.overlays || {}, (this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays)),
                 connectorStyle:params.connectorStyle,				
                 connectorHoverStyle:params.connectorHoverStyle,
                 connectorClass:params.connectorClass,

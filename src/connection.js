@@ -67,7 +67,8 @@
             cssClass:params.cssClass,
             container:params.container,
             "pointer-events":params["pointer-events"],
-            editorParams:params.editorParams
+            editorParams:params.editorParams,
+            overlays:params.overlays
         };   
         this._jsPlumb.lastPaintedAt = null;
         this.getDefaultType = function() {
@@ -79,7 +80,7 @@
                 paintStyle:this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
                 connector:this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
                 hoverPaintStyle:this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-                overlays:this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
+                overlays: jsPlumbUtil.merge(this._jsPlumb.params.overlays || {}, (this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays))
             };
         };
 

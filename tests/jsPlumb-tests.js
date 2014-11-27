@@ -5125,6 +5125,105 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c.getOverlays().length, 0, "nooverlays");
 		ok(!_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was removed from canvas");
 	});
+
+    test("connection type tests, check overlays do not disappear", function() {
+        var connectionTypes = {};
+        connectionTypes["normal"] = {
+            paintStyle: {
+                strokeStyle: "gray",
+                lineWidth: 3,
+                cssClass: "normal"
+            },
+            hoverPaintStyle: {
+                strokeStyle: "#64c8c8",
+                lineWidth: 3
+            }
+        };
+        connectionTypes["selected"] = {
+            paintStyle: {
+                strokeStyle: "blue",
+                lineWidth: 3,
+                cssClass: "selected"
+
+            },
+            hoverPaintStyle: {
+                strokeStyle: "#64c8c8",
+                lineWidth: 3
+            }
+        };
+
+        _jsPlumb.registerConnectionTypes(connectionTypes);
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var c = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            detachable: true,
+            overlays: [
+                ["Label",
+                    {
+                        label: "hello",
+                        location: 50,
+                        id: "myLabel1",
+                        cssClass: "connectionLabel"
+                    }
+                ]
+            ],
+            type: "normal"
+        });
+
+        ok(c.getOverlay("myLabel1") != null, "label overlay was retrieved");
+
+        c.addType("selected");
+        ok(c.getOverlay("myLabel1") != null, "label overlay was not blown away");
+        c.removeType("selected");
+        ok(c.getOverlay("myLabel1") != null, "label overlay was not blown away");
+    });
+
+    test("endpoint type tests, check overlays do not disappear", function() {
+        var epTypes = {};
+        epTypes["normal"] = {
+            paintStyle: {
+                fillStyle: "gray",
+                cssClass: "normal"
+            }
+        };
+        epTypes["selected"] = {
+            paintStyle: {
+                fillStyle: "blue",
+                cssClass: "selected"
+
+            },
+            hoverPaintStyle: {
+                strokeStyle: "#64c8c8",
+                lineWidth: 3
+            }
+        };
+
+        _jsPlumb.registerEndpointTypes(epTypes);
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e = _jsPlumb.addEndpoint(d1, {
+            overlays: [
+                ["Label",
+                    {
+                        label: "hello",
+                        location: 50,
+                        id: "myLabel1",
+                        cssClass: "connectionLabel"
+                    }
+                ]
+            ],
+            type: "normal"
+        });
+
+        ok(e.getOverlay("myLabel1") != null, "label overlay was retrieved");
+
+        e.addType("selected");
+        ok(e.getOverlay("myLabel1") != null, "label overlay was not blown away");
+        e.removeType("selected");
+        ok(e.getOverlay("myLabel1") != null, "label overlay was not blown away");
+    });
 	
 	test(" connection type tests, space separated arguments", function() {
 		var basicType = {
