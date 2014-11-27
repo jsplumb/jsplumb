@@ -1,7 +1,7 @@
 /**
-* This is a static jsPlumbInstance that is created and registered on the window, really just for the sake of conveniense:  you do not have to use this; you can create your own instances using
-* the {{#crossLink "jsPlumbInstance/getInstance:method"}}{{/crossLink}} method. For a list of the available methods and properties on this object,
-* see the {{#crossLink "jsPlumbInstance"}}{{/crossLink}} API docs.
+* This is a static jsPlumbInstance that is created and registered on the window, really just for the sake of convenience:  you do not have to use this; you can create your own instances using
+* the `jsPlumbInstance.getInstance` method. For a list of the available methods and properties on this object,
+* see the `jsPlumbInstance` API docs.
 * @class jsPlumb
 * @static
 * @extends jsPlumbInstance
@@ -53,24 +53,22 @@
 */
 
 /**
-* Adds an Endpoint to a given element or elements.
+* Adds an Endpoint to a given element or elements. See also `jsPlumbInstance.addEndpoints`.
 * @method addEndpoint
 * @param {String|Object|Array} el Element to add the endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
 * @param {Object} [params] Object containing Endpoint constructor arguments.  For more information, see {@link Endpoint}
 * @param {Object} [referenceParams] Object containing more Endpoint constructor arguments; it will be merged with params by jsPlumb.  You would use this if you had some 
 * shared parameters that you wanted to reuse when you added Endpoints to a number of elements. The allowed values in this object are anything that 'params' can contain.  See <Endpoint>.	
-* @return {Object|Array} The newly created Endpoint, if `el` referred to a single element.  Otherwise, an array of newly created `Endpoint`s. 
-* @see jsPlumbInstance.addEndpoints
+* @return {Object|Array} The newly created Endpoint, if `el` referred to a single element.  Otherwise, an array of newly created `Endpoint`s.
 */
 
 /**
-* Adds a list of Endpoints to a given element or elements.
+* Adds a list of Endpoints to a given element or elements. See also `jsPlumbInstance.addEndpoint`.
 * @method addEndpoints
 * @param {String|Object|Array} target Element to add the Endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
 * @param {Array} endpoints List of objects containing Endpoint constructor arguments. one Endpoint is created for each entry in this list.  See {@link Endpoint}'s constructor documentation. 
 * @param {Object} [referenceParams] Object containing more Endpoint constructor arguments; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.		  	 
-* @return {Array} List of newly created Endpoints, one for each entry in the `endpoints` argument. 
-* @see {@link jsPlumbInstance#addEndpoint}
+* @return {Array} List of newly created Endpoints, one for each entry in the `endpoints` argument.
 */
 
 /**
@@ -94,6 +92,7 @@
 * @param {String|Element|Endpoint} source Either an element, element id, or existing Endpoint. If you pass an element or element id for an element that
 * has been registered as a Connection source via makeSource, the Endpoint properties from that call are used.
 * @param {Boolean} [doNotRepaint=false] If true, the Connection will not be repainted after the source is changed.
+* @chainable
 * @return {jsPlumbInstance}  The current jsPlumb instance
 */
 
@@ -104,6 +103,7 @@
 * @param {String|Element|Endpoint} target Either an element, element id, or existing Endpoint. If you pass an element or element id for an element that
 * has been registered as a Connection target via makeTarget, the Endpoint properties from that call are used.
 * @param {Boolean} [doNotRepaint=false] If true, the Connection will not be repainted after the target is changed.
+* @chainable
 * @return {jsPlumbInstance}  The current jsPlumb instance
 */
 
@@ -113,6 +113,7 @@
  * @method setSuspendDrawing
  * @param {Boolean} val	Indicates whether to suspend or not
  * @param {Boolean} [repaintAfterwards=false]	Instructs jsPlumb to do a full repaint after changing the suspension state.
+ * @return {Boolean} The value of the suspend drawing flag _before_ this method was called.
  */
 
  /**
@@ -716,20 +717,21 @@
     * @see jsPlumbInstance#deleteEveryEndpoint
     */
 
-    /*
-    * Initialises the draggability of some element or elements.  You should use this instead of your 
-    * library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your 
-    * underlying library's drag method is always called from this method.
-    * @method draggable
-    * @param {Object} el Either an element id, a list of element ids, or a selector. 
-    * @param {Object} [options] Options to pass through to the underlying library. A common use case in jQueryUI, for instance, is to provide a `containment` parameter:
-    * 
-    *         `jsPlumb.draggable("someElementId", {
-    *            containment:"parent"
-    *          });`
-    *    
-    * @return {jsPlumbInstance} The current jsPlumb instance.
-    */
+/**
+* Initialises some element or elements to be draggable.  You should use this instead of your
+* library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your
+* underlying library's drag method is always called from this method.
+* @method draggable
+* @param {Object} el Either an element id, an element, a list of element ids, or a selector.
+* @param {Object} [options] Options to pass through to the underlying library. A common use case in jQueryUI, for instance, is to provide a `containment` parameter:
+*
+*         `jsPlumb.draggable("someElementId", {
+*            containment:"parent"
+*          });`
+* @chainable
+* @return {jsPlumbInstance} The current jsPlumb instance.
+*/
+
 /**
 * This method takes the given selector spec and, using the current underlying library, turns it into
 * a selector from that library.  This method exists really as a helper function for those applications
