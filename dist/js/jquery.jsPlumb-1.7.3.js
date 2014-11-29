@@ -4424,7 +4424,7 @@
                         },
                         element:elInfo.el,
                         elementId:elid,
-                        isSource:false,
+                        isSource: p.isSource === true,
                         isTarget:true,
                         addClass:function(clazz) {
                             //_ep.addClass(clazz)
