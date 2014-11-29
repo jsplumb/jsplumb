@@ -1356,9 +1356,9 @@
                     filterExclude = _exclude !== false;
                     filter = function(e) {
                         var t = e.srcElement || e.target;
-						var m;
-						if (typeof filterSpec === "string") { m = matchesSelector(t, f, el); }
-						else if (typeof filterSpec === "function") { m = f(e, el); }
+                        var m;
+                        if (typeof filterSpec === "string") { m = matchesSelector(t, f, el); }
+                        else if (typeof filterSpec === "function") { m = f(e, el); }
                         return filterExclude ? !m : m;
                     };
                 }
@@ -1420,7 +1420,6 @@
 
         this.upListener = function(e) {
             downAt = null;
-            moving = false;
             this.params.unbind(document, "mousemove", this.moveListener);
             this.params.unbind(document, "mouseup", this.upListener);
             this.params.removeClass(document.body, css.noSelect);
@@ -1428,6 +1427,7 @@
             k.unmarkSelection(this, e);
             this.stop(e);
             k.notifySelectionDragStop(this, e);
+            moving = false;
             if (clone) {
                 dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
                 dragEl = null;
@@ -1447,7 +1447,8 @@
         };
 
         this.stop = function(e) {
-            this.params.events["stop"]({el:dragEl, pos:this.params.getPosition(dragEl), e:e, drag:this});
+            if (moving)
+                this.params.events["stop"]({el:dragEl, pos:this.params.getPosition(dragEl), e:e, drag:this});
         };
 
         this.mark = function() {
@@ -5925,7 +5926,7 @@
                 paintStyle:this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
                 endpoint:this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
                 hoverPaintStyle:this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
-                overlays:this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
+                overlays: jsPlumbUtil.merge(params.overlays || {}, (this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays)),
                 connectorStyle:params.connectorStyle,				
                 connectorHoverStyle:params.connectorHoverStyle,
                 connectorClass:params.connectorClass,
@@ -6947,7 +6948,8 @@
             cssClass:params.cssClass,
             container:params.container,
             "pointer-events":params["pointer-events"],
-            editorParams:params.editorParams
+            editorParams:params.editorParams,
+            overlays:params.overlays
         };   
         this._jsPlumb.lastPaintedAt = null;
         this.getDefaultType = function() {
@@ -6959,7 +6961,7 @@
                 paintStyle:this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
                 connector:this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
                 hoverPaintStyle:this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-                overlays:this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
+                overlays: jsPlumbUtil.merge(this._jsPlumb.params.overlays || {}, (this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays))
             };
         };
 
