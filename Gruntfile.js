@@ -2,7 +2,7 @@
 var versions = {
         JS_BEZIER : { f:"jsBezier", v:"0.6" },
         BILTONG : { f:"biltong", v:"0.2" },
-        MOTTLE : {f:"mottle", v:"0.4" },
+        MOTTLE : {f:"mottle", v:"0.5" },
         KATAVORIO : {f:"katavorio", v:"0.5" }
     },
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
@@ -23,7 +23,7 @@ var versions = {
     extraLibraries = {
         jquery:[ get("MOTTLE") ],
         dom:[ get("MOTTLE"), get("KATAVORIO") ]
-    }
+    },
     objects = {
         connectors : [
             "flowchart", "statemachine", "bezier", "straight"

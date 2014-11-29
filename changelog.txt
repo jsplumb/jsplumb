@@ -1,3 +1,11 @@
+* 1.7.3
+
+    A minor bugfix release.
+
+  ISSUES
+
+  297 - Distinguish drag\click for Vanilla jsPlumb
+
 
 * 1.7.2
 
