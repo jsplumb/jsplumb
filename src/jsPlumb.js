@@ -2272,8 +2272,10 @@
 
                             // if no cached endpoint, or there was one but it has been cleaned up
                             // (ie. detached), then create a new one.
-                            if (newEndpoint == null || newEndpoint._jsPlumb == null)
+                            if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                                 newEndpoint = _currentInstance.addEndpoint(_el, p);
+                                newEndpoint._mtNew = true;
+                            }
 
                             if (p.uniqueEndpoint) def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
                             // TODO test options to makeTarget to see if we should do this?
@@ -2301,6 +2303,13 @@
                             }
 
                             return newEndpoint;
+                        },
+                        maybeCleanup:function(ep) {
+                            if (ep._mtNew && ep.connections.length === 0) {
+                                _currentInstance.deleteObject({endpoint:ep});
+                            }
+                            else
+                            delete ep._mtNew;
                         }
                     });
 					

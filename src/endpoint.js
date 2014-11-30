@@ -919,6 +919,7 @@
             if (redrop) {
                 jpc._forceReattach = true;
                 jpc.setHover(false);
+                if (dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
                 return;
             }
 
@@ -1057,6 +1058,9 @@
                     dontContinueFunction();
                 }
             }
+            else
+                if(dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
+
             _jsPlumb.currentlyDragging = false;
         };
     };
