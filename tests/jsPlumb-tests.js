@@ -1540,36 +1540,68 @@ var testSuite = function(renderMode, _jsPlumb) {
         ok(_jsPlumb.getEndpoints("d2") ==  null, "no endpoints for the nested div");                        
         
         expect(2);
-    });  
+    });
 
-/*
+    test("jsPlumb.remove fires connectionDetached events", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 
-	I'm on the fence about this one.  There is a method you can call to tell jsPlumb that an element
-	has been deleted, so in theory you should not get into a situation where you are doing what this
-	test does.  But you can of course get there accidentally, which is one reason why it would be good
-	for this test to exist.
+        _jsPlumb.connect({source:d1, target:d2});
+        _jsPlumb.connect({source:d1, target:d3});
 
-    test(": deleting endpoints of deleted element should not fail", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var ep1 = _jsPlumb.addEndpoint(d1);
-        _jsPlumb.addEndpoint(d1);
-        _jsPlumb.addEndpoint(d1);
+        var o = 0;
+        _jsPlumb.bind("connectionDetached", function() {
+            o++;
+        });
 
-        _jsPlumb.connect({source:ep1, target:"d2"});
-        
-        d1.remove();
+        _jsPlumb.remove(d1);
+        equal(o, 2, "connectionDetached event was fired twice.");
 
-        var eps = _jsPlumb.getEndpoints(d1);
-        equal(eps.length, 3, "there are three endpoints for d1");
-        for (var i = 0; i < eps.length; i++) {
-            _jsPlumb.deleteEndpoint(eps[i]);
-        }        
-        eps = _jsPlumb.getEndpoints("d1");
-        equal(eps, null, "there are zero endpoints for d1");
-        
-        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");                        
-    });  
-*/    
+    });
+
+    test("jsPlumb.removeAllEndpoints fires connectionDetached events", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+
+        _jsPlumb.connect({source:d1, target:d2});
+        _jsPlumb.connect({source:d1, target:d3});
+
+        var o = 0;
+        _jsPlumb.bind("connectionDetached", function() {
+            o++;
+        });
+
+        _jsPlumb.removeAllEndpoints(d1);
+        equal(o, 2, "connectionDetached event was fired twice.");
+
+    });
+
+    /*
+
+        I'm on the fence about this one.  There is a method you can call to tell jsPlumb that an element
+        has been deleted, so in theory you should not get into a situation where you are doing what this
+        test does.  But you can of course get there accidentally, which is one reason why it would be good
+        for this test to exist.
+
+        test(": deleting endpoints of deleted element should not fail", function() {
+            var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+            var ep1 = _jsPlumb.addEndpoint(d1);
+            _jsPlumb.addEndpoint(d1);
+            _jsPlumb.addEndpoint(d1);
+
+            _jsPlumb.connect({source:ep1, target:"d2"});
+
+            d1.remove();
+
+            var eps = _jsPlumb.getEndpoints(d1);
+            equal(eps.length, 3, "there are three endpoints for d1");
+            for (var i = 0; i < eps.length; i++) {
+                _jsPlumb.deleteEndpoint(eps[i]);
+            }
+            eps = _jsPlumb.getEndpoints("d1");
+            equal(eps, null, "there are zero endpoints for d1");
+
+            equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
+        });
+    */
     
     
 	test(": _jsPlumb.addEndpoint (simple case)", function() {
@@ -6511,5 +6543,79 @@ test(" jsPlumbUtil.extend, multiple parents", function() {
 
 		equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
 	});
+
+
+    var _makeEvt = function(el) {
+        var o = jsPlumbAdapter.getOffset(el, _jsPlumb),
+            s = _jsPlumb.getSize(el),
+            l = o.left + (s[0]/2),
+            t = o.top + (s[1]/2);
+
+        return {
+            clientX:l,
+            clientY:t,
+            screenX:l,
+            screenY:t,
+            pageX:l,
+            pageY:t
+        };
+    };
+/*
+    var _dragConnection = function(d1, d2) {
+          var e1 = _makeEvt(d1), e2 = _makeEvt(d2);
+
+        _jsPlumb.trigger(d1, "mousedown", e1);
+        _jsPlumb.trigger(document, "mousemove", e2);
+        _jsPlumb.trigger(d2, "mouseup", e2);
+    };
+
+    /**
+     * Tests makeSource/makeTarget via event triggering
+     *
+    test("connections via mouse", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        _jsPlumb.makeSource(d1);
+        _jsPlumb.makeTarget(d2);
+        _dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "one connection");
+    })*/
+
+
+    var _dragConnection = function(d1, d2) {
+        var el1 = /*d1.canvas || */d1, el2 =/* d2.canvas || */d2;
+        var e1 = _makeEvt(el1), e2 = _makeEvt(el2);
+
+        _jsPlumb.trigger(el1, "mousedown", e1);
+        _jsPlumb.trigger(document, "mousemove", e2);
+        _jsPlumb.trigger(el2, "mouseup", e2);
+    };
+
+    /**
+     * Tests makeSource/makeTarget via event triggering.
+     * @method jsPlumb.Test.MakeSourceViaEventTriggering
+     *
+    test("connections via mouse", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        _jsPlumb.makeSource(d1);
+        _jsPlumb.makeTarget(d2);
+        _dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "one connection");
+    });
+
+    /**
+     * Tests makeSource/makeTarget via event triggering.
+     * @method jsPlumb.Test.MakeSourceViaEventTriggering
+     *
+    test("connections via mouse", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1),
+            e2 = _jsPlumb.addEndpoint(d2);
+
+        _dragConnection(e1, e2);
+        equal(_jsPlumb.select().length, 1, "one connection");
+    });
+
+     */
+
 };
 
