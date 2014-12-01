@@ -5122,8 +5122,10 @@
 
                             // if no cached endpoint, or there was one but it has been cleaned up
                             // (ie. detached), then create a new one.
-                            if (newEndpoint == null || newEndpoint._jsPlumb == null)
+                            if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                                 newEndpoint = _currentInstance.addEndpoint(_el, p);
+                                newEndpoint._mtNew = true;
+                            }
 
                             if (p.uniqueEndpoint) def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
                             // TODO test options to makeTarget to see if we should do this?
@@ -5151,6 +5153,13 @@
                             }
 
                             return newEndpoint;
+                        },
+                        maybeCleanup:function(ep) {
+                            if (ep._mtNew && ep.connections.length === 0) {
+                                _currentInstance.deleteObject({endpoint:ep});
+                            }
+                            else
+                            delete ep._mtNew;
                         }
                     });
 					
@@ -6749,7 +6758,13 @@
                 scope = _jsPlumb.getAttribute(draggable, "originalScope"),
                 jpc = _jsPlumb.floatingConnections[id];
 
+            // if no active connection, bail.
             if (jpc == null) return;
+
+            // if suspended endpoint has been cleaned up, bail.
+            if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb == null) return;
+
+
             var _ep = dhParams.getEndpoint(jpc);
 
             if (dhParams.onDrop) dhParams.onDrop(jpc);
@@ -6761,6 +6776,7 @@
             if (redrop) {
                 jpc._forceReattach = true;
                 jpc.setHover(false);
+                if (dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
                 return;
             }
 
@@ -6783,7 +6799,7 @@
                 var _doContinue = true;
                 // if this is an existing connection and detach is not allowed we won't continue. The connection's
                 // endpoints have been reinstated; everything is back to how it was.
-                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != _ep.id) {
+                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb && jpc.suspendedEndpoint.id != _ep.id) {
 
                     if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_jsPlumb.checkCondition("beforeDetach", jpc))
                         _doContinue = false;
@@ -6899,6 +6915,9 @@
                     dontContinueFunction();
                 }
             }
+            else
+                if(dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
+
             _jsPlumb.currentlyDragging = false;
         };
     };
