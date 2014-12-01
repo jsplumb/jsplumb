@@ -5,6 +5,8 @@
   ISSUES
 
   297 - Distinguish drag\click for Vanilla jsPlumb
+  287 - Cannot drop source of connection on makeTarget element after 1.6.4
+  281 - beforeDetach not triggered by jsPlumb.detachAllConnections
 
 
 * 1.7.2
