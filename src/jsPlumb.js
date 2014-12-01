@@ -1569,7 +1569,7 @@
                 endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0, j = endpoints.length; i < j; i++) {
-					endpoints[i].detachAll(params.fireEvent !== false);
+					endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
 				}
 			}
 			return _currentInstance;
@@ -1582,7 +1582,7 @@
 					var endpoints = endpointsByElement[id];
 					if (endpoints && endpoints.length) {
 						for ( var i = 0, j = endpoints.length; i < j; i++) {
-							endpoints[i].detachAll(params.fireEvent !== false);
+							endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
 						}
 					}
 				}
