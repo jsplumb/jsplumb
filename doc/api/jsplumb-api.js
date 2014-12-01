@@ -706,6 +706,7 @@
     * @param {Object} el Either the id of the element, or a selector for the element.
     * @param {Object} [params] Optional parameters.
     * @param {Boolean} [params.fireEvent=true] Whether or not to fire the detach event.
+     * @param {Boolean} [paramsforceDetach=false] If true, this call will ignore any `beforeDetach` interceptors.
     * @return {jsPlumbInstance} The current jsPlumb instance.
     */  
     /**        
@@ -713,6 +714,7 @@
     * @method detachEveryConnection
     * @param {Object} [params] optional params object for the call
     * @param {Boolean} [params.fireEvent=true] Whether or not to fire detach events
+    * @param {Boolean} [paramsforceDetach=false] If true, this call will ignore any `beforeDetach` interceptors.
     * @return {jsPlumbInstance} The current jsPlumb Instance
     * @see jsPlumbInstance#deleteEveryEndpoint
     */

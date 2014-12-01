@@ -92,6 +92,7 @@
  * Detach all connections for this endpoint.
  * @method detachAll
  * @param {Boolean} [fireEvent=true] Whether or not to fire an event for each detach.
+ * @param {Boolean} [forceDetach=false] If true, this call will ignore any `beforeDetach` interceptors.
  */
 
  /**
