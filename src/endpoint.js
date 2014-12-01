@@ -907,7 +907,13 @@
                 scope = _jsPlumb.getAttribute(draggable, "originalScope"),
                 jpc = _jsPlumb.floatingConnections[id];
 
+            // if no active connection, bail.
             if (jpc == null) return;
+
+            // if suspended endpoint has been cleaned up, bail.
+            if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb == null) return;
+
+
             var _ep = dhParams.getEndpoint(jpc);
 
             if (dhParams.onDrop) dhParams.onDrop(jpc);
@@ -942,7 +948,7 @@
                 var _doContinue = true;
                 // if this is an existing connection and detach is not allowed we won't continue. The connection's
                 // endpoints have been reinstated; everything is back to how it was.
-                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != _ep.id) {
+                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb && jpc.suspendedEndpoint.id != _ep.id) {
 
                     if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_jsPlumb.checkCondition("beforeDetach", jpc))
                         _doContinue = false;
