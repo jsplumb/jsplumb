@@ -309,11 +309,17 @@
             return actuallyDetached;
         };	
 
-        this.detachAll = function(fireEvent, originalEvent) {
+        this.detachAll = function(fireEvent, forceDetach) {
+            var unaffectedConns = [];
             while (this.connections.length > 0) {
                 // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
-                this.detach(this.connections[0], false, true, fireEvent !== false, originalEvent, this, 0);
+                var actuallyDetached = this.detach(this.connections[0], false, forceDetach === true, fireEvent !== false, null, this, 0);
+                if (!actuallyDetached) {
+                    unaffectedConns.push(this.connections[0]);
+                    this.connections.splice(0, 1);
+                }
             }
+            this.connections = unaffectedConns;
             return this;
         };                
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
