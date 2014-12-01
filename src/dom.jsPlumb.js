@@ -86,7 +86,7 @@
 			// this is not my favourite thing to do, but previous versions of 
 			// jsplumb supported jquery selectors, and it is possible a selector 
 			// will be passed in here.
-			el = typeof el === "string" ? el : el.length != null ? el[0] : el;
+			el = typeof el === "string" ? el : el.length != null && el.enctype == null ? el[0] : el;
 			return typeof el === "string" ? document.getElementById(el) : el; 
 		},
 		getElementObject:function(el) { return el; },
