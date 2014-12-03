@@ -164,7 +164,9 @@
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
 
-			while (p != null && p != b) {
+			
+			// if p.host is present p is a shadow dom element, otherwise regular element
+			while (p != null && p != b && p.host===undefined) {
 				var pid = _currentInstance.getId(p, null, true);
 				if (pid && _draggables[pid]) {
 					var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
