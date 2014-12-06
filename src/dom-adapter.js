@@ -364,6 +364,11 @@
         	el.setAttribute(a, v);
         },
 
+        setAttributes:function(el, atts) {
+            for (var i in atts)
+                el.setAttribute(i, atts[i]);
+        },
+
         appendToRoot : function(node) {
             document.body.appendChild(node);
         },
