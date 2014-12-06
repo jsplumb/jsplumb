@@ -14,7 +14,6 @@
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;
 (function () {
 
     "use strict";
