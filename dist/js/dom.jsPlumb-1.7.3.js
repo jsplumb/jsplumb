@@ -2693,6 +2693,11 @@
         	el.setAttribute(a, v);
         },
 
+        setAttributes:function(el, atts) {
+            for (var i in atts)
+                el.setAttribute(i, atts[i]);
+        },
+
         appendToRoot : function(node) {
             document.body.appendChild(node);
         },
@@ -2864,1261 +2869,1285 @@
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;(function() {
-	
-	"use strict";
-			
+(function () {
+
+    "use strict";
+
     var _ju = jsPlumbUtil,
-    	_getOffset = function(el, _instance, relativeToRoot) {
+        _getOffset = function (el, _instance, relativeToRoot) {
             return jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
         },
-		
-		/**
-		 * creates a timestamp, using milliseconds since 1970, but as a string.
-		 */
-		_timestamp = function() { return "" + (new Date()).getTime(); },
 
-		// helper method to update the hover style whenever it, or paintStyle, changes.
-		// we use paintStyle as the foundation and merge hoverPaintStyle over the
-		// top.
-		_updateHoverStyle = function(component) {
-			if (component._jsPlumb.paintStyle && component._jsPlumb.hoverPaintStyle) {
-				var mergedHoverStyle = {};
-				jsPlumb.extend(mergedHoverStyle, component._jsPlumb.paintStyle);
-				jsPlumb.extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
-				delete component._jsPlumb.hoverPaintStyle;
-				// we want the fillStyle of paintStyle to override a gradient, if possible.
-				if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fillStyle)
-					delete mergedHoverStyle.gradient;
-				component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
-			}
-		},		
-		//events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
+        /**
+         * creates a timestamp, using milliseconds since 1970, but as a string.
+         */
+        _timestamp = function () {
+            return "" + (new Date()).getTime();
+        },
+
+    // helper method to update the hover style whenever it, or paintStyle, changes.
+    // we use paintStyle as the foundation and merge hoverPaintStyle over the
+    // top.
+        _updateHoverStyle = function (component) {
+            if (component._jsPlumb.paintStyle && component._jsPlumb.hoverPaintStyle) {
+                var mergedHoverStyle = {};
+                jsPlumb.extend(mergedHoverStyle, component._jsPlumb.paintStyle);
+                jsPlumb.extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
+                delete component._jsPlumb.hoverPaintStyle;
+                // we want the fillStyle of paintStyle to override a gradient, if possible.
+                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fillStyle)
+                    delete mergedHoverStyle.gradient;
+                component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
+            }
+        },
+    //events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
         events = [ "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
-		eventFilters = { "mouseout":"mouseleave", "mouseexit":"mouseleave" },
-		_updateAttachedElements = function(component, state, timestamp, sourceElement) {
-			var affectedElements = component.getAttachedElements();
-			if (affectedElements) {
-				for (var i = 0, j = affectedElements.length; i < j; i++) {
-					if (!sourceElement || sourceElement != affectedElements[i])
-						affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
-				}
-			}
-		},
-		_splitType = function(t) { return t == null ? null : t.split(" "); },		
-		_applyTypes = function(component, params, doNotRepaint) {
-			if (component.getDefaultType) {
-				var td = component.getTypeDescriptor();
-					
-				var o = _ju.merge({}, component.getDefaultType());
-				for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
-					o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td), [ "cssClass" ]);
-					
-				if (params) {
-					o = _ju.populate(o, params);
-				}
-			
-				component.applyType(o, doNotRepaint);					
-				if (!doNotRepaint) component.repaint();
-			}
-		},		
+        eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
+        _updateAttachedElements = function (component, state, timestamp, sourceElement) {
+            var affectedElements = component.getAttachedElements();
+            if (affectedElements) {
+                for (var i = 0, j = affectedElements.length; i < j; i++) {
+                    if (!sourceElement || sourceElement != affectedElements[i])
+                        affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
+                }
+            }
+        },
+        _splitType = function (t) {
+            return t == null ? null : t.split(" ");
+        },
+        _applyTypes = function (component, params, doNotRepaint) {
+            if (component.getDefaultType) {
+                var td = component.getTypeDescriptor();
+
+                var o = _ju.merge({}, component.getDefaultType());
+                for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
+                    o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td), [ "cssClass" ]);
+
+                if (params) {
+                    o = _ju.populate(o, params);
+                }
+
+                component.applyType(o, doNotRepaint);
+                if (!doNotRepaint) component.repaint();
+            }
+        },
 
 // ------------------------------ BEGIN jsPlumbUIComponent --------------------------------------------
 
-		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
+        jsPlumbUIComponent = window.jsPlumbUIComponent = function (params) {
 
-			jsPlumbUtil.EventGenerator.apply(this, arguments);
+            jsPlumbUtil.EventGenerator.apply(this, arguments);
 
-			var self = this, 
-				a = arguments, 				 				
-				idPrefix = self.idPrefix,
-				id = idPrefix + (new Date()).getTime();
+            var self = this,
+                a = arguments,
+                idPrefix = self.idPrefix,
+                id = idPrefix + (new Date()).getTime();
 
-			this._jsPlumb = { 
-				instance: params._jsPlumb,
-				parameters:params.parameters || {},
-				paintStyle:null,
-				hoverPaintStyle:null,
-				paintStyleInUse:null,
-				hover:false,
-				beforeDetach:params.beforeDetach,
-				beforeDrop:params.beforeDrop,
-				overlayPlacements : [],
-				hoverClass: params.hoverClass || params._jsPlumb.Defaults.HoverClass,
-				types:[]
-			};
+            this._jsPlumb = {
+                instance: params._jsPlumb,
+                parameters: params.parameters || {},
+                paintStyle: null,
+                hoverPaintStyle: null,
+                paintStyleInUse: null,
+                hover: false,
+                beforeDetach: params.beforeDetach,
+                beforeDrop: params.beforeDrop,
+                overlayPlacements: [],
+                hoverClass: params.hoverClass || params._jsPlumb.Defaults.HoverClass,
+                types: []
+            };
 
-			this.getId = function() { return id; };	
-			
-			// all components can generate events
-			
-			if (params.events) {
-				for (var i in params.events)
-					self.bind(i, params.events[i]);
-			}
+            this.getId = function () {
+                return id;
+            };
 
-			// all components get this clone function.
-			// TODO issue 116 showed a problem with this - it seems 'a' that is in
-			// the clone function's scope is shared by all invocations of it, the classic
-			// JS closure problem.  for now, jsPlumb does a version of this inline where 
-			// it used to call clone.  but it would be nice to find some time to look
-			// further at this.
-			this.clone = function() {
-				var o = {};//new Object();
-				this.constructor.apply(o, a);
-				return o;
-			}.bind(this);				
-						
-			// user can supply a beforeDetach callback, which will be executed before a detach
-			// is performed; returning false prevents the detach.			
-			this.isDetachAllowed = function(connection) {
-				var r = true;
-				if (this._jsPlumb.beforeDetach) {
-					try { 
-						r = this._jsPlumb.beforeDetach(connection); 
-					}
-					catch (e) { _ju.log("jsPlumb: beforeDetach callback failed", e); }
-				}
-				return r;
-			};
-			
-			// user can supply a beforeDrop callback, which will be executed before a dropped
-			// connection is confirmed. user can return false to reject connection.			
-			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint, source, target) {
-					var r = this._jsPlumb.instance.checkCondition("beforeDrop", { 
-						sourceId:sourceId, 
-						targetId:targetId, 
-						scope:scope,
-						connection:connection,
-						dropEndpoint:dropEndpoint,
-						source:source, target:target
-					});
-					if (this._jsPlumb.beforeDrop) {
-						try { 
-							r = this._jsPlumb.beforeDrop({ 
-								sourceId:sourceId, 
-								targetId:targetId, 
-								scope:scope, 
-								connection:connection,
-								dropEndpoint:dropEndpoint,
-								source:source, target:target
-							}); 
-						}
-						catch (e) { _ju.log("jsPlumb: beforeDrop callback failed", e); }
-					}
-					return r;
-				};													
+            // all components can generate events
 
-		    var boundListeners = [],
-		    	bindAListener = function(obj, type, fn) {
-			    	boundListeners.push([obj, type, fn]);
-			    	obj.bind(type, fn);
-			    },
-		    	domListeners = [];
+            if (params.events) {
+                for (var i in params.events)
+                    self.bind(i, params.events[i]);
+            }
 
-			// sets the component associated with listener events. for instance, an overlay delegates
-			// its events back to a connector. but if the connector is swapped on the underlying connection,
-			// then this component must be changed. This is called by setConnector in the Connection class.
-			this.setListenerComponent = function(c) {
-				for (var i = 0; i < domListeners.length; i++)
-					domListeners[i][3] = c;
-			};
+            // all components get this clone function.
+            // TODO issue 116 showed a problem with this - it seems 'a' that is in
+            // the clone function's scope is shared by all invocations of it, the classic
+            // JS closure problem.  for now, jsPlumb does a version of this inline where
+            // it used to call clone.  but it would be nice to find some time to look
+            // further at this.
+            this.clone = function () {
+                var o = {};//new Object();
+                this.constructor.apply(o, a);
+                return o;
+            }.bind(this);
+
+            // user can supply a beforeDetach callback, which will be executed before a detach
+            // is performed; returning false prevents the detach.
+            this.isDetachAllowed = function (connection) {
+                var r = true;
+                if (this._jsPlumb.beforeDetach) {
+                    try {
+                        r = this._jsPlumb.beforeDetach(connection);
+                    }
+                    catch (e) {
+                        _ju.log("jsPlumb: beforeDetach callback failed", e);
+                    }
+                }
+                return r;
+            };
+
+            // user can supply a beforeDrop callback, which will be executed before a dropped
+            // connection is confirmed. user can return false to reject connection.
+            this.isDropAllowed = function (sourceId, targetId, scope, connection, dropEndpoint, source, target) {
+                var r = this._jsPlumb.instance.checkCondition("beforeDrop", {
+                    sourceId: sourceId,
+                    targetId: targetId,
+                    scope: scope,
+                    connection: connection,
+                    dropEndpoint: dropEndpoint,
+                    source: source, target: target
+                });
+                if (this._jsPlumb.beforeDrop) {
+                    try {
+                        r = this._jsPlumb.beforeDrop({
+                            sourceId: sourceId,
+                            targetId: targetId,
+                            scope: scope,
+                            connection: connection,
+                            dropEndpoint: dropEndpoint,
+                            source: source, target: target
+                        });
+                    }
+                    catch (e) {
+                        _ju.log("jsPlumb: beforeDrop callback failed", e);
+                    }
+                }
+                return r;
+            };
+
+            var boundListeners = [],
+                bindAListener = function (obj, type, fn) {
+                    boundListeners.push([obj, type, fn]);
+                    obj.bind(type, fn);
+                },
+                domListeners = [];
+
+            // sets the component associated with listener events. for instance, an overlay delegates
+            // its events back to a connector. but if the connector is swapped on the underlying connection,
+            // then this component must be changed. This is called by setConnector in the Connection class.
+            this.setListenerComponent = function (c) {
+                for (var i = 0; i < domListeners.length; i++)
+                    domListeners[i][3] = c;
+            };
 
 
+        };
 
-		    
-		};
+    var _removeTypeCssHelper = function (component, typeIndex) {
+        var typeId = component._jsPlumb.types[typeIndex],
+            type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
 
-		var _removeTypeCssHelper = function(component, typeIndex) {
-			var typeId = component._jsPlumb.types[typeIndex],
-				type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
+        if (type != null) {
 
-			if (type != null) {
+            if (type.cssClass && component.canvas)
+                component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
+        }
+    };
 
-				if (type.cssClass && component.canvas)
-					component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
-			}
-		};
+    jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
 
-		jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
-			
-			getParameter : function(name) { 
-				return this._jsPlumb.parameters[name]; 
-			},
-			
-			setParameter : function(name, value) { 
-				this._jsPlumb.parameters[name] = value; 
-			},
-			
-			getParameters : function() { 
-				return this._jsPlumb.parameters; 
-			},			
-			
-			setParameters : function(p) { 
-				this._jsPlumb.parameters = p; 
-			},			
-			
-			addClass : function(clazz) {
-			    jsPlumbAdapter.addClass(this.canvas, clazz);
-			},
-						
-			removeClass : function(clazz) {
-			    jsPlumbAdapter.removeClass(this.canvas, clazz);
-			},
+        getParameter: function (name) {
+            return this._jsPlumb.parameters[name];
+        },
 
-            updateClasses : function(classesToAdd, classesToRemove) {
-                jsPlumbAdapter.updateClasses(this.canvas, classesToAdd, classesToRemove);
-            },
-			
-			setType : function(typeId, params, doNotRepaint) {	
-				this.clearTypes();			
-				this._jsPlumb.types = _splitType(typeId) || [];
-				_applyTypes(this, params, doNotRepaint);									
-			},
-			
-			getType : function() {
-				return this._jsPlumb.types;
-			},
-			
-			reapplyTypes : function(params, doNotRepaint) {
-				_applyTypes(this, params, doNotRepaint);
-			},
-			
-			hasType : function(typeId) {
-				return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
-			},
-			
-			addType : function(typeId, params, doNotRepaint) {
-				var t = _splitType(typeId), _cont = false;
-				if (t != null) {
-					for (var i = 0, j = t.length; i < j; i++) {
-						if (!this.hasType(t[i])) {
-							this._jsPlumb.types.push(t[i]);
-							_cont = true;						
-						}
-					}
-					if (_cont) _applyTypes(this, params, doNotRepaint);
-				}
-			},
-			
-			removeType : function(typeId, doNotRepaint) {
-				var t = _splitType(typeId), _cont = false, _one = function(tt) {
-						var idx = _ju.indexOf(this._jsPlumb.types, tt);
-						if (idx != -1) {
-							// remove css class if necessary
-							_removeTypeCssHelper(this, idx);
-							this._jsPlumb.types.splice(idx, 1);
-							return true;
-						}
-						return false;
-					}.bind(this);
-				
-				if (t != null) {
-					for (var i = 0,j = t.length; i < j; i++) {
-						_cont = _one(t[i]) || _cont;
-					}
-					if (_cont) _applyTypes(this, null, doNotRepaint);
-				}
-			},
-			clearTypes : function(doNotRepaint) {
-				var i = this._jsPlumb.types.length;
-				for (var j = 0; j < i; j++) {
-					_removeTypeCssHelper(this, 0);
-					this._jsPlumb.types.splice(0, 1);
-				}
-				_applyTypes(this, {}, doNotRepaint);
-			},
-			
-			toggleType : function(typeId, params, doNotRepaint) {
-				var t = _splitType(typeId);
-				if (t != null) {
-					for (var i = 0, j = t.length; i < j; i++) {
-						var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
-						if (idx != -1) {
-							_removeTypeCssHelper(this, idx);
-							this._jsPlumb.types.splice(idx, 1);
-						}
-						else
-							this._jsPlumb.types.push(t[i]);
-					}
-						
-					_applyTypes(this, params, doNotRepaint);
-				}
-			},
-			applyType : function(t, doNotRepaint) {
-				this.setPaintStyle(t.paintStyle, doNotRepaint);				
-				this.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
-				if (t.parameters){
-					for (var i in t.parameters)
-						this.setParameter(i, t.parameters[i]);
-				}
-			},
-			setPaintStyle : function(style, doNotRepaint) {
+        setParameter: function (name, value) {
+            this._jsPlumb.parameters[name] = value;
+        },
+
+        getParameters: function () {
+            return this._jsPlumb.parameters;
+        },
+
+        setParameters: function (p) {
+            this._jsPlumb.parameters = p;
+        },
+
+        addClass: function (clazz) {
+            jsPlumbAdapter.addClass(this.canvas, clazz);
+        },
+
+        removeClass: function (clazz) {
+            jsPlumbAdapter.removeClass(this.canvas, clazz);
+        },
+
+        updateClasses: function (classesToAdd, classesToRemove) {
+            jsPlumbAdapter.updateClasses(this.canvas, classesToAdd, classesToRemove);
+        },
+
+        setType: function (typeId, params, doNotRepaint) {
+            this.clearTypes();
+            this._jsPlumb.types = _splitType(typeId) || [];
+            _applyTypes(this, params, doNotRepaint);
+        },
+
+        getType: function () {
+            return this._jsPlumb.types;
+        },
+
+        reapplyTypes: function (params, doNotRepaint) {
+            _applyTypes(this, params, doNotRepaint);
+        },
+
+        hasType: function (typeId) {
+            return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
+        },
+
+        addType: function (typeId, params, doNotRepaint) {
+            var t = _splitType(typeId), _cont = false;
+            if (t != null) {
+                for (var i = 0, j = t.length; i < j; i++) {
+                    if (!this.hasType(t[i])) {
+                        this._jsPlumb.types.push(t[i]);
+                        _cont = true;
+                    }
+                }
+                if (_cont) _applyTypes(this, params, doNotRepaint);
+            }
+        },
+
+        removeType: function (typeId, doNotRepaint) {
+            var t = _splitType(typeId), _cont = false, _one = function (tt) {
+                var idx = _ju.indexOf(this._jsPlumb.types, tt);
+                if (idx != -1) {
+                    // remove css class if necessary
+                    _removeTypeCssHelper(this, idx);
+                    this._jsPlumb.types.splice(idx, 1);
+                    return true;
+                }
+                return false;
+            }.bind(this);
+
+            if (t != null) {
+                for (var i = 0, j = t.length; i < j; i++) {
+                    _cont = _one(t[i]) || _cont;
+                }
+                if (_cont) _applyTypes(this, null, doNotRepaint);
+            }
+        },
+        clearTypes: function (doNotRepaint) {
+            var i = this._jsPlumb.types.length;
+            for (var j = 0; j < i; j++) {
+                _removeTypeCssHelper(this, 0);
+                this._jsPlumb.types.splice(0, 1);
+            }
+            _applyTypes(this, {}, doNotRepaint);
+        },
+
+        toggleType: function (typeId, params, doNotRepaint) {
+            var t = _splitType(typeId);
+            if (t != null) {
+                for (var i = 0, j = t.length; i < j; i++) {
+                    var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
+                    if (idx != -1) {
+                        _removeTypeCssHelper(this, idx);
+                        this._jsPlumb.types.splice(idx, 1);
+                    }
+                    else
+                        this._jsPlumb.types.push(t[i]);
+                }
+
+                _applyTypes(this, params, doNotRepaint);
+            }
+        },
+        applyType: function (t, doNotRepaint) {
+            this.setPaintStyle(t.paintStyle, doNotRepaint);
+            this.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
+            if (t.parameters) {
+                for (var i in t.parameters)
+                    this.setParameter(i, t.parameters[i]);
+            }
+        },
+        setPaintStyle: function (style, doNotRepaint) {
 //		    	this._jsPlumb.paintStyle = jsPlumb.extend({}, style);
 // TODO figure out if we want components to clone paintStyle so as not to share it.
-				this._jsPlumb.paintStyle = style;
-		    	this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
-		    	_updateHoverStyle(this);
-		    	if (!doNotRepaint) this.repaint();
-		    },
-		    getPaintStyle : function() {
-		    	return this._jsPlumb.paintStyle;
-		    },
-		    setHoverPaintStyle : function(style, doNotRepaint) {		    	
-		    	//this._jsPlumb.hoverPaintStyle = jsPlumb.extend({}, style);
+            this._jsPlumb.paintStyle = style;
+            this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
+            _updateHoverStyle(this);
+            if (!doNotRepaint) this.repaint();
+        },
+        getPaintStyle: function () {
+            return this._jsPlumb.paintStyle;
+        },
+        setHoverPaintStyle: function (style, doNotRepaint) {
+            //this._jsPlumb.hoverPaintStyle = jsPlumb.extend({}, style);
 // TODO figure out if we want components to clone paintStyle so as not to share it.		    	
-		    	this._jsPlumb.hoverPaintStyle = style;
-		    	_updateHoverStyle(this);
-		    	if (!doNotRepaint) this.repaint();
-		    },
-		    getHoverPaintStyle : function() {
-		    	return this._jsPlumb.hoverPaintStyle;
-		    },
-			destroy:function() {
-				this.cleanupListeners(); // this is on EventGenerator
-				this.clone = null;
-				this._jsPlumb = null;
-			},
-			
-			isHover : function() { return this._jsPlumb.hover; },
-			
-			setHover : function(hover, ignoreAttachedElements, timestamp) {
-				// while dragging, we ignore these events.  this keeps the UI from flashing and
-		    	// swishing and whatevering.
-				if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
-		    
-			    	this._jsPlumb.hover = hover;
-                        
-                    if (this.canvas != null) {
-                        if (this._jsPlumb.instance.hoverClass != null) {
-                        	var method = hover ? "addClass" : "removeClass";
-							this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
-                        }
-                        if (this._jsPlumb.hoverClass != null) {
-							this._jsPlumb.instance[method](this.canvas, this._jsPlumb.hoverClass);
-                        }
+            this._jsPlumb.hoverPaintStyle = style;
+            _updateHoverStyle(this);
+            if (!doNotRepaint) this.repaint();
+        },
+        getHoverPaintStyle: function () {
+            return this._jsPlumb.hoverPaintStyle;
+        },
+        destroy: function () {
+            this.cleanupListeners(); // this is on EventGenerator
+            this.clone = null;
+            this._jsPlumb = null;
+        },
+
+        isHover: function () {
+            return this._jsPlumb.hover;
+        },
+
+        setHover: function (hover, ignoreAttachedElements, timestamp) {
+            // while dragging, we ignore these events.  this keeps the UI from flashing and
+            // swishing and whatevering.
+            if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
+
+                this._jsPlumb.hover = hover;
+
+                if (this.canvas != null) {
+                    if (this._jsPlumb.instance.hoverClass != null) {
+                        var method = hover ? "addClass" : "removeClass";
+                        this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
                     }
-		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
-						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
-						if (!this._jsPlumb.instance.isSuspendDrawing()) {
-							timestamp = timestamp || _timestamp();
-							this.repaint({timestamp:timestamp, recalc:false});
-						}
-					}
-					// get the list of other affected elements, if supported by this component.
-					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-					if (this.getAttachedElements && !ignoreAttachedElements)
-						_updateAttachedElements(this, hover, _timestamp(), this);
-				}
-		    }
-		});
+                    if (this._jsPlumb.hoverClass != null) {
+                        this._jsPlumb.instance[method](this.canvas, this._jsPlumb.hoverClass);
+                    }
+                }
+                if (this._jsPlumb.hoverPaintStyle != null) {
+                    this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
+                    if (!this._jsPlumb.instance.isSuspendDrawing()) {
+                        timestamp = timestamp || _timestamp();
+                        this.repaint({timestamp: timestamp, recalc: false});
+                    }
+                }
+                // get the list of other affected elements, if supported by this component.
+                // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
+                if (this.getAttachedElements && !ignoreAttachedElements)
+                    _updateAttachedElements(this, hover, _timestamp(), this);
+            }
+        }
+    });
 
 // ------------------------------ END jsPlumbUIComponent --------------------------------------------
 
 // ------------------------------ BEGIN OverlayCapablejsPlumbUIComponent --------------------------------------------
 
-		var _internalLabelOverlayId = "__label",
-			// helper to get the index of some overlay
-			_getOverlayIndex = function(component, id) {
-				var idx = -1;
-				for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
-					if (id === component._jsPlumb.overlays[i].id) {
-						idx = i;
-						break;
-					}
-				}
-				return idx;
-			},
-			// this is a shortcut helper method to let people add a label as
-			// overlay.
-			_makeLabelOverlay = function(component, params) {
+    var _internalLabelOverlayId = "__label",
+    // helper to get the index of some overlay
+        _getOverlayIndex = function (component, id) {
+            var idx = -1;
+            for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
+                if (id === component._jsPlumb.overlays[i].id) {
+                    idx = i;
+                    break;
+                }
+            }
+            return idx;
+        },
+    // this is a shortcut helper method to let people add a label as
+    // overlay.
+        _makeLabelOverlay = function (component, params) {
 
-				var _params = {
-					cssClass:params.cssClass,
-					labelStyle : component.labelStyle,
-					id:_internalLabelOverlayId,
-					component:component,
-					_jsPlumb:component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
-				},
-				mergedParams = jsPlumb.extend(_params, params);
+            var _params = {
+                    cssClass: params.cssClass,
+                    labelStyle: component.labelStyle,
+                    id: _internalLabelOverlayId,
+                    component: component,
+                    _jsPlumb: component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
+                },
+                mergedParams = jsPlumb.extend(_params, params);
 
-				return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label( mergedParams );
-			},
-			_processOverlay = function(component, o) {
-				var _newOverlay = null;
-				if (_ju.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
-					// there's also a three arg version:
-					// ["Arrow", { width:50 }, {location:0.7}] 
-					// which merges the 3rd arg into the 2nd.
-					var type = o[0], 
-						// make a copy of the object so as not to mess up anyone else's reference...
-						p = jsPlumb.extend({component:component, _jsPlumb:component._jsPlumb.instance}, o[1]);
-					if (o.length == 3) jsPlumb.extend(p, o[2]);
-					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
-				} else if (o.constructor == String) {
-					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component:component, _jsPlumb:component._jsPlumb.instance});
-				} else {
-					_newOverlay = o;
-				}										
-					
-				component._jsPlumb.overlays.push(_newOverlay);
-			},
-			_calculateOverlaysToAdd = function(component, params) {
-				var defaultKeys = component.defaultOverlayKeys || [], o = params.overlays,
-					checkKey = function(k) {
-						return component._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
-					};
-				
-				if (!o) o = [];
+            return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label(mergedParams);
+        },
+        _processOverlay = function (component, o) {
+            var _newOverlay = null;
+            if (_ju.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+                // there's also a three arg version:
+                // ["Arrow", { width:50 }, {location:0.7}]
+                // which merges the 3rd arg into the 2nd.
+                var type = o[0],
+                // make a copy of the object so as not to mess up anyone else's reference...
+                    p = jsPlumb.extend({component: component, _jsPlumb: component._jsPlumb.instance}, o[1]);
+                if (o.length == 3) jsPlumb.extend(p, o[2]);
+                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
+            } else if (o.constructor == String) {
+                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component: component, _jsPlumb: component._jsPlumb.instance});
+            } else {
+                _newOverlay = o;
+            }
 
-				for (var i = 0, j = defaultKeys.length; i < j; i++)
-					o.unshift.apply(o, checkKey(defaultKeys[i]));
-				
-				return o;
-			},		
-			OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
+            component._jsPlumb.overlays.push(_newOverlay);
+        },
+        _calculateOverlaysToAdd = function (component, params) {
+            var defaultKeys = component.defaultOverlayKeys || [], o = params.overlays,
+                checkKey = function (k) {
+                    return component._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
+                };
 
-				jsPlumbUIComponent.apply(this, arguments);
-				this._jsPlumb.overlays = [];			
+            if (!o) o = [];
 
-				var _overlays = _calculateOverlaysToAdd(this, params);
-				if (_overlays) {
-					for (var i = 0, j = _overlays.length; i < j; i++) {
-						_processOverlay(this, _overlays[i]);
-					}
-				}
-				
-				if (params.label) {
-					var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
-						labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle;
+            for (var i = 0, j = defaultKeys.length; i < j; i++)
+                o.unshift.apply(o, checkKey(defaultKeys[i]));
 
-					this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
-						label:params.label,
-						location:loc,
-						labelStyle:labelStyle
-					}));
-				}		
+            return o;
+        },
+        OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function (params) {
 
-				this.setListenerComponent = function(c) {
-					if (this._jsPlumb) {
-						for (var i = 0; i < this._jsPlumb.overlays.length; i++)
-							this._jsPlumb.overlays[i].setListenerComponent(c);
-					}
-				};
-			};
+            jsPlumbUIComponent.apply(this, arguments);
+            this._jsPlumb.overlays = [];
 
-		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
-			applyType : function(t, doNotRepaint) {			
-				this.removeAllOverlays(doNotRepaint);
-				if (t.overlays) {
-					for (var i = 0, j = t.overlays.length; i < j; i++)
-						this.addOverlay(t.overlays[i], true);
-				}
-			},
-			setHover : function(hover, ignoreAttachedElements) {
-				if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
-	                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
-						this._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](this._jsPlumb.instance.hoverClass);
-					}
-				}
-            },
-            addOverlay : function(overlay, doNotRepaint) { 
-				_processOverlay(this, overlay); 
-				if (!doNotRepaint) this.repaint();
-			},
-			getOverlay : function(id) {
-				var idx = _getOverlayIndex(this, id);
-				return idx >= 0 ? this._jsPlumb.overlays[idx] : null;
-			},			
-			getOverlays : function() {
-				return this._jsPlumb.overlays;
-			},			
-			hideOverlay : function(id) {
-				var o = this.getOverlay(id);
-				if (o) o.hide();
-			},
-			hideOverlays : function() {
-				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
-					this._jsPlumb.overlays[i].hide();
-			},
-			showOverlay : function(id) {
-				var o = this.getOverlay(id);
-				if (o) o.show();
-			},
-			showOverlays : function() {
-				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
-					this._jsPlumb.overlays[i].show();
-			},
-			removeAllOverlays : function(doNotRepaint) {
-				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
-					if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
-				}
+            var _overlays = _calculateOverlaysToAdd(this, params);
+            if (_overlays) {
+                for (var i = 0, j = _overlays.length; i < j; i++) {
+                    _processOverlay(this, _overlays[i]);
+                }
+            }
 
-				this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
-				this._jsPlumb.overlayPositions = null;
-				if (!doNotRepaint)
-					this.repaint();
-			},
-			removeOverlay : function(overlayId) {
-				var idx = _getOverlayIndex(this, overlayId);
-				if (idx != -1) {
-					var o = this._jsPlumb.overlays[idx];
-					if (o.cleanup) o.cleanup();
-					this._jsPlumb.overlays.splice(idx, 1);
-					if (this._jsPlumb.overlayPositions)  
-						delete this._jsPlumb.overlayPositions[overlayId];
-				}
-			},
-			removeOverlays : function() {
-				for (var i = 0, j = arguments.length; i < j; i++)
-					this.removeOverlay(arguments[i]);
-			},
-			moveParent:function(newParent) {
-				if (this.bgCanvas) {
-				    this.bgCanvas.parentNode.removeChild(this.bgCanvas);
-				    newParent.appendChild(this.bgCanvas);
-				}
-				
-				this.canvas.parentNode.removeChild(this.canvas);
-				newParent.appendChild(this.canvas);
+            if (params.label) {
+                var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
+                    labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle;
 
-				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-				    if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-				        this._jsPlumb.overlays[i].canvas.parentNode.removeChild(this._jsPlumb.overlays[i].canvas);
-				        newParent.appendChild(this._jsPlumb.overlays[i].canvas);  
-				    }
-				}
-			},
-			getLabel : function() {
-				var lo = this.getOverlay(_internalLabelOverlayId);
-				return lo != null ? lo.getLabel() : null;
-			},		
-			getLabelOverlay : function() {
-				return this.getOverlay(_internalLabelOverlayId);
-			},
-			setLabel : function(l) {
-				var lo = this.getOverlay(_internalLabelOverlayId);
-				if (!lo) {
-					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;
-					lo = _makeLabelOverlay(this, params);	
-					this._jsPlumb.overlays.push(lo);
-				}
-				else {
-					if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
-					else {
-						if (l.label) lo.setLabel(l.label);
-						if (l.location) lo.setLocation(l.location);
-					}
-				}
-				
-				if (!this._jsPlumb.instance.isSuspendDrawing()) 
-					this.repaint();
-			},
-			cleanup:function() {
-				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-					this._jsPlumb.overlays[i].cleanup();
-					this._jsPlumb.overlays[i].destroy();
-				}
-				this._jsPlumb.overlays.length = 0;
-				this._jsPlumb.overlayPositions = null;
-			},
-			setVisible:function(v) {
-				this[v ? "showOverlays" : "hideOverlays"]();
-			},
-			setAbsoluteOverlayPosition:function(overlay, xy) {
-				this._jsPlumb.overlayPositions = this._jsPlumb.overlayPositions || {};
-				this._jsPlumb.overlayPositions[overlay.id] = xy;
-			},
-			getAbsoluteOverlayPosition:function(overlay) {
-				return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
-			}
-		});		
+                this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
+                    label: params.label,
+                    location: loc,
+                    labelStyle: labelStyle
+                }));
+            }
+
+            this.setListenerComponent = function (c) {
+                if (this._jsPlumb) {
+                    for (var i = 0; i < this._jsPlumb.overlays.length; i++)
+                        this._jsPlumb.overlays[i].setListenerComponent(c);
+                }
+            };
+        };
+
+    jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
+        applyType: function (t, doNotRepaint) {
+            this.removeAllOverlays(doNotRepaint);
+            if (t.overlays) {
+                for (var i = 0, j = t.overlays.length; i < j; i++)
+                    this.addOverlay(t.overlays[i], true);
+            }
+        },
+        setHover: function (hover, ignoreAttachedElements) {
+            if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
+                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+                    this._jsPlumb.overlays[i][hover ? "addClass" : "removeClass"](this._jsPlumb.instance.hoverClass);
+                }
+            }
+        },
+        addOverlay: function (overlay, doNotRepaint) {
+            _processOverlay(this, overlay);
+            if (!doNotRepaint) this.repaint();
+        },
+        getOverlay: function (id) {
+            var idx = _getOverlayIndex(this, id);
+            return idx >= 0 ? this._jsPlumb.overlays[idx] : null;
+        },
+        getOverlays: function () {
+            return this._jsPlumb.overlays;
+        },
+        hideOverlay: function (id) {
+            var o = this.getOverlay(id);
+            if (o) o.hide();
+        },
+        hideOverlays: function () {
+            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+                this._jsPlumb.overlays[i].hide();
+        },
+        showOverlay: function (id) {
+            var o = this.getOverlay(id);
+            if (o) o.show();
+        },
+        showOverlays: function () {
+            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+                this._jsPlumb.overlays[i].show();
+        },
+        removeAllOverlays: function (doNotRepaint) {
+            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+                if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
+            }
+
+            this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
+            this._jsPlumb.overlayPositions = null;
+            if (!doNotRepaint)
+                this.repaint();
+        },
+        removeOverlay: function (overlayId) {
+            var idx = _getOverlayIndex(this, overlayId);
+            if (idx != -1) {
+                var o = this._jsPlumb.overlays[idx];
+                if (o.cleanup) o.cleanup();
+                this._jsPlumb.overlays.splice(idx, 1);
+                if (this._jsPlumb.overlayPositions)
+                    delete this._jsPlumb.overlayPositions[overlayId];
+            }
+        },
+        removeOverlays: function () {
+            for (var i = 0, j = arguments.length; i < j; i++)
+                this.removeOverlay(arguments[i]);
+        },
+        moveParent: function (newParent) {
+            if (this.bgCanvas) {
+                this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+                newParent.appendChild(this.bgCanvas);
+            }
+
+            this.canvas.parentNode.removeChild(this.canvas);
+            newParent.appendChild(this.canvas);
+
+            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
+                    this._jsPlumb.overlays[i].canvas.parentNode.removeChild(this._jsPlumb.overlays[i].canvas);
+                    newParent.appendChild(this._jsPlumb.overlays[i].canvas);
+                }
+            }
+        },
+        getLabel: function () {
+            var lo = this.getOverlay(_internalLabelOverlayId);
+            return lo != null ? lo.getLabel() : null;
+        },
+        getLabelOverlay: function () {
+            return this.getOverlay(_internalLabelOverlayId);
+        },
+        setLabel: function (l) {
+            var lo = this.getOverlay(_internalLabelOverlayId);
+            if (!lo) {
+                var params = l.constructor == String || l.constructor == Function ? { label: l } : l;
+                lo = _makeLabelOverlay(this, params);
+                this._jsPlumb.overlays.push(lo);
+            }
+            else {
+                if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
+                else {
+                    if (l.label) lo.setLabel(l.label);
+                    if (l.location) lo.setLocation(l.location);
+                }
+            }
+
+            if (!this._jsPlumb.instance.isSuspendDrawing())
+                this.repaint();
+        },
+        cleanup: function () {
+            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                this._jsPlumb.overlays[i].cleanup();
+                this._jsPlumb.overlays[i].destroy();
+            }
+            this._jsPlumb.overlays.length = 0;
+            this._jsPlumb.overlayPositions = null;
+        },
+        setVisible: function (v) {
+            this[v ? "showOverlays" : "hideOverlays"]();
+        },
+        setAbsoluteOverlayPosition: function (overlay, xy) {
+            this._jsPlumb.overlayPositions = this._jsPlumb.overlayPositions || {};
+            this._jsPlumb.overlayPositions[overlay.id] = xy;
+        },
+        getAbsoluteOverlayPosition: function (overlay) {
+            return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
+        }
+    });
 
 // ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
-		
-		var _jsPlumbInstanceIndex = 0,
-			getInstanceIndex = function() {
-				var i = _jsPlumbInstanceIndex + 1;
-				_jsPlumbInstanceIndex++;
-				return i;
-			};
 
-		var jsPlumbInstance = window.jsPlumbInstance = function(_defaults) {
-				
-			this.Defaults = {
-				Anchor : "Bottom",
-				Anchors : [ null, null ],
-	            ConnectionsDetachable : true,
-	            ConnectionOverlays : [ ],
-	            Connector : "Bezier",
-				Container : null,
-				DoNotThrowErrors:false,
-				DragOptions : { },
-				DropOptions : { },
-				Endpoint : "Dot",
-				EndpointOverlays : [ ],
-				Endpoints : [ null, null ],
-				EndpointStyle : { fillStyle : "#456" },
-				EndpointStyles : [ null, null ],
-				EndpointHoverStyle : null,
-				EndpointHoverStyles : [ null, null ],
-				HoverPaintStyle : null,
-				LabelStyle : { color : "black" },
-				LogEnabled : false,
-				Overlays : [ ],
-				MaxConnections : 1, 
-				PaintStyle : { lineWidth : 4, strokeStyle : "#456" },
-				ReattachConnections:false,
-				RenderMode : "svg",
-				Scope : "jsPlumb_DefaultScope"
-			};
-			if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
-		
-			this.logEnabled = this.Defaults.LogEnabled;
-			this._connectionTypes = {};
-			this._endpointTypes = {};
+    var _jsPlumbInstanceIndex = 0,
+        getInstanceIndex = function () {
+            var i = _jsPlumbInstanceIndex + 1;
+            _jsPlumbInstanceIndex++;
+            return i;
+        };
 
-			jsPlumbUtil.EventGenerator.apply(this);
+    var jsPlumbInstance = window.jsPlumbInstance = function (_defaults) {
 
-			var _currentInstance = this,
-				_instanceIndex = getInstanceIndex(),
-				_bb = _currentInstance.bind,
-				_initialDefaults = {},
-	            _zoom = 1,
-	            _info = function(el) {
-	            	var _el = _currentInstance.getDOMElement(el);	
-	            	return { el:_el, id:(jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
-	            };
-            
-	        this.getInstanceIndex = function() { return _instanceIndex; };
+        this.Defaults = {
+            Anchor: "Bottom",
+            Anchors: [ null, null ],
+            ConnectionsDetachable: true,
+            ConnectionOverlays: [ ],
+            Connector: "Bezier",
+            Container: null,
+            DoNotThrowErrors: false,
+            DragOptions: { },
+            DropOptions: { },
+            Endpoint: "Dot",
+            EndpointOverlays: [ ],
+            Endpoints: [ null, null ],
+            EndpointStyle: { fillStyle: "#456" },
+            EndpointStyles: [ null, null ],
+            EndpointHoverStyle: null,
+            EndpointHoverStyles: [ null, null ],
+            HoverPaintStyle: null,
+            LabelStyle: { color: "black" },
+            LogEnabled: false,
+            Overlays: [ ],
+            MaxConnections: 1,
+            PaintStyle: { lineWidth: 4, strokeStyle: "#456" },
+            ReattachConnections: false,
+            RenderMode: "svg",
+            Scope: "jsPlumb_DefaultScope"
+        };
+        if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
-        	this.setZoom = function(z, repaintEverything) {
-        		if (!jsPlumbUtil.oldIE) {
-	            	_zoom = z;
-					_currentInstance.fire("zoom", _zoom);
-	            	if (repaintEverything) _currentInstance.repaintEverything();
-	            }
-	            return !jsPlumbUtil.oldIE;
+        this.logEnabled = this.Defaults.LogEnabled;
+        this._connectionTypes = {};
+        this._endpointTypes = {};
 
-        	};
-        	this.getZoom = function() { return _zoom; };
-                        
-			for (var i in this.Defaults)
-				_initialDefaults[i] = this.Defaults[i];
+        jsPlumbUtil.EventGenerator.apply(this);
 
-			var _container;
-			this.setContainer = function(c) {
-
-                // TODO if a _container already exists, unbind delegations from it
-
-				c = this.getDOMElement(c);
-				this.select().each(function(conn) {
-					conn.moveParent(c);
-				});
-				this.selectEndpoints().each(function(ep) {
-					ep.moveParent(c);
-				});
-				_container = c;
-
-                var _oneDelegateHandler = function(id, e) {
-                    var t = e.srcElement || e.target,
-                        jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
-                    if (jp) {
-                        jp.fire(id, jp, e);
-                        // jsplumb also fires every event coming from components
-                        _currentInstance.fire(id, jp, e);
-                    }
-                };
-
-                // delegate one event on the container to jsplumb elements. it might be possible to
-                // abstract this out: each of endpoint, connection and overlay could register themselves with
-                // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
-                // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
-                var _oneDelegate = function(id) {
-                    // connections.
-                    _currentInstance.on(_container, id, "._jsPlumb_connector, ._jsPlumb_connector > *", function(e) { _oneDelegateHandler(id, e); });
-                    // endpoints. note they can have an enclosing div, or not.
-                    _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function(e) { _oneDelegateHandler(id, e); });
-                    // overlays
-                    _currentInstance.on(_container, id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function(e) { _oneDelegateHandler(id, e); });
-                };
-
-                for (var i = 0; i < events.length; i++)
-                    _oneDelegate(events[i]);
-
-			};
-			this.getContainer = function() {
-				return _container;
-			};
-			
-			this.bind = function(event, fn) {		
-				if ("ready" === event && initialized) fn();
-				else _bb.apply(_currentInstance,[event, fn]);
-			};
-
-			_currentInstance.importDefaults = function(d) {
-				for (var i in d) {
-					_currentInstance.Defaults[i] = d[i];
-				}
-				if (d.Container)
-					_currentInstance.setContainer(d.Container);
-
-				return _currentInstance;
-			};		
-			
-			_currentInstance.restoreDefaults = function() {
-				_currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
-				return _currentInstance;
-			};
-
-            //_currentInstance.floatingConnections = {};ctions = {};
-		
-		    var log = null,
-		        initialized = false,
-		        // TODO remove from window scope       
-		        connections = [],
-		        // map of element id -> endpoint lists. an element can have an arbitrary
-		        // number of endpoints on it, and not all of them have to be connected
-		        // to anything.         
-		        endpointsByElement = {},
-		        endpointsByUUID = {},
-                // SP new
-                managedElements = {},
-		        offsets = {},
-		        offsetTimestamps = {},
-
-		        draggableStates = {},		
-		        connectionBeingDragged = false,
-		        sizes = [],
-		        _suspendDrawing = false,
-		        _suspendedAt = null,
-		        DEFAULT_SCOPE = this.Defaults.Scope,
-		        renderMode = null,  // will be set in init()		
-		        _curIdStamp = 1,
-		        _idstamp = function() { return "" + _curIdStamp++; },							
-		
-				//
-				// appends an element to some other element, which is calculated as follows:
-				// 
-				// 1. if Container exists, use that element.
-				// 2. if the 'parent' parameter exists, use that.
-				// 3. otherwise just use the root element (for DOM usage, the document body).
-				// 
-				//
-				_appendElement = function(el, parent) {
-					if (_container)
-						_container.appendChild(el);
-					else if (!parent)
-						this.appendToRoot(el);
-					else
-						this.getDOMElement(parent).appendChild(el);
-                }.bind(this),
-
-			//
-			// Draws an endpoint and its connections. this is the main entry point into drawing connections as well
-			// as endpoints, since jsPlumb is endpoint-centric under the hood.
-			// 
-			// @param element element to draw (of type library specific element object)
-			// @param ui UI object from current library's event system. optional.
-			// @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
-			// @param clearEdits defaults to false; indicates that mouse edits for connectors should be cleared
-			///
-			_draw = function(element, ui, timestamp, clearEdits) {
-
-				// TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
-	            if (!jsPlumbAdapter.headless && !_suspendDrawing) {
-				    var id = _getId(element),
-				    	repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);			    
-
-				    if (timestamp == null) timestamp = _timestamp();
-
-				    // update the offset of everything _before_ we try to draw anything.
-				    var o = _updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp });
-
-			        if (repaintEls) {
-			    	    for (var i in repaintEls) {
-			    	    	// TODO this seems to cause a lag, but we provide the offset, so in theory it 
-			    	    	// should not.  is the timestamp failing?
-				    		_updateOffset( { 
-				    			elId : repaintEls[i].id, 
-				    			offset : {
-									left:o.o.left + repaintEls[i].offset.left,
-					    			top:o.o.top + repaintEls[i].offset.top
-					    		}, 
-				    			recalc : false, 
-				    			timestamp : timestamp 
-				    		});
-				    	}
-				    }	
-
-				    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
-				    
-				    if (repaintEls) {
-					    for (var j in repaintEls) {
-							_currentInstance.anchorManager.redraw(repaintEls[j].id, ui, timestamp, repaintEls[j].offset, clearEdits, true);			    	
-					    }
-					}		
-	            }
-			},
-
-			//
-			// executes the given function against the given element if the first
-			// argument is an object, or the list of elements, if the first argument
-			// is a list. the function passed in takes (element, elementId) as
-			// arguments.
-			//
-			_elementProxy = function(element, fn) {
-				var retVal = null, el, id, del;
-				if (_ju.isArray(element)) {
-					retVal = [];
-					for ( var i = 0, j = element.length; i < j; i++) {
-						el = _currentInstance.getElementObject(element[i]);
-						del = _currentInstance.getDOMElement(el);
-						id = _currentInstance.getAttribute(del, "id");
-						retVal.push(fn.apply(_currentInstance, [del, id])); // append return values to what we will return
-					}
-				} else {
-					el = _currentInstance.getDOMElement(element);
-					id = _currentInstance.getId(el);
-					retVal = fn.apply(_currentInstance, [el, id]);
-				}
-				return retVal;
-			},				
-
-			//
-			// gets an Endpoint by uuid.
-			//
-			_getEndpoint = function(uuid) { return endpointsByUUID[uuid]; },
-
-		/**
-		 * inits a draggable if it's not already initialised.
-		 * TODO: somehow abstract this to the adapter, because the concept of "draggable" has no
-		 * place on the server.
-		 */
-		_initDraggableIfNecessary = function(element, isDraggable, dragOptions, id) {
-			// TODO move to DragManager?
-			if (!jsPlumbAdapter.headless) {
-				var _draggable = isDraggable == null ? false : isDraggable;
-				if (_draggable) {
-					if (jsPlumb.isDragSupported(element, _currentInstance) && !jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
-						var options = dragOptions || _currentInstance.Defaults.DragOptions;
-						options = jsPlumb.extend( {}, options); // make a copy.
-						var dragEvent = jsPlumb.dragEvents.drag,
-							stopEvent = jsPlumb.dragEvents.stop,
-							startEvent = jsPlumb.dragEvents.start,
-							_del = _currentInstance.getDOMElement(element),
-							_ancestor = _currentInstance.dragManager.getDragAncestor(_del),
-							_noOffset = {left:0, top:0},
-							_ancestorOffset = _noOffset,
-							_started = false;
-
-                        _manage(id, element);
-
-						options[startEvent] = _ju.wrap(options[startEvent], function() {
-							_ancestorOffset = _ancestor != null ? jsPlumbAdapter.getOffset(_ancestor, _currentInstance) : _noOffset;								
-							_currentInstance.setHoverSuspended(true);							
-							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
-							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
-							_currentInstance.setConnectionBeingDragged(true);
-							if (options.canDrag) return dragOptions.canDrag();
-						}, false);
-	
-						options[dragEvent] = _ju.wrap(options[dragEvent], function() {
-							// TODO: here we could actually use getDragObject, and then compute it ourselves,
-							// since every adapter does the same thing. but i'm not sure why YUI's getDragObject
-							// differs from getUIPosition so much						
-							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
-							// adjust by ancestor offset if there is one: this is for the case that a draggable
-							// is contained inside some other element that is not the Container.
-							ui.left += _ancestorOffset.left;
-							ui.top += _ancestorOffset.top;	
-							_draw(element, ui, null, true);
-							if (_started) _currentInstance.addClass(element, "jsPlumb_dragged");							
-							_started = true;
-						});
-						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
-							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
-							_draw(element, ui);
-							_started = false;
-							_currentInstance.removeClass(element, "jsPlumb_dragged");
-							_currentInstance.setHoverSuspended(false);							
-							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
-							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
-							_currentInstance.setConnectionBeingDragged(false);
-							_currentInstance.dragManager.dragEnded(element);
-						});
-						var elId = _getId(element); // need ID
-						draggableStates[elId] = true;  
-						var draggable = draggableStates[elId];
-						options.disabled = draggable == null ? false : !draggable;
-						_currentInstance.initDraggable(element, options);
-						_currentInstance.dragManager.register(element);
-					}
-				}
-			}
-		},
-
-        _scopeMatch = function(e1, e2) {
-            var s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
-            for (var i = 0; i < s1.length; i++)
-                for (var j = 0; j < s2.length; j++)
-                    if (s2[j] == s1[i]) return true;
-
-            return false;
-        },
-		
-		/*
-		* prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
-		*/
-		_prepareConnectionParams = function(params, referenceParams) {
-			var _p = jsPlumb.extend( { }, params);
-			if (referenceParams) jsPlumb.extend(_p, referenceParams);
-			
-			// hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
-			if (_p.source) {
-				if (_p.source.endpoint) 
-					_p.sourceEndpoint = _p.source;
-				else
-					_p.source = _currentInstance.getDOMElement(_p.source);
-			}
-			if (_p.target) {
-				if (_p.target.endpoint) 
-					_p.targetEndpoint = _p.target;
-				else
-					_p.target = _currentInstance.getDOMElement(_p.target);
-			}
-			
-			// test for endpoint uuids to connect
-			if (params.uuids) {
-				_p.sourceEndpoint = _getEndpoint(params.uuids[0]);
-				_p.targetEndpoint = _getEndpoint(params.uuids[1]);
-			}						
-
-			// now ensure that if we do have Endpoints already, they're not full.
-			// source:
-			if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
-				_ju.log(_currentInstance, "could not add connection; source endpoint is full");
-				return;
-			}
-
-			// target:
-			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
-				_ju.log(_currentInstance, "could not add connection; target endpoint is full");
-				return;
-			}
-			
-			// if source endpoint mandates connection type and nothing specified in our params, use it.
-			if (!_p.type && _p.sourceEndpoint)
-				_p.type = _p.sourceEndpoint.connectionType;
-			
-			// copy in any connectorOverlays that were specified on the source endpoint.
-			// it doesnt copy target endpoint overlays.  i'm not sure if we want it to or not.
-			if (_p.sourceEndpoint && _p.sourceEndpoint.connectorOverlays) {
-				_p.overlays = _p.overlays || [];
-				for (var i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
-					_p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
-				}
-			}		
-            
-            // pointer events
-            if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
-                _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
-
-            var _mergeOverrides = function(def, values) {
-            	var m = jsPlumb.extend({}, def);
-            	for (var i in values) {
-            		if (values[i]) m[i] = values[i];
-            	}
-            	return m;
+        var _currentInstance = this,
+            _instanceIndex = getInstanceIndex(),
+            _bb = _currentInstance.bind,
+            _initialDefaults = {},
+            _zoom = 1,
+            _info = function (el) {
+                var _el = _currentInstance.getDOMElement(el);
+                return { el: _el, id: (jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
             };
 
-            var _addEndpoint = function(el, def, idx) {
-            	return _currentInstance.addEndpoint(el, _mergeOverrides(def, {
-            		anchor:_p.anchors ? _p.anchors[idx] : _p.anchor,
-            		endpoint:_p.endpoints ? _p.endpoints[idx] : _p.endpoint,
-            		paintStyle:_p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
-            		hoverPaintStyle:_p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
-            	}));
-            };
-									
-			// check for makeSource/makeTarget specs.
+        this.getInstanceIndex = function () {
+            return _instanceIndex;
+        };
 
-            var _oneElementDef = function(type, idx, defs) {
-                if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
-                    var tid = _getId(_p[type]), tep = defs[tid];
+        this.setZoom = function (z, repaintEverything) {
+            if (!jsPlumbUtil.oldIE) {
+                _zoom = z;
+                _currentInstance.fire("zoom", _zoom);
+                if (repaintEverything) _currentInstance.repaintEverything();
+            }
+            return !jsPlumbUtil.oldIE;
 
-                    if (tep) {
-                        // if not enabled, return.
-                        if (!tep.enabled) return false;
+        };
+        this.getZoom = function () {
+            return _zoom;
+        };
 
-                        var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
-                        if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
-                        if (newEndpoint.isFull()) return false;
-                        _p[type + "Endpoint"] = newEndpoint;
-                        newEndpoint._doNotDeleteOnDetach = false; // reset.
-                        newEndpoint._deleteOnDetach = true;
-                    }
+        for (var i in this.Defaults)
+            _initialDefaults[i] = this.Defaults[i];
+
+        var _container;
+        this.setContainer = function (c) {
+
+            // TODO if a _container already exists, unbind delegations from it
+
+            c = this.getDOMElement(c);
+            this.select().each(function (conn) {
+                conn.moveParent(c);
+            });
+            this.selectEndpoints().each(function (ep) {
+                ep.moveParent(c);
+            });
+            _container = c;
+
+            var _oneDelegateHandler = function (id, e) {
+                var t = e.srcElement || e.target,
+                    jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
+                if (jp) {
+                    jp.fire(id, jp, e);
+                    // jsplumb also fires every event coming from components
+                    _currentInstance.fire(id, jp, e);
                 }
             };
 
-            if (_oneElementDef("source", 0, this.sourceEndpointDefinitions) === false) return;
-            if (_oneElementDef("target", 1, this.targetEndpointDefinitions) === false) return;
+            // delegate one event on the container to jsplumb elements. it might be possible to
+            // abstract this out: each of endpoint, connection and overlay could register themselves with
+            // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
+            // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
+            var _oneDelegate = function (id) {
+                // connections.
+                _currentInstance.on(_container, id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
+                    _oneDelegateHandler(id, e);
+                });
+                // endpoints. note they can have an enclosing div, or not.
+                _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function (e) {
+                    _oneDelegateHandler(id, e);
+                });
+                // overlays
+                _currentInstance.on(_container, id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function (e) {
+                    _oneDelegateHandler(id, e);
+                });
+            };
 
-            // last, ensure scopes match
-            if (_p.sourceEndpoint && _p.targetEndpoint)
-                if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) _p = null;
-			
-			return _p;
-		}.bind(_currentInstance),
-		
-		_newConnection = function(params) {
-			var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType();
-			
-			params._jsPlumb = _currentInstance;
-            params.newConnection = _newConnection;
-            params.newEndpoint = _newEndpoint;
-            params.endpointsByUUID = endpointsByUUID;             
-            params.endpointsByElement = endpointsByElement;  
-            params.finaliseConnection = _finaliseConnection;
-			var con = new connectionFunc(params);
-			con.id = "con_" + _idstamp();
+            for (var i = 0; i < events.length; i++)
+                _oneDelegate(events[i]);
 
-            // if the connection is draggable, then maybe we need to tell the target endpoint to init the
-            // dragging code. it won't run again if it already configured to be draggable.
-            if (con.isDetachable()) {
-            	con.endpoints[0].initDraggable();
-            	con.endpoints[1].initDraggable();
+        };
+        this.getContainer = function () {
+            return _container;
+        };
+
+        this.bind = function (event, fn) {
+            if ("ready" === event && initialized) fn();
+            else _bb.apply(_currentInstance, [event, fn]);
+        };
+
+        _currentInstance.importDefaults = function (d) {
+            for (var i in d) {
+                _currentInstance.Defaults[i] = d[i];
             }
+            if (d.Container)
+                _currentInstance.setContainer(d.Container);
 
-			return con;
-		},
-		
-		//
-		// adds the connection to the backing model, fires an event if necessary and then redraws
-		//
-		_finaliseConnection = _currentInstance.finaliseConnection = function(jpc, params, originalEvent, doInformAnchorManager) {
-            params = params || {};
-			// add to list of connections (by scope).
-            if (!jpc.suspendedEndpoint)
-			    connections.push(jpc);
+            return _currentInstance;
+        };
 
-			// turn off isTemporarySource on the source endpoint (only viable on first draw)
-			jpc.endpoints[0].isTemporarySource = false;
-			
-            // always inform the anchor manager
-            // except that if jpc has a suspended endpoint it's not true to say the
-            // connection is new; it has just (possibly) moved. the question is whether
-            // to make that call here or in the anchor manager.  i think perhaps here.
-            if (jpc.suspendedEndpoint == null || doInformAnchorManager)
-            	_currentInstance.anchorManager.newConnection(jpc);
+        _currentInstance.restoreDefaults = function () {
+            _currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
+            return _currentInstance;
+        };
 
-			// force a paint
-			_draw(jpc.source);
-			
-			// fire an event
-			if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
-			
-				var eventArgs = {
-					connection:jpc,
-					source : jpc.source, target : jpc.target,
-					sourceId : jpc.sourceId, targetId : jpc.targetId,
-					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-				};
-			
-				_currentInstance.fire("connection", eventArgs, originalEvent);
-			}
-		},
+        //_currentInstance.floatingConnections = {};ctions = {};
 
-		/*
-			factory method to prepare a new endpoint.  this should always be used instead of creating Endpoints
-			manually, since this method attaches event listeners and an id.
-		*/
-		_newEndpoint = function(params, id) {
-            var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
-            var _p = jsPlumb.extend({}, params);
-            _p._jsPlumb = _currentInstance;
-            _p.newConnection = _newConnection;
-            _p.newEndpoint = _newEndpoint;
-            _p.endpointsByUUID = endpointsByUUID;
-            _p.endpointsByElement = endpointsByElement;
-            _p.fireDetachEvent = fireDetachEvent;
-            _p.elementId = id || _getId(_p.source);
-            var ep = new endpointFunc(_p);
-            ep.id = "ep_" + _idstamp();
-            _manage(_p.elementId, _p.source);
-            if (!jsPlumbAdapter.headless)
-                _currentInstance.dragManager.endpointAdded(_p.source, id);
+        var log = null,
+            initialized = false,
+        // TODO remove from window scope
+            connections = [],
+        // map of element id -> endpoint lists. an element can have an arbitrary
+        // number of endpoints on it, and not all of them have to be connected
+        // to anything.
+            endpointsByElement = {},
+            endpointsByUUID = {},
+        // SP new
+            managedElements = {},
+            offsets = {},
+            offsetTimestamps = {},
 
-			return ep;
-		},
-		
-		/*
-		 * performs the given function operation on all the connections found
-		 * for the given element id; this means we find all the endpoints for
-		 * the given element, and then for each endpoint find the connectors
-		 * connected to it. then we pass each connection in to the given
-		 * function.		 
-		 */
-		_operation = function(elId, func, endpointFunc) {
-			var endpoints = endpointsByElement[elId];
-			if (endpoints && endpoints.length) {
-				for ( var i = 0, ii = endpoints.length; i < ii; i++) {
-					for ( var j = 0, jj = endpoints[i].connections.length; j < jj; j++) {
-						var retVal = func(endpoints[i].connections[j]);
-						// if the function passed in returns true, we exit.
-						// most functions return false.
-						if (retVal) return;
-					}
-					if (endpointFunc) endpointFunc(endpoints[i]);
-				}
-			}
-		},	
-		
-		_setDraggable = function(element, draggable) {
-			return _elementProxy(element, function(el, id) {
-				draggableStates[id] = draggable;
-				if (this.isDragSupported(el)) {
-					this.setElementDraggable(el, draggable);
-				}
-			});
-		},
-		/*
-		 * private method to do the business of hiding/showing.
-		 * 
-		 * @param el
-		 *            either Id of the element in question or a library specific
-		 *            object for the element.
-		 * @param state
-		 *            String specifying a value for the css 'display' property
-		 *            ('block' or 'none').
-		 */
-		_setVisible = function(el, state, alsoChangeEndpoints) {
-			state = state === "block";
-			var endpointFunc = null;
-			if (alsoChangeEndpoints) {
-				if (state) endpointFunc = function(ep) {
-					ep.setVisible(true, true, true);
-				};
-				else endpointFunc = function(ep) {
-					ep.setVisible(false, true, true);
-				};
-			}
-			var info = _info(el);
-			_operation(info.id, function(jpc) {
-				if (state && alsoChangeEndpoints) {		
-					// this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
-					// this block will only set a connection to be visible if the other endpoint in the connection is also visible.
-					var oidx = jpc.sourceId === info.id ? 1 : 0;
-					if (jpc.endpoints[oidx].isVisible()) jpc.setVisible(true);
-				}
-				else  // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
-					jpc.setVisible(state);
-			}, endpointFunc);
-		},
-		/*
-		 * toggles the draggable state of the given element(s).
-		 * el is either an id, or an element object, or a list of ids/element objects.
-		 */
-		_toggleDraggable = function(el) {
-			return _elementProxy(el, function(el, elId) {
-				var state = draggableStates[elId] == null ? false : draggableStates[elId];
-				state = !state;
-				draggableStates[elId] = state;
-				this.setDraggable(el, state);
-				return state;
-            }.bind(this));
-		},
-		/**
-		 * private method to do the business of toggling hiding/showing.
-		 */
-		_toggleVisible = function(elId, changeEndpoints) {
-			var endpointFunc = null;
-			if (changeEndpoints) {
-				endpointFunc = function(ep) {
-					var state = ep.isVisible();
-					ep.setVisible(!state);
-				};
-			}
-			_operation(elId, function(jpc) {
-				var state = jpc.isVisible();
-				jpc.setVisible(!state);				
-			}, endpointFunc);
-			// todo this should call _elementProxy, and pass in the
-			// _operation(elId, f) call as a function. cos _toggleDraggable does
-			// that.
-		},
+            draggableStates = {},
+            connectionBeingDragged = false,
+            sizes = [],
+            _suspendDrawing = false,
+            _suspendedAt = null,
+            DEFAULT_SCOPE = this.Defaults.Scope,
+            renderMode = null,  // will be set in init()
+            _curIdStamp = 1,
+            _idstamp = function () {
+                return "" + _curIdStamp++;
+            },
 
-		// TODO comparison performance
-		_getCachedData = function(elId) {
-			var o = offsets[elId];
-			if (!o) 
-                return _updateOffset({elId:elId});
-			else
-                return {o:o, s:sizes[elId]};
-		},
+        //
+        // appends an element to some other element, which is calculated as follows:
+        //
+        // 1. if Container exists, use that element.
+        // 2. if the 'parent' parameter exists, use that.
+        // 3. otherwise just use the root element (for DOM usage, the document body).
+        //
+        //
+            _appendElement = function (el, parent) {
+                if (_container)
+                    _container.appendChild(el);
+                else if (!parent)
+                    this.appendToRoot(el);
+                else
+                    this.getDOMElement(parent).appendChild(el);
+            }.bind(this),
 
-		/**
-		 * gets an id for the given element, creating and setting one if
-		 * necessary.  the id is of the form
-		 *
-		 *	jsPlumb_<instance index>_<index in instance>
-		 *
-		 * where "index in instance" is a monotonically increasing integer that starts at 0,
-		 * for each instance.  this method is used not only to assign ids to elements that do not
-		 * have them but also to connections and endpoints.
-		 */
-		_getId = function(element, uuid, doNotCreateIfNotFound) {
-			if (jsPlumbUtil.isString(element)) return element;			
-			if (element == null) return null;			
-			var id = _currentInstance.getAttribute(element, "id");
-			if (!id || id === "undefined") {
-				// check if fixed uuid parameter is given
-				if (arguments.length == 2 && arguments[1] !== undefined)
-					id = uuid;
-				else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
-					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
-				
-                if (!doNotCreateIfNotFound) _currentInstance.setAttribute(element, "id", id);
-			}
-			return id;
-		};
+        //
+        // Draws an endpoint and its connections. this is the main entry point into drawing connections as well
+        // as endpoints, since jsPlumb is endpoint-centric under the hood.
+        //
+        // @param element element to draw (of type library specific element object)
+        // @param ui UI object from current library's event system. optional.
+        // @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
+        // @param clearEdits defaults to false; indicates that mouse edits for connectors should be cleared
+        ///
+            _draw = function (element, ui, timestamp, clearEdits) {
 
-		this.setConnectionBeingDragged = function(v) {
-			connectionBeingDragged = v;
-		};
-		this.isConnectionBeingDragged = function() {
-			return connectionBeingDragged;
-		};
-    
-		this.connectorClass = "_jsPlumb_connector";            		
-		this.hoverClass = "_jsPlumb_hover";            		
-		this.endpointClass = "_jsPlumb_endpoint";		
-		this.endpointConnectedClass = "_jsPlumb_endpoint_connected";		
-		this.endpointFullClass = "_jsPlumb_endpoint_full";		
-		this.endpointDropAllowedClass = "_jsPlumb_endpoint_drop_allowed";		
-		this.endpointDropForbiddenClass = "_jsPlumb_endpoint_drop_forbidden";		
-		this.overlayClass = "_jsPlumb_overlay";				
-		this.draggingClass = "_jsPlumb_dragging";		
-		this.elementDraggingClass = "_jsPlumb_element_dragging";			
-		this.sourceElementDraggingClass = "_jsPlumb_source_element_dragging";
-		this.targetElementDraggingClass = "_jsPlumb_target_element_dragging";
-		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";
-		this.hoverSourceClass = "_jsPlumb_source_hover";	
-		this.hoverTargetClass = "_jsPlumb_target_hover";
-		this.dragSelectClass = "_jsPlumb_drag_select";
+                // TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
+                if (!jsPlumbAdapter.headless && !_suspendDrawing) {
+                    var id = _getId(element),
+                        repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);
 
-		this.Anchors = {};		
-		this.Connectors = {  "svg":{}, "vml":{} };				
-		this.Endpoints = { "svg":{}, "vml":{} };
-		this.Overlays = { "svg":{}, "vml":{}};		
-		this.ConnectorRenderers = {};				
-		this.SVG = "svg";
-		this.VML = "vml";				
+                    if (timestamp == null) timestamp = _timestamp();
+
+                    // update the offset of everything _before_ we try to draw anything.
+                    var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
+
+                    if (repaintEls) {
+                        for (var i in repaintEls) {
+                            // TODO this seems to cause a lag, but we provide the offset, so in theory it
+                            // should not.  is the timestamp failing?
+                            _updateOffset({
+                                elId: repaintEls[i].id,
+                                offset: {
+                                    left: o.o.left + repaintEls[i].offset.left,
+                                    top: o.o.top + repaintEls[i].offset.top
+                                },
+                                recalc: false,
+                                timestamp: timestamp
+                            });
+                        }
+                    }
+
+                    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+
+                    if (repaintEls) {
+                        for (var j in repaintEls) {
+                            _currentInstance.anchorManager.redraw(repaintEls[j].id, ui, timestamp, repaintEls[j].offset, clearEdits, true);
+                        }
+                    }
+                }
+            },
+
+        //
+        // executes the given function against the given element if the first
+        // argument is an object, or the list of elements, if the first argument
+        // is a list. the function passed in takes (element, elementId) as
+        // arguments.
+        //
+            _elementProxy = function (element, fn) {
+                var retVal = null, el, id, del;
+                if (_ju.isArray(element)) {
+                    retVal = [];
+                    for (var i = 0, j = element.length; i < j; i++) {
+                        el = _currentInstance.getElementObject(element[i]);
+                        del = _currentInstance.getDOMElement(el);
+                        id = _currentInstance.getAttribute(del, "id");
+                        retVal.push(fn.apply(_currentInstance, [del, id])); // append return values to what we will return
+                    }
+                } else {
+                    el = _currentInstance.getDOMElement(element);
+                    id = _currentInstance.getId(el);
+                    retVal = fn.apply(_currentInstance, [el, id]);
+                }
+                return retVal;
+            },
+
+        //
+        // gets an Endpoint by uuid.
+        //
+            _getEndpoint = function (uuid) {
+                return endpointsByUUID[uuid];
+            },
+
+            /**
+             * inits a draggable if it's not already initialised.
+             * TODO: somehow abstract this to the adapter, because the concept of "draggable" has no
+             * place on the server.
+             */
+            _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id) {
+                // TODO move to DragManager?
+                if (!jsPlumbAdapter.headless) {
+                    var _draggable = isDraggable == null ? false : isDraggable;
+                    if (_draggable) {
+                        if (jsPlumb.isDragSupported(element, _currentInstance) && !jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
+                            var options = dragOptions || _currentInstance.Defaults.DragOptions;
+                            options = jsPlumb.extend({}, options); // make a copy.
+                            var dragEvent = jsPlumb.dragEvents.drag,
+                                stopEvent = jsPlumb.dragEvents.stop,
+                                startEvent = jsPlumb.dragEvents.start,
+                                _del = _currentInstance.getDOMElement(element),
+                                _ancestor = _currentInstance.dragManager.getDragAncestor(_del),
+                                _noOffset = {left: 0, top: 0},
+                                _ancestorOffset = _noOffset,
+                                _started = false;
+
+                            _manage(id, element);
+
+                            options[startEvent] = _ju.wrap(options[startEvent], function () {
+                                _ancestorOffset = _ancestor != null ? jsPlumbAdapter.getOffset(_ancestor, _currentInstance) : _noOffset;
+                                _currentInstance.setHoverSuspended(true);
+                                _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
+                                _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+                                _currentInstance.setConnectionBeingDragged(true);
+                                if (options.canDrag) return dragOptions.canDrag();
+                            }, false);
+
+                            options[dragEvent] = _ju.wrap(options[dragEvent], function () {
+                                // TODO: here we could actually use getDragObject, and then compute it ourselves,
+                                // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
+                                // differs from getUIPosition so much
+                                var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
+                                // adjust by ancestor offset if there is one: this is for the case that a draggable
+                                // is contained inside some other element that is not the Container.
+                                ui.left += _ancestorOffset.left;
+                                ui.top += _ancestorOffset.top;
+                                _draw(element, ui, null, true);
+                                if (_started) _currentInstance.addClass(element, "jsPlumb_dragged");
+                                _started = true;
+                            });
+                            options[stopEvent] = _ju.wrap(options[stopEvent], function () {
+                                var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
+                                _draw(element, ui);
+                                _started = false;
+                                _currentInstance.removeClass(element, "jsPlumb_dragged");
+                                _currentInstance.setHoverSuspended(false);
+                                _currentInstance.select({source: element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
+                                _currentInstance.select({target: element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+                                _currentInstance.setConnectionBeingDragged(false);
+                                _currentInstance.dragManager.dragEnded(element);
+                            });
+                            var elId = _getId(element); // need ID
+                            draggableStates[elId] = true;
+                            var draggable = draggableStates[elId];
+                            options.disabled = draggable == null ? false : !draggable;
+                            _currentInstance.initDraggable(element, options);
+                            _currentInstance.dragManager.register(element);
+                        }
+                    }
+                }
+            },
+
+            _scopeMatch = function (e1, e2) {
+                var s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
+                for (var i = 0; i < s1.length; i++)
+                    for (var j = 0; j < s2.length; j++)
+                        if (s2[j] == s1[i]) return true;
+
+                return false;
+            },
+
+        /*
+         * prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
+         */
+            _prepareConnectionParams = function (params, referenceParams) {
+                var _p = jsPlumb.extend({ }, params);
+                if (referenceParams) jsPlumb.extend(_p, referenceParams);
+
+                // hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
+                if (_p.source) {
+                    if (_p.source.endpoint)
+                        _p.sourceEndpoint = _p.source;
+                    else
+                        _p.source = _currentInstance.getDOMElement(_p.source);
+                }
+                if (_p.target) {
+                    if (_p.target.endpoint)
+                        _p.targetEndpoint = _p.target;
+                    else
+                        _p.target = _currentInstance.getDOMElement(_p.target);
+                }
+
+                // test for endpoint uuids to connect
+                if (params.uuids) {
+                    _p.sourceEndpoint = _getEndpoint(params.uuids[0]);
+                    _p.targetEndpoint = _getEndpoint(params.uuids[1]);
+                }
+
+                // now ensure that if we do have Endpoints already, they're not full.
+                // source:
+                if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
+                    _ju.log(_currentInstance, "could not add connection; source endpoint is full");
+                    return;
+                }
+
+                // target:
+                if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
+                    _ju.log(_currentInstance, "could not add connection; target endpoint is full");
+                    return;
+                }
+
+                // if source endpoint mandates connection type and nothing specified in our params, use it.
+                if (!_p.type && _p.sourceEndpoint)
+                    _p.type = _p.sourceEndpoint.connectionType;
+
+                // copy in any connectorOverlays that were specified on the source endpoint.
+                // it doesnt copy target endpoint overlays.  i'm not sure if we want it to or not.
+                if (_p.sourceEndpoint && _p.sourceEndpoint.connectorOverlays) {
+                    _p.overlays = _p.overlays || [];
+                    for (var i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
+                        _p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
+                    }
+                }
+
+                // pointer events
+                if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
+                    _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
+
+                var _mergeOverrides = function (def, values) {
+                    var m = jsPlumb.extend({}, def);
+                    for (var i in values) {
+                        if (values[i]) m[i] = values[i];
+                    }
+                    return m;
+                };
+
+                var _addEndpoint = function (el, def, idx) {
+                    return _currentInstance.addEndpoint(el, _mergeOverrides(def, {
+                        anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
+                        endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
+                        paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
+                        hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
+                    }));
+                };
+
+                // check for makeSource/makeTarget specs.
+
+                var _oneElementDef = function (type, idx, defs) {
+                    if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
+                        var tid = _getId(_p[type]), tep = defs[tid];
+
+                        if (tep) {
+                            // if not enabled, return.
+                            if (!tep.enabled) return false;
+
+                            var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
+                            if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
+                            if (newEndpoint.isFull()) return false;
+                            _p[type + "Endpoint"] = newEndpoint;
+                            newEndpoint._doNotDeleteOnDetach = false; // reset.
+                            newEndpoint._deleteOnDetach = true;
+                        }
+                    }
+                };
+
+                if (_oneElementDef("source", 0, this.sourceEndpointDefinitions) === false) return;
+                if (_oneElementDef("target", 1, this.targetEndpointDefinitions) === false) return;
+
+                // last, ensure scopes match
+                if (_p.sourceEndpoint && _p.targetEndpoint)
+                    if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) _p = null;
+
+                return _p;
+            }.bind(_currentInstance),
+
+            _newConnection = function (params) {
+                var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType();
+
+                params._jsPlumb = _currentInstance;
+                params.newConnection = _newConnection;
+                params.newEndpoint = _newEndpoint;
+                params.endpointsByUUID = endpointsByUUID;
+                params.endpointsByElement = endpointsByElement;
+                params.finaliseConnection = _finaliseConnection;
+                var con = new connectionFunc(params);
+                con.id = "con_" + _idstamp();
+
+                // if the connection is draggable, then maybe we need to tell the target endpoint to init the
+                // dragging code. it won't run again if it already configured to be draggable.
+                if (con.isDetachable()) {
+                    con.endpoints[0].initDraggable();
+                    con.endpoints[1].initDraggable();
+                }
+
+                return con;
+            },
+
+        //
+        // adds the connection to the backing model, fires an event if necessary and then redraws
+        //
+            _finaliseConnection = _currentInstance.finaliseConnection = function (jpc, params, originalEvent, doInformAnchorManager) {
+                params = params || {};
+                // add to list of connections (by scope).
+                if (!jpc.suspendedEndpoint)
+                    connections.push(jpc);
+
+                // turn off isTemporarySource on the source endpoint (only viable on first draw)
+                jpc.endpoints[0].isTemporarySource = false;
+
+                // always inform the anchor manager
+                // except that if jpc has a suspended endpoint it's not true to say the
+                // connection is new; it has just (possibly) moved. the question is whether
+                // to make that call here or in the anchor manager.  i think perhaps here.
+                if (jpc.suspendedEndpoint == null || doInformAnchorManager)
+                    _currentInstance.anchorManager.newConnection(jpc);
+
+                // force a paint
+                _draw(jpc.source);
+
+                // fire an event
+                if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
+
+                    var eventArgs = {
+                        connection: jpc,
+                        source: jpc.source, target: jpc.target,
+                        sourceId: jpc.sourceId, targetId: jpc.targetId,
+                        sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
+                    };
+
+                    _currentInstance.fire("connection", eventArgs, originalEvent);
+                }
+            },
+
+        /*
+         factory method to prepare a new endpoint.  this should always be used instead of creating Endpoints
+         manually, since this method attaches event listeners and an id.
+         */
+            _newEndpoint = function (params, id) {
+                var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
+                var _p = jsPlumb.extend({}, params);
+                _p._jsPlumb = _currentInstance;
+                _p.newConnection = _newConnection;
+                _p.newEndpoint = _newEndpoint;
+                _p.endpointsByUUID = endpointsByUUID;
+                _p.endpointsByElement = endpointsByElement;
+                _p.fireDetachEvent = fireDetachEvent;
+                _p.elementId = id || _getId(_p.source);
+                var ep = new endpointFunc(_p);
+                ep.id = "ep_" + _idstamp();
+                _manage(_p.elementId, _p.source);
+                if (!jsPlumbAdapter.headless)
+                    _currentInstance.dragManager.endpointAdded(_p.source, id);
+
+                return ep;
+            },
+
+        /*
+         * performs the given function operation on all the connections found
+         * for the given element id; this means we find all the endpoints for
+         * the given element, and then for each endpoint find the connectors
+         * connected to it. then we pass each connection in to the given
+         * function.
+         */
+            _operation = function (elId, func, endpointFunc) {
+                var endpoints = endpointsByElement[elId];
+                if (endpoints && endpoints.length) {
+                    for (var i = 0, ii = endpoints.length; i < ii; i++) {
+                        for (var j = 0, jj = endpoints[i].connections.length; j < jj; j++) {
+                            var retVal = func(endpoints[i].connections[j]);
+                            // if the function passed in returns true, we exit.
+                            // most functions return false.
+                            if (retVal) return;
+                        }
+                        if (endpointFunc) endpointFunc(endpoints[i]);
+                    }
+                }
+            },
+
+            _setDraggable = function (element, draggable) {
+                return _elementProxy(element, function (el, id) {
+                    draggableStates[id] = draggable;
+                    if (this.isDragSupported(el)) {
+                        this.setElementDraggable(el, draggable);
+                    }
+                });
+            },
+        /*
+         * private method to do the business of hiding/showing.
+         *
+         * @param el
+         *            either Id of the element in question or a library specific
+         *            object for the element.
+         * @param state
+         *            String specifying a value for the css 'display' property
+         *            ('block' or 'none').
+         */
+            _setVisible = function (el, state, alsoChangeEndpoints) {
+                state = state === "block";
+                var endpointFunc = null;
+                if (alsoChangeEndpoints) {
+                    if (state) endpointFunc = function (ep) {
+                        ep.setVisible(true, true, true);
+                    };
+                    else endpointFunc = function (ep) {
+                        ep.setVisible(false, true, true);
+                    };
+                }
+                var info = _info(el);
+                _operation(info.id, function (jpc) {
+                    if (state && alsoChangeEndpoints) {
+                        // this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
+                        // this block will only set a connection to be visible if the other endpoint in the connection is also visible.
+                        var oidx = jpc.sourceId === info.id ? 1 : 0;
+                        if (jpc.endpoints[oidx].isVisible()) jpc.setVisible(true);
+                    }
+                    else  // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
+                        jpc.setVisible(state);
+                }, endpointFunc);
+            },
+        /*
+         * toggles the draggable state of the given element(s).
+         * el is either an id, or an element object, or a list of ids/element objects.
+         */
+            _toggleDraggable = function (el) {
+                return _elementProxy(el, function (el, elId) {
+                    var state = draggableStates[elId] == null ? false : draggableStates[elId];
+                    state = !state;
+                    draggableStates[elId] = state;
+                    this.setDraggable(el, state);
+                    return state;
+                }.bind(this));
+            },
+            /**
+             * private method to do the business of toggling hiding/showing.
+             */
+            _toggleVisible = function (elId, changeEndpoints) {
+                var endpointFunc = null;
+                if (changeEndpoints) {
+                    endpointFunc = function (ep) {
+                        var state = ep.isVisible();
+                        ep.setVisible(!state);
+                    };
+                }
+                _operation(elId, function (jpc) {
+                    var state = jpc.isVisible();
+                    jpc.setVisible(!state);
+                }, endpointFunc);
+                // todo this should call _elementProxy, and pass in the
+                // _operation(elId, f) call as a function. cos _toggleDraggable does
+                // that.
+            },
+
+        // TODO comparison performance
+            _getCachedData = function (elId) {
+                var o = offsets[elId];
+                if (!o)
+                    return _updateOffset({elId: elId});
+                else
+                    return {o: o, s: sizes[elId]};
+            },
+
+            /**
+             * gets an id for the given element, creating and setting one if
+             * necessary.  the id is of the form
+             *
+             *    jsPlumb_<instance index>_<index in instance>
+             *
+             * where "index in instance" is a monotonically increasing integer that starts at 0,
+             * for each instance.  this method is used not only to assign ids to elements that do not
+             * have them but also to connections and endpoints.
+             */
+            _getId = function (element, uuid, doNotCreateIfNotFound) {
+                if (jsPlumbUtil.isString(element)) return element;
+                if (element == null) return null;
+                var id = _currentInstance.getAttribute(element, "id");
+                if (!id || id === "undefined") {
+                    // check if fixed uuid parameter is given
+                    if (arguments.length == 2 && arguments[1] !== undefined)
+                        id = uuid;
+                    else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
+                        id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
+
+                    if (!doNotCreateIfNotFound) _currentInstance.setAttribute(element, "id", id);
+                }
+                return id;
+            };
+
+        this.setConnectionBeingDragged = function (v) {
+            connectionBeingDragged = v;
+        };
+        this.isConnectionBeingDragged = function () {
+            return connectionBeingDragged;
+        };
+
+        this.connectorClass = "_jsPlumb_connector";
+        this.hoverClass = "_jsPlumb_hover";
+        this.endpointClass = "_jsPlumb_endpoint";
+        this.endpointConnectedClass = "_jsPlumb_endpoint_connected";
+        this.endpointFullClass = "_jsPlumb_endpoint_full";
+        this.endpointDropAllowedClass = "_jsPlumb_endpoint_drop_allowed";
+        this.endpointDropForbiddenClass = "_jsPlumb_endpoint_drop_forbidden";
+        this.overlayClass = "_jsPlumb_overlay";
+        this.draggingClass = "_jsPlumb_dragging";
+        this.elementDraggingClass = "_jsPlumb_element_dragging";
+        this.sourceElementDraggingClass = "_jsPlumb_source_element_dragging";
+        this.targetElementDraggingClass = "_jsPlumb_target_element_dragging";
+        this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";
+        this.hoverSourceClass = "_jsPlumb_source_hover";
+        this.hoverTargetClass = "_jsPlumb_target_hover";
+        this.dragSelectClass = "_jsPlumb_drag_select";
+
+        this.Anchors = {};
+        this.Connectors = {  "svg": {}, "vml": {} };
+        this.Endpoints = { "svg": {}, "vml": {} };
+        this.Overlays = { "svg": {}, "vml": {}};
+        this.ConnectorRenderers = {};
+        this.SVG = "svg";
+        this.VML = "vml";
 
 // --------------------------- jsPlumbInstance public API ---------------------------------------------------------
 
 
-        this.addEndpoint = function(el, params, referenceParams) {
+        this.addEndpoint = function (el, params, referenceParams) {
             referenceParams = referenceParams || {};
             var p = jsPlumb.extend({}, referenceParams);
             jsPlumb.extend(p, params);
@@ -4154,68 +4183,68 @@
             return results.length == 1 ? results[0] : results;
         };
 
-		this.addEndpoints = function(el, endpoints, referenceParams) {
-			var results = [];
-			for ( var i = 0, j = endpoints.length; i < j; i++) {
-				var e = _currentInstance.addEndpoint(el, endpoints[i], referenceParams);
-				if (_ju.isArray(e))
-					Array.prototype.push.apply(results, e);
-				else results.push(e);
-			}
-			return results;
-		};
-		
-		this.animate = function(el, properties, options) {
-			options = options || {};
-			var ele = _currentInstance.getElementObject(el),
-				del = _currentInstance.getDOMElement(el),
-				id = _getId(del),
-				stepFunction = jsPlumb.animEvents.step,
-				completeFunction = jsPlumb.animEvents.complete;
+        this.addEndpoints = function (el, endpoints, referenceParams) {
+            var results = [];
+            for (var i = 0, j = endpoints.length; i < j; i++) {
+                var e = _currentInstance.addEndpoint(el, endpoints[i], referenceParams);
+                if (_ju.isArray(e))
+                    Array.prototype.push.apply(results, e);
+                else results.push(e);
+            }
+            return results;
+        };
 
-			options[stepFunction] = _ju.wrap(options[stepFunction], function() {
-				_currentInstance.revalidate(id);
-			});
+        this.animate = function (el, properties, options) {
+            options = options || {};
+            var ele = _currentInstance.getElementObject(el),
+                del = _currentInstance.getDOMElement(el),
+                id = _getId(del),
+                stepFunction = jsPlumb.animEvents.step,
+                completeFunction = jsPlumb.animEvents.complete;
 
-			// onComplete repaints, just to make sure everything looks good at the end of the animation.
-			options[completeFunction] = _ju.wrap(options[completeFunction], function() {
-				_currentInstance.revalidate(id);
-			});
+            options[stepFunction] = _ju.wrap(options[stepFunction], function () {
+                _currentInstance.revalidate(id);
+            });
 
-			_currentInstance.doAnimate(ele, properties, options);
-		};
-		
-		/**
-		* checks for a listener for the given condition, executing it if found, passing in the given value.
-		* condition listeners would have been attached using "bind" (which is, you could argue, now overloaded, since
-		* firing click events etc is a bit different to what this does).  i thought about adding a "bindCondition"
-		* or something, but decided against it, for the sake of simplicity. jsPlumb will never fire one of these
-		* condition events anyway.
-		*/
-		this.checkCondition = function(conditionName, value) {
-			var l = _currentInstance.getListener(conditionName),
-				r = true;
-				
-			if (l && l.length > 0) {
-				try {
-					for (var i = 0, j = l.length; i < j; i++) {
-						r = r && l[i](value); 
-					}
-				}
-				catch (e) { 
-					_ju.log(_currentInstance, "cannot check condition [" + conditionName + "]" + e); 
-				}
-			}
-			return r;
-		};
-		
-		this.connect = function(params, referenceParams) {
-			// prepare a final set of parameters to create connection with
-			var _p = _prepareConnectionParams(params, referenceParams), jpc;
-			// TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
-			// will return null (and log something) if either endpoint was full.  what would be nicer is to 
-			// create a dedicated 'error' object.
-			if (_p) {
+            // onComplete repaints, just to make sure everything looks good at the end of the animation.
+            options[completeFunction] = _ju.wrap(options[completeFunction], function () {
+                _currentInstance.revalidate(id);
+            });
+
+            _currentInstance.doAnimate(ele, properties, options);
+        };
+
+        /**
+         * checks for a listener for the given condition, executing it if found, passing in the given value.
+         * condition listeners would have been attached using "bind" (which is, you could argue, now overloaded, since
+         * firing click events etc is a bit different to what this does).  i thought about adding a "bindCondition"
+         * or something, but decided against it, for the sake of simplicity. jsPlumb will never fire one of these
+         * condition events anyway.
+         */
+        this.checkCondition = function (conditionName, value) {
+            var l = _currentInstance.getListener(conditionName),
+                r = true;
+
+            if (l && l.length > 0) {
+                try {
+                    for (var i = 0, j = l.length; i < j; i++) {
+                        r = r && l[i](value);
+                    }
+                }
+                catch (e) {
+                    _ju.log(_currentInstance, "cannot check condition [" + conditionName + "]" + e);
+                }
+            }
+            return r;
+        };
+
+        this.connect = function (params, referenceParams) {
+            // prepare a final set of parameters to create connection with
+            var _p = _prepareConnectionParams(params, referenceParams), jpc;
+            // TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
+            // will return null (and log something) if either endpoint was full.  what would be nicer is to
+            // create a dedicated 'error' object.
+            if (_p) {
                 if (_p.source == null && _p.sourceEndpoint == null) {
                     jsPlumbUtil.log("Cannot establish connection - source does not exist");
                     return;
@@ -4224,606 +4253,621 @@
                     jsPlumbUtil.log("Cannot establish connection - target does not exist");
                     return;
                 }
-				_ensureContainer(_p.source);
-				// create the connection.  it is not yet registered 
-				jpc = _newConnection(_p);
-				// now add it the model, fire an event, and redraw
-				_finaliseConnection(jpc, _p);										
-			}
-			return jpc;
-		};		
-		
-		var stTypes = [
-			{ el:"source", elId:"sourceId", epDefs:"sourceEndpointDefinitions" },
-			{ el:"target", elId:"targetId", epDefs:"targetEndpointDefinitions" }
-		];
-		
-		var _set = function(c, el, idx, doNotRepaint) {
-			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep,
-				oldEndpoint = c.endpoints[idx];
-			
-			var evtParams = {
-				index:idx,
-				originalSourceId:idx === 0 ? cId : c.sourceId,
-				newSourceId:c.sourceId,
-				originalTargetId:idx == 1 ? cId : c.targetId,
-				newTargetId:c.targetId,
-				connection:c
-			};
+                _ensureContainer(_p.source);
+                // create the connection.  it is not yet registered
+                jpc = _newConnection(_p);
+                // now add it the model, fire an event, and redraw
+                _finaliseConnection(jpc, _p);
+            }
+            return jpc;
+        };
 
-			if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
-				ep = el;
-				ep.addConnection(c);
-			}
-			else {
-				sid = _getId(el);
-				sep = this[_st.epDefs][sid];
+        var stTypes = [
+            { el: "source", elId: "sourceId", epDefs: "sourceEndpointDefinitions" },
+            { el: "target", elId: "targetId", epDefs: "targetEndpointDefinitions" }
+        ];
 
-				if (sid === c[_st.elId]) 
-					ep = null;  // dont change source/target if the element is already the one given.
-				else if (sep) {
-					if (!sep.enabled) return;
-					ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
-					if (sep.uniqueEndpoint) sep.endpoint = ep;
-					ep._doNotDeleteOnDetach = false;
-					ep._deleteOnDetach = true;
-					ep.addConnection(c);
-				}
-				else {
-					ep = c.makeEndpoint(idx === 0, el, sid);
-					ep._doNotDeleteOnDetach = false;
-					ep._deleteOnDetach = true;
-				}
-			}
-			
-			if (ep != null) {
-				oldEndpoint.detachFromConnection(c);
-				c.endpoints[idx] = ep;
-				c[_st.el] = ep.element;
-				c[_st.elId] = ep.elementId;			
-				evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+        var _set = function (c, el, idx, doNotRepaint) {
+            var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep,
+                oldEndpoint = c.endpoints[idx];
 
-				fireMoveEvent(evtParams);
-				
-				if (!doNotRepaint)
-					c.repaint();
-			}
+            var evtParams = {
+                index: idx,
+                originalSourceId: idx === 0 ? cId : c.sourceId,
+                newSourceId: c.sourceId,
+                originalTargetId: idx == 1 ? cId : c.targetId,
+                newTargetId: c.targetId,
+                connection: c
+            };
 
-			return evtParams;
-			
-		}.bind(this);
+            if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
+                ep = el;
+                ep.addConnection(c);
+            }
+            else {
+                sid = _getId(el);
+                sep = this[_st.epDefs][sid];
 
-		this.setSource = function(connection, el, doNotRepaint) { 
-			var p = _set(connection, el, 0, doNotRepaint); 
-			this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
-		};
-		this.setTarget = function(connection, el, doNotRepaint) { 
-			var p = _set(connection, el, 1, doNotRepaint); 
-			this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
-		};
-		
-		this.deleteEndpoint = function(object, dontUpdateHover) {
-			var endpoint = (typeof object === "string") ? endpointsByUUID[object] : object;
-			if (endpoint) {		
-				_currentInstance.deleteObject({ endpoint:endpoint, dontUpdateHover:dontUpdateHover });
-			}
-			return _currentInstance;
-		};		
-		
-		this.deleteEveryEndpoint = function() {
-			var _is = _currentInstance.setSuspendDrawing(true);
-			for ( var id in endpointsByElement) {
-				var endpoints = endpointsByElement[id];
-				if (endpoints && endpoints.length) {
-					for ( var i = 0, j = endpoints.length; i < j; i++) {
+                if (sid === c[_st.elId])
+                    ep = null;  // dont change source/target if the element is already the one given.
+                else if (sep) {
+                    if (!sep.enabled) return;
+                    ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
+                    if (sep.uniqueEndpoint) sep.endpoint = ep;
+                    ep._doNotDeleteOnDetach = false;
+                    ep._deleteOnDetach = true;
+                    ep.addConnection(c);
+                }
+                else {
+                    ep = c.makeEndpoint(idx === 0, el, sid);
+                    ep._doNotDeleteOnDetach = false;
+                    ep._deleteOnDetach = true;
+                }
+            }
+
+            if (ep != null) {
+                oldEndpoint.detachFromConnection(c);
+                c.endpoints[idx] = ep;
+                c[_st.el] = ep.element;
+                c[_st.elId] = ep.elementId;
+                evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+
+                fireMoveEvent(evtParams);
+
+                if (!doNotRepaint)
+                    c.repaint();
+            }
+
+            return evtParams;
+
+        }.bind(this);
+
+        this.setSource = function (connection, el, doNotRepaint) {
+            var p = _set(connection, el, 0, doNotRepaint);
+            this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
+        };
+        this.setTarget = function (connection, el, doNotRepaint) {
+            var p = _set(connection, el, 1, doNotRepaint);
+            this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
+        };
+
+        this.deleteEndpoint = function (object, dontUpdateHover) {
+            var endpoint = (typeof object === "string") ? endpointsByUUID[object] : object;
+            if (endpoint) {
+                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover });
+            }
+            return _currentInstance;
+        };
+
+        this.deleteEveryEndpoint = function () {
+            var _is = _currentInstance.setSuspendDrawing(true);
+            for (var id in endpointsByElement) {
+                var endpoints = endpointsByElement[id];
+                if (endpoints && endpoints.length) {
+                    for (var i = 0, j = endpoints.length; i < j; i++) {
                         _currentInstance.deleteEndpoint(endpoints[i], true);
-					}
-				}
-			}			
-			endpointsByElement = {};
+                    }
+                }
+            }
+            endpointsByElement = {};
             // SP new
             managedElements = {};
-			endpointsByUUID = {};
-			_currentInstance.anchorManager.reset();
-			_currentInstance.dragManager.reset();							
-			if(!_is) _currentInstance.setSuspendDrawing(false);
-			return _currentInstance;
-		};
+            endpointsByUUID = {};
+            _currentInstance.anchorManager.reset();
+            _currentInstance.dragManager.reset();
+            if (!_is) _currentInstance.setSuspendDrawing(false);
+            return _currentInstance;
+        };
 
-		var fireDetachEvent = function(jpc, doFireEvent, originalEvent) {
+        var fireDetachEvent = function (jpc, doFireEvent, originalEvent) {
             // may have been given a connection, or in special cases, an object
-            var connType =  _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
+            var connType = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
                 argIsConnection = jpc.constructor == connType,
                 params = argIsConnection ? {
-                    connection:jpc,
-				    source : jpc.source, target : jpc.target,
-				    sourceId : jpc.sourceId, targetId : jpc.targetId,
-				    sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
+                    connection: jpc,
+                    source: jpc.source, target: jpc.target,
+                    sourceId: jpc.sourceId, targetId: jpc.targetId,
+                    sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
                 } : jpc;
 
-			if (doFireEvent)
-				_currentInstance.fire("connectionDetached", params, originalEvent);
-			
+            if (doFireEvent)
+                _currentInstance.fire("connectionDetached", params, originalEvent);
+
             _currentInstance.anchorManager.connectionDetached(params);
-		};	
+        };
 
-		var fireMoveEvent = _currentInstance.fireMoveEvent = function(params, evt) {
-			_currentInstance.fire("connectionMoved", params, evt);
-		};
+        var fireMoveEvent = _currentInstance.fireMoveEvent = function (params, evt) {
+            _currentInstance.fire("connectionMoved", params, evt);
+        };
 
-		this.unregisterEndpoint = function(endpoint) {
-			//if (endpoint._jsPlumb == null) return;
-			if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
-			_currentInstance.anchorManager.deleteEndpoint(endpoint);			
-			// TODO at least replace this with a removeWithFunction call.			
-			for (var e in endpointsByElement) {
-				var endpoints = endpointsByElement[e];
-				if (endpoints) {
-					var newEndpoints = [];
-					for (var i = 0, j = endpoints.length; i < j; i++)
-						if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
-					
-					endpointsByElement[e] = newEndpoints;
-				}
-				if(endpointsByElement[e].length <1){
-					delete endpointsByElement[e];
-				}
-			}
-		};
-				
-		this.detach = function() {
+        this.unregisterEndpoint = function (endpoint) {
+            //if (endpoint._jsPlumb == null) return;
+            if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;
+            _currentInstance.anchorManager.deleteEndpoint(endpoint);
+            // TODO at least replace this with a removeWithFunction call.
+            for (var e in endpointsByElement) {
+                var endpoints = endpointsByElement[e];
+                if (endpoints) {
+                    var newEndpoints = [];
+                    for (var i = 0, j = endpoints.length; i < j; i++)
+                        if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
+
+                    endpointsByElement[e] = newEndpoints;
+                }
+                if (endpointsByElement[e].length < 1) {
+                    delete endpointsByElement[e];
+                }
+            }
+        };
+
+        this.detach = function () {
 
             if (arguments.length === 0) return;
-            var connType =  _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
+            var connType = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
                 firstArgIsConnection = arguments[0].constructor == connType,
                 params = arguments.length == 2 ? firstArgIsConnection ? (arguments[1] || {}) : arguments[0] : arguments[0],
                 fireEvent = (params.fireEvent !== false),
                 forceDetach = params.forceDetach,
                 conn = firstArgIsConnection ? arguments[0] : params.connection;
-                                                    
-				if (conn) {             
-                    if (forceDetach || jsPlumbUtil.functionChain(true, false, [
-                            [ conn.endpoints[0], "isDetachAllowed", [ conn ] ],    
-                            [ conn.endpoints[1], "isDetachAllowed", [ conn ] ],
-                            [ conn, "isDetachAllowed", [ conn ] ],
-                            [ _currentInstance, "checkCondition", [ "beforeDetach", conn ] ] ])) {
-                        
-                        conn.endpoints[0].detach(conn, false, true, fireEvent); 
-                    }
-                }
-                else {
-					var _p = jsPlumb.extend( {}, params); // a backwards compatibility hack: source should be thought of as 'params' in this case.
-					// test for endpoint uuids to detach
-					if (_p.uuids) {
-						_getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]), fireEvent);
-					} else if (_p.sourceEndpoint && _p.targetEndpoint) {
-						_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
-					} else {
-						var sourceId = _getId(_currentInstance.getDOMElement(_p.source)),
-						    targetId = _getId(_currentInstance.getDOMElement(_p.target));
-						_operation(sourceId, function(jpc) {
-						    if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-							    if (_currentInstance.checkCondition("beforeDetach", jpc)) {
-                                    jpc.endpoints[0].detach(jpc, false, true, fireEvent);
-								}
-							}
-						});
-					}
-				}
-		};
 
-		this.detachAllConnections = function(el, params) {
+            if (conn) {
+                if (forceDetach || jsPlumbUtil.functionChain(true, false, [
+                    [ conn.endpoints[0], "isDetachAllowed", [ conn ] ],
+                    [ conn.endpoints[1], "isDetachAllowed", [ conn ] ],
+                    [ conn, "isDetachAllowed", [ conn ] ],
+                    [ _currentInstance, "checkCondition", [ "beforeDetach", conn ] ]
+                ])) {
+
+                    conn.endpoints[0].detach(conn, false, true, fireEvent);
+                }
+            }
+            else {
+                var _p = jsPlumb.extend({}, params); // a backwards compatibility hack: source should be thought of as 'params' in this case.
+                // test for endpoint uuids to detach
+                if (_p.uuids) {
+                    _getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]), fireEvent);
+                } else if (_p.sourceEndpoint && _p.targetEndpoint) {
+                    _p.sourceEndpoint.detachFrom(_p.targetEndpoint);
+                } else {
+                    var sourceId = _getId(_currentInstance.getDOMElement(_p.source)),
+                        targetId = _getId(_currentInstance.getDOMElement(_p.target));
+                    _operation(sourceId, function (jpc) {
+                        if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+                            if (_currentInstance.checkCondition("beforeDetach", jpc)) {
+                                jpc.endpoints[0].detach(jpc, false, true, fireEvent);
+                            }
+                        }
+                    });
+                }
+            }
+        };
+
+        this.detachAllConnections = function (el, params) {
             params = params || {};
             el = _currentInstance.getDOMElement(el);
-			var id = _getId(el),
+            var id = _getId(el),
                 endpoints = endpointsByElement[id];
-			if (endpoints && endpoints.length) {
-				for ( var i = 0, j = endpoints.length; i < j; i++) {
-					endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
-				}
-			}
-			return _currentInstance;
-		};
+            if (endpoints && endpoints.length) {
+                for (var i = 0, j = endpoints.length; i < j; i++) {
+                    endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
+                }
+            }
+            return _currentInstance;
+        };
 
-		this.detachEveryConnection = function(params) {
+        this.detachEveryConnection = function (params) {
             params = params || {};
-            _currentInstance.doWhileSuspended(function() {
-				for ( var id in endpointsByElement) {
-					var endpoints = endpointsByElement[id];
-					if (endpoints && endpoints.length) {
-						for ( var i = 0, j = endpoints.length; i < j; i++) {
-							endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
-						}
-					}
-				}
-				connections.length = 0;
-			});
-			return _currentInstance;
-		};
+            _currentInstance.doWhileSuspended(function () {
+                for (var id in endpointsByElement) {
+                    var endpoints = endpointsByElement[id];
+                    if (endpoints && endpoints.length) {
+                        for (var i = 0, j = endpoints.length; i < j; i++) {
+                            endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
+                        }
+                    }
+                }
+                connections.length = 0;
+            });
+            return _currentInstance;
+        };
 
-		/// not public.  but of course its exposed. how to change this.
-		this.deleteObject = function(params) {
-			var result = {
-					endpoints : {}, 
-					connections : {},
-					endpointCount:0,
-					connectionCount:0
-				},
-				fireEvent = params.fireEvent !== false,
-				deleteAttachedObjects = params.deleteAttachedObjects !== false;
-
-			var unravelConnection = function(connection) {
-				if(connection != null && result.connections[connection.id] == null) {
-					if (!params.dontUpdateHover && connection._jsPlumb != null) connection.setHover(false);
-					result.connections[connection.id] = connection;
-					result.connectionCount++;
-					if (deleteAttachedObjects) {
-						for (var j = 0; j < connection.endpoints.length; j++) {
-							if (connection.endpoints[j]._deleteOnDetach)
-								unravelEndpoint(connection.endpoints[j]);
-						}
-					}					
-				}
-			};
-			var unravelEndpoint = function(endpoint) {
-				if(endpoint != null && result.endpoints[endpoint.id] == null) {
-					if (!params.dontUpdateHover && endpoint._jsPlumb != null) endpoint.setHover(false);
-					result.endpoints[endpoint.id] = endpoint;
-					result.endpointCount++;
-
-					if (deleteAttachedObjects) {
-						for (var i = 0; i < endpoint.connections.length; i++) {
-							var c = endpoint.connections[i];
-							unravelConnection(c);
-						}
-					}
-				}
-			};
-
-			if (params.connection) 
-				unravelConnection(params.connection);
-			else unravelEndpoint(params.endpoint);
-
-			// loop through connections
-			for (var i in result.connections) {
-				var c = result.connections[i];
-				if (c._jsPlumb) {
-					jsPlumbUtil.removeWithFunction(connections, function(_c) {
-						return c.id == _c.id;
-					});
-					fireDetachEvent(c, fireEvent, params.originalEvent);
-					
-					c.endpoints[0].detachFromConnection(c);
-					c.endpoints[1].detachFromConnection(c);
-					// sp was ere
-					c.cleanup();
-					c.destroy();
-				}
-			}
-
-			// loop through endpoints
-			for (var j in result.endpoints) {
-				var e = result.endpoints[j];	
-				if (e._jsPlumb) {
-					_currentInstance.unregisterEndpoint(e);
-					// FIRE some endpoint deleted event?
-					e.cleanup();
-					e.destroy();
-				}
-			}	
-
-			return result;
-		};
- 
-		this.draggable = function(el, options) {
-			var i,j,info;
-			// allows for array or jquery selector
-			if (typeof el == 'object' && el.length) {
-				for (i = 0, j = el.length; i < j; i++) {
-					info = _info(el[i]);
-					if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
-				}
-			}
-			else {				
-				//ele = _currentInstance.getDOMElement(el);
-                info = _info(el);
-				if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
-			}
-			return _currentInstance;
-		};
-
-		// helpers for select/selectEndpoints
-		var _setOperation = function(list, func, args, selector) {
-				for (var i = 0, j = list.length; i < j; i++) {
-					list[i][func].apply(list[i], args);
-				}	
-				return selector(list);
-			},
-			_getOperation = function(list, func, args) {
-				var out = [];
-				for (var i = 0, j = list.length; i < j; i++) {
-					out.push([ list[i][func].apply(list[i], args), list[i] ]);
-				}	
-				return out;
-			},
-			setter = function(list, func, selector) {
-				return function() {
-					return _setOperation(list, func, arguments, selector);
-				};
-			},
-			getter = function(list, func) {
-				return function() {
-					return _getOperation(list, func, arguments);
-				};	
-			},
-			prepareList = function(input, doNotGetIds) {
-				var r = [];
-				if (input) {
-					if (typeof input == 'string') {
-						if (input === "*") return input;
-						r.push(input);
-					}
-					else {
-						if (doNotGetIds) r = input;
-						else { 
-							if (input.length) {
-								for (var i = 0, j = input.length; i < j; i++)
-									r.push(_info(input[i]).id);
-							}
-							else
-								r.push(_info(input).id);
-						}	
-					}
-				}
-				return r;
-			},
-			filterList = function(list, value, missingIsFalse) {
-				if (list === "*") return true;
-				return list.length > 0 ? jsPlumbUtil.indexOf(list, value) != -1 : !missingIsFalse;
-			};
-
-		// get some connections, specifying source/target/scope
-		this.getConnections = function(options, flat) {
-			if (!options) {
-				options = {};
-			} else if (options.constructor == String) {
-				options = { "scope": options };
-			}
-			var scope = options.scope || _currentInstance.getDefaultScope(),
-				scopes = prepareList(scope, true),
-				sources = prepareList(options.source),
-				targets = prepareList(options.target),			
-				results = (!flat && scopes.length > 1) ? {} : [],
-				_addOne = function(scope, obj) {
-					if (!flat && scopes.length > 1) {
-						var ss = results[scope];
-						if (ss == null) {
-							ss = results[scope] = [];
-						}
-						ss.push(obj);
-					} else results.push(obj);
-				};
-			
-			for ( var j = 0, jj = connections.length; j < jj; j++) {
-				var c = connections[j];
-				if (filterList(scopes, c.scope) && filterList(sources, c.sourceId) && filterList(targets, c.targetId))
-					_addOne(c.scope, c);
-			}
-			
-			return results;
-		};
-		
-		var _curryEach = function(list, executor) {
-				return function(f) {
-					for (var i = 0, ii = list.length; i < ii; i++) {
-						f(list[i]);
-					}
-					return executor(list);
-				};		
-			},
-			_curryGet = function(list) {
-				return function(idx) {
-					return list[idx];
-				};
-			};
-			
-		var _makeCommonSelectHandler = function(list, executor) {
-            var out = {
-                    length:list.length,
-				    each:_curryEach(list, executor),
-				    get:_curryGet(list)
+        /// not public.  but of course its exposed. how to change this.
+        this.deleteObject = function (params) {
+            var result = {
+                    endpoints: {},
+                    connections: {},
+                    endpointCount: 0,
+                    connectionCount: 0
                 },
-                setters = ["setHover", "removeAllOverlays", "setLabel", "addClass", "addOverlay", "removeOverlay", 
-                           "removeOverlays", "showOverlay", "hideOverlay", "showOverlays", "hideOverlays", "setPaintStyle",
-                           "setHoverPaintStyle", "setSuspendEvents", "setParameter", "setParameters", "setVisible", 
-                           "repaint", "addType", "toggleType", "removeType", "removeClass", "setType", "bind", "unbind" ],
-                
+                fireEvent = params.fireEvent !== false,
+                deleteAttachedObjects = params.deleteAttachedObjects !== false;
+
+            var unravelConnection = function (connection) {
+                if (connection != null && result.connections[connection.id] == null) {
+                    if (!params.dontUpdateHover && connection._jsPlumb != null) connection.setHover(false);
+                    result.connections[connection.id] = connection;
+                    result.connectionCount++;
+                    if (deleteAttachedObjects) {
+                        for (var j = 0; j < connection.endpoints.length; j++) {
+                            if (connection.endpoints[j]._deleteOnDetach)
+                                unravelEndpoint(connection.endpoints[j]);
+                        }
+                    }
+                }
+            };
+            var unravelEndpoint = function (endpoint) {
+                if (endpoint != null && result.endpoints[endpoint.id] == null) {
+                    if (!params.dontUpdateHover && endpoint._jsPlumb != null) endpoint.setHover(false);
+                    result.endpoints[endpoint.id] = endpoint;
+                    result.endpointCount++;
+
+                    if (deleteAttachedObjects) {
+                        for (var i = 0; i < endpoint.connections.length; i++) {
+                            var c = endpoint.connections[i];
+                            unravelConnection(c);
+                        }
+                    }
+                }
+            };
+
+            if (params.connection)
+                unravelConnection(params.connection);
+            else unravelEndpoint(params.endpoint);
+
+            // loop through connections
+            for (var i in result.connections) {
+                var c = result.connections[i];
+                if (c._jsPlumb) {
+                    jsPlumbUtil.removeWithFunction(connections, function (_c) {
+                        return c.id == _c.id;
+                    });
+                    fireDetachEvent(c, fireEvent, params.originalEvent);
+
+                    c.endpoints[0].detachFromConnection(c);
+                    c.endpoints[1].detachFromConnection(c);
+                    // sp was ere
+                    c.cleanup();
+                    c.destroy();
+                }
+            }
+
+            // loop through endpoints
+            for (var j in result.endpoints) {
+                var e = result.endpoints[j];
+                if (e._jsPlumb) {
+                    _currentInstance.unregisterEndpoint(e);
+                    // FIRE some endpoint deleted event?
+                    e.cleanup();
+                    e.destroy();
+                }
+            }
+
+            return result;
+        };
+
+        this.draggable = function (el, options) {
+            var i, j, info;
+            // allows for array or jquery selector
+            if (typeof el == 'object' && el.length) {
+                for (i = 0, j = el.length; i < j; i++) {
+                    info = _info(el[i]);
+                    if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
+                }
+            }
+            else {
+                //ele = _currentInstance.getDOMElement(el);
+                info = _info(el);
+                if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
+            }
+            return _currentInstance;
+        };
+
+        // helpers for select/selectEndpoints
+        var _setOperation = function (list, func, args, selector) {
+                for (var i = 0, j = list.length; i < j; i++) {
+                    list[i][func].apply(list[i], args);
+                }
+                return selector(list);
+            },
+            _getOperation = function (list, func, args) {
+                var out = [];
+                for (var i = 0, j = list.length; i < j; i++) {
+                    out.push([ list[i][func].apply(list[i], args), list[i] ]);
+                }
+                return out;
+            },
+            setter = function (list, func, selector) {
+                return function () {
+                    return _setOperation(list, func, arguments, selector);
+                };
+            },
+            getter = function (list, func) {
+                return function () {
+                    return _getOperation(list, func, arguments);
+                };
+            },
+            prepareList = function (input, doNotGetIds) {
+                var r = [];
+                if (input) {
+                    if (typeof input == 'string') {
+                        if (input === "*") return input;
+                        r.push(input);
+                    }
+                    else {
+                        if (doNotGetIds) r = input;
+                        else {
+                            if (input.length) {
+                                for (var i = 0, j = input.length; i < j; i++)
+                                    r.push(_info(input[i]).id);
+                            }
+                            else
+                                r.push(_info(input).id);
+                        }
+                    }
+                }
+                return r;
+            },
+            filterList = function (list, value, missingIsFalse) {
+                if (list === "*") return true;
+                return list.length > 0 ? jsPlumbUtil.indexOf(list, value) != -1 : !missingIsFalse;
+            };
+
+        // get some connections, specifying source/target/scope
+        this.getConnections = function (options, flat) {
+            if (!options) {
+                options = {};
+            } else if (options.constructor == String) {
+                options = { "scope": options };
+            }
+            var scope = options.scope || _currentInstance.getDefaultScope(),
+                scopes = prepareList(scope, true),
+                sources = prepareList(options.source),
+                targets = prepareList(options.target),
+                results = (!flat && scopes.length > 1) ? {} : [],
+                _addOne = function (scope, obj) {
+                    if (!flat && scopes.length > 1) {
+                        var ss = results[scope];
+                        if (ss == null) {
+                            ss = results[scope] = [];
+                        }
+                        ss.push(obj);
+                    } else results.push(obj);
+                };
+
+            for (var j = 0, jj = connections.length; j < jj; j++) {
+                var c = connections[j];
+                if (filterList(scopes, c.scope) && filterList(sources, c.sourceId) && filterList(targets, c.targetId))
+                    _addOne(c.scope, c);
+            }
+
+            return results;
+        };
+
+        var _curryEach = function (list, executor) {
+                return function (f) {
+                    for (var i = 0, ii = list.length; i < ii; i++) {
+                        f(list[i]);
+                    }
+                    return executor(list);
+                };
+            },
+            _curryGet = function (list) {
+                return function (idx) {
+                    return list[idx];
+                };
+            };
+
+        var _makeCommonSelectHandler = function (list, executor) {
+            var out = {
+                    length: list.length,
+                    each: _curryEach(list, executor),
+                    get: _curryGet(list)
+                },
+                setters = ["setHover", "removeAllOverlays", "setLabel", "addClass", "addOverlay", "removeOverlay",
+                    "removeOverlays", "showOverlay", "hideOverlay", "showOverlays", "hideOverlays", "setPaintStyle",
+                    "setHoverPaintStyle", "setSuspendEvents", "setParameter", "setParameters", "setVisible",
+                    "repaint", "addType", "toggleType", "removeType", "removeClass", "setType", "bind", "unbind" ],
+
                 getters = ["getLabel", "getOverlay", "isHover", "getParameter", "getParameters", "getPaintStyle",
-                           "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ],
+                    "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ],
                 i, ii;
-            
+
             for (i = 0, ii = setters.length; i < ii; i++)
                 out[setters[i]] = setter(list, setters[i], executor);
-            
+
             for (i = 0, ii = getters.length; i < ii; i++)
-                out[getters[i]] = getter(list, getters[i]);       
-            
+                out[getters[i]] = getter(list, getters[i]);
+
             return out;
-		};
-		
-		var	_makeConnectionSelectHandler = function(list) {
-			var common = _makeCommonSelectHandler(list, _makeConnectionSelectHandler);
-			return jsPlumb.extend(common, {
-				// setters
-				setDetachable:setter(list, "setDetachable", _makeConnectionSelectHandler),
-				setReattach:setter(list, "setReattach", _makeConnectionSelectHandler),
-				setConnector:setter(list, "setConnector", _makeConnectionSelectHandler),			
-				detach:function() {
-					for (var i = 0, ii = list.length; i < ii; i++)
-						_currentInstance.detach(list[i]);
-				},				
-				// getters
-				isDetachable:getter(list, "isDetachable"),
-				isReattach:getter(list, "isReattach")
-			});
-		};
-		
-		var	_makeEndpointSelectHandler = function(list) {
-			var common = _makeCommonSelectHandler(list, _makeEndpointSelectHandler);
-			return jsPlumb.extend(common, {
-				setEnabled:setter(list, "setEnabled", _makeEndpointSelectHandler),				
-				setAnchor:setter(list, "setAnchor", _makeEndpointSelectHandler),
-				isEnabled:getter(list, "isEnabled"),
-				detachAll:function() {
-					for (var i = 0, ii = list.length; i < ii; i++)
-						list[i].detachAll();
-				},
-				"remove":function() {
-					for (var i = 0, ii = list.length; i < ii; i++)
-						_currentInstance.deleteObject({endpoint:list[i]});
-				}
-			});
-		};
-			
+        };
 
-		this.select = function(params) {
-			params = params || {};
-			params.scope = params.scope || "*";
-			return _makeConnectionSelectHandler(params.connections || _currentInstance.getConnections(params, true));							
-		};		
+        var _makeConnectionSelectHandler = function (list) {
+            var common = _makeCommonSelectHandler(list, _makeConnectionSelectHandler);
+            return jsPlumb.extend(common, {
+                // setters
+                setDetachable: setter(list, "setDetachable", _makeConnectionSelectHandler),
+                setReattach: setter(list, "setReattach", _makeConnectionSelectHandler),
+                setConnector: setter(list, "setConnector", _makeConnectionSelectHandler),
+                detach: function () {
+                    for (var i = 0, ii = list.length; i < ii; i++)
+                        _currentInstance.detach(list[i]);
+                },
+                // getters
+                isDetachable: getter(list, "isDetachable"),
+                isReattach: getter(list, "isReattach")
+            });
+        };
 
-		this.selectEndpoints = function(params) {
-			params = params || {};
-			params.scope = params.scope || "*";
-			var noElementFilters = !params.element && !params.source && !params.target,			
-				elements = noElementFilters ? "*" : prepareList(params.element),
-				sources = noElementFilters ? "*" : prepareList(params.source),
-				targets = noElementFilters ? "*" : prepareList(params.target),
-				scopes = prepareList(params.scope, true);
-			
-			var ep = [];
-			
-			for (var el in endpointsByElement) {
-				var either = filterList(elements, el, true),
-					source = filterList(sources, el, true),
-					sourceMatchExact = sources != "*",
-					target = filterList(targets, el, true),
-					targetMatchExact = targets != "*"; 
-					
-				// if they requested 'either' then just match scope. otherwise if they requested 'source' (not as a wildcard) then we have to match only endpoints that have isSource set to to true, and the same thing with isTarget.  
-				if ( either || source  || target ) {
-					inner:
-					for (var i = 0, ii = endpointsByElement[el].length; i < ii; i++) {
-						var _ep = endpointsByElement[el][i];
-						if (filterList(scopes, _ep.scope, true)) {
-						
-							var noMatchSource = (sourceMatchExact && sources.length > 0 && !_ep.isSource),
-								noMatchTarget = (targetMatchExact && targets.length > 0 && !_ep.isTarget);
-						
-							if (noMatchSource || noMatchTarget)								  
-								  continue inner; 
-							 							
-							ep.push(_ep);		
-						}
-					}
-				}					
-			}
-			
-			return _makeEndpointSelectHandler(ep);
-		};
+        var _makeEndpointSelectHandler = function (list) {
+            var common = _makeCommonSelectHandler(list, _makeEndpointSelectHandler);
+            return jsPlumb.extend(common, {
+                setEnabled: setter(list, "setEnabled", _makeEndpointSelectHandler),
+                setAnchor: setter(list, "setAnchor", _makeEndpointSelectHandler),
+                isEnabled: getter(list, "isEnabled"),
+                detachAll: function () {
+                    for (var i = 0, ii = list.length; i < ii; i++)
+                        list[i].detachAll();
+                },
+                "remove": function () {
+                    for (var i = 0, ii = list.length; i < ii; i++)
+                        _currentInstance.deleteObject({endpoint: list[i]});
+                }
+            });
+        };
 
-		// get all connections managed by the instance of jsplumb.
-		this.getAllConnections = function() { return connections; };
-		this.getDefaultScope = function() { return DEFAULT_SCOPE; };
-		// get an endpoint by uuid.
-		this.getEndpoint = _getEndpoint;				
-		// get endpoints for some element.
-		this.getEndpoints = function(el) { return endpointsByElement[_info(el).id]; };		
-		// gets the default endpoint type. used when subclassing. see wiki.
-		this.getDefaultEndpointType = function() { return jsPlumb.Endpoint; };		
-		// gets the default connection type. used when subclassing.  see wiki.
-		this.getDefaultConnectionType = function() { return jsPlumb.Connection; };
-		/*
-		 * Gets an element's id, creating one if necessary. really only exposed
-		 * for the lib-specific functionality to access; would be better to pass
-		 * the current instance into the lib-specific code (even though this is
-		 * a static call. i just don't want to expose it to the public API).
-		 */
-		this.getId = _getId;
-		this.getOffset = function(id) { 
-			return _updateOffset({elId:id}).o;
-		};
-		
-		this.appendElement = _appendElement;
-		
-		var _hoverSuspended = false;
-		this.isHoverSuspended = function() { return _hoverSuspended; };
-		this.setHoverSuspended = function(s) { _hoverSuspended = s; };
 
-		var _isAvailable = function(m) {
-			return function() {
-				return jsPlumbAdapter.isRenderModeAvailable(m);
-			};
-		};
+        this.select = function (params) {
+            params = params || {};
+            params.scope = params.scope || "*";
+            return _makeConnectionSelectHandler(params.connections || _currentInstance.getConnections(params, true));
+        };
 
-		this.isSVGAvailable = _isAvailable("svg");
-		this.isVMLAvailable = _isAvailable("vml");
+        this.selectEndpoints = function (params) {
+            params = params || {};
+            params.scope = params.scope || "*";
+            var noElementFilters = !params.element && !params.source && !params.target,
+                elements = noElementFilters ? "*" : prepareList(params.element),
+                sources = noElementFilters ? "*" : prepareList(params.source),
+                targets = noElementFilters ? "*" : prepareList(params.target),
+                scopes = prepareList(params.scope, true);
 
-		// set an element's connections to be hidden
-		this.hide = function(el, changeEndpoints) {
-			_setVisible(el, "none", changeEndpoints);
-			return _currentInstance;
-		};
-		
-		// exposed for other objects to use to get a unique id.
-		this.idstamp = _idstamp;
+            var ep = [];
 
-		this.connectorsInitialized = false;
-		var connectorTypes = [], rendererTypes = ["svg", "vml"];
-		this.registerConnectorType = function(connector, name) {
-			connectorTypes.push([connector, name]);
-		};
-		
-		// ensure that, if the current container exists, it is a DOM element and not a selector.
-		// if it does not exist and `candidate` is supplied, the offset parent of that element will be set as the Container.
-		// this is used to do a better default behaviour for the case that the user has not set a container:
-		// addEndpoint, makeSource, makeTarget and connect all call this method with the offsetParent of the 
-		// element in question (for connect it is the source element). So if no container is set, it is inferred
-		// to be the offsetParent of the first element the user tries to connect.
-		var _ensureContainer = function(candidate) {
-			if (!_container && candidate) {
-				var can = _currentInstance.getDOMElement(candidate);				
-                		if (can.offsetParent) _currentInstance.setContainer(can.offsetParent);
-			}
-		};
+            for (var el in endpointsByElement) {
+                var either = filterList(elements, el, true),
+                    source = filterList(sources, el, true),
+                    sourceMatchExact = sources != "*",
+                    target = filterList(targets, el, true),
+                    targetMatchExact = targets != "*";
 
-		var _getContainerFromDefaults = function() {
-			if (_currentInstance.Defaults.Container)
-                	  _currentInstance.setContainer(_currentInstance.Defaults.Container);
-		};
+                // if they requested 'either' then just match scope. otherwise if they requested 'source' (not as a wildcard) then we have to match only endpoints that have isSource set to to true, and the same thing with isTarget.
+                if (either || source || target) {
+                    inner:
+                        for (var i = 0, ii = endpointsByElement[el].length; i < ii; i++) {
+                            var _ep = endpointsByElement[el][i];
+                            if (filterList(scopes, _ep.scope, true)) {
+
+                                var noMatchSource = (sourceMatchExact && sources.length > 0 && !_ep.isSource),
+                                    noMatchTarget = (targetMatchExact && targets.length > 0 && !_ep.isTarget);
+
+                                if (noMatchSource || noMatchTarget)
+                                    continue inner;
+
+                                ep.push(_ep);
+                            }
+                        }
+                }
+            }
+
+            return _makeEndpointSelectHandler(ep);
+        };
+
+        // get all connections managed by the instance of jsplumb.
+        this.getAllConnections = function () {
+            return connections;
+        };
+        this.getDefaultScope = function () {
+            return DEFAULT_SCOPE;
+        };
+        // get an endpoint by uuid.
+        this.getEndpoint = _getEndpoint;
+        // get endpoints for some element.
+        this.getEndpoints = function (el) {
+            return endpointsByElement[_info(el).id];
+        };
+        // gets the default endpoint type. used when subclassing. see wiki.
+        this.getDefaultEndpointType = function () {
+            return jsPlumb.Endpoint;
+        };
+        // gets the default connection type. used when subclassing.  see wiki.
+        this.getDefaultConnectionType = function () {
+            return jsPlumb.Connection;
+        };
+        /*
+         * Gets an element's id, creating one if necessary. really only exposed
+         * for the lib-specific functionality to access; would be better to pass
+         * the current instance into the lib-specific code (even though this is
+         * a static call. i just don't want to expose it to the public API).
+         */
+        this.getId = _getId;
+        this.getOffset = function (id) {
+            return _updateOffset({elId: id}).o;
+        };
+
+        this.appendElement = _appendElement;
+
+        var _hoverSuspended = false;
+        this.isHoverSuspended = function () {
+            return _hoverSuspended;
+        };
+        this.setHoverSuspended = function (s) {
+            _hoverSuspended = s;
+        };
+
+        var _isAvailable = function (m) {
+            return function () {
+                return jsPlumbAdapter.isRenderModeAvailable(m);
+            };
+        };
+
+        this.isSVGAvailable = _isAvailable("svg");
+        this.isVMLAvailable = _isAvailable("vml");
+
+        // set an element's connections to be hidden
+        this.hide = function (el, changeEndpoints) {
+            _setVisible(el, "none", changeEndpoints);
+            return _currentInstance;
+        };
+
+        // exposed for other objects to use to get a unique id.
+        this.idstamp = _idstamp;
+
+        this.connectorsInitialized = false;
+        var connectorTypes = [], rendererTypes = ["svg", "vml"];
+        this.registerConnectorType = function (connector, name) {
+            connectorTypes.push([connector, name]);
+        };
+
+        // ensure that, if the current container exists, it is a DOM element and not a selector.
+        // if it does not exist and `candidate` is supplied, the offset parent of that element will be set as the Container.
+        // this is used to do a better default behaviour for the case that the user has not set a container:
+        // addEndpoint, makeSource, makeTarget and connect all call this method with the offsetParent of the
+        // element in question (for connect it is the source element). So if no container is set, it is inferred
+        // to be the offsetParent of the first element the user tries to connect.
+        var _ensureContainer = function (candidate) {
+            if (!_container && candidate) {
+                var can = _currentInstance.getDOMElement(candidate);
+                if (can.offsetParent) _currentInstance.setContainer(can.offsetParent);
+            }
+        };
+
+        var _getContainerFromDefaults = function () {
+            if (_currentInstance.Defaults.Container)
+                _currentInstance.setContainer(_currentInstance.Defaults.Container);
+        };
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
-            // TODO make sure we add a test that this tracks a setId call.
-        var _manage = _currentInstance.manage = function(id, element) {
+        // TODO make sure we add a test that this tracks a setId call.
+        var _manage = _currentInstance.manage = function (id, element) {
             if (!managedElements[id]) {
                 managedElements[id] = {
-                    el:element,
-                    endpoints:[],
-                    connections:[]
+                    el: element,
+                    endpoints: [],
+                    connections: []
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
 
-             /*   if (!_suspendDrawing) {
-                    managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
-                }*/
+                /*   if (!_suspendDrawing) {
+                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
+                 }*/
             }
 
             return managedElements[id];
         };
 
-        var _unmanage = function(id) {
+        var _unmanage = function (id) {
             delete managedElements[id];
         };
 
@@ -4833,13 +4877,13 @@
          * passed in from a drag call) because it's faster; but if it is null,
          * or if 'recalc' is true in order to force a recalculation, we get the current values.
          */
-        var _updateOffset = this.updateOffset = function(params) {
+        var _updateOffset = this.updateOffset = function (params) {
 
             var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
             if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
             if (!recalc) {
                 if (timestamp && timestamp === offsetTimestamps[elId]) {
-                    return {o:params.offset || offsets[elId], s:sizes[elId]};
+                    return {o: params.offset || offsets[elId], s: sizes[elId]};
                 }
             }
             if (recalc || (!offset && offsets[elId] == null)) { // if forced repaint or no offset available, we recalculate.
@@ -4861,7 +4905,7 @@
                 offsetTimestamps[elId] = timestamp;
             }
 
-            if(offsets[elId] && !offsets[elId].right) {
+            if (offsets[elId] && !offsets[elId].right) {
                 offsets[elId].right = offsets[elId].left + sizes[elId][0];
                 offsets[elId].bottom = offsets[elId].top + sizes[elId][1];
                 offsets[elId].width = sizes[elId][0];
@@ -4870,469 +4914,459 @@
                 offsets[elId].centery = offsets[elId].top + (offsets[elId].height / 2);
             }
 
-            return {o:offsets[elId], s:sizes[elId]};
+            return {o: offsets[elId], s: sizes[elId]};
         };
-		
-		/**
-		 * callback from the current library to tell us to prepare ourselves (attach
-		 * mouse listeners etc; can't do that until the library has provided a bind method)		 
-		 */
-		this.init = function() {
-			var _oneType = function(renderer, name, fn) {
-				jsPlumb.Connectors[renderer][name] = function() {
-					fn.apply(this, arguments);
-					jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);		
-				};
-				jsPlumbUtil.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
-			};
 
-			if (!jsPlumb.connectorsInitialized) {
-				for (var i = 0; i < connectorTypes.length; i++) {
-					for (var j = 0; j < rendererTypes.length; j++) {
-						_oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);												
-					}
+        /**
+         * callback from the current library to tell us to prepare ourselves (attach
+         * mouse listeners etc; can't do that until the library has provided a bind method)
+         */
+        this.init = function () {
+            var _oneType = function (renderer, name, fn) {
+                jsPlumb.Connectors[renderer][name] = function () {
+                    fn.apply(this, arguments);
+                    jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
+                };
+                jsPlumbUtil.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
+            };
 
-				}
-				jsPlumb.connectorsInitialized = true;
-			}
-			
-			if (!initialized) {                
-				_getContainerFromDefaults();	
-                _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
-				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
-				initialized = true;
-				_currentInstance.fire("ready", _currentInstance);
-			}
-		}.bind(this);		
-		
-		this.log = log;
-		this.jsPlumbUIComponent = jsPlumbUIComponent;		
-
-		/*
-		 * Creates an anchor with the given params.
-		 * 
-		 * 
-		 * Returns: The newly created Anchor.
-		 * Throws: an error if a named anchor was not found.
-		 */
-		this.makeAnchor = function() {
-			var pp, _a = function(t, p) {
-				if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
-				if (!_currentInstance.Defaults.DoNotThrowErrors)
-					throw { msg:"jsPlumb: unknown anchor type '" + t + "'" };
-			};
-			if (arguments.length === 0) return null;
-			var specimen = arguments[0], elementId = arguments[1], jsPlumbInstance = arguments[2], newAnchor = null;			
-			// if it appears to be an anchor already...
-			if (specimen.compute && specimen.getOrientation) return specimen;  //TODO hazy here about whether it should be added or is already added somehow.
-			// is it the name of an anchor type?
-			else if (typeof specimen == "string") {
-				newAnchor = _a(arguments[0], {elementId:elementId, jsPlumbInstance:_currentInstance});
-			}
-			// is it an array? it will be one of:
-			// 		an array of [spec, params] - this defines a single anchor, which may be dynamic, but has parameters.
-			//		an array of arrays - this defines some dynamic anchors
-			//		an array of numbers - this defines a single anchor.				
-			else if (_ju.isArray(specimen)) {
-				if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
-					// if [spec, params] format
-					if (specimen.length == 2 && _ju.isObject(specimen[1])) {
-						// if first arg is a string, its a named anchor with params
-						if (_ju.isString(specimen[0])) {
-							pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
-							newAnchor = _a(specimen[0], pp);
-						}
-						// otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
-						// even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
-						else {
-							pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
-							newAnchor = new jsPlumb.DynamicAnchor(pp);
-						}
-					}
-					else
-						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:_currentInstance});
-
-				}
-				else {
-					var anchorParams = {
-						x:specimen[0], y:specimen[1],
-						orientation : (specimen.length >= 4) ? [ specimen[2], specimen[3] ] : [0,0],
-						offsets : (specimen.length >= 6) ? [ specimen[4], specimen[5] ] : [ 0, 0 ],
-						elementId:elementId,
-                        jsPlumbInstance:_currentInstance,
-                        cssClass:specimen.length == 7 ? specimen[6] : null
-					};						
-					newAnchor = new jsPlumb.Anchor(anchorParams);
-					newAnchor.clone = function() { return new jsPlumb.Anchor(anchorParams); };						 					
-				}
-			}
-			
-			if (!newAnchor.id) newAnchor.id = "anchor_" + _idstamp();
-			return newAnchor;
-		};
-
-		/**
-		 * makes a list of anchors from the given list of types or coords, eg
-		 * ["TopCenter", "RightMiddle", "BottomCenter", [0, 1, -1, -1] ]
-		 */
-		this.makeAnchors = function(types, elementId, jsPlumbInstance) {
-			var r = [];
-			for ( var i = 0, ii = types.length; i < ii; i++) {
-				if (typeof types[i] == "string")
-					r.push(jsPlumb.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
-				else if (_ju.isArray(types[i]))
-					r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
-			}
-			return r;
-		};
-
-		/**
-		 * Makes a dynamic anchor from the given list of anchors (which may be in shorthand notation as strings or dimension arrays, or Anchor
-		 * objects themselves) and the given, optional, anchorSelector function (jsPlumb uses a default if this is not provided; most people will
-		 * not need to provide this - i think). 
-		 */
-		this.makeDynamicAnchor = function(anchors, anchorSelector) {
-			return new jsPlumb.DynamicAnchor({anchors:anchors, selector:anchorSelector, elementId:null, jsPlumbInstance:_currentInstance});
-		};
-		
-// --------------------- makeSource/makeTarget ---------------------------------------------- 
-		
-		this.targetEndpointDefinitions = {};
-		var _setEndpointPaintStylesAndAnchor = function(ep, epIndex, _instance) {
-				ep.paintStyle = ep.paintStyle ||
-				 				_instance.Defaults.EndpointStyles[epIndex] ||
-	                            _instance.Defaults.EndpointStyle;
-								
-				ep.hoverPaintStyle = ep.hoverPaintStyle ||
-	                           _instance.Defaults.EndpointHoverStyles[epIndex] ||
-	                           _instance.Defaults.EndpointHoverStyle;                            
-
-				ep.anchor = ep.anchor ||
-	                      	_instance.Defaults.Anchors[epIndex] ||
-	                      	_instance.Defaults.Anchor;
-					
-				ep.endpoint = ep.endpoint ||
-							  _instance.Defaults.Endpoints[epIndex] ||
-							  _instance.Defaults.Endpoint;
-			};
-			
-			// TODO put all the source stuff inside one parent, keyed by id.
-			this.sourceEndpointDefinitions = {};
-			
-			var selectorFilter = function(evt, _el, selector, _instance, negate) {
-                var t = evt.target || evt.srcElement, ok = false, 
-                    sel = _instance.getSelector(_el, selector);
-                for (var j = 0; j < sel.length; j++) {
-                    if (sel[j] == t) {
-                        ok = true;
-                        break;
+            if (!jsPlumb.connectorsInitialized) {
+                for (var i = 0; i < connectorTypes.length; i++) {
+                    for (var j = 0; j < rendererTypes.length; j++) {
+                        _oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);
                     }
+
                 }
-                return negate ? !ok : ok;
-	        };
+                jsPlumb.connectorsInitialized = true;
+            }
 
+            if (!initialized) {
+                _getContainerFromDefaults();
+                _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
+                _currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
+                initialized = true;
+                _currentInstance.fire("ready", _currentInstance);
+            }
+        }.bind(this);
 
-        //this.
+        this.log = log;
+        this.jsPlumbUIComponent = jsPlumbUIComponent;
 
-		// see API docs
-		this.makeTarget = function(el, params, referenceParams) {
+        /*
+         * Creates an anchor with the given params.
+         *
+         *
+         * Returns: The newly created Anchor.
+         * Throws: an error if a named anchor was not found.
+         */
+        this.makeAnchor = function () {
+            var pp, _a = function (t, p) {
+                if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
+                if (!_currentInstance.Defaults.DoNotThrowErrors)
+                    throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
+            };
+            if (arguments.length === 0) return null;
+            var specimen = arguments[0], elementId = arguments[1], jsPlumbInstance = arguments[2], newAnchor = null;
+            // if it appears to be an anchor already...
+            if (specimen.compute && specimen.getOrientation) return specimen;  //TODO hazy here about whether it should be added or is already added somehow.
+            // is it the name of an anchor type?
+            else if (typeof specimen == "string") {
+                newAnchor = _a(arguments[0], {elementId: elementId, jsPlumbInstance: _currentInstance});
+            }
+            // is it an array? it will be one of:
+            // 		an array of [spec, params] - this defines a single anchor, which may be dynamic, but has parameters.
+            //		an array of arrays - this defines some dynamic anchors
+            //		an array of numbers - this defines a single anchor.
+            else if (_ju.isArray(specimen)) {
+                if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
+                    // if [spec, params] format
+                    if (specimen.length == 2 && _ju.isObject(specimen[1])) {
+                        // if first arg is a string, its a named anchor with params
+                        if (_ju.isString(specimen[0])) {
+                            pp = jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance}, specimen[1]);
+                            newAnchor = _a(specimen[0], pp);
+                        }
+                        // otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
+                        // even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
+                        else {
+                            pp = jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance, anchors: specimen[0]}, specimen[1]);
+                            newAnchor = new jsPlumb.DynamicAnchor(pp);
+                        }
+                    }
+                    else
+                        newAnchor = new jsPlumb.DynamicAnchor({anchors: specimen, selector: null, elementId: elementId, jsPlumbInstance: _currentInstance});
 
-			// put jsplumb ref into params without altering the params passed in
-			var p = jsPlumb.extend({_jsPlumb:this}, referenceParams);
-			jsPlumb.extend(p, params);
+                }
+                else {
+                    var anchorParams = {
+                        x: specimen[0], y: specimen[1],
+                        orientation: (specimen.length >= 4) ? [ specimen[2], specimen[3] ] : [0, 0],
+                        offsets: (specimen.length >= 6) ? [ specimen[4], specimen[5] ] : [ 0, 0 ],
+                        elementId: elementId,
+                        jsPlumbInstance: _currentInstance,
+                        cssClass: specimen.length == 7 ? specimen[6] : null
+                    };
+                    newAnchor = new jsPlumb.Anchor(anchorParams);
+                    newAnchor.clone = function () {
+                        return new jsPlumb.Anchor(anchorParams);
+                    };
+                }
+            }
 
-			// calculate appropriate paint styles and anchor from the params given
-			_setEndpointPaintStylesAndAnchor(p, 1, this);
+            if (!newAnchor.id) newAnchor.id = "anchor_" + _idstamp();
+            return newAnchor;
+        };
 
-			var targetScope = p.scope || _currentInstance.Defaults.Scope,
-				deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
-				maxConnections = p.maxConnections || -1,
-				onMaxConnections = p.onMaxConnections,
+        /**
+         * makes a list of anchors from the given list of types or coords, eg
+         * ["TopCenter", "RightMiddle", "BottomCenter", [0, 1, -1, -1] ]
+         */
+        this.makeAnchors = function (types, elementId, jsPlumbInstance) {
+            var r = [];
+            for (var i = 0, ii = types.length; i < ii; i++) {
+                if (typeof types[i] == "string")
+                    r.push(jsPlumb.Anchors[types[i]]({elementId: elementId, jsPlumbInstance: jsPlumbInstance}));
+                else if (_ju.isArray(types[i]))
+                    r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
+            }
+            return r;
+        };
 
-				_doOne = function(el) {
-					
-					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-					// and use the endpoint definition if found.
-					// decode the info for this element (id and element)
-					var elInfo = _info(el), 
-						elid = elInfo.id,
-						proxyComponent = new jsPlumbUIComponent(p),
-						dropOptions = jsPlumb.extend({}, p.dropOptions || {});
+        /**
+         * Makes a dynamic anchor from the given list of anchors (which may be in shorthand notation as strings or dimension arrays, or Anchor
+         * objects themselves) and the given, optional, anchorSelector function (jsPlumb uses a default if this is not provided; most people will
+         * not need to provide this - i think).
+         */
+        this.makeDynamicAnchor = function (anchors, anchorSelector) {
+            return new jsPlumb.DynamicAnchor({anchors: anchors, selector: anchorSelector, elementId: null, jsPlumbInstance: _currentInstance});
+        };
 
-					_ensureContainer(elid);
+// --------------------- makeSource/makeTarget ---------------------------------------------- 
 
-					// store the definitions keyed against the element id.
-					// TODO why not just store inside the element itself?
+        this.targetEndpointDefinitions = {};
+        var _setEndpointPaintStylesAndAnchor = function (ep, epIndex, _instance) {
+            ep.paintStyle = ep.paintStyle ||
+                _instance.Defaults.EndpointStyles[epIndex] ||
+                _instance.Defaults.EndpointStyle;
+
+            ep.hoverPaintStyle = ep.hoverPaintStyle ||
+                _instance.Defaults.EndpointHoverStyles[epIndex] ||
+                _instance.Defaults.EndpointHoverStyle;
+
+            ep.anchor = ep.anchor ||
+                _instance.Defaults.Anchors[epIndex] ||
+                _instance.Defaults.Anchor;
+
+            ep.endpoint = ep.endpoint ||
+                _instance.Defaults.Endpoints[epIndex] ||
+                _instance.Defaults.Endpoint;
+        };
+
+        // TODO put all the source stuff inside one parent, keyed by id.
+        this.sourceEndpointDefinitions = {};
+
+        var selectorFilter = function (evt, _el, selector, _instance, negate) {
+            var t = evt.target || evt.srcElement, ok = false,
+                sel = _instance.getSelector(_el, selector);
+            for (var j = 0; j < sel.length; j++) {
+                if (sel[j] == t) {
+                    ok = true;
+                    break;
+                }
+            }
+            return negate ? !ok : ok;
+        };
+
+        // SP target source refactor
+        var _makeElementDropHandler = function (elInfo, p, dropOptions, isSource, isTarget, definitionId) {
+            var proxyComponent = new jsPlumbUIComponent(p);
+            var scope = p.scope || _currentInstance.Defaults.Scope;
+            var _drop = p._jsPlumb.EndpointDropHandler({
+                jsPlumb: _currentInstance,
+                enabled: function () {
+                    return elInfo.el[definitionId].enabled;
+                },
+                isFull: function (originalEvent) {
+                    var targetCount = _currentInstance.select({target: elInfo.id}).length;
+                    var def = elInfo.el[definitionId];
+                    var full = def.maxConnections > 0 && targetCount >= def.maxConnections;
+                    if (full && p.onMaxConnections) {
+                        // TODO here we still have the id of the floating element, not the
+                        // actual target.
+                        // TODO jpc is not defined here..?
+                        p.onMaxConnections({
+                            element: elInfo.el,
+                            connection: jpc
+                        }, originalEvent);
+                    }
+                    return full;
+                },
+                element: elInfo.el,
+                elementId: elInfo.id,
+                isSource: isSource,
+                isTarget: isTarget,
+                addClass: function (clazz) {
+                    _currentInstance.addClass(elInfo.el, clazz);
+                },
+                removeClass: function (clazz) {
+                    _currentInstance.removeClass(elInfo.el, clazz);
+                },
+                onDrop: function (jpc) {
+                    var source = jpc.endpoints[0];
+                    source.anchor.locked = false;
+                },
+                isDropAllowed: function () {
+                    return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
+                },
+                getEndpoint: function (jpc) {
+                    // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
+                    // is set.
+                    var _el = _currentInstance.getElementObject(elInfo.el),
+                        def = elInfo.el[definitionId],
+                        newEndpoint = def.endpoint;
+
+                    // if no cached endpoint, or there was one but it has been cleaned up
+                    // (ie. detached), then create a new one.
+                    if (newEndpoint == null || newEndpoint._jsPlumb == null) {
+                        newEndpoint = _currentInstance.addEndpoint(_el, p);
+                        newEndpoint._mtNew = true;
+                    }
+
+                    if (p.uniqueEndpoint) def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+                    // TODO test options to makeTarget to see if we should do this?
+                    newEndpoint._doNotDeleteOnDetach = false; // reset.
+                    newEndpoint._deleteOnDetach = true;
+
+                    // if connection is detachable, init the new endpoint to be draggable, to support that happening.
+                    if (jpc.isDetachable())
+                        newEndpoint.initDraggable();
+
+                    // if the anchor has a 'positionFinder' set, then delegate to that function to find
+                    // out where to locate the anchor.
+                    if (newEndpoint.anchor.positionFinder != null) {
+                        var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
+                            elPosition = _getOffset(_el, _currentInstance),
+                            elSize = _currentInstance.getSize(_el),
+                            ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
+                        newEndpoint.anchor.x = ap[0];
+                        newEndpoint.anchor.y = ap[1];
+                        // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
+                        // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
+                        // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
+                        // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
+                        // the target is furthest away from the source.
+                    }
+
+                    return newEndpoint;
+                },
+                maybeCleanup: function (ep) {
+                    if (ep._mtNew && ep.connections.length === 0) {
+                        _currentInstance.deleteObject({endpoint: ep});
+                    }
+                    else
+                        delete ep._mtNew;
+                }
+            });
+
+            // wrap drop events as needed and initialise droppable
+            var dropEvent = jsPlumb.dragEvents.drop;
+            dropOptions.scope = dropOptions.scope || (p.scope || _currentInstance.Defaults.Scope);
+            dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);
+
+            // vanilla jsplumb only
+            if (p.allowLoopback === false) {
+                dropOptions.canDrop = function (_drag) {
+                    var de = _drag.getDragElement()._jsPlumbRelatedElement;
+                    return de != elInfo.el;
+                };
+            }
+            _currentInstance.initDroppable(_currentInstance.getElementObject(elInfo.el), dropOptions, "internal");
+
+            return _drop;
+
+        };
+
+        // see API docs
+        this.makeTarget = function (el, params, referenceParams) {
+
+            // put jsplumb ref into params without altering the params passed in
+            var p = jsPlumb.extend({_jsPlumb: this}, referenceParams);
+            jsPlumb.extend(p, params);
+
+            // calculate appropriate paint styles and anchor from the params given
+            _setEndpointPaintStylesAndAnchor(p, 1, this);
+
+            var deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
+                maxConnections = p.maxConnections || -1,
+
+                _doOne = function (el) {
+
+                    // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+                    // and use the endpoint definition if found.
+                    // decode the info for this element (id and element)
+                    var elInfo = _info(el),
+                        elid = elInfo.id,
+                        dropOptions = jsPlumb.extend({}, p.dropOptions || {});
+
+                    _ensureContainer(elid);
+
+                    // store the definition
                     var _def = {
-                        def:p,
-                        uniqueEndpoint:p.uniqueEndpoint,
-                        maxConnections:maxConnections,
-                        enabled:true
+                        def: p,
+                        uniqueEndpoint: p.uniqueEndpoint,
+                        maxConnections: maxConnections,
+                        enabled: true
                     };
                     elInfo.el._jsPlumbTarget = _def;
+                    this.targetEndpointDefinitions[elid] = _def;
+                    _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true, "_jsPlumbTarget");
 
-					this.targetEndpointDefinitions[elid] = _def;
+                }.bind(this);
 
+            // make an array if only given one element
+            var inputs = el.length && el.constructor != String ? el : [ el ];
 
-                    var _drop = p._jsPlumb.EndpointDropHandler({
-                        //endpoint:_ep,
-                        jsPlumb: _currentInstance,
-                        enabled:function() {
-                            return elInfo.el._jsPlumbTarget.enabled;
-                        },
-                        isFull:function(originalEvent) {
-                            var targetCount = _currentInstance.select({target:elid}).length;
-                            var def = elInfo.el._jsPlumbTarget;
-                            var full = def.maxConnections > 0 && targetCount >= def.maxConnections;
-                            if (full && onMaxConnections) {
-                                // TODO here we still have the id of the floating element, not the
-                                // actual target.
-                                onMaxConnections({
-                                    element:elInfo.el,
-                                    connection:jpc
-                                }, originalEvent);
-                            }
-                            return full;
-                        },
-                        element:elInfo.el,
-                        elementId:elid,
-                        isSource: p.isSource === true,
-                        isTarget:true,
-                        addClass:function(clazz) {
-                            //_ep.addClass(clazz)
-                            _currentInstance.addClass(elInfo.el, clazz);
-                        },
-                        removeClass:function(clazz) {
-                            //_ep.removeClass(clazz)
-                            _currentInstance.removeClass(elInfo.el, clazz);
-                        },
-                        onDrop:function(jpc) {
-                            var source = jpc.endpoints[0];
-                            source.anchor.locked = false;
-                        },
-                        isDropAllowed:function() {
-                            return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
-                        },
-                        getEndpoint:function(jpc) {
-                            // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
-                            // is set.
-                            var _el = _currentInstance.getElementObject(elInfo.el),
-                                def = elInfo.el._jsPlumbTarget,
-                                newEndpoint = def.endpoint;
+            // register each one in the list.
+            for (var i = 0, ii = inputs.length; i < ii; i++) {
+                _doOne(inputs[i]);
+            }
 
-                            // if no cached endpoint, or there was one but it has been cleaned up
-                            // (ie. detached), then create a new one.
-                            if (newEndpoint == null || newEndpoint._jsPlumb == null) {
-                                newEndpoint = _currentInstance.addEndpoint(_el, p);
-                                newEndpoint._mtNew = true;
-                            }
+            return this;
+        };
 
-                            if (p.uniqueEndpoint) def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
-                            // TODO test options to makeTarget to see if we should do this?
-                            newEndpoint._doNotDeleteOnDetach = false; // reset.
-                            newEndpoint._deleteOnDetach = true;
+        // see api docs
+        this.unmakeTarget = function (el, doNotClearArrays) {
+            var info = _info(el);
+            jsPlumb.destroyDroppable(info.el);
+            if (!doNotClearArrays) {
+                delete this.targetEndpointDefinitions[info.id];
+            }
 
-                            // if connection is detachable, init the new endpoint to be draggable, to support that happening.
-                            if (jpc.isDetachable())
-                                newEndpoint.initDraggable();
+            return this;
+        };
+
+        // see api docs
+        this.makeSource = function (el, params, referenceParams) {
+            var p = jsPlumb.extend({_jsPlumb: this}, referenceParams);
+            jsPlumb.extend(p, params);
+            _setEndpointPaintStylesAndAnchor(p, 0, this);
+            var maxConnections = p.maxConnections || 1,
+                onMaxConnections = p.onMaxConnections,
+                _doOne = function (elInfo) {
+                    // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+                    // and use the endpoint definition if found.
+                    var elid = elInfo.id,
+                        _el = this.getElementObject(elInfo.el),
+                        _del = this.getDOMElement(_el);
+
+                    _ensureContainer(elid);
+
+                    var _def = {
+                        def: p,
+                        uniqueEndpoint: p.uniqueEndpoint,
+                        maxConnections: maxConnections,
+                        enabled: true
+                    };
+                    this.sourceEndpointDefinitions[elid] = _def;
+                    elInfo.el._jsPlumbSource = _def;
+
+                    var stopEvent = jsPlumb.dragEvents.stop,
+                        dragEvent = jsPlumb.dragEvents.drag,
+                        dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
+                        existingDrag = dragOptions.drag,
+                        existingStop = dragOptions.stop,
+                        ep = null,
+                        endpointAddedButNoDragYet = false;
+
+                    // set scope if its not set in dragOptions but was passed in in params
+                    dragOptions.scope = dragOptions.scope || p.scope;
+
+                    dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], function () {
+                        if (existingDrag) existingDrag.apply(this, arguments);
+                        endpointAddedButNoDragYet = false;
+                    });
+
+                    dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], function () {
+
+                        if (existingStop) existingStop.apply(this, arguments);
+                        this.currentlyDragging = false;
+                        if (ep._jsPlumb != null) { // if not cleaned up...
+
+                            // reset the anchor to the anchor that was initially provided. the one we were using to drag
+                            // the connection was just a placeholder that was located at the place the user pressed the
+                            // mouse button to initiate the drag.
+                            var anchorDef = p.anchor || this.Defaults.Anchor,
+                                oldAnchor = ep.anchor,
+                                oldConnection = ep.connections[0],
+                                newAnchor = this.makeAnchor(anchorDef, elid, this),
+                                _el = ep.element;
 
                             // if the anchor has a 'positionFinder' set, then delegate to that function to find
-                            // out where to locate the anchor.
-                            if (newEndpoint.anchor.positionFinder != null) {
-                                var dropPosition = _currentInstance.getUIPosition(arguments, this.getZoom()),
-                                    elPosition = _getOffset(_el, this),
-                                    elSize = _currentInstance.getSize(_el),
-                                    ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
-                                newEndpoint.anchor.x = ap[0];
-                                newEndpoint.anchor.y = ap[1];
-                                // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
-                                // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
-                                // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
-                                // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
-                                // the target is furthest away from the source.
+                            // out where to locate the anchor. issue 117.
+                            if (newAnchor.positionFinder != null) {
+                                var elPosition = _getOffset(_el, this),
+                                    elSize = this.getSize(_el),
+                                    dropPosition = { left: elPosition.left + (oldAnchor.x * elSize[0]), top: elPosition.top + (oldAnchor.y * elSize[1]) },
+                                    ap = newAnchor.positionFinder(dropPosition, elPosition, elSize, newAnchor.constructorParams);
+
+                                newAnchor.x = ap[0];
+                                newAnchor.y = ap[1];
                             }
 
-                            return newEndpoint;
-                        },
-                        maybeCleanup:function(ep) {
-                            if (ep._mtNew && ep.connections.length === 0) {
-                                _currentInstance.deleteObject({endpoint:ep});
-                            }
-                            else
-                            delete ep._mtNew;
+                            ep.setAnchor(newAnchor, true);
+                            ep.repaint();
+                            this.repaint(ep.elementId);
+                            this.repaint(oldConnection.targetId);
                         }
-                    });
-					
-					// wrap drop events as needed and initialise droppable
-					var dropEvent = jsPlumb.dragEvents.drop;
-					dropOptions.scope = dropOptions.scope || targetScope;
-					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);
-					// vanilla jsplumb only
-					if (p.allowLoopback === false) {
-						dropOptions.canDrop = function(_drag) {
-							var de = _drag.getDragElement()._jsPlumbRelatedElement;
-							return de != elInfo.el;
-						};
-					}
-					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, "internal");
-				}.bind(this);
+                    }.bind(this));
 
-			// make an array if only given one element
-			var inputs = el.length && el.constructor != String ? el : [ el ];
-						
-			// register each one in the list.
-			for (var i = 0, ii = inputs.length; i < ii; i++) {							
-				_doOne(inputs[i]);
-			}
-
-			return this;
-		};
-
-		// see api docs
-		this.unmakeTarget = function(el, doNotClearArrays) {
-			var info = _info(el);
-
-			jsPlumb.destroyDroppable(info.el);
-			// TODO this is not an exhaustive unmake of a target, since it does not remove the droppable stuff from
-			// the element.  the effect will be to prevent it from behaving as a target, but it's not completely purged.
-			if (!doNotClearArrays) {
-				delete this.targetEndpointDefinitions[info.id];
-			}
-
-			return this;
-		};						
-
-	    // see api docs
-		this.makeSource = function(el, params, referenceParams) {
-			var p = jsPlumb.extend({}, referenceParams);
-			jsPlumb.extend(p, params);
-			_setEndpointPaintStylesAndAnchor(p, 0, this);
-			var maxConnections = p.maxConnections || 1,
-				onMaxConnections = p.onMaxConnections,
-				_doOne = function(elInfo) {
-					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-					// and use the endpoint definition if found.
-					var elid = elInfo.id,
-						_el = this.getElementObject(elInfo.el),
-						_del = this.getDOMElement(_el),
-						parentElement = function() {
-							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
-						},
-						idToRegisterAgainst = p.parent != null ? this.getId(parentElement()) : elid;
-
-					_ensureContainer(idToRegisterAgainst);
-					
-					this.sourceEndpointDefinitions[idToRegisterAgainst] = {
-						def:p,
-						uniqueEndpoint:p.uniqueEndpoint,
-						maxConnections:maxConnections,
-						enabled:true
-					};
-					var stopEvent = jsPlumb.dragEvents.stop,
-						dragEvent = jsPlumb.dragEvents.drag,
-						dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
-						existingDrag = dragOptions.drag,
-						existingStop = dragOptions.stop,
-						ep = null,
-						endpointAddedButNoDragYet = false;
-
-					// set scope if its not set in dragOptions but was passed in in params
-					dragOptions.scope = dragOptions.scope || p.scope;
-
-					dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], function() {
-						if (existingDrag) existingDrag.apply(this, arguments);
-						endpointAddedButNoDragYet = false;
-					});
-					
-					dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], function() { 
-
-						if (existingStop) existingStop.apply(this, arguments);
-	                    this.currentlyDragging = false;
-						if (ep._jsPlumb != null) { // if not cleaned up...
-									
-							// reset the anchor to the anchor that was initially provided. the one we were using to drag
-							// the connection was just a placeholder that was located at the place the user pressed the
-							// mouse button to initiate the drag.
-							var anchorDef = p.anchor || this.Defaults.Anchor,
-								oldAnchor = ep.anchor,
-								oldConnection = ep.connections[0],
-								newAnchor = this.makeAnchor(anchorDef, elid, this),
-								_el = ep.element;
-
-							// if the anchor has a 'positionFinder' set, then delegate to that function to find
-							// out where to locate the anchor. issue 117.
-							if (newAnchor.positionFinder != null) {
-								var elPosition = _getOffset(_el, this),
-									elSize = this.getSize(_el),
-									dropPosition = { left:elPosition.left + (oldAnchor.x * elSize[0]), top:elPosition.top + (oldAnchor.y * elSize[1]) },
-									ap = newAnchor.positionFinder(dropPosition, elPosition, elSize, newAnchor.constructorParams);
-
-								newAnchor.x = ap[0];
-								newAnchor.y = ap[1];
-							}
-
-							ep.setAnchor(newAnchor, true);
-							
-							if (p.parent) {
-								var parent = parentElement();
-								if (parent) {	
-									var potentialParent = p.container || _container;
-									ep.setElement(parent, potentialParent);
-								}
-							}
-							
-							ep.repaint();
-							this.repaint(ep.elementId);
-							this.repaint(oldConnection.targetId);
-						}
-					}.bind(this));
-					
-					// when the user presses the mouse, add an Endpoint, if we are enabled.
-					var mouseDownListener = function(e) {
-						var evt = this.getOriginalEvent(e);
+                    // when the user presses the mouse, add an Endpoint, if we are enabled.
+                    var mouseDownListener = function (e) {
+                        var evt = this.getOriginalEvent(e);
                         // on right mouse button, abort.
                         if (e.which === 3 || e.button === 2) return;
 
-						var def = this.sourceEndpointDefinitions[idToRegisterAgainst];
-						elid = this.getId(this.getDOMElement(_el)); // elid might have changed since this method was called to configure the element.
-						
-						// if disabled, return.
-						if (!def.enabled) return;
-	                    
-	                    // if a filter was given, run it, and return if it says no.
-						if (p.filter) {
-							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this, p.filterExclude) : p.filter(evt, _el);
-							if (r === false) return;
-						}
-						
-						// if maxConnections reached
-						var sourceCount = this.select({source:idToRegisterAgainst}).length;
-						if (def.maxConnections >= 0 && (def.uniqueEndpoint && sourceCount >= def.maxConnections)) {
-							if (onMaxConnections) {
-								onMaxConnections({
-									element:_el,
-									maxConnections:maxConnections
-								}, e);
-							}
-							return false;
-						}
+                        // TODO store def on element.
+                        var def = this.sourceEndpointDefinitions[elid];
 
-						// find the position on the element at which the mouse was pressed; this is where the endpoint 
-						// will be located.
-						var elxy = jsPlumbAdapter.getPositionOnElement(evt, _del, _zoom), pelxy = elxy;
+                        // if disabled, return.
+                        if (!def.enabled) return;
 
-						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
-						// the params passed in, because after a connection is established we're going to reset the endpoint
-						// to have the anchor we were given.
-						var tempEndpointParams = {};
-						jsPlumb.extend(tempEndpointParams, p);
-						tempEndpointParams.isTemporarySource = true;
-						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
-						tempEndpointParams.dragOptions = dragOptions;
+                        elid = this.getId(this.getDOMElement(_el)); // elid might have changed since this method was called to configure the element.
 
-						ep = this.addEndpoint(elid, tempEndpointParams);
-						endpointAddedButNoDragYet = true;
-						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
+                        // if a filter was given, run it, and return if it says no.
+                        if (p.filter) {
+                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this, p.filterExclude) : p.filter(evt, _el);
+                            if (r === false) return;
+                        }
+
+                        // if maxConnections reached
+                        var sourceCount = this.select({source: elid}).length;
+                        if (def.maxConnections >= 0 && (def.uniqueEndpoint && sourceCount >= def.maxConnections)) {
+                            if (onMaxConnections) {
+                                onMaxConnections({
+                                    element: _el,
+                                    maxConnections: maxConnections
+                                }, e);
+                            }
+                            return false;
+                        }
+
+                        // find the position on the element at which the mouse was pressed; this is where the endpoint
+                        // will be located.
+                        var elxy = jsPlumbAdapter.getPositionOnElement(evt, _del, _zoom), pelxy = elxy;
+
+                        // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+                        // the params passed in, because after a connection is established we're going to reset the endpoint
+                        // to have the anchor we were given.
+                        var tempEndpointParams = {};
+                        jsPlumb.extend(tempEndpointParams, p);
+                        tempEndpointParams.isTemporarySource = true;
+                        tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
+                        tempEndpointParams.dragOptions = dragOptions;
+
+                        ep = this.addEndpoint(elid, tempEndpointParams);
+                        endpointAddedButNoDragYet = true;
 
                         // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
                         // of a successful connection we'll switch to that endpoint.
@@ -5344,78 +5378,83 @@
                                 ep.finalEndpoint = def.endpoint;
                         }
 
-						// TODO test options to makeSource to see if we should do this?
-						ep._doNotDeleteOnDetach = false; // reset.
-						ep._deleteOnDetach = true;
+                        // TODO test options to makeSource to see if we should do this?
+                        ep._doNotDeleteOnDetach = false; // reset.
+                        ep._deleteOnDetach = true;
 
-	                    var _delTempEndpoint = function() {
-							// this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
-							// it is fired even if dragging has occurred, in which case we would blow away a perfectly
-							// legitimate endpoint, were it not for this check.  the flag is set after adding an
-							// endpoint and cleared in a drag listener we set in the dragOptions above.
-                            _currentInstance.off(ep.canvas, "mouseup",  _delTempEndpoint);
+                        var _delTempEndpoint = function () {
+                            // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
+                            // it is fired even if dragging has occurred, in which case we would blow away a perfectly
+                            // legitimate endpoint, were it not for this check.  the flag is set after adding an
+                            // endpoint and cleared in a drag listener we set in the dragOptions above.
+                            _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
                             _currentInstance.off(_el, "mouseup", _delTempEndpoint);
-							if(endpointAddedButNoDragYet) {
-								 endpointAddedButNoDragYet = false;
-								_currentInstance.deleteEndpoint(ep);
-	                        }
-						};
+                            if (endpointAddedButNoDragYet) {
+                                endpointAddedButNoDragYet = false;
+                                _currentInstance.deleteEndpoint(ep);
+                            }
+                        };
 
-						_currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
-	                    _currentInstance.on(_el, "mouseup", _delTempEndpoint);
-						
-						// and then trigger its mousedown event, which will kick off a drag, which will start dragging
-						// a new connection from this endpoint.
-						_currentInstance.trigger(ep.canvas, "mousedown", e);
+                        _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
+                        _currentInstance.on(_el, "mouseup", _delTempEndpoint);
 
-						jsPlumbUtil.consume(e);
-						
-					}.bind(this);
-	               
-	                this.on(_el, "mousedown", mouseDownListener);
-	                this.sourceEndpointDefinitions[idToRegisterAgainst].trigger = mouseDownListener;
+                        // and then trigger its mousedown event, which will kick off a drag, which will start dragging
+                        // a new connection from this endpoint.
+                        _currentInstance.trigger(ep.canvas, "mousedown", e);
 
-	                // lastly, if a filter was provided, set it as a dragFilter on the element,
-	                // to prevent the element drag function from kicking in when we want to
-	                // drag a new connection
-	                if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
-	                	_currentInstance.setDragFilter(_el, p.filter);
-	                }
-				}.bind(this);
-			
-			var inputs = el.length && el.constructor != String ? el : [ el ];
-			for (var i = 0, ii = inputs.length; i < ii; i++) {
-				_doOne(_info(inputs[i]));
-			}
+                        jsPlumbUtil.consume(e);
 
-			return this;
-		};
-	
-		// see api docs		
-		this.unmakeSource = function(el, doNotClearArrays) {
-			var info = _info(el),
-				mouseDownListener = this.sourceEndpointDefinitions[info.id].trigger;
-			
-			if (mouseDownListener) 
-				_currentInstance.off(info.el, "mousedown", mouseDownListener);
+                    }.bind(this);
 
-			if (!doNotClearArrays) {
-				delete this.sourceEndpointDefinitions[info.id];
-			}
+                    this.on(_el, "mousedown", mouseDownListener);
+                    _def.trigger = mouseDownListener;
 
-			return this;
-		};
+                    // if a filter was provided, set it as a dragFilter on the element,
+                    // to prevent the element drag function from kicking in when we want to
+                    // drag a new connection
+                    if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
+                        _currentInstance.setDragFilter(_el, p.filter);
+                    }
 
-		// see api docs
-		this.unmakeEverySource = function() {
-			for (var i in this.sourceEndpointDefinitions)
-				_currentInstance.unmakeSource(i, true);
+                    var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 
-			this.sourceEndpointDefinitions = {};
-			return this;
-		};
+                    _makeElementDropHandler(elInfo, p, dropOptions, true, p.isTarget === true, "_jsPlumbSource");
 
-        var _getScope = function(el, types) {
+                }.bind(this);
+
+            var inputs = el.length && el.constructor != String ? el : [ el ];
+            for (var i = 0, ii = inputs.length; i < ii; i++) {
+                _doOne(_info(inputs[i]));
+            }
+
+            return this;
+        };
+
+        // see api docs
+        this.unmakeSource = function (el, doNotClearArrays) {
+            var info = _info(el),
+                mouseDownListener = this.sourceEndpointDefinitions[info.id].trigger;
+
+            if (mouseDownListener)
+                _currentInstance.off(info.el, "mousedown", mouseDownListener);
+
+            if (!doNotClearArrays) {
+                delete this.sourceEndpointDefinitions[info.id];
+            }
+
+            return this;
+        };
+
+        // see api docs
+        this.unmakeEverySource = function () {
+            for (var i in this.sourceEndpointDefinitions)
+                _currentInstance.unmakeSource(i, true);
+
+            this.sourceEndpointDefinitions = {};
+            return this;
+        };
+
+        var _getScope = function (el, types) {
             types = jsPlumbUtil.isArray(types) ? types : [ types ];
             var id = _getId(el);
             for (var i = 0; i < types.length; i++) {
@@ -5424,7 +5463,7 @@
             }
         }.bind(this);
 
-        var _setScope = function(el, scope, types) {
+        var _setScope = function (el, scope, types) {
             types = jsPlumbUtil.isArray(types) ? types : [ types ];
             var id = _getId(el);
             for (var i = 0; i < types.length; i++) {
@@ -5437,198 +5476,214 @@
 
         }.bind(this);
 
-        this.getScope = function(el, scope) { return _getScope(el, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]); };
-        this.getSourceScope = function(el) { return _getScope(el, "sourceEndpointDefinitions"); };
-        this.getTargetScope = function(el) { return _getScope(el, "targetEndpointDefinitions"); };
-        this.setScope = function(el, scope) { _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]); };
-        this.setSourceScope = function(el, scope) { _setScope(el, scope, "sourceEndpointDefinitions"); };
-        this.setTargetScope = function(el, scope) { _setScope(el, scope, "targetEndpointDefinitions"); };
-		
-		// see api docs
-		this.unmakeEveryTarget = function() {
-			for (var i in this.targetEndpointDefinitions)
-				_currentInstance.unmakeTarget(i, true);
-			
-			this.targetEndpointDefinitions = {};
-			return this;
-		};
+        this.getScope = function (el, scope) {
+            return _getScope(el, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]);
+        };
+        this.getSourceScope = function (el) {
+            return _getScope(el, "sourceEndpointDefinitions");
+        };
+        this.getTargetScope = function (el) {
+            return _getScope(el, "targetEndpointDefinitions");
+        };
+        this.setScope = function (el, scope) {
+            _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]);
+        };
+        this.setSourceScope = function (el, scope) {
+            _setScope(el, scope, "sourceEndpointDefinitions");
+        };
+        this.setTargetScope = function (el, scope) {
+            _setScope(el, scope, "targetEndpointDefinitions");
+        };
 
-		// does the work of setting a source enabled or disabled.
-		var _setEnabled = function(type, el, state, toggle) {
-			var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions;
+        // see api docs
+        this.unmakeEveryTarget = function () {
+            for (var i in this.targetEndpointDefinitions)
+                _currentInstance.unmakeTarget(i, true);
 
-			if (_ju.isString(el)) a[el].enabled = toggle ? !a[el].enabled : state;
-			else if (el.length) {				
-				for (var i = 0, ii = el.length; i < ii; i++) {
-					var info = _info(el[i]);
-					if (a[info.id])
-						a[info.id].enabled = toggle ? !a[info.id].enabled : state;
-				}
-			}	
-			// otherwise a DOM element
-			else {
-				var id = _info(el).id;
-				a[id].enabled = toggle ? !a[id].enabled : state;
-			}
-			return this;
-		}.bind(this);
-		
-		var _first = function(el, fn) {
-			if (_ju.isString(el) || !el.length)
-				return fn.apply(this, [ el ]);
-			else if (el.length) 
-				return fn.apply(this, [ el[0] ]);
-				
-		}.bind(this);
+            this.targetEndpointDefinitions = {};
+            return this;
+        };
 
-		this.toggleSourceEnabled = function(el) {
-			_setEnabled("source", el, null, true);
-			return this.isSourceEnabled(el);
-		};
+        // does the work of setting a source enabled or disabled.
+        var _setEnabled = function (type, el, state, toggle) {
+            var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions;
 
-		this.setSourceEnabled = function(el, state) { return _setEnabled("source", el, state); };
-		this.isSource = function(el) { 
-			return _first(el, function(_el) { 
-				return this.sourceEndpointDefinitions[_info(_el).id] != null; 
+            if (_ju.isString(el)) a[el].enabled = toggle ? !a[el].enabled : state;
+            else if (el.length) {
+                for (var i = 0, ii = el.length; i < ii; i++) {
+                    var info = _info(el[i]);
+                    if (a[info.id])
+                        a[info.id].enabled = toggle ? !a[info.id].enabled : state;
+                }
+            }
+            // otherwise a DOM element
+            else {
+                var id = _info(el).id;
+                a[id].enabled = toggle ? !a[id].enabled : state;
+            }
+            return this;
+        }.bind(this);
+
+        var _first = function (el, fn) {
+            if (_ju.isString(el) || !el.length)
+                return fn.apply(this, [ el ]);
+            else if (el.length)
+                return fn.apply(this, [ el[0] ]);
+
+        }.bind(this);
+
+        this.toggleSourceEnabled = function (el) {
+            _setEnabled("source", el, null, true);
+            return this.isSourceEnabled(el);
+        };
+
+        this.setSourceEnabled = function (el, state) {
+            return _setEnabled("source", el, state);
+        };
+        this.isSource = function (el) {
+            return _first(el, function (_el) {
+                return this.sourceEndpointDefinitions[_info(_el).id] != null;
             }.bind(this));
-		};
-		this.isSourceEnabled = function(el) { 
-			return _first(el, function(_el) {
-				var sep = this.sourceEndpointDefinitions[_info(_el).id];
-				return sep && sep.enabled === true;
+        };
+        this.isSourceEnabled = function (el) {
+            return _first(el, function (_el) {
+                var sep = this.sourceEndpointDefinitions[_info(_el).id];
+                return sep && sep.enabled === true;
             }.bind(this));
-		};
+        };
 
-		this.toggleTargetEnabled = function(el) {
-			_setEnabled("target", el, null, true);
-			return this.isTargetEnabled(el);
-		};
-		
-		this.isTarget = function(el) { 
-			return _first(el, function(_el) {
-				return this.targetEndpointDefinitions[_info(_el).id] != null; 
+        this.toggleTargetEnabled = function (el) {
+            _setEnabled("target", el, null, true);
+            return this.isTargetEnabled(el);
+        };
+
+        this.isTarget = function (el) {
+            return _first(el, function (_el) {
+                return this.targetEndpointDefinitions[_info(_el).id] != null;
             }.bind(this));
-		};
-		this.isTargetEnabled = function(el) { 
-			return _first(el, function(_el) {
-				var tep = this.targetEndpointDefinitions[_info(_el).id];
-				return tep && tep.enabled === true;
+        };
+        this.isTargetEnabled = function (el) {
+            return _first(el, function (_el) {
+                var tep = this.targetEndpointDefinitions[_info(_el).id];
+                return tep && tep.enabled === true;
             }.bind(this));
-		};
-		this.setTargetEnabled = function(el, state) { return _setEnabled("target", el, state); };
+        };
+        this.setTargetEnabled = function (el, state) {
+            return _setEnabled("target", el, state);
+        };
 
 // --------------------- end makeSource/makeTarget ---------------------------------------------- 				
-				
-		this.ready = function(fn) {
-			_currentInstance.bind("ready", fn);
-		};
 
-		// repaint some element's endpoints and connections
-		this.repaint = function(el, ui, timestamp) {
-			// support both lists...
-			if (typeof el == 'object' && el.length)
-				for ( var i = 0, ii = el.length; i < ii; i++) {
-					_draw(el[i], ui, timestamp);
-				}
-			else // ...and single strings.
-				_draw(el, ui, timestamp);
-				
-			return _currentInstance;
-		};
+        this.ready = function (fn) {
+            _currentInstance.bind("ready", fn);
+        };
 
-        this.revalidate = function(el) {
+        // repaint some element's endpoints and connections
+        this.repaint = function (el, ui, timestamp) {
+            // support both lists...
+            if (typeof el == 'object' && el.length)
+                for (var i = 0, ii = el.length; i < ii; i++) {
+                    _draw(el[i], ui, timestamp);
+                }
+            else // ...and single strings.
+                _draw(el, ui, timestamp);
+
+            return _currentInstance;
+        };
+
+        this.revalidate = function (el) {
             var elId = _currentInstance.getId(el);
-            _currentInstance.updateOffset( { elId : elId, recalc : true } );
+            _currentInstance.updateOffset({ elId: elId, recalc: true });
             return _currentInstance.repaint(el);
         };
 
-		// repaint every endpoint and connection.
-		this.repaintEverything = function(clearEdits) {	
-			// TODO this timestamp causes continuous anchors to not repaint properly.
-			// fix this. do not just take out the timestamp. it runs a lot faster with 
-			// the timestamp included.
-			//var timestamp = null;
-			var timestamp = _timestamp(), elId;
+        // repaint every endpoint and connection.
+        this.repaintEverything = function (clearEdits) {
+            // TODO this timestamp causes continuous anchors to not repaint properly.
+            // fix this. do not just take out the timestamp. it runs a lot faster with
+            // the timestamp included.
+            //var timestamp = null;
+            var timestamp = _timestamp(), elId;
 
             for (elId in endpointsByElement) {
-                _currentInstance.updateOffset( { elId : elId, recalc : true, timestamp:timestamp } );
+                _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp: timestamp });
             }
 
-			for (elId in endpointsByElement) {
-				_draw(elId, null, timestamp, clearEdits);
-			}
-			return this;
-		};
+            for (elId in endpointsByElement) {
+                _draw(elId, null, timestamp, clearEdits);
+            }
+            return this;
+        };
 
-		this.removeAllEndpoints = function(el, recurse) {
-            var _one = function(_el) {
+        this.removeAllEndpoints = function (el, recurse) {
+            var _one = function (_el) {
                 var info = _info(_el),
                     ebe = endpointsByElement[info.id],
                     i, ii;
 
                 if (ebe) {
-                    for ( i = 0, ii = ebe.length; i < ii; i++) 
+                    for (i = 0, ii = ebe.length; i < ii; i++)
                         _currentInstance.deleteEndpoint(ebe[i]);
                 }
                 delete endpointsByElement[info.id];
-                
+
                 if (recurse) {
-                    if (info.el && info.el.nodeType != 3 && info.el.nodeType != 8 ) {
-                        for ( i = 0, ii = info.el.childNodes.length; i < ii; i++) {
+                    if (info.el && info.el.nodeType != 3 && info.el.nodeType != 8) {
+                        for (i = 0, ii = info.el.childNodes.length; i < ii; i++) {
                             _one(info.el.childNodes[i]);
                         }
                     }
                 }
-                
+
             };
             _one(el);
-			return this;
-		};
-                    
+            return this;
+        };
+
         /**
-        * Remove the given element, including cleaning up all endpoints registered for it.
-        * This is exposed in the public API but also used internally by jsPlumb when removing the
-        * element associated with a connection drag.
-        */
-        this.remove = function(el, doNotRepaint) {
-        	var info = _info(el);        	
-            _currentInstance.doWhileSuspended(function() {
-            	_currentInstance.removeAllEndpoints(info.id, true);
-            	_currentInstance.dragManager.elementRemoved(info.id);
-            	delete _currentInstance.floatingConnections[info.id];
-            	_currentInstance.anchorManager.clearFor(info.id);						
-            	_currentInstance.anchorManager.removeFloatingConnection(info.id);
+         * Remove the given element, including cleaning up all endpoints registered for it.
+         * This is exposed in the public API but also used internally by jsPlumb when removing the
+         * element associated with a connection drag.
+         */
+        this.remove = function (el, doNotRepaint) {
+            var info = _info(el);
+            _currentInstance.doWhileSuspended(function () {
+                _currentInstance.removeAllEndpoints(info.id, true);
+                _currentInstance.dragManager.elementRemoved(info.id);
+                delete _currentInstance.floatingConnections[info.id];
+                _currentInstance.anchorManager.clearFor(info.id);
+                _currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
             _unmanage(info.id);
-            if (info.el){
+            if (info.el) {
                 _currentInstance.removeElement(info.el);
                 info.el._jsPlumb = null;
             }
-			return _currentInstance;
+            return _currentInstance;
         };
-		
-		this.reset = function() {
-            _currentInstance.setSuspendEvents(true);
-			_currentInstance.deleteEveryEndpoint();
-            _currentInstance.unbind();
-			this.targetEndpointDefinitions = {};
-			this.sourceEndpointDefinitions = {};
-			connections.length = 0;
-            _currentInstance.setSuspendEvents(false);
-		};
 
-        var _clearObject = function(obj) {
-            if(obj.canvas && obj.canvas.parentNode)
-                   obj.canvas.parentNode.removeChild(obj.canvas);
+        this.reset = function () {
+            _currentInstance.setSuspendEvents(true);
+            _currentInstance.deleteEveryEndpoint();
+            _currentInstance.unbind();
+            this.targetEndpointDefinitions = {};
+            this.sourceEndpointDefinitions = {};
+            connections.length = 0;
+            _currentInstance.setSuspendEvents(false);
+        };
+
+        var _clearObject = function (obj) {
+            if (obj.canvas && obj.canvas.parentNode)
+                obj.canvas.parentNode.removeChild(obj.canvas);
             obj.cleanup();
             obj.destroy();
         };
 
-        var _clearOverlayObject = function(obj) {
+        var _clearOverlayObject = function (obj) {
             _clearObject(obj);
         };
 
-        this.clear = function() {
+        this.clear = function () {
             _currentInstance.select().each(_clearOverlayObject);
             _currentInstance.selectEndpoints().each(_clearOverlayObject);
 
@@ -5636,217 +5691,227 @@
             endpointsByUUID = {};
         };
 
-		this.setDefaultScope = function(scope) {
-			DEFAULT_SCOPE = scope;
-			return _currentInstance;
-		};
+        this.setDefaultScope = function (scope) {
+            DEFAULT_SCOPE = scope;
+            return _currentInstance;
+        };
 
-		// sets whether or not some element should be currently draggable.
-		this.setDraggable = _setDraggable;
+        // sets whether or not some element should be currently draggable.
+        this.setDraggable = _setDraggable;
 
-		// sets the id of some element, changing whatever we need to to keep track.
-		this.setId = function(el, newId, doNotSetAttribute) {
-			// 
-			var id;
+        // sets the id of some element, changing whatever we need to to keep track.
+        this.setId = function (el, newId, doNotSetAttribute) {
+            //
+            var id;
 
-			if (jsPlumbUtil.isString(el)) {
-				id = el;
-			}
-			else {
-				el = this.getDOMElement(el);
-				id = this.getId(el);
-			}
+            if (jsPlumbUtil.isString(el)) {
+                id = el;
+            }
+            else {
+                el = this.getDOMElement(el);
+                id = this.getId(el);
+            }
 
-			var sConns = this.getConnections({source:id, scope:'*'}, true),
-				tConns = this.getConnections({target:id, scope:'*'}, true);
+            var sConns = this.getConnections({source: id, scope: '*'}, true),
+                tConns = this.getConnections({target: id, scope: '*'}, true);
 
-			newId = "" + newId;
+            newId = "" + newId;
 
-			if (!doNotSetAttribute) {
-				el = this.getDOMElement(id);
-				this.setAttribute(el, "id", newId);
-			}
-			else
-				el = this.getDOMElement(newId);
+            if (!doNotSetAttribute) {
+                el = this.getDOMElement(id);
+                this.setAttribute(el, "id", newId);
+            }
+            else
+                el = this.getDOMElement(newId);
 
-			endpointsByElement[newId] = endpointsByElement[id] || [];
-			for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
-				endpointsByElement[newId][i].setElementId(newId);
-				endpointsByElement[newId][i].setReferenceElement(el);
-			}
-			delete endpointsByElement[id];
+            endpointsByElement[newId] = endpointsByElement[id] || [];
+            for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
+                endpointsByElement[newId][i].setElementId(newId);
+                endpointsByElement[newId][i].setReferenceElement(el);
+            }
+            delete endpointsByElement[id];
 
-			this.anchorManager.changeId(id, newId);
-			if (this.dragManager) this.dragManager.changeId(id, newId);
+            this.anchorManager.changeId(id, newId);
+            if (this.dragManager) this.dragManager.changeId(id, newId);
             managedElements[newId] = managedElements[id];
             delete managedElements[id];
 
-			var _conns = function(list, epIdx, type) {
-				for (var i = 0, ii = list.length; i < ii; i++) {
-					list[i].endpoints[epIdx].setElementId(newId);
-					list[i].endpoints[epIdx].setReferenceElement(el);
-					list[i][type + "Id"] = newId;
-					list[i][type] = el;
-				}
-			};
-			_conns(sConns, 0, "source");
-			_conns(tConns, 1, "target");
+            var _conns = function (list, epIdx, type) {
+                for (var i = 0, ii = list.length; i < ii; i++) {
+                    list[i].endpoints[epIdx].setElementId(newId);
+                    list[i].endpoints[epIdx].setReferenceElement(el);
+                    list[i][type + "Id"] = newId;
+                    list[i][type] = el;
+                }
+            };
+            _conns(sConns, 0, "source");
+            _conns(tConns, 1, "target");
 
-			this.repaint(newId);
-		};
+            this.repaint(newId);
+        };
 
-		this.setDebugLog = function(debugLog) {
-			log = debugLog;
-		};
+        this.setDebugLog = function (debugLog) {
+            log = debugLog;
+        };
 
-		this.setSuspendDrawing = function(val, repaintAfterwards) {
-			var curVal = _suspendDrawing;
-		    _suspendDrawing = val;
-				if (val) _suspendedAt = new Date().getTime(); else _suspendedAt = null;
-		    if (repaintAfterwards) this.repaintEverything();
-		    return curVal;
-		};
+        this.setSuspendDrawing = function (val, repaintAfterwards) {
+            var curVal = _suspendDrawing;
+            _suspendDrawing = val;
+            if (val) _suspendedAt = new Date().getTime(); else _suspendedAt = null;
+            if (repaintAfterwards) this.repaintEverything();
+            return curVal;
+        };
 
         // returns whether or not drawing is currently suspended.
-		this.isSuspendDrawing = function() {
-			return _suspendDrawing;
-		};
+        this.isSuspendDrawing = function () {
+            return _suspendDrawing;
+        };
 
         // return timestamp for when drawing was suspended.
-        this.getSuspendedAt = function() { return _suspendedAt; };
+        this.getSuspendedAt = function () {
+            return _suspendedAt;
+        };
 
-        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {
-        	var _wasSuspended = this.isSuspendDrawing();
-        	if (!_wasSuspended)
-				this.setSuspendDrawing(true);
-			try {
-				fn();
-			}
-			catch (e) {
-				_ju.log("Function run while suspended failed", e);
-			}
-			if (!_wasSuspended)
-				this.setSuspendDrawing(false, !doNotRepaintAfterwards);
-		};
+        this.doWhileSuspended = function (fn, doNotRepaintAfterwards) {
+            var _wasSuspended = this.isSuspendDrawing();
+            if (!_wasSuspended)
+                this.setSuspendDrawing(true);
+            try {
+                fn();
+            }
+            catch (e) {
+                _ju.log("Function run while suspended failed", e);
+            }
+            if (!_wasSuspended)
+                this.setSuspendDrawing(false, !doNotRepaintAfterwards);
+        };
 
-		this.getOffset = function(elId) { return offsets[elId]; };
-		this.getCachedData = _getCachedData;
-		this.timestamp = _timestamp;
-		this.setRenderMode = function(mode) {
-			if (mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new TypeError("Render mode [" + mode + "] not supported");
-			renderMode = jsPlumbAdapter.setRenderMode(mode);
-			return renderMode;
-		};
-		this.getRenderMode = function() { return renderMode; };
-		this.show = function(el, changeEndpoints) {
-			_setVisible(el, "block", changeEndpoints);
-			return _currentInstance;
-		};
+        this.getOffset = function (elId) {
+            return offsets[elId];
+        };
+        this.getCachedData = _getCachedData;
+        this.timestamp = _timestamp;
+        this.setRenderMode = function (mode) {
+            if (mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new TypeError("Render mode [" + mode + "] not supported");
+            renderMode = jsPlumbAdapter.setRenderMode(mode);
+            return renderMode;
+        };
+        this.getRenderMode = function () {
+            return renderMode;
+        };
+        this.show = function (el, changeEndpoints) {
+            _setVisible(el, "block", changeEndpoints);
+            return _currentInstance;
+        };
 
-		// TODO: update this method to return the current state.
-		this.toggleVisible = _toggleVisible;
-		this.toggleDraggable = _toggleDraggable;
-		this.addListener = this.bind;
+        // TODO: update this method to return the current state.
+        this.toggleVisible = _toggleVisible;
+        this.toggleDraggable = _toggleDraggable;
+        this.addListener = this.bind;
 
-		if (!jsPlumbAdapter.headless) {
-			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
-			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-		}
-	};
+        if (!jsPlumbAdapter.headless) {
+            _currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
+            _currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
+        }
+    };
 
     jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
-    	setAttribute : function(el, a, v) {
-    		this.setAttribute(el, a, v);
-    	},
-    	getAttribute : function(el, a) {
-    		return this.getAttribute(jsPlumb.getDOMElement(el), a);
-    	},    	
-    	registerConnectionType : function(id, type) {
-    		this._connectionTypes[id] = jsPlumb.extend({}, type);
-    	},    	
-    	registerConnectionTypes : function(types) {
-    		for (var i in types)
-    			this._connectionTypes[i] = jsPlumb.extend({}, types[i]);
-    	},
-    	registerEndpointType : function(id, type) {
-    		this._endpointTypes[id] = jsPlumb.extend({}, type);
-    	},    	
-    	registerEndpointTypes : function(types) {
-    		for (var i in types)
-    			this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
-    	},    	
-    	getType : function(id, typeDescriptor) {
-    		return typeDescriptor ===  "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
-    	},
-    	setIdChanged : function(oldId, newId) {
-    		this.setId(oldId, newId, true);
-    	},
-    	// set parent: change the parent for some node and update all the registrations we need to.
-    	setParent : function(el, newParent) {
-    		var _el = this.getElementObject(el),
-    			_dom = this.getDOMElement(_el),
-    			_id = this.getId(_dom),
-    			_pel = this.getElementObject(newParent),
-    			_pdom = this.getDOMElement(_pel),
-    			_pid = this.getId(_pdom);
+        setAttribute: function (el, a, v) {
+            this.setAttribute(el, a, v);
+        },
+        getAttribute: function (el, a) {
+            return this.getAttribute(jsPlumb.getDOMElement(el), a);
+        },
+        registerConnectionType: function (id, type) {
+            this._connectionTypes[id] = jsPlumb.extend({}, type);
+        },
+        registerConnectionTypes: function (types) {
+            for (var i in types)
+                this._connectionTypes[i] = jsPlumb.extend({}, types[i]);
+        },
+        registerEndpointType: function (id, type) {
+            this._endpointTypes[id] = jsPlumb.extend({}, type);
+        },
+        registerEndpointTypes: function (types) {
+            for (var i in types)
+                this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
+        },
+        getType: function (id, typeDescriptor) {
+            return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
+        },
+        setIdChanged: function (oldId, newId) {
+            this.setId(oldId, newId, true);
+        },
+        // set parent: change the parent for some node and update all the registrations we need to.
+        setParent: function (el, newParent) {
+            var _el = this.getElementObject(el),
+                _dom = this.getDOMElement(_el),
+                _id = this.getId(_dom),
+                _pel = this.getElementObject(newParent),
+                _pdom = this.getDOMElement(_pel),
+                _pid = this.getId(_pdom);
 
-    		_dom.parentNode.removeChild(_dom);
-    		_pdom.appendChild(_dom);
-    		this.dragManager.setParent(_el, _id, _pel, _pid);
-    	},
-		/**
-		 * gets the size for the element, in an array : [ width, height ].
-		 */
-		getSize : function(el) {
-			return [ el.offsetWidth, el.offsetHeight ];
-		},
-		getWidth : function(el) {
-			return el.offsetWidth;
-		},
-		getHeight : function(el) {
-			return el.offsetHeight;
-		},
-		extend : function(o1, o2, names) {
-			var i;
-			if (names) {
-				for (i = 0; i < names.length; i++)
-					o1[names[i]] = o2[names[i]];
-			}
-			else
-				for (i in o2) o1[i] = o2[i];
-			return o1;
-		},
-        floatingConnections:{},
-        getFloatingAnchorIndex : function(jpc) {
+            _dom.parentNode.removeChild(_dom);
+            _pdom.appendChild(_dom);
+            this.dragManager.setParent(_el, _id, _pel, _pid);
+        },
+        /**
+         * gets the size for the element, in an array : [ width, height ].
+         */
+        getSize: function (el) {
+            return [ el.offsetWidth, el.offsetHeight ];
+        },
+        getWidth: function (el) {
+            return el.offsetWidth;
+        },
+        getHeight: function (el) {
+            return el.offsetHeight;
+        },
+        extend: function (o1, o2, names) {
+            var i;
+            if (names) {
+                for (i = 0; i < names.length; i++)
+                    o1[names[i]] = o2[names[i]];
+            }
+            else
+                for (i in o2) o1[i] = o2[i];
+            return o1;
+        },
+        floatingConnections: {},
+        getFloatingAnchorIndex: function (jpc) {
             return jpc.endpoints[0].isFloating() ? 0 : 1;
         }
     }, jsPlumbAdapter);
 
 // --------------------- static instance + AMD registration -------------------------------------------	
-	
+
 // create static instance and assign to window if window exists.	
-	var jsPlumb = new jsPlumbInstance();
-	// register on window if defined (lets us run on server)
-	if (typeof window != 'undefined') window.jsPlumb = jsPlumb;	
-	// add 'getInstance' method to static instance
-	jsPlumb.getInstance = function(_defaults) {
-		var j = new jsPlumbInstance(_defaults);
-		j.init();
-		return j;
-	};
+    var jsPlumb = new jsPlumbInstance();
+    // register on window if defined (lets us run on server)
+    if (typeof window != 'undefined') window.jsPlumb = jsPlumb;
+    // add 'getInstance' method to static instance
+    jsPlumb.getInstance = function (_defaults) {
+        var j = new jsPlumbInstance(_defaults);
+        j.init();
+        return j;
+    };
 // maybe register static instance as an AMD module, and getInstance method too.
-	if ( typeof define === "function") {
-		define( "jsplumb", [], function () { return jsPlumb; } );
-		define( "jsplumbinstance", [], function () { return jsPlumb.getInstance(); } );
-	}
- // CommonJS 
-	if (typeof exports !== 'undefined') {
-      exports.jsPlumb = jsPlumb;
-  	}
-	
-	
+    if (typeof define === "function") {
+        define("jsplumb", [], function () {
+            return jsPlumb;
+        });
+        define("jsplumbinstance", [], function () {
+            return jsPlumb.getInstance();
+        });
+    }
+    // CommonJS
+    if (typeof exports !== 'undefined') {
+        exports.jsPlumb = jsPlumb;
+    }
+
+
 // --------------------- end static instance + AMD registration -------------------------------------------		
-	
+
 })();
 
 /*
@@ -5865,60 +5930,60 @@
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;(function() {
-    
+(function () {
+
     "use strict";
-        
+
     // create the drag handler for a connection
-    var _makeConnectionDragHandler = function(placeholder, _jsPlumb) {
+    var _makeConnectionDragHandler = function (placeholder, _jsPlumb) {
         var stopped = false;
         return {
-            drag : function() {
+            drag: function () {
                 if (stopped) {
                     stopped = false;
                     return true;
                 }
                 var _ui = jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
-        
+
                 if (placeholder.element) {
-                    jsPlumbAdapter.setPosition(placeholder.element, _ui);                    
+                    jsPlumbAdapter.setPosition(placeholder.element, _ui);
                     _jsPlumb.repaint(placeholder.element, _ui);
                 }
             },
-            stopDrag : function() {
+            stopDrag: function () {
                 stopped = true;
             }
         };
     };
-        
+
     // creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.    
-    var _makeDraggablePlaceholder = function(placeholder, _jsPlumb) {
+    var _makeDraggablePlaceholder = function (placeholder, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
         var parent = _jsPlumb.getContainer() || document.body;
         parent.appendChild(n);
         var id = _jsPlumb.getId(n);
         //_jsPlumb.updateOffset( { elId : id });
-        _jsPlumb.manage( id, n );
+        _jsPlumb.manage(id, n);
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
         placeholder.element = n;
     };
-    
+
     // create a floating endpoint (for drag connections)
-    var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, _jsPlumb, _newEndpoint, scope) {
-        var floatingAnchor = new jsPlumb.FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas, jsPlumbInstance:_jsPlumb });
+    var _makeFloatingEndpoint = function (paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, _jsPlumb, _newEndpoint, scope) {
+        var floatingAnchor = new jsPlumb.FloatingAnchor({ reference: referenceAnchor, referenceCanvas: referenceCanvas, jsPlumbInstance: _jsPlumb });
         //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
         // adding the floating endpoint as a droppable.  that makes more sense anyway!
-        return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:scope });
+        return _newEndpoint({ paintStyle: paintStyle, endpoint: endpoint, anchor: floatingAnchor, source: sourceElement, scope: scope });
     };
 
     var typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays",
-                "connector", "connectionType", "connectorClass", "connectorHoverClass" ];
+        "connector", "connectionType", "connectorClass", "connectorHoverClass" ];
 
     // a helper function that tries to find a connection to the given element, and returns it if so. if elementWithPrecedence is null,
     // or no connection to it is found, we return the first connection in our list.
-    var findConnectionToUseForDynamicAnchor = function(ep, elementWithPrecedence) {
+    var findConnectionToUseForDynamicAnchor = function (ep, elementWithPrecedence) {
         var idx = 0;
         if (elementWithPrecedence != null) {
             for (var i = 0; i < ep.connections.length; i++) {
@@ -5928,66 +5993,68 @@
                 }
             }
         }
-        
+
         return ep.connections[idx];
     };
 
-    var findConnectionIndex = function(conn, ep) {
-        return jsPlumbUtil.findWithFunction(ep.connections, function(c) { return c.id == conn.id; });
+    var findConnectionIndex = function (conn, ep) {
+        return jsPlumbUtil.findWithFunction(ep.connections, function (c) {
+            return c.id == conn.id;
+        });
     };
 
-    jsPlumb.Endpoint = function(params) {
+    jsPlumb.Endpoint = function (params) {
         var _jsPlumb = params._jsPlumb,
-            _gel = jsPlumb.getElementObject,            
-            _ju = jsPlumbUtil,            
+            _gel = jsPlumb.getElementObject,
+            _ju = jsPlumbUtil,
             _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
             _finaliseConnection = params.finaliseConnection,
             _fireMoveEvent = params.fireMoveEvent;
-        
-        this.idPrefix = "_jsplumb_e_";			
+
+        this.idPrefix = "_jsplumb_e_";
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
-        
+        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+
 // TYPE		
-                
-        this.getDefaultType = function() {								
+
+        this.getDefaultType = function () {
             return {
-                parameters:{},
-                scope:null,
-                maxConnections:this._jsPlumb.instance.Defaults.MaxConnections,
-                paintStyle:this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-                endpoint:this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
-                hoverPaintStyle:this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
+                parameters: {},
+                scope: null,
+                maxConnections: this._jsPlumb.instance.Defaults.MaxConnections,
+                paintStyle: this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
+                endpoint: this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
+                hoverPaintStyle: this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
                 overlays: jsPlumbUtil.merge(params.overlays || {}, (this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays)),
-                connectorStyle:params.connectorStyle,				
-                connectorHoverStyle:params.connectorHoverStyle,
-                connectorClass:params.connectorClass,
-                connectorHoverClass:params.connectorHoverClass,
-                connectorOverlays:params.connectorOverlays,
-                connector:params.connector,
-                connectorTooltip:params.connectorTooltip
+                connectorStyle: params.connectorStyle,
+                connectorHoverStyle: params.connectorHoverStyle,
+                connectorClass: params.connectorClass,
+                connectorHoverClass: params.connectorHoverClass,
+                connectorOverlays: params.connectorOverlays,
+                connector: params.connector,
+                connectorTooltip: params.connectorTooltip
             };
         };
-        			
+
 // END TYPE
-            
+
         this._jsPlumb.enabled = !(params.enabled === false);
-        this._jsPlumb.visible = true;        
-        this.element = jsPlumb.getDOMElement(params.source);  
+        this._jsPlumb.visible = true;
+        this.element = jsPlumb.getDOMElement(params.source);
         this._jsPlumb.uuid = params.uuid;
-        this._jsPlumb.floatingEndpoint = null;  
+        this._jsPlumb.floatingEndpoint = null;
         var inPlaceCopy = null;
         if (this._jsPlumb.uuid) params.endpointsByUUID[this._jsPlumb.uuid] = this;
         this.elementId = params.elementId;
-        
+
         this._jsPlumb.connectionCost = params.connectionCost;
-        this._jsPlumb.connectionsDirected = params.connectionsDirected;        
+        this._jsPlumb.connectionsDirected = params.connectionsDirected;
         this._jsPlumb.currentAnchorClass = "";
         this._jsPlumb.events = {};
-            
-        var  _updateAnchorClass = function() {
+
+        var _updateAnchorClass = function () {
             // stash old, get new
             var oldAnchorClass = this._jsPlumb.currentAnchorClass;
             this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
@@ -5995,13 +6062,13 @@
             jsPlumbAdapter.updateClasses(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass, _jsPlumb.endpointAnchorClassPrefix + "_" + oldAnchorClass);
             this.updateClasses(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass, _jsPlumb.endpointAnchorClassPrefix + "_" + oldAnchorClass);
         }.bind(this);
-        
-        this.setAnchor = function(anchorParams, doNotRepaint) {
+
+        this.setAnchor = function (anchorParams, doNotRepaint) {
             this._jsPlumb.instance.continuousAnchorFactory.clear(this.elementId);
             this.anchor = this._jsPlumb.instance.makeAnchor(anchorParams, this.elementId, _jsPlumb);
             _updateAnchorClass();
-            this.anchor.bind("anchorChanged", function(currentAnchor) {
-                this.fire("anchorChanged", {endpoint:this, anchor:currentAnchor});
+            this.anchor.bind("anchorChanged", function (currentAnchor) {
+                this.fire("anchorChanged", {endpoint: this, anchor: currentAnchor});
                 _updateAnchorClass();
             }.bind(this));
             if (!doNotRepaint)
@@ -6012,46 +6079,50 @@
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
         this.setAnchor(anchorParamsToUse, true);
 
-        var internalHover = function(state) {
-          if (this.connections.length > 0) {
-              for (var i = 0; i < this.connections.length; i++)
-                  this.connections[i].setHover(state, false);
-          }
-          else
-            this.setHover(state);
+        var internalHover = function (state) {
+            if (this.connections.length > 0) {
+                for (var i = 0; i < this.connections.length; i++)
+                    this.connections[i].setHover(state, false);
+            }
+            else
+                this.setHover(state);
         }.bind(this);
 
-        this.bind("mouseover", function() { internalHover(true); });
-        this.bind("mouseout", function() { internalHover(false); });
-            
+        this.bind("mouseover", function () {
+            internalHover(true);
+        });
+        this.bind("mouseout", function () {
+            internalHover(false);
+        });
+
         // ANCHOR MANAGER
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
-        
-        this.setEndpoint = function(ep) {
+
+        this.setEndpoint = function (ep) {
 
             if (this.endpoint != null) {
                 this.endpoint.cleanup();
                 this.endpoint.destroy();
             }
 
-            var _e = function(t, p) {
+            var _e = function (t, p) {
                 var rm = _jsPlumb.getRenderMode();
                 if (jsPlumb.Endpoints[rm][t]) return new jsPlumb.Endpoints[rm][t](p);
                 if (!_jsPlumb.Defaults.DoNotThrowErrors)
-                    throw { msg:"jsPlumb: unknown endpoint type '" + t + "'" };
-            };            
-
-            var endpointArgs = {
-                _jsPlumb:this._jsPlumb.instance,
-                cssClass:params.cssClass,
-                container:params.container,
-                tooltip:params.tooltip,
-                connectorTooltip:params.connectorTooltip,
-                endpoint:this
+                    throw { msg: "jsPlumb: unknown endpoint type '" + t + "'" };
             };
 
-            if (_ju.isString(ep)) 
+            var endpointArgs = {
+                _jsPlumb: this._jsPlumb.instance,
+                cssClass: params.cssClass,
+                container: params.container,
+                tooltip: params.tooltip,
+                connectorTooltip: params.connectorTooltip,
+                endpoint: this
+            };
+
+            if (_ju.isString(ep))
                 this.endpoint = _e(ep, endpointArgs);
             else if (_ju.isArray(ep)) {
                 endpointArgs = _ju.merge(ep[1], endpointArgs);
@@ -6066,9 +6137,9 @@
             // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
             // the whole world.
             //var argsForClone = jsPlumb.extend({}, endpointArgs);
-            this.endpoint.clone = function() {
+            this.endpoint.clone = function () {
                 // TODO this, and the code above, can be refactored to be more dry.
-                if (_ju.isString(ep)) 
+                if (_ju.isString(ep))
                     return _e(ep, endpointArgs);
                 else if (_ju.isArray(ep)) {
                     endpointArgs = _ju.merge(ep[1], endpointArgs);
@@ -6078,7 +6149,7 @@
 
             this.type = this.endpoint.type;
         };
-         
+
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");
 
         this.setPaintStyle(params.endpointStyle || params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
@@ -6089,78 +6160,78 @@
 
         this.isSource = params.isSource || false;
         this.isTemporarySource = params.isTemporarySource || false;
-        this.isTarget = params.isTarget || false;        
+        this.isTarget = params.isTarget || false;
         this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.                
         this.canvas = this.endpoint.canvas;
         this.canvas._jsPlumb = this;
 
         // add anchor class (need to do this on construction because we set anchor first)
-        this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
+        this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
 
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
-        
-        this.scope = params.scope || _jsPlumb.getDefaultScope();        
+
+        this.scope = params.scope || _jsPlumb.getDefaultScope();
         this.timestamp = null;
         this.reattachConnections = params.reattach || _jsPlumb.Defaults.ReattachConnections;
         this.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
         if (params.connectionsDetachable === false || params.detachable === false)
             this.connectionsDetachable = false;
         this.dragAllowedWhenFull = params.dragAllowedWhenFull !== false;
-        
+
         if (params.onMaxConnections)
-            this.bind("maxConnections", params.onMaxConnections);        
-        
+            this.bind("maxConnections", params.onMaxConnections);
+
         //
         // add a connection. not part of public API.
         //
-        this.addConnection = function(connection) {
-            this.connections.push(connection);                  
-            this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-            this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
-        };	
+        this.addConnection = function (connection) {
+            this.connections.push(connection);
+            this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);
+            this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);
+        };
 
-        this.detachFromConnection = function(connection, idx, doNotCleanup) {
+        this.detachFromConnection = function (connection, idx, doNotCleanup) {
             idx = idx == null ? findConnectionIndex(connection, this) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
-                this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+                this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);
                 this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);
             }
-            
+
             if (!doNotCleanup && this._deleteOnDetach && this.connections.length === 0) {
                 _jsPlumb.deleteObject({
-                    endpoint:this,
-                    fireEvent:false,
-                    deleteAttachedObjects:false
+                    endpoint: this,
+                    fireEvent: false,
+                    deleteAttachedObjects: false
                 });
             }
         };
 
-        this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
+        this.detach = function (connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
 
             var idx = connectionIndex == null ? findConnectionIndex(connection, this) : connectionIndex,
                 actuallyDetached = false;
-                fireEvent = (fireEvent !== false);
+            fireEvent = (fireEvent !== false);
 
-            if (idx >= 0) {		                
+            if (idx >= 0) {
 
                 if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) && _jsPlumb.checkCondition("beforeDetach", connection) )) {
 
                     _jsPlumb.deleteObject({
-                        connection:connection, 
-                        fireEvent:(!ignoreTarget && fireEvent), 
-                        originalEvent:originalEvent,
-                        deleteAttachedObjects:false
+                        connection: connection,
+                        fireEvent: (!ignoreTarget && fireEvent),
+                        originalEvent: originalEvent,
+                        deleteAttachedObjects: false/**/
                     });
-                    actuallyDetached = true;                       
+                    actuallyDetached = true;
                 }
             }
             return actuallyDetached;
-        };	
+        };
 
-        this.detachAll = function(fireEvent, forceDetach) {
+        this.detachAll = function (fireEvent, forceDetach) {
             var unaffectedConns = [];
             while (this.connections.length > 0) {
                 // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
@@ -6172,91 +6243,101 @@
             }
             this.connections = unaffectedConns;
             return this;
-        };                
-        this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
+        };
+        this.detachFrom = function (targetEndpoint, fireEvent, originalEvent) {
             var c = [];
-            for ( var i = 0; i < this.connections.length; i++) {
+            for (var i = 0; i < this.connections.length; i++) {
                 if (this.connections[i].endpoints[1] == targetEndpoint || this.connections[i].endpoints[0] == targetEndpoint) {
                     c.push(this.connections[i]);
                 }
             }
-            for ( var j = 0; j < c.length; j++) {
-                this.detach(c[j], false, true, fireEvent, originalEvent);				
+            for (var j = 0; j < c.length; j++) {
+                this.detach(c[j], false, true, fireEvent, originalEvent);
             }
             return this;
-        };	        
-        
-        this.getElement = function() {
+        };
+
+        this.getElement = function () {
             return this.element;
-        };		
-                 
-        this.setElement = function(el) {
+        };
+
+        this.setElement = function (el) {
             var parentId = this._jsPlumb.instance.getId(el),
                 curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
-            _ju.removeWithFunction(params.endpointsByElement[this.elementId], function(e) {
+            _ju.removeWithFunction(params.endpointsByElement[this.elementId], function (e) {
                 return e.id == this.id;
             }.bind(this));
             this.element = jsPlumb.getDOMElement(el);
-            this.elementId = _jsPlumb.getId(this.element);                         
+            this.elementId = _jsPlumb.getId(this.element);
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
-            _jsPlumb.dragManager.endpointAdded(this.element);            
-            _ju.addToList(params.endpointsByElement, parentId, this);            
+            _jsPlumb.dragManager.endpointAdded(this.element);
+            _ju.addToList(params.endpointsByElement, parentId, this);
             return this;
         };
-                
+
         /**
          * private but must be exposed.
          */
-        this.makeInPlaceCopy = function() {
-            var loc = this.anchor.getCurrentLocation({element:this}),
+        this.makeInPlaceCopy = function () {
+            var loc = this.anchor.getCurrentLocation({element: this}),
                 o = this.anchor.getOrientation(this),
                 acc = this.anchor.getCssClass(),
                 inPlaceAnchor = {
-                    bind:function() { },
-                    compute:function() { return [ loc[0], loc[1] ]; },
-                    getCurrentLocation : function() { return [ loc[0], loc[1] ]; },
-                    getOrientation:function() { return o; },
-                    getCssClass:function() { return acc; }
+                    bind: function () {
+                    },
+                    compute: function () {
+                        return [ loc[0], loc[1] ];
+                    },
+                    getCurrentLocation: function () {
+                        return [ loc[0], loc[1] ];
+                    },
+                    getOrientation: function () {
+                        return o;
+                    },
+                    getCssClass: function () {
+                        return acc;
+                    }
                 };
 
-            return _newEndpoint( { 
-                dropOptions:params.dropOptions,
-                anchor : inPlaceAnchor, 
-                source : this.element, 
-                paintStyle : this.getPaintStyle(), 
-                endpoint : params.hideOnDrag ? "Blank" : this.endpoint,
-                _transient:true,
-                scope:this.scope
+            return _newEndpoint({
+                dropOptions: params.dropOptions,
+                anchor: inPlaceAnchor,
+                source: this.element,
+                paintStyle: this.getPaintStyle(),
+                endpoint: params.hideOnDrag ? "Blank" : this.endpoint,
+                _transient: true,
+                scope: this.scope
             });
         };
-        
+
         /**
          * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
          */
-        this.connectorSelector = function() {
+        this.connectorSelector = function () {
             var candidate = this.connections[0];
-            if (this.isTarget && candidate) return candidate;
+            // SP target source refactor
+            if (/*this.isTarget && */candidate) return candidate;
             else {
                 return (this.connections.length < this._jsPlumb.maxConnections) || this._jsPlumb.maxConnections == -1 ? null : candidate;
             }
-        };        
-        
-        this.setStyle = this.setPaintStyle;        
-        
-        this.paint = function(params) {
-            params = params || {};
-            var timestamp = params.timestamp, recalc = !(params.recalc === false);								
-            if (!timestamp || this.timestamp !== timestamp) {						
+        };
 
-                var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp });
+        this.setStyle = this.setPaintStyle;
+
+        this.paint = function (params) {
+            params = params || {};
+            var timestamp = params.timestamp, recalc = !(params.recalc === false);
+            if (!timestamp || this.timestamp !== timestamp) {
+
+                var info = _jsPlumb.updateOffset({ elId: this.elementId, timestamp: timestamp });
 
                 var xy = params.offset ? params.offset.o : info.o;
-                if(xy != null) {
-                    var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
+                if (xy != null) {
+                    var ap = params.anchorPoint, connectorPaintStyle = params.connectorPaintStyle;
                     if (ap == null) {
-                        var wh = params.dimensions || info.s,                       
-                            anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : this, timestamp : timestamp };
+                        var wh = params.dimensions || info.s,
+                            anchorParams = { xy: [ xy.left, xy.top ], wh: wh, element: this, timestamp: timestamp };
                         if (recalc && this.anchor.isDynamic && this.connections.length > 0) {
                             var c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
                                 oIdx = c.endpoints[0] == this ? 1 : 0,
@@ -6269,32 +6350,32 @@
                         }
                         ap = this.anchor.compute(anchorParams);
                     }
-                                        
+
                     this.endpoint.compute(ap, this.anchor.getOrientation(this), this._jsPlumb.paintStyleInUse, connectorPaintStyle || this.paintStyleInUse);
-                    this.endpoint.paint(this._jsPlumb.paintStyleInUse, this.anchor);					
+                    this.endpoint.paint(this._jsPlumb.paintStyleInUse, this.anchor);
                     this.timestamp = timestamp;
 
                     // paint overlays
-                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                    for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
                         var o = this._jsPlumb.overlays[i];
-                        if (o.isVisible()) { 
+                        if (o.isVisible()) {
                             this._jsPlumb.overlayPlacements[i] = o.draw(this.endpoint, this._jsPlumb.paintStyleInUse);
-                            o.paint(this._jsPlumb.overlayPlacements[i]);    
+                            o.paint(this._jsPlumb.overlayPlacements[i]);
                         }
                     }
                 }
             }
         };
 
-        this.repaint = this.paint; 
+        this.repaint = this.paint;
 
         var draggingInitialised = false;
-        this.initDraggable = function() {
+        this.initDraggable = function () {
 
             // is this a connection source? we make it draggable and have the
             // drag listener maintain a connection with a floating endpoint.
             if (!draggingInitialised && jsPlumb.isDragSupported(this.element)) {
-                var placeholderInfo = { id:null, element:null },
+                var placeholderInfo = { id: null, element: null },
                     jpc = null,
                     existingJpc = false,
                     existingJpcParams = null,
@@ -6305,9 +6386,9 @@
                     stopEvent = jsPlumb.dragEvents.stop,
                     dragEvent = jsPlumb.dragEvents.drag;
 
-                var start = function() {    
-                // drag might have started on an endpoint that is not actually a source, but which has
-                // one or more connections.
+                var start = function () {
+                    // drag might have started on an endpoint that is not actually a source, but which has
+                    // one or more connections.
                     jpc = this.connectorSelector();
                     var _continue = true;
                     // if not enabled, return
@@ -6340,53 +6421,55 @@
                     // if we're not full but there was a connection, make it null. we'll create a new one.
                     if (jpc && !this.isFull() && this.isSource) jpc = null;
 
-                    _jsPlumb.updateOffset( { elId : this.elementId });
+                    _jsPlumb.updateOffset({ elId: this.elementId });
                     inPlaceCopy = this.makeInPlaceCopy();
                     inPlaceCopy.referenceEndpoint = this;
-                    inPlaceCopy.paint();                                                                
-                    
+                    inPlaceCopy.paint();
+
                     _makeDraggablePlaceholder(placeholderInfo, _jsPlumb);
-                    
+
                     // set the offset of this div to be where 'inPlaceCopy' is, to start with.
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel, this._jsPlumb.instance),                        
-                        canvasElement = _gel(this.canvas);                               
-                        
+                        ipco = jsPlumbAdapter.getOffset(ipcoel, this._jsPlumb.instance),
+                        canvasElement = _gel(this.canvas);
+
                     jsPlumbAdapter.setPosition(placeholderInfo.element, ipco);
-                    
+
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
                     // first time.
                     if (this.parentAnchor) this.anchor = _jsPlumb.makeAnchor(this.parentAnchor, this.elementId, _jsPlumb);
-                    
+
                     // store the id of the dragging div and the source element. the drop function will pick these up.                   
-                    _jsPlumb.setAttribute(this.canvas, "dragId", placeholderInfo.id);
-                    _jsPlumb.setAttribute(this.canvas, "elId", this.elementId);
+                    _jsPlumb.setAttributes(this.canvas, {
+                        "dragId": placeholderInfo.id,
+                        "elId": this.elementId
+                    });
 
                     this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, this.endpoint, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
                     // TODO we should not know about DOM here. make the library adapter do this (or the 
-                        // dom adapter)
-                    this.canvas.style.visibility = "hidden";            
-                    
-                    if (jpc == null) {                                                                                                                                                         
+                    // dom adapter)
+                    this.canvas.style.visibility = "hidden";
+
+                    if (jpc == null) {
                         this.anchor.locked = true;
-                        this.setHover(false, false);                        
+                        this.setHover(false, false);
                         // create a connection. one end is this endpoint, the other is a floating endpoint.                    
                         jpc = _newConnection({
-                            sourceEndpoint : this,
-                            targetEndpoint : this._jsPlumb.floatingEndpoint,
-                            source : this.endpointWillMoveTo || this.element,  // for makeSource with parent option.  ensure source element is represented correctly.
-                            target : placeholderInfo.element,
-                            anchors : [ this.anchor, this._jsPlumb.floatingEndpoint.anchor ],
-                            paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
-                            hoverPaintStyle:params.connectorHoverStyle,
-                            connector : params.connector, // this can also be null. Connection will use the default.
-                            overlays : params.connectorOverlays,
-                            type:this.connectionType,
-                            cssClass:this.connectorClass,
-                            hoverClass:this.connectorHoverClass
+                            sourceEndpoint: this,
+                            targetEndpoint: this._jsPlumb.floatingEndpoint,
+                            source: this.endpointWillMoveTo || this.element,  // for makeSource with parent option.  ensure source element is represented correctly.
+                            target: placeholderInfo.element,
+                            anchors: [ this.anchor, this._jsPlumb.floatingEndpoint.anchor ],
+                            paintStyle: params.connectorStyle, // this can be null. Connection will use the default.
+                            hoverPaintStyle: params.connectorHoverStyle,
+                            connector: params.connector, // this can also be null. Connection will use the default.
+                            overlays: params.connectorOverlays,
+                            type: this.connectionType,
+                            cssClass: this.connectorClass,
+                            hoverClass: this.connectorHoverClass
                         });
                         //jpc.pending = true; // mark this connection as not having been established.
                         jpc.addClass(_jsPlumb.draggingClass);
@@ -6400,7 +6483,7 @@
                         // new anchor idx
                         var anchorIdx = jpc.endpoints[0].id == this.id ? 0 : 1;
                         this.detachFromConnection(jpc, null, true);                         // detach from the connection while dragging is occurring. but dont cleanup automatically.
-                                                
+
                         // store the original scope (issue 57)
                         var dragScope = _jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
@@ -6413,7 +6496,7 @@
                         // fire an event that informs that a connection is being dragged. we do this before
                         // replacing the original target with the floating element info.
                         _jsPlumb.fire("connectionDrag", jpc);
-                
+
                         // now we replace ourselves with the temporary div we created above:
                         if (anchorIdx === 0) {
                             existingJpcParams = [ jpc.source, jpc.sourceId, canvasElement, dragScope ];
@@ -6429,23 +6512,23 @@
                         jpc.endpoints[anchorIdx === 0 ? 1 : 0].anchor.locked = true;
                         // store the original endpoint and assign the new floating endpoint for the drag.
                         jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
-                        
+
                         // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
                         jpc.suspendedElement = jpc.endpoints[anchorIdx].getElement();
                         jpc.suspendedElementId = jpc.endpoints[anchorIdx].elementId;
                         jpc.suspendedElementType = anchorIdx === 0 ? "source" : "target";
-                        
+
                         jpc.suspendedEndpoint.setHover(false);
                         this._jsPlumb.floatingEndpoint.referenceEndpoint = jpc.suspendedEndpoint;
                         jpc.endpoints[anchorIdx] = this._jsPlumb.floatingEndpoint;
 
                         jpc.addClass(_jsPlumb.draggingClass);
-                        this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);                    
+                        this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     }
-                
+
                     // register it and register connection on it.
                     _jsPlumb.floatingConnections[placeholderInfo.id] = jpc;
-                    _jsPlumb.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);               
+                    _jsPlumb.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);
                     // only register for the target endpoint; we will not be dragging the source at any time
                     // before this connection is either discarded or made into a permanent connection.
                     _ju.addToList(params.endpointsByElement, placeholderInfo.id, this._jsPlumb.floatingEndpoint);
@@ -6453,7 +6536,7 @@
                     _jsPlumb.currentlyDragging = true;
                 }.bind(this);
 
-                var stop = function() {
+                var stop = function () {
                     _jsPlumb.setConnectionBeingDragged(false);
                     // if no endpoints, jpc already cleaned up.
                     if (jpc && jpc.endpoints != null) {
@@ -6497,7 +6580,7 @@
                                     _jsPlumb.repaint(existingJpcParams[1]);
                                 }
                                 else
-                                    _jsPlumb.deleteObject({endpoint:fe});
+                                    _jsPlumb.deleteObject({endpoint: fe});
                             }
                         }
 
@@ -6505,11 +6588,11 @@
                         // (and its associated floating endpoint and visual artefacts)
                         _jsPlumb.remove(placeholderInfo.element, false);
                         // remove the inplace copy
-                        _jsPlumb.deleteObject({endpoint:inPlaceCopy});
+                        _jsPlumb.deleteObject({endpoint: inPlaceCopy});
 
                         // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
                         if (this.deleteAfterDragStop) {
-                            _jsPlumb.deleteObject({endpoint:this});
+                            _jsPlumb.deleteObject({endpoint: this});
                         }
                         else {
                             if (this._jsPlumb) {
@@ -6519,7 +6602,7 @@
                                 this.canvas.style.visibility = "visible";
                                 // unlock our anchor
                                 this.anchor.locked = false;
-                                this.paint({recalc:false});
+                                this.paint({recalc: false});
                             }
                         }
 
@@ -6541,8 +6624,8 @@
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
 
-                dragOptions.canDrag = function() {
-                    return this.isSource || this.isTemporarySource || (this.isTarget && this.connections.length > 0);
+                dragOptions.canDrag = function () {
+                    return this.isSource || this.isTemporarySource || /*(this.isTarget && */this.connections.length > 0/*)*/;
                 }.bind(this);
 
                 _jsPlumb.initDraggable(this.canvas, dragOptions, "internal");
@@ -6560,69 +6643,71 @@
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
-        var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
+        var _initDropTarget = function (canvas, forceInit, isTransient, endpoint) {
 
             if ((this.isTarget || forceInit) && jsPlumb.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
-                dropOptions = jsPlumb.extend( {}, dropOptions);
+                dropOptions = jsPlumb.extend({}, dropOptions);
                 dropOptions.scope = dropOptions.scope || this.scope;
                 var dropEvent = jsPlumb.dragEvents.drop,
                     overEvent = jsPlumb.dragEvents.over,
                     outEvent = jsPlumb.dragEvents.out,
                     _ep = this,
                     drop = _jsPlumb.EndpointDropHandler({
-                        getEndpoint:function() { return _ep; },
-                        jsPlumb:_jsPlumb,
-                        enabled:function() {
+                        getEndpoint: function () {
+                            return _ep;
+                        },
+                        jsPlumb: _jsPlumb,
+                        enabled: function () {
                             return endpoint != null ? endpoint.isEnabled() : true;
                         },
-                        isFull:function() {
+                        isFull: function () {
                             return endpoint.isFull();
                         },
-                        element:this.element,
-                        elementId:this.elementId,
-                        isSource:this.isSource,
-                        isTarget:this.isTarget,
-                        addClass:function(clazz) {
+                        element: this.element,
+                        elementId: this.elementId,
+                        isSource: this.isSource,
+                        isTarget: this.isTarget,
+                        addClass: function (clazz) {
                             _ep.addClass(clazz);
                         },
-                        removeClass:function(clazz) {
+                        removeClass: function (clazz) {
                             _ep.removeClass(clazz);
                         },
-                        isDropAllowed:function() {
+                        isDropAllowed: function () {
                             return _ep.isDropAllowed.apply(_ep, arguments);
                         }
                     });
-                
+
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop);
-                dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function() {					
+                dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function () {
                     var draggable = jsPlumb.getDragObject(arguments),
                         id = _jsPlumb.getAttribute(jsPlumb.getDOMElement(draggable), "dragId"),
                         _jpc = _jsPlumb.floatingConnections[id];
-                        
-                    if (_jpc != null) {								
+
+                    if (_jpc != null) {
                         var idx = _jsPlumb.getFloatingAnchorIndex(_jpc);
                         // here we should fire the 'over' event if we are a target and this is a new connection,
                         // or we are the same as the floating endpoint.								
                         var _cont = (this.isTarget && idx !== 0) || (_jpc.suspendedEndpoint && this.referenceEndpoint && this.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
                         if (_cont) {
-                            var bb = _jsPlumb.checkCondition("checkDropAllowed", { 
-                                sourceEndpoint:_jpc.endpoints[idx], 
-                                targetEndpoint:this,
-                                connection:_jpc
-                            }); 
+                            var bb = _jsPlumb.checkCondition("checkDropAllowed", {
+                                sourceEndpoint: _jpc.endpoints[idx],
+                                targetEndpoint: this,
+                                connection: _jpc
+                            });
                             this[(bb ? "add" : "remove") + "Class"](_jsPlumb.endpointDropAllowedClass);
                             this[(bb ? "remove" : "add") + "Class"](_jsPlumb.endpointDropForbiddenClass);
                             _jpc.endpoints[idx].anchor.over(this.anchor, this);
                         }
-                    }						
-                }.bind(this));	
+                    }
+                }.bind(this));
 
-                dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function() {					
+                dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function () {
                     var draggable = jsPlumb.getDragObject(arguments),
-                        id = draggable == null ? null : _jsPlumb.getAttribute( jsPlumb.getDOMElement(draggable), "dragId"),
-                        _jpc = id? _jsPlumb.floatingConnections[id] : null;
-                        
+                        id = draggable == null ? null : _jsPlumb.getAttribute(jsPlumb.getDOMElement(draggable), "dragId"),
+                        _jpc = id ? _jsPlumb.floatingConnections[id] : null;
+
                     if (_jpc != null) {
                         var idx = _jsPlumb.getFloatingAnchorIndex(_jpc);
                         var _cont = (this.isTarget && idx !== 0) || (_jpc.suspendedEndpoint && this.referenceEndpoint && this.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
@@ -6637,22 +6722,27 @@
                 _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
             }
         }.bind(this);
-        
-        // initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
+
+        // Initialise the endpoint's canvas as a drop target. The drop handler will take care of the logic of whether
+        // something can actually be dropped.
         if (!this.anchor.isFloating)
             _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
 
         // finally, set type if it was provided
-         if (params.type)
+        if (params.type)
             this.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
 
-        return this;        					
+        return this;
     };
 
     jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent, {
-        getTypeDescriptor : function() { return "endpoint"; },        
-        isVisible : function() { return this._jsPlumb.visible; },
-        setVisible : function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
+        getTypeDescriptor: function () {
+            return "endpoint";
+        },
+        isVisible: function () {
+            return this._jsPlumb.visible;
+        },
+        setVisible: function (v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
             this._jsPlumb.visible = v;
             if (this.canvas) this.canvas.style.display = v ? "block" : "none";
             this[v ? "showOverlays" : "hideOverlays"]();
@@ -6667,10 +6757,10 @@
                 }
             }
         },
-        getAttachedElements : function() {
+        getAttachedElements: function () {
             return this.connections;
         },
-        applyType : function(t) {
+        applyType: function (t) {
             this.setPaintStyle(t.endpointStyle || t.paintStyle);
             this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle);
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
@@ -6681,36 +6771,40 @@
             }
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
         },
-        isEnabled : function() { return this._jsPlumb.enabled; },
-        setEnabled : function(e) { this._jsPlumb.enabled = e; },
-        cleanup : function() {            
-            jsPlumbAdapter.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);            
+        isEnabled: function () {
+            return this._jsPlumb.enabled;
+        },
+        setEnabled: function (e) {
+            this._jsPlumb.enabled = e;
+        },
+        cleanup: function () {
+            jsPlumbAdapter.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
             this.anchor = null;
             this.endpoint.cleanup();
             this.endpoint.destroy();
             this.endpoint = null;
             // drag/drop
-            var i = jsPlumb.getElementObject(this.canvas);              
+            var i = jsPlumb.getElementObject(this.canvas);
             this._jsPlumb.instance.destroyDraggable(i, "internal");
             this._jsPlumb.instance.destroyDroppable(i, "internal");
         },
-        setHover : function(h) {
+        setHover: function (h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())
-                this.endpoint.setHover(h);            
+                this.endpoint.setHover(h);
         },
-        isFull : function() {
-            return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);              
+        isFull: function () {
+            return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);
         },
         /**
          * private but needs to be exposed.
          */
-        isFloating : function() {
+        isFloating: function () {
             return this.anchor != null && this.anchor.isFloating;
         },
-        isConnectedTo : function(endpoint) {
+        isConnectedTo: function (endpoint) {
             var found = false;
             if (endpoint) {
-                for ( var i = 0; i < this.connections.length; i++) {
+                for (var i = 0; i < this.connections.length; i++) {
                     if (this.connections[i].endpoints[1] == endpoint || this.connections[i].endpoints[0] == endpoint) {
                         found = true;
                         break;
@@ -6719,35 +6813,41 @@
             }
             return found;
         },
-        getConnectionCost : function() { return this._jsPlumb.connectionCost; },
-        setConnectionCost : function(c) {
-            this._jsPlumb.connectionCost = c; 
+        getConnectionCost: function () {
+            return this._jsPlumb.connectionCost;
         },
-        areConnectionsDirected : function() { return this._jsPlumb.connectionsDirected; },
-        setConnectionsDirected : function(b) { this._jsPlumb.connectionsDirected = b; },
-        setElementId : function(_elId) {
+        setConnectionCost: function (c) {
+            this._jsPlumb.connectionCost = c;
+        },
+        areConnectionsDirected: function () {
+            return this._jsPlumb.connectionsDirected;
+        },
+        setConnectionsDirected: function (b) {
+            this._jsPlumb.connectionsDirected = b;
+        },
+        setElementId: function (_elId) {
             this.elementId = _elId;
             this.anchor.elementId = _elId;
-        },        
-        setReferenceElement : function(_el) {
+        },
+        setReferenceElement: function (_el) {
             this.element = jsPlumb.getDOMElement(_el);
         },
-        setDragAllowedWhenFull : function(allowed) {
+        setDragAllowedWhenFull: function (allowed) {
             this.dragAllowedWhenFull = allowed;
         },
-        equals : function(endpoint) {
+        equals: function (endpoint) {
             return this.anchor.equals(endpoint.anchor);
         },
-        getUuid : function() {
+        getUuid: function () {
             return this._jsPlumb.uuid;
         },
-        computeAnchor : function(params) {
+        computeAnchor: function (params) {
             return this.anchor.compute(params);
         }
     });
 
-    jsPlumbInstance.prototype.EndpointDropHandler = function(dhParams) {
-        return function(e) {
+    jsPlumbInstance.prototype.EndpointDropHandler = function (dhParams) {
+        return function (e) {
 
             var _jsPlumb = dhParams.jsPlumb;
 
@@ -6778,7 +6878,7 @@
             // if this is a drop back where the connection came from, mark it force rettach and
             // return; the stop handler will reattach. without firing an event.
             var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == _ep.id ||
-                _ep.referenceEndpoint && jpc.suspendedEndpoint.id == _ep.referenceEndpoint.id) ;
+                _ep.referenceEndpoint && jpc.suspendedEndpoint.id == _ep.referenceEndpoint.id);
             if (redrop) {
                 jpc._forceReattach = true;
                 jpc.setHover(false);
@@ -6795,9 +6895,9 @@
             // makeTarget: keep.
             if (dhParams.isFull(e)) {
                 _ep.fire("maxConnections", {
-                    endpoint:this,
-                    connection:jpc,
-                    maxConnections:_ep._jsPlumb.maxConnections
+                    endpoint: this,
+                    connection: jpc,
+                    maxConnections: _ep._jsPlumb.maxConnections
                 }, originalEvent);
             }
 
@@ -6822,7 +6922,7 @@
 
 // ------------ wrap the execution path in a function so we can support asynchronous beforeDrop
 
-                var continueFunction = function() {
+                var continueFunction = function () {
                     // remove this jpc from the current endpoint, which is a floating endpoint that we will
                     // subsequently discard.
                     jpc.endpoints[idx].detachFromConnection(jpc);
@@ -6847,16 +6947,16 @@
                     else {
                         var suspendedElementId = jpc.suspendedEndpoint.elementId;
                         _jsPlumb.fireMoveEvent({
-                            index:idx,
-                            originalSourceId:idx === 0 ? suspendedElementId : jpc.sourceId,
-                            newSourceId:idx === 0 ? _ep.elementId : jpc.sourceId,
-                            originalTargetId:idx == 1 ? suspendedElementId : jpc.targetId,
-                            newTargetId:idx == 1 ? _ep.elementId : jpc.targetId,
-                            originalSourceEndpoint:idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
-                            newSourceEndpoint:idx === 0 ? _ep : jpc.endpoints[0],
-                            originalTargetEndpoint:idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-                            newTargetEndpoint:idx == 1 ? _ep : jpc.endpoints[1],
-                            connection:jpc
+                            index: idx,
+                            originalSourceId: idx === 0 ? suspendedElementId : jpc.sourceId,
+                            newSourceId: idx === 0 ? _ep.elementId : jpc.sourceId,
+                            originalTargetId: idx == 1 ? suspendedElementId : jpc.targetId,
+                            newTargetId: idx == 1 ? _ep.elementId : jpc.targetId,
+                            originalSourceEndpoint: idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
+                            newSourceEndpoint: idx === 0 ? _ep : jpc.endpoints[0],
+                            originalTargetEndpoint: idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
+                            newTargetEndpoint: idx == 1 ? _ep : jpc.endpoints[1],
+                            connection: jpc
                         }, originalEvent);
                     }
 
@@ -6887,7 +6987,7 @@
 
                 }.bind(this);
 
-                var dontContinueFunction = function() {
+                var dontContinueFunction = function () {
                     // otherwise just put it back on the endpoint it was on before the drag.
                     if (jpc.suspendedEndpoint) {
                         jpc.endpoints[idx] = jpc.suspendedEndpoint;
@@ -6921,8 +7021,34 @@
                     dontContinueFunction();
                 }
             }
-            else
-                if(dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
+            /*else {
+             this is all related to this issue
+             // https://github.com/sporritt/jsPlumb/issues/289
+             // fiddle: http://jsfiddle.net/nkh4v3ya/20/
+             //
+             // where i am at right now is slightly confused. i need to write down the various inputs (which endpoint
+             // is being dragged, is the connection new etc) and the various states (is a source being dropped on an
+             // ep or element that is a source? etc), and figure out what needs to be done. also take reattach into account
+             // i suspect this code will be able to be cleaned up significantly.
+             if (jpc.suspendedEndpoint) {
+             jpc.endpoints[idx] = jpc.suspendedEndpoint;
+             jpc.setHover(false);
+             jpc._forceDetach = true;
+             if (idx === 0) {
+             jpc.source = jpc.suspendedEndpoint.element;
+             jpc.sourceId = jpc.suspendedEndpoint.elementId;
+             } else {
+             jpc.target = jpc.suspendedEndpoint.element;
+             jpc.targetId = jpc.suspendedEndpoint.elementId;
+             }
+             jpc.suspendedEndpoint.addConnection(jpc);
+
+             _jsPlumb.repaint(jpc.sourceId);
+             jpc._forceDetach = false;
+             }
+             else if(dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
+             }*/
+            if (dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
 
             _jsPlumb.currentlyDragging = false;
         };
@@ -6976,7 +7102,7 @@
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
-        if (params.sourceEndpoint) this.source = params.sourceEndpoint.endpointWillMoveTo || params.sourceEndpoint.getElement();            
+        if (params.sourceEndpoint) this.source = params.sourceEndpoint.getElement();
         if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();        
 
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);
