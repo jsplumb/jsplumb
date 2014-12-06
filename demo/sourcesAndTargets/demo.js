@@ -57,7 +57,6 @@ jsPlumb.ready(function() {
 				var t = evt.target || evt.srcElement;
 				return t.tagName !== "A";
 			},
-			isSource:true,
             maxConnections:-1
 		});			
         
