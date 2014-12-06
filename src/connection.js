@@ -45,7 +45,7 @@
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
-        if (params.sourceEndpoint) this.source = params.sourceEndpoint.endpointWillMoveTo || params.sourceEndpoint.getElement();            
+        if (params.sourceEndpoint) this.source = params.sourceEndpoint.getElement();
         if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();        
 
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);
