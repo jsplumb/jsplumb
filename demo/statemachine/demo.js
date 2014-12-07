@@ -51,19 +51,19 @@ jsPlumb.ready(function () {
                 alert("Maximum connections (" + info.maxConnections + ") reached");
             }
         });
-    });
 
-    // initialise all '.w' elements as connection targets.
-    instance.makeTarget(windows, {
-        dropOptions: { hoverClass: "dragHover" },
-        anchor: "Continuous",
-        allowLoopback: true
-    });
+        // initialise all '.w' elements as connection targets.
+        instance.makeTarget(windows, {
+            dropOptions: { hoverClass: "dragHover" },
+            anchor: "Continuous",
+            allowLoopback: true
+        });
 
-    // and finally, make a couple of connections
-    instance.connect({ source: "opened", target: "phone1" });
-    instance.connect({ source: "phone1", target: "phone1" });
-    instance.connect({ source: "phone1", target: "inperson" });
+        // and finally, make a couple of connections
+        instance.connect({ source: "opened", target: "phone1" });
+        instance.connect({ source: "phone1", target: "phone1" });
+        instance.connect({ source: "phone1", target: "inperson" });
+    });
 
     jsPlumb.fire("jsPlumbDemoLoaded", instance);
 
