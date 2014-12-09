@@ -42,6 +42,10 @@ var versions = {
         var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
         return 'dist/js/' + lib + '.jsPlumb' + suffix2 + suffix + '.js';
     },
+    getVersionedOutputFilename = function(grunt, lib, suffix) {
+        var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
+        return 'dist/js/' + lib + '.jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js';
+    },
     filter = function(l, v, t, o) {
         if (l.length === 0 || l.indexOf(v) != -1)
             o.push("src/" + t + "-" + v + ".js");
@@ -93,6 +97,12 @@ module.exports = function(grunt) {
             o[l] = {
                 src:getSources(grunt, l),
                 dest:getOutputFilename(grunt, l, suffix)
+            };
+        });
+        libraries.forEach(function(l) {
+            o[l] = {
+                src:getSources(grunt, l),
+                dest:getVersionedOutputFilename(grunt, l, suffix)
             };
         });
         return o;

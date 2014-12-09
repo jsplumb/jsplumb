@@ -2,7 +2,7 @@
   "name": "jsPlumb",
   "version": "1.7.3",
   "description": "pipe up your life",
-  "main": "index.js",
+  "main": "dist/js/jquery.jsPlumb.js",
   "jsPlumbWiki": "../wiki/jsPlumb.wiki",
   "directories": {
     "doc": "doc",
@@ -24,14 +24,14 @@
   "license": "MIT/GPL2",
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-uglify": "~0.2.2",
-    "grunt-contrib-copy": "~0.4.1",
-    "grunt-contrib-yuidoc": "0.5.2",
-    "grunt-contrib-qunit": "~0.2.2",
-    "grunt-contrib-jshint": "~0.6.2",
     "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.2",
+    "grunt-contrib-qunit": "~0.2.2",
+    "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-yuidoc": "^0.5.2",
     "grunt-jekyll": "~0.4.1"
   }
 }
