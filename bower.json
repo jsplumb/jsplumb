@@ -22,6 +22,27 @@
     "index.html",
     "build-support.js",
     "package.json",
-    "todo.txt"
-  ]
+    "todo.txt",
+    "**/.*",
+    "bower_components",
+    "test"
+  ],
+  "homepage": "http://jsplumbtoolkit.com",
+  "authors": [
+    "Simon Porritt <simon@jsplumbtoolkit.com>"
+  ],
+  "description": "Visual connectivity for webapps",
+  "main": [
+    "dist/js/dom.jsPlumb.js",
+    "dist/js/jquery.jsPlumb.js"
+  ],
+  "keywords": [
+    "javascript",
+    "svg",
+    "vml",
+    "graphs",
+    "visual",
+    "connectivity"
+  ],
+  "license": "MIT"
 }

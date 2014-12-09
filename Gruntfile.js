@@ -40,7 +40,7 @@ var versions = {
     },
     getOutputFilename = function(grunt, lib, suffix) {
         var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
-        return 'dist/js/' + lib + '.jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js';
+        return 'dist/js/' + lib + '.jsPlumb' + suffix2 + suffix + '.js';
     },
     filter = function(l, v, t, o) {
         if (l.length === 0 || l.indexOf(v) != -1)
@@ -157,9 +157,9 @@ module.exports = function(grunt) {
                   '-W099': true,
                   '-W018':true,
                   '-W038':true,
-				  '-W044':true,
-				  '-W053':true,
-				  '-W055':true
+          '-W044':true,
+          '-W053':true,
+          '-W055':true
                 },
             files:{
                 src: [ 'src/base-library-adapter.js', 'src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/jsPlumb.js']
@@ -171,17 +171,17 @@ module.exports = function(grunt) {
                 tasks: ['build-src']
             }
         },
-		jekyll: {
-    		options: {
-				src:'jekyll'
-    		},
-			dist:{
-				options:{
-					dest:"jekyll/_site",
-					config:'jekyll/_config.yml'
-				}
-			}
-		},
+    jekyll: {
+        options: {
+        src:'jekyll'
+        },
+      dist:{
+        options:{
+          dest:"jekyll/_site",
+          config:'jekyll/_config.yml'
+        }
+      }
+    },
         yuidoc: {
             compile: {
                 name: '<%= pkg.name %>',
