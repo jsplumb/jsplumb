@@ -348,7 +348,7 @@ module.exports = function(grunt) {
         }
         else {
             var oldV = new RegExp(grunt.config("pkg").version, "g");
-            // now update version number in all demos and src files
+            // now update version number in all demos and src files etc
             _replace("src", "*.js", oldV, newV);
             _replace("demo", "**/*.html", oldV, newV);
             _replace(".", "bower.json", oldV, newV);
