@@ -763,7 +763,7 @@
                         }
                     });
 
-                dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop);
+                dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop, true);
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function () {
                     var draggable = jsPlumb.getDragObject(arguments),
                         id = _jsPlumb.getAttribute(jsPlumb.getDOMElement(draggable), "dragId"),
@@ -1100,6 +1100,7 @@
 
                 if (_doContinue) {
                     continueFunction();
+                    return true;
                 }
                 else {
                     dontContinueFunction();
