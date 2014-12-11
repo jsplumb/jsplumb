@@ -2316,7 +2316,7 @@
             // wrap drop events as needed and initialise droppable
             var dropEvent = jsPlumb.dragEvents.drop;
             dropOptions.scope = dropOptions.scope || (p.scope || _currentInstance.Defaults.Scope);
-            dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);
+            dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop, true);
 
             // vanilla jsplumb only
             if (p.allowLoopback === false) {
