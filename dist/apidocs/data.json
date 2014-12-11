@@ -1,7 +1,7 @@
 {
     "project": {
         "name": "jsPlumb",
-        "description": "pipe up your life",
+        "description": "Visual connectivity for webapps",
         "version": "1.7.3",
         "url": ""
     },
