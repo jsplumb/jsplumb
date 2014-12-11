@@ -159,7 +159,8 @@ module.exports = function(grunt) {
                   '-W038':true,
 				  '-W044':true,
 				  '-W053':true,
-				  '-W055':true
+				  '-W055':true,
+                  '-W032':true
                 },
             files:{
                 src: [ 'src/base-library-adapter.js', 'src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/jsPlumb.js']
