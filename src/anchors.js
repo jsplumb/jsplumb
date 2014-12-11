@@ -301,7 +301,8 @@
                 ],
                 listToAddTo = lists[edgeId],
                 listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
-                i;
+                i,
+                candidate;
 
             if (listToRemoveFrom) {
                 var rIdx = jsPlumbUtil.findWithFunction(listToRemoveFrom, function (e) {
@@ -311,7 +312,7 @@
                     listToRemoveFrom.splice(rIdx, 1);
                     // get all connections from this list
                     for (i = 0; i < listToRemoveFrom.length; i++) {
-                        var candidate = listToRemoveFrom[i][1];
+                        candidate = listToRemoveFrom[i][1];
                         jsPlumbUtil.addWithFunction(connsToPaint, candidate, function (c) {
                             return c.id == candidate.id;
                         });
@@ -326,7 +327,7 @@
             }
 
             for (i = 0; i < listToAddTo.length; i++) {
-                var candidate = listToAddTo[i][1];
+                candidate = listToAddTo[i][1];
                 if (params.idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1)
                     firstMatchingElIdx = i;
                 jsPlumbUtil.addWithFunction(connsToPaint, candidate, function (c) {
