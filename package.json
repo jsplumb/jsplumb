@@ -21,6 +21,16 @@
     "visual",
     "connectivity"
   ],
+  "demos": [
+      [ "flowchart", "Flowchart" ],
+      [ "statemachine", "State Machine" ],
+      [ "draggableConnectors", "Drag and Drop"],
+      [ "perimeterAnchors", "Perimeter Anchors"],
+      [ "chart", "Hierarchical Chart" ],
+      [ "sourcesAndTargets", "Sources and Targets" ],
+      [ "dynamicAnchors", "Dynamic Anchors" ],
+      [ "animation", "Animation" ]
+  ],
   "author": "Simon Porritt",
   "license": "MIT/GPL2",
   "devDependencies": {
