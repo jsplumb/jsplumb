@@ -3141,15 +3141,35 @@
                                 _started = true;
                             });
                             options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
-                                _draw(element, ui);
+                                var elements = [];
+
+                                // TODO once jquery is no longer supported, remove this, as we will know
+                                // exactly what the method signature is. For now, we need to cater for the
+                                // fact that jquery ui provides two args and katavorio provides only one.
+                                if (arguments.length == 1 && arguments[0].selection && arguments[0].selection.length > 0) {
+                                    console.log("selection is ", arguments[0].selection);
+                                    elements = arguments[0].selection;
+                                }
+                                else {
+                                    elements = [ [ element, _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true) ] ];
+                                }
+
+                                // this is one element
+                                var _one = function(_e) {
+                                    _draw(_e[0], _e[1]);
+                                    _currentInstance.removeClass(_e[0], "jsPlumb_dragged");
+                                    _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
+                                    _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+                                    _currentInstance.dragManager.dragEnded(_e[0]);
+                                };
+
+                                for (var i = 0; i < elements.length; i++)
+                                    _one(elements[i]);
+
+                                // this is common across all
                                 _started = false;
-                                _currentInstance.removeClass(element, "jsPlumb_dragged");
                                 _currentInstance.setHoverSuspended(false);
-                                _currentInstance.select({source: element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
-                                _currentInstance.select({target: element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                 _currentInstance.setConnectionBeingDragged(false);
-                                _currentInstance.dragManager.dragEnded(element);
                             });
                             var elId = _getId(element); // need ID
                             draggableStates[elId] = true;
