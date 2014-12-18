@@ -19,13 +19,25 @@ module.exports = {
 	},
 
 	processMarkdownFile : function(grunt, inputDir, filename, template, base, outputDir) {
-	    var s = grunt.file.read(inputDir + "/" + filename),
+	    /*var s = grunt.file.read(inputDir + "/" + filename),
 	        o = this.createFrontMatter({
 	            layout:template,
 	            date:this.timestamp(),
 	            base:base
 	        });
 
-	    grunt.file.write(outputDir + "/" + filename, o + s);
-	}
+	    grunt.file.write(outputDir + "/" + filename, o + s);*/
+        this.createMarkdownFile(grunt, inputDir, filename, {
+            layout:template,
+            date:this.timestamp(),
+            base:base
+        }, outputDir);
+	},
+
+    createMarkdownFile:function(grunt, inputDir, filename, options, outputDir) {
+        var s = grunt.file.read(inputDir + "/" + filename),
+            o = this.createFrontMatter(options);
+
+        grunt.file.write(outputDir + "/" + filename, o + s);
+    }
 };
