@@ -10,16 +10,6 @@ var versions = {
     libraries = [ "jquery", "dom" ],
     libraryNames = [ "jQuery", "Vanilla" ],
     renderers = [ "svg", "vml" ],
-    demos = [
-        [ "flowchart", "Flowchart" ],
-        [ "statemachine", "State Machine" ],
-        [ "draggableConnectors", "Drag and Drop"],
-        [ "perimeterAnchors", "Perimeter Anchors"],
-        [ "chart", "Hierarchical Chart" ],
-        [ "sourcesAndTargets", "Sources and Targets" ],
-        [ "dynamicAnchors", "Dynamic Anchors" ],
-        [ "animation", "Animation" ]
-    ],
     extraLibraries = {
         jquery:[ get("MOTTLE") ],
         dom:[ get("MOTTLE"), get("KATAVORIO") ]
@@ -215,9 +205,12 @@ module.exports = function(grunt) {
 
 // ------------------------- prepare jekyll site task --------------------------------------------------------
 
+    var package = require('./package.json');
+    var support = require("./build-support.js");
+
     var _createDemos = function() {
-        for (var i = 0; i < demos.length; i++) {
-            var d = demos[i][0],
+        for (var i = 0; i < package.demos.length; i++) {
+            var d = package.demos[i][0],
                 js = grunt.file.read("demo/" + d + "/demo.js"),
                 css = grunt.file.read("demo/" + d + "/demo.css");
 
@@ -225,7 +218,7 @@ module.exports = function(grunt) {
             for (var j = 0; j < libraries.length; j++) {
                 var html = grunt.file.read("demo/" + d + "/" + libraries[j] + ".html");
                     m = html.match(/(<!-- demo.*>.*\n)(.*\n)*(.*\/demo -->)/),
-                    t = m[0].match(/<h4>(.*)<\/h4>/)[0];
+                    t = package.demos[i][1];
 
                 grunt.file.write("jekyll/demo/" + d + "/demo.js", js);
                 grunt.file.write("jekyll/demo/" + d + "/demo.css", css);
@@ -239,13 +232,12 @@ module.exports = function(grunt) {
                     base:"../..",
                     demo:d
                 });
-                grunt.file.write("jekyll/demo/" + demos[i][0] + "/" + libraries[j] +  ".html", fm + m[0]);
+                grunt.file.write("jekyll/demo/" + package.demos[i][0] + "/" + libraries[j] +  ".html", fm + m[0]);
             }
         }
     };
 
-    var package = require('./package.json');
-    var support = require("./build-support.js");
+
 
     //
     //  creates qunit test pages: we only need to create markdown files here; the jekyll layout fills in the rest.
