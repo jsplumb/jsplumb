@@ -7,6 +7,7 @@
   187 - jsPlumb.draggable() doesn't work with forms
   281 - beforeDetach not triggered by jsPlumb.detachAllConnections
   287 - Cannot drop source of connection on makeTarget element after 1.6.4
+  289 - Cannot prevent drop of source edge using beforeDrop on nested makeTarget elements
   297 - Distinguish drag\click for Vanilla jsPlumb
 
 
