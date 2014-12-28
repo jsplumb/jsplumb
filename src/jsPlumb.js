@@ -18,6 +18,8 @@
 
     "use strict";
 
+    var connectorTypes = [], rendererTypes = ["svg", "vml"];
+
     var _ju = jsPlumbUtil,
         _getOffset = function (el, _instance, relativeToRoot) {
             return jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
@@ -1988,7 +1990,6 @@
         this.idstamp = _idstamp;
 
         this.connectorsInitialized = false;
-        var connectorTypes = [], rendererTypes = ["svg", "vml"];
         this.registerConnectorType = function (connector, name) {
             connectorTypes.push([connector, name]);
         };
