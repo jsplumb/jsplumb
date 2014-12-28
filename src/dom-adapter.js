@@ -357,14 +357,15 @@
         clientLocation:_clientLocation,
 
         getAttribute:function(el, attName) {
-        	return el.getAttribute(attName);
+        	return el.getAttribute != null ? el.getAttribute(attName) : null;
         },
 
         setAttribute:function(el, a, v) {
-        	el.setAttribute(a, v);
+        	if (el.setAttribute != null) el.setAttribute(a, v);
         },
 
         setAttributes:function(el, atts) {
+            // TODO call this.setAttribute
             for (var i in atts)
                 el.setAttribute(i, atts[i]);
         },
