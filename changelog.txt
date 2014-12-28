@@ -1,6 +1,6 @@
 * 1.7.3
 
-    A minor bugfix release.
+    Predominantly a minor bugfix release, this version brings a degree of uniformity to the behaviour of elements configured with `makeSource` and `makeTarget`, and is a recommended upgrade if you are currently using any other 1.7.x version.
 
   ISSUES
 
@@ -9,6 +9,7 @@
   287 - Cannot drop source of connection on makeTarget element after 1.6.4
   289 - Cannot prevent drop of source edge using beforeDrop on nested makeTarget elements
   297 - Distinguish drag\click for Vanilla jsPlumb
+  298 - Fix for using library inside shadowDom (e.g. Polymer etc.)
 
 
 * 1.7.2
