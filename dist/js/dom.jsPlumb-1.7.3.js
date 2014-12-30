@@ -616,15 +616,16 @@
 		    return [{x:toPoint.x + x, y:toPoint.y + y}, {x:toPoint.x - x, y:toPoint.y - y}];
 		};	
 }).call(this);
-;(function() {
+;
+(function () {
 
     "use strict";
 
     var Sniff = {
-        android:navigator.userAgent.toLowerCase().indexOf("android") > -1
+        android: navigator.userAgent.toLowerCase().indexOf("android") > -1
     };
 
-    var matchesSelector = function(el, selector, ctx) {
+    var matchesSelector = function (el, selector, ctx) {
             ctx = ctx || el.parentNode;
             var possibles = ctx.querySelectorAll(selector);
             for (var i = 0; i < possibles.length; i++) {
@@ -634,9 +635,13 @@
             }
             return false;
         },
-        _gel = function(el) { return typeof el == "string" ? document.getElementById(el) : el; },
-        _t = function(e) { return e.srcElement || e.target; },
-        _d = function(l, fn) {
+        _gel = function (el) {
+            return typeof el == "string" ? document.getElementById(el) : el;
+        },
+        _t = function (e) {
+            return e.srcElement || e.target;
+        },
+        _d = function (l, fn) {
             for (var i = 0, j = l.length; i < j; i++) {
                 if (l[i] == fn) break;
             }
@@ -648,7 +653,7 @@
     // it to the associated object's map of handlers for the given event. this is what enables us
     // to unbind all events of some type, or all events (the second of which can be requested by the user,
     // but it also used by Mottle when an element is removed.)
-        _store = function(obj, event, fn) {
+        _store = function (obj, event, fn) {
             var g = guid++;
             obj.__ta = obj.__ta || {};
             obj.__ta[event] = obj.__ta[event] || {};
@@ -658,7 +663,7 @@
             fn.__tauid = g;
             return g;
         },
-        _unstore = function(obj, event, fn) {
+        _unstore = function (obj, event, fn) {
             obj.__ta && obj.__ta[event] && delete obj.__ta[event][fn.__tauid];
             // a handler might have attached extra functions, so we unbind those too.
             if (fn.__taExtra) {
@@ -670,11 +675,11 @@
             // a handler might have attached an unstore callback
             fn.__taUnstore && fn.__taUnstore();
         },
-        _curryChildFilter = function(children, obj, fn, evt) {
+        _curryChildFilter = function (children, obj, fn, evt) {
             if (children == null) return fn;
             else {
                 var c = children.split(","),
-                    _fn = function(e) {
+                    _fn = function (e) {
                         _fn.__tauid = fn.__tauid;
                         var t = _t(e);
                         for (var i = 0; i < c.length; i++) {
@@ -691,11 +696,11 @@
     // registers an 'extra' function on some event listener function we were given - a function that we
     // created and bound to the element as part of our housekeeping, and which we want to unbind and remove
     // whenever the given function is unbound.
-        registerExtraFunction = function(fn, evt, newFn) {
+        registerExtraFunction = function (fn, evt, newFn) {
             fn.__taExtra = fn.__taExtra || [];
             fn.__taExtra.push([evt, newFn]);
         },
-        DefaultHandler = function(obj, evt, fn, children) {
+        DefaultHandler = function (obj, evt, fn, children) {
             if (isTouchDevice && touchMap[evt]) {
                 _bind(obj, touchMap[evt], _curryChildFilter(children, obj, fn, touchMap[evt]), fn);
             }
@@ -714,11 +719,15 @@
             if (touchevents.indexOf(evt) == -1)
                 _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
         },
-        SmartClickHandler = function(obj, evt, fn, children) {
+        SmartClickHandler = function (obj, evt, fn, children) {
             if (obj.__taSmartClicks == null) {
-                var down = function(e) { obj.__tad = _pageLocation(e); },
-                    up = function(e) { obj.__tau = _pageLocation(e); },
-                    click = function(e) {
+                var down = function (e) {
+                        obj.__tad = _pageLocation(e);
+                    },
+                    up = function (e) {
+                        obj.__tau = _pageLocation(e);
+                    },
+                    click = function (e) {
                         if (obj.__tad && obj.__tau && obj.__tad[0] === obj.__tau[0] && obj.__tad[1] === obj.__tau[1]) {
                             for (var i = 0; i < obj.__taSmartClicks.length; i++)
                                 obj.__taSmartClicks[i].apply(_t(e), [ e ]);
@@ -733,17 +742,17 @@
             // store in the list of callbacks
             obj.__taSmartClicks.push(fn);
             // the unstore function removes this function from the object's listener list for this type.
-            fn.__taUnstore = function() {
+            fn.__taUnstore = function () {
                 _d(obj.__taSmartClicks, fn);
             };
         },
         _tapProfiles = {
-            "tap":{touches:1, taps:1},
-            "dbltap":{touches:1, taps:2},
-            "contextmenu":{touches:2, taps:1}
+            "tap": {touches: 1, taps: 1},
+            "dbltap": {touches: 1, taps: 2},
+            "contextmenu": {touches: 2, taps: 1}
         },
-        TapHandler = function(clickThreshold, dblClickThreshold) {
-            return function(obj, evt, fn, children) {
+        TapHandler = function (clickThreshold, dblClickThreshold) {
+            return function (obj, evt, fn, children) {
                 // if event is contextmenu, for devices which are mouse only, we want to
                 // use the default bind.
                 if (evt == "contextmenu" && isMouseDevice)
@@ -756,14 +765,14 @@
                     // the functions whose children are either null or match the element.
                     if (obj.__taTapHandler == null) {
                         var tt = obj.__taTapHandler = {
-                            tap:[],
-                            dbltap:[],
-                            contextmenu:[],
-                            down:false,
-                            taps:0,
-                            downSelectors:[]
+                            tap: [],
+                            dbltap: [],
+                            contextmenu: [],
+                            down: false,
+                            taps: 0,
+                            downSelectors: []
                         };
-                        var down = function(e) {
+                        var down = function (e) {
                                 var target = e.srcElement || e.target;
                                 for (var i = 0; i < tt.downSelectors.length; i++) {
                                     if (tt.downSelectors[i] == null || matchesSelector(target, tt.downSelectors[i], obj)) {
@@ -774,7 +783,7 @@
                                     }
                                 }
                             },
-                            up = function(e) {
+                            up = function (e) {
                                 if (tt.down) {
                                     var target = e.srcElement || e.target;
                                     tt.taps++;
@@ -790,10 +799,10 @@
                                     }
                                 }
                             },
-                            clearSingle = function() {
+                            clearSingle = function () {
                                 tt.down = false;
                             },
-                            clearDouble = function() {
+                            clearDouble = function () {
                                 tt.taps = 0;
                             };
 
@@ -805,35 +814,35 @@
 
                     obj.__taTapHandler[evt].push([fn, children]);
                     // the unstore function removes this function from the object's listener list for this type.
-                    fn.__taUnstore = function() {
+                    fn.__taUnstore = function () {
                         _d(obj.__taTapHandler[evt], fn);
                     };
                 }
             };
         },
-        meeHelper = function(type, evt, obj, target) {
+        meeHelper = function (type, evt, obj, target) {
             for (var i in obj.__tamee[type]) {
                 obj.__tamee[type][i].apply(target, [ evt ]);
             }
         },
-        MouseEnterExitHandler = function() {
+        MouseEnterExitHandler = function () {
             var activeElements = [];
-            return function(obj, evt, fn, children) {
+            return function (obj, evt, fn, children) {
                 if (!obj.__tamee) {
                     // __tamee holds a flag saying whether the mouse is currently "in" the element, and a list of
                     // both mouseenter and mouseexit functions.
-                    obj.__tamee = { over:false, mouseenter:[], mouseexit:[] };
+                    obj.__tamee = { over: false, mouseenter: [], mouseexit: [] };
                     // register over and out functions
-                    var over = function(e) {
+                    var over = function (e) {
                             var t = _t(e);
-                            if ( (children== null && (t == obj && !obj.__tamee.over)) || (matchesSelector(t, children, obj) && (t.__tamee == null || !t.__tamee.over)) ) {
+                            if ((children == null && (t == obj && !obj.__tamee.over)) || (matchesSelector(t, children, obj) && (t.__tamee == null || !t.__tamee.over))) {
                                 meeHelper("mouseenter", e, obj, t);
                                 t.__tamee = t.__tamee || {};
                                 t.__tamee.over = true;
                                 activeElements.push(t);
                             }
                         },
-                        out = function(e) {
+                        out = function (e) {
                             var t = _t(e);
                             // is the current target one of the activeElements? and is the
                             // related target NOT a descendant of it?
@@ -850,7 +859,7 @@
                     _bind(obj, "mouseout", _curryChildFilter(children, obj, out, "mouseout"), out);
                 }
 
-                fn.__taUnstore = function() {
+                fn.__taUnstore = function () {
                     delete obj.__tamee[evt][fn.__tauid];
                 };
 
@@ -860,13 +869,13 @@
         },
         isTouchDevice = "ontouchstart" in document.documentElement,
         isMouseDevice = "onmousedown" in document.documentElement,
-        touchMap = { "mousedown":"touchstart", "mouseup":"touchend", "mousemove":"touchmove" },
+        touchMap = { "mousedown": "touchstart", "mouseup": "touchend", "mousemove": "touchmove" },
         mouseevents = "mouseover mouseout mouseenter mouseexit mousedown mousemove mouseup click dblclick contextmenu tap dbltap",
         touchevents = [ "touchstart", "touchend", "touchmove" ],
-        touchstart="touchstart",touchend="touchend",touchmove="touchmove",
+        touchstart = "touchstart", touchend = "touchend", touchmove = "touchmove",
         ta_down = "__MottleDown", ta_up = "__MottleUp",
         ta_context_down = "__MottleContextDown", ta_context_up = "__MottleContextUp",
-        iev = (function() {
+        iev = (function () {
             var rv = -1;
             if (navigator.appName == 'Microsoft Internet Explorer') {
                 var ua = navigator.userAgent,
@@ -877,12 +886,12 @@
             return rv;
         })(),
         isIELT9 = iev > -1 && iev < 9,
-        _genLoc = function(e, prefix) {
+        _genLoc = function (e, prefix) {
             if (e == null) return [ 0, 0 ];
             var ts = _touches(e), t = _getTouch(ts, 0);
             return [t[prefix + "X"], t[prefix + "Y"]];
         },
-        _pageLocation = function(e) {
+        _pageLocation = function (e) {
             if (e == null) return [ 0, 0 ];
             if (isIELT9) {
                 return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
@@ -891,61 +900,70 @@
                 return _genLoc(e, "page");
             }
         },
-        _screenLocation = function(e) {
+        _screenLocation = function (e) {
             return _genLoc(e, "screen");
         },
-        _clientLocation = function(e) {
+        _clientLocation = function (e) {
             return _genLoc(e, "client");
         },
-        _getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
-        _touches = function(e) {
+        _getTouch = function (touches, idx) {
+            return touches.item ? touches.item(idx) : touches[idx];
+        },
+        _touches = function (e) {
             return e.touches && e.touches.length > 0 ? e.touches :
                     e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
                     e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
                 [ e ];
         },
-        _touchCount = function(e) { return _touches(e).length; },
+        _touchCount = function (e) {
+            return _touches(e).length;
+        },
     //http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html
-        _bind = function( obj, type, fn, originalFn) {
+        _bind = function (obj, type, fn, originalFn) {
             _store(obj, type, fn);
             originalFn.__tauid = fn.__tauid;
             if (obj.addEventListener)
-                obj.addEventListener( type, fn, false );
+                obj.addEventListener(type, fn, false);
             else if (obj.attachEvent) {
                 var key = type + fn.__tauid;
                 obj["e" + key] = fn;
                 // TODO look at replacing with .call(..)
-                obj[key] = function() {
-                    obj["e"+key] && obj["e"+key]( window.event );
+                obj[key] = function () {
+                    obj["e" + key] && obj["e" + key](window.event);
                 };
-                obj.attachEvent( "on"+type, obj[key] );
+                obj.attachEvent("on" + type, obj[key]);
             }
         },
-        _unbind = function( obj, type, fn) {
+        _unbind = function (obj, type, fn) {
             if (fn == null) return;
-            _each(obj, function() {
+            _each(obj, function () {
                 var _el = _gel(this);
                 _unstore(_el, type, fn);
                 // it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
                 if (fn.__tauid != null) {
                     if (_el.removeEventListener)
-                        _el.removeEventListener( type, fn, false );
+                        _el.removeEventListener(type, fn, false);
                     else if (this.detachEvent) {
                         var key = type + fn.__tauid;
-                        _el[key] && _el.detachEvent( "on"+type, _el[key] );
+                        _el[key] && _el.detachEvent("on" + type, _el[key]);
                         _el[key] = null;
-                        _el["e"+key] = null;
+                        _el["e" + key] = null;
                     }
                 }
             });
         },
-        _devNull = function() {},
-        _each = function(obj, fn) {
+        _devNull = function () {
+        },
+        _each = function (obj, fn) {
             if (obj == null) return;
             // if a list (or list-like), use it. if a string, get a list
             // by running the string through querySelectorAll. else, assume
             // it's an Element.
-            obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : typeof obj === "string" ? document.querySelectorAll(obj) : [ obj ];
+            obj = (typeof Window !== "undefined" && obj == obj.top) ? [ obj ] :
+                    (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj :
+                    typeof obj === "string" ? document.querySelectorAll(obj)
+                : [ obj ];
+
             for (var i = 0; i < obj.length; i++)
                 fn.apply(obj[i]);
         };
@@ -963,7 +981,7 @@
      * @param {Boolean} [params.smartClicks=false] If true, won't fire click events if the mouse has moved between mousedown and mouseup. Note that this functionality
      * requires that Mottle consume the mousedown event, and so may not be viable in all use cases.
      */
-    this.Mottle = function(params) {
+    this.Mottle = function (params) {
         params = params || {};
         var self = this,
             clickThreshold = params.clickThreshold || 150,
@@ -971,9 +989,9 @@
             mouseEnterExitHandler = new MouseEnterExitHandler(),
             tapHandler = new TapHandler(clickThreshold, dblClickThreshold),
             _smartClicks = params.smartClicks,
-            _doBind = function(obj, evt, fn, children) {
+            _doBind = function (obj, evt, fn, children) {
                 if (fn == null) return;
-                _each(obj, function() {
+                _each(obj, function () {
                     var _el = _gel(this);
                     if (_smartClicks && evt === "click")
                         SmartClickHandler(_el, evt, fn, children);
@@ -994,8 +1012,8 @@
          * @param {String|Element} el Element, or id of the element, to remove.
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
-        this.remove = function(el) {
-            _each(el, function() {
+        this.remove = function (el) {
+            _each(el, function () {
                 var _el = _gel(this);
                 if (_el.__ta) {
                     for (var evt in _el.__ta) {
@@ -1020,7 +1038,7 @@
          * @param {Function} fn Event handler function.
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
-        this.on = function(el, event, children, fn) {
+        this.on = function (el, event, children, fn) {
             var _el = arguments[0],
                 _c = arguments.length == 4 ? arguments[2] : null,
                 _e = arguments[1],
@@ -1040,7 +1058,7 @@
          * @param {Function} fn Event handler function.
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
-        this.off = function(el, evt, fn) {
+        this.off = function (el, evt, fn) {
             _unbind(el, evt, fn);
             return this;
         };
@@ -1055,35 +1073,35 @@
          * @param {Object} [payload] Optional object to set as `payload` on the generated event; useful for message passing.
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
-        this.trigger = function(el, event, originalEvent, payload) {
+        this.trigger = function (el, event, originalEvent, payload) {
             var eventToBind = (isTouchDevice && touchMap[event]) ? touchMap[event] : event;
             var pl = _pageLocation(originalEvent), sl = _screenLocation(originalEvent), cl = _clientLocation(originalEvent);
-            _each(el, function() {
+            _each(el, function () {
                 var _el = _gel(this), evt;
                 originalEvent = originalEvent || {
-                    screenX:sl[0],
-                    screenY:sl[1],
-                    clientX:cl[0],
-                    clientY:cl[1]
+                    screenX: sl[0],
+                    screenY: sl[1],
+                    clientX: cl[0],
+                    clientY: cl[1]
                 };
 
-                var _decorate = function(_evt) {
+                var _decorate = function (_evt) {
                     if (payload) _evt.payload = payload;
                 };
 
                 var eventGenerators = {
-                    "TouchEvent":function(evt) {
+                    "TouchEvent": function (evt) {
                         var t = document.createTouch(window, _el, 0, pl[0], pl[1],
                             sl[0], sl[1],
                             cl[0], cl[1],
-                            0,0,0,0);
+                            0, 0, 0, 0);
 
                         evt.initTouchEvent(eventToBind, true, true, window, 0,
                             sl[0], sl[1],
                             cl[0], cl[1],
                             false, false, false, false, document.createTouchList(t));
                     },
-                    "MouseEvents":function(evt) {
+                    "MouseEvents": function (evt) {
                         evt.initMouseEvent(eventToBind, true, true, window, 0,
                             sl[0], sl[1],
                             cl[0], cl[1],
@@ -1094,7 +1112,7 @@
                             var t = document.createTouch(window, _el, 0, pl[0], pl[1],
                                 sl[0], sl[1],
                                 cl[0], cl[1],
-                                0,0,0,0);
+                                0, 0, 0, 0);
 
                             evt.touches = evt.targetTouches = evt.changedTouches = document.createTouchList(t);
                         }
@@ -1129,7 +1147,7 @@
      * @param {Event} e Event to consume
      * @param {Boolean} [doNotPreventDefault=false] If true, does not call `preventDefault()` on the event.
      */
-    Mottle.consume = function(e, doNotPreventDefault) {
+    Mottle.consume = function (e, doNotPreventDefault) {
         if (e.stopPropagation)
             e.stopPropagation();
         else
@@ -1153,7 +1171,7 @@
      * @method setForceTouchEvents
      * @param {Boolean} value If true, force touch events to be on.
      */
-    Mottle.setForceTouchEvents = function(value) {
+    Mottle.setForceTouchEvents = function (value) {
         isTouchDevice = value;
     };
 
@@ -1163,7 +1181,7 @@
      * @method setForceMouseEvents
      * @param {Boolean} value If true, force mouse events to be on.
      */
-    Mottle.setForceMouseEvents = function(value) {
+    Mottle.setForceMouseEvents = function (value) {
         isMouseDevice = value;
     };
 
@@ -2761,14 +2779,15 @@
         clientLocation:_clientLocation,
 
         getAttribute:function(el, attName) {
-        	return el.getAttribute(attName);
+        	return el.getAttribute != null ? el.getAttribute(attName) : null;
         },
 
         setAttribute:function(el, a, v) {
-        	el.setAttribute(a, v);
+        	if (el.setAttribute != null) el.setAttribute(a, v);
         },
 
         setAttributes:function(el, atts) {
+            // TODO call this.setAttribute
             for (var i in atts)
                 el.setAttribute(i, atts[i]);
         },
@@ -2947,6 +2966,8 @@
 (function () {
 
     "use strict";
+
+    var connectorTypes = [], rendererTypes = ["svg", "vml"];
 
     var _ju = jsPlumbUtil,
         _getOffset = function (el, _instance, relativeToRoot) {
@@ -3600,19 +3621,31 @@
         for (var i in this.Defaults)
             _initialDefaults[i] = this.Defaults[i];
 
-        var _container;
+        var _container, _containerDelegations = [];
+        this.unbindContainer = function() {
+            if (_container != null && _containerDelegations.length > 0) {
+                for (var i = 0; i < _containerDelegations.length; i++) {
+                    _currentInstance.off(_container, _containerDelegations[i][0], _containerDelegations[i][1]);
+                }
+            }
+        };
         this.setContainer = function (c) {
 
-            // TODO if a _container already exists, unbind delegations from it
+            this.unbindContainer();
 
+            // get container as dom element.
             c = this.getDOMElement(c);
+            // move existing connections and endpoints, if any.
             this.select().each(function (conn) {
                 conn.moveParent(c);
             });
             this.selectEndpoints().each(function (ep) {
                 ep.moveParent(c);
             });
+
+            // set container.
             _container = c;
+            _containerDelegations.length = 0;
 
             var _oneDelegateHandler = function (id, e) {
                 var t = e.srcElement || e.target,
@@ -3624,21 +3657,26 @@
                 }
             };
 
+            var _addOneDelegate = function(eventId, selector, fn) {
+                _containerDelegations.push([eventId, fn]);
+                _currentInstance.on(_container, eventId, selector, fn);
+            };
+
             // delegate one event on the container to jsplumb elements. it might be possible to
             // abstract this out: each of endpoint, connection and overlay could register themselves with
             // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                _currentInstance.on(_container, id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
+                _addOneDelegate(id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function (e) {
+                _addOneDelegate(id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // overlays
-                _currentInstance.on(_container, id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function (e) {
+                _addOneDelegate(id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
             };
@@ -3671,8 +3709,6 @@
             return _currentInstance;
         };
 
-        //_currentInstance.floatingConnections = {};ctions = {};
-
         var log = null,
             initialized = false,
         // TODO remove from window scope
@@ -3682,11 +3718,9 @@
         // to anything.
             endpointsByElement = {},
             endpointsByUUID = {},
-        // SP new
             managedElements = {},
             offsets = {},
             offsetTimestamps = {},
-
             draggableStates = {},
             connectionBeingDragged = false,
             sizes = [],
@@ -3739,8 +3773,6 @@
 
                     if (repaintEls) {
                         for (var i in repaintEls) {
-                            // TODO this seems to cause a lag, but we provide the offset, so in theory it
-                            // should not.  is the timestamp failing?
                             _updateOffset({
                                 elId: repaintEls[i].id,
                                 offset: {
@@ -3800,7 +3832,7 @@
              * place on the server.
              */
             _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id) {
-                // TODO move to DragManager?
+                // move to DragManager?
                 if (!jsPlumbAdapter.headless) {
                     var _draggable = isDraggable == null ? false : isDraggable;
                     if (_draggable) {
@@ -4918,7 +4950,6 @@
         this.idstamp = _idstamp;
 
         this.connectorsInitialized = false;
-        var connectorTypes = [], rendererTypes = ["svg", "vml"];
         this.registerConnectorType = function (connector, name) {
             connectorTypes.push([connector, name]);
         };

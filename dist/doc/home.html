@@ -104,7 +104,7 @@
 
 <p>jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. </p>
 
-<p>The latest version is 1.7.3. From 1.7.0, jsPlumb has no longer supported YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it&#39;s faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the event handling and drag/drop code are also projects managed by jsPlumb, you&#39;re more likely to get a feature request for requirements related to those sorts of things to happen.</p>
+<p>The latest version is 1.7.3. From 1.7.0, jsPlumb has no longer supported YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it&#39;s faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the <a href="https://github.com/jsplumb/mottle">event handling</a> and <a href="https://github.com/jsplumb/katavorio">drag/drop</a> code are also projects managed by jsPlumb, you&#39;re more likely to get a feature request for requirements related to those sorts of things to happen. Plus, it is highly likely that support for the jQuery flavour will be dropped at some point. There is no date yet planned for this, but it seems likely.</p>
 
 <p>This will be the final version (apart from other bugfix releases in 1.7.x) to support IE8. The next major release will be 2.0.0, and this will work only in modern browsers that support SVG. </p>
 
@@ -213,7 +213,7 @@
 
 <h3>Multiple jsPlumb instances</h3>
 
-<p>jsPlumb is registered on the browser&#39;s window by default, providing one static instance for the whole page to use.  Should you need to, though, you can instantiate independent instances of jsPlumb, using the <code>getInstance</code> method, for example:</p>
+<p>jsPlumb is registered on the browser&#39;s window by default, providing one static instance for the whole page to use.  You can also instantiate independent instances of jsPlumb, using the <code>getInstance</code> method, for example:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">firstInstance</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">();</span>
 </code></pre></div>
 <p>The variable <code>firstInstance</code> can now be treated exactly as you would treat the <code>jsPlumb</code> variable - you can set defaults, call the <code>connect</code> method, whatever:</p>
@@ -248,6 +248,8 @@
   <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;someScope&quot;</span>   
 <span class="p">});</span>
 </code></pre></div>
+<p>It is recommended to use separate instances of jsPlumb wherever possible.</p>
+
 <p><a name="ids"></a></p>
 
 <h3>Element Ids</h3>
@@ -318,7 +320,7 @@
 <ul>
 <li>It is strongly recommended that you set a Container before you begin plumbing.</li>
 <li>A Container is some element that jsPlumb will use as the parent for all of the artefacts it adds to the UI. Typically, you would make this the parent element of the nodes you are connecting.</li>
-<li>If you do not specify a Container, jsPlumb will infer that the Container should be the <code>offsetParent</code> of the first element on which you call <code>addEndpoint</code>, <code>makeSource</code> or <code>makeTarget</code>, or the <code>offsetParent</code> of the source element in the first <code>connect</code> - whichever happens first.</li>
+<li>If you do not specify a Container, jsPlumb will infer that the Container should be the <code>offsetParent</code> of the first element on which you call <code>addEndpoint</code>, <code>makeSource</code> or <code>makeTarget</code>, or the <code>offsetParent</code> of the source element in the first <code>connect</code> call - whichever happens first.</li>
 </ul>
 
 <p>Let&#39;s discuss this in more detail.</p>
@@ -335,7 +337,11 @@
 
 <p><strong>Important</strong> This is a change from versions of jsPlumb prior to 1.6.2. In versions prior to 1.6.2 you could assign the Container directly via the <code>jsPlumb.Defaults.Container</code> property. You can still do this - we&#39;re in Javascript here of course, it&#39;s a free-for-all - but it will be ignored.</p>
 
-<p>Some examples:</p>
+<p><strong>Also Important</strong> If you happen to be using jsPlumb&#39;s <code>draggable</code> method to make other parts of your UI draggable (ie. not just things you&#39;re plumbing together), be careful not to call <code>draggable</code> on the element that is acting as the <code>Container</code> for the current instance, or you will see some odd situations occur when dragging.  It is suggested that the best thing to do if you wish to use jsPlumb to enable dragging on non-plumbed elements is to create a new instance:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">nonPlumbing</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">();</span>
+<span class="nx">nonPlumbing</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;some element&quot;</span><span class="p">);</span>
+</code></pre></div>
+<h5>Some examples</h5>
 
 <ul>
 <li>Set a Container to use as the default Container, using a jQuery selector, and then add an Endpoint.  The related UI artefact will be a child of the document body:</li>
