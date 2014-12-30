@@ -2,6 +2,11 @@
 
     Predominantly a minor bugfix release, this version brings a degree of uniformity to the behaviour of elements configured with `makeSource` and `makeTarget`, and is a recommended upgrade if you are currently using any other 1.7.x version.
 
+  BACKWARDS COMPATIBILITY
+
+    - the `doWhileSuspended` method has been aliased as `batch`, and `doWhileSuspended` is now deprecated, to be removed in
+    version 2.0.0.
+
   ISSUES
 
   187 - jsPlumb.draggable() doesn't work with forms
