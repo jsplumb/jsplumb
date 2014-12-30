@@ -312,9 +312,15 @@
  /**
  * Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless
  * you set &#x27;doNotRepaintAfterwards&#x27; to true)
- * @method doWhileSuspended
+ * @method batch
  * @param {Function} fn Function to execute while drawing is suspended.
  * @param {Boolean} [doNotRepaintAfterwards=false] If true, will not run a repaint after running the function supplied to this function.
+ */
+
+/**
+ * Original method name for the &#x60;batch&#x60; function.
+ * @method doWhileSuspended
+ * @deprecated Will be removed in version 2.0.0
  */
 
 /**
@@ -367,19 +373,15 @@
   * If multiple scopes are passed in, the return value will be a map of
   *
   *    &#x60;{ scope -&gt; [ connection... ] }&#x60;
-  * 
-  *  Parameters:
   *
-  *  	- scope	-	if the only argument to getConnections is a string, jsPlumb will treat that string as a scope filter, and return a list
-  *                  of connections that are in the given scope. use &#x27;*&#x27; for all scopes.
-  *      - options	-	if the argument is a JS object, you can specify a finer-grained filter:
-  *      
-  *      		-	*scope* may be a string specifying a single scope, or an array of strings, specifying multiple scopes. Also may have the value &#x27;*&#x27;, indicating any scope.
-  *      		-	*source* either a string representing an element id, a selector, or an array of ids. Also may have the value &#x27;*&#x27;, indicating any source.  Constrains the result to connections having this/these element(s) as source.
-  *      		-	*target* either a string representing an element id, a selector, or an array of ids. Also may have the value &#x27;*&#x27;, indicating any target.  Constrains the result to connections having this/these element(s) as target.		 
-  *		flat    -	return results in a flat array (don&#x27;t return an object whose keys are scopes and whose values are lists per scope).
-  * 
   * @method getConnections
+  * @param {String} scope If the first argument supplied to this function is a string, it is treated as a scope filter, and this method will return a list
+  *                  of connections that are in the given scope. use &#x27;*&#x27; for all scopes.
+  * @param {Object} options Filter options
+  * @param {String|String[]} [options.scope] may be a string specifying a single scope, or an array of strings, specifying multiple scopes. Also may have the value &#x27;*&#x27;, indicating any scope.
+  * @param {String|String[]|Selector} [options.source] either a string representing an element id, a selector, or an array of ids. Also may have the value &#x27;*&#x27;, indicating any source.  Constrains the result to connections having this/these element(s) as source.
+  * @param {String|String[]|Selector} [options.target] either a string representing an element id, a selector, or an array of ids. Also may have the value &#x27;*&#x27;, indicating any target.  Constrains the result to connections having this/these element(s) as target.
+  * @param {Boolean} [flat=false] return results in a flat array (don&#x27;t return an object whose keys are scopes and whose values are lists per scope).
   * @return {Array|Map} If only one scope was requested, a list of Connections that match the criteria. Otherwise, a map of [scope-&gt;connection lists].
   */
 

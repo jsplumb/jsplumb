@@ -3879,7 +3879,6 @@
                                 // exactly what the method signature is. For now, we need to cater for the
                                 // fact that jquery ui provides two args and katavorio provides only one.
                                 if (arguments.length == 1 && arguments[0].selection && arguments[0].selection.length > 0) {
-                                    console.log("selection is ", arguments[0].selection);
                                     elements = arguments[0].selection;
                                 }
                                 else {
@@ -4584,7 +4583,7 @@
 
         this.detachEveryConnection = function (params) {
             params = params || {};
-            _currentInstance.doWhileSuspended(function () {
+            _currentInstance.batch(function () {
                 for (var id in endpointsByElement) {
                     var endpoints = endpointsByElement[id];
                     if (endpoints && endpoints.length) {
@@ -5773,7 +5772,7 @@
          */
         this.remove = function (el, doNotRepaint) {
             var info = _info(el);
-            _currentInstance.doWhileSuspended(function () {
+            _currentInstance.batch(function () {
                 _currentInstance.removeAllEndpoints(info.id, true);
                 _currentInstance.dragManager.elementRemoved(info.id);
                 delete _currentInstance.floatingConnections[info.id];
@@ -5898,7 +5897,7 @@
             return _suspendedAt;
         };
 
-        this.doWhileSuspended = function (fn, doNotRepaintAfterwards) {
+        this.batch = function (fn, doNotRepaintAfterwards) {
             var _wasSuspended = this.isSuspendDrawing();
             if (!_wasSuspended)
                 this.setSuspendDrawing(true);
@@ -5911,6 +5910,8 @@
             if (!_wasSuspended)
                 this.setSuspendDrawing(false, !doNotRepaintAfterwards);
         };
+
+        this.doWhileSuspended = this.batch;
 
         this.getOffset = function (elId) {
             return offsets[elId];

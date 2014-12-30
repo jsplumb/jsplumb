@@ -258,6 +258,13 @@ A jsPlumbInstance manages a set of Endpoints and Connections.</p>
                                 
                             </li>
                         
+                            <li class="index-item method">
+                                <a href="#method_batch">batch</a>
+
+                                
+                                
+                            </li>
+                        
                             <li class="index-item method inherited">
                                 <a href="#method_bind">bind</a>
 
@@ -321,10 +328,12 @@ A jsPlumbInstance manages a set of Endpoints and Connections.</p>
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method deprecated">
                                 <a href="#method_doWhileSuspended">doWhileSuspended</a>
 
                                 
+                                
+                                    <span class="flag deprecated">deprecated</span>
                                 
                             </li>
                         
@@ -1494,7 +1503,7 @@ shared parameters that you wanted to reuse when you added Endpoints to a number 
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l133"><code>doc&#x2F;api&#x2F;jsplumb-api.js:133</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l139"><code>doc&#x2F;api&#x2F;jsplumb-api.js:139</code></a>
         
         </p>
 
@@ -1561,6 +1570,119 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
 
                     <div class="param-description">
                         <p>The &#39;options&#39; argument you want passed to the library&#39;s animate call.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_batch" class="method item">
+    <h3 class="name"><code>batch</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>fn</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[doNotRepaintAfterwards=false]</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/doc_api_jsplumb-api.js.html#l125"><code>doc&#x2F;api&#x2F;jsplumb-api.js:125</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless
+you set &#39;doNotRepaintAfterwards&#39; to true)</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">fn</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Function to execute while drawing is suspended.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[doNotRepaintAfterwards=false]</code>
+                        <span class="type">Boolean</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>If true, will not run a repaint after running the function supplied to this function.</p>
 
                     </div>
 
@@ -2019,7 +2141,7 @@ you have some common settings to share between multiple <code>connect</code> cal
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l753"><code>doc&#x2F;api&#x2F;jsplumb-api.js:753</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l755"><code>doc&#x2F;api&#x2F;jsplumb-api.js:755</code></a>
         
         </p>
 
@@ -2133,7 +2255,7 @@ you have some common settings to share between multiple <code>connect</code> cal
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l761"><code>doc&#x2F;api&#x2F;jsplumb-api.js:761</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l763"><code>doc&#x2F;api&#x2F;jsplumb-api.js:763</code></a>
         
         </p>
 
@@ -2223,7 +2345,7 @@ for that reason this function is often the best way to reset a jsPlumb instance.
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l689"><code>doc&#x2F;api&#x2F;jsplumb-api.js:689</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l691"><code>doc&#x2F;api&#x2F;jsplumb-api.js:691</code></a>
         
         </p>
 
@@ -2395,7 +2517,7 @@ call to detach an event, you probably don&#39;t need the callback.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l703"><code>doc&#x2F;api&#x2F;jsplumb-api.js:703</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l705"><code>doc&#x2F;api&#x2F;jsplumb-api.js:705</code></a>
         
         </p>
 
@@ -2561,7 +2683,7 @@ call to detach an event, you probably don&#39;t need the callback.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l712"><code>doc&#x2F;api&#x2F;jsplumb-api.js:712</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l714"><code>doc&#x2F;api&#x2F;jsplumb-api.js:714</code></a>
         
         </p>
 
@@ -2707,7 +2829,7 @@ call to detach an event, you probably don&#39;t need the callback.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l670"><code>doc&#x2F;api&#x2F;jsplumb-api.js:670</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l672"><code>doc&#x2F;api&#x2F;jsplumb-api.js:672</code></a>
         
         </p>
 
@@ -2770,31 +2892,17 @@ call to detach an event, you probably don&#39;t need the callback.</p>
 </div>
 
                 
-                    <div id="method_doWhileSuspended" class="method item">
+                    <div id="method_doWhileSuspended" class="method item deprecated">
     <h3 class="name"><code>doWhileSuspended</code></h3>
 
     
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>fn</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code class="optional">[doNotRepaintAfterwards=false]</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
+        <span class="paren">()</span>
     
 
     
 
+    
+        <span class="flag deprecated" title="Will be removed in version 2.0.0">deprecated</span>
     
 
     
@@ -2818,63 +2926,23 @@ call to detach an event, you probably don&#39;t need the callback.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l125"><code>doc&#x2F;api&#x2F;jsplumb-api.js:125</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l133"><code>doc&#x2F;api&#x2F;jsplumb-api.js:133</code></a>
         
         </p>
 
 
+        
+            <p>Deprecated: Will be removed in version 2.0.0</p>
         
 
         
     </div>
 
     <div class="description">
-        <p>Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless
-you set &#39;doNotRepaintAfterwards&#39; to true)</p>
+        <p>Original method name for the <code>batch</code> function.</p>
 
     </div>
 
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">fn</code>
-                        <span class="type">Function</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>Function to execute while drawing is suspended.</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name optional">[doNotRepaintAfterwards=false]</code>
-                        <span class="type">Boolean</span>
-                        <span class="flag optional" title="This parameter is optional.">optional</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>If true, will not run a repaint after running the function supplied to this function.</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
     
 
     
@@ -2937,7 +3005,7 @@ you set &#39;doNotRepaintAfterwards&#39; to true)</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l722"><code>doc&#x2F;api&#x2F;jsplumb-api.js:722</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l724"><code>doc&#x2F;api&#x2F;jsplumb-api.js:724</code></a>
         
         </p>
 
@@ -3080,7 +3148,7 @@ underlying library&#39;s drag method is always called from this method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l165"><code>doc&#x2F;api&#x2F;jsplumb-api.js:165</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l171"><code>doc&#x2F;api&#x2F;jsplumb-api.js:171</code></a>
         
         </p>
 
@@ -3342,7 +3410,7 @@ underlying library&#39;s drag method is always called from this method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l391"><code>doc&#x2F;api&#x2F;jsplumb-api.js:391</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l393"><code>doc&#x2F;api&#x2F;jsplumb-api.js:393</code></a>
         
         </p>
 
@@ -3384,7 +3452,29 @@ underlying library&#39;s drag method is always called from this method.</p>
     <h3 class="name"><code>getConnections</code></h3>
 
     
-        <span class="paren">()</span>
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>scope</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>options</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[flat=false]</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
     
 
     
@@ -3416,7 +3506,7 @@ underlying library&#39;s drag method is always called from this method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l175"><code>doc&#x2F;api&#x2F;jsplumb-api.js:175</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l181"><code>doc&#x2F;api&#x2F;jsplumb-api.js:181</code></a>
         
         </p>
 
@@ -3432,18 +3522,116 @@ the result will be a list of connections having that scope (passing in no scope 
 default scope).</p>
 <p>If multiple scopes are passed in, the return value will be a map of</p>
 <p>   <code>{ scope -&gt; [ connection... ] }</code></p>
-<p> Parameters:</p>
-<pre class="code prettyprint"><code> - scope    -    if the only argument to getConnections is a string, jsPlumb will treat that string as a scope filter, and return a list
-             of connections that are in the given scope. use &#39;*&#39; for all scopes.
- - options    -    if the argument is a JS object, you can specify a finer-grained filter:
-
-         -    *scope* may be a string specifying a single scope, or an array of strings, specifying multiple scopes. Also may have the value &#39;*&#39;, indicating any scope.
-         -    *source* either a string representing an element id, a selector, or an array of ids. Also may have the value &#39;*&#39;, indicating any source.  Constrains the result to connections having this/these element(s) as source.
-         -    *target* either a string representing an element id, a selector, or an array of ids. Also may have the value &#39;*&#39;, indicating any target.  Constrains the result to connections having this/these element(s) as target.         
-    flat    -    return results in a flat array (don&#39;t return an object whose keys are scopes and whose values are lists per scope).</code></pre>
 
     </div>
 
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">scope</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>If the first argument supplied to this function is a string, it is treated as a scope filter, and this method will return a list
+                 of connections that are in the given scope. use &#39;*&#39; for all scopes.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Filter options</p>
+
+                    </div>
+
+                    
+                        <ul class="params-list">
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name optional">[scope]</code>
+                                    <span class="type">String | String</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+                                
+
+                                <div class="param-description">
+                                    <p>may be a string specifying a single scope, or an array of strings, specifying multiple scopes. Also may have the value &#39;*&#39;, indicating any scope.</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name optional">[source]</code>
+                                    <span class="type">String | String | Selector</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+                                
+
+                                <div class="param-description">
+                                    <p>either a string representing an element id, a selector, or an array of ids. Also may have the value &#39;*&#39;, indicating any source.  Constrains the result to connections having this/these element(s) as source.</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name optional">[target]</code>
+                                    <span class="type">String | String | Selector</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+                                
+
+                                <div class="param-description">
+                                    <p>either a string representing an element id, a selector, or an array of ids. Also may have the value &#39;*&#39;, indicating any target.  Constrains the result to connections having this/these element(s) as target.</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                        </ul>
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[flat=false]</code>
+                        <span class="type">Boolean</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>return results in a flat array (don&#39;t return an object whose keys are scopes and whose values are lists per scope).</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
     
 
     
@@ -3577,7 +3765,7 @@ default scope).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l154"><code>doc&#x2F;api&#x2F;jsplumb-api.js:154</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l160"><code>doc&#x2F;api&#x2F;jsplumb-api.js:160</code></a>
         
         </p>
 
@@ -3652,7 +3840,7 @@ default scope).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l143"><code>doc&#x2F;api&#x2F;jsplumb-api.js:143</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l149"><code>doc&#x2F;api&#x2F;jsplumb-api.js:149</code></a>
         
         </p>
 
@@ -3725,7 +3913,7 @@ default scope).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l399"><code>doc&#x2F;api&#x2F;jsplumb-api.js:399</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l401"><code>doc&#x2F;api&#x2F;jsplumb-api.js:401</code></a>
         
         </p>
 
@@ -3814,7 +4002,7 @@ though.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l418"><code>doc&#x2F;api&#x2F;jsplumb-api.js:418</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l420"><code>doc&#x2F;api&#x2F;jsplumb-api.js:420</code></a>
         
         </p>
 
@@ -3921,7 +4109,7 @@ though.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l411"><code>doc&#x2F;api&#x2F;jsplumb-api.js:411</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l413"><code>doc&#x2F;api&#x2F;jsplumb-api.js:413</code></a>
         
         </p>
 
@@ -4024,7 +4212,7 @@ though.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l664"><code>doc&#x2F;api&#x2F;jsplumb-api.js:664</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l666"><code>doc&#x2F;api&#x2F;jsplumb-api.js:666</code></a>
         
         </p>
 
@@ -4108,7 +4296,7 @@ though.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l658"><code>doc&#x2F;api&#x2F;jsplumb-api.js:658</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l660"><code>doc&#x2F;api&#x2F;jsplumb-api.js:660</code></a>
         
         </p>
 
@@ -4191,7 +4379,7 @@ though.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l527"><code>doc&#x2F;api&#x2F;jsplumb-api.js:527</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l529"><code>doc&#x2F;api&#x2F;jsplumb-api.js:529</code></a>
         
         </p>
 
@@ -4300,7 +4488,7 @@ though.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l737"><code>doc&#x2F;api&#x2F;jsplumb-api.js:737</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l739"><code>doc&#x2F;api&#x2F;jsplumb-api.js:739</code></a>
         
         </p>
 
@@ -4413,7 +4601,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l513"><code>doc&#x2F;api&#x2F;jsplumb-api.js:513</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l515"><code>doc&#x2F;api&#x2F;jsplumb-api.js:515</code></a>
         
         </p>
 
@@ -4520,7 +4708,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l520"><code>doc&#x2F;api&#x2F;jsplumb-api.js:520</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l522"><code>doc&#x2F;api&#x2F;jsplumb-api.js:522</code></a>
         
         </p>
 
@@ -4633,7 +4821,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l768"><code>doc&#x2F;api&#x2F;jsplumb-api.js:768</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l770"><code>doc&#x2F;api&#x2F;jsplumb-api.js:770</code></a>
         
         </p>
 
@@ -4762,7 +4950,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l326"><code>doc&#x2F;api&#x2F;jsplumb-api.js:326</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l328"><code>doc&#x2F;api&#x2F;jsplumb-api.js:328</code></a>
         
         </p>
 
@@ -4985,7 +5173,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l314"><code>doc&#x2F;api&#x2F;jsplumb-api.js:314</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l316"><code>doc&#x2F;api&#x2F;jsplumb-api.js:316</code></a>
         
         </p>
 
@@ -5067,7 +5255,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l550"><code>doc&#x2F;api&#x2F;jsplumb-api.js:550</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l552"><code>doc&#x2F;api&#x2F;jsplumb-api.js:552</code></a>
         
         </p>
 
@@ -5174,7 +5362,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l557"><code>doc&#x2F;api&#x2F;jsplumb-api.js:557</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l559"><code>doc&#x2F;api&#x2F;jsplumb-api.js:559</code></a>
         
         </p>
 
@@ -5424,7 +5612,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l580"><code>doc&#x2F;api&#x2F;jsplumb-api.js:580</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l582"><code>doc&#x2F;api&#x2F;jsplumb-api.js:582</code></a>
         
         </p>
 
@@ -5531,7 +5719,7 @@ jsPlumb demo pages).</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l587"><code>doc&#x2F;api&#x2F;jsplumb-api.js:587</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l589"><code>doc&#x2F;api&#x2F;jsplumb-api.js:589</code></a>
         
         </p>
 
@@ -5775,7 +5963,7 @@ foo.qux[3].baz[3].shwee</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l453"><code>doc&#x2F;api&#x2F;jsplumb-api.js:453</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l455"><code>doc&#x2F;api&#x2F;jsplumb-api.js:455</code></a>
         
         </p>
 
@@ -5986,7 +6174,7 @@ the drag begins as usual. But if it returns false (the boolean false, not just s
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l426"><code>doc&#x2F;api&#x2F;jsplumb-api.js:426</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l428"><code>doc&#x2F;api&#x2F;jsplumb-api.js:428</code></a>
         
         </p>
 
@@ -6192,7 +6380,7 @@ The callback signature should look like this:
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l594"><code>doc&#x2F;api&#x2F;jsplumb-api.js:594</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l596"><code>doc&#x2F;api&#x2F;jsplumb-api.js:596</code></a>
         
         </p>
 
@@ -6283,7 +6471,7 @@ particularly true in the case of YUI, because of the asynchronous nature of the 
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l358"><code>doc&#x2F;api&#x2F;jsplumb-api.js:358</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l360"><code>doc&#x2F;api&#x2F;jsplumb-api.js:360</code></a>
         
         </p>
 
@@ -6382,7 +6570,7 @@ the fly.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l790"><code>doc&#x2F;api&#x2F;jsplumb-api.js:790</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l792"><code>doc&#x2F;api&#x2F;jsplumb-api.js:792</code></a>
         
         </p>
 
@@ -6487,7 +6675,7 @@ the fly.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l783"><code>doc&#x2F;api&#x2F;jsplumb-api.js:783</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l785"><code>doc&#x2F;api&#x2F;jsplumb-api.js:785</code></a>
         
         </p>
 
@@ -6583,7 +6771,7 @@ to contain keys with typeids and values with type specification objects.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l797"><code>doc&#x2F;api&#x2F;jsplumb-api.js:797</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l799"><code>doc&#x2F;api&#x2F;jsplumb-api.js:799</code></a>
         
         </p>
 
@@ -6688,7 +6876,7 @@ to contain keys with typeids and values with type specification objects.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l776"><code>doc&#x2F;api&#x2F;jsplumb-api.js:776</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l778"><code>doc&#x2F;api&#x2F;jsplumb-api.js:778</code></a>
         
         </p>
 
@@ -6778,7 +6966,7 @@ to contain keys with typeids and values with type specification objects.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l636"><code>doc&#x2F;api&#x2F;jsplumb-api.js:636</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l638"><code>doc&#x2F;api&#x2F;jsplumb-api.js:638</code></a>
         
         </p>
 
@@ -6878,7 +7066,7 @@ and their connections.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l624"><code>doc&#x2F;api&#x2F;jsplumb-api.js:624</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l626"><code>doc&#x2F;api&#x2F;jsplumb-api.js:626</code></a>
         
         </p>
 
@@ -7005,7 +7193,7 @@ whether it will exist or not, use {@link jsPlumbInstance#remove}.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l602"><code>doc&#x2F;api&#x2F;jsplumb-api.js:602</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l604"><code>doc&#x2F;api&#x2F;jsplumb-api.js:604</code></a>
         
         </p>
 
@@ -7112,7 +7300,7 @@ whether it will exist or not, use {@link jsPlumbInstance#remove}.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l616"><code>doc&#x2F;api&#x2F;jsplumb-api.js:616</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l618"><code>doc&#x2F;api&#x2F;jsplumb-api.js:618</code></a>
         
         </p>
 
@@ -7206,7 +7394,7 @@ whether it will exist or not, use {@link jsPlumbInstance#remove}.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l643"><code>doc&#x2F;api&#x2F;jsplumb-api.js:643</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l645"><code>doc&#x2F;api&#x2F;jsplumb-api.js:645</code></a>
         
         </p>
 
@@ -7347,7 +7535,7 @@ instead of this.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l610"><code>doc&#x2F;api&#x2F;jsplumb-api.js:610</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l612"><code>doc&#x2F;api&#x2F;jsplumb-api.js:612</code></a>
         
         </p>
 
@@ -7440,7 +7628,7 @@ instead of this.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l199"><code>doc&#x2F;api&#x2F;jsplumb-api.js:199</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l201"><code>doc&#x2F;api&#x2F;jsplumb-api.js:201</code></a>
         
         </p>
 
@@ -7667,7 +7855,7 @@ is as follows (where not specified, the operation&#39;s effect or return value i
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l262"><code>doc&#x2F;api&#x2F;jsplumb-api.js:262</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l264"><code>doc&#x2F;api&#x2F;jsplumb-api.js:264</code></a>
         
         </p>
 
@@ -7975,7 +8163,7 @@ arguments to the <code>jsPlumb.newInstance(...)</code> method, or via <code>jsPl
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l677"><code>doc&#x2F;api&#x2F;jsplumb-api.js:677</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l679"><code>doc&#x2F;api&#x2F;jsplumb-api.js:679</code></a>
         
         </p>
 
@@ -8194,7 +8382,7 @@ to use a different key for the default scope.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l319"><code>doc&#x2F;api&#x2F;jsplumb-api.js:319</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l321"><code>doc&#x2F;api&#x2F;jsplumb-api.js:321</code></a>
         
         </p>
 
@@ -8290,7 +8478,7 @@ drag/drop operations, and it is exposed because it might also be useful for you 
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l376"><code>doc&#x2F;api&#x2F;jsplumb-api.js:376</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l378"><code>doc&#x2F;api&#x2F;jsplumb-api.js:378</code></a>
         
         </p>
 
@@ -8401,7 +8589,7 @@ drag/drop operations, and it is exposed because it might also be useful for you 
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l384"><code>doc&#x2F;api&#x2F;jsplumb-api.js:384</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l386"><code>doc&#x2F;api&#x2F;jsplumb-api.js:386</code></a>
         
         </p>
 
@@ -8510,7 +8698,7 @@ drag/drop operations, and it is exposed because it might also be useful for you 
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l649"><code>doc&#x2F;api&#x2F;jsplumb-api.js:649</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l651"><code>doc&#x2F;api&#x2F;jsplumb-api.js:651</code></a>
         
         </p>
 
@@ -8621,7 +8809,7 @@ not support it, jsPlumb uses SVG.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l506"><code>doc&#x2F;api&#x2F;jsplumb-api.js:506</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l508"><code>doc&#x2F;api&#x2F;jsplumb-api.js:508</code></a>
         
         </p>
 
@@ -8891,7 +9079,7 @@ has been registered as a Connection source via makeSource, the Endpoint properti
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l534"><code>doc&#x2F;api&#x2F;jsplumb-api.js:534</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l536"><code>doc&#x2F;api&#x2F;jsplumb-api.js:536</code></a>
         
         </p>
 
@@ -9017,7 +9205,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l492"><code>doc&#x2F;api&#x2F;jsplumb-api.js:492</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l494"><code>doc&#x2F;api&#x2F;jsplumb-api.js:494</code></a>
         
         </p>
 
@@ -9259,7 +9447,7 @@ it will save you a lot of time.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l746"><code>doc&#x2F;api&#x2F;jsplumb-api.js:746</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l748"><code>doc&#x2F;api&#x2F;jsplumb-api.js:748</code></a>
         
         </p>
 
@@ -9616,7 +9804,7 @@ has been registered as a Connection target via makeTarget, the Endpoint properti
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l564"><code>doc&#x2F;api&#x2F;jsplumb-api.js:564</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l566"><code>doc&#x2F;api&#x2F;jsplumb-api.js:566</code></a>
         
         </p>
 
@@ -9742,7 +9930,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l499"><code>doc&#x2F;api&#x2F;jsplumb-api.js:499</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l501"><code>doc&#x2F;api&#x2F;jsplumb-api.js:501</code></a>
         
         </p>
 
@@ -9857,7 +10045,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l334"><code>doc&#x2F;api&#x2F;jsplumb-api.js:334</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l336"><code>doc&#x2F;api&#x2F;jsplumb-api.js:336</code></a>
         
         </p>
 
@@ -9982,7 +10170,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l351"><code>doc&#x2F;api&#x2F;jsplumb-api.js:351</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l353"><code>doc&#x2F;api&#x2F;jsplumb-api.js:353</code></a>
         
         </p>
 
@@ -10089,7 +10277,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l543"><code>doc&#x2F;api&#x2F;jsplumb-api.js:543</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l545"><code>doc&#x2F;api&#x2F;jsplumb-api.js:545</code></a>
         
         </p>
 
@@ -10196,7 +10384,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l573"><code>doc&#x2F;api&#x2F;jsplumb-api.js:573</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l575"><code>doc&#x2F;api&#x2F;jsplumb-api.js:575</code></a>
         
         </p>
 
@@ -10309,7 +10497,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l343"><code>doc&#x2F;api&#x2F;jsplumb-api.js:343</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l345"><code>doc&#x2F;api&#x2F;jsplumb-api.js:345</code></a>
         
         </p>
 
@@ -10510,7 +10698,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l480"><code>doc&#x2F;api&#x2F;jsplumb-api.js:480</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l482"><code>doc&#x2F;api&#x2F;jsplumb-api.js:482</code></a>
         
         </p>
 
@@ -10583,7 +10771,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l486"><code>doc&#x2F;api&#x2F;jsplumb-api.js:486</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l488"><code>doc&#x2F;api&#x2F;jsplumb-api.js:488</code></a>
         
         </p>
 
@@ -10666,7 +10854,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l473"><code>doc&#x2F;api&#x2F;jsplumb-api.js:473</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l475"><code>doc&#x2F;api&#x2F;jsplumb-api.js:475</code></a>
         
         </p>
 
@@ -10773,7 +10961,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l446"><code>doc&#x2F;api&#x2F;jsplumb-api.js:446</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l448"><code>doc&#x2F;api&#x2F;jsplumb-api.js:448</code></a>
         
         </p>
 
@@ -10865,7 +11053,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l809"><code>doc&#x2F;api&#x2F;jsplumb-api.js:809</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l811"><code>doc&#x2F;api&#x2F;jsplumb-api.js:811</code></a>
         
         </p>
 
@@ -10910,7 +11098,7 @@ method.</p>
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l893"><code>doc&#x2F;api&#x2F;jsplumb-api.js:893</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l895"><code>doc&#x2F;api&#x2F;jsplumb-api.js:895</code></a>
         
         </p>
 
@@ -10957,7 +11145,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l900"><code>doc&#x2F;api&#x2F;jsplumb-api.js:900</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l902"><code>doc&#x2F;api&#x2F;jsplumb-api.js:902</code></a>
         
         </p>
 
@@ -11002,7 +11190,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l905"><code>doc&#x2F;api&#x2F;jsplumb-api.js:905</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l907"><code>doc&#x2F;api&#x2F;jsplumb-api.js:907</code></a>
         
         </p>
 
@@ -11047,7 +11235,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l915"><code>doc&#x2F;api&#x2F;jsplumb-api.js:915</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l917"><code>doc&#x2F;api&#x2F;jsplumb-api.js:917</code></a>
         
         </p>
 
@@ -11092,7 +11280,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l910"><code>doc&#x2F;api&#x2F;jsplumb-api.js:910</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l912"><code>doc&#x2F;api&#x2F;jsplumb-api.js:912</code></a>
         
         </p>
 
@@ -11137,7 +11325,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l920"><code>doc&#x2F;api&#x2F;jsplumb-api.js:920</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l922"><code>doc&#x2F;api&#x2F;jsplumb-api.js:922</code></a>
         
         </p>
 
@@ -11182,7 +11370,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l925"><code>doc&#x2F;api&#x2F;jsplumb-api.js:925</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l927"><code>doc&#x2F;api&#x2F;jsplumb-api.js:927</code></a>
         
         </p>
 
@@ -11227,7 +11415,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l930"><code>doc&#x2F;api&#x2F;jsplumb-api.js:930</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l932"><code>doc&#x2F;api&#x2F;jsplumb-api.js:932</code></a>
         
         </p>
 
@@ -11272,7 +11460,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l935"><code>doc&#x2F;api&#x2F;jsplumb-api.js:935</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l937"><code>doc&#x2F;api&#x2F;jsplumb-api.js:937</code></a>
         
         </p>
 
@@ -11317,7 +11505,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l940"><code>doc&#x2F;api&#x2F;jsplumb-api.js:940</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l942"><code>doc&#x2F;api&#x2F;jsplumb-api.js:942</code></a>
         
         </p>
 
@@ -11362,7 +11550,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l945"><code>doc&#x2F;api&#x2F;jsplumb-api.js:945</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l947"><code>doc&#x2F;api&#x2F;jsplumb-api.js:947</code></a>
         
         </p>
 
@@ -11407,7 +11595,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l965"><code>doc&#x2F;api&#x2F;jsplumb-api.js:965</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l967"><code>doc&#x2F;api&#x2F;jsplumb-api.js:967</code></a>
         
         </p>
 
@@ -11452,7 +11640,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l970"><code>doc&#x2F;api&#x2F;jsplumb-api.js:970</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l972"><code>doc&#x2F;api&#x2F;jsplumb-api.js:972</code></a>
         
         </p>
 
@@ -11497,7 +11685,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l950"><code>doc&#x2F;api&#x2F;jsplumb-api.js:950</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l952"><code>doc&#x2F;api&#x2F;jsplumb-api.js:952</code></a>
         
         </p>
 
@@ -11542,7 +11730,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l955"><code>doc&#x2F;api&#x2F;jsplumb-api.js:955</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l957"><code>doc&#x2F;api&#x2F;jsplumb-api.js:957</code></a>
         
         </p>
 
@@ -11587,7 +11775,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l960"><code>doc&#x2F;api&#x2F;jsplumb-api.js:960</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l962"><code>doc&#x2F;api&#x2F;jsplumb-api.js:962</code></a>
         
         </p>
 
@@ -11632,7 +11820,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l975"><code>doc&#x2F;api&#x2F;jsplumb-api.js:975</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l977"><code>doc&#x2F;api&#x2F;jsplumb-api.js:977</code></a>
         
         </p>
 
@@ -11679,7 +11867,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l980"><code>doc&#x2F;api&#x2F;jsplumb-api.js:980</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l982"><code>doc&#x2F;api&#x2F;jsplumb-api.js:982</code></a>
         
         </p>
 
@@ -11726,7 +11914,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l986"><code>doc&#x2F;api&#x2F;jsplumb-api.js:986</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l988"><code>doc&#x2F;api&#x2F;jsplumb-api.js:988</code></a>
         
         </p>
 
@@ -11771,7 +11959,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l996"><code>doc&#x2F;api&#x2F;jsplumb-api.js:996</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l998"><code>doc&#x2F;api&#x2F;jsplumb-api.js:998</code></a>
         
         </p>
 
@@ -11816,7 +12004,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l991"><code>doc&#x2F;api&#x2F;jsplumb-api.js:991</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l993"><code>doc&#x2F;api&#x2F;jsplumb-api.js:993</code></a>
         
         </p>
 
@@ -11861,7 +12049,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l1001"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1001</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l1003"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1003</code></a>
         
         </p>
 
@@ -11906,7 +12094,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l1006"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1006</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l1008"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1008</code></a>
         
         </p>
 
@@ -11951,7 +12139,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l1011"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1011</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l1013"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1013</code></a>
         
         </p>
 
@@ -11996,7 +12184,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l1016"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1016</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l1018"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1018</code></a>
         
         </p>
 
@@ -12043,7 +12231,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l857"><code>doc&#x2F;api&#x2F;jsplumb-api.js:857</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l859"><code>doc&#x2F;api&#x2F;jsplumb-api.js:859</code></a>
         
         </p>
 
@@ -12088,7 +12276,7 @@ by including a script somewhere after the jsPlumb include, but before you make a
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l863"><code>doc&#x2F;api&#x2F;jsplumb-api.js:863</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l865"><code>doc&#x2F;api&#x2F;jsplumb-api.js:865</code></a>
         
         </p>
 
@@ -12134,7 +12322,7 @@ on their endpoints too. This value is a String and can have multiple classes; th
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l870"><code>doc&#x2F;api&#x2F;jsplumb-api.js:870</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l872"><code>doc&#x2F;api&#x2F;jsplumb-api.js:872</code></a>
         
         </p>
 
@@ -12182,7 +12370,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l821"><code>doc&#x2F;api&#x2F;jsplumb-api.js:821</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l823"><code>doc&#x2F;api&#x2F;jsplumb-api.js:823</code></a>
         
         </p>
 
@@ -12227,7 +12415,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l827"><code>doc&#x2F;api&#x2F;jsplumb-api.js:827</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l829"><code>doc&#x2F;api&#x2F;jsplumb-api.js:829</code></a>
         
         </p>
 
@@ -12272,7 +12460,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l839"><code>doc&#x2F;api&#x2F;jsplumb-api.js:839</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l841"><code>doc&#x2F;api&#x2F;jsplumb-api.js:841</code></a>
         
         </p>
 
@@ -12317,7 +12505,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l845"><code>doc&#x2F;api&#x2F;jsplumb-api.js:845</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l847"><code>doc&#x2F;api&#x2F;jsplumb-api.js:847</code></a>
         
         </p>
 
@@ -12362,7 +12550,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l833"><code>doc&#x2F;api&#x2F;jsplumb-api.js:833</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l835"><code>doc&#x2F;api&#x2F;jsplumb-api.js:835</code></a>
         
         </p>
 
@@ -12407,7 +12595,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l815"><code>doc&#x2F;api&#x2F;jsplumb-api.js:815</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l817"><code>doc&#x2F;api&#x2F;jsplumb-api.js:817</code></a>
         
         </p>
 
@@ -12452,7 +12640,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l851"><code>doc&#x2F;api&#x2F;jsplumb-api.js:851</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l853"><code>doc&#x2F;api&#x2F;jsplumb-api.js:853</code></a>
         
         </p>
 
@@ -12499,7 +12687,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l886"><code>doc&#x2F;api&#x2F;jsplumb-api.js:886</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l888"><code>doc&#x2F;api&#x2F;jsplumb-api.js:888</code></a>
         
         </p>
 
@@ -12546,7 +12734,7 @@ where "</em></strong>" is the CSS class associated with the current dynamic anch
             
         
         
-        <a href="../files/doc_api_jsplumb-api.js.html#l879"><code>doc&#x2F;api&#x2F;jsplumb-api.js:879</code></a>
+        <a href="../files/doc_api_jsplumb-api.js.html#l881"><code>doc&#x2F;api&#x2F;jsplumb-api.js:881</code></a>
         
         </p>
 

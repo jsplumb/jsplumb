@@ -40,7 +40,7 @@ jsPlumb.ready(function () {
 
 
     // suspend drawing and initialise.
-    instance.doWhileSuspended(function () {
+    instance.batch(function () {
         instance.makeSource(windows, {
             filter: ".ep",
             anchor: "Continuous",

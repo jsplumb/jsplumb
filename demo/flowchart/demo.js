@@ -90,7 +90,7 @@ jsPlumb.ready(function () {
     };
 
     // suspend drawing and initialise.
-    instance.doWhileSuspended(function () {
+    instance.batch(function () {
 
         _addEndpoints("Window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);
         _addEndpoints("Window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
