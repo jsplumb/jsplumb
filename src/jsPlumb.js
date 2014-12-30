@@ -672,19 +672,31 @@
         for (var i in this.Defaults)
             _initialDefaults[i] = this.Defaults[i];
 
-        var _container;
+        var _container, _containerDelegations = [];
+        this.unbindContainer = function() {
+            if (_container != null && _containerDelegations.length > 0) {
+                for (var i = 0; i < _containerDelegations.length; i++) {
+                    _currentInstance.off(_container, _containerDelegations[i][0], _containerDelegations[i][1]);
+                }
+            }
+        };
         this.setContainer = function (c) {
 
-            // TODO if a _container already exists, unbind delegations from it
+            this.unbindContainer();
 
+            // get container as dom element.
             c = this.getDOMElement(c);
+            // move existing connections and endpoints, if any.
             this.select().each(function (conn) {
                 conn.moveParent(c);
             });
             this.selectEndpoints().each(function (ep) {
                 ep.moveParent(c);
             });
+
+            // set container.
             _container = c;
+            _containerDelegations.length = 0;
 
             var _oneDelegateHandler = function (id, e) {
                 var t = e.srcElement || e.target,
@@ -696,21 +708,26 @@
                 }
             };
 
+            var _addOneDelegate = function(eventId, selector, fn) {
+                _containerDelegations.push([eventId, fn]);
+                _currentInstance.on(_container, eventId, selector, fn);
+            };
+
             // delegate one event on the container to jsplumb elements. it might be possible to
             // abstract this out: each of endpoint, connection and overlay could register themselves with
             // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                _currentInstance.on(_container, id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
+                _addOneDelegate(id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                _currentInstance.on(_container, id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function (e) {
+                _addOneDelegate(id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // overlays
-                _currentInstance.on(_container, id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function (e) {
+                _addOneDelegate(id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
             };
@@ -743,8 +760,6 @@
             return _currentInstance;
         };
 
-        //_currentInstance.floatingConnections = {};ctions = {};
-
         var log = null,
             initialized = false,
         // TODO remove from window scope
@@ -754,11 +769,9 @@
         // to anything.
             endpointsByElement = {},
             endpointsByUUID = {},
-        // SP new
             managedElements = {},
             offsets = {},
             offsetTimestamps = {},
-
             draggableStates = {},
             connectionBeingDragged = false,
             sizes = [],
@@ -811,8 +824,6 @@
 
                     if (repaintEls) {
                         for (var i in repaintEls) {
-                            // TODO this seems to cause a lag, but we provide the offset, so in theory it
-                            // should not.  is the timestamp failing?
                             _updateOffset({
                                 elId: repaintEls[i].id,
                                 offset: {
@@ -872,7 +883,7 @@
              * place on the server.
              */
             _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id) {
-                // TODO move to DragManager?
+                // move to DragManager?
                 if (!jsPlumbAdapter.headless) {
                     var _draggable = isDraggable == null ? false : isDraggable;
                     if (_draggable) {
