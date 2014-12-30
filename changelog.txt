@@ -10,6 +10,7 @@
   289 - Cannot prevent drop of source edge using beforeDrop on nested makeTarget elements
   297 - Distinguish drag\click for Vanilla jsPlumb
   298 - Fix for using library inside shadowDom (e.g. Polymer etc.)
+  307 - Setting Container multiple times fires events multiple times
 
 
 * 1.7.2
