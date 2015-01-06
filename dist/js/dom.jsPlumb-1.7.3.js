@@ -716,8 +716,8 @@
             //	_bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
             //if (isMouseDevice && mouseevents.indexOf(evt) != -1)
             // this will bind all mouse events and other stuff like keyboard events, resize, etc.
-            if (touchevents.indexOf(evt) == -1)
-                _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
+            //if (touchevents.indexOf(evt) == -1)
+            _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
         },
         SmartClickHandler = function (obj, evt, fn, children) {
             if (obj.__taSmartClicks == null) {
@@ -4005,13 +4005,20 @@
                         if (tep) {
                             // if not enabled, return.
                             if (!tep.enabled) return false;
-
                             var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
-                            if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
                             if (newEndpoint.isFull()) return false;
                             _p[type + "Endpoint"] = newEndpoint;
                             newEndpoint._doNotDeleteOnDetach = false; // reset.
                             newEndpoint._deleteOnDetach = true;
+                            if (tep.uniqueEndpoint) {
+                                if (!tep.endpoint) {
+                                    tep.endpoint = newEndpoint;
+                                    newEndpoint._deleteOnDetach = false;
+                                    newEndpoint._doNotDeleteOnDetach = true;
+                                }
+                                else
+                                    newEndpoint.finalEndpoint = tep.endpoint;
+                            }
                         }
                     }
                 };
@@ -5492,20 +5499,21 @@
 
                         ep = this.addEndpoint(elid, tempEndpointParams);
                         endpointAddedButNoDragYet = true;
+                        ep._doNotDeleteOnDetach = false; // reset.
+                        ep._deleteOnDetach = true;
 
                         // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
                         // of a successful connection we'll switch to that endpoint.
-                        //if (def.uniqueEndpoint && def.endpoint) ep.finalEndpoint = def.endpoint;
+                        // TODO this is the same code as the programmatic endpoints create on line 1050 ish
                         if (def.uniqueEndpoint) {
-                            if (!def.endpoint)
+                            if (!def.endpoint) {
                                 def.endpoint = ep;
+                                ep._deleteOnDetach = false;
+                                ep._doNotDeleteOnDetach = true;
+                            }
                             else
                                 ep.finalEndpoint = def.endpoint;
                         }
-
-                        // TODO test options to makeSource to see if we should do this?
-                        ep._doNotDeleteOnDetach = false; // reset.
-                        ep._deleteOnDetach = true;
 
                         var _delTempEndpoint = function () {
                             // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
