@@ -32,21 +32,6 @@
         </div>
 
         <div id="main">
-            <!-- explanation -->
-            <div class="explanation">
-                <i class="fa fa-info-circle"></i>
-                <h4>SOURCES &amp; TARGETS</h4>
-                <p>Drag Connections from the blue element to any of the green ones. You can also drag existing
-                    Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
-                <p>The <strong>makeSource</strong> and <strong>makeTarget</strong>functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
-                    elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
-                <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>
-                <p>
-                    The `disable` link is excluded from being a drag source through the use of the `filter` parameter on the makeSource call.
-                </p>
-                <p>The green elements are configured as Connection targets, with a `Top` anchor, and are draggable</p>
-            </div>
-            <!-- /explanation -->
 			<!-- demo -->
             <div class="demo source-target-demo" id="source-target-demo">
                 <div class="window" id="sourceWindow1">
@@ -61,6 +46,20 @@
             </div>
 			<!-- /demo -->
         </div>
+        <!-- explanation -->
+        <div class="explanation">
+            <h4>SOURCES &amp; TARGETS</h4>
+            <p>Drag Connections from the blue element to any of the green ones. You can also drag existing
+                Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
+            <p>The <strong>makeSource</strong> and <strong>makeTarget</strong>functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
+                elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
+            <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>
+            <p>
+                The `disable` link is excluded from being a drag source through the use of the `filter` parameter on the makeSource call.
+            </p>
+            <p>The green elements are configured as Connection targets, with a `Top` anchor, and are draggable</p>
+        </div>
+        <!-- /explanation -->
 
 
         <!-- JS -->
