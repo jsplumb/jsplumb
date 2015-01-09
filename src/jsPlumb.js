@@ -218,6 +218,10 @@
             this._jsPlumb.parameters = p;
         },
 
+        hasClass:function(clazz) {
+            return jsPlumbAdapter.hasClass(this.canvas);
+        },
+
         addClass: function (clazz) {
             jsPlumbAdapter.addClass(this.canvas, clazz);
         },
