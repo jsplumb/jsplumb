@@ -2,10 +2,16 @@
 
     Predominantly a minor bugfix release, this version brings a degree of uniformity to the behaviour of elements configured with `makeSource` and `makeTarget`, and is a recommended upgrade if you are currently using any other 1.7.x version.
 
+
   BACKWARDS COMPATIBILITY
 
     - the `doWhileSuspended` method has been aliased as `batch`, and `doWhileSuspended` is now deprecated, to be removed in
     version 2.0.0.
+
+  NEW FUNCTIONALITY
+
+  - there is a new interceptor in this release: `beforeDrag`.  You can use it to abort dragging a connection as soon as it
+  starts, and also to supply the initial data for a Connection that uses a parameterized type.
 
   ISSUES
 
