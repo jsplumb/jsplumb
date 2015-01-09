@@ -102,7 +102,7 @@
             <div class="markdown-body">
                 <h3>Interceptors</h3>
 
-<p>Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are currently two interceptors supported - <code>beforeDrop</code>, which is called when the user has dropped a Connection onto some target, and <code>beforeDetach</code>, which is called when the user is attempting to detach a Connection. </p>
+<p>Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are three interceptors supported - <code>beforeDrop</code>, which is called when the user has dropped a Connection onto some target, <code>beforeDetach</code>, which is called when the user is attempting to detach a Connection, and <code>beforeDrag</code>, which is called when the user begins to drag a Connection.</p>
 
 <p>Interceptors can be registered via the <code>bind</code> method on an instance of jsPlumb just like any other event listeners, and they can also be passed in to the <code>addEndpoint</code>, <code>makeSource</code> and <code>makeTarget</code> methods.  </p>
 
@@ -129,6 +129,25 @@
 <p>Note that this interceptor is passed the actual Connection object; this is different from the beforeDrop interceptor discussed above: in this case, we&#39;ve already got a Connection, but with beforeDrop we are yet to confirm that a Connection should be created.</p>
 
 <p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated or left on its current target.</p>
+
+<h4>beforeDrag</h4>
+
+<p>This is called when the user starts to drag a new Connection.  These parameters are passed to the function you provide:</p>
+
+<ul>
+<li><strong>endpoint</strong> the Endpoint from which the user is dragging a Connection</li>
+<li><strong>source</strong> the DOM element the Endpoint belongs to</li>
+<li><strong>sourceId</strong> the ID of the DOM element the Endpoint belongs to</li>
+</ul>
+
+<p><code>beforeDrag</code> operates slightly differently to the other interceptors: it is still the case that returning false from your interceptor function will abort the current activity - in this case cancelling the drag - but  you can also return an object from your interceptor, and this object will be passed in as the <code>data</code> parameter in the constructor of the new Connection:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbInstance</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;beforeDrag&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+   <span class="nx">foo</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This is particularly useful if you have defined any <a href="types#parameterized-connection-type">parameterized connection types</a>. With this mechanism you can arrange for a newly dragged Connection to be populated with data of your choice.</p>
 
             </div>
         </div>
