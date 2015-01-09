@@ -245,7 +245,7 @@
         this.isSource = params.isSource || false;
         this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;
-        this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.                
+        this._jsPlumb.maxConnections = params.maxConnections == null ? _jsPlumb.Defaults.MaxConnections : params.maxConnections; // maximum number of connections this endpoint can be the source of.
         this.canvas = this.endpoint.canvas;
         this.canvas._jsPlumb = this;
 
@@ -480,11 +480,19 @@
                     // if no connection and we're not a source - or temporarily a source, as is the case with makeSource - return.
                     if (jpc == null && !this.isSource && !this.isTemporarySource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.
-                    if (this.isSource && this.isFull() && !this.dragAllowedWhenFull) _continue = false;
+                    if (this.isSource && this.isFull() && !(jpc != null && this.dragAllowedWhenFull)) _continue = false;
                     // if the connection was setup as not detachable or one of its endpoints
                     // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
                     // is set to false...
                     if (jpc != null && !jpc.isDetachable()) _continue = false;
+
+                    var beforeDrag = _jsPlumb.checkCondition("beforeDrag", {
+                        endpoint:this,
+                        source:this.element,
+                        sourceId:this.elementId
+                    });
+                    if (beforeDrag === false) _continue = false;
+                    // else we might have been given some data. we'll pass it in to a new connection as 'data'.
 
                     if (_continue === false) {
                         // this is for mootools and yui. returning false from this causes jquery to stop drag.
@@ -553,7 +561,8 @@
                             overlays: params.connectorOverlays,
                             type: this.connectionType,
                             cssClass: this.connectorClass,
-                            hoverClass: this.connectorHoverClass
+                            hoverClass: this.connectorHoverClass,
+                            data:beforeDrag
                         });
                         //jpc.pending = true; // mark this connection as not having been established.
                         jpc.addClass(_jsPlumb.draggingClass);
@@ -877,7 +886,7 @@
                 this.endpoint.setHover(h);
         },
         isFull: function () {
-            return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);
+            return this._jsPlumb.maxConnections === 0 ? true : !(this.isFloating() || this._jsPlumb.maxConnections < 0 || this.connections.length < this._jsPlumb.maxConnections);
         },
         /**
          * private but needs to be exposed.
