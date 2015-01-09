@@ -5301,6 +5301,26 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
     });
 
+    test(" add connection type on existing connection", function () {
+        var basicType = {
+            connector: "Flowchart",
+            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
+            hoverPaintStyle: { strokeStyle: "blue" },
+            cssClass: "FOO"
+        };
+
+        _jsPlumb.registerConnectionType("basic", basicType);
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = _jsPlumb.connect({source: d1, target: d2});
+
+        c.addType("basic");
+        equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+        equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+        equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
+        equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+        ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
+    });
+
     test(" set connection type on existing connection then change type", function () {
         var basicType = {
             connector: "Flowchart",
@@ -5514,12 +5534,19 @@ var testSuite = function (renderMode, _jsPlumb) {
             type: "normal"
         });
 
-        ok(c.getOverlay("myLabel1") != null, "label overlay was retrieved");
+        var labelOverlay = c.getOverlay("myLabel1");
+        ok(labelOverlay != null, "label overlay was retrieved");
+        labelOverlay.setLabel("foo");
+        ok(labelOverlay.getLabel() === "foo", "label set correctly on overlay");
 
         c.addType("selected");
-        ok(c.getOverlay("myLabel1") != null, "label overlay was not blown away");
+        labelOverlay = c.getOverlay("myLabel1");
+        ok(labelOverlay != null, "label overlay was not blown away");
         c.removeType("selected");
-        ok(c.getOverlay("myLabel1") != null, "label overlay was not blown away");
+        labelOverlay = c.getOverlay("myLabel1");
+        ok(labelOverlay != null, "label overlay was not blown away");
+
+        ok(labelOverlay.getLabel() === "foo", "label set correctly on overlay");
     });
 
     test("endpoint type tests, check overlays do not disappear", function () {
@@ -5851,7 +5878,12 @@ var testSuite = function (renderMode, _jsPlumb) {
         var basicType = {
             connector: "Flowchart",
             paintStyle: { strokeStyle: "${strokeColor}", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" }
+            hoverPaintStyle: { strokeStyle: "blue" },
+            overlays:[
+                ["Label", {id:"one", label:"one" }],
+                ["Label", {id:"two", label:"${label}" }],
+                ["Label", {id:"three", label:"${missing}" }]
+            ]
         };
 
         _jsPlumb.registerConnectionType("basic", basicType);
@@ -5860,13 +5892,20 @@ var testSuite = function (renderMode, _jsPlumb) {
                 source: d1,
                 target: d2,
                 type: "basic",
-                data: { strokeColor: "yellow" }
+                data: { strokeColor: "yellow", label:"label" }
             });
 
         equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
         equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
         equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
         equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+
+        var o1 = c.getOverlay("one");
+        equal(o1.getLabel(),"one", "static label set correctly");
+        var o2 = c.getOverlay("two");
+        equal(o2.getLabel(), "label", "parameterised label with provided value set correctly");
+        var o3 = c.getOverlay("three");
+        equal(o3.getLabel(), "", "parameterised label with missing value set correctly");
     });
 
     test(" create connection with parameterised type, label", function () {
