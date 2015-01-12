@@ -47,11 +47,6 @@
                 if (o.hasOwnProperty(i)) return false;
             }
             return true;
-        },
-        pointHelper = function (p1, p2, fn) {
-            p1 = _isa(p1) ? p1 : [p1.x, p1.y];
-            p2 = _isa(p2) ? p2 : [p2.x, p2.y];
-            return fn(p1, p2);
         };
 
     var root = this;
