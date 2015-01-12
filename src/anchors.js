@@ -378,6 +378,8 @@
                 // add entry for new target
                 jsPlumbUtil.addToList(connectionsByElementId, newTargetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor]);
             }
+
+            connection.updateConnectedClass();
         };
 
         //
@@ -404,6 +406,8 @@
                 }
                 // add entry for new source
                 jsPlumbUtil.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);
+
+                connection.updateConnectedClass();
             }
         };
 
