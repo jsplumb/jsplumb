@@ -1097,8 +1097,8 @@
                 params.endpointsByUUID = endpointsByUUID;
                 params.endpointsByElement = endpointsByElement;
                 params.finaliseConnection = _finaliseConnection;
+                params.id = "con_" + _idstamp();
                 var con = new connectionFunc(params);
-                con.id = "con_" + _idstamp();
 
                 // if the connection is draggable, then maybe we need to tell the target endpoint to init the
                 // dragging code. it won't run again if it already configured to be draggable.
@@ -1308,6 +1308,7 @@
         };
 
         this.connectorClass = "_jsPlumb_connector";
+        this.connectedClass = "_jsPlumb_connected";
         this.hoverClass = "_jsPlumb_hover";
         this.endpointClass = "_jsPlumb_endpoint";
         this.endpointConnectedClass = "_jsPlumb_endpoint_connected";
@@ -1902,7 +1903,6 @@
                 }
             });
         };
-
 
         this.select = function (params) {
             params = params || {};
@@ -2503,7 +2503,7 @@
                             ep.setAnchor(newAnchor, true);
                             ep.repaint();
                             this.repaint(ep.elementId);
-                            this.repaint(oldConnection.targetId);
+                            if (oldConnection != null) this.repaint(oldConnection.targetId);
                         }
                     }.bind(this));
 
