@@ -91,3 +91,7 @@ font-size:0.9em;
 	color:white;	
 	border:1px solid white;
 }
+
+.window._jsPlumb_connected {
+    border:2px solid green;
+}
