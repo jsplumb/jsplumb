@@ -1091,15 +1091,24 @@
 
                 var eventGenerators = {
                     "TouchEvent": function (evt) {
-                        var t = document.createTouch(window, _el, 0, pl[0], pl[1],
+                        var touch = document.createTouch(window, _el, 0, pl[0], pl[1],
                             sl[0], sl[1],
                             cl[0], cl[1],
                             0, 0, 0, 0);
 
-                        evt.initTouchEvent(eventToBind, true, true, window, 0,
-                            sl[0], sl[1],
-                            cl[0], cl[1],
-                            false, false, false, false, document.createTouchList(t));
+                        // https://gist.github.com/sstephenson/448808
+                        var touches = document.createTouchList(touch);
+                        var targetTouches = document.createTouchList(touch);
+                        var changedTouches = document.createTouchList(touch);
+                        evt.initTouchEvent(eventToBind, true, true, window, null, sl[0], sl[1],
+                            cl[0], cl[1], false, false, false, false,
+                            touches, targetTouches, changedTouches, 1, 0);
+                        /*
+
+                         evt.initTouchEvent(eventToBind, true, true, window, 0,
+                         sl[0], sl[1],
+                         cl[0], cl[1],
+                         false, false, false, false, document.createTouchList(t));*/
                     },
                     "MouseEvents": function (evt) {
                         evt.initMouseEvent(eventToBind, true, true, window, 0,
@@ -6315,6 +6324,7 @@
             // if suspended endpoint has been cleaned up, bail.
             if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb == null) return;
 
+            // ensure we dont bother trying to drop sources on non-source eps, and same for target.
             var idx = _jsPlumb.getFloatingAnchorIndex(jpc);
             if (idx === 0 && !dhParams.isSource) return;
             if (idx === 1 && !dhParams.isTarget) return;
@@ -6468,33 +6478,7 @@
                     dontContinueFunction();
                 }
             }
-            /*else {
-             this is all related to this issue
-             // https://github.com/sporritt/jsPlumb/issues/289
-             // fiddle: http://jsfiddle.net/nkh4v3ya/20/
-             //
-             // where i am at right now is slightly confused. i need to write down the various inputs (which endpoint
-             // is being dragged, is the connection new etc) and the various states (is a source being dropped on an
-             // ep or element that is a source? etc), and figure out what needs to be done. also take reattach into account
-             // i suspect this code will be able to be cleaned up significantly.
-             if (jpc.suspendedEndpoint) {
-             jpc.endpoints[idx] = jpc.suspendedEndpoint;
-             jpc.setHover(false);
-             jpc._forceDetach = true;
-             if (idx === 0) {
-             jpc.source = jpc.suspendedEndpoint.element;
-             jpc.sourceId = jpc.suspendedEndpoint.elementId;
-             } else {
-             jpc.target = jpc.suspendedEndpoint.element;
-             jpc.targetId = jpc.suspendedEndpoint.elementId;
-             }
-             jpc.suspendedEndpoint.addConnection(jpc);
 
-             _jsPlumb.repaint(jpc.sourceId);
-             jpc._forceDetach = false;
-             }
-             else if(dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
-             }*/
             if (dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
 
             _jsPlumb.currentlyDragging = false;
