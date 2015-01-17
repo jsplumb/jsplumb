@@ -3044,8 +3044,7 @@
                 component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
             }
         },
-    //events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
-        events = [ "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
+        events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
         eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
         _updateAttachedElements = function (component, state, timestamp, sourceElement) {
             var affectedElements = component.getAttachedElements();
@@ -5598,7 +5597,7 @@
                     // to prevent the element drag function from kicking in when we want to
                     // drag a new connection
                     if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
-                        _currentInstance.setDragFilter(_el, p.filter, p.filterExclude);
+                        _currentInstance.setDragFilter(_el, p.filter/*, p.filterExclude*/);
                     }
 
                     var dropOptions = jsPlumb.extend({}, p.dropOptions || {});

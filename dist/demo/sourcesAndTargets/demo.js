@@ -72,8 +72,7 @@ jsPlumb.ready(function () {
         // configure the .smallWindows as targets.
         instance.makeTarget(smallWindows, {
             //anchor:"TopCenter",				// you could supply this if you want, but it was set in the defaults above.
-            dropOptions: { hoverClass: "hover" },
-            uniqueEndpoint: true
+            dropOptions: { hoverClass: "hover" }
         });
 
         // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           
