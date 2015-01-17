@@ -515,21 +515,29 @@
 
 <p>I said above it is recommended that you do this.  It really is.  It makes an enormous difference to the load time when you&#39;re dealing with a lot of Connections on slower browsers.</p>
 
-<h6>doWhileSuspended</h6>
+<h6>batch</h6>
 
 <p>This function abstracts out the pattern of suspending drawing, doing something, and then re-enabling drawing:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">doWhileSuspended</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="p">[</span><span class="nx">doNotRepaintAfterwards</span><span class="p">]);</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">batch</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="p">[</span><span class="nx">doNotRepaintAfterwards</span><span class="p">]);</span>
 </code></pre></div>
 <p>Example usage:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">doWhileSuspended</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">batch</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
   <span class="c1">// import here</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">j</span> <span class="o">=</span> <span class="nx">connections</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">j</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="nx">connections</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+  <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
+<p>Here, we&#39;ve assumed that <code>connections</code> is an array of objects that would be suitable to pass to the <code>connect</code> method, for example:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherElement&quot;</span> <span class="p">}</span>
+</code></pre></div>
 <p>By default, this will run a repaint at the end. But you can suppress that, should you want to:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">doWhileSuspended</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">batch</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
   <span class="c1">// import here</span>
 <span class="p">},</span> <span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
+<p><em>Note</em> this method used to be called <code>doWhileSuspended</code> and was renamed in version 1.7.3.</p>
+
 <h4>Anchor Types</h4>
 
 <p>Continuous anchors are the type that require the most maths, because they have to calculate their position every time a paint cycle occurs. </p>

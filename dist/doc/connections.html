@@ -235,11 +235,11 @@
 <span class="p">};</span>
 </code></pre></div>
 <p>Notice there is no <code>anchor</code> set.  Here we apply it to two elements, at a different location in each:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s1">&#39;element1&#39;</span><span class="p">,</span> <span class="p">{</span> 
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;element1&quot;</span><span class="p">,</span> <span class="p">{</span> 
   <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Bottom&quot;</span>
 <span class="p">},</span> <span class="nx">exampleGreyEndpointOptions</span><span class="p">));</span> 
 
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s1">&#39;element2&#39;</span><span class="p">,</span> <span class="p">{</span> 
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;element2&quot;</span><span class="p">,</span> <span class="p">{</span> 
   <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Top&quot;</span> 
 <span class="p">},</span> <span class="nx">exampleGreyEndpointOptions</span><span class="p">));</span>
 </code></pre></div>
@@ -317,13 +317,13 @@
 <h5>jsPlumb.makeTarget</h5>
 
 <p>This method takes two arguments, the first of which specifies some element (or list of elements); the second specifies the Endpoint you wish to create on that element whenever a Connection is established on it.  In this example we will use the exact same target Endpoint we used before - the gray rectangle - but we will tell jsPlumb that the element <code>aTargetDiv</code> will be the drop target:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var endpointOptions = { 
-  isTarget:true, 
-  maxConnections:5,
-  endpoint:&quot;Rectangle&quot;, 
-  paintStyle:{ fillStyle:&quot;gray&quot; } 
-};
-jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
 <p>The allowed values in &#39;endpointOptions&#39; are identical for both the <code>jsPlumb.addEndpoint</code> and <code>jsPlumb.makeTarget</code> methods, but <code>makeTarget</code> supports an extended Anchor syntax that allows you more control over the location of the target endpoint.  This is discussed below. </p>
 
@@ -476,25 +476,22 @@ parameter, which can be the name of some position finder, or a position finder f
 
 <p>The return value of this function is an array of [x, y] - proportional values between 0 and 1 inclusive, such as you can pass to a static Anchor.</p>
 
-<p>To make your own position finder you need to create a function that takes those four arguments and returns an [x, y] position for the anchor, for example:
-<pre>
-jsPlumb.AnchorPositionFinders.MyFinder = function(dp, ep, es, params) {
-  ... do some maths ... 
-  console.log(&quot;my custom parameter is &quot;, params.myCustomParameter);
-  return [ x, y ];<br>
-};
-</pre>
-Then refer to it in a makeTarget call:
-<pre>
-jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
-  anchor:[ &quot;Assign&quot;, { 
-    position:&quot;MyFinder&quot;,
-    myCustomParameter:&quot;foo&quot;,
-    anInteger:5
-  }]
-});
-</pre></p>
-
+<p>To make your own position finder you need to create a function that takes those four arguments and returns an [x, y] position for the anchor, for example:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">AnchorPositionFinders</span><span class="p">.</span><span class="nx">MyFinder</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">dp</span><span class="p">,</span> <span class="nx">ep</span><span class="p">,</span> <span class="nx">es</span><span class="p">,</span> <span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+  <span class="p">...</span> <span class="k">do</span> <span class="nx">some</span> <span class="nx">maths</span> <span class="p">...</span> 
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;my custom parameter is &quot;</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">myCustomParameter</span><span class="p">);</span>
+  <span class="k">return</span> <span class="p">[</span> <span class="nx">x</span><span class="p">,</span> <span class="nx">y</span> <span class="p">];</span>  
+<span class="p">};</span>
+</code></pre></div>
+<p>Then refer to it in a makeTarget call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="p">{</span>  
+  <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Assign&quot;</span><span class="p">,</span> <span class="p">{</span> 
+    <span class="nx">position</span><span class="o">:</span><span class="s2">&quot;MyFinder&quot;</span><span class="p">,</span>
+    <span class="nx">myCustomParameter</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+    <span class="nx">anInteger</span><span class="o">:</span><span class="mi">5</span>
+  <span class="p">}]</span>
+<span class="p">});</span>
+</code></pre></div>
 <p><a name="makesource"></a></p>
 
 <h5>jsPlumb.makeSource</h5>
@@ -630,7 +627,7 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <p>These last two are analogous to the <code>removeEveryConnection</code> and <code>deleteEveryEndpoint</code> methods that have been in jsPlumb for a while now.</p>
 
 <p><code>unmakeTarget</code> and <code>unmakeSource</code> both take as argument the same sorts of values that <code>makeTarget</code> and <code>makeSource</code> accept - a string id, or a selector, or an array of either of these:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.unmakeTarget(&quot;aDivId&quot;).unmakeSource($(&quot;.aSelector&quot;));
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">unmakeTarget</span><span class="p">(</span><span class="s2">&quot;aDivId&quot;</span><span class="p">).</span><span class="nx">unmakeSource</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.aSelector&quot;</span><span class="p">));</span>
 </code></pre></div>
 <p><a name="dragOptions"></a></p>
 

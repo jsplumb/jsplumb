@@ -129,51 +129,51 @@
 <h3>Connector, Endpoint, Anchor &amp; Overlay Definitions</h3>
 
 <p>Whenever you need to define a Connector, Endpoint, Anchor or Overlay, you must use a &quot;definition&quot; of it, rather than constructing one directly.  This definition can be either a string that nominates the artifact you want to create - see the <code>endpoint</code> parameter here:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
-    source:&quot;someDiv&quot;,
-    target:&quot;someOtherDiv&quot;,
-    endpoint:&quot;Rectangle&quot;
-});
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+    <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span>
+    <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherDiv&quot;</span><span class="p">,</span>
+    <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>...or an array consisting of both the artifact&#39;s name and the arguments you want to pass to its constructor:        </p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
-    source:&quot;someDiv&quot;,
-    target:&quot;someOtherDiv&quot;,
-    endpoint:[ &quot;Rectangle&quot;, { 
-      cssClass:&quot;myEndpoint&quot;, 
-      width:30, 
-      height:10 
-  }]
-});
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+    <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span>
+    <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherDiv&quot;</span><span class="p">,</span>
+    <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> 
+      <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;myEndpoint&quot;</span><span class="p">,</span> 
+      <span class="nx">width</span><span class="o">:</span><span class="mi">30</span><span class="p">,</span> 
+      <span class="nx">height</span><span class="o">:</span><span class="mi">10</span> 
+  <span class="p">}]</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>There is also a three-argument method that allows you to specify two sets of parameters, which jsPlumb will merge together for you. The idea behind this is that you will often want to define common characteristics somewhere and reuse them across a bunch of different calls:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var common = {
-    cssClass    :   &quot;myCssClass&quot;,
-    hoverClass  :   &quot;myHoverClass&quot;
-};
-jsPlumb.connect({
-    source:&quot;someDiv&quot;,
-    target:&quot;someOtherDiv&quot;,
-    endpoint:[ &quot;Rectangle&quot;, { width:30, height:10 }, common ]
-});
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">common</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">cssClass</span>    <span class="o">:</span>   <span class="s2">&quot;myCssClass&quot;</span><span class="p">,</span>
+    <span class="nx">hoverClass</span>  <span class="o">:</span>   <span class="s2">&quot;myHoverClass&quot;</span>
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+    <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span>
+    <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherDiv&quot;</span><span class="p">,</span>
+    <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">30</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">10</span> <span class="p">},</span> <span class="nx">common</span> <span class="p">]</span>
+<span class="p">});</span>
 </code></pre></div>
-<p>This syntax is supported for all Endpoint, Connector, Anchor and Overlay definitions.  Here&#39;s an example using definitions for all four:            </p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var common = {
-    cssClass:&quot;myCssClass&quot;
-};
-jsPlumb.connect({
-  source:&quot;someDiv&quot;,
-  target:&quot;someOtherDiv&quot;,
-  anchor:[ &quot;Continuous&quot;, { faces:[&quot;top&quot;,&quot;bottom&quot;] }],
-  endpoint:[ &quot;Dot&quot;, { radius:5, hoverClass:&quot;myEndpointHover&quot; }, common ],
-  connector:[ &quot;Bezier&quot;, { curviness:100 }, common ],
-  overlays: [
-        [ &quot;Arrow&quot;, { foldback:0.2 }, common ],
-        [ &quot;Label&quot;, { cssClass:&quot;labelClass&quot; } ]  
-    ]
-});
+<p>This syntax is supported for all Endpoint, Connector, Anchor and Overlay definitions.  Here&#39;s an example using definitions for all four:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">common</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;myCssClass&quot;</span>
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span>
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherDiv&quot;</span><span class="p">,</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Continuous&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">faces</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">,</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="p">}],</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="nx">hoverClass</span><span class="o">:</span><span class="s2">&quot;myEndpointHover&quot;</span> <span class="p">},</span> <span class="nx">common</span> <span class="p">],</span>
+  <span class="nx">connector</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Bezier&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">curviness</span><span class="o">:</span><span class="mi">100</span> <span class="p">},</span> <span class="nx">common</span> <span class="p">],</span>
+  <span class="nx">overlays</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">[</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foldback</span><span class="o">:</span><span class="mf">0.2</span> <span class="p">},</span> <span class="nx">common</span> <span class="p">],</span>
+        <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;labelClass&quot;</span> <span class="p">}</span> <span class="p">]</span>  
+    <span class="p">]</span>
+<span class="p">});</span>
 </code></pre></div>
-<p>The allowed constructor parameters are different for each artifact you create, but every artifact takes a single JS object as argument, with the parameters as (key,value) pairs in that object.  </p>
+<p>The allowed constructor parameters are different for each artifact you create, but every artifact takes a single JS object as argument, with the parameters as (key,value) pairs in that object.</p>
 
             </div>
         </div>
