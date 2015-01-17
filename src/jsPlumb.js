@@ -2601,7 +2601,7 @@
                     // to prevent the element drag function from kicking in when we want to
                     // drag a new connection
                     if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
-                        _currentInstance.setDragFilter(_el, p.filter);
+                        _currentInstance.setDragFilter(_el, p.filter/*, p.filterExclude*/);
                     }
 
                     var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
