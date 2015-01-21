@@ -68,23 +68,6 @@
 
         };
 
-    /**
-     * @class Connectors.StateMachine
-     * Provides 'state machine' connectors.
-     * @constructor
-     * @param {Object} params Connector parameters.
-     * @param {Number} [params.curviness=10] A measure of how "curvy" the connectors will be.  this is translated as the distance that the
-     * Bezier curve's control point is from the midpoint of the straight line connecting the two
-     * endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches
-     * its control points; they act as gravitational masses. Defaults to 10.
-     * @param {Number} [params.margin=5] Distance from element to start and end connectors, in pixels.  Defaults to 5.
-     * @param {Number} [params.proximityLimit] Sets the distance beneath which the elements are consider too close together to bother
-     * with fancy curves. by default this is 80 pixels.
-     * @param {Number} [params.loopbackRadius=25] The radius of a loopback connector.  optional; defaults to 25.
-     * @param {Boolean} [params.showLoopback=true] If set to false this tells the connector that it is ok to paint connections whose
-     * source and target is the same element with a connector running through the element. The default value for this is true;
-     * the connector always makes a loopback connection loop around the element rather than passing through it.
-     */
     var StateMachine = function (params) {
         params = params || {};
         this.type = "StateMachine";
@@ -190,5 +173,6 @@
             }
         };
     };
+    jsPlumbUtil.extend(StateMachine, jsPlumb.Connectors.AbstractConnector);
     jsPlumb.registerConnectorType(StateMachine, "StateMachine");
 })();
