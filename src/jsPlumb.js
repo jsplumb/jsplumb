@@ -706,8 +706,8 @@
                     jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
                 if (jp) {
                     jp.fire(id, jp, e);
-                    // jsplumb also fires every event coming from components
-                    _currentInstance.fire(id, jp, e);
+                    // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
+                    _currentInstance.fire(id, jp.component || jp, e);
                 }
             };
 
