@@ -7,7 +7,7 @@
  * 
  * This file contains the code for creating and manipulating anchors.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -485,7 +485,6 @@
 
                     if (sourceContinuous || targetContinuous) {
                         var oKey = sourceId + "_" + targetId,
-                            oKey2 = targetId + "_" + sourceId,
                             o = orientationCache[oKey],
                             oIdx = conn.sourceId == elementId ? 1 : 0;
 
@@ -668,9 +667,6 @@
             this.getCssClass = function () {
                 return cssClass;
             };
-            this.setCssClass = function (c) {
-                cssClass = c;
-            };
         };
 
         // continuous anchors
@@ -698,17 +694,15 @@
         this.cssClass = params.cssClass || "";
         this.userDefinedLocation = null;
         this.orientation = params.orientation || [ 0, 0 ];
-
-        jsPlumbUtil.EventGenerator.apply(this);
-
-        var jsPlumbInstance = params.jsPlumbInstance;
-
         this.lastReturnValue = null;
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
+
+        jsPlumbUtil.EventGenerator.apply(this);
+
         this.compute = function (params) {
 
-            var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
+            var xy = params.xy, wh = params.wh, timestamp = params.timestamp;
 
             if (params.clearUserDefinedLocation)
                 this.userDefinedLocation = null;
@@ -747,7 +741,7 @@
         clearUserDefinedLocation: function () {
             this.userDefinedLocation = null;
         },
-        getOrientation: function (_endpoint) {
+        getOrientation: function () {
             return this.orientation;
         },
         getCssClass: function () {
@@ -769,18 +763,17 @@
         // this is the anchor that this floating anchor is referenced to for
         // purposes of calculating the orientation.
         var ref = params.reference,
-            jsPlumbInstance = params.jsPlumbInstance,
-        // the canvas this refers to.
+            // the canvas this refers to.
             refCanvas = params.referenceCanvas,
             size = jsPlumb.getSize(refCanvas),
-        // these are used to store the current relative position of our
-        // anchor wrt the reference anchor. they only indicate
-        // direction, so have a value of 1 or -1 (or, very rarely, 0). these
-        // values are written by the compute method, and read
-        // by the getOrientation method.
+            // these are used to store the current relative position of our
+            // anchor wrt the reference anchor. they only indicate
+            // direction, so have a value of 1 or -1 (or, very rarely, 0). these
+            // values are written by the compute method, and read
+            // by the getOrientation method.
             xDir = 0, yDir = 0,
-        // temporary member used to store an orientation when the floating
-        // anchor is hovering over another anchor.
+            // temporary member used to store an orientation when the floating
+            // anchor is hovering over another anchor.
             orientation = null,
             _lastResult = null;
 
@@ -796,7 +789,7 @@
         this.isFloating = true;
 
         this.compute = function (params) {
-            var xy = params.xy, element = params.element,
+            var xy = params.xy,
                 result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
             _lastResult = result;
             return result;
@@ -854,7 +847,6 @@
     jsPlumb.DynamicAnchor = function (params) {
         jsPlumb.Anchor.apply(this, arguments);
 
-        this.isSelective = true;
         this.isDynamic = true;
         this.anchors = [];
         this.elementId = params.elementId;
@@ -862,15 +854,12 @@
 
         for (var i = 0; i < params.anchors.length; i++)
             this.anchors[i] = _convertAnchor(params.anchors[i], this.jsPlumbInstance, this.elementId);
-        this.addAnchor = function (anchor) {
-            this.anchors.push(_convertAnchor(anchor, this.jsPlumbInstance, this.elementId));
-        };
+
         this.getAnchors = function () {
             return this.anchors;
         };
         this.locked = false;
         var _curAnchor = this.anchors.length > 0 ? this.anchors[0] : null,
-            _curIndex = this.anchors.length > 0 ? 0 : -1,
             _lastAnchor = _curAnchor,
             self = this,
 
@@ -965,7 +954,7 @@
     _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
     _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
     _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-    // from 1.4.2: Top, Right, Bottom, Left
+
     _curryAnchor(0.5, 0, 0, -1, "Top");
     _curryAnchor(0.5, 1, 0, 1, "Bottom");
     _curryAnchor(0, 0.5, -1, 0, "Left");
@@ -1027,7 +1016,7 @@
     // a position finder argument to that function allows you to specify where the resulting anchor will
     // be located
     jsPlumbInstance.prototype.AnchorPositionFinders = {
-        "Fixed": function (dp, ep, es, params) {
+        "Fixed": function (dp, ep, es) {
             return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];
         },
         "Grid": function (dp, ep, es, params) {
