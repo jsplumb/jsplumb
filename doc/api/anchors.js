@@ -3,19 +3,39 @@
 * An Anchor that is located at the top center of the element.
  * @class Anchors.Top 
  */
+ /**
+  * An Anchor that is located at the top center of the element.
+  * @class Anchors.TopCenter
+  * @deprecated Use `Top` instead.
+  */
 /**
 * An Anchor that is located at the bottom center of the element.
  * @class Anchors.Bottom 
  */
+ /**
+  * An Anchor that is located at the bottom center of the element.
+  * @class Anchors.BottomCenter
+  * @deprecated Use `Bottom` instead.
+  */
 /**
 * An Anchor that is located at the left middle of the element.
  * @class Anchors.Left 
  */
+ /**
+  * An Anchor that is located at the left middle of the element.
+  * @class Anchors.LeftMiddle
+  * @deprecated Use `Left` instead.
+  */
 /**
 * An Anchor that is located at the right middle of the element.
  * @class Anchors.Right
  */
-/**
+ /**
+  * An Anchor that is located at the right middle of the element.
+  * @class Anchors.RightMiddle
+  * @deprecated Use `Right` instead.
+  */
+ /**
 * An Anchor that is located at the center of the element.
  * @class Anchors.Center
  */
