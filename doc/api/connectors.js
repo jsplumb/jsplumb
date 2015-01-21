@@ -45,7 +45,7 @@
  * @class Connectors.StateMachine
  * @constructor
  * @param {Object} params Constructor parameters. 
- * @param {Float} [params.curviness=10] Measure of how "curvy" the connectors will be.  this is translated as the distance that the
+ * @param {Number} [params.curviness=10] Measure of how "curvy" the connectors will be.  this is translated as the distance that the
  *                Bezier curve's control point is from the midpoint of the straight line connecting the two
  *              endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches
  *              its control points; they act as gravitational masses.
