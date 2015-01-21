@@ -1394,7 +1394,8 @@
             consumeStartEvent = this.params.consumeStartEvent !== false,
             dragEl = this.el,
             clone = this.params.clone,
-            scroll = this.params.scroll;
+            scroll = this.params.scroll,
+            _multipleDrop = params.multipleDrop !== false;
 
         this.toGrid = function(pos) {
             return this.params.grid == null ? pos :
@@ -1598,7 +1599,7 @@
             this.params.setPosition(dragEl, cPos);
             for (var i = 0; i < matchingDroppables.length; i++) {
                 var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
-                if (this.params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
+                if (this.params.intersects(rect, r2) && matchingDroppables[i].canDrop(this) && (_multipleDrop || intersectingDroppables.length == 0)) {
                     intersectingDroppables.push(matchingDroppables[i]);
                     matchingDroppables[i].setHover(this, true, e);
                 }
@@ -6819,6 +6820,7 @@
                 // extracted drag handler function so can be used by makeSource
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
+                dragOptions.multipleDrop = false;
 
                 dragOptions.canDrag = function () {
                     return this.isSource || this.isTemporarySource || /*(this.isTarget && */this.connections.length > 0/*)*/;

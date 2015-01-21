@@ -717,6 +717,7 @@
                 // extracted drag handler function so can be used by makeSource
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
+                dragOptions.multipleDrop = false;
 
                 dragOptions.canDrag = function () {
                     return this.isSource || this.isTemporarySource || /*(this.isTarget && */this.connections.length > 0/*)*/;

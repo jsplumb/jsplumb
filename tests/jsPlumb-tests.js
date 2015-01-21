@@ -1941,6 +1941,28 @@ var testSuite = function (renderMode, _jsPlumb) {
         j.unbindContainer();
     });
 
+    test(": setConnector, overays are retained", function () {
+        _addDiv("d1");
+        _addDiv("d2");
+        var def = {
+            Connector: [ "Bezier", { curviness: 45 } ]
+        };
+        var j = jsPlumb.getInstance(def);
+        var c = j.connect({
+            source: "d1", target: "d2",
+            overlays:[
+                [ "Label", { label:"foo" } ]
+            ]
+        });
+        equal(c.getConnector().type, "Bezier", "connector is the default");
+        equal(c.getOverlays().length, 1, "one overlay on the connector");
+
+        c.setConnector(["StateMachine", { curviness: 789 }]);
+        equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
+        equal(c.getOverlays().length, 1, "one overlay on the connector");
+        j.unbindContainer();
+    });
+
 
 
     //
