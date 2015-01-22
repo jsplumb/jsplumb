@@ -1,13 +1,7 @@
-#demo {
-    margin-top: 5em;
-}
-
 .w {
     padding: 16px;
     position: absolute;
-    border: 1px solid black;
     z-index: 4;
-    border-radius: 1em;
     border: 1px solid #2e6f9a;
     box-shadow: 2px 2px 19px #e0e0e0;
     -o-box-shadow: 2px 2px 19px #e0e0e0;
@@ -59,7 +53,7 @@
     height: 1em;
     background-color: orange;
     cursor: pointer;
-    box-shadow: 0px 0px 2px black;
+    box-shadow: 0 0 2px black;
     -webkit-transition: -webkit-box-shadow 0.25s ease-in;
     -moz-transition: -moz-box-shadow 0.25s ease-in;
     transition: box-shadow 0.25s ease-in;
