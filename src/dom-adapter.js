@@ -418,8 +418,8 @@
                 left: _one("left"),
                 top: _one("top")
             };
-        },
-        getOffsetRect: function (elem, withRespectTo) {
+        },/*
+        getOffsetRect: function (elem, withRespectTo, zoom) {
             // (1)
             var box = elem.getBoundingClientRect(),
                 wrt = withRespectTo != null ? withRespectTo.getBoundingClientRect() : { left: 0, top: 0};
@@ -428,23 +428,59 @@
             var docElem = document.documentElement;
 
             // (2)
-            var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop;
-            var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
+            var scrollTop = 0;//window.pageYOffset || docElem.scrollTop || body.scrollTop;
+            var scrollLeft = 0;//window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
 
             // (3)
             var clientTop = docElem.clientTop || body.clientTop || 0;
             var clientLeft = docElem.clientLeft || body.clientLeft || 0;
 
             // (4)
-            var top = (box.top - wrt.top) + scrollTop - clientTop;
+            var top = (box.top  - wrt.top) + scrollTop - clientTop;
             var left = (box.left - wrt.left) + scrollLeft - clientLeft;
 
-            return { top: Math.round(top), left: Math.round(left) };
+            return { top: Math.round(top / zoom), left: Math.round(left / zoom) };
         },
-        getOffset: function (el, _instance) {
+        getOffsetNew: function (el, _instance, relativeToPage) {
             el = jsPlumb.getDOMElement(el);
-            return this.getOffsetRect(el, _instance.getContainer());
-        },/*
+            return this.getOffsetRect(el, relativeToPage ? null : _instance.getContainer(), _instance.getZoom());
+        },*/
+        getStyle:function(el, prop) {
+            if (typeof window.getComputedStyle !== 'undefined') {
+                return getComputedStyle(el, null).getPropertyValue(prop);
+            } else {
+                return el.currentStyle[prop];
+            }
+        },
+        getOffset:function(el, _instance, relativeToRoot) {
+            el = jsPlumb.getDOMElement(el);
+            var container = _instance.getContainer();
+            var out = {
+                    left: el.offsetLeft,
+                    top: el.offsetTop
+                },
+                op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
+
+            while (op != null) {
+                out.left += op.offsetLeft;
+                out.top += op.offsetTop;
+                op = relativeToRoot ? op.offsetParent :
+                        op.offsetParent == container ? null : op.offsetParent;
+            }
+
+            // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
+            if (!relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+                var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, "position") : "static",
+                    p = this.getStyle(el, "position");
+                if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp != "fixed") {
+                    out.left -= container.scrollLeft;
+                    out.top -= container.scrollTop;
+                }
+            }
+            return out;
+        },
+
+        /*
         getOffsety: function (el, _instance) {
             el = jsPlumb.getDOMElement(el);
             var container = _instance.getContainer();
