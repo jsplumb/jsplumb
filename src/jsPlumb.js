@@ -2266,7 +2266,6 @@
         // SP target source refactor
         var _makeElementDropHandler = function (elInfo, p, dropOptions, isSource, isTarget, definitionId) {
             var proxyComponent = new jsPlumbUIComponent(p);
-            var scope = p.scope || _currentInstance.Defaults.Scope;
             var _drop = p._jsPlumb.EndpointDropHandler({
                 jsPlumb: _currentInstance,
                 enabled: function () {
@@ -2358,6 +2357,12 @@
             var dropEvent = jsPlumb.dragEvents.drop;
             dropOptions.scope = dropOptions.scope || (p.scope || _currentInstance.Defaults.Scope);
             dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop, true);
+
+            // if target, return true from the over event. this will cause katavorio to stop setting drops to hover
+            // if multipleDrop is set to false.
+            if (isTarget) {
+                dropOptions[jsPlumb.dragEvents.over] = function () { return true; };
+            }
 
             // vanilla jsplumb only
             if (p.allowLoopback === false) {
