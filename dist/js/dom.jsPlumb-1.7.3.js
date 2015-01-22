@@ -2478,87 +2478,90 @@
  *
  * This file contains the base functionality for DOM type adapters.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;(function() {
+;
+(function () {
 
-  var root = this;
+    var root = this;
 
-	var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-		vmlAvailable = function() {
-	        if (vmlAvailable.vml === undefined) {
-	            var a = document.body.appendChild(document.createElement('div'));
-	        	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-	        	var b = a.firstChild;
-	        	if (b != null && b.style != null) {
-	            	b.style.behavior = "url(#default#VML)";
-	            	vmlAvailable.vml = b ? typeof b.adj == "object": true;
-	            }
-	            else
-	            	vmlAvailable.vml = false;
-	        	a.parentNode.removeChild(a);
-	        }
-	        return vmlAvailable.vml;
-		},
-		// TODO: remove this once we remove all library adapter versions and have only vanilla jsplumb: this functionality
-		// comes from Mottle.
-		iev = (function() {
-			var rv = -1;
-			if (navigator.appName == 'Microsoft Internet Explorer') {
-				var ua = navigator.userAgent,
-					re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-				if (re.exec(ua) != null)
-					rv = parseFloat(RegExp.$1);
-			}
-			return rv;
-		})(),
-		isIELT9 = iev > -1 && iev < 9,
-		_genLoc = function(e, prefix) {
-			if (e == null) return [ 0, 0 ];
-			var ts = _touches(e), t = _getTouch(ts, 0);
-			return [t[prefix + "X"], t[prefix + "Y"]];
-		},
-		_pageLocation = function(e) {
-			if (e == null) return [ 0, 0 ];
-			if (isIELT9) {
-				return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
-			}
-			else {
-				return _genLoc(e, "page");
-			}
-		},
-		_screenLocation = function(e) {
-			return _genLoc(e, "screen");
-		},
-		_clientLocation = function(e) {
-			return _genLoc(e, "client");
-		},
-		_getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
-		_touches = function(e) {
-			return e.touches && e.touches.length > 0 ? e.touches :
-				   e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
-				   e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
-				   [ e ];
-		};
+    var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
+        vmlAvailable = function () {
+            if (vmlAvailable.vml === undefined) {
+                var a = document.body.appendChild(document.createElement('div'));
+                a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
+                var b = a.firstChild;
+                if (b != null && b.style != null) {
+                    b.style.behavior = "url(#default#VML)";
+                    vmlAvailable.vml = b ? typeof b.adj == "object" : true;
+                }
+                else
+                    vmlAvailable.vml = false;
+                a.parentNode.removeChild(a);
+            }
+            return vmlAvailable.vml;
+        },
+    // TODO: remove this once we remove all library adapter versions and have only vanilla jsplumb: this functionality
+    // comes from Mottle.
+        iev = (function () {
+            var rv = -1;
+            if (navigator.appName == 'Microsoft Internet Explorer') {
+                var ua = navigator.userAgent,
+                    re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+                if (re.exec(ua) != null)
+                    rv = parseFloat(RegExp.$1);
+            }
+            return rv;
+        })(),
+        isIELT9 = iev > -1 && iev < 9,
+        _genLoc = function (e, prefix) {
+            if (e == null) return [ 0, 0 ];
+            var ts = _touches(e), t = _getTouch(ts, 0);
+            return [t[prefix + "X"], t[prefix + "Y"]];
+        },
+        _pageLocation = function (e) {
+            if (e == null) return [ 0, 0 ];
+            if (isIELT9) {
+                return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
+            }
+            else {
+                return _genLoc(e, "page");
+            }
+        },
+        _screenLocation = function (e) {
+            return _genLoc(e, "screen");
+        },
+        _clientLocation = function (e) {
+            return _genLoc(e, "client");
+        },
+        _getTouch = function (touches, idx) {
+            return touches.item ? touches.item(idx) : touches[idx];
+        },
+        _touches = function (e) {
+            return e.touches && e.touches.length > 0 ? e.touches :
+                    e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
+                    e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
+                [ e ];
+        };
 
     /**
-		Manages dragging for some instance of jsPlumb.
-	*/
-	var DragManager = function(_currentInstance) {
-		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},
-			// elementids mapped to the draggable to which they belong.
-			_draggablesForElements = {};
+     Manages dragging for some instance of jsPlumb.
+     */
+    var DragManager = function (_currentInstance) {
+        var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},
+        // elementids mapped to the draggable to which they belong.
+            _draggablesForElements = {};
 
         /**
-            register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
-            possible that will continue to be the case.
-        */
-		this.register = function(el) {
+         register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
+         possible that will continue to be the case.
+         */
+        this.register = function (el) {
             var id = _currentInstance.getId(el),
                 parentOffset = jsPlumbAdapter.getOffset(el, _currentInstance);
 
@@ -2568,227 +2571,199 @@
                 _delements[id] = {};
             }
 
-			// look for child elements that have endpoints and register them against this draggable.
-			var _oneLevel = function(p, startOffset) {
-				if (p) {
-					for (var i = 0; i < p.childNodes.length; i++) {
-						if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
-							var cEl = jsPlumb.getElementObject(p.childNodes[i]),
-								cid = _currentInstance.getId(p.childNodes[i], null, true);
-							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-								var cOff = jsPlumbAdapter.getOffset(cEl, _currentInstance);
-								_delements[id][cid] = {
-									id:cid,
-									offset:{
-										left:cOff.left - parentOffset.left,
-										top:cOff.top - parentOffset.top
-									}
-								};
-								_draggablesForElements[cid] = id;
-							}
-							_oneLevel(p.childNodes[i]);
-						}
-					}
-				}
-			};
+            // look for child elements that have endpoints and register them against this draggable.
+            var _oneLevel = function (p) {
+                if (p) {
+                    for (var i = 0; i < p.childNodes.length; i++) {
+                        if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
+                            var cEl = jsPlumb.getElementObject(p.childNodes[i]),
+                                cid = _currentInstance.getId(p.childNodes[i], null, true);
+                            if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+                                var cOff = jsPlumbAdapter.getOffset(cEl, _currentInstance);
+                                _delements[id][cid] = {
+                                    id: cid,
+                                    offset: {
+                                        left: cOff.left - parentOffset.left,
+                                        top: cOff.top - parentOffset.top
+                                    }
+                                };
+                                _draggablesForElements[cid] = id;
+                            }
+                            _oneLevel(p.childNodes[i]);
+                        }
+                    }
+                }
+            };
 
-			_oneLevel(el);
-		};
+            _oneLevel(el);
+        };
 
-		// refresh the offsets for child elements of this element.
-		this.updateOffsets = function(elId) {
-			if (elId != null) {
-				var domEl = jsPlumb.getDOMElement(elId),
-					id = _currentInstance.getId(domEl),
-					children = _delements[id],
-					parentOffset = jsPlumbAdapter.getOffset(domEl, _currentInstance);
+        // refresh the offsets for child elements of this element.
+        this.updateOffsets = function (elId) {
+            if (elId != null) {
+                var domEl = jsPlumb.getDOMElement(elId),
+                    id = _currentInstance.getId(domEl),
+                    children = _delements[id],
+                    parentOffset = jsPlumbAdapter.getOffset(domEl, _currentInstance);
 
-				if (children) {
-					for (var i in children) {
-						var cel = jsPlumb.getElementObject(i),
-							cOff = jsPlumbAdapter.getOffset(cel, _currentInstance);
+                if (children) {
+                    for (var i in children) {
+                        if (children.hasOwnProperty(i)) {
+                            var cel = jsPlumb.getElementObject(i),
+                                cOff = jsPlumbAdapter.getOffset(cel, _currentInstance);
 
-						_delements[id][i] = {
-							id:i,
-							offset:{
-								left:cOff.left - parentOffset.left,
-								top:cOff.top - parentOffset.top
-							}
-						};
-						_draggablesForElements[i] = id;
-					}
-				}
-			}
-		};
+                            _delements[id][i] = {
+                                id: i,
+                                offset: {
+                                    left: cOff.left - parentOffset.left,
+                                    top: cOff.top - parentOffset.top
+                                }
+                            };
+                            _draggablesForElements[i] = id;
+                        }
+                    }
+                }
+            }
+        };
 
-		/**
-			notification that an endpoint was added to the given el.  we go up from that el's parent
-			node, looking for a parent that has been registered as a draggable. if we find one, we add this
-			el to that parent's list of elements to update on drag (if it is not there already)
-		*/
-		this.endpointAdded = function(el, id) {
+        /**
+         notification that an endpoint was added to the given el.  we go up from that el's parent
+         node, looking for a parent that has been registered as a draggable. if we find one, we add this
+         el to that parent's list of elements to update on drag (if it is not there already)
+         */
+        this.endpointAdded = function (el, id) {
 
             id = id || _currentInstance.getId(el);
 
-			var b = document.body,
-				p = el.parentNode;
+            var b = document.body,
+                p = el.parentNode;
 
-			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
+            _elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
 
-			while (p != null && p != b) {
-				var pid = _currentInstance.getId(p, null, true);
-				if (pid && _draggables[pid]) {
-					var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
+            while (p != null && p != b) {
+                var pid = _currentInstance.getId(p, null, true);
+                if (pid && _draggables[pid]) {
+                    var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
 
-					if (_delements[pid][id] == null) {
+                    if (_delements[pid][id] == null) {
                         var cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
-						_delements[pid][id] = {
-							id:id,
-							offset:{
-								left:cLoc.left - pLoc.left,
-								top:cLoc.top - pLoc.top
-							}
-						};
-						_draggablesForElements[id] = pid;
-					}
-					break;
-				}
-				p = p.parentNode;
-			}
-		};
+                        _delements[pid][id] = {
+                            id: id,
+                            offset: {
+                                left: cLoc.left - pLoc.left,
+                                top: cLoc.top - pLoc.top
+                            }
+                        };
+                        _draggablesForElements[id] = pid;
+                    }
+                    break;
+                }
+                p = p.parentNode;
+            }
+        };
 
-		this.endpointDeleted = function(endpoint) {
-			if (_elementsWithEndpoints[endpoint.elementId]) {
-				_elementsWithEndpoints[endpoint.elementId]--;
-				if (_elementsWithEndpoints[endpoint.elementId] <= 0) {
-					for (var i in _delements) {
-						if (_delements[i]) {
+        this.endpointDeleted = function (endpoint) {
+            if (_elementsWithEndpoints[endpoint.elementId]) {
+                _elementsWithEndpoints[endpoint.elementId]--;
+                if (_elementsWithEndpoints[endpoint.elementId] <= 0) {
+                    for (var i in _delements) {
+                        if (_delements.hasOwnProperty(i) && _delements[i]) {
                             delete _delements[i][endpoint.elementId];
                             delete _draggablesForElements[endpoint.elementId];
                         }
-					}
-				}
-			}
-		};
+                    }
+                }
+            }
+        };
 
-		this.changeId = function(oldId, newId) {
-			_delements[newId] = _delements[oldId];
-			_delements[oldId] = {};
-			_draggablesForElements[newId] = _draggablesForElements[oldId];
-			_draggablesForElements[oldId] = null;
-		};
+        this.changeId = function (oldId, newId) {
+            _delements[newId] = _delements[oldId];
+            _delements[oldId] = {};
+            _draggablesForElements[newId] = _draggablesForElements[oldId];
+            _draggablesForElements[oldId] = null;
+        };
 
-		this.getElementsForDraggable = function(id) {
-			return _delements[id];
-		};
+        this.getElementsForDraggable = function (id) {
+            return _delements[id];
+        };
 
-		this.elementRemoved = function(elementId) {
-			var elId = _draggablesForElements[elementId];
-			if (elId) {
-				delete _delements[elId][elementId];
-				delete _draggablesForElements[elementId];
-			}
-		};
+        this.elementRemoved = function (elementId) {
+            var elId = _draggablesForElements[elementId];
+            if (elId) {
+                delete _delements[elId][elementId];
+                delete _draggablesForElements[elementId];
+            }
+        };
 
-		this.reset = function() {
-			_draggables = {};
-			_dlist = [];
-			_delements = {};
-			_elementsWithEndpoints = {};
-		};
+        this.reset = function () {
+            _draggables = {};
+            _dlist = [];
+            _delements = {};
+            _elementsWithEndpoints = {};
+        };
 
-		//
-		// notification drag ended. We check automatically if need to update some
-		// ancestor's offsets.
-		//
-		this.dragEnded = function(el) {
-			var id = _currentInstance.getId(el),
-				ancestor = _draggablesForElements[id];
+        //
+        // notification drag ended. We check automatically if need to update some
+        // ancestor's offsets.
+        //
+        this.dragEnded = function (el) {
+            var id = _currentInstance.getId(el),
+                ancestor = _draggablesForElements[id];
 
-			if (ancestor) this.updateOffsets(ancestor);
-		};
+            if (ancestor) this.updateOffsets(ancestor);
+        };
 
-		this.setParent = function(el, elId, p, pId) {
-			var current = _draggablesForElements[elId];
-			if (current) {
-				if (!_delements[pId])
-					_delements[pId] = {};
-				_delements[pId][elId] = _delements[current][elId];
-				delete _delements[current][elId];
-				var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance),
-					cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
-				_delements[pId][elId].offset = {
-					left:cLoc.left - pLoc.left,
-					top:cLoc.top - pLoc.top
-				};
-				_draggablesForElements[elId] = pId;
-			}
-		};
+        this.setParent = function (el, elId, p, pId) {
+            var current = _draggablesForElements[elId];
+            if (current) {
+                if (!_delements[pId])
+                    _delements[pId] = {};
+                _delements[pId][elId] = _delements[current][elId];
+                delete _delements[current][elId];
+                var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance),
+                    cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
+                _delements[pId][elId].offset = {
+                    left: cLoc.left - pLoc.left,
+                    top: cLoc.top - pLoc.top
+                };
+                _draggablesForElements[elId] = pId;
+            }
+        };
 
-		this.getDragAncestor = function(el) {
-			var de = jsPlumb.getDOMElement(el),
-				id = _currentInstance.getId(de),
-				aid = _draggablesForElements[id];
+        this.getDragAncestor = function (el) {
+            var de = jsPlumb.getDOMElement(el),
+                id = _currentInstance.getId(de),
+                aid = _draggablesForElements[id];
 
-			if (aid) 
-				return jsPlumb.getDOMElement(aid);
-			else
-				return null;
-		};
+            if (aid)
+                return jsPlumb.getDOMElement(aid);
+            else
+                return null;
+        };
 
-	};
+    };
 
-    // for those browsers that dont have it.  they still don't have it! but at least they won't crash.
-	if (!window.console)
-		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
-
-
-	// TODO: katavorio default helper uses this stuff.  should i extract to a support lib?
-	var trim = function(str) {
-			return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
-		},
-		_setClassName = function(el, cn) {
-			cn = trim(cn);
-			if (typeof el.className.baseVal != "undefined")  // SVG
-				el.className.baseVal = cn;
-			else
-				el.className = cn;
-		},
-		_getClassName = function(el) {
-			return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;
-		},
-		_classManip = function(el, add, clazz) {
-
-			// TODO if classList exists, use it.
-
-			var classesToAddOrRemove = jsPlumbUtil.isArray(clazz) ? clazz : clazz.split(/\s+/),
-				className = _getClassName(el),
-				curClasses = className.split(/\s+/);
-
-			for (var i = 0; i < classesToAddOrRemove.length; i++) {
-				if (add) {
-					if (jsPlumbUtil.indexOf(curClasses, classesToAddOrRemove[i]) == -1)
-						curClasses.push(classesToAddOrRemove[i]);
-				}
-				else {
-					var idx = jsPlumbUtil.indexOf(curClasses, classesToAddOrRemove[i]);
-					if (idx != -1)
-						curClasses.splice(idx, 1);
-				}
-			}
-			_setClassName(el, curClasses.join(" "));
-		},
-        _classManipNew = function(el, classesToAdd, classesToRemove) {
-
-            // TODO if classList exists, use it.
-
+    var trim = function (str) {
+            return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
+        },
+        _setClassName = function (el, cn) {
+            cn = trim(cn);
+            if (typeof el.className.baseVal != "undefined")  // SVG
+                el.className.baseVal = cn;
+            else
+                el.className = cn;
+        },
+        _getClassName = function (el) {
+            return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;
+        },
+        _classManip = function (el, classesToAdd, classesToRemove) {
             classesToAdd = classesToAdd == null ? [] : jsPlumbUtil.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
-            classesToRemove= classesToRemove== null ? [] : jsPlumbUtil.isArray(classesToRemove) ? classesToRemove: classesToRemove.split(/\s+/);
+            classesToRemove = classesToRemove == null ? [] : jsPlumbUtil.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
 
             var className = _getClassName(el),
                 curClasses = className.split(/\s+/);
 
-            var _oneSet = function(add, classes) {
+            var _oneSet = function (add, classes) {
                 for (var i = 0; i < classes.length; i++) {
                     if (add) {
                         if (jsPlumbUtil.indexOf(curClasses, classes[i]) == -1)
@@ -2807,60 +2782,59 @@
 
             _setClassName(el, curClasses.join(" "));
         },
-		_each = function(spec, fn) {
-			if (spec == null) return;
-			if (typeof spec === "string")
-				fn(jsPlumb.getDOMElement(spec));
-			else if (spec.length != null) {
-				for (var i = 0; i < spec.length; i++)
-					fn(jsPlumb.getDOMElement(spec[i]));
-			}
-			else
-				fn(spec); // assume it's an element.
-		};
+        _each = function (spec, fn) {
+            if (spec == null) return;
+            if (typeof spec === "string")
+                fn(jsPlumb.getDOMElement(spec));
+            else if (spec.length != null) {
+                for (var i = 0; i < spec.length; i++)
+                    fn(jsPlumb.getDOMElement(spec[i]));
+            }
+            else
+                fn(spec); // assume it's an element.
+        };
 
     window.jsPlumbAdapter = {
 
-        headless:false,
+        headless: false,
 
-        pageLocation:_pageLocation,
-        screenLocation:_screenLocation,
-        clientLocation:_clientLocation,
+        pageLocation: _pageLocation,
+        screenLocation: _screenLocation,
+        clientLocation: _clientLocation,
 
-        getAttribute:function(el, attName) {
-        	return el.getAttribute != null ? el.getAttribute(attName) : null;
+        getAttribute: function (el, attName) {
+            return el.getAttribute != null ? el.getAttribute(attName) : null;
         },
 
-        setAttribute:function(el, a, v) {
-        	if (el.setAttribute != null) el.setAttribute(a, v);
+        setAttribute: function (el, a, v) {
+            if (el.setAttribute != null) el.setAttribute(a, v);
         },
 
-        setAttributes:function(el, atts) {
-            // TODO call this.setAttribute
+        setAttributes: function (el, atts) {
             for (var i in atts)
-                el.setAttribute(i, atts[i]);
+                if (atts.hasOwnProperty(i)) el.setAttribute(i, atts[i]);
         },
 
-        appendToRoot : function(node) {
+        appendToRoot: function (node) {
             document.body.appendChild(node);
         },
-        getRenderModes : function() {
+        getRenderModes: function () {
             return [ "svg", "vml" ];
         },
-        isRenderModeAvailable : function(m) {
+        isRenderModeAvailable: function (m) {
             return {
-                "svg":svgAvailable,
-                "vml":vmlAvailable()
+                "svg": svgAvailable,
+                "vml": vmlAvailable()
             }[m];
         },
-        getDragManager : function(_jsPlumb) {
+        getDragManager: function (_jsPlumb) {
             return new DragManager(_jsPlumb);
         },
-        setRenderMode : function(mode) {
+        setRenderMode: function (mode) {
             var renderMode;
 
             if (mode) {
-				mode = mode.toLowerCase();
+                mode = mode.toLowerCase();
 
                 var svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
@@ -2873,128 +2847,185 @@
                 else if (vmlAvailable) renderMode = "vml";
             }
 
-			return renderMode;
+            return renderMode;
         },
-		addClass:function(el, clazz) {
-			_each(el, function(e) {
-				_classManipNew(e, clazz);
-			});
-		},
-		hasClass:function(el, clazz) {
-			el = jsPlumb.getDOMElement(el);
-			if (el.classList) return el.classList.contains(clazz);
-			else {
-				return _getClassName(el).indexOf(clazz) != -1;
-			}
-		},
-		removeClass:function(el, clazz) {
-			_each(el, function(e) {
-				_classManipNew(e, null, clazz);
-			});
-		},
-        updateClasses:function(el, toAdd, toRemove) {
-            _each(el, function(e) {
-                _classManipNew(e, toAdd, toRemove);
+        addClass: function (el, clazz) {
+            _each(el, function (e) {
+                _classManip(e, clazz);
             });
         },
-		setClass:function(el, clazz) {
-			_each(el, function(e) {
-				_setClassName(e, clazz);
-			});
-		},
-		setPosition:function(el, p) {
-			el.style.left = p.left + "px";
-			el.style.top = p.top + "px";
-		},
-		getPosition:function(el) {
-			var _one = function(prop) {
-				var v = el.style[prop];
-				return v ? v.substring(0, v.length - 2) : 0;
-			};
-			return {
-				left:_one("left"),
-				top:_one("top")
-			};
-		},
-		getOffset:function(el, _instance, relativeToRoot) {
-			el = jsPlumb.getDOMElement(el);
-			var container = _instance.getContainer();
-			var l = el.offsetLeft, t = el.offsetTop, op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
-			while (op != null) {
-				l += op.offsetLeft;
-				t += op.offsetTop;
-				op = relativeToRoot ? op.offsetParent :
-					op.offsetParent == container ? null : op.offsetParent;
-			}
-			return {
-				left:l, top:t
-			};
-		},
-		//
-		// return x+y proportion of the given element's size corresponding to the location of the given event.
-		//
-    getPositionOnElement:function(evt, el, zoom) {
-      var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
-				  body = document.body,
-    			docElem = document.documentElement,
-    			offPar = el.offsetParent,
-    			scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-				  scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-				  clientTop = docElem.clientTop || body.clientTop || 0,
-				  clientLeft = docElem.clientLeft || body.clientLeft || 0,
-				  pst = 0,//offPar ? offPar.scrollTop : 0,
-				  psl = 0,//offPar ? offPar.scrollLeft : 0,
-				  top  = box.top +  scrollTop - clientTop + (pst * zoom),
-				  left = box.left + scrollLeft - clientLeft + (psl * zoom),
-				  cl = jsPlumbAdapter.pageLocation(evt),
-				  w = box.width || (el.offsetWidth * zoom),
-				  h = box.height || (el.offsetHeight * zoom),
-				  x = (cl[0] - left) / w,
-				  y = (cl[1] - top) / h;
+        hasClass: function (el, clazz) {
+            el = jsPlumb.getDOMElement(el);
+            if (el.classList) return el.classList.contains(clazz);
+            else {
+                return _getClassName(el).indexOf(clazz) != -1;
+            }
+        },
+        removeClass: function (el, clazz) {
+            _each(el, function (e) {
+                _classManip(e, null, clazz);
+            });
+        },
+        updateClasses: function (el, toAdd, toRemove) {
+            _each(el, function (e) {
+                _classManip(e, toAdd, toRemove);
+            });
+        },
+        setClass: function (el, clazz) {
+            _each(el, function (e) {
+                _setClassName(e, clazz);
+            });
+        },
+        setPosition: function (el, p) {
+            el.style.left = p.left + "px";
+            el.style.top = p.top + "px";
+        },
+        getPosition: function (el) {
+            var _one = function (prop) {
+                var v = el.style[prop];
+                return v ? v.substring(0, v.length - 2) : 0;
+            };
+            return {
+                left: _one("left"),
+                top: _one("top")
+            };
+        },/*
+        getOffsetRect: function (elem, withRespectTo, zoom) {
+            // (1)
+            var box = elem.getBoundingClientRect(),
+                wrt = withRespectTo != null ? withRespectTo.getBoundingClientRect() : { left: 0, top: 0};
 
-			 return [ x, y ];
-     },
+            var body = document.body;
+            var docElem = document.documentElement;
 
-     /**
-    * Gets the absolute position of some element as read from the left/top properties in its style.
-    * @method getAbsolutePosition
-    * @param {Element} el The element to retrieve the absolute coordinates from. **Note** this is a DOM element, not a selector from the underlying library.
-    * @return [Float, Float] [left, top] pixel values.
-    */
-    getAbsolutePosition : function(el) {
-        var _one = function(s) {
-            var ss = el.style[s];
-            if (ss) return parseFloat(ss.substring(0, ss.length - 2));
-        };
-        return [ _one("left"), _one("top") ];
-    },
+            // (2)
+            var scrollTop = 0;//window.pageYOffset || docElem.scrollTop || body.scrollTop;
+            var scrollLeft = 0;//window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
 
-    /**
-    * Sets the absolute position of some element by setting the left/top properties in its style.
-    * @method setAbsolutePosition
-    * @param {Element} el The element to set the absolute coordinates on. **Note** this is a DOM element, not a selector from the underlying library.
-    * @param {Float[]} xy x and y coordinates
-	  * @param {Float[]} [animateFrom] Optional previous xy to animate from.
-    */
-    setAbsolutePosition : function(el, xy, animateFrom, animateOptions) {
-		  if (animateFrom) {
-			     root.jsPlumb.animate(el, {
-				     left: "+=" + (xy[0] - animateFrom[0]),
-				     top: "+=" + (xy[1] - animateFrom[1])
-			     }, animateOptions);
-		  }
-		  else {
-			  el.style.left = xy[0] + "px";
-			  el.style.top = xy[1] + "px";
-		  }
-    }
+            // (3)
+            var clientTop = docElem.clientTop || body.clientTop || 0;
+            var clientLeft = docElem.clientLeft || body.clientLeft || 0;
 
+            // (4)
+            var top = (box.top  - wrt.top) + scrollTop - clientTop;
+            var left = (box.left - wrt.left) + scrollLeft - clientLeft;
 
+            return { top: Math.round(top / zoom), left: Math.round(left / zoom) };
+        },
+        getOffsetNew: function (el, _instance, relativeToPage) {
+            el = jsPlumb.getDOMElement(el);
+            return this.getOffsetRect(el, relativeToPage ? null : _instance.getContainer(), _instance.getZoom());
+        },*/
+        getStyle:function(el, prop) {
+            if (typeof window.getComputedStyle !== 'undefined') {
+                return getComputedStyle(el, null).getPropertyValue(prop);
+            } else {
+                return el.currentStyle[prop];
+            }
+        },
+        getOffset:function(el, _instance, relativeToRoot) {
+            el = jsPlumb.getDOMElement(el);
+            var container = _instance.getContainer();
+            var out = {
+                    left: el.offsetLeft,
+                    top: el.offsetTop
+                },
+                op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
 
+            while (op != null) {
+                out.left += op.offsetLeft;
+                out.top += op.offsetTop;
+                op = relativeToRoot ? op.offsetParent :
+                        op.offsetParent == container ? null : op.offsetParent;
+            }
+
+            // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
+            if (!relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+                var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, "position") : "static",
+                    p = this.getStyle(el, "position");
+                if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp != "fixed") {
+                    out.left -= container.scrollLeft;
+                    out.top -= container.scrollTop;
+                }
+            }
+            return out;
+        },
+
+        /*
+        getOffsety: function (el, _instance) {
+            el = jsPlumb.getDOMElement(el);
+            var container = _instance.getContainer();
+            var l = el.offsetLeft, t = el.offsetTop, op = (container != null && el.offsetParent != container) ? el.offsetParent : null;
+            while (op != null) {
+                l += op.offsetLeft;
+                t += op.offsetTop;
+                op = op.offsetParent == container ? null : op.offsetParent;
+            }
+            return {
+                left: l, top: t
+            };
+        },*/
+        //
+        // return x+y proportion of the given element's size corresponding to the location of the given event.
+        //
+        getPositionOnElement: function (evt, el, zoom) {
+            var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
+                body = document.body,
+                docElem = document.documentElement,
+                scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+                scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+                clientTop = docElem.clientTop || body.clientTop || 0,
+                clientLeft = docElem.clientLeft || body.clientLeft || 0,
+                pst = 0,
+                psl = 0,
+                top = box.top + scrollTop - clientTop + (pst * zoom),
+                left = box.left + scrollLeft - clientLeft + (psl * zoom),
+                cl = jsPlumbAdapter.pageLocation(evt),
+                w = box.width || (el.offsetWidth * zoom),
+                h = box.height || (el.offsetHeight * zoom),
+                x = (cl[0] - left) / w,
+                y = (cl[1] - top) / h;
+
+            return [ x, y ];
+        },
+
+        /**
+         * Gets the absolute position of some element as read from the left/top properties in its style.
+         * @method getAbsolutePosition
+         * @param {Element} el The element to retrieve the absolute coordinates from. **Note** this is a DOM element, not a selector from the underlying library.
+         * @return {Number[]} [left, top] pixel values.
+         */
+        getAbsolutePosition: function (el) {
+            var _one = function (s) {
+                var ss = el.style[s];
+                if (ss) return parseFloat(ss.substring(0, ss.length - 2));
+            };
+            return [ _one("left"), _one("top") ];
+        },
+
+        /**
+         * Sets the absolute position of some element by setting the left/top properties in its style.
+         * @method setAbsolutePosition
+         * @param {Element} el The element to set the absolute coordinates on. **Note** this is a DOM element, not a selector from the underlying library.
+         * @param {Number[]} xy x and y coordinates
+         * @param {Number[]} [animateFrom] Optional previous xy to animate from.
+         * @param {Object} [animateOptions] Options for the animation.
+         */
+        setAbsolutePosition: function (el, xy, animateFrom, animateOptions) {
+            if (animateFrom) {
+                root.jsPlumb.animate(el, {
+                    left: "+=" + (xy[0] - animateFrom[0]),
+                    top: "+=" + (xy[1] - animateFrom[1])
+                }, animateOptions);
+            }
+            else {
+                el.style.left = xy[0] + "px";
+                el.style.top = xy[1] + "px";
+            }
+        }
 
     };
-
-}).call(this);
+})();
 
 /*
  * jsPlumb
@@ -3704,8 +3735,8 @@
                     jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
                 if (jp) {
                     jp.fire(id, jp, e);
-                    // jsplumb also fires every event coming from components
-                    _currentInstance.fire(id, jp, e);
+                    // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
+                    _currentInstance.fire(id, jp.component || jp, e);
                 }
             };
 
@@ -5264,7 +5295,6 @@
         // SP target source refactor
         var _makeElementDropHandler = function (elInfo, p, dropOptions, isSource, isTarget, definitionId) {
             var proxyComponent = new jsPlumbUIComponent(p);
-            var scope = p.scope || _currentInstance.Defaults.Scope;
             var _drop = p._jsPlumb.EndpointDropHandler({
                 jsPlumb: _currentInstance,
                 enabled: function () {
@@ -5356,6 +5386,12 @@
             var dropEvent = jsPlumb.dragEvents.drop;
             dropOptions.scope = dropOptions.scope || (p.scope || _currentInstance.Defaults.Scope);
             dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop, true);
+
+            // if target, return true from the over event. this will cause katavorio to stop setting drops to hover
+            // if multipleDrop is set to false.
+            if (isTarget) {
+                dropOptions[jsPlumb.dragEvents.over] = function () { return true; };
+            }
 
             // vanilla jsplumb only
             if (p.allowLoopback === false) {
@@ -7731,7 +7767,7 @@
  * 
  * This file contains the code for creating and manipulating anchors.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -8209,7 +8245,6 @@
 
                     if (sourceContinuous || targetContinuous) {
                         var oKey = sourceId + "_" + targetId,
-                            oKey2 = targetId + "_" + sourceId,
                             o = orientationCache[oKey],
                             oIdx = conn.sourceId == elementId ? 1 : 0;
 
@@ -8392,9 +8427,6 @@
             this.getCssClass = function () {
                 return cssClass;
             };
-            this.setCssClass = function (c) {
-                cssClass = c;
-            };
         };
 
         // continuous anchors
@@ -8422,17 +8454,15 @@
         this.cssClass = params.cssClass || "";
         this.userDefinedLocation = null;
         this.orientation = params.orientation || [ 0, 0 ];
-
-        jsPlumbUtil.EventGenerator.apply(this);
-
-        var jsPlumbInstance = params.jsPlumbInstance;
-
         this.lastReturnValue = null;
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
+
+        jsPlumbUtil.EventGenerator.apply(this);
+
         this.compute = function (params) {
 
-            var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
+            var xy = params.xy, wh = params.wh, timestamp = params.timestamp;
 
             if (params.clearUserDefinedLocation)
                 this.userDefinedLocation = null;
@@ -8471,7 +8501,7 @@
         clearUserDefinedLocation: function () {
             this.userDefinedLocation = null;
         },
-        getOrientation: function (_endpoint) {
+        getOrientation: function () {
             return this.orientation;
         },
         getCssClass: function () {
@@ -8493,18 +8523,17 @@
         // this is the anchor that this floating anchor is referenced to for
         // purposes of calculating the orientation.
         var ref = params.reference,
-            jsPlumbInstance = params.jsPlumbInstance,
-        // the canvas this refers to.
+            // the canvas this refers to.
             refCanvas = params.referenceCanvas,
             size = jsPlumb.getSize(refCanvas),
-        // these are used to store the current relative position of our
-        // anchor wrt the reference anchor. they only indicate
-        // direction, so have a value of 1 or -1 (or, very rarely, 0). these
-        // values are written by the compute method, and read
-        // by the getOrientation method.
+            // these are used to store the current relative position of our
+            // anchor wrt the reference anchor. they only indicate
+            // direction, so have a value of 1 or -1 (or, very rarely, 0). these
+            // values are written by the compute method, and read
+            // by the getOrientation method.
             xDir = 0, yDir = 0,
-        // temporary member used to store an orientation when the floating
-        // anchor is hovering over another anchor.
+            // temporary member used to store an orientation when the floating
+            // anchor is hovering over another anchor.
             orientation = null,
             _lastResult = null;
 
@@ -8520,7 +8549,7 @@
         this.isFloating = true;
 
         this.compute = function (params) {
-            var xy = params.xy, element = params.element,
+            var xy = params.xy,
                 result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
             _lastResult = result;
             return result;
@@ -8578,7 +8607,6 @@
     jsPlumb.DynamicAnchor = function (params) {
         jsPlumb.Anchor.apply(this, arguments);
 
-        this.isSelective = true;
         this.isDynamic = true;
         this.anchors = [];
         this.elementId = params.elementId;
@@ -8586,15 +8614,12 @@
 
         for (var i = 0; i < params.anchors.length; i++)
             this.anchors[i] = _convertAnchor(params.anchors[i], this.jsPlumbInstance, this.elementId);
-        this.addAnchor = function (anchor) {
-            this.anchors.push(_convertAnchor(anchor, this.jsPlumbInstance, this.elementId));
-        };
+
         this.getAnchors = function () {
             return this.anchors;
         };
         this.locked = false;
         var _curAnchor = this.anchors.length > 0 ? this.anchors[0] : null,
-            _curIndex = this.anchors.length > 0 ? 0 : -1,
             _lastAnchor = _curAnchor,
             self = this,
 
@@ -8689,7 +8714,7 @@
     _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
     _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
     _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-    // from 1.4.2: Top, Right, Bottom, Left
+
     _curryAnchor(0.5, 0, 0, -1, "Top");
     _curryAnchor(0.5, 1, 0, 1, "Bottom");
     _curryAnchor(0, 0.5, -1, 0, "Left");
@@ -8751,7 +8776,7 @@
     // a position finder argument to that function allows you to specify where the resulting anchor will
     // be located
     jsPlumbInstance.prototype.AnchorPositionFinders = {
-        "Fixed": function (dp, ep, es, params) {
+        "Fixed": function (dp, ep, es) {
             return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];
         },
         "Grid": function (dp, ep, es, params) {
@@ -10356,72 +10381,59 @@
  * 
  * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;(function() {
-    
+;
+(function () {
+
     "use strict";
-   
-    /**
-     * Function: Constructor
-     * 
-     * Parameters:
-     * 	stub - minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
-     * or an array of two integers, giving separate values for each end. The default is an integer with value 30 (pixels). 
-     *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
-                Like stub, this can be an array or a single value. defaults to 0 pixels for each end.     
-     * cornerRadius - optional, defines the radius of corners between segments. defaults to 0 (hard edged corners).
-     * alwaysRespectStubs - defaults to false. whether or not the connectors should always draw the stub, or, if the two elements
-                            are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
-     */
-    var Flowchart = function(params) {
+
+    var Flowchart = function (params) {
         this.type = "Flowchart";
         params = params || {};
         params.stub = params.stub == null ? 30 : params.stub;
-        var self = this,
-            _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),		
+        var segments,
+            _super = jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
             midpoint = params.midpoint == null ? 0.5 : params.midpoint,
-            points = [], segments = [],
-            grid = params.grid,
-            alwaysRespectStubs = params.alwaysRespectStubs,
+            alwaysRespectStubs = params.alwaysRespectStubs === true,
             userSuppliedSegments = null,
-            lastx = null, lasty = null, lastOrientation,	
-            cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,	
-            sgn = function(n) { return n < 0 ? -1 : n === 0 ? 0 : 1; },            
+            lastx = null, lasty = null, lastOrientation,
+            cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,
+            sgn = function (n) {
+                return n < 0 ? -1 : n === 0 ? 0 : 1;
+            },
             /**
              * helper method to add a segment.
              */
-            addSegment = function(segments, x, y, paintInfo) {
+            addSegment = function (segments, x, y, paintInfo) {
                 if (lastx == x && lasty == y) return;
                 var lx = lastx == null ? paintInfo.sx : lastx,
                     ly = lasty == null ? paintInfo.sy : lasty,
                     o = lx == x ? "v" : "h",
                     sgnx = sgn(x - lx),
                     sgny = sgn(y - ly);
-                    
+
                 lastx = x;
-                lasty = y;				    		                
+                lasty = y;
                 segments.push([lx, ly, x, y, o, sgnx, sgny]);
             },
-            segLength = function(s) {
-                return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));    
+            segLength = function (s) {
+                return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
             },
-            _cloneArray = function(a) { var _a = []; _a.push.apply(_a, a); return _a;},
-            updateMinMax = function(a1) {
-                self.bounds.minX = Math.min(self.bounds.minX, a1[2]);
-                self.bounds.maxX = Math.max(self.bounds.maxX, a1[2]);
-                self.bounds.minY = Math.min(self.bounds.minY, a1[3]);
-                self.bounds.maxY = Math.max(self.bounds.maxY, a1[3]);    
+            _cloneArray = function (a) {
+                var _a = [];
+                _a.push.apply(_a, a);
+                return _a;
             },
-            writeSegments = function(conn, segments, paintInfo) {
-                var current, next;                
+            writeSegments = function (conn, segments, paintInfo) {
+                var current = null, next;
                 for (var i = 0; i < segments.length - 1; i++) {
-                    
+
                     current = current || _cloneArray(segments[i]);
                     next = _cloneArray(segments[i + 1]);
                     if (cornerRadius > 0 && current[4] != next[4]) {
@@ -10430,156 +10442,164 @@
                         current[2] -= current[5] * radiusToUse;
                         current[3] -= current[6] * radiusToUse;
                         next[0] += next[5] * radiusToUse;
-                        next[1] += next[6] * radiusToUse;														                         			
+                        next[1] += next[6] * radiusToUse;
                         var ac = (current[6] == next[5] && next[5] == 1) ||
-                                 ((current[6] == next[5] && next[5] === 0) && current[5] != next[6]) ||
-                                 (current[6] == next[5] && next[5] == -1),
+                                ((current[6] == next[5] && next[5] === 0) && current[5] != next[6]) ||
+                                (current[6] == next[5] && next[5] == -1),
                             sgny = next[1] > current[3] ? 1 : -1,
                             sgnx = next[0] > current[2] ? 1 : -1,
                             sgnEqual = sgny == sgnx,
                             cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
-                            cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];                                                        
-                        
+                            cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];
+
                         _super.addSegment(conn, "Straight", {
-                            x1:current[0], y1:current[1], x2:current[2], y2:current[3]
+                            x1: current[0], y1: current[1], x2: current[2], y2: current[3]
                         });
-                            
+
                         _super.addSegment(conn, "Arc", {
-                            r:radiusToUse, 
-                            x1:current[2], 
-                            y1:current[3], 
-                            x2:next[0], 
-                            y2:next[1],
-                            cx:cx,
-                            cy:cy,
-                            ac:ac
-                        });	                                            
+                            r: radiusToUse,
+                            x1: current[2],
+                            y1: current[3],
+                            x2: next[0],
+                            y2: next[1],
+                            cx: cx,
+                            cy: cy,
+                            ac: ac
+                        });
                     }
-                    else {                 
+                    else {
                         // dx + dy are used to adjust for line width.
                         var dx = (current[2] == current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
                             dy = (current[3] == current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
                         _super.addSegment(conn, "Straight", {
-                            x1:current[0]- dx, y1:current[1]-dy, x2:current[2] + dx, y2:current[3] + dy
+                            x1: current[0] - dx, y1: current[1] - dy, x2: current[2] + dx, y2: current[3] + dy
                         });
-                    }                    
+                    }
                     current = next;
                 }
                 if (next != null) {
                     // last segment
                     _super.addSegment(conn, "Straight", {
-                        x1:next[0], y1:next[1], x2:next[2], y2:next[3]
-                    });                             
+                        x1: next[0], y1: next[1], x2: next[2], y2: next[3]
+                    });
                 }
             };
-        
-        this.setSegments = function(s) {
+
+        this.setSegments = function (s) {
             userSuppliedSegments = s;
         };
-        
-        this.isEditable = function() { return true; };
-        
+
+        this.isEditable = function () {
+            return true;
+        };
+
         /*
-            Function: getOriginalSegments
-            Gets the segments before the addition of rounded corners. This is used by the flowchart
-            connector editor, since it only wants to concern itself with the original segments.
-        */
-        this.getOriginalSegments = function() {
+         Function: getOriginalSegments
+         Gets the segments before the addition of rounded corners. This is used by the flowchart
+         connector editor, since it only wants to concern itself with the original segments.
+         */
+        this.getOriginalSegments = function () {
             return userSuppliedSegments || segments;
         };
-        
-        this._compute = function(paintInfo, params) {
-            
+
+        this._compute = function (paintInfo, params) {
+
             if (params.clearEdits)
                 userSuppliedSegments = null;
-            
+
             if (userSuppliedSegments != null) {
-                writeSegments(this, userSuppliedSegments, paintInfo);                
+                writeSegments(this, userSuppliedSegments, paintInfo);
                 return;
             }
-            
+
             segments = [];
-            lastx = null; lasty = null;
-            lastOrientation = null;          
-            
+            lastx = null;
+            lasty = null;
+            lastOrientation = null;
+
             var midx = paintInfo.startStubX + ((paintInfo.endStubX - paintInfo.startStubX) * midpoint),
-                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);                                                                                                    
-    
-            var findClearedLine = function(start, mult, anchorPos, dimension) {
-                    return start + (mult * (( 1 - anchorPos) * dimension) + _super.maxStub);
-                },
-                orientations = { x:[ 0, 1 ], y:[ 1, 0 ] },
-                commonStubCalculator = function(axis) {
-                    return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];                    
+                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);
+
+            var orientations = { x: [ 0, 1 ], y: [ 1, 0 ] },
+                commonStubCalculator = function () {
+                    return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];
                 },
                 stubCalculators = {
-                    perpendicular:commonStubCalculator,
-                    orthogonal:commonStubCalculator,
-                    opposite:function(axis) {  
+                    perpendicular: commonStubCalculator,
+                    orthogonal: commonStubCalculator,
+                    opposite: function (axis) {
                         var pi = paintInfo,
-                            idx = axis == "x" ? 0 : 1, 
+                            idx = axis == "x" ? 0 : 1,
                             areInProximity = {
-                                "x":function() {                                    
-                                    return ( (pi.so[idx] == 1 && ( 
+                                "x": function () {
+                                    return ( (pi.so[idx] == 1 && (
                                         ( (pi.startStubX > pi.endStubX) && (pi.tx > pi.startStubX) ) ||
                                         ( (pi.sx > pi.endStubX) && (pi.tx > pi.sx))))) ||
 
-                                        ( (pi.so[idx] == -1 && ( 
+                                        ( (pi.so[idx] == -1 && (
                                             ( (pi.startStubX < pi.endStubX) && (pi.tx < pi.startStubX) ) ||
                                             ( (pi.sx < pi.endStubX) && (pi.tx < pi.sx)))));
                                 },
-                                "y":function() {                                     
-                                    return ( (pi.so[idx] == 1 && ( 
+                                "y": function () {
+                                    return ( (pi.so[idx] == 1 && (
                                         ( (pi.startStubY > pi.endStubY) && (pi.ty > pi.startStubY) ) ||
                                         ( (pi.sy > pi.endStubY) && (pi.ty > pi.sy))))) ||
 
-                                        ( (pi.so[idx] == -1 && ( 
-                                        ( (pi.startStubY < pi.endStubY) && (pi.ty < pi.startStubY) ) ||
-                                        ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))));
+                                        ( (pi.so[idx] == -1 && (
+                                            ( (pi.startStubY < pi.endStubY) && (pi.ty < pi.startStubY) ) ||
+                                            ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))));
                                 }
                             };
 
-                        if (!alwaysRespectStubs && areInProximity[axis]()) {                   
+                        if (!alwaysRespectStubs && areInProximity[axis]()) {
                             return {
-                                "x":[(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
-                                "y":[paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
+                                "x": [(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
+                                "y": [paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
                             }[axis];
                         }
                         else {
-                            return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];   
+                            return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];
                         }
                     }
                 },
                 lineCalculators = {
-                    perpendicular : function(axis, ss, oss, es, oes) {
-                        var pi = paintInfo, 
+                    perpendicular: function (axis) {
+                        var pi = paintInfo,
                             sis = {
-                                x:[ [ [ 1,2,3,4 ], null, [ 2,1,4,3 ] ], null, [ [ 4,3,2,1 ], null, [ 3,4,1,2 ] ] ],
-                                y:[ [ [ 3,2,1,4 ], null, [ 2,3,4,1 ] ], null, [ [ 4,1,2,3 ], null, [ 1,4,3,2 ] ] ]
+                                x: [
+                                    [ [ 1, 2, 3, 4 ], null, [ 2, 1, 4, 3 ] ],
+                                    null,
+                                    [ [ 4, 3, 2, 1 ], null, [ 3, 4, 1, 2 ] ]
+                                ],
+                                y: [
+                                    [ [ 3, 2, 1, 4 ], null, [ 2, 3, 4, 1 ] ],
+                                    null,
+                                    [ [ 4, 1, 2, 3 ], null, [ 1, 4, 3, 2 ] ]
+                                ]
                             },
-                            stubs = { 
-                                x:[ [ pi.startStubX, pi.endStubX ] , null, [ pi.endStubX, pi.startStubX ] ],
-                                y:[ [ pi.startStubY, pi.endStubY ] , null, [ pi.endStubY, pi.startStubY ] ]
+                            stubs = {
+                                x: [ [ pi.startStubX, pi.endStubX ], null, [ pi.endStubX, pi.startStubX ] ],
+                                y: [ [ pi.startStubY, pi.endStubY ], null, [ pi.endStubY, pi.startStubY ] ]
                             },
                             midLines = {
-                                x:[ [ midx, pi.startStubY ], [ midx, pi.endStubY ] ],
-                                y:[ [ pi.startStubX, midy ], [ pi.endStubX, midy ] ]
+                                x: [ [ midx, pi.startStubY ], [ midx, pi.endStubY ] ],
+                                y: [ [ pi.startStubX, midy ], [ pi.endStubX, midy ] ]
                             },
                             linesToEnd = {
-                                x:[ [ pi.endStubX, pi.startStubY ] ],
-                                y:[ [ pi.startStubX, pi.endStubY ] ]
+                                x: [ [ pi.endStubX, pi.startStubY ] ],
+                                y: [ [ pi.startStubX, pi.endStubY ] ]
                             },
                             startToEnd = {
-                                x:[ [ pi.startStubX, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ],        
-                                y:[ [ pi.endStubX, pi.startStubY ], [ pi.endStubX, pi.endStubY ] ]
+                                x: [ [ pi.startStubX, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ],
+                                y: [ [ pi.endStubX, pi.startStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             startToMidToEnd = {
-                                x:[ [ pi.startStubX, midy ], [ pi.endStubX, midy ], [ pi.endStubX, pi.endStubY ] ],
-                                y:[ [ midx, pi.startStubY ], [ midx, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ]
+                                x: [ [ pi.startStubX, midy ], [ pi.endStubX, midy ], [ pi.endStubX, pi.endStubY ] ],
+                                y: [ [ midx, pi.startStubY ], [ midx, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             otherStubs = {
-                                x:[ pi.startStubY, pi.endStubY ],
-                                y:[ pi.startStubX, pi.endStubX ]                                    
+                                x: [ pi.startStubY, pi.endStubY ],
+                                y: [ pi.startStubX, pi.endStubX ]
                             },
                             soIdx = orientations[axis][0], toIdx = orientations[axis][1],
                             _so = pi.so[soIdx] + 1,
@@ -10590,7 +10610,7 @@
                             segmentIndexes = sis[axis][_so][_to];
 
                         if (pi.segment == segmentIndexes[3] || (pi.segment == segmentIndexes[2] && otherFlipped)) {
-                            return midLines[axis];       
+                            return midLines[axis];
                         }
                         else if (pi.segment == segmentIndexes[2] && stub2 < stub1) {
                             return linesToEnd[axis];
@@ -10599,103 +10619,129 @@
                             return startToMidToEnd[axis];
                         }
                         else if (pi.segment == segmentIndexes[0] || (pi.segment == segmentIndexes[1] && otherFlipped)) {
-                            return startToEnd[axis];  
-                        }                                
+                            return startToEnd[axis];
+                        }
                     },
-                    orthogonal : function(axis, startStub, otherStartStub, endStub, otherEndStub) {                    
-                        var pi = paintInfo,                                            
-                            extent = {
-                                "x":pi.so[0] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
-                                "y":pi.so[1] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
-                            }[axis];
-                                                
-                        return {
-                            "x":[ [ extent, otherStartStub ],[ extent, otherEndStub ], [ endStub, otherEndStub ] ],
-                            "y":[ [ otherStartStub, extent ], [ otherEndStub, extent ], [ otherEndStub, endStub ] ]
-                        }[axis];                    
-                    },
-                    opposite : function(axis, ss, oss, es, oes) {                                                
+                    orthogonal: function (axis, startStub, otherStartStub, endStub, otherEndStub) {
                         var pi = paintInfo,
-                            otherAxis = {"x":"y","y":"x"}[axis], 
-                            dim = {"x":"height","y":"width"}[axis],
+                            extent = {
+                                "x": pi.so[0] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
+                                "y": pi.so[1] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
+                            }[axis];
+
+                        return {
+                            "x": [
+                                [ extent, otherStartStub ],
+                                [ extent, otherEndStub ],
+                                [ endStub, otherEndStub ]
+                            ],
+                            "y": [
+                                [ otherStartStub, extent ],
+                                [ otherEndStub, extent ],
+                                [ otherEndStub, endStub ]
+                            ]
+                        }[axis];
+                    },
+                    opposite: function (axis, ss, oss, es) {
+                        var pi = paintInfo,
+                            otherAxis = {"x": "y", "y": "x"}[axis],
+                            dim = {"x": "height", "y": "width"}[axis],
                             comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
 
                         if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
                             var _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
                             return {
-                                "x":[ [ ss, _val ], [ es, _val ] ],
-                                "y":[ [ _val, ss ], [ _val, es ] ]
+                                "x": [
+                                    [ ss, _val ],
+                                    [ es, _val ]
+                                ],
+                                "y": [
+                                    [ _val, ss ],
+                                    [ _val, es ]
+                                ]
                             }[axis];
-                            
-                        }                                                        
-                        else if (!comparator || (pi.so[idx] == 1 && ss > es) || (pi.so[idx] == -1 && ss < es)) {                                            
+
+                        }
+                        else if (!comparator || (pi.so[idx] == 1 && ss > es) || (pi.so[idx] == -1 && ss < es)) {
                             return {
-                                "x":[[ ss, midy ], [ es, midy ]],
-                                "y":[[ midx, ss ], [ midx, es ]]
+                                "x": [
+                                    [ ss, midy ],
+                                    [ es, midy ]
+                                ],
+                                "y": [
+                                    [ midx, ss ],
+                                    [ midx, es ]
+                                ]
                             }[axis];
                         }
                         else if ((pi.so[idx] == 1 && ss < es) || (pi.so[idx] == -1 && ss > es)) {
                             return {
-                                "x":[[ midx, pi.sy ], [ midx, pi.ty ]],
-                                "y":[[ pi.sx, midy ], [ pi.tx, midy ]]
+                                "x": [
+                                    [ midx, pi.sy ],
+                                    [ midx, pi.ty ]
+                                ],
+                                "y": [
+                                    [ pi.sx, midy ],
+                                    [ pi.tx, midy ]
+                                ]
                             }[axis];
-                        }                        
+                        }
                     }
                 };
 
             var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
                 idx = paintInfo.sourceAxis == "x" ? 0 : 1,
-                oidx = paintInfo.sourceAxis == "x" ? 1 : 0,                            
+                oidx = paintInfo.sourceAxis == "x" ? 1 : 0,
                 ss = stubs[idx],
                 oss = stubs[oidx],
                 es = stubs[idx + 2],
                 oes = stubs[oidx + 2];
 
             // add the start stub segment.
-            addSegment(segments, stubs[0], stubs[1], paintInfo);           
+            addSegment(segments, stubs[0], stubs[1], paintInfo);
 
             // compute the rest of the line
-            var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);            
+            var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);
             if (p) {
-                for (var i = 0; i < p.length; i++) {                	
+                for (var i = 0; i < p.length; i++) {
                     addSegment(segments, p[i][0], p[i][1], paintInfo);
                 }
-            }          
-            
+            }
+
             // line to end stub
             addSegment(segments, stubs[2], stubs[3], paintInfo);
-    
-            // end stub to end
-            addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);               
-            
-            writeSegments(this, segments, paintInfo);                            
-        };	
 
-        this.getPath = function() {
+            // end stub to end
+            addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);
+
+            writeSegments(this, segments, paintInfo);
+        };
+
+        this.getPath = function () {
             var _last = null, _lastAxis = null, s = [], segs = userSuppliedSegments || segments;
             for (var i = 0; i < segs.length; i++) {
                 var seg = segs[i], axis = seg[4], axisIndex = (axis == "v" ? 3 : 2);
                 if (_last != null && _lastAxis === axis) {
-                    _last[axisIndex] = seg[axisIndex];                            
+                    _last[axisIndex] = seg[axisIndex];
                 }
                 else {
                     if (seg[0] != seg[2] || seg[1] != seg[3]) {
                         s.push({
-                            start:[ seg[0], seg[1] ],
-                            end:[ seg[2], seg[3] ]
-                        });                    
+                            start: [ seg[0], seg[1] ],
+                            end: [ seg[2], seg[3] ]
+                        });
                         _last = seg;
                         _lastAxis = seg[4];
                     }
                 }
             }
             return s;
-        };	
+        };
 
-        this.setPath = function(path) {
+        this.setPath = function (path) {
             userSuppliedSegments = [];
             for (var i = 0; i < path.length; i++) {
-                 var lx = path[i].start[0],
+                var lx = path[i].start[0],
                     ly = path[i].start[1],
                     x = path[i].end[0],
                     y = path[i].end[1],
@@ -10720,262 +10766,175 @@
  * 
  * This file contains the state machine connectors.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
- ;(function() {
-	 
-	"use strict";
+;
+(function () {
 
-	var Line = function(x1, y1, x2, y2) {
+    "use strict";
 
-		this.m = (y2 - y1) / (x2 - x1);
-		this.b = -1 * ((this.m * x1) - y1);
-	
-		this.rectIntersect = function(x,y,w,h) {
-			var results = [], xInt, yInt;
-		
-			// 	try top face
-			// 	the equation of the top face is y = (0 * x) + b; y = b.
-			xInt = (y - this.b) / this.m;
-			// test that the X value is in the line's range.
-			if (xInt >= x && xInt <= (x + w)) results.push([ xInt, (this.m * xInt) + this.b ]);
-		
-			// try right face
-			yInt = (this.m * (x + w)) + this.b;
-			if (yInt >= y && yInt <= (y + h)) results.push([ (yInt - this.b) / this.m, yInt ]);
-		
-			// 	bottom face
-			xInt = ((y + h) - this.b) / this.m;
-			// test that the X value is in the line's range.
-			if (xInt >= x && xInt <= (x + w)) results.push([ xInt, (this.m * xInt) + this.b ]);
-		
-			// try left face
-			yInt = (this.m * x) + this.b;
-			if (yInt >= y && yInt <= (y + h)) results.push([ (yInt - this.b) / this.m, yInt ]);
+    var _segment = function (x1, y1, x2, y2) {
+            if (x1 <= x2 && y2 <= y1) return 1;
+            else if (x1 <= x2 && y1 <= y2) return 2;
+            else if (x2 <= x1 && y2 >= y1) return 3;
+            return 4;
+        },
 
-			if (results.length == 2) {
-				var midx = (results[0][0] + results[1][0]) / 2, midy = (results[0][1] + results[1][1]) / 2;
-				results.push([ midx,midy ]);
-				// now calculate the segment inside the rectangle where the midpoint lies.
-				var xseg = midx <= x + (w / 2) ? -1 : 1,
-					yseg = midy <= y + (h / 2) ? -1 : 1;
-				results.push([xseg, yseg]);
-				return results;
-			}
-		
-			return null;
+    // the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
+    // two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
+    // are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
+    // center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
+    // direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
+    // lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
+    //
+    // sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
+    //
+    // 0 - absolute x
+    // 1 - absolute y
+    // 2 - proportional x in element (0 is left edge, 1 is right edge)
+    // 3 - proportional y in element (0 is top edge, 1 is bottom edge)
+    //
+        _findControlPoint = function (midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
+            // TODO (maybe)
+            // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
+            if (distance <= proximityLimit) return [midx, midy];
 
-		};
-	},
-	_segment = function(x1, y1, x2, y2) {
-		if (x1 <= x2 && y2 <= y1) return 1;
-		else if (x1 <= x2 && y1 <= y2) return 2;
-		else if (x2 <= x1 && y2 >= y1) return 3;
-		return 4;
-	},
-		
-		// the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
-		// two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
-		// are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
-		// center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
-		// direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
-		// lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
-		//
-		// sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
-		//
-		// 0 - absolute x
-		// 1 - absolute y
-		// 2 - proportional x in element (0 is left edge, 1 is right edge)
-		// 3 - proportional y in element (0 is top edge, 1 is bottom edge)
-		// 	
-	_findControlPoint = function(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
-        // TODO (maybe)
-        // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
-        if (distance <= proximityLimit) return [midx, midy];
+            if (segment === 1) {
+                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+            }
+            else if (segment === 2) {
+                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + dx, midy + (-1 * dy) ];
+            }
+            else if (segment === 3) {
+                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+            }
+            else if (segment === 4) {
+                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + dx , midy + (-1 * dy) ];
+            }
 
-        if (segment === 1) {
-            if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-            else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-            else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
-        }
-        else if (segment === 2) {
-            if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-            else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-            else return [ midx + (1 * dx) , midy + (-1 * dy) ];
-        }
-        else if (segment === 3) {
-            if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-            else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-            else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
-        }
-        else if (segment === 4) {
-            if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-            else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-            else return [ midx + (1 * dx) , midy + (-1 * dy) ];
-        }
+        };
 
-	};	
-	
-	/**
-     * Class: Connectors.StateMachine
-     * Provides 'state machine' connectors.
-     */
-	/*
-	 * Function: Constructor
-	 * 
-	 * Parameters:
-	 * curviness -	measure of how "curvy" the connectors will be.  this is translated as the distance that the
-     *                Bezier curve's control point is from the midpoint of the straight line connecting the two
-     *              endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches
-     *              its control points; they act as gravitational masses. defaults to 10.
-	 * margin	-	distance from element to start and end connectors, in pixels.  defaults to 5.
-	 * proximityLimit  -   sets the distance beneath which the elements are consider too close together to bother
-	 *						with fancy curves. by default this is 80 pixels.
-	 * loopbackRadius	-	the radius of a loopback connector.  optional; defaults to 25.
-	 * showLoopback   -   If set to false this tells the connector that it is ok to paint connections whose source and target is the same element with a connector running through the element. The default value for this is true; the connector always makes a loopback connection loop around the element rather than passing through it.
-	*/
-	var StateMachine = function(params) {
-		params = params || {};
-		this.type = "StateMachine";
+    var StateMachine = function (params) {
+        params = params || {};
+        this.type = "StateMachine";
 
-		var self = this,
-			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
-			curviness = params.curviness || 10,
-			margin = params.margin || 5,
-			proximityLimit = params.proximityLimit || 80,
-			clockwise = params.orientation && params.orientation === "clockwise",
-			loopbackRadius = params.loopbackRadius || 25,
-			showLoopback = params.showLoopback !== false;
-		
-		this._compute = function(paintInfo, params) {
-			var w = Math.abs(params.sourcePos[0] - params.targetPos[0]),
-				h = Math.abs(params.sourcePos[1] - params.targetPos[1]),
-				x = Math.min(params.sourcePos[0], params.targetPos[0]),
-				y = Math.min(params.sourcePos[1], params.targetPos[1]);				
-		
-			if (!showLoopback || (params.sourceEndpoint.elementId !== params.targetEndpoint.elementId)) {                            
-				var _sx = params.sourcePos[0] < params.targetPos[0] ? 0  : w,
-					_sy = params.sourcePos[1] < params.targetPos[1] ? 0:h,
-					_tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
-					_ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
-            
-				// now adjust for the margin
-				if (params.sourcePos[2] === 0) _sx -= margin;
-            	if (params.sourcePos[2] === 1) _sx += margin;
-            	if (params.sourcePos[3] === 0) _sy -= margin;
-            	if (params.sourcePos[3] === 1) _sy += margin;
-            	if (params.targetPos[2] === 0) _tx -= margin;
-            	if (params.targetPos[2] === 1) _tx += margin;
-            	if (params.targetPos[3] === 0) _ty -= margin;
-            	if (params.targetPos[3] === 1) _ty += margin;
+        var _super = jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
+            curviness = params.curviness || 10,
+            margin = params.margin || 5,
+            proximityLimit = params.proximityLimit || 80,
+            clockwise = params.orientation && params.orientation === "clockwise",
+            loopbackRadius = params.loopbackRadius || 25,
+            showLoopback = params.showLoopback !== false;
 
-            	//
-	            // these connectors are quadratic bezier curves, having a single control point. if both anchors 
-    	        // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
-        	    // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
-           	 	// it seems to make good aesthetic sense to do that. outside of that, the control point is positioned 
-           	 	// at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
-	            // 
-   	        	// there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
-            	// in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
-            	// for example, we might increase the distance the control point is away from the midpoint in a bid to
-            	// steer it around that node.  this will work within limits, but i think those limits would also be the likely
-            	// limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
-            	//
-            	// the second possible change is actually two possible changes: firstly, it is possible we should gradually
-            	// decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
-            	// point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
-            	// with respect to how far their anchor is from the center of its respective face. this could either look cool,
-            	// or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
-            	//
+        this._compute = function (paintInfo, params) {
+            var w = Math.abs(params.sourcePos[0] - params.targetPos[0]),
+                h = Math.abs(params.sourcePos[1] - params.targetPos[1]);
 
-				var _midx = (_sx + _tx) / 2, _midy = (_sy + _ty) / 2, 
-            	    m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),
-            	    dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
-				    dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
-				    segment = _segment(_sx, _sy, _tx, _ty),
-				    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),			
-	            	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-	            	// will work by extending the control point to force the curve to be, um, curvier.
-					_controlPoint = _findControlPoint(_midx,
-                                                  _midy,
-                                                  segment,
-                                                  params.sourcePos,
-                                                  params.targetPos,
-                                                  curviness, curviness,
-                                                  distance,
-                                                  proximityLimit);
+            if (!showLoopback || (params.sourceEndpoint.elementId !== params.targetEndpoint.elementId)) {
+                var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
+                    _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
+                    _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
+                    _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
 
-				_super.addSegment(this, "Bezier", {
-					x1:_tx, y1:_ty, x2:_sx, y2:_sy,
-					cp1x:_controlPoint[0], cp1y:_controlPoint[1],
-					cp2x:_controlPoint[0], cp2y:_controlPoint[1]
-				});				
+                // now adjust for the margin
+                if (params.sourcePos[2] === 0) _sx -= margin;
+                if (params.sourcePos[2] === 1) _sx += margin;
+                if (params.sourcePos[3] === 0) _sy -= margin;
+                if (params.sourcePos[3] === 1) _sy += margin;
+                if (params.targetPos[2] === 0) _tx -= margin;
+                if (params.targetPos[2] === 1) _tx += margin;
+                if (params.targetPos[3] === 0) _ty -= margin;
+                if (params.targetPos[3] === 1) _ty += margin;
+
+                //
+                // these connectors are quadratic bezier curves, having a single control point. if both anchors
+                // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
+                // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
+                // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
+                // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
+                //
+                // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
+                // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
+                // for example, we might increase the distance the control point is away from the midpoint in a bid to
+                // steer it around that node.  this will work within limits, but i think those limits would also be the likely
+                // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
+                //
+                // the second possible change is actually two possible changes: firstly, it is possible we should gradually
+                // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
+                // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
+                // with respect to how far their anchor is from the center of its respective face. this could either look cool,
+                // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
+                //
+
+                var _midx = (_sx + _tx) / 2,
+                    _midy = (_sy + _ty) / 2,
+                    segment = _segment(_sx, _sy, _tx, _ty),
+                    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
+                    // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+                    // will work by extending the control point to force the curve to be, um, curvier.
+                    _controlPoint = _findControlPoint(_midx,
+                        _midy,
+                        segment,
+                        params.sourcePos,
+                        params.targetPos,
+                        curviness, curviness,
+                        distance,
+                        proximityLimit);
+
+                _super.addSegment(this, "Bezier", {
+                    x1: _tx, y1: _ty, x2: _sx, y2: _sy,
+                    cp1x: _controlPoint[0], cp1y: _controlPoint[1],
+                    cp2x: _controlPoint[0], cp2y: _controlPoint[1]
+                });
             }
             else {
-            	// a loopback connector.  draw an arc from one anchor to the other.            	
-        		var x1 = params.sourcePos[0], x2 = params.sourcePos[0], y1 = params.sourcePos[1] - margin, y2 = params.sourcePos[1] - margin, 				
-					cx = x1, cy = y1 - loopbackRadius,				
-					// canvas sizing stuff, to ensure the whole painted area is visible.
-					_w = 2 * loopbackRadius, 
-					_h = 2 * loopbackRadius,
-					_x = cx - loopbackRadius, 
-					_y = cy - loopbackRadius;
+                // a loopback connector.  draw an arc from one anchor to the other.
+                var x1 = params.sourcePos[0], y1 = params.sourcePos[1] - margin,
+                    cx = x1, cy = y1 - loopbackRadius,
+                // canvas sizing stuff, to ensure the whole painted area is visible.
+                    _w = 2 * loopbackRadius,
+                    _h = 2 * loopbackRadius,
+                    _x = cx - loopbackRadius,
+                    _y = cy - loopbackRadius;
 
-				paintInfo.points[0] = _x;
-				paintInfo.points[1] = _y;
-				paintInfo.points[2] = _w;
-				paintInfo.points[3] = _h;
-				
-				// ADD AN ARC SEGMENT.
-				_super.addSegment(this, "Arc", {
-					loopback:true,
-					x1:(x1 - _x) + 4,
-					y1:y1 - _y,
-					startAngle:0,
-					endAngle: 2 * Math.PI,
-					r:loopbackRadius,
-					ac:!clockwise,
-					x2:(x1 - _x) - 4,
-					y2:y1 - _y,
-					cx:cx - _x,
-					cy:cy - _y
-				});
-            }                           
-        };                        
-	};
-	jsPlumb.registerConnectorType(StateMachine, "StateMachine");
+                paintInfo.points[0] = _x;
+                paintInfo.points[1] = _y;
+                paintInfo.points[2] = _w;
+                paintInfo.points[3] = _h;
+
+                // ADD AN ARC SEGMENT.
+                _super.addSegment(this, "Arc", {
+                    loopback: true,
+                    x1: (x1 - _x) + 4,
+                    y1: y1 - _y,
+                    startAngle: 0,
+                    endAngle: 2 * Math.PI,
+                    r: loopbackRadius,
+                    ac: !clockwise,
+                    x2: (x1 - _x) - 4,
+                    y2: y1 - _y,
+                    cx: cx - _x,
+                    cy: cy - _y
+                });
+            }
+        };
+    };
+    jsPlumbUtil.extend(StateMachine, jsPlumb.Connectors.AbstractConnector);
+    jsPlumb.registerConnectorType(StateMachine, "StateMachine");
 })();
-
-/*
-    	// a possible rudimentary avoidance scheme, old now, perhaps not useful.
-        //      if (avoidSelector) {
-		//		    var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
-		//		    var sel = jsPlumb.getSelector(avoidSelector);
-		//		    for (var i = 0; i < sel.length; i++) {
-		//			    var id = jsPlumb.getId(sel[i]);
-		//			    if (id != sourceEndpoint.elementId && id != targetEndpoint.elementId) {
-		//				    o = jsPlumb.getOffset(id), s = jsPlumb.getSize(id);
-//
-//						    if (o && s) {
-//							    var collision = testLine.rectIntersect(o.left,o.top,s[0],s[1]);
-//							    if (collision) {
-								    // set the control point to be a certain distance from the midpoint of the two points that
-								    // the line crosses on the rectangle.
-								    // TODO where will this 75 number come from?
-					//			    _controlX = collision[2][0] + (75 * collision[3][0]);
-				//	/			    _controlY = collision[2][1] + (75 * collision[3][1]);
-//							    }
-//						    }
-					//  }
-	//			    }
-              //}
-    */
 /*
  * jsPlumb
  * 
@@ -10985,78 +10944,79 @@
  * 
  * This file contains the code for the Bezier connector type.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;(function() {
+;
+(function () {
 
-	var Bezier = function(params) {
-		params = params || {};
+    var Bezier = function (params) {
+        params = params || {};
 
-		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
-			stub = params.stub || 50,
-			majorAnchor = params.curviness || 150,
-			minorAnchor = 10;
+        var _super = jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
+            majorAnchor = params.curviness || 150,
+            minorAnchor = 10;
 
-		this.type = "Bezier";
-		this.getCurviness = function() { return majorAnchor; };
+        this.type = "Bezier";
+        this.getCurviness = function () {
+            return majorAnchor;
+        };
 
-		this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
-			// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
-			// points around if so (code could be tightened up)
-			var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint),
-				too = targetEndpoint.anchor.getOrientation(targetEndpoint),
-				perpendicular = soo[0] != too[0] || soo[1] == too[1],
-				p = [];
+        this._findControlPoint = function (point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
+            // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
+            // points around if so (code could be tightened up)
+            var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint),
+                too = targetEndpoint.anchor.getOrientation(targetEndpoint),
+                perpendicular = soo[0] != too[0] || soo[1] == too[1],
+                p = [];
 
-			if (!perpendicular) {
-				if (soo[0] === 0) // X
-					p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-				else p.push(point[0] - (majorAnchor * soo[0]));
+            if (!perpendicular) {
+                if (soo[0] === 0) // X
+                    p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
+                else p.push(point[0] - (majorAnchor * soo[0]));
 
-				if (soo[1] === 0) // Y
-					p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-				else p.push(point[1] + (majorAnchor * too[1]));
-			}
-			else {
-				if (too[0] === 0) // X
-					p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-				else p.push(point[0] + (majorAnchor * too[0]));
+                if (soo[1] === 0) // Y
+                    p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
+                else p.push(point[1] + (majorAnchor * too[1]));
+            }
+            else {
+                if (too[0] === 0) // X
+                    p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
+                else p.push(point[0] + (majorAnchor * too[0]));
 
-				if (too[1] === 0) // Y
-					p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-				else p.push(point[1] + (majorAnchor * soo[1]));
-			}
+                if (too[1] === 0) // Y
+                    p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
+                else p.push(point[1] + (majorAnchor * soo[1]));
+            }
 
-			return p;
-		};
+            return p;
+        };
 
-		this._compute = function(paintInfo, p) {
+        this._compute = function (paintInfo, p) {
+            var sp = p.sourcePos,
+                tp = p.targetPos,
+                _w = Math.abs(sp[0] - tp[0]),
+                _h = Math.abs(sp[1] - tp[1]),
+                _sx = sp[0] < tp[0] ? _w : 0,
+                _sy = sp[1] < tp[1] ? _h : 0,
+                _tx = sp[0] < tp[0] ? 0 : _w,
+                _ty = sp[1] < tp[1] ? 0 : _h,
+                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to),
+                _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.so, paintInfo.to);
 
-			var sp = p.sourcePos,
-				tp = p.targetPos,
-				_w = Math.abs(sp[0] - tp[0]),
-				_h = Math.abs(sp[1] - tp[1]),
-				_sx = sp[0] < tp[0] ? _w : 0,
-				_sy = sp[1] < tp[1] ? _h : 0,
-				_tx = sp[0] < tp[0] ? 0 : _w,
-				_ty = sp[1] < tp[1] ? 0 : _h,
-				_CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to),
-				_CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.so, paintInfo.to);
+            _super.addSegment(this, "Bezier", {
+                x1: _sx, y1: _sy, x2: _tx, y2: _ty,
+                cp1x: _CP[0], cp1y: _CP[1], cp2x: _CP2[0], cp2y: _CP2[1]
+            });
+        };
+    };
 
-			_super.addSegment(this, "Bezier", {
-				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
-				cp1x:_CP[0], cp1y:_CP[1], cp2x:_CP2[0], cp2y:_CP2[1]
-			});
-		};
-	};
-
-	jsPlumbUtil.extend(Bezier, jsPlumb.Connectors.AbstractConnector);
-	jsPlumb.registerConnectorType(Bezier, "Bezier");
+    jsPlumbUtil.extend(Bezier, jsPlumb.Connectors.AbstractConnector);
+    jsPlumb.registerConnectorType(Bezier, "Bezier");
 
 })();
 /*

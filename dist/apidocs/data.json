@@ -11,9 +11,13 @@
             "modules": {},
             "classes": {
                 "Anchors.Top": 1,
+                "Anchors.TopCenter": 1,
                 "Anchors.Bottom": 1,
+                "Anchors.BottomCenter": 1,
                 "Anchors.Left": 1,
+                "Anchors.LeftMiddle": 1,
                 "Anchors.Right": 1,
+                "Anchors.RightMiddle": 1,
                 "Anchors.Center": 1,
                 "Anchors.TopRight": 1,
                 "Anchors.BottomRight": 1,
@@ -132,6 +136,20 @@
             "line": 2,
             "description": "An Anchor that is located at the top center of the element."
         },
+        "Anchors.TopCenter": {
+            "name": "Anchors.TopCenter",
+            "shortname": "Anchors.TopCenter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "doc/api/anchors.js",
+            "line": 6,
+            "description": "An Anchor that is located at the top center of the element.",
+            "deprecated": true,
+            "deprecationMessage": "Use `Top` instead."
+        },
         "Anchors.Bottom": {
             "name": "Anchors.Bottom",
             "shortname": "Anchors.Bottom",
@@ -141,8 +159,22 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 6,
+            "line": 11,
             "description": "An Anchor that is located at the bottom center of the element."
+        },
+        "Anchors.BottomCenter": {
+            "name": "Anchors.BottomCenter",
+            "shortname": "Anchors.BottomCenter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "doc/api/anchors.js",
+            "line": 15,
+            "description": "An Anchor that is located at the bottom center of the element.",
+            "deprecated": true,
+            "deprecationMessage": "Use `Bottom` instead."
         },
         "Anchors.Left": {
             "name": "Anchors.Left",
@@ -153,8 +185,22 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 10,
+            "line": 20,
             "description": "An Anchor that is located at the left middle of the element."
+        },
+        "Anchors.LeftMiddle": {
+            "name": "Anchors.LeftMiddle",
+            "shortname": "Anchors.LeftMiddle",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "doc/api/anchors.js",
+            "line": 24,
+            "description": "An Anchor that is located at the left middle of the element.",
+            "deprecated": true,
+            "deprecationMessage": "Use `Left` instead."
         },
         "Anchors.Right": {
             "name": "Anchors.Right",
@@ -165,8 +211,22 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 14,
+            "line": 29,
             "description": "An Anchor that is located at the right middle of the element."
+        },
+        "Anchors.RightMiddle": {
+            "name": "Anchors.RightMiddle",
+            "shortname": "Anchors.RightMiddle",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "doc/api/anchors.js",
+            "line": 33,
+            "description": "An Anchor that is located at the right middle of the element.",
+            "deprecated": true,
+            "deprecationMessage": "Use `Right` instead."
         },
         "Anchors.Center": {
             "name": "Anchors.Center",
@@ -177,7 +237,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 18,
+            "line": 38,
             "description": "An Anchor that is located at the center of the element."
         },
         "Anchors.TopRight": {
@@ -189,7 +249,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 22,
+            "line": 42,
             "description": "An Anchor that is located at the top right corner of the element."
         },
         "Anchors.BottomRight": {
@@ -201,7 +261,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 26,
+            "line": 46,
             "description": "An Anchor that is located at the bottom right corner of the element."
         },
         "Anchors.TopLeft": {
@@ -213,7 +273,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 30,
+            "line": 50,
             "description": "An Anchor that is located at the top left corner of the element."
         },
         "Anchors.BottomLeft": {
@@ -225,7 +285,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 34,
+            "line": 54,
             "description": "An Anchor that is located at the bottom left corner of the element."
         },
         "Anchors.AutoDefault": {
@@ -237,7 +297,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 38,
+            "line": 58,
             "description": "Default DynamicAnchors - chooses from Top, Right, Bottom, Left."
         },
         "Anchors.Assign": {
@@ -249,7 +309,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 42,
+            "line": 62,
             "description": "An Anchor whose location is assigned at connection time, through an AnchorPositionFinder. Used in conjunction\nwith the `makeTarget` function. jsPlumb has two of these - `Fixed` and `Grid`, and you can also write your own."
         },
         "Anchors.ContinuousLeft": {
@@ -261,7 +321,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 48,
+            "line": 68,
             "description": "A continuous anchor that uses only the left edge of the element."
         },
         "Anchors.ContinuousTop": {
@@ -273,7 +333,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 52,
+            "line": 72,
             "description": "A continuous anchor that uses only the top edge of the element."
         },
         "Anchors.ContinuousBottom": {
@@ -285,7 +345,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 56,
+            "line": 76,
             "description": "A continuous anchor that uses only the bottom edge of the element."
         },
         "Anchors.ContinuousRight": {
@@ -297,7 +357,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 60,
+            "line": 80,
             "description": "A continuous anchor that uses only the right edge of the element."
         },
         "Anchors.Continuous": {
@@ -309,7 +369,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 65,
+            "line": 85,
             "description": "An Anchor that tracks the other element in the connection, choosing the closest face.",
             "is_constructor": 1,
             "params": [
@@ -338,7 +398,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/anchors.js",
-            "line": 73,
+            "line": 93,
             "description": "An Anchor that tracks the perimeter of some shape, approximating it with a given number of dynamically\npositioned locations.",
             "is_constructor": 1,
             "params": [
@@ -465,7 +525,7 @@
                         {
                             "name": "curviness",
                             "description": "Measure of how \"curvy\" the connectors will be.  this is translated as the distance that the\n               Bezier curve's control point is from the midpoint of the straight line connecting the two\n             endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches\n             its control points; they act as gravitational masses.",
-                            "type": "Float",
+                            "type": "Number",
                             "optional": true,
                             "optdefault": "10"
                         },
