@@ -4,7 +4,7 @@
 
     var _internalLabelOverlayId = "__label",
     // helper to get the index of some overlay
-        _getOverlayIndex = function (component, id) {
+        /*_getOverlayIndex = function (component, id) {
             var idx = -1;
             for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
                 if (id === component._jsPlumb.overlays[i].id) {
@@ -13,7 +13,7 @@
                 }
             }
             return idx;
-        },
+        },*/
     // this is a shortcut helper method to let people add a label as
     // overlay.
         _makeLabelOverlay = function (component, params) {
@@ -46,14 +46,17 @@
                 _newOverlay = o;
             }
 
-            if (_newOverlay.id) component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
-            component._jsPlumb.overlays.push(_newOverlay);
+            _newOverlay.id = _newOverlay.id || jsPlumbUtil.uuid();
+            component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
+            //component._jsPlumb.overlays.push(_newOverlay);
+            component._jsPlumb.overlays[_newOverlay.id] = _newOverlay;
         };
 
     jsPlumb.OverlayCapableJsPlumbUIComponent = function (params) {
 
         jsPlumbUIComponent.apply(this, arguments);
-        this._jsPlumb.overlays = [];
+        this._jsPlumb.overlays = {};
+        this._jsPlumb.overlayPositions = {};
 
         if (params.label) {
             this.labelSpec = {
@@ -66,7 +69,7 @@
 
         this.setListenerComponent = function (c) {
             if (this._jsPlumb) {
-                for (var i = 0; i < this._jsPlumb.overlays.length; i++)
+                for (var i in this._jsPlumb.overlays)
                     this._jsPlumb.overlays[i].setListenerComponent(c);
             }
         };
@@ -80,7 +83,7 @@
                     var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
                         c.reattach(this._jsPlumb.instance);
-                        this._jsPlumb.overlays.push(c);
+                        this._jsPlumb.overlays[c.id] = c;
                     }
                     else {
                         this.addOverlay(t.overlays[i], true);
@@ -90,7 +93,7 @@
         },
         setHover: function (hover, ignoreAttachedElements) {
             if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
-                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+                for (var i in this._jsPlumb.overlays) {
                     this._jsPlumb.overlays[i][hover ? "addClass" : "removeClass"](this._jsPlumb.instance.hoverClass);
                 }
             }
@@ -100,8 +103,7 @@
             if (!doNotRepaint) this.repaint();
         },
         getOverlay: function (id) {
-            var idx = _getOverlayIndex(this, id);
-            return idx >= 0 ? this._jsPlumb.overlays[idx] : null;
+            return this._jsPlumb.overlays[id];
         },
         getOverlays: function () {
             return this._jsPlumb.overlays;
@@ -111,7 +113,7 @@
             if (o) o.hide();
         },
         hideOverlays: function () {
-            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+            for (var i in this._jsPlumb.overlays)
                 this._jsPlumb.overlays[i].hide();
         },
         showOverlay: function (id) {
@@ -119,25 +121,24 @@
             if (o) o.show();
         },
         showOverlays: function () {
-            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+            for (var i in this._jsPlumb.overlays.length)
                 this._jsPlumb.overlays[i].show();
         },
         removeAllOverlays: function (doNotRepaint) {
-            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+            for (var i in this._jsPlumb.overlays) {
                 if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
             }
 
-            this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
+            this._jsPlumb.overlays = {};
             this._jsPlumb.overlayPositions = null;
             if (!doNotRepaint)
                 this.repaint();
         },
         removeOverlay: function (overlayId) {
-            var idx = _getOverlayIndex(this, overlayId);
-            if (idx != -1) {
-                var o = this._jsPlumb.overlays[idx];
+            var o = this._jsPlumb.overlays[overlayId];
+            if (o) {
                 if (o.cleanup) o.cleanup();
-                this._jsPlumb.overlays.splice(idx, 1);
+                delete this._jsPlumb.overlays[overlayId];
                 if (this._jsPlumb.overlayPositions)
                     delete this._jsPlumb.overlayPositions[overlayId];
             }
@@ -155,10 +156,11 @@
             this.canvas.parentNode.removeChild(this.canvas);
             newParent.appendChild(this.canvas);
 
-            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+            for (var i in this._jsPlumb.overlays) {
                 if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    this._jsPlumb.overlays[i].canvas.parentNode.removeChild(this._jsPlumb.overlays[i].canvas);
-                    newParent.appendChild(this._jsPlumb.overlays[i].canvas);
+                    var el = this._jsPlumb.overlays[i].getElement();
+                    el.parentNode.removeChild(el);
+                    newParent.appendChild(el);
                 }
             }
         },
@@ -174,7 +176,7 @@
             if (!lo) {
                 var params = l.constructor == String || l.constructor == Function ? { label: l } : l;
                 lo = _makeLabelOverlay(this, params);
-                this._jsPlumb.overlays.push(lo);
+                this._jsPlumb.overlays[_internalLabelOverlayId] = lo;
             }
             else {
                 if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
@@ -188,12 +190,12 @@
                 this.repaint();
         },
         cleanup: function (force) {
-            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+            for (var i in this._jsPlumb.overlays) {
                 this._jsPlumb.overlays[i].cleanup(force);
                 this._jsPlumb.overlays[i].destroy(force);
             }
             if (force) {
-                this._jsPlumb.overlays.length = 0;
+                this._jsPlumb.overlays = {};
                 this._jsPlumb.overlayPositions = null;
             }
         },
@@ -201,7 +203,6 @@
             this[v ? "showOverlays" : "hideOverlays"]();
         },
         setAbsoluteOverlayPosition: function (overlay, xy) {
-            this._jsPlumb.overlayPositions = this._jsPlumb.overlayPositions || {};
             this._jsPlumb.overlayPositions[overlay.id] = xy;
         },
         getAbsoluteOverlayPosition: function (overlay) {
