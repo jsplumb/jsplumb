@@ -99,7 +99,7 @@
         this.idPrefix = "_jsplumb_e_";
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        jsPlumb.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
         this.connectionType = params.connectionType;
 
 // TYPE		
@@ -849,7 +849,7 @@
         return this;
     };
 
-    jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent, {
+    jsPlumbUtil.extend(jsPlumb.Endpoint, jsPlumb.OverlayCapableJsPlumbUIComponent, {
         getTypeDescriptor: function () {
             return "endpoint";
         },
