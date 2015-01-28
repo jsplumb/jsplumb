@@ -73,9 +73,13 @@
                 _mapType(map, defType, "default");
                 for (var i = 0, j = component._jsPlumb.types.length; i < j; i++) {
                     var tid = component._jsPlumb.types[i];
-                    var _t = component._jsPlumb.instance.getType(tid, td)
-                    o = _ju.merge(o, _t, [ "cssClass" ]);
-                    _mapType(map, _t, tid);
+                    if (tid !== "default") {
+                        var _t = component._jsPlumb.instance.getType(tid, td)
+                        if (_t != null) {
+                            o = _ju.merge(o, _t, [ "cssClass" ]);
+                            _mapType(map, _t, tid);
+                        }
+                    }
                 }
 
                 if (params) {
