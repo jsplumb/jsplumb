@@ -79,7 +79,7 @@
             }
             else return a;
         },
-        merge: function (a, b, collations, sourceKeys ) {
+        merge: function (a, b, collations) {
             // first change the collations array - if present - into a lookup table, because its faster.
             var cMap = {}, ar, i;
             collations = collations || [];
