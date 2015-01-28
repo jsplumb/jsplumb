@@ -66,7 +66,7 @@
         if (params.sourceEndpoint) this.source = params.sourceEndpoint.getElement();
         if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();
 
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        jsPlumb.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
         this.sourceId = this._jsPlumb.instance.getId(this.source);
         this.targetId = this._jsPlumb.instance.getId(this.target);
@@ -89,42 +89,6 @@
             overlays: params.overlays
         };
         this._jsPlumb.lastPaintedAt = null;
-        this.getDefaultType = function () {
-            var o = params.overlays || [];
-            Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.ConnectionOverlays || []);
-            Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
-            for (var i = 0; i < o.length; i++) {
-                // if a string, convert to object representation so that we can store the typeid on it.
-                // also assign an id.
-                o[i] = jsPlumb.convertToFullOverlaySpec(o[i]);
-            }
-
-            if (this.labelSpec != null) {
-                o.push(["Label", this.labelSpec]);
-            }
-
-            // DETACHABLE
-            var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
-            if (params.detachable === false) _detachable = false;
-            if (this.endpoints[0].connectionsDetachable === false) _detachable = false;
-            if (this.endpoints[1].connectionsDetachable === false) _detachable = false;
-            // REATTACH
-            var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
-
-            return {
-                parameters: {},
-                scope: null,
-                detachable: _detachable,
-                rettach: _reattach,
-                //paintStyle: this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-                paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-                //connector: this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
-                connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
-                //hoverPaintStyle: this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-                hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-                overlays: o
-            };
-        };
 
         // listen to mouseover and mouseout events passed from the container delegate.
         this.bind("mouseover", function () {
@@ -161,6 +125,42 @@
             if (!this.endpoints[0]._doNotDeleteOnDetach) this.endpoints[0]._deleteOnDetach = true;
             if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
         }
+
+// -------------------------- DEFAULT TYPE ---------------------------------------------
+        // default overlays.
+        var o = params.overlays || [];
+        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.ConnectionOverlays || []);
+        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
+        for (var i = 0; i < o.length; i++) {
+            // if a string, convert to object representation so that we can store the typeid on it.
+            // also assign an id.
+            o[i] = jsPlumb.convertToFullOverlaySpec(o[i]);
+        }
+
+        if (this.labelSpec != null) {
+            o.push(["Label", this.labelSpec]);
+        }
+
+        // DETACHABLE
+        var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
+        if (params.detachable === false) _detachable = false;
+        if (this.endpoints[0].connectionsDetachable === false) _detachable = false;
+        if (this.endpoints[1].connectionsDetachable === false) _detachable = false;
+        // REATTACH
+        var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
+
+        this.getDefaultType = function () {
+            return {
+                parameters: params.parameters || {},
+                scope: params.scope,
+                detachable: _detachable,
+                rettach: _reattach,
+                paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+                connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
+                hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
+                overlays: o
+            };
+        };
 
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         if (!_jsPlumb.isSuspendDrawing()) {
@@ -224,7 +224,7 @@
 // END PAINTING    
     };
 
-    jsPlumbUtil.extend(jsPlumb.Connection, OverlayCapableJsPlumbUIComponent, {
+    jsPlumbUtil.extend(jsPlumb.Connection, jsPlumb.OverlayCapableJsPlumbUIComponent, {
         applyType: function (t, doNotRepaint, typeMap) {
             // none of these things result in the creation of objects so can be ignored.
             if (t.detachable != null) this.setDetachable(t.detachable);
@@ -444,7 +444,7 @@
 
                     // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
-                    for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                    for (var i in this._jsPlumb.overlays) {
                         var o = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
                             this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
@@ -466,7 +466,7 @@
                     // paint the connector.
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
                     // and then the overlays
-                    for (var j = 0; j < this._jsPlumb.overlays.length; j++) {
+                    for (var j in this._jsPlumb.overlays) {
                         var p = this._jsPlumb.overlays[j];
                         if (p.isVisible()) {
                             p.paint(this._jsPlumb.overlayPlacements[j], extents);
