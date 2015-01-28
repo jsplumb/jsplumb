@@ -22,7 +22,7 @@ var versions = {
             "svg", "vml"
         ],
         common:[
-            'util.js', 'browser-util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js'
+            'util.js', 'browser-util.js', 'dom-adapter.js', 'jsPlumb.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js'
         ]
     },
     optionList = function(grunt, type) {
