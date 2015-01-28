@@ -1246,12 +1246,14 @@
             return jsPlumbUtil.oldIE ? jsPlumb.getSize(this.getElement()) : [1, 1];
         },
         setVisible: function (state) {
-            this._jsPlumb.div.style.display = state ? "block" : "none";
-            // if initially invisible, dimensions are 0,0 and never get updated
-            if (state && this._jsPlumb.initiallyInvisible) {
-                _getDimensions(this, true);
-                this.component.repaint();
-                this._jsPlumb.initiallyInvisible = false;
+            if (this._jsPlumb.div) {
+                this._jsPlumb.div.style.display = state ? "block" : "none";
+                // if initially invisible, dimensions are 0,0 and never get updated
+                if (state && this._jsPlumb.initiallyInvisible) {
+                    _getDimensions(this, true);
+                    this.component.repaint();
+                    this._jsPlumb.initiallyInvisible = false;
+                }
             }
         },
         /*
