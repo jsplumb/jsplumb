@@ -3443,6 +3443,7 @@ var testSuite = function (renderMode, _jsPlumb) {
                 label: "FOO"
             });
 
+        equal(c.getOverlays().length, 1, "one overlay set");
         equal(c.getLabel(), "FOO", "label is set correctly");
     });
 
@@ -3633,9 +3634,12 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(40, connection1._jsPlumb.overlays[1].width);
         equal(40, connection1._jsPlumb.overlays[1].length);
 
-        connection1.removeAllOverlays();
+        // not valid anymore, as we dont nuke overlays until the component is deleted.
+        /*connection1.removeAllOverlays();
         equal(0, connection1._jsPlumb.overlays.length);
-        equal(0, jsPlumb.getSelector(".PPPP").length);
+        equal(0, jsPlumb.getSelector(".PPPP").length);*/
+        _jsPlumb.detach(connection1);
+        equal(0, jsPlumb.getSelector(".PPPP").length, "overlay has been fully cleaned up");
     });
 
     test(": _jsPlumb.connect, specify arrow overlay using string identifier only", function () {
@@ -4193,7 +4197,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         ]});
         ok(jsPlumb.getSelector(".foo").length == 1, "label element exists in DOM");
         c.removeOverlay("label");
-        ok(jsPlumb.getSelector(".foo").length == 0, "label element does not exist in DOM");
+        ok(c.getOverlays().length == 0, "no overlays left on component");
+        ok(jsPlumb.getSelector(".foo").length == 0 , "label element does not exist in DOM");
     });
 
 
@@ -5442,10 +5447,61 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("basic");
-        equal(c.getOverlays().length, 1, "one overlay");
+        c.getConnector().testFlag = true;
+        equal(c.getOverlays().length, 1, "one overlay after setting `basic` type");
+        // set a flag on the overlay; we will test later that re-adding the basic type will not cause a whole new overlay
+        // to be created
+        c.getOverlays()[0].testFlag = true;
+
         c.setType("other");
-        equal(c.getOverlays().length, 0, "no overlays");
+        equal(c.getOverlays().length, 0, "no overlays after setting type to `other`, which has no overlays");
         equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "paintStyle lineWidth is default");
+
+        c.addType("basic");
+        equal(c.getOverlays().length, 1, "one overlay after reinstating `basic` type");
+        ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
+        ok(c.getOverlays()[0].testFlag, "overlay is the one that was created on first application of basic type");
+    });
+
+
+    test(" set connection type on existing connection, anchors and connectors created only once", function () {
+        var basicType = {
+            connector: "Flowchart",
+            anchor:"Continuous",
+            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
+            hoverPaintStyle: { strokeStyle: "blue" },
+            overlays: [
+                "Arrow"
+            ]
+        };
+        var otherType = {
+            connector: "Bezier",
+            anchor:"AutoDefault"
+        };
+
+        _jsPlumb.registerConnectionType("basic", basicType);
+        _jsPlumb.registerConnectionType("other", otherType);
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = _jsPlumb.connect({source: d1, target: d2});
+
+        c.setType("basic");
+        c.getConnector().testFlag = true;
+        c.endpoints[0].anchor.testFlag = "source";
+        c.endpoints[1].anchor.testFlag = "target";
+        c.getOverlays()[0].testFlag = true;
+
+        c.setType("other");
+        c.getConnector().testFlag = true;
+        ok(c.endpoints[0].anchor.testFlag == null, "test flag not set on source anchor");
+        ok(c.endpoints[1].anchor.testFlag == null, "test flag not set on target anchor");
+
+        c.addType("basic");
+        equal(c.getOverlays().length, 1, "one overlay after reinstating `basic` type");
+        ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
+        equal(c.endpoints[0].anchor.testFlag, "source", "test flag still set on source anchor: anchor was reused");
+        equal(c.endpoints[1].anchor.testFlag, "target", "test flag still set on target anchor: anchor was reused");
+        ok(c.getOverlays()[0].testFlag, "overlay is the one that was created on first application of basic type");
+        ok(c.getOverlays()[0].canvas.parentNode != null, "overlay was reattached to the DOM correctly");
     });
 
     test(" set connection type on existing connection, hasType + toggleType", function () {
@@ -6078,7 +6134,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             }
         });
 
-        c = _jsPlumb.connect({source: e1, target: e2});
+        var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.getPaintStyle().strokeStyle, "blue", "connection has default stroke style");
         equal(c.getConnector().type, "Flowchart", "connector is flowchart");
     });
@@ -6316,6 +6372,7 @@ var testSuite = function (renderMode, _jsPlumb) {
                 becomeArray2: "bar"
             },
             c = jsPlumbUtil.merge(a, b, [ "becomeArray", "becomeArray2"]);
+
         equal(c.foo, "b_foo", "c has b's foo");
         equal(c.nested.foo, "b_foo", "c has b's nested foo");
         // the 'becomeArray' values should have been folded into an array
@@ -6330,6 +6387,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(b.nested.foo, "b_foo", "b has b's nested foo");
         equal(a.nested.foo, "a_foo", "a has a's nested foo");
     });
+
 
 
     // tests for a bug that i found in 1.3.16, in which an array would not overwrite an existing string.	

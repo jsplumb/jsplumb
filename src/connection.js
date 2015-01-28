@@ -90,15 +90,39 @@
         };
         this._jsPlumb.lastPaintedAt = null;
         this.getDefaultType = function () {
+            var o = params.overlays || [];
+            Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.ConnectionOverlays || []);
+            Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
+            for (var i = 0; i < o.length; i++) {
+                // if a string, convert to object representation so that we can store the typeid on it.
+                // also assign an id.
+                o[i] = jsPlumb.convertToFullOverlaySpec(o[i]);
+            }
+
+            if (this.labelSpec != null) {
+                o.push(["Label", this.labelSpec]);
+            }
+
+            // DETACHABLE
+            var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
+            if (params.detachable === false) _detachable = false;
+            if (this.endpoints[0].connectionsDetachable === false) _detachable = false;
+            if (this.endpoints[1].connectionsDetachable === false) _detachable = false;
+            // REATTACH
+            var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
+
             return {
                 parameters: {},
                 scope: null,
-                detachable: this._jsPlumb.instance.Defaults.ConnectionsDetachable,
-                rettach: this._jsPlumb.instance.Defaults.ReattachConnections,
-                paintStyle: this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-                connector: this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
-                hoverPaintStyle: this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-                overlays: jsPlumbUtil.merge(this._jsPlumb.params.overlays || {}, (this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays))
+                detachable: _detachable,
+                rettach: _reattach,
+                //paintStyle: this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+                paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+                //connector: this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
+                connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
+                //hoverPaintStyle: this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
+                hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
+                overlays: o
             };
         };
 
@@ -138,30 +162,6 @@
             if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
         }
 
-        // TODO these could surely be refactored into some method that tries them one at a time until something exists
-        this.setConnector(this.endpoints[0].connector ||
-            this.endpoints[1].connector ||
-            params.connector ||
-            _jsPlumb.Defaults.Connector ||
-            jsPlumb.Defaults.Connector, true, true);
-
-        if (params.path)
-            this.connector.setPath(params.path);
-
-        this.setPaintStyle(this.endpoints[0].connectorStyle ||
-            this.endpoints[1].connectorStyle ||
-            params.paintStyle ||
-            _jsPlumb.Defaults.PaintStyle ||
-            jsPlumb.Defaults.PaintStyle, true);
-
-        this.setHoverPaintStyle(this.endpoints[0].connectorHoverStyle ||
-            this.endpoints[1].connectorHoverStyle ||
-            params.hoverPaintStyle ||
-            _jsPlumb.Defaults.HoverPaintStyle ||
-            jsPlumb.Defaults.HoverPaintStyle, true);
-
-        this._jsPlumb.paintStyleInUse = this.getPaintStyle();
-
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         if (!_jsPlumb.isSuspendDrawing()) {
             // paint the endpoints
@@ -191,13 +191,7 @@
 
 // END INITIALISATION CODE
 
-// DETACHABLE
-        this._jsPlumb.detachable = _jsPlumb.Defaults.ConnectionsDetachable;
-        if (params.detachable === false) this._jsPlumb.detachable = false;
-        if (this.endpoints[0].connectionsDetachable === false) this._jsPlumb.detachable = false;
-        if (this.endpoints[1].connectionsDetachable === false) this._jsPlumb.detachable = false;
-// REATTACH
-        this._jsPlumb.reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
+
 // COST + DIRECTIONALITY
         // if cost not supplied, try to inherit from source endpoint
         this._jsPlumb.cost = params.cost || this.endpoints[0].getConnectionCost();
@@ -221,7 +215,7 @@
 // PAINTING
 
         // the very last thing we do is apply types, if there are any.
-        var _types = [params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
+        var _types = [ "default",  params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
         if (/[^\s]/.test(_types))
             this.addType(_types, params.data, true);
 
@@ -231,19 +225,48 @@
     };
 
     jsPlumbUtil.extend(jsPlumb.Connection, OverlayCapableJsPlumbUIComponent, {
-        applyType: function (t, doNotRepaint) {
+        applyType: function (t, doNotRepaint, typeMap) {
+            // none of these things result in the creation of objects so can be ignored.
             if (t.detachable != null) this.setDetachable(t.detachable);
             if (t.reattach != null) this.setReattach(t.reattach);
             if (t.scope) this.scope = t.scope;
-            this.setConnector(t.connector, doNotRepaint);
+
+            // try to get connector from cache; create it if necessary
+            var c = this.getCachedTypeItem("connector", typeMap.connector);
+            if (c != null) {
+                c.reattach(this._jsPlumb.instance);
+                this.setPreparedConnector(c, doNotRepaint);
+            }
+            else
+                this.setConnector(t.connector, doNotRepaint, false, typeMap.connector);
+
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+
+            var _anchors = null;
+            // this also results in the creation of objects.
             if (t.anchor) {
-                this.endpoints[0].anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
-                this.endpoints[1].anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+
+                // note that even if the param was anchor, we store `anchors`.
+
+                _anchors = this.getCachedTypeItem("anchors", typeMap.anchor);
+                if (_anchors == null) {
+                    _anchors = [ this._jsPlumb.instance.makeAnchor(t.anchor), this._jsPlumb.instance.makeAnchor(t.anchor) ];
+                    this.cacheTypeItem("anchors", _anchors, typeMap.anchor);
+                }
             }
             else if (t.anchors) {
-                this.endpoints[0].anchor = this._jsPlumb.instance.makeAnchor(t.anchors[0]);
-                this.endpoints[1].anchor = this._jsPlumb.instance.makeAnchor(t.anchors[1]);
+                _anchors = this.getCachedTypeItem("anchors", typeMap.anchors);
+                if (_anchors == null) {
+                    _anchors = [
+                        this._jsPlumb.instance.makeAnchor(t.anchors[0]),
+                        this._jsPlumb.instance.makeAnchor(t.anchors[1])
+                    ];
+                    this.cacheTypeItem("anchors", _anchors, typeMap.anchors);
+                }
+            }
+            if (_anchors != null) {
+                this.endpoints[0].anchor = _anchors[0];
+                this.endpoints[1].anchor = _anchors[1];
             }
         },
         getTypeDescriptor: function () {
@@ -287,8 +310,8 @@
             this.source = null;
             this.target = null;
             if (this.connector != null) {
-                this.connector.cleanup();
-                this.connector.destroy();
+                this.connector.cleanup(true);
+                this.connector.destroy(true);
             }
             this.connector = null;
         },
@@ -327,28 +350,41 @@
         getConnector: function () {
             return this.connector;
         },
-        setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent) {
-            var _ju = jsPlumbUtil;
-            if (this.connector != null) {
-                this.connector.cleanup();
-                this.connector.destroy();
-            }
-
+        prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
                     cssClass: this._jsPlumb.params.cssClass,
                     container: this._jsPlumb.params.container,
                     "pointer-events": this._jsPlumb.params["pointer-events"]
                 },
-                renderMode = this._jsPlumb.instance.getRenderMode();
+                renderMode = this._jsPlumb.instance.getRenderMode(),
+                connector;
 
-            if (_ju.isString(connectorSpec))
-                this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this); // lets you use a string as shorthand.
-            else if (_ju.isArray(connectorSpec)) {
+            if (jsPlumbUtil.isString(connectorSpec))
+                connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this); // lets you use a string as shorthand.
+            else if (jsPlumbUtil.isArray(connectorSpec)) {
                 if (connectorSpec.length == 1)
-                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs, this);
+                    connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs, this);
                 else
-                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs), this);
+                    connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], jsPlumbUtil.merge(connectorSpec[1], connectorArgs), this);
+            }
+            if (typeId != null) connector.typeId = typeId;
+            return connector;
+        },
+        setPreparedConnector: function(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
+
+            var previous;
+            // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
+            // and we havent passed in `true` for "force" here.
+            if (this.connector != null) {
+                previous = this.connector;
+                this.connector.cleanup();
+                this.connector.destroy();
+            }
+
+            this.connector = connector;
+            if (typeId) {
+                this.cacheTypeItem("connector", connector, typeId);
             }
 
             this.canvas = this.connector.canvas;
@@ -360,8 +396,19 @@
             if (this.canvas) this.canvas._jsPlumb = this;
             if (this.bgCanvas) this.bgCanvas._jsPlumb = this;
 
+            if (previous != null) {
+                var o = this.getOverlays();
+                for (var i = 0; i < o.length; i++) {
+                    if (o[i].transfer) o[i].transfer(this.connector);
+                }
+            }
+
             if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
             if (!doNotRepaint) this.repaint();
+        },
+        setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
+            var connector = this.prepareConnector(connectorSpec, typeId);
+            this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId)
         },
         paint: function (params) {
 

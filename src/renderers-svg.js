@@ -259,18 +259,32 @@
     };
 
     jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
-        cleanup: function () {
-            if (this.canvas) this.canvas._jsPlumb = null;
-            if (this.svg) this.svg._jsPlumb = null;
-            if (this.bgCanvas) this.bgCanvas._jsPlumb = null;
+        cleanup: function (force) {
+            if (force || this.typeId == null) {
+                if (this.canvas) this.canvas._jsPlumb = null;
+                if (this.svg) this.svg._jsPlumb = null;
+                if (this.bgCanvas) this.bgCanvas._jsPlumb = null;
 
-            if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
-            if (this.bgCanvas && this.bgCanvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
+                if (this.canvas && this.canvas.parentNode)
+                    this.canvas.parentNode.removeChild(this.canvas);
+                if (this.bgCanvas && this.bgCanvas.parentNode)
+                    this.canvas.parentNode.removeChild(this.canvas);
 
-            this.svg = null;
-            this.canvas = null;
-            this.path = null;
-            this.group = null;
+                this.svg = null;
+                this.canvas = null;
+                this.path = null;
+                this.group = null;
+            }
+            else {
+                // if not a forced cleanup, just detach from DOM for now.
+                if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
+                if (this.bgCanvas && this.bgCanvas.parentNode) this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+            }
+        },
+        reattach:function(instance) {
+            var c = instance.getContainer();
+            if (this.canvas && this.canvas.parentNode == null) c.appendChild(this.canvas);
+            if (this.bgCanvas && this.bgCanvas.parentNode == null) c.appendChild(this.bgCanvas);
         },
         setVisible: function (v) {
             if (this.canvas) {
@@ -519,10 +533,25 @@
                 " L" + d.tail[1].x + "," + d.tail[1].y +
                 " L" + d.hxy.x + "," + d.hxy.y;
         };
+        this.transfer = function(target) {
+            if (target.canvas && this.path && this.path.parentNode) {
+                this.path.parentNode.removeChild(this.path);
+                target.canvas.appendChild(this.path);
+            }
+        }
     };
     jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
-        cleanup: function () {
-            if (this.path != null) this._jsPlumb.instance.removeElement(this.path);
+        cleanup: function (force) {
+            if (this.path != null) {
+                if (force)
+                    this._jsPlumb.instance.removeElement(this.path);
+                else
+                    this.path.parentNode && this.path.parentNode.removeChild(this.path);
+            }
+        },
+        reattach:function(instance) {
+            if (this.path && this.canvas && this.path.parentNode == null)
+                this.canvas.appendChild(this.path);
         },
         setVisible: function (v) {
             if (this.path != null) (this.path.style.display = (v ? "block" : "none"));

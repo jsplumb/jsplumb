@@ -100,18 +100,36 @@
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        this.connectionType = params.connectionType;
 
 // TYPE		
 
+        // TODO investigate ways this and Connection's getDefault type can be merged.
         this.getDefaultType = function () {
+
+            var o = params.overlays || [];
+            Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.EndpointOverlays || []);
+            Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
+            for (var i = 0; i < o.length; i++) {
+                // if a string, convert to object representation so that we can store the typeid on it.
+                // also assign an id.
+                o[i] = jsPlumb.convertToFullOverlaySpec(o[i]);
+            }
+
+            if (this.labelSpec != null) {
+                o.push(["Label", this.labelSpec]);
+            }
+
+
             return {
-                parameters: {},
-                scope: null,
-                maxConnections: this._jsPlumb.instance.Defaults.MaxConnections,
-                paintStyle: this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-                endpoint: this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
-                hoverPaintStyle: this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
-                overlays: jsPlumbUtil.merge(params.overlays || {}, (this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays)),
+                connectionType:params.connectionType,
+                parameters: params.parameters || {},
+                scope: params.scope,
+                maxConnections: params.maxConnections == null ? this._jsPlumb.instance.Defaults.MaxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
+                paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
+                endpoint: params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
+                hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
+                overlays: o,
                 connectorStyle: params.connectorStyle,
                 connectorHoverStyle: params.connectorHoverStyle,
                 connectorClass: params.connectorClass,
@@ -236,16 +254,16 @@
 
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");
 
-        this.setPaintStyle(params.endpointStyle || params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
-        this.setHoverPaintStyle(params.endpointHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
-        this._jsPlumb.paintStyleInUse = this.getPaintStyle();
+        //this.setPaintStyle(params.endpointStyle || params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
+        //this.setHoverPaintStyle(params.endpointHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
+        //this._jsPlumb.paintStyleInUse = this.getPaintStyle();
 
         jsPlumb.extend(this, params, typeParameters);
 
         this.isSource = params.isSource || false;
         this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;
-        this._jsPlumb.maxConnections = params.maxConnections == null ? _jsPlumb.Defaults.MaxConnections : params.maxConnections; // maximum number of connections this endpoint can be the source of.
+
         this.canvas = this.endpoint.canvas;
         this.canvas._jsPlumb = this;
 
@@ -824,8 +842,9 @@
             _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
 
         // finally, set type if it was provided
-        if (params.type)
-            this.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
+        var type = [ "default", (params.type || "")].join(" ");
+        //if (params.type)
+            this.addType(type, params.data, _jsPlumb.isSuspendDrawing());
 
         return this;
     };

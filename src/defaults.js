@@ -877,10 +877,12 @@
         };
     };
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
-        cleanup: function () {
-            this._jsPlumb.deleted = true;
-            if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
-            this.canvas = null;
+        cleanup: function (force) {
+            if (force) {
+                this._jsPlumb.deleted = true;
+                if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
+                this.canvas = null;
+            }
         }
     });
 
@@ -960,10 +962,15 @@
         this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
     };
     AbstractOverlay.prototype = {
-        cleanup: function () {
-            this.component = null;
-            this.canvas = null;
-            this.endpointLoc = null;
+        cleanup: function (force) {
+            if (force) {
+                this.component = null;
+                this.canvas = null;
+                this.endpointLoc = null;
+            }
+        },
+        reattach:function(instance) {
+
         },
         setVisible: function (val) {
             this.visible = val;
@@ -1157,6 +1164,7 @@
             if (this.component) this.component.fire.apply(this.component, arguments);
         };
 
+        this.detached=false;
         this.id = params.id;
         this._jsPlumb.div = null;
         this._jsPlumb.initialised = false;
@@ -1256,11 +1264,23 @@
         clearCachedDimensions: function () {
             this._jsPlumb.cachedDimensions = null;
         },
-        cleanup: function () {
-            if (this._jsPlumb.div != null) {
-                this._jsPlumb.div._jsPlumb = null;
-                this._jsPlumb.instance.removeElement(this._jsPlumb.div);
+        cleanup: function (force) {
+            if (force) {
+                if (this._jsPlumb.div != null) {
+                    this._jsPlumb.div._jsPlumb = null;
+                    this._jsPlumb.instance.removeElement(this._jsPlumb.div);
+                }
             }
+            else {
+                // if not a forced cleanup, just detach child from parent for now.
+                this._jsPlumb && this._jsPlumb.div && this._jsPlumb.div.parentNode && this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
+                this.detached = true;
+            }
+
+        },
+        reattach:function(instance) {
+            if (this._jsPlumb.div != null) instance.getContainer().appendChild(this._jsPlumb.div);
+            this.detached = false;
         },
         computeMaxSize: function () {
             var td = _getDimensions(this);
@@ -1271,6 +1291,7 @@
                 this.getElement();
                 p.component.appendDisplayElement(this._jsPlumb.div);
                 this._jsPlumb.initialised = true;
+                if (this.detached) this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
             }
             this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
             this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";
@@ -1373,12 +1394,14 @@
 
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
-        cleanup: function () {
-            this.div = null;
-            this.label = null;
-            this.labelText = null;
-            this.cssClass = null;
-            this.labelStyle = null;
+        cleanup: function (force) {
+            if (force) {
+                this.div = null;
+                this.label = null;
+                this.labelText = null;
+                this.cssClass = null;
+                this.labelStyle = null;
+            }
         },
         getLabel: function () {
             return this.label;

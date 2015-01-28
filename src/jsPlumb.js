@@ -61,19 +61,28 @@
         _splitType = function (t) {
             return t == null ? null : t.split(" ");
         },
+        _mapType = function(map, obj, typeId) {
+            for (var i in obj)
+                map[i] = typeId;
+        },
         _applyTypes = function (component, params, doNotRepaint) {
             if (component.getDefaultType) {
-                var td = component.getTypeDescriptor();
-
-                var o = _ju.merge({}, component.getDefaultType());
-                for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
-                    o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td), [ "cssClass" ]);
+                var td = component.getTypeDescriptor(), map = {};
+                var defType = component.getDefaultType();
+                var o = _ju.merge({}, defType);
+                _mapType(map, defType, "default");
+                for (var i = 0, j = component._jsPlumb.types.length; i < j; i++) {
+                    var tid = component._jsPlumb.types[i];
+                    var _t = component._jsPlumb.instance.getType(tid, td)
+                    o = _ju.merge(o, _t, [ "cssClass" ]);
+                    _mapType(map, _t, tid);
+                }
 
                 if (params) {
                     o = _ju.populate(o, params);
                 }
 
-                component.applyType(o, doNotRepaint);
+                component.applyType(o, doNotRepaint, map);
                 if (!doNotRepaint) component.repaint();
             }
         },
@@ -100,7 +109,16 @@
                 beforeDrop: params.beforeDrop,
                 overlayPlacements: [],
                 hoverClass: params.hoverClass || params._jsPlumb.Defaults.HoverClass,
-                types: []
+                types: [],
+                typeCache:{}
+            };
+
+            this.cacheTypeItem = function(key, item, typeId) {
+                this._jsPlumb.typeCache[typeId] = this._jsPlumb.typeCache[typeId] || {};
+                this._jsPlumb.typeCache[typeId][key] = item;
+            };
+            this.getCachedTypeItem = function(key, typeId) {
+                return this._jsPlumb.typeCache[typeId] ? this._jsPlumb.typeCache[typeId][key] : null;
             };
 
             this.getId = function () {
@@ -315,6 +333,7 @@
                 for (var i in t.parameters)
                     this.setParameter(i, t.parameters[i]);
             }
+            this._jsPlumb.paintStyleInUse = this.getPaintStyle();
         },
         setPaintStyle: function (style, doNotRepaint) {
 //		    	this._jsPlumb.paintStyle = jsPlumb.extend({}, style);
@@ -337,10 +356,12 @@
         getHoverPaintStyle: function () {
             return this._jsPlumb.hoverPaintStyle;
         },
-        destroy: function () {
-            this.cleanupListeners(); // this is on EventGenerator
-            this.clone = null;
-            this._jsPlumb = null;
+        destroy: function (force) {
+            if (force || this.typeId == null) {
+                this.cleanupListeners(); // this is on EventGenerator
+                this.clone = null;
+                this._jsPlumb = null;
+            }
         },
 
         isHover: function () {
@@ -426,6 +447,7 @@
                 _newOverlay = o;
             }
 
+            if (_newOverlay.id) component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
             component._jsPlumb.overlays.push(_newOverlay);
         },
         _calculateOverlaysToAdd = function (component, params) {
@@ -446,22 +468,23 @@
             jsPlumbUIComponent.apply(this, arguments);
             this._jsPlumb.overlays = [];
 
-            var _overlays = _calculateOverlaysToAdd(this, params);
+            /*var _overlays = _calculateOverlaysToAdd(this, params);
             if (_overlays) {
                 for (var i = 0, j = _overlays.length; i < j; i++) {
                     _processOverlay(this, _overlays[i]);
                 }
-            }
+            }*/
 
             if (params.label) {
                 var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
                     labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle;
 
-                this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
+                this.labelSpec = {
                     label: params.label,
                     location: loc,
-                    labelStyle: labelStyle
-                }));
+                    labelStyle: labelStyle,
+                    id:_internalLabelOverlayId
+                };
             }
 
             this.setListenerComponent = function (c) {
@@ -473,11 +496,19 @@
         };
 
     jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
-        applyType: function (t, doNotRepaint) {
+        applyType: function (t, doNotRepaint, typeMap) {
             this.removeAllOverlays(doNotRepaint);
             if (t.overlays) {
-                for (var i = 0, j = t.overlays.length; i < j; i++)
-                    this.addOverlay(t.overlays[i], true);
+                for (var i = 0, j = t.overlays.length; i < j; i++) {
+                    var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
+                    if (c != null) {
+                        c.reattach(this._jsPlumb.instance);
+                        this._jsPlumb.overlays.push(c);
+                    }
+                    else {
+                        this.addOverlay(t.overlays[i], true);
+                    }
+                }
             }
         },
         setHover: function (hover, ignoreAttachedElements) {
@@ -579,13 +610,16 @@
             if (!this._jsPlumb.instance.isSuspendDrawing())
                 this.repaint();
         },
-        cleanup: function () {
+        cleanup: function (force) {
+            //alert("cleanup an overlay copmonent")
             for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                this._jsPlumb.overlays[i].cleanup();
-                this._jsPlumb.overlays[i].destroy();
+                this._jsPlumb.overlays[i].cleanup(force);
+                this._jsPlumb.overlays[i].destroy(force);
             }
-            this._jsPlumb.overlays.length = 0;
-            this._jsPlumb.overlayPositions = null;
+            if (force) {
+                this._jsPlumb.overlays.length = 0;
+                this._jsPlumb.overlayPositions = null;
+            }
         },
         setVisible: function (v) {
             this[v ? "showOverlays" : "hideOverlays"]();
@@ -1713,9 +1747,8 @@
 
                     c.endpoints[0].detachFromConnection(c);
                     c.endpoints[1].detachFromConnection(c);
-                    // sp was ere
-                    c.cleanup();
-                    c.destroy();
+                    c.cleanup(true);
+                    c.destroy(true);
                 }
             }
 
@@ -1725,8 +1758,8 @@
                 if (e._jsPlumb) {
                     _currentInstance.unregisterEndpoint(e);
                     // FIRE some endpoint deleted event?
-                    e.cleanup();
-                    e.destroy();
+                    e.cleanup(true);
+                    e.destroy(true);
                 }
             }
 
@@ -3016,12 +3049,26 @@
         getAttribute: function (el, a) {
             return this.getAttribute(jsPlumb.getDOMElement(el), a);
         },
+        convertToFullOverlaySpec: function(spec) {
+            if (jsPlumbUtil.isString(spec)) {
+                spec = [ spec, { } ];
+            }
+            spec[1].id = spec[1].id || jsPlumbUtil.uuid();
+            return spec;
+        },
         registerConnectionType: function (id, type) {
             this._connectionTypes[id] = jsPlumb.extend({}, type);
+            if (type.overlays) {
+                for (var i = 0; i < type.overlays.length; i++) {
+                    // if a string, convert to object representation so that we can store the typeid on it.
+                    // also assign an id.
+                    type.overlays[i] = this.convertToFullOverlaySpec(type.overlays[i]);
+                }
+            }
         },
         registerConnectionTypes: function (types) {
             for (var i in types)
-                this._connectionTypes[i] = jsPlumb.extend({}, types[i]);
+                this.registerConnectionType(i, types[i])
         },
         registerEndpointType: function (id, type) {
             this._endpointTypes[id] = jsPlumb.extend({}, type);
