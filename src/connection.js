@@ -268,9 +268,7 @@
             var _anchors = null;
             // this also results in the creation of objects.
             if (t.anchor) {
-
                 // note that even if the param was anchor, we store `anchors`.
-
                 _anchors = this.getCachedTypeItem("anchors", typeMap.anchor);
                 if (_anchors == null) {
                     _anchors = [ this._jsPlumb.instance.makeAnchor(t.anchor), this._jsPlumb.instance.makeAnchor(t.anchor) ];
