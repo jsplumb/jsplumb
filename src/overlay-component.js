@@ -3,17 +3,6 @@
     // ------------------------------ BEGIN OverlayCapablejsPlumbUIComponent --------------------------------------------
 
     var _internalLabelOverlayId = "__label",
-    // helper to get the index of some overlay
-        /*_getOverlayIndex = function (component, id) {
-            var idx = -1;
-            for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
-                if (id === component._jsPlumb.overlays[i].id) {
-                    idx = i;
-                    break;
-                }
-            }
-            return idx;
-        },*/
     // this is a shortcut helper method to let people add a label as
     // overlay.
         _makeLabelOverlay = function (component, params) {
@@ -50,6 +39,8 @@
             component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
             //component._jsPlumb.overlays.push(_newOverlay);
             component._jsPlumb.overlays[_newOverlay.id] = _newOverlay;
+
+            return _newOverlay;
         };
 
     jsPlumb.OverlayCapableJsPlumbUIComponent = function (params) {
@@ -76,18 +67,39 @@
     };
 
     jsPlumbUtil.extend(jsPlumb.OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
-        applyType: function (t, doNotRepaint, typeMap) {
-            this.removeAllOverlays(doNotRepaint);
+        applyType: function (t, doNotRepaint) {
+          //  this.removeAllOverlays(doNotRepaint);
             if (t.overlays) {
-                for (var i = 0, j = t.overlays.length; i < j; i++) {
-                    var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
-                    if (c != null) {
-                        c.reattach(this._jsPlumb.instance);
-                        this._jsPlumb.overlays[c.id] = c;
+
+                // new algorithm:
+
+                // loop through the ones in the type. if already present on the component,
+                // dont remove or re-add.
+                var keep = {};
+
+                for (var i in t.overlays) {
+
+                    if (this._jsPlumb.overlays[t.overlays[i][1].id]) {
+                        keep[t.overlays[i][1].id] = true;
+                        //continue;
                     }
                     else {
-                        this.addOverlay(t.overlays[i], true);
+                        var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
+                        if (c != null) {
+                            c.reattach(this._jsPlumb.instance);
+                            this._jsPlumb.overlays[c.id] = c;
+                        }
+                        else {
+                            c = this.addOverlay(t.overlays[i], true);
+                        }
+                        keep[c.id] = true;
                     }
+                }
+
+                // now loop through the full overlays and remove those that we dont want to keep
+                for (var i in this._jsPlumb.overlays) {
+                    if (keep[this._jsPlumb.overlays[i].id] == null)
+                        this.removeOverlay(this._jsPlumb.overlays[i].id);
                 }
             }
         },
@@ -99,8 +111,9 @@
             }
         },
         addOverlay: function (overlay, doNotRepaint) {
-            _processOverlay(this, overlay);
+            var o = _processOverlay(this, overlay);
             if (!doNotRepaint) this.repaint();
+            return o;
         },
         getOverlay: function (id) {
             return this._jsPlumb.overlays[id];
