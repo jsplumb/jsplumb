@@ -290,11 +290,6 @@
         this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;
 
-        // add anchor class (need to do this on construction because we set anchor first)
-        /*var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
-        this.addClass(anchorClass);
-        jsPlumbAdapter.addClass(this.element, anchorClass);*/
-
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
 
