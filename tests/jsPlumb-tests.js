@@ -1974,7 +1974,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         j.unbindContainer();
     });
 
-    test("Endpoint types dont cause new anchors to be created", function() {
+    test("Endpoint types dont cause new anchors or endpoints to be created", function() {
         _jsPlumb.registerEndpointType("anchor", {
             anchor:"Continuous",
             endpoint:["Rectangle", { width:32, height:32 }]
@@ -1985,16 +1985,22 @@ var testSuite = function (renderMode, _jsPlumb) {
             type:"anchor"
         });
 
+        equal(e.endpoint.type, "Rectangle", "rectangle endpoint from 'anchor' type");
         ok(e.anchor.isContinuous, "anchor is continuous");
         // set a flag on the anchor
         e.anchor.testFlag = true;
+        e.endpoint.testFlag = true;
 
         e.removeType("anchor");
         ok(!e.anchor.isContinuous, "anchor is not continuous, it is the default");
+        equal(e.endpoint.type, "Dot", "dot endpoint from default type");
 
         e.addType("anchor");
         ok(e.anchor.isContinuous, "anchor is continuous once more");
+        equal(e.endpoint.type, "Rectangle", "rectangle endpoint from 'anchor' type once more");
         ok(e.anchor.testFlag, "anchor has been reused");
+        ok(e.endpoint.testFlag, "endpoint has been reused");
+
     });
 
 
