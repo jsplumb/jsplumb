@@ -2829,11 +2829,14 @@
         registerConnectionType: function (id, type) {
             this._connectionTypes[id] = jsPlumb.extend({}, type);
             if (type.overlays) {
+                var to = {};
                 for (var i = 0; i < type.overlays.length; i++) {
                     // if a string, convert to object representation so that we can store the typeid on it.
                     // also assign an id.
-                    type.overlays[i] = this.convertToFullOverlaySpec(type.overlays[i]);
+                    var fo = this.convertToFullOverlaySpec(type.overlays[i]);
+                    to[fo[1].id] = fo;
                 }
+                this._connectionTypes[id].overlays = to;
             }
         },
         registerConnectionTypes: function (types) {
