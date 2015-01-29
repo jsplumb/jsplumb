@@ -162,11 +162,14 @@
 
         var _updateAnchorClass = function () {
             // stash old, get new
-            var oldAnchorClass = this._jsPlumb.currentAnchorClass;
+            var oldAnchorClass = _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass;
             this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
+            var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
+
+            this.removeClass(oldAnchorClass);
+            this.addClass(anchorClass);
             // add and remove at the same time to reduce the number of reflows.
-            jsPlumbAdapter.updateClasses(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass, _jsPlumb.endpointAnchorClassPrefix + "_" + oldAnchorClass);
-            this.updateClasses(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass, _jsPlumb.endpointAnchorClassPrefix + "_" + oldAnchorClass);
+            jsPlumbAdapter.updateClasses(this.element, anchorClass, oldAnchorClass);
         }.bind(this);
 
         this.prepareAnchor = function(anchorParams) {
@@ -218,13 +221,7 @@
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
 
-        this.setEndpoint = function (ep) {
-
-            if (this.endpoint != null) {
-                this.endpoint.cleanup();
-                this.endpoint.destroy();
-            }
-
+        this.prepareEndpoint = function(ep, typeId) {
             var _e = function (t, p) {
                 var rm = _jsPlumb.getRenderMode();
                 if (jsPlumb.Endpoints[rm][t]) return new jsPlumb.Endpoints[rm][t](p);
@@ -241,22 +238,24 @@
                 endpoint: this
             };
 
+            var endpoint;
+
             if (_ju.isString(ep))
-                this.endpoint = _e(ep, endpointArgs);
+                endpoint = _e(ep, endpointArgs);
             else if (_ju.isArray(ep)) {
                 endpointArgs = _ju.merge(ep[1], endpointArgs);
-                this.endpoint = _e(ep[0], endpointArgs);
+                endpoint = _e(ep[0], endpointArgs);
             }
             else {
-                this.endpoint = ep.clone();
+                endpoint = ep.clone();
             }
 
             // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
-            // and the clone is left in its place while the original one goes off on a magical journey. 
+            // and the clone is left in its place while the original one goes off on a magical journey.
             // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
             // the whole world.
             //var argsForClone = jsPlumb.extend({}, endpointArgs);
-            this.endpoint.clone = function () {
+            endpoint.clone = function () {
                 // TODO this, and the code above, can be refactored to be more dry.
                 if (_ju.isString(ep))
                     return _e(ep, endpointArgs);
@@ -266,14 +265,24 @@
                 }
             }.bind(this);
 
-            this.type = this.endpoint.type;
+            endpoint.typeId = typeId;
+            return endpoint;
         };
 
-        this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");
+        this.setEndpoint = function(ep, doNotRepaint) {
+            var _ep = this.prepareEndpoint(ep);
+            this.setPreparedEndpoint(_ep, true);
+        };
 
-        //this.setPaintStyle(params.endpointStyle || params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
-        //this.setHoverPaintStyle(params.endpointHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
-        //this._jsPlumb.paintStyleInUse = this.getPaintStyle();
+        this.setPreparedEndpoint = function (ep, doNotRepaint) {
+            if (this.endpoint != null) {
+                this.endpoint.cleanup();
+                this.endpoint.destroy();
+            }
+            this.endpoint = ep;
+            this.type = this.endpoint.type;
+            this.canvas = this.endpoint.canvas;
+        };
 
         jsPlumb.extend(this, params, typeParameters);
 
@@ -281,13 +290,10 @@
         this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;
 
-        this.canvas = this.endpoint.canvas;
-        this.canvas._jsPlumb = this;
-
         // add anchor class (need to do this on construction because we set anchor first)
-        var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
+        /*var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
         this.addClass(anchorClass);
-        jsPlumbAdapter.addClass(this.element, anchorClass);
+        jsPlumbAdapter.addClass(this.element, anchorClass);*/
 
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
@@ -773,6 +779,12 @@
             }
         };
 
+        // finally, set type if it was provided
+        var type = [ "default", (params.type || "")].join(" ");
+        this.addType(type, params.data, true);
+        this.canvas = this.endpoint.canvas;
+        this.canvas._jsPlumb = this;
+
         // if marked as source or target at create time, init the dragging.
         if (this.isSource || this.isTarget || this.isTemporarySource)
             this.initDraggable();
@@ -860,11 +872,6 @@
             }
         }.bind(this);
 
-        // finally, set type if it was provided
-        var type = [ "default", (params.type || "")].join(" ");
-        //if (params.type)
-            this.addType(type, params.data, true);
-
         // Initialise the endpoint's canvas as a drop target. The drop handler will take care of the logic of whether
         // something can actually be dropped.
         if (!this.anchor.isFloating)
@@ -900,16 +907,23 @@
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
             jsPlumb.extend(this, t, typeParameters);
+            if (t.endpoint) {
+                var e = this.getCachedTypeItem("endpoint", typeMap.endpoint);
+                if (e == null) {
+                    e = this.prepareEndpoint(t.endpoint, typeMap.endpoint);
+                    this.cacheTypeItem("endpoint", e, typeMap.endpoint);
+                }
+                this.setPreparedEndpoint(e, doNotRepaint);
+            }
             if (t.anchor) {
-
                 var a = this.getCachedTypeItem("anchor", typeMap.anchor);
                 if (a == null) {
                     a = this.prepareAnchor(t.anchor);
                     this.cacheTypeItem("anchor", a, typeMap.anchor);
                 }
-
                 this.setPreparedAnchor(a, doNotRepaint);
             }
+
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
 
             jsPlumb.OverlayCapableJsPlumbUIComponent.applyType(this, t);
