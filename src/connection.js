@@ -30,8 +30,7 @@
             return (anchorParams) ? _jsPlumb.makeAnchor(anchorParams, elementId, _jsPlumb) : null;
         },
         _updateConnectedClass = function (conn, element, _jsPlumb, remove) {
-            if (element == null) return;
-            else {
+            if (element != null) {
                 element._jsPlumbConnections = element._jsPlumbConnections || {};
                 if (remove)
                     delete element._jsPlumbConnections[conn.id];
@@ -128,17 +127,18 @@
 
 // -------------------------- DEFAULT TYPE ---------------------------------------------
         // default overlays.
-        var o = params.overlays || [];
+        var o = params.overlays || [], oo = {};
         Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.ConnectionOverlays || []);
         Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
         for (var i = 0; i < o.length; i++) {
             // if a string, convert to object representation so that we can store the typeid on it.
             // also assign an id.
-            o[i] = jsPlumb.convertToFullOverlaySpec(o[i]);
+            var fo = jsPlumb.convertToFullOverlaySpec(o[i]);
+            oo[fo[1].id] = fo;
         }
 
         if (this.labelSpec != null) {
-            o.push(["Label", this.labelSpec]);
+            oo[this.labelSpec.id] = ["Label", this.labelSpec];
         }
 
         // DETACHABLE
@@ -149,17 +149,19 @@
         // REATTACH
         var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
 
+        var _defaultType = {
+            parameters: params.parameters || {},
+            scope: params.scope,
+            detachable: _detachable,
+            rettach: _reattach,
+            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+            connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
+            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
+            overlays: oo
+        };
+
         this.getDefaultType = function () {
-            return {
-                parameters: params.parameters || {},
-                scope: params.scope,
-                detachable: _detachable,
-                rettach: _reattach,
-                paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-                connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
-                hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-                overlays: o
-            };
+            return _defaultType;
         };
 
         var _suspendedAt = _jsPlumb.getSuspendedAt();
