@@ -107,17 +107,18 @@
         // TODO investigate ways this and Connection's getDefault type can be merged.
         this.getDefaultType = function () {
 
-            var o = params.overlays || [];
+            var o = params.overlays || [], oo = {};
             Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.EndpointOverlays || []);
             Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
             for (var i = 0; i < o.length; i++) {
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
-                o[i] = jsPlumb.convertToFullOverlaySpec(o[i]);
+                var fo = jsPlumb.convertToFullOverlaySpec(o[i]);
+                oo[fo[1].id] = fo;
             }
 
             if (this.labelSpec != null) {
-                o.push(["Label", this.labelSpec]);
+                oo[this.labelSpec.id] = ["Label", this.labelSpec];
             }
 
 
@@ -129,7 +130,7 @@
                 paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
                 endpoint: params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
                 hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
-                overlays: o,
+                overlays: oo,
                 connectorStyle: params.connectorStyle,
                 connectorHoverStyle: params.connectorHoverStyle,
                 connectorClass: params.connectorClass,
