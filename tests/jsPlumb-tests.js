@@ -1780,11 +1780,11 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": _jsPlumb.addEndpoint (simple case, dynamic anchors)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {anchors: [
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchors: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["TopCenter", "BottomCenter"]});
         equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -1846,11 +1846,11 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": _jsPlumb.addEndpoint (simple case, dynamic anchors, two arg method)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
+        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchor: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchors: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchor: ["TopCenter", "BottomCenter"]});
         equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -1952,7 +1952,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         j.unbindContainer();
     });
 
-    test(": setConnector, overays are retained", function () {
+    test(": setConnector, overlays are retained", function () {
         _addDiv("d1");
         _addDiv("d2");
         var def = {
@@ -1972,6 +1972,29 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
         equal(_length(c.getOverlays()), 1, "one overlay on the connector");
         j.unbindContainer();
+    });
+
+    test("Endpoint types dont cause new anchors to be created", function() {
+        _jsPlumb.registerEndpointType("anchor", {
+            anchor:"Continuous",
+            endpoint:["Rectangle", { width:32, height:32 }]
+        });
+
+        var d = _addDiv("d1");
+        var e = _jsPlumb.addEndpoint(d, {
+            type:"anchor"
+        });
+
+        ok(e.anchor.isContinuous, "anchor is continuous");
+        // set a flag on the anchor
+        e.anchor.testFlag = true;
+
+        e.removeType("anchor");
+        ok(!e.anchor.isContinuous, "anchor is not continuous, it is the default");
+
+        e.addType("anchor");
+        ok(e.anchor.isContinuous, "anchor is continuous once more");
+        ok(e.anchor.testFlag, "anchor has been reused");
     });
 
 
@@ -3071,11 +3094,11 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": _jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchors')", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {anchors: [
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchors: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["TopCenter", "BottomCenter"]});
         var conn = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
