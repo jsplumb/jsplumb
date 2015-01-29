@@ -191,6 +191,26 @@
             this.endpoints[1].paint({ anchorLoc: anchorLoc, timestamp: initialTimestamp });
         }
 
+        this.getTypeDescriptor = function () {
+            return "connection";
+        };
+        this.getAttachedElements = function () {
+            return this.endpoints;
+        };
+
+        this.isDetachable = function () {
+            return this._jsPlumb.detachable === true;
+        };
+        this.setDetachable = function (detachable) {
+            this._jsPlumb.detachable = detachable === true;
+        };
+        this.isReattach = function () {
+            return this._jsPlumb.reattach === true;
+        };
+        this.setReattach = function (reattach) {
+            this._jsPlumb.reattach = reattach === true;
+        };
+
 // END INITIALISATION CODE
 
 
@@ -228,6 +248,7 @@
 
     jsPlumbUtil.extend(jsPlumb.Connection, jsPlumb.OverlayCapableJsPlumbUIComponent, {
         applyType: function (t, doNotRepaint, typeMap) {
+
             // none of these things result in the creation of objects so can be ignored.
             if (t.detachable != null) this.setDetachable(t.detachable);
             if (t.reattach != null) this.setReattach(t.reattach);
@@ -270,12 +291,8 @@
                 this.endpoints[0].anchor = _anchors[0];
                 this.endpoints[1].anchor = _anchors[1];
             }
-        },
-        getTypeDescriptor: function () {
-            return "connection";
-        },
-        getAttachedElements: function () {
-            return this.endpoints;
+
+            jsPlumb.OverlayCapableJsPlumbUIComponent.applyType(this, t);
         },
         addClass: function (c, informEndpoints) {
             if (informEndpoints) {
@@ -320,18 +337,6 @@
         updateConnectedClass:function(remove) {
             _updateConnectedClass(this, this.source, this._jsPlumb.instance, remove);
             _updateConnectedClass(this, this.target, this._jsPlumb.instance, remove);
-        },
-        isDetachable: function () {
-            return this._jsPlumb.detachable === true;
-        },
-        setDetachable: function (detachable) {
-            this._jsPlumb.detachable = detachable === true;
-        },
-        isReattach: function () {
-            return this._jsPlumb.reattach === true;
-        },
-        setReattach: function (reattach) {
-            this._jsPlumb.reattach = reattach === true;
         },
         setHover: function (state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {

@@ -471,6 +471,13 @@
             }
         };
 
+        this.getTypeDescriptor = function () {
+            return "endpoint";
+        };
+        this.isVisible = function () {
+            return this._jsPlumb.visible;
+        };
+
         this.repaint = this.paint;
 
         var draggingInitialised = false;
@@ -851,12 +858,7 @@
     };
 
     jsPlumbUtil.extend(jsPlumb.Endpoint, jsPlumb.OverlayCapableJsPlumbUIComponent, {
-        getTypeDescriptor: function () {
-            return "endpoint";
-        },
-        isVisible: function () {
-            return this._jsPlumb.visible;
-        },
+
         setVisible: function (v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
             this._jsPlumb.visible = v;
             if (this.canvas) this.canvas.style.display = v ? "block" : "none";
@@ -885,6 +887,8 @@
                 this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
             }
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+
+            jsPlumb.OverlayCapableJsPlumbUIComponent.applyType(this, t);
         },
         isEnabled: function () {
             return this._jsPlumb.enabled;

@@ -66,43 +66,40 @@
         };
     };
 
-    jsPlumbUtil.extend(jsPlumb.OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
-        applyType: function (t, doNotRepaint) {
-          //  this.removeAllOverlays(doNotRepaint);
-            if (t.overlays) {
+    jsPlumb.OverlayCapableJsPlumbUIComponent.applyType = function (component, t) {
+        if (t.overlays) {
+            // loop through the ones in the type. if already present on the component,
+            // dont remove or re-add.
+            var keep = {};
 
-                // new algorithm:
+            for (var i in t.overlays) {
 
-                // loop through the ones in the type. if already present on the component,
-                // dont remove or re-add.
-                var keep = {};
-
-                for (var i in t.overlays) {
-
-                    if (this._jsPlumb.overlays[t.overlays[i][1].id]) {
-                        keep[t.overlays[i][1].id] = true;
-                        //continue;
+                if (component._jsPlumb.overlays[t.overlays[i][1].id]) {
+                    keep[t.overlays[i][1].id] = true;
+                }
+                else {
+                    var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
+                    if (c != null) {
+                        c.reattach(component._jsPlumb.instance);
+                        component._jsPlumb.overlays[c.id] = c;
                     }
                     else {
-                        var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
-                        if (c != null) {
-                            c.reattach(this._jsPlumb.instance);
-                            this._jsPlumb.overlays[c.id] = c;
-                        }
-                        else {
-                            c = this.addOverlay(t.overlays[i], true);
-                        }
-                        keep[c.id] = true;
+                        c = component.addOverlay(t.overlays[i], true);
                     }
-                }
-
-                // now loop through the full overlays and remove those that we dont want to keep
-                for (var i in this._jsPlumb.overlays) {
-                    if (keep[this._jsPlumb.overlays[i].id] == null)
-                        this.removeOverlay(this._jsPlumb.overlays[i].id);
+                    keep[c.id] = true;
                 }
             }
-        },
+
+            // now loop through the full overlays and remove those that we dont want to keep
+            for (var i in component._jsPlumb.overlays) {
+                if (keep[component._jsPlumb.overlays[i].id] == null)
+                    component.removeOverlay(component._jsPlumb.overlays[i].id);
+            }
+        }
+    };
+
+    jsPlumbUtil.extend(jsPlumb.OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
+
         setHover: function (hover, ignoreAttachedElements) {
             if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
                 for (var i in this._jsPlumb.overlays) {
