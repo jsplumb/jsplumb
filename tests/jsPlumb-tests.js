@@ -3327,7 +3327,7 @@ var testSuite = function (renderMode, _jsPlumb) {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, _length(connection1._jsPlumb.overlays));
+        equal(_length(connection1._jsPlumb.overlays), 2);
         equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays["l"].constructor);
 
         equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays["a"].constructor);
@@ -3971,7 +3971,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     var _ensureContainer = function(component, container) {
         return _overlayTest(component, function(o) {
-            o.getElement().parentNode == container;
+
+            return o.canvas ? o.canvas.parentNode == container :  o.getElement().parentNode == container;
         });
     };
 
@@ -5531,7 +5532,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.endpoints[0].anchor.testFlag, "source", "test flag still set on source anchor: anchor was reused");
         equal(c.endpoints[1].anchor.testFlag, "target", "test flag still set on target anchor: anchor was reused");
         ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
-        ok(_head(c.getOverlays())._jsPlumb.div.parentNode != null, "overlay was reattached to the DOM correctly");
+        ok(_head(c.getOverlays()).path.parentNode != null, "overlay was reattached to the DOM correctly");
     });
 
     test(" set connection type on existing connection, hasType + toggleType", function () {
