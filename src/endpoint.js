@@ -104,6 +104,7 @@
 
 // TYPE
 
+
         var o = params.overlays || [], oo = {};
         Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.EndpointOverlays || []);
         Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
@@ -127,7 +128,7 @@
             scope: params.scope,
             maxConnections: params.maxConnections == null ? this._jsPlumb.instance.Defaults.MaxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
             paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-            endpoint: params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
+            //endpoint: params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
             hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
             overlays: oo,
             connectorStyle: params.connectorStyle,
@@ -283,6 +284,9 @@
             this.type = this.endpoint.type;
             this.canvas = this.endpoint.canvas;
         };
+
+        var ep = params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
+        this.setEndpoint(ep, true);
 
         jsPlumb.extend(this, params, typeParameters);
 
@@ -902,14 +906,14 @@
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
             jsPlumb.extend(this, t, typeParameters);
-            if (t.endpoint) {
+            /*if (t.endpoint) {
                 var e = this.getCachedTypeItem("endpoint", typeMap.endpoint);
                 if (e == null) {
                     e = this.prepareEndpoint(t.endpoint, typeMap.endpoint);
                     this.cacheTypeItem("endpoint", e, typeMap.endpoint);
                 }
                 this.setPreparedEndpoint(e, doNotRepaint);
-            }
+            }*/
             if (t.anchor) {
                 var a = this.getCachedTypeItem("anchor", typeMap.anchor);
                 if (a == null) {
