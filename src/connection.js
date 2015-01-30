@@ -413,7 +413,7 @@
         },
         setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
             var connector = this.prepareConnector(connectorSpec, typeId);
-            this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId)
+            this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId);
         },
         paint: function (params) {
 
