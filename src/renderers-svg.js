@@ -538,7 +538,7 @@
                 this.path.parentNode.removeChild(this.path);
                 target.canvas.appendChild(this.path);
             }
-        }
+        };
     };
     jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
         cleanup: function (force) {
@@ -546,7 +546,8 @@
                 if (force)
                     this._jsPlumb.instance.removeElement(this.path);
                 else
-                    this.path.parentNode && this.path.parentNode.removeChild(this.path);
+                    if (this.path.parentNode)
+                        this.path.parentNode.removeChild(this.path);
             }
         },
         reattach:function(instance) {
