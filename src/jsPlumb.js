@@ -70,11 +70,11 @@
                 var td = component.getTypeDescriptor(), map = {};
                 var defType = component.getDefaultType();
                 var o = _ju.merge({}, defType);
-                _mapType(map, defType, "default");
+                _mapType(map, defType, "__default");
                 for (var i = 0, j = component._jsPlumb.types.length; i < j; i++) {
                     var tid = component._jsPlumb.types[i];
-                    if (tid !== "default") {
-                        var _t = component._jsPlumb.instance.getType(tid, td)
+                    if (tid !== "__default") {
+                        var _t = component._jsPlumb.instance.getType(tid, td);
                         if (_t != null) {
                             o = _ju.merge(o, _t, [ "cssClass" ]);
                             _mapType(map, _t, tid);
@@ -2841,7 +2841,7 @@
         },
         registerConnectionTypes: function (types) {
             for (var i in types)
-                this.registerConnectionType(i, types[i])
+                this.registerConnectionType(i, types[i]);
         },
         registerEndpointType: function (id, type) {
             this._endpointTypes[id] = jsPlumb.extend({}, type);
