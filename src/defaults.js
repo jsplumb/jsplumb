@@ -1275,7 +1275,8 @@
             }
             else {
                 // if not a forced cleanup, just detach child from parent for now.
-                this._jsPlumb && this._jsPlumb.div && this._jsPlumb.div.parentNode && this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
+                if (this._jsPlumb && this._jsPlumb.div && this._jsPlumb.div.parentNode)
+                    this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
                 this.detached = true;
             }
 
