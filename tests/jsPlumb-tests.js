@@ -1974,6 +1974,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         j.unbindContainer();
     });
 
+    
     test("Endpoint types dont cause new anchors or endpoints to be created", function() {
         _jsPlumb.registerEndpointType("anchor", {
             anchor:"Continuous",

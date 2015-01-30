@@ -967,7 +967,8 @@
             // if a list (or list-like), use it. if a string, get a list
             // by running the string through querySelectorAll. else, assume
             // it's an Element.
-            obj = (typeof Window !== "undefined" && obj == obj.top) ? [ obj ] :
+            // obj.top is "unknown" in IE8.
+            obj = (typeof Window !== "undefined" && (typeof obj.top !== "unknown" && obj == obj.top)) ? [ obj ] :
                     (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj :
                     typeof obj === "string" ? document.querySelectorAll(obj)
                 : [ obj ];
@@ -1294,10 +1295,13 @@
 
             var c = this.clone(a);
             for (i in b) {
-                if (c[i] == null)
+                if (c[i] == null) {
                     c[i] = b[i];
+                }
                 else if (_iss(b[i]) || _isb(b[i])) {
-                    if (!cMap[i]) c[i] = b[i]; // if we dont want to collate, just copy it in.
+                    if (!cMap[i]) {
+                        c[i] = b[i]; // if we dont want to collate, just copy it in.
+                    }
                     else {
                         ar = [];
                         // if c's object is also an array we can keep its values.
@@ -1318,10 +1322,12 @@
                         // overwite c's value with an object if it is not already one.
                         if (!_iso(c[i]))
                             c[i] = {};
-                        for (var j in b[i])
+                        for (var j in b[i]) {
                             c[i][j] = b[i][j];
+                        }
                     }
                 }
+
             }
             return c;
         },
@@ -2353,19 +2359,32 @@
         _splitType = function (t) {
             return t == null ? null : t.split(" ");
         },
+        _mapType = function(map, obj, typeId) {
+            for (var i in obj)
+                map[i] = typeId;
+        },
         _applyTypes = function (component, params, doNotRepaint) {
             if (component.getDefaultType) {
-                var td = component.getTypeDescriptor();
-
-                var o = _ju.merge({}, component.getDefaultType());
-                for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
-                    o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td), [ "cssClass" ]);
+                var td = component.getTypeDescriptor(), map = {};
+                var defType = component.getDefaultType();
+                var o = _ju.merge({}, defType);
+                _mapType(map, defType, "__default");
+                for (var i = 0, j = component._jsPlumb.types.length; i < j; i++) {
+                    var tid = component._jsPlumb.types[i];
+                    if (tid !== "__default") {
+                        var _t = component._jsPlumb.instance.getType(tid, td);
+                        if (_t != null) {
+                            o = _ju.merge(o, _t, [ "cssClass" ]);
+                            _mapType(map, _t, tid);
+                        }
+                    }
+                }
 
                 if (params) {
                     o = _ju.populate(o, params);
                 }
 
-                component.applyType(o, doNotRepaint);
+                component.applyType(o, doNotRepaint, map);
                 if (!doNotRepaint) component.repaint();
             }
         },
@@ -2392,7 +2411,16 @@
                 beforeDrop: params.beforeDrop,
                 overlayPlacements: [],
                 hoverClass: params.hoverClass || params._jsPlumb.Defaults.HoverClass,
-                types: []
+                types: [],
+                typeCache:{}
+            };
+
+            this.cacheTypeItem = function(key, item, typeId) {
+                this._jsPlumb.typeCache[typeId] = this._jsPlumb.typeCache[typeId] || {};
+                this._jsPlumb.typeCache[typeId][key] = item;
+            };
+            this.getCachedTypeItem = function(key, typeId) {
+                return this._jsPlumb.typeCache[typeId] ? this._jsPlumb.typeCache[typeId][key] : null;
             };
 
             this.getId = function () {
@@ -2607,6 +2635,7 @@
                 for (var i in t.parameters)
                     this.setParameter(i, t.parameters[i]);
             }
+            this._jsPlumb.paintStyleInUse = this.getPaintStyle();
         },
         setPaintStyle: function (style, doNotRepaint) {
 //		    	this._jsPlumb.paintStyle = jsPlumb.extend({}, style);
@@ -2629,10 +2658,12 @@
         getHoverPaintStyle: function () {
             return this._jsPlumb.hoverPaintStyle;
         },
-        destroy: function () {
-            this.cleanupListeners(); // this is on EventGenerator
-            this.clone = null;
-            this._jsPlumb = null;
+        destroy: function (force) {
+            if (force || this.typeId == null) {
+                this.cleanupListeners(); // this is on EventGenerator
+                this.clone = null;
+                this._jsPlumb = null;
+            }
         },
 
         isHover: function () {
@@ -2671,227 +2702,6 @@
     });
 
 // ------------------------------ END jsPlumbUIComponent --------------------------------------------
-
-// ------------------------------ BEGIN OverlayCapablejsPlumbUIComponent --------------------------------------------
-
-    var _internalLabelOverlayId = "__label",
-    // helper to get the index of some overlay
-        _getOverlayIndex = function (component, id) {
-            var idx = -1;
-            for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
-                if (id === component._jsPlumb.overlays[i].id) {
-                    idx = i;
-                    break;
-                }
-            }
-            return idx;
-        },
-    // this is a shortcut helper method to let people add a label as
-    // overlay.
-        _makeLabelOverlay = function (component, params) {
-
-            var _params = {
-                    cssClass: params.cssClass,
-                    labelStyle: component.labelStyle,
-                    id: _internalLabelOverlayId,
-                    component: component,
-                    _jsPlumb: component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
-                },
-                mergedParams = jsPlumb.extend(_params, params);
-
-            return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label(mergedParams);
-        },
-        _processOverlay = function (component, o) {
-            var _newOverlay = null;
-            if (_ju.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
-                // there's also a three arg version:
-                // ["Arrow", { width:50 }, {location:0.7}]
-                // which merges the 3rd arg into the 2nd.
-                var type = o[0],
-                // make a copy of the object so as not to mess up anyone else's reference...
-                    p = jsPlumb.extend({component: component, _jsPlumb: component._jsPlumb.instance}, o[1]);
-                if (o.length == 3) jsPlumb.extend(p, o[2]);
-                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
-            } else if (o.constructor == String) {
-                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component: component, _jsPlumb: component._jsPlumb.instance});
-            } else {
-                _newOverlay = o;
-            }
-
-            component._jsPlumb.overlays.push(_newOverlay);
-        },
-        _calculateOverlaysToAdd = function (component, params) {
-            var defaultKeys = component.defaultOverlayKeys || [], o = params.overlays,
-                checkKey = function (k) {
-                    return component._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
-                };
-
-            if (!o) o = [];
-
-            for (var i = 0, j = defaultKeys.length; i < j; i++)
-                o.unshift.apply(o, checkKey(defaultKeys[i]));
-
-            return o;
-        },
-        OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function (params) {
-
-            jsPlumbUIComponent.apply(this, arguments);
-            this._jsPlumb.overlays = [];
-
-            var _overlays = _calculateOverlaysToAdd(this, params);
-            if (_overlays) {
-                for (var i = 0, j = _overlays.length; i < j; i++) {
-                    _processOverlay(this, _overlays[i]);
-                }
-            }
-
-            if (params.label) {
-                var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
-                    labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle;
-
-                this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
-                    label: params.label,
-                    location: loc,
-                    labelStyle: labelStyle
-                }));
-            }
-
-            this.setListenerComponent = function (c) {
-                if (this._jsPlumb) {
-                    for (var i = 0; i < this._jsPlumb.overlays.length; i++)
-                        this._jsPlumb.overlays[i].setListenerComponent(c);
-                }
-            };
-        };
-
-    jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
-        applyType: function (t, doNotRepaint) {
-            this.removeAllOverlays(doNotRepaint);
-            if (t.overlays) {
-                for (var i = 0, j = t.overlays.length; i < j; i++)
-                    this.addOverlay(t.overlays[i], true);
-            }
-        },
-        setHover: function (hover, ignoreAttachedElements) {
-            if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
-                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
-                    this._jsPlumb.overlays[i][hover ? "addClass" : "removeClass"](this._jsPlumb.instance.hoverClass);
-                }
-            }
-        },
-        addOverlay: function (overlay, doNotRepaint) {
-            _processOverlay(this, overlay);
-            if (!doNotRepaint) this.repaint();
-        },
-        getOverlay: function (id) {
-            var idx = _getOverlayIndex(this, id);
-            return idx >= 0 ? this._jsPlumb.overlays[idx] : null;
-        },
-        getOverlays: function () {
-            return this._jsPlumb.overlays;
-        },
-        hideOverlay: function (id) {
-            var o = this.getOverlay(id);
-            if (o) o.hide();
-        },
-        hideOverlays: function () {
-            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
-                this._jsPlumb.overlays[i].hide();
-        },
-        showOverlay: function (id) {
-            var o = this.getOverlay(id);
-            if (o) o.show();
-        },
-        showOverlays: function () {
-            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
-                this._jsPlumb.overlays[i].show();
-        },
-        removeAllOverlays: function (doNotRepaint) {
-            for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
-                if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
-            }
-
-            this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
-            this._jsPlumb.overlayPositions = null;
-            if (!doNotRepaint)
-                this.repaint();
-        },
-        removeOverlay: function (overlayId) {
-            var idx = _getOverlayIndex(this, overlayId);
-            if (idx != -1) {
-                var o = this._jsPlumb.overlays[idx];
-                if (o.cleanup) o.cleanup();
-                this._jsPlumb.overlays.splice(idx, 1);
-                if (this._jsPlumb.overlayPositions)
-                    delete this._jsPlumb.overlayPositions[overlayId];
-            }
-        },
-        removeOverlays: function () {
-            for (var i = 0, j = arguments.length; i < j; i++)
-                this.removeOverlay(arguments[i]);
-        },
-        moveParent: function (newParent) {
-            if (this.bgCanvas) {
-                this.bgCanvas.parentNode.removeChild(this.bgCanvas);
-                newParent.appendChild(this.bgCanvas);
-            }
-
-            this.canvas.parentNode.removeChild(this.canvas);
-            newParent.appendChild(this.canvas);
-
-            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    this._jsPlumb.overlays[i].canvas.parentNode.removeChild(this._jsPlumb.overlays[i].canvas);
-                    newParent.appendChild(this._jsPlumb.overlays[i].canvas);
-                }
-            }
-        },
-        getLabel: function () {
-            var lo = this.getOverlay(_internalLabelOverlayId);
-            return lo != null ? lo.getLabel() : null;
-        },
-        getLabelOverlay: function () {
-            return this.getOverlay(_internalLabelOverlayId);
-        },
-        setLabel: function (l) {
-            var lo = this.getOverlay(_internalLabelOverlayId);
-            if (!lo) {
-                var params = l.constructor == String || l.constructor == Function ? { label: l } : l;
-                lo = _makeLabelOverlay(this, params);
-                this._jsPlumb.overlays.push(lo);
-            }
-            else {
-                if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
-                else {
-                    if (l.label) lo.setLabel(l.label);
-                    if (l.location) lo.setLocation(l.location);
-                }
-            }
-
-            if (!this._jsPlumb.instance.isSuspendDrawing())
-                this.repaint();
-        },
-        cleanup: function () {
-            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                this._jsPlumb.overlays[i].cleanup();
-                this._jsPlumb.overlays[i].destroy();
-            }
-            this._jsPlumb.overlays.length = 0;
-            this._jsPlumb.overlayPositions = null;
-        },
-        setVisible: function (v) {
-            this[v ? "showOverlays" : "hideOverlays"]();
-        },
-        setAbsoluteOverlayPosition: function (overlay, xy) {
-            this._jsPlumb.overlayPositions = this._jsPlumb.overlayPositions || {};
-            this._jsPlumb.overlayPositions[overlay.id] = xy;
-        },
-        getAbsoluteOverlayPosition: function (overlay) {
-            return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
-        }
-    });
-
-// ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
 
     var _jsPlumbInstanceIndex = 0,
         getInstanceIndex = function () {
@@ -4005,9 +3815,8 @@
 
                     c.endpoints[0].detachFromConnection(c);
                     c.endpoints[1].detachFromConnection(c);
-                    // sp was ere
-                    c.cleanup();
-                    c.destroy();
+                    c.cleanup(true);
+                    c.destroy(true);
                 }
             }
 
@@ -4017,8 +3826,8 @@
                 if (e._jsPlumb) {
                     _currentInstance.unregisterEndpoint(e);
                     // FIRE some endpoint deleted event?
-                    e.cleanup();
-                    e.destroy();
+                    e.cleanup(true);
+                    e.destroy(true);
                 }
             }
 
@@ -5308,12 +5117,29 @@
         getAttribute: function (el, a) {
             return this.getAttribute(jsPlumb.getDOMElement(el), a);
         },
+        convertToFullOverlaySpec: function(spec) {
+            if (jsPlumbUtil.isString(spec)) {
+                spec = [ spec, { } ];
+            }
+            spec[1].id = spec[1].id || jsPlumbUtil.uuid();
+            return spec;
+        },
         registerConnectionType: function (id, type) {
             this._connectionTypes[id] = jsPlumb.extend({}, type);
+            if (type.overlays) {
+                var to = {};
+                for (var i = 0; i < type.overlays.length; i++) {
+                    // if a string, convert to object representation so that we can store the typeid on it.
+                    // also assign an id.
+                    var fo = this.convertToFullOverlaySpec(type.overlays[i]);
+                    to[fo[1].id] = fo;
+                }
+                this._connectionTypes[id].overlays = to;
+            }
         },
         registerConnectionTypes: function (types) {
             for (var i in types)
-                this._connectionTypes[i] = jsPlumb.extend({}, types[i]);
+                this.registerConnectionType(i, types[i]);
         },
         registerEndpointType: function (id, type) {
             this._endpointTypes[id] = jsPlumb.extend({}, type);
@@ -5400,6 +5226,231 @@
 
 })();
 
+;(function() {
+
+    // ------------------------------ BEGIN OverlayCapablejsPlumbUIComponent --------------------------------------------
+
+    var _internalLabelOverlayId = "__label",
+    // this is a shortcut helper method to let people add a label as
+    // overlay.
+        _makeLabelOverlay = function (component, params) {
+
+            var _params = {
+                    cssClass: params.cssClass,
+                    labelStyle: component.labelStyle,
+                    id: _internalLabelOverlayId,
+                    component: component,
+                    _jsPlumb: component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
+                },
+                mergedParams = jsPlumb.extend(_params, params);
+
+            return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label(mergedParams);
+        },
+        _processOverlay = function (component, o) {
+            var _newOverlay = null;
+            if (jsPlumbUtil.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+                // there's also a three arg version:
+                // ["Arrow", { width:50 }, {location:0.7}]
+                // which merges the 3rd arg into the 2nd.
+                var type = o[0],
+                // make a copy of the object so as not to mess up anyone else's reference...
+                    p = jsPlumb.extend({component: component, _jsPlumb: component._jsPlumb.instance}, o[1]);
+                if (o.length == 3) jsPlumb.extend(p, o[2]);
+                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
+            } else if (o.constructor == String) {
+                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component: component, _jsPlumb: component._jsPlumb.instance});
+            } else {
+                _newOverlay = o;
+            }
+
+            _newOverlay.id = _newOverlay.id || jsPlumbUtil.uuid();
+            component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
+            //component._jsPlumb.overlays.push(_newOverlay);
+            component._jsPlumb.overlays[_newOverlay.id] = _newOverlay;
+
+            return _newOverlay;
+        };
+
+    jsPlumb.OverlayCapableJsPlumbUIComponent = function (params) {
+
+        jsPlumbUIComponent.apply(this, arguments);
+        this._jsPlumb.overlays = {};
+        this._jsPlumb.overlayPositions = {};
+
+        if (params.label) {
+            this.labelSpec = {
+                label: params.label,
+                location: params.labelLocation || this.defaultLabelLocation || 0.5,
+                labelStyle: params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle,
+                id:_internalLabelOverlayId
+            };
+        }
+
+        this.setListenerComponent = function (c) {
+            if (this._jsPlumb) {
+                for (var i in this._jsPlumb.overlays)
+                    this._jsPlumb.overlays[i].setListenerComponent(c);
+            }
+        };
+    };
+
+    jsPlumb.OverlayCapableJsPlumbUIComponent.applyType = function (component, t) {
+        if (t.overlays) {
+            // loop through the ones in the type. if already present on the component,
+            // dont remove or re-add.
+            var keep = {};
+
+            for (var i in t.overlays) {
+
+                if (component._jsPlumb.overlays[t.overlays[i][1].id]) {
+                    keep[t.overlays[i][1].id] = true;
+                }
+                else {
+                    var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
+                    if (c != null) {
+                        c.reattach(component._jsPlumb.instance);
+                        component._jsPlumb.overlays[c.id] = c;
+                    }
+                    else {
+                        c = component.addOverlay(t.overlays[i], true);
+                    }
+                    keep[c.id] = true;
+                }
+            }
+
+            // now loop through the full overlays and remove those that we dont want to keep
+            for (var i in component._jsPlumb.overlays) {
+                if (keep[component._jsPlumb.overlays[i].id] == null)
+                    component.removeOverlay(component._jsPlumb.overlays[i].id);
+            }
+        }
+    };
+
+    jsPlumbUtil.extend(jsPlumb.OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
+
+        setHover: function (hover, ignoreAttachedElements) {
+            if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
+                for (var i in this._jsPlumb.overlays) {
+                    this._jsPlumb.overlays[i][hover ? "addClass" : "removeClass"](this._jsPlumb.instance.hoverClass);
+                }
+            }
+        },
+        addOverlay: function (overlay, doNotRepaint) {
+            var o = _processOverlay(this, overlay);
+            if (!doNotRepaint) this.repaint();
+            return o;
+        },
+        getOverlay: function (id) {
+            return this._jsPlumb.overlays[id];
+        },
+        getOverlays: function () {
+            return this._jsPlumb.overlays;
+        },
+        hideOverlay: function (id) {
+            var o = this.getOverlay(id);
+            if (o) o.hide();
+        },
+        hideOverlays: function () {
+            for (var i in this._jsPlumb.overlays)
+                this._jsPlumb.overlays[i].hide();
+        },
+        showOverlay: function (id) {
+            var o = this.getOverlay(id);
+            if (o) o.show();
+        },
+        showOverlays: function () {
+            for (var i in this._jsPlumb.overlays.length)
+                this._jsPlumb.overlays[i].show();
+        },
+        removeAllOverlays: function (doNotRepaint) {
+            for (var i in this._jsPlumb.overlays) {
+                if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
+            }
+
+            this._jsPlumb.overlays = {};
+            this._jsPlumb.overlayPositions = null;
+            if (!doNotRepaint)
+                this.repaint();
+        },
+        removeOverlay: function (overlayId) {
+            var o = this._jsPlumb.overlays[overlayId];
+            if (o) {
+                if (o.cleanup) o.cleanup();
+                delete this._jsPlumb.overlays[overlayId];
+                if (this._jsPlumb.overlayPositions)
+                    delete this._jsPlumb.overlayPositions[overlayId];
+            }
+        },
+        removeOverlays: function () {
+            for (var i = 0, j = arguments.length; i < j; i++)
+                this.removeOverlay(arguments[i]);
+        },
+        moveParent: function (newParent) {
+            if (this.bgCanvas) {
+                this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+                newParent.appendChild(this.bgCanvas);
+            }
+
+            this.canvas.parentNode.removeChild(this.canvas);
+            newParent.appendChild(this.canvas);
+
+            for (var i in this._jsPlumb.overlays) {
+                if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
+                    var el = this._jsPlumb.overlays[i].getElement();
+                    el.parentNode.removeChild(el);
+                    newParent.appendChild(el);
+                }
+            }
+        },
+        getLabel: function () {
+            var lo = this.getOverlay(_internalLabelOverlayId);
+            return lo != null ? lo.getLabel() : null;
+        },
+        getLabelOverlay: function () {
+            return this.getOverlay(_internalLabelOverlayId);
+        },
+        setLabel: function (l) {
+            var lo = this.getOverlay(_internalLabelOverlayId);
+            if (!lo) {
+                var params = l.constructor == String || l.constructor == Function ? { label: l } : l;
+                lo = _makeLabelOverlay(this, params);
+                this._jsPlumb.overlays[_internalLabelOverlayId] = lo;
+            }
+            else {
+                if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
+                else {
+                    if (l.label) lo.setLabel(l.label);
+                    if (l.location) lo.setLocation(l.location);
+                }
+            }
+
+            if (!this._jsPlumb.instance.isSuspendDrawing())
+                this.repaint();
+        },
+        cleanup: function (force) {
+            for (var i in this._jsPlumb.overlays) {
+                this._jsPlumb.overlays[i].cleanup(force);
+                this._jsPlumb.overlays[i].destroy(force);
+            }
+            if (force) {
+                this._jsPlumb.overlays = {};
+                this._jsPlumb.overlayPositions = null;
+            }
+        },
+        setVisible: function (v) {
+            this[v ? "showOverlays" : "hideOverlays"]();
+        },
+        setAbsoluteOverlayPosition: function (overlay, xy) {
+            this._jsPlumb.overlayPositions[overlay.id] = xy;
+        },
+        getAbsoluteOverlayPosition: function (overlay) {
+            return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
+        }
+    });
+
+// ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
+
+})();
 /*
  * jsPlumb
  * 
@@ -5501,27 +5552,50 @@
         this.idPrefix = "_jsplumb_e_";
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        jsPlumb.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        this.connectionType = params.connectionType;
 
-// TYPE		
+// TYPE
 
+
+        var o = params.overlays || [], oo = {};
+        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.EndpointOverlays || []);
+        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
+        for (var i = 0; i < o.length; i++) {
+            // if a string, convert to object representation so that we can store the typeid on it.
+            // also assign an id.
+            var fo = jsPlumb.convertToFullOverlaySpec(o[i]);
+            oo[fo[1].id] = fo;
+        }
+
+        if (this.labelSpec != null) {
+            oo[this.labelSpec.id] = ["Label", this.labelSpec];
+        }
+
+        var defaultAnchor = params.anchor || this._jsPlumb.instance.Defaults.Anchor || jsPlumb.Defaults.Anchor || "Top";
+
+        var _defaultType = {
+            anchor:defaultAnchor,
+            connectionType:params.connectionType,
+            parameters: params.parameters || {},
+            scope: params.scope,
+            maxConnections: params.maxConnections == null ? this._jsPlumb.instance.Defaults.MaxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
+            paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
+            //endpoint: params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
+            hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
+            overlays: oo,
+            connectorStyle: params.connectorStyle,
+            connectorHoverStyle: params.connectorHoverStyle,
+            connectorClass: params.connectorClass,
+            connectorHoverClass: params.connectorHoverClass,
+            connectorOverlays: params.connectorOverlays,
+            connector: params.connector,
+            connectorTooltip: params.connectorTooltip
+        };
+
+        // TODO investigate ways this and Connection's getDefault type can be merged.
         this.getDefaultType = function () {
-            return {
-                parameters: {},
-                scope: null,
-                maxConnections: this._jsPlumb.instance.Defaults.MaxConnections,
-                paintStyle: this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-                endpoint: this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
-                hoverPaintStyle: this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
-                overlays: jsPlumbUtil.merge(params.overlays || {}, (this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays)),
-                connectorStyle: params.connectorStyle,
-                connectorHoverStyle: params.connectorHoverStyle,
-                connectorClass: params.connectorClass,
-                connectorHoverClass: params.connectorHoverClass,
-                connectorOverlays: params.connectorOverlays,
-                connector: params.connector,
-                connectorTooltip: params.connectorTooltip
-            };
+            return _defaultType;
         };
 
 // END TYPE
@@ -5542,28 +5616,44 @@
 
         var _updateAnchorClass = function () {
             // stash old, get new
-            var oldAnchorClass = this._jsPlumb.currentAnchorClass;
+            var oldAnchorClass = _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass;
             this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
+            var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
+
+            this.removeClass(oldAnchorClass);
+            this.addClass(anchorClass);
             // add and remove at the same time to reduce the number of reflows.
-            jsPlumbAdapter.updateClasses(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass, _jsPlumb.endpointAnchorClassPrefix + "_" + oldAnchorClass);
-            this.updateClasses(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass, _jsPlumb.endpointAnchorClassPrefix + "_" + oldAnchorClass);
+            jsPlumbAdapter.updateClasses(this.element, anchorClass, oldAnchorClass);
         }.bind(this);
 
-        this.setAnchor = function (anchorParams, doNotRepaint) {
-            this._jsPlumb.instance.continuousAnchorFactory.clear(this.elementId);
-            this.anchor = this._jsPlumb.instance.makeAnchor(anchorParams, this.elementId, _jsPlumb);
-            _updateAnchorClass();
-            this.anchor.bind("anchorChanged", function (currentAnchor) {
+        this.prepareAnchor = function(anchorParams) {
+            var a = this._jsPlumb.instance.makeAnchor(anchorParams, this.elementId, _jsPlumb);
+            a.bind("anchorChanged", function (currentAnchor) {
                 this.fire("anchorChanged", {endpoint: this, anchor: currentAnchor});
                 _updateAnchorClass();
             }.bind(this));
+            return a;
+        };
+
+        this.setPreparedAnchor = function(anchor, doNotRepaint) {
+            this._jsPlumb.instance.continuousAnchorFactory.clear(this.elementId);
+            this.anchor = anchor;
+            _updateAnchorClass();
+
             if (!doNotRepaint)
                 this._jsPlumb.instance.repaint(this.elementId);
+
             return this;
         };
 
-        var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
-        this.setAnchor(anchorParamsToUse, true);
+        this.setAnchor = function (anchorParams, doNotRepaint) {
+            var a = this.prepareAnchor(anchorParams);
+            this.setPreparedAnchor(a, doNotRepaint);
+            return this;
+        };
+
+        //var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
+        //this.setAnchor(anchorParamsToUse, true);
 
         var internalHover = function (state) {
             if (this.connections.length > 0) {
@@ -5585,13 +5675,7 @@
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
 
-        this.setEndpoint = function (ep) {
-
-            if (this.endpoint != null) {
-                this.endpoint.cleanup();
-                this.endpoint.destroy();
-            }
-
+        this.prepareEndpoint = function(ep, typeId) {
             var _e = function (t, p) {
                 var rm = _jsPlumb.getRenderMode();
                 if (jsPlumb.Endpoints[rm][t]) return new jsPlumb.Endpoints[rm][t](p);
@@ -5608,22 +5692,24 @@
                 endpoint: this
             };
 
+            var endpoint;
+
             if (_ju.isString(ep))
-                this.endpoint = _e(ep, endpointArgs);
+                endpoint = _e(ep, endpointArgs);
             else if (_ju.isArray(ep)) {
                 endpointArgs = _ju.merge(ep[1], endpointArgs);
-                this.endpoint = _e(ep[0], endpointArgs);
+                endpoint = _e(ep[0], endpointArgs);
             }
             else {
-                this.endpoint = ep.clone();
+                endpoint = ep.clone();
             }
 
             // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
-            // and the clone is left in its place while the original one goes off on a magical journey. 
+            // and the clone is left in its place while the original one goes off on a magical journey.
             // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
             // the whole world.
             //var argsForClone = jsPlumb.extend({}, endpointArgs);
-            this.endpoint.clone = function () {
+            endpoint.clone = function () {
                 // TODO this, and the code above, can be refactored to be more dry.
                 if (_ju.isString(ep))
                     return _e(ep, endpointArgs);
@@ -5633,28 +5719,33 @@
                 }
             }.bind(this);
 
-            this.type = this.endpoint.type;
+            endpoint.typeId = typeId;
+            return endpoint;
         };
 
-        this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");
+        this.setEndpoint = function(ep, doNotRepaint) {
+            var _ep = this.prepareEndpoint(ep);
+            this.setPreparedEndpoint(_ep, true);
+        };
 
-        this.setPaintStyle(params.endpointStyle || params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
-        this.setHoverPaintStyle(params.endpointHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
-        this._jsPlumb.paintStyleInUse = this.getPaintStyle();
+        this.setPreparedEndpoint = function (ep, doNotRepaint) {
+            if (this.endpoint != null) {
+                this.endpoint.cleanup();
+                this.endpoint.destroy();
+            }
+            this.endpoint = ep;
+            this.type = this.endpoint.type;
+            this.canvas = this.endpoint.canvas;
+        };
+
+        var ep = params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
+        this.setEndpoint(ep, true);
 
         jsPlumb.extend(this, params, typeParameters);
 
         this.isSource = params.isSource || false;
         this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;
-        this._jsPlumb.maxConnections = params.maxConnections == null ? _jsPlumb.Defaults.MaxConnections : params.maxConnections; // maximum number of connections this endpoint can be the source of.
-        this.canvas = this.endpoint.canvas;
-        this.canvas._jsPlumb = this;
-
-        // add anchor class (need to do this on construction because we set anchor first)
-        var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
-        this.addClass(anchorClass);
-        jsPlumbAdapter.addClass(this.element, anchorClass);
 
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
@@ -5852,6 +5943,13 @@
                     }
                 }
             }
+        };
+
+        this.getTypeDescriptor = function () {
+            return "endpoint";
+        };
+        this.isVisible = function () {
+            return this._jsPlumb.visible;
         };
 
         this.repaint = this.paint;
@@ -6133,6 +6231,12 @@
             }
         };
 
+        // finally, set type if it was provided
+        var type = [ "default", (params.type || "")].join(" ");
+        this.addType(type, params.data, true);
+        this.canvas = this.endpoint.canvas;
+        this.canvas._jsPlumb = this;
+
         // if marked as source or target at create time, init the dragging.
         if (this.isSource || this.isTarget || this.isTemporarySource)
             this.initDraggable();
@@ -6225,20 +6329,12 @@
         if (!this.anchor.isFloating)
             _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
 
-        // finally, set type if it was provided
-        if (params.type)
-            this.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
 
         return this;
     };
 
-    jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent, {
-        getTypeDescriptor: function () {
-            return "endpoint";
-        },
-        isVisible: function () {
-            return this._jsPlumb.visible;
-        },
+    jsPlumbUtil.extend(jsPlumb.Endpoint, jsPlumb.OverlayCapableJsPlumbUIComponent, {
+
         setVisible: function (v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
             this._jsPlumb.visible = v;
             if (this.canvas) this.canvas.style.display = v ? "block" : "none";
@@ -6257,16 +6353,32 @@
         getAttachedElements: function () {
             return this.connections;
         },
-        applyType: function (t) {
-            this.setPaintStyle(t.endpointStyle || t.paintStyle);
-            this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle);
+        applyType: function (t, doNotRepaint, typeMap) {
+            this.setPaintStyle(t.endpointStyle || t.paintStyle, doNotRepaint);
+            this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle, doNotRepaint);
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
             jsPlumb.extend(this, t, typeParameters);
+            /*if (t.endpoint) {
+                var e = this.getCachedTypeItem("endpoint", typeMap.endpoint);
+                if (e == null) {
+                    e = this.prepareEndpoint(t.endpoint, typeMap.endpoint);
+                    this.cacheTypeItem("endpoint", e, typeMap.endpoint);
+                }
+                this.setPreparedEndpoint(e, doNotRepaint);
+            }*/
             if (t.anchor) {
-                this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+                var a = this.getCachedTypeItem("anchor", typeMap.anchor);
+                if (a == null) {
+                    a = this.prepareAnchor(t.anchor);
+                    this.cacheTypeItem("anchor", a, typeMap.anchor);
+                }
+                this.setPreparedAnchor(a, doNotRepaint);
             }
+
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+
+            jsPlumb.OverlayCapableJsPlumbUIComponent.applyType(this, t);
         },
         isEnabled: function () {
             return this._jsPlumb.enabled;
@@ -6562,8 +6674,7 @@
             return (anchorParams) ? _jsPlumb.makeAnchor(anchorParams, elementId, _jsPlumb) : null;
         },
         _updateConnectedClass = function (conn, element, _jsPlumb, remove) {
-            if (element == null) return;
-            else {
+            if (element != null) {
                 element._jsPlumbConnections = element._jsPlumbConnections || {};
                 if (remove)
                     delete element._jsPlumbConnections[conn.id];
@@ -6598,7 +6709,7 @@
         if (params.sourceEndpoint) this.source = params.sourceEndpoint.getElement();
         if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();
 
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        jsPlumb.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
         this.sourceId = this._jsPlumb.instance.getId(this.source);
         this.targetId = this._jsPlumb.instance.getId(this.target);
@@ -6621,18 +6732,6 @@
             overlays: params.overlays
         };
         this._jsPlumb.lastPaintedAt = null;
-        this.getDefaultType = function () {
-            return {
-                parameters: {},
-                scope: null,
-                detachable: this._jsPlumb.instance.Defaults.ConnectionsDetachable,
-                rettach: this._jsPlumb.instance.Defaults.ReattachConnections,
-                paintStyle: this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-                connector: this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
-                hoverPaintStyle: this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-                overlays: jsPlumbUtil.merge(this._jsPlumb.params.overlays || {}, (this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays))
-            };
-        };
 
         // listen to mouseover and mouseout events passed from the container delegate.
         this.bind("mouseover", function () {
@@ -6670,29 +6769,44 @@
             if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
         }
 
-        // TODO these could surely be refactored into some method that tries them one at a time until something exists
-        this.setConnector(this.endpoints[0].connector ||
-            this.endpoints[1].connector ||
-            params.connector ||
-            _jsPlumb.Defaults.Connector ||
-            jsPlumb.Defaults.Connector, true, true);
+// -------------------------- DEFAULT TYPE ---------------------------------------------
+        // default overlays.
+        var o = params.overlays || [], oo = {};
+        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.ConnectionOverlays || []);
+        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
+        for (var i = 0; i < o.length; i++) {
+            // if a string, convert to object representation so that we can store the typeid on it.
+            // also assign an id.
+            var fo = jsPlumb.convertToFullOverlaySpec(o[i]);
+            oo[fo[1].id] = fo;
+        }
 
-        if (params.path)
-            this.connector.setPath(params.path);
+        if (this.labelSpec != null) {
+            oo[this.labelSpec.id] = ["Label", this.labelSpec];
+        }
 
-        this.setPaintStyle(this.endpoints[0].connectorStyle ||
-            this.endpoints[1].connectorStyle ||
-            params.paintStyle ||
-            _jsPlumb.Defaults.PaintStyle ||
-            jsPlumb.Defaults.PaintStyle, true);
+        // DETACHABLE
+        var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
+        if (params.detachable === false) _detachable = false;
+        if (this.endpoints[0].connectionsDetachable === false) _detachable = false;
+        if (this.endpoints[1].connectionsDetachable === false) _detachable = false;
+        // REATTACH
+        var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
 
-        this.setHoverPaintStyle(this.endpoints[0].connectorHoverStyle ||
-            this.endpoints[1].connectorHoverStyle ||
-            params.hoverPaintStyle ||
-            _jsPlumb.Defaults.HoverPaintStyle ||
-            jsPlumb.Defaults.HoverPaintStyle, true);
+        var _defaultType = {
+            parameters: params.parameters || {},
+            scope: params.scope,
+            detachable: _detachable,
+            rettach: _reattach,
+            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+            connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
+            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
+            overlays: oo
+        };
 
-        this._jsPlumb.paintStyleInUse = this.getPaintStyle();
+        this.getDefaultType = function () {
+            return _defaultType;
+        };
 
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         if (!_jsPlumb.isSuspendDrawing()) {
@@ -6721,15 +6835,29 @@
             this.endpoints[1].paint({ anchorLoc: anchorLoc, timestamp: initialTimestamp });
         }
 
+        this.getTypeDescriptor = function () {
+            return "connection";
+        };
+        this.getAttachedElements = function () {
+            return this.endpoints;
+        };
+
+        this.isDetachable = function () {
+            return this._jsPlumb.detachable === true;
+        };
+        this.setDetachable = function (detachable) {
+            this._jsPlumb.detachable = detachable === true;
+        };
+        this.isReattach = function () {
+            return this._jsPlumb.reattach === true;
+        };
+        this.setReattach = function (reattach) {
+            this._jsPlumb.reattach = reattach === true;
+        };
+
 // END INITIALISATION CODE
 
-// DETACHABLE
-        this._jsPlumb.detachable = _jsPlumb.Defaults.ConnectionsDetachable;
-        if (params.detachable === false) this._jsPlumb.detachable = false;
-        if (this.endpoints[0].connectionsDetachable === false) this._jsPlumb.detachable = false;
-        if (this.endpoints[1].connectionsDetachable === false) this._jsPlumb.detachable = false;
-// REATTACH
-        this._jsPlumb.reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
+
 // COST + DIRECTIONALITY
         // if cost not supplied, try to inherit from source endpoint
         this._jsPlumb.cost = params.cost || this.endpoints[0].getConnectionCost();
@@ -6753,7 +6881,7 @@
 // PAINTING
 
         // the very last thing we do is apply types, if there are any.
-        var _types = [params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
+        var _types = [ "default",  params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
         if (/[^\s]/.test(_types))
             this.addType(_types, params.data, true);
 
@@ -6762,27 +6890,51 @@
 // END PAINTING    
     };
 
-    jsPlumbUtil.extend(jsPlumb.Connection, OverlayCapableJsPlumbUIComponent, {
-        applyType: function (t, doNotRepaint) {
+    jsPlumbUtil.extend(jsPlumb.Connection, jsPlumb.OverlayCapableJsPlumbUIComponent, {
+        applyType: function (t, doNotRepaint, typeMap) {
+
+            // none of these things result in the creation of objects so can be ignored.
             if (t.detachable != null) this.setDetachable(t.detachable);
             if (t.reattach != null) this.setReattach(t.reattach);
             if (t.scope) this.scope = t.scope;
-            this.setConnector(t.connector, doNotRepaint);
+
+            // try to get connector from cache; create it if necessary
+            var c = this.getCachedTypeItem("connector", typeMap.connector);
+            if (c != null) {
+                c.reattach(this._jsPlumb.instance);
+                this.setPreparedConnector(c, doNotRepaint);
+            }
+            else
+                this.setConnector(t.connector, doNotRepaint, false, typeMap.connector);
+
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+
+            var _anchors = null;
+            // this also results in the creation of objects.
             if (t.anchor) {
-                this.endpoints[0].anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
-                this.endpoints[1].anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+                // note that even if the param was anchor, we store `anchors`.
+                _anchors = this.getCachedTypeItem("anchors", typeMap.anchor);
+                if (_anchors == null) {
+                    _anchors = [ this._jsPlumb.instance.makeAnchor(t.anchor), this._jsPlumb.instance.makeAnchor(t.anchor) ];
+                    this.cacheTypeItem("anchors", _anchors, typeMap.anchor);
+                }
             }
             else if (t.anchors) {
-                this.endpoints[0].anchor = this._jsPlumb.instance.makeAnchor(t.anchors[0]);
-                this.endpoints[1].anchor = this._jsPlumb.instance.makeAnchor(t.anchors[1]);
+                _anchors = this.getCachedTypeItem("anchors", typeMap.anchors);
+                if (_anchors == null) {
+                    _anchors = [
+                        this._jsPlumb.instance.makeAnchor(t.anchors[0]),
+                        this._jsPlumb.instance.makeAnchor(t.anchors[1])
+                    ];
+                    this.cacheTypeItem("anchors", _anchors, typeMap.anchors);
+                }
             }
-        },
-        getTypeDescriptor: function () {
-            return "connection";
-        },
-        getAttachedElements: function () {
-            return this.endpoints;
+            if (_anchors != null) {
+                this.endpoints[0].anchor = _anchors[0];
+                this.endpoints[1].anchor = _anchors[1];
+            }
+
+            jsPlumb.OverlayCapableJsPlumbUIComponent.applyType(this, t);
         },
         addClass: function (c, informEndpoints) {
             if (informEndpoints) {
@@ -6819,26 +6971,14 @@
             this.source = null;
             this.target = null;
             if (this.connector != null) {
-                this.connector.cleanup();
-                this.connector.destroy();
+                this.connector.cleanup(true);
+                this.connector.destroy(true);
             }
             this.connector = null;
         },
         updateConnectedClass:function(remove) {
             _updateConnectedClass(this, this.source, this._jsPlumb.instance, remove);
             _updateConnectedClass(this, this.target, this._jsPlumb.instance, remove);
-        },
-        isDetachable: function () {
-            return this._jsPlumb.detachable === true;
-        },
-        setDetachable: function (detachable) {
-            this._jsPlumb.detachable = detachable === true;
-        },
-        isReattach: function () {
-            return this._jsPlumb.reattach === true;
-        },
-        setReattach: function (reattach) {
-            this._jsPlumb.reattach = reattach === true;
         },
         setHover: function (state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
@@ -6859,28 +6999,41 @@
         getConnector: function () {
             return this.connector;
         },
-        setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent) {
-            var _ju = jsPlumbUtil;
-            if (this.connector != null) {
-                this.connector.cleanup();
-                this.connector.destroy();
-            }
-
+        prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
                     cssClass: this._jsPlumb.params.cssClass,
                     container: this._jsPlumb.params.container,
                     "pointer-events": this._jsPlumb.params["pointer-events"]
                 },
-                renderMode = this._jsPlumb.instance.getRenderMode();
+                renderMode = this._jsPlumb.instance.getRenderMode(),
+                connector;
 
-            if (_ju.isString(connectorSpec))
-                this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this); // lets you use a string as shorthand.
-            else if (_ju.isArray(connectorSpec)) {
+            if (jsPlumbUtil.isString(connectorSpec))
+                connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this); // lets you use a string as shorthand.
+            else if (jsPlumbUtil.isArray(connectorSpec)) {
                 if (connectorSpec.length == 1)
-                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs, this);
+                    connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs, this);
                 else
-                    this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs), this);
+                    connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], jsPlumbUtil.merge(connectorSpec[1], connectorArgs), this);
+            }
+            if (typeId != null) connector.typeId = typeId;
+            return connector;
+        },
+        setPreparedConnector: function(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
+
+            var previous;
+            // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
+            // and we havent passed in `true` for "force" here.
+            if (this.connector != null) {
+                previous = this.connector;
+                this.connector.cleanup();
+                this.connector.destroy();
+            }
+
+            this.connector = connector;
+            if (typeId) {
+                this.cacheTypeItem("connector", connector, typeId);
             }
 
             this.canvas = this.connector.canvas;
@@ -6892,8 +7045,19 @@
             if (this.canvas) this.canvas._jsPlumb = this;
             if (this.bgCanvas) this.bgCanvas._jsPlumb = this;
 
+            if (previous != null) {
+                var o = this.getOverlays();
+                for (var i = 0; i < o.length; i++) {
+                    if (o[i].transfer) o[i].transfer(this.connector);
+                }
+            }
+
             if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
             if (!doNotRepaint) this.repaint();
+        },
+        setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
+            var connector = this.prepareConnector(connectorSpec, typeId);
+            this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId);
         },
         paint: function (params) {
 
@@ -6929,7 +7093,7 @@
 
                     // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
-                    for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                    for (var i in this._jsPlumb.overlays) {
                         var o = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
                             this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
@@ -6951,7 +7115,7 @@
                     // paint the connector.
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
                     // and then the overlays
-                    for (var j = 0; j < this._jsPlumb.overlays.length; j++) {
+                    for (var j in this._jsPlumb.overlays) {
                         var p = this._jsPlumb.overlays[j];
                         if (p.isVisible()) {
                             p.paint(this._jsPlumb.overlayPlacements[j], extents);
@@ -9042,10 +9206,12 @@
         };
     };
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
-        cleanup: function () {
-            this._jsPlumb.deleted = true;
-            if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
-            this.canvas = null;
+        cleanup: function (force) {
+            if (force) {
+                this._jsPlumb.deleted = true;
+                if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
+                this.canvas = null;
+            }
         }
     });
 
@@ -9125,10 +9291,15 @@
         this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
     };
     AbstractOverlay.prototype = {
-        cleanup: function () {
-            this.component = null;
-            this.canvas = null;
-            this.endpointLoc = null;
+        cleanup: function (force) {
+            if (force) {
+                this.component = null;
+                this.canvas = null;
+                this.endpointLoc = null;
+            }
+        },
+        reattach:function(instance) {
+
         },
         setVisible: function (val) {
             this.visible = val;
@@ -9322,6 +9493,7 @@
             if (this.component) this.component.fire.apply(this.component, arguments);
         };
 
+        this.detached=false;
         this.id = params.id;
         this._jsPlumb.div = null;
         this._jsPlumb.initialised = false;
@@ -9403,12 +9575,14 @@
             return jsPlumbUtil.oldIE ? jsPlumb.getSize(this.getElement()) : [1, 1];
         },
         setVisible: function (state) {
-            this._jsPlumb.div.style.display = state ? "block" : "none";
-            // if initially invisible, dimensions are 0,0 and never get updated
-            if (state && this._jsPlumb.initiallyInvisible) {
-                _getDimensions(this, true);
-                this.component.repaint();
-                this._jsPlumb.initiallyInvisible = false;
+            if (this._jsPlumb.div) {
+                this._jsPlumb.div.style.display = state ? "block" : "none";
+                // if initially invisible, dimensions are 0,0 and never get updated
+                if (state && this._jsPlumb.initiallyInvisible) {
+                    _getDimensions(this, true);
+                    this.component.repaint();
+                    this._jsPlumb.initiallyInvisible = false;
+                }
             }
         },
         /*
@@ -9421,11 +9595,24 @@
         clearCachedDimensions: function () {
             this._jsPlumb.cachedDimensions = null;
         },
-        cleanup: function () {
-            if (this._jsPlumb.div != null) {
-                this._jsPlumb.div._jsPlumb = null;
-                this._jsPlumb.instance.removeElement(this._jsPlumb.div);
+        cleanup: function (force) {
+            if (force) {
+                if (this._jsPlumb.div != null) {
+                    this._jsPlumb.div._jsPlumb = null;
+                    this._jsPlumb.instance.removeElement(this._jsPlumb.div);
+                }
             }
+            else {
+                // if not a forced cleanup, just detach child from parent for now.
+                if (this._jsPlumb && this._jsPlumb.div && this._jsPlumb.div.parentNode)
+                    this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
+                this.detached = true;
+            }
+
+        },
+        reattach:function(instance) {
+            if (this._jsPlumb.div != null) instance.getContainer().appendChild(this._jsPlumb.div);
+            this.detached = false;
         },
         computeMaxSize: function () {
             var td = _getDimensions(this);
@@ -9436,6 +9623,7 @@
                 this.getElement();
                 p.component.appendDisplayElement(this._jsPlumb.div);
                 this._jsPlumb.initialised = true;
+                if (this.detached) this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
             }
             this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
             this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";
@@ -9538,12 +9726,14 @@
 
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
-        cleanup: function () {
-            this.div = null;
-            this.label = null;
-            this.labelText = null;
-            this.cssClass = null;
-            this.labelStyle = null;
+        cleanup: function (force) {
+            if (force) {
+                this.div = null;
+                this.label = null;
+                this.labelText = null;
+                this.cssClass = null;
+                this.labelStyle = null;
+            }
         },
         getLabel: function () {
             return this.label;
@@ -10291,584 +10481,625 @@
  * 
  * This file contains the SVG renderers.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-;(function() {
-	
+;
+(function () {
+
 // ************************** SVG utility methods ********************************************	
 
-	"use strict";
-	
-	var svgAttributeMap = {
-		"joinstyle":"stroke-linejoin",
-		"stroke-linejoin":"stroke-linejoin",		
-		"stroke-dashoffset":"stroke-dashoffset",
-		"stroke-linecap":"stroke-linecap"
-	},
-	STROKE_DASHARRAY = "stroke-dasharray",
-	DASHSTYLE = "dashstyle",
-	LINEAR_GRADIENT = "linearGradient",
-	RADIAL_GRADIENT = "radialGradient",
-	DEFS = "defs",
-	FILL = "fill",
-	STOP = "stop",
-	STROKE = "stroke",
-	STROKE_WIDTH = "stroke-width",
-	STYLE = "style",
-	NONE = "none",
-	JSPLUMB_GRADIENT = "jsplumb_gradient_",
-	LINE_WIDTH = "lineWidth",
-	ns = {
-		svg:"http://www.w3.org/2000/svg",
-		xhtml:"http://www.w3.org/1999/xhtml"
-	},
-	_attr = function(node, attributes) {
-		for (var i in attributes)
-			node.setAttribute(i, "" + attributes[i]);
-	},	
-	_node = function(name, attributes) {
-		var n = document.createElementNS(ns.svg, name);
-		attributes = attributes || {};
-		attributes.version = "1.1";
-		attributes.xmlns = ns.xhtml;
-		_attr(n, attributes);
-		return n;
-	},
-	_pos = function(d) { return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px"; },	
-	_clearGradient = function(parent) {
-        // TODO use querySelectorAll here instead?
-		for (var i = 0; i < parent.childNodes.length; i++) {
-			if (parent.childNodes[i].tagName == DEFS || parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
-				parent.removeChild(parent.childNodes[i]);
-		}
-	},		
-	_updateGradient = function(parent, node, style, dimensions, uiComponent) {
-		var id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance.idstamp();
-		// first clear out any existing gradient
-		_clearGradient(parent);
-		// this checks for an 'offset' property in the gradient, and in the absence of it, assumes
-		// we want a linear gradient. if it's there, we create a radial gradient.
-		// it is possible that a more explicit means of defining the gradient type would be
-		// better. relying on 'offset' means that we can never have a radial gradient that uses
-		// some default offset, for instance.
-		// issue 244 suggested the 'gradientUnits' attribute; without this, straight/flowchart connectors with gradients would
-		// not show gradients when the line was perfectly horizontal or vertical.
-		var g;
-		if (!style.gradient.offset)
-			g = _node(LINEAR_GRADIENT, {id:id, gradientUnits:"userSpaceOnUse"});
-		else
-			g = _node(RADIAL_GRADIENT, { id:id });
-		
-		var defs = _node(DEFS);
-		parent.appendChild(defs);
-		defs.appendChild(g);
-		//parent.appendChild(g);
-		
-		// the svg radial gradient seems to treat stops in the reverse 
-		// order to how canvas does it.  so we want to keep all the maths the same, but
-		// iterate the actual style declarations in reverse order, if the x indexes are not in order.
-		for (var i = 0; i < style.gradient.stops.length; i++) {
-			var styleToUse = uiComponent.segment == 1 ||  uiComponent.segment == 2 ? i: style.gradient.stops.length - 1 - i,			
-				stopColor = jsPlumbUtil.convertStyle(style.gradient.stops[styleToUse][1], true),
-				s = _node(STOP, {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
+    "use strict";
 
-			g.appendChild(s);
-		}
-		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
-        //node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
-		//node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
-		//node.setAttribute(applyGradientTo,  "url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
-		node.setAttribute(applyGradientTo,  "url(#" + id + ")");
-	},
-	_applyStyles = function(parent, node, style, dimensions, uiComponent) {
-		
-		node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
-		node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);
-			
-		if (style.gradient) {
-			_updateGradient(parent, node, style, dimensions, uiComponent);			
-		}
-		else {
-			// make sure we clear any existing gradient
-			_clearGradient(parent);
-			node.setAttribute(STYLE, "");
-		}
-		
-		
-		if (style.lineWidth) {
-			node.setAttribute(STROKE_WIDTH, style.lineWidth);
-		}
-	
-		// in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
-		// the syntax in VML but is actually kind of nasty: values are given in the pixel
-		// coordinate space, whereas in VML they are multiples of the width of the stroked
-		// line, which makes a lot more sense.  for that reason, jsPlumb is supporting both
-		// the native svg 'stroke-dasharray' attribute, and also the 'dashstyle' concept from
-		// VML, which will be the preferred method.  the code below this converts a dashstyle
-		// attribute given in terms of stroke width into a pixel representation, by using the
-		// stroke's lineWidth. 
-		if (style[DASHSTYLE] && style[LINE_WIDTH] && !style[STROKE_DASHARRAY]) {
-			var sep = style[DASHSTYLE].indexOf(",") == -1 ? " " : ",",
-			parts = style[DASHSTYLE].split(sep),
-			styleToUse = "";
-			parts.forEach(function(p) {
-				styleToUse += (Math.floor(p * style.lineWidth) + sep);
-			});
-			node.setAttribute(STROKE_DASHARRAY, styleToUse);
-		}		
-		else if(style[STROKE_DASHARRAY]) {
-			node.setAttribute(STROKE_DASHARRAY, style[STROKE_DASHARRAY]);
-		}
-		
-		// extra attributes such as join type, dash offset.
-		for (var i in svgAttributeMap) {
-			if (style[i]) {
-				node.setAttribute(svgAttributeMap[i], style[i]);
-			}
-		}
-	},
-	_decodeFont = function(f) {
-		var r = /([0-9].)(p[xt])\s(.*)/, 
-			bits = f.match(r);
+    var svgAttributeMap = {
+            "joinstyle": "stroke-linejoin",
+            "stroke-linejoin": "stroke-linejoin",
+            "stroke-dashoffset": "stroke-dashoffset",
+            "stroke-linecap": "stroke-linecap"
+        },
+        STROKE_DASHARRAY = "stroke-dasharray",
+        DASHSTYLE = "dashstyle",
+        LINEAR_GRADIENT = "linearGradient",
+        RADIAL_GRADIENT = "radialGradient",
+        DEFS = "defs",
+        FILL = "fill",
+        STOP = "stop",
+        STROKE = "stroke",
+        STROKE_WIDTH = "stroke-width",
+        STYLE = "style",
+        NONE = "none",
+        JSPLUMB_GRADIENT = "jsplumb_gradient_",
+        LINE_WIDTH = "lineWidth",
+        ns = {
+            svg: "http://www.w3.org/2000/svg",
+            xhtml: "http://www.w3.org/1999/xhtml"
+        },
+        _attr = function (node, attributes) {
+            for (var i in attributes)
+                node.setAttribute(i, "" + attributes[i]);
+        },
+        _node = function (name, attributes) {
+            var n = document.createElementNS(ns.svg, name);
+            attributes = attributes || {};
+            attributes.version = "1.1";
+            attributes.xmlns = ns.xhtml;
+            _attr(n, attributes);
+            return n;
+        },
+        _pos = function (d) {
+            return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
+        },
+        _clearGradient = function (parent) {
+            // TODO use querySelectorAll here instead?
+            for (var i = 0; i < parent.childNodes.length; i++) {
+                if (parent.childNodes[i].tagName == DEFS || parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
+                    parent.removeChild(parent.childNodes[i]);
+            }
+        },
+        _updateGradient = function (parent, node, style, dimensions, uiComponent) {
+            var id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance.idstamp();
+            // first clear out any existing gradient
+            _clearGradient(parent);
+            // this checks for an 'offset' property in the gradient, and in the absence of it, assumes
+            // we want a linear gradient. if it's there, we create a radial gradient.
+            // it is possible that a more explicit means of defining the gradient type would be
+            // better. relying on 'offset' means that we can never have a radial gradient that uses
+            // some default offset, for instance.
+            // issue 244 suggested the 'gradientUnits' attribute; without this, straight/flowchart connectors with gradients would
+            // not show gradients when the line was perfectly horizontal or vertical.
+            var g;
+            if (!style.gradient.offset)
+                g = _node(LINEAR_GRADIENT, {id: id, gradientUnits: "userSpaceOnUse"});
+            else
+                g = _node(RADIAL_GRADIENT, { id: id });
 
-		return {size:bits[1] + bits[2], font:bits[3]};		
-	},
-	_appendAtIndex = function(svg, path, idx) {
-		if (svg.childNodes.length > idx) {
-			svg.insertBefore(path, svg.childNodes[idx]);
-		}
-		else svg.appendChild(path);
-	};
-	
-	/**
-		utility methods for other objects to use.
-	*/
-	jsPlumbUtil.svg = {
-		node:_node,
-		attr:_attr,
-		pos:_pos
-	};
-	
- // ************************** / SVG utility methods ********************************************	
-	
-	/*
-	 * Base class for SVG components.
-	 */	
-	var SvgComponent = function(params) {
-		var pointerEventsSpec = params.pointerEventsSpec || "all", renderer = {};
-			
-		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
-		this.canvas = null;this.path = null;this.svg = null; this.bgCanvas = null;
-	
-		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || ""),		
-			svgParams = {
-				"style":"",
-				"width":0,
-				"height":0,
-				"pointer-events":pointerEventsSpec,
-				"position":"absolute"
-			};				
-		
-		this.svg = _node("svg", svgParams);
-		
-		if (params.useDivWrapper) {
-			this.canvas = document.createElement("div");
-			this.canvas.style.position = "absolute";
-			jsPlumbUtil.sizeElement(this.canvas,0,0,1,1);
-			this.canvas.className = clazz;
-		}
-		else {
-			_attr(this.svg, { "class":clazz });
-			this.canvas = this.svg;
-		}
-			
-		params._jsPlumb.appendElement(this.canvas, params.originalArgs[0].parent);
-		if (params.useDivWrapper) this.canvas.appendChild(this.svg);
-		
-		// TODO this displayElement stuff is common between all components, across all
-		// renderers.  would be best moved to jsPlumbUIComponent.
-		var displayElements = [ this.canvas ];
-		this.getDisplayElements = function() { 
-			return displayElements; 
-		};
-		
-		this.appendDisplayElement = function(el) {
-			displayElements.push(el);
-		};	
-		
-		this.paint = function(style, anchor, extents) {	   			
-			if (style != null) {
-				
-				var xy = [ this.x, this.y ], wh = [ this.w, this.h ], p;
-				if (extents != null) {
-					if (extents.xmin < 0) xy[0] += extents.xmin;
-					if (extents.ymin < 0) xy[1] += extents.ymin;
-					wh[0] = extents.xmax + ((extents.xmin < 0) ? -extents.xmin : 0);
-					wh[1] = extents.ymax + ((extents.ymin < 0) ? -extents.ymin : 0);
-				}
+            var defs = _node(DEFS);
+            parent.appendChild(defs);
+            defs.appendChild(g);
+            //parent.appendChild(g);
 
-				if (params.useDivWrapper) {					
-					jsPlumbUtil.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
-					xy[0] = 0; xy[1] = 0;
-					p = _pos([ 0, 0 ]);
-				}
-				else
-					p = _pos([ xy[0], xy[1] ]);
-                
-                renderer.paint.apply(this, arguments);		    			    	
-                
-		    	_attr(this.svg, {
-	    			"style":p,
-	    			"width": wh[0],
-	    			"height": wh[1]
-	    		});		    		    		    	
-			}
-	    };
-		
-		return {
-			renderer:renderer
-		};
-	};
-	
-	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
-		cleanup:function() {
-            if (this.canvas) this.canvas._jsPlumb = null;
-            if (this.svg) this.svg._jsPlumb = null;
-            if (this.bgCanvas) this.bgCanvas._jsPlumb = null;
+            // the svg radial gradient seems to treat stops in the reverse
+            // order to how canvas does it.  so we want to keep all the maths the same, but
+            // iterate the actual style declarations in reverse order, if the x indexes are not in order.
+            for (var i = 0; i < style.gradient.stops.length; i++) {
+                var styleToUse = uiComponent.segment == 1 || uiComponent.segment == 2 ? i : style.gradient.stops.length - 1 - i,
+                    stopColor = jsPlumbUtil.convertStyle(style.gradient.stops[styleToUse][1], true),
+                    s = _node(STOP, {"offset": Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color": stopColor});
 
-			if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
-            if (this.bgCanvas && this. bgCanvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
+                g.appendChild(s);
+            }
+            var applyGradientTo = style.strokeStyle ? STROKE : FILL;
+            //node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
+            //node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
+            //node.setAttribute(applyGradientTo,  "url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
+            node.setAttribute(applyGradientTo, "url(#" + id + ")");
+        },
+        _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-			this.svg = null;
-			this.canvas = null;
-			this.path = null;			
-			this.group = null;
-		},
-		setVisible:function(v) {
-			if (this.canvas) {
-				this.canvas.style.display = v ? "block" : "none";
-			}
-		}
-	});
-	
-	/*
-	 * Base class for SVG connectors.
-	 */ 
-	jsPlumb.ConnectorRenderers.svg = function(params) {
-		var self = this,
-			_super = SvgComponent.apply(this, [ { 
-				cssClass:params._jsPlumb.connectorClass, 
-				originalArgs:arguments, 
-				pointerEventsSpec:"none", 
-				_jsPlumb:params._jsPlumb
-			} ]);	
+            node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
+            node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);
 
-		/*this.pointOnPath = function(location, absolute) {
-			if (!self.path) return [0,0];
-			var p = absolute ? location : location * self.path.getTotalLength();
-			return self.path.getPointAtLength(p);
-		};*/			
+            if (style.gradient) {
+                _updateGradient(parent, node, style, dimensions, uiComponent);
+            }
+            else {
+                // make sure we clear any existing gradient
+                _clearGradient(parent);
+                node.setAttribute(STYLE, "");
+            }
 
-		_super.renderer.paint = function(style, anchor, extents) {
-			
-			var segments = self.getSegments(), p = "", offset = [0,0];			
-			if (extents.xmin < 0) offset[0] = -extents.xmin;
-			if (extents.ymin < 0) offset[1] = -extents.ymin;			
 
-			if (segments.length > 0) {
-			
-				// create path from segments.	
-				for (var i = 0; i < segments.length; i++) {
-					p += jsPlumb.Segments.svg.SegmentRenderer.getPath(segments[i]);
-					p += " ";
-				}			
-				
-				var a = { 
-						d:p,
-						transform:"translate(" + offset[0] + "," + offset[1] + ")",
-						"pointer-events":params["pointer-events"] || "visibleStroke"
-					}, 
-	                outlineStyle = null,
-	                d = [self.x,self.y,self.w,self.h];
+            if (style.lineWidth) {
+                node.setAttribute(STROKE_WIDTH, style.lineWidth);
+            }
 
-				// outline style.  actually means drawing an svg object underneath the main one.
-				if (style.outlineColor) {
-					var outlineWidth = style.outlineWidth || 1,
-						outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
-					outlineStyle = jsPlumb.extend({}, style);
+            // in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
+            // the syntax in VML but is actually kind of nasty: values are given in the pixel
+            // coordinate space, whereas in VML they are multiples of the width of the stroked
+            // line, which makes a lot more sense.  for that reason, jsPlumb is supporting both
+            // the native svg 'stroke-dasharray' attribute, and also the 'dashstyle' concept from
+            // VML, which will be the preferred method.  the code below this converts a dashstyle
+            // attribute given in terms of stroke width into a pixel representation, by using the
+            // stroke's lineWidth.
+            if (style[DASHSTYLE] && style[LINE_WIDTH] && !style[STROKE_DASHARRAY]) {
+                var sep = style[DASHSTYLE].indexOf(",") == -1 ? " " : ",",
+                    parts = style[DASHSTYLE].split(sep),
+                    styleToUse = "";
+                parts.forEach(function (p) {
+                    styleToUse += (Math.floor(p * style.lineWidth) + sep);
+                });
+                node.setAttribute(STROKE_DASHARRAY, styleToUse);
+            }
+            else if (style[STROKE_DASHARRAY]) {
+                node.setAttribute(STROKE_DASHARRAY, style[STROKE_DASHARRAY]);
+            }
+
+            // extra attributes such as join type, dash offset.
+            for (var i in svgAttributeMap) {
+                if (style[i]) {
+                    node.setAttribute(svgAttributeMap[i], style[i]);
+                }
+            }
+        },
+        _decodeFont = function (f) {
+            var r = /([0-9].)(p[xt])\s(.*)/,
+                bits = f.match(r);
+
+            return {size: bits[1] + bits[2], font: bits[3]};
+        },
+        _appendAtIndex = function (svg, path, idx) {
+            if (svg.childNodes.length > idx) {
+                svg.insertBefore(path, svg.childNodes[idx]);
+            }
+            else svg.appendChild(path);
+        };
+
+    /**
+     utility methods for other objects to use.
+     */
+    jsPlumbUtil.svg = {
+        node: _node,
+        attr: _attr,
+        pos: _pos
+    };
+
+    // ************************** / SVG utility methods ********************************************
+
+    /*
+     * Base class for SVG components.
+     */
+    var SvgComponent = function (params) {
+        var pointerEventsSpec = params.pointerEventsSpec || "all", renderer = {};
+
+        jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
+        this.canvas = null;
+        this.path = null;
+        this.svg = null;
+        this.bgCanvas = null;
+
+        var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || ""),
+            svgParams = {
+                "style": "",
+                "width": 0,
+                "height": 0,
+                "pointer-events": pointerEventsSpec,
+                "position": "absolute"
+            };
+
+        this.svg = _node("svg", svgParams);
+
+        if (params.useDivWrapper) {
+            this.canvas = document.createElement("div");
+            this.canvas.style.position = "absolute";
+            jsPlumbUtil.sizeElement(this.canvas, 0, 0, 1, 1);
+            this.canvas.className = clazz;
+        }
+        else {
+            _attr(this.svg, { "class": clazz });
+            this.canvas = this.svg;
+        }
+
+        params._jsPlumb.appendElement(this.canvas, params.originalArgs[0].parent);
+        if (params.useDivWrapper) this.canvas.appendChild(this.svg);
+
+        // TODO this displayElement stuff is common between all components, across all
+        // renderers.  would be best moved to jsPlumbUIComponent.
+        var displayElements = [ this.canvas ];
+        this.getDisplayElements = function () {
+            return displayElements;
+        };
+
+        this.appendDisplayElement = function (el) {
+            displayElements.push(el);
+        };
+
+        this.paint = function (style, anchor, extents) {
+            if (style != null) {
+
+                var xy = [ this.x, this.y ], wh = [ this.w, this.h ], p;
+                if (extents != null) {
+                    if (extents.xmin < 0) xy[0] += extents.xmin;
+                    if (extents.ymin < 0) xy[1] += extents.ymin;
+                    wh[0] = extents.xmax + ((extents.xmin < 0) ? -extents.xmin : 0);
+                    wh[1] = extents.ymax + ((extents.ymin < 0) ? -extents.ymin : 0);
+                }
+
+                if (params.useDivWrapper) {
+                    jsPlumbUtil.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
+                    xy[0] = 0;
+                    xy[1] = 0;
+                    p = _pos([ 0, 0 ]);
+                }
+                else
+                    p = _pos([ xy[0], xy[1] ]);
+
+                renderer.paint.apply(this, arguments);
+
+                _attr(this.svg, {
+                    "style": p,
+                    "width": wh[0],
+                    "height": wh[1]
+                });
+            }
+        };
+
+        return {
+            renderer: renderer
+        };
+    };
+
+    jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
+        cleanup: function (force) {
+            if (force || this.typeId == null) {
+                if (this.canvas) this.canvas._jsPlumb = null;
+                if (this.svg) this.svg._jsPlumb = null;
+                if (this.bgCanvas) this.bgCanvas._jsPlumb = null;
+
+                if (this.canvas && this.canvas.parentNode)
+                    this.canvas.parentNode.removeChild(this.canvas);
+                if (this.bgCanvas && this.bgCanvas.parentNode)
+                    this.canvas.parentNode.removeChild(this.canvas);
+
+                this.svg = null;
+                this.canvas = null;
+                this.path = null;
+                this.group = null;
+            }
+            else {
+                // if not a forced cleanup, just detach from DOM for now.
+                if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
+                if (this.bgCanvas && this.bgCanvas.parentNode) this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+            }
+        },
+        reattach:function(instance) {
+            var c = instance.getContainer();
+            if (this.canvas && this.canvas.parentNode == null) c.appendChild(this.canvas);
+            if (this.bgCanvas && this.bgCanvas.parentNode == null) c.appendChild(this.bgCanvas);
+        },
+        setVisible: function (v) {
+            if (this.canvas) {
+                this.canvas.style.display = v ? "block" : "none";
+            }
+        }
+    });
+
+    /*
+     * Base class for SVG connectors.
+     */
+    jsPlumb.ConnectorRenderers.svg = function (params) {
+        var self = this,
+            _super = SvgComponent.apply(this, [
+                {
+                    cssClass: params._jsPlumb.connectorClass,
+                    originalArgs: arguments,
+                    pointerEventsSpec: "none",
+                    _jsPlumb: params._jsPlumb
+                }
+            ]);
+
+        /*this.pointOnPath = function(location, absolute) {
+         if (!self.path) return [0,0];
+         var p = absolute ? location : location * self.path.getTotalLength();
+         return self.path.getPointAtLength(p);
+         };*/
+
+        _super.renderer.paint = function (style, anchor, extents) {
+
+            var segments = self.getSegments(), p = "", offset = [0, 0];
+            if (extents.xmin < 0) offset[0] = -extents.xmin;
+            if (extents.ymin < 0) offset[1] = -extents.ymin;
+
+            if (segments.length > 0) {
+
+                // create path from segments.
+                for (var i = 0; i < segments.length; i++) {
+                    p += jsPlumb.Segments.svg.SegmentRenderer.getPath(segments[i]);
+                    p += " ";
+                }
+
+                var a = {
+                        d: p,
+                        transform: "translate(" + offset[0] + "," + offset[1] + ")",
+                        "pointer-events": params["pointer-events"] || "visibleStroke"
+                    },
+                    outlineStyle = null,
+                    d = [self.x, self.y, self.w, self.h];
+
+                // outline style.  actually means drawing an svg object underneath the main one.
+                if (style.outlineColor) {
+                    var outlineWidth = style.outlineWidth || 1,
+                        outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+                    outlineStyle = jsPlumb.extend({}, style);
                     delete outlineStyle.gradient;
-					outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
-					outlineStyle.lineWidth = outlineStrokeWidth;
-					
-					if (self.bgPath == null) {
-						self.bgPath = _node("path", a);
+                    outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
+                    outlineStyle.lineWidth = outlineStrokeWidth;
+
+                    if (self.bgPath == null) {
+                        self.bgPath = _node("path", a);
                         _appendAtIndex(self.svg, self.bgPath, 0);
-					}
-					else {
-						_attr(self.bgPath, a);
-					}
-					
-					_applyStyles(self.svg, self.bgPath, outlineStyle, d, self);
-				}			
-				
-		    	if (self.path == null) {
-			    	self.path = _node("path", a);
+                    }
+                    else {
+                        _attr(self.bgPath, a);
+                    }
+
+                    _applyStyles(self.svg, self.bgPath, outlineStyle, d, self);
+                }
+
+                if (self.path == null) {
+                    self.path = _node("path", a);
                     _appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
-		    	}
-		    	else {
-		    		_attr(self.path, a);
-		    	}
-		    		    	
-		    	_applyStyles(self.svg, self.path, style, d, self);
-		    }
-		};		
-	};
-	jsPlumbUtil.extend(jsPlumb.ConnectorRenderers.svg, SvgComponent);
+                }
+                else {
+                    _attr(self.path, a);
+                }
+
+                _applyStyles(self.svg, self.path, style, d, self);
+            }
+        };
+    };
+    jsPlumbUtil.extend(jsPlumb.ConnectorRenderers.svg, SvgComponent);
 
 // ******************************* svg segment renderer *****************************************************	
-		
-	jsPlumb.Segments.svg = {
-		SegmentRenderer : {		
-			getPath : function(segment) {
-				return ({
-					"Straight":function() {
-						var d = segment.getCoordinates();
-						return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;	
-					},
-					"Bezier":function() {
-						var d = segment.params;
-						return "M " + d.x1 + " " + d.y1 + 
-							" C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;			
-					},
-					"Arc":function() {
-						var d = segment.params,
-							laf = segment.sweep > Math.PI ? 1 : 0,
-							sf = segment.anticlockwise ? 0 : 1;			
 
-						return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
-					}
-				})[segment.type]();	
-			}
-		}
-	};
-	
+    jsPlumb.Segments.svg = {
+        SegmentRenderer: {
+            getPath: function (segment) {
+                return ({
+                    "Straight": function () {
+                        var d = segment.getCoordinates();
+                        return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
+                    },
+                    "Bezier": function () {
+                        var d = segment.params;
+                        return "M " + d.x1 + " " + d.y1 +
+                            " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
+                    },
+                    "Arc": function () {
+                        var d = segment.params,
+                            laf = segment.sweep > Math.PI ? 1 : 0,
+                            sf = segment.anticlockwise ? 0 : 1;
+
+                        return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
+                    }
+                })[segment.type]();
+            }
+        }
+    };
+
 // ******************************* /svg segments *****************************************************
-   
-    /*
-	 * Base class for SVG endpoints.
-	 */
-	var SvgEndpoint = window.SvgEndpoint = function(params) {
-		var _super = SvgComponent.apply(this, [ {
-				cssClass:params._jsPlumb.endpointClass, 
-				originalArgs:arguments, 
-				pointerEventsSpec:"all",
-				useDivWrapper:true,
-				_jsPlumb:params._jsPlumb
-			} ]);
-			
-		_super.renderer.paint = function(style) {
-			var s = jsPlumb.extend({}, style);
-			if (s.outlineColor) {
-				s.strokeWidth = s.outlineWidth;
-				s.strokeStyle = jsPlumbUtil.convertStyle(s.outlineColor, true);
-			}
-			
-			if (this.node == null) {
-				this.node = this.makeNode(s);
-				this.svg.appendChild(this.node);
-			}
-			else if (this.updateNode != null) {
-				this.updateNode(this.node);
-			}
-			_applyStyles(this.svg, this.node, s, [ this.x, this.y, this.w, this.h ], this);
-			_pos(this.node, [ this.x, this.y ]);
-		}.bind(this);
-				
-	};
-	jsPlumbUtil.extend(SvgEndpoint, SvgComponent);
-	
-	/*
-	 * SVG Dot Endpoint
-	 */
-	jsPlumb.Endpoints.svg.Dot = function() {
-		jsPlumb.Endpoints.Dot.apply(this, arguments);
-		SvgEndpoint.apply(this, arguments);		
-		this.makeNode = function(style) { 
-			return _node("circle", {
-                "cx"	:	this.w / 2,
-                "cy"	:	this.h / 2,
-                "r"		:	this.radius
-            });			
-		};
-		this.updateNode = function(node) {
-			_attr(node, {
-				"cx":this.w / 2,
-				"cy":this.h  / 2,
-				"r":this.radius
-			});
-		};
-	};
-	jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Dot, [jsPlumb.Endpoints.Dot, SvgEndpoint]);
-	
-	/*
-	 * SVG Rectangle Endpoint 
-	 */
-	jsPlumb.Endpoints.svg.Rectangle = function() {
-		jsPlumb.Endpoints.Rectangle.apply(this, arguments);
-		SvgEndpoint.apply(this, arguments);		
-		this.makeNode = function(style) {
-			return _node("rect", {
-				"width"     :   this.w,
-				"height"    :   this.h
-			});
-		};
-		this.updateNode = function(node) {
-			_attr(node, {
-				"width":this.w,
-				"height":this.h
-			});
-		};			
-	};		
-	jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Rectangle, [jsPlumb.Endpoints.Rectangle, SvgEndpoint]);
-	
-	/*
-	 * SVG Image Endpoint is the default image endpoint.
-	 */
-	jsPlumb.Endpoints.svg.Image = jsPlumb.Endpoints.Image;
-	/*
-	 * Blank endpoint in svg renderer is the default Blank endpoint.
-	 */
-	jsPlumb.Endpoints.svg.Blank = jsPlumb.Endpoints.Blank;	
-	/*
-	 * Label overlay in svg renderer is the default Label overlay.
-	 */
-	jsPlumb.Overlays.svg.Label = jsPlumb.Overlays.Label;
-	/*
-	 * Custom overlay in svg renderer is the default Custom overlay.
-	 */
-	jsPlumb.Overlays.svg.Custom = jsPlumb.Overlays.Custom;
-		
-	var AbstractSvgArrowOverlay = function(superclass, originalArgs) {
-    	superclass.apply(this, originalArgs);
-    	jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
-        this.isAppendedAtTopLevel = false;
-    	var self = this;
-    	this.path = null;
-    	this.paint = function(params, containerExtents) {
-    		// only draws on connections, not endpoints.
-    		if (params.component.svg && containerExtents) {
-	    		if (this.path == null) {
-	    			this.path = _node("path", {
-	    				"pointer-events":"all"	
-	    			});
-	    			params.component.svg.appendChild(this.path);
-	    			
-	    			this.canvas = params.component.svg; // for the sake of completeness; this behaves the same as other overlays
-	    		}
-	    		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
-	    			offset = [0,0];
 
-	    		if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
-	    		if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
-	    		
-	    		_attr(this.path, { 
-	    			"d"			:	makePath(params.d),
-	    			"class" 	:	clazz,
-	    			stroke 		: 	params.strokeStyle ? params.strokeStyle : null,
-	    			fill 		: 	params.fillStyle ? params.fillStyle : null,
-	    			transform	: 	"translate(" + offset[0] + "," + offset[1] + ")"
-	    		});    		
-	    	}
-    	};
-    	var makePath = function(d) {
-    		return "M" + d.hxy.x + "," + d.hxy.y +
-    				" L" + d.tail[0].x + "," + d.tail[0].y + 
-    				" L" + d.cxy.x + "," + d.cxy.y + 
-    				" L" + d.tail[1].x + "," + d.tail[1].y + 
-    				" L" + d.hxy.x + "," + d.hxy.y;
-    	};
+    /*
+     * Base class for SVG endpoints.
+     */
+    var SvgEndpoint = window.SvgEndpoint = function (params) {
+        var _super = SvgComponent.apply(this, [
+            {
+                cssClass: params._jsPlumb.endpointClass,
+                originalArgs: arguments,
+                pointerEventsSpec: "all",
+                useDivWrapper: true,
+                _jsPlumb: params._jsPlumb
+            }
+        ]);
+
+        _super.renderer.paint = function (style) {
+            var s = jsPlumb.extend({}, style);
+            if (s.outlineColor) {
+                s.strokeWidth = s.outlineWidth;
+                s.strokeStyle = jsPlumbUtil.convertStyle(s.outlineColor, true);
+            }
+
+            if (this.node == null) {
+                this.node = this.makeNode(s);
+                this.svg.appendChild(this.node);
+            }
+            else if (this.updateNode != null) {
+                this.updateNode(this.node);
+            }
+            _applyStyles(this.svg, this.node, s, [ this.x, this.y, this.w, this.h ], this);
+            _pos(this.node, [ this.x, this.y ]);
+        }.bind(this);
+
+    };
+    jsPlumbUtil.extend(SvgEndpoint, SvgComponent);
+
+    /*
+     * SVG Dot Endpoint
+     */
+    jsPlumb.Endpoints.svg.Dot = function () {
+        jsPlumb.Endpoints.Dot.apply(this, arguments);
+        SvgEndpoint.apply(this, arguments);
+        this.makeNode = function (style) {
+            return _node("circle", {
+                "cx": this.w / 2,
+                "cy": this.h / 2,
+                "r": this.radius
+            });
+        };
+        this.updateNode = function (node) {
+            _attr(node, {
+                "cx": this.w / 2,
+                "cy": this.h / 2,
+                "r": this.radius
+            });
+        };
+    };
+    jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Dot, [jsPlumb.Endpoints.Dot, SvgEndpoint]);
+
+    /*
+     * SVG Rectangle Endpoint
+     */
+    jsPlumb.Endpoints.svg.Rectangle = function () {
+        jsPlumb.Endpoints.Rectangle.apply(this, arguments);
+        SvgEndpoint.apply(this, arguments);
+        this.makeNode = function (style) {
+            return _node("rect", {
+                "width": this.w,
+                "height": this.h
+            });
+        };
+        this.updateNode = function (node) {
+            _attr(node, {
+                "width": this.w,
+                "height": this.h
+            });
+        };
+    };
+    jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Rectangle, [jsPlumb.Endpoints.Rectangle, SvgEndpoint]);
+
+    /*
+     * SVG Image Endpoint is the default image endpoint.
+     */
+    jsPlumb.Endpoints.svg.Image = jsPlumb.Endpoints.Image;
+    /*
+     * Blank endpoint in svg renderer is the default Blank endpoint.
+     */
+    jsPlumb.Endpoints.svg.Blank = jsPlumb.Endpoints.Blank;
+    /*
+     * Label overlay in svg renderer is the default Label overlay.
+     */
+    jsPlumb.Overlays.svg.Label = jsPlumb.Overlays.Label;
+    /*
+     * Custom overlay in svg renderer is the default Custom overlay.
+     */
+    jsPlumb.Overlays.svg.Custom = jsPlumb.Overlays.Custom;
+
+    var AbstractSvgArrowOverlay = function (superclass, originalArgs) {
+        superclass.apply(this, originalArgs);
+        jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
+        this.isAppendedAtTopLevel = false;
+        var self = this;
+        this.path = null;
+        this.paint = function (params, containerExtents) {
+            // only draws on connections, not endpoints.
+            if (params.component.svg && containerExtents) {
+                if (this.path == null) {
+                    this.path = _node("path", {
+                        "pointer-events": "all"
+                    });
+                    params.component.svg.appendChild(this.path);
+
+                    this.canvas = params.component.svg; // for the sake of completeness; this behaves the same as other overlays
+                }
+                var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
+                    offset = [0, 0];
+
+                if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
+                if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
+
+                _attr(this.path, {
+                    "d": makePath(params.d),
+                    "class": clazz,
+                    stroke: params.strokeStyle ? params.strokeStyle : null,
+                    fill: params.fillStyle ? params.fillStyle : null,
+                    transform: "translate(" + offset[0] + "," + offset[1] + ")"
+                });
+            }
+        };
+        var makePath = function (d) {
+            return "M" + d.hxy.x + "," + d.hxy.y +
+                " L" + d.tail[0].x + "," + d.tail[0].y +
+                " L" + d.cxy.x + "," + d.cxy.y +
+                " L" + d.tail[1].x + "," + d.tail[1].y +
+                " L" + d.hxy.x + "," + d.hxy.y;
+        };
+        this.transfer = function(target) {
+            if (target.canvas && this.path && this.path.parentNode) {
+                this.path.parentNode.removeChild(this.path);
+                target.canvas.appendChild(this.path);
+            }
+        };
     };
     jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
-    	cleanup : function() {
-    		if (this.path != null) this._jsPlumb.instance.removeElement(this.path);
-    	},
-    	setVisible:function(v) {
-    		if(this.path != null) (this.path.style.display = (v ? "block" : "none"));
-    	}
+        cleanup: function (force) {
+            if (this.path != null) {
+                if (force)
+                    this._jsPlumb.instance.removeElement(this.path);
+                else
+                    if (this.path.parentNode)
+                        this.path.parentNode.removeChild(this.path);
+            }
+        },
+        reattach:function(instance) {
+            if (this.path && this.canvas && this.path.parentNode == null)
+                this.canvas.appendChild(this.path);
+        },
+        setVisible: function (v) {
+            if (this.path != null) (this.path.style.display = (v ? "block" : "none"));
+        }
     });
-    
-    jsPlumb.Overlays.svg.Arrow = function() {
-    	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	
+
+    jsPlumb.Overlays.svg.Arrow = function () {
+        AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.svg.Arrow, [ jsPlumb.Overlays.Arrow, AbstractSvgArrowOverlay ]);
-    
-    jsPlumb.Overlays.svg.PlainArrow = function() {
-    	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);    	
+
+    jsPlumb.Overlays.svg.PlainArrow = function () {
+        AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.svg.PlainArrow, [ jsPlumb.Overlays.PlainArrow, AbstractSvgArrowOverlay ]);
-    
-    jsPlumb.Overlays.svg.Diamond = function() {
-    	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
+
+    jsPlumb.Overlays.svg.Diamond = function () {
+        AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.svg.Diamond, [ jsPlumb.Overlays.Diamond, AbstractSvgArrowOverlay ]);
 
     // a test
-    jsPlumb.Overlays.svg.GuideLines = function() {
-        var path = null, self = this, p1_1, p1_2;        
+    jsPlumb.Overlays.svg.GuideLines = function () {
+        var path = null, self = this, p1_1, p1_2;
         jsPlumb.Overlays.GuideLines.apply(this, arguments);
-        this.paint = function(params, containerExtents) {
-    		if (path == null) {
-    			path = _node("path");
-    			params.connector.svg.appendChild(path);
-    			self.attachListeners(path, params.connector);
-    			self.attachListeners(path, self);
+        this.paint = function (params, containerExtents) {
+            if (path == null) {
+                path = _node("path");
+                params.connector.svg.appendChild(path);
+                self.attachListeners(path, params.connector);
+                self.attachListeners(path, self);
 
                 p1_1 = _node("path");
-    			params.connector.svg.appendChild(p1_1);
-    			self.attachListeners(p1_1, params.connector);
-    			self.attachListeners(p1_1, self);
+                params.connector.svg.appendChild(p1_1);
+                self.attachListeners(p1_1, params.connector);
+                self.attachListeners(p1_1, self);
 
                 p1_2 = _node("path");
-    			params.connector.svg.appendChild(p1_2);
-    			self.attachListeners(p1_2, params.connector);
-    			self.attachListeners(p1_2, self);
-    		}
+                params.connector.svg.appendChild(p1_2);
+                self.attachListeners(p1_2, params.connector);
+                self.attachListeners(p1_2, self);
+            }
 
-    		var offset =[0,0];
-    		if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
-    		if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
+            var offset = [0, 0];
+            if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
+            if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
 
-    		_attr(path, {
-    			"d"		:	makePath(params.head, params.tail),
-    			stroke 	: 	"red",
-    			fill 	: 	null,
-    			transform:"translate(" + offset[0] + "," + offset[1] + ")"
-    		});
+            _attr(path, {
+                "d": makePath(params.head, params.tail),
+                stroke: "red",
+                fill: null,
+                transform: "translate(" + offset[0] + "," + offset[1] + ")"
+            });
 
             _attr(p1_1, {
-    			"d"		:	makePath(params.tailLine[0], params.tailLine[1]),
-    			stroke 	: 	"blue",
-    			fill 	: 	null,
-    			transform:"translate(" + offset[0] + "," + offset[1] + ")"
-    		});
+                "d": makePath(params.tailLine[0], params.tailLine[1]),
+                stroke: "blue",
+                fill: null,
+                transform: "translate(" + offset[0] + "," + offset[1] + ")"
+            });
 
             _attr(p1_2, {
-    			"d"		:	makePath(params.headLine[0], params.headLine[1]),
-    			stroke 	: 	"green",
-    			fill 	: 	null,
-    			transform:"translate(" + offset[0] + "," + offset[1] + ")"
-    		});
-    	};
+                "d": makePath(params.headLine[0], params.headLine[1]),
+                stroke: "green",
+                fill: null,
+                transform: "translate(" + offset[0] + "," + offset[1] + ")"
+            });
+        };
 
-        var makePath = function(d1, d2) {
+        var makePath = function (d1, d2) {
             return "M " + d1.x + "," + d1.y +
-                   " L" + d2.x + "," + d2.y;
-        };        
+                " L" + d2.x + "," + d2.y;
+        };
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.svg.GuideLines, jsPlumb.Overlays.GuideLines);
 })();

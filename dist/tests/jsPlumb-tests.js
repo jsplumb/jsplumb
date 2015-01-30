@@ -8,6 +8,17 @@ var makeContent = function (s) {
     return d.firstChild;
 };
 
+var _length = function(obj) {
+    var c = 0;
+    for (var i in obj) if (obj.hasOwnProperty(i)) c++;
+    return c;
+};
+
+var _head = function(obj) {
+    for (var i in obj)
+        return obj[i];
+};
+
 var assertEndpointCount = function (elId, count, _jsPlumb) {
     var ep = _jsPlumb.getEndpoints(elId),
         epl = ep ? ep.length : 0;
@@ -1769,11 +1780,11 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": _jsPlumb.addEndpoint (simple case, dynamic anchors)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {anchors: [
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchors: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["TopCenter", "BottomCenter"]});
         equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -1835,11 +1846,11 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": _jsPlumb.addEndpoint (simple case, dynamic anchors, two arg method)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
+        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchor: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchors: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchor: ["TopCenter", "BottomCenter"]});
         equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -1941,7 +1952,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         j.unbindContainer();
     });
 
-    test(": setConnector, overays are retained", function () {
+    test(": setConnector, overlays are retained", function () {
         _addDiv("d1");
         _addDiv("d2");
         var def = {
@@ -1955,12 +1966,42 @@ var testSuite = function (renderMode, _jsPlumb) {
             ]
         });
         equal(c.getConnector().type, "Bezier", "connector is the default");
-        equal(c.getOverlays().length, 1, "one overlay on the connector");
+        equal(_length(c.getOverlays()), 1, "one overlay on the connector");
 
         c.setConnector(["StateMachine", { curviness: 789 }]);
         equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
-        equal(c.getOverlays().length, 1, "one overlay on the connector");
+        equal(_length(c.getOverlays()), 1, "one overlay on the connector");
         j.unbindContainer();
+    });
+
+    
+    test("Endpoint types dont cause new anchors or endpoints to be created", function() {
+        _jsPlumb.registerEndpointType("anchor", {
+            anchor:"Continuous",
+            endpoint:["Rectangle", { width:32, height:32 }]
+        });
+
+        var d = _addDiv("d1");
+        var e = _jsPlumb.addEndpoint(d, {
+            type:"anchor"
+        });
+
+        equal(e.endpoint.type, "Rectangle", "rectangle endpoint from 'anchor' type");
+        ok(e.anchor.isContinuous, "anchor is continuous");
+        // set a flag on the anchor
+        e.anchor.testFlag = true;
+        e.endpoint.testFlag = true;
+
+        e.removeType("anchor");
+        ok(!e.anchor.isContinuous, "anchor is not continuous, it is the default");
+        equal(e.endpoint.type, "Dot", "dot endpoint from default type");
+
+        e.addType("anchor");
+        ok(e.anchor.isContinuous, "anchor is continuous once more");
+        equal(e.endpoint.type, "Rectangle", "rectangle endpoint from 'anchor' type once more");
+        ok(e.anchor.testFlag, "anchor has been reused");
+        ok(e.endpoint.testFlag, "endpoint has been reused");
+
     });
 
 
@@ -3060,11 +3101,11 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": _jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchors')", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {anchors: [
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchors: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["TopCenter", "BottomCenter"]});
         var conn = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
@@ -3306,23 +3347,23 @@ var testSuite = function (renderMode, _jsPlumb) {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         var imageEventListener = function () {
         };
-        var arrowSpec = {width: 40, length: 40, location: 0.7, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"}};
+        var arrowSpec = {width: 40, length: 40, location: 0.7, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"}, id:"a"};
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
             anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
             overlays: [
-                ["Label", {label: "CONNECTION 1", location: 0.3}],
+                ["Label", {label: "CONNECTION 1", location: 0.3, id:"l"}],
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, connection1._jsPlumb.overlays.length);
-        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
+        equal(_length(connection1._jsPlumb.overlays), 2);
+        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays["l"].constructor);
 
-        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
-        equal(0.7, connection1._jsPlumb.overlays[1].loc);
-        equal(40, connection1._jsPlumb.overlays[1].width);
-        equal(40, connection1._jsPlumb.overlays[1].length);
+        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays["a"].constructor);
+        equal(0.7, connection1._jsPlumb.overlays["a"].loc);
+        equal(40, connection1._jsPlumb.overlays["a"].width);
+        equal(40, connection1._jsPlumb.overlays["a"].length);
     });
 
     test(": _jsPlumb.connect (overlays, long-hand version, IDs specified)", function () {
@@ -3346,15 +3387,15 @@ var testSuite = function (renderMode, _jsPlumb) {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, connection1._jsPlumb.overlays.length);
-        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
-        equal("aLabel", connection1._jsPlumb.overlays[0].id);
+        equal(2, _length(connection1._jsPlumb.overlays));
+        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays["aLabel"].constructor);
+        equal("aLabel", connection1._jsPlumb.overlays["aLabel"].id);
 
-        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
-        equal(0.7, connection1._jsPlumb.overlays[1].loc);
-        equal(40, connection1._jsPlumb.overlays[1].width);
-        equal(40, connection1._jsPlumb.overlays[1].length);
-        equal("anArrow", connection1._jsPlumb.overlays[1].id);
+        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays["anArrow"].constructor);
+        equal(0.7, connection1._jsPlumb.overlays["anArrow"].loc);
+        equal(40, connection1._jsPlumb.overlays["anArrow"].width);
+        equal(40, connection1._jsPlumb.overlays["anArrow"].length);
+        equal("anArrow", connection1._jsPlumb.overlays["anArrow"].id);
     });
 
     test(": _jsPlumb.connect (default overlays)", function () {
@@ -3443,6 +3484,7 @@ var testSuite = function (renderMode, _jsPlumb) {
                 label: "FOO"
             });
 
+        equal(_length(c.getOverlays()), 1, "one overlay set");
         equal(c.getLabel(), "FOO", "label is set correctly");
     });
 
@@ -3556,10 +3598,10 @@ var testSuite = function (renderMode, _jsPlumb) {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, connection1._jsPlumb.overlays.length);
+        equal(2, _length(connection1._jsPlumb.overlays));
         connection1.removeOverlay("aLabel");
-        equal(1, connection1._jsPlumb.overlays.length);
-        equal("anArrow", connection1._jsPlumb.overlays[0].id);
+        equal(1, _length(connection1._jsPlumb.overlays));
+        equal("anArrow", connection1._jsPlumb.overlays["anArrow"].id);
     });
 
     test(": _jsPlumb.connect (remove multiple overlays by id)", function () {
@@ -3581,9 +3623,9 @@ var testSuite = function (renderMode, _jsPlumb) {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, connection1._jsPlumb.overlays.length);
+        equal(2, _length(connection1._jsPlumb.overlays));
         connection1.removeOverlays("aLabel", "anArrow");
-        equal(0, connection1._jsPlumb.overlays.length);
+        equal(0, _length(connection1._jsPlumb.overlays));
     });
 
     test(": _jsPlumb.connect (overlays, short-hand version)", function () {
@@ -3591,23 +3633,23 @@ var testSuite = function (renderMode, _jsPlumb) {
         var imageEventListener = function () {
         };
         var loc = { location: 0.7 };
-        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"} };
+        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"}, id:"a" };
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
             anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
             overlays: [
-                ["Label", {label: "CONNECTION 1", location: 0.3}],
+                ["Label", {label: "CONNECTION 1", location: 0.3, id:"l"}],
                 ["Arrow", arrowSpec, loc]
             ]
         });
-        equal(2, connection1._jsPlumb.overlays.length);
-        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
+        equal(2, _length(connection1._jsPlumb.overlays));
+        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays["l"].constructor);
 
-        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
-        equal(0.7, connection1._jsPlumb.overlays[1].loc);
-        equal(40, connection1._jsPlumb.overlays[1].width);
-        equal(40, connection1._jsPlumb.overlays[1].length);
+        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays["a"].constructor);
+        equal(0.7, connection1._jsPlumb.overlays["a"].loc);
+        equal(40, connection1._jsPlumb.overlays["a"].width);
+        equal(40, connection1._jsPlumb.overlays["a"].length);
     });
 
     test(": _jsPlumb.connect (removeAllOverlays)", function () {
@@ -3615,33 +3657,36 @@ var testSuite = function (renderMode, _jsPlumb) {
         var imageEventListener = function () {
         };
         var loc = { location: 0.7 };
-        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"} };
+        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"}, id:"a" };
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
             anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
             overlays: [
-                ["Label", {label: "CONNECTION 1", location: 0.3, cssClass: "PPPP"}],
+                ["Label", {label: "CONNECTION 1", location: 0.3, cssClass: "PPPP", id:"l"}],
                 ["Arrow", arrowSpec, loc]
             ]
         });
-        equal(2, connection1._jsPlumb.overlays.length);
-        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
+        equal(2, _length(connection1._jsPlumb.overlays));
+        equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays["l"].constructor);
 
-        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
-        equal(0.7, connection1._jsPlumb.overlays[1].loc);
-        equal(40, connection1._jsPlumb.overlays[1].width);
-        equal(40, connection1._jsPlumb.overlays[1].length);
+        equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays["a"].constructor);
+        equal(0.7, connection1._jsPlumb.overlays["a"].loc);
+        equal(40, connection1._jsPlumb.overlays["a"].width);
+        equal(40, connection1._jsPlumb.overlays["a"].length);
 
-        connection1.removeAllOverlays();
+        // not valid anymore, as we dont nuke overlays until the component is deleted.
+        /*connection1.removeAllOverlays();
         equal(0, connection1._jsPlumb.overlays.length);
-        equal(0, jsPlumb.getSelector(".PPPP").length);
+        equal(0, jsPlumb.getSelector(".PPPP").length);*/
+        _jsPlumb.detach(connection1);
+        equal(0, jsPlumb.getSelector(".PPPP").length, "overlay has been fully cleaned up");
     });
 
     test(": _jsPlumb.connect, specify arrow overlay using string identifier only", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         var conn = _jsPlumb.connect({source: d1, target: d2, overlays: ["Arrow"]});
-        equal(jsPlumb.Overlays[renderMode].Arrow, conn._jsPlumb.overlays[0].constructor);
+        equal(jsPlumb.Overlays[renderMode].Arrow, _head(conn._jsPlumb.overlays).constructor);
     });
 
     test(": Connection.getOverlay method, existing overlay", function () {
@@ -3946,6 +3991,22 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
 
+    var _overlayTest = function(component, fn) {
+        var o = component.getOverlays();
+        for (var i in o)
+            if (! fn(o[i])) return false;
+
+        return true;
+    };
+
+    var _ensureContainer = function(component, container) {
+        return _overlayTest(component, function(o) {
+
+            return o.canvas ? o.canvas.parentNode == container :  o.getElement().parentNode == container;
+        });
+    };
+
+
     test(" change Container programmatically", function () {
 
         _jsPlumb.setContainer(container);
@@ -3985,18 +4046,19 @@ var testSuite = function (renderMode, _jsPlumb) {
         });
 
         equal(e1.canvas.parentNode, container, "e1 canvas parent is container");
-        equal(e1.getOverlays()[0].canvas.parentNode, container, "e1 overlay parent is container");
+
         equal(c.getConnector().canvas.parentNode, container, "connector parent is container");
-        equal(c.getOverlays()[0].canvas.parentNode, container, "first overlay parent is container");
-        equal(c.getOverlays()[1].canvas.parentNode, container, "second overlay parent is container");
+
+        ok(_ensureContainer(e1, container));
+        ok(_ensureContainer(c, container));
+
 
         _jsPlumb.setContainer(newContainer);
 
         equal(e1.canvas.parentNode, newContainer, "e1 canvas parent is newContainer");
-        equal(e1.getOverlays()[0].canvas.parentNode, newContainer, "e1 overlay parent is newContainer");
         equal(c.getConnector().canvas.parentNode, newContainer, "connector parent is newContainer");
-        equal(c.getOverlays()[0].canvas.parentNode, newContainer, "first overlay parent is newContainer");
-        equal(c.getOverlays()[1].canvas.parentNode, newContainer, "second overlay parent is newContainer");
+        ok(_ensureContainer(e1, newContainer));
+        ok(_ensureContainer(c, newContainer));
     });
 
 
@@ -4054,10 +4116,13 @@ var testSuite = function (renderMode, _jsPlumb) {
             target: d2,
             overlays: [ "Arrow", "Label", "PlainArrow", "Diamond" ]
         });
-        equal(c._jsPlumb.overlays[0].type, "Arrow", "Arrow overlay has type set");
+        /*equal(c._jsPlumb.overlays[0].type, "Arrow", "Arrow overlay has type set");
         equal(c._jsPlumb.overlays[1].type, "Label", "Label overlay has type set");
         equal(c._jsPlumb.overlays[2].type, "PlainArrow", "PlainArrow overlay has type set");
-        equal(c._jsPlumb.overlays[3].type, "Diamond", "Diamond overlay has type set");
+        equal(c._jsPlumb.overlays[3].type, "Diamond", "Diamond overlay has type set");*/
+        ok(_overlayTest(c, function(o) {
+            return o.type != null;
+        }, "type is set"));
     });
 
 
@@ -4193,7 +4258,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         ]});
         ok(jsPlumb.getSelector(".foo").length == 1, "label element exists in DOM");
         c.removeOverlay("label");
-        ok(jsPlumb.getSelector(".foo").length == 0, "label element does not exist in DOM");
+        ok(_length(c.getOverlays()) == 0, "no overlays left on component");
+        ok(jsPlumb.getSelector(".foo").length == 0 , "label element does not exist in DOM");
     });
 
 
@@ -4222,7 +4288,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             [ "Label", {id: "label", label: "foo"}]
         ]});
         var o = c.getOverlay("label"), e = o.getElement();
-        ok(e.innerHTML == "foo", "label text is set to original value");
+        equal(e.innerHTML, "foo", "label text is set to original value");
         o.setLabel("baz");
         equal(e.innerHTML, "baz", "label text is set to new value 'baz'");
         equal(o.getLabel(), "baz", "getLabel function works correctly with String");
@@ -5052,7 +5118,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(s.length, 5, "there are five connections");
 
         for (var j = 0; j < 5; j++) {
-            equal(s.get(j).getOverlays().length, 1, "one overlay: the label");
+            equal(_length(s.get(j).getOverlays()), 1, "one overlay: the label");
             equal(s.get(j).getParameter("foo"), "bar", "parameter foo has value 'bar'");
             ok(!(s.get(j).isHover()), "hover is set to false");
             equal(s.get(j).getLabel(), "baz", "label is set to 'baz'");
@@ -5421,7 +5487,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("basic");
-        equal(c.getOverlays().length, 1, "one overlay");
+        equal(_length(c.getOverlays()), 1, "one overlay");
     });
 
     test(" set connection type on existing connection, overlays should be removed with second type", function () {
@@ -5442,10 +5508,61 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("basic");
-        equal(c.getOverlays().length, 1, "one overlay");
+        c.getConnector().testFlag = true;
+        equal(_length(c.getOverlays()), 1, "one overlay after setting `basic` type");
+        // set a flag on the overlay; we will test later that re-adding the basic type will not cause a whole new overlay
+        // to be created
+        _head(c.getOverlays()).testFlag = true;
+
         c.setType("other");
-        equal(c.getOverlays().length, 0, "no overlays");
+        equal(_length(c.getOverlays()), 0, "no overlays after setting type to `other`, which has no overlays");
         equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "paintStyle lineWidth is default");
+
+        c.addType("basic");
+        equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
+        ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
+        ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
+    });
+
+
+    test(" set connection type on existing connection, anchors and connectors created only once", function () {
+        var basicType = {
+            connector: "Flowchart",
+            anchor:"Continuous",
+            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
+            hoverPaintStyle: { strokeStyle: "blue" },
+            overlays: [
+                "Arrow"
+            ]
+        };
+        var otherType = {
+            connector: "Bezier",
+            anchor:"AutoDefault"
+        };
+
+        _jsPlumb.registerConnectionType("basic", basicType);
+        _jsPlumb.registerConnectionType("other", otherType);
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = _jsPlumb.connect({source: d1, target: d2});
+
+        c.setType("basic");
+        c.getConnector().testFlag = true;
+        c.endpoints[0].anchor.testFlag = "source";
+        c.endpoints[1].anchor.testFlag = "target";
+        _head(c.getOverlays()).testFlag = true;
+
+        c.setType("other");
+        c.getConnector().testFlag = true;
+        ok(c.endpoints[0].anchor.testFlag == null, "test flag not set on source anchor");
+        ok(c.endpoints[1].anchor.testFlag == null, "test flag not set on target anchor");
+
+        c.addType("basic");
+        equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
+        ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
+        equal(c.endpoints[0].anchor.testFlag, "source", "test flag still set on source anchor: anchor was reused");
+        equal(c.endpoints[1].anchor.testFlag, "target", "test flag still set on target anchor: anchor was reused");
+        ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
+        ok(_head(c.getOverlays()).path.parentNode != null, "overlay was reattached to the DOM correctly");
     });
 
     test(" set connection type on existing connection, hasType + toggleType", function () {
@@ -5473,7 +5590,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         c.toggleType("basic");
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-        equal(c.getOverlays().length, 1, "one overlay");
+        equal(_length(c.getOverlays()), 1, "one overlay");
 
     });
 
@@ -5509,7 +5626,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().lineWidth, 4, "connection has linewidth 4");
-        equal(c.getOverlays().length, 1, "one overlay");
+        equal(_length(c.getOverlays()), 1, "one overlay");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
 
         c.addType("other");
@@ -5517,7 +5634,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-        equal(c.getOverlays().length, 2, "two overlays");
+        equal(_length(c.getOverlays()), 2, "two overlays");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class is still set on canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was set on canvas");
 
@@ -5526,7 +5643,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
         equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-        equal(c.getOverlays().length, 1, "one overlay");
+        equal(_length(c.getOverlays()), 1, "one overlay");
         ok(!_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was removed from canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class is still set on canvas");
 
@@ -5534,7 +5651,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.hasType("other"), false, "connection does not have 'other' type");
         equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
         equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "connection has default linewidth");
-        equal(c.getOverlays().length, 0, "nooverlays");
+        equal(_length(c.getOverlays()), 0, "nooverlays");
         ok(!_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was removed from canvas");
     });
 
@@ -5676,28 +5793,28 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-        equal(c.getOverlays().length, 2, "two overlays");
+        equal(_length(c.getOverlays()), 2, "two overlays");
 
         c.toggleType("other basic");
         equal(c.hasType("basic"), false, "after toggle, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after toggle, connection does not have 'other' type");
         equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after toggle, connection has default stroke style");
         equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after toggle, connection has default linewidth");
-        equal(c.getOverlays().length, 0, "after toggle, no overlays");
+        equal(_length(c.getOverlays()), 0, "after toggle, no overlays");
 
         c.toggleType("basic other");
         equal(c.hasType("basic"), true, "after toggle again, connection has 'basic' type");
         equal(c.hasType("other"), true, "after toggle again, connection has 'other' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "after toggle again, connection has yellow stroke style");
         equal(c.getPaintStyle().lineWidth, 14, "after toggle again, connection has linewidth 14");
-        equal(c.getOverlays().length, 2, "after toggle again, two overlays");
+        equal(_length(c.getOverlays()), 2, "after toggle again, two overlays");
 
         c.removeType("other basic");
         equal(c.hasType("basic"), false, "after remove, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after remove, connection does not have 'other' type");
         equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after remove, connection has default stroke style");
         equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after remove, connection has default linewidth");
-        equal(c.getOverlays().length, 0, "after remove, no overlays");
+        equal(_length(c.getOverlays()), 0, "after remove, no overlays");
 
         c.addType("other basic");
         equal(c.hasType("basic"), true, "after add, connection has 'basic' type");
@@ -5705,7 +5822,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.getPaintStyle().strokeStyle, "yellow", "after add, connection has yellow stroke style");
         // NOTE here we added the types in the other order to before, so lineWidth 4 - from basic - should win.
         equal(c.getPaintStyle().lineWidth, 4, "after add, connection has linewidth 4");
-        equal(c.getOverlays().length, 2, "after add, two overlays");
+        equal(_length(c.getOverlays()), 2, "after add, two overlays");
     });
 
     test(" connection type tests, fluid interface", function () {
@@ -6078,7 +6195,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             }
         });
 
-        c = _jsPlumb.connect({source: e1, target: e2});
+        var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.getPaintStyle().strokeStyle, "blue", "connection has default stroke style");
         equal(c.getConnector().type, "Flowchart", "connector is flowchart");
     });
@@ -6190,14 +6307,14 @@ var testSuite = function (renderMode, _jsPlumb) {
             }),
             e2 = _jsPlumb.addEndpoint(d2);
 
-        c = _jsPlumb.connect({source: e1, target: e2});
+        var c = _jsPlumb.connect({source: e1, target: e2});
         equal(e1.anchor.isContinuous, true, "e1's anchor is Continuous");
         equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
         equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
         equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
         equal(c.getConnector().type, "Flowchart", "connector is Flowchart");
-        equal(c._jsPlumb.overlays.length, 1, "connector has one overlay");
-        equal(e1._jsPlumb.overlays.length, 1, "endpoint has one overlay");
+        equal(_length(c._jsPlumb.overlays), 1, "connector has one overlay");
+        equal(_length(e1._jsPlumb.overlays), 1, "endpoint has one overlay");
     });
 
     test(" create connection from Endpoints - type should be passed through.", function () {
@@ -6316,6 +6433,7 @@ var testSuite = function (renderMode, _jsPlumb) {
                 becomeArray2: "bar"
             },
             c = jsPlumbUtil.merge(a, b, [ "becomeArray", "becomeArray2"]);
+
         equal(c.foo, "b_foo", "c has b's foo");
         equal(c.nested.foo, "b_foo", "c has b's nested foo");
         // the 'becomeArray' values should have been folded into an array
@@ -6330,6 +6448,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(b.nested.foo, "b_foo", "b has b's nested foo");
         equal(a.nested.foo, "a_foo", "a has a's nested foo");
     });
+
 
 
     // tests for a bug that i found in 1.3.16, in which an array would not overwrite an existing string.	

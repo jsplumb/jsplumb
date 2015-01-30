@@ -16,6 +16,16 @@ jsPlumb.ready(function () {
         Container: "flowchart-demo"
     });
 
+    var basicType = {
+        connector: "StateMachine",
+        paintStyle: { strokeStyle: "red", lineWidth: 4 },
+        hoverPaintStyle: { strokeStyle: "blue" },
+        overlays: [
+            "Arrow"
+        ]
+    };
+    instance.registerConnectionType("basic", basicType);
+
     // this is the paint style for the connecting lines..
     var connectorPaintStyle = {
             lineWidth: 4,
@@ -121,8 +131,9 @@ jsPlumb.ready(function () {
         // listen for clicks on connections, and offer to delete connections on click.
         //
         instance.bind("click", function (conn, originalEvent) {
-            if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
-                instance.detach(conn);
+           // if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+             //   instance.detach(conn);
+            conn.toggleType("basic");
         });
 
         instance.bind("connectionDrag", function (connection) {
