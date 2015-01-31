@@ -126,20 +126,6 @@
         }
 
 // -------------------------- DEFAULT TYPE ---------------------------------------------
-        /* default overlays.
-        var o = params.overlays || [], oo = {};
-        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.ConnectionOverlays || []);
-        Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
-        for (var i = 0; i < o.length; i++) {
-            // if a string, convert to object representation so that we can store the typeid on it.
-            // also assign an id.
-            var fo = jsPlumb.convertToFullOverlaySpec(o[i]);
-            oo[fo[1].id] = fo;
-        }
-
-        if (this.labelSpec != null) {
-            oo[this.labelSpec.id] = ["Label", this.labelSpec];
-        }*/
 
         // DETACHABLE
         var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
@@ -153,7 +139,6 @@
             detachable: _detachable,
             rettach: _reattach,
             paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-            connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
             hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle
         });
 
@@ -220,8 +205,6 @@
         // merge all the parameters objects into the connection.  parameters set
         // on the connection take precedence; then source endpoint params, then
         // finally target endpoint params.
-        // TODO jsPlumb.extend could be made to take more than two args, and it would
-        // apply the second through nth args in order.
         var _p = jsPlumb.extend({}, this.endpoints[1].getParameters());
         jsPlumb.extend(_p, this.endpoints[0].getParameters());
         jsPlumb.extend(_p, this.getParameters());
@@ -229,6 +212,8 @@
 // END PARAMETERS
 
 // PAINTING
+
+        this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector, true);
 
         // the very last thing we do is apply types, if there are any.
         var _types = [ "default",  params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
@@ -247,15 +232,6 @@
             if (t.detachable != null) this.setDetachable(t.detachable);
             if (t.reattach != null) this.setReattach(t.reattach);
             if (t.scope) this.scope = t.scope;
-
-            // try to get connector from cache; create it if necessary
-            var c = this.getCachedTypeItem("connector", typeMap.connector);
-            if (c != null) {
-                c.reattach(this._jsPlumb.instance);
-                this.setPreparedConnector(c, doNotRepaint);
-            }
-            else
-                this.setConnector(t.connector, doNotRepaint, false, typeMap.connector);
 
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
 
@@ -444,13 +420,15 @@
                     // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
                     for (var i in this._jsPlumb.overlays) {
-                        var o = this._jsPlumb.overlays[i];
-                        if (o.isVisible()) {
-                            this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                            overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
-                            overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
-                            overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
-                            overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
+                        if (this._jsPlumb.overlays.hasOwnProperty(i)) {
+                            var o = this._jsPlumb.overlays[i];
+                            if (o.isVisible()) {
+                                this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                                overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
+                                overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
+                                overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
+                                overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
+                            }
                         }
                     }
 
@@ -466,9 +444,11 @@
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
                     // and then the overlays
                     for (var j in this._jsPlumb.overlays) {
-                        var p = this._jsPlumb.overlays[j];
-                        if (p.isVisible()) {
-                            p.paint(this._jsPlumb.overlayPlacements[j], extents);
+                        if (this._jsPlumb.overlays.hasOwnProperty(j)) {
+                            var p = this._jsPlumb.overlays[j];
+                            if (p.isVisible()) {
+                                p.paint(this._jsPlumb.overlayPlacements[j], extents);
+                            }
                         }
                     }
                 }
@@ -494,16 +474,13 @@
                 if (es.fillStyle == null && params.paintStyle != null)
                     es.fillStyle = params.paintStyle.strokeStyle;
 
-                // TODO: decide if the endpoint should derive the connection's outline width and color.  currently it does:
-                //*
                 if (es.outlineColor == null && params.paintStyle != null)
                     es.outlineColor = params.paintStyle.outlineColor;
                 if (es.outlineWidth == null && params.paintStyle != null)
                     es.outlineWidth = params.paintStyle.outlineWidth;
-                //*/
 
                 var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.EndpointHoverStyles[index] || jsPlumb.Defaults.EndpointHoverStyles[index] || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
-                // endpoint hover fill style is derived from connector's hover stroke style.  TODO: do we want to do this by default? for sure?
+                // endpoint hover fill style is derived from connector's hover stroke style
                 if (params.hoverPaintStyle != null) {
                     if (ehs == null) ehs = {};
                     if (ehs.fillStyle == null) {
