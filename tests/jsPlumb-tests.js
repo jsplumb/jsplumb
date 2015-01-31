@@ -1974,53 +1974,6 @@ var testSuite = function (renderMode, _jsPlumb) {
         j.unbindContainer();
     });
 
-    
-    test("Endpoint types dont cause new anchors or endpoints to be created", function() {
-        _jsPlumb.registerEndpointType("anchor", {
-            anchor:"Continuous",
-            endpoint:["Rectangle", { width:32, height:32 }]
-        });
-
-        var d = _addDiv("d1");
-        var e = _jsPlumb.addEndpoint(d, {
-            type:"anchor"
-        });
-
-        equal(e.endpoint.type, "Rectangle", "rectangle endpoint from 'anchor' type");
-        ok(e.anchor.isContinuous, "anchor is continuous");
-        // set a flag on the anchor
-        e.anchor.testFlag = true;
-        e.endpoint.testFlag = true;
-
-        e.removeType("anchor");
-        ok(!e.anchor.isContinuous, "anchor is not continuous, it is the default");
-        equal(e.endpoint.type, "Dot", "dot endpoint from default type");
-
-        e.addType("anchor");
-        ok(e.anchor.isContinuous, "anchor is continuous once more");
-        equal(e.endpoint.type, "Rectangle", "rectangle endpoint from 'anchor' type once more");
-        ok(e.anchor.testFlag, "anchor has been reused");
-        ok(e.endpoint.testFlag, "endpoint has been reused");
-
-    });
-
-
-
-    //
-    //TODO: create a connection with an overlay. change connector. ensure the overlay still exists
-    //and is being painted.
-
-    //test(": setConnector, overlays should be informed", function() {
-	//_addDiv("d1"); _addDiv("d2");
-	//var def = {
-		//Connector : [ "Bezier", { curviness:45 } ]
-		//};
-		//var j = jsPlumb.getInstance(def);
-		//var c = j.connect({source:"d1",target:"d2"});
-		//equal(c.getConnector().type, "Bezier", "connector is the default");
-		//c.setConnector(["Bezier", { curviness:789 }]);
-		//equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
-	//});
 
 
 
@@ -6293,8 +6246,7 @@ var testSuite = function (renderMode, _jsPlumb) {
                 hoverPaintStyle: { strokeStyle: "red" },
                 overlays: [
                     "Arrow"
-                ],
-                anchor: "Continuous"
+                ]
             },
             "other": {
                 paintStyle: { fillStyle: "red" }
@@ -6308,7 +6260,6 @@ var testSuite = function (renderMode, _jsPlumb) {
             e2 = _jsPlumb.addEndpoint(d2);
 
         var c = _jsPlumb.connect({source: e1, target: e2});
-        equal(e1.anchor.isContinuous, true, "e1's anchor is Continuous");
         equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
         equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
         equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
@@ -6332,8 +6283,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.registerEndpointType("basic", {
             connectionType: "basic",
-            paintStyle: {fillStyle: "GAZOODA"},
-            anchor: "Left"
+            paintStyle: {fillStyle: "GAZOODA"}
         });
 
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
@@ -6344,7 +6294,6 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         c = _jsPlumb.connect({source: e1, target: e2});
         equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
-        equal(e1.anchor.orientation[0], -1, "endpoint has correct anchor, from type.");
         equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
         equal(c.getConnector().type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
     });
