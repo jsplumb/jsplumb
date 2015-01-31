@@ -129,10 +129,40 @@
                 return id;
             };
 
+// ----------------------------- default type --------------------------------------------
+
+
+            var o = params.overlays || [], oo = {};
+            if (this.defaultOverlayKeys) {
+                for (var i = 0; i < this.defaultOverlayKeys.length; i++)
+                    Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults[this.defaultOverlayKeys[i]] || []);
+
+                for (i = 0; i < o.length; i++) {
+                    // if a string, convert to object representation so that we can store the typeid on it.
+                    // also assign an id.
+                    var fo = jsPlumb.convertToFullOverlaySpec(o[i]);
+                    oo[fo[1].id] = fo;
+                }
+            }
+
+            var _defaultType = {
+                overlays:oo,
+                parameters: params.parameters || {},
+                scope: params.scope || this._jsPlumb.instance.getDefaultScope()
+            };
+            this.getDefaultType = function() {
+                return _defaultType;
+            };
+            this.appendToDefaultType = function(obj) {
+                for (var i in obj) _defaultType[i] = obj[i];
+            };
+
+// ----------------------------- end default type --------------------------------------------
+
             // all components can generate events
 
             if (params.events) {
-                for (var i in params.events)
+                for (i in params.events)
                     self.bind(i, params.events[i]);
             }
 
@@ -240,7 +270,7 @@
         },
 
         hasClass:function(clazz) {
-            return jsPlumbAdapter.hasClass(this.canvas);
+            return jsPlumbAdapter.hasClass(this.canvas, clazz);
         },
 
         addClass: function (clazz) {
@@ -1800,9 +1830,6 @@
             };
         };
 
-        this.isSVGAvailable = _isAvailable("svg");
-        this.isVMLAvailable = _isAvailable("vml");
-
         // set an element's connections to be hidden
         this.hide = function (el, changeEndpoints) {
             _setVisible(el, "none", changeEndpoints);
@@ -1847,17 +1874,9 @@
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
-
-                /*   if (!_suspendDrawing) {
-                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
-                 }*/
             }
 
             return managedElements[id];
-        };
-
-        var _unmanage = function (id) {
-            delete managedElements[id];
         };
 
         /**
@@ -1887,7 +1906,6 @@
             } else {
                 offsets[elId] = offset || offsets[elId];
                 if (sizes[elId] == null) {
-                    //s = document.getElementById(elId);
                     s = managedElements[elId].el;
                     if (s != null) sizes[elId] = _currentInstance.getSize(s);
                 }
@@ -2649,7 +2667,7 @@
                 _currentInstance.anchorManager.clearFor(info.id);
                 _currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
-            _unmanage(info.id);
+            delete managedElements[info.id];
             if (info.el) {
                 _currentInstance.removeElement(info.el);
                 info.el._jsPlumb = null;

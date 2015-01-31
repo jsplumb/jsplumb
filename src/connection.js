@@ -126,7 +126,7 @@
         }
 
 // -------------------------- DEFAULT TYPE ---------------------------------------------
-        // default overlays.
+        /* default overlays.
         var o = params.overlays || [], oo = {};
         Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.ConnectionOverlays || []);
         Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults.Overlays || []);
@@ -139,7 +139,7 @@
 
         if (this.labelSpec != null) {
             oo[this.labelSpec.id] = ["Label", this.labelSpec];
-        }
+        }*/
 
         // DETACHABLE
         var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
@@ -149,20 +149,14 @@
         // REATTACH
         var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
 
-        var _defaultType = {
-            parameters: params.parameters || {},
-            scope: params.scope,
+        this.appendToDefaultType({
             detachable: _detachable,
             rettach: _reattach,
             paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
             connector:this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
-            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,
-            overlays: oo
-        };
+            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle
+        });
 
-        this.getDefaultType = function () {
-            return _defaultType;
-        };
 
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         if (!_jsPlumb.isSuspendDrawing()) {

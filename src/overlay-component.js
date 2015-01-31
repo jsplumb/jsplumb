@@ -50,12 +50,12 @@
         this._jsPlumb.overlayPositions = {};
 
         if (params.label) {
-            this.labelSpec = {
+            this.getDefaultType().overlays[_internalLabelOverlayId] = ["Label", {
                 label: params.label,
                 location: params.labelLocation || this.defaultLabelLocation || 0.5,
                 labelStyle: params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle,
                 id:_internalLabelOverlayId
-            };
+            }];
         }
 
         this.setListenerComponent = function (c) {
