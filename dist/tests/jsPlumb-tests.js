@@ -6136,7 +6136,6 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
-                connector: "Flowchart",
                 paintStyle: { strokeStyle: "blue", lineWidth: 4 },
                 hoverPaintStyle: { strokeStyle: "red" },
                 overlays: [
@@ -6150,7 +6149,6 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.getPaintStyle().strokeStyle, "blue", "connection has default stroke style");
-        equal(c.getConnector().type, "Flowchart", "connector is flowchart");
     });
 
     test(" simple Endpoint type tests.", function () {
@@ -6272,7 +6270,6 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
-                connector: "Flowchart",
                 paintStyle: { strokeStyle: "bazona", lineWidth: 4 },
                 hoverPaintStyle: { strokeStyle: "red" },
                 overlays: [
@@ -6295,7 +6292,6 @@ var testSuite = function (renderMode, _jsPlumb) {
         c = _jsPlumb.connect({source: e1, target: e2});
         equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
         equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
-        equal(c.getConnector().type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
     });
 
     test(" endpoint type", function () {
