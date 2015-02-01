@@ -214,6 +214,7 @@
 // PAINTING
 
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector, true);
+        this.getData = function() { return params.data; };
 
         // the very last thing we do is apply types, if there are any.
         var _types = [ "default",  params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
