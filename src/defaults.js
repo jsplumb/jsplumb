@@ -995,7 +995,8 @@
         },
         getLocation: function () {
             return this.loc;
-        }
+        },
+        updateFrom:function() { }
     };
 
 
@@ -1039,6 +1040,7 @@
         this.computeMaxSize = function () {
             return self.width * 1.5;
         };
+
         this.draw = function (component, currentConnectionPaintStyle) {
 
             var hxy, mid, txy, tail, cxy;
@@ -1101,7 +1103,14 @@
             else return {component: component, minX: 0, maxX: 0, minY: 0, maxY: 0};
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.Arrow, AbstractOverlay);
+    jsPlumbUtil.extend(jsPlumb.Overlays.Arrow, AbstractOverlay, {
+        updateFrom:function(d) {
+            this.length = d.length || this.length;
+            this.width = d.width|| this.width;
+            this.direction = d.direction != null ? d.direction : this.direction;
+            this.foldback = d.foldback|| this.foldback;
+        }
+    });
 
     /*
      * Class: Overlays.PlainArrow
@@ -1438,6 +1447,9 @@
                     this.getElement().innerHTML = this.labelText.replace(/\r\n/g, "<br/>");
                 }
             }
+        },
+        updateFrom:function(d) {
+            if(d.label) this.setLabel(d.label);
         }
     });
 
