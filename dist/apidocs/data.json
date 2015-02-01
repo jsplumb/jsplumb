@@ -1652,6 +1652,18 @@
             "class": "Connection"
         },
         {
+            "file": "doc/api/connection-api.js",
+            "line": 138,
+            "description": "Returns the data provided (if any) to this object for populating its types.",
+            "itemtype": "method",
+            "name": "getData",
+            "return": {
+                "description": "Data, or null.",
+                "type": "Object"
+            },
+            "class": "Connection"
+        },
+        {
             "file": "doc/api/connectors.js",
             "line": 17,
             "description": "The Connector's associated DOM element.",
@@ -5017,6 +5029,10 @@
         }
     ],
     "warnings": [
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " doc/api/connection-api.js:138"
+        },
         {
             "message": "replacing incorrect tag: returns with return",
             "line": " doc/api/overlaycomponent.js:39"
