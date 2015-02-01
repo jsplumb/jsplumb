@@ -70,17 +70,22 @@
         if (t.overlays) {
             // loop through the ones in the type. if already present on the component,
             // dont remove or re-add.
-            var keep = {};
+            var keep = {}, i;
 
-            for (var i in t.overlays) {
+            for (i in t.overlays) {
 
-                if (component._jsPlumb.overlays[t.overlays[i][1].id]) {
+                var existing = component._jsPlumb.overlays[t.overlays[i][1].id];
+                if (existing) {
+                    // maybe update from data, if there were parameterised values for instance.
+                    existing.updateFrom(t.overlays[i][1]);
                     keep[t.overlays[i][1].id] = true;
                 }
                 else {
                     var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
                         c.reattach(component._jsPlumb.instance);
+                        // maybe update from data, if there were parameterised values for instance.
+                        c.updateFrom(t.overlays[i][1]);
                         component._jsPlumb.overlays[c.id] = c;
                     }
                     else {
@@ -91,7 +96,7 @@
             }
 
             // now loop through the full overlays and remove those that we dont want to keep
-            for (var i in component._jsPlumb.overlays) {
+            for (i in component._jsPlumb.overlays) {
                 if (keep[component._jsPlumb.overlays[i].id] == null)
                     component.removeOverlay(component._jsPlumb.overlays[i].id);
             }
