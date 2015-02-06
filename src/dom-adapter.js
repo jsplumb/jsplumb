@@ -469,7 +469,7 @@
             }
 
             // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
-            if (!relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+            if (container != null && !relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
                 var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, "position") : "static",
                     p = this.getStyle(el, "position");
                 if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp != "fixed") {
