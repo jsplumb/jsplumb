@@ -542,7 +542,7 @@
          */
         setAbsolutePosition: function (el, xy, animateFrom, animateOptions) {
             if (animateFrom) {
-                root.jsPlumb.animate(el, {
+                this.animate(el, {
                     left: "+=" + (xy[0] - animateFrom[0]),
                     top: "+=" + (xy[1] - animateFrom[1])
                 }, animateOptions);
