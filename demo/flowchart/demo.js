@@ -86,6 +86,11 @@ jsPlumb.ready(function () {
                 if (typeof console != "undefined")
                     console.log("connection edited. path is now ", o.path);
             });
+
+            /*
+            connection.bind("mouseenter", function() {
+                console.log("mouse enter");
+            })*/
         };
 
     var _addEndpoints = function (toId, sourceAnchors, targetAnchors) {

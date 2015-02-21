@@ -170,9 +170,9 @@
 
 <p>Notice also the <code>hoverPaintStyle</code> for the <code>selected</code> Type: it declares only a <code>lineWidth</code>.  As mentioned above, Types are merged with as much granularity as possible, so that means that in this case the <code>lineWidth</code> value from <code>selected</code> will be merged into the <code>hoverPaintStyle</code> from <code>basic</code>, and voila, red, 7 pixels.</p>
 
-<p>These examples, of course, use the <code>jsPlumb.connect</code> method, but in many UIs Connections are created via drag and drop.  How would you assign that <code>basic</code> Type to a Connection created with drag and drop?  You provide it as the Endpoint&#39;s <code>connectorType</code> parameter, like so:</p>
+<p>These examples, of course, use the <code>jsPlumb.connect</code> method, but in many UIs Connections are created via drag and drop.  How would you assign that <code>basic</code> Type to a Connection created with drag and drop?  You provide it as the Endpoint&#39;s <code>connectionType</code> parameter, like so:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">e1</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">connectorType</span><span class="o">:</span><span class="s2">&quot;basic&quot;</span><span class="p">,</span>
+  <span class="nx">connectionType</span><span class="o">:</span><span class="s2">&quot;basic&quot;</span><span class="p">,</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span>
 <span class="p">});</span> 
 
@@ -187,7 +187,7 @@
 <span class="c1">// now c has type &#39;basic&#39;</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">hasType</span><span class="p">(</span><span class="err">&quot;</span><span class="nx">basic</span><span class="p">));</span>   <span class="c1">// -&gt; true</span>
 </code></pre></div>
-<p>Note that the second Endpoint we created did not have a <code>connectorType</code> parameter - we didn&#39;t need it, as the source Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source Endpoint has not declared <code>connectorType</code>.  This is the same way jsPlumb treats other Connector parameters such as <code>paintStyle</code> etc - the source Endpoint wins.</p>
+<p>Note that the second Endpoint we created did not have a <code>connectionType</code> parameter - we didn&#39;t need it, as the source Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source Endpoint has not declared <code>connectionType</code>.  This is the same way jsPlumb treats other Connector parameters such as <code>paintStyle</code> etc - the source Endpoint wins.</p>
 
 <h5>Supported Parameters in Connection Type objects</h5>
 

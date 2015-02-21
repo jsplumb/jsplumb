@@ -2209,7 +2209,7 @@
             }
 
             // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
-            if (!relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+            if (container != null && !relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
                 var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, "position") : "static",
                     p = this.getStyle(el, "position");
                 if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp != "fixed") {
@@ -2282,7 +2282,7 @@
          */
         setAbsolutePosition: function (el, xy, animateFrom, animateOptions) {
             if (animateFrom) {
-                root.jsPlumb.animate(el, {
+                this.animate(el, {
                     left: "+=" + (xy[0] - animateFrom[0]),
                     top: "+=" + (xy[1] - animateFrom[1])
                 }, animateOptions);
@@ -2345,7 +2345,7 @@
                 component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
             }
         },
-        events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
+        events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu", "mouseenter", "mouseexit" ],
         eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
         _updateAttachedElements = function (component, state, timestamp, sourceElement) {
             var affectedElements = component.getAttachedElements();
@@ -2854,7 +2854,8 @@
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                _addOneDelegate(id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
+                //_addOneDelegate(id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
+                _addOneDelegate(id, "._jsPlumb_connector > *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
@@ -4108,6 +4109,7 @@
          * a static call. i just don't want to expose it to the public API).
          */
         this.getId = _getId;
+
         this.getOffset = function (id) {
             return _updateOffset({elId: id}).o;
         };
@@ -4966,6 +4968,7 @@
                 _currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
             delete managedElements[info.id];
+            delete offsets[info.id];
             if (info.el) {
                 _currentInstance.removeElement(info.el);
                 info.el._jsPlumb = null;
@@ -5099,9 +5102,11 @@
 
         this.doWhileSuspended = this.batch;
 
+        /*
         this.getOffset = function (elId) {
             return offsets[elId];
-        };
+        };*/
+
         this.getCachedData = _getCachedData;
         this.timestamp = _timestamp;
         this.setRenderMode = function (mode) {

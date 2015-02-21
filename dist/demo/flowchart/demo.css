@@ -95,3 +95,7 @@ font-size:0.9em;
 .window._jsPlumb_connected {
     border:2px solid green;
 }
+
+.jsplumb-drag {
+    border:4px solid pink !important;
+}
