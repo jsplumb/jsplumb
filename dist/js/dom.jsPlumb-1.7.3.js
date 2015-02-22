@@ -5729,19 +5729,19 @@
 
         this.empty = function (el, doNotRepaint) {
             var affectedElements = [];
-            var _one = function(el) {
+            var _one = function(el, dontRemoveFocus) {
                 var info = _info(el);
                 if (info.el) {
                     var j = info.el.childNodes.length;
                     for (var i = 0; i < j; i++) {
-                        _one(info.el.childNodes[0], affectedElements);
+                        _one(info.el.childNodes[0]);
                     }
-                    _doRemove(info, affectedElements);
+                    if (!dontRemoveFocus) _doRemove(info, affectedElements);
                 }
             };
 
             _currentInstance.batch(function() {
-                _one(el);
+                _one(el, true);
             }, doNotRepaint === false);
 
             return _currentInstance;
