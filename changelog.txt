@@ -12,6 +12,7 @@
 
   - there is a new interceptor in this release: `beforeDrag`.  You can use it to abort dragging a connection as soon as it
   starts, and also to supply the initial data for a Connection that uses a parameterized type.
+  - added `jsPlumb.empty` function: remove child content from a node, including endpoints and connections, but not the element itself.
 
   ISSUES
 

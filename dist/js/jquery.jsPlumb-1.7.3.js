@@ -4928,13 +4928,15 @@
             return this;
         };
 
-        this.removeAllEndpoints = function (el, recurse) {
+        this.removeAllEndpoints = function (el, recurse, affectedElements) {
+            affectedElements = affectedElements || [];
             var _one = function (_el) {
                 var info = _info(_el),
                     ebe = endpointsByElement[info.id],
                     i, ii;
 
                 if (ebe) {
+                    affectedElements.push(info);
                     for (i = 0, ii = ebe.length; i < ii; i++)
                         _currentInstance.deleteEndpoint(ebe[i]);
                 }
@@ -4953,26 +4955,56 @@
             return this;
         };
 
+        var _doRemove = function(info, affectedElements) {
+            _currentInstance.removeAllEndpoints(info.id, true, affectedElements);
+
+            for (var ae = 0; ae < affectedElements.length; ae++) {
+                var aei = affectedElements[ae];
+                _currentInstance.dragManager.elementRemoved(aei.id);
+                _currentInstance.anchorManager.clearFor(aei.id);
+                _currentInstance.anchorManager.removeFloatingConnection(aei.id);
+                delete _currentInstance.floatingConnections[aei.id];
+                delete managedElements[aei.id];
+                delete offsets[aei.id];
+                if (aei.el) {
+                    _currentInstance.removeElement(aei.el);
+                    aei.el._jsPlumb = null;
+                }
+            }
+        };
+
         /**
          * Remove the given element, including cleaning up all endpoints registered for it.
          * This is exposed in the public API but also used internally by jsPlumb when removing the
          * element associated with a connection drag.
          */
         this.remove = function (el, doNotRepaint) {
-            var info = _info(el);
-            _currentInstance.batch(function () {
-                _currentInstance.removeAllEndpoints(info.id, true);
-                _currentInstance.dragManager.elementRemoved(info.id);
-                delete _currentInstance.floatingConnections[info.id];
-                _currentInstance.anchorManager.clearFor(info.id);
-                _currentInstance.anchorManager.removeFloatingConnection(info.id);
-            }, doNotRepaint === false);
-            delete managedElements[info.id];
-            delete offsets[info.id];
-            if (info.el) {
-                _currentInstance.removeElement(info.el);
-                info.el._jsPlumb = null;
+            var info = _info(el), affectedElements = [];
+            if (info.id) {
+                _currentInstance.batch(function () {
+                    _doRemove(info, affectedElements);
+                }, doNotRepaint === false);
             }
+            return _currentInstance;
+        };
+
+        this.empty = function (el, doNotRepaint) {
+            var affectedElements = [];
+            var _one = function(el) {
+                var info = _info(el);
+                if (info.el) {
+                    var j = info.el.childNodes.length;
+                    for (var i = 0; i < j; i++) {
+                        _one(info.el.childNodes[0], affectedElements);
+                    }
+                    _doRemove(info, affectedElements);
+                }
+            };
+
+            _currentInstance.batch(function() {
+                _one(el);
+            }, doNotRepaint === false);
+
             return _currentInstance;
         };
 

@@ -2699,7 +2699,7 @@
                     for (var i = 0; i < j; i++) {
                         _one(info.el.childNodes[0], affectedElements);
                     }
-                    _doRemove(info, affectedElements)
+                    _doRemove(info, affectedElements);
                 }
             };
 

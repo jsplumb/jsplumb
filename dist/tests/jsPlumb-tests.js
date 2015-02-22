@@ -1677,11 +1677,17 @@ var testSuite = function (renderMode, _jsPlumb) {
 
 
     test(": jsPlumb.remove, element identified by string, nested endpoints", function () {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         d1.appendChild(d2);
+        d1.appendChild(d3);
+        _jsPlumb.addEndpoint(d1);
         _jsPlumb.addEndpoint(d2);
         _jsPlumb.addEndpoint(d2);
-        _jsPlumb.addEndpoint(d2);
+        _jsPlumb.addEndpoint(d3);
+
+        ok(_jsPlumb.getEndpoints("d1").length == 1, " 1 endpoint exists for the parent div");
+        ok(_jsPlumb.getEndpoints("d2").length == 2, " 2 endpoints exist for the first nested div");
+        ok(_jsPlumb.getEndpoints("d3").length == 1, " 1 endpoint exists for the first nested div");
 
         _jsPlumb.remove("d1");
 
@@ -1689,8 +1695,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         ok(_jsPlumb.getEndpoints("d1") == null, "no endpoints for the main div");
         ok(_jsPlumb.getEndpoints("d2") == null, "no endpoints for the nested div");
+        ok(_jsPlumb.getEndpoints("d3") == null, "no endpoints for the nested div");
 
-        expect(2);
     });
 
     test(": jsPlumb.remove, nested element, element identified by string, nested endpoints", function () {
@@ -1740,6 +1746,29 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.removeAllEndpoints(d1);
         equal(o, 2, "connectionDetached event was fired twice.");
+
+    });
+
+    test(": jsPlumb.empty, element identified by string", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        d1.appendChild(d2);
+        d1.appendChild(d3);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d2);
+        _jsPlumb.addEndpoint(d2);
+        _jsPlumb.addEndpoint(d3);
+
+        ok(_jsPlumb.getEndpoints("d1").length == 1, " 1 endpoint exists for the parent div");
+        ok(_jsPlumb.getEndpoints("d2").length == 2, " 2 endpoints exist for the first nested div");
+        ok(_jsPlumb.getEndpoints("d3").length == 1, " 1 endpoint exists for the first nested div");
+
+        _jsPlumb.empty("d1");
+
+        _jsPlumb.repaintEverything(); // shouldn't complain
+
+        ok(_jsPlumb.getEndpoints("d1").length == 1, " 1 endpoint exists for the parent div");
+        ok(_jsPlumb.getEndpoints("d2") == null, "no endpoints for the first nested div");
+        ok(_jsPlumb.getEndpoints("d3") == null, "no endpoints for the second nested div");
 
     });
 
