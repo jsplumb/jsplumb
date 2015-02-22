@@ -5726,7 +5726,7 @@
         this.remove = function (el, doNotRepaint) {
             var info = _info(el), affectedElements = [];
             if (info.text) {
-                _currentInstance.removeElement(info.el);
+                info.el.parentNode.removeChild(info.el);
             }
             else if (info.id) {
                 _currentInstance.batch(function () {
@@ -5741,7 +5741,7 @@
             var _one = function(el, dontRemoveFocus) {
                 var info = _info(el);
                 if (info.text) {
-                    _currentInstance.removeElement(info.el);
+                    info.el.parentNode.removeChild(info.el);
                 }
                 else if (info.el) {
                     var j = info.el.childNodes.length;
