@@ -2783,8 +2783,14 @@
             _initialDefaults = {},
             _zoom = 1,
             _info = function (el) {
-                var _el = _currentInstance.getDOMElement(el);
-                return { el: _el, id: (jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
+                if (el == null) return null;
+                else if (el.nodeType == 3 || el.nodeType == 8) {
+                    return { el:el, text:true };
+                }
+                else {
+                    var _el = _currentInstance.getDOMElement(el);
+                    return { el: _el, id: (jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
+                }
             };
 
         this.getInstanceIndex = function () {
@@ -4980,7 +4986,10 @@
          */
         this.remove = function (el, doNotRepaint) {
             var info = _info(el), affectedElements = [];
-            if (info.id) {
+            if (info.text) {
+                _currentInstance.removeElement(info.el);
+            }
+            else if (info.id) {
                 _currentInstance.batch(function () {
                     _doRemove(info, affectedElements);
                 }, doNotRepaint === false);
@@ -4992,7 +5001,10 @@
             var affectedElements = [];
             var _one = function(el, dontRemoveFocus) {
                 var info = _info(el);
-                if (info.el) {
+                if (info.text) {
+                    _currentInstance.removeElement(info.el);
+                }
+                else if (info.el) {
                     var j = info.el.childNodes.length;
                     for (var i = 0; i < j; i++) {
                         _one(info.el.childNodes[0]);
