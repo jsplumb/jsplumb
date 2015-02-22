@@ -2665,20 +2665,25 @@
 
         var _doRemove = function(info, affectedElements) {
             _currentInstance.removeAllEndpoints(info.id, true, affectedElements);
-
-            for (var ae = 0; ae < affectedElements.length; ae++) {
-                var aei = affectedElements[ae];
-                _currentInstance.dragManager.elementRemoved(aei.id);
-                _currentInstance.anchorManager.clearFor(aei.id);
-                _currentInstance.anchorManager.removeFloatingConnection(aei.id);
-                delete _currentInstance.floatingConnections[aei.id];
-                delete managedElements[aei.id];
-                delete offsets[aei.id];
-                if (aei.el) {
-                    _currentInstance.removeElement(aei.el);
-                    aei.el._jsPlumb = null;
+            var _one = function(_info) {
+                _currentInstance.dragManager.elementRemoved(_info.id);
+                _currentInstance.anchorManager.clearFor(_info.id);
+                _currentInstance.anchorManager.removeFloatingConnection(_info.id);
+                delete _currentInstance.floatingConnections[_info.id];
+                delete managedElements[_info.id];
+                delete offsets[_info.id];
+                if (_info.el) {
+                    _currentInstance.removeElement(_info.el);
+                    _info.el._jsPlumb = null;
                 }
+            };
+
+            // remove all affected child elements
+            for (var ae = 1; ae < affectedElements.length; ae++) {
+                _one(affectedElements[ae]);
             }
+            // and always remove the requested one from the dom.
+            _one(info);
         };
 
         /**
