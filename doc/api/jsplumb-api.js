@@ -637,10 +637,18 @@
 
 /**
 * Removes the given element from the DOM, along with all Endpoints associated with it,
-* and their connections.  
+* and their connections.  This also removes all Endpoints and Connections belonging to child elements, as well as - of course -
+ * the child elements themselves.
 * @method remove
 * @param {String|Element|Selector} el The element in question.
-*/ 	
+*/
+
+/**
+ * Empties out the given element: all Endpoints and Connections belonging to child elements, as well as - of course -
+ * the child elements themselves. Endpoints and Connections belonging to the element itself are retained.
+ * @method empty
+ * @param {String|Element|Selector} el The element in question.
+ */
 
 /**
 * Removes all endpoints and connections and clears the listener list. To keep listeners call {@link jsPlumbInstance#deleteEveryEndpoint}
