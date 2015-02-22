@@ -2707,8 +2707,7 @@
                     info.el.parentNode.removeChild(info.el);
                 }
                 else if (info.el) {
-                    var j = info.el.childNodes.length;
-                    for (var i = 0; i < j; i++) {
+                    while(info.el.childNodes.length > 0) {
                         _one(info.el.childNodes[0]);
                     }
                     if (!dontRemoveFocus) _doRemove(info, affectedElements);
