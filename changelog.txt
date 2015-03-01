@@ -1,6 +1,7 @@
 * 1.7.3
 
-    Predominantly a minor bugfix release, this version brings a degree of uniformity to the behaviour of elements configured with `makeSource` and `makeTarget`, and is a recommended upgrade if you are currently using any other 1.7.x version.
+    Predominantly a bugfix release, this version brings a degree of uniformity to the behaviour of elements
+    configured with `makeSource` and `makeTarget`, and is a recommended upgrade if you are currently using any other 1.7.x version.
 
 
   BACKWARDS COMPATIBILITY
@@ -12,6 +13,7 @@
 
   - there is a new interceptor in this release: `beforeDrag`.  You can use it to abort dragging a connection as soon as it
   starts, and also to supply the initial data for a Connection that uses a parameterized type.
+
   - added `jsPlumb.empty` function: remove child content from a node, including endpoints and connections, but not the element itself.
 
   ISSUES
@@ -23,6 +25,10 @@
   297 - Distinguish drag\click for Vanilla jsPlumb
   298 - Fix for using library inside shadowDom (e.g. Polymer etc.)
   307 - Setting Container multiple times fires events multiple times
+  311 - addType resets overlays
+  313 - setContainer does not work when container has overflow: scroll;
+  317 - Docs incorrectly refer to "mouseenter"
+  326 - Connections not updating position - (detach, delete, readd, reconnect)
 
 
 * 1.7.2
