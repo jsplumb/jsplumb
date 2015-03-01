@@ -110,6 +110,7 @@
 
 <ul>
 <li>There is a new interceptor in this release: <code>beforeDrag</code>.  You can use it to abort dragging a connection as soon as it starts, and also to supply the initial data for a Connection that uses a parameterized type.</li>
+<li>Added <code>jsPlumb.empty</code> function: remove child content from a node, including endpoints and connections, but not the element itself.</li>
 </ul>
 
 <h4>Backwards Compatibility</h4>
@@ -122,12 +123,17 @@
 
 <ul>
 <li><strong>187</strong> - jsPlumb.draggable() doesn&#39;t work with forms</li>
-<li><strong>281</strong> - beforeDetach not triggered by jsPlumb.detachAllConnections</li>
+<li><strong>281</strong> - beforeDetach not triggered by <code>jsPlumb.detachAllConnections</code></li>
 <li><strong>287</strong> - Cannot drop source of connection on makeTarget element after 1.6.4</li>
 <li><strong>289</strong> - Cannot prevent drop of source edge using beforeDrop on nested makeTarget elements</li>
 <li><strong>297</strong> - Distinguish drag\click for Vanilla jsPlumb</li>
 <li><strong>298</strong> - Fix for using library inside shadowDom (e.g. Polymer etc.)</li>
 <li><strong>307</strong> - Setting Container multiple times fires events multiple times</li>
+<li><strong>311</strong> - addType resets overlays</li>
+<li><strong>313</strong> - setContainer does not work when container has overflow: scroll;</li>
+<li><strong>315</strong> - setConnector removes existing overlays</li>
+<li><strong>317</strong> - Docs incorrectly refer to &quot;mouseenter&quot;</li>
+<li><strong>326</strong> - Connections not updating position - (detach, delete, readd, reconnect)</li>
 </ul>
 
 <h2>1.7.2</h2>

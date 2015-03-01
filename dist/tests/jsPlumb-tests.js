@@ -204,7 +204,7 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
     test(': droppable silently ignored when jquery ui not present', function () {
-        var d1 = _addDiv("d1")
+        var d1 = _addDiv("d1");
         var e = _jsPlumb.addEndpoint(d1, {isTarget: true});
         ok(e, 'endpoint exists');
     });

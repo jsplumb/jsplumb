@@ -3084,7 +3084,7 @@
                 component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
             }
         },
-        events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu", "mouseenter", "mouseexit" ],
+        events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
         eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
         _updateAttachedElements = function (component, state, timestamp, sourceElement) {
             var affectedElements = component.getAttachedElements();

@@ -283,8 +283,8 @@ connection.bind(&quot;click&quot;, function(conn) {
 <li><p><code>click(connection, originalEvent)</code> - notification a Connection was clicked.</p></li>
 <li><p><code>dblclick(connection, originalEvent)</code> - notification a Connection was double-clicked.</p></li>
 <li><p><code>contextmenu(connection, originalEvent)</code> - a right-click on the Connection.</p></li>
-<li><p><code>mouseenter(connection, originalEvent)</code> - notification the mouse entered the Connection&#39;s path.</p></li>
-<li><p><code>mouseleave(connection, originalEvent)</code> - notification the mouse exited the Connection&#39;s path.</p></li>
+<li><p><code>mouseover(connection, originalEvent)</code> - notification the mouse is over the Connection&#39;s path.</p></li>
+<li><p><code>mouseout(connection, originalEvent)</code> - notification the mouse has exited the Connection&#39;s path.</p></li>
 <li><p><code>mousedown(connection, originalEvent)</code> - notification the mouse button was pressed on the Connection&#39;s path.</p></li>
 <li><p><code>mouseup(connection, originalEvent)</code> - notification the mouse button was released on the Connection&#39;s path.</p></li>
 </ul>
@@ -305,8 +305,8 @@ endpoint.bind(&quot;click&quot;, function(endpoint) {
 <li><p><code>click(endpoint, originalEvent)</code> - notification an Endpoint was clicked.</p></li>
 <li><p><code>dblclick(endpoint, originalEvent)</code> - notification an Endpoint was double-clicked.</p></li>
 <li><p><code>contextmenu(endpoint, originalEvent)</code> - a right-click on the Endpoint.</p></li>
-<li><p><code>mouseenter(endpoint, originalEvent)</code> - notification the mouse entered the Endpoint.</p></li>
-<li><p><code>mouseleave(endpoint, originalEvent)</code> - notification the mouse exited the Endpoint.</p></li>
+<li><p><code>mouseover(endpoint, originalEvent)</code> - notification the mouse is over the Endpoint.</p></li>
+<li><p><code>mouseout(endpoint, originalEvent)</code> - notification the mouse has exited the Endpoint.</p></li>
 <li><p><code>mousedown(endpoint, originalEvent)</code> - notification the mouse button was pressed on the Endpoint.</p></li>
 <li><p><code>mouseup(endpoint, originalEvent)</code> - notification the mouse button was released on the Endpoint.</p></li>
 <li><p><code>maxConnections(info, originalEvent)</code> - notification the user tried to drop a Connection on an Endpoint that already has the maximum number of Connections.  <code>info</code> is an object literal containing these values:</p>

@@ -100,11 +100,52 @@
 </ul>
             </div>
             <div class="markdown-body">
-                <h3>Removing Connections/Endpoints</h3>
+                <ul>
+<li><a href="#nodes">Removing Nodes</a></li>
+<li><a href="#connections">Removing Connections</a></li>
+<li><a href="#endpoints">Removing Endpoints</a></li>
+</ul>
+
+<p><a name="nodes"></a></p>
+
+<h3>Removing Nodes</h3>
+
+<p>If you have configured a DOM element with jsPlumb in any way you should use jsPlumb to remove the element from the DOM (as opposed to using something like jQuery&#39;s <code>remove</code> function, for example).</p>
+
+<p>To help you with this, jsPlumb offers two methods:</p>
+
+<h4>jsPlumb.remove</h4>
+
+<p>This removes an element from the DOM and all Connections and Endpoints associate with that element:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">conn</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;element1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;element2&quot;</span><span class="p">});</span>
+<span class="p">...</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="s2">&quot;element1&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p><code>conn</code> is now detached and <code>element1</code> is gone from the DOM. </p>
+
+<p>You can also pass a selector or DOM element to the <code>remove</code> method.</p>
+
+<h4>jsPlumb.empty</h4>
+
+<p>This removes all the child elements from some element, and all of the Connections and Endpoints associated with those child elements. Perhaps you have this markup:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;ul</span> <span class="na">id=</span><span class="s">&quot;list&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;li</span> <span class="na">id=</span><span class="s">&quot;one&quot;</span><span class="nt">&gt;</span>One<span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+</code></pre></div><div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">conn</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;one&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherElement&quot;</span><span class="p">});</span>
+<span class="p">...</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">empty</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p><code>conn</code> is now detached and the UL is empty.</p>
+
+<p>You can also pass a selector or DOM element to the <code>empty</code> method.</p>
+
+<h3>Removing Connections/Endpoints</h3>
 
 <p>There are a number of different functions you can use to remove Connections and/or Endpoints.</p>
 
-<h4>Connections</h4>
+<p><a name="connections"></a></p>
+
+<h3>Connections</h3>
 
 <h5>Detaching a single connection</h5>
 
@@ -154,7 +195,9 @@ jsPlumb.detach(conn);
 </code></pre></div>
 <p>This leaves all Endpoints in place according to the deletion rules outlined in the description of <code>jsPlumb.detach</code> above.</p>
 
-<h4>Endpoints</h4>
+<p><a name="endpoints"></a></p>
+
+<h3>Endpoints</h3>
 
 <h5>Deleting a single Endpoint</h5>
 

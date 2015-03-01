@@ -82,15 +82,6 @@ jsPlumb.ready(function () {
         },
         init = function (connection) {
             connection.getOverlay("label").setLabel(connection.sourceId.substring(15) + "-" + connection.targetId.substring(15));
-            connection.bind("editCompleted", function (o) {
-                if (typeof console != "undefined")
-                    console.log("connection edited. path is now ", o.path);
-            });
-
-            /*
-            connection.bind("mouseenter", function() {
-                console.log("mouse enter");
-            })*/
         };
 
     var _addEndpoints = function (toId, sourceAnchors, targetAnchors) {
