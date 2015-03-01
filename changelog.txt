@@ -27,6 +27,7 @@
   307 - Setting Container multiple times fires events multiple times
   311 - addType resets overlays
   313 - setContainer does not work when container has overflow: scroll;
+  315 - setConnector removes existing overlays
   317 - Docs incorrectly refer to "mouseenter"
   326 - Connections not updating position - (detach, delete, readd, reconnect)
 
