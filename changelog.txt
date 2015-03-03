@@ -1,3 +1,14 @@
+* 1.7.4
+
+    Bugfixes.
+
+
+    ISSUES
+
+    332 - endpoint label not working in newest version
+
+
+
 * 1.7.3
 
     Predominantly a bugfix release, this version brings a degree of uniformity to the behaviour of elements

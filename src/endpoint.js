@@ -445,11 +445,13 @@
                     this.timestamp = timestamp;
 
                     // paint overlays
-                    for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                        var o = this._jsPlumb.overlays[i];
-                        if (o.isVisible()) {
-                            this._jsPlumb.overlayPlacements[i] = o.draw(this.endpoint, this._jsPlumb.paintStyleInUse);
-                            o.paint(this._jsPlumb.overlayPlacements[i]);
+                    for (var i in this._jsPlumb.overlays) {
+                        if (this._jsPlumb.overlays.hasOwnProperty(i)) {
+                            var o = this._jsPlumb.overlays[i];
+                            if (o.isVisible()) {
+                                this._jsPlumb.overlayPlacements[i] = o.draw(this.endpoint, this._jsPlumb.paintStyleInUse);
+                                o.paint(this._jsPlumb.overlayPlacements[i]);
+                            }
                         }
                     }
                 }
