@@ -2,7 +2,7 @@
     "project": {
         "name": "jsPlumb",
         "description": "Visual connectivity for webapps",
-        "version": "1.7.3",
+        "version": "1.7.4",
         "url": ""
     },
     "files": {

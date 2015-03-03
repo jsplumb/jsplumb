@@ -1,3 +1,19 @@
+/*
+ * jsPlumb
+ *
+ * Title:jsPlumb 1.7.4
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.
+ *
+ * This file contains code for components that support overlays.
+ *
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
 
     // ------------------------------ BEGIN OverlayCapablejsPlumbUIComponent --------------------------------------------

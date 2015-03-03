@@ -1,13 +1,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.3
+ * Title:jsPlumb 1.7.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the code for Endpoints.
  *
- * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
