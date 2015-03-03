@@ -155,6 +155,15 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(e, null, "the endpoint has been deleted");
     });
 
+    test('endpoint with overlays', function() {
+        var d1 = _addDiv("d1");
+        var e = _jsPlumb.addEndpoint(d1, {
+            "overlays": [["Label", {"label": "Label text", "cssClass": 'kw_port_label', "id": "66"}]]
+        });
+        var o = e.getOverlay("66");
+        ok(o != null, "overlay exists");
+    });
+
     test(': create two simple endpoints, registered using a selector', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         jsPlumbAdapter.addClass(d1, "window");
