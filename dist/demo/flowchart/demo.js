@@ -87,7 +87,9 @@ jsPlumb.ready(function () {
     var _addEndpoints = function (toId, sourceAnchors, targetAnchors) {
         for (var i = 0; i < sourceAnchors.length; i++) {
             var sourceUUID = toId + sourceAnchors[i];
-            instance.addEndpoint("flowchart" + toId, sourceEndpoint, { anchor: sourceAnchors[i], uuid: sourceUUID });
+            instance.addEndpoint("flowchart" + toId, sourceEndpoint, {
+                anchor: sourceAnchors[i], uuid: sourceUUID
+            });
         }
         for (var j = 0; j < targetAnchors.length; j++) {
             var targetUUID = toId + targetAnchors[j];
