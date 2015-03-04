@@ -118,7 +118,6 @@
                 node.setAttribute(STYLE, "");
             }
 
-
             if (style.lineWidth) {
                 node.setAttribute(STROKE_WIDTH, style.lineWidth);
             }

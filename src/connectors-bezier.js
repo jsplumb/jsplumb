@@ -17,10 +17,13 @@
 ;
 (function () {
 
+    "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+
     var Bezier = function (params) {
         params = params || {};
 
-        var _super = jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
+        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments),
             majorAnchor = params.curviness || 150,
             minorAnchor = 10;
 
@@ -78,7 +81,7 @@
         };
     };
 
-    jsPlumbUtil.extend(Bezier, jsPlumb.Connectors.AbstractConnector);
-    jsPlumb.registerConnectorType(Bezier, "Bezier");
+    _ju.extend(Bezier, _jp.Connectors.AbstractConnector);
+    _jp.registerConnectorType(Bezier, "Bezier");
 
-})();
+}).call(this);

@@ -16,6 +16,9 @@
  */
 ;(function() {
 
+    "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+
     // ------------------------------ BEGIN OverlayCapablejsPlumbUIComponent --------------------------------------------
 
     var _internalLabelOverlayId = "__label",
@@ -32,26 +35,26 @@
                 },
                 mergedParams = jsPlumb.extend(_params, params);
 
-            return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label(mergedParams);
+            return new _jp.Overlays[component._jsPlumb.instance.getRenderMode()].Label(mergedParams);
         },
         _processOverlay = function (component, o) {
             var _newOverlay = null;
-            if (jsPlumbUtil.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+            if (_ju.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
                 // there's also a three arg version:
                 // ["Arrow", { width:50 }, {location:0.7}]
                 // which merges the 3rd arg into the 2nd.
                 var type = o[0],
                 // make a copy of the object so as not to mess up anyone else's reference...
-                    p = jsPlumb.extend({component: component, _jsPlumb: component._jsPlumb.instance}, o[1]);
-                if (o.length == 3) jsPlumb.extend(p, o[2]);
-                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
+                    p = _jp.extend({component: component, _jsPlumb: component._jsPlumb.instance}, o[1]);
+                if (o.length == 3) _jp.extend(p, o[2]);
+                _newOverlay = new _jp.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
             } else if (o.constructor == String) {
-                _newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component: component, _jsPlumb: component._jsPlumb.instance});
+                _newOverlay = new _jp.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component: component, _jsPlumb: component._jsPlumb.instance});
             } else {
                 _newOverlay = o;
             }
 
-            _newOverlay.id = _newOverlay.id || jsPlumbUtil.uuid();
+            _newOverlay.id = _newOverlay.id || _ju.uuid();
             component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
             //component._jsPlumb.overlays.push(_newOverlay);
             component._jsPlumb.overlays[_newOverlay.id] = _newOverlay;
@@ -59,7 +62,7 @@
             return _newOverlay;
         };
 
-    jsPlumb.OverlayCapableJsPlumbUIComponent = function (params) {
+    _jp.OverlayCapableJsPlumbUIComponent = function (params) {
 
         jsPlumbUIComponent.apply(this, arguments);
         this._jsPlumb.overlays = {};
@@ -82,7 +85,7 @@
         };
     };
 
-    jsPlumb.OverlayCapableJsPlumbUIComponent.applyType = function (component, t) {
+    _jp.OverlayCapableJsPlumbUIComponent.applyType = function (component, t) {
         if (t.overlays) {
             // loop through the ones in the type. if already present on the component,
             // dont remove or re-add.
@@ -119,7 +122,7 @@
         }
     };
 
-    jsPlumbUtil.extend(jsPlumb.OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
+    _ju.extend(_jp.OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
 
         setHover: function (hover, ignoreAttachedElements) {
             if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
@@ -243,4 +246,4 @@
 
 // ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
 
-})();
+}).call(this);

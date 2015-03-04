@@ -19,12 +19,16 @@
 (function () {
 
     "use strict";
+    var root = this,
+        _jp = root.jsPlumb,
+        _ju = root.jsPlumbUtil;
+
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
                 throw { msg: "jsPlumb: unknown connector type '" + connectorName + "'" };
 
-            return new jsPlumb.Connectors[renderMode][connectorName](connectorArgs, forComponent);
+            return new _jp.Connectors[renderMode][connectorName](connectorArgs, forComponent);
         },
         _makeAnchor = function (anchorParams, elementId, _jsPlumb) {
             return (anchorParams) ? _jsPlumb.makeAnchor(anchorParams, elementId, _jsPlumb) : null;
@@ -37,7 +41,7 @@
                 else
                     element._jsPlumbConnections[conn.id] = true;
 
-                if (jsPlumbUtil.isEmpty(element._jsPlumbConnections)) {
+                if (_ju.isEmpty(element._jsPlumbConnections)) {
                     _jsPlumb.removeClass(element, _jsPlumb.connectedClass);
                 }
                 else
@@ -45,8 +49,8 @@
             }
         };
 
-    jsPlumb.Connection = function (params) {
-        var _newEndpoint = params.newEndpoint, _ju = jsPlumbUtil;
+    _jp.Connection = function (params) {
+        var _newEndpoint = params.newEndpoint;
 
         this.id = params.id;
         this.connector = null;
@@ -57,15 +61,15 @@
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
         this.previousConnection = params.previousConnection;
-        this.source = jsPlumb.getDOMElement(params.source);
-        this.target = jsPlumb.getDOMElement(params.target);
+        this.source = _jp.getDOMElement(params.source);
+        this.target = _jp.getDOMElement(params.target);
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
         if (params.sourceEndpoint) this.source = params.sourceEndpoint.getElement();
         if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();
 
-        jsPlumb.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
         this.sourceId = this._jsPlumb.instance.getId(this.source);
         this.targetId = this._jsPlumb.instance.getId(this.target);
@@ -204,14 +208,14 @@
         // on the connection take precedence; then source endpoint params, then
         // finally target endpoint params.
         var _p = jsPlumb.extend({}, this.endpoints[1].getParameters());
-        jsPlumb.extend(_p, this.endpoints[0].getParameters());
-        jsPlumb.extend(_p, this.getParameters());
+        _jp.extend(_p, this.endpoints[0].getParameters());
+        _jp.extend(_p, this.getParameters());
         this.setParameters(_p);
 // END PARAMETERS
 
 // PAINTING
 
-        this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector, true);
+        this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || _jp.Defaults.Connector, true);
         this.getData = function() { return params.data; };
 
         // the very last thing we do is apply types, if there are any.
@@ -224,7 +228,7 @@
 // END PAINTING    
     };
 
-    jsPlumbUtil.extend(jsPlumb.Connection, jsPlumb.OverlayCapableJsPlumbUIComponent, {
+    _ju.extend(_jp.Connection, _jp.OverlayCapableJsPlumbUIComponent, {
         applyType: function (t, doNotRepaint, typeMap) {
 
             // none of these things result in the creation of objects so can be ignored.
@@ -259,7 +263,7 @@
                 this.endpoints[1].anchor = _anchors[1];
             }
 
-            jsPlumb.OverlayCapableJsPlumbUIComponent.applyType(this, t);
+            _jp.OverlayCapableJsPlumbUIComponent.applyType(this, t);
         },
         addClass: function (c, informEndpoints) {
             if (informEndpoints) {
@@ -308,8 +312,8 @@
         setHover: function (state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
                 this.connector.setHover(state);
-                jsPlumbAdapter[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
-                jsPlumbAdapter[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
+                root.jsPlumbAdapter[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
+                root.jsPlumbAdapter[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
             }
         },
         getCost: function () {
@@ -334,13 +338,13 @@
                 renderMode = this._jsPlumb.instance.getRenderMode(),
                 connector;
 
-            if (jsPlumbUtil.isString(connectorSpec))
+            if (_ju.isString(connectorSpec))
                 connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this); // lets you use a string as shorthand.
-            else if (jsPlumbUtil.isArray(connectorSpec)) {
+            else if (_ju.isArray(connectorSpec)) {
                 if (connectorSpec.length == 1)
                     connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs, this);
                 else
-                    connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], jsPlumbUtil.merge(connectorSpec[1], connectorArgs), this);
+                    connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs), this);
             }
             if (typeId != null) connector.typeId = typeId;
             return connector;
@@ -489,9 +493,9 @@
                 var a = params.anchors ? params.anchors[index] :
                         params.anchor ? params.anchor :
                             _makeAnchor(_jsPlumb.Defaults.Anchors[index], elementId, _jsPlumb) ||
-                            _makeAnchor(jsPlumb.Defaults.Anchors[index], elementId, _jsPlumb) ||
+                            _makeAnchor(_jp.Defaults.Anchors[index], elementId, _jsPlumb) ||
                             _makeAnchor(_jsPlumb.Defaults.Anchor, elementId, _jsPlumb) ||
-                            _makeAnchor(jsPlumb.Defaults.Anchor, elementId, _jsPlumb),
+                            _makeAnchor(_jp.Defaults.Anchor, elementId, _jsPlumb),
                     u = params.uuids ? params.uuids[index] : null;
 
                 e = _newEndpoint({
@@ -509,4 +513,4 @@
         }
 
     }); // END Connection class            
-})();
+}).call(this);

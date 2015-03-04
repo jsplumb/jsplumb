@@ -18,13 +18,14 @@
 (function () {
 
     "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
     var Flowchart = function (params) {
         this.type = "Flowchart";
         params = params || {};
         params.stub = params.stub == null ? 30 : params.stub;
         var segments,
-            _super = jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
+            _super = _jp.Connectors.AbstractConnector.apply(this, arguments),
             midpoint = params.midpoint == null ? 0.5 : params.midpoint,
             alwaysRespectStubs = params.alwaysRespectStubs === true,
             userSuppliedSegments = null,
@@ -380,6 +381,6 @@
         };
     };
 
-    jsPlumbUtil.extend(Flowchart, jsPlumb.Connectors.AbstractConnector);
-    jsPlumb.registerConnectorType(Flowchart, "Flowchart");
-})();
+    _ju.extend(Flowchart, _jp.Connectors.AbstractConnector);
+    _jp.registerConnectorType(Flowchart, "Flowchart");
+}).call(this);

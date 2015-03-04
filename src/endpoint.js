@@ -17,6 +17,7 @@
 (function () {
 
     "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil, _ja = root.jsPlumbAdapter;
 
     // create the drag handler for a connection
     var _makeConnectionDragHandler = function (placeholder, _jsPlumb) {
@@ -27,10 +28,10 @@
                     stopped = false;
                     return true;
                 }
-                var _ui = jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
+                var _ui = _jp.getUIPosition(arguments, _jsPlumb.getZoom());
 
                 if (placeholder.element) {
-                    jsPlumbAdapter.setPosition(placeholder.element, _ui);
+                    _ja.setPosition(placeholder.element, _ui);
                     _jsPlumb.repaint(placeholder.element, _ui);
                 }
             },
@@ -56,7 +57,7 @@
 
     // create a floating endpoint (for drag connections)
     var _makeFloatingEndpoint = function (paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, _jsPlumb, _newEndpoint, scope) {
-        var floatingAnchor = new jsPlumb.FloatingAnchor({ reference: referenceAnchor, referenceCanvas: referenceCanvas, jsPlumbInstance: _jsPlumb });
+        var floatingAnchor = new _jp.FloatingAnchor({ reference: referenceAnchor, referenceCanvas: referenceCanvas, jsPlumbInstance: _jsPlumb });
         //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
         // adding the floating endpoint as a droppable.  that makes more sense anyway!
         return _newEndpoint({ paintStyle: paintStyle, endpoint: endpoint, anchor: floatingAnchor, source: sourceElement, scope: scope });
@@ -82,30 +83,29 @@
     };
 
     var findConnectionIndex = function (conn, ep) {
-        return jsPlumbUtil.findWithFunction(ep.connections, function (c) {
+        return _ju.findWithFunction(ep.connections, function (c) {
             return c.id == conn.id;
         });
     };
 
-    jsPlumb.Endpoint = function (params) {
+    _jp.Endpoint = function (params) {
         var _jsPlumb = params._jsPlumb,
-            _gel = jsPlumb.getElementObject,
-            _ju = jsPlumbUtil,
+            _gel = _jp.getElementObject,
             _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint;
 
         this.idPrefix = "_jsplumb_e_";
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        jsPlumb.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
 // TYPE
 
         this.appendToDefaultType({
             connectionType:params.connectionType,
             maxConnections: params.maxConnections == null ? this._jsPlumb.instance.Defaults.MaxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
-            paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-            hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,
+            paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle,
+            hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.EndpointHoverStyle || _jp.Defaults.EndpointHoverStyle,
             connectorStyle: params.connectorStyle,
             connectorHoverStyle: params.connectorHoverStyle,
             connectorClass: params.connectorClass,
@@ -119,7 +119,7 @@
 
         this._jsPlumb.enabled = !(params.enabled === false);
         this._jsPlumb.visible = true;
-        this.element = jsPlumb.getDOMElement(params.source);
+        this.element = _jp.getDOMElement(params.source);
         this._jsPlumb.uuid = params.uuid;
         this._jsPlumb.floatingEndpoint = null;
         var inPlaceCopy = null;
@@ -140,7 +140,7 @@
             this.removeClass(oldAnchorClass);
             this.addClass(anchorClass);
             // add and remove at the same time to reduce the number of reflows.
-            jsPlumbAdapter.updateClasses(this.element, anchorClass, oldAnchorClass);
+            _ja.updateClasses(this.element, anchorClass, oldAnchorClass);
         }.bind(this);
 
         this.prepareAnchor = function(anchorParams) {
@@ -192,7 +192,7 @@
         this.prepareEndpoint = function(ep, typeId) {
             var _e = function (t, p) {
                 var rm = _jsPlumb.getRenderMode();
-                if (jsPlumb.Endpoints[rm][t]) return new jsPlumb.Endpoints[rm][t](p);
+                if (_jp.Endpoints[rm][t]) return new _jp.Endpoints[rm][t](p);
                 if (!_jsPlumb.Defaults.DoNotThrowErrors)
                     throw { msg: "jsPlumb: unknown endpoint type '" + t + "'" };
             };
@@ -252,7 +252,7 @@
             this.canvas = this.endpoint.canvas;
         };
 
-        jsPlumb.extend(this, params, typeParameters);
+        _jp.extend(this, params, typeParameters);
 
         this.isSource = params.isSource || false;
         this.isTemporarySource = params.isTemporarySource || false;
@@ -473,7 +473,7 @@
 
             // is this a connection source? we make it draggable and have the
             // drag listener maintain a connection with a floating endpoint.
-            if (!draggingInitialised && jsPlumb.isDragSupported(this.element)) {
+            if (!draggingInitialised && _jp.isDragSupported(this.element)) {
                 var placeholderInfo = { id: null, element: null },
                     jpc = null,
                     existingJpc = false,
@@ -481,9 +481,9 @@
                     _dragHandler = _makeConnectionDragHandler(placeholderInfo, _jsPlumb),
                     dragOptions = params.dragOptions || {},
                     defaultOpts = {},
-                    startEvent = jsPlumb.dragEvents.start,
-                    stopEvent = jsPlumb.dragEvents.stop,
-                    dragEvent = jsPlumb.dragEvents.drag;
+                    startEvent = _jp.dragEvents.start,
+                    stopEvent = _jp.dragEvents.stop,
+                    dragEvent = _jp.dragEvents.drag;
 
                 var start = function () {
                     // drag might have started on an endpoint that is not actually a source, but which has
@@ -539,10 +539,10 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel, this._jsPlumb.instance),
+                        ipco = _ja.getOffset(ipcoel, this._jsPlumb.instance),
                         canvasElement = _gel(this.canvas);
 
-                    jsPlumbAdapter.setPosition(placeholderInfo.element, ipco);
+                    _ja.setPosition(placeholderInfo.element, ipco);
 
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
@@ -716,16 +716,14 @@
 
                         // although the connection is no longer valid, there are use cases where this is useful.
                         _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
-
                         // tell jsplumb that dragging is finished.
                         _jsPlumb.currentlyDragging = false;
-
                         jpc = null;
                     }
 
                 }.bind(this);
 
-                dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
+                dragOptions = _jp.extend(defaultOpts, dragOptions);
                 dragOptions.scope = this.scope || dragOptions.scope;
                 dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
                 // extracted drag handler function so can be used by makeSource
@@ -745,7 +743,7 @@
             }
         };
 
-        var ep = params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
+        var ep = params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || _jp.Defaults.Endpoint;
         this.setEndpoint(ep, true);
         //params.anchor || this._jsPlumb.instance.Defaults.Anchor || jsPlumb.Defaults.Anchor || "Top"
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
@@ -766,13 +764,13 @@
         // back onto the endpoint you detached it from.
         var _initDropTarget = function (canvas, forceInit, isTransient, endpoint, referenceEndpoint) {
 
-            if ((this.isTarget || forceInit) && jsPlumb.isDropSupported(this.element)) {
-                var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
-                dropOptions = jsPlumb.extend({}, dropOptions);
+            if ((this.isTarget || forceInit) && _jp.isDropSupported(this.element)) {
+                var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || _jp.Defaults.DropOptions;
+                dropOptions = _jp.extend({}, dropOptions);
                 dropOptions.scope = dropOptions.scope || this.scope;
-                var dropEvent = jsPlumb.dragEvents.drop,
-                    overEvent = jsPlumb.dragEvents.over,
-                    outEvent = jsPlumb.dragEvents.out,
+                var dropEvent = _jp.dragEvents.drop,
+                    overEvent = _jp.dragEvents.over,
+                    outEvent = _jp.dragEvents.out,
                     _ep = this,
                     drop = _jsPlumb.EndpointDropHandler({
                         getEndpoint: function () {
@@ -803,14 +801,14 @@
 
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop, true);
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function () {
-                    var draggable = jsPlumb.getDragObject(arguments),
-                        id = _jsPlumb.getAttribute(jsPlumb.getDOMElement(draggable), "dragId"),
+                    var draggable = _jp.getDragObject(arguments),
+                        id = _jsPlumb.getAttribute(_jp.getDOMElement(draggable), "dragId"),
                         _jpc = _jsPlumb.floatingConnections[id];
 
                     if (_jpc != null) {
                         var idx = _jsPlumb.getFloatingAnchorIndex(_jpc);
                         // here we should fire the 'over' event if we are a target and this is a new connection,
-                        // or we are the same as the floating endpoint.								
+                        // or we are the same as the floating endpoint.
                         var _cont = (this.isTarget && idx !== 0) || (_jpc.suspendedEndpoint && this.referenceEndpoint && this.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
                         if (_cont) {
                             var bb = _jsPlumb.checkCondition("checkDropAllowed", {
@@ -826,8 +824,8 @@
                 }.bind(this));
 
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function () {
-                    var draggable = jsPlumb.getDragObject(arguments),
-                        id = draggable == null ? null : _jsPlumb.getAttribute(jsPlumb.getDOMElement(draggable), "dragId"),
+                    var draggable = _jp.getDragObject(arguments),
+                        id = draggable == null ? null : _jsPlumb.getAttribute(_jp.getDOMElement(draggable), "dragId"),
                         _jpc = id ? _jsPlumb.floatingConnections[id] : null;
 
                     if (_jpc != null) {
@@ -854,7 +852,7 @@
         return this;
     };
 
-    jsPlumbUtil.extend(jsPlumb.Endpoint, jsPlumb.OverlayCapableJsPlumbUIComponent, {
+    _ju.extend(_jp.Endpoint, _jp.OverlayCapableJsPlumbUIComponent, {
 
         setVisible: function (v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
             this._jsPlumb.visible = v;
@@ -879,9 +877,9 @@
             this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle, doNotRepaint);
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
-            jsPlumb.extend(this, t, typeParameters);
+            _jp.extend(this, t, typeParameters);
             if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
-            jsPlumb.OverlayCapableJsPlumbUIComponent.applyType(this, t);
+            _jp.OverlayCapableJsPlumbUIComponent.applyType(this, t);
         },
         isEnabled: function () {
             return this._jsPlumb.enabled;
@@ -891,13 +889,13 @@
         },
         cleanup: function () {
             var anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
-            jsPlumbAdapter.removeClass(this.element, anchorClass);
+            _ja.removeClass(this.element, anchorClass);
             this.anchor = null;
             this.endpoint.cleanup();
             this.endpoint.destroy();
             this.endpoint = null;
             // drag/drop
-            var i = jsPlumb.getElementObject(this.canvas);
+            var i = _jp.getElementObject(this.canvas);
             this._jsPlumb.instance.destroyDraggable(i, "internal");
             this._jsPlumb.instance.destroyDroppable(i, "internal");
         },
@@ -943,7 +941,7 @@
             this.anchor.elementId = _elId;
         },
         setReferenceElement: function (_el) {
-            this.element = jsPlumb.getDOMElement(_el);
+            this.element = _jp.getDOMElement(_el);
         },
         setDragAllowedWhenFull: function (allowed) {
             this.dragAllowedWhenFull = allowed;
@@ -959,7 +957,7 @@
         }
     });
 
-    jsPlumbInstance.prototype.EndpointDropHandler = function (dhParams) {
+    root.jsPlumbInstance.prototype.EndpointDropHandler = function (dhParams) {
         return function (e) {
 
             var _jsPlumb = dhParams.jsPlumb;
@@ -1001,8 +999,6 @@
             var _ep = dhParams.getEndpoint(jpc);
 
             if (dhParams.onDrop) dhParams.onDrop(jpc);
-
-
 
             // restore the original scope if necessary (issue 57)
             if (scope) _jsPlumb.setDragScope(draggable, scope);
@@ -1144,4 +1140,4 @@
             _jsPlumb.currentlyDragging = false;
         };
     };
-})();
+}).call(this);

@@ -18,6 +18,8 @@
 (function () {
 
     "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
+        _jk = root.Katavorio, _ja = root.jsPlumbAdapter, _jg = root.Biltong;
 
     var _getDragManager = function (instance, category) {
 
@@ -27,22 +29,22 @@
             e = instance.getEventManager();
 
         if (!k) {
-            k = new Katavorio({
+            k = new _jk({
                 bind: e.on,
                 unbind: e.off,
                 getSize: jsPlumb.getSize,
                 getPosition: function (el) {
-                    var o = jsPlumbAdapter.getOffset(el, instance);
+                    var o = _ja.getOffset(el, instance);
                     return [o.left, o.top];
                 },
                 setPosition: function (el, xy) {
                     el.style.left = xy[0] + "px";
                     el.style.top = xy[1] + "px";
                 },
-                addClass: jsPlumbAdapter.addClass,
-                removeClass: jsPlumbAdapter.removeClass,
-                intersects: Biltong.intersects,
-                indexOf: jsPlumbUtil.indexOf,
+                addClass: _ja.addClass,
+                removeClass: _ja.removeClass,
+                intersects: _jg.intersects,
+                indexOf: _ju.indexOf,
                 css: {
                     noSelect: instance.dragSelectClass,
                     droppable: "jsplumb-droppable",
@@ -62,7 +64,7 @@
     var _animProps = function (o, p) {
         var _one = function (pName) {
             if (p[pName]) {
-                if (jsPlumbUtil.isString(p[pName])) {
+                if (_ju.isString(p[pName])) {
                     var m = p[pName].match(/-=/) ? -1 : 1,
                         v = p[pName].substring(2);
                     return o[pName] + (m * v);
@@ -75,7 +77,7 @@
         return [ _one("left"), _one("top") ];
     };
 
-    jsPlumb.extend(jsPlumbInstance.prototype, {
+    _jp.extend(root.jsPlumbInstance.prototype, {
 
         scopeChange: function (el, elId, endpoints, scope, types) {
 
@@ -109,7 +111,7 @@
         //
         doAnimate: function (el, properties, options) {
             options = options || {};
-            var o = jsPlumbAdapter.getOffset(el, this),
+            var o = _ja.getOffset(el, this),
                 ap = _animProps(o, properties),
                 ldist = ap[0] - o.left,
                 tdist = ap[1] - o.top,
@@ -119,7 +121,7 @@
                 tinc = (step / d) * tdist,
                 idx = 0,
                 int = setInterval(function () {
-                    jsPlumbAdapter.setPosition(el, {
+                    _ja.setPosition(el, {
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
                     });
@@ -239,6 +241,6 @@
 
         _do();
     };
-    ready(jsPlumb.init);
+    ready(_jp.init);
 
 }).call(this);

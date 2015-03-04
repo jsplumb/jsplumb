@@ -18,8 +18,9 @@
 (function () {
 
     "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil, _jg = root.Biltong;
 
-    jsPlumb.Segments = {
+    _jp.Segments = {
 
         /*
          * Class: AbstractSegment
@@ -62,11 +63,11 @@
             };
         },
         Straight: function (params) {
-            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+            var _super = _jp.Segments.AbstractSegment.apply(this, arguments),
                 length, m, m2, x1, x2, y1, y2,
                 _recalc = function () {
                     length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                    m = Biltong.gradient({x: x1, y: y1}, {x: x2, y: y2});
+                    m = _jg.gradient({x: x1, y: y1}, {x: x2, y: y2});
                     m2 = -1 / m;
                 };
 
@@ -111,7 +112,7 @@
                     return { x: x2, y: y2 };
                 else {
                     var l = absolute ? location > 0 ? location : length + location : location * length;
-                    return Biltong.pointOnLine({x: x1, y: y1}, {x: x2, y: y2}, l);
+                    return _jg.pointOnLine({x: x1, y: y1}, {x: x2, y: y2}, l);
                 }
             };
 
@@ -140,7 +141,7 @@
 
                 if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
 
-                return Biltong.pointOnLine(p, farAwayPoint, distance);
+                return _jg.pointOnLine(p, farAwayPoint, distance);
             };
 
             // is c between a and b?
@@ -192,8 +193,8 @@
                     out.y = within(y1, y2, _y1) ? _y1 : closest(y1, y2, _y1);//_y1;
                 }
 
-                var fractionInSegment = Biltong.lineLength([ out.x, out.y ], [ x1, y1 ]);
-                out.d = Biltong.lineLength([x, y], [out.x, out.y]);
+                var fractionInSegment = _jg.lineLength([ out.x, out.y ], [ x1, y1 ]);
+                out.d = _jg.lineLength([x, y], [out.x, out.y]);
                 out.l = fractionInSegment / length;
                 return out;
             };
@@ -221,9 +222,9 @@
 
          */
         Arc: function (params) {
-            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+            var _super = _jp.Segments.AbstractSegment.apply(this, arguments),
                 _calcAngle = function (_x, _y) {
-                    return Biltong.theta([params.cx, params.cy], [_x, _y]);
+                    return _jg.theta([params.cx, params.cy], [_x, _y]);
                 },
                 _calcAngleForLocation = function (segment, location) {
                     if (segment.anticlockwise) {
@@ -265,7 +266,7 @@
             if (this.startAngle < 0) this.startAngle += TWO_PI;
 
             // segment is used by vml     
-            this.segment = Biltong.quadrant([this.x1, this.y1], [this.x2, this.y2]);
+            this.segment = _jg.quadrant([this.x1, this.y1], [this.x2, this.y2]);
 
             // we now have startAngle and endAngle as positive numbers, meaning the
             // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
@@ -330,7 +331,7 @@
              */
             this.gradientAtPoint = function (location, absolute) {
                 var p = this.pointOnPath(location, absolute);
-                var m = Biltong.normal([ params.cx, params.cy ], [p.x, p.y ]);
+                var m = _jg.normal([ params.cx, params.cy ], [p.x, p.y ]);
                 if (!this.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
                 return m;
             };
@@ -355,7 +356,7 @@
                 { x: params.x2, y: params.y2 }
             ];
 
-            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments);
+            var _super = _jp.Segments.AbstractSegment.apply(this, arguments);
             // although this is not a strictly rigorous determination of bounds
             // of a bezier curve, it works for the types of curves that this segment
             // type produces.
@@ -370,7 +371,7 @@
 
             var _translateLocation = function (_curve, location, absolute) {
                 if (absolute)
-                    location = jsBezier.locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
+                    location = root.jsBezier.locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
 
                 return location;
             };
@@ -381,7 +382,7 @@
              */
             this.pointOnPath = function (location, absolute) {
                 location = _translateLocation(this.curve, location, absolute);
-                return jsBezier.pointOnCurve(this.curve, location);
+                return root.jsBezier.pointOnCurve(this.curve, location);
             };
 
             /**
@@ -389,16 +390,16 @@
              */
             this.gradientAtPoint = function (location, absolute) {
                 location = _translateLocation(this.curve, location, absolute);
-                return jsBezier.gradientAtPoint(this.curve, location);
+                return root.jsBezier.gradientAtPoint(this.curve, location);
             };
 
             this.pointAlongPathFrom = function (location, distance, absolute) {
                 location = _translateLocation(this.curve, location, absolute);
-                return jsBezier.pointAlongCurveFrom(this.curve, location, distance);
+                return root.jsBezier.pointAlongCurveFrom(this.curve, location, distance);
             };
 
             this.getLength = function () {
-                return jsBezier.getLength(this.curve);
+                return root.jsBezier.getLength(this.curve);
             };
 
             this.getBounds = function () {
@@ -428,7 +429,7 @@
      * their cumulative ratios to the total length.  Then when the right segment is found it is a simple case of dispatching
      * the request to it (and adjusting 'location' so that it is relative to the beginning of that segment.)
      */
-    jsPlumb.Connectors.AbstractConnector = function (params) {
+    _jp.Connectors.AbstractConnector = function (params) {
 
         AbstractComponent.apply(this, arguments);
 
@@ -437,11 +438,11 @@
             segmentProportions = [],
             segmentProportionalLengths = [],
             stub = params.stub || 0,
-            sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
-            targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
+            sourceStub = _ju.isArray(stub) ? stub[0] : stub,
+            targetStub = _ju.isArray(stub) ? stub[1] : stub,
             gap = params.gap || 0,
-            sourceGap = jsPlumbUtil.isArray(gap) ? gap[0] : gap,
-            targetGap = jsPlumbUtil.isArray(gap) ? gap[1] : gap,
+            sourceGap = _ju.isArray(gap) ? gap[0] : gap,
+            targetGap = _ju.isArray(gap) ? gap[1] : gap,
             userProvidedSegments = null,
             edited = false,
             paintInfo = null;
@@ -520,7 +521,7 @@
             },
             _addSegment = function (conn, type, params) {
                 if (params.x1 == params.x2 && params.y1 == params.y2) return;
-                var s = new jsPlumb.Segments[type](params);
+                var s = new _jp.Segments[type](params);
                 segments.push(s);
                 totalLength += s.getLength();
                 conn.updateBounds(s);
@@ -540,7 +541,7 @@
 
         var _prepareCompute = function (params) {
             this.lineWidth = params.lineWidth;
-            var segment = Biltong.quadrant(params.sourcePos, params.targetPos),
+            var segment = _jg.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,
@@ -654,15 +655,15 @@
             maxGap: Math.max(sourceGap, targetGap)
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Connectors.AbstractConnector, AbstractComponent);
+    _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
 
     /**
      * Class: Connectors.Straight
      * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
      */
-    var Straight = jsPlumb.Connectors.Straight = function () {
+    var Straight = _jp.Connectors.Straight = function () {
         this.type = "Straight";
-        var _super = jsPlumb.Connectors.AbstractConnector.apply(this, arguments);
+        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
 
         this._compute = function (paintInfo, _) {
             _super.addSegment(this, "Straight", {x1: paintInfo.sx, y1: paintInfo.sy, x2: paintInfo.startStubX, y2: paintInfo.startStubY});
@@ -670,15 +671,15 @@
             _super.addSegment(this, "Straight", {x1: paintInfo.endStubX, y1: paintInfo.endStubY, x2: paintInfo.tx, y2: paintInfo.ty});
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Connectors.Straight, jsPlumb.Connectors.AbstractConnector);
-    jsPlumb.registerConnectorType(Straight, "Straight");
+    _ju.extend(_jp.Connectors.Straight, _jp.Connectors.AbstractConnector);
+    _jp.registerConnectorType(Straight, "Straight");
 
 
     // ********************************* END OF CONNECTOR TYPES *******************************************************************
 
     // ********************************* ENDPOINT TYPES *******************************************************************
 
-    jsPlumb.Endpoints.AbstractEndpoint = function (params) {
+    _jp.Endpoints.AbstractEndpoint = function (params) {
         AbstractComponent.apply(this, arguments);
         var compute = this.compute = function (anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
             var out = this._compute.apply(this, arguments);
@@ -697,7 +698,7 @@
             cssClass: params.cssClass
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Endpoints.AbstractEndpoint, AbstractComponent);
+    _ju.extend(_jp.Endpoints.AbstractEndpoint, AbstractComponent);
 
     /**
      * Class: Endpoints.Dot
@@ -711,9 +712,9 @@
      *
      *    radius    -    radius of the endpoint.  defaults to 10 pixels.
      */
-    jsPlumb.Endpoints.Dot = function (params) {
+    _jp.Endpoints.Dot = function (params) {
         this.type = "Dot";
-        var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+        var _super = _jp.Endpoints.AbstractEndpoint.apply(this, arguments);
         params = params || {};
         this.radius = params.radius || 10;
         this.defaultOffset = 0.5 * this.radius;
@@ -736,11 +737,11 @@
             return [ x, y, w, h, this.radius ];
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Endpoints.Dot, jsPlumb.Endpoints.AbstractEndpoint);
+    _ju.extend(_jp.Endpoints.Dot, _jp.Endpoints.AbstractEndpoint);
 
-    jsPlumb.Endpoints.Rectangle = function (params) {
+    _jp.Endpoints.Rectangle = function (params) {
         this.type = "Rectangle";
-        var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+        var _super = _jp.Endpoints.AbstractEndpoint.apply(this, arguments);
         params = params || {};
         this.width = params.width || 20;
         this.height = params.height || 20;
@@ -754,13 +755,13 @@
             return [ x, y, width, height];
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Endpoints.Rectangle, jsPlumb.Endpoints.AbstractEndpoint);
+    _ju.extend(_jp.Endpoints.Rectangle, _jp.Endpoints.AbstractEndpoint);
 
     var DOMElementEndpoint = function (params) {
-        jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+        _jp.jsPlumbUIComponent.apply(this, arguments);
         this._jsPlumb.displayElements = [];
     };
-    jsPlumbUtil.extend(DOMElementEndpoint, jsPlumb.jsPlumbUIComponent, {
+    _ju.extend(DOMElementEndpoint, _jp.jsPlumbUIComponent, {
         getDisplayElements: function () {
             return this._jsPlumb.displayElements;
         },
@@ -783,14 +784,14 @@
      TODO: multiple references to self. not sure quite how to get rid of them entirely. perhaps self = null in the cleanup
      function will suffice
 
-     TODO this class still leaks memory.
+     TODO this class still might leak memory.
 
      */
-    jsPlumb.Endpoints.Image = function (params) {
+    _jp.Endpoints.Image = function (params) {
 
         this.type = "Image";
         DOMElementEndpoint.apply(this, arguments);
-        jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+        _jp.Endpoints.AbstractEndpoint.apply(this, arguments);
 
         var _onload = params.onload,
             src = params.src || params.url,
@@ -859,7 +860,7 @@
                 }
                 var x = this.anchorPoint[0] - (this._jsPlumb.widthToUse / 2),
                     y = this.anchorPoint[1] - (this._jsPlumb.heightToUse / 2);
-                jsPlumbUtil.sizeElement(this.canvas, x, y, this._jsPlumb.widthToUse, this._jsPlumb.heightToUse);
+                _ju.sizeElement(this.canvas, x, y, this._jsPlumb.widthToUse, this._jsPlumb.heightToUse);
             }
         };
 
@@ -869,14 +870,14 @@
                     this.actuallyPaint(style, anchor);
                 }
                 else {
-                    window.setTimeout(function () {
+                    root.setTimeout(function () {
                         this.paint(style, anchor);
                     }.bind(this), 200);
                 }
             }
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
+    _ju.extend(_jp.Endpoints.Image, [ DOMElementEndpoint, _jp.Endpoints.AbstractEndpoint ], {
         cleanup: function (force) {
             if (force) {
                 this._jsPlumb.deleted = true;
@@ -890,8 +891,8 @@
      * Class: Endpoints.Blank
      * An Endpoint that paints nothing (visible) on the screen.  Supports cssClass and hoverClass parameters like all Endpoints.
      */
-    jsPlumb.Endpoints.Blank = function (params) {
-        var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+    _jp.Endpoints.Blank = function (params) {
+        var _super = _jp.Endpoints.AbstractEndpoint.apply(this, arguments);
         this.type = "Blank";
         DOMElementEndpoint.apply(this, arguments);
         this._compute = function (anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
@@ -910,10 +911,10 @@
         this._jsPlumb.instance.appendElement(this.canvas);
 
         this.paint = function (style, anchor) {
-            jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);
+            _ju.sizeElement(this.canvas, this.x, this.y, this.w, this.h);
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Endpoints.Blank, [jsPlumb.Endpoints.AbstractEndpoint, DOMElementEndpoint], {
+    _ju.extend(_jp.Endpoints.Blank, [_jp.Endpoints.AbstractEndpoint, DOMElementEndpoint], {
         cleanup: function () {
             if (this.canvas && this.canvas.parentNode) {
                 this.canvas.parentNode.removeChild(this.canvas);
@@ -933,9 +934,9 @@
      * 	width	-	width of the triangle's base.  defaults to 55 pixels.
      * 	height	-	height of the triangle from base to apex.  defaults to 55 pixels.
      */
-    jsPlumb.Endpoints.Triangle = function (params) {
+    _jp.Endpoints.Triangle = function (params) {
         this.type = "Triangle";
-        jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+        _jp.Endpoints.AbstractEndpoint.apply(this, arguments);
         params = params || {  };
         params.width = params.width || 55;
         params.height = params.height || 55;
@@ -954,7 +955,7 @@
 
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 
-    var AbstractOverlay = jsPlumb.Overlays.AbstractOverlay = function (params) {
+    var AbstractOverlay = _jp.Overlays.AbstractOverlay = function (params) {
         this.visible = true;
         this.isAppendedAtTopLevel = true;
         this.component = params.component;
@@ -1022,12 +1023,11 @@
      * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
      * 	direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
      */
-    jsPlumb.Overlays.Arrow = function (params) {
+    _jp.Overlays.Arrow = function (params) {
         this.type = "Arrow";
         AbstractOverlay.apply(this, arguments);
         this.isAppendedAtTopLevel = false;
         params = params || {};
-        var _ju = jsPlumbUtil, _jg = Biltong;
 
         this.length = params.length || 20;
         this.width = params.width || 20;
@@ -1103,7 +1103,7 @@
             else return {component: component, minX: 0, maxX: 0, minY: 0, maxY: 0};
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.Arrow, AbstractOverlay, {
+    _ju.extend(_jp.Overlays.Arrow, AbstractOverlay, {
         updateFrom:function(d) {
             this.length = d.length || this.length;
             this.width = d.width|| this.width;
@@ -1123,13 +1123,13 @@
      * Function: Constructor
      * See <Overlays.Arrow> for allowed parameters for this overlay.
      */
-    jsPlumb.Overlays.PlainArrow = function (params) {
+    _jp.Overlays.PlainArrow = function (params) {
         params = params || {};
-        var p = jsPlumb.extend(params, {foldback: 1});
-        jsPlumb.Overlays.Arrow.call(this, p);
+        var p = _jp.extend(params, {foldback: 1});
+        _jp.Overlays.Arrow.call(this, p);
         this.type = "PlainArrow";
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.PlainArrow, jsPlumb.Overlays.Arrow);
+    _ju.extend(_jp.Overlays.PlainArrow, _jp.Overlays.Arrow);
 
     /*
      * Class: Overlays.Diamond
@@ -1146,14 +1146,14 @@
      * Function: Constructor
      * See <Overlays.Arrow> for allowed parameters for this overlay.
      */
-    jsPlumb.Overlays.Diamond = function (params) {
+    _jp.Overlays.Diamond = function (params) {
         params = params || {};
         var l = params.length || 40,
             p = jsPlumb.extend(params, {length: l / 2, foldback: 2});
-        jsPlumb.Overlays.Arrow.call(this, p);
+        _jp.Overlays.Arrow.call(this, p);
         this.type = "Diamond";
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.Diamond, jsPlumb.Overlays.Arrow);
+    _ju.extend(_jp.Overlays.Diamond, _jp.Overlays.Arrow);
 
     var _getDimensions = function (component, forceRefresh) {
         if (component._jsPlumb.cachedDimensions == null || forceRefresh)
@@ -1163,7 +1163,7 @@
 
     // abstract superclass for overlays that add an element to the DOM.
     var AbstractDOMOverlay = function (params) {
-        jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+        _jp.jsPlumbUIComponent.apply(this, arguments);
         AbstractOverlay.apply(this, arguments);
 
         // hand off fired events to associated component.
@@ -1222,7 +1222,7 @@
                 }
                 else if (component.pointOnPath) {
                     var loc = this.loc, absolute = false;
-                    if (jsPlumbUtil.isString(this.loc) || this.loc < 0 || this.loc > 1) {
+                    if (_ju.isString(this.loc) || this.loc < 0 || this.loc > 1) {
                         loc = parseInt(this.loc, 10);
                         absolute = true;
                     }
@@ -1249,10 +1249,10 @@
             else return {minX: 0, maxX: 0, minY: 0, maxY: 0};
         };
     };
-    jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.jsPlumbUIComponent, AbstractOverlay], {
+    _ju.extend(AbstractDOMOverlay, [_jp.jsPlumbUIComponent, AbstractOverlay], {
         getDimensions: function () {
 // still support the old way, for now, for IE8. But from 2.0.0 this whole method will be gone. 
-            return jsPlumbUtil.oldIE ? jsPlumb.getSize(this.getElement()) : [1, 1];
+            return _ju.oldIE ? _jp.getSize(this.getElement()) : [1, 1];
         },
         setVisible: function (state) {
             if (this._jsPlumb.div) {
@@ -1324,26 +1324,26 @@
      * 	id - optional id to use for later retrieval of this overlay.
      * 	
      */
-    jsPlumb.Overlays.Custom = function (params) {
+    _jp.Overlays.Custom = function (params) {
         this.type = "Custom";
         AbstractDOMOverlay.apply(this, arguments);
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.Custom, AbstractDOMOverlay);
+    _ju.extend(_jp.Overlays.Custom, AbstractDOMOverlay);
 
-    jsPlumb.Overlays.GuideLines = function () {
+    _jp.Overlays.GuideLines = function () {
         var self = this;
         self.length = 50;
         self.lineWidth = 5;
         this.type = "GuideLines";
         AbstractOverlay.apply(this, arguments);
-        jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+        _jp.jsPlumbUIComponent.apply(this, arguments);
         this.draw = function (connector, currentConnectionPaintStyle) {
 
             var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
                 mid = connector.pointOnPath(self.loc),
-                tail = Biltong.pointOnLine(head, mid, self.length),
-                tailLine = Biltong.perpendicularLineTo(head, tail, 40),
-                headLine = Biltong.perpendicularLineTo(tail, head, 20);
+                tail = _jg.pointOnLine(head, mid, self.length),
+                tailLine = _jg.perpendicularLineTo(head, tail, 40),
+                headLine = _jg.perpendicularLineTo(tail, head, 20);
 
             return {
                 connector: connector,
@@ -1378,16 +1378,16 @@
      * 
      * 	
      */
-    jsPlumb.Overlays.Label = function (params) {
+    _jp.Overlays.Label = function (params) {
         this.labelStyle = params.labelStyle;
 
         var labelWidth = null, labelHeight = null, labelText = null, labelPadding = null;
         this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
-        var p = jsPlumb.extend({
+        var p = _jp.extend({
             create: function () {
                 return document.createElement("div");
             }}, params);
-        jsPlumb.Overlays.Custom.call(this, p);
+        _jp.Overlays.Custom.call(this, p);
         this.type = "Label";
         this.label = params.label || "";
         this.labelText = null;
@@ -1405,7 +1405,7 @@
         }
 
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
+    _ju.extend(_jp.Overlays.Label, _jp.Overlays.Custom, {
         cleanup: function (force) {
             if (force) {
                 this.div = null;
@@ -1455,4 +1455,4 @@
 
     // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
 
-})();
+}).call(this);

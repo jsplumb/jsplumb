@@ -18,6 +18,7 @@
 (function () {
 
     "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
     var _segment = function (x1, y1, x2, y2) {
             if (x1 <= x2 && y2 <= y1) return 1;
@@ -72,7 +73,7 @@
         params = params || {};
         this.type = "StateMachine";
 
-        var _super = jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
+        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments),
             curviness = params.curviness || 10,
             margin = params.margin || 5,
             proximityLimit = params.proximityLimit || 80,
@@ -173,6 +174,6 @@
             }
         };
     };
-    jsPlumbUtil.extend(StateMachine, jsPlumb.Connectors.AbstractConnector);
-    jsPlumb.registerConnectorType(StateMachine, "StateMachine");
-})();
+    _ju.extend(StateMachine, _jp.Connectors.AbstractConnector);
+    _jp.registerConnectorType(StateMachine, "StateMachine");
+}).call(this);

@@ -19,10 +19,14 @@
 
     "use strict";
 
+    var root = this,
+        _ju = root.jsPlumbUtil,
+        _jp = root.jsPlumb;
+
     //
     // manages anchors for all elements.
     //
-    jsPlumb.AnchorManager = function (params) {
+    _jp.AnchorManager = function (params) {
         var _amEndpoints = {},
             continuousAnchorLocations = {},
             userDefinedContinuousAnchorLocations = {},
@@ -209,7 +213,7 @@
                         conn._jsPlumb.instance.removeElement(ep[1].canvas);
                         doRegisterTarget = false;
                     }
-                    jsPlumbUtil.addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == jsPlumb.DynamicAnchor]);
+                    _ju.addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == _jp.DynamicAnchor]);
                 };
 
             registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
@@ -222,10 +226,10 @@
                     var f = function (e) {
                         return e[4] == eId;
                     };
-                    jsPlumbUtil.removeWithFunction(list.top, f);
-                    jsPlumbUtil.removeWithFunction(list.left, f);
-                    jsPlumbUtil.removeWithFunction(list.bottom, f);
-                    jsPlumbUtil.removeWithFunction(list.right, f);
+                    _ju.removeWithFunction(list.top, f);
+                    _ju.removeWithFunction(list.left, f);
+                    _ju.removeWithFunction(list.bottom, f);
+                    _ju.removeWithFunction(list.right, f);
                 }
             })(anchorLists[endpoint.elementId], endpoint.id);
         };
@@ -235,11 +239,11 @@
                 targetId = connInfo.targetId,
                 ep = connection.endpoints,
                 removeConnection = function (otherIndex, otherEndpoint, otherAnchor, elId, c) {
-                    if (otherAnchor != null && otherAnchor.constructor == jsPlumb.FloatingAnchor) {
+                    if (otherAnchor != null && otherAnchor.constructor == _jp.FloatingAnchor) {
                         // no-op
                     }
                     else {
-                        jsPlumbUtil.removeWithFunction(connectionsByElementId[elId], function (_c) {
+                        _ju.removeWithFunction(connectionsByElementId[elId], function (_c) {
                             return _c[0].id == c.id;
                         });
                     }
@@ -256,7 +260,7 @@
             self.redraw(connection.targetId);
         };
         this.add = function (endpoint, elementId) {
-            jsPlumbUtil.addToList(_amEndpoints, elementId, endpoint);
+            _ju.addToList(_amEndpoints, elementId, endpoint);
         };
         this.changeId = function (oldId, newId) {
             connectionsByElementId[newId] = connectionsByElementId[oldId];
@@ -271,7 +275,7 @@
             return _amEndpoints[elementId] || [];
         };
         this.deleteEndpoint = function (endpoint) {
-            jsPlumbUtil.removeWithFunction(_amEndpoints[endpoint.elementId], function (e) {
+            _ju.removeWithFunction(_amEndpoints[endpoint.elementId], function (e) {
                 return e.id == endpoint.id;
             });
             removeEndpointFromAnchorLists(endpoint);
@@ -305,7 +309,7 @@
                 candidate;
 
             if (listToRemoveFrom) {
-                var rIdx = jsPlumbUtil.findWithFunction(listToRemoveFrom, function (e) {
+                var rIdx = _ju.findWithFunction(listToRemoveFrom, function (e) {
                     return e[4] == endpointId;
                 });
                 if (rIdx != -1) {
@@ -313,13 +317,13 @@
                     // get all connections from this list
                     for (i = 0; i < listToRemoveFrom.length; i++) {
                         candidate = listToRemoveFrom[i][1];
-                        jsPlumbUtil.addWithFunction(connsToPaint, candidate, function (c) {
+                        _ju.addWithFunction(connsToPaint, candidate, function (c) {
                             return c.id == candidate.id;
                         });
-                        jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function (e) {
+                        _ju.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function (e) {
                             return e.id == candidate.endpoints[idx].id;
                         });
-                        jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function (e) {
+                        _ju.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function (e) {
                             return e.id == candidate.endpoints[oIdx].id;
                         });
                     }
@@ -330,13 +334,13 @@
                 candidate = listToAddTo[i][1];
                 if (params.idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1)
                     firstMatchingElIdx = i;
-                jsPlumbUtil.addWithFunction(connsToPaint, candidate, function (c) {
+                _ju.addWithFunction(connsToPaint, candidate, function (c) {
                     return c.id == candidate.id;
                 });
-                jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function (e) {
+                _ju.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function (e) {
                     return e.id == candidate.endpoints[idx].id;
                 });
-                jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], function (e) {
+                _ju.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], function (e) {
                     return e.id == candidate.endpoints[oIdx].id;
                 });
             }
@@ -358,10 +362,10 @@
         // 
         //
         this.updateOtherEndpoint = function (elId, oldTargetId, newTargetId, connection) {
-            var sIndex = jsPlumbUtil.findWithFunction(connectionsByElementId[elId], function (i) {
+            var sIndex = _ju.findWithFunction(connectionsByElementId[elId], function (i) {
                     return i[0].id === connection.id;
                 }),
-                tIndex = jsPlumbUtil.findWithFunction(connectionsByElementId[oldTargetId], function (i) {
+                tIndex = _ju.findWithFunction(connectionsByElementId[oldTargetId], function (i) {
                     return i[0].id === connection.id;
                 });
 
@@ -369,14 +373,14 @@
             if (sIndex != -1) {
                 connectionsByElementId[elId][sIndex][0] = connection;
                 connectionsByElementId[elId][sIndex][1] = connection.endpoints[1];
-                connectionsByElementId[elId][sIndex][2] = connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor;
+                connectionsByElementId[elId][sIndex][2] = connection.endpoints[1].anchor.constructor == _jp.DynamicAnchor;
             }
 
             // remove entry for previous target (if there)
             if (tIndex > -1) {
                 connectionsByElementId[oldTargetId].splice(tIndex, 1);
                 // add entry for new target
-                jsPlumbUtil.addToList(connectionsByElementId, newTargetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor]);
+                _ju.addToList(connectionsByElementId, newTargetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor == _jp.DynamicAnchor]);
             }
 
             connection.updateConnectedClass();
@@ -392,20 +396,20 @@
         this.sourceChanged = function (originalId, newId, connection) {
             if (originalId !== newId) {
                 // remove the entry that points from the old source to the target
-                jsPlumbUtil.removeWithFunction(connectionsByElementId[originalId], function (info) {
+                _ju.removeWithFunction(connectionsByElementId[originalId], function (info) {
                     return info[0].id === connection.id;
                 });
                 // find entry for target and update it
-                var tIdx = jsPlumbUtil.findWithFunction(connectionsByElementId[connection.targetId], function (i) {
+                var tIdx = _ju.findWithFunction(connectionsByElementId[connection.targetId], function (i) {
                     return i[0].id === connection.id;
                 });
                 if (tIdx > -1) {
                     connectionsByElementId[connection.targetId][tIdx][0] = connection;
                     connectionsByElementId[connection.targetId][tIdx][1] = connection.endpoints[0];
-                    connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor;
+                    connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == _jp.DynamicAnchor;
                 }
                 // add entry for new source
-                jsPlumbUtil.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);
+                _ju.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == _jp.DynamicAnchor]);
 
                 connection.updateConnectedClass();
             }
@@ -425,7 +429,7 @@
                 elementId = jsPlumbInstance.getId(element);
 
             if (elementId !== currentId) {
-                var idx = jsPlumbUtil.indexOf(eps, ep);
+                var idx = _ju.indexOf(eps, ep);
                 if (idx > -1) {
                     var _ep = eps.splice(idx, 1)[0];
                     self.add(_ep, elementId);
@@ -528,17 +532,17 @@
                             if (targetContinuous) _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
                         }
 
-                        if (sourceContinuous) jsPlumbUtil.addWithFunction(anchorsToUpdate, sourceId, function (a) {
+                        if (sourceContinuous) _ju.addWithFunction(anchorsToUpdate, sourceId, function (a) {
                             return a === sourceId;
                         });
-                        if (targetContinuous) jsPlumbUtil.addWithFunction(anchorsToUpdate, targetId, function (a) {
+                        if (targetContinuous) _ju.addWithFunction(anchorsToUpdate, targetId, function (a) {
                             return a === targetId;
                         });
-                        jsPlumbUtil.addWithFunction(connectionsToPaint, conn, function (c) {
+                        _ju.addWithFunction(connectionsToPaint, conn, function (c) {
                             return c.id == conn.id;
                         });
                         if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1))
-                            jsPlumbUtil.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function (e) {
+                            _ju.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function (e) {
                                 return e.id == conn.endpoints[oIdx].id;
                             });
                     }
@@ -550,7 +554,7 @@
                         if (!anchorLists[elementId]) anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] };
                         _updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [ep[i], ep[i]], paint: function () {
                         }}, false, elementId, 0, false, ep[i].anchor.getDefaultFace(), elementId, connectionsToPaint, endpointsToPaint);
-                        jsPlumbUtil.addWithFunction(anchorsToUpdate, elementId, function (a) {
+                        _ju.addWithFunction(anchorsToUpdate, elementId, function (a) {
                             return a === elementId;
                         });
                     }
@@ -581,20 +585,20 @@
                 // TODO we could have compiled a list of these in the first pass through connections; might save some time.
                 for (i = 0; i < endpointConnections.length; i++) {
                     var otherEndpoint = endpointConnections[i][1];
-                    if (otherEndpoint.anchor.constructor == jsPlumb.DynamicAnchor) {
+                    if (otherEndpoint.anchor.constructor == _jp.DynamicAnchor) {
                         otherEndpoint.paint({ elementWithPrecedence: elementId, timestamp: timestamp });
-                        jsPlumbUtil.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
+                        _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
                             return c.id == endpointConnections[i][0].id;
                         });
                         // all the connections for the other endpoint now need to be repainted
                         for (var k = 0; k < otherEndpoint.connections.length; k++) {
                             if (otherEndpoint.connections[k] !== endpointConnections[i][0])
-                                jsPlumbUtil.addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function (c) {
+                                _ju.addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function (c) {
                                     return c.id == otherEndpoint.connections[k].id;
                                 });
                         }
-                    } else if (otherEndpoint.anchor.constructor == jsPlumb.Anchor) {
-                        jsPlumbUtil.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
+                    } else if (otherEndpoint.anchor.constructor == _jp.Anchor) {
+                        _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
                             return c.id == endpointConnections[i][0].id;
                         });
                     }
@@ -613,7 +617,7 @@
         };
 
         var ContinuousAnchor = function (anchorParams) {
-            jsPlumbUtil.EventGenerator.apply(this);
+            _ju.EventGenerator.apply(this);
             this.type = "Continuous";
             this.isDynamic = true;
             this.isContinuous = true;
@@ -687,7 +691,7 @@
      * or by an array describing their coordinates (eg. [ 0, 0.5, 0, -1 ], which is the same as "TopMiddle").  jsPlumb now handles all of the
      * creation of Anchors without user intervention.
      */
-    jsPlumb.Anchor = function (params) {
+    _jp.Anchor = function (params) {
         this.x = params.x || 0;
         this.y = params.y || 0;
         this.elementId = params.elementId;
@@ -698,7 +702,7 @@
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
 
-        jsPlumbUtil.EventGenerator.apply(this);
+        _ju.EventGenerator.apply(this);
 
         this.compute = function (params) {
 
@@ -725,7 +729,7 @@
             return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp != params.timestamp)) ? this.compute(params) : this.lastReturnValue;
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Anchor, jsPlumbUtil.EventGenerator, {
+    _ju.extend(_jp.Anchor, _ju.EventGenerator, {
         equals: function (anchor) {
             if (!anchor) return false;
             var ao = anchor.getOrientation(),
@@ -756,16 +760,16 @@
      *
      * TODO FloatingAnchor could totally be refactored to extend Anchor just slightly.
      */
-    jsPlumb.FloatingAnchor = function (params) {
+    _jp.FloatingAnchor = function (params) {
 
-        jsPlumb.Anchor.apply(this, arguments);
+        _jp.Anchor.apply(this, arguments);
 
         // this is the anchor that this floating anchor is referenced to for
         // purposes of calculating the orientation.
         var ref = params.reference,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
-            size = jsPlumb.getSize(refCanvas),
+            size = _jp.getSize(refCanvas),
             // these are used to store the current relative position of our
             // anchor wrt the reference anchor. they only indicate
             // direction, so have a value of 1 or -1 (or, very rarely, 0). these
@@ -829,10 +833,10 @@
             return _lastResult == null ? this.compute(params) : _lastResult;
         };
     };
-    jsPlumbUtil.extend(jsPlumb.FloatingAnchor, jsPlumb.Anchor);
+    _ju.extend(_jp.FloatingAnchor, _jp.Anchor);
 
     var _convertAnchor = function (anchor, jsPlumbInstance, elementId) {
-        return anchor.constructor == jsPlumb.Anchor ? anchor : jsPlumbInstance.makeAnchor(anchor, elementId, jsPlumbInstance);
+        return anchor.constructor == _jp.Anchor ? anchor : jsPlumbInstance.makeAnchor(anchor, elementId, jsPlumbInstance);
     };
 
     /* 
@@ -844,8 +848,8 @@
      * feature for some applications.
      * 
      */
-    jsPlumb.DynamicAnchor = function (params) {
-        jsPlumb.Anchor.apply(this, arguments);
+    _jp.DynamicAnchor = function (params) {
+        _jp.Anchor.apply(this, arguments);
 
         this.isDynamic = true;
         this.anchors = [];
@@ -938,11 +942,11 @@
             return (_curAnchor && _curAnchor.getCssClass()) || "";
         };
     };
-    jsPlumbUtil.extend(jsPlumb.DynamicAnchor, jsPlumb.Anchor);
+    _ju.extend(_jp.DynamicAnchor, _jp.Anchor);
 
 // -------- basic anchors ------------------    
     var _curryAnchor = function (x, y, ox, oy, type, fnInit) {
-        jsPlumb.Anchors[type] = function (params) {
+        _jp.Anchors[type] = function (params) {
             var a = params.jsPlumbInstance.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
             a.type = type;
             if (fnInit) fnInit(a, params);
@@ -968,13 +972,13 @@
 // ------- dynamic anchors -------------------    
 
     // default dynamic anchors chooses from Top, Right, Bottom, Left
-    jsPlumb.Defaults.DynamicAnchors = function (params) {
+    _jp.Defaults.DynamicAnchors = function (params) {
         return params.jsPlumbInstance.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"], params.elementId, params.jsPlumbInstance);
     };
 
     // default dynamic anchors bound to name 'AutoDefault'
-    jsPlumb.Anchors.AutoDefault = function (params) {
-        var a = params.jsPlumbInstance.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors(params));
+    _jp.Anchors.AutoDefault = function (params) {
+        var a = params.jsPlumbInstance.makeDynamicAnchor(_jp.Defaults.DynamicAnchors(params));
         a.type = "AutoDefault";
         return a;
     };
@@ -982,14 +986,14 @@
 // ------- continuous anchors -------------------    
 
     var _curryContinuousAnchor = function (type, faces) {
-        jsPlumb.Anchors[type] = function (params) {
+        _jp.Anchors[type] = function (params) {
             var a = params.jsPlumbInstance.makeAnchor(["Continuous", { faces: faces }], params.elementId, params.jsPlumbInstance);
             a.type = type;
             return a;
         };
     };
 
-    jsPlumb.Anchors.Continuous = function (params) {
+    _jp.Anchors.Continuous = function (params) {
         return params.jsPlumbInstance.continuousAnchorFactory.get(params);
     };
 
@@ -1029,7 +1033,7 @@
 
 // ------- perimeter anchors -------------------    
 
-    jsPlumb.Anchors.Perimeter = function (params) {
+    _jp.Anchors.Perimeter = function (params) {
         params = params || {};
         var anchorCount = params.anchorCount || 60,
             shape = params.shape;
@@ -1139,4 +1143,4 @@
         a.type = "Perimeter";
         return a;
     };
-})();
+}).call(this);

@@ -18,11 +18,12 @@
 
     "use strict";
 
+    var root = this;
     var connectorTypes = [], rendererTypes = ["svg", "vml"];
 
-    var _ju = jsPlumbUtil,
+    var _ju = root.jsPlumbUtil,
         _getOffset = function (el, _instance, relativeToRoot) {
-            return jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
+            return root.jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
         },
 
         /**
@@ -2997,4 +2998,4 @@
 
 // --------------------- end static instance + AMD registration -------------------------------------------		
 
-})();
+}).call(this);

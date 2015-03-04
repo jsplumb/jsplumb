@@ -16,16 +16,18 @@
  */
 ;(function() {
     "use strict";
+    var root = this,
+        _jp = root.jsPlumb;
 
     var _getEventManager = function(instance) {
         var e = instance._mottle;
         if (!e) {
-            e = instance._mottle = new Mottle();
+            e = instance._mottle = new root.Mottle();
         }
         return e;
     };
 
-    jsPlumb.extend(jsPlumbInstance.prototype, {
+    _jp.extend(root.jsPlumbInstance.prototype, {
         getEventManager:function() {
             return _getEventManager(this);
         },
