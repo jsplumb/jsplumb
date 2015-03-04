@@ -396,7 +396,8 @@
                 paintStyle: this.getPaintStyle(),
                 endpoint: params.hideOnDrag ? "Blank" : this.endpoint,
                 _transient: true,
-                scope: this.scope
+                scope: this.scope,
+                reference:this
             });
         };
 
@@ -763,7 +764,7 @@
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
-        var _initDropTarget = function (canvas, forceInit, isTransient, endpoint) {
+        var _initDropTarget = function (canvas, forceInit, isTransient, endpoint, referenceEndpoint) {
 
             if ((this.isTarget || forceInit) && jsPlumb.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
@@ -796,7 +797,8 @@
                         },
                         isDropAllowed: function () {
                             return _ep.isDropAllowed.apply(_ep, arguments);
-                        }
+                        },
+                        reference:referenceEndpoint
                     });
 
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop, true);
@@ -846,7 +848,7 @@
         // Initialise the endpoint's canvas as a drop target. The drop handler will take care of the logic of whether
         // something can actually be dropped.
         if (!this.anchor.isFloating)
-            _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
+            _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this, params.reference);
 
 
         return this;
@@ -981,6 +983,16 @@
             // if suspended endpoint has been cleaned up, bail.
             if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb == null) return;
 
+            // if this is a drop back where the connection came from, mark it force rettach and
+            // return; the stop handler will reattach. without firing an event.
+            var redrop = jpc.suspendedEndpoint && dhParams.reference && (jpc.suspendedEndpoint.id === dhParams.reference.id);
+            if (redrop) {
+                jpc._forceReattach = true;
+                jpc.setHover(false);
+                if (dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
+                return;
+            }
+
             // ensure we dont bother trying to drop sources on non-source eps, and same for target.
             var idx = _jsPlumb.getFloatingAnchorIndex(jpc);
             if (idx === 0 && !dhParams.isSource) return;
@@ -990,16 +1002,7 @@
 
             if (dhParams.onDrop) dhParams.onDrop(jpc);
 
-            // if this is a drop back where the connection came from, mark it force rettach and
-            // return; the stop handler will reattach. without firing an event.
-            var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == _ep.id ||
-                _ep.referenceEndpoint && jpc.suspendedEndpoint.id == _ep.referenceEndpoint.id);
-            if (redrop) {
-                jpc._forceReattach = true;
-                jpc.setHover(false);
-                if (dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
-                return;
-            }
+
 
             // restore the original scope if necessary (issue 57)
             if (scope) _jsPlumb.setDragScope(draggable, scope);
