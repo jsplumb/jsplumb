@@ -99,8 +99,6 @@
 
 // INITIALISATION CODE
 
-        // wrapped the main function to return null if no input given. this lets us cascade defaults properly.
-
         this.makeEndpoint = function (isSource, el, elId, ep) {
             elId = elId || this._jsPlumb.instance.getId(el);
             return this.prepareEndpoint(_jsPlumb, _newEndpoint, this, ep, isSource ? 0 : 1, params, el, elId);
@@ -184,7 +182,7 @@
             this._jsPlumb.detachable = detachable === true;
         };
         this.isReattach = function () {
-            return this._jsPlumb.reattach === true;
+            return this._jsPlumb.reattach === true || this.endpoints[0].reattachConnections === true || this.endpoints[1].reattachConnections === true;
         };
         this.setReattach = function (reattach) {
             this._jsPlumb.reattach = reattach === true;
