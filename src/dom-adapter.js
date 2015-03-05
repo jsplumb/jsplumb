@@ -452,7 +452,7 @@
                 return el.currentStyle[prop];
             }
         },
-        getOffset:function(el, _instance, relativeToRoot) {
+        getOffsetOld:function(el, _instance, relativeToRoot) {
             el = jsPlumb.getDOMElement(el);
             var container = _instance.getContainer();
             var out = {
@@ -464,6 +464,44 @@
             while (op != null) {
                 out.left += op.offsetLeft;
                 out.top += op.offsetTop;
+                op = relativeToRoot ? op.offsetParent :
+                        op.offsetParent == container ? null : op.offsetParent;
+            }
+
+            // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
+            if (container != null && !relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+                var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, "position") : "static",
+                    p = this.getStyle(el, "position");
+                if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp != "fixed") {
+                    out.left -= container.scrollLeft;
+                    out.top -= container.scrollTop;
+                }
+            }
+            return out;
+        },
+        getOffset:function(el, _instance, relativeToRoot) {
+            el = jsPlumb.getDOMElement(el);
+            var container = _instance.getContainer();
+            var out = {
+                    left: el.offsetLeft,
+                    top: el.offsetTop
+                },
+                op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null,
+                _maybeAdjustScroll = function(offsetParent) {
+                    if (offsetParent != null && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
+                        var pp = offsetParent != null ? this.getStyle(offsetParent, "position") : "static",
+                            p = this.getStyle(el, "position");
+                        if (p !== "absolute" && p !== "fixed") {
+                            out.left -= offsetParent.scrollLeft;
+                            out.top -= offsetParent.scrollTop;
+                        }
+                    }
+                }.bind(this);
+
+            while (op != null) {
+                out.left += op.offsetLeft;
+                out.top += op.offsetTop;
+                _maybeAdjustScroll(op);
                 op = relativeToRoot ? op.offsetParent :
                         op.offsetParent == container ? null : op.offsetParent;
             }
