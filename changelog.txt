@@ -5,6 +5,9 @@
 
     ISSUES
 
+    237 - scroll is ignored in offset calculations
+    314 - jsPlumbUtil is not defined (webpack)
+    329 - Scroll issue
     332 - endpoint label not working in newest version
     333 - ReattachConnections not working when a connection is detached (jquery & vanilla 1.7.3)
     336 - cannot drop a connection back on the endpoint to which it was previously attached
