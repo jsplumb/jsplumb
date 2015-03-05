@@ -489,9 +489,8 @@
                 op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null,
                 _maybeAdjustScroll = function(offsetParent) {
                     if (offsetParent != null && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
-                        var pp = offsetParent != null ? this.getStyle(offsetParent, "position") : "static",
-                            p = this.getStyle(el, "position");
-                        if (p !== "absolute" && p !== "fixed") {
+                        var p = this.getStyle(el, "position");
+                        if (p !== "fixed") {
                             out.left -= offsetParent.scrollLeft;
                             out.top -= offsetParent.scrollTop;
                         }
