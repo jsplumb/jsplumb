@@ -2613,18 +2613,17 @@
             return _currentInstance;
         };
 
-        this.revalidate = function (el) {
-            var elId = _currentInstance.getId(el);
-            _currentInstance.updateOffset({ elId: elId, recalc: true });
+        this.revalidate = function (el, timestamp, isIdAlready) {
+            var elId = isIdAlready ? el : _currentInstance.getId(el);
+            _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
             return _currentInstance.repaint(el);
         };
 
         // repaint every endpoint and connection.
-        this.repaintEverything = function (clearEdits) {
+        this.repaintEverything = function () {
             // TODO this timestamp causes continuous anchors to not repaint properly.
             // fix this. do not just take out the timestamp. it runs a lot faster with
             // the timestamp included.
-            //var timestamp = null;
             var timestamp = _timestamp(), elId;
 
             for (elId in endpointsByElement) {
@@ -2632,8 +2631,9 @@
             }
 
             for (elId in endpointsByElement) {
-                _draw(elId, null, timestamp, clearEdits);
+                _draw(elId, null, timestamp);
             }
+
             return this;
         };
 
