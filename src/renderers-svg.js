@@ -20,6 +20,7 @@
 // ************************** SVG utility methods ********************************************	
 
     "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
     var svgAttributeMap = {
             "joinstyle": "stroke-linejoin",
@@ -86,28 +87,24 @@
             var defs = _node(DEFS);
             parent.appendChild(defs);
             defs.appendChild(g);
-            //parent.appendChild(g);
 
             // the svg radial gradient seems to treat stops in the reverse
             // order to how canvas does it.  so we want to keep all the maths the same, but
             // iterate the actual style declarations in reverse order, if the x indexes are not in order.
             for (var i = 0; i < style.gradient.stops.length; i++) {
                 var styleToUse = uiComponent.segment == 1 || uiComponent.segment == 2 ? i : style.gradient.stops.length - 1 - i,
-                    stopColor = jsPlumbUtil.convertStyle(style.gradient.stops[styleToUse][1], true),
+                    stopColor = _ju.convertStyle(style.gradient.stops[styleToUse][1], true),
                     s = _node(STOP, {"offset": Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color": stopColor});
 
                 g.appendChild(s);
             }
             var applyGradientTo = style.strokeStyle ? STROKE : FILL;
-            //node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
-            //node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
-            //node.setAttribute(applyGradientTo,  "url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
             node.setAttribute(applyGradientTo, "url(#" + id + ")");
         },
         _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-            node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
-            node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);
+            node.setAttribute(FILL, style.fillStyle ? _ju.convertStyle(style.fillStyle, true) : NONE);
+            node.setAttribute(STROKE, style.strokeStyle ? _ju.convertStyle(style.strokeStyle, true) : NONE);
 
             if (style.gradient) {
                 _updateGradient(parent, node, style, dimensions, uiComponent);
@@ -166,7 +163,7 @@
     /**
      utility methods for other objects to use.
      */
-    jsPlumbUtil.svg = {
+    _ju.svg = {
         node: _node,
         attr: _attr,
         pos: _pos
@@ -180,7 +177,7 @@
     var SvgComponent = function (params) {
         var pointerEventsSpec = params.pointerEventsSpec || "all", renderer = {};
 
-        jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
+        _jp.jsPlumbUIComponent.apply(this, params.originalArgs);
         this.canvas = null;
         this.path = null;
         this.svg = null;
@@ -200,7 +197,7 @@
         if (params.useDivWrapper) {
             this.canvas = document.createElement("div");
             this.canvas.style.position = "absolute";
-            jsPlumbUtil.sizeElement(this.canvas, 0, 0, 1, 1);
+            _ju.sizeElement(this.canvas, 0, 0, 1, 1);
             this.canvas.className = clazz;
         }
         else {
@@ -234,7 +231,7 @@
                 }
 
                 if (params.useDivWrapper) {
-                    jsPlumbUtil.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
+                    _ju.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
                     xy[0] = 0;
                     xy[1] = 0;
                     p = _pos([ 0, 0 ]);
@@ -257,7 +254,7 @@
         };
     };
 
-    jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
+    _ju.extend(SvgComponent, _jp.jsPlumbUIComponent, {
         cleanup: function (force) {
             if (force || this.typeId == null) {
                 if (this.canvas) this.canvas._jsPlumb = null;
@@ -295,7 +292,7 @@
     /*
      * Base class for SVG connectors.
      */
-    jsPlumb.ConnectorRenderers.svg = function (params) {
+    _jp.ConnectorRenderers.svg = function (params) {
         var self = this,
             _super = SvgComponent.apply(this, [
                 {
@@ -305,12 +302,6 @@
                     _jsPlumb: params._jsPlumb
                 }
             ]);
-
-        /*this.pointOnPath = function(location, absolute) {
-         if (!self.path) return [0,0];
-         var p = absolute ? location : location * self.path.getTotalLength();
-         return self.path.getPointAtLength(p);
-         };*/
 
         _super.renderer.paint = function (style, anchor, extents) {
 
@@ -322,7 +313,7 @@
 
                 // create path from segments.
                 for (var i = 0; i < segments.length; i++) {
-                    p += jsPlumb.Segments.svg.SegmentRenderer.getPath(segments[i]);
+                    p += _jp.Segments.svg.SegmentRenderer.getPath(segments[i]);
                     p += " ";
                 }
 
@@ -338,9 +329,9 @@
                 if (style.outlineColor) {
                     var outlineWidth = style.outlineWidth || 1,
                         outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
-                    outlineStyle = jsPlumb.extend({}, style);
+                    outlineStyle = _jp.extend({}, style);
                     delete outlineStyle.gradient;
-                    outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
+                    outlineStyle.strokeStyle = _ju.convertStyle(style.outlineColor);
                     outlineStyle.lineWidth = outlineStrokeWidth;
 
                     if (self.bgPath == null) {
@@ -366,11 +357,11 @@
             }
         };
     };
-    jsPlumbUtil.extend(jsPlumb.ConnectorRenderers.svg, SvgComponent);
+    _ju.extend(_jp.ConnectorRenderers.svg, SvgComponent);
 
 // ******************************* svg segment renderer *****************************************************	
 
-    jsPlumb.Segments.svg = {
+    _jp.Segments.svg = {
         SegmentRenderer: {
             getPath: function (segment) {
                 return ({
@@ -400,7 +391,7 @@
     /*
      * Base class for SVG endpoints.
      */
-    var SvgEndpoint = window.SvgEndpoint = function (params) {
+    var SvgEndpoint = _jp.SvgEndpoint = function (params) {
         var _super = SvgComponent.apply(this, [
             {
                 cssClass: params._jsPlumb.endpointClass,
@@ -412,10 +403,10 @@
         ]);
 
         _super.renderer.paint = function (style) {
-            var s = jsPlumb.extend({}, style);
+            var s = _jp.extend({}, style);
             if (s.outlineColor) {
                 s.strokeWidth = s.outlineWidth;
-                s.strokeStyle = jsPlumbUtil.convertStyle(s.outlineColor, true);
+                s.strokeStyle = _ju.convertStyle(s.outlineColor, true);
             }
 
             if (this.node == null) {
@@ -430,13 +421,13 @@
         }.bind(this);
 
     };
-    jsPlumbUtil.extend(SvgEndpoint, SvgComponent);
+    _ju.extend(SvgEndpoint, SvgComponent);
 
     /*
      * SVG Dot Endpoint
      */
-    jsPlumb.Endpoints.svg.Dot = function () {
-        jsPlumb.Endpoints.Dot.apply(this, arguments);
+    _jp.Endpoints.svg.Dot = function () {
+        _jp.Endpoints.Dot.apply(this, arguments);
         SvgEndpoint.apply(this, arguments);
         this.makeNode = function (style) {
             return _node("circle", {
@@ -453,13 +444,13 @@
             });
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Dot, [jsPlumb.Endpoints.Dot, SvgEndpoint]);
+    _ju.extend(_jp.Endpoints.svg.Dot, [_jp.Endpoints.Dot, SvgEndpoint]);
 
     /*
      * SVG Rectangle Endpoint
      */
-    jsPlumb.Endpoints.svg.Rectangle = function () {
-        jsPlumb.Endpoints.Rectangle.apply(this, arguments);
+    _jp.Endpoints.svg.Rectangle = function () {
+        _jp.Endpoints.Rectangle.apply(this, arguments);
         SvgEndpoint.apply(this, arguments);
         this.makeNode = function (style) {
             return _node("rect", {
@@ -474,28 +465,28 @@
             });
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Rectangle, [jsPlumb.Endpoints.Rectangle, SvgEndpoint]);
+    _ju.extend(_jp.Endpoints.svg.Rectangle, [_jp.Endpoints.Rectangle, SvgEndpoint]);
 
     /*
      * SVG Image Endpoint is the default image endpoint.
      */
-    jsPlumb.Endpoints.svg.Image = jsPlumb.Endpoints.Image;
+    _jp.Endpoints.svg.Image = _jp.Endpoints.Image;
     /*
      * Blank endpoint in svg renderer is the default Blank endpoint.
      */
-    jsPlumb.Endpoints.svg.Blank = jsPlumb.Endpoints.Blank;
+    _jp.Endpoints.svg.Blank = _jp.Endpoints.Blank;
     /*
      * Label overlay in svg renderer is the default Label overlay.
      */
-    jsPlumb.Overlays.svg.Label = jsPlumb.Overlays.Label;
+    _jp.Overlays.svg.Label = _jp.Overlays.Label;
     /*
      * Custom overlay in svg renderer is the default Custom overlay.
      */
-    jsPlumb.Overlays.svg.Custom = jsPlumb.Overlays.Custom;
+    _jp.Overlays.svg.Custom = _jp.Overlays.Custom;
 
     var AbstractSvgArrowOverlay = function (superclass, originalArgs) {
         superclass.apply(this, originalArgs);
-        jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
+        _jp.jsPlumbUIComponent.apply(this, originalArgs);
         this.isAppendedAtTopLevel = false;
         var self = this;
         this.path = null;
@@ -539,7 +530,7 @@
             }
         };
     };
-    jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
+    _ju.extend(AbstractSvgArrowOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay], {
         cleanup: function (force) {
             if (this.path != null) {
                 if (force)
@@ -558,25 +549,25 @@
         }
     });
 
-    jsPlumb.Overlays.svg.Arrow = function () {
-        AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);
+    _jp.Overlays.svg.Arrow = function () {
+        AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Arrow, arguments]);
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Arrow, [ jsPlumb.Overlays.Arrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Arrow, [ _jp.Overlays.Arrow, AbstractSvgArrowOverlay ]);
 
-    jsPlumb.Overlays.svg.PlainArrow = function () {
-        AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);
+    _jp.Overlays.svg.PlainArrow = function () {
+        AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.PlainArrow, arguments]);
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.svg.PlainArrow, [ jsPlumb.Overlays.PlainArrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.PlainArrow, [ _jp.Overlays.PlainArrow, AbstractSvgArrowOverlay ]);
 
-    jsPlumb.Overlays.svg.Diamond = function () {
-        AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);
+    _jp.Overlays.svg.Diamond = function () {
+        AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Diamond, arguments]);
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Diamond, [ jsPlumb.Overlays.Diamond, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Diamond, [ _jp.Overlays.Diamond, AbstractSvgArrowOverlay ]);
 
     // a test
-    jsPlumb.Overlays.svg.GuideLines = function () {
+    _jp.Overlays.svg.GuideLines = function () {
         var path = null, self = this, p1_1, p1_2;
-        jsPlumb.Overlays.GuideLines.apply(this, arguments);
+        _jp.Overlays.GuideLines.apply(this, arguments);
         this.paint = function (params, containerExtents) {
             if (path == null) {
                 path = _node("path");
@@ -626,5 +617,5 @@
                 " L" + d2.x + "," + d2.y;
         };
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.svg.GuideLines, jsPlumb.Overlays.GuideLines);
-})();
+    _ju.extend(_jp.Overlays.svg.GuideLines, _jp.Overlays.GuideLines);
+}).call(this);
