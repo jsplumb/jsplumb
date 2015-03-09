@@ -20,3 +20,40 @@
 #chartWindow6 { left:47em;top:30em;}
 #chartWindow7 { top:18em;left:46em;}
 #chartWindow8 { left:63em;top:38em;}
+
+
+.window {
+    background-color:white;
+    border:1px solid #346789;
+    text-align:center;
+    z-index:24;
+    cursor:pointer;
+    box-shadow: 2px 2px 19px #aaa;
+    -o-box-shadow: 2px 2px 19px #aaa;
+    -webkit-box-shadow: 2px 2px 19px #aaa;
+    -moz-box-shadow: 2px 2px 19px #aaa;
+    -moz-border-radius:0.5em;
+    border-radius:0.5em;
+    position:absolute;
+    color:black;
+    padding:0.5em;
+    width:80px;
+    height:80px;
+    line-height: 80px;
+    -webkit-transition: -webkit-box-shadow 0.15s ease-in;
+    -moz-transition: -moz-box-shadow 0.15s ease-in;
+    -o-transition: -o-box-shadow 0.15s ease-in;
+    transition: box-shadow 0.15s ease-in;
+}
+
+.window:hover {
+    border:1px solid #123456;
+    box-shadow: 2px 2px 19px #444;
+    -o-box-shadow: 2px 2px 19px #444;
+    -webkit-box-shadow: 2px 2px 19px #444;
+    -moz-box-shadow: 2px 2px 19px #fff;
+    opacity:0.9;
+    filter:alpha(opacity=90);
+}
+
+path, ._jsPlumb_endpoint { cursor:pointer; }
