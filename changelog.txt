@@ -1,3 +1,8 @@
+* 1.7.5
+
+    A very minor release; no changes to the API. Some refactoring of JS and of CSS.
+
+
 * 1.7.4
 
     Bugfixes.
