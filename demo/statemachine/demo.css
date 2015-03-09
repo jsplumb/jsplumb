@@ -97,6 +97,4 @@
     border: 2px solid orange;
 }
 
-path {
-    cursor: pointer;
-}
+path, ._jsPlumb_endpoint { cursor:pointer; }
