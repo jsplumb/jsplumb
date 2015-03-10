@@ -147,12 +147,6 @@
                 }
             }
         },
-        _decodeFont = function (f) {
-            var r = /([0-9].)(p[xt])\s(.*)/,
-                bits = f.match(r);
-
-            return {size: bits[1] + bits[2], font: bits[3]};
-        },
         _appendAtIndex = function (svg, path, idx) {
             if (svg.childNodes.length > idx) {
                 svg.insertBefore(path, svg.childNodes[idx]);
@@ -195,8 +189,7 @@
         this.svg = _node("svg", svgParams);
 
         if (params.useDivWrapper) {
-            this.canvas = document.createElement("div");
-            this.canvas.style.position = "absolute";
+            this.canvas = jsPlumbAdapter.createElement("div", { position : "absolute" });
             _ju.sizeElement(this.canvas, 0, 0, 1, 1);
             this.canvas.className = clazz;
         }
@@ -208,8 +201,6 @@
         params._jsPlumb.appendElement(this.canvas, params.originalArgs[0].parent);
         if (params.useDivWrapper) this.canvas.appendChild(this.svg);
 
-        // TODO this displayElement stuff is common between all components, across all
-        // renderers.  would be best moved to jsPlumbUIComponent.
         var displayElements = [ this.canvas ];
         this.getDisplayElements = function () {
             return displayElements;

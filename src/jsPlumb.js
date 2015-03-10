@@ -634,7 +634,7 @@
         //
         // 1. if Container exists, use that element.
         // 2. if the 'parent' parameter exists, use that.
-        // 3. otherwise just use the root element (for DOM usage, the document body).
+        // 3. otherwise just use the root element.
         //
         //
             _appendElement = function (el, parent) {

@@ -41,14 +41,11 @@
         };
     };
 
-    // creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.    
+    // creates a placeholder div for dragging purposes, adds it, and pre-computes its offset.
     var _makeDraggablePlaceholder = function (placeholder, _jsPlumb) {
-        var n = document.createElement("div");
-        n.style.position = "absolute";
-        var parent = _jsPlumb.getContainer() || document.body;
-        parent.appendChild(n);
+        var n = jsPlumbAdapter.createElement("div", { position : "absolute" });
+        _jsPlumb.appendElement(n);
         var id = _jsPlumb.getId(n);
-        //_jsPlumb.updateOffset( { elId : id });
         _jsPlumb.manage(id, n);
         // create and assign an id, and initialize the offset.
         placeholder.id = id;

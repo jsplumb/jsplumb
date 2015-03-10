@@ -323,13 +323,25 @@
                 fn(spec); // assume it's an element.
         };
 
-    window.jsPlumbAdapter = {
+    this.jsPlumbAdapter = {
 
         headless: false,
 
         pageLocation: _pageLocation,
         screenLocation: _screenLocation,
         clientLocation: _clientLocation,
+
+        createElement:function(tag, style, clazz) {
+            var e = document.createElement(tag);
+            style = style || {};
+            for (var i in style)
+                e.style[i] = style[i];
+
+            if (clazz)
+                e.className = clazz;
+
+            return e;
+        },
 
         getAttribute: function (el, attName) {
             return el.getAttribute != null ? el.getAttribute(attName) : null;

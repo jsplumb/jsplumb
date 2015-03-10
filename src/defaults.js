@@ -841,12 +841,13 @@
             else return [0, 0, 0, 0];
         };
 
-        this.canvas = document.createElement("img");
-        this.canvas.style.margin = 0;
-        this.canvas.style.padding = 0;
-        this.canvas.style.outline = 0;
-        this.canvas.style.position = "absolute";
-        this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
+        this.canvas = jsPlumbAdapter.createElement("img", {
+            position:"absolute",
+            margin:0,
+            padding:0,
+            outline:0
+        }, this._jsPlumb.instance.endpointClass + clazz);
+
         if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
         if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);
         this._jsPlumb.instance.appendElement(this.canvas);
@@ -901,13 +902,14 @@
 
         var clazz = params.cssClass ? " " + params.cssClass : "";
 
-        this.canvas = document.createElement("div");
-        this.canvas.style.display = "block";
-        this.canvas.style.width = "1px";
-        this.canvas.style.height = "1px";
-        this.canvas.style.background = "transparent";
-        this.canvas.style.position = "absolute";
-        this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
+        this.canvas = jsPlumbAdapter.createElement("div", {
+            display: "block",
+            width: "1px",
+            height: "1px",
+            background: "transparent",
+            position: "absolute"
+        }, this._jsPlumb.instance.endpointClass + clazz);
+
         this._jsPlumb.instance.appendElement(this.canvas);
 
         this.paint = function (style, anchor) {
@@ -1385,7 +1387,7 @@
         this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
         var p = _jp.extend({
             create: function () {
-                return document.createElement("div");
+                return jsPlumbAdapter.createElement("div");
             }}, params);
         _jp.Overlays.Custom.call(this, p);
         this.type = "Label";
