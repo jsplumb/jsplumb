@@ -19,7 +19,7 @@
 
     "use strict";
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
-        _jk = root.Katavorio, _ja = root.jsPlumbAdapter, _jg = root.Biltong;
+        _jk = root.Katavorio, _jg = root.Biltong;
 
     var _getDragManager = function (instance, category) {
 
@@ -34,15 +34,15 @@
                 unbind: e.off,
                 getSize: jsPlumb.getSize,
                 getPosition: function (el) {
-                    var o = _ja.getOffset(el, instance);
+                    var o = instance.getOffset(el);
                     return [o.left, o.top];
                 },
                 setPosition: function (el, xy) {
                     el.style.left = xy[0] + "px";
                     el.style.top = xy[1] + "px";
                 },
-                addClass: _ja.addClass,
-                removeClass: _ja.removeClass,
+                addClass: jsPlumb.addClass,
+                removeClass: jsPlumb.removeClass,
                 intersects: _jg.intersects,
                 indexOf: _ju.indexOf,
                 css: {
@@ -111,7 +111,7 @@
         //
         doAnimate: function (el, properties, options) {
             options = options || {};
-            var o = _ja.getOffset(el, this),
+            var o = this.getOffset(el),
                 ap = _animProps(o, properties),
                 ldist = ap[0] - o.left,
                 tdist = ap[1] - o.top,
@@ -121,7 +121,7 @@
                 tinc = (step / d) * tdist,
                 idx = 0,
                 int = setInterval(function () {
-                    _ja.setPosition(el, {
+                    jsPlumb.setPosition(el, {
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
                     });
