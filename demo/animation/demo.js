@@ -32,8 +32,8 @@ jsPlumb.ready(function () {
                     return;
                 }
                 e = jsPlumb.getOriginalEvent(e);
-                var o = jsPlumbAdapter.getOffset(_el, instance, true),
-                    o2 = jsPlumbAdapter.getOffset(_el, instance),
+                var o = instance.getOffset(_el, true),
+                    o2 = instance.getOffset(_el),
                     s = jsPlumb.getSize(el),
                     pxy = [e.pageX || e.clientX, e.pageY || e.clientY],
                     c = [pxy[0] - (o.left + (s[0] / 2)), pxy[1] - (o.top + (s[1] / 2))],
