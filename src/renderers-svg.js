@@ -189,7 +189,7 @@
         this.svg = _node("svg", svgParams);
 
         if (params.useDivWrapper) {
-            this.canvas = jsPlumbAdapter.createElement("div", { position : "absolute" });
+            this.canvas = jsPlumb.createElement("div", { position : "absolute" });
             _ju.sizeElement(this.canvas, 0, 0, 1, 1);
             this.canvas.className = clazz;
         }

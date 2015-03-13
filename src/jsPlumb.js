@@ -19,11 +19,11 @@
     "use strict";
 
     var root = this;
-    var connectorTypes = [], rendererTypes = ["svg", "vml"];
+    var connectorTypes = [], rendererTypes;
 
     var _ju = root.jsPlumbUtil,
         _getOffset = function (el, _instance, relativeToRoot) {
-            return root.jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
+            return _instance.getOffset(el, relativeToRoot);
         },
 
         /**
@@ -271,19 +271,19 @@
         },
 
         hasClass:function(clazz) {
-            return jsPlumbAdapter.hasClass(this.canvas, clazz);
+            return jsPlumb.hasClass(this.canvas, clazz);
         },
 
         addClass: function (clazz) {
-            jsPlumbAdapter.addClass(this.canvas, clazz);
+            jsPlumb.addClass(this.canvas, clazz);
         },
 
         removeClass: function (clazz) {
-            jsPlumbAdapter.removeClass(this.canvas, clazz);
+            jsPlumb.removeClass(this.canvas, clazz);
         },
 
         updateClasses: function (classesToAdd, classesToRemove) {
-            jsPlumbAdapter.updateClasses(this.canvas, classesToAdd, classesToRemove);
+            jsPlumb.updateClasses(this.canvas, classesToAdd, classesToRemove);
         },
 
         setType: function (typeId, params, doNotRepaint) {
@@ -658,9 +658,10 @@
             _draw = function (element, ui, timestamp, clearEdits) {
 
                 // TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
-                if (!jsPlumbAdapter.headless && !_suspendDrawing) {
+                // NO. it is not correct.
+                if (!jsPlumb.headless && !_suspendDrawing) {
                     var id = _getId(element),
-                        repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);
+                        repaintEls = _currentInstance.getDragManager().getElementsForDraggable(id);
 
                     if (timestamp == null) timestamp = _timestamp();
 
@@ -729,7 +730,7 @@
              */
             _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id) {
                 // move to DragManager?
-                if (!jsPlumbAdapter.headless) {
+                if (!jsPlumb.headless) {
                     var _draggable = isDraggable == null ? false : isDraggable;
                     if (_draggable) {
                         if (jsPlumb.isDragSupported(element, _currentInstance) && !jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
@@ -739,7 +740,7 @@
                                 stopEvent = jsPlumb.dragEvents.stop,
                                 startEvent = jsPlumb.dragEvents.start,
                                 _del = _currentInstance.getDOMElement(element),
-                                _ancestor = _currentInstance.dragManager.getDragAncestor(_del),
+                                _ancestor = _currentInstance.getDragManager().getDragAncestor(_del),
                                 _noOffset = {left: 0, top: 0},
                                 _ancestorOffset = _noOffset,
                                 _started = false;
@@ -747,7 +748,7 @@
                             _manage(id, element);
 
                             options[startEvent] = _ju.wrap(options[startEvent], function () {
-                                _ancestorOffset = _ancestor != null ? jsPlumbAdapter.getOffset(_ancestor, _currentInstance) : _noOffset;
+                                _ancestorOffset = _ancestor != null ? _currentInstance.getOffset(_ancestor) : _noOffset;
                                 _currentInstance.setHoverSuspended(true);
                                 _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                 _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -787,7 +788,7 @@
                                     _currentInstance.removeClass(_e[0], "jsPlumb_dragged");
                                     _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                     _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
-                                    _currentInstance.dragManager.dragEnded(_e[0]);
+                                    _currentInstance.getDragManager().dragEnded(_e[0]);
                                 };
 
                                 for (var i = 0; i < elements.length; i++)
@@ -803,7 +804,7 @@
                             var draggable = draggableStates[elId];
                             options.disabled = draggable == null ? false : !draggable;
                             _currentInstance.initDraggable(element, options);
-                            _currentInstance.dragManager.register(element);
+                            _currentInstance.getDragManager().register(element);
                         }
                     }
                 }
@@ -1004,8 +1005,9 @@
                 var ep = new endpointFunc(_p);
                 ep.id = "ep_" + _idstamp();
                 _manage(_p.elementId, _p.source);
-                if (!jsPlumbAdapter.headless)
-                    _currentInstance.dragManager.endpointAdded(_p.source, id);
+
+                if (!jsPlumb.headless)
+                    _currentInstance.getDragManager().endpointAdded(_p.source, id);
 
                 return ep;
             },
@@ -1167,9 +1169,9 @@
         this.dragSelectClass = "_jsPlumb_drag_select";
 
         this.Anchors = {};
-        this.Connectors = {  "svg": {}, "vml": {} };
-        this.Endpoints = { "svg": {}, "vml": {} };
-        this.Overlays = { "svg": {}, "vml": {}};
+        this.Connectors = {  "svg": {}, "vml": {}, "headless":{} };
+        this.Endpoints = { "svg": {}, "vml": {}, "headless":{} };
+        this.Overlays = { "svg": {}, "vml": {}, headless:{} } ;
         this.ConnectorRenderers = {};
         this.SVG = "svg";
         this.VML = "vml";
@@ -1384,7 +1386,7 @@
             managedElements = {};
             endpointsByUUID = {};
             _currentInstance.anchorManager.reset();
-            _currentInstance.dragManager.reset();
+            _currentInstance.getDragManager().reset();
             if (!_is) _currentInstance.setSuspendDrawing(false);
             return _currentInstance;
         };
@@ -1819,9 +1821,9 @@
          */
         this.getId = _getId;
 
-        this.getOffset = function (id) {
+        /*this.getOffset = function (id) {
             return _updateOffset({elId: id}).o;
-        };
+        };*/
 
         this.appendElement = _appendElement;
 
@@ -1831,12 +1833,6 @@
         };
         this.setHoverSuspended = function (s) {
             _hoverSuspended = s;
-        };
-
-        var _isAvailable = function (m) {
-            return function () {
-                return jsPlumbAdapter.isRenderModeAvailable(m);
-            };
         };
 
         // set an element's connections to be hidden
@@ -1909,7 +1905,7 @@
                 s = managedElements[elId] ? managedElements[elId].el : null;
                 if (s != null) {
                     sizes[elId] = _currentInstance.getSize(s);
-                    offsets[elId] = _getOffset(s, _currentInstance);
+                    offsets[elId] = _currentInstance.getOffset(s);
                     offsetTimestamps[elId] = timestamp;
                 }
             } else {
@@ -1938,6 +1934,8 @@
          * mouse listeners etc; can't do that until the library has provided a bind method)
          */
         this.init = function () {
+            rendererTypes = jsPlumb.getRenderModes();
+
             var _oneType = function (renderer, name, fn) {
                 jsPlumb.Connectors[renderer][name] = function () {
                     fn.apply(this, arguments);
@@ -2160,7 +2158,7 @@
                     // out where to locate the anchor.
                     if (newEndpoint.anchor.positionFinder != null) {
                         var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
-                            elPosition = _getOffset(_el, _currentInstance),
+                            elPosition = _currentInstance.getOffset(_el),
                             elSize = _currentInstance.getSize(_el),
                             ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
                         newEndpoint.anchor.x = ap[0];
@@ -2325,7 +2323,7 @@
                             // if the anchor has a 'positionFinder' set, then delegate to that function to find
                             // out where to locate the anchor. issue 117.
                             if (newAnchor.positionFinder != null) {
-                                var elPosition = _getOffset(_el, this),
+                                var elPosition = _currentInstance.getOffset(_el),
                                     elSize = this.getSize(_el),
                                     dropPosition = { left: elPosition.left + (oldAnchor.x * elSize[0]), top: elPosition.top + (oldAnchor.y * elSize[1]) },
                                     ap = newAnchor.positionFinder(dropPosition, elPosition, elSize, newAnchor.constructorParams);
@@ -2375,7 +2373,7 @@
 
                         // find the position on the element at which the mouse was pressed; this is where the endpoint
                         // will be located.
-                        var elxy = jsPlumbAdapter.getPositionOnElement(evt, _del, _zoom), pelxy = elxy;
+                        var elxy = jsPlumb.getPositionOnElement(evt, _del, _zoom);
 
                         // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
                         // the params passed in, because after a connection is established we're going to reset the endpoint
@@ -2667,7 +2665,7 @@
         var _doRemove = function(info, affectedElements) {
             _currentInstance.removeAllEndpoints(info.id, true, affectedElements);
             var _one = function(_info) {
-                _currentInstance.dragManager.elementRemoved(_info.id);
+                _currentInstance.getDragManager().elementRemoved(_info.id);
                 _currentInstance.anchorManager.clearFor(_info.id);
                 _currentInstance.anchorManager.removeFloatingConnection(_info.id);
                 delete _currentInstance.floatingConnections[_info.id];
@@ -2797,7 +2795,7 @@
             delete endpointsByElement[id];
 
             this.anchorManager.changeId(id, newId);
-            if (this.dragManager) this.dragManager.changeId(id, newId);
+            this.getDragManager().changeId(id, newId);
             managedElements[newId] = managedElements[id];
             delete managedElements[id];
 
@@ -2862,7 +2860,7 @@
         this.timestamp = _timestamp;
         this.setRenderMode = function (mode) {
             if (mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new TypeError("Render mode [" + mode + "] not supported");
-            renderMode = jsPlumbAdapter.setRenderMode(mode);
+            renderMode = this.trySetRenderMode(mode);
             return renderMode;
         };
         this.getRenderMode = function () {
@@ -2877,11 +2875,6 @@
         this.toggleVisible = _toggleVisible;
         this.toggleDraggable = _toggleDraggable;
         this.addListener = this.bind;
-
-        if (!jsPlumbAdapter.headless) {
-            _currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
-            _currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-        }
     };
 
     jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
@@ -2939,7 +2932,7 @@
 
             _dom.parentNode.removeChild(_dom);
             _pdom.appendChild(_dom);
-            this.dragManager.setParent(_el, _id, _pel, _pid);
+            this.getDragManager().setParent(_el, _id, _pel, _pid);
         },
         /**
          * gets the size for the element, in an array : [ width, height ].
@@ -2967,7 +2960,7 @@
         getFloatingAnchorIndex: function (jpc) {
             return jpc.endpoints[0].isFloating() ? 0 : 1;
         }
-    }, jsPlumbAdapter);
+    });
 
 // --------------------- static instance + AMD registration -------------------------------------------	
 

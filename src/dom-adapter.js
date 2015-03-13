@@ -17,7 +17,7 @@
 ;
 (function () {
 
-    var root = this;
+    var root = this, _ju = root.jsPlumbUtil;
 
     var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
         vmlAvailable = function () {
@@ -92,7 +92,7 @@
          */
         this.register = function (el) {
             var id = _currentInstance.getId(el),
-                parentOffset = jsPlumbAdapter.getOffset(el, _currentInstance);
+                parentOffset = _currentInstance.getOffset(el);
 
             if (!_draggables[id]) {
                 _draggables[id] = el;
@@ -108,7 +108,7 @@
                             var cEl = jsPlumb.getElementObject(p.childNodes[i]),
                                 cid = _currentInstance.getId(p.childNodes[i], null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-                                var cOff = jsPlumbAdapter.getOffset(cEl, _currentInstance);
+                                var cOff = _currentInstance.getOffset(cEl);
                                 _delements[id][cid] = {
                                     id: cid,
                                     offset: {
@@ -133,13 +133,13 @@
                 var domEl = jsPlumb.getDOMElement(elId),
                     id = _currentInstance.getId(domEl),
                     children = _delements[id],
-                    parentOffset = jsPlumbAdapter.getOffset(domEl, _currentInstance);
+                    parentOffset = _currentInstance.getOffset(domEl);
 
                 if (children) {
                     for (var i in children) {
                         if (children.hasOwnProperty(i)) {
                             var cel = jsPlumb.getElementObject(i),
-                                cOff = jsPlumbAdapter.getOffset(cel, _currentInstance);
+                                cOff = _currentInstance.getOffset(cel);
 
                             _delements[id][i] = {
                                 id: i,
@@ -172,10 +172,10 @@
             while (p != null && p != b) {
                 var pid = _currentInstance.getId(p, null, true);
                 if (pid && _draggables[pid]) {
-                    var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
+                    var pLoc = _currentInstance.getOffset(p);
 
                     if (_delements[pid][id] == null) {
-                        var cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
+                        var cLoc = _currentInstance.getOffset(el);
                         _delements[pid][id] = {
                             id: id,
                             offset: {
@@ -249,8 +249,8 @@
                     _delements[pId] = {};
                 _delements[pId][elId] = _delements[current][elId];
                 delete _delements[current][elId];
-                var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance),
-                    cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
+                var pLoc = _currentInstance.getOffset(p),
+                    cLoc = _currentInstance.getOffset(el);
                 _delements[pId][elId].offset = {
                     left: cLoc.left - pLoc.left,
                     top: cLoc.top - pLoc.top
@@ -323,13 +323,24 @@
                 fn(spec); // assume it's an element.
         };
 
-    this.jsPlumbAdapter = {
+    jsPlumb.extend(jsPlumbInstance.prototype, {
 
         headless: false,
 
         pageLocation: _pageLocation,
         screenLocation: _screenLocation,
         clientLocation: _clientLocation,
+
+        getDragManager:function() {
+            if (this.dragManager == null)
+                this.dragManager = new DragManager(this);
+
+            return this.dragManager;
+        },
+
+        recalculateOffsets:function() {
+            this.getDragManager().updateOffsets();
+        },
 
         createElement:function(tag, style, clazz) {
             var e = document.createElement(tag);
@@ -368,10 +379,7 @@
                 "vml": vmlAvailable()
             }[m];
         },
-        getDragManager: function (_jsPlumb) {
-            return new DragManager(_jsPlumb);
-        },
-        setRenderMode: function (mode) {
+        trySetRenderMode: function (mode) {
             var renderMode;
 
             if (mode) {
@@ -438,9 +446,9 @@
                 return el.currentStyle[prop];
             }
         },
-        getOffset:function(el, _instance, relativeToRoot) {
+        getOffset:function(el, relativeToRoot) {
             el = jsPlumb.getDOMElement(el);
-            var container = _instance.getContainer();
+            var container = this.getContainer();
             var out = {
                     left: el.offsetLeft,
                     top: el.offsetTop
@@ -490,7 +498,7 @@
                 psl = 0,
                 top = box.top + scrollTop - clientTop + (pst * zoom),
                 left = box.left + scrollLeft - clientLeft + (psl * zoom),
-                cl = jsPlumbAdapter.pageLocation(evt),
+                cl = jsPlumb.pageLocation(evt),
                 w = box.width || (el.offsetWidth * zoom),
                 h = box.height || (el.offsetHeight * zoom),
                 x = (cl[0] - left) / w,
@@ -534,5 +542,5 @@
             }
         }
 
-    };
+    });
 }).call(this);

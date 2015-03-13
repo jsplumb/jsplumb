@@ -18,7 +18,7 @@
 (function ($, root) {
 
     "use strict";
-    var _jp = root.jsPlumb, _ju = root.jsPlumbUtil, _ja = root.jsPlumbAdapter;
+    var _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
     var _getElementObject = function (el) {
         return typeof(el) == "string" ? $("#" + el) : $(el);

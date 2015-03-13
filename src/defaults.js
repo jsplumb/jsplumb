@@ -841,7 +841,7 @@
             else return [0, 0, 0, 0];
         };
 
-        this.canvas = jsPlumbAdapter.createElement("img", {
+        this.canvas = jsPlumb.createElement("img", {
             position:"absolute",
             margin:0,
             padding:0,
@@ -902,7 +902,7 @@
 
         var clazz = params.cssClass ? " " + params.cssClass : "";
 
-        this.canvas = jsPlumbAdapter.createElement("div", {
+        this.canvas = jsPlumb.createElement("div", {
             display: "block",
             width: "1px",
             height: "1px",
@@ -1387,7 +1387,7 @@
         this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
         var p = _jp.extend({
             create: function () {
-                return jsPlumbAdapter.createElement("div");
+                return jsPlumb.createElement("div");
             }}, params);
         _jp.Overlays.Custom.call(this, p);
         this.type = "Label";
