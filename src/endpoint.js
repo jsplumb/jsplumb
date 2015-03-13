@@ -17,7 +17,7 @@
 (function () {
 
     "use strict";
-    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil, _ja = root.jsPlumbAdapter;
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
     // create the drag handler for a connection
     var _makeConnectionDragHandler = function (placeholder, _jsPlumb) {
@@ -31,7 +31,7 @@
                 var _ui = _jp.getUIPosition(arguments, _jsPlumb.getZoom());
 
                 if (placeholder.element) {
-                    _ja.setPosition(placeholder.element, _ui);
+                    jsPlumb.setPosition(placeholder.element, _ui);
                     _jsPlumb.repaint(placeholder.element, _ui);
                 }
             },
@@ -43,7 +43,7 @@
 
     // creates a placeholder div for dragging purposes, adds it, and pre-computes its offset.
     var _makeDraggablePlaceholder = function (placeholder, _jsPlumb) {
-        var n = jsPlumbAdapter.createElement("div", { position : "absolute" });
+        var n = jsPlumb.createElement("div", { position : "absolute" });
         _jsPlumb.appendElement(n);
         var id = _jsPlumb.getId(n);
         _jsPlumb.manage(id, n);
@@ -137,7 +137,7 @@
             this.removeClass(oldAnchorClass);
             this.addClass(anchorClass);
             // add and remove at the same time to reduce the number of reflows.
-            _ja.updateClasses(this.element, anchorClass, oldAnchorClass);
+            jsPlumb.updateClasses(this.element, anchorClass, oldAnchorClass);
         }.bind(this);
 
         this.prepareAnchor = function(anchorParams) {
@@ -536,10 +536,10 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = _ja.getOffset(ipcoel, this._jsPlumb.instance),
+                        ipco = jsPlumb.getOffset(ipcoel, this._jsPlumb.instance),
                         canvasElement = _gel(this.canvas);
 
-                    _ja.setPosition(placeholderInfo.element, ipco);
+                    jsPlumb.setPosition(placeholderInfo.element, ipco);
 
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
@@ -886,7 +886,7 @@
         },
         cleanup: function () {
             var anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
-            _ja.removeClass(this.element, anchorClass);
+            jsPlumb.removeClass(this.element, anchorClass);
             this.anchor = null;
             this.endpoint.cleanup();
             this.endpoint.destroy();
