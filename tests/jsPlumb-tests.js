@@ -166,8 +166,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(': create two simple endpoints, registered using a selector', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        jsPlumbAdapter.addClass(d1, "window");
-        jsPlumbAdapter.addClass(d2, "window");
+        jsPlumb.addClass(d1, "window");
+        jsPlumb.addClass(d2, "window");
         var endpoints = _jsPlumb.addEndpoint(jsPlumb.getSelector(".window"), {});
         equal(endpoints.length, 2, "endpoint added to both windows");
         assertEndpointCount("d1", 1, _jsPlumb);
@@ -176,8 +176,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(': create two simple endpoints, registered using an array of element ids', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        jsPlumbAdapter.addClass(d1, "window");
-        jsPlumbAdapter.addClass(d2, "window");
+        jsPlumb.addClass(d1, "window");
+        jsPlumb.addClass(d2, "window");
         var endpoints = _jsPlumb.addEndpoint(["d1", "d2"], {});
         equal(endpoints.length, 2, "endpoint added to both windows");
         assertEndpointCount("d1", 1, _jsPlumb);
@@ -1155,38 +1155,38 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(': addEndpoint, css class on anchor added to endpoint artefact and element', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, { anchor: [0, 0, 1, 1, 0, 0, "foo" ]});
-        ok(jsPlumbAdapter.hasClass(ep.canvas, "_jsPlumb_endpoint_anchor_foo"), "class set on endpoint");
-        ok(jsPlumbAdapter.hasClass(d1, "_jsPlumb_endpoint_anchor_foo"), "class set on element");
+        ok(jsPlumb.hasClass(ep.canvas, "_jsPlumb_endpoint_anchor_foo"), "class set on endpoint");
+        ok(jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor_foo"), "class set on element");
         _jsPlumb.deleteEndpoint(ep);
-        ok(!jsPlumbAdapter.hasClass(d1, "_jsPlumb_endpoint_anchor_foo"), "class removed from element");
+        ok(!jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor_foo"), "class removed from element");
     });
 
     test(': addEndpoint, blank css class on anchor does not add extra prefix ', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, { anchor: [0, 0, 1, 1, 0, 0  ]});
-        ok(jsPlumbAdapter.hasClass(ep.canvas, "_jsPlumb_endpoint_anchor"), "class set on endpoint");
-        ok(jsPlumbAdapter.hasClass(d1, "_jsPlumb_endpoint_anchor"), "class set on element");
+        ok(jsPlumb.hasClass(ep.canvas, "_jsPlumb_endpoint_anchor"), "class set on endpoint");
+        ok(jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor"), "class set on element");
         _jsPlumb.deleteEndpoint(ep);
-        ok(!jsPlumbAdapter.hasClass(d1, "_jsPlumb_endpoint_anchor"), "class removed from element");
+        ok(!jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor"), "class removed from element");
     });
 
     test(': connect, jsplumb connected class added to elements', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         // connect two elements and check they both get the class.
         var c = _jsPlumb.connect({source:d1, target:d2});
-        ok(jsPlumbAdapter.hasClass(d1, "_jsPlumb_connected"), "class set on element d1");
-        ok(jsPlumbAdapter.hasClass(d2, "_jsPlumb_connected"), "class set on element d2");
+        ok(jsPlumb.hasClass(d1, "_jsPlumb_connected"), "class set on element d1");
+        ok(jsPlumb.hasClass(d2, "_jsPlumb_connected"), "class set on element d2");
         // connect d1 to another element and check d3 gets the class
         var c2 = _jsPlumb.connect({source:d1, target:d3});
-        ok(jsPlumbAdapter.hasClass(d3, "_jsPlumb_connected"), "class set on element d3");
+        ok(jsPlumb.hasClass(d3, "_jsPlumb_connected"), "class set on element d3");
         // now disconnect original connection. d2 should no longer have the class, but d1 should, since it has
         // still one connection.
         _jsPlumb.detach(c);
-        ok(jsPlumbAdapter.hasClass(d1, "_jsPlumb_connected"), "class still on element d1");
-        ok(!jsPlumbAdapter.hasClass(d2, "_jsPlumb_connected"), "class removed from element d2");
+        ok(jsPlumb.hasClass(d1, "_jsPlumb_connected"), "class still on element d1");
+        ok(!jsPlumb.hasClass(d2, "_jsPlumb_connected"), "class removed from element d2");
         _jsPlumb.detach(c2);
-        ok(!jsPlumbAdapter.hasClass(d1, "_jsPlumb_connected"), "class removed from element d1");
-        ok(!jsPlumbAdapter.hasClass(d3, "_jsPlumb_connected"), "class removed from element d3");
+        ok(!jsPlumb.hasClass(d1, "_jsPlumb_connected"), "class removed from element d1");
+        ok(!jsPlumb.hasClass(d3, "_jsPlumb_connected"), "class removed from element d3");
     });
 
     test(': connection event listeners', function () {
@@ -2024,30 +2024,30 @@ var testSuite = function (renderMode, _jsPlumb) {
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { isTarget: true, anchor: "TopCenter"  });
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
     });
 
     test(": _jsPlumb.makeTarget (specify two divs in an array)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
         _jsPlumb.makeTarget([d16, d17], { isTarget: true, anchor: "TopCenter"  });
-        equal(true, jsPlumbAdapter.hasClass(d16, jsPlumbTestSupport.droppableClass));
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d16, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
     });
 
     test(": _jsPlumb.makeTarget (specify two divs by id in an array)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
         _jsPlumb.makeTarget(["d16", "d17"], { isTarget: true, anchor: "TopCenter"  });
-        equal(true, jsPlumbAdapter.hasClass(d16, jsPlumbTestSupport.droppableClass));
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d16, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
     });
 
     test(": _jsPlumb.makeTarget (specify divs by selector)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-        jsPlumbAdapter.addClass(d16, "FOO");
-        jsPlumbAdapter.addClass(d17, "FOO");
+        jsPlumb.addClass(d16, "FOO");
+        jsPlumb.addClass(d17, "FOO");
         _jsPlumb.makeTarget(jsPlumb.getSelector(".FOO"), { isTarget: true, anchor: "TopCenter"  });
-        equal(true, jsPlumbAdapter.hasClass(d16, jsPlumbTestSupport.droppableClass));
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d16, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
     });
 
     test(": _jsPlumb.connect after makeTarget (simple case)", function () {
@@ -2057,7 +2057,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { isTarget: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
         _jsPlumb.connect({source: e16, target: "d17"});
         assertEndpointCount("d16", 1, _jsPlumb);
         assertEndpointCount("d17", 1, _jsPlumb);
@@ -2074,7 +2074,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { isTarget: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
         _jsPlumb.connect({source: e16, target: "d17"});
         _jsPlumb.connect({source: e16, target: "d17"});
         assertEndpointCount("d16", 1, _jsPlumb);
@@ -2091,7 +2091,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { isTarget: true, anchor: "LeftMiddle", uniqueEndpoint: true, maxConnections: -1  }); // give it a non-default anchor, we will check this below.
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
         _jsPlumb.connect({source: e16, target: "d17"});
         _jsPlumb.connect({source: e16, target: "d17"});
         assertEndpointCount("d16", 1, _jsPlumb);
@@ -2109,7 +2109,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { isTarget: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        equal(true, jsPlumbAdapter.hasClass(d17, jsPlumbTestSupport.droppableClass));
+        equal(true, jsPlumb.hasClass(d17, jsPlumbTestSupport.droppableClass));
         _jsPlumb.connect({source: e16, target: "d17", newConnection: true});
         assertEndpointCount("d16", 1, _jsPlumb);
         assertEndpointCount("d17", 1, _jsPlumb);
@@ -4301,7 +4301,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             }]
         ]});
         var o = c.getOverlay("label");
-        ok(jsPlumbAdapter.hasClass(o.getElement(), "foo"), "label overlay has custom css class");
+        ok(jsPlumb.hasClass(o.getElement(), "foo"), "label overlay has custom css class");
     });
 
     test(" label overlay custom css class in labelStyle", function () {
@@ -4315,7 +4315,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             }]
         ]});
         var o = c.getOverlay("label");
-        ok(jsPlumbAdapter.hasClass(o.getElement(), "foo"), "label overlay has custom css class");
+        ok(jsPlumb.hasClass(o.getElement(), "foo"), "label overlay has custom css class");
     });
 
 
@@ -6828,13 +6828,13 @@ var testSuite = function (renderMode, _jsPlumb) {
             _addDiv("d2");
             var c = _jsPlumb.connect({source: "d1", target: "d2"});
             c.addClass("foo");
-            ok(!(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
+            ok(!(jsPlumb.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
             ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'bar'");
             c.addClass("bar", true);
-            ok(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "bar"), "endpoint has class 'bar'");
+            ok(jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint has class 'bar'");
             c.removeClass("bar", true);
             ok(c.canvas.className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");
-            ok(!jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "bar"), "endpoint doesnt have class 'bar'");
+            ok(!jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint doesnt have class 'bar'");
         }
         else
             expect(0);
@@ -6847,11 +6847,11 @@ var testSuite = function (renderMode, _jsPlumb) {
         var c = _jsPlumb.connect({source: "d1", target: "d2"});
         equal(_jsPlumb.select().length, 1, "there is one connection");
         _jsPlumb.select().addClass("foo");
-        ok(!(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
+        ok(!(jsPlumb.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
         _jsPlumb.select().addClass("bar", true);
-        ok(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "bar"), "endpoint hasclass 'bar'");
+        ok(jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint hasclass 'bar'");
         _jsPlumb.select().removeClass("bar", true);
-        ok(!(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "bar")), "endpoint doesn't have class 'bar'");
+        ok(!(jsPlumb.hasClass(c.endpoints[0].canvas, "bar")), "endpoint doesn't have class 'bar'");
     });
 
 // ******************* override pointer events ********************
@@ -6890,140 +6890,140 @@ var testSuite = function (renderMode, _jsPlumb) {
             _d1 = jsPlumb.getSelector(d1);  // _d1 is a selector. we will test using each one.
 
         // add a single class and test for its existence	
-        jsPlumbAdapter.addClass(d1, "FOO");
+        jsPlumb.addClass(d1, "FOO");
         equal(d1.className, "FOO", "element has class FOO, using selector");
-        ok(jsPlumbAdapter.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
-        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method, selector");
+        ok(jsPlumb.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
+        ok(jsPlumb.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method, selector");
 
         // add multiple classes and test for their existence
-        jsPlumbAdapter.addClass(_d1, "BAZ BAR SHAZ");
-        ok(jsPlumbAdapter.hasClass(_d1, "BAZ"), "element has class BAZ, according to hasClass method, DOM element");
-        ok(jsPlumbAdapter.hasClass(_d1, "BAR"), "element has class BAR, according to hasClass method, DOM element");
-        ok(jsPlumbAdapter.hasClass(_d1, "SHAZ"), "element has class SHAZ, according to hasClass method, DOM element");
+        jsPlumb.addClass(_d1, "BAZ BAR SHAZ");
+        ok(jsPlumb.hasClass(_d1, "BAZ"), "element has class BAZ, according to hasClass method, DOM element");
+        ok(jsPlumb.hasClass(_d1, "BAR"), "element has class BAR, according to hasClass method, DOM element");
+        ok(jsPlumb.hasClass(_d1, "SHAZ"), "element has class SHAZ, according to hasClass method, DOM element");
 
         // remove one class
-        jsPlumbAdapter.removeClass(d1, "BAR");
-        ok(!jsPlumbAdapter.hasClass(_d1, "BAR"), "element doesn't have class BAR, according to hasClass method, DOM element");
+        jsPlumb.removeClass(d1, "BAR");
+        ok(!jsPlumb.hasClass(_d1, "BAR"), "element doesn't have class BAR, according to hasClass method, DOM element");
 
         // remove two more classes
-        jsPlumbAdapter.removeClass(d1, "BAZ SHAZ");
-        ok(!jsPlumbAdapter.hasClass(_d1, "BAZ"), "element doesn't have class BAZ, according to hasClass method, DOM element");
-        ok(!jsPlumbAdapter.hasClass(_d1, "SHAZ"), "element doesn't have class SHAZ, according to hasClass method, DOM element");
+        jsPlumb.removeClass(d1, "BAZ SHAZ");
+        ok(!jsPlumb.hasClass(_d1, "BAZ"), "element doesn't have class BAZ, according to hasClass method, DOM element");
+        ok(!jsPlumb.hasClass(_d1, "SHAZ"), "element doesn't have class SHAZ, according to hasClass method, DOM element");
 
         // check FOO is still there
-        ok(jsPlumbAdapter.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
+        ok(jsPlumb.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
 
         // now for an SVG element.
         var s1 = jsPlumbUtil.svg.node("svg");
         document.body.appendChild(s1);
-        jsPlumbAdapter.addClass(s1, "SFOO");
-        ok(jsPlumbAdapter.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
+        jsPlumb.addClass(s1, "SFOO");
+        ok(jsPlumb.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
 
-        jsPlumbAdapter.addClass(s1, "BAZ BAR SHAZ");
+        jsPlumb.addClass(s1, "BAZ BAR SHAZ");
 
         // remove one class
-        jsPlumbAdapter.removeClass(s1, "BAR");
-        ok(!jsPlumbAdapter.hasClass(s1, "BAR"), "SVG element doesn't have class BAR, according to hasClass method, DOM element");
+        jsPlumb.removeClass(s1, "BAR");
+        ok(!jsPlumb.hasClass(s1, "BAR"), "SVG element doesn't have class BAR, according to hasClass method, DOM element");
 
         // remove two more classes
-        jsPlumbAdapter.removeClass(s1, "BAZ SHAZ");
-        ok(!jsPlumbAdapter.hasClass(s1, "BAZ"), "SVG element doesn't have class BAZ, according to hasClass method, DOM element");
-        ok(!jsPlumbAdapter.hasClass(s1, "SHAZ"), "SVG element doesn't have class SHAZ, according to hasClass method, DOM element");
+        jsPlumb.removeClass(s1, "BAZ SHAZ");
+        ok(!jsPlumb.hasClass(s1, "BAZ"), "SVG element doesn't have class BAZ, according to hasClass method, DOM element");
+        ok(!jsPlumb.hasClass(s1, "SHAZ"), "SVG element doesn't have class SHAZ, according to hasClass method, DOM element");
 
         // check SFOO is still there
-        ok(jsPlumbAdapter.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
+        ok(jsPlumb.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
 
         // set class for d1 to be BAZ only
-        jsPlumbAdapter.setClass(d1, "BAZ");
+        jsPlumb.setClass(d1, "BAZ");
         equal(d1.className, "BAZ", "element has only the class set with setClass");
     });
 
     test(" : DOM adapter addClass/removeClass, multiple elements, with selector", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        jsPlumbAdapter.addClass(d1, "BAZ");
-        jsPlumbAdapter.addClass(d2, "BAZ");
+        jsPlumb.addClass(d1, "BAZ");
+        jsPlumb.addClass(d2, "BAZ");
 
         var els = jsPlumb.getSelector(".BAZ");
 
         // add a single class and test for its existence	
-        jsPlumbAdapter.addClass(els, "FOO");
-        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumbAdapter.hasClass(d2, "FOO"), "d1 has class FOO");
+        jsPlumb.addClass(els, "FOO");
+        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+        ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
 
         // remove a single class and test for its non-existence.
-        jsPlumbAdapter.removeClass(els, "FOO");
-        ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
-        ok(!jsPlumbAdapter.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+        jsPlumb.removeClass(els, "FOO");
+        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+        ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
 
     });
 
     test("DOM adapter addClass/removeClass, multiple elements, with array of DOM elements", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        jsPlumbAdapter.addClass(d1, "BAZ");
-        jsPlumbAdapter.addClass(d2, "BAZ");
+        jsPlumb.addClass(d1, "BAZ");
+        jsPlumb.addClass(d2, "BAZ");
 
         var els = [ d1, d2 ];
 
         // add a single class and test for its existence	
-        jsPlumbAdapter.addClass(els, "FOO");
-        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumbAdapter.hasClass(d2, "FOO"), "d1 has class FOO");
+        jsPlumb.addClass(els, "FOO");
+        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+        ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
 
         // remove a single class and test for its non-existence.
-        jsPlumbAdapter.removeClass(els, "FOO");
-        ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
-        ok(!jsPlumbAdapter.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+        jsPlumb.removeClass(els, "FOO");
+        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+        ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
     });
 
     test("DOM adapter addClass/removeClass, multiple elements, with array of IDs", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        jsPlumbAdapter.addClass(d1, "BAZ");
-        jsPlumbAdapter.addClass(d2, "BAZ");
+        jsPlumb.addClass(d1, "BAZ");
+        jsPlumb.addClass(d2, "BAZ");
 
         var els = [ "d1", "d2" ];
 
         // add a single class and test for its existence	
-        jsPlumbAdapter.addClass(els, "FOO");
-        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumbAdapter.hasClass(d2, "FOO"), "d1 has class FOO");
+        jsPlumb.addClass(els, "FOO");
+        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+        ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
 
         // remove a single class and test for its non-existence.
-        jsPlumbAdapter.removeClass(els, "FOO");
-        ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
-        ok(!jsPlumbAdapter.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+        jsPlumb.removeClass(els, "FOO");
+        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+        ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
     });
 
 
     test(" : DOM adapter addClass and removeClass at the same time, pass as arrays", function () {
         var d1 = _addDiv("d1");
-        jsPlumbAdapter.addClass(d1, "BAZ FOO BAR");
-        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has class BAR");
+        jsPlumb.addClass(d1, "BAZ FOO BAR");
+        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+        ok(jsPlumb.hasClass(d1, "BAR"), "d1 has class BAR");
 
         // add qux, remove foo and bar.
-        jsPlumbAdapter.updateClasses(d1, ["QUX", "BOZ"], ["FOO", "BAR"]);
-        ok(jsPlumbAdapter.hasClass(d1, "QUX"), "d1 has class QUX");
-        ok(jsPlumbAdapter.hasClass(d1, "BOZ"), "d1 has class BOZ");
-        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has not class FOO");
-        ok(!jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has not class BAR");
+        jsPlumb.updateClasses(d1, ["QUX", "BOZ"], ["FOO", "BAR"]);
+        ok(jsPlumb.hasClass(d1, "QUX"), "d1 has class QUX");
+        ok(jsPlumb.hasClass(d1, "BOZ"), "d1 has class BOZ");
+        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 has not class FOO");
+        ok(!jsPlumb.hasClass(d1, "BAR"), "d1 has not class BAR");
     });
 
     test(" : DOM adapter addClass and removeClass at the same time, pass as strings", function () {
         var d1 = _addDiv("d1");
-        jsPlumbAdapter.addClass(d1, "BAZ FOO BAR");
-        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has class BAR");
+        jsPlumb.addClass(d1, "BAZ FOO BAR");
+        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+        ok(jsPlumb.hasClass(d1, "BAR"), "d1 has class BAR");
 
         // add qux, remove foo and bar.
-        jsPlumbAdapter.updateClasses(d1, "QUX BOZ", "FOO BAR");
-        ok(jsPlumbAdapter.hasClass(d1, "QUX"), "d1 has class QUX");
-        ok(jsPlumbAdapter.hasClass(d1, "BOZ"), "d1 has class BOZ");
-        ok(jsPlumbAdapter.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has not class FOO");
-        ok(!jsPlumbAdapter.hasClass(d1, "BAR"), "d1 has not class BAR");
+        jsPlumb.updateClasses(d1, "QUX BOZ", "FOO BAR");
+        ok(jsPlumb.hasClass(d1, "QUX"), "d1 has class QUX");
+        ok(jsPlumb.hasClass(d1, "BOZ"), "d1 has class BOZ");
+        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
+        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 has not class FOO");
+        ok(!jsPlumb.hasClass(d1, "BAR"), "d1 has not class BAR");
     });
 
     test("endpointStyle on connect method", function () {
