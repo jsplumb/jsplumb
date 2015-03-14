@@ -348,15 +348,16 @@
 
         createElementNS:function(ns, tag, style, clazz, atts) {
             var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
+            var i;
             style = style || {};
-            for (var i in style)
+            for (i in style)
                 e.style[i] = style[i];
 
             if (clazz)
                 e.className = clazz;
 
             atts = atts || {};
-            for (var i in atts)
+            for (i in atts)
                 e.setAttribute(i, "" + atts[i]);
 
             return e;
