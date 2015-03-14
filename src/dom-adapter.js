@@ -548,6 +548,18 @@
                 el.style.left = xy[0] + "px";
                 el.style.top = xy[1] + "px";
             }
+        },
+        /**
+         * gets the size for the element, in an array : [ width, height ].
+         */
+        getSize: function (el) {
+            return [ el.offsetWidth, el.offsetHeight ];
+        },
+        getWidth: function (el) {
+            return el.offsetWidth;
+        },
+        getHeight: function (el) {
+            return el.offsetHeight;
         }
 
     });

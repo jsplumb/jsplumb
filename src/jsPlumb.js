@@ -2934,18 +2934,6 @@
             _pdom.appendChild(_dom);
             this.getDragManager().setParent(_el, _id, _pel, _pid);
         },
-        /**
-         * gets the size for the element, in an array : [ width, height ].
-         */
-        getSize: function (el) {
-            return [ el.offsetWidth, el.offsetHeight ];
-        },
-        getWidth: function (el) {
-            return el.offsetWidth;
-        },
-        getHeight: function (el) {
-            return el.offsetHeight;
-        },
         extend: function (o1, o2, names) {
             var i;
             if (names) {
