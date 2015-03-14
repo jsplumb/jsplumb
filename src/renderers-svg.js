@@ -50,22 +50,18 @@
                 node.setAttribute(i, "" + attributes[i]);
         },
         _node = function (name, attributes) {
-            var n = document.createElementNS(ns.svg, name);
             attributes = attributes || {};
             attributes.version = "1.1";
             attributes.xmlns = ns.xhtml;
-            _attr(n, attributes);
-            return n;
+            return jsPlumb.createElementNS(ns.svg, name, null, null, attributes);
         },
         _pos = function (d) {
             return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
         },
         _clearGradient = function (parent) {
-            // TODO use querySelectorAll here instead?
-            for (var i = 0; i < parent.childNodes.length; i++) {
-                if (parent.childNodes[i].tagName == DEFS || parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
-                    parent.removeChild(parent.childNodes[i]);
-            }
+            var els = parent.querySelectorAll(" defs linearGradient radialGradient");
+            for (var i = 0; i < els.length; i++)
+                els[i].parentNode.removeChild(els[i]);
         },
         _updateGradient = function (parent, node, style, dimensions, uiComponent) {
             var id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance.idstamp();
