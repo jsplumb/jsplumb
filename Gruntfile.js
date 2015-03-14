@@ -1,6 +1,6 @@
 
 var versions = {
-        JS_BEZIER : { f:"jsBezier", v:"0.6" },
+        JS_BEZIER : { f:"jsBezier", v:"0.7" },
         BILTONG : { f:"biltong", v:"0.2" },
         MOTTLE : {f:"mottle", v:"0.5" },
         KATAVORIO : {f:"katavorio", v:"0.6" }
@@ -22,7 +22,7 @@ var versions = {
             "svg", "vml"
         ],
         common:[
-            'util.js', 'browser-util.js', 'dom-adapter.js', 'jsPlumb.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js'
+            'util.js', 'browser-util.js', 'jsPlumb.js', 'dom-adapter.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js'
         ]
     },
     optionList = function(grunt, type) {
@@ -50,7 +50,6 @@ var versions = {
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers"));
         sources.push("src/" + lib + ".jsPlumb.js");
-        console.dir(sources);
         return sources;
     },
     help = "\nBuilding jsPlumb\n" +
