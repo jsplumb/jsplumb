@@ -342,14 +342,22 @@
             this.getDragManager().updateOffsets();
         },
 
-        createElement:function(tag, style, clazz) {
-            var e = document.createElement(tag);
+        createElement:function(tag, style, clazz, atts) {
+            return this.createElementNS(null, tag, style, clazz, atts);
+        },
+
+        createElementNS:function(ns, tag, style, clazz, atts) {
+            var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
             style = style || {};
             for (var i in style)
                 e.style[i] = style[i];
 
             if (clazz)
                 e.className = clazz;
+
+            atts = atts || {};
+            for (var i in atts)
+                e.setAttribute(i, "" + atts[i]);
 
             return e;
         },
