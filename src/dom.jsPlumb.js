@@ -79,6 +79,8 @@
 
     _jp.extend(root.jsPlumbInstance.prototype, {
 
+        animationSupported:true,
+
         scopeChange: function (el, elId, endpoints, scope, types) {
 
         },

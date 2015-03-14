@@ -26,6 +26,8 @@
 
     $.extend(root.jsPlumbInstance.prototype, {
 
+        animationSupported:true,
+
 // ---------------------------- DOM MANIPULATION ---------------------------------------		
 
 

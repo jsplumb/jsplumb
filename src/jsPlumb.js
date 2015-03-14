@@ -1227,6 +1227,8 @@
         };
 
         this.animate = function (el, properties, options) {
+            if (!this.animationSupported) return false;
+
             options = options || {};
             var ele = _currentInstance.getElementObject(el),
                 del = _currentInstance.getDOMElement(el),
