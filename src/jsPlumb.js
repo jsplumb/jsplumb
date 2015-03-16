@@ -2140,7 +2140,7 @@
                     // if no cached endpoint, or there was one but it has been cleaned up
                     // (ie. detached), then create a new one.
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
-                        newEndpoint = _currentInstance.addEndpoint(_el, p);
+                        newEndpoint = _currentInstance.addEndpoint(elInfo.el, p);
                         newEndpoint._mtNew = true;
                     }
 
@@ -2351,11 +2351,11 @@
                         // if disabled, return.
                         if (!def.enabled) return;
 
-                        elid = this.getId(this.getDOMElement(_el)); // elid might have changed since this method was called to configure the element.
+                        elid = this.getId(this.getDOMElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
-                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this, p.filterExclude) : p.filter(evt, _el);
+                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, elInfo.el, p.filter, this, p.filterExclude) : p.filter(evt, elInfo.el);
                             if (r === false) return;
                         }
 
@@ -2364,7 +2364,7 @@
                         if (def.maxConnections >= 0 && (def.uniqueEndpoint && sourceCount >= def.maxConnections)) {
                             if (onMaxConnections) {
                                 onMaxConnections({
-                                    element: _el,
+                                    element: elInfo.el,
                                     maxConnections: maxConnections
                                 }, e);
                             }
@@ -2408,7 +2408,7 @@
                             // legitimate endpoint, were it not for this check.  the flag is set after adding an
                             // endpoint and cleared in a drag listener we set in the dragOptions above.
                             _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
-                            _currentInstance.off(_el, "mouseup", _delTempEndpoint);
+                            _currentInstance.off(elInfo.el, "mouseup", _delTempEndpoint);
                             if (endpointAddedButNoDragYet) {
                                 endpointAddedButNoDragYet = false;
                                 _currentInstance.deleteEndpoint(ep);
@@ -2416,7 +2416,7 @@
                         };
 
                         _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
-                        _currentInstance.on(_el, "mouseup", _delTempEndpoint);
+                        _currentInstance.on(elInfo.el, "mouseup", _delTempEndpoint);
 
                         // and then trigger its mousedown event, which will kick off a drag, which will start dragging
                         // a new connection from this endpoint.
