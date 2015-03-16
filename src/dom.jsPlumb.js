@@ -135,16 +135,6 @@
                     }
                 }, step);
         },
-        getSelector: function (ctx, spec) {
-            var sel = null;
-            if (arguments.length == 1) {
-                sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
-            }
-            else
-                sel = ctx.querySelectorAll(spec);
-
-            return sel;
-        },
         // DRAG/DROP
         destroyDraggable: function (el, category) {
             _getDragManager(this, category).destroyDraggable(el);

@@ -455,6 +455,17 @@
                 return el.currentStyle[prop];
             }
         },
+
+        getSelector: function (ctx, spec) {
+            var sel = null;
+            if (arguments.length == 1) {
+                sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
+            }
+            else
+                sel = ctx.querySelectorAll(spec);
+
+            return sel;
+        },
         getOffset:function(el, relativeToRoot) {
             el = jsPlumb.getDOMElement(el);
             var container = this.getContainer();
