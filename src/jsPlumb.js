@@ -703,8 +703,7 @@
                 if (_ju.isArray(element)) {
                     retVal = [];
                     for (var i = 0, j = element.length; i < j; i++) {
-                        el = _currentInstance.getElementObject(element[i]);
-                        del = _currentInstance.getDOMElement(el);
+                        del = _currentInstance.getDOMElement(element[i]);
                         id = _currentInstance.getAttribute(del, "id");
                         retVal.push(fn.apply(_currentInstance, [del, id])); // append return values to what we will return
                     }
@@ -1230,8 +1229,7 @@
             if (!this.animationSupported) return false;
 
             options = options || {};
-            var ele = _currentInstance.getElementObject(el),
-                del = _currentInstance.getDOMElement(el),
+            var del = _currentInstance.getDOMElement(el),
                 id = _getId(del),
                 stepFunction = jsPlumb.animEvents.step,
                 completeFunction = jsPlumb.animEvents.complete;
@@ -1245,7 +1243,7 @@
                 _currentInstance.revalidate(id);
             });
 
-            _currentInstance.doAnimate(ele, properties, options);
+            _currentInstance.doAnimate(del, properties, options);
         };
 
         /**
@@ -2136,8 +2134,7 @@
                 getEndpoint: function (jpc) {
                     // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
                     // is set.
-                    var _el = _currentInstance.getElementObject(elInfo.el),
-                        def = elInfo.el[definitionId],
+                    var def = elInfo.el[definitionId],
                         newEndpoint = def.endpoint;
 
                     // if no cached endpoint, or there was one but it has been cleaned up
@@ -2160,8 +2157,10 @@
                     // out where to locate the anchor.
                     if (newEndpoint.anchor.positionFinder != null) {
                         var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
-                            elPosition = _currentInstance.getOffset(_el),
-                            elSize = _currentInstance.getSize(_el),
+                            //elPosition = _currentInstance.getOffset(_el),
+                            elPosition = _currentInstance.getOffset(elInfo.el),
+                            //elSize = _currentInstance.getSize(_el),
+                            elSize = _currentInstance.getSize(elInfo.el),
                             ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
                         newEndpoint.anchor.x = ap[0];
                         newEndpoint.anchor.y = ap[1];
@@ -2201,7 +2200,7 @@
                     return de != elInfo.el;
                 };
             }
-            _currentInstance.initDroppable(_currentInstance.getElementObject(elInfo.el), dropOptions, "internal");
+            _currentInstance.initDroppable(elInfo.el, dropOptions, "internal");
 
             return _drop;
 
@@ -2277,8 +2276,7 @@
                     // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
                     // and use the endpoint definition if found.
                     var elid = elInfo.id,
-                        _el = this.getElementObject(elInfo.el),
-                        _del = this.getDOMElement(_el);
+                        _del = this.getDOMElement(elInfo.el);
 
                     _ensureContainer(elid);
 
@@ -2428,14 +2426,16 @@
 
                     }.bind(this);
 
-                    this.on(_el, "mousedown", mouseDownListener);
+                    //this.on(_el, "mousedown", mouseDownListener);
+                    this.on(elInfo.el, "mousedown", mouseDownListener);
                     _def.trigger = mouseDownListener;
 
                     // if a filter was provided, set it as a dragFilter on the element,
                     // to prevent the element drag function from kicking in when we want to
                     // drag a new connection
                     if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
-                        _currentInstance.setDragFilter(_el, p.filter/*, p.filterExclude*/);
+                        //_currentInstance.setDragFilter(_el, p.filter/*, p.filterExclude*/);
+                        _currentInstance.setDragFilter(elInfo.el, p.filter/*, p.filterExclude*/);
                     }
 
                     var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
@@ -2925,16 +2925,14 @@
         },
         // set parent: change the parent for some node and update all the registrations we need to.
         setParent: function (el, newParent) {
-            var _el = this.getElementObject(el),
-                _dom = this.getDOMElement(_el),
+            var _dom = this.getDOMElement(el),
                 _id = this.getId(_dom),
-                _pel = this.getElementObject(newParent),
-                _pdom = this.getDOMElement(_pel),
+                _pdom = this.getDOMElement(newParent),
                 _pid = this.getId(_pdom);
 
             _dom.parentNode.removeChild(_dom);
             _pdom.appendChild(_dom);
-            this.getDragManager().setParent(_el, _id, _pel, _pid);
+            this.getDragManager().setParent(_dom, _id, _pdom, _pid);
         },
         extend: function (o1, o2, names) {
             var i;

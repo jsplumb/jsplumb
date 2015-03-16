@@ -87,7 +87,6 @@
 
     _jp.Endpoint = function (params) {
         var _jsPlumb = params._jsPlumb,
-            _gel = _jp.getElementObject,
             _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint;
 
@@ -535,9 +534,8 @@
                     // set the offset of this div to be where 'inPlaceCopy' is, to start with.
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
-                    var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumb.getOffset(ipcoel, this._jsPlumb.instance),
-                        canvasElement = _gel(this.canvas);
+                    var ipco = this._jsPlumb.instance.getOffset(inPlaceCopy.canvas),
+                        canvasElement = this.canvas;
 
                     jsPlumb.setPosition(placeholderInfo.element, ipco);
 
@@ -843,7 +841,7 @@
         // Initialise the endpoint's canvas as a drop target. The drop handler will take care of the logic of whether
         // something can actually be dropped.
         if (!this.anchor.isFloating)
-            _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this, params.reference);
+            _initDropTarget(this.canvas, true, !(params._transient || this.anchor.isFloating), this, params.reference);
 
 
         return this;
@@ -892,9 +890,8 @@
             this.endpoint.destroy();
             this.endpoint = null;
             // drag/drop
-            var i = _jp.getElementObject(this.canvas);
-            this._jsPlumb.instance.destroyDraggable(i, "internal");
-            this._jsPlumb.instance.destroyDroppable(i, "internal");
+            this._jsPlumb.instance.destroyDraggable(this.canvas, "internal");
+            this._jsPlumb.instance.destroyDroppable(this.canvas, "internal");
         },
         setHover: function (h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())

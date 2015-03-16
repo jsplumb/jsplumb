@@ -105,7 +105,7 @@
                 if (p) {
                     for (var i = 0; i < p.childNodes.length; i++) {
                         if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
-                            var cEl = jsPlumb.getElementObject(p.childNodes[i]),
+                            var cEl = jsPlumb.getDOMElement(p.childNodes[i]),
                                 cid = _currentInstance.getId(p.childNodes[i], null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
                                 var cOff = _currentInstance.getOffset(cEl);
@@ -138,7 +138,7 @@
                 if (children) {
                     for (var i in children) {
                         if (children.hasOwnProperty(i)) {
-                            var cel = jsPlumb.getElementObject(i),
+                            var cel = jsPlumb.getDOMElement(i),
                                 cOff = _currentInstance.getOffset(cel);
 
                             _delements[id][i] = {

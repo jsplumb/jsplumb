@@ -106,7 +106,7 @@ var testSuite = function (renderMode, _jsPlumb) {
     _jsPlumb.setRenderMode(renderMode);
 
     //*
-
+/*
     test(" : getElementObject", function () {
         var e = document.createElement("div");
         e.id = "FOO";
@@ -114,14 +114,17 @@ var testSuite = function (renderMode, _jsPlumb) {
         var el = jsPlumb.getElementObject(e);
         equal(jsPlumbTestSupport.getAttribute(el, "id"), "FOO");
     });
+    */
 
     test(" : getDOMElement", function () {
         var e = document.createElement("div");
         e.id = "FOO";
         document.body.appendChild(e);
-        var el = jsPlumb.getElementObject(e);
-        var e2 = jsPlumb.getDOMElement(el);
+        var e2 = jsPlumb.getDOMElement(e);
         equal(e2.id, "FOO");
+
+        var e3 = jsPlumb.getDOMElement("FOO");
+        equal(e3.id, "FOO");
     });
 
     test(': _jsPlumb setup', function () {

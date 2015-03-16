@@ -94,9 +94,9 @@
             el = typeof el === "string" ? el : el.length != null && el.enctype == null ? el[0] : el;
             return typeof el === "string" ? document.getElementById(el) : el;
         },
-        getElementObject: function (el) {
+        /*getElementObject: function (el) {
             return el;
-        },
+        },*/
         removeElement: function (element) {
             _getDragManager(this).elementRemoved(element);
             this.getEventManager().remove(element);

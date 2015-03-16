@@ -44,15 +44,6 @@
         },
 
         /**
-         * gets an "element object" from the given input.  this means an object that is used by the
-         * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
-         * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup
-         * function is used to find the element, using the given String as the element's id.
-         *
-         */
-        getElementObject: _getElementObject,
-
-        /**
          * removes an element from the DOM.  doing it via the library is
          * safer from a memory perspective, as it ix expected that the library's
          * remove method will unbind any event listeners before removing the element from the DOM.
@@ -69,7 +60,7 @@
          * animates the given element.
          */
         doAnimate: function (el, properties, options) {
-            el.animate(properties, options);
+            $(el).animate(properties, options);
         },
         getSelector: function (context, spec) {
             if (arguments.length == 2)
@@ -217,14 +208,14 @@
         },
         /**
          * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
-         * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
-         * from the originalEvent to put in an options object for YUI.
+         * Mottle does not.  (YUI, in fact, cannot even pass an original event...but we don't support YUI any longer).
          * @param el
          * @param event
          * @param originalEvent
          */
         trigger: function (el, event, originalEvent) {
-            var h = jQuery._data(_getElementObject(el)[0], "handle");
+            el = this.getDOMElement(el);
+            var h = jQuery._data($(el)[0], "handle");
             h(originalEvent);
         }
 
