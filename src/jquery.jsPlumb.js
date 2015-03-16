@@ -62,12 +62,6 @@
         doAnimate: function (el, properties, options) {
             $(el).animate(properties, options);
         },
-        getSelector: function (context, spec) {
-            if (arguments.length == 2)
-                return _getElementObject(context).find(spec);
-            else
-                return $(context);
-        },
 
 // ---------------------------- END MISCELLANEOUS ---------------------------------------		
 
