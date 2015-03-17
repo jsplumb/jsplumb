@@ -1168,9 +1168,9 @@
         this.dragSelectClass = "_jsPlumb_drag_select";
 
         this.Anchors = {};
-        this.Connectors = {  "svg": {}, "vml": {}, "headless":{} };
-        this.Endpoints = { "svg": {}, "vml": {}, "headless":{} };
-        this.Overlays = { "svg": {}, "vml": {}, headless:{} } ;
+        this.Connectors = {  "svg": {}, "vml": {} };
+        this.Endpoints = { "svg": {}, "vml": {} };
+        this.Overlays = { "svg": {}, "vml": {} } ;
         this.ConnectorRenderers = {};
         this.SVG = "svg";
         this.VML = "vml";
