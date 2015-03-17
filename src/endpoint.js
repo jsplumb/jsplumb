@@ -526,6 +526,7 @@
 
                     _jsPlumb.updateOffset({ elId: this.elementId });
                     inPlaceCopy = this.makeInPlaceCopy();
+                    inPlaceCopy.addClass(_jsPlumb.draggingClass);
                     inPlaceCopy.referenceEndpoint = this;
                     inPlaceCopy.paint();
 
