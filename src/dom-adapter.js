@@ -80,6 +80,14 @@
 
     /**
      Manages dragging for some instance of jsPlumb.
+
+     TODO instead of this being accessed directly, it should subscribe to events on the jsPlumb instance: every method
+     in here is called directly by jsPlumb. But what should happen is that we have unpublished events that this listens
+     to.  The only trick is getting one of these instantiated with every jsPlumb instance: it needs to have a hook somehow.
+     Basically the general idea is to pull ALL the drag code out (prototype method registrations plus this) into a
+     dedicated drag script), that does not necessarily need to be included.
+
+
      */
     var DragManager = function (_currentInstance) {
         var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},
