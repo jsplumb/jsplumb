@@ -1,3 +1,7 @@
+.demo {
+    /* for IE10+ touch devices */
+    touch-action:none;
+}
 
 .flowchart-demo .window {
     border: 1px solid #346789;

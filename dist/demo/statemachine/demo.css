@@ -1,3 +1,7 @@
+.demo {
+    touch-action:none;
+}
+
 .w {
     padding: 16px;
     position: absolute;

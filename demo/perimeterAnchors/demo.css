@@ -1,3 +1,8 @@
+.demo {
+    /* for IE10+ touch devices */
+    touch-action:none;
+}
+
 /** JSPLUMB ARTEFACTS **/
 ._jsPlumb_connector {
     z-index:1;
