@@ -707,19 +707,6 @@
                 var tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
                 _bind(obj, touchMap[evt], tfn , fn);
             }
-
-            // TODO SP: a temporary change: bind mouse AND touch listeners if the device says it has both, rather than
-            // binding one or the other.
-            //
-            // this will break devices such as the nexus phones/tablets, since they post both events. but it will
-            // mean that window touch devices (chrome) will work. so the long term fix is to put in some handler
-            // that can filter extra mouse events on devices such as the nexus.
-            //
-            //else
-            //	_bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
-            //if (isMouseDevice && mouseevents.indexOf(evt) != -1)
-            // this will bind all mouse events and other stuff like keyboard events, resize, etc.
-            //if (touchevents.indexOf(evt) == -1)
             _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
         },
         SmartClickHandler = function (obj, evt, fn, children) {
@@ -873,11 +860,7 @@
         isTouchDevice = "ontouchstart" in document.documentElement,
         isMouseDevice = "onmousedown" in document.documentElement,
         touchMap = { "mousedown": "touchstart", "mouseup": "touchend", "mousemove": "touchmove" },
-        mouseevents = "mouseover mouseout mouseenter mouseexit mousedown mousemove mouseup click dblclick contextmenu tap dbltap",
-        touchevents = [ "touchstart", "touchend", "touchmove" ],
         touchstart = "touchstart", touchend = "touchend", touchmove = "touchmove",
-        ta_down = "__MottleDown", ta_up = "__MottleUp",
-        ta_context_down = "__MottleContextDown", ta_context_up = "__MottleContextUp",
         iev = (function () {
             var rv = -1;
             if (navigator.appName == 'Microsoft Internet Explorer') {
@@ -994,8 +977,7 @@
      */
     this.Mottle = function (params) {
         params = params || {};
-        var self = this,
-            clickThreshold = params.clickThreshold || 150,
+        var clickThreshold = params.clickThreshold || 150,
             dblClickThreshold = params.dblClickThreshold || 350,
             mouseEnterExitHandler = new MouseEnterExitHandler(),
             tapHandler = new TapHandler(clickThreshold, dblClickThreshold),
@@ -1017,7 +999,7 @@
             };
 
         /**
-         * Removes an element from the DOM, and unregisters all event handlers for it. You should use this
+         * Removes an element from the DOM, and deregisters all event handlers for it. You should use this
          * to ensure you don't leak memory.
          * @method remove
          * @param {String|Element} el Element, or id of the element, to remove.
@@ -1069,8 +1051,8 @@
          * @param {Function} fn Event handler function.
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
-        this.off = function (el, evt, fn) {
-            _unbind(el, evt, fn);
+        this.off = function (el, event, fn) {
+            _unbind(el, event, fn);
             return this;
         };
 
@@ -1085,7 +1067,11 @@
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
         this.trigger = function (el, event, originalEvent, payload) {
-            var eventToBind = (isTouchDevice && touchMap[event]) ? touchMap[event] : event;
+            var originalIsMouse = isMouseDevice && (originalEvent.constructor === MouseEvent);
+
+            var eventToBind = (isTouchDevice && !isMouseDevice && touchMap[event]) ? touchMap[event] : event,
+                bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
+
             var pl = _pageLocation(originalEvent), sl = _screenLocation(originalEvent), cl = _clientLocation(originalEvent);
             _each(el, function () {
                 var _el = _gel(this), evt;
@@ -1114,12 +1100,6 @@
                         evt.initTouchEvent(eventToBind, true, true, window, null, sl[0], sl[1],
                             cl[0], cl[1], false, false, false, false,
                             touches, targetTouches, changedTouches, 1, 0);
-                        /*
-
-                         evt.initTouchEvent(eventToBind, true, true, window, 0,
-                         sl[0], sl[1],
-                         cl[0], cl[1],
-                         false, false, false, false, document.createTouchList(t));*/
                     },
                     "MouseEvents": function (evt) {
                         evt.initMouseEvent(eventToBind, true, true, window, 0,
@@ -1140,7 +1120,10 @@
                 };
 
                 if (document.createEvent) {
-                    var ite = (isTouchDevice && touchMap[event] && !Sniff.android), evtName = ite ? "TouchEvent" : "MouseEvents";
+
+                    var ite = !bindingAMouseEvent && !originalIsMouse && (isTouchDevice && touchMap[event] && !Sniff.android),
+                        evtName = ite ? "TouchEvent" : "MouseEvents";
+
                     evt = document.createEvent(evtName);
                     eventGenerators[evtName](evt);
                     _decorate(evt);
@@ -4805,6 +4788,14 @@
 
     /**
      Manages dragging for some instance of jsPlumb.
+
+     TODO instead of this being accessed directly, it should subscribe to events on the jsPlumb instance: every method
+     in here is called directly by jsPlumb. But what should happen is that we have unpublished events that this listens
+     to.  The only trick is getting one of these instantiated with every jsPlumb instance: it needs to have a hook somehow.
+     Basically the general idea is to pull ALL the drag code out (prototype method registrations plus this) into a
+     dedicated drag script), that does not necessarily need to be included.
+
+
      */
     var DragManager = function (_currentInstance) {
         var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},

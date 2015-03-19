@@ -1,3 +1,8 @@
+.demo {
+    /* for IE10+ touch devices */
+    touch-action:none;
+}
+
 /** ELEMENTS **/
 .chart-demo .window { 
 	border:0.1em dotted #d4e06b; 	

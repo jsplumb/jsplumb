@@ -1,3 +1,8 @@
+.demo {
+    /* for IE10+ touch devices */
+    touch-action:none;
+}
+
 /** ELEMENTS **/
 .dynamic-demo .window {
     width: 5em;
