@@ -8,17 +8,6 @@
     user-select: none;
 }
 
-/** OPEN SANS FONT **/
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 400;
- 	src:local('Open Sans'), 
- 		local('OpenSans'),
- 		url("OpenSans-Regular.ttf") format('truetype'),
- 		url("OpenSans.woff") format('woff');
-}
-
 /** FB **/
 #like {
     position: fixed;
@@ -38,7 +27,7 @@
 body {
     padding:0;
     margin:0;    
-    font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: whitesmoke;
 }
 

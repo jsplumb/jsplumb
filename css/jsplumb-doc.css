@@ -23,20 +23,9 @@ li {
   list-style-type: none;
 }
 
-
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 400;
-  src:local('Open Sans'), 
-    local('OpenSans'),
-    url("OpenSans-Regular.ttf") format('truetype'),
-    url("OpenSans.woff") format('woff');    
-}
 html { background-color: white; }
 body { 
-  font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-family:'Helvetica Neue', Helvetica, Arial, sans-serif !important;
   background-color:white; 
   text-align:left;
 }

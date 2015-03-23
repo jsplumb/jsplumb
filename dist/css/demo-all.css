@@ -8,17 +8,6 @@
     user-select: none
 }
 
-/** OPEN SANS FONT **/
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 400;
- 	src:local('Open Sans'), 
- 		local('OpenSans'),
- 		url("font/OpenSans-Regular.ttf") format('truetype'),
- 		url("font/OpenSans.woff") format('woff');
-}
-
 /** PAGE STRUCTURE **/
 
 .dropdown { 
@@ -50,7 +39,7 @@
 body {
     padding:0;
     margin:0;    
-    font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color:#eaedef;
    
 }
