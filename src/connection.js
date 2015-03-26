@@ -316,6 +316,9 @@
                 root.jsPlumb[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
             }
         },
+        getUuids:function() {
+            return [ this.endpoints[0].getUuid(), this.endpoints[1].getUuid() ];
+        },
         getCost: function () {
             return this._jsPlumb.cost;
         },
