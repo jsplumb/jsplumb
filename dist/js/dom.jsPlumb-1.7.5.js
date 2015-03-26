@@ -1067,7 +1067,7 @@
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
         this.trigger = function (el, event, originalEvent, payload) {
-            var originalIsMouse = isMouseDevice && (originalEvent.constructor === MouseEvent);
+            var originalIsMouse = isMouseDevice && (originalEvent == null || originalEvent.constructor === MouseEvent);
 
             var eventToBind = (isTouchDevice && !isMouseDevice && touchMap[event]) ? touchMap[event] : event,
                 bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
@@ -7781,6 +7781,9 @@
                 root.jsPlumb[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
                 root.jsPlumb[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
             }
+        },
+        getUuids:function() {
+            return [ this.endpoints[0].getUuid(), this.endpoints[1].getUuid() ];
         },
         getCost: function () {
             return this._jsPlumb.cost;
