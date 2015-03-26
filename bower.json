@@ -1,6 +1,6 @@
 {
   "name": "jsPlumb",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "ignore": [
     "demo",
     "dist/apidocs",
@@ -28,12 +28,11 @@
     "test"
   ],
   "main": [
-    "dist/js/dom.jsPlumb-1.7.4.js",
-    "dist/js/jquery.jsPlumb-1.7.4.js"
+    "dist/js/dom.jsPlumb-1.7.5.js"
   ],
   "homepage": "http://jsplumbtoolkit.com",
   "authors": [
-    "Simon Porritt <simon@jsplumbtoolkit.com>"
+    "jsPlumb <hello@jsplumbtoolkit.com>"
   ],
   "description": "Visual connectivity for webapps",
   "license": "MIT/GPL2"
