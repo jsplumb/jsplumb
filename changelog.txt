@@ -3,6 +3,10 @@
     A minor-ish release; no changes to the API. Some refactoring of JS and of CSS. But one notable thing is that
     touch events on Windows touch laptops are working now (in Chrome and IE; FF seems to still have issues)
 
+  BACKWARDS COMPATIBILITY
+
+      - The jQuery flavour was removed from the `main` section in `bower.json`.
+
 
     ISSUES
 
