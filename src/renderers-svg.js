@@ -230,8 +230,8 @@
 
                 _attr(this.svg, {
                     "style": p,
-                    "width": wh[0],
-                    "height": wh[1]
+                    "width": wh[0] || 0,
+                    "height": wh[1] || 0
                 });
             }
         };
@@ -504,7 +504,7 @@
             }
         };
         var makePath = function (d) {
-            return "M" + d.hxy.x + "," + d.hxy.y +
+            return (isNaN(d.cxy.x) || isNaN(d.cxy.y)) ? "" : "M" + d.hxy.x + "," + d.hxy.y +
                 " L" + d.tail[0].x + "," + d.tail[0].y +
                 " L" + d.cxy.x + "," + d.cxy.y +
                 " L" + d.tail[1].x + "," + d.tail[1].y +
