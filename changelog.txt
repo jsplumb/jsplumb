@@ -14,6 +14,7 @@
     340 - Draggable stop event doesn't get called on all elements when dragging multiple elements
     341 - Add possibility to change z-order of the "inPlaceCopy" endpoint.
     344 - add getUuids method to Connection
+    345 - Error when two linked objects are with exactly same position
 
 
 * 1.7.4
