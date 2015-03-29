@@ -741,7 +741,6 @@
 
         var ep = params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || _jp.Defaults.Endpoint;
         this.setEndpoint(ep, true);
-        //params.anchor || this._jsPlumb.instance.Defaults.Anchor || jsPlumb.Defaults.Anchor || "Top"
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
         this.setAnchor(anchorParamsToUse, true);
 
@@ -754,7 +753,6 @@
         // if marked as source or target at create time, init the dragging.
         if (this.isSource || this.isTarget || this.isTemporarySource)
             this.initDraggable();
-
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
