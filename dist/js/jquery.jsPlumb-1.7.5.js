@@ -1067,7 +1067,8 @@
          * @return {Mottle} The current Mottle instance; you can chain this method.
          */
         this.trigger = function (el, event, originalEvent, payload) {
-            var originalIsMouse = isMouseDevice && (originalEvent == null || originalEvent.constructor === MouseEvent);
+            // MouseEvent undefined in old IE; that's how we know it's a mouse event.  A fine Microsoft paradox.
+            var originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent);
 
             var eventToBind = (isTouchDevice && !isMouseDevice && touchMap[event]) ? touchMap[event] : event,
                 bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
@@ -6285,7 +6286,6 @@
 
         var ep = params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || _jp.Defaults.Endpoint;
         this.setEndpoint(ep, true);
-        //params.anchor || this._jsPlumb.instance.Defaults.Anchor || jsPlumb.Defaults.Anchor || "Top"
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
         this.setAnchor(anchorParamsToUse, true);
 
@@ -6298,7 +6298,6 @@
         // if marked as source or target at create time, init the dragging.
         if (this.isSource || this.isTarget || this.isTemporarySource)
             this.initDraggable();
-
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
