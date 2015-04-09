@@ -1,8 +1,8 @@
 {
   "name": "jsPlumb",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "description": "Visual connectivity for webapps",
-  "main": "dist/js/dom.jsPlumb-1.7.5.js",
+  "main": "dist/js/dom.jsPlumb-1.7.6.js",
   "jsPlumbWiki": "../wiki/jsPlumb.wiki",
   "directories": {
     "doc": "doc",
