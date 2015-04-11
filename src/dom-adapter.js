@@ -346,8 +346,8 @@
             return this.dragManager;
         },
 
-        recalculateOffsets:function() {
-            this.getDragManager().updateOffsets();
+        recalculateOffsets:function(elId) {
+            this.getDragManager().updateOffsets(elId);
         },
 
         createElement:function(tag, style, clazz, atts) {
