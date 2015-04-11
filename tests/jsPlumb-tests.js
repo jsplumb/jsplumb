@@ -7049,6 +7049,30 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
     });
 
+    test("recalculateOffsets", function() {
+        var d1 = _addDiv("d1");
+
+        var d2 = _addDiv("d2", d1);
+        d2.style.left = "250px";
+        d2.style.top = "120px";
+
+        var d3 = _addDiv("d3", d1);
+        d3.style.left = "150px";
+        d3.style.top = "220px";
+
+        _jsPlumb.connect({source:d2, target:d3});
+        _jsPlumb.draggable(d1);
+
+        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")["d2"];
+        equal(250, o.offset.left, "d2 is at left=250");
+
+        d2.style.left = "1250px";
+        _jsPlumb.recalculateOffsets(d1);
+        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")["d2"];
+        equal(1250, o.offset.left, "d2 is at left=1250");
+
+    });
+
 
 
     test("endpointStyle on connect method, with makeSource prepared element", function () {
