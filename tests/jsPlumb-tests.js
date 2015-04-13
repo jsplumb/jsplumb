@@ -7073,6 +7073,14 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     });
 
+    /**
+     * Tests that the `getOffset` function correctly ignores body scroll when adjusting for parent element scroll.
+     * @method Test.offset_body_scroll
+     */
+    test("offset body scroll", function() {
+
+    });
+
 
 
     test("endpointStyle on connect method, with makeSource prepared element", function () {
