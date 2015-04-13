@@ -1,3 +1,13 @@
+* 1.7.6
+
+    Minor bugfix release
+
+    ISSUES
+
+    350 - recalculateOffsets not working
+
+
+
 * 1.7.5
 
     A minor-ish release; no changes to the API. Some refactoring of JS and of CSS. But one notable thing is that
