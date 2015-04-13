@@ -23,8 +23,7 @@ jsPlumb.ready(function () {
         },
 
         initAnimation = function (elId) {
-            var el = document.getElementById(elId),
-                _el = jsPlumb.getElementObject(el);
+            var el = document.getElementById(elId);
 
             instance.on(el, 'click', function (e, ui) {
                 if (el.className.indexOf("jsPlumb_dragged") > -1) {
@@ -32,8 +31,8 @@ jsPlumb.ready(function () {
                     return;
                 }
                 e = jsPlumb.getOriginalEvent(e);
-                var o = instance.getOffset(_el, true),
-                    o2 = instance.getOffset(_el),
+                var o = instance.getOffset(el, true),
+                    o2 = instance.getOffset(el),
                     s = jsPlumb.getSize(el),
                     pxy = [e.pageX || e.clientX, e.pageY || e.clientY],
                     c = [pxy[0] - (o.left + (s[0] / 2)), pxy[1] - (o.top + (s[1] / 2))],
