@@ -576,7 +576,16 @@
                 // ... and any other endpoints we came across as a result of the continuous anchors.
                 for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
-                    endpointsToPaint[i].paint({ timestamp: timestamp, offset: cd, dimensions: cd.s });
+                    var drawEndpoint = false;
+                    for (var j = 0; j < endpointsToPaint[i].connections.length; j++) {
+                        if (endpointsToPaint[i].connections[j].sourceId === elementId ||
+                            endpointsToPaint[i].connections[j].targetId === elementId) {
+                            drawEndpoint = true;
+                        }
+                    }
+                    if (drawEndpoint) {
+                        endpointsToPaint[i].paint({timestamp: timestamp, offset: cd, dimensions: cd.s});
+                    }
                 }
 
                 // paint all the standard and "dynamic connections", which are connections whose other anchor is
@@ -611,7 +620,10 @@
 
                 // paint all the connections
                 for (i = 0; i < connectionsToPaint.length; i++) {
-                    connectionsToPaint[i].paint({elId: elementId, timestamp: timestamp, recalc: false, clearEdits: clearEdits});
+                    if (connectionsToPaint[i].sourceId === elementId ||
+                        connectionsToPaint[i].targetId === elementId) {
+                        connectionsToPaint[i].paint({elId: elementId, timestamp: timestamp, recalc: false, clearEdits: clearEdits});
+                    }
                 }
             }
         };
