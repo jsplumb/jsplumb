@@ -576,11 +576,13 @@
                 // ... and any other endpoints we came across as a result of the continuous anchors.
                 for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
-                    var drawEndpoint = false;
-                    for (var j = 0; j < endpointsToPaint[i].connections.length; j++) {
-                        if (endpointsToPaint[i].connections[j].sourceId === elementId ||
-                            endpointsToPaint[i].connections[j].targetId === elementId) {
-                            drawEndpoint = true;
+                    var drawEndpoint = endpointsToPaint[i].connections === undefined || endpointsToPaint[i].connections.length === 0;
+                    if (!drawEndpoint) {
+                        for (var j = 0; j < endpointsToPaint[i].connections.length; j++) {
+                            if (endpointsToPaint[i].connections[j].sourceId === elementId ||
+                                endpointsToPaint[i].connections[j].targetId === elementId) {
+                                drawEndpoint = true;
+                            }
                         }
                     }
                     if (drawEndpoint) {
