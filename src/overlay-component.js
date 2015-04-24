@@ -155,7 +155,7 @@
             if (o) o.show();
         },
         showOverlays: function () {
-            for (var i in this._jsPlumb.overlays.length)
+            for (var i in this._jsPlumb.overlays)
                 this._jsPlumb.overlays[i].show();
         },
         removeAllOverlays: function (doNotRepaint) {
