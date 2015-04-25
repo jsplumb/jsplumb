@@ -4231,6 +4231,19 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(false, e3.isVisible(), "endpoint 3 is still not visible.");
     });
 
+    test("show/hide Overlays", function() {
+        var c = _jsPlumb.connect({source:_addDiv("d1"), target:_addDiv("d2"), overlays:[
+            [ "Label", { "id":"lbl" } ]
+        ]});
+
+        equal(c.getOverlay("lbl").isVisible(), true, "overlay is visible");
+        c.hideOverlays();
+        //equal(c.getOverlay("lbl").canvas.style.display, "none", "overlay not visible");
+        equal(c.getOverlay("lbl").isVisible(), false, "overlay is not visible");
+        c.showOverlays();
+        equal(c.getOverlay("lbl").isVisible(), true, "overlay is visible");
+    });
+
     //
      //test(" _jsPlumb.hide, two-arg version, endpoints should also be hidden", function() {
      //var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -7078,7 +7091,7 @@ var testSuite = function (renderMode, _jsPlumb) {
      * @method Test.offset_body_scroll
      */
     test("offset body scroll", function() {
-
+        expect(0);
     });
 
 
