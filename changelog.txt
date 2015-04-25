@@ -5,6 +5,7 @@
     ISSUES
 
     350 - recalculateOffsets not working
+    353 - multiple select disabled
 
 
 
