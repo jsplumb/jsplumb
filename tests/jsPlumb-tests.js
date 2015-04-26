@@ -82,6 +82,12 @@ var defaults = null,
         }
         _divs.splice(0, _divs.length - 1);
 
+        /*
+        var svg = document.querySelectorAll("svg");
+        for (var i = 0; i < svg.length; i++) {
+            svg[i].parentNode.removeChild(svg[i]);
+        }*/
+
         document.getElementById("container").innerHTML = "";
     };
 
@@ -667,6 +673,18 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.detach(c);
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
         equal(beforeDetachCount, 0, "jsplumb before detach was not called");
+    });
+
+    test(": detach; beforeDetach on connect call returns undefined", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var c = _jsPlumb.connect({source: d1, target: d2, beforeDetach: function (conn) { }});
+        var beforeDetachCount = 0;
+        _jsPlumb.bind("beforeDetach", function (connection) {
+            beforeDetachCount++;
+        });
+        equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+        _jsPlumb.detach(c);
+        equal(c.endpoints, null, "connection's endpoints were removed");
     });
 
     test(": detach; beforeDetach on connect call returns true", function () {
@@ -7148,7 +7166,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
 
     var _makeEvt = function (el) {
-        var o = jsPlumbAdapter.getOffset(el, _jsPlumb),
+        var o = _jsPlumb.getOffset(el),
             s = _jsPlumb.getSize(el),
             l = o.left + (s[0] / 2),
             t = o.top + (s[1] / 2);
@@ -7162,26 +7180,15 @@ var testSuite = function (renderMode, _jsPlumb) {
             pageY: t
         };
     };
-    /*
-     var _dragConnection = function(d1, d2) {
-     var e1 = _makeEvt(d1), e2 = _makeEvt(d2);
 
-     _jsPlumb.trigger(d1, "mousedown", e1);
-     _jsPlumb.trigger(document, "mousemove", e2);
-     _jsPlumb.trigger(d2, "mouseup", e2);
-     };
-
-     /**
-     * Tests makeSource/makeTarget via event triggering
-     *
-     test("connections via mouse", function() {
-     var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-     _jsPlumb.makeSource(d1);
-     _jsPlumb.makeTarget(d2);
-     _dragConnection(d1, d2);
-     equal(_jsPlumb.select().length, 1, "one connection");
-     })*/
-
+    var _distantPointEvent = {
+        clientX: 50000,
+        clientY: 50000,
+        screenX: 50000,
+        screenY: 50000,
+        pageX: 50000,
+        pageY: 50000
+    };
 
     var _dragConnection = function (d1, d2) {
         var el1 = d1.canvas || d1, el2 = d2.canvas || d2;
@@ -7192,32 +7199,165 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.trigger(el2, "mouseup", e2);
     };
 
+    var _detachConnection = function (e, connIndex) {
+        var el1 = e.canvas,
+            c = e.connections[connIndex];
+
+        var e1 = _makeEvt(el1);
+
+        _jsPlumb.trigger(el1, "mousedown", e1);
+        _jsPlumb.trigger(document, "mousemove", document);
+        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
+    };
+
     /**
      * Tests makeSource/makeTarget via event triggering.
-     * @method jsPlumb.Test.MakeSourceViaEventTriggering
+     * @method jsPlumb.Test.MakeSourceEventTriggering
      *
      test("connections via mouse between elements configured with makeSource/makeTarget", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         _jsPlumb.makeSource(d1);
         _jsPlumb.makeTarget(d2);
+         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         _dragConnection(d1, d2);
-        equal(_jsPlumb.select().length, 1, "one connection");
-    });
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+    });*/
 
      /**
-     * Tests makeSource/makeTarget via event triggering.
-     * @method jsPlumb.Test.MakeSourceViaEventTriggering
-     *
+     * Tests endpoint mouse interaction via event triggering: the ability to drag a connection to another
+      * endpoint, what happens when it is full, if it is disabled etc.
+     * @method jsPlumb.Test.EndpointEventTriggering
+     */
      test("connections via mouse between Endpoints configured with addEndpoint", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true}),
+            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
+
+        equal(_jsPlumb.select().length, 0, "zero connections before drag");
+        _dragConnection(e1, e2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        _jsPlumb.select().detach();
+        equal(_jsPlumb.select().length, 0, "zero connections after detach");
+
+         // now disable e1 and try to drag a new connection: it should fail
+         e1.setEnabled(false);
+         _dragConnection(e1, e2);
+         equal(_jsPlumb.select().length, 0, "zero connections after drag from disabled endpoint");
+
+         e1.setEnabled(true);
+         _dragConnection(e1, e2);
+         equal(_jsPlumb.select().length, 1, "one connection after drag from enabled endpoint");
+
+         /*
+
+         why does this fail? i get 0 instead of 1. it's detaching existing connections?
+
+         ok(e1.isFull(), "endpoint 1 is full");
+         _dragConnection(e1, e2);
+         equal(_jsPlumb.select().length, 1, "one connection after drag from endpoint that is full");
+         */
+
+         _detachConnection(e1, 0);
+         equal(_jsPlumb.select().length, 0, "zero connections after detach");
+    });
+
+
+    test("endpoint:connectionsDetachable mouse interaction", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {
+                isSource:true, isTarget:true,
+                connectionsDetachable:false
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
+
+        equal(_jsPlumb.select().length, 0, "zero connections before drag");
+        _dragConnection(e1, e2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        _detachConnection(e1, 0);
+        equal(_jsPlumb.select().length, 1, "one connection still after attempted detach");
+    });
+
+    test("connection:detachable false, mouse interaction", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1),
             e2 = _jsPlumb.addEndpoint(d2);
 
-        _dragConnection(e1, e2);
-        equal(_jsPlumb.select().length, 1, "one connection");
+        equal(_jsPlumb.select().length, 0, "zero connections before connect");
+        _jsPlumb.connect({source:e1, target:e2, detachable:false});
+        equal(_jsPlumb.select().length, 1, "one connection after connect");
+        _detachConnection(e1, 0);
+        equal(_jsPlumb.select().length, 1, "one connection still after attempted detach");
     });
-     */
 
+    test("connection:detachable true by default, mouse interaction", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1),
+            e2 = _jsPlumb.addEndpoint(d2);
+
+        equal(_jsPlumb.select().length, 0, "zero connections before connect");
+        _jsPlumb.connect({source:e1, target:e2});
+        equal(_jsPlumb.select().length, 1, "one connection after connect");
+        _detachConnection(e1, 0);
+        equal(_jsPlumb.select().length, 0, "zero connections after detach");
+    });
+
+    /*
+    test("endpoint:connectionSourceDetachable false, mouse interaction", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {connectionSourceDetachable:false, maxConnections:-1}),
+            e2 = _jsPlumb.addEndpoint(d2, {maxConnections:-1});
+
+        equal(_jsPlumb.select().length, 0, "zero connections before connect");
+        _jsPlumb.connect({source:e1, target:e2});
+        equal(_jsPlumb.select().length, 1, "one connection after connect");
+
+        _detachConnection(e1, 0);
+        equal(_jsPlumb.select().length, 1, "one connection still after attempted detach of connection source");
+
+        _jsPlumb.connect({source:e2, target:e1});
+        equal(_jsPlumb.select().length, 2, "two connections after connect");
+        _detachConnection(e1, 1);
+        equal(_jsPlumb.select().length, 1, "one connection after successful target detach");
+    });*/
+
+    test("endpoint:beforeDetach listener via mouse interaction", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), r = 0, s = 0, bd = 0,
+            e1 = _jsPlumb.addEndpoint(d1, {
+                isSource:true, isTarget:true
+
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
+
+        _jsPlumb.bind("beforeDetach", function() {
+            r = true;
+            return true;
+        });
+
+        _jsPlumb.bind("beforeDrag", function() {
+            bd++;
+            return true;
+        });
+
+        _jsPlumb.bind("beforeStartDetach", function() {
+            s = true;
+            return true;
+        });
+
+        equal(_jsPlumb.select().length, 0, "zero connections before drag");
+        _dragConnection(e1, e2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+
+        _detachConnection(e1, 0);
+        equal(_jsPlumb.select().length, 0, "connection detached");
+
+        equal(bd, 1, "beforeDrag called once");
+        equal(r, 1, "beforeDetach interceptor called once");
+        equal(s, 1, "beforeStartDetach interceptor called once");
+
+    });
 
 };
 
