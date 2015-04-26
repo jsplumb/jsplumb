@@ -217,6 +217,14 @@
         // intricacy in the way in which jQuery UI's draggable method registers events.
         trigger: function (el, event, originalEvent) {
             this.getEventManager().trigger(el, event, originalEvent);
+        },
+        doReset:function() {
+            // look for katavorio instances and reset each one if found.
+            for (var key in this) {
+                if (key.indexOf("_katavorio_") === 0) {
+                    this[key].reset();
+                }
+            }
         }
     });
 
