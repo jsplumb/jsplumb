@@ -2734,6 +2734,9 @@
             this.targetEndpointDefinitions = {};
             this.sourceEndpointDefinitions = {};
             connections.length = 0;
+
+            if (this.doReset) this.doReset();
+
             _currentInstance.setSuspendEvents(false);
         };
 
