@@ -495,12 +495,13 @@
                     // if the connection was setup as not detachable or one of its endpoints
                     // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
                     // is set to false...
-                    if (jpc != null && !jpc.isDetachable()) _continue = false;
+                    if (jpc != null && !jpc.isDetachable(this)) _continue = false;
 
-                    var beforeDrag = _jsPlumb.checkCondition("beforeDrag", {
+                    var beforeDrag = _jsPlumb.checkCondition(jpc == null ? "beforeDrag" : "beforeStartDetach", {
                         endpoint:this,
                         source:this.element,
-                        sourceId:this.elementId
+                        sourceId:this.elementId,
+                        connection:jpc
                     });
                     if (beforeDrag === false) _continue = false;
                     // else we might have been given some data. we'll pass it in to a new connection as 'data'.
