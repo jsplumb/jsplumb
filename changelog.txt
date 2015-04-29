@@ -9,6 +9,14 @@
     dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the
     `beforeStartDetach` interceptor.
 
+    NEW FUNCTIONALITY
+
+    -  `revalidate` now supports the same arguments as repaint - an ID, an Element, or a list-like
+    object (such as the results of $(..) or document.querySelectorAll)
+
+    - added `beforeStartDetach` interceptor: a function that is called before an existing connection is dragged off of one
+    of its endpoints, and which can return false to cancel the drag.
+
 
     ISSUES
 
