@@ -483,7 +483,6 @@
                 },
                 op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null,
                 _maybeAdjustScroll = function(offsetParent) {
-                    //if (offsetParent != null && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                     if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                         var p = this.getStyle(el, "position");
                         if (p !== "fixed") {
