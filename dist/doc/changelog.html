@@ -104,12 +104,19 @@
 
 <h3>Changes between 1.7.5 and 1.7.6</h3>
 
-<p>A minor bugfix release.</p>
+<p>A minor bugfix release, with a few new options for controlling connection detachment (and one small backward compatibility issue to be aware of)</p>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li>All versions of jsPlumb prior to 1.7.6 would fire <code>beforeDetach</code> for both new Connection drags and also dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the <code>beforeStartDetach</code> interceptor.</li>
+</ul>
 
 <h4>Issues</h4>
 
 <ul>
 <li><strong>350</strong> - recalculateOffsets not working</li>
+<li><strong>353</strong> - multiple select disabled</li>
 </ul>
 
 <h2>1.7.5</h2>

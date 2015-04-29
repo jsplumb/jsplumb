@@ -4460,6 +4460,9 @@
             this.targetEndpointDefinitions = {};
             this.sourceEndpointDefinitions = {};
             connections.length = 0;
+
+            if (this.doReset) this.doReset();
+
             _currentInstance.setSuspendEvents(false);
         };
 
@@ -5192,7 +5195,8 @@
                 },
                 op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null,
                 _maybeAdjustScroll = function(offsetParent) {
-                    if (offsetParent != null && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
+                    //if (offsetParent != null && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
+                    if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                         var p = this.getStyle(el, "position");
                         if (p !== "fixed") {
                             out.left -= offsetParent.scrollLeft;
@@ -5451,7 +5455,7 @@
             if (o) o.show();
         },
         showOverlays: function () {
-            for (var i in this._jsPlumb.overlays.length)
+            for (var i in this._jsPlumb.overlays)
                 this._jsPlumb.overlays[i].show();
         },
         removeAllOverlays: function (doNotRepaint) {
@@ -5543,6 +5547,7 @@
 // ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
 
 }).call(this);
+
 /*
  * jsPlumb
  * 
@@ -6040,12 +6045,13 @@
                     // if the connection was setup as not detachable or one of its endpoints
                     // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
                     // is set to false...
-                    if (jpc != null && !jpc.isDetachable()) _continue = false;
+                    if (jpc != null && !jpc.isDetachable(this)) _continue = false;
 
-                    var beforeDrag = _jsPlumb.checkCondition("beforeDrag", {
+                    var beforeDrag = _jsPlumb.checkCondition(jpc == null ? "beforeDrag" : "beforeStartDetach", {
                         endpoint:this,
                         source:this.element,
-                        sourceId:this.elementId
+                        sourceId:this.elementId,
+                        connection:jpc
                     });
                     if (beforeDrag === false) _continue = false;
                     // else we might have been given some data. we'll pass it in to a new connection as 'data'.

@@ -102,7 +102,7 @@
             <div class="markdown-body">
                 <h3>Interceptors</h3>
 
-<p>Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are three interceptors supported - <code>beforeDrop</code>, which is called when the user has dropped a Connection onto some target, <code>beforeDetach</code>, which is called when the user is attempting to detach a Connection, and <code>beforeDrag</code>, which is called when the user begins to drag a Connection.</p>
+<p>Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are four interceptors supported - <code>beforeDrop</code>, which is called when the user has dropped a Connection onto some target, <code>beforeDetach</code>, which is called when the user is attempting to detach a Connection (by dragging it off one of its Endpoints and dropping in whitespace), <code>beforeDrag</code>, which is called when the user begins to drag a Connection, and <code>beforeStartDetach</code>, which is when the user has just begun to drag an existing Connection off of one of its Endpoints (compared with <code>beforeDetach</code>, in which the user is allowed to drag the Connection off).</p>
 
 <p>Interceptors can be registered via the <code>bind</code> method on an instance of jsPlumb just like any other event listeners, and they can also be passed in to the <code>addEndpoint</code>, <code>makeSource</code> and <code>makeTarget</code> methods.  </p>
 
@@ -148,6 +148,21 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>This is particularly useful if you have defined any <a href="types#parameterized-connection-type">parameterized connection types</a>. With this mechanism you can arrange for a newly dragged Connection to be populated with data of your choice.</p>
+
+<p><strong>Note</strong> all versions of jsPlumb prior to 1.7.6 would fire <code>beforeDetach</code> for both new Connection drags and also dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the <code>beforeStartDetach</code> interceptor.</p>
+
+<h4>beforeStartDetach</h4>
+
+<p>This is called when the user starts to drag an existing Connection.  These parameters are passed to the function you provide:</p>
+
+<ul>
+<li><strong>endpoint</strong> the Endpoint from which the user is dragging a Connection</li>
+<li><strong>source</strong> the DOM element the Endpoint belongs to</li>
+<li><strong>sourceId</strong> the ID of the DOM element the Endpoint belongs to</li>
+<li><strong>connection</strong> The Connection that is about to be dragged.</li>
+</ul>
+
+<p>Returning false from <code>beforeStartDetach</code> prevents the Connection from being dragged.</p>
 
             </div>
         </div>

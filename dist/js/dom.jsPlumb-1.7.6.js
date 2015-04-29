@@ -1288,7 +1288,7 @@
         _classes = {
             draggable:"katavorio-draggable",    // draggable elements
             droppable:"katavorio-droppable",    // droppable elements
-            drag : "katavorio-drag",            // elements currently being dragged            
+            drag : "katavorio-drag",            // elements currently being dragged
             selected:"katavorio-drag-selected", // elements in current drag selection
             active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
             hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
@@ -1326,7 +1326,7 @@
                 e.returnValue = false;
             }
         },
-        _defaultInputFilterSelector = "input,textarea,select,button",
+        _defaultInputFilterSelector = "input,textarea,select,button,option",
     //
     // filters out events on all input elements, like textarea, checkbox, input, select.
         _inputFilter = function(e, el, _katavorio) {
@@ -1914,7 +1914,7 @@
 
         this.notifySelectionDragStart = function(drag, evt) {
             _foreach(_selection, function(e) { e.notifyStart(evt);}, drag);
-        }
+        };
 
         this.setZoom = function(z) { _zoom = z; };
         this.getZoom = function() { return _zoom; };
@@ -1970,6 +1970,13 @@
 
         this.destroyDroppable = function(el) {
             _destroy(el, "_katavorioDrop", this._dropsByScope);
+        };
+
+        this.reset = function() {
+            this._dragsByScope = {};
+            this._dropsByScope = {};
+            _selection = [];
+            _selectionMap = {};
         };
     };
 }).call(this);
@@ -5243,6 +5250,9 @@
             this.targetEndpointDefinitions = {};
             this.sourceEndpointDefinitions = {};
             connections.length = 0;
+
+            if (this.doReset) this.doReset();
+
             _currentInstance.setSuspendEvents(false);
         };
 
@@ -5975,7 +5985,8 @@
                 },
                 op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null,
                 _maybeAdjustScroll = function(offsetParent) {
-                    if (offsetParent != null && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
+                    //if (offsetParent != null && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
+                    if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                         var p = this.getStyle(el, "position");
                         if (p !== "fixed") {
                             out.left -= offsetParent.scrollLeft;
@@ -6234,7 +6245,7 @@
             if (o) o.show();
         },
         showOverlays: function () {
-            for (var i in this._jsPlumb.overlays.length)
+            for (var i in this._jsPlumb.overlays)
                 this._jsPlumb.overlays[i].show();
         },
         removeAllOverlays: function (doNotRepaint) {
@@ -6326,6 +6337,7 @@
 // ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
 
 }).call(this);
+
 /*
  * jsPlumb
  * 
@@ -6823,12 +6835,13 @@
                     // if the connection was setup as not detachable or one of its endpoints
                     // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
                     // is set to false...
-                    if (jpc != null && !jpc.isDetachable()) _continue = false;
+                    if (jpc != null && !jpc.isDetachable(this)) _continue = false;
 
-                    var beforeDrag = _jsPlumb.checkCondition("beforeDrag", {
+                    var beforeDrag = _jsPlumb.checkCondition(jpc == null ? "beforeDrag" : "beforeStartDetach", {
                         endpoint:this,
                         source:this.element,
-                        sourceId:this.elementId
+                        sourceId:this.elementId,
+                        connection:jpc
                     });
                     if (beforeDrag === false) _continue = false;
                     // else we might have been given some data. we'll pass it in to a new connection as 'data'.
@@ -12640,6 +12653,14 @@
         // intricacy in the way in which jQuery UI's draggable method registers events.
         trigger: function (el, event, originalEvent) {
             this.getEventManager().trigger(el, event, originalEvent);
+        },
+        doReset:function() {
+            // look for katavorio instances and reset each one if found.
+            for (var key in this) {
+                if (key.indexOf("_katavorio_") === 0) {
+                    this[key].reset();
+                }
+            }
         }
     });
 
