@@ -14,6 +14,7 @@
 
     350 - recalculateOffsets not working
     353 - multiple select disabled
+    367 - rendering and drag/drop errors when parent element scrolled
 
 
 
