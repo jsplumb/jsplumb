@@ -495,7 +495,7 @@
             while (op != null) {
                 out.left += op.offsetLeft;
                 out.top += op.offsetTop;
-                if (!relativeToRoot) _maybeAdjustScroll(op);
+                //if (!relativeToRoot) _maybeAdjustScroll(op);
                 op = relativeToRoot ? op.offsetParent :
                         op.offsetParent == container ? null : op.offsetParent;
             }
