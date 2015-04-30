@@ -9706,6 +9706,10 @@
             }
         };
 
+        this.getLength = function() {
+            return totalLength;
+        };
+
         var _prepareCompute = function (params) {
             this.lineWidth = params.lineWidth;
             var segment = _jg.quadrant(params.sourcePos, params.targetPos),

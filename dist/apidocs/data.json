@@ -463,7 +463,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/connectors.js",
-            "line": 23,
+            "line": 29,
             "description": "Provides `Flowchart` connectors.",
             "is_constructor": 1,
             "params": [
@@ -513,7 +513,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/connectors.js",
-            "line": 43,
+            "line": 49,
             "description": "Provides \"state machine\" connectors. These are a quadratic bezier curve.",
             "is_constructor": 1,
             "params": [
@@ -577,7 +577,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/connectors.js",
-            "line": 60,
+            "line": 66,
             "description": "The Straight connector draws a simple straight line between the two anchor points.",
             "is_constructor": 1,
             "params": [
@@ -637,7 +637,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/connectors.js",
-            "line": 73,
+            "line": 79,
             "description": "This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's\ninternal voodoo machine and ends up generating locations for the two control points.",
             "is_constructor": 1,
             "params": [
@@ -1686,7 +1686,19 @@
         },
         {
             "file": "doc/api/connectors.js",
-            "line": 37,
+            "line": 23,
+            "description": "Gets the total length of the path inscribed by the connector, in pixels.",
+            "itemtype": "method",
+            "name": "getLength",
+            "return": {
+                "description": "Total length of path in pixels.",
+                "type": "Number"
+            },
+            "class": "Connector"
+        },
+        {
+            "file": "doc/api/connectors.js",
+            "line": 43,
             "description": "Gets the path inscribed by the connector, as a series of [x,y] points.",
             "itemtype": "method",
             "name": "getPath",
