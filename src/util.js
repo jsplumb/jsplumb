@@ -372,6 +372,8 @@
 
         this.bind = function (event, listener, insertAtStart) {
             exports.addToList(_listeners, event, listener, insertAtStart);
+            listener.__jsPlumb = listener.__jsPlumb || {};
+            listener.__jsPlumb[jsPlumbUtil.uuid()] = event;
             return this;
         };
 
@@ -400,12 +402,26 @@
             return this;
         };
 
-        this.unbind = function (event) {
-            if (event)
-                delete _listeners[event];
-            else {
+        this.unbind = function (eventOrListener, listener) {
+
+            if (arguments.length == 0) {
                 _listeners = {};
             }
+            else if (arguments.length == 1) {
+                if (typeof eventOrListener === "string")
+                    delete _listeners[eventOrListener];
+                else if (eventOrListener.__jsPlumb) {
+                    var evt;
+                    for (var i in eventOrListener.__jsPlumb) {
+                        evt = eventOrListener.__jsPlumb[i];
+                        exports.remove(_listeners[evt] || [], eventOrListener);
+                    }
+                }
+            }
+            else if (arguments.length == 2) {
+                exports.remove(_listeners[eventOrListener] || [], listener);
+            }
+
             return this;
         };
 

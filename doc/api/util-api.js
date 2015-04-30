@@ -104,9 +104,14 @@
    */
 
    /**
-   * Clears either all listeners, or listeners for some specific event.
+   * Clears either all listeners, or listeners for some specific event, or just some listener. You can call this method
+   * with zero, one or two arguments: with zero arguments, all listeners are cleared. With one argument that is a string, all listeners for
+   * the specified event type are cleared. With one argument that is a function, it is removed from the appropriate event list.
+   * With two arguments, the first is an event type, and the second is a function to be unbound. In fact this is perhaps unnecessary
+   * given that you can unbind a function just by passing it.
    * @method unbind
-   * @param {String} [event] Constrains the clear to just listeners for this event.
+   * @param {String} [event] Constrains the clear to just listeners for this event. If you do not supply any arguments, all listeners are cleared.
+   * @param {Function} [listener] If provided, removes just this listener for the given event.
    */
    /**
    * Sets whether or not events are suspended.

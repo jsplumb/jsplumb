@@ -7359,5 +7359,49 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     });
 
+
+    test("unbind a single event listener does not unbind them all", function() {
+        var i = 0;
+        var l1 = function() {
+            i += 5;
+        };
+        var l2 = function() {
+            i -= 6;
+        };
+        var d1 = _addDiv("d1"),
+            d2 = _addDiv("d2");
+
+        _jsPlumb.bind("connection", l1);
+        _jsPlumb.bind("connection", l2);
+
+        _jsPlumb.connect({source:d1, target:d2});
+
+        equal(i, -1,"both listeners fired");
+        i = 0;
+
+        // first test existing: unbind with no args unbinds everything.
+        _jsPlumb.unbind("connection");
+        _jsPlumb.connect({source:d1, target:d2});
+        equal(i, 0, "no listeners fired");
+
+        // rebind and check
+        _jsPlumb.bind("connection", l1);
+        _jsPlumb.bind("connection", l2);
+        _jsPlumb.connect({source:d1, target:d2});
+        equal(i, -1,"both listeners fired");
+
+        i = 0;
+        // unbind one.
+        _jsPlumb.unbind("connection", l2);
+        _jsPlumb.connect({source:d1, target:d2});
+        equal(i, 5, "only listener l1 fired");
+
+        i = 0;
+        _jsPlumb.unbind(l1);
+        _jsPlumb.connect({source:d1, target:d2});
+        equal(i, 0, "no listeners fired");
+
+    })
+
 };
 
