@@ -1,0 +1,440 @@
+## 1.7.6
+
+### Changes between 1.7.5 and 1.7.6
+
+A minor bugfix release, with a few new options for controlling connection detachment (and one small backward compatibility issue to be aware of)
+
+#### Backwards Compatibility
+
+- All versions of jsPlumb prior to 1.7.6 would fire `beforeDetach` for both new Connection drags and also 
+dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the `beforeStartDetach` interceptor.
+
+#### New Functionality
+
+-  `revalidate` now supports the same arguments as repaint - an ID, an Element, or a list-like
+    object (such as the results of $(..) or document.querySelectorAll)
+
+- added `beforeStartDetach` interceptor: a function that is called before an existing connection is dragged off of one of its endpoints, and which can return false to cancel the drag.
+
+- The `unbind` method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a Function to be unbound, rather than just some event name.
+
+- Connectors now have a `getLength` function, which returns their length in pixels. To access from a Connection,
+      you need to first get the connector: `someConnection.getConnector().getLength()`
+
+#### Issues
+
+- **350** - recalculateOffsets not working
+- **353** - multiple select disabled
+- **367** - rendering and drag/drop errors when parent element scrolled
+- **369** - unbinding events
+
+## 1.7.5
+
+### Changes between 1.7.4 and 1.7.5
+
+A minor-ish release; no changes to the API. Some refactoring of JS and of CSS. But one notable thing is that touch events on Windows touch laptops are working now (in Chrome and IE; FF seems to still have issues)
+
+#### Backwards Compatibility
+
+- The jQuery flavour was removed from the `main` section in `bower.json`.
+
+#### Issues
+
+- **295** - draggable not working in chrome
+- **340** - Draggable stop event doesn't get called on all elements when dragging multiple elements
+- **341** - Add possibility to change z-order of the "inPlaceCopy" endpoint.
+- **344** - add getUuids method to Connection
+- **345** - Error when two linked objects are with exactly same position
+
+## 1.7.4
+
+### Changes between 1.7.3 and 1.7.4
+
+#### Issues
+
+  - **237** - scroll is ignored in offset calculations
+  - **314** - jsPlumbUtil is not defined (webpack)
+  - **329** - Scroll issue
+  - **332** - endpoint label not working in newest version
+  - **333** - ReattachConnections not working when a connection is detached (jquery & vanilla 1.7.3)
+  - **336** - cannot drop a connection back on the endpoint to which it was previously attached
+
+
+## 1.7.3
+
+### Changes between 1.7.2 and 1.7.3
+
+Predominantly a minor bugfix release, this version brings a degree of uniformity to the behaviour of elements configured with `makeSource` and `makeTarget`, and is a recommended upgrade if you are currently using any other 1.7.x version.
+
+#### New Functionality
+
+- There is a new interceptor in this release: `beforeDrag`.  You can use it to abort dragging a connection as soon as it starts, and also to supply the initial data for a Connection that uses a parameterized type.
+- Added `jsPlumb.empty` function: remove child content from a node, including endpoints and connections, but not the element itself.
+
+
+#### Backwards Compatibility
+
+- The `doWhileSuspended` method has been aliased as `batch`, and `doWhileSuspended` is now deprecated, to be removed in version 2.0.0.
+
+#### Issues
+
+  - **187** - jsPlumb.draggable() doesn't work with forms
+  - **281** - beforeDetach not triggered by `jsPlumb.detachAllConnections`
+  - **287** - Cannot drop source of connection on makeTarget element after 1.6.4
+  - **289** - Cannot prevent drop of source edge using beforeDrop on nested makeTarget elements
+  - **297** - Distinguish drag\click for Vanilla jsPlumb
+  - **298** - Fix for using library inside shadowDom (e.g. Polymer etc.)
+  - **307** - Setting Container multiple times fires events multiple times
+  - **311** - addType resets overlays
+  - **313** - setContainer does not work when container has overflow: scroll;
+  - **315** - setConnector removes existing overlays
+  - **317** - Docs incorrectly refer to "mouseenter"
+  - **326** - Connections not updating position - (detach, delete, readd, reconnect)
+  
+
+## 1.7.2
+
+### Changes between 1.7.1 and 1.7.2
+
+- Reverted a minor bugfix introduced by the fix for issue 276
+- Updated continuous anchors to allow for several Continuous anchors to be in use on the one element.
+
+## 1.7.1
+
+### Changes between 1.7.0 and 1.7.1
+
+#### Issues
+
+- **276** - TypeError on dragging empty target endpoint
+
+
+## 1.7.0
+
+### Changes between 1.6.4 and 1.7.0
+
+#### Backwards Compatibility
+
+- Perhaps the biggest change between 1.6.4 and 1.7.0 is that YUI and MooTools are no longer supported.  It is recommended you use vanilla jsPlumb now. jQuery is still supported but it is neither as fast nor does it have as many features as vanilla jsPlumb.
+
+- The `parent` argument to the `makeSource` function is no longer supported. It was being kept because neither YUI nor MooTools have the ability to support a drag filter, but now that those libraries are not supported this feature has been removed.  The `filter` approach is much more powerful.
+
+#### New Functionality
+
+Perhaps not strictly new functionality, but shiny enough to warrant being associated with the word "new", is the fact that jsPlumb 1.7.0 is considerably faster than any previous version.  A rough comparison: the default settings for the load test in jsPlumb generate 360 connections in total between 10 elements. in 1.6.4 this test averages about 1600ms in Chrome on a Mac.  In 1.7.0 that number is about 600ms on the same computer.
+
+#### Issues
+
+- **178** - Detachable endpoints: different behaviour between connect() and mouse-based connections
+- **214** - Endpoint stays visible when should be terminated (right mouse button)
+- **242** - Distinguish drag\click for Vanilla jsPlumb
+- **245** - reinstate isConnectedTo method on Endpoint
+- **246** - outlineColor ignored when gradient defined in paintStyle  
+- **248** - dynamic anchor create fail
+- **257** - allow for the scope of a makeSource element to be changed
+- **258** - Typo in documentation: s/container/Container 
+- **260** - isSource and isTarget usage with makeSource and makeTarget causes broken connections
+- **261** - Two target endpoints close to each other: "TypeError: Cannot read property '0' of null"
+- **262** - hoverPaintStyle only works for the first connection (maxConnections > 1) 
+- **263** - TypeError: conn.endpoints is null
+- **267** - continuous anchors with faces set do not paint on selected faces when not connected to anything
+- **268** - Endpoint "Blank" generates endpoint with class "undefined"
+- **269** - Source endpoint does not/cannot respect uniqueEndpoint setting
+- **270** - Support `endpointStyle` in args to addEndpoint and makeSource/makeTarget
+
+## 1.6.4
+
+### Changes between 1.6.3 and 1.6.4
+
+#### Backwards Compatibility
+
+- No issues
+
+#### New Functionality
+
+- Connection types support 'anchor' and 'anchors' parameters now.
+
+#### Miscellaneous
+
+- YUI adapter now sets a 'base' url and retrieves everything via https.
+
+
+## 1.6.3
+
+### Changes between 1.6.2 and 1.6.3
+
+#### Backwards Compatibility
+
+- No issues
+
+#### New Functionality
+
+- Added optional `allowLoopback` boolean parameter to vanilla jsPlumb's `makeTarget` method. 
+- When using parameterized types, unmatched values are now replaced with blank strings, rather than being left in place. For instance, if you had `label="${foo}"`, and you passed a blank 'foo' value, you used to see `"${foo}"`. Now you see `""`.
+- You can set `visible:false` on an overlay spec, to have it initially invisible.
+- Added `setHoverEnabled` method to jsPlumb.
+- Added `clearTypes` method to Connection and Endpoint
+- Connection and Endpoint types now support `cssClass` property. These are merged into an array if multiple types declare a cssClass.
+
+
+### Issues
+
+- **222** - Endpoints incorrectly calculated when the anchor faces of source/target are set to left/right
+- **223** - beforeDetach not fired by jsPlumb
+- **224** - endpointStyle of the jsPlumb.connect method does not work
+- **227** - MaxConnections=1 console log error
+- **230** - Endpoints not cleaned up after connector move
+- **236** - makeTarget/makeSource drag issues
+- **241** - Dropping existing connection creates an orphaned endpoint when beforeDrop returns false
+- **243** - setConnector not correctly re-assigning event handler on overlays
+
+
+## 1.6.2
+
+
+### Changes between 1.6.1 and 1.6.2
+
+#### Backwards Compatibility
+
+- 1.6.2 has improved behaviour for determining what element to use as the Container. Previous 1.6.x versions defaulted to the document body, with the docs strongly recommending you set a Container. From 1.6.2, if there is no Container set when the user makes a first call to either addEndpoint, makeSource, makeTarget or connect, the Container is set to be the offsetParent of either the element being configure (in the case of `addEndpoint`, `makeSource` and `makeTarget`), or the source element, for the `connect` method.
+
+- a consequence of this is that you can no longer manipulate `Defaults.Container` manually. Your changes will be ignored; `Defaults.Container` is referenced only in the constructor or in the `importDefaults` method. If you need access to the current Container, use the `getContainer` method.
+
+- the order of parameters to the function `jsPlumbInstance.on` has changed, in the case that you are passing 4 parameters and using it for event delegation.  Previously, the order was `(element, filter, eventId, callback)` and now the order is `(element, eventId, filter, callback)`. This brings it into line with the order of parameters in jQuery's `on` function.  It is not very likely this will affect you: `jsPlumbInstance.on` is used internally, mostly (although it can be used to register events independently of jsPlumb if you want to use it).
+
+### New Functionality
+
+- The Container inferencing discussed above is both a backwards compatibility issue and also new functionality!
+- added `setContainer`, to allow you to move an entire jsPlumb UI to some new parent
+- added `getContainer`, to allow you to retrieve the current Container.
+
+### Issues
+
+- **207** - problem with absolute overlays
+- **211** - setVisible(true) on hidden overlay whose connection has moved causes the overlay to repaint in the wrong place
+
+## 1.6.1
+
+This is a minor release in which a few issues related to zooming have been fixed.
+
+### Changes between 1.6.0 and 1.6.1
+
+#### Backwards Compatibility
+
+No issues
+
+#### Issues
+
+- **206** Fix documentation error about jsPlumb.Defaults.Endpoints
+
+#### New Functionality
+
+Better handling of zooming in vanilla jsPlumb.
+
+
+## 1.6.0
+
+Version 1.6.0 is a major release of jsPlumb. With this version ships a "vanilla" version - it relies on no external libraries, and also has a few features that the other library adapters do not (see below). 
+
+### Changes between 1.5.5 and 1.6.0
+
+#### Backwards Compatibility
+
+- There is no support for the canvas renderer in jsPlumb 1.6.0.
+- The way in which library adapters inject their functionality into jsPlumb has changed. This will affect very few people; contact jsPlumb if you need help with this.
+- All elements added by jsPlumb are appended to the current "Container", which defaults to the document body. This differs from previous versions, in which if there was no Container set then jsPlumb would append elements to the parent of a connection's source endpoint. For this reason it is now more than ever recommended that you set a Container.	 
+- The `container` parameter on `addEndpoint` or `connect` calls is no longer supported.
+
+#### Issues
+
+  - **91**  - Old ID is being used on events after setId
+  - **143** - SVG gradient fails when page url already contains a hash
+  - **153** - jsPlumb.animate no longer supports jQuery selectors
+  - **157** - connectionMoved event not fired (when using makeTarget)
+  - **162** - Connector 'Flowchart' occurs an error.
+  - **164** - makeSource fails when used in conjunction with uniqueEndpoint
+  - **173** - jsPlumb.setDraggable([element_id],false); fails
+  - **177** - Flowchart straight Line
+  - **202** - Spurious mouse events in connector with outline
+  - **203** - hoverClass on endpoints doesn't work
+
+#### New Functionality
+
+##### DOM Adapter
+
+It isn't actually true to say that this adapter has no external dependencies; it actually relies on a couple of new projects written specifically for this ([Mottle](https://github.com/jsplumb/mottle) for events, and [Katavorio](https://github.com/jsplumb/katavorio) for drag/drop support. However, these dependencies are wrapped into the concatenated jsPlumb 1.6.0 JS file.
+
+###### Multiple element dragging
+
+The DOM adapter supports dragging (and dropping!) multiple elements at once.
+
+###### Multiple drag/drop scopes
+
+Also supported are multiple scopes for each draggable/droppable element.
+
+###### Using Vanilla jsPlumb with jQuery
+
+Even if you have jQuery in the page you can use vanilla jsPlumb; it will accept jQuery selectors as arguments. Keep in mind that you won't get jQuery selectors out of it, though - any methods that return an Element will return plain DOM Elements and you'll need to turn them in jQuery selectors yourself.
+
+#### Miscellaneous
+
+- Events now have `this` set correctly
+- Added qUnit tests for Vanilla, YUI and MooTools adapters
+- Various YUI and MooTools methods were upgraded to support passing in an element list (`setId` for one)
+- Added setSource/setTarget methods, allowing you to retarget a Connection programmatically.
+- Reduced the amount of functionality that is delegated to a support library
+- Rewrote the way support libraries are integrated
+
+## 1.5.5
+
+### Changes between 1.5.4 and 1.5.5
+
+#### Issues
+
+- **138** - allow for connection type to be derived from connection params AND endpoint params.
+
+## 1.5.4
+
+### Changes between 1.5.3 and 1.5.4
+
+#### Issues
+- **105** - Blank endpoint cleanup fails
+- **116** - Assign anchors wont connect
+- **117** - Assign anchors fail on source
+- **127** - Docs on making elements draggable should note required CSS
+- **128** - expose original event on `connectionDragStop` callback
+- **129** - connection event fired twice by makeTarget with parent option.
+
+#### New Functionality
+
+- `"Assign"` anchors now work with the `makeSource` method.
+- The `connectionDragStop` event now supplies the original event as the second argument to the callback function.
+
+#### Miscellaneous
+
+  - fixed an issue causing SVG gradients to fail when a BASE tag is present in the document.
+
+## 1.5.3
+### Changes between 1.5.2 and 1.5.3
+
+#### Backwards Compatibility
+
+- The fix for issue 112 involved making a change to the circumstances under which a `connectionDetached` event is fired. When you drag the source or target of an existing connection to some other endpoint, `connectionDetached` is no longer fired. Instead, a `connectionMoved` event is fired, containing the connection that was moved, the index of the endpoint that changed (0 for source, 1 for target), and the original and new source and target endpoints.
+
+#### Issues
+
+- **77** - Endpoint types should support Anchor parameter         
+- **88** - reinstate labelStyle parameter on Label overlay.
+- **90** - overlay setVisible not working (SVG/VML)
+- **95** - Nested element positions not updated
+- **100** - add setParent function
+- **101** - JS error when detaching connection during connection callback
+- **103** - IE8: connector hide does not hide overlays or background lines
+- **107** - remove the necessity to set isSource/isTarget in order to make an endpoint draggable
+- **108** - strange anchor orientation behaviour
+- **109** - Dropping new connections on overlapping elements leads to crash after connection is deleted
+- **111** - Absolute positioned arrow in wrong location
+- **112** - Deleting a connection after changing its source endpoint causes failure.
+- **113** - IE8 - state machine - loops are not displayed
+
+#### New Functionality
+- A setParent function was added. jsPlumb changes the parent of some element and updates its internal references accordingly (issue 100).
+- Endpoint types now support the anchor parameter (issue 77)
+- The `labelStyle` parameter on Label overlays has made a comeback (issue 88). The argument went along the lines of it being useful if you wanted to programmatically generate a label style.
+- jsPlumb now automatically updates the internal offsets of some element that has draggable children (obviating the need for you to call `recalculateOffsets` yourself).
+- When making a programmatic connection to an endpoint that was not marked `isSource:true` or `isTarget:true`, if the connection is detachable then the endpoint is made draggable, in order to allow users to drag the connection to detach it. Connections dragged off of source or target endpoints in this way can be dropped back onto their original endpoint or onto other endpoints with the same scope, but you cannot subsequently drag a new connection from an endpoint that has been made draggable by this method.
+- `connectionMoved` event added. This is fired whenever the source or target of an existing connection is dragged to some other Endpoint.
+
+
+#### Miscellaneous
+
+- An issue was fixed that was preventing the ability to supply a dynamic anchor with parameters, eg
+
+    `[ [ [ 1,0,0,1], [1,1,1,1] ], { selector:function() { ... } } ]`
+
+
+## 1.5.2
+### Changes between 1.5.1 and 1.5.2
+
+#### Backwards Compatibility
+
+- Issue 86, fixed in 1.5.2, changes the priority in which parameters are applied to a connection. The documentation has always stated that source takes priority, but in fact the code was the other way round, with target taking priority. Now source does take priority.
+
+#### Issues
+
+- **84** - jsPlumb 1.5.1 Arrow Disappears on IE8 when connector is straight
+- **85** - dragging target endpoints created by makeTarget not working
+- **86** - Connection parameters override order
+
+#### Miscellaneous
+
+- An issue that caused the SVG renderer to paint overlays before the connector was ready when the types API was used was also fixed.
+
+## 1.5.1
+### Changes between 1.5.0 and 1.5.1
+
+#### Issues
+
+- **81** - Uncaught TypeError: Cannot read property 'uuid' of null
+- **82** - Blank endpoint doesn't cleanup properly
+- **83** - for connections made with makeTarget originalEvent is not set
+
+## 1.5.0
+### Changes between 1.4.1 and 1.5.0
+
+Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a 'module pattern' architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. 
+
+The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see [[here|Build]]).
+
+  1. [Backwards Compatibility](#backwards)
+  - [New Functionality](#new)
+  - [Issues Fixed](#issues)
+  - [Miscellaneous](#misc)
+
+<a name="backwards"></a>
+### Backwards Compatibility
+	   
+- `jsPlumb.addClass`, `jsPlumb.removeClass` and removed `jsPlumb.hasClass` removed. You don't need these. You can use the methods from the underlying library.
+- `makeTargets` method removed from jsPlumb. You can pass an array or selector to `makeTarget`.
+- `makeSources` method removed from jsPlumb. You can pass an array or selector to `makeSource`.
+- `jsPlumb.detach` no longer supports passing in two elements as arguments.  Use instead either 
+
+
+`jsPlumb.detach({source:someDiv, target:someOtherDiv});`
+
+or
+
+`jsPlumb.select({source:someDiv, target:someOtherDiv}).detach();`
+
+- `jsPlumbConnectionDetached` event, which was deprecated, has been removed. Use `connectionDetached`.
+- `jsPlumbConnection` event, which was deprecated, has been removed. Use `connection`.
+- `Endpoint.isConnectedTo` method removed.  it didnt work properly as it only checked for connections where the Endpoint was the source.
+- Many places in jsPlumb that used to use library-specific selectors for elements now use pure DOM elements.  It is best to re-select any elements you are getting from a jsPlumb object, even if you supplied them as a selector, as jsPlumb will have unwrapped your selector into a DOM element.
+
+<a name="new"></a>
+### New Functionality
+  	     
+- `jsPlumb.setSuspendDrawing` returns the value of `suspendDrawing` _before_ the call was made.
+- `Endpoint.setElement` works properly now.
+ 
+<a name="issues"></a>
+### Issues Fixed
+
+- **27** - investigate why a new connection is created after drag          
+- **37** - .addClass() not working - IE8
+- **39** - problem about connectionDrag event
+- **49** - Calling detachEveryConnection winds up calling repaintEverything once for each endpoint
+- **51** - arrow overlay orientation at location 1 on flowchart connectors
+- **54** - Memory Leak Issue
+- **57** - DOMException while dragging endpoints
+- **60** - flowchart connector start position wrong
+- **63**  - Flowchart midpoint=0 is ignored 
+- **65** - Uncaught exception in IE 8
+- **69** - jsPlumb.detach(connection) is really slow with larger graphs
+- **72** - Drag and drop connections fail to work correctly when using makeTarget
+- **75** - changing continuous anchor is ignored
+- **76** - jsPlumb doesn't work in XHTML documents         
+
+<a name="misc"></a>
+### Miscellaneous
+
+Nothing to report.
