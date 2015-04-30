@@ -4981,14 +4981,20 @@
         {
             "file": "doc/api/util-api.js",
             "line": 106,
-            "description": "Clears either all listeners, or listeners for some specific event.",
+            "description": "Clears either all listeners, or listeners for some specific event, or just some listener. You can call this method\nwith zero, one or two arguments: with zero arguments, all listeners are cleared. With one argument that is a string, all listeners for\nthe specified event type are cleared. With one argument that is a function, it is removed from the appropriate event list.\nWith two arguments, the first is an event type, and the second is a function to be unbound. In fact this is perhaps unnecessary\ngiven that you can unbind a function just by passing it.",
             "itemtype": "method",
             "name": "unbind",
             "params": [
                 {
-                    "name": "event",
-                    "description": "Constrains the clear to just listeners for this event.",
-                    "type": "String",
+                    "name": "eventOrListener",
+                    "description": "If a string, constrains the clear to just listeners for the event identified by the string. If a Function, unbinds this function wherever it may have been bound.",
+                    "type": "String|Function",
+                    "optional": true
+                },
+                {
+                    "name": "listener",
+                    "description": "If provided, removes just this listener for the given event.",
+                    "type": "Function",
                     "optional": true
                 }
             ],
@@ -4996,7 +5002,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 111,
+            "line": 116,
             "description": "Sets whether or not events are suspended.",
             "itemtype": "method",
             "name": "setSuspendEvents",
@@ -5011,7 +5017,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 116,
+            "line": 121,
             "description": "Checks whether or not events are currently suspended.",
             "itemtype": "method",
             "name": "isSuspendEvents",
@@ -5023,7 +5029,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 121,
+            "line": 126,
             "description": "Removes all listeners.",
             "itemtype": "method",
             "name": "cleanupListeners",
@@ -5031,7 +5037,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 126,
+            "line": 131,
             "description": "Replaces values inside some JS object according to a given path spec. A path spec is a string in dotted notation,\nwith each component optionally declaring an array index. Some examples are:\n\nfoo.bar\nfoo.baz[2]\nfoo.qux[3].baz[3].shwee\n\nThe function fails gracefully if the path identifies a non-existent object.",
             "itemtype": "method",
             "name": "jsPlumbUtil.replace",

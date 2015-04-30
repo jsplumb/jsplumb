@@ -112,11 +112,22 @@
 <li>All versions of jsPlumb prior to 1.7.6 would fire <code>beforeDetach</code> for both new Connection drags and also dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the <code>beforeStartDetach</code> interceptor.</li>
 </ul>
 
+<h4>New Functionality</h4>
+
+<ul>
+<li><p><code>revalidate</code> now supports the same arguments as repaint - an ID, an Element, or a list-like
+object (such as the results of $(..) or document.querySelectorAll)</p></li>
+<li><p>added <code>beforeStartDetach</code> interceptor: a function that is called before an existing connection is dragged off of one of its endpoints, and which can return false to cancel the drag.</p></li>
+<li><p>The <code>unbind</code> method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a Function to be unbound, rather than just some event name.</p></li>
+</ul>
+
 <h4>Issues</h4>
 
 <ul>
 <li><strong>350</strong> - recalculateOffsets not working</li>
 <li><strong>353</strong> - multiple select disabled</li>
+<li><strong>367</strong> - rendering and drag/drop errors when parent element scrolled</li>
+<li><strong>369</strong> - unbinding events</li>
 </ul>
 
 <h2>1.7.5</h2>

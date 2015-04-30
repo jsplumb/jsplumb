@@ -1138,7 +1138,7 @@ Connection), and zero or more Overlays.</p>
             
         
         
-        <a href="../files/doc_api_util-api.js.html#l121"><code>doc&#x2F;api&#x2F;util-api.js:121</code></a>
+        <a href="../files/doc_api_util-api.js.html#l126"><code>doc&#x2F;api&#x2F;util-api.js:126</code></a>
         
         </p>
 
@@ -2712,7 +2712,7 @@ is false; use it in conjunction with the <code>detachable</code> parameter.</p>
             
         
         
-        <a href="../files/doc_api_util-api.js.html#l116"><code>doc&#x2F;api&#x2F;util-api.js:116</code></a>
+        <a href="../files/doc_api_util-api.js.html#l121"><code>doc&#x2F;api&#x2F;util-api.js:121</code></a>
         
         </p>
 
@@ -2873,7 +2873,7 @@ is false; use it in conjunction with the <code>detachable</code> parameter.</p>
             
         
         
-        <a href="../files/doc_api_util-api.js.html#l126"><code>doc&#x2F;api&#x2F;util-api.js:126</code></a>
+        <a href="../files/doc_api_util-api.js.html#l131"><code>doc&#x2F;api&#x2F;util-api.js:131</code></a>
         
         </p>
 
@@ -4569,7 +4569,7 @@ color for example, but leave the rest of the appearance the same.</p>
             
         
         
-        <a href="../files/doc_api_util-api.js.html#l111"><code>doc&#x2F;api&#x2F;util-api.js:111</code></a>
+        <a href="../files/doc_api_util-api.js.html#l116"><code>doc&#x2F;api&#x2F;util-api.js:116</code></a>
         
         </p>
 
@@ -5117,7 +5117,13 @@ of types, see the jsPlumb documentation.</p>
             
                 <li class="arg">
                     
-                        <code class="optional">[event]</code>
+                        <code class="optional">[eventOrListener]</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[listener]</code>
                     
                 </li>
             
@@ -5158,7 +5164,11 @@ of types, see the jsPlumb documentation.</p>
     </div>
 
     <div class="description">
-        <p>Clears either all listeners, or listeners for some specific event.</p>
+        <p>Clears either all listeners, or listeners for some specific event, or just some listener. You can call this method
+with zero, one or two arguments: with zero arguments, all listeners are cleared. With one argument that is a string, all listeners for
+the specified event type are cleared. With one argument that is a function, it is removed from the appropriate event list.
+With two arguments, the first is an event type, and the second is a function to be unbound. In fact this is perhaps unnecessary
+given that you can unbind a function just by passing it.</p>
 
     </div>
 
@@ -5170,15 +5180,32 @@ of types, see the jsPlumb documentation.</p>
             
                 <li class="param">
                     
-                        <code class="param-name optional">[event]</code>
-                        <span class="type">String</span>
+                        <code class="param-name optional">[eventOrListener]</code>
+                        <span class="type">String | Function</span>
                         <span class="flag optional" title="This parameter is optional.">optional</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>Constrains the clear to just listeners for this event.</p>
+                        <p>If a string, constrains the clear to just listeners for the event identified by the string. If a Function, unbinds this function wherever it may have been bound.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[listener]</code>
+                        <span class="type">Function</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>If provided, removes just this listener for the given event.</p>
 
                     </div>
 
