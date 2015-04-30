@@ -110,7 +110,7 @@
    * With two arguments, the first is an event type, and the second is a function to be unbound. In fact this is perhaps unnecessary
    * given that you can unbind a function just by passing it.
    * @method unbind
-   * @param {String|Function} [event] Constrains the clear to just listeners for this event. If you do not supply any arguments, all listeners are cleared.
+   * @param {String|Function} [event] If a string, constrains the clear to just listeners for the event identified by the string. If a Function, unbinds this function wherever it may have been bound.
    * @param {Function} [listener] If provided, removes just this listener for the given event.
    */
    /**
