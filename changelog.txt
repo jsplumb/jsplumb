@@ -17,6 +17,8 @@
     - added `beforeStartDetach` interceptor: a function that is called before an existing connection is dragged off of one
     of its endpoints, and which can return false to cancel the drag.
 
+    - The `unbind` method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a Function to be unbound, rather than just some event name.
+
 
     ISSUES
 
