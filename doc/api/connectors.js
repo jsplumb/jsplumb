@@ -21,6 +21,12 @@
 */
 
 /**
+ * Gets the total length of the path inscribed by the connector, in pixels.
+ * @method getLength
+ * @return {Number} Total length of path in pixels.
+ */
+
+/**
 * Provides `Flowchart` connectors.
 * @class Connectors.Flowchart
 * @constructor 
