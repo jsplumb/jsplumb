@@ -19,6 +19,9 @@
 
     - The `unbind` method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a Function to be unbound, rather than just some event name.
 
+    - Connectors now have a `getLength` function, which returns their length in pixels. To access from a Connection,
+    you need to first get the connector: `someConnection.getConnector().getLength()`
+
 
     ISSUES
 
