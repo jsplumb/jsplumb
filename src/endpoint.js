@@ -302,7 +302,7 @@
 
             if (idx >= 0) {
 
-                if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) && _jsPlumb.checkCondition("beforeDetach", connection) )) {
+                if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) && _jsPlumb.checkCondition("beforeDetach", connection, endpointBeingDeleted) )) {
 
                     _jsPlumb.deleteObject({
                         connection: connection,
@@ -676,7 +676,7 @@
                                 jpc.endpoints[idx] = jpc.suspendedEndpoint;
                                 // IF the connection should be reattached, or the other endpoint refuses detach, then
                                 // reset the connection to its original state
-                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {
+                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent, true)) {
                                     jpc.setHover(false);
                                     jpc._forceDetach = null;
                                     jpc._forceReattach = null;
@@ -791,7 +791,10 @@
                         isDropAllowed: function () {
                             return _ep.isDropAllowed.apply(_ep, arguments);
                         },
-                        reference:referenceEndpoint
+                        reference:referenceEndpoint,
+                        isRedrop:function(jpc, dhParams) {
+                            return jpc.suspendedEndpoint && dhParams.reference && (jpc.suspendedEndpoint.id === dhParams.reference.id);
+                        }
                     });
 
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop, true);
@@ -963,7 +966,7 @@
             dhParams.removeClass(_jsPlumb.endpointDropForbiddenClass);
 
             var originalEvent = _jsPlumb.getDropEvent(arguments),
-                draggable = _jsPlumb.getDOMElement(_jsPlumb.getDragObject(arguments)),
+                draggable = _jsPlumb.getDragObject(arguments),
                 id = _jsPlumb.getAttribute(draggable, "dragId"),
                 elId = _jsPlumb.getAttribute(draggable, "elId"),
                 scope = _jsPlumb.getAttribute(draggable, "originalScope"),
@@ -975,10 +978,17 @@
             // if suspended endpoint has been cleaned up, bail.
             if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb == null) return;
 
-            // if this is a drop back where the connection came from, mark it force rettach and
+            // get the drop endpoint. for a normal connection this is just the one that would replace the currently
+            // floating endpoint. for a makeTarget this is a new endpoint that is created on drop.
+            var _ep = dhParams.getEndpoint(jpc);
+
+            // if this is a drop back where the connection came from, mark it force reattach and
             // return; the stop handler will reattach. without firing an event.
-            var redrop = jpc.suspendedEndpoint && dhParams.reference && (jpc.suspendedEndpoint.id === dhParams.reference.id);
-            if (redrop) {
+            //var redrop
+            //var redrop = jpc.suspendedEndpoint && dhParams.reference && (jpc.suspendedEndpoint.id === dhParams.reference.id);
+            //var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.elementId === dhParams.elementId);
+            //if (redrop) {
+            if (dhParams.isRedrop(jpc, dhParams)) {
                 jpc._forceReattach = true;
                 jpc.setHover(false);
                 if (dhParams.maybeCleanup) dhParams.maybeCleanup(_ep);
@@ -989,8 +999,6 @@
             var idx = _jsPlumb.getFloatingAnchorIndex(jpc);
             if (idx === 0 && !dhParams.isSource) return;
             if (idx === 1 && !dhParams.isTarget) return;
-
-            var _ep = dhParams.getEndpoint(jpc);
 
             if (dhParams.onDrop) dhParams.onDrop(jpc);
 
@@ -1007,15 +1015,10 @@
                 }, originalEvent);
             }
 
+            //
+            // if endpoint enabled, not full, and matches the index of the floating endpoint...
             if (!dhParams.isFull() && !(idx === 0 && !dhParams.isSource) && !(idx == 1 && !dhParams.isTarget) && dhParams.enabled()) {
                 var _doContinue = true;
-                // if this is an existing connection and detach is not allowed we won't continue. The connection's
-                // endpoints have been reinstated; everything is back to how it was.
-                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb && jpc.suspendedEndpoint.id != _ep.id) {
-
-                    if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_jsPlumb.checkCondition("beforeDetach", jpc))
-                        _doContinue = false;
-                }
 
                 // these have to be set before testing for beforeDrop.
                 if (idx === 0) {
@@ -1026,9 +1029,17 @@
                     jpc.targetId = dhParams.elementId;
                 }
 
+                // if this is an existing connection and detach is not allowed we won't continue. The connection's
+                // endpoints have been reinstated; everything is back to how it was.
+                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb && jpc.suspendedEndpoint.id != _ep.id) {
+
+                    if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_jsPlumb.checkCondition("beforeDetach", jpc))
+                        _doContinue = false;
+                }
+
 // ------------ wrap the execution path in a function so we can support asynchronous beforeDrop
 
-                var continueFunction = function () {
+                var continueFunction = function (optionalData) {
                     // remove this jpc from the current endpoint, which is a floating endpoint that we will
                     // subsequently discard.
                     jpc.endpoints[idx].detachFromConnection(jpc);
@@ -1082,6 +1093,11 @@
                         jpc.endpoints[0].addConnection(jpc);
                     }
 
+                    // if optionalData was given, merge it onto the connection's data.
+                    if (jsPlumbUtil.isObject(optionalData)) {
+                        jpc.mergeData(optionalData);
+                    }
+
                     // finalise will inform the anchor manager and also add to
                     // connectionsByScope if necessary.
                     // TODO if this is not set to true, then dragging a connection's target to a new
@@ -1121,7 +1137,7 @@
                 _doContinue = _doContinue && dhParams.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, _ep);// && jpc.pending;
 
                 if (_doContinue) {
-                    continueFunction();
+                    continueFunction(_doContinue);
                     return true;
                 }
                 else {
