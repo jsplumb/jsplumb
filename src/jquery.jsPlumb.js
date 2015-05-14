@@ -131,8 +131,8 @@
          * takes the args passed to an event function and returns you an object representing that which is being dragged.
          */
         getDragObject: function (eventArgs) {
-            //return eventArgs[1].draggable || eventArgs[1].helper;
-            return eventArgs[1].helper || eventArgs[1].draggable;
+            var o = eventArgs[1].helper || eventArgs[1].draggable;
+            return o ? o[0] : null;
         },
 
         getDragScope: function (el) {
