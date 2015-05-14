@@ -87,9 +87,9 @@
  */
 
 /**
- * Binds a listener to an event.
+ * Binds a listener to one or more events.
  * @method bind
- * @param {String} event Name of the event to bind to.
+ * @param {String|String[]} event Name(s) of the event(s) to bind to. Note that if you provide multiple event names they all are bound with the same function.
  * @param {Function} listener Function to execute.
  * @param {Boolean} [insertAtStart=false] Whether or not to insert this listener at the start of the listener list, so it is fired before the other currently registered listeners.
  */

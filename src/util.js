@@ -371,10 +371,20 @@
             eventsToDieOn = { "ready": true };
 
         this.bind = function (event, listener, insertAtStart) {
-            exports.addToList(_listeners, event, listener, insertAtStart);
-            listener.__jsPlumb = listener.__jsPlumb || {};
-            listener.__jsPlumb[jsPlumbUtil.uuid()] = event;
-            return this;
+            var _one = function(evt) {
+                exports.addToList(_listeners, evt, listener, insertAtStart);
+                listener.__jsPlumb = listener.__jsPlumb || {};
+                listener.__jsPlumb[jsPlumbUtil.uuid()] = evt;
+                return this;
+            };
+
+            if (typeof event === "string") _one(event);
+            else if (event.length != null) {
+                for (var i = 0; i < event.length; i++) {
+                    _one(event[i]);
+                }
+            }
+
         };
 
         this.fire = function (event, value, originalEvent) {

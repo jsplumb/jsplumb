@@ -7401,7 +7401,21 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.connect({source:d1, target:d2});
         equal(i, 0, "no listeners fired");
 
-    })
+    });
+
+    test("bind multiple listeners via array (multiple events, one function)", function() {
+        var count = 0;
+        _jsPlumb.bind(["foo", "bar", "baz"], function() {
+            count++;
+        });
+
+        _jsPlumb.fire("foo");
+        equal(count, 1, "count is 1");
+        _jsPlumb.fire("bar");
+        equal(count, 2, "count is 2");
+        _jsPlumb.fire("baz");
+        equal(count, 3, "count is 3");
+    });
 
 };
 
