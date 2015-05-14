@@ -215,7 +215,7 @@ module.exports = function(grunt) {
 
             grunt.file.mkdir("jekyll/demo/" + d);
             for (var j = 0; j < libraries.length; j++) {
-                var html = grunt.file.read("demo/" + d + "/" + libraries[j] + ".html");
+                var html = grunt.file.read("demo/" + d + "/" + libraries[j] + ".html"),
                     m = html.match(/(<!-- demo.*>.*\n)(.*\n)*(.*\/demo -->)/),
                     t = package.demos[i][1];
 
