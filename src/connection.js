@@ -216,7 +216,10 @@
 // PAINTING
 
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || _jp.Defaults.Connector, true);
-        this.getData = function() { return params.data; };
+        var data = params.data == null || !jsPlumbUtil.isObject(params.data) ? {} : params.data;
+        this.getData = function() { return data; };
+        this.setData = function(d) { data = d || {}; };
+        this.mergeData = function(d) { data = jsPlumb.extend(data, d); };
 
         // the very last thing we do is apply types, if there are any.
         var _types = [ "default",  params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
