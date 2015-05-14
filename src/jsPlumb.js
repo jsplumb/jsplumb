@@ -1253,14 +1253,15 @@
          * or something, but decided against it, for the sake of simplicity. jsPlumb will never fire one of these
          * condition events anyway.
          */
-        this.checkCondition = function (conditionName, value) {
+        this.checkCondition = function (conditionName, args) {
             var l = _currentInstance.getListener(conditionName),
                 r = true;
 
             if (l && l.length > 0) {
+                var values = Array.prototype.slice.call(arguments, 1);
                 try {
                     for (var i = 0, j = l.length; i < j; i++) {
-                        r = r && l[i](value);
+                        r = r && l[i].apply(l[i], values);
                     }
                 }
                 catch (e) {
@@ -2131,14 +2132,18 @@
                 isDropAllowed: function () {
                     return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
                 },
+                isRedrop:function(jpc) {
+                    return (jpc.suspendedElement != null && jpc.suspendedEndpoint != null && jpc.suspendedEndpoint.element === elInfo.el);
+                },
                 getEndpoint: function (jpc) {
+
                     // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
-                    // is set.
+                    // is set. if its a redrop the new endpoint will be immediately cleaned up.
                     var def = elInfo.el[definitionId],
                         newEndpoint = def.endpoint;
 
                     // if no cached endpoint, or there was one but it has been cleaned up
-                    // (ie. detached), then create a new one.
+                    // (ie. detached), create a new one
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                         newEndpoint = _currentInstance.addEndpoint(elInfo.el, p);
                         newEndpoint._mtNew = true;
