@@ -2741,16 +2741,14 @@
         };
 
         this.reset = function () {
-            _currentInstance.setSuspendEvents(true);
-            _currentInstance.deleteEveryEndpoint();
-            _currentInstance.unbind();
-            this.targetEndpointDefinitions = {};
-            this.sourceEndpointDefinitions = {};
-            connections.length = 0;
-
-            if (this.doReset) this.doReset();
-
-            _currentInstance.setSuspendEvents(false);
+            _currentInstance.silently(function() {
+                _currentInstance.deleteEveryEndpoint();
+                _currentInstance.unbind();
+                this.targetEndpointDefinitions = {};
+                this.sourceEndpointDefinitions = {};
+                connections.length = 0;
+                if (this.doReset) this.doReset();
+            }.bind(this));
         };
 
         var _clearObject = function (obj) {
@@ -2760,13 +2758,9 @@
             obj.destroy();
         };
 
-        var _clearOverlayObject = function (obj) {
-            _clearObject(obj);
-        };
-
         this.clear = function () {
-            _currentInstance.select().each(_clearOverlayObject);
-            _currentInstance.selectEndpoints().each(_clearOverlayObject);
+            _currentInstance.select().each(_clearObject);
+            _currentInstance.selectEndpoints().each(_clearObject);
 
             endpointsByElement = {};
             endpointsByUUID = {};
