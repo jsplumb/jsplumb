@@ -375,7 +375,6 @@
                 exports.addToList(_listeners, evt, listener, insertAtStart);
                 listener.__jsPlumb = listener.__jsPlumb || {};
                 listener.__jsPlumb[jsPlumbUtil.uuid()] = evt;
-                return this;
             };
 
             if (typeof event === "string") _one(event);
@@ -385,6 +384,7 @@
                 }
             }
 
+            return this;
         };
 
         this.fire = function (event, value, originalEvent) {
@@ -443,6 +443,16 @@
         };
         this.isSuspendEvents = function () {
             return eventsSuspended;
+        };
+        this.silently = function(fn) {
+            this.setSuspendEvents(true);
+            try {
+                fn();
+            }
+            catch (e) {
+                jsPlumbUtil.log("Cannot execute silent function " + e);
+            }
+            this.setSuspendEvents(false);
         };
         this.cleanupListeners = function () {
             for (var i in _listeners) {
