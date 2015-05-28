@@ -485,17 +485,18 @@
                 _maybeAdjustScroll = function(offsetParent) {
                     if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                         var p = this.getStyle(el, "position");
-                        if (p !== "fixed") {
+                        //if (p !== "fixed") {
                             out.left -= offsetParent.scrollLeft;
                             out.top -= offsetParent.scrollTop;
-                        }
+                        //}
                     }
                 }.bind(this);
 
             while (op != null) {
                 out.left += op.offsetLeft;
                 out.top += op.offsetTop;
-                if (!relativeToRoot) _maybeAdjustScroll(op);
+                //if (!relativeToRoot) _maybeAdjustScroll(op);
+                _maybeAdjustScroll(op);
                 op = relativeToRoot ? op.offsetParent :
                         op.offsetParent == container ? null : op.offsetParent;
             }
