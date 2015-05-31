@@ -61,8 +61,8 @@
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
         this.previousConnection = params.previousConnection;
-        this.source = _jp.getDOMElement(params.source);
-        this.target = _jp.getDOMElement(params.target);
+        this.source = _jp.getElement(params.source);
+        this.target = _jp.getElement(params.target);
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
