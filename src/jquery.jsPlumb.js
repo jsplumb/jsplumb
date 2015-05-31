@@ -36,7 +36,7 @@
          * a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
          * two cases).  this is the opposite of getElementObject below.
          */
-        getDOMElement: function (el) {
+        getElement: function (el) {
             if (el == null) return null;
             if (typeof(el) == "string") return document.getElementById(el);
             else if (el.context || el.length != null) return el[0];
@@ -208,7 +208,7 @@
          * @param originalEvent
          */
         trigger: function (el, event, originalEvent) {
-            el = this.getDOMElement(el);
+            el = this.getElement(el);
             var h = jQuery._data($(el)[0], "handle");
             h(originalEvent);
         }
