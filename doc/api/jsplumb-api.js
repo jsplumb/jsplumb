@@ -80,6 +80,9 @@
 * @param {String[]} [params.uuids] Optional array of UUIDs of the two Endpoints to connect. If you supply this you do not need to supply `source` or `target`.
 * @param {String} [params.type] Optional type for the Connection.
 * @param {String} [params.pointer-events] Optional `pointer-events` value for the Connection (only used by the SVG renderer)
+* @param {String|Array} [params.connector] The type of Connector to use. Defaults to whatever is set in the defaults for the instance. This
+* parameter can be either a String - a named Connector, such as "Straight" - or an array consisting of a Connector name plus
+* constructor parameters. For further information see the main documentation.
 * @param {Object} referenceParams Optional second set of parameters, which will be merged into a new object along with `params`. This can be useful if
 * you have some common settings to share between multiple `connect` calls. Valid values in this object are anything that is valid in `params`.
 * @return {Connection} The Connection that was created, or null if either the source or target element was not found (in which case the missin element is also logged).
