@@ -85,7 +85,7 @@
 
         },
 
-        getDOMElement: function (el) {
+        getElement: function (el) {
             if (el == null) return null;
             // here we pluck the first entry if el was a list of entries.
             // this is not my favourite thing to do, but previous versions of
@@ -154,6 +154,10 @@
         isDropSupported: function (el, options) {
             return true;
         },
+        isElementDraggable: function (el) {
+            el = jsPlumb.getElement(el);
+            return el._katavorioDrag && el._katavorioDrag.isEnabled();
+        },
         getDragObject: function (eventArgs) {
             return eventArgs[0].drag.getDragElement();
         },
@@ -178,7 +182,7 @@
             }
         },
         setElementDraggable: function (el, draggable) {
-            el = jsPlumb.getDOMElement(el);
+            el = jsPlumb.getElement(el);
             if (el._katavorioDrag)
                 el._katavorioDrag.setEnabled(draggable);
         },
