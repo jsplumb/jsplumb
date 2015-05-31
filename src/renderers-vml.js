@@ -87,7 +87,7 @@
             // TODO is this failing? that would be because parent is not a plain DOM element.
             // IF SO, uncomment the line below this one and remove this one.
                 parent.appendChild(o);
-            //jsPlumb.getDOMElement(parent).appendChild(o);
+            //jsPlumb.getElement(parent).appendChild(o);
 
             o.className = (atts["class"] ? atts["class"] + " " : "") + "jsplumb_vml";
             _pos(o, d);
