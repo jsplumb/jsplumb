@@ -491,7 +491,7 @@
                     return { el:el, text:true };
                 }
                 else {
-                    var _el = _currentInstance.getDOMElement(el);
+                    var _el = _currentInstance.getElement(el);
                     return { el: _el, id: (jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
                 }
             };
@@ -529,7 +529,7 @@
             this.unbindContainer();
 
             // get container as dom element.
-            c = this.getDOMElement(c);
+            c = this.getElement(c);
             // move existing connections and endpoints, if any.
             this.select().each(function (conn) {
                 conn.moveParent(c);
@@ -643,7 +643,7 @@
                 else if (!parent)
                     this.appendToRoot(el);
                 else
-                    this.getDOMElement(parent).appendChild(el);
+                    this.getElement(parent).appendChild(el);
             }.bind(this),
 
         //
@@ -693,29 +693,6 @@
             },
 
         //
-        // executes the given function against the given element if the first
-        // argument is an object, or the list of elements, if the first argument
-        // is a list. the function passed in takes (element, elementId) as
-        // arguments.
-        //
-            _elementProxy = function (element, fn) {
-                var retVal = null, el, id, del;
-                if (_ju.isArray(element)) {
-                    retVal = [];
-                    for (var i = 0, j = element.length; i < j; i++) {
-                        del = _currentInstance.getDOMElement(element[i]);
-                        id = _currentInstance.getAttribute(del, "id");
-                        retVal.push(fn.apply(_currentInstance, [del, id])); // append return values to what we will return
-                    }
-                } else {
-                    el = _currentInstance.getDOMElement(element);
-                    id = _currentInstance.getId(el);
-                    retVal = fn.apply(_currentInstance, [el, id]);
-                }
-                return retVal;
-            },
-
-        //
         // gets an Endpoint by uuid.
         //
             _getEndpoint = function (uuid) {
@@ -738,7 +715,7 @@
                             var dragEvent = jsPlumb.dragEvents.drag,
                                 stopEvent = jsPlumb.dragEvents.stop,
                                 startEvent = jsPlumb.dragEvents.start,
-                                _del = _currentInstance.getDOMElement(element),
+                                _del = _currentInstance.getElement(element),
                                 _ancestor = _currentInstance.getDragManager().getDragAncestor(_del),
                                 _noOffset = {left: 0, top: 0},
                                 _ancestorOffset = _noOffset,
@@ -830,13 +807,13 @@
                     if (_p.source.endpoint)
                         _p.sourceEndpoint = _p.source;
                     else
-                        _p.source = _currentInstance.getDOMElement(_p.source);
+                        _p.source = _currentInstance.getElement(_p.source);
                 }
                 if (_p.target) {
                     if (_p.target.endpoint)
                         _p.targetEndpoint = _p.target;
                     else
-                        _p.target = _currentInstance.getDOMElement(_p.target);
+                        _p.target = _currentInstance.getElement(_p.target);
                 }
 
                 // test for endpoint uuids to connect
@@ -1034,10 +1011,10 @@
             },
 
             _setDraggable = function (element, draggable) {
-                return _elementProxy(element, function (el, id) {
-                    draggableStates[id] = draggable;
-                    if (this.isDragSupported(el)) {
-                        this.setElementDraggable(el, draggable);
+                return jsPlumb.each(element, function (el) {
+                    if (_currentInstance.isDragSupported(el)) {
+                        draggableStates[_currentInstance.getAttribute(el, "id")] = draggable;
+                        _currentInstance.setElementDraggable(el, draggable);
                     }
                 });
             },
@@ -1079,11 +1056,12 @@
          * el is either an id, or an element object, or a list of ids/element objects.
          */
             _toggleDraggable = function (el) {
-                return _elementProxy(el, function (el, elId) {
+                return jsPlumb.each(el, function (el) {
+                    var elId = _currentInstance.getAttribute(el, "id");
                     var state = draggableStates[elId] == null ? false : draggableStates[elId];
                     state = !state;
                     draggableStates[elId] = state;
-                    this.setDraggable(el, state);
+                    _currentInstance.setDraggable(el, state);
                     return state;
                 }.bind(this));
             },
@@ -1102,9 +1080,6 @@
                     var state = jpc.isVisible();
                     jpc.setVisible(!state);
                 }, endpointFunc);
-                // todo this should call _elementProxy, and pass in the
-                // _operation(elId, f) call as a function. cos _toggleDraggable does
-                // that.
             },
 
         // TODO comparison performance
@@ -1189,7 +1164,7 @@
                 inputs = (_ju.isArray(el) || (el.length != null && !_ju.isString(el))) ? el : [ el ];
 
             for (var i = 0, j = inputs.length; i < j; i++) {
-                p.source = _currentInstance.getDOMElement(inputs[i]);
+                p.source = _currentInstance.getElement(inputs[i]);
                 _ensureContainer(p.source);
 
                 var id = _getId(p.source), e = _newEndpoint(p, id);
@@ -1229,7 +1204,7 @@
             if (!this.animationSupported) return false;
 
             options = options || {};
-            var del = _currentInstance.getDOMElement(el),
+            var del = _currentInstance.getElement(el),
                 id = _getId(del),
                 stepFunction = jsPlumb.animEvents.step,
                 completeFunction = jsPlumb.animEvents.complete;
@@ -1462,8 +1437,8 @@
                 } else if (_p.sourceEndpoint && _p.targetEndpoint) {
                     _p.sourceEndpoint.detachFrom(_p.targetEndpoint);
                 } else {
-                    var sourceId = _getId(_currentInstance.getDOMElement(_p.source)),
-                        targetId = _getId(_currentInstance.getDOMElement(_p.target));
+                    var sourceId = _getId(_currentInstance.getElement(_p.source)),
+                        targetId = _getId(_currentInstance.getElement(_p.target));
                     _operation(sourceId, function (jpc) {
                         if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
                             if (_currentInstance.checkCondition("beforeDetach", jpc)) {
@@ -1477,7 +1452,7 @@
 
         this.detachAllConnections = function (el, params) {
             params = params || {};
-            el = _currentInstance.getDOMElement(el);
+            el = _currentInstance.getElement(el);
             var id = _getId(el),
                 endpoints = endpointsByElement[id];
             if (endpoints && endpoints.length) {
@@ -1587,7 +1562,7 @@
                 }
             }
             else {
-                //ele = _currentInstance.getDOMElement(el);
+                //ele = _currentInstance.getElement(el);
                 info = _info(el);
                 if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
             }
@@ -1858,7 +1833,7 @@
         // to be the offsetParent of the first element the user tries to connect.
         var _ensureContainer = function (candidate) {
             if (!_container && candidate) {
-                var can = _currentInstance.getDOMElement(candidate);
+                var can = _currentInstance.getElement(candidate);
                 if (can.offsetParent) _currentInstance.setContainer(can.offsetParent);
             }
         };
@@ -2281,7 +2256,7 @@
                     // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
                     // and use the endpoint definition if found.
                     var elid = elInfo.id,
-                        _del = this.getDOMElement(elInfo.el);
+                        _del = this.getElement(elInfo.el);
 
                     _ensureContainer(elid);
 
@@ -2356,7 +2331,7 @@
                         // if disabled, return.
                         if (!def.enabled) return;
 
-                        elid = this.getId(this.getDOMElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
+                        elid = this.getId(this.getElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
@@ -2783,7 +2758,7 @@
                 id = el;
             }
             else {
-                el = this.getDOMElement(el);
+                el = this.getElement(el);
                 id = this.getId(el);
             }
 
@@ -2793,11 +2768,11 @@
             newId = "" + newId;
 
             if (!doNotSetAttribute) {
-                el = this.getDOMElement(id);
+                el = this.getElement(id);
                 this.setAttribute(el, "id", newId);
             }
             else
-                el = this.getDOMElement(newId);
+                el = this.getElement(newId);
 
             endpointsByElement[newId] = endpointsByElement[id] || [];
             for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
@@ -2894,7 +2869,7 @@
             this.setAttribute(el, a, v);
         },
         getAttribute: function (el, a) {
-            return this.getAttribute(jsPlumb.getDOMElement(el), a);
+            return this.getAttribute(jsPlumb.getElement(el), a);
         },
         convertToFullOverlaySpec: function(spec) {
             if (jsPlumbUtil.isString(spec)) {
@@ -2935,9 +2910,9 @@
         },
         // set parent: change the parent for some node and update all the registrations we need to.
         setParent: function (el, newParent) {
-            var _dom = this.getDOMElement(el),
+            var _dom = this.getElement(el),
                 _id = this.getId(_dom),
-                _pdom = this.getDOMElement(newParent),
+                _pdom = this.getElement(newParent),
                 _pid = this.getId(_pdom);
 
             _dom.parentNode.removeChild(_dom);
@@ -2971,6 +2946,17 @@
         var j = new jsPlumbInstance(_defaults);
         j.init();
         return j;
+    };
+    jsPlumb.each = function (spec, fn) {
+        if (spec == null) return;
+        if (typeof spec === "string")
+            fn(jsPlumb.getElement(spec));
+        else if (spec.length != null) {
+            for (var i = 0; i < spec.length; i++)
+                fn(jsPlumb.getElement(spec[i]));
+        }
+        else
+            fn(spec); // assume it's an element.
     };
 // maybe register static instance as an AMD module, and getInstance method too.
     if (typeof define === "function") {
