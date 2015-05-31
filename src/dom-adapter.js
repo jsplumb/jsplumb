@@ -113,7 +113,7 @@
                 if (p) {
                     for (var i = 0; i < p.childNodes.length; i++) {
                         if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
-                            var cEl = jsPlumb.getDOMElement(p.childNodes[i]),
+                            var cEl = jsPlumb.getElement(p.childNodes[i]),
                                 cid = _currentInstance.getId(p.childNodes[i], null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
                                 var cOff = _currentInstance.getOffset(cEl);
@@ -138,7 +138,7 @@
         // refresh the offsets for child elements of this element.
         this.updateOffsets = function (elId) {
             if (elId != null) {
-                var domEl = jsPlumb.getDOMElement(elId),
+                var domEl = jsPlumb.getElement(elId),
                     id = _currentInstance.getId(domEl),
                     children = _delements[id],
                     parentOffset = _currentInstance.getOffset(domEl);
@@ -146,7 +146,7 @@
                 if (children) {
                     for (var i in children) {
                         if (children.hasOwnProperty(i)) {
-                            var cel = jsPlumb.getDOMElement(i),
+                            var cel = jsPlumb.getElement(i),
                                 cOff = _currentInstance.getOffset(cel);
 
                             _delements[id][i] = {
@@ -268,12 +268,12 @@
         };
 
         this.getDragAncestor = function (el) {
-            var de = jsPlumb.getDOMElement(el),
+            var de = jsPlumb.getElement(el),
                 id = _currentInstance.getId(de),
                 aid = _draggablesForElements[id];
 
             if (aid)
-                return jsPlumb.getDOMElement(aid);
+                return jsPlumb.getElement(aid);
             else
                 return null;
         };
@@ -318,17 +318,6 @@
             _oneSet(false, classesToRemove);
 
             _setClassName(el, curClasses.join(" "));
-        },
-        _each = function (spec, fn) {
-            if (spec == null) return;
-            if (typeof spec === "string")
-                fn(jsPlumb.getDOMElement(spec));
-            else if (spec.length != null) {
-                for (var i = 0; i < spec.length; i++)
-                    fn(jsPlumb.getDOMElement(spec[i]));
-            }
-            else
-                fn(spec); // assume it's an element.
         };
 
     jsPlumb.extend(jsPlumbInstance.prototype, {
@@ -416,29 +405,29 @@
             return renderMode;
         },
         addClass: function (el, clazz) {
-            _each(el, function (e) {
+            jsPlumb.each(el, function (e) {
                 _classManip(e, clazz);
             });
         },
         hasClass: function (el, clazz) {
-            el = jsPlumb.getDOMElement(el);
+            el = jsPlumb.getElement(el);
             if (el.classList) return el.classList.contains(clazz);
             else {
                 return _getClassName(el).indexOf(clazz) != -1;
             }
         },
         removeClass: function (el, clazz) {
-            _each(el, function (e) {
+            jsPlumb.each(el, function (e) {
                 _classManip(e, null, clazz);
             });
         },
         updateClasses: function (el, toAdd, toRemove) {
-            _each(el, function (e) {
+            jsPlumb.each(el, function (e) {
                 _classManip(e, toAdd, toRemove);
             });
         },
         setClass: function (el, clazz) {
-            _each(el, function (e) {
+            jsPlumb.each(el, function (e) {
                 _setClassName(e, clazz);
             });
         },
@@ -475,7 +464,7 @@
             return sel;
         },
         getOffset:function(el, relativeToRoot) {
-            el = jsPlumb.getDOMElement(el);
+            el = jsPlumb.getElement(el);
             var container = this.getContainer();
             var out = {
                     left: el.offsetLeft,

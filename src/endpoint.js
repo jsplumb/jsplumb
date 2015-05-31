@@ -115,7 +115,7 @@
 
         this._jsPlumb.enabled = !(params.enabled === false);
         this._jsPlumb.visible = true;
-        this.element = _jp.getDOMElement(params.source);
+        this.element = _jp.getElement(params.source);
         this._jsPlumb.uuid = params.uuid;
         this._jsPlumb.floatingEndpoint = null;
         var inPlaceCopy = null;
@@ -353,7 +353,7 @@
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function (e) {
                 return e.id == this.id;
             }.bind(this));
-            this.element = jsPlumb.getDOMElement(el);
+            this.element = jsPlumb.getElement(el);
             this.elementId = _jsPlumb.getId(this.element);
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
             _jsPlumb.dragManager.endpointAdded(this.element);
@@ -800,7 +800,7 @@
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop, true);
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function () {
                     var draggable = _jp.getDragObject(arguments),
-                        id = _jsPlumb.getAttribute(_jp.getDOMElement(draggable), "dragId"),
+                        id = _jsPlumb.getAttribute(_jp.getElement(draggable), "dragId"),
                         _jpc = _jsPlumb.floatingConnections[id];
 
                     if (_jpc != null) {
@@ -823,7 +823,7 @@
 
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function () {
                     var draggable = _jp.getDragObject(arguments),
-                        id = draggable == null ? null : _jsPlumb.getAttribute(_jp.getDOMElement(draggable), "dragId"),
+                        id = draggable == null ? null : _jsPlumb.getAttribute(_jp.getElement(draggable), "dragId"),
                         _jpc = id ? _jsPlumb.floatingConnections[id] : null;
 
                     if (_jpc != null) {
@@ -938,7 +938,7 @@
             this.anchor.elementId = _elId;
         },
         setReferenceElement: function (_el) {
-            this.element = _jp.getDOMElement(_el);
+            this.element = _jp.getElement(_el);
         },
         setDragAllowedWhenFull: function (allowed) {
             this.dragAllowedWhenFull = allowed;
