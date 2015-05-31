@@ -7438,6 +7438,11 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.setDraggable(d, false);
         ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
         ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
+
+        // and enable
+        _jsPlumb.toggleDraggable(d);
+        ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
+        ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
     });
 
 };
