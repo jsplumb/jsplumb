@@ -42,13 +42,14 @@ var within = function (val, target, _ok, msg) {
 };
 
 var _divs = [];
-var _addDiv = function (id, parent) {
+var _addDiv = function (id, parent, className) {
     var d1 = document.createElement("div");
     d1.style.position = "absolute";
     if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
     d1.setAttribute("id", id);
     d1.style.left = (Math.floor(Math.random() * 1000)) + "px";
     d1.style.top = (Math.floor(Math.random() * 1000)) + "px";
+    if (className) d1.className = className;
     _divs.push(id);
     return d1;
 };
@@ -122,14 +123,14 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
     */
 
-    test(" : getDOMElement", function () {
+    test(" : getElement", function () {
         var e = document.createElement("div");
         e.id = "FOO";
         document.body.appendChild(e);
-        var e2 = jsPlumb.getDOMElement(e);
+        var e2 = jsPlumb.getElement(e);
         equal(e2.id, "FOO");
 
-        var e3 = jsPlumb.getDOMElement("FOO");
+        var e3 = jsPlumb.getElement("FOO");
         equal(e3.id, "FOO");
     });
 
@@ -139,7 +140,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(': getId', function () {
         var d10 = _addDiv('d10');
-        equal(_jsPlumb.getId(jsPlumb.getDOMElement(d10)), "d10");
+        equal(_jsPlumb.getId(jsPlumb.getElement(d10)), "d10");
     });
 
     test(': create a simple endpoint', function () {
@@ -197,7 +198,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         var d = document.createElement("div");
         d.innerHTML = '<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>';
         var container = d.firstChild;
-        document.body.appendChild(jsPlumb.getDOMElement(container));
+        document.body.appendChild(jsPlumb.getElement(container));
         var e1 = _jsPlumb.addEndpoint("in1", { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
             e2 = _jsPlumb.addEndpoint("in2", { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
             e3 = _jsPlumb.addEndpoint("output", { isSource: true, isTarget: false, anchor: [ 1, 0.4, 1, 0 ] });
@@ -6850,7 +6851,7 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" jsPlumb.getSelector, with context node given as selector", function () {
         var d1 = _addDiv("d1");
         var d = makeContent("<div id='foo'></div>");
-        d1.appendChild(jsPlumb.getDOMElement(d));
+        d1.appendChild(jsPlumb.getElement(d));
         var s = _jsPlumb.getSelector(d1, "#foo");
         equal(s.length, 1, "foo found by getSelector with context d1");
         equal(s[0].getAttribute("id"), "foo", "foo found by getSelector with context d1");
@@ -6859,7 +6860,7 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" jsPlumb.getSelector, with context node given as DOM element", function () {
         var d1 = _addDiv("d1");
         var d = makeContent("<div id='foo'></div>");
-        d1.appendChild(jsPlumb.getDOMElement(d));
+        d1.appendChild(jsPlumb.getElement(d));
         var s = _jsPlumb.getSelector(d1, "#foo");
         equal(s.length, 1, "foo found by getSelector with context d1");
         equal(s[0].getAttribute("id"), "foo", "foo found by getSelector with context d1");
@@ -7415,6 +7416,28 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(count, 2, "count is 2");
         _jsPlumb.fire("baz");
         equal(count, 3, "count is 3");
+    });
+
+
+// -----------------issue 383, setDraggable doesnt work with list-like arguments
+
+    test("setDraggable with array", function() {
+        var d1 = _addDiv("d1", null, "aTest");
+        var d2 = _addDiv("d2", null, "aTest");
+
+        ok(!_jsPlumb.isAlreadyDraggable(d1), "d1 is not draggable");
+        ok(!_jsPlumb.isAlreadyDraggable(d2), "d2 is not draggable");
+        var d = document.getElementsByClassName("aTest");
+
+        // first make them draggable
+        _jsPlumb.draggable(d);
+        ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
+        ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
+
+        // now disable
+        _jsPlumb.setDraggable(d, false);
+        ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
+        ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
     });
 
 };
