@@ -27,6 +27,7 @@ dragging of existing Connections. As of 1.7.6 this latter behaviour has been mov
 - **353** - multiple select disabled
 - **367** - rendering and drag/drop errors when parent element scrolled
 - **369** - unbinding events
+- **383** - jsPlumb.setDraggable fails for getElementsByClassName return value
 
 ## 1.7.5
 
