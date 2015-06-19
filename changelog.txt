@@ -30,6 +30,7 @@
     367 - rendering and drag/drop errors when parent element scrolled
     369 - unbinding events
     383 - jsPlumb.setDraggable fails for getElementsByClassName return value
+    392 - onMaxConnections jpc isn't defined
 
 
 * 1.7.5
