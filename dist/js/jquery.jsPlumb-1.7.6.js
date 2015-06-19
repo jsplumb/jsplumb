@@ -3837,20 +3837,10 @@
                 enabled: function () {
                     return elInfo.el[definitionId].enabled;
                 },
-                isFull: function (originalEvent) {
+                isFull: function () {
                     var targetCount = _currentInstance.select({target: elInfo.id}).length;
                     var def = elInfo.el[definitionId];
-                    var full = def.maxConnections > 0 && targetCount >= def.maxConnections;
-                    if (full && p.onMaxConnections) {
-                        // TODO here we still have the id of the floating element, not the
-                        // actual target.
-                        // TODO jpc is not defined here..?
-                        p.onMaxConnections({
-                            element: elInfo.el,
-                            connection: jpc
-                        }, originalEvent);
-                    }
-                    return full;
+                    return def.maxConnections > 0 && targetCount >= def.maxConnections;
                 },
                 element: elInfo.el,
                 elementId: elInfo.id,
