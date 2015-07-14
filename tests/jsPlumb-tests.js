@@ -3326,6 +3326,21 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(detachCallback != null, "detach callback was made");
     });
 
+    test(": _jsPlumb.connect (setting outline class on Connector)", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var c = _jsPlumb.connect({source: d1, target: d2, paintStyle:{outlineColor:"green", outlineWidth:6, lineWidth:4, strokeStyle:"red"}});
+        var has = function (clazz, elName) {
+            var cn = c.getConnector()[elName].className,
+                cns = cn.constructor == String ? cn : cn.baseVal;
+
+            return cns.indexOf(clazz) != -1;
+        };
+        ok(has(_jsPlumb.connectorClass, "canvas"), "basic connector class set correctly");
+
+        ok(has("_jsPlumb_connector_outline", "bgPath"), "outline canvas set correctly");
+        ok(has(_jsPlumb.connectorOutlineClass, "bgPath"), "outline canvas set correctly");
+    });
+
     test(": _jsPlumb.connect (setting cssClass on Connector)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, cssClass: "CSS"});

@@ -707,6 +707,9 @@
                 var tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
                 _bind(obj, touchMap[evt], tfn , fn);
             }
+            if (evt === "focus" && obj.getAttribute("tabindex") == null) {
+                obj.setAttribute("tabindex", "1");
+            }
             _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
         },
         SmartClickHandler = function (obj, evt, fn, children) {
@@ -3678,6 +3681,7 @@
         };
 
         this.connectorClass = "_jsPlumb_connector";
+        this.connectorOutlineClass = "_jsPlumb_connector_outline";
         this.connectedClass = "_jsPlumb_connected";
         this.hoverClass = "_jsPlumb_hover";
         this.endpointClass = "_jsPlumb_endpoint";
@@ -11663,6 +11667,7 @@
 
                     if (self.bgPath == null) {
                         self.bgPath = _node("path", a);
+                        _jp.addClass(self.bgPath, _jp.connectorOutlineClass);
                         _appendAtIndex(self.svg, self.bgPath, 0);
                     }
                     else {
