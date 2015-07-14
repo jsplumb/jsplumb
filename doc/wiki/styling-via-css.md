@@ -15,6 +15,7 @@ By default, jsPlumb adds a specific class to each of the three types of elements
 <table width="90%" class="table" style="align:left;font-size:12px;">
 <tr><th>Component</th><th>CSS Class</th><th>jsPlumb Member</th></tr>
 <tr><td>Connector</td><td>_jsPlumb_connector</td><td>connectorClass</td></tr>
+<tr><td>Connector Outline</td><td>_jsPlumb_connector_outline</td><td>connectorOutlineClass (SVG only)</td></tr>
 <tr><td>Endpoint</td><td>_jsPlumb_endpoint</td><td>endpointClass</td></tr>
 <tr><td>Endpoint when full</td><td>_jsPlumb_endpoint_full</td><td>endpointFullClass</td></tr>
 <tr><td>Overlay</td><td>_jsPlumb_overlay</td><td>overlayClass</td></tr>
