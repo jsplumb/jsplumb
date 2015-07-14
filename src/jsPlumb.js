@@ -1125,6 +1125,7 @@
         };
 
         this.connectorClass = "_jsPlumb_connector";
+        this.connectorOutlineClass = "_jsPlumb_connector_outline";
         this.connectedClass = "_jsPlumb_connected";
         this.hoverClass = "_jsPlumb_hover";
         this.endpointClass = "_jsPlumb_endpoint";
