@@ -38,6 +38,7 @@
 * @param {Float} [params.cornerRadius=0] Optional, defines the radius of corners between segments. Defaults to 0 (hard edged corners).
 * @param {Boolean} [params.alwaysRespectStubs=false] Whether or not the connectors should always draw the stub, or, if the two elements
 *                       are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
+* @param {Number} [params.midpoint=0.5] If provided, jsPlumb will use this location as the midpoint of the connector.
 */
 
  /**
