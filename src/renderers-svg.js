@@ -323,6 +323,7 @@
 
                     if (self.bgPath == null) {
                         self.bgPath = _node("path", a);
+                        _jp.addClass(self.bgPath, _jp.connectorOutlineClass);
                         _appendAtIndex(self.svg, self.bgPath, 0);
                     }
                     else {
