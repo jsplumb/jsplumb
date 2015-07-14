@@ -241,7 +241,7 @@ var conn = jsPlumb.connect({
   overlays:[
     ["Custom", {
       create:function(component) {
-        return $("&lt;select id='myDropDown'&gt;&lt;option value='foo'&gt;foo&lt;/option&gt;&lt;option value='bar'&gt;bar&lt;/option&gt;&lt;/select&gt;");                
+        return $("<select id='myDropDown'><option value='foo'>foo</option><option value='bar'>bar</option></select>");                
       },
       location:0.7,
       id:"customOverlay"
