@@ -22,6 +22,8 @@
     - Connectors now have a `getLength` function, which returns their length in pixels. To access from a Connection,
     you need to first get the connector: `someConnection.getConnector().getLength()`
 
+    - A CSS class (by default _jsPlumb_connector_outline) is now added to the `path` element that acts as a Connector's outline.
+
 
     ISSUES
 
