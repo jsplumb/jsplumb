@@ -43,7 +43,7 @@
             EndpointStyle: { width: 20, height: 16, strokeStyle: '#666' },
             Endpoint: "Rectangle",
             Anchors: ["TopCenter", "TopCenter"],
-            Container: "drag-drop-demo"
+            Container: "canvas"
         });
 
         // suspend drawing and initialise.

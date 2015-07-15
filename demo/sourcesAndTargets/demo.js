@@ -34,7 +34,7 @@ jsPlumb.ready(function () {
             strokeStyle: "#558822",
             lineWidth: 10
         },
-        Container: "source-target-demo"
+        Container: "canvas"
     });
 
     // click listener for the enable/disable link.

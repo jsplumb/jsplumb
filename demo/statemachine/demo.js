@@ -13,7 +13,7 @@ jsPlumb.ready(function () {
             } ],
             [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
         ],
-        Container: "statemachine-demo"
+        Container: "canvas"
     });
 
     window.jsp = instance;

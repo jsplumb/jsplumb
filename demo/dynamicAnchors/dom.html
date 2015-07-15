@@ -2,37 +2,59 @@
 <html>
     <head>
         <title>jsPlumb 1.7.6 demo</title>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="../../css/jsplumb.css">
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+
+        <link rel="stylesheet" href="../../css/jsPlumbToolkit-defaults.css">
+        <link rel="stylesheet" href="../../css/main.css">
+        <link rel="stylesheet" href="../../css/jsPlumbToolkit-demo.css">
         <link rel="stylesheet" href="demo.css">
     </head>
     <body data-demo-id="dynamicAnchors" data-library="dom">
-        <div id="headerWrapper">
-            <div id="header">
-                <div class="logo"><img src="../../logo-bw.png"></div>
-                <div class="menu">
-                    <a href="http://localhost:4567">DOCS</a>
-                    <a href="../../apidocs">API</a>
-                    <a href="../../tests/index.html">TESTS</a>
-                    <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
-                    <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
-                    <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
-                    <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
-                </div>
+    <div class="navbar navbar-top navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a class="navbar-brand" href="/"><img src="../../img/logo-medium-jsplumb.png"></a>
+
             </div>
-        </div>
 
-        <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=button_count"></iframe>
+            <div class="navbar-collapse collapse nav-wrapper">
+                <ul class="nav navbar-nav">
+                    <li><a href="/demos.html">DEMOS</a></li>
+                    <li><a href="/docs.html">DOCS</a></li>
+                    <li><a href="/features">FEATURES</a></li>
+                    <li><a href="/download">DOWNLOAD</a></li>
+                    <li><a href="/contact.html">CONTACT</a></li>
+                    <li><a href="https://blog.jsplumbtoolkit.com">BLOG</a></li>
 
-        <div id="retweet_button">
-            <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
-            <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+                </ul>
+
+                <div class="apidoc-jsplumb-logo"><div class="container"><img src="/img/logo-docs-jsplumb.png"></div></div>
+
+                <div class="social-nav hidden-xs">
+                    <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+                    <a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+                    <a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+                    <a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+                </div>
+            </div><!--/.nav-collapse -->
         </div>
+    </div>
 
         <div id="main">
 			<!-- demo -->
-            <div class="demo dynamic-demo" id="dynamic-demo">
+            <div class="canvas canvas-wide dynamic-demo jtk-surface jtk-surface-nopan" id="canvas">
                 <div class="window" id="dynamicWindow1"><strong>1</strong><br/><br/></div>
                 <div class="window" id="dynamicWindow2"><strong>2</strong><br/><br/></div>
                 <div class="window" id="dynamicWindow3"><strong>3</strong><br/><br/></div>
@@ -41,15 +63,16 @@
                 <div class="window" id="dynamicWindow6"><strong>6</strong><br/><br/></div>
             </div>
             <!-- /demo -->
+            <!-- explanation -->
+            <div class="description">
+                <h4>DYNAMIC ANCHORS</h4>
+                <p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each Connection is decorated with a Diamond overlay, located halfway along the connector.</p>
+                <p>You can drag new connections between Endpoints.</p>
+                <p>Endpoints support an unlimited number of Connections.</p>
+            </div>
+            <!-- /explanation -->
         </div>
-        <!-- explanation -->
-        <div class="explanation">
-            <h4>DYNAMIC ANCHORS</h4>
-            <p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each Connection is decorated with a Diamond overlay, located halfway along the connector.</p>
-            <p>You can drag new connections between Endpoints.</p>
-            <p>Endpoints support an unlimited number of Connections.</p>
-        </div>
-        <!-- /explanation -->
+
 
         <!-- JS -->
         <!-- support lib for bezier stuff -->

@@ -3,37 +3,59 @@
     <head>
 
         <title>jsPlumb 1.7.6 demo</title>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="../../css/jsplumb.css">
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+
+        <link rel="stylesheet" href="../../css/jsPlumbToolkit-defaults.css">
+        <link rel="stylesheet" href="../../css/main.css">
+        <link rel="stylesheet" href="../../css/jsPlumbToolkit-demo.css">
         <link rel="stylesheet" href="demo.css">
     </head>
     <body data-demo-id="sourcesAndTargets" data-library="dom">
-        <div id="headerWrapper">
-            <div id="header">
-                <div class="logo"><img src="../../logo-bw.png"></div>
-                <div class="menu">
-                    <a href="http://localhost:4567">DOCS</a>
-                    <a href="../../apidocs/">API</a>
-                    <a href="../../tests/index.html">TESTS</a>
-                    <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
-                    <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
-                    <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
-                    <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
-                </div>
+    <div class="navbar navbar-top navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a class="navbar-brand" href="/"><img src="../../img/logo-medium-jsplumb.png"></a>
+
             </div>
-        </div>
 
-        <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=button_count"></iframe>
+            <div class="navbar-collapse collapse nav-wrapper">
+                <ul class="nav navbar-nav">
+                    <li><a href="/demos.html">DEMOS</a></li>
+                    <li><a href="/docs.html">DOCS</a></li>
+                    <li><a href="/features">FEATURES</a></li>
+                    <li><a href="/download">DOWNLOAD</a></li>
+                    <li><a href="/contact.html">CONTACT</a></li>
+                    <li><a href="https://blog.jsplumbtoolkit.com">BLOG</a></li>
 
-        <div id="retweet_button">
-            <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
-            <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+                </ul>
+
+                <div class="apidoc-jsplumb-logo"><div class="container"><img src="/img/logo-docs-jsplumb.png"></div></div>
+
+                <div class="social-nav hidden-xs">
+                    <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+                    <a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+                    <a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+                    <a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+                </div>
+            </div><!--/.nav-collapse -->
         </div>
+    </div>
 
         <div id="main">
 			<!-- demo -->
-            <div class="demo source-target-demo" id="source-target-demo">
+            <div class="canvas canvas-wide source-target-demo jtk-surface jtk-surface-nopan" id="canvas">
                 <div class="window" id="sourceWindow1">
                     <strong>Window 1</strong>
                     <a href="#" id="enableDisableSource">disable</a>
@@ -45,21 +67,21 @@
                 <div class="window smallWindow" id="targetWindow6"><strong>Window 6</strong><br/><br/></div>
             </div>
 			<!-- /demo -->
+            <!-- explanation -->
+            <div class="description">
+                <h4>SOURCES &amp; TARGETS</h4>
+                <p>Drag Connections from the blue element to any of the green ones. You can also drag existing
+                    Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
+                <p>The <strong>makeSource</strong> and <strong>makeTarget</strong>functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
+                    elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
+                <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>
+                <p>
+                    The `disable` link is excluded from being a drag source through the use of the `filter` parameter on the makeSource call.
+                </p>
+                <p>The green elements are configured as Connection targets, with a `Top` anchor, and are draggable</p>
+            </div>
+            <!-- /explanation -->
         </div>
-        <!-- explanation -->
-        <div class="explanation">
-            <h4>SOURCES &amp; TARGETS</h4>
-            <p>Drag Connections from the blue element to any of the green ones. You can also drag existing
-                Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
-            <p>The <strong>makeSource</strong> and <strong>makeTarget</strong>functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
-                elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
-            <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>
-            <p>
-                The `disable` link is excluded from being a drag source through the use of the `filter` parameter on the makeSource call.
-            </p>
-            <p>The green elements are configured as Connection targets, with a `Top` anchor, and are draggable</p>
-        </div>
-        <!-- /explanation -->
 
 
         <!-- JS -->
