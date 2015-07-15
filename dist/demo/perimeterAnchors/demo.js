@@ -5,7 +5,7 @@ jsPlumb.ready(function () {
         PaintStyle: { lineWidth: 3, strokeStyle: "#ffa500", "dashstyle": "2 4" },
         Endpoint: [ "Dot", { radius: 5 } ],
         EndpointStyle: { fillStyle: "#ffa500" },
-        Container: "perimeter-demo"
+        Container: "canvas"
     });
 
     var shapes = jsPlumb.getSelector(".shape");

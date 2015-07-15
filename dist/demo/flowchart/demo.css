@@ -106,3 +106,7 @@
 path, ._jsPlumb_endpoint {
     cursor: pointer;
 }
+
+._jsPlumb_overlay {
+    background-color:transparent;
+}

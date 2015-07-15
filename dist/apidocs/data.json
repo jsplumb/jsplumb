@@ -499,6 +499,13 @@
                             "type": "Boolean",
                             "optional": true,
                             "optdefault": "false"
+                        },
+                        {
+                            "name": "midpoint",
+                            "description": "If provided, jsPlumb will use this location as the midpoint of the connector.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "0.5"
                         }
                     ]
                 }
@@ -513,7 +520,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/connectors.js",
-            "line": 49,
+            "line": 50,
             "description": "Provides \"state machine\" connectors. These are a quadratic bezier curve.",
             "is_constructor": 1,
             "params": [
@@ -577,7 +584,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/connectors.js",
-            "line": 66,
+            "line": 67,
             "description": "The Straight connector draws a simple straight line between the two anchor points.",
             "is_constructor": 1,
             "params": [
@@ -637,7 +644,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/connectors.js",
-            "line": 79,
+            "line": 80,
             "description": "This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's\ninternal voodoo machine and ends up generating locations for the two control points.",
             "is_constructor": 1,
             "params": [
@@ -1698,7 +1705,7 @@
         },
         {
             "file": "doc/api/connectors.js",
-            "line": 43,
+            "line": 44,
             "description": "Gets the path inscribed by the connector, as a series of [x,y] points.",
             "itemtype": "method",
             "name": "getPath",
