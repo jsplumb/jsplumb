@@ -7,11 +7,8 @@ var versions = {
     },
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
 
-    libraries = [ "jquery", "dom" ],
-    libraryNames = [ "jQuery", "Vanilla" ],
     renderers = [ "svg", "vml" ],
     extraLibraries = {
-        jquery:[ get("MOTTLE") ],
         dom:[ get("MOTTLE"), get("KATAVORIO") ]
     },
     objects = {
@@ -77,14 +74,12 @@ module.exports = function(grunt) {
 
     var fileLists = function(suffix) {
         suffix = suffix || "";
-        var o = {};
-        libraries.forEach(function(l) {
-            o[l] = {
-                src:getSources(grunt, l),
-                dest:getOutputFilename(grunt, l, suffix)
-            };
-        });
-        return o;
+        return {
+            "dom":{
+                src:getSources(grunt, "dom"),
+                dest:getOutputFilename(grunt, "dom", suffix)
+            }
+        };
     };
 
     // Project configuration.
@@ -214,8 +209,8 @@ module.exports = function(grunt) {
                 css = grunt.file.read("demo/" + d + "/demo.css");
 
             grunt.file.mkdir("jekyll/demo/" + d);
-            for (var j = 0; j < libraries.length; j++) {
-                var html = grunt.file.read("demo/" + d + "/" + libraries[j] + ".html"),
+            //for (var j = 0; j < libraries.length; j++) {
+                var html = grunt.file.read("demo/" + d + "/dom.html"),
                     m = html.match(/(<!-- demo.*>.*\n)(.*\n)*(.*\/demo -->)/),
                     t = package.demos[i][1];
 
@@ -225,14 +220,12 @@ module.exports = function(grunt) {
                     layout:"demo",
                     date:support.timestamp(),
                     categories:"demo",
-                    library:libraries[j],
-                    libraryName:libraryNames[j],
                     title:t,
                     base:"../..",
                     demo:d
                 });
-                grunt.file.write("jekyll/demo/" + package.demos[i][0] + "/" + libraries[j] +  ".html", fm + m[0]);
-            }
+                grunt.file.write("jekyll/demo/" + package.demos[i][0] + "/dom.html", fm + m[0]);
+           // }
         }
     };
 
@@ -244,32 +237,27 @@ module.exports = function(grunt) {
     var _createTests = function() {
         // unit tests
         for (var j = 0; j < renderers.length; j++) {
-            for (var i = 0; i < libraries.length; i++) {
-                var frontMatter = support.createFrontMatter({
-                    layout:"test",
-                    date:support.timestamp(),
-                    categories:"test",
-                    library:libraries[i],
-                    renderer:renderers[j],
-                    base:".."
-                });
-                grunt.file.write("jekyll/tests/qunit-" + renderers[j] + "-"  + libraries[i] + "-instance.html", frontMatter);
-            }
+
+            var frontMatter = support.createFrontMatter({
+                layout:"test",
+                date:support.timestamp(),
+                categories:"test",
+                renderer:renderers[j],
+                base:".."
+            });
+            grunt.file.write("jekyll/tests/qunit-" + renderers[j] + "-dom-instance.html", frontMatter);
         }
 
         // load tests
         var lt = grunt.file.read("tests/loadtest-template.html");
-        for (var i = 0; i < libraries.length; i++) {
-            var frontMatter = support.createFrontMatter({
-                layout:"loadtest",
-                date:support.timestamp(),
-                categories:"test",
-                library:libraries[i],
-                libraryName:libraryNames[i],
-                base:".."
-            });
-            grunt.file.write("jekyll/tests/loadtest-"  + libraries[i] + ".html", frontMatter + lt);
-        }
+
+        var frontMatter = support.createFrontMatter({
+            layout:"loadtest",
+            date:support.timestamp(),
+            categories:"test",
+            base:".."
+        });
+        grunt.file.write("jekyll/tests/loadtest-dom.html", frontMatter + lt);
 
         // now create index page
         var ip = grunt.file.read("tests/index.html"),
