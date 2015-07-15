@@ -13,7 +13,7 @@ jsPlumb.ready(function () {
                 cssClass: "aLabel"
             }]
         ],
-        Container: "flowchart-demo"
+        Container: "canvas"
     });
 
     var basicType = {

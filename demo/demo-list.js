@@ -14,11 +14,6 @@
 		[ "animation", "Animation" ]
 	];
 
-	var libs = [
-		[ "jquery", "jQuery"],
-		[ "dom", "Vanilla"]
-	];
-
 	jsPlumb.bind("ready", function() {
 		var current = document.body.getAttribute("data-demo-id"),
 			library = document.body.getAttribute("data-library");
@@ -64,13 +59,6 @@
 			});
 			sel.style.marginRight = "20px";
 
-			// library links
-			var lidx = jsPlumbUtil.findWithFunction(libs, function(l) { return l[0] == library; }),
-				ld = _d("div", "library-links", document.body);
-
-			for (var i = 0; i <libs.length; i++) {
-				_d("a", libs[i][0] == library ? "current-library" : "", ld, libs[i][1], {href:"../" + current + "/" + libs[i][0] + ".html"});
-			}
 
 			// explanation hide/show
 			var expl = jsPlumb.getSelector(".explanation")[0];
