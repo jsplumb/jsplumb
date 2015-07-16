@@ -123,7 +123,8 @@ module.exports = function(grunt) {
             },
             external:{
                 files:[
-                    { expand:true, cwd:"external", src:"*.*", dest:"jekyll/external" }
+                    { expand:true, cwd:"external", src:"*.*", dest:"jekyll/external" },
+                    { expand:true, cwd:"css/external", src:"*.*", dest:"dist/css/external" }
                 ]
             }
         },
