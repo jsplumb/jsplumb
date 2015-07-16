@@ -7486,9 +7486,22 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.connect({source:d1, target:d2});
         var cd3 = _jsPlumb.getCachedData("d1");
         ok(cd3.o != null, "d1 is cached");
-
-
     });
+
+// ---------------------- issue 405, jsPlumb.empty doesnt remove connections (cannot reproduce) -----------------------
+
+    test("jsPlumb.empty removes connections", function() {
+        var p = _addDiv("p"),
+            d1 = _addDiv("d1", p),
+            d2 = _addDiv("d2", p);
+
+        _jsPlumb.connect({source:d1, target:d2});
+        ok(_jsPlumb.select().length == 1, "1 connection");
+
+        _jsPlumb.empty(p);
+        ok(document.getElementById("d1") == null);
+        ok(_jsPlumb.select().length == 0, "0 connections");
+    })
 
 };
 
