@@ -11289,12 +11289,10 @@
             return majorAnchor;
         };
 
-        this._findControlPoint = function (point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
+        this._findControlPoint = function (point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, soo, too) {
             // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
             // points around if so (code could be tightened up)
-            var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint),
-                too = targetEndpoint.anchor.getOrientation(targetEndpoint),
-                perpendicular = soo[0] != too[0] || soo[1] == too[1],
+            var perpendicular = soo[0] != too[0] || soo[1] == too[1],
                 p = [];
 
             if (!perpendicular) {
@@ -11329,7 +11327,7 @@
                 _tx = sp[0] < tp[0] ? 0 : _w,
                 _ty = sp[1] < tp[1] ? 0 : _h,
                 _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to),
-                _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.so, paintInfo.to);
+                _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
