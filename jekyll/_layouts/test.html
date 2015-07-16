@@ -10,7 +10,8 @@ These pages are rendered inside an iframe in another page that contains the full
 <!doctype html>
 <html>
 	<head>
-	<link rel="shortcut icon" type="image/png" href="{{page.base}}/img/favicon.png">
+        {% include meta.html %}
+	    <link rel="shortcut icon" type="image/png" href="{{page.base}}/img/favicon.png">
 		{% include css.html %}
 		<link rel="stylesheet" href="qunit-1.11.0.css">
 		<script src="qunit-1.11.0.js"></script>

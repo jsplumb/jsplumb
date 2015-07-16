@@ -3918,6 +3918,8 @@
             // SP new
             managedElements = {};
             endpointsByUUID = {};
+            offsets = {};
+            offsetTimestamps = {};
             _currentInstance.anchorManager.reset();
             _currentInstance.getDragManager().reset();
             if (!_is) _currentInstance.setSuspendDrawing(false);

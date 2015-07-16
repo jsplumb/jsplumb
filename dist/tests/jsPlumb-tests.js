@@ -7460,5 +7460,48 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
     });
 
+// ------------------ issue 402...offset cache not cleared always --------------------
+    test("offset cache cleared", function() {
+       var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        _jsPlumb.connect({source:d1, target:d2});
+        var cd = _jsPlumb.getCachedData("d1");
+       ok(cd.o != null, "d1 is cached");
+
+        // reset and then move d1. get cached data and offset should have been updated.
+        _jsPlumb.reset();
+        d1.style.position = "absolute";
+        d1.style.left = "5000px";
+        var cd2 = _jsPlumb.getCachedData("d1");
+        ok(cd2.o == null, "cache data cleared");
+        _jsPlumb.connect({source:d1, target:d2});
+        var cd3 = _jsPlumb.getCachedData("d1");
+        ok(cd3.o != null, "d1 is cached");
+
+        // delete every endpoint and then move d1. get cached data and offset should have been updated.
+        _jsPlumb.deleteEveryEndpoint();
+        d1.style.position = "absolute";
+        d1.style.left = "5000px";
+        var cd2 = _jsPlumb.getCachedData("d1");
+        ok(cd2.o == null, "cache data cleared");
+        _jsPlumb.connect({source:d1, target:d2});
+        var cd3 = _jsPlumb.getCachedData("d1");
+        ok(cd3.o != null, "d1 is cached");
+    });
+
+// ---------------------- issue 405, jsPlumb.empty doesnt remove connections (cannot reproduce) -----------------------
+
+    test("jsPlumb.empty removes connections", function() {
+        var p = _addDiv("p"),
+            d1 = _addDiv("d1", p),
+            d2 = _addDiv("d2", p);
+
+        _jsPlumb.connect({source:d1, target:d2});
+        ok(_jsPlumb.select().length == 1, "1 connection");
+
+        _jsPlumb.empty(p);
+        ok(document.getElementById("d1") == null);
+        ok(_jsPlumb.select().length == 0, "0 connections");
+    })
+
 };
 

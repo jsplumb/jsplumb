@@ -2,8 +2,9 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="viewport" content="width=device-width">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
         <link rel="shortcut icon" type="image/png" href="../img/favicon.png">
         <title></title>
 
@@ -11,10 +12,9 @@
 
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-<link rel="stylesheet" href="../css/jsPlumbToolkit-defaults.css">
 <link rel="stylesheet" href="../css/main.css">
-<link rel="stylesheet" href="../css/jsPlumbToolkit-demo.css">
         <link rel="stylesheet" href="../css/jsplumb-doc.css">
+
     </head>
     <body>
         <div class="navbar navbar-top navbar-fixed-top" role="navigation">
@@ -34,9 +34,10 @@
 
         <div class="navbar-collapse collapse nav-wrapper">
             <ul class="nav navbar-nav">
-                <li><a href="/">DEMOS</a></li>
-                <li><a href="/doc/home.html">DOCS</a></li>
-                <li><a href="/download">DOWNLOAD</a></li>
+                <li><a href="../">DEMOS</a></li>
+                <li><a href="../doc/home.html">DOCS</a></li>
+                <li><a href="../apidocs/index.html">API</a></li>
+                <li><a href="../download">DOWNLOAD</a></li>
                 <li><a href="http://beta.jsplumbtoolkit.com/contact.html">CONTACT</a></li>
                 <li><a href="https://blog.jsplumbtoolkit.com">BLOG</a></li>
 
@@ -55,9 +56,10 @@
     </div>
 </div>
 
-        <div class="main">
-            <div class="nav">
-                <h3>Contents</h3>
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <h3>Contents</h3>
 <ul>
 <li><a href="changelog.html">Changelog</a></li>
 <li>Required imports and basic setup<ul>
@@ -122,9 +124,9 @@
 </ul>
 </li>
 </ul>
-            </div>
-            <div class="markdown-body">
-                <h3>Interceptors</h3>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h3>Interceptors</h3>
 
 <p>Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are four interceptors supported - <code>beforeDrop</code>, which is called when the user has dropped a Connection onto some target, <code>beforeDetach</code>, which is called when the user is attempting to detach a Connection (by dragging it off one of its Endpoints and dropping in whitespace), <code>beforeDrag</code>, which is called when the user begins to drag a Connection, and <code>beforeStartDetach</code>, which is when the user has just begun to drag an existing Connection off of one of its Endpoints (compared with <code>beforeDetach</code>, in which the user is allowed to drag the Connection off).</p>
 
@@ -188,9 +190,10 @@
 
 <p>Returning false from <code>beforeStartDetach</code> prevents the Connection from being dragged.</p>
 
+                </div>
             </div>
         </div>
-        
+
         <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
