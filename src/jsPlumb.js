@@ -921,8 +921,8 @@
                 // if the connection is draggable, then maybe we need to tell the target endpoint to init the
                 // dragging code. it won't run again if it already configured to be draggable.
                 if (con.isDetachable()) {
-                    con.endpoints[0].initDraggable();
-                    con.endpoints[1].initDraggable();
+                    con.endpoints[0].initDraggable("_jsPlumbSource");
+                    con.endpoints[1].initDraggable("_jsPlumbTarget");
                 }
 
                 return con;
@@ -2165,6 +2165,8 @@
             if (isTarget) {
                 dropOptions[jsPlumb.dragEvents.over] = function () { return true; };
             }
+
+            dropOptions.definitionId = definitionId;
 
             // vanilla jsplumb only
             if (p.allowLoopback === false) {
