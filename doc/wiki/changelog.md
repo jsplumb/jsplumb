@@ -30,6 +30,7 @@ dragging of existing Connections. As of 1.7.6 this latter behaviour has been mov
 - **383** - jsPlumb.setDraggable fails for getElementsByClassName return value
 - **392** - onMaxConnections jpc isn't defined
 - **402** - offset update cache
+- **404** - statemachine demo makes ghost endpoints
 
 ## 1.7.5
 
