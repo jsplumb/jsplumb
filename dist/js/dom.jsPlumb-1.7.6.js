@@ -3477,8 +3477,8 @@
                 // if the connection is draggable, then maybe we need to tell the target endpoint to init the
                 // dragging code. it won't run again if it already configured to be draggable.
                 if (con.isDetachable()) {
-                    con.endpoints[0].initDraggable();
-                    con.endpoints[1].initDraggable();
+                    con.endpoints[0].initDraggable("_jsPlumbSource");
+                    con.endpoints[1].initDraggable("_jsPlumbTarget");
                 }
 
                 return con;
@@ -4721,6 +4721,8 @@
             if (isTarget) {
                 dropOptions[jsPlumb.dragEvents.over] = function () { return true; };
             }
+
+            dropOptions.definitionId = definitionId;
 
             // vanilla jsplumb only
             if (p.allowLoopback === false) {
@@ -6820,7 +6822,7 @@
         this.repaint = this.paint;
 
         var draggingInitialised = false;
-        this.initDraggable = function () {
+        this.initDraggable = function (definitionId) {
 
             // is this a connection source? we make it draggable and have the
             // drag listener maintain a connection with a floating endpoint.
@@ -7082,6 +7084,7 @@
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], stop);
                 dragOptions.multipleDrop = false;
+                dragOptions.definitionId = definitionId;
 
                 dragOptions.canDrag = function () {
                     return this.isSource || this.isTemporarySource || /*(this.isTarget && */this.connections.length > 0/*)*/;
@@ -7108,7 +7111,7 @@
 
         // if marked as source or target at create time, init the dragging.
         if (this.isSource || this.isTarget || this.isTemporarySource)
-            this.initDraggable();
+            this.initDraggable(this.isTarget ? "_jsPlumbTarget" : "_jsPlumbSource");
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
@@ -7329,6 +7332,12 @@
 
             // if no active connection, bail.
             if (jpc == null) return;
+
+            // if drag type matches drop type and this is not a new connection (meaning it has a suspendedEndpoint)
+            // then bail
+            if (e.drag && e.drop) {
+                if (e.drag.params.definitionId === e.drop.params.definitionId && jpc.suspendedEndpoint == null) return;
+            }
 
             // if suspended endpoint has been cleaned up, bail.
             if (jpc.suspendedEndpoint && jpc.suspendedEndpoint._jsPlumb == null) return;
