@@ -10,26 +10,26 @@
 #dragDropWindow4 { top:416px; right:40%}
 
 /** ELEMENTS **/
-.drag-drop-demo .window {  
-    font-family:serif;
-    font-style:italic;
-    background-color:white;
-    border:1px solid #346789;
-    text-align:center;
-    z-index:24;
-    cursor:pointer;
+.drag-drop-demo .window {
+    font-family: serif;
+    font-style: italic;
+    background-color: white;
+    border: 1px solid #346789;
+    text-align: center;
+    z-index: 24;
+    cursor: pointer;
     box-shadow: 2px 2px 19px #aaa;
     -o-box-shadow: 2px 2px 19px #aaa;
     -webkit-box-shadow: 2px 2px 19px #aaa;
     -moz-box-shadow: 2px 2px 19px #aaa;
-    -moz-border-radius:0.5em;
-    border-radius:0.5em;
-    position:absolute;
-    color:black;
-    padding:0.5em;
-    width:80px;
-    height:80px;
-    line-height: 15px;
+    -moz-border-radius: 0.5em;
+    border-radius: 0.5em;
+    position: absolute;
+    color: black;
+    padding-top: 5px;
+    width: 100px;
+    height: 80px;
+    line-height: 12px;
     -webkit-transition: -webkit-box-shadow 0.15s ease-in;
     -moz-transition: -moz-box-shadow 0.15s ease-in;
     -o-transition: -o-box-shadow 0.15s ease-in;
@@ -65,22 +65,23 @@
 
 /** INFO WINDOW **/
 #list {
-    text-align:center;
-    display:none;
-    font-size:90%;
-    position:absolute;
-    width:250px;
-    left:30%;
-    top:100px;
-    background-color:white;
-    padding:5px;
-    border:1px solid #456;
-    opacity:0.8;
-    border-radius:8px;
-    color:#444;
+    text-align: center;
+    display: none;
+    font-size: 90%;
+    position: absolute;
+    width: 500px;
+    left: 50%;
+    margin-left: -250px;
+    top: 100px;
+    background-color: white;
+    padding: 5px;
+    border: 1px solid #456;
+    opacity: 0.8;
+    border-radius: 8px;
+    color: #444;
 }
 #list table { width:100%;}
-#list table th, #list strong { color:black; font-size:12px;}
+#list table th, #list strong { color:black; font-size:12px; text-align: center; }
 
 
 path, ._jsPlumb_endpoint { cursor:pointer; }
