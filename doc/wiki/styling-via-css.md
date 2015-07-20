@@ -1,16 +1,23 @@
 ## Styling via CSS
 
-Using CSS to style the artefacts that jsPlumb creates is a lot more flexible than using `paintStyle` or `hoverPaintStyle`, but due to the fact that you cannot style things like stroke color or line width in VML, it's only really useful for SVG.  Of course, if you know your users won't be using VML then it's a great choice - and nowadays that is just a question of whether or not you will have any users on versions of IE earlier than 9.
+Using CSS to style the artefacts that jsPlumb creates is a lot more flexible than using `paintStyle` or 
+`hoverPaintStyle`, but due to the fact that you cannot style things like stroke color or line width in VML, it's 
+only really useful for SVG.  Of course, if you know your users won't be using VML then it's a great choice - and 
+nowadays that is just a question of whether or not you will have any users on versions of IE earlier than 9.
 
-On this page we'll first run through the default CSS classes that jsPlumb attaches, followed by a quick explanation for how to attach your own, and then we'll discuss how to style SVG (and then how you *would* style VML, if it were supported)
+On this page we'll first run through the default CSS classes that jsPlumb attaches, followed by a quick explanation 
+for how to attach your own, and then we'll discuss how to style SVG.
 
 ### Z Index
 
-One thing you can - and should - use CSS for, regardless of the renderer, is z-index. Every Connection, Endpoint and Overlay in jsPlumb adds some element to the UI, and you should take care to establish appropriate z-indices for each of these, in conjunction with the nodes in your application. 
+One thing you can - and should - use CSS for, regardless of the renderer, is z-index. Every Connection, Endpoint and 
+Overlay in jsPlumb adds some element to the UI, and you should take care to establish appropriate z-indices for each of 
+these, in conjunction with the nodes in your application. 
 
 ### Basic CSS classes
 
-By default, jsPlumb adds a specific class to each of the three types of elements it creates (These class names are exposed on the jsPlumb object and can be overridden if you need to do so - see the third column in the table) 
+By default, jsPlumb adds a specific class to each of the three types of elements it creates (These class names are 
+exposed on the jsPlumb object and can be overridden if you need to do so - see the third column in the table) 
 
 <table width="90%" class="table" style="align:left;font-size:12px;">
 <tr><th>Component</th><th>CSS Class</th><th>jsPlumb Member</th></tr>
@@ -21,7 +28,9 @@ By default, jsPlumb adds a specific class to each of the three types of elements
 <tr><td>Overlay</td><td>_jsPlumb_overlay</td><td>overlayClass</td></tr>
 </table>
 
-In a simple UI, you can set appropriate z-index values for these classes. The jsPlumb demo pages, for instance, typically use a class of `.window` for the nodes in each demo page, and the z-index of the UI is controlled with CSS rules like this:
+In a simple UI, you can set appropriate z-index values for these classes. The jsPlumb demo pages, for instance, 
+typically use a class of `.window` for the nodes in each demo page, and the z-index of the UI is controlled with CSS 
+rules like this:
 
 ```css
 .window { z-index:20; }
@@ -48,10 +57,13 @@ jsPlumb assigns these classes on both Connectors and Endpoints when specific use
 <tr><td>Drag</td><td>_jsPlumb_drag_select</td><td>dragSelectClass</td><td>Assigned to the document body whenever a drag is in progress. It allows you to ensure document selection is disabled - see [here](home#dragSelection)</td></tr>
 </table>
 
-**Note** the last two classes work in conjunction with the `checkDropAllowed` interceptor that you can register on jsPlumb. For more information about interceptors, see [[here|interceptors]], but in a nutshell you just provide a function that takes the two Endpoints and a Connection as argument, and returns whether not a drop would be allowed:
+**Note** the last two classes work in conjunction with the `checkDropAllowed` interceptor that you can register on 
+jsPlumb. For more information about interceptors, see [here](interceptors), but in a nutshell you just provide a 
+function that takes the two Endpoints and a Connection as argument, and returns whether not a drop would be allowed:
 
 ```javascript
 jsPlumb.bind("checkDropAllowed", function(params) {
+
   // Here you have access to:
   // params.sourceEndpoint
   // params.targetEndpoint
@@ -62,7 +74,8 @@ jsPlumb.bind("checkDropAllowed", function(params) {
 ```
     
 ### Preventing selection while dragging
-jsPlumb puts a class on the body that you can use to disable the default browser behaviour of selecting DOM elements when dragging:
+jsPlumb puts a class on the body that you can use to disable the default browser behaviour of selecting DOM elements 
+when dragging:
 
 ```css
 _jsPlumb_drag_select
@@ -83,23 +96,28 @@ A suitable value for this (from the jsPlumb demos) is:
 
 ### Custom CSS Classes
 
-In addition to the default CSS classes, each of the main methods you use to configure Endpoints or make Connections in jsPlumb support the following two parameters:
+In addition to the default CSS classes, each of the main methods you use to configure Endpoints or make Connections in 
+jsPlumb support the following two parameters:
 
 - **cssClass** - class(es) to set on the display elements
 - **hoverClass** - class(es) to set on the display elements when in hover mode
 
-In addition, addEndpoint and makeSource allow you to specify what these classes will be for any Connections that are dragged from them:
+In addition, `addEndpoint` and `makeSource` allow you to specify what these classes will be for any Connections that 
+are dragged from them:
 
 - **connectorClass** - class(es) to set on the display elements of Connections
 - **connectorHoverClass** - class(es) to set on the display elements of Connections when in hover mode
 
-These parameters should be supplied as a String; they will be appended as-is to the class member, so feel free to include multiple classes.  jsPlumb won't even know.
+These parameters should be supplied as a String; they will be appended as-is to the class member, so feel free to 
+include multiple classes.  jsPlumb won't even know.
 
 ### CSS for SVG elements
 
 #### Connections
 
-SVG connections in jsPlumb consist of a parent `svg` element, inside of which there are one or more `path` elements, depending on whether or not you have specified an `outlineStyle`.  To target the path element for some connection, you need a rule like this:
+SVG connections in jsPlumb consist of a parent `svg` element, inside of which there are one or more `path` elements, 
+depending on whether or not you have specified an `outlineStyle`.  To target the path element for some connection, you 
+need a rule like this:
 
 ```css
 svg path {
@@ -126,10 +144,12 @@ svg.redLine path {
 }
 ```
 
-You might be thinking to yourself, why have the `svg` and `path` elements in this?  In fact they are perhaps not required: they're just there to call out the fact that this is a style on an SVG connector.
+You might be thinking to yourself, why have the `svg` and `path` elements in this?  In fact they are perhaps not 
+required: they're just there to call out the fact that this is a style on an SVG connector.
 
 #### Endpoints
-SVG Endpoints created by jsPlumb consist of a `div`, inside of which is an `svg` parent element, inside of which there is some shape, the tag name of which depends on the type of Endpoint:
+SVG Endpoints created by jsPlumb consist of a `div`, inside of which is an `svg` parent element, inside of which there 
+is some shape, the tag name of which depends on the type of Endpoint:
 
 <table>
   <tr><th>Endpoint Type</th><th>SVG Shape</th></tr>
@@ -137,7 +157,8 @@ SVG Endpoints created by jsPlumb consist of a `div`, inside of which is an `svg`
   <tr><td>Dot</td><td>circle</td></tr>
 </table>
 
-So you can choose, when writing CSS rules for these, whether or not you specify the shape exactly, or just leave it up to a wildcard:
+So you can choose, when writing CSS rules for these, whether or not you specify the shape exactly, or just leave it up 
+to a wildcard:
 
 ```javascript
 jsPlumb.addEndpoint("someElement", {
@@ -168,6 +189,11 @@ For a full discussion of the properties you can configure on an SVG element via 
 
 
 ### CSS for VML elements
-VML does not really support styling via CSS.  There are some properties you can set, but these are typically things that are under jsPlumb's control and not something you should mess with.
+VML does not really support styling via CSS.  There are some properties you can set, but these are typically things that 
+are under jsPlumb's control and not something you should mess with.
 
-[The VML spec](http://www.w3.org/TR/NOTE-VML#_Toc416858381) has a brief discussion of styling VML with CSS.  jsPlumb creates a top level `shape` element in VML, inside of which it attaches whatever elements are required for the Endpoint or Connector in question.  This `shape` element would be the thing that you would style via CSS, if it were possible.  But [here's](http://www.w3.org/TR/NOTE-VML#_Toc416858386) a link to the discussion about which properties you can style via CSS.  Note that all the paint type ones are all VML only.
+[The VML spec](http://www.w3.org/TR/NOTE-VML#_Toc416858381) has a brief discussion of styling VML with CSS.  jsPlumb 
+creates a top level `shape` element in VML, inside of which it attaches whatever elements are required for the Endpoint 
+or Connector in question.  This `shape` element would be the thing that you would style via CSS, if it were possible.  
+But [here's](http://www.w3.org/TR/NOTE-VML#_Toc416858386) a link to the discussion about which properties you can style 
+via CSS.  Note that all the paint type ones are VML only.

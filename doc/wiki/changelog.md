@@ -387,7 +387,8 @@ Even if you have jQuery in the page you can use vanilla jsPlumb; it will accept 
 
 Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a 'module pattern' architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. 
 
-The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see [[here|Build]]).
+The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to 
+build versions of jsPlumb that omit functionality you do not need (see [here](Build)).
 
   1. [Backwards Compatibility](#backwards)
   - [New Functionality](#new)
