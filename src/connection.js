@@ -357,11 +357,12 @@
         },
         setPreparedConnector: function(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
 
-            var previous;
+            var previous, previousClasses = "";
             // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
             // and we havent passed in `true` for "force" here.
             if (this.connector != null) {
                 previous = this.connector;
+                previousClasses = previous.getClass();
                 this.connector.cleanup();
                 this.connector.destroy();
             }
@@ -373,6 +374,9 @@
 
             this.canvas = this.connector.canvas;
             this.bgCanvas = this.connector.bgCanvas;
+
+            // put classes from prior connector onto the canvas
+            this.addClass(previousClasses);
 
             // new: instead of binding listeners per connector, we now just have one delegate on the container.
             // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
