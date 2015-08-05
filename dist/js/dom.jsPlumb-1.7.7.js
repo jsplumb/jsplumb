@@ -5332,6 +5332,11 @@
             }
             delete endpointsByElement[id];
 
+            this.sourceEndpointDefinitions[newId] = this.sourceEndpointDefinitions[id];
+            delete this.sourceEndpointDefinitions[id];
+            this.targetEndpointDefinitions[newId] = this.targetEndpointDefinitions[id];
+            delete this.targetEndpointDefinitions[id];
+
             this.anchorManager.changeId(id, newId);
             this.getDragManager().changeId(id, newId);
             managedElements[newId] = managedElements[id];
