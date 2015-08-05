@@ -270,6 +270,10 @@
             this._jsPlumb.parameters = p;
         },
 
+        getClass:function() {
+            return jsPlumb.getClass(this.canvas);
+        },
+
         hasClass:function(clazz) {
             return jsPlumb.hasClass(this.canvas, clazz);
         },
