@@ -31,7 +31,7 @@
                 return pad(Number(k).toString(16));
             },
             dec = function(d) {
-                return hex(parseInt(d * 255));
+                return hex(parseInt(d * 255, 10));
             },
             pattern = /(rgb[a]?\()(.*)(\))/;
         if (s.match(pattern)) {
