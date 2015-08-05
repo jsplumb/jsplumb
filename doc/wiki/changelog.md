@@ -8,6 +8,7 @@
 - **408** - setIdChanged doesn't correctly handle element sources/targets
 - **410** - setConnector (whether applied via type or directly) removes custom css classes of other types
 - **412** - Endpoint style cannot be transparent 
+- **415** - Unnecessary endpoint may be created at when drag and drop endpoint from one node to another.
 
 ## 1.7.6
 

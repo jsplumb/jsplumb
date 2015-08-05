@@ -2107,7 +2107,7 @@
                 isRedrop:function(jpc) {
                     return (jpc.suspendedElement != null && jpc.suspendedEndpoint != null && jpc.suspendedEndpoint.element === elInfo.el);
                 },
-                getEndpoint: function (jpc) {
+                getEndpoint: function (jpc, definitionId) {
 
                     // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
                     // is set. if its a redrop the new endpoint will be immediately cleaned up.
@@ -2128,7 +2128,7 @@
 
                     // if connection is detachable, init the new endpoint to be draggable, to support that happening.
                     if (jpc.isDetachable())
-                        newEndpoint.initDraggable();
+                        newEndpoint.initDraggable(definitionId);
 
                     // if the anchor has a 'positionFinder' set, then delegate to that function to find
                     // out where to locate the anchor.

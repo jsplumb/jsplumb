@@ -979,7 +979,10 @@
             // if drag type matches drop type and this is not a new connection (meaning it has a suspendedEndpoint)
             // then bail
             if (e.drag && e.drop) {
-                if (e.drag.params.definitionId === e.drop.params.definitionId && jpc.suspendedEndpoint == null) return;
+                if (e.drag.params.definitionId === e.drop.params.definitionId) {
+                    if (jpc.suspendedEndpoint == null)
+                        return;
+                } else if (e.drop.params.definitionId === "_jsPlumbSource") return;
             }
 
             // if suspended endpoint has been cleaned up, bail.
@@ -987,7 +990,7 @@
 
             // get the drop endpoint. for a normal connection this is just the one that would replace the currently
             // floating endpoint. for a makeTarget this is a new endpoint that is created on drop.
-            var _ep = dhParams.getEndpoint(jpc);
+            var _ep = dhParams.getEndpoint(jpc, (e.drag ? e.drag.params.definitionId : null));
 
             // if this is a drop back where the connection came from, mark it force reattach and
             // return; the stop handler will reattach. without firing an event.
