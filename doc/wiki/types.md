@@ -91,7 +91,12 @@ console.log(c.hasType("basic));   // -> true
 Note that the second Endpoint we created did not have a `connectionType` parameter - we didn't need it, as the source Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source Endpoint has not declared `connectionType`.  This is the same way jsPlumb treats other Connector parameters such as `paintStyle` etc - the source Endpoint wins.
 
 ##### Supported Parameters in Connection Type objects
-Not every parameter from a Connection's constructor is supported in a Connection Type - as mentioned above, Types act pretty much like CSS classes, so the things that are supported are related to behaviour or appearance (including the ability to set CSS classes on the UI artefacts). For instance, `source` is not supported: it indicates the source element for some particular Connection and therefore does not make sense inside a type specification: you cannot make a Connection Type that is fixed to a specific source element. Here's the full list of supported properties in Connection Type objects:
+Not every parameter from a Connection's constructor is supported in a Connection Type - as mentioned above, Types act 
+pretty much like CSS classes, so the things that are supported are related to behaviour or appearance (including 
+the ability to set CSS classes on the UI artefacts). For instance, `source` is not supported: it indicates the source 
+element for some particular Connection and therefore does not make sense inside a type specification: you cannot 
+make a Connection Type that is fixed to a specific source element. Here's the full list of supported properties in 
+Connection Type objects:
 
 - **anchor** Anchor specification to use for both ends of the Connection.
 - **anchors** Anchor specifications to use for each end of the Connection.
