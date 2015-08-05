@@ -404,6 +404,7 @@
 
             return renderMode;
         },
+        getClass:_getClassName,
         addClass: function (el, clazz) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, clazz);
