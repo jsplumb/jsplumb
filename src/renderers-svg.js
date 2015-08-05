@@ -89,7 +89,8 @@
             // iterate the actual style declarations in reverse order, if the x indexes are not in order.
             for (var i = 0; i < style.gradient.stops.length; i++) {
                 var styleToUse = uiComponent.segment == 1 || uiComponent.segment == 2 ? i : style.gradient.stops.length - 1 - i,
-                    stopColor = _ju.convertStyle(style.gradient.stops[styleToUse][1], true),
+                    //stopColor = _ju.convertStyle(style.gradient.stops[styleToUse][1], true),
+                    stopColor = style.gradient.stops[styleToUse][1],
                     s = _node(STOP, {"offset": Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color": stopColor});
 
                 g.appendChild(s);
@@ -99,8 +100,8 @@
         },
         _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-            node.setAttribute(FILL, style.fillStyle ? _ju.convertStyle(style.fillStyle, true) : NONE);
-            node.setAttribute(STROKE, style.strokeStyle ? _ju.convertStyle(style.strokeStyle, true) : NONE);
+            node.setAttribute(FILL, style.fillStyle ? style.fillStyle : NONE);
+            node.setAttribute(STROKE, style.strokeStyle ? style.strokeStyle : NONE);
 
             if (style.gradient) {
                 _updateGradient(parent, node, style, dimensions, uiComponent);
@@ -318,7 +319,7 @@
                         outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
                     outlineStyle = _jp.extend({}, style);
                     delete outlineStyle.gradient;
-                    outlineStyle.strokeStyle = _ju.convertStyle(style.outlineColor);
+                    outlineStyle.strokeStyle = style.outlineColor;
                     outlineStyle.lineWidth = outlineStrokeWidth;
 
                     if (self.bgPath == null) {
@@ -394,7 +395,7 @@
             var s = _jp.extend({}, style);
             if (s.outlineColor) {
                 s.strokeWidth = s.outlineWidth;
-                s.strokeStyle = _ju.convertStyle(s.outlineColor, true);
+                s.strokeStyle = s.outlineColor;
             }
 
             if (this.node == null) {
