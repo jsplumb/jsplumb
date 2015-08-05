@@ -6,6 +6,7 @@
 #### Issues
 
 - **408** - setIdChanged doesn't correctly handle element sources/targets
+- **412** - Endpoint style cannot be transparent 
 
 ## 1.7.6
 
