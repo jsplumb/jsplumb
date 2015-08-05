@@ -218,25 +218,6 @@
 
             return _one(model);
         },
-        convertStyle: function (s, ignoreAlpha) {
-            // TODO: jsPlumb should support a separate 'opacity' style member.
-            if ("transparent" === s) return s;
-            var o = s,
-                pad = function (n) {
-                    return n.length == 1 ? "0" + n : n;
-                },
-                hex = function (k) {
-                    return pad(Number(k).toString(16));
-                },
-                pattern = /(rgb[a]?\()(.*)(\))/;
-            if (s.match(pattern)) {
-                var parts = s.match(pattern)[2].split(",");
-                o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
-                if (!ignoreAlpha && parts.length == 4)
-                    o = o + hex(parts[3]);
-            }
-            return o;
-        },
         findWithFunction: function (a, f) {
             if (a)
                 for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
