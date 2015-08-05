@@ -1,22 +1,35 @@
+## 1.7.7
+
+### Changes between 1.7.6 and 1.7.7
+
+
+#### Issues
+
+- **408** - setIdChanged doesn't correctly handle element sources/targets
+
 ## 1.7.6
 
 ### Changes between 1.7.5 and 1.7.6
 
-A minor bugfix release, with a few new options for controlling connection detachment (and one small backward compatibility issue to be aware of)
+A minor bugfix release, with a few new options for controlling connection detachment (and one small backwards 
+compatibility issue to be aware of)
 
 #### Backwards Compatibility
 
 - All versions of jsPlumb prior to 1.7.6 would fire `beforeDetach` for both new Connection drags and also 
-dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the `beforeStartDetach` interceptor.
+dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the `beforeStartDetach` 
+interceptor.
 
 #### New Functionality
 
 -  `revalidate` now supports the same arguments as repaint - an ID, an Element, or a list-like
     object (such as the results of $(..) or document.querySelectorAll)
 
-- added `beforeStartDetach` interceptor: a function that is called before an existing connection is dragged off of one of its endpoints, and which can return false to cancel the drag.
+- added `beforeStartDetach` interceptor: a function that is called before an existing connection is dragged off of 
+one of its endpoints, and which can return false to cancel the drag.
 
-- The `unbind` method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a Function to be unbound, rather than just some event name.
+- The `unbind` method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a 
+Function to be unbound, rather than just some event name.
 
 - Connectors now have a `getLength` function, which returns their length in pixels. To access from a Connection,
       you need to first get the connector: `someConnection.getConnector().getLength()`
