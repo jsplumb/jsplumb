@@ -2205,25 +2205,6 @@
 
             return _one(model);
         },
-        convertStyle: function (s, ignoreAlpha) {
-            // TODO: jsPlumb should support a separate 'opacity' style member.
-            if ("transparent" === s) return s;
-            var o = s,
-                pad = function (n) {
-                    return n.length == 1 ? "0" + n : n;
-                },
-                hex = function (k) {
-                    return pad(Number(k).toString(16));
-                },
-                pattern = /(rgb[a]?\()(.*)(\))/;
-            if (s.match(pattern)) {
-                var parts = s.match(pattern)[2].split(",");
-                o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
-                if (!ignoreAlpha && parts.length == 4)
-                    o = o + hex(parts[3]);
-            }
-            return o;
-        },
         findWithFunction: function (a, f) {
             if (a)
                 for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
@@ -2824,6 +2805,10 @@
 
         setParameters: function (p) {
             this._jsPlumb.parameters = p;
+        },
+
+        getClass:function() {
+            return jsPlumb.getClass(this.canvas);
         },
 
         hasClass:function(clazz) {
@@ -5939,6 +5924,7 @@
 
             return renderMode;
         },
+        getClass:_getClassName,
         addClass: function (el, clazz) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, clazz);
@@ -7880,11 +7866,12 @@
         },
         setPreparedConnector: function(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
 
-            var previous;
+            var previous, previousClasses = "";
             // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
             // and we havent passed in `true` for "force" here.
             if (this.connector != null) {
                 previous = this.connector;
+                previousClasses = previous.getClass();
                 this.connector.cleanup();
                 this.connector.destroy();
             }
@@ -7896,6 +7883,9 @@
 
             this.canvas = this.connector.canvas;
             this.bgCanvas = this.connector.bgCanvas;
+
+            // put classes from prior connector onto the canvas
+            this.addClass(previousClasses);
 
             // new: instead of binding listeners per connector, we now just have one delegate on the container.
             // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
@@ -11447,7 +11437,8 @@
             // iterate the actual style declarations in reverse order, if the x indexes are not in order.
             for (var i = 0; i < style.gradient.stops.length; i++) {
                 var styleToUse = uiComponent.segment == 1 || uiComponent.segment == 2 ? i : style.gradient.stops.length - 1 - i,
-                    stopColor = _ju.convertStyle(style.gradient.stops[styleToUse][1], true),
+                    //stopColor = _ju.convertStyle(style.gradient.stops[styleToUse][1], true),
+                    stopColor = style.gradient.stops[styleToUse][1],
                     s = _node(STOP, {"offset": Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color": stopColor});
 
                 g.appendChild(s);
@@ -11457,8 +11448,8 @@
         },
         _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-            node.setAttribute(FILL, style.fillStyle ? _ju.convertStyle(style.fillStyle, true) : NONE);
-            node.setAttribute(STROKE, style.strokeStyle ? _ju.convertStyle(style.strokeStyle, true) : NONE);
+            node.setAttribute(FILL, style.fillStyle ? style.fillStyle : NONE);
+            node.setAttribute(STROKE, style.strokeStyle ? style.strokeStyle : NONE);
 
             if (style.gradient) {
                 _updateGradient(parent, node, style, dimensions, uiComponent);
@@ -11676,7 +11667,7 @@
                         outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
                     outlineStyle = _jp.extend({}, style);
                     delete outlineStyle.gradient;
-                    outlineStyle.strokeStyle = _ju.convertStyle(style.outlineColor);
+                    outlineStyle.strokeStyle = style.outlineColor;
                     outlineStyle.lineWidth = outlineStrokeWidth;
 
                     if (self.bgPath == null) {
@@ -11752,7 +11743,7 @@
             var s = _jp.extend({}, style);
             if (s.outlineColor) {
                 s.strokeWidth = s.outlineWidth;
-                s.strokeStyle = _ju.convertStyle(s.outlineColor, true);
+                s.strokeStyle = s.outlineColor;
             }
 
             if (this.node == null) {
@@ -11989,6 +11980,28 @@
     "use strict";
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
+    var _convertStyle = function (s, ignoreAlpha) {
+        if ("transparent" === s) return s;
+        var o = s,
+            pad = function (n) {
+                return n.length == 1 ? "0" + n : n;
+            },
+            hex = function (k) {
+                return pad(Number(k).toString(16));
+            },
+            dec = function(d) {
+                return hex(parseInt(d * 255, 10));
+            },
+            pattern = /(rgb[a]?\()(.*)(\))/;
+        if (s.match(pattern)) {
+            var parts = s.match(pattern)[2].split(",");
+            o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
+            if (!ignoreAlpha && parts.length == 4)
+                o = o + dec(parts[3]);
+        }
+        return o;
+    };
+
     // http://ajaxian.com/archives/the-vml-changes-in-ie-8
     // http://www.nczonline.net/blog/2010/01/19/internet-explorer-8-document-and-browser-modes/
     // http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
@@ -12086,7 +12099,7 @@
             var styleToWrite = {};
             if (style.strokeStyle) {
                 styleToWrite.stroked = "true";
-                var strokeColor = _ju.convertStyle(style.strokeStyle, true);
+                var strokeColor = _convertStyle(style.strokeStyle, true);
                 styleToWrite.strokecolor = strokeColor;
                 _maybeSetOpacity(styleToWrite, strokeColor, "stroke", component);
                 styleToWrite.strokeweight = style.lineWidth + "px";
@@ -12095,7 +12108,7 @@
 
             if (style.fillStyle) {
                 styleToWrite.filled = "true";
-                var fillColor = _ju.convertStyle(style.fillStyle, true);
+                var fillColor = _convertStyle(style.fillStyle, true);
                 styleToWrite.fillcolor = fillColor;
                 _maybeSetOpacity(styleToWrite, fillColor, "fill", component);
             }
