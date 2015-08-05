@@ -4168,20 +4168,23 @@ var testSuite = function (renderMode, _jsPlumb) {
             e = { isSource: true, isTarget: true, maxConnections: -1 },
             e1 = _jsPlumb.addEndpoint(d1, e),
             e2 = _jsPlumb.addEndpoint(d2, e),
-            c1 = _jsPlumb.connect({source: e1, target: e2});
+            c1 = _jsPlumb.connect({source: e1, target: e2, overlays:[ [ "Label", { id:"lbl"}]]});
 
+        equal(true, c1.getOverlay("lbl").isVisible(), "overlay is visible");
         equal(true, c1.isVisible(), "Connection 1 is visible after creation.");
         equal(true, e1.isVisible(), "endpoint 1 is visible after creation.");
         equal(true, e2.isVisible(), "endpoint 2 is visible after creation.");
 
         _jsPlumb.hide(d1);
 
+        equal(false, c1.getOverlay("lbl").isVisible(), "overlay is no longer visible");
         equal(false, c1.isVisible(), "Connection 1 is no longer visible.");
         equal(true, e1.isVisible(), "endpoint 1 is still visible.");
         equal(true, e2.isVisible(), "endpoint 2 is still visible.");
 
         _jsPlumb.show(d1);
 
+        equal(true, c1.getOverlay("lbl").isVisible(), "overlay is no visible again");
         equal(true, c1.isVisible(), "Connection 1 is visible again.");
     });
 
@@ -4908,6 +4911,37 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
         equal(c2.targetId, "d3", "connection's targetId has changed");
         equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
+    });
+
+    test(" setId, taking two strings, testing makeSource/makeTarget", function () {
+        var d1 = _addDiv("d1");
+        var d2 = _addDiv("d2");
+
+        // setup d1 as a source
+        _jsPlumb.makeSource("d1", {
+            endpoint:"Rectangle",
+            parameters:{
+                foo:"foo"
+            }
+        });
+        // and d2 as a target
+        _jsPlumb.makeTarget("d2", {
+            endpoint:"Rectangle"
+        });
+
+        // connect them, and check that the endpoints are of tyoe Rectangle, per the makeSource/makeTarget
+        // directives
+        var c = _jsPlumb.connect({source: "d1", target: "d2"});
+        equal(c.endpoints[0].type, "Rectangle", "source endpoint is rectangle");
+        equal(c.endpoints[1].type, "Rectangle", "target endpoint is rectangle");
+
+        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+        _jsPlumb.setId(d1, "foo");
+        _jsPlumb.setId(d2, "bar");
+        var c2 = _jsPlumb.connect({source: "foo", target: "bar"});
+        equal(c2.endpoints[0].type, "Rectangle", "source endpoint is rectangle");
+        equal(c2.endpoints[1].type, "Rectangle", "target endpoint is rectangle");
+
     });
 
     test(" endpoint hide/show should hide/show overlays", function () {
