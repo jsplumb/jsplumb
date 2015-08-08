@@ -2,7 +2,7 @@
 
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. 
 
-The latest version is 1.7.6. From 1.7.0, jsPlumb has no longer supported YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it's faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the [event handling](https://github.com/jsplumb/mottle) and [drag/drop](https://github.com/jsplumb/katavorio) code are also projects managed by jsPlumb, you're more likely to get a feature request for requirements related to those sorts of things to happen. Plus, it is highly likely that support for the jQuery flavour will be dropped at some point. There is no date yet planned for this, but it seems likely.
+The latest version is 1.7.7. From 1.7.0, jsPlumb has no longer supported YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it's faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the [event handling](https://github.com/jsplumb/mottle) and [drag/drop](https://github.com/jsplumb/katavorio) code are also projects managed by jsPlumb, you're more likely to get a feature request for requirements related to those sorts of things to happen. Plus, it is highly likely that support for the jQuery flavour will be dropped at some point. There is no date yet planned for this, but it seems likely.
 
 This will be the final version (apart from other bugfix releases in 1.7.x) to support IE8. The next major release will be 2.0.0, and this will work only in modern browsers that support SVG. 
 
@@ -62,7 +62,7 @@ Don't forget that in IE<9, XHTML is not supported.
 No required imports. 
 
 ```html
-<script src="PATH_TO/dom.jsPlumb-1.7.6-min.js "></script>
+<script src="PATH_TO/dom.jsPlumb-1.7.7-min.js "></script>
 ```
 
 ###### Touch events
@@ -75,7 +75,7 @@ Touch events are supported out of the box.
 ```html
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-<script src="PATH_TO/jquery.jsPlumb-1.7.6-min.js "></script>
+<script src="PATH_TO/jquery.jsPlumb-1.7.7-min.js "></script>
 ```
 
 ###### Touch Events

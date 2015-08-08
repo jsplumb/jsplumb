@@ -132,6 +132,7 @@ module.exports = function(grunt) {
             options:{
                 force:true
             },
+            dist:["dist"],
             stage:[ "jekyll/doc", "jekyll/apidocs", "jekyll/demo", "jekyll/tests", "jekyll/css", "jekyll/js", "jekyll/img", "jekyll/external" ],
             site: [ 'jekyll/_site' ]
         },

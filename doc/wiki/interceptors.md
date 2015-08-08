@@ -43,7 +43,9 @@ jsPlumbInstance.bind("beforeDrag", function(params) {
 
 This is particularly useful if you have defined any [parameterized connection types](types#parameterized-connection-type). With this mechanism you can arrange for a newly dragged Connection to be populated with data of your choice.
 
-**Note** all versions of jsPlumb prior to 1.7.6 would fire `beforeDetach` for both new Connection drags and also dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the `beforeStartDetach` interceptor.
+**Note** all versions of jsPlumb prior to 1.7.6 would fire `beforeDetach` for both new Connection drags and also 
+dragging of existing Connections. From 1.7.6 onwards this latter behaviour has been moved to the 
+`beforeStartDetach` interceptor.
 
 #### beforeStartDetach
 This is called when the user starts to drag an existing Connection.  These parameters are passed to the function you provide:
