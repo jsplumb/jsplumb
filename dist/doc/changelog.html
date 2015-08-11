@@ -123,16 +123,42 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h2>1.7.6</h2>
+                    <h2>1.7.8</h2>
+
+<h3>Changes between 1.7.7 and 1.7.8</h3>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>381</strong> -  instance.detach(connection) will detach source endpoint as well</li>
+</ul>
+
+<h2>1.7.7</h2>
+
+<h3>Changes between 1.7.6 and 1.7.7</h3>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>408</strong> - setIdChanged doesn&#39;t correctly handle element sources/targets</li>
+<li><strong>410</strong> - setConnector (whether applied via type or directly) removes custom css classes of other types</li>
+<li><strong>412</strong> - Endpoint style cannot be transparent </li>
+<li><strong>415</strong> - Unnecessary endpoint may be created at when drag and drop endpoint from one node to another.</li>
+</ul>
+
+<h2>1.7.6</h2>
 
 <h3>Changes between 1.7.5 and 1.7.6</h3>
 
-<p>A minor bugfix release, with a few new options for controlling connection detachment (and one small backward compatibility issue to be aware of)</p>
+<p>A minor bugfix release, with a few new options for controlling connection detachment (and one small backwards 
+compatibility issue to be aware of)</p>
 
 <h4>Backwards Compatibility</h4>
 
 <ul>
-<li>All versions of jsPlumb prior to 1.7.6 would fire <code>beforeDetach</code> for both new Connection drags and also dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the <code>beforeStartDetach</code> interceptor.</li>
+<li>All versions of jsPlumb prior to 1.7.6 would fire <code>beforeDetach</code> for both new Connection drags and also 
+dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the <code>beforeStartDetach</code> 
+interceptor.</li>
 </ul>
 
 <h4>New Functionality</h4>
@@ -140,8 +166,12 @@
 <ul>
 <li><p><code>revalidate</code> now supports the same arguments as repaint - an ID, an Element, or a list-like
 object (such as the results of $(..) or document.querySelectorAll)</p></li>
-<li><p>added <code>beforeStartDetach</code> interceptor: a function that is called before an existing connection is dragged off of one of its endpoints, and which can return false to cancel the drag.</p></li>
-<li><p>The <code>unbind</code> method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a Function to be unbound, rather than just some event name.</p></li>
+<li><p>added <code>beforeStartDetach</code> interceptor: a function that is called before an existing connection is dragged off of 
+one of its endpoints, and which can return false to cancel the drag.</p></li>
+<li><p>The <code>unbind</code> method on various objects (jsPlumbInstance, Connection, Endpoint to name a few) now supports passing a 
+Function to be unbound, rather than just some event name.</p></li>
+<li><p>Connectors now have a <code>getLength</code> function, which returns their length in pixels. To access from a Connection,
+  you need to first get the connector: <code>someConnection.getConnector().getLength()</code></p></li>
 </ul>
 
 <h4>Issues</h4>
@@ -151,6 +181,10 @@ object (such as the results of $(..) or document.querySelectorAll)</p></li>
 <li><strong>353</strong> - multiple select disabled</li>
 <li><strong>367</strong> - rendering and drag/drop errors when parent element scrolled</li>
 <li><strong>369</strong> - unbinding events</li>
+<li><strong>383</strong> - jsPlumb.setDraggable fails for getElementsByClassName return value</li>
+<li><strong>392</strong> - onMaxConnections jpc isn&#39;t defined</li>
+<li><strong>402</strong> - offset update cache</li>
+<li><strong>404</strong> - statemachine demo makes ghost endpoints</li>
 </ul>
 
 <h2>1.7.5</h2>
@@ -570,7 +604,8 @@ object (such as the results of $(..) or document.querySelectorAll)</p></li>
 
 <p>Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a &#39;module pattern&#39; architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. </p>
 
-<p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see [[here|Build]]).</p>
+<p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to 
+build versions of jsPlumb that omit functionality you do not need (see <a href="Build">here</a>).</p>
 
 <ol>
 <li><a href="#backwards">Backwards Compatibility</a></li>

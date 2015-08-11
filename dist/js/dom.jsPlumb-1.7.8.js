@@ -6991,7 +6991,9 @@
 
                 var stop = function () {
                     _jsPlumb.setConnectionBeingDragged(false);
-                    // if no endpoints, jpc already cleaned up.
+
+
+
                     if (jpc && jpc.endpoints != null) {
                         // get the actual drop event (decode from library args to stop function)
                         var originalEvent = _jsPlumb.getDropEvent(arguments);
@@ -7037,25 +7039,14 @@
                             }
                         }
 
-                        // remove the element associated with the floating endpoint
-                        // (and its associated floating endpoint and visual artefacts)
-                        _jsPlumb.remove(placeholderInfo.element, false);
-                        // remove the inplace copy
-                        _jsPlumb.deleteObject({endpoint: inPlaceCopy});
 
-                        // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
+                        // makeTargets sets this flag, to tell us we have been replaced and should delete this object.
                         if (this.deleteAfterDragStop) {
                             _jsPlumb.deleteObject({endpoint: this});
                         }
                         else {
                             if (this._jsPlumb) {
-                                this._jsPlumb.floatingEndpoint = null;
-                                // repaint this endpoint.
-                                // make our canvas visible (TODO: hand off to library; we should not know about DOM)
-                                this.canvas.style.visibility = "visible";
-                                // unlock our anchor
-                                this.anchor.locked = false;
-                                this.paint({recalc: false});
+                                 this.paint({recalc: false});
                             }
                         }
 
@@ -7064,6 +7055,26 @@
                         // tell jsplumb that dragging is finished.
                         _jsPlumb.currentlyDragging = false;
                         jpc = null;
+                    }
+
+                    if (this._jsPlumb) {
+                        // if no endpoints, jpc already cleaned up. but still we want to ensure we're reset properly.
+                        // remove the element associated with the floating endpoint
+                        // (and its associated floating endpoint and visual artefacts)
+                        if (placeholderInfo && placeholderInfo.element) {
+                            _jsPlumb.remove(placeholderInfo.element, false);
+                        }
+                        // remove the inplace copy
+                        if (inPlaceCopy) {
+                            _jsPlumb.deleteObject({endpoint: inPlaceCopy});
+                        }
+                        // repaint this endpoint.
+                        // make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                        this.canvas.style.visibility = "visible";
+                        // unlock our anchor
+                        this.anchor.locked = false;
+                        // clear floating anchor.
+                        this._jsPlumb.floatingEndpoint = null;
                     }
 
                 }.bind(this);

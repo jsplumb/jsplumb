@@ -172,7 +172,9 @@
 </code></pre></div>
 <p>This is particularly useful if you have defined any <a href="types#parameterized-connection-type">parameterized connection types</a>. With this mechanism you can arrange for a newly dragged Connection to be populated with data of your choice.</p>
 
-<p><strong>Note</strong> all versions of jsPlumb prior to 1.7.6 would fire <code>beforeDetach</code> for both new Connection drags and also dragging of existing Connections. As of 1.7.6 this latter behaviour has been moved to the <code>beforeStartDetach</code> interceptor.</p>
+<p><strong>Note</strong> all versions of jsPlumb prior to 1.7.6 would fire <code>beforeDetach</code> for both new Connection drags and also 
+dragging of existing Connections. From 1.7.6 onwards this latter behaviour has been moved to the 
+<code>beforeStartDetach</code> interceptor.</p>
 
 <h4>beforeStartDetach</h4>
 

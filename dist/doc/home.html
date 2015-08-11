@@ -127,7 +127,7 @@
 
 <p>jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. </p>
 
-<p>The latest version is 1.7.6. From 1.7.0, jsPlumb has no longer supported YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it&#39;s faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the <a href="https://github.com/jsplumb/mottle">event handling</a> and <a href="https://github.com/jsplumb/katavorio">drag/drop</a> code are also projects managed by jsPlumb, you&#39;re more likely to get a feature request for requirements related to those sorts of things to happen. Plus, it is highly likely that support for the jQuery flavour will be dropped at some point. There is no date yet planned for this, but it seems likely.</p>
+<p>The latest version is 1.7.8. From 1.7.0, jsPlumb has no longer supported YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it&#39;s faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the <a href="https://github.com/jsplumb/mottle">event handling</a> and <a href="https://github.com/jsplumb/katavorio">drag/drop</a> code are also projects managed by jsPlumb, you&#39;re more likely to get a feature request for requirements related to those sorts of things to happen. Plus, it is highly likely that support for the jQuery flavour will be dropped at some point. There is no date yet planned for this, but it seems likely.</p>
 
 <p>This will be the final version (apart from other bugfix releases in 1.7.x) to support IE8. The next major release will be 2.0.0, and this will work only in modern browsers that support SVG. </p>
 
@@ -189,29 +189,9 @@
 
 <h3>Required Imports</h3>
 
-<h5>Vanilla</h5>
-
 <p>No required imports. </p>
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-1.7.6-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-1.7.8-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div>
-<h6>Touch events</h6>
-
-<p>Touch events are supported out of the box.</p>
-
-<h5>jQuery</h5>
-
-<ul>
-<li>jQuery 1.3.x or higher. jsPlumb has been tested with everything up to 2.x. Remember that jQuery 2.x does not support IE&lt;9.</li>
-<li>jQuery UI 1.7.x or higher (if you wish to support drag and drop). Always remember to check that the versions of jQuery and jQuery UI you are using are compatible.</li>
-</ul>
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/jquery.jsPlumb-1.7.6-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</code></pre></div>
-<h6>Touch Events</h6>
-
-<p>There is a neat plugin you can use for this - <a href="http://touchpunch.furf.com/">jQuery UI Touch Punch</a>.  You need to include it in your page after both jQuery and jQueryUI. It does not, however, work with the <code>makeSource</code> functionality in jsPlumb. Better to use vanilla jsPlumb!</p>
-
 <p><a name="initializing"></a></p>
 
 <h3>Initializing jsPlumb</h3>
