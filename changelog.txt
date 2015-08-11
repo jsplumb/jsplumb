@@ -1,5 +1,9 @@
 * 1.7.8
 
+    ISSUES
+
+    - 381 -  instance.detach(connection) will detach source endpoint as well
+
 
 * 1.7.7
 
