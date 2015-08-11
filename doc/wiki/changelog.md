@@ -1,3 +1,9 @@
+## 1.7.8
+
+### Changes between 1.7.7 and 1.7.8
+
+
+
 ## 1.7.7
 
 ### Changes between 1.7.6 and 1.7.7
