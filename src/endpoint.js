@@ -713,9 +713,13 @@
                         // if no endpoints, jpc already cleaned up. but still we want to ensure we're reset properly.
                         // remove the element associated with the floating endpoint
                         // (and its associated floating endpoint and visual artefacts)
-                        placeholderInfo && placeholderInfo.element &&  _jsPlumb.remove(placeholderInfo.element, false);
+                        if (placeholderInfo && placeholderInfo.element) {
+                            _jsPlumb.remove(placeholderInfo.element, false);
+                        }
                         // remove the inplace copy
-                        inPlaceCopy && _jsPlumb.deleteObject({endpoint: inPlaceCopy});
+                        if (inPlaceCopy) {
+                            _jsPlumb.deleteObject({endpoint: inPlaceCopy});
+                        }
                         // repaint this endpoint.
                         // make our canvas visible (TODO: hand off to library; we should not know about DOM)
                         this.canvas.style.visibility = "visible";
