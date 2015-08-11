@@ -2,7 +2,9 @@
 
 ### Changes between 1.7.7 and 1.7.8
 
+#### Issues
 
+- **381** -  instance.detach(connection) will detach source endpoint as well
 
 ## 1.7.7
 
