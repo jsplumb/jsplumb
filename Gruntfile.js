@@ -282,11 +282,11 @@ module.exports = function(grunt) {
         grunt.file.mkdir(docOutput);
 
         // 2. copy files from markdown directory into 'doc', and then give each one some front matter.
-        var sources = grunt.file.expand({ cwd:package.jsPlumbWiki }, "*");
+        var sources = grunt.file.expand({ cwd:"doc/wiki" }, "*");
         for (var i = 0; i < sources.length; i++) {
             if (exclusions.indexOf(sources[i]) == -1) {
                 var layout = sources[i] == "contents.md" ? "plain" : "doc";
-                support.processMarkdownFile(grunt, package.jsPlumbWiki, sources[i], layout, "..", docOutput);
+                support.processMarkdownFile(grunt, "doc/wiki", sources[i], layout, "..", docOutput);
             }
         }
     };
