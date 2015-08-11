@@ -698,7 +698,7 @@
                         }
                         else {
                             if (this._jsPlumb) {
-                                this.paint({recalc: false});
+                                 this.paint({recalc: false});
                             }
                         }
 
