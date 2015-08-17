@@ -7407,7 +7407,6 @@ var testSuite = function (renderMode, _jsPlumb) {
         _relocateSource(d2d1, d1);
         equal(d2d1.endpoints[0].elementId, "d1", "source endpoint is on d1 now");
         equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
-        ok(d2d1.endpoints[1].canvas.parentNode == null, "target canvas removed from DOM");
 
         _relocateSource(d2d1, d2);
         equal(d2d1.endpoints[0].elementId, "d2", "source endpoint is on d2 now");
