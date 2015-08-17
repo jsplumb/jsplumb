@@ -7244,9 +7244,13 @@ var testSuite = function (renderMode, _jsPlumb) {
         var el1 = d1.canvas || d1, el2 = d2.canvas || d2;
         var e1 = _makeEvt(el1), e2 = _makeEvt(el2);
 
+        var conns = _jsPlumb.select().length;
+
         _jsPlumb.trigger(el1, "mousedown", e1);
         _jsPlumb.trigger(document, "mousemove", e2);
         _jsPlumb.trigger(el2, "mouseup", e2);
+
+        return _jsPlumb.select().get(conns);
     };
 
     var _detachConnection = function (e, connIndex) {
@@ -7260,18 +7264,22 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
     };
 
-    /**
-     * Tests makeSource/makeTarget via event triggering.
-     * @method jsPlumb.Test.MakeSourceEventTriggering
-     *
-     test("connections via mouse between elements configured with makeSource/makeTarget", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        _jsPlumb.makeSource(d1);
-        _jsPlumb.makeTarget(d2);
-         equal(_jsPlumb.select().length, 0, "zero connections before drag");
-        _dragConnection(d1, d2);
-        equal(_jsPlumb.select().length, 1, "one connection after drag");
-    });*/
+    var _relocateTarget = function(conn, target) {
+        _relocate(conn, 1, target);
+    };
+
+    var _relocate = function(conn, idx, newEl) {
+        var el1 = conn.endpoints[idx].canvas;
+        var e1 = _makeEvt(el1);
+        var e2 = _makeEvt(newEl);
+        _jsPlumb.trigger(el1, "mousedown", e1);
+        _jsPlumb.trigger(document, "mousemove", e2);
+        _jsPlumb.trigger(newEl, "mouseup", e2);
+    };
+
+    var _relocateSource = function(conn, source) {
+        _relocate(conn, 0, source);
+    };
 
      /**
      * Tests endpoint mouse interaction via event triggering: the ability to drag a connection to another
@@ -7310,6 +7318,119 @@ var testSuite = function (renderMode, _jsPlumb) {
 
          _detachConnection(e1, 0);
          equal(_jsPlumb.select().length, 0, "zero connections after detach");
+    });
+
+    test("connections via mouse between elements configured with makeSource/makeTarget", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        _jsPlumb.makeSource("d1");
+        _jsPlumb.makeSource("d4");
+        _jsPlumb.makeTarget("d2");
+        _jsPlumb.makeTarget("d3");
+
+        equal(_jsPlumb.select().length, 0, "zero connections before drag");
+        _dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+        var cd1d2 = _jsPlumb.select().get(0);
+        equal(cd1d2.source.id, "d1", "source of first connection is correct");
+        equal(cd1d2.target.id, "d2", "target of first connection is correct");
+
+        _dragConnection(d1, d3);
+        equal(_jsPlumb.select().length, 2, "two connections after drag from source to target");
+        var cd1d3 = _jsPlumb.select().get(1);
+        equal(cd1d3.source.id, "d1", "source of second connection is correct");
+        equal(cd1d3.target.id, "d3", "target of second connection is correct");
+
+        // now we will drag the connection from d1-d2 by its target endpoint and put it on d3.
+        _relocateTarget(cd1d2, d3);
+        equal(cd1d2.target.id, "d3", "target of first connection has changed to d3");
+        equal(_jsPlumb.select().length, 2, "two connections after relocate");
+
+        _dragConnection(d3, d1);
+        equal(_jsPlumb.select().length, 2, "two connections after failed drag from target to source");
+
+        // now drag the source of d1-d2 to be d4.
+        _relocateSource(cd1d2, d4);
+        equal(cd1d2.source.id, "d4", "source of first connection has changed to d4");
+        equal(_jsPlumb.select().length, 2, "two connections after relocate");
+
+    });
+
+    test("issue 415: spurious endpoints after dragging", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], {
+            maxConnections:-1
+        });
+        _jsPlumb.makeTarget([ "d1", "d2", "d3", "d4" ], {
+            maxConnections:-1
+        });
+
+        ok(_jsPlumb.isSource(d4), "d4 is a connection source");
+        ok(_jsPlumb.isTarget(d4), "d4 is a connection target");
+
+        var d1d2 = _dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        var d2d3 = _dragConnection(d2, d3);
+        equal(_jsPlumb.select().length, 2, "two connections after drag");
+
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints before relocations");
+
+        _relocateTarget(d1d2, d4);
+        equal(d1d2.target.id, "d4", "target of first connection has changed to d4");
+
+        equal(_jsPlumb.select().length, 2, "two connections after relocations");
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
+
+        _relocateSource(d2d3, d4);
+
+        equal(d2d3.source.id, "d4", "source of second connection has changed to d4");
+        equal(_jsPlumb.select().length, 2, "two connections after relocations");
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
+
+    });
+
+    test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target not continuous anchor so not hidden (issue 419)", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], { maxConnections: -1 });
+        _jsPlumb.makeTarget([ "d1", "d2", "d3", "d4" ], { maxConnections: -1 });
+
+        ok(_jsPlumb.isSource(d1), "d1 is a connection source");
+        ok(_jsPlumb.isTarget(d2), "d2 is a connection target");
+
+        // as a test: connect d3 to itself. 2 endpoints?
+        var d3d3 = _dragConnection(d3, d3);
+        equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints");
+
+        var d2d1 = _dragConnection(d2, d1);
+        equal(_jsPlumb.select().length, 2, "one connection after drag");
+
+        _relocateSource(d2d1, d1);
+        equal(d2d1.endpoints[0].elementId, "d1", "source endpoint is on d1 now");
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
+        ok(d2d1.endpoints[1].canvas.parentNode == null, "target canvas removed from DOM");
+
+        _relocateSource(d2d1, d2);
+        equal(d2d1.endpoints[0].elementId, "d2", "source endpoint is on d2 now");
+        ok(d2d1.endpoints[1].canvas.parentNode != null, "target canvas put back into DOM");
+    });
+
+    test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target is continuous anchor so is hidden. (issue 419)", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], { maxConnections: -1, anchor:"Continuous" });
+        _jsPlumb.makeTarget([ "d1", "d2", "d3", "d4" ], { maxConnections: -1, anchor:"Continuous" });
+
+        var d2d1 = _dragConnection(d2, d1);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        _relocateSource(d2d1, d1);
+        equal(d2d1.endpoints[0].elementId, "d1", "source endpoint is on d1 now");
+        // NOTE in this test we are not using Continuous anchors so we do not expect the target to have been
+        // removed. the next test uses Continuous anchors and it checks the target has been removed.
+        //ok(d2d1.endpoints[1].canvas.parentNode == null, "target canvas removed from DOM");
+
+        _relocateSource(d2d1, d2);
+        equal(d2d1.endpoints[0].elementId, "d2", "source endpoint is on d2 now");
+        ok(d2d1.endpoints[1].canvas.parentNode != null, "target canvas put back into DOM");
     });
 
 
