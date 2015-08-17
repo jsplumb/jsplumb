@@ -2075,17 +2075,16 @@
         };
 
         // SP target source refactor
-        var _makeElementDropHandler = function (elInfo, p, dropOptions, isSource, isTarget, definitionId) {
+        var _makeElementDropHandler = function (elInfo, p, dropOptions, isSource, isTarget) {
             var proxyComponent = new jsPlumbUIComponent(p);
             var _drop = p._jsPlumb.EndpointDropHandler({
                 jsPlumb: _currentInstance,
                 enabled: function () {
-                    return elInfo.el[definitionId].enabled;
+                    return elInfo.def.enabled;
                 },
                 isFull: function () {
                     var targetCount = _currentInstance.select({target: elInfo.id}).length;
-                    var def = elInfo.el[definitionId];
-                    return def.maxConnections > 0 && targetCount >= def.maxConnections;
+                    return elInfo.def.maxConnections > 0 && targetCount >= elInfo.def.maxConnections;
                 },
                 element: elInfo.el,
                 elementId: elInfo.id,
@@ -2107,12 +2106,12 @@
                 isRedrop:function(jpc) {
                     return (jpc.suspendedElement != null && jpc.suspendedEndpoint != null && jpc.suspendedEndpoint.element === elInfo.el);
                 },
-                getEndpoint: function (jpc, definitionId) {
+                getEndpoint: function (jpc) {
 
                     // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
                     // is set. if its a redrop the new endpoint will be immediately cleaned up.
-                    var def = elInfo.el[definitionId],
-                        newEndpoint = def.endpoint;
+
+                    var newEndpoint = elInfo.def.endpoint;
 
                     // if no cached endpoint, or there was one but it has been cleaned up
                     // (ie. detached), create a new one
@@ -2121,24 +2120,23 @@
                         newEndpoint._mtNew = true;
                     }
 
-                    if (p.uniqueEndpoint) def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+                    if (p.uniqueEndpoint) elInfo.def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
                     // TODO test options to makeTarget to see if we should do this?
                     newEndpoint._doNotDeleteOnDetach = false; // reset.
                     newEndpoint._deleteOnDetach = true;
 
                     // if connection is detachable, init the new endpoint to be draggable, to support that happening.
                     if (jpc.isDetachable())
-                        newEndpoint.initDraggable(definitionId);
+                        newEndpoint.initDraggable();
 
                     // if the anchor has a 'positionFinder' set, then delegate to that function to find
                     // out where to locate the anchor.
                     if (newEndpoint.anchor.positionFinder != null) {
                         var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
-                            //elPosition = _currentInstance.getOffset(_el),
                             elPosition = _currentInstance.getOffset(elInfo.el),
-                            //elSize = _currentInstance.getSize(_el),
                             elSize = _currentInstance.getSize(elInfo.el),
                             ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
+
                         newEndpoint.anchor.x = ap[0];
                         newEndpoint.anchor.y = ap[1];
                         // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
@@ -2169,8 +2167,6 @@
             if (isTarget) {
                 dropOptions[jsPlumb.dragEvents.over] = function () { return true; };
             }
-
-            dropOptions.definitionId = definitionId;
 
             // vanilla jsplumb only
             if (p.allowLoopback === false) {
@@ -2216,9 +2212,9 @@
                         maxConnections: maxConnections,
                         enabled: true
                     };
-                    elInfo.el._jsPlumbTarget = _def;
+                    elInfo.def = _def;
                     this.targetEndpointDefinitions[elid] = _def;
-                    _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true, "_jsPlumbTarget");
+                    _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true);
 
                 }.bind(this);
 
@@ -2266,7 +2262,7 @@
                         enabled: true
                     };
                     this.sourceEndpointDefinitions[elid] = _def;
-                    elInfo.el._jsPlumbSource = _def;
+                    elInfo.def = _def;
 
                     var stopEvent = jsPlumb.dragEvents.stop,
                         dragEvent = jsPlumb.dragEvents.drag,
@@ -2405,7 +2401,6 @@
 
                     }.bind(this);
 
-                    //this.on(_el, "mousedown", mouseDownListener);
                     this.on(elInfo.el, "mousedown", mouseDownListener);
                     _def.trigger = mouseDownListener;
 
@@ -2419,7 +2414,7 @@
 
                     var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 
-                    _makeElementDropHandler(elInfo, p, dropOptions, true, p.isTarget === true, "_jsPlumbSource");
+                    _makeElementDropHandler(elInfo, p, dropOptions, true, p.isTarget === true);
 
                 }.bind(this);
 
