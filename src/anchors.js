@@ -411,6 +411,20 @@
                 // add entry for new source
                 _ju.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == _jp.DynamicAnchor]);
 
+                // TODO SP not final on this yet. when a user drags an existing connection and it turns into a self
+                // loop, then this code hides the target endpoint (by removing it from the DOM) But I think this should
+                // occur only if the anchor is Continuous
+                if (connection.endpoints[1].anchor.isContinuous) {
+                    if (connection.source === connection.target) {
+                        connection._jsPlumb.instance.removeElement(connection.endpoints[1].canvas);
+                    }
+                    else {
+                        if (connection.endpoints[1].canvas.parentNode == null) {
+                            connection._jsPlumb.instance.appendElement(connection.endpoints[1].canvas);
+                        }
+                    }
+                }
+
                 connection.updateConnectedClass();
             }
         };
