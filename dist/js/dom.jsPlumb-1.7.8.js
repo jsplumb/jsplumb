@@ -7241,7 +7241,7 @@
             var anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
             jsPlumb.removeClass(this.element, anchorClass);
             this.anchor = null;
-            this.endpoint.cleanup();
+            this.endpoint.cleanup(true);
             this.endpoint.destroy();
             this.endpoint = null;
             // drag/drop

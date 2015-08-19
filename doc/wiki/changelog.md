@@ -5,6 +5,9 @@
 #### Issues
 
 - **381** -  instance.detach(connection) will detach source endpoint as well
+- **419** -  endpoints not cleaned up properly when connection converted to looback to endpoints not cleaned up properly when connection converted to loopback
+- **420** - Image endpoint not cleaned up correctly
+
 
 ## 1.7.7
 
