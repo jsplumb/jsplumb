@@ -1495,6 +1495,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
     });
 
+    test("Image Endpoint remove", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        _jsPlumb.makeSource(d1, {
+            endpoint:[ "Image", { src:"atom.png" }]
+        });
+
+        _jsPlumb.makeTarget(d2, {
+            endpoint:[ "Image", { src:"atom.png" }]
+        });
+
+        var c = _jsPlumb.connect({source:d1, target:d2});
+        var ep = c.endpoints[0];
+
+        ok(ep.canvas.parentNode != null, "endpoint 1 is in the DOM");
+
+        _jsPlumb.detach(c);
+        ok(ep.canvas.parentNode == null, "endpoint 1 is no longer in the DOM");
+    });
+
     // Some race condition causes this to fail randomly.
     // asyncTest(" jsPlumbUtil.setImage on Endpoint, with supplied onload", function() {
     // var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
