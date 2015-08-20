@@ -1,10 +1,13 @@
 ## jsPlumb
 
-jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. 
+jsPlumb Community edition provides a means for a developer to visually connect elements on their web pages. It uses 
+SVG in modern browsers, and VML on IE 8 and below. 
 
-The latest version is 1.7.8. From 1.7.0, jsPlumb has no longer supported YUI or Mootools - if you want to use some external library to manage dragging, then jQuery is your only option.  But it is recommended that you use vanilla jsPlumb wherever possible: it's faster than the jQuery version, it offers more features (multiple element dragging, multiple scopes), and since the [event handling](https://github.com/jsplumb/mottle) and [drag/drop](https://github.com/jsplumb/katavorio) code are also projects managed by jsPlumb, you're more likely to get a feature request for requirements related to those sorts of things to happen. Plus, it is highly likely that support for the jQuery flavour will be dropped at some point. There is no date yet planned for this, but it seems likely.
+jsPlumb has no external dependencies.
 
-This will be the final version (apart from other bugfix releases in 1.7.x) to support IE8. The next major release will be 2.0.0, and this will work only in modern browsers that support SVG. 
+The 1.7.x line of releases will be the last ones to support IE8. We are trickling the occasional bugfix and feature into
+1.7.x but the next major event in the Community edition will be release 2.0.0, which will work only in modern browsers
+that support SVG. 
 
 ## Imports and Setup
 
@@ -61,7 +64,7 @@ Don't forget that in IE<9, XHTML is not supported.
 No required imports. 
 
 ```html
-<script src="PATH_TO/dom.jsPlumb-1.7.8-min.js "></script>
+<script src="PATH_TO/dom.jsPlumb-x.x.x-min.js "></script>
 ```
 
 <a name="initializing"></a>
