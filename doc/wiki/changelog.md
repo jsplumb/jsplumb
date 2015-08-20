@@ -1,3 +1,9 @@
+## 1.7.9
+
+### Changes between 1.7.8 and 1.7.9
+
+- Addition of getManagedElements method. Returns a map of all the elements the instance of jsPlumb is currently managing.
+
 ## 1.7.8
 
 ### Changes between 1.7.7 and 1.7.8

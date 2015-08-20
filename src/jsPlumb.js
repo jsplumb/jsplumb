@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.8
+ * Title:jsPlumb 1.7.9
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -1126,6 +1126,14 @@
         };
         this.isConnectionBeingDragged = function () {
             return connectionBeingDragged;
+        };
+
+        /**
+         * Returns a map of all the elements this jsPlumbInstance is currently managing.
+         * @returns {Object} Map of [id-> {el, endpoint[], connection, position}] information.
+         */
+        this.getManagedElements = function() {
+            return managedElements;
         };
 
         this.connectorClass = "_jsPlumb_connector";
