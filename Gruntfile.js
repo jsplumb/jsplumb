@@ -8,9 +8,7 @@ var versions = {
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
 
     renderers = [ "svg", "vml" ],
-    extraLibraries = {
-        dom:[ get("MOTTLE"), get("KATAVORIO") ]
-    },
+    extraLibraries = [ get("MOTTLE"), get("KATAVORIO") ],
     objects = {
         connectors : [
             "flowchart", "statemachine", "bezier", "straight"
@@ -25,9 +23,9 @@ var versions = {
     optionList = function(grunt, type) {
         return grunt.option(type) && grunt.option(type).split(",") || [];
     },
-    getOutputFilename = function(grunt, lib, suffix) {
+    getOutputFilename = function(grunt, suffix) {
         var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
-        return 'dist/js/' + lib + '.jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js';
+        return 'dist/js/jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js';
     },
     filter = function(l, v, t, o) {
         if (l.length === 0 || l.indexOf(v) != -1)
@@ -40,13 +38,13 @@ var versions = {
 
         return out;
     },
-    getSources = function(grunt, lib) {
+    getSources = function(grunt) {
         var sources = [ get("JS_BEZIER"), get("BILTONG") ];
-        sources.push.apply(sources, extraLibraries[lib]);
+        sources.push.apply(sources, extraLibraries);
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers"));
-        sources.push("src/" + lib + ".jsPlumb.js");
+        sources.push("src/dom.jsPlumb.js");
         return sources;
     },
     help = "\nBuilding jsPlumb\n" +
@@ -76,8 +74,8 @@ module.exports = function(grunt) {
         suffix = suffix || "";
         return {
             "dom":{
-                src:getSources(grunt, "dom"),
-                dest:getOutputFilename(grunt, "dom", suffix)
+                src:getSources(grunt),
+                dest:getOutputFilename(grunt, suffix)
             }
         };
     };
