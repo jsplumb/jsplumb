@@ -187,14 +187,16 @@
                 newParent.appendChild(this.bgCanvas);
             }
 
-            this.canvas.parentNode.removeChild(this.canvas);
-            newParent.appendChild(this.canvas);
+            if (this.canvas) {
+                this.canvas.parentNode.removeChild(this.canvas);
+                newParent.appendChild(this.canvas);
 
-            for (var i in this._jsPlumb.overlays) {
-                if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    var el = this._jsPlumb.overlays[i].getElement();
-                    el.parentNode.removeChild(el);
-                    newParent.appendChild(el);
+                for (var i in this._jsPlumb.overlays) {
+                    if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
+                        var el = this._jsPlumb.overlays[i].getElement();
+                        el.parentNode.removeChild(el);
+                        newParent.appendChild(el);
+                    }
                 }
             }
         },
