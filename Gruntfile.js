@@ -85,9 +85,21 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         concat: fileLists(),
         uglify: fileLists("-min"),
-        qunit:{
-            target: {
-                src: [ 'tests/qunit-*.html' ]
+        qunit: {
+            all: {
+                options: {
+                    urls:[
+                        'http://localhost:3333/tests/qunit-svg-dom-instance.html'
+                    ]
+                }
+            }
+        },
+        connect: {
+            server: {
+                options: {
+                    port: 3333,
+                    base: '.'
+                }
             }
         },
         copy:{
@@ -188,6 +200,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-qunit-junit');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
@@ -338,5 +352,7 @@ module.exports = function(grunt) {
         }
 
     });
+
+    grunt.registerTask("test", ["connect:server", "qunit_junit", "qunit"]);
 
 };
