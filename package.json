@@ -21,27 +21,61 @@
     "connectivity"
   ],
   "demos": [
-      [ "flowchart", "Flowchart", "Example of using the Flowchart connectors" ],
-      [ "statemachine", "State Machine", "Example of how to use the 'StateMachine' connectors, with elements as drag sources and targets" ],
-      [ "draggableConnectors", "Drag and Drop", "The original jsPlumb drag and drop example"],
-      [ "perimeterAnchors", "Perimeter Anchors", "A simple example demonstrating the 'Perimeter' anchor type"],
-      [ "chart", "Hierarchical Chart", "Simple hierarchical chart (without automatic layout)" ],
-      [ "sourcesAndTargets", "Sources and Targets", "An example of using elements as drag sources and targets" ],
-      [ "dynamicAnchors", "Dynamic Anchors", "An example showing the 'Dynamic' anchor type" ],
-      [ "animation", "Animation", "Simple example demonstrating jsPlumb's `animate` method" ]
+    [
+      "flowchart",
+      "Flowchart",
+      "Example of using the Flowchart connectors"
+    ],
+    [
+      "statemachine",
+      "State Machine",
+      "Example of how to use the 'StateMachine' connectors, with elements as drag sources and targets"
+    ],
+    [
+      "draggableConnectors",
+      "Drag and Drop",
+      "The original jsPlumb drag and drop example"
+    ],
+    [
+      "perimeterAnchors",
+      "Perimeter Anchors",
+      "A simple example demonstrating the 'Perimeter' anchor type"
+    ],
+    [
+      "chart",
+      "Hierarchical Chart",
+      "Simple hierarchical chart (without automatic layout)"
+    ],
+    [
+      "sourcesAndTargets",
+      "Sources and Targets",
+      "An example of using elements as drag sources and targets"
+    ],
+    [
+      "dynamicAnchors",
+      "Dynamic Anchors",
+      "An example showing the 'Dynamic' anchor type"
+    ],
+    [
+      "animation",
+      "Animation",
+      "Simple example demonstrating jsPlumb's `animate` method"
+    ]
   ],
   "author": "Simon Porritt",
   "license": "MIT/GPL2",
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-uglify": "~0.2.2",
-    "grunt-contrib-copy": "~0.4.1",
-    "grunt-contrib-yuidoc": "0.5.2",
-    "grunt-contrib-qunit": "~0.2.2",
-    "grunt-contrib-jshint": "~0.6.2",
     "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-connect": "^0.11.2",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.2",
+    "grunt-contrib-qunit": "^0.7.0",
+    "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-jekyll": "~0.4.1"
+    "grunt-contrib-yuidoc": "0.5.2",
+    "grunt-jekyll": "~0.4.1",
+    "grunt-qunit-junit": "^0.3.1"
   }
 }
