@@ -4410,26 +4410,15 @@ var testSuite = function (renderMode, _jsPlumb) {
                     borderStyle: "red",
                     fillStyle: "blue",
                     color: "green",
-                    font: "12px foo",
                     padding: 10
                 }
             }]
         ]});
-        // TODO jquery specific.
-        var o = c.getOverlay("label"), el = o.getElement();//el = $(o.getElement());
+        var o = c.getOverlay("label"), el = o.getElement();
         equal(el.style.borderWidth, "2px", "border width 2");
         equal(el.style.borderColor, "red", "border color red");
         equal(el.style.backgroundColor, "blue", "bg color blue");
         equal(el.style.color, "green", "color green");
-        var f = el.style.font;
-        ok(f == "12px foo" || f == "12px/normal foo"
-            , "bg font 12px foo");
-
-        // equal(el.css("border-width"), "2px", "border width 2");
-         //equal(el.css("border-color"), "rgb(255, 0, 0)", "border color red");
-         //equal(el.css("background-color"), "rgb(0, 0, 255)", "bg color blue");
-         //equal(el.css("color"), "rgb(0, 128, 0)", "color green");
-         //equal(el.css("font"), "normal normal normal 12px/normal foo", "bg font 12px foo");
 
     });
 
@@ -4569,33 +4558,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(ep.anchor.getDefaultFace(), "bottom", "default is bottom");
     });
 
-    test(" setImage on Endpoint", function () {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
-            originalUrl = "../../demo/home/endpointTest1.png",
-            e = {
-                endpoint: [ "Image", { src: originalUrl } ]
-            },
-            ep = _jsPlumb.addEndpoint(d1, e);
-        expect(0);
-    });
     asyncTest(" setImage on Endpoint, with supplied onload", function () {
-        start();
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), ep,
             e = {
                 endpoint: [ "Image", {
-                    src: "../../demo/home/endpointTest1.png",
+                    src: "atom.png",
                     onload: function (imgEp) {
-                        equal("../../demo/home/endpointTest1.png", imgEp.img.src);
-                        equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
+                        QUnit.start();
+                        ok(imgEp._jsPlumb.img.src.indexOf("atom.png") != -1);
+                        ep.setImage("littledot.png", function (imgEp) {
+                            ok(imgEp._jsPlumb.img.src.indexOf("littledot.png") != -1);
+                        });
                     }
                 } ]
-            },
-            ep = _jsPlumb.addEndpoint(d1, e);
-        ep.setImage("../../demo/animation/littledot.png", function (imgEp) {
-            equal("../../demo/animation/littledot.png", imgEp.img.src);
-            equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
-        });
-        expect(0);
+            };
+
+
+        ep = _jsPlumb.addEndpoint(d1, e);
+
     });
 
 
@@ -7618,19 +7599,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         var d = document.getElementsByClassName("aTest");
 
         // first make them draggable
-        _jsPlumb.draggable(d);
-        ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
-        ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
+        if(typeof d === "function") {
+            expect(2);
+        }
+        else
+        {
+            _jsPlumb.draggable(d);
+            ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
+            ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
 
-        // now disable
-        _jsPlumb.setDraggable(d, false);
-        ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
-        ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
+            // now disable
+            _jsPlumb.setDraggable(d, false);
+            ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
+            ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
 
-        // and enable
-        _jsPlumb.toggleDraggable(d);
-        ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
-        ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
+            // and enable
+            _jsPlumb.toggleDraggable(d);
+            ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
+            ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
+        }
     });
 
 // ------------------ issue 402...offset cache not cleared always --------------------
