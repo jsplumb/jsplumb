@@ -4046,6 +4046,24 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(bodyElementCount + 3, document.body.childNodes.length, "3 new elements added to the document body");
     });
 
+    test(" _jsPlumb.setContainer, moves managed nodes", function () {
+        var c2 = _addDiv("c2", document.body);
+        var c = document.getElementById("container");
+
+        equal(c.childNodes.length, 0, "container has no nodes");
+        var d1 = _addDiv("d1", c);
+        equal(c.childNodes.length, 1, "container has one node");
+        _jsPlumb.manage("d1", d1);
+
+        // d2 has d1 as the parent so it should not end up having the container as its parent.
+        var d2 = _addDiv("d2", d1);
+
+        _jsPlumb.setContainer("c2");
+        equal(d1.parentNode, c2, "managed node with no connections was moved");
+        equal(c.childNodes.length, 0, "container has no nodes");
+        equal(c2.childNodes.length, 1, "container 2 has one node");
+    });
+
 
     var _overlayTest = function(component, fn) {
         var o = component.getOverlays();
@@ -6437,6 +6455,35 @@ var testSuite = function (renderMode, _jsPlumb) {
         expect(0);
     });
 
+
+// elements
+
+
+    test("svg gradients cleaned up correctly", function() {
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var c = _jsPlumb.connect({source:d1, target:d2, paintStyle:{
+            gradient: {stops: [
+                [0, "#678678"],
+                [0.5, "#09098e"],
+                [1, "#678678"]
+            ]},
+            lineWidth: 5,
+            strokeStyle: "#678678",
+            dashstyle: "2 2"
+        }});
+
+        var defs = c.canvas.querySelectorAll("defs");
+        equal(defs.length, 1, "1 defs element");
+
+        _jsPlumb.draggable(d1);
+
+        _dragANodeAround(d1);
+
+        defs = c.canvas.querySelectorAll("defs");
+        equal(defs.length, 1, "1 defs element");
+    });
+
 // ------------- utility functions - math stuff, mostly --------------------------
 
     var tolerance = 0.00000005, withinTolerance = function (v1, v2, msg) {
@@ -6627,7 +6674,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         jsPlumbUtil.replace(null, f6, 99);
         ok(true, "null argument ignored by util.replace");
 
-    })
+    });
 
 
     test(" arc segment tests", function () {
@@ -7240,6 +7287,33 @@ var testSuite = function (renderMode, _jsPlumb) {
         pageY: 50000
     };
 
+    var _randomEvent = function() {
+        var x = parseInt(Math.random() * 2000), y = parseInt(Math.random() * 2000);
+        return {
+            clientX:x,
+            clientY:y,
+            screenX:x,
+            screenY:y,
+            pageX:x,
+            pageY:y
+        };
+    };
+
+    var _dragANodeAround = function(el) {
+        _jsPlumb.trigger(el, "mousedown", _makeEvt(el));
+        var steps = Math.random() * 50;
+        for (var i = 0; i < steps; i++) {
+            var evt = _randomEvent();
+            el.style.left = evt.screenX + "px";
+            el.style.top= evt.screenY + "px";
+            _jsPlumb.trigger(document, "mousemove", evt);
+        }
+        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
+    };
+
+    //
+    // helper method to cause a connection to be dragged via the mouse, but programmatically.
+    //
     var _dragConnection = function (d1, d2) {
         var el1 = d1.canvas || d1, el2 = d2.canvas || d2;
         var e1 = _makeEvt(el1), e2 = _makeEvt(el2);
@@ -7253,6 +7327,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         return _jsPlumb.select().get(conns);
     };
 
+    //
+    // helper method to cause a connection to be detached via the mouse, but programmatically.
     var _detachConnection = function (e, connIndex) {
         var el1 = e.canvas,
             c = e.connections[connIndex];
