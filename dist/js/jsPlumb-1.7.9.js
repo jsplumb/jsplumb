@@ -1518,7 +1518,7 @@
         this.moveListener = function(e) {
             if (downAt) {
                 if (!moving) {
-                    var _continue = this.params.events["start"]({el:this.el, pos:posAtDown, e:e, drag:this});
+                    var _continue = _dispatch("start", {el:this.el, pos:posAtDown, e:e, drag:this});
                     if (_continue !== false) {
                         if (!downAt) return;
                         this.mark(true);
@@ -1569,8 +1569,28 @@
             return dragEl || this.el;
         };
 
+        var listeners = {"start":[], "drag":[], "stop":[], "over":[], "out":[] };
+        if (params.events.start) listeners.start.push(params.events.start);
+        if (params.events.stop) listeners.stop.push(params.events.stop);
+        if (params.events.drag) listeners.drag.push(params.events.drag);
+
+        this.on = function(evt, fn) {
+            if (listeners[evt]) listeners[evt].push(fn);
+        };
+
+        var _dispatch = function(evt, value) {
+            if (listeners[evt]) {
+                for (var i = 0; i < listeners[evt].length; i++) {
+                    try {
+                        listeners[evt][i](value);
+                    }
+                    catch (e) { }
+                }
+            }
+        };
+
         this.notifyStart = function(e) {
-            this.params.events["start"]({el:this.el, pos:this.params.getPosition(dragEl), e:e, drag:this});
+            _dispatch("start", {el:this.el, pos:this.params.getPosition(dragEl), e:e, drag:this});
         };
 
         this.stop = function(e, force) {
@@ -1589,7 +1609,7 @@
                     positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
                 }
 
-                this.params.events["stop"]({
+                _dispatch("stop", {
                     el: dragEl, pos: dPos, e: e, drag: this, selection:positions
                 });
             }
@@ -1634,7 +1654,8 @@
                     matchingDroppables[i].setHover(this, false, e);
                 }
             }
-            this.params.events["drag"]({el:this.el, pos:cPos, e:e, drag:this});
+
+            _dispatch("drag", {el:this.el, pos:cPos, e:e, drag:this});
 
             /* test to see if the parent needs to be scrolled
              if (scroll) {
@@ -1787,6 +1808,13 @@
                 _p.katavorio = this;
                 return _p;
             }.bind(this),
+            _mistletoe = function(existingDrag, params) {
+                for (var i = 0; i < _events.length; i++) {
+                    if (params[_events[i]]) {
+                        existingDrag.on(_events[i], params[_events[i]]);
+                    }
+                }
+            }.bind(this),
             _css = {},
             overrideCss = katavorioParams.css || {},
             _scope = katavorioParams.scope || _defaultScope;
@@ -1819,11 +1847,16 @@
             _each(el, function(_el) {
                 _el = _gel(_el);
                 if (_el != null) {
-                    var p = _prepareParams(params);
-                    _el._katavorioDrag = new Drag(_el, p, _css, _scope);
-                    _reg(_el._katavorioDrag, this._dragsByScope);
-                    o.push(_el._katavorioDrag);
-                    katavorioParams.addClass(_el, _css.draggable);
+                    if (_el._katavorioDrag == null) {
+                        var p = _prepareParams(params);
+                        _el._katavorioDrag = new Drag(_el, p, _css, _scope);
+                        _reg(_el._katavorioDrag, this._dragsByScope);
+                        o.push(_el._katavorioDrag);
+                        katavorioParams.addClass(_el, _css.draggable);
+                    }
+                    else {
+                        _mistletoe(_el._katavorioDrag, params);
+                    }
                 }
             }.bind(this));
             return o;
@@ -3260,78 +3293,85 @@
                 if (!jsPlumb.headless) {
                     var _draggable = isDraggable == null ? false : isDraggable;
                     if (_draggable) {
-                        if (jsPlumb.isDragSupported(element, _currentInstance) && !jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
-                            var options = dragOptions || _currentInstance.Defaults.DragOptions;
-                            options = jsPlumb.extend({}, options); // make a copy.
-                            var dragEvent = jsPlumb.dragEvents.drag,
-                                stopEvent = jsPlumb.dragEvents.stop,
-                                startEvent = jsPlumb.dragEvents.start,
-                                _del = _currentInstance.getElement(element),
-                                _ancestor = _currentInstance.getDragManager().getDragAncestor(_del),
-                                _noOffset = {left: 0, top: 0},
-                                _ancestorOffset = _noOffset,
-                                _started = false;
+                        if (jsPlumb.isDragSupported(element, _currentInstance)) {
+                            if (!jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
+                                var options = dragOptions || _currentInstance.Defaults.DragOptions;
+                                options = jsPlumb.extend({}, options); // make a copy.
+                                var dragEvent = jsPlumb.dragEvents.drag,
+                                    stopEvent = jsPlumb.dragEvents.stop,
+                                    startEvent = jsPlumb.dragEvents.start,
+                                    _del = _currentInstance.getElement(element),
+                                    _ancestor = _currentInstance.getDragManager().getDragAncestor(_del),
+                                    _noOffset = {left: 0, top: 0},
+                                    _ancestorOffset = _noOffset,
+                                    _started = false;
 
-                            _manage(id, element);
+                                _manage(id, element);
 
-                            options[startEvent] = _ju.wrap(options[startEvent], function () {
-                                _ancestorOffset = _ancestor != null ? _currentInstance.getOffset(_ancestor) : _noOffset;
-                                _currentInstance.setHoverSuspended(true);
-                                _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
-                                _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
-                                _currentInstance.setConnectionBeingDragged(true);
-                                if (options.canDrag) return dragOptions.canDrag();
-                            }, false);
+                                options[startEvent] = _ju.wrap(options[startEvent], function () {
+                                    _ancestorOffset = _ancestor != null ? _currentInstance.getOffset(_ancestor) : _noOffset;
+                                    _currentInstance.setHoverSuspended(true);
+                                    _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
+                                    _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+                                    _currentInstance.setConnectionBeingDragged(true);
+                                    if (options.canDrag) return dragOptions.canDrag();
+                                }, false);
 
-                            options[dragEvent] = _ju.wrap(options[dragEvent], function () {
-                                // TODO: here we could actually use getDragObject, and then compute it ourselves,
-                                // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
-                                // differs from getUIPosition so much
-                                var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
-                                // adjust by ancestor offset if there is one: this is for the case that a draggable
-                                // is contained inside some other element that is not the Container.
-                                ui.left += _ancestorOffset.left;
-                                ui.top += _ancestorOffset.top;
-                                _draw(element, ui, null, true);
-                                if (_started) _currentInstance.addClass(element, "jsPlumb_dragged");
-                                _started = true;
-                            });
-                            options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                var elements = [];
+                                options[dragEvent] = _ju.wrap(options[dragEvent], function () {
+                                    // TODO: here we could actually use getDragObject, and then compute it ourselves,
+                                    // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
+                                    // differs from getUIPosition so much
+                                    var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
+                                    // adjust by ancestor offset if there is one: this is for the case that a draggable
+                                    // is contained inside some other element that is not the Container.
+                                    ui.left += _ancestorOffset.left;
+                                    ui.top += _ancestorOffset.top;
+                                    _draw(element, ui, null, true);
+                                    if (_started) _currentInstance.addClass(element, "jsPlumb_dragged");
+                                    _started = true;
+                                });
+                                options[stopEvent] = _ju.wrap(options[stopEvent], function () {
+                                    var elements = [];
 
-                                // TODO once jquery is no longer supported, remove this, as we will know
-                                // exactly what the method signature is. For now, we need to cater for the
-                                // fact that jquery ui provides two args and katavorio provides only one.
-                                if (arguments.length == 1 && arguments[0].selection && arguments[0].selection.length > 0) {
-                                    elements = arguments[0].selection;
-                                }
-                                else {
-                                    elements = [ [ element, _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true) ] ];
-                                }
+                                    // TODO once jquery is no longer supported, remove this, as we will know
+                                    // exactly what the method signature is. For now, we need to cater for the
+                                    // fact that jquery ui provides two args and katavorio provides only one.
+                                    if (arguments.length == 1 && arguments[0].selection && arguments[0].selection.length > 0) {
+                                        elements = arguments[0].selection;
+                                    }
+                                    else {
+                                        elements = [
+                                            [ element, _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true) ]
+                                        ];
+                                    }
 
-                                // this is one element
-                                var _one = function(_e) {
-                                    _draw(_e[0], _e[1]);
-                                    _currentInstance.removeClass(_e[0], "jsPlumb_dragged");
-                                    _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
-                                    _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
-                                    _currentInstance.getDragManager().dragEnded(_e[0]);
-                                };
+                                    // this is one element
+                                    var _one = function (_e) {
+                                        _draw(_e[0], _e[1]);
+                                        _currentInstance.removeClass(_e[0], "jsPlumb_dragged");
+                                        _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
+                                        _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+                                        _currentInstance.getDragManager().dragEnded(_e[0]);
+                                    };
 
-                                for (var i = 0; i < elements.length; i++)
-                                    _one(elements[i]);
+                                    for (var i = 0; i < elements.length; i++)
+                                        _one(elements[i]);
 
-                                // this is common across all
-                                _started = false;
-                                _currentInstance.setHoverSuspended(false);
-                                _currentInstance.setConnectionBeingDragged(false);
-                            });
-                            var elId = _getId(element); // need ID
-                            draggableStates[elId] = true;
-                            var draggable = draggableStates[elId];
-                            options.disabled = draggable == null ? false : !draggable;
-                            _currentInstance.initDraggable(element, options);
-                            _currentInstance.getDragManager().register(element);
+                                    // this is common across all
+                                    _started = false;
+                                    _currentInstance.setHoverSuspended(false);
+                                    _currentInstance.setConnectionBeingDragged(false);
+                                });
+                                var elId = _getId(element); // need ID
+                                draggableStates[elId] = true;
+                                var draggable = draggableStates[elId];
+                                options.disabled = draggable == null ? false : !draggable;
+                                _currentInstance.initDraggable(element, options);
+                                _currentInstance.getDragManager().register(element);
+                            }
+                            else {
+                                // already draggable. attach any start, drag or stop listeners to the current Drag.
+                            }
                         }
                     }
                 }
