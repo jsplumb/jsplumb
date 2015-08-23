@@ -59,7 +59,7 @@
             return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
         },
         _clearGradient = function (parent) {
-            var els = parent.querySelectorAll(" defs linearGradient radialGradient");
+            var els = parent.querySelectorAll(" defs,linearGradient,radialGradient");
             for (var i = 0; i < els.length; i++)
                 els[i].parentNode.removeChild(els[i]);
         },
