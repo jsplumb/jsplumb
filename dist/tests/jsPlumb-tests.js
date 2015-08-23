@@ -4046,6 +4046,24 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(bodyElementCount + 3, document.body.childNodes.length, "3 new elements added to the document body");
     });
 
+    test(" _jsPlumb.setContainer, moves managed nodes", function () {
+        var c2 = _addDiv("c2", document.body);
+        var c = document.getElementById("container");
+
+        equal(c.childNodes.length, 0, "container has no nodes");
+        var d1 = _addDiv("d1", c);
+        equal(c.childNodes.length, 1, "container has one node");
+        _jsPlumb.manage("d1", d1);
+
+        // d2 has d1 as the parent so it should not end up having the container as its parent.
+        var d2 = _addDiv("d2", d1);
+
+        _jsPlumb.setContainer("c2");
+        equal(d1.parentNode, c2, "managed node with no connections was moved");
+        equal(c.childNodes.length, 0, "container has no nodes");
+        equal(c2.childNodes.length, 1, "container 2 has one node");
+    });
+
 
     var _overlayTest = function(component, fn) {
         var o = component.getOverlays();
@@ -4410,26 +4428,15 @@ var testSuite = function (renderMode, _jsPlumb) {
                     borderStyle: "red",
                     fillStyle: "blue",
                     color: "green",
-                    font: "12px foo",
                     padding: 10
                 }
             }]
         ]});
-        // TODO jquery specific.
-        var o = c.getOverlay("label"), el = o.getElement();//el = $(o.getElement());
+        var o = c.getOverlay("label"), el = o.getElement();
         equal(el.style.borderWidth, "2px", "border width 2");
         equal(el.style.borderColor, "red", "border color red");
         equal(el.style.backgroundColor, "blue", "bg color blue");
         equal(el.style.color, "green", "color green");
-        var f = el.style.font;
-        ok(f == "12px foo" || f == "12px/normal foo"
-            , "bg font 12px foo");
-
-        // equal(el.css("border-width"), "2px", "border width 2");
-         //equal(el.css("border-color"), "rgb(255, 0, 0)", "border color red");
-         //equal(el.css("background-color"), "rgb(0, 0, 255)", "bg color blue");
-         //equal(el.css("color"), "rgb(0, 128, 0)", "color green");
-         //equal(el.css("font"), "normal normal normal 12px/normal foo", "bg font 12px foo");
 
     });
 
@@ -4569,33 +4576,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(ep.anchor.getDefaultFace(), "bottom", "default is bottom");
     });
 
-    test(" setImage on Endpoint", function () {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
-            originalUrl = "../../demo/home/endpointTest1.png",
-            e = {
-                endpoint: [ "Image", { src: originalUrl } ]
-            },
-            ep = _jsPlumb.addEndpoint(d1, e);
-        expect(0);
-    });
     asyncTest(" setImage on Endpoint, with supplied onload", function () {
-        start();
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), ep,
             e = {
                 endpoint: [ "Image", {
-                    src: "../../demo/home/endpointTest1.png",
+                    src: "atom.png",
                     onload: function (imgEp) {
-                        equal("../../demo/home/endpointTest1.png", imgEp.img.src);
-                        equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
+                        QUnit.start();
+                        ok(imgEp._jsPlumb.img.src.indexOf("atom.png") != -1);
+                        ep.setImage("littledot.png", function (imgEp) {
+                            ok(imgEp._jsPlumb.img.src.indexOf("littledot.png") != -1);
+                        });
                     }
                 } ]
-            },
-            ep = _jsPlumb.addEndpoint(d1, e);
-        ep.setImage("../../demo/animation/littledot.png", function (imgEp) {
-            equal("../../demo/animation/littledot.png", imgEp.img.src);
-            equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
-        });
-        expect(0);
+            };
+
+
+        ep = _jsPlumb.addEndpoint(d1, e);
+
     });
 
 
@@ -6456,6 +6455,35 @@ var testSuite = function (renderMode, _jsPlumb) {
         expect(0);
     });
 
+
+// elements
+
+
+    test("svg gradients cleaned up correctly", function() {
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var c = _jsPlumb.connect({source:d1, target:d2, paintStyle:{
+            gradient: {stops: [
+                [0, "#678678"],
+                [0.5, "#09098e"],
+                [1, "#678678"]
+            ]},
+            lineWidth: 5,
+            strokeStyle: "#678678",
+            dashstyle: "2 2"
+        }});
+
+        var defs = c.canvas.querySelectorAll("defs");
+        equal(defs.length, 1, "1 defs element");
+
+        _jsPlumb.draggable(d1);
+
+        _dragANodeAround(d1);
+
+        defs = c.canvas.querySelectorAll("defs");
+        equal(defs.length, 1, "1 defs element");
+    });
+
 // ------------- utility functions - math stuff, mostly --------------------------
 
     var tolerance = 0.00000005, withinTolerance = function (v1, v2, msg) {
@@ -6646,7 +6674,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         jsPlumbUtil.replace(null, f6, 99);
         ok(true, "null argument ignored by util.replace");
 
-    })
+    });
 
 
     test(" arc segment tests", function () {
@@ -7259,6 +7287,33 @@ var testSuite = function (renderMode, _jsPlumb) {
         pageY: 50000
     };
 
+    var _randomEvent = function() {
+        var x = parseInt(Math.random() * 2000), y = parseInt(Math.random() * 2000);
+        return {
+            clientX:x,
+            clientY:y,
+            screenX:x,
+            screenY:y,
+            pageX:x,
+            pageY:y
+        };
+    };
+
+    var _dragANodeAround = function(el) {
+        _jsPlumb.trigger(el, "mousedown", _makeEvt(el));
+        var steps = Math.random() * 50;
+        for (var i = 0; i < steps; i++) {
+            var evt = _randomEvent();
+            el.style.left = evt.screenX + "px";
+            el.style.top= evt.screenY + "px";
+            _jsPlumb.trigger(document, "mousemove", evt);
+        }
+        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
+    };
+
+    //
+    // helper method to cause a connection to be dragged via the mouse, but programmatically.
+    //
     var _dragConnection = function (d1, d2) {
         var el1 = d1.canvas || d1, el2 = d2.canvas || d2;
         var e1 = _makeEvt(el1), e2 = _makeEvt(el2);
@@ -7272,6 +7327,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         return _jsPlumb.select().get(conns);
     };
 
+    //
+    // helper method to cause a connection to be detached via the mouse, but programmatically.
     var _detachConnection = function (e, connIndex) {
         var el1 = e.canvas,
             c = e.connections[connIndex];
@@ -7618,19 +7675,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         var d = document.getElementsByClassName("aTest");
 
         // first make them draggable
-        _jsPlumb.draggable(d);
-        ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
-        ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
+        if(typeof d === "function") {
+            expect(2);
+        }
+        else
+        {
+            _jsPlumb.draggable(d);
+            ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
+            ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
 
-        // now disable
-        _jsPlumb.setDraggable(d, false);
-        ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
-        ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
+            // now disable
+            _jsPlumb.setDraggable(d, false);
+            ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
+            ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
 
-        // and enable
-        _jsPlumb.toggleDraggable(d);
-        ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
-        ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
+            // and enable
+            _jsPlumb.toggleDraggable(d);
+            ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
+            ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
+        }
     });
 
 // ------------------ issue 402...offset cache not cleared always --------------------

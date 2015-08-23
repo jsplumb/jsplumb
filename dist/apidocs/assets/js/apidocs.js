@@ -284,7 +284,7 @@ pjax.handleClasses = function (req, res, next) {
     var status = res.ioResponse.status;
 
     // Handles success and local filesystem XHRs.
-    if (!status || (status >= 200 && status < 300)) {
+    if (res.ioResponse.readyState === 4 && (!status || (status >= 200 && status < 300))) {
         pjax.initClassTabView();
     }
 
@@ -295,7 +295,7 @@ pjax.handleFiles = function (req, res, next) {
     var status = res.ioResponse.status;
 
     // Handles success and local filesystem XHRs.
-    if (!status || (status >= 200 && status < 300)) {
+    if (res.ioResponse.readyState === 4 && (!status || (status >= 200 && status < 300))) {
         pjax.initLineNumbers();
     }
 

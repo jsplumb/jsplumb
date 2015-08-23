@@ -3080,6 +3080,7 @@
             });
 
             // set container.
+            var previousContainer = _container;
             _container = c;
             _containerDelegations.length = 0;
 
@@ -3120,6 +3121,15 @@
 
             for (var i = 0; i < events.length; i++)
                 _oneDelegate(events[i]);
+
+            // managed elements
+            for (var elId in managedElements) {
+                var el = managedElements[elId].el;
+                if (el.parentNode === previousContainer) {
+                    previousContainer.removeChild(el);
+                    _container.appendChild(el);
+                }
+            }
 
         };
         this.getContainer = function () {
@@ -11430,7 +11440,7 @@
             return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
         },
         _clearGradient = function (parent) {
-            var els = parent.querySelectorAll(" defs linearGradient radialGradient");
+            var els = parent.querySelectorAll(" defs,linearGradient,radialGradient");
             for (var i = 0; i < els.length; i++)
                 els[i].parentNode.removeChild(els[i]);
         },
