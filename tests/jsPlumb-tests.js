@@ -6484,6 +6484,43 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(defs.length, 1, "1 defs element");
     });
 
+    test("node drag events", function() {
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var started = false, dragged = false, stopped = false;
+
+        _jsPlumb.draggable(d1, {
+            start:function() { started = true; },
+            drag:function() { dragged = true; },
+            stop:function() { stopped = true; }
+        });
+
+        _dragANodeAround(d1);
+
+        ok(started, "start event fired");
+        ok(dragged, "drag event fired");
+        ok(stopped, "stop event fired");
+
+        started = false; dragged = false; stopped = false;
+        var started2 = false, dragged2 = false, stopped2 = false;
+
+        _jsPlumb.draggable(d1, {
+            start:function() { started2 = true; },
+            drag:function() { dragged2 = true; },
+            stop:function() { stopped2 = true; },
+            force:true
+        });
+
+        _dragANodeAround(d1);
+
+        ok(started, "start event fired");
+        ok(dragged, "drag event fired");
+        ok(stopped, "stop event fired");
+        ok(started2, "2nd start event fired");
+        ok(dragged2, "2nd drag event fired");
+        ok(stopped2, "2nd stop event fired");
+    });
+
 // ------------- utility functions - math stuff, mostly --------------------------
 
     var tolerance = 0.00000005, withinTolerance = function (v1, v2, msg) {
