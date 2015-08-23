@@ -543,6 +543,7 @@
             });
 
             // set container.
+            var previousContainer = _container;
             _container = c;
             _containerDelegations.length = 0;
 
@@ -583,6 +584,15 @@
 
             for (var i = 0; i < events.length; i++)
                 _oneDelegate(events[i]);
+
+            // managed elements
+            for (var elId in managedElements) {
+                var el = managedElements[elId].el;
+                if (el.parentNode === previousContainer) {
+                    previousContainer.removeChild(el);
+                    _container.appendChild(el);
+                }
+            }
 
         };
         this.getContainer = function () {
