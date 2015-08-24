@@ -3294,9 +3294,9 @@
                     var _draggable = isDraggable == null ? false : isDraggable;
                     if (_draggable) {
                         if (jsPlumb.isDragSupported(element, _currentInstance)) {
+                            var options = dragOptions || _currentInstance.Defaults.DragOptions;
+                            options = jsPlumb.extend({}, options); // make a copy.
                             if (!jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
-                                var options = dragOptions || _currentInstance.Defaults.DragOptions;
-                                options = jsPlumb.extend({}, options); // make a copy.
                                 var dragEvent = jsPlumb.dragEvents.drag,
                                     stopEvent = jsPlumb.dragEvents.stop,
                                     startEvent = jsPlumb.dragEvents.start,
@@ -3371,6 +3371,9 @@
                             }
                             else {
                                 // already draggable. attach any start, drag or stop listeners to the current Drag.
+                                if (dragOptions.force) {
+                                    _currentInstance.initDraggable(element, options);
+                                }
                             }
                         }
                     }
@@ -4447,8 +4450,7 @@
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
-        // TODO make sure we add a test that this tracks a setId call.
-        var _manage = _currentInstance.manage = function (id, element) {
+        var _manage = _currentInstance.manage = function (id, element, transient) {
             if (!managedElements[id]) {
                 managedElements[id] = {
                     el: element,
@@ -4457,9 +4459,19 @@
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
+                if (!transient) {
+                    _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
+                }
             }
 
             return managedElements[id];
+        };
+
+        var _unmanage = function(id) {
+            if (managedElements[id]) {
+                delete managedElements[id];
+                _currentInstance.fire("unmanageElement", id);
+            }
         };
 
         /**
@@ -6449,7 +6461,7 @@
         var n = jsPlumb.createElement("div", { position : "absolute" });
         _jsPlumb.appendElement(n);
         var id = _jsPlumb.getId(n);
-        _jsPlumb.manage(id, n);
+        _jsPlumb.manage(id, n, true); // TRANSIENT MANAGE
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
         placeholder.element = n;
@@ -6460,6 +6472,7 @@
         var floatingAnchor = new _jp.FloatingAnchor({ reference: referenceAnchor, referenceCanvas: referenceCanvas, jsPlumbInstance: _jsPlumb });
         //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
         // adding the floating endpoint as a droppable.  that makes more sense anyway!
+        // TRANSIENT MANAGE
         return _newEndpoint({ paintStyle: paintStyle, endpoint: endpoint, anchor: floatingAnchor, source: sourceElement, scope: scope });
     };
 

@@ -4748,6 +4748,9 @@ var testSuite = function (renderMode, _jsPlumb) {
         var c = _jsPlumb.connect({source: e1, target: e2}),
             c2 = _jsPlumb.connect({source: e2, target: e1});
 
+        ok(_jsPlumb.getManagedElements()["d1"] != null, "d1 exists in managed elements");
+        ok(_jsPlumb.getManagedElements()["d3"] == null, "d3 does not exist in managed elements");
+
         _jsPlumb.setId(jsPlumb.getSelector("#d1"), "d3");
         assertEndpointCount("d3", 2, _jsPlumb);
         assertEndpointCount("d1", 0, _jsPlumb);
@@ -4761,6 +4764,10 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
         equal(c2.targetId, "d3", "connection's targetId has changed");
         equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
+
+        ok(_jsPlumb.getManagedElements()["d1"] == null, "d1 removed from managed elements");
+        ok(_jsPlumb.getManagedElements()["d3"] != null, "d3 exists in managed elements");
+
     });
 
     test(" setId, taking a DOM element and a string, only default scope", function () {
@@ -5479,6 +5486,24 @@ var testSuite = function (renderMode, _jsPlumb) {
      //equal(null, c.getPaintStyle().foo, "foo is not set in c paint style");
      //equal(null, c2.getPaintStyle().foo, "foo is not set in c2 paint style");
      //});
+
+
+// ------------------------------- manage -----------------------------------------
+
+    test("Manage fires events", function() {
+        var d1 = _addDiv("d1"), f1 = false;
+        _jsPlumb.bind("manageElement", function() {
+            f1 = true;
+        });
+
+        _jsPlumb.manage("d1", d1);
+        ok(f1, "manageElement event fired");
+
+        delete _jsPlumb.getManagedElements()["d1"];
+        f1 = false;
+        _jsPlumb.manage("d1", d1, true);
+        ok(!f1, "manageElement event not fired for transient element");
+    });
 
 
 // ******************* getEndpoints ************************************************
@@ -6507,7 +6532,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.draggable(d1, {
             start:function() { started2 = true; },
             drag:function() { dragged2 = true; },
-            stop:function() { stopped2 = true; }
+            stop:function() { stopped2 = true; },
+            force:true
         });
 
         _dragANodeAround(d1);

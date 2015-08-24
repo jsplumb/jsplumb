@@ -46,7 +46,7 @@
         var n = jsPlumb.createElement("div", { position : "absolute" });
         _jsPlumb.appendElement(n);
         var id = _jsPlumb.getId(n);
-        _jsPlumb.manage(id, n);
+        _jsPlumb.manage(id, n, true); // TRANSIENT MANAGE
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
         placeholder.element = n;
@@ -57,6 +57,7 @@
         var floatingAnchor = new _jp.FloatingAnchor({ reference: referenceAnchor, referenceCanvas: referenceCanvas, jsPlumbInstance: _jsPlumb });
         //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
         // adding the floating endpoint as a droppable.  that makes more sense anyway!
+        // TRANSIENT MANAGE
         return _newEndpoint({ paintStyle: paintStyle, endpoint: endpoint, anchor: floatingAnchor, source: sourceElement, scope: scope });
     };
 
