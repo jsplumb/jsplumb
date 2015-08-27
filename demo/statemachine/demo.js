@@ -18,10 +18,8 @@ jsPlumb.ready(function () {
 
     window.jsp = instance;
 
+    var canvas = document.getElementById("canvas");
     var windows = jsPlumb.getSelector(".statemachine-demo .w");
-
-    // initialise draggable elements.
-    instance.draggable(windows);
 
     // bind a click listener to each connection; the connection is deleted. you could of course
     // just do this: jsPlumb.bind("click", jsPlumb.detach), but I wanted to make it clear what was
@@ -38,10 +36,20 @@ jsPlumb.ready(function () {
         info.connection.getOverlay("label").setLabel(info.connection.id);
     });
 
+    // bind a double click listener to "canvas"
+    jsPlumb.on(canvas, "dblclick", function(e) {
+        newNode(e.offsetX, e.offsetY);
+    });
 
-    // suspend drawing and initialise.
-    instance.batch(function () {
-        instance.makeSource(windows, {
+    //
+    // initialise element as connection targets and source.
+    //
+    var initNode = function(el) {
+
+        // initialise draggable elements.
+        instance.draggable(el);
+
+        instance.makeSource(el, {
             filter: ".ep",
             anchor: "Continuous",
             connector: [ "StateMachine", { curviness: 20 } ],
@@ -52,13 +60,36 @@ jsPlumb.ready(function () {
             }
         });
 
-        // initialise all '.w' elements as connection targets.
-        instance.makeTarget(windows, {
+        instance.makeTarget(el, {
             dropOptions: { hoverClass: "dragHover" },
             anchor: "Continuous",
             allowLoopback: true
         });
 
+        // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
+        // version of this emo to find out about new nodes being added.
+        //
+        jsPlumb.fire("jsPlumbDemoNodeAdded", el);
+    };
+
+    var newNode = function(x, y) {
+        var d = document.createElement("div");
+        var id = jsPlumbUtil.uuid();
+        d.className = "w";
+        d.id = id;
+        d.innerHTML = id.substring(0, 7) + "<div class=\"ep\"></div>";
+        d.style.left = x + "px";
+        d.style.top = y + "px";
+        canvas.appendChild(d);
+        initNode(d);
+        return d;
+    };
+
+    // suspend drawing and initialise.
+    instance.batch(function () {
+        for (var i = 0; i < windows.length; i++) {
+            initNode(windows[i]);
+        }
         // and finally, make a couple of connections
         instance.connect({ source: "opened", target: "phone1" });
         instance.connect({ source: "phone1", target: "phone1" });
