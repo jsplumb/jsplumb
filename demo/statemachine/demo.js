@@ -36,7 +36,7 @@ jsPlumb.ready(function () {
         info.connection.getOverlay("label").setLabel(info.connection.id);
     });
 
-    // bind a double click listener to "canvas"
+    // bind a double click listener to "canvas"; add new node when this occurs.
     jsPlumb.on(canvas, "dblclick", function(e) {
         newNode(e.offsetX, e.offsetY);
     });
@@ -67,9 +67,9 @@ jsPlumb.ready(function () {
         });
 
         // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
-        // version of this emo to find out about new nodes being added.
+        // version of this demo to find out about new nodes being added.
         //
-        jsPlumb.fire("jsPlumbDemoNodeAdded", el);
+        instance.fire("jsPlumbDemoNodeAdded", el);
     };
 
     var newNode = function(x, y) {
@@ -80,7 +80,7 @@ jsPlumb.ready(function () {
         d.innerHTML = id.substring(0, 7) + "<div class=\"ep\"></div>";
         d.style.left = x + "px";
         d.style.top = y + "px";
-        canvas.appendChild(d);
+        instance.getContainer().appendChild(d);
         initNode(d);
         return d;
     };
@@ -88,9 +88,9 @@ jsPlumb.ready(function () {
     // suspend drawing and initialise.
     instance.batch(function () {
         for (var i = 0; i < windows.length; i++) {
-            initNode(windows[i]);
+            initNode(windows[i], true);
         }
-        // and finally, make a couple of connections
+        // and finally, make a few connections
         instance.connect({ source: "opened", target: "phone1" });
         instance.connect({ source: "phone1", target: "phone1" });
         instance.connect({ source: "phone1", target: "inperson" });

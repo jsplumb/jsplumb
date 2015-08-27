@@ -6350,7 +6350,7 @@
                 newParent.appendChild(this.bgCanvas);
             }
 
-            if (this.canvas) {
+            if (this.canvas && this.canvas.parentNode) {
                 this.canvas.parentNode.removeChild(this.canvas);
                 newParent.appendChild(this.canvas);
 
