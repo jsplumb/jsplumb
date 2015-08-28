@@ -1,5 +1,15 @@
 /* ---------------------- page structure ------------------------ */
-#main {
+body {
+    background-color: #FFF;
+    color: #434343;
+    font-family: "Lato", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    height: 100%;
+    padding: 0;
+}
+
+.jtk-demo-main {
     background-color: transparent;
     font-family: Arial,sans-serif;
     margin-left: auto;
@@ -7,10 +17,10 @@
     width: 90%;
     max-width:1500px;
     position: relative;
-    margin-top:98px;
+
 }
 
-#main .description {
+.jtk-demo-main .description {
     font-size: 13px;
     margin-top: 25px;
     padding: 13px;
@@ -18,11 +28,11 @@
     background-color: #f4f5ef;
 }
 
-#main .description li {
+.jtk-demo-main .description li {
     list-style-type: disc !important;
 }
 
-.canvas {
+.jtk-demo-canvas {
     margin-left: 160px;
     height:550px;
     max-height:700px;
@@ -42,7 +52,7 @@
 }
 
 
-#dataset {
+.jtk-demo-dataset {
     text-align: left;
     max-height: 600px;
     overflow: auto;
@@ -63,10 +73,10 @@
 }
 
 .controls i {
-    background-color: #449ea6;
+    background-color: #3E7E9C;
     border-radius: 4px;
     cursor: pointer;
-    margin-right: 0px;
+    margin-right: 0;
     padding: 4px;
 }
 
@@ -80,11 +90,11 @@ li {
     margin:0;
     padding:0;
     padding-top: 7px;
+    padding-right: 10px;
     width:150px;
     float:left;
     text-align:center;
     height: 550px;
-    padding-right: 10px;
     background-color: #84acb3;
 }
 
@@ -189,10 +199,8 @@ path {
 /* -- common --*/
 
 .jtk-node {
-    background-color: #234b5e;
-    border-radius: 14px;
-    border:1px solid #CCC;
-    box-shadow:0 0 5px #CCC;
+    background-color: #3E7E9C;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
     position: absolute;
@@ -204,21 +212,15 @@ path {
 }
 
 .jtk-node .name, li.jsplumb-draggable {
-    background-color: #234b5e;
+    background-color: #3E7E9C;
     color: #f7ebca;
     cursor: move;
-    font-size: 16px;
+    font-size: 13px;
     line-height: 24px;
     padding: 6px;
     text-align: center;
 }
 
-.jtk-node .ep {
-    width: 100%;
-    background-color: orange;
-    height: 10px;
-    cursor: pointer;
-}
 
 li.jsplumb-draggable {
     min-width:100px;
@@ -259,8 +261,8 @@ li.jsplumb-draggable {
     height:10px;
     background-color:#f76258;
     position:absolute;
-    bottom:10px;
-    right:10px;
+    bottom: 13px;
+    right: 5px;
 }
 
 /* --------------------- / common --------------------------------------- */
@@ -328,7 +330,33 @@ li.jsplumb-draggable {
 }
 
 .community:after {
-    content:"Community Edition";
+    content:"Toolkit";
+}
+
+.navbar-top {
+    background-color: #58775d;
+    border-color: none;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.navbar-nav > li > a {
+    border: none;
+    color: #FFF;
+    padding: 6px 10px;
+    text-decoration: none;
+}
+
+.social-nav {
+    color: #FFF;
+    float: right;
+    font-size: 22px;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+    background-color: transparent;
+    color: #cdcc73;
+    text-decoration: none;
 }
 
 
