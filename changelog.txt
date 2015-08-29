@@ -8,6 +8,10 @@
 
     - Addition of getManagedElements method. Returns a map of all the elements the instance of jsPlumb is currently managing.
 
+    ISSUES
+
+    - 421 - svg gradient elements not cleaned up properly
+
 * 1.7.8
 
     ISSUES

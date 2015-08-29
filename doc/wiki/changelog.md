@@ -6,6 +6,10 @@
 - First version of jsPlumb to be published to npm.
 - Addition of getManagedElements method. Returns a map of all the elements the instance of jsPlumb is currently managing.
 
+#### Issues
+
+- **421** svg gradient elements not cleaned up properly
+
 ## 1.7.8
 
 ### Changes between 1.7.7 and 1.7.8
