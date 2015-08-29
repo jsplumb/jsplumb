@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -1832,10 +1832,6 @@
          */
         this.getId = _getId;
 
-        /*this.getOffset = function (id) {
-            return _updateOffset({elId: id}).o;
-        };*/
-
         this.appendElement = _appendElement;
 
         var _hoverSuspended = false;
@@ -2873,11 +2869,6 @@
         };
 
         this.doWhileSuspended = this.batch;
-
-        /*
-        this.getOffset = function (elId) {
-            return offsets[elId];
-        };*/
 
         this.getCachedData = _getCachedData;
         this.timestamp = _timestamp;

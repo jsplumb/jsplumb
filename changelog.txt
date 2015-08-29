@@ -1,3 +1,7 @@
+* 1.7.10
+
+    - Small update to getOffset to make it return the correct value if the input element was the container itself.
+
 * 1.7.9
 
     No more jQuery flavour. Vanilla jsPlumb is the only jsPlumb, and as such, has been renamed to simply `jsPlumb-1.7.9.js`.

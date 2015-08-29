@@ -2021,7 +2021,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -2498,7 +2498,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -2571,7 +2571,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -4402,10 +4402,6 @@
          */
         this.getId = _getId;
 
-        /*this.getOffset = function (id) {
-            return _updateOffset({elId: id}).o;
-        };*/
-
         this.appendElement = _appendElement;
 
         var _hoverSuspended = false;
@@ -5444,11 +5440,6 @@
 
         this.doWhileSuspended = this.batch;
 
-        /*
-        this.getOffset = function (elId) {
-            return offsets[elId];
-        };*/
-
         this.getCachedData = _getCachedData;
         this.timestamp = _timestamp;
         this.setRenderMode = function (mode) {
@@ -5586,7 +5577,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -5957,7 +5948,6 @@
             for (var i in atts)
                 if (atts.hasOwnProperty(i)) el.setAttribute(i, atts[i]);
         },
-
         appendToRoot: function (node) {
             document.body.appendChild(node);
         },
@@ -6038,7 +6028,6 @@
                 return el.currentStyle[prop];
             }
         },
-
         getSelector: function (ctx, spec) {
             var sel = null;
             if (arguments.length == 1) {
@@ -6056,21 +6045,17 @@
                     left: el.offsetLeft,
                     top: el.offsetTop
                 },
-                op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null,
+                op = (relativeToRoot  || (container != null && (el != container && el.offsetParent != container))) ?  el.offsetParent : null,
                 _maybeAdjustScroll = function(offsetParent) {
                     if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
-                        var p = this.getStyle(el, "position");
-                        //if (p !== "fixed") {
-                            out.left -= offsetParent.scrollLeft;
-                            out.top -= offsetParent.scrollTop;
-                        //}
+                        out.left -= offsetParent.scrollLeft;
+                        out.top -= offsetParent.scrollTop;
                     }
                 }.bind(this);
 
             while (op != null) {
                 out.left += op.offsetLeft;
                 out.top += op.offsetTop;
-                //if (!relativeToRoot) _maybeAdjustScroll(op);
                 _maybeAdjustScroll(op);
                 op = relativeToRoot ? op.offsetParent :
                         op.offsetParent == container ? null : op.offsetParent;
@@ -6164,7 +6149,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -6416,7 +6401,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -7582,7 +7567,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -8109,7 +8094,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9269,7 +9254,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10734,7 +10719,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  *
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.
  *
@@ -10785,7 +10770,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -11171,7 +11156,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -11350,7 +11335,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -11435,7 +11420,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -12046,7 +12031,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -12587,7 +12572,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
