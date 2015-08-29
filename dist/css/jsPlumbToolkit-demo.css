@@ -1,5 +1,18 @@
-/* ---------------------- page structure ------------------------ */
-#main {
+/* ---------------------------------------------------------------------------------------------------- */
+/* --- page structure --------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------------------------------- */
+
+body {
+    background-color: #FFF;
+    color: #434343;
+    font-family: "Lato", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    height: 100%;
+    padding: 0;
+}
+
+.jtk-demo-main {
     background-color: transparent;
     font-family: Arial,sans-serif;
     margin-left: auto;
@@ -10,7 +23,7 @@
     margin-top:98px;
 }
 
-#main .description {
+.jtk-demo-main .description {
     font-size: 13px;
     margin-top: 25px;
     padding: 13px;
@@ -18,11 +31,11 @@
     background-color: #f4f5ef;
 }
 
-#main .description li {
+.jtk-demo-main .description li {
     list-style-type: disc !important;
 }
 
-.canvas {
+.jtk-demo-canvas {
     margin-left: 160px;
     height:550px;
     max-height:700px;
@@ -42,7 +55,7 @@
 }
 
 
-#dataset {
+.jtk-demo-dataset {
     text-align: left;
     max-height: 600px;
     overflow: auto;
@@ -63,10 +76,10 @@
 }
 
 .controls i {
-    background-color: #449ea6;
+    background-color: #3E7E9C;
     border-radius: 4px;
     cursor: pointer;
-    margin-right: 0px;
+    margin-right: 0;
     padding: 4px;
 }
 
@@ -80,11 +93,11 @@ li {
     margin:0;
     padding:0;
     padding-top: 7px;
+    padding-right: 10px;
     width:150px;
     float:left;
     text-align:center;
     height: 550px;
-    padding-right: 10px;
     background-color: #84acb3;
 }
 
@@ -125,16 +138,11 @@ li {
         margin-top: 7px;
         width:67px;
     }
-    .canvas {
+    .jtk-demo-canvas {
         margin-left: 0;
         margin-top:10px;
         height:364px;
     }
-}
-
-.btn-icon-margin {
-    line-height: 18px;
-    margin-left: 10px;
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -168,67 +176,6 @@ path {
     cursor:pointer;
 }
 
-/* ---------------------------------------------------------------------------------------------------- */
-/* --- Dialogs -----------------------------------------------------------------------------------------*/
-/* ---------------------------------------------------------------------------------------------------- */
-
-
-
-/* ---------------------------------------------------------------------------------------------------- */
-/* --- Drag/drop interactions ------------------------------------------------------------------------- */
-/* ---------------------------------------------------------------------------------------------------- */
-.drop-hover {
-    background-color: #629f72 !important;
-    color: #FFF !important;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-/* --- Node styles ------------------------------------------------------------------------------------ */
-/* ---------------------------------------------------------------------------------------------------- */
-
-/* -- common --*/
-
-.jtk-node {
-    background-color: #234b5e;
-    border-radius: 14px;
-    border:1px solid #CCC;
-    box-shadow:0 0 5px #CCC;
-    cursor: pointer;
-    font-size: 12px;
-    position: absolute;
-    z-index: 11;
-    overflow: hidden;
-    min-width:80px;
-    min-height:30px;
-    width: auto;
-}
-
-.jtk-node .name, li.jsplumb-draggable {
-    background-color: #234b5e;
-    color: #f7ebca;
-    cursor: move;
-    font-size: 16px;
-    line-height: 24px;
-    padding: 6px;
-    text-align: center;
-}
-
-.jtk-node .ep {
-    width: 100%;
-    background-color: orange;
-    height: 10px;
-    cursor: pointer;
-}
-
-li.jsplumb-draggable {
-    min-width:100px;
-    border-radius:14px;
-}
-
-.jtk-node .name span {
-    cursor:pointer;
-}
-
 .delete {
     padding: 2px;
     cursor: pointer;
@@ -259,40 +206,11 @@ li.jsplumb-draggable {
     height:10px;
     background-color:#f76258;
     position:absolute;
-    bottom:10px;
-    right:10px;
+    bottom: 13px;
+    right: 5px;
 }
 
-/* --------------------- / common --------------------------------------- */
-
-
-/* ----------------------- form ------------------------- */
-
-.form-labels-float {
-    float: left;
-    font-weight: bold;
-    text-align: right;
-    padding-right: 6px;
-    padding-top: 6px;
-    font-size: 14px;
-}
-
-.form-labels {
-    font-weight: bold;
-    text-align: left;
-    padding-right: 6px;
-    font-size: 14px;
-}
-
-.checkbox-id {
-    margin-top: 6px;
-    margin-left: 22px;
-}
-
-
-.pull-left { float: left; }
-.clearfix { clear: both; }
-
+/* header styles */
 
 .demo-links {
     position: fixed;
@@ -317,18 +235,32 @@ li.jsplumb-draggable {
     padding:4px;
 }
 
-.community {
-    position: absolute;
-    top: 38px;
-    left: 102px;
-    color: oldlace;
-    font-size: 13px;
-    text-transform: lowercase;
-    letter-spacing: 1px;
+.navbar-top {
+    background-color: #58775d;
+    border:none;
+    font-size: 14px;
+    font-weight: 700;
 }
 
-.community:after {
-    content:"Community Edition";
+.navbar-nav > li > a {
+    border: none;
+    color: #FFF;
+    padding: 6px 10px;
+    text-decoration: none;
 }
+
+.social-nav {
+    color: #FFF;
+    float: right;
+    font-size: 22px;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+    background-color: transparent;
+    color: #cdcc73;
+    text-decoration: none;
+}
+
+
 
 

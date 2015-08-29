@@ -1,4 +1,7 @@
-/* ---------------------- page structure ------------------------ */
+/* ---------------------------------------------------------------------------------------------------- */
+/* --- page structure --------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------------------------------- */
+
 body {
     background-color: #FFF;
     color: #434343;
@@ -17,7 +20,7 @@ body {
     width: 90%;
     max-width:1500px;
     position: relative;
-
+    margin-top:98px;
 }
 
 .jtk-demo-main .description {
@@ -135,16 +138,11 @@ li {
         margin-top: 7px;
         width:67px;
     }
-    .canvas {
+    .jtk-demo-canvas {
         margin-left: 0;
         margin-top:10px;
         height:364px;
     }
-}
-
-.btn-icon-margin {
-    line-height: 18px;
-    margin-left: 10px;
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -175,59 +173,6 @@ li {
 }
 
 path {
-    cursor:pointer;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-/* --- Dialogs -----------------------------------------------------------------------------------------*/
-/* ---------------------------------------------------------------------------------------------------- */
-
-
-
-/* ---------------------------------------------------------------------------------------------------- */
-/* --- Drag/drop interactions ------------------------------------------------------------------------- */
-/* ---------------------------------------------------------------------------------------------------- */
-.drop-hover {
-    background-color: #629f72 !important;
-    color: #FFF !important;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-/* --- Node styles ------------------------------------------------------------------------------------ */
-/* ---------------------------------------------------------------------------------------------------- */
-
-/* -- common --*/
-
-.jtk-node {
-    background-color: #3E7E9C;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    position: absolute;
-    z-index: 11;
-    overflow: hidden;
-    min-width:80px;
-    min-height:30px;
-    width: auto;
-}
-
-.jtk-node .name, li.jsplumb-draggable {
-    background-color: #3E7E9C;
-    color: #f7ebca;
-    cursor: move;
-    font-size: 13px;
-    line-height: 24px;
-    padding: 6px;
-    text-align: center;
-}
-
-
-li.jsplumb-draggable {
-    min-width:100px;
-    border-radius:14px;
-}
-
-.jtk-node .name span {
     cursor:pointer;
 }
 
@@ -265,36 +210,7 @@ li.jsplumb-draggable {
     right: 5px;
 }
 
-/* --------------------- / common --------------------------------------- */
-
-
-/* ----------------------- form ------------------------- */
-
-.form-labels-float {
-    float: left;
-    font-weight: bold;
-    text-align: right;
-    padding-right: 6px;
-    padding-top: 6px;
-    font-size: 14px;
-}
-
-.form-labels {
-    font-weight: bold;
-    text-align: left;
-    padding-right: 6px;
-    font-size: 14px;
-}
-
-.checkbox-id {
-    margin-top: 6px;
-    margin-left: 22px;
-}
-
-
-.pull-left { float: left; }
-.clearfix { clear: both; }
-
+/* header styles */
 
 .demo-links {
     position: fixed;
@@ -319,23 +235,9 @@ li.jsplumb-draggable {
     padding:4px;
 }
 
-.community {
-    position: absolute;
-    top: 38px;
-    left: 102px;
-    color: oldlace;
-    font-size: 13px;
-    text-transform: lowercase;
-    letter-spacing: 1px;
-}
-
-.community:after {
-    content:"Toolkit";
-}
-
 .navbar-top {
     background-color: #58775d;
-    border-color: none;
+    border:none;
     font-size: 14px;
     font-weight: 700;
 }
@@ -358,5 +260,7 @@ li.jsplumb-draggable {
     color: #cdcc73;
     text-decoration: none;
 }
+
+
 
 
