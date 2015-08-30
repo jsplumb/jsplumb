@@ -63,7 +63,7 @@
 
     var _animProps = function (o, p) {
         var _one = function (pName) {
-            if (p[pName]) {
+            if (p[pName] != null) {
                 if (_ju.isString(p[pName])) {
                     var m = p[pName].match(/-=/) ? -1 : 1,
                         v = p[pName].substring(2);

@@ -1,3 +1,11 @@
+## 1.7.10
+
+### Changes between 1.7.9 and 1.7.10
+
+- Small update to getOffset to make it return the correct value if the input element was the container itself.
+- Small update to animation to fix incorrect falsey check.
+    
+    
 ## 1.7.9
 
 ### Changes between 1.7.8 and 1.7.9

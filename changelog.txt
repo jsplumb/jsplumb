@@ -1,6 +1,7 @@
 * 1.7.10
 
     - Small update to getOffset to make it return the correct value if the input element was the container itself.
+    - Small update to animation to fix incorrect falsey check.
 
 * 1.7.9
 
