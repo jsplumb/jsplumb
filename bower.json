@@ -28,7 +28,7 @@
     "test"
   ],
   "main": [
-    "dist/js/dom.jsPlumb-1.7.9.js"
+    "dist/js/jsPlumb-1.7.9.js"
   ],
   "homepage": "http://jsplumbtoolkit.com",
   "authors": [
