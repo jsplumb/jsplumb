@@ -31,9 +31,6 @@
         getEventManager:function() {
             return _getEventManager(this);
         },
-        //           EVENTS
-        // e.originalEvent is for jQuery; in Vanilla jsPlumb we get the native event.
-
         on : function(el, event, callback) {
             // TODO: here we would like to map the tap event if we know its
             // an internal bind to a click. we have to know its internal because only
@@ -41,9 +38,11 @@
             // event from a mousedown followed by a mouseup).
             //event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
             this.getEventManager().on.apply(this, arguments);
+            return this;
         },
         off : function(el, event, callback) {
             this.getEventManager().off.apply(this, arguments);
+            return this;
         }
     });
 
