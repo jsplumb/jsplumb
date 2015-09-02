@@ -80,11 +80,7 @@
     _jp.extend(root.jsPlumbInstance.prototype, {
 
         animationSupported:true,
-
-        scopeChange: function (el, elId, endpoints, scope, types) {
-
-        },
-
+        scopeChange: function (el, elId, endpoints, scope, types) { },
         getElement: function (el) {
             if (el == null) return null;
             // here we pluck the first entry if el was a list of entries.
@@ -201,9 +197,6 @@
             if (el._katavorioDrag)
                 el._katavorioDrag.abort();
         },
-// 		MULTIPLE ELEMENT DRAG
-        // these methods are unique to this adapter, because katavorio
-        // supports dragging multiple elements.
         addToDragSelection: function (spec) {
             _getDragManager(this).select(spec);
         },
@@ -216,9 +209,6 @@
         getOriginalEvent: function (e) {
             return e;
         },
-        // each adapter needs to use its own trigger method, because it triggers a drag. Mottle's trigger method
-        // works perfectly well but does not cause a drag to start with jQuery. Presumably this is due to some
-        // intricacy in the way in which jQuery UI's draggable method registers events.
         trigger: function (el, event, originalEvent) {
             this.getEventManager().trigger(el, event, originalEvent);
         },
