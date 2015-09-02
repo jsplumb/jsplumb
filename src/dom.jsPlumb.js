@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.9
+ * Title:jsPlumb 1.7.10
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -63,7 +63,7 @@
 
     var _animProps = function (o, p) {
         var _one = function (pName) {
-            if (p[pName]) {
+            if (p[pName] != null) {
                 if (_ju.isString(p[pName])) {
                     var m = p[pName].match(/-=/) ? -1 : 1,
                         v = p[pName].substring(2);
@@ -80,11 +80,7 @@
     _jp.extend(root.jsPlumbInstance.prototype, {
 
         animationSupported:true,
-
-        scopeChange: function (el, elId, endpoints, scope, types) {
-
-        },
-
+        scopeChange: function (el, elId, endpoints, scope, types) { },
         getElement: function (el) {
             if (el == null) return null;
             // here we pluck the first entry if el was a list of entries.
@@ -201,9 +197,6 @@
             if (el._katavorioDrag)
                 el._katavorioDrag.abort();
         },
-// 		MULTIPLE ELEMENT DRAG
-        // these methods are unique to this adapter, because katavorio
-        // supports dragging multiple elements.
         addToDragSelection: function (spec) {
             _getDragManager(this).select(spec);
         },
@@ -216,9 +209,6 @@
         getOriginalEvent: function (e) {
             return e;
         },
-        // each adapter needs to use its own trigger method, because it triggers a drag. Mottle's trigger method
-        // works perfectly well but does not cause a drag to start with jQuery. Presumably this is due to some
-        // intricacy in the way in which jQuery UI's draggable method registers events.
         trigger: function (el, event, originalEvent) {
             this.getEventManager().trigger(el, event, originalEvent);
         },

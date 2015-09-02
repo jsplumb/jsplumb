@@ -2,7 +2,7 @@
     "project": {
         "name": "jsplumb",
         "description": "Visual connectivity for webapps",
-        "version": "1.7.9",
+        "version": "1.7.10",
         "url": ""
     },
     "files": {
@@ -4156,6 +4156,72 @@
             "name": "Defaults.Scope",
             "type": "{String}",
             "default": "\"_jsPlumb_Default_Scope\"",
+            "class": "jsPlumbInstance"
+        },
+        {
+            "file": "doc/api/jsplumb-api.js",
+            "line": 1029,
+            "description": "Register an event handler, optionally as a delegate for some set of descendant elements. Note\nthat this method takes either 3 or 4 arguments - if you supply 3 arguments it is assumed you have\nomitted the `children` parameter, and that the event handler should be bound directly to the given element.",
+            "itemtype": "method",
+            "name": "on",
+            "params": [
+                {
+                    "name": "el",
+                    "description": "Either an Element, or a CSS selector (if you want to specify an ID you must prepend it with '#'), or an array of Elements.",
+                    "type": "Element[]|Element|String"
+                },
+                {
+                    "name": "children",
+                    "description": "Comma-delimited list of selectors identifying allowed children.",
+                    "type": "String",
+                    "optional": true
+                },
+                {
+                    "name": "event",
+                    "description": "Event ID.",
+                    "type": "String"
+                },
+                {
+                    "name": "fn",
+                    "description": "Event handler function.",
+                    "type": "Function"
+                }
+            ],
+            "chainable": 1,
+            "return": {
+                "description": "The current jsPlumb instance; you can chain this method.",
+                "type": "JsPlumbInstance"
+            },
+            "class": "jsPlumbInstance"
+        },
+        {
+            "file": "doc/api/jsplumb-api.js",
+            "line": 1042,
+            "description": "Cancel delegate event handling for the given function. Note that unlike with 'on' you do not supply\na list of child selectors here: it removes event delegation from all of the child selectors for which the\ngiven function was registered (if any).",
+            "itemtype": "method",
+            "name": "off",
+            "params": [
+                {
+                    "name": "el",
+                    "description": "Either an Element, or a CSS selector (if you want to specify an ID you must prepend it with '#'), or an array of Elements, from which to remove the event listener.",
+                    "type": "Element[]|Element|String"
+                },
+                {
+                    "name": "event",
+                    "description": "Event ID.",
+                    "type": "String"
+                },
+                {
+                    "name": "fn",
+                    "description": "Event handler function.",
+                    "type": "Function"
+                }
+            ],
+            "chainable": 1,
+            "return": {
+                "description": "The current jsPlumb instance; you can chain this method.",
+                "type": "JsPlumbInstance"
+            },
             "class": "jsPlumbInstance"
         },
         {

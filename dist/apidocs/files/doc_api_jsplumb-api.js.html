@@ -1248,6 +1248,31 @@
   * @default &quot;_jsPlumb_Default_Scope&quot;
   */
 
+/**
+ * Register an event handler, optionally as a delegate for some set of descendant elements. Note
+ * that this method takes either 3 or 4 arguments - if you supply 3 arguments it is assumed you have
+ * omitted the &#x60;children&#x60; parameter, and that the event handler should be bound directly to the given element.
+ * @method on
+ * @param {Element[]|Element|String} el Either an Element, or a CSS selector (if you want to specify an ID you must prepend it with &#x27;#&#x27;), or an array of Elements.
+ * @param {String} [children] Comma-delimited list of selectors identifying allowed children.
+ * @param {String} event Event ID.
+ * @param {Function} fn Event handler function.
+ * @chainable
+ * @return {jsPlumbInstance} The current jsPlumb instance; you can chain this method.
+ */
+
+/**
+ * Cancel delegate event handling for the given function. Note that unlike with &#x27;on&#x27; you do not supply
+ * a list of child selectors here: it removes event delegation from all of the child selectors for which the
+ * given function was registered (if any).
+ * @method off
+ * @param {Element[]|Element|String} el Either an Element, or a CSS selector (if you want to specify an ID you must prepend it with &#x27;#&#x27;), or an array of Elements, from which to remove the event listener.
+ * @param {String} event Event ID.
+ * @param {Function} fn Event handler function.
+ * @chainable
+ * @return {jsPlumbInstance} The current jsPlumb instance; you can chain this method.
+ */
+
 
     </pre>
 </div>

@@ -562,6 +562,20 @@ see the <code>jsPlumbInstance</code> API docs.</p>
                             </li>
                         
                             <li class="index-item method inherited">
+                                <a href="#method_off">off</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_on">on</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
                                 <a href="#method_ready">ready</a>
 
                                 
@@ -5899,6 +5913,333 @@ The callback signature should look like this:
         </div>
     
 
+    
+
+    
+</div>
+
+                
+                    <div id="method_off" class="method item inherited">
+    <h3 class="name"><code>off</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>el</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>event</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>fn</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">JsPlumbInstance</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag chainable">chainable</span>
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/JsPlumbInstance.html#method_off">jsPlumbInstance</a>:
+            
+        
+        
+        <a href="../files/doc_api_jsplumb-api.js.html#l1042"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1042</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Cancel delegate event handling for the given function. Note that unlike with &#39;on&#39; you do not supply
+a list of child selectors here: it removes event delegation from all of the child selectors for which the
+given function was registered (if any).</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">el</code>
+                        <span class="type">Element | Element | String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Either an Element, or a CSS selector (if you want to specify an ID you must prepend it with &#39;#&#39;), or an array of Elements, from which to remove the event listener.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">event</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Event ID.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">fn</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Event handler function.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">JsPlumbInstance</span>:
+                    
+                    <p>The current jsPlumb instance; you can chain this method.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_on" class="method item inherited">
+    <h3 class="name"><code>on</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>el</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[children]</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>event</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>fn</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">JsPlumbInstance</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag chainable">chainable</span>
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/JsPlumbInstance.html#method_on">jsPlumbInstance</a>:
+            
+        
+        
+        <a href="../files/doc_api_jsplumb-api.js.html#l1029"><code>doc&#x2F;api&#x2F;jsplumb-api.js:1029</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Register an event handler, optionally as a delegate for some set of descendant elements. Note
+that this method takes either 3 or 4 arguments - if you supply 3 arguments it is assumed you have
+omitted the <code>children</code> parameter, and that the event handler should be bound directly to the given element.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">el</code>
+                        <span class="type">Element | Element | String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Either an Element, or a CSS selector (if you want to specify an ID you must prepend it with &#39;#&#39;), or an array of Elements.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[children]</code>
+                        <span class="type">String</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Comma-delimited list of selectors identifying allowed children.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">event</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Event ID.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">fn</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Event handler function.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">JsPlumbInstance</span>:
+                    
+                    <p>The current jsPlumb instance; you can chain this method.</p>
+
+                
+            </div>
+        </div>
     
 
     
