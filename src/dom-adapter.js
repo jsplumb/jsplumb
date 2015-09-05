@@ -1,9 +1,9 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.7.10
+ * Title:jsPlumb 2.0.0
  *
- * Provides a way to visually connect elements on an HTML page, using SVG or VML.
+ * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains the base functionality for DOM type adapters.
  *
@@ -20,21 +20,7 @@
     var root = this, _ju = root.jsPlumbUtil;
 
     var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-        vmlAvailable = function () {
-            if (vmlAvailable.vml === undefined) {
-                var a = document.body.appendChild(document.createElement('div'));
-                a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-                var b = a.firstChild;
-                if (b != null && b.style != null) {
-                    b.style.behavior = "url(#default#VML)";
-                    vmlAvailable.vml = b ? typeof b.adj == "object" : true;
-                }
-                else
-                    vmlAvailable.vml = false;
-                a.parentNode.removeChild(a);
-            }
-            return vmlAvailable.vml;
-        },
+
     // TODO: remove this once we remove all library adapter versions and have only vanilla jsplumb: this functionality
     // comes from Mottle.
         iev = (function () {
@@ -377,31 +363,6 @@
         },
         getRenderModes: function () {
             return [ "svg", "vml" ];
-        },
-        isRenderModeAvailable: function (m) {
-            return {
-                "svg": svgAvailable,
-                "vml": vmlAvailable()
-            }[m];
-        },
-        trySetRenderMode: function (mode) {
-            var renderMode;
-
-            if (mode) {
-                mode = mode.toLowerCase();
-
-                var svgAvailable = this.isRenderModeAvailable("svg"),
-                    vmlAvailable = this.isRenderModeAvailable("vml");
-
-                // now test we actually have the capability to do this.
-                if (mode === "svg") {
-                    if (svgAvailable) renderMode = "svg";
-                    else if (vmlAvailable) renderMode = "vml";
-                }
-                else if (vmlAvailable) renderMode = "vml";
-            }
-
-            return renderMode;
         },
         getClass:_getClassName,
         addClass: function (el, clazz) {
