@@ -84,4 +84,4 @@
 #list table th, #list strong { color:black; font-size:12px; text-align: center; }
 
 
-path, ._jsPlumb_endpoint { cursor:pointer; }
+path, .jsplumb-endpoint { cursor:pointer; }

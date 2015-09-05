@@ -77,10 +77,10 @@
 }
 
 /** JSPLUMB ARTEFACTS **/
-._jsPlumb_endpoint {
+.jsplumb-endpoint {
     z-index: 32;
 }
 
-path, ._jsPlumb_endpoint {
+path, .jsplumb-endpoint {
     cursor: pointer;
 }
