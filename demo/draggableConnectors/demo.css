@@ -43,7 +43,6 @@
     -webkit-box-shadow: 2px 2px 19px #444;
     -moz-box-shadow: 2px 2px 19px #fff;
     opacity:0.9;
-    filter:alpha(opacity=90);
 }
 
 
@@ -82,6 +81,5 @@
 }
 #list table { width:100%;}
 #list table th, #list strong { color:black; font-size:12px; text-align: center; }
-
 
 path, .jsplumb-endpoint { cursor:pointer; }

@@ -1,9 +1,9 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.10
+ * Title:jsPlumb 2.0.0
  * 
- * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the SVG renderers.
  *
@@ -23,7 +23,6 @@
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
     var svgAttributeMap = {
-            "joinstyle": "stroke-linejoin",
             "stroke-linejoin": "stroke-linejoin",
             "stroke-dashoffset": "stroke-dashoffset",
             "stroke-linecap": "stroke-linecap"

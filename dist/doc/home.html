@@ -125,8 +125,7 @@
                 <div class="markdown-body col-xs-9">
                     <h2>jsPlumb</h2>
 
-<p>jsPlumb Community edition provides a means for a developer to visually connect elements on their web pages. It uses 
-SVG in modern browsers, and VML on IE 8 and below. </p>
+<p>jsPlumb Community edition provides a means for a developer to visually connect elements on their web pages, using SVG.</p>
 
 <p>jsPlumb has no external dependencies.</p>
 
@@ -180,20 +179,12 @@ that support SVG. </p>
 </code></pre></div>
 <p>This gives you Standards mode in all browsers and access to HTML5.</p>
 
-<h6>application/xhtml+xml</h6>
-
-<p>If you&#39;re serving <code>application/xhtml+xml</code> then you need to include the VML namespace in the <code>html</code> element:</p>
-<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-  <span class="nt">&lt;html</span> <span class="na">xmlns=</span><span class="s">&#39;http://www.w3.org/1999/xhtml&#39;</span> <span class="na">xmlns:v=</span><span class="s">&quot;urn:schemas-microsoft-com:vml&quot;</span><span class="nt">&gt;</span>
-</code></pre></div>
-<p>Don&#39;t forget that in IE&lt;9, XHTML is not supported.  </p>
-
 <p><a name="imports"></a></p>
 
 <h3>Required Imports</h3>
 
 <p>No required imports. </p>
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-x.x.x-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/jsPlumb-x.x.x-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div>
 <p><a name="initializing"></a></p>
 
@@ -301,11 +292,13 @@ that support SVG. </p>
 
 <h3>Z-index Considerations</h3>
 
-<p>You need to pay attention to the z-indices of the various parts of your UI when using jsPlumb, in particular to ensure that the elements that jsPlumb adds to the DOM do not overlay other parts of the interface. </p>
+<p>You need to pay attention to the z-indices of the various parts of your UI when using jsPlumb, in particular to ensure 
+that the elements that jsPlumb adds to the DOM do not overlay other parts of the interface. </p>
 
-<p>jsPlumb adds an element to the DOM for each Endpoint, Connector and Overlay. So for a Connection having visible Endpoints at each end and a label in the middle, jsPlumb adds four elements to the DOM.  The actual elements it adds depend on the renderer in use (SVG/VML).           </p>
+<p>jsPlumb adds an element to the DOM for each Endpoint, Connector and Overlay. So for a Connection having visible 
+Endpoints at each end and a label in the middle, jsPlumb adds four elements to the DOM. </p>
 
-<p>To help you organise z-indices correctly, jsPlumb adds a CSS class to each type of element it adds. They are as follows:        </p>
+<p>To help you organise z-indices correctly, jsPlumb adds a CSS class to each type of element it adds. They are as follows:</p>
 
 <table style="color:black;font-size:90%;width:100%;">
   <tr><td><strong>Component</strong></td><td><strong>Class</strong></td></tr>
@@ -315,33 +308,47 @@ that support SVG. </p>
 </table>            
                             
 
-<p>In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class <code>_jsPlumb_hover</code>. For more information about styling jsPlumb with CSS, see <a href="styling-via-css">this page</a>. </p>
+<p>In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class <code>jsplumb-hover</code>. 
+For more information about styling jsPlumb with CSS, see <a href="styling-via-css">this page</a>. </p>
 
 <p><a name="container"></a></p>
 
 <h3>Where does jsPlumb add elements?</h3>
 
-<p>It&#39;s important to understand where in the DOM jsPlumb will add any elements it creates. If you want a TL;DR version, then it boils down to this:</p>
+<p>It&#39;s important to understand where in the DOM jsPlumb will add any elements it creates. If you want a TL;DR version, 
+then it boils down to this:</p>
 
 <ul>
 <li>It is strongly recommended that you set a Container before you begin plumbing.</li>
-<li>A Container is some element that jsPlumb will use as the parent for all of the artefacts it adds to the UI. Typically, you would make this the parent element of the nodes you are connecting.</li>
-<li>If you do not specify a Container, jsPlumb will infer that the Container should be the <code>offsetParent</code> of the first element on which you call <code>addEndpoint</code>, <code>makeSource</code> or <code>makeTarget</code>, or the <code>offsetParent</code> of the source element in the first <code>connect</code> call - whichever happens first.</li>
+<li>A Container is some element that jsPlumb will use as the parent for all of the artefacts it adds to the UI. Typically, 
+you would make this the parent element of the nodes you are connecting.</li>
+<li>If you do not specify a Container, jsPlumb will infer that the Container should be the <code>offsetParent</code> of the first 
+element on which you call <code>addEndpoint</code>, <code>makeSource</code> or <code>makeTarget</code>, or the <code>offsetParent</code> of the source element in 
+the first <code>connect</code> call - whichever happens first.</li>
 </ul>
 
 <p>Let&#39;s discuss this in more detail.</p>
 
-<p>Early versions of jsPlumb added everything to the <strong>body</strong> element. This has the advantage of being the most flexible arrangement in terms of supporting which elements can be connected, but in certain use cases produced unexpected results. </p>
+<p>Early versions of jsPlumb added everything to the <strong>body</strong> element. This has the advantage of being the most flexible 
+arrangement in terms of supporting which elements can be connected, but in certain use cases produced unexpected results. </p>
 
-<p>Consider the arrangement where you have some connected elements in a tab: you would expect jsPlumb to add elements inside the tab, so that when the user switches tabs and the current one is hidden, all the jsPlumb stuff is hidden too.  But when the elements are on the body, this does not happen!   </p>
+<p>Consider the arrangement where you have some connected elements in a tab: you would expect jsPlumb to add elements inside 
+the tab, so that when the user switches tabs and the current one is hidden, all the jsPlumb stuff is hidden too.  But 
+when the elements are on the body, this does not happen!   </p>
 
-<p>It is also quite common for jsPlumb to be used in a page in which the diagram is contained within some element that should show scrollbars when its content overflows. Appending elements to the document body prevents this from occurring automatically.</p>
+<p>It is also quite common for jsPlumb to be used in a page in which the diagram is contained within some element that 
+should show scrollbars when its content overflows. Appending elements to the document body prevents this from occurring 
+automatically.</p>
 
 <h4>Container</h4>
 
-<p>You can - and <strong>should</strong> - instruct jsPlumb to use some element as the parent of everything jsPlumb adds to the UI through usage of the <code>setContainer</code> method in jsPlumb, or by providing the Container in the parameters to a <code>jsPlumb.getInstance</code> call.</p>
+<p>You can - and <strong>should</strong> - instruct jsPlumb to use some element as the parent of everything jsPlumb adds to the UI 
+through usage of the <code>setContainer</code> method in jsPlumb, or by providing the Container in the parameters to a <code>jsPlumb.getInstance</code> 
+call.</p>
 
-<p><strong>Important</strong> This is a change from versions of jsPlumb prior to 1.6.2. In versions prior to 1.6.2 you could assign the Container directly via the <code>jsPlumb.Defaults.Container</code> property. You can still do this - we&#39;re in Javascript here of course, it&#39;s a free-for-all - but it will be ignored.</p>
+<p><strong>Important</strong> This is a change from versions of jsPlumb prior to 1.6.2. In versions prior to 1.6.2 you could assign the 
+Container directly via the <code>jsPlumb.Defaults.Container</code> property. You can still do this - we&#39;re in Javascript here of 
+course, it&#39;s a free-for-all - but it will be ignored.</p>
 
 <p><strong>Also Important</strong> If you happen to be using jsPlumb&#39;s <code>draggable</code> method to make other parts of your UI draggable (ie. not just things you&#39;re plumbing together), be careful not to call <code>draggable</code> on the element that is acting as the <code>Container</code> for the current instance, or you will see some odd situations occur when dragging.  It is suggested that the best thing to do if you wish to use jsPlumb to enable dragging on non-plumbed elements is to create a new instance:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">nonPlumbing</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">();</span>
@@ -350,7 +357,8 @@ that support SVG. </p>
 <h5>Some examples</h5>
 
 <ul>
-<li>Set a Container to use as the default Container, using a jQuery selector, and then add an Endpoint.  The related UI artefact will be a child of the document body:</li>
+<li>Set a Container to use as the default Container, using a jQuery selector, and then add an Endpoint.  The related UI 
+artefact will be a child of the document body:</li>
 </ul>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">));</span>
 <span class="p">...</span>

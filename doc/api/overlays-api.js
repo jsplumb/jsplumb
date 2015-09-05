@@ -51,7 +51,7 @@
 */
 
 /**
-* Provides a text label with which to decorate Connectors or Endpoints. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  You can style a Label
+* Provides a text label with which to decorate Connectors or Endpoints. jsPlumb draws a Label overlay as a styled DIV.  You can style a Label
 * using the `cssClass` parameter, or - if you need to programmatically generate the appearance - the `labelStyle` parameter.     
 * @class Overlays.Label
 * @constructor

@@ -83,16 +83,22 @@ This is the full list of parameters you can set in a paintStyle object, but note
 - **lineWidth** - width of a Connector's line. An integer.
 - **outlineWidth** - width of the outline for an Endpoint or Connector. An integer.
 - **outlineColor** - color of the outline for an Endpoint or Connector. see fillStyle examples.
-- **dashstyle** - This comes from VML, and allows you to create dashed or dotted lines.  It has a better syntax than the equivalent attribute in SVG (`stroke-dasharray`, discussed below), so jsPlumb supports this for both renderers.  The `dashstyle` attribute is specified as an array of strokes and spaces, where each value is some multiple of **the width of the Connector**, and that's where it's better than SVG, which just uses absolute pixel values.
+- **dashstyle** - This comes from VML, and allows you to create dashed or dotted lines.  It has a better syntax than 
+the equivalent attribute in SVG (`stroke-dasharray`, discussed below), so even though VML is no longer a supported renderer
+we've decided to keep this attribute. The `dashstyle` attribute is specified as an array of strokes and spaces, where 
+each value is some multiple of **the width of the Connector**, and that's where it's better than SVG, which just uses 
+absolute pixel values.
 
-[The VML spec](http://www.w3.org/TR/NOTE-VML) is a good place to find valid values for dashstyle. Note that jsPlumb does not support the string values for this attribute ("solid", "dashdot", etc).
+[The VML spec](http://www.w3.org/TR/NOTE-VML) is a good place to find valid values for dashstyle. Note that jsPlumb does 
+not support the string values for this attribute ("solid", "dashdot", etc).
 
-In SVG render mode, jsPlumb uses the `lineWidth` parameter in conjunction with the values in a `dashstyle` attribute to create an appropriate value for `stroke-dasharray`.
+jsPlumb uses the `lineWidth` parameter in conjunction with the values in a `dashstyle` attribute to create an appropriate 
+value for `stroke-dasharray`.
 
-- **stroke-dasharray** - SVG only. This is the SVG equivalent of `dashstyle`.  [The SVG spec](http://www.w3.org/TR/SVG/painting.html) discusses valid values for this parameter.  But be aware that jsPlumb does not convert this into a valid `dashstyle` attribute when using the VML renderer. Better to use `dashstyle`.
-- **stroke-dashoffset** - SVG only.  This is used in SVG to specify how far into the dash pattern to start painting.  For more information, see [the SVG spec](http://www.w3.org/TR/SVG/painting.html)
-- **joinstyle** - VML and SVG only.  As with `dashstyle`, this is a VML attribute that jsPlumb supports for both VML and SVG - jsPlumb turns this into a `stroke-linejoin` attribute when rendering with SVG.  This attribute specifies how you want individual segments of connectors to be joined; the VML and SVG specs both have examples of this, of which many are the same between the two, which is why jsPlumb will automatically convert this attribute into the SVG equivalent.
-- **stroke-linejoin** - SVG only.  This is the equivalent of VML's `joinstyle` attribute, but as with `stroke-dasharray`, jsPlumb does not convert this into something approriate for VML.  So, using `joinstyle` will enable you to support more browsers with less effort.		
+- **stroke-dasharray** - This is the SVG equivalent of `dashstyle`.  [The SVG spec](http://www.w3.org/TR/SVG/painting.html) 
+discusses valid values for this parameter. 
+- **stroke-dashoffset** - This is used in SVG to specify how far into the dash pattern to start painting.  For more information, see [the SVG spec](http://www.w3.org/TR/SVG/painting.html)
+- **stroke-linejoin** - This attribute specifies how you want individual segments of connectors to be joined.
 
 #### Hover Paint Styles
 	 		
@@ -164,12 +170,18 @@ In these examples we specified a hover paint style for both the Endpoint we are 
 **Note** that `makeTarget` does not support Connector parameters. It is for creating targets only; Connector parameters will be set by the source Endpoint in any Connections that are made to the element that you turned into a target by using this method.
 	 			 		
 #### Gradients
-The SVG renderers supports gradients, but the VML renderer does not.  jsPlumb uses its own syntax to define gradients; this was initially to abstract out the differences between the syntax required by canvas and that required by SVG, but in fact since jsPlumb does not support the canvas renderer any more, it is possible that a future release will switch to using the SVG syntax for gradients.
+jsPlumb uses its own syntax to define gradients; this was initially to abstract out the differences between the syntax 
+required by canvas and that required by SVG, but in fact since jsPlumb does not support the canvas or VML renderers any more, 
+it is possible that a future release will switch to using the SVG syntax for gradients.
 
-There are two types of gradients available - a `linear` gradient, which consists of colored lines all going in one direction, and a `radial` gradient, which consists of colored circles emanating from one circle to another. Because of their basic shape, jsPlumb supports only linear gradients for Connectors.  But for Endpoints, jsPlumb supports both linear and radial gradients.			
+There are two types of gradients available - a `linear` gradient, which consists of colored lines all going in one 
+direction, and a `radial` gradient, which consists of colored circles emanating from one circle to another. Because of 
+their basic shape, jsPlumb supports only linear gradients for Connectors.  But for Endpoints, jsPlumb supports both 
+linear and radial gradients.
 
 ##### Connector gradients
-To specify a linear gradient to use in a Connector, you must add a `gradient` object to your Connector's `paintStyle`, for instance:
+To specify a linear gradient to use in a Connector, you must add a `gradient` object to your Connector's `paintStyle`, 
+for instance:
 
 ```javascript
 jsPlumb.connect({
@@ -203,28 +215,14 @@ jsPlumb.connect({
 });
 ```
 
-**Note:** when using the VML renderer, jsPlumb will simply ignore the gradient directive, so it is best to ensure you also supply a `strokeStyle` in your paintStyle object, to give jsPlumb something to fall back on.  If you do not supply a `strokeStyle` your Connectors will be painted black.  The previous example might look like this, for instance:
-
-```javascript
-jsPlumb.connect({
-  source : 'window2',
-  target : 'window3',
-  paintStyle:{
-    strokeStyle:'red',
-    gradient:{
-      stops:[[0,'red'], [0.33,'blue'], [0.66,'green'], [0.33,'blue'], [1,'red']]
-    },
-    lineWidth:15
-  }
-});
-```
-
-Notice the `strokeStyle:'red'` directive at the beginning of the parameter list in `paintStyle`.
-
 ##### Endpoint gradients
-Endpoint gradients are specified using the same syntax as Connector gradients.  You put the gradient specifier either in the `endpoint` member, or if you are specifying different Endpoints for each end of the Connector, in one or both of the values in the `endpoints` array.  Also, this information applies to the case that you are creating standalone Endpoints that you will be configuring for drag and drop creation of new Connections. 
+Endpoint gradients are specified using the same syntax as Connector gradients.  You put the gradient specifier either 
+in the `endpoint` member, or if you are specifying different Endpoints for each end of the Connector, in one or both of 
+the values in the `endpoints` array.  Also, this information applies to the case that you are creating standalone 
+Endpoints that you will be configuring for drag and drop creation of new Connections. 
 
-This is an example of an Endpoint gradient that is different for each Endpoint in the Connector.  This comes from the main demo; it is the Connector joining Window 2 to Window 3:
+This is an example of an Endpoint gradient that is different for each Endpoint in the Connector.  This comes from the 
+main demo; it is the Connector joining Window 2 to Window 3:
 
 ```javascript
 var w23Stroke = 'rgb(189,11,11)';
@@ -253,13 +251,18 @@ The first entry in the gradient will be the one that is on the Connector end of 
 you want in this gradient, just like with Connector gradients.
 
 ##### Applying the gradient in Endpoints
-Only the Dot and Rectangle endpoints honour the presence of a gradient (and, remember, not in VML). The Image endpoint of course ignores a gradient as it does no painting of its own.
+Only the Dot and Rectangle endpoints honour the presence of a gradient. The Image endpoint of course ignores a gradient 
+as it does no painting of its own.
 
 The type of gradient you will see depends on the Endpoint type:
 
 - **Dot** - renders a radial endpoint, with color stop 0 on the outside, progressing inwards as we move through color stops.
 
-Radial gradients actually require more data than linear gradients - in a linear gradient we just move from one point to another, whereas in a radial gradient we move from one <em>circle</em> to another.  By default, jsPlumb will render a radial gradient using a source circle of the same radius as the Endpoint itself, and a target circle of 1/3 of the radius of the Endpoint (both circles share the same center as the Endpoint itself). This circle will be offset by radius/2 in each direction.
+Radial gradients actually require more data than linear gradients - in a linear gradient we just move from one point to 
+another, whereas in a radial gradient we move from one <em>circle</em> to another.  By default, jsPlumb will render a 
+radial gradient using a source circle of the same radius as the Endpoint itself, and a target circle of 1/3 of the 
+radius of the Endpoint (both circles share the same center as the Endpoint itself). This circle will be offset by 
+radius/2 in each direction.
 
 You can supply your own values for these inside the gradient descriptor:
 
@@ -285,9 +288,11 @@ jsPlumb.connect({
 });
 ```
 
-Here we have instructed jsPlumb to make the gradient's inner radius 10px instead of the default 25/3 = 8 ish pixels, and the offset in each direction will be 5px, instead of the default radius / 2 = 12.5 pixels.
+Here we have instructed jsPlumb to make the gradient's inner radius 10px instead of the default 25/3 = 8 ish pixels, 
+and the offset in each direction will be 5px, instead of the default radius / 2 = 12.5 pixels.
 
-It is also possible to specify the offset and inner radius as percentages - enter the values as strings with a '%' symbol on the end:
+It is also possible to specify the offset and inner radius as percentages - enter the values as strings with a '%' 
+symbol on the end:
 
 ```javascript
 var w34Stroke = 'rgba(50, 50, 200, 1)';
@@ -314,4 +319,4 @@ jsPlumb.connect({
 This will give roughly the same output as the example above (the percentages are not entirely exact).
 
 - **Rectangle** - renders a linear endpoint, with color stop 0 closest to the end of the Connector
-		
+

@@ -85,11 +85,10 @@
     -webkit-box-shadow: 2px 2px 19px #444;
     -moz-box-shadow: 2px 2px 19px #fff;
     opacity: 0.9;
-    filter: alpha(opacity=90);
 }
 
 .window a {
-    font-family: helvetica;
+    font-family: helvetica, sans-serif;
 }
 
 path, .jsplumb-endpoint {

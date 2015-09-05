@@ -108,9 +108,9 @@ secondInstance.connect({ source:"element4", target:"element3", scope:"someScope"
 #### Z-index Considerations
 You need to pay attention to the z-indices of the various parts of your UI when using jsPlumb, in particular to ensure that the elements that jsPlumb adds to the DOM do not overlay other parts of the interface. 
 
-jsPlumb adds an element to the DOM for each Endpoint, Connector and Overlay. So for a connection having visible Endpoints at each end and a label in the middle, jsPlumb adds four elements to the DOM.  The actual elements it adds depend on the renderer in use (Canvas/SVG/VML).			
+jsPlumb adds an element to the DOM for each Endpoint, Connector and Overlay. So for a connection having visible Endpoints at each end and a label in the middle, jsPlumb adds four elements to the DOM.
 
-To help you organise z-indices correctly, jsPlumb adds a CSS class to each type of element it adds. They are as follows:		
+To help you organise z-indices correctly, jsPlumb adds a CSS class to each type of element it adds. They are as follows:
 		
 <table style="color:black;font-size:90%;">
   <tr><td><strong>Component</strong></td><td><strong>Class</strong></td></tr>
@@ -119,7 +119,8 @@ To help you organise z-indices correctly, jsPlumb adds a CSS class to each type 
   <tr><td>Overlay</td><td>_jsPlumb_overlay</td></tr>
 </table>            
                             
-In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class `_jsPlumb_hover`. For more information about styling jsPlumb with CSS, see [this page](styling-via-css).
+In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class `jsplumb-hover`. For more information about styling jsPlumb with CSS, 
+see [this page](styling-via-css).
 
 <a name="container"></a>
 #### Where does jsPlumb add elements?  	

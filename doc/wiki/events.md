@@ -196,7 +196,7 @@ These are the Endpoint events to which you can bind a listener:
 ### Overlay Events
 Registering event listeners on an Overlay is a slightly different procedure - you provide them as arguments to the Overlay's constructor.  This is because you never actually act on an Overlay object.  
                                                                             
-Here's how to register a click listener on an Overlay:			
+Here's how to register a click listener on an Overlay:
                                                                           
     
     jsPlumb.connect({
@@ -221,14 +221,14 @@ Here's how to register a click listener on an Overlay:
       });
 
 The related component for an Overlay is available to you as the `component` member of the Overlay.
-
-Note that events registered on Diamond, Arrow or PlainArrow overlays will not fire with the Canvas renderer - they work only with the SVG and VML renderers. 
+ 
 
 
 <a name="unbindingEvents"></a>
 ### Unbinding Events
-On the jsPlumb object and on Connections and Endpoints, you can use the `unbind` method to remove a listener.  This method either takes the name of the event to unbind:
-		
+On the jsPlumb object and on Connections and Endpoints, you can use the `unbind` method to remove a listener.  This 
+method either takes the name of the event to unbind:
+
     jsPlumb.unbind("click");
 
 ...or no argument, meaning unbind all events:

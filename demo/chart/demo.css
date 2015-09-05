@@ -11,7 +11,7 @@
 }
 
 /** HOVER EFFECTS **/
-.chart-demo .window:hover, .chart-demo .window.jsplumb-source_hover, .chart-demo .window.jsplumb-target_hover {
+.chart-demo .window:hover, .chart-demo .window.jsplumb-source-hover, .chart-demo .window.jsplumb-target-hover {
     border:1px solid orange;
     color:orange;
 }
@@ -58,7 +58,6 @@
     -webkit-box-shadow: 2px 2px 19px #444;
     -moz-box-shadow: 2px 2px 19px #fff;
     opacity:0.9;
-    filter:alpha(opacity=90);
 }
 
 path, .jsplumb-endpoint { cursor:pointer; }

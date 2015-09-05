@@ -505,13 +505,10 @@
         };
 
         this.setZoom = function (z, repaintEverything) {
-            if (!jsPlumbUtil.oldIE) {
-                _zoom = z;
-                _currentInstance.fire("zoom", _zoom);
-                if (repaintEverything) _currentInstance.repaintEverything();
-            }
-            return !jsPlumbUtil.oldIE;
-
+            _zoom = z;
+            _currentInstance.fire("zoom", _zoom);
+            if (repaintEverything) _currentInstance.repaintEverything();
+            return true;
         };
         this.getZoom = function () {
             return _zoom;
@@ -1156,24 +1153,26 @@
             return managedElements;
         };
 
+        this.getRenderMode = function() { return "svg"; };
+
         this.connectorClass = "jsplumb-connector";
-        this.connectorOutlineClass = "jsplumb-connector_outline";
+        this.connectorOutlineClass = "jsplumb-connector-outline";
         this.connectedClass = "jsplumb-connected";
         this.hoverClass = "jsplumb-hover";
         this.endpointClass = "jsplumb-endpoint";
-        this.endpointConnectedClass = "jsplumb-endpoint_connected";
-        this.endpointFullClass = "jsplumb-endpoint_full";
-        this.endpointDropAllowedClass = "jsplumb-endpoint_drop_allowed";
-        this.endpointDropForbiddenClass = "jsplumb-endpoint_drop_forbidden";
+        this.endpointConnectedClass = "jsplumb-endpoint-connected";
+        this.endpointFullClass = "jsplumb-endpoint-full";
+        this.endpointDropAllowedClass = "jsplumb-endpoint-drop-allowed";
+        this.endpointDropForbiddenClass = "jsplumb-endpoint-drop-forbidden";
         this.overlayClass = "jsplumb-overlay";
         this.draggingClass = "jsplumb-dragging";
-        this.elementDraggingClass = "jsplumb-element_dragging";
-        this.sourceElementDraggingClass = "jsplumb-source_element_dragging";
-        this.targetElementDraggingClass = "jsplumb-target_element_dragging";
-        this.endpointAnchorClassPrefix = "jsplumb-endpoint_anchor";
-        this.hoverSourceClass = "jsplumb-source_hover";
-        this.hoverTargetClass = "jsplumb-target_hover";
-        this.dragSelectClass = "jsplumb-drag_select";
+        this.elementDraggingClass = "jsplumb-element-dragging";
+        this.sourceElementDraggingClass = "jsplumb-source-element-dragging";
+        this.targetElementDraggingClass = "jsplumb-target-element-dragging";
+        this.endpointAnchorClassPrefix = "jsplumb-endpoint-anchor";
+        this.hoverSourceClass = "jsplumb-source-hover";
+        this.hoverTargetClass = "jsplumb-target-hover";
+        this.dragSelectClass = "jsplumb-drag-select";
 
         this.Anchors = {};
         this.Connectors = {  "svg": {} };
@@ -1972,7 +1971,6 @@
             if (!initialized) {
                 _getContainerFromDefaults();
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
-                _currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
                 initialized = true;
                 _currentInstance.fire("ready", _currentInstance);
             }

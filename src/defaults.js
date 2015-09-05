@@ -1257,8 +1257,7 @@
     };
     _ju.extend(AbstractDOMOverlay, [_jp.jsPlumbUIComponent, AbstractOverlay], {
         getDimensions: function () {
-// still support the old way, for now, for IE8. But from 2.0.0 this whole method will be gone. 
-            return _ju.oldIE ? _jp.getSize(this.getElement()) : [1, 1];
+            return [1,1];
         },
         setVisible: function (state) {
             if (this._jsPlumb.div) {

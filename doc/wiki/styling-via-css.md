@@ -1,9 +1,7 @@
 ## Styling via CSS
 
 Using CSS to style the artefacts that jsPlumb creates is a lot more flexible than using `paintStyle` or 
-`hoverPaintStyle`, but due to the fact that you cannot style things like stroke color or line width in VML, it's 
-only really useful for SVG.  Of course, if you know your users won't be using VML then it's a great choice - and 
-nowadays that is just a question of whether or not you will have any users on versions of IE earlier than 9.
+`hoverPaintStyle`. 
 
 On this page we'll first run through the default CSS classes that jsPlumb attaches, followed by a quick explanation 
 for how to attach your own, and then we'll discuss how to style SVG.
@@ -187,13 +185,3 @@ CSS:
 
 For a full discussion of the properties you can configure on an SVG element via CSS, I refer you to [the SVG spec](http://www.w3.org/TR/SVG/styling.html#StylingWithCSS).
 
-
-### CSS for VML elements
-VML does not really support styling via CSS.  There are some properties you can set, but these are typically things that 
-are under jsPlumb's control and not something you should mess with.
-
-[The VML spec](http://www.w3.org/TR/NOTE-VML#_Toc416858381) has a brief discussion of styling VML with CSS.  jsPlumb 
-creates a top level `shape` element in VML, inside of which it attaches whatever elements are required for the Endpoint 
-or Connector in question.  This `shape` element would be the thing that you would style via CSS, if it were possible.  
-But [here's](http://www.w3.org/TR/NOTE-VML#_Toc416858386) a link to the discussion about which properties you can style 
-via CSS.  Note that all the paint type ones are VML only.

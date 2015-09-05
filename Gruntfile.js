@@ -7,14 +7,14 @@ var versions = {
     },
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
 
-    renderers = [ "svg", "vml" ],
+    renderers = [ "svg" ],
     extraLibraries = [ get("MOTTLE"), get("KATAVORIO") ],
     objects = {
         connectors : [
             "flowchart", "statemachine", "bezier", "straight"
         ],
         renderers : [
-            "svg", "vml"
+            "svg"
         ],
         common:[
             'util.js', 'browser-util.js', 'jsPlumb.js', 'dom-adapter.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js'
@@ -51,9 +51,9 @@ var versions = {
            "-----------------\n" +
            "To build jsPlumb, execute the 'build' task:\n\n" +
            "--> grunt build\n\n" +
-           "this will, by default, build a version of jsPlumb with all the available connectors and renderers (SVG and VML).\n\n" +
+           "this will, by default, build a version of jsPlumb with all the available connectors.\n\n" +
            "You can build a custom version of jsPlumb by specifying a list of connectors and/or renderers on the command line, for example:\n\n" +
-           "--> grunt build --connectors=flowchart,statemachine --renderers=svg,vml\n\n";
+           "--> grunt build --connectors=flowchart,statemachine\n\n";
 
 module.exports = function(grunt) {
 
@@ -159,7 +159,7 @@ module.exports = function(grunt) {
                   '-W032':true
                 },
             files:{
-                src: [ 'src/base-library-adapter.js', 'src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/jsPlumb.js']
+                src: [ 'src/base-library-adapter.js', 'src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/renderers-svg.js', 'src/jsPlumb.js']
             }
         },
         watch: {

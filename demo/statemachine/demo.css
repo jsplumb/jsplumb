@@ -15,7 +15,6 @@
     -moz-border-radius: 8px;
     border-radius: 8px;
     opacity: 0.8;
-    filter: alpha(opacity=80);
     cursor: move;
     background-color: white;
     font-size: 11px;
@@ -36,7 +35,7 @@
     transition: background-color 0.25s ease-in;
 }
 
-.aLabel.jsplumb-hover, .jsplumb-source_hover, .jsplumb-target_hover {
+.aLabel.jsplumb-hover, .jsplumb-source-hover, .jsplumb-target-hover {
     background-color: #1e8151;
     color: white;
 }
@@ -65,7 +64,7 @@
 }
 
 .ep:hover {
-    box-shadow: 0px 0px 6px black;
+    box-shadow: 0 0 6px black;
 }
 
 .statemachine-demo .jsplumb-endpoint {

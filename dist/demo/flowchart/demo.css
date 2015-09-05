@@ -12,7 +12,6 @@
     -moz-border-radius: 0.5em;
     border-radius: 0.5em;
     opacity: 0.8;
-    filter: alpha(opacity=80);
     width: 80px;
     height: 80px;
     line-height: 80px;
@@ -22,7 +21,7 @@
     position: absolute;
     background-color: #eeeeef;
     color: black;
-    font-family: helvetica;
+    font-family: helvetica, sans-serif;
     padding: 0.5em;
     font-size: 0.9em;
     -webkit-transition: -webkit-box-shadow 0.15s ease-in;
@@ -37,7 +36,6 @@
     -webkit-box-shadow: 2px 2px 19px #444;
     -moz-box-shadow: 2px 2px 19px #444;
     opacity: 0.6;
-    filter: alpha(opacity=60);
 }
 
 .flowchart-demo .active {
@@ -85,7 +83,6 @@
     z-index: 21;
     border: 1px dotted gray;
     opacity: 0.8;
-    filter: alpha(opacity=80);
     cursor: pointer;
 }
 

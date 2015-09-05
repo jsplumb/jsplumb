@@ -1,3 +1,8 @@
+## 2.0.0
+
+- removal of the VML renderer. IE8 no longer supported.
+- all class names such as `_jsPlumb_connector` renamed to, for example, `jsplumb-connector`.
+
 ## 1.7.10
 
 ### Changes between 1.7.9 and 1.7.10

@@ -659,21 +659,6 @@
 * @method reset
 */
 
-/**
- * Sets render mode.  jsPlumb will fall back to VML if it determines that
- * what you asked for is not supported (and that VML is).  If you asked for VML but the browser does
- * not support it, jsPlumb uses SVG.
- * @method setRenderMode
- * @param {String} mode One of `jsPlumb.SVG or `jsPlumb.VML.
- * @return {String} The render mode that jsPlumb set, which of course may be different from that requested.
- */
- 
- /**
-* Gets the current render mode for this instance of jsPlumb.
- * @method getRenderMode
- * @return {String} The current render mode - "svg" or "vml".
- */
- 
  /**
   * Gets a new instance of jsPlumb.
   * @method getInstance
@@ -879,13 +864,6 @@
   * to contain a single value, as it is used as a prefix for the final class: '_***' is appended,
   * where "***" is the CSS class associated with the current dynamic anchor location.
   * @property endpointAnchorClassPrefix
-  * @type {String}
-  */
-
-  /**
-  * Constant for use with the setRenderMode method
-  * @property VML
-  * @static
   * @type {String}
   */
 

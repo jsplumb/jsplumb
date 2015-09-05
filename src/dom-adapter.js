@@ -362,7 +362,7 @@
             document.body.appendChild(node);
         },
         getRenderModes: function () {
-            return [ "svg", "vml" ];
+            return [ "svg"  ];
         },
         getClass:_getClassName,
         addClass: function (el, clazz) {
