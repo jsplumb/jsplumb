@@ -892,11 +892,13 @@
 
                 // check for makeSource/makeTarget specs.
 
-                var _oneElementDef = function (type, idx, defs) {
+                var _oneElementDef = function (type, idx, defs, matchType) {
                     if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
                         var tid = _getId(_p[type]), tep = defs[tid];
 
-                        if (tep) {
+                        tep = tep ? tep[matchType] : null;
+
+                        if (tep && (tep.def.connectionType == matchType)) {
                             // if not enabled, return.
                             if (!tep.enabled) return false;
                             var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
@@ -917,8 +919,8 @@
                     }
                 };
 
-                if (_oneElementDef("source", 0, this.sourceEndpointDefinitions) === false) return;
-                if (_oneElementDef("target", 1, this.targetEndpointDefinitions) === false) return;
+                if (_oneElementDef("source", 0, this.sourceEndpointDefinitions, _p.type || "default") === false) return;
+                if (_oneElementDef("target", 1, this.targetEndpointDefinitions, _p.type || "default") === false) return;
 
                 // last, ensure scopes match
                 if (_p.sourceEndpoint && _p.targetEndpoint)
@@ -2281,7 +2283,10 @@
                     // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
                     // and use the endpoint definition if found.
                     var elid = elInfo.id,
-                        _del = this.getElement(elInfo.el);
+                        _del = this.getElement(elInfo.el),
+                        type = params.connectionType || "default";
+
+                    this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};
 
                     _ensureContainer(elid);
 
@@ -2291,7 +2296,9 @@
                         maxConnections: maxConnections,
                         enabled: true
                     };
-                    this.sourceEndpointDefinitions[elid] = _def;
+
+
+                    this.sourceEndpointDefinitions[elid][type] = _def;
                     elInfo.def = _def;
 
                     var stopEvent = jsPlumb.dragEvents.stop,
@@ -2351,7 +2358,7 @@
                         if (e.which === 3 || e.button === 2) return;
 
                         // TODO store def on element.
-                        var def = this.sourceEndpointDefinitions[elid];
+                        var def = this.sourceEndpointDefinitions[elid][type];
 
                         // if disabled, return.
                         if (!def.enabled) return;
@@ -2458,14 +2465,16 @@
 
         // see api docs
         this.unmakeSource = function (el, doNotClearArrays) {
+            // TODO support clear by type too
+            var type  = "default";
             var info = _info(el),
-                mouseDownListener = this.sourceEndpointDefinitions[info.id].trigger;
+                mouseDownListener = this.sourceEndpointDefinitions[info.id][type].trigger;
 
             if (mouseDownListener)
                 _currentInstance.off(info.el, "mousedown", mouseDownListener);
 
             if (!doNotClearArrays) {
-                delete this.sourceEndpointDefinitions[info.id];
+                delete this.sourceEndpointDefinitions[info.id][type];
             }
 
             return this;
