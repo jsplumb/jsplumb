@@ -1,9 +1,9 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.10
+ * Title:jsPlumb 2.0.0
  * 
- * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the core code.
  *
@@ -568,16 +568,16 @@
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                //_addOneDelegate(id, "._jsPlumb_connector, ._jsPlumb_connector > *", function (e) {
-                _addOneDelegate(id, "._jsPlumb_connector > *", function (e) {
+                //_addOneDelegate(id, ".jsplumb-connector, .jsplumb-connector > *", function (e) {
+                _addOneDelegate(id, ".jsplumb-connector > *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                _addOneDelegate(id, "._jsPlumb_endpoint, ._jsPlumb_endpoint > *, ._jsPlumb_endpoint svg *", function (e) {
+                _addOneDelegate(id, ".jsplumb-endpoint, .jsplumb-endpoint > *, .jsplumb-endpoint svg *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // overlays
-                _addOneDelegate(id, "._jsPlumb_overlay, ._jsPlumb_overlay *", function (e) {
+                _addOneDelegate(id, ".jsplumb-overlay, .jsplumb-overlay *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
             };
@@ -1156,32 +1156,31 @@
             return managedElements;
         };
 
-        this.connectorClass = "_jsPlumb_connector";
-        this.connectorOutlineClass = "_jsPlumb_connector_outline";
-        this.connectedClass = "_jsPlumb_connected";
-        this.hoverClass = "_jsPlumb_hover";
-        this.endpointClass = "_jsPlumb_endpoint";
-        this.endpointConnectedClass = "_jsPlumb_endpoint_connected";
-        this.endpointFullClass = "_jsPlumb_endpoint_full";
-        this.endpointDropAllowedClass = "_jsPlumb_endpoint_drop_allowed";
-        this.endpointDropForbiddenClass = "_jsPlumb_endpoint_drop_forbidden";
-        this.overlayClass = "_jsPlumb_overlay";
-        this.draggingClass = "_jsPlumb_dragging";
-        this.elementDraggingClass = "_jsPlumb_element_dragging";
-        this.sourceElementDraggingClass = "_jsPlumb_source_element_dragging";
-        this.targetElementDraggingClass = "_jsPlumb_target_element_dragging";
-        this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";
-        this.hoverSourceClass = "_jsPlumb_source_hover";
-        this.hoverTargetClass = "_jsPlumb_target_hover";
-        this.dragSelectClass = "_jsPlumb_drag_select";
+        this.connectorClass = "jsplumb-connector";
+        this.connectorOutlineClass = "jsplumb-connector_outline";
+        this.connectedClass = "jsplumb-connected";
+        this.hoverClass = "jsplumb-hover";
+        this.endpointClass = "jsplumb-endpoint";
+        this.endpointConnectedClass = "jsplumb-endpoint_connected";
+        this.endpointFullClass = "jsplumb-endpoint_full";
+        this.endpointDropAllowedClass = "jsplumb-endpoint_drop_allowed";
+        this.endpointDropForbiddenClass = "jsplumb-endpoint_drop_forbidden";
+        this.overlayClass = "jsplumb-overlay";
+        this.draggingClass = "jsplumb-dragging";
+        this.elementDraggingClass = "jsplumb-element_dragging";
+        this.sourceElementDraggingClass = "jsplumb-source_element_dragging";
+        this.targetElementDraggingClass = "jsplumb-target_element_dragging";
+        this.endpointAnchorClassPrefix = "jsplumb-endpoint_anchor";
+        this.hoverSourceClass = "jsplumb-source_hover";
+        this.hoverTargetClass = "jsplumb-target_hover";
+        this.dragSelectClass = "jsplumb-drag_select";
 
         this.Anchors = {};
-        this.Connectors = {  "svg": {}, "vml": {} };
-        this.Endpoints = { "svg": {}, "vml": {} };
-        this.Overlays = { "svg": {}, "vml": {} } ;
+        this.Connectors = {  "svg": {} };
+        this.Endpoints = { "svg": {} };
+        this.Overlays = { "svg": {} } ;
         this.ConnectorRenderers = {};
         this.SVG = "svg";
-        this.VML = "vml";
 
 // --------------------------- jsPlumbInstance public API ---------------------------------------------------------
 
@@ -2872,14 +2871,6 @@
 
         this.getCachedData = _getCachedData;
         this.timestamp = _timestamp;
-        this.setRenderMode = function (mode) {
-            if (mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new TypeError("Render mode [" + mode + "] not supported");
-            renderMode = this.trySetRenderMode(mode);
-            return renderMode;
-        };
-        this.getRenderMode = function () {
-            return renderMode;
-        };
         this.show = function (el, changeEndpoints) {
             _setVisible(el, "block", changeEndpoints);
             return _currentInstance;
