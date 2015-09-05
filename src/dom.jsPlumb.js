@@ -1,9 +1,9 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.10
+ * Title:jsPlumb 2.0.0
  * 
- * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
  *
