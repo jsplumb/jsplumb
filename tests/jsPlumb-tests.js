@@ -110,7 +110,7 @@ var testSuite = function (renderMode, _jsPlumb) {
     container.id = "container";
     document.body.appendChild(container);
 
-    _jsPlumb.setRenderMode(renderMode);
+
 
     //*
 /*
@@ -1186,38 +1186,38 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(': addEndpoint, css class on anchor added to endpoint artefact and element', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, { anchor: [0, 0, 1, 1, 0, 0, "foo" ]});
-        ok(jsPlumb.hasClass(ep.canvas, "_jsPlumb_endpoint_anchor_foo"), "class set on endpoint");
-        ok(jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor_foo"), "class set on element");
+        ok(jsPlumb.hasClass(ep.canvas, "jsplumb-endpoint-anchor-foo"), "class set on endpoint");
+        ok(jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor-foo"), "class set on element");
         _jsPlumb.deleteEndpoint(ep);
-        ok(!jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor_foo"), "class removed from element");
+        ok(!jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor-foo"), "class removed from element");
     });
 
     test(': addEndpoint, blank css class on anchor does not add extra prefix ', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, { anchor: [0, 0, 1, 1, 0, 0  ]});
-        ok(jsPlumb.hasClass(ep.canvas, "_jsPlumb_endpoint_anchor"), "class set on endpoint");
-        ok(jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor"), "class set on element");
+        ok(jsPlumb.hasClass(ep.canvas, "jsplumb-endpoint-anchor"), "class set on endpoint");
+        ok(jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor"), "class set on element");
         _jsPlumb.deleteEndpoint(ep);
-        ok(!jsPlumb.hasClass(d1, "_jsPlumb_endpoint_anchor"), "class removed from element");
+        ok(!jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor"), "class removed from element");
     });
 
     test(': connect, jsplumb connected class added to elements', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         // connect two elements and check they both get the class.
         var c = _jsPlumb.connect({source:d1, target:d2});
-        ok(jsPlumb.hasClass(d1, "_jsPlumb_connected"), "class set on element d1");
-        ok(jsPlumb.hasClass(d2, "_jsPlumb_connected"), "class set on element d2");
+        ok(jsPlumb.hasClass(d1, "jsplumb-connected"), "class set on element d1");
+        ok(jsPlumb.hasClass(d2, "jsplumb-connected"), "class set on element d2");
         // connect d1 to another element and check d3 gets the class
         var c2 = _jsPlumb.connect({source:d1, target:d3});
-        ok(jsPlumb.hasClass(d3, "_jsPlumb_connected"), "class set on element d3");
+        ok(jsPlumb.hasClass(d3, "jsplumb-connected"), "class set on element d3");
         // now disconnect original connection. d2 should no longer have the class, but d1 should, since it has
         // still one connection.
         _jsPlumb.detach(c);
-        ok(jsPlumb.hasClass(d1, "_jsPlumb_connected"), "class still on element d1");
-        ok(!jsPlumb.hasClass(d2, "_jsPlumb_connected"), "class removed from element d2");
+        ok(jsPlumb.hasClass(d1, "jsplumb-connected"), "class still on element d1");
+        ok(!jsPlumb.hasClass(d2, "jsplumb-connected"), "class removed from element d2");
         _jsPlumb.detach(c2);
-        ok(!jsPlumb.hasClass(d1, "_jsPlumb_connected"), "class removed from element d1");
-        ok(!jsPlumb.hasClass(d3, "_jsPlumb_connected"), "class removed from element d3");
+        ok(!jsPlumb.hasClass(d1, "jsplumb-connected"), "class removed from element d1");
+        ok(!jsPlumb.hasClass(d3, "jsplumb-connected"), "class removed from element d3");
     });
 
     test(': connection event listeners', function () {
@@ -3356,7 +3356,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         };
         ok(has(_jsPlumb.connectorClass, "canvas"), "basic connector class set correctly");
 
-        ok(has("_jsPlumb_connector_outline", "bgPath"), "outline canvas set correctly");
+        ok(has("jsplumb-connector-outline", "bgPath"), "outline canvas set correctly");
         ok(has(_jsPlumb.connectorOutlineClass, "bgPath"), "outline canvas set correctly");
     });
 

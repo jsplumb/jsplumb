@@ -130,9 +130,9 @@
 
         var _updateAnchorClass = function () {
             // stash old, get new
-            var oldAnchorClass = _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass;
+            var oldAnchorClass = _jsPlumb.endpointAnchorClassPrefix + "-" + this._jsPlumb.currentAnchorClass;
             this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
-            var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
+            var anchorClass = _jsPlumb.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
 
             this.removeClass(oldAnchorClass);
             this.addClass(anchorClass);
@@ -896,7 +896,7 @@
             this._jsPlumb.enabled = e;
         },
         cleanup: function () {
-            var anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "_" + this._jsPlumb.currentAnchorClass : "");
+            var anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
             jsPlumb.removeClass(this.element, anchorClass);
             this.anchor = null;
             this.endpoint.cleanup(true);
