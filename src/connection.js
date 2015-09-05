@@ -1,16 +1,15 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.7.10
+ * Title:jsPlumb 2.0.0
  * 
- * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the code for Connections.
  *
  * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
- * http://jsplumb.org
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
