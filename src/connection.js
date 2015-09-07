@@ -107,6 +107,13 @@
             return this.prepareEndpoint(_jsPlumb, _newEndpoint, this, ep, isSource ? 0 : 1, params, el, elId);
         };
 
+        // if type given, get the endpoint definitions mapping to that type from the jsplumb instance, and use those.
+        // we apply types at the end of this constructor but endpoints are only honoured in a type definition at
+        // create time.
+        if (params.type) {
+            params.endpoints = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
+        }
+
         var eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
             eT = this.makeEndpoint(false, this.target, this.targetId, params.targetEndpoint);
 
@@ -221,7 +228,7 @@
         this.mergeData = function(d) { data = jsPlumb.extend(data, d); };
 
         // the very last thing we do is apply types, if there are any.
-        var _types = [ "default",  params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
+        var _types = [ "default", this.endpoints[0].connectionType, this.endpoints[1].connectionType,  params.type ].join(" ");
         if (/[^\s]/.test(_types))
             this.addType(_types, params.data, true);
 
