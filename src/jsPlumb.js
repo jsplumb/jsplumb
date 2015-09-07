@@ -898,7 +898,7 @@
 
                         tep = tep ? tep[matchType] : null;
 
-                        if (tep && (tep.def.connectionType == matchType)) {
+                        if (tep) {
                             // if not enabled, return.
                             if (!tep.enabled) return false;
                             var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
@@ -1332,12 +1332,14 @@
                 if (sid === c[_st.elId])
                     ep = null;  // dont change source/target if the element is already the one given.
                 else if (sep) {
-                    if (!sep.enabled) return;
-                    ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
-                    if (sep.uniqueEndpoint) sep.endpoint = ep;
-                    ep._doNotDeleteOnDetach = false;
-                    ep._deleteOnDetach = true;
-                    ep.addConnection(c);
+                    for (var t in sep) {
+                        if (!sep[t].enabled) return;
+                        ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
+                        if (sep[t].uniqueEndpoint) sep[t].endpoint = ep;
+                        ep._doNotDeleteOnDetach = false;
+                        ep._deleteOnDetach = true;
+                        ep.addConnection(c);
+                    }
                 }
                 else {
                     ep = c.makeEndpoint(idx === 0, el, sid);
@@ -2148,7 +2150,9 @@
                     // if no cached endpoint, or there was one but it has been cleaned up
                     // (ie. detached), create a new one
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
-                        newEndpoint = _currentInstance.addEndpoint(elInfo.el, p);
+                        var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
+                        var pp = eps.endpoints ? jsPlumb.extend(p, {endpoint:eps.endpoints[1]}) :p;
+                        newEndpoint = _currentInstance.addEndpoint(elInfo.el, pp);
                         newEndpoint._mtNew = true;
                     }
 
@@ -2233,19 +2237,22 @@
                     // decode the info for this element (id and element)
                     var elInfo = _info(el),
                         elid = elInfo.id,
-                        dropOptions = jsPlumb.extend({}, p.dropOptions || {});
+                        dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
+                        type = "default";
+
+                    this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
 
                     _ensureContainer(elid);
 
                     // store the definition
                     var _def = {
-                        def: p,
+                        def: jsPlumb.extend({}, p),
                         uniqueEndpoint: p.uniqueEndpoint,
                         maxConnections: maxConnections,
                         enabled: true
                     };
                     elInfo.def = _def;
-                    this.targetEndpointDefinitions[elid] = _def;
+                    this.targetEndpointDefinitions[elid][type] = _def;
                     _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true);
 
                 }.bind(this);
@@ -2276,6 +2283,10 @@
         this.makeSource = function (el, params, referenceParams) {
             var p = jsPlumb.extend({_jsPlumb: this}, referenceParams);
             jsPlumb.extend(p, params);
+            var type = p.connectionType || "default";
+            var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
+            p.endpoint = p.endpoint || aae.endpoints[0];
+            p.anchor = p.anchor || aae.anchors[0];
             _setEndpointPaintStylesAndAnchor(p, 0, this);
             var maxConnections = p.maxConnections || 1,
                 onMaxConnections = p.onMaxConnections,
@@ -2283,15 +2294,15 @@
                     // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
                     // and use the endpoint definition if found.
                     var elid = elInfo.id,
-                        _del = this.getElement(elInfo.el),
-                        type = params.connectionType || "default";
+                        _del = this.getElement(elInfo.el);
+
 
                     this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};
-
                     _ensureContainer(elid);
 
+
                     var _def = {
-                        def: p,
+                        def:jsPlumb.extend({}, p),
                         uniqueEndpoint: p.uniqueEndpoint,
                         maxConnections: maxConnections,
                         enabled: true
@@ -2328,8 +2339,16 @@
                             // mouse button to initiate the drag.
                             var anchorDef = p.anchor || this.Defaults.Anchor,
                                 oldAnchor = ep.anchor,
-                                oldConnection = ep.connections[0],
-                                newAnchor = this.makeAnchor(anchorDef, elid, this),
+                                oldConnection = ep.connections[0];
+
+                            // if the connection has a type, try to get an anchor spec for it.
+                            /*if (oldConnection != null) {
+                                var aae = _currentInstance.deriveEndpointAndAnchorSpec(oldConnection.getType().join(" "), false);
+                                if (aae.anchors) anchorDef = aae.anchor[0];
+                                if (aae.endpoints) ep.setEndpoint(aae.endpoints[0]);
+                            }*/
+
+                            var    newAnchor = this.makeAnchor(anchorDef, elid, this),
                                 _el = ep.element;
 
                             // if the anchor has a 'positionFinder' set, then delegate to that function to find
@@ -2464,17 +2483,20 @@
         };
 
         // see api docs
-        this.unmakeSource = function (el, doNotClearArrays) {
-            // TODO support clear by type too
-            var type  = "default";
-            var info = _info(el),
-                mouseDownListener = this.sourceEndpointDefinitions[info.id][type].trigger;
-
-            if (mouseDownListener)
-                _currentInstance.off(info.el, "mousedown", mouseDownListener);
-
-            if (!doNotClearArrays) {
-                delete this.sourceEndpointDefinitions[info.id][type];
+        this.unmakeSource = function (el, connectionType, doNotClearArrays) {
+            var info = _info(el);
+            var eldefs = this.sourceEndpointDefinitions[info.id];
+            if (eldefs) {
+                for (var def in eldefs) {
+                    if (connectionType == null || connectionType === def) {
+                        var mouseDownListener = eldefs[def].trigger;
+                        if (mouseDownListener)
+                            _currentInstance.off(info.el, "mousedown", mouseDownListener);
+                        if (!doNotClearArrays) {
+                            delete this.sourceEndpointDefinitions[info.id][def];
+                        }
+                    }
+                }
             }
 
             return this;
@@ -2483,29 +2505,31 @@
         // see api docs
         this.unmakeEverySource = function () {
             for (var i in this.sourceEndpointDefinitions)
-                _currentInstance.unmakeSource(i, true);
+                _currentInstance.unmakeSource(i, null, true);
 
             this.sourceEndpointDefinitions = {};
             return this;
         };
 
-        var _getScope = function (el, types) {
+        var _getScope = function (el, types, connectionType) {
             types = jsPlumbUtil.isArray(types) ? types : [ types ];
             var id = _getId(el);
+            connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
-                var def = this[types[i]][id];
-                if (def) return def.def.scope || this.Defaults.Scope;
+                var eldefs = this[types[i]][id];
+                if (eldefs && eldefs[connectionType]) return eldefs[connectionType].def.scope || this.Defaults.Scope;
             }
         }.bind(this);
 
-        var _setScope = function (el, scope, types) {
+        var _setScope = function (el, scope, types, connectionType) {
             types = jsPlumbUtil.isArray(types) ? types : [ types ];
             var id = _getId(el);
+            connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
-                var def = this[types[i]][id];
-                if (def) {
-                    def.def.scope = scope;
-                    if (this.scopeChange != null) this.scopeChange(el, id, endpointsByElement[id], scope, types[i]);
+                var eldefs = this[types[i]][id];
+                if (eldefs && eldefs[connectionType]) {
+                    eldefs[connectionType].def.scope = scope;
+                    if (this.scopeChange != null) this.scopeChange(el, id, endpointsByElement[id], scope, types[i], connectionType);
                 }
             }
 
@@ -2523,11 +2547,11 @@
         this.setScope = function (el, scope) {
             _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]);
         };
-        this.setSourceScope = function (el, scope) {
-            _setScope(el, scope, "sourceEndpointDefinitions");
+        this.setSourceScope = function (el, scope, connectionType) {
+            _setScope(el, scope, "sourceEndpointDefinitions", connectionType);
         };
-        this.setTargetScope = function (el, scope) {
-            _setScope(el, scope, "targetEndpointDefinitions");
+        this.setTargetScope = function (el, scope, connectionType) {
+            _setScope(el, scope, "targetEndpointDefinitions", connectionType);
         };
 
         // see api docs
@@ -2540,21 +2564,26 @@
         };
 
         // does the work of setting a source enabled or disabled.
-        var _setEnabled = function (type, el, state, toggle) {
+        var _setEnabled = function (type, el, state, toggle, connectionType) {
             var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions;
+            connectionType = connectionType || "default";
 
-            if (_ju.isString(el)) a[el].enabled = toggle ? !a[el].enabled : state;
+
+            if (_ju.isString(el) && a[el] && a[el][connectionType]) {
+                a[el][connectionType].enabled = toggle ? !a[el][connectionType].enabled : state;
+            }
             else if (el.length) {
                 for (var i = 0, ii = el.length; i < ii; i++) {
                     var info = _info(el[i]);
-                    if (a[info.id])
-                        a[info.id].enabled = toggle ? !a[info.id].enabled : state;
+                    if (a[info.id] && a[info.id][connectionType])
+                        a[info.id][connectionType].enabled = toggle ? !a[info.id][connectionType].enabled : state;
                 }
             }
             // otherwise a DOM element
             else {
                 var id = _info(el).id;
-                a[id].enabled = toggle ? !a[id].enabled : state;
+                if (a[id] && a[id][connectionType])
+                    a[id][connectionType].enabled = toggle ? !a[id][connectionType].enabled : state;
             }
             return this;
         }.bind(this);
@@ -2567,44 +2596,50 @@
 
         }.bind(this);
 
-        this.toggleSourceEnabled = function (el) {
-            _setEnabled("source", el, null, true);
-            return this.isSourceEnabled(el);
+        this.toggleSourceEnabled = function (el, connectionType) {
+            _setEnabled("source", el, null, true, connectionType);
+            return this.isSourceEnabled(el, connectionType);
         };
 
-        this.setSourceEnabled = function (el, state) {
-            return _setEnabled("source", el, state);
+        this.setSourceEnabled = function (el, state, connectionType) {
+            return _setEnabled("source", el, state, null, connectionType);
         };
-        this.isSource = function (el) {
+        this.isSource = function (el, connectionType) {
+            connectionType = connectionType || "default";
             return _first(el, function (_el) {
-                return this.sourceEndpointDefinitions[_info(_el).id] != null;
+                var eldefs = this.sourceEndpointDefinitions[_info(_el).id];
+                return eldefs != null && eldefs[connectionType] != null;
             }.bind(this));
         };
-        this.isSourceEnabled = function (el) {
+        this.isSourceEnabled = function (el, connectionType) {
+            connectionType = connectionType || "default";
             return _first(el, function (_el) {
                 var sep = this.sourceEndpointDefinitions[_info(_el).id];
-                return sep && sep.enabled === true;
+                return sep && sep[connectionType] && sep[connectionType].enabled === true;
             }.bind(this));
         };
 
-        this.toggleTargetEnabled = function (el) {
-            _setEnabled("target", el, null, true);
-            return this.isTargetEnabled(el);
+        this.toggleTargetEnabled = function (el, connectionType) {
+            _setEnabled("target", el, null, true, connectionType);
+            return this.isTargetEnabled(el, connectionType);
         };
 
-        this.isTarget = function (el) {
+        this.isTarget = function (el, connectionType) {
+            connectionType = connectionType || "default";
             return _first(el, function (_el) {
-                return this.targetEndpointDefinitions[_info(_el).id] != null;
+                var eldefs = this.targetEndpointDefinitions[_info(_el).id];
+                return eldefs != null && eldefs[connectionType] != null;
             }.bind(this));
         };
-        this.isTargetEnabled = function (el) {
+        this.isTargetEnabled = function (el, connectionType) {
+            connectionType = connectionType || "default";
             return _first(el, function (_el) {
                 var tep = this.targetEndpointDefinitions[_info(_el).id];
-                return tep && tep.enabled === true;
+                return tep && tep[connectionType] && tep[connectionType].enabled === true;
             }.bind(this));
         };
-        this.setTargetEnabled = function (el, state) {
-            return _setEnabled("target", el, state);
+        this.setTargetEnabled = function (el, state, connectionType) {
+            return _setEnabled("target", el, state, null, connectionType);
         };
 
 // --------------------- end makeSource/makeTarget ---------------------------------------------- 				
@@ -2781,6 +2816,20 @@
 
         // sets whether or not some element should be currently draggable.
         this.setDraggable = _setDraggable;
+
+        this.deriveEndpointAndAnchorSpec = function(type, dontPrependDefault) {
+            var bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/), eps = null, ep = null, a = null, as = null;
+            for (var i = 0; i < bits.length; i++) {
+                var _t = _currentInstance.getType(bits[i], "connection");
+                if (_t) {
+                    if (_t.endpoints) eps = _t.endpoints;
+                    if (_t.endpoint) ep = _t.endpoint;
+                    if (_t.anchors) as = _t.anchors;
+                    if (_t.anchor) a = _t.anchor;
+                }
+            }
+            return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]};
+        };
 
         // sets the id of some element, changing whatever we need to to keep track.
         this.setId = function (el, newId, doNotSetAttribute) {
