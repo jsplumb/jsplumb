@@ -597,8 +597,11 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.length, 1, "there is one connection");
     });
 
-    test(': getConnections (uuids)', function () {
-        var d5 = _addDiv("d5"), d6 = _addDiv("d6"), e5 = _jsPlumb.addEndpoint(d5, {uuid:"foo"}), e6 = _jsPlumb.addEndpoint(d6, {uuid:"bar"});
+    test('getConnections (uuids)', function () {
+        var d5 = _addDiv("d5"),
+            d6 = _addDiv("d6"),
+            e5 = _jsPlumb.addEndpoint(d5, {uuid:"foo"}),
+            e6 = _jsPlumb.addEndpoint(d6, {uuid:"bar"});
         _jsPlumb.connect({uuids:["foo", "bar"]});
         var c = _jsPlumb.getConnections();  // will get all connections in the default scope.
         equal(c.length, 1, "there is one connection");
@@ -606,7 +609,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c[0].getUuids()[1], "bar");
     });
 
-    test(': getConnections (simple case, default scope; detach by element id using params object)', function () {
+    test('getConnections (simple case, default scope; detach by element id using params object)', function () {
         var d5 = _addDiv("d5"), d6 = _addDiv("d6"), d7 = _addDiv("d7");
         _jsPlumb.connect({source: d5, target: d6});
         _jsPlumb.connect({source: d6, target: d7});
