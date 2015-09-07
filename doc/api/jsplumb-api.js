@@ -476,7 +476,7 @@
 
 
 /**
-*	Sets the given element to no longer be a connection source.
+*	Sets the given element to no longer be a connection source, optionally for just one specified connection type.
 * @method unmakeSource
 * @param {String|Element|Selector} el The element in question.
 *	@return {jsPlumbInstance} The current jsPlumb instance.
@@ -498,21 +498,23 @@
  * Sets the source scope of some element that has been configured as a connection source with `makeSource`
  * @method setSourceScope
  * @param {Element|String} el Element to set source scope for.
- * @param {String} Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ * @param {String} scope Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ * @param {String} [connectionType] Optional connection type to constrain the scope change to.
  */
 
 /**
  * Sets the target scope of some element that has been configured as a connection source with `makeTarget`
  * @method setTargetScope
  * @param {Element|String} el Element to set target scope for.
- * @param {String} Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ * @param {String} scope Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ * @param {String} [connectionType] Optional connection type to constrain the scope change to.
  */
 
 /**
  * Sets the source and target scope of some element that has been configured as a connection source and target with `makeTarget` and `makeSource`. If the element is only a source or only a target, this method will just set what it can.
  * @method setScope
  * @param {Element|String} el Element to set source and target scope for.
- * @param {String} Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
+ * @param {String} scope Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.
  */
 
 /**
@@ -563,6 +565,8 @@
 *	Returns whether or not the given connection source is enabled.
 * @method isSourceEnabled
 * @param {String|Element|Selector} el The element in question.
+* @param {String} [connectionType] Optional specific connection type to test against. If not provided, uses the default, which
+* means a `makeSource` call that did not specify a `connectionType`.
 * @return {Boolean} True if enabled, false if not.
 */
 

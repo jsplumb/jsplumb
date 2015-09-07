@@ -2961,7 +2961,7 @@
         {
             "file": "doc/api/jsplumb-api.js",
             "line": 478,
-            "description": "Sets the given element to no longer be a connection source.",
+            "description": "Sets the given element to no longer be a connection source, optionally for just one specified connection type.",
             "itemtype": "method",
             "name": "unmakeSource",
             "params": [
@@ -3014,16 +3014,22 @@
                     "type": "Element|String"
                 },
                 {
-                    "name": "Space",
-                    "description": "delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.",
+                    "name": "scope",
+                    "description": "Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.",
                     "type": "String"
+                },
+                {
+                    "name": "connectionType",
+                    "description": "Optional connection type to constrain the scope change to.",
+                    "type": "String",
+                    "optional": true
                 }
             ],
             "class": "jsPlumbInstance"
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 504,
+            "line": 505,
             "description": "Sets the target scope of some element that has been configured as a connection source with `makeTarget`",
             "itemtype": "method",
             "name": "setTargetScope",
@@ -3034,16 +3040,22 @@
                     "type": "Element|String"
                 },
                 {
-                    "name": "Space",
-                    "description": "delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.",
+                    "name": "scope",
+                    "description": "Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.",
                     "type": "String"
+                },
+                {
+                    "name": "connectionType",
+                    "description": "Optional connection type to constrain the scope change to.",
+                    "type": "String",
+                    "optional": true
                 }
             ],
             "class": "jsPlumbInstance"
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 511,
+            "line": 513,
             "description": "Sets the source and target scope of some element that has been configured as a connection source and target with `makeTarget` and `makeSource`. If the element is only a source or only a target, this method will just set what it can.",
             "itemtype": "method",
             "name": "setScope",
@@ -3054,8 +3066,8 @@
                     "type": "Element|String"
                 },
                 {
-                    "name": "Space",
-                    "description": "delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.",
+                    "name": "scope",
+                    "description": "Space delimited list of scopes. Note, though, that multiple scopes is supported by the jquery flavour only programmatcally, not with drag/drop connections.",
                     "type": "String"
                 }
             ],
@@ -3063,7 +3075,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 518,
+            "line": 520,
             "description": "Gets the source scope of some element that has that has been configured as a connection source with `makeSource`",
             "itemtype": "method",
             "name": "getSourceScope",
@@ -3082,7 +3094,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 525,
+            "line": 527,
             "description": "Gets the target scope of some element that has that has been configured as a connection source with `makeTarget`",
             "itemtype": "method",
             "name": "getTargetScope",
@@ -3101,7 +3113,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 532,
+            "line": 534,
             "description": "Gets the source or target scope of some element that has that has been configured as a connection source with `makeTarget` and/or `makeSource`, defaulting to the source scope if the element has been configured for both.",
             "itemtype": "method",
             "name": "getScope",
@@ -3120,7 +3132,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 539,
+            "line": 541,
             "description": "Sets the enabled state of one or more elements that were previously made a connection source with the makeSource\nmethod.",
             "itemtype": "method",
             "name": "setSourceEnabled",
@@ -3144,7 +3156,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 548,
+            "line": 550,
             "description": "Toggles the source enabled state of the given element or elements.",
             "itemtype": "method",
             "name": "toggleSourceEnabled",
@@ -3163,7 +3175,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 555,
+            "line": 557,
             "description": "Returns whether or not the given element is registered as a connection source.",
             "itemtype": "method",
             "name": "isSource",
@@ -3182,7 +3194,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 562,
+            "line": 564,
             "description": "Returns whether or not the given connection source is enabled.",
             "itemtype": "method",
             "name": "isSourceEnabled",
@@ -3191,6 +3203,12 @@
                     "name": "el",
                     "description": "The element in question.",
                     "type": "String|Element|Selector"
+                },
+                {
+                    "name": "connectionType",
+                    "description": "Optional specific connection type to test against. If not provided, uses the default, which\n means a `makeSource` call that did not specify a `connectionType`.",
+                    "type": "String",
+                    "optional": true
                 }
             ],
             "return": {
@@ -3201,7 +3219,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 569,
+            "line": 573,
             "description": "Sets the enabled state of one or more elements that were previously made a connection target with the makeTarget method.\nmethod.",
             "itemtype": "method",
             "name": "setTargetEnabled",
@@ -3225,7 +3243,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 578,
+            "line": 582,
             "description": "Toggles the target enabled state of the given element or elements.",
             "itemtype": "method",
             "name": "toggleTargetEnabled",
@@ -3244,7 +3262,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 585,
+            "line": 589,
             "description": "Returns whether or not the given element is registered as a connection target.",
             "itemtype": "method",
             "name": "isTarget",
@@ -3263,7 +3281,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 592,
+            "line": 596,
             "description": "Returns whether or not the given connection target is enabled.",
             "itemtype": "method",
             "name": "isTargetEnabled",
@@ -3282,7 +3300,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 599,
+            "line": 603,
             "description": "Helper method to bind a function to jsPlumb's ready event. You should use this method instead of your\nlibrary's equivalent, to ensure that jsPlumb has loaded properly before you start to use it. This is\nparticularly true in the case of YUI, because of the asynchronous nature of the module loading process.",
             "itemtype": "method",
             "name": "ready",
@@ -3297,7 +3315,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 607,
+            "line": 611,
             "description": "Repaints an element and its connections.",
             "itemtype": "method",
             "name": "repaint",
@@ -3319,7 +3337,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 615,
+            "line": 619,
             "description": "Clears the offset and size cache for an element, then repaints it and its connections.",
             "itemtype": "method",
             "name": "revalidate",
@@ -3334,7 +3352,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 621,
+            "line": 625,
             "description": "Repaints all connections and endpoints.",
             "itemtype": "method",
             "name": "repaintEverything",
@@ -3358,7 +3376,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 629,
+            "line": 633,
             "description": "Removes all Endpoints associated with a given element. \nAlso removes all Connections associated with each Endpoint it removes. jsPlumb expects\nthat the element referenced here exists in the DOM. If it does not, or you are uncertain\nwhether it will exist or not, use {@link jsPlumbInstance#remove}.",
             "itemtype": "method",
             "name": "removeAllEndpoints",
@@ -3387,7 +3405,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 641,
+            "line": 645,
             "description": "Removes the given element from the DOM, along with all Endpoints associated with it,\nand their connections.  This also removes all Endpoints and Connections belonging to child elements, as well as - of course -\nthe child elements themselves.",
             "itemtype": "method",
             "name": "remove",
@@ -3402,7 +3420,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 649,
+            "line": 653,
             "description": "Empties out the given element: all Endpoints and Connections belonging to child elements, as well as - of course -\nthe child elements themselves. Endpoints and Connections belonging to the element itself are retained.",
             "itemtype": "method",
             "name": "empty",
@@ -3417,7 +3435,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 656,
+            "line": 660,
             "description": "Removes all endpoints and connections and clears the listener list. To keep listeners call {@link jsPlumbInstance#deleteEveryEndpoint}\ninstead of this.",
             "itemtype": "method",
             "name": "reset",
@@ -3425,7 +3443,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 662,
+            "line": 666,
             "description": "Gets a new instance of jsPlumb.",
             "itemtype": "method",
             "name": "getInstance",
@@ -3441,7 +3459,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 668,
+            "line": 672,
             "description": "Sets the default scope for Connections and Endpoints. A scope defines a type of Endpoint/Connection; supplying a\nscope to an Endpoint or Connection allows you to support different\ntypes of Connections in the same UI.  If you're only interested in\none type of Connection, you don't need to supply a scope. This method\nwill probably be used by very few people; it just instructs jsPlumb\nto use a different key for the default scope.",
             "itemtype": "method",
             "name": "setDefaultScope",
@@ -3460,7 +3478,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 680,
+            "line": 684,
             "description": "Detaches a Connection.",
             "itemtype": "method",
             "name": "detach",
@@ -3501,7 +3519,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 694,
+            "line": 698,
             "description": "Removes all an element's Connections.",
             "itemtype": "method",
             "name": "detachAllConnections",
@@ -3542,7 +3560,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 703,
+            "line": 707,
             "description": "Remove all Connections from all elements, but leaves Endpoints in place ((unless a connection is set to auto delete its Endpoints).",
             "itemtype": "method",
             "name": "detachEveryConnection",
@@ -3581,7 +3599,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 713,
+            "line": 717,
             "description": "Initialises some element or elements to be draggable.  You should use this instead of your\nlibrary's draggable method so that jsPlumb can setup the appropriate callbacks.  Your\nunderlying library's drag method is always called from this method.",
             "itemtype": "method",
             "name": "draggable",
@@ -3607,7 +3625,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 728,
+            "line": 732,
             "description": "This method takes the given selector spec and, using the current underlying library, turns it into\na selector from that library.  This method exists really as a helper function for those applications\nwhere you're writing jsPlumb code that will target more than one library (such as in the case of the\njsPlumb demo pages).",
             "itemtype": "method",
             "name": "getSelector",
@@ -3628,7 +3646,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 737,
+            "line": 741,
             "description": "Sets whether or not drawing is suspended. you should use this when doing bulk painting, like when first drawing a UI.",
             "itemtype": "method",
             "name": "setSuspendDrawing",
@@ -3650,7 +3668,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 744,
+            "line": 748,
             "description": "Deletes an Endpoint and removes all Connections it has (which removes the Connections from the other Endpoints involved too)",
             "itemtype": "method",
             "name": "deleteEndpoint",
@@ -3676,7 +3694,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 752,
+            "line": 756,
             "description": "Deletes every `Endpoint` and their associated `Connection`s. Distinct from {@link jsPlumbInstance#reset} because we dont clear listeners here, so\nfor that reason this function is often the best way to reset a jsPlumb instance.",
             "itemtype": "method",
             "name": "deleteEveryEndpoint",
@@ -3688,7 +3706,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 759,
+            "line": 763,
             "description": "Returns the given type's specification.",
             "itemtype": "method",
             "name": "getType",
@@ -3712,7 +3730,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 767,
+            "line": 771,
             "description": "Registers all of the given Endpoint types on this instance of jsPlumb. `types` is expected\nto contain keys with typeids and values with type specification objects.",
             "itemtype": "method",
             "name": "registerEndpointTypes",
@@ -3727,7 +3745,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 774,
+            "line": 778,
             "description": "Registers all of the given connection types on this instance of jsPlumb. `types` is expected\nto contain keys with typeids and values with type specification objects.",
             "itemtype": "method",
             "name": "registerConnectionTypes",
@@ -3742,7 +3760,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 781,
+            "line": 785,
             "description": "Registers the given connection type on this instance of jsPlumb.",
             "itemtype": "method",
             "name": "registerConnectionType",
@@ -3762,7 +3780,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 788,
+            "line": 792,
             "description": "Registers the given endpoint type on this instance of jsPlumb.",
             "itemtype": "method",
             "name": "registerEndpointType",
@@ -3782,7 +3800,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 800,
+            "line": 804,
             "description": "The CSS class(es) to set on Connection elements. This value is a String and can have multiple classes; the entire String is appended as-is (this is true of all the CSS properties in a jsPlumbInstance).",
             "itemtype": "property",
             "name": "connectorClass",
@@ -3791,7 +3809,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 806,
+            "line": 810,
             "description": "The CSS class(es) to set on Connection or Endpoint elements when hovering. This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "hoverClass",
@@ -3800,7 +3818,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 812,
+            "line": 816,
             "description": "The CSS class(es) to set on Endpoint elements. This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "endpointClass",
@@ -3809,7 +3827,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 818,
+            "line": 822,
             "description": "The CSS class(es) to set on an Endpoint element when its Endpoint has at least one connection. This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "endpointConnectedClass",
@@ -3818,7 +3836,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 824,
+            "line": 828,
             "description": "The CSS class(es) to set on a full Endpoint element. This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "endpointFullClass",
@@ -3827,7 +3845,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 830,
+            "line": 834,
             "description": "The CSS class(es) to set on an Endpoint on which a drop will be allowed (during drag and drop). This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "endpointDropAllowedClass",
@@ -3836,7 +3854,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 836,
+            "line": 840,
             "description": "The CSS class(es) to set on an Endpoint on which a drop will be forbidden (during drag and drop). This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "endpointDropForbiddenClass",
@@ -3845,7 +3863,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 842,
+            "line": 846,
             "description": "The CSS class(es) to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "overlayClass",
@@ -3854,7 +3872,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 848,
+            "line": 852,
             "description": "The CSS class(es) to set on connections that are being dragged. This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "draggingClass",
@@ -3863,7 +3881,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 854,
+            "line": 858,
             "description": "The CSS class(es) to set on connections whose source or target element is being dragged, and\non their endpoints too. This value is a String and can have multiple classes; the entire String is appended as-is.",
             "itemtype": "property",
             "name": "elementDraggingClass",
@@ -3872,7 +3890,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 861,
+            "line": 865,
             "description": "The prefix for the CSS class to set on Endpoints that have dynamic anchors whose individual locations\nhave declared an associated CSS class. This value is a String and, unlike the other classes, is expected\nto contain a single value, as it is used as a prefix for the final class: '_***' is appended,\nwhere \"***\" is the CSS class associated with the current dynamic anchor location.",
             "itemtype": "property",
             "name": "endpointAnchorClassPrefix",
@@ -3881,7 +3899,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 870,
+            "line": 874,
             "description": "Constant for use with the setRenderMode method",
             "itemtype": "property",
             "name": "SVG",
@@ -3891,7 +3909,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 877,
+            "line": 881,
             "description": "These are the default settings for jsPlumb.  They are what will be used if you do not supply specific pieces of information \nto the various API calls. A convenient way to implement your own look and feel can be to override these defaults \nby including a script somewhere after the jsPlumb include, but before you make any calls to jsPlumb.",
             "itemtype": "property",
             "name": "Defaults",
@@ -3900,7 +3918,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 884,
+            "line": 888,
             "description": "The default anchor to use for all connections (both source and target). Default is \"Bottom\".",
             "itemtype": "property",
             "name": "Defaults.Anchor",
@@ -3909,7 +3927,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 889,
+            "line": 893,
             "description": "The default anchors to use as (`[source, target]`) for all connections. Defaults are `[\"Bottom\", \"Bottom\"]`.",
             "itemtype": "property",
             "name": "Defaults.Anchors",
@@ -3918,7 +3936,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 894,
+            "line": 898,
             "description": "Whether or not connections are detachable by default (using the mouse). Defaults to true.",
             "itemtype": "property",
             "name": "Defaults.ConnectionsDetachable",
@@ -3927,7 +3945,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 899,
+            "line": 903,
             "description": "The default overlay definitions for Connections. Defaults to an empty list.",
             "itemtype": "property",
             "name": "Defaults.ConnectionOverlays",
@@ -3936,7 +3954,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 904,
+            "line": 908,
             "description": "Name of the default connector definition to use for all connections.  Default is \"Bezier\".",
             "itemtype": "property",
             "name": "Defaults.Connector",
@@ -3945,7 +3963,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 909,
+            "line": 913,
             "description": "Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.",
             "itemtype": "property",
             "name": "Defaults.Container",
@@ -3954,7 +3972,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 914,
+            "line": 918,
             "description": "Defaults to false; whether or not to throw errors if a user specifies an unknown anchor, endpoint or connector type.",
             "itemtype": "property",
             "name": "Defaults.DoNotThrowErrors",
@@ -3963,7 +3981,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 919,
+            "line": 923,
             "description": "The default drag options to pass in to {@link jsPlumbInstance#connect}, {@link jsPlumbInstance#makeTarget} and {@link jsPlumbInstance#addEndpoint} calls. Default is empty.",
             "itemtype": "property",
             "name": "Defaults.DragOptions",
@@ -3972,7 +3990,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 924,
+            "line": 928,
             "description": "The default drop options to pass in to {@link jsPlumbInstance#connect}, {@link jsPlumbInstance#makeTarget} and {@link jsPlumbInstance#addEndpoint} calls. Default is empty.",
             "itemtype": "property",
             "name": "Defaults.DropOptions",
@@ -3981,7 +3999,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 929,
+            "line": 933,
             "description": "The name of the default endpoint to use for all connections (both source and target).  Default is `\"Dot\"`.",
             "itemtype": "property",
             "name": "Defaults.Endpoint",
@@ -3990,7 +4008,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 934,
+            "line": 938,
             "description": "The names of the default endpoint definitions ([ source, target ]) to use for all connections.  Defaults are `[\"Dot\", \"Dot\"]`.",
             "itemtype": "property",
             "name": "Defaults.Endpoints",
@@ -3999,7 +4017,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 939,
+            "line": 943,
             "description": "The default style definition to use for all endpoints. Default is `{ fillStyle:\"#456\" }`",
             "itemtype": "property",
             "name": "Defaults.EndpointStyle",
@@ -4008,7 +4026,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 944,
+            "line": 948,
             "description": "The default style definitions ([ source, target ]) to use for all endpoints.  Defaults are empty.",
             "itemtype": "property",
             "name": "Defaults.EndpointStyles",
@@ -4017,7 +4035,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 949,
+            "line": 953,
             "description": "The default hover style definition to use for all endpoints. Default is null.",
             "itemtype": "property",
             "name": "Defaults.EndpointHoverStyle",
@@ -4026,7 +4044,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 954,
+            "line": 958,
             "description": "The default hover style definitions ([ source, target ]) to use for all endpoints. Defaults are null.",
             "itemtype": "property",
             "name": "Defaults.EndpointHoverStyles",
@@ -4035,7 +4053,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 959,
+            "line": 963,
             "description": "The default hover style definition to use for all connections. Defaults are null.",
             "itemtype": "property",
             "name": "Defaults.HoverPaintStyle",
@@ -4044,7 +4062,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 964,
+            "line": 968,
             "description": "The default style to use for label overlays on connections.",
             "itemtype": "property",
             "name": "Defaults.LabelStyle",
@@ -4055,7 +4073,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 970,
+            "line": 974,
             "description": "Whether or not the jsPlumb log is enabled. defaults to false.",
             "itemtype": "property",
             "name": "Defaults.LogEnabled",
@@ -4064,7 +4082,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 975,
+            "line": 979,
             "description": "The default overlay definitions (for both Connections and Endpoint). Defaults to an empty list.",
             "itemtype": "property",
             "name": "Defaults.Overlays",
@@ -4073,7 +4091,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 980,
+            "line": 984,
             "description": "The default maximum number of connections for an Endpoint.  Defaults to 1.",
             "itemtype": "property",
             "name": "Defaults.MaxConnections",
@@ -4082,7 +4100,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 985,
+            "line": 989,
             "description": "The default paint style for a connection. Default is line width of 8 pixels, with color \"#456\".",
             "itemtype": "property",
             "name": "Defaults.PaintStyle",
@@ -4091,7 +4109,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 990,
+            "line": 994,
             "description": "Whether or not to reattach Connections that a user has detached with the mouse and then dropped. Default is false.",
             "itemtype": "property",
             "name": "Defaults.ReattachConnections",
@@ -4100,7 +4118,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 995,
+            "line": 999,
             "description": "What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, jsPlumb uses SVG. Note that from 1.6.0 onwards, support for Canvas has been removed.",
             "itemtype": "property",
             "name": "Defaults.RenderMode",
@@ -4109,7 +4127,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 1000,
+            "line": 1004,
             "description": "The default \"scope\" to use for connections. Scope lets you assign connections to different categories.",
             "itemtype": "property",
             "name": "Defaults.Scope",
@@ -4119,7 +4137,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 1007,
+            "line": 1011,
             "description": "Register an event handler, optionally as a delegate for some set of descendant elements. Note\nthat this method takes either 3 or 4 arguments - if you supply 3 arguments it is assumed you have\nomitted the `children` parameter, and that the event handler should be bound directly to the given element.",
             "itemtype": "method",
             "name": "on",
@@ -4155,7 +4173,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 1020,
+            "line": 1024,
             "description": "Cancel delegate event handling for the given function. Note that unlike with 'on' you do not supply\na list of child selectors here: it removes event delegation from all of the child selectors for which the\ngiven function was registered (if any).",
             "itemtype": "method",
             "name": "off",

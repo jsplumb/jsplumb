@@ -158,7 +158,8 @@
 
 <h3>Connection Type</h3>
 
-<p>Probably the easiest way to explain Types is with some code. In this snippet, we&#39;ll register a Connection Type on jsPlumb, create a Connection, and then assign the Type to it:</p>
+<p>Probably the easiest way to explain Types is with some code. In this snippet, we&#39;ll register a Connection Type on jsPlumb, 
+create a Connection, and then assign the Type to it:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionType</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="p">{</span>
   <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
   <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span>
@@ -169,7 +170,8 @@
   <span class="nx">c</span><span class="p">.</span><span class="nx">setType</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">);</span>
 <span class="p">});</span> 
 </code></pre></div>
-<p>Another example - a better one, in fact.  Say you have a UI in which you can click to select or deselect Connections, and you want a different appearance for each state.  Connection Types to the rescue!</p>
+<p>Another example - a better one, in fact.  Say you have a UI in which you can click to select or deselect Connections, 
+and you want a different appearance for each state.  Connection Types to the rescue!</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionTypes</span><span class="p">({</span>
   <span class="s2">&quot;basic&quot;</span><span class="o">:</span> <span class="p">{</span>
     <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
@@ -227,10 +229,17 @@ Connection Type objects:</p>
 <li><strong>detachable</strong> - whether or not the Connection is detachable using the mouse</li>
 <li><strong>paintStyle</strong></li>
 <li><strong>hoverPaintStyle</strong></li>
-<li><strong>scope</strong> - remember, Connections support a single scope. So if you have multiple Types applied, you will get the scope from the last Type that defines one.</li>
-<li><strong>cssClass</strong> a class to set on the element used to render the Connection&#39;s connector.  Unlike with <code>scope</code>, when multiple types assign a CSS class, the UI artefact gets all of them written to it.</li>
-<li><strong>parameters</strong> - when you add/set a Type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.</li>
-<li><strong>overlays</strong> - when you have multiple types applied to a Connection, you get the union of all the Overlays defined across the various Types. <strong>Note</strong> when you create a Connection using jsPlumb.connect and you provide a &#39;type&#39;, that is equivalent to calling &#39;addType&#39;: you will get the Overlays defined by the Type(s) you set as well as any others you have provided to the constructor.</li>
+<li><strong>scope</strong> - remember, Connections support a single scope. So if you have multiple Types applied, you will get the scope 
+from the last Type that defines one.</li>
+<li><strong>cssClass</strong> a class to set on the element used to render the Connection&#39;s connector.  Unlike with <code>scope</code>, when 
+multiple types assign a CSS class, the UI artefact gets all of them written to it.</li>
+<li><strong>parameters</strong> - when you add/set a Type that has parameters, any existing parameters with the same keys will be 
+overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.</li>
+<li><strong>overlays</strong> - when you have multiple types applied to a Connection, you get the union of all the Overlays defined 
+across the various Types. <strong>Note</strong> when you create a Connection using jsPlumb.connect and you provide a &#39;type&#39;, that 
+is equivalent to calling &#39;addType&#39;: you will get the Overlays defined by the Type(s) you set as well as any others you 
+have provided to the constructor.</li>
+<li><strong>endpoint</strong> Only works with a type applied to a new Connection.  But very useful for that particular use case.</li>
 </ul>
 
 <p><a name="parameterized-connection-type"></a></p>

@@ -27,7 +27,8 @@ Types are a useful tool when you are building a UI that has connections whose ap
 
 <a name="connection-type"></a>
 ### Connection Type
-Probably the easiest way to explain Types is with some code. In this snippet, we'll register a Connection Type on jsPlumb, create a Connection, and then assign the Type to it:
+Probably the easiest way to explain Types is with some code. In this snippet, we'll register a Connection Type on jsPlumb, 
+create a Connection, and then assign the Type to it:
 
 ```javascript
 jsPlumb.registerConnectionType("example", {
@@ -41,7 +42,8 @@ c.bind("click", function() {
 });	
 ```
 
-Another example - a better one, in fact.  Say you have a UI in which you can click to select or deselect Connections, and you want a different appearance for each state.  Connection Types to the rescue!
+Another example - a better one, in fact.  Say you have a UI in which you can click to select or deselect Connections, 
+and you want a different appearance for each state.  Connection Types to the rescue!
 
 ```javascript
 jsPlumb.registerConnectionTypes({
@@ -103,10 +105,17 @@ Connection Type objects:
 - **detachable** - whether or not the Connection is detachable using the mouse
 - **paintStyle**
 - **hoverPaintStyle**
-- **scope** - remember, Connections support a single scope. So if you have multiple Types applied, you will get the scope from the last Type that defines one.
-- **cssClass** a class to set on the element used to render the Connection's connector.  Unlike with `scope`, when multiple types assign a CSS class, the UI artefact gets all of them written to it.
-- **parameters** - when you add/set a Type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.
-- **overlays** - when you have multiple types applied to a Connection, you get the union of all the Overlays defined across the various Types. **Note** when you create a Connection using jsPlumb.connect and you provide a 'type', that is equivalent to calling 'addType': you will get the Overlays defined by the Type(s) you set as well as any others you have provided to the constructor.
+- **scope** - remember, Connections support a single scope. So if you have multiple Types applied, you will get the scope 
+from the last Type that defines one.
+- **cssClass** a class to set on the element used to render the Connection's connector.  Unlike with `scope`, when 
+multiple types assign a CSS class, the UI artefact gets all of them written to it.
+- **parameters** - when you add/set a Type that has parameters, any existing parameters with the same keys will be 
+overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.
+- **overlays** - when you have multiple types applied to a Connection, you get the union of all the Overlays defined 
+across the various Types. **Note** when you create a Connection using jsPlumb.connect and you provide a 'type', that 
+is equivalent to calling 'addType': you will get the Overlays defined by the Type(s) you set as well as any others you 
+have provided to the constructor.
+- **endpoint** Only works with a type applied to a new Connection.  But very useful for that particular use case.
 
 <a name="parameterized-connection-type"></a>
 ##### Parameterized Connection Types
