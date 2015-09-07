@@ -58,7 +58,13 @@
         //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
         // adding the floating endpoint as a droppable.  that makes more sense anyway!
         // TRANSIENT MANAGE
-        return _newEndpoint({ paintStyle: paintStyle, endpoint: endpoint, anchor: floatingAnchor, source: sourceElement, scope: scope });
+        return _newEndpoint({
+            paintStyle: paintStyle,
+            endpoint: endpoint,
+            anchor: floatingAnchor,
+            source: sourceElement,
+            scope: scope
+        });
     };
 
     var typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays",
@@ -553,7 +559,12 @@
                         "elId": this.elementId
                     });
 
-                    this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, this.endpoint, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
+                    var endpointToFloat = this.endpoint;
+                    if (this.connectionType != null) {
+                        var aae = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(this.connectionType);
+                        if (aae.endpoints[1]) endpointToFloat = aae.endpoints[1];
+                    }
+                    this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, endpointToFloat, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
                     // TODO we should not know about DOM here. make the library adapter do this (or the 
                     // dom adapter)
                     this.canvas.style.visibility = "hidden";
