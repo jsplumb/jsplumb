@@ -59,15 +59,6 @@ var _addDivs = function (ids, parent) {
         _addDiv(ids[i], parent);
 };
 
-var _triggerEvent = function (el, eventId) {
-    var o = $(el).offset();
-    var evt = jQuery.Event(eventId);
-    evt.which = 0;
-    evt.pageX = o.left;
-    evt.pageY = o.top;
-    $(el).trigger(evt);
-};
-
 var defaults = null,
     _cleanup = function (_jsPlumb) {
         _jsPlumb.reset();
@@ -2640,45 +2631,6 @@ var testSuite = function (renderMode, _jsPlumb) {
 
 
 // end setSource/setTarget methods.
-
-
-    //
-     //What i would *like* this test to do is to fake the user having dragged a connection from
-     //d16 to d17.  the mousedown on d16 is recognised, and an endpoint is added. but the rest of it
-     //is not.  so the test fails by saying that there's 1 endpoint on d16 when i expected none, and
-     //also that the callback was not called.
-
-     //if i add this,
-
-     //_trigger(d16, "mouseup");
-
-     //then the endpoint is actually removed. so it looks like it's just not interacting well with the
-     //jquery ui drag stuff.  another clue about this is that it does not matter if i have fired
-     //'mousemove' and 'mouseout' on d16 before calling 'mouseup'.
-
-     //test(": _jsPlumb.makeTarget - endpoints deleted when detached on callback.", function() {
-     //var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-     //_jsPlumb.makeSource(d16);
-     //_jsPlumb.makeTarget(d17);
-     //var detached = false;
-     //_jsPlumb.bind("connection", function(i) {
-     //_jsPlumb.detach(i.connection);
-     //detached = true;
-     //});
-
-     //_triggerEvent(d16, "mousedown");
-     //_triggerEvent(d16, "mousemove");
-     //_triggerEvent(d16, "mouseout");
-
-     //_triggerEvent(d17, "mouseover");
-     //_triggerEvent(d17, "mousemove");
-     //_triggerEvent(d17, "mouseup");
-
-     //equal(detached, true, "callback was called");
-     //assertEndpointCount("d16", 0, _jsPlumb);
-     //assertEndpointCount("d17", 0, _jsPlumb);
-
-     //});
 
     test(": _jsPlumb.makeSource (parameters)", function () {
         var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
@@ -5530,7 +5482,8 @@ var testSuite = function (renderMode, _jsPlumb) {
             connector: "Flowchart",
             paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
             hoverPaintStyle: { strokeStyle: "blue" },
-            cssClass: "FOO"
+            cssClass: "FOO",
+            endpoint:"Rectangle"
         };
 
         _jsPlumb.registerConnectionType("basic", basicType);
@@ -5543,6 +5496,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
         equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
+        equal(c.endpoints[0].type, "Dot", "endpoint is not of type rectangle, because that only works for new connections");
     });
 
     test(" add connection type on existing connection", function () {
@@ -6083,7 +6037,8 @@ var testSuite = function (renderMode, _jsPlumb) {
                 hoverPaintStyle: { strokeStyle: "blue" },
                 overlays: [
                     "Arrow"
-                ]
+                ],
+                endpoint:"Rectangle"
             },
             "other": {
                 paintStyle: { lineWidth: 14 }
@@ -6098,7 +6053,48 @@ var testSuite = function (renderMode, _jsPlumb) {
         c = _jsPlumb.connect({source: d1, target: d2, type: "basic other"});
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
         equal(c.getPaintStyle().lineWidth, 14, "connection has other type's lineWidth");
+        equal(c.endpoints[0].type, "Rectangle", "endpoint is of type rectangle");
 
+    });
+
+    test(" makeSource connection type is honoured", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+
+        _jsPlumb.Defaults.PaintStyle = {strokeStyle: "blue", lineWidth: 34};
+
+        _jsPlumb.registerConnectionTypes({
+            "basic": {
+                connector: "Flowchart",
+                paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
+                hoverPaintStyle: { strokeStyle: "blue" },
+                overlays: [
+                    "Arrow"
+                ],
+                endpoint:"Rectangle"
+            }
+        });
+
+        _jsPlumb.makeSource(d1, {
+            connectionType:"basic"
+        });
+
+        var c = _jsPlumb.connect({source: d1, target: d2, type:"basic"});
+        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().lineWidth, 4, "connection has basic type's lineWidth");
+        equal(c.endpoints[0].type, "Rectangle", "endpoint is of type rectangle");
+
+        _jsPlumb.detach(c);
+
+        _jsPlumb.makeTarget(d2, {
+            endpoint:"Blank"
+        });
+
+        _dragConnection(d1, d2);
+        c = _jsPlumb.select().get(0);
+        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().lineWidth, 4, "connection has basic type's lineWidth");
+        equal(c.endpoints[0].type, "Rectangle", "source endpoint is of type rectangle");
+        equal(c.endpoints[1].type, "Rectangle", "target endpoint is of type rectangle");
     });
 
     test(" setType, scope", function () {
