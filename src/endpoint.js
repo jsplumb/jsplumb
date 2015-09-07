@@ -128,6 +128,7 @@
         var inPlaceCopy = null;
         if (this._jsPlumb.uuid) params.endpointsByUUID[this._jsPlumb.uuid] = this;
         this.elementId = params.elementId;
+        this.dragProxy = params.dragProxy;
 
         this._jsPlumb.connectionCost = params.connectionCost;
         this._jsPlumb.connectionsDirected = params.connectionsDirected;
@@ -559,13 +560,15 @@
                         "elId": this.elementId
                     });
 
-                    var endpointToFloat = this.endpoint;
-                    if (this.connectionType != null) {
+                    // create an endpoint that will be our floating endpoint.
+                    var endpointToFloat = this.dragProxy || this.endpoint;
+                    if (this.dragProxy == null && this.connectionType != null) {
                         var aae = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(this.connectionType);
                         if (aae.endpoints[1]) endpointToFloat = aae.endpoints[1];
                     }
                     this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, endpointToFloat, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
-                    // TODO we should not know about DOM here. make the library adapter do this (or the 
+
+                    // TODO we should not know about DOM here. make the library adapter do this (or the
                     // dom adapter)
                     this.canvas.style.visibility = "hidden";
 

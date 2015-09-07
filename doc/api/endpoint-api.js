@@ -40,12 +40,20 @@
  * @param {Boolean} [params.reattach=false] Determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
  * @param {Object} [params.parameters={}] JS object containing parameters to set on the Endpoint. These parameters are then available via the getParameter method.  When a connection is made involving this Endpoint, the parameters from this Endpoint are copied into that Connection. Source Endpoint parameters override target Endpoint parameters if they both have a parameter with the same name.
  * @param {String} [params.connector-pointer-events] A value for the 'pointer-events' property of any SVG elements that are created to render connections from this endoint.
+ * @param {String} [params.connectionType] Optional descriptor for the `type` of connections this endpoint is a source for. Used when dragging new connections.
+ * @param {String|Array} [params.dragProxy] Optional endpoint definition for the endpoint to use as the drag endpoint when dragging a new connection. If you provide this it will override any other means of determining what the drag endpoint should look like.
  */
 
  /**
  * The Endpoint's drawing area
  * @property canvas
  * @type {Element}
+ */
+
+/**
+ * Optional spec for the endpoint to use when dragging a new connection
+ * @property dragProxy
+ * @type {String|Array}
  */
 
  /**
