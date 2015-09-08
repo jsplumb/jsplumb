@@ -1700,22 +1700,19 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": jsPlumb.remove, element identified by string", function () {
         var d1 = _addDiv("d1");
-        _jsPlumb.addEndpoint(d1);
-        _jsPlumb.addEndpoint(d1);
-        _jsPlumb.addEndpoint(d1);
+        var e1 = _jsPlumb.addEndpoint(d1);
 
         _jsPlumb.remove("d1");
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
         ok(_jsPlumb.getEndpoints("d1") == null, "no endpoints for the given element");
-
-        expect(1);
+        ok(e1.canvas.parentNode == null, "e1 cleaned up");
     });
 
     test(": jsPlumb.remove, element identified by selector", function () {
         var d1 = _addDiv("d1");
-        _jsPlumb.addEndpoint(d1);
+        var e1 = _jsPlumb.addEndpoint(d1);
         _jsPlumb.addEndpoint(d1);
         _jsPlumb.addEndpoint(d1);
 
@@ -1724,10 +1721,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.repaintEverything(); // shouldn't complain
 
         ok(_jsPlumb.getEndpoints("d1") == null, "no endpoints for the given element");
-
-        expect(1);
+        ok(e1.canvas.parentNode == null, "e1 cleaned up");
     });
-
 
     test(": jsPlumb.remove, element identified by string, nested endpoints", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
