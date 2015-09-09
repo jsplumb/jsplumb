@@ -16,6 +16,9 @@ jsPlumb.ready(function () {
         Container: "canvas"
     });
 
+    alert("dont forget to clean this up");
+    instance.registerConnectionType("basic", { anchor:["Bottom", "Left", "Right"], connector:"StateMachine" });
+
     window.jsp = instance;
 
     var canvas = document.getElementById("canvas");
@@ -52,9 +55,10 @@ jsPlumb.ready(function () {
         instance.makeSource(el, {
             filter: ".ep",
             anchor: "Continuous",
-            connector: [ "StateMachine", { curviness: 20 } ],
+            //connector: [ "StateMachine", { curviness: 20 } ],
             connectorStyle: { strokeStyle: "#5c96bc", lineWidth: 2, outlineColor: "transparent", outlineWidth: 4 },
             maxConnections: 5,
+            connectionType:"basic",
             onMaxConnections: function (info, e) {
                 alert("Maximum connections (" + info.maxConnections + ") reached");
             }
