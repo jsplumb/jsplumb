@@ -544,11 +544,6 @@
 
                     jsPlumb.setPosition(placeholderInfo.element, ipco);
 
-                    // when using makeSource and a parent, we first draw the source anchor on the source element, then
-                    // move it to the parent.  note that this happens after drawing the placeholder for the
-                    // first time.
-                    if (this.parentAnchor) this.anchor = _jsPlumb.makeAnchor(this.parentAnchor, this.elementId, _jsPlumb);
-
                     // store the id of the dragging div and the source element. the drop function will pick these up.                   
                     _jsPlumb.setAttributes(this.canvas, {
                         "dragId": placeholderInfo.id,
