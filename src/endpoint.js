@@ -86,12 +86,6 @@
         return ep.connections[idx];
     };
 
-    var findConnectionIndex = function (conn, ep) {
-        return _ju.findWithFunction(ep.connections, function (c) {
-            return c.id == conn.id;
-        });
-    };
-
     _jp.Endpoint = function (params) {
         var _jsPlumb = params._jsPlumb,
             _newConnection = params.newConnection,
@@ -286,7 +280,8 @@
         };
 
         this.detachFromConnection = function (connection, idx, doNotCleanup) {
-            idx = idx == null ? findConnectionIndex(connection, this) : idx;
+            //idx = idx == null ? findConnectionIndex(connection, this) : idx;
+            idx = idx == null ? this.connections.indexOf(connection) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
                 this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);
@@ -304,7 +299,7 @@
 
         this.detach = function (connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
 
-            var idx = connectionIndex == null ? findConnectionIndex(connection, this) : connectionIndex,
+            var idx = connectionIndex == null ? this.connections.indexOf(connection) : connectionIndex,
                 actuallyDetached = false;
             fireEvent = (fireEvent !== false);
 
