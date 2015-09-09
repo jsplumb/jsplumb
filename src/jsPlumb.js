@@ -305,7 +305,7 @@
         },
 
         hasType: function (typeId) {
-            return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
+            return this._jsPlumb.types.indexOf(typeId) != -1;
         },
 
         addType: function (typeId, params, doNotRepaint) {
@@ -323,7 +323,7 @@
 
         removeType: function (typeId, doNotRepaint) {
             var t = _splitType(typeId), _cont = false, _one = function (tt) {
-                var idx = _ju.indexOf(this._jsPlumb.types, tt);
+                var idx = this._jsPlumb.types.indexOf(tt);
                 if (idx != -1) {
                     // remove css class if necessary
                     _removeTypeCssHelper(this, idx);
@@ -353,7 +353,7 @@
             var t = _splitType(typeId);
             if (t != null) {
                 for (var i = 0, j = t.length; i < j; i++) {
-                    var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
+                    var idx = this._jsPlumb.types.indexOf(t[i]);
                     if (idx != -1) {
                         _removeTypeCssHelper(this, idx);
                         this._jsPlumb.types.splice(idx, 1);
@@ -1653,7 +1653,7 @@
             },
             filterList = function (list, value, missingIsFalse) {
                 if (list === "*") return true;
-                return list.length > 0 ? jsPlumbUtil.indexOf(list, value) != -1 : !missingIsFalse;
+                return list.length > 0 ? list.indexOf(value) != -1 : !missingIsFalse;
             };
 
         // get some connections, specifying source/target/scope
@@ -2372,7 +2372,6 @@
 
                     // when the user presses the mouse, add an Endpoint, if we are enabled.
                     var mouseDownListener = function (e) {
-                        var evt = this.getOriginalEvent(e);
                         // on right mouse button, abort.
                         if (e.which === 3 || e.button === 2) return;
 
@@ -2386,7 +2385,7 @@
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
-                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, elInfo.el, p.filter, this, p.filterExclude) : p.filter(evt, elInfo.el);
+                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
                             if (r === false) return;
                         }
 
@@ -2404,7 +2403,7 @@
 
                         // find the position on the element at which the mouse was pressed; this is where the endpoint
                         // will be located.
-                        var elxy = jsPlumb.getPositionOnElement(evt, _del, _zoom);
+                        var elxy = jsPlumb.getPositionOnElement(e, _del, _zoom);
 
                         // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
                         // the params passed in, because after a connection is established we're going to reset the endpoint
