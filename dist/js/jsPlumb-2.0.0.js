@@ -2243,18 +2243,13 @@
                 for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
             return -1;
         },
-        indexOf: function (l, v) {
-            return l.indexOf ? l.indexOf(v) : exports.findWithFunction(l, function (_v) {
-                return _v == v;
-            });
-        },
         removeWithFunction: function (a, f) {
             var idx = exports.findWithFunction(a, f);
             if (idx > -1) a.splice(idx, 1);
             return idx != -1;
         },
         remove: function (l, v) {
-            var idx = exports.indexOf(l, v);
+            var idx = l.indexOf(v);
             if (idx > -1) l.splice(idx, 1);
             return idx != -1;
         },
@@ -2467,31 +2462,6 @@
             this.cleanupListeners();
         }
     };
-
-    // thanks MDC
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind
-    if (!Function.prototype.bind) {
-        Function.prototype.bind = function (oThis) {
-            if (typeof this !== "function") {
-                // closest thing possible to the ECMAScript 5 internal IsCallable function
-                throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-            }
-
-            var aArgs = Array.prototype.slice.call(arguments, 1),
-                fToBind = this,
-                fNOP = function () {
-                },
-                fBound = function () {
-                    return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
-                        aArgs.concat(Array.prototype.slice.call(arguments)));
-                };
-
-            fNOP.prototype = this.prototype;
-            fBound.prototype = new fNOP();
-
-            return fBound;
-        };
-    }
 
 }).call(this);
 
@@ -2856,9 +2826,6 @@
             jsPlumb.updateClasses(this.canvas, classesToAdd, classesToRemove);
         },
 
-        //expandTypes:function(component, params) {
-
-
         setType: function (typeId, params, doNotRepaint) {
             this.clearTypes();
             this._jsPlumb.types = _splitType(typeId) || [];
@@ -2874,7 +2841,7 @@
         },
 
         hasType: function (typeId) {
-            return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
+            return this._jsPlumb.types.indexOf(typeId) != -1;
         },
 
         addType: function (typeId, params, doNotRepaint) {
@@ -2892,7 +2859,7 @@
 
         removeType: function (typeId, doNotRepaint) {
             var t = _splitType(typeId), _cont = false, _one = function (tt) {
-                var idx = _ju.indexOf(this._jsPlumb.types, tt);
+                var idx = this._jsPlumb.types.indexOf(tt);
                 if (idx != -1) {
                     // remove css class if necessary
                     _removeTypeCssHelper(this, idx);
@@ -2922,7 +2889,7 @@
             var t = _splitType(typeId);
             if (t != null) {
                 for (var i = 0, j = t.length; i < j; i++) {
-                    var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
+                    var idx = this._jsPlumb.types.indexOf(t[i]);
                     if (idx != -1) {
                         _removeTypeCssHelper(this, idx);
                         this._jsPlumb.types.splice(idx, 1);
@@ -4222,7 +4189,7 @@
             },
             filterList = function (list, value, missingIsFalse) {
                 if (list === "*") return true;
-                return list.length > 0 ? jsPlumbUtil.indexOf(list, value) != -1 : !missingIsFalse;
+                return list.length > 0 ? list.indexOf(value) != -1 : !missingIsFalse;
             };
 
         // get some connections, specifying source/target/scope
@@ -4941,7 +4908,6 @@
 
                     // when the user presses the mouse, add an Endpoint, if we are enabled.
                     var mouseDownListener = function (e) {
-                        var evt = this.getOriginalEvent(e);
                         // on right mouse button, abort.
                         if (e.which === 3 || e.button === 2) return;
 
@@ -4955,7 +4921,7 @@
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
-                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, elInfo.el, p.filter, this, p.filterExclude) : p.filter(evt, elInfo.el);
+                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
                             if (r === false) return;
                         }
 
@@ -4973,7 +4939,7 @@
 
                         // find the position on the element at which the mouse was pressed; this is where the endpoint
                         // will be located.
-                        var elxy = jsPlumb.getPositionOnElement(evt, _del, _zoom);
+                        var elxy = jsPlumb.getPositionOnElement(e, _del, _zoom);
 
                         // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
                         // the params passed in, because after a connection is established we're going to reset the endpoint
@@ -5911,11 +5877,11 @@
             var _oneSet = function (add, classes) {
                 for (var i = 0; i < classes.length; i++) {
                     if (add) {
-                        if (jsPlumbUtil.indexOf(curClasses, classes[i]) == -1)
+                        if (curClasses.indexOf(classes[i]) == -1)
                             curClasses.push(classes[i]);
                     }
                     else {
-                        var idx = jsPlumbUtil.indexOf(curClasses, classes[i]);
+                        var idx = curClasses.indexOf(classes[i]);
                         if (idx != -1)
                             curClasses.splice(idx, 1);
                     }
@@ -6493,12 +6459,6 @@
         return ep.connections[idx];
     };
 
-    var findConnectionIndex = function (conn, ep) {
-        return _ju.findWithFunction(ep.connections, function (c) {
-            return c.id == conn.id;
-        });
-    };
-
     _jp.Endpoint = function (params) {
         var _jsPlumb = params._jsPlumb,
             _newConnection = params.newConnection,
@@ -6535,6 +6495,7 @@
         var inPlaceCopy = null;
         if (this._jsPlumb.uuid) params.endpointsByUUID[this._jsPlumb.uuid] = this;
         this.elementId = params.elementId;
+        this.dragProxy = params.dragProxy;
 
         this._jsPlumb.connectionCost = params.connectionCost;
         this._jsPlumb.connectionsDirected = params.connectionsDirected;
@@ -6692,7 +6653,8 @@
         };
 
         this.detachFromConnection = function (connection, idx, doNotCleanup) {
-            idx = idx == null ? findConnectionIndex(connection, this) : idx;
+            //idx = idx == null ? findConnectionIndex(connection, this) : idx;
+            idx = idx == null ? this.connections.indexOf(connection) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
                 this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);
@@ -6710,7 +6672,7 @@
 
         this.detach = function (connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
 
-            var idx = connectionIndex == null ? findConnectionIndex(connection, this) : connectionIndex,
+            var idx = connectionIndex == null ? this.connections.indexOf(connection) : connectionIndex,
                 actuallyDetached = false;
             fireEvent = (fireEvent !== false);
 
@@ -6966,13 +6928,15 @@
                         "elId": this.elementId
                     });
 
-                    var endpointToFloat = this.endpoint;
-                    if (this.connectionType != null) {
+                    // create an endpoint that will be our floating endpoint.
+                    var endpointToFloat = this.dragProxy || this.endpoint;
+                    if (this.dragProxy == null && this.connectionType != null) {
                         var aae = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(this.connectionType);
                         if (aae.endpoints[1]) endpointToFloat = aae.endpoints[1];
                     }
                     this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, endpointToFloat, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
-                    // TODO we should not know about DOM here. make the library adapter do this (or the 
+
+                    // TODO we should not know about DOM here. make the library adapter do this (or the
                     // dom adapter)
                     this.canvas.style.visibility = "hidden";
 
@@ -8560,7 +8524,7 @@
                 elementId = jsPlumbInstance.getId(element);
 
             if (elementId !== currentId) {
-                var idx = _ju.indexOf(eps, ep);
+                var idx = eps.indexOf(ep);
                 if (idx > -1) {
                     var _ep = eps.splice(idx, 1)[0];
                     self.add(_ep, elementId);
@@ -12095,7 +12059,7 @@
                 addClass: jsPlumb.addClass,
                 removeClass: jsPlumb.removeClass,
                 intersects: _jg.intersects,
-                indexOf: _ju.indexOf,
+                indexOf: function(l, i) { return l.indexOf(i); },
                 css: {
                     noSelect: instance.dragSelectClass,
                     droppable: "jsplumb-droppable",
@@ -12256,9 +12220,6 @@
         },
         clearDragSelection: function () {
             _getDragManager(this).deselectAll();
-        },
-        getOriginalEvent: function (e) {
-            return e;
         },
         trigger: function (el, event, originalEvent) {
             this.getEventManager().trigger(el, event, originalEvent);
