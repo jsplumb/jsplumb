@@ -44,7 +44,7 @@
                 addClass: jsPlumb.addClass,
                 removeClass: jsPlumb.removeClass,
                 intersects: _jg.intersects,
-                indexOf: _ju.indexOf,
+                indexOf: function(l, i) { return l.indexOf(i); },
                 css: {
                     noSelect: instance.dragSelectClass,
                     droppable: "jsplumb-droppable",
@@ -205,9 +205,6 @@
         },
         clearDragSelection: function () {
             _getDragManager(this).deselectAll();
-        },
-        getOriginalEvent: function (e) {
-            return e;
         },
         trigger: function (el, event, originalEvent) {
             this.getEventManager().trigger(el, event, originalEvent);
