@@ -289,11 +289,11 @@
             var _oneSet = function (add, classes) {
                 for (var i = 0; i < classes.length; i++) {
                     if (add) {
-                        if (jsPlumbUtil.indexOf(curClasses, classes[i]) == -1)
+                        if (curClasses.indexOf(classes[i]) == -1)
                             curClasses.push(classes[i]);
                     }
                     else {
-                        var idx = jsPlumbUtil.indexOf(curClasses, classes[i]);
+                        var idx = curClasses.indexOf(classes[i]);
                         if (idx != -1)
                             curClasses.splice(idx, 1);
                     }
