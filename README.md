@@ -9,7 +9,7 @@ more features (multiple element dragging, multiple scopes), and since the event 
 managed by jsPlumb, you're more likely to get a feature request for those sorts of things to happen. Plus the jQuery version may
 well disappear at some stage in the future.
 
-If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc). 
+If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/docs.html). 
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 ## Project Structure
@@ -33,12 +33,12 @@ This issue is fixed in jQuery 1.8.
 
 
 ## jsPlumb in action
-Links to various demonstrations can be found [here](http://jsplumb.org).
+Links to various demonstrations can be found [here](http://jsplumb).
 
 ## Documentation
-Documentation can be found in the doc folder of the project, or you can view it online [here](http://jsplumb.org/doc).
+Documentation can be found in the doc folder of the project, or you can view it online [here](http://jsplumb.org/community/doc/home.html).
 
-API documentation is in the apidoc folder of the project, and online [here](http://jsplumb.org/apidocs/).
+API documentation is in the apidoc folder of the project, and online [here](http://jsplumb.org/community/apidocs/index.html).
 
 ## jsPlumb Helper Projects
 
