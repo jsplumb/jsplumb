@@ -967,7 +967,7 @@
                 // except that if jpc has a suspended endpoint it's not true to say the
                 // connection is new; it has just (possibly) moved. the question is whether
                 // to make that call here or in the anchor manager.  i think perhaps here.
-                if (jpc.suspendedEndpoint == null || doInformAnchorManager)
+                if (doInformAnchorManager !== false)
                     _currentInstance.anchorManager.newConnection(jpc);
 
                 // force a paint
@@ -2464,8 +2464,7 @@
                     // to prevent the element drag function from kicking in when we want to
                     // drag a new connection
                     if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
-                        //_currentInstance.setDragFilter(_el, p.filter/*, p.filterExclude*/);
-                        _currentInstance.setDragFilter(elInfo.el, p.filter/*, p.filterExclude*/);
+                        _currentInstance.setDragFilter(elInfo.el, p.filter);
                     }
 
                     var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
@@ -3005,7 +3004,7 @@
         },
         floatingConnections: {},
         getFloatingAnchorIndex: function (jpc) {
-            return jpc.endpoints[0].isFloating() ? 0 : 1;
+            return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1;
         }
     });
 
