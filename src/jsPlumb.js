@@ -2151,7 +2151,11 @@
                     // (ie. detached), create a new one
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                         var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-                        var pp = eps.endpoints ? jsPlumb.extend(p, {endpoint:eps.endpoints[1]}) :p;
+                        var pp = eps.endpoints ? jsPlumb.extend(p, {
+                            endpoint:eps.endpoints[1]}) :p;
+                        if (eps.anchors) {
+                            pp = jsPlumb.extend(pp, { anchor:eps.anchors[1]});
+                        }
                         newEndpoint = _currentInstance.addEndpoint(elInfo.el, pp);
                         newEndpoint._mtNew = true;
                     }
