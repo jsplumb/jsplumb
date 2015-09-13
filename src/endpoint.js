@@ -600,12 +600,7 @@
 
                         _jsPlumb.anchorManager.newConnection(jpc);
 
-                        console.log("drag start, new connection", jpc.id);
-
                     } else {
-
-                        console.log("drag start, existing connection", jpc.id);
-
                         existingJpc = true;
                         jpc.setHover(false);
                         // new anchor idx
@@ -677,9 +672,6 @@
                     _jsPlumb.setConnectionBeingDragged(false);
 
                     if (jpc && jpc.endpoints != null) {
-
-                        console.log("drag stop, connection", jpc.id);
-
                         // get the actual drop event (decode from library args to stop function)
                         var originalEvent = _jsPlumb.getDropEvent(arguments);
                         // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
@@ -731,11 +723,9 @@
                                     // in the code; it all refers to the connection itself. we could add a
                                     // `checkSanity(connection)` method to anchorManager that did this.
                                     if (idx == 1) {
-                                        console.log("informing anchor manager updateOtherEndpoint", jpc.id);
                                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                                     }
                                     else {
-                                        console.log("informing anchor manager sourceChanged", jpc.id);
                                         _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
                                     }
 
@@ -1157,11 +1147,9 @@
                     }
 
                     if (idx == 1) {
-                        console.log("informing anchor manager updateOtherEndpoint", jpc.id);
                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                     }
                     else {
-                        console.log("informing anchor manager sourceChanged", jpc.id);
                         _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
                     }
 
@@ -1180,14 +1168,8 @@
                     if (jsPlumbUtil.isObject(optionalData)) {
                         jpc.mergeData(optionalData);
                     }
-
-                    console.log("drop, finalising connection", jpc.id);
                     // finalise will inform the anchor manager and also add to
                     // connectionsByScope if necessary.
-                    // TODO if this is not set to true, then dragging a connection's target to a new
-                    // target causes the connection to be forgotten. however if it IS set to true, then
-                    // the opposite happens: dragging by source causes the connection to get forgotten
-                    // about and then if you delete it jsplumb breaks.
                     _jsPlumb.finaliseConnection(jpc, null, originalEvent, false);
                     jpc.setHover(false);
 
@@ -1196,7 +1178,6 @@
                 var dontContinueFunction = function () {
                     // otherwise just put it back on the endpoint it was on before the drag.
                     if (jpc.suspendedEndpoint) {
-                        console.log("drop, putting back on original", jpc.id);
                         jpc.endpoints[idx] = jpc.suspendedEndpoint;
                         jpc.setHover(false);
                         jpc._forceDetach = true;
@@ -1211,11 +1192,9 @@
 
                         // TODO checkSanity
                         if (idx == 1) {
-                            console.log("informing anchor manager updateOtherEndpoint", jpc.id);
                             _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                         }
                         else {
-                            console.log("informing anchor manager sourceChanged", jpc.id);
                             _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
                         }
 
