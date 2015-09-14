@@ -2076,7 +2076,7 @@
 
         this.targetEndpointDefinitions = {};
         var _setEndpointPaintStylesAndAnchor = function (ep, epIndex, _instance) {
-            ep.paintStyle = ep.paintStyle ||
+           /* ep.paintStyle = ep.paintStyle ||
                 _instance.Defaults.EndpointStyles[epIndex] ||
                 _instance.Defaults.EndpointStyle;
 
@@ -2090,7 +2090,7 @@
 
             ep.endpoint = ep.endpoint ||
                 _instance.Defaults.Endpoints[epIndex] ||
-                _instance.Defaults.Endpoint;
+                _instance.Defaults.Endpoint;*/
         };
 
         // TODO put all the source stuff inside one parent, keyed by id.
@@ -2152,9 +2152,12 @@
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                         var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
                         var pp = eps.endpoints ? jsPlumb.extend(p, {
-                            endpoint:eps.endpoints[1]}) :p;
+                            endpoint:elInfo.def.def.endpoint || eps.endpoints[1]
+                        }) :p;
                         if (eps.anchors) {
-                            pp = jsPlumb.extend(pp, { anchor:eps.anchors[1]});
+                            pp = jsPlumb.extend(pp, {
+                                anchor:elInfo.def.def.anchor || eps.anchors[1]
+                            });
                         }
                         newEndpoint = _currentInstance.addEndpoint(elInfo.el, pp);
                         newEndpoint._mtNew = true;

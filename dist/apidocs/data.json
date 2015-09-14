@@ -849,6 +849,18 @@
                             "description": "A value for the 'pointer-events' property of any SVG elements that are created to render connections from this endoint.",
                             "type": "String",
                             "optional": true
+                        },
+                        {
+                            "name": "connectionType",
+                            "description": "Optional descriptor for the `type` of connections this endpoint is a source for. Used when dragging new connections.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "dragProxy",
+                            "description": "Optional endpoint definition for the endpoint to use as the drag endpoint when dragging a new connection. If you provide this it will override any other means of determining what the drag endpoint should look like.",
+                            "type": "String|Array",
+                            "optional": true
                         }
                     ]
                 }
@@ -863,7 +875,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 169,
+            "line": 177,
             "description": "Does not draw anything visible to the user. This Endpoint is probably not what you want if you need your users to be able to drag existing Connections - for that, use a Rectangle or Dot Endpoint and assign to it a CSS class that causes it to be transparent.",
             "extends": "Endpoint"
         },
@@ -876,7 +888,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 175,
+            "line": 183,
             "description": "A circular Endpoint with configurable radius.",
             "extends": "Endpoint",
             "is_constructor": 1,
@@ -918,7 +930,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 186,
+            "line": 194,
             "description": "A rectangular Endpoint with configurable width/height.",
             "extends": "Endpoint",
             "is_constructor": 1,
@@ -967,7 +979,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/endpoint-api.js",
-            "line": 198,
+            "line": 206,
             "description": "An Endpoint that uses an Image.",
             "extends": "Endpoint",
             "is_constructor": 1,
@@ -1717,7 +1729,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 45,
+            "line": 47,
             "description": "The Endpoint's drawing area",
             "itemtype": "property",
             "name": "canvas",
@@ -1726,7 +1738,16 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 51,
+            "line": 53,
+            "description": "Optional spec for the endpoint to use when dragging a new connection",
+            "itemtype": "property",
+            "name": "dragProxy",
+            "type": "{String|Array}",
+            "class": "Endpoint"
+        },
+        {
+            "file": "doc/api/endpoint-api.js",
+            "line": 59,
             "description": "List of Connections for the Endpoint.",
             "itemtype": "property",
             "name": "connections",
@@ -1735,7 +1756,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 57,
+            "line": 65,
             "description": "Scope descriptor for the Endpoint.",
             "itemtype": "property",
             "name": "scope",
@@ -1744,7 +1765,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 63,
+            "line": 71,
             "description": "Sets the anchor to use for this Endpoint.  `anchorParams` is an object in the same\nform that you would pass as the `anchor` parameter to `jsPlumb.addEndpoint` or `jsPlumb.connect`.",
             "itemtype": "method",
             "name": "setAnchor",
@@ -1768,7 +1789,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 72,
+            "line": 80,
             "description": "Sets the underlying visual representation to use for this Endpoint.  `ep` is an object in the same\nform that you would pass as the `endpoint` parameter to `jsPlumb.addEndpoint` or `jsPlumb.makeSource`.",
             "itemtype": "method",
             "name": "setEndpoint",
@@ -1783,7 +1804,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 79,
+            "line": 87,
             "description": "Detach from the given Connection, without cleaning up or destroying the Connection.",
             "itemtype": "method",
             "name": "detachFromConnection",
@@ -1798,7 +1819,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 85,
+            "line": 93,
             "description": "Detach and cleanup a connection.",
             "itemtype": "method",
             "name": "detach",
@@ -1813,7 +1834,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 91,
+            "line": 99,
             "description": "Detach all connections for this endpoint.",
             "itemtype": "method",
             "name": "detachAll",
@@ -1837,7 +1858,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 98,
+            "line": 106,
             "description": "Detach all Connections from this Endpoint to/from the given target endpoint.",
             "itemtype": "method",
             "name": "detachFrom",
@@ -1859,7 +1880,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 105,
+            "line": 113,
             "description": "Gets the Element to which this Endpoint belongs.",
             "itemtype": "method",
             "name": "getElement",
@@ -1871,7 +1892,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 111,
+            "line": 119,
             "description": "Gets the Endpoint's UUID.",
             "itemtype": "method",
             "name": "getUuid",
@@ -1883,7 +1904,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 117,
+            "line": 125,
             "itemtype": "method",
             "name": "isEnabled",
             "return": {
@@ -1894,7 +1915,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 122,
+            "line": 130,
             "itemtype": "method",
             "name": "isFull",
             "return": {
@@ -1905,7 +1926,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 127,
+            "line": 135,
             "itemtype": "method",
             "name": "isVisible",
             "return": {
@@ -1916,7 +1937,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 132,
+            "line": 140,
             "itemtype": "method",
             "name": "isConnectedTo",
             "params": [
@@ -1934,7 +1955,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 138,
+            "line": 146,
             "description": "Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in \n  which you're going to provide some other way of breaking connections, if you need to break them at all. This property \n  is by default true; use it in conjunction with the `reattach` option on a connect call.",
             "itemtype": "method",
             "name": "setDragAllowedWhenFull",
@@ -1949,7 +1970,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 146,
+            "line": 154,
             "description": "Sets the DOM element this Endpoint is attached to.",
             "itemtype": "method",
             "name": "setElement",
@@ -1974,7 +1995,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 154,
+            "line": 162,
             "description": "Sets whether or not the Endpoint is enabled for drag/drop connections.",
             "itemtype": "method",
             "name": "setEnabled",
@@ -1989,7 +2010,7 @@
         },
         {
             "file": "doc/api/endpoint-api.js",
-            "line": 160,
+            "line": 168,
             "description": "Sets whether or not the Endpoint is currently visible.",
             "itemtype": "method",
             "name": "setVisible",

@@ -128,6 +128,13 @@
 <ul>
 <li>removal of the VML renderer. IE8 no longer supported.</li>
 <li>all class names such as <code>_jsPlumb_connector</code> renamed to, for example, <code>jsplumb-connector</code>.</li>
+<li>makeSource now supports multiple registrations per element, keyed by the <code>connectionType</code> parameter.  You can
+configure elements to be connection sources for different connection types, and also when you call <code>connect</code> with
+a <code>type</code> parameter that matches a <code>makeSource</code> registration, that type will be used.</li>
+<li>new connection drag: if the type of connection is known, that type&#39;s target endpoint is now used.</li>
+<li>addition of support for <code>dragProxy</code> to endpoint/makeSource: an endpoint spec defining what the drag endpoint
+should look like when dragging a new connection. The existence of a <code>dragProxy</code> will override any other behaviour
+(such as the behaviour discussed in the point above)</li>
 </ul>
 
 <h2>1.7.10</h2>
