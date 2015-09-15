@@ -8320,7 +8320,122 @@ var testSuite = function (renderMode, _jsPlumb) {
         //equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after source relocate");
         //equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1, "1 connection registered for d3 after source relocate");
         //equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
-    })
+    });
+
+
+
+
+// ----------------------- draggables and posses ----------------------------------------------------
+
+    test("dragging works", function() {
+        var m = new Mottle();
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        var _t = function(el, evt, x, y) {
+            m.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
+        };
+
+        _jsPlumb.draggable(d);
+
+        _t(d, "mousedown", 0, 0);
+        _t(document, "mousemove", 100, 100);
+        ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+        m.trigger(document, "mouseup");
+        ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+
+        equal(150, parseInt(d.style.left, 10));
+        equal(150, parseInt(d.style.top, 10));
+    });
+
+    test("dragging a posse works, elements as argument", function() {
+        var m = new Mottle();
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+
+        var d2 = _addDiv("d2");
+        d2.style.position = "absolute";
+        d2.style.left = "450px";
+        d2.style.top = "450px";
+
+        var _t = function(el, evt, x, y) {
+            m.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
+        };
+
+        _jsPlumb.draggable([d,d2]);
+        _jsPlumb.addToPosse([d,d2]);
+
+        _t(d, "mousedown", 0, 0);
+        _t(document, "mousemove", 100, 100);
+        ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+        m.trigger(document, "mouseup");
+        ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+
+        equal(150, parseInt(d.style.left, 10));
+        equal(150, parseInt(d.style.top, 10));
+
+        equal(550, parseInt(d2.style.left, 10));
+        equal(550, parseInt(d2.style.top, 10));
+
+
+        _jsPlumb.removeFromPosse(d2);
+        _t(d, "mousedown", 0, 0);
+        _t(document, "mousemove", -100, -100);
+
+        equal(50, parseInt(d.style.left, 10));
+        equal(50, parseInt(d.style.top, 10));
+
+        equal(550, parseInt(d2.style.left, 10));
+        equal(550, parseInt(d2.style.top, 10));
+    });
+
+    test("dragging a posse works, element ids as argument", function() {
+        var m = new Mottle();
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+
+        var d2 = _addDiv("d2");
+        d2.style.position = "absolute";
+        d2.style.left = "450px";
+        d2.style.top = "450px";
+
+        var _t = function(el, evt, x, y) {
+            m.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
+        };
+
+        _jsPlumb.draggable([d,d2]);
+        _jsPlumb.addToPosse(["d1","d2"]);
+
+        _t(d, "mousedown", 0, 0);
+        _t(document, "mousemove", 100, 100);
+        ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+        m.trigger(document, "mouseup");
+        ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+
+        equal(150, parseInt(d.style.left, 10));
+        equal(150, parseInt(d.style.top, 10));
+
+        equal(550, parseInt(d2.style.left, 10));
+        equal(550, parseInt(d2.style.top, 10));
+
+
+        _jsPlumb.removeFromPosse(d2);
+        _t(d, "mousedown", 0, 0);
+        _t(document, "mousemove", -100, -100);
+
+        equal(50, parseInt(d.style.left, 10));
+        equal(50, parseInt(d.style.top, 10));
+
+        equal(550, parseInt(d2.style.left, 10));
+        equal(550, parseInt(d2.style.top, 10));
+    });
 
 };
 
