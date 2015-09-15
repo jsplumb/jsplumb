@@ -2535,7 +2535,6 @@
                 var eldefs = this[types[i]][id];
                 if (eldefs && eldefs[connectionType]) {
                     eldefs[connectionType].def.scope = scope;
-                    if (this.scopeChange != null) this.scopeChange(el, id, endpointsByElement[id], scope, types[i], connectionType);
                 }
             }
 
