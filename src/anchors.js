@@ -233,31 +233,33 @@
                 }
             })(anchorLists[endpoint.elementId], endpoint.id);
         };
-        this.connectionDetached = function (connInfo) {
+        this.connectionDetached = function (connInfo, doNotRedraw) {
             var connection = connInfo.connection || connInfo,
                 sourceId = connInfo.sourceId,
                 targetId = connInfo.targetId,
                 ep = connection.endpoints,
                 removeConnection = function (otherIndex, otherEndpoint, otherAnchor, elId, c) {
-                    if (otherAnchor != null && otherAnchor.constructor == _jp.FloatingAnchor) {
-                        // no-op
-                    }
-                    else {
-                        _ju.removeWithFunction(connectionsByElementId[elId], function (_c) {
-                            return _c[0].id == c.id;
-                        });
-                    }
+                   _ju.removeWithFunction(connectionsByElementId[elId], function (_c) {
+                        return _c[0].id == c.id;
+                    });
                 };
 
             removeConnection(1, ep[1], ep[1].anchor, sourceId, connection);
             removeConnection(0, ep[0], ep[0].anchor, targetId, connection);
+            if (connection.floatingId) {
+                removeConnection(connection.floatingIndex, connection.floatingEndpoint, connection.floatingEndpoint.anchor, connection.floatingId, connection);
+                removeEndpointFromAnchorLists(connection.floatingEndpoint);
+            }
 
             // remove from anchorLists            
             removeEndpointFromAnchorLists(connection.endpoints[0]);
             removeEndpointFromAnchorLists(connection.endpoints[1]);
 
-            self.redraw(connection.sourceId);
-            self.redraw(connection.targetId);
+            if (!doNotRedraw) {
+                self.redraw(connection.sourceId);
+                if (connection.targetId !== connection.sourceId)
+                    self.redraw(connection.targetId);
+            }
         };
         this.add = function (endpoint, elementId) {
             _ju.addToList(_amEndpoints, elementId, endpoint);
@@ -740,6 +742,7 @@
         };
 
         this.getCurrentLocation = function (params) {
+            params = params || {};
             return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp != params.timestamp)) ? this.compute(params) : this.lastReturnValue;
         };
     };

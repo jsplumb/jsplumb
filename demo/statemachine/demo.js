@@ -3,6 +3,7 @@ jsPlumb.ready(function () {
     // setup some defaults for jsPlumb.
     var instance = jsPlumb.getInstance({
         Endpoint: ["Dot", {radius: 2}],
+        Connector:"StateMachine",
         HoverPaintStyle: {strokeStyle: "#1e8151", lineWidth: 2 },
         ConnectionOverlays: [
             [ "Arrow", {
@@ -16,8 +17,7 @@ jsPlumb.ready(function () {
         Container: "canvas"
     });
 
-    alert("dont forget to clean this up");
-    instance.registerConnectionType("basic", { anchor:["Bottom", "Left", "Right"], connector:"StateMachine" });
+    instance.registerConnectionType("basic", { anchor:"Continuous", connector:"StateMachine" });
 
     window.jsp = instance;
 
@@ -55,7 +55,6 @@ jsPlumb.ready(function () {
         instance.makeSource(el, {
             filter: ".ep",
             anchor: "Continuous",
-            //connector: [ "StateMachine", { curviness: 20 } ],
             connectorStyle: { strokeStyle: "#5c96bc", lineWidth: 2, outlineColor: "transparent", outlineWidth: 4 },
             maxConnections: 5,
             connectionType:"basic",
@@ -95,9 +94,9 @@ jsPlumb.ready(function () {
             initNode(windows[i], true);
         }
         // and finally, make a few connections
-        instance.connect({ source: "opened", target: "phone1" });
-        instance.connect({ source: "phone1", target: "phone1" });
-        instance.connect({ source: "phone1", target: "inperson" });
+        instance.connect({ source: "opened", target: "phone1", type:"basic" });
+        instance.connect({ source: "phone1", target: "phone1", type:"basic" });
+        instance.connect({ source: "phone1", target: "inperson", type:"basic" });
     });
 
     jsPlumb.fire("jsPlumbDemoLoaded", instance);

@@ -967,7 +967,7 @@
                 // except that if jpc has a suspended endpoint it's not true to say the
                 // connection is new; it has just (possibly) moved. the question is whether
                 // to make that call here or in the anchor manager.  i think perhaps here.
-                if (jpc.suspendedEndpoint == null || doInformAnchorManager)
+                if (doInformAnchorManager !== false)
                     _currentInstance.anchorManager.newConnection(jpc);
 
                 // force a paint
@@ -2076,7 +2076,7 @@
 
         this.targetEndpointDefinitions = {};
         var _setEndpointPaintStylesAndAnchor = function (ep, epIndex, _instance) {
-            ep.paintStyle = ep.paintStyle ||
+           /* ep.paintStyle = ep.paintStyle ||
                 _instance.Defaults.EndpointStyles[epIndex] ||
                 _instance.Defaults.EndpointStyle;
 
@@ -2090,7 +2090,7 @@
 
             ep.endpoint = ep.endpoint ||
                 _instance.Defaults.Endpoints[epIndex] ||
-                _instance.Defaults.Endpoint;
+                _instance.Defaults.Endpoint;*/
         };
 
         // TODO put all the source stuff inside one parent, keyed by id.
@@ -2151,7 +2151,14 @@
                     // (ie. detached), create a new one
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                         var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-                        var pp = eps.endpoints ? jsPlumb.extend(p, {endpoint:eps.endpoints[1]}) :p;
+                        var pp = eps.endpoints ? jsPlumb.extend(p, {
+                            endpoint:elInfo.def.def.endpoint || eps.endpoints[1]
+                        }) :p;
+                        if (eps.anchors) {
+                            pp = jsPlumb.extend(pp, {
+                                anchor:elInfo.def.def.anchor || eps.anchors[1]
+                            });
+                        }
                         newEndpoint = _currentInstance.addEndpoint(elInfo.el, pp);
                         newEndpoint._mtNew = true;
                     }
@@ -2463,8 +2470,7 @@
                     // to prevent the element drag function from kicking in when we want to
                     // drag a new connection
                     if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
-                        //_currentInstance.setDragFilter(_el, p.filter/*, p.filterExclude*/);
-                        _currentInstance.setDragFilter(elInfo.el, p.filter/*, p.filterExclude*/);
+                        _currentInstance.setDragFilter(elInfo.el, p.filter);
                     }
 
                     var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
@@ -2528,7 +2534,6 @@
                 var eldefs = this[types[i]][id];
                 if (eldefs && eldefs[connectionType]) {
                     eldefs[connectionType].def.scope = scope;
-                    if (this.scopeChange != null) this.scopeChange(el, id, endpointsByElement[id], scope, types[i], connectionType);
                 }
             }
 
@@ -3004,7 +3009,7 @@
         },
         floatingConnections: {},
         getFloatingAnchorIndex: function (jpc) {
-            return jpc.endpoints[0].isFloating() ? 0 : 1;
+            return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1;
         }
     });
 

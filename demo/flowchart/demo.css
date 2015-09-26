@@ -97,7 +97,7 @@
 }
 
 .jsplumb-drag {
-    border: 4px solid pink !important;
+    outline: 4px solid pink !important;
 }
 
 path, .jsplumb-endpoint {

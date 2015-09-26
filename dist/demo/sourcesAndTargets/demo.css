@@ -84,3 +84,12 @@
 path, .jsplumb-endpoint {
     cursor: pointer;
 }
+
+/* ENDPOINT STYLES */
+.large-green circle {
+    fill:#558822;
+}
+
+.small-blue circle {
+    fill:#0d78bc;
+}

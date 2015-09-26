@@ -80,7 +80,6 @@
     _jp.extend(root.jsPlumbInstance.prototype, {
 
         animationSupported:true,
-        scopeChange: function (el, elId, endpoints, scope, types) { },
         getElement: function (el) {
             if (el == null) return null;
             // here we pluck the first entry if el was a list of entries.
@@ -185,6 +184,14 @@
         setDragScope: function (el, scope) {
             if (el._katavorioDrag)
                 el._katavorioDrag.k.setDragScope(el, scope);
+        },
+        addToPosse:function(el, posse) {
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) { dm.addToPosse(jsPlumb.getElement(_el), posse); });
+        },
+        removeFromPosse:function(el) {
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) { dm.removeFromPosse(jsPlumb.getElement(_el)); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
