@@ -8012,7 +8012,6 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after aborted mouse move");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after aborted mouse move");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0, "0 connections registered for d3 after aborted mouse move");
-        equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
     test("connection dragging, simple move case, connection reattach=true aborts the move", function() {
@@ -8349,7 +8348,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(150, parseInt(d.style.top, 10));
     });
 
-    test("dragging a posse works, elements as argument", function() {
+  test("dragging a posse works, elements as argument", function() {
         var m = new Mottle();
 
         var d = _addDiv("d1");
@@ -8367,7 +8366,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         };
 
         _jsPlumb.draggable([d,d2]);
-        _jsPlumb.addToPosse([d,d2]);
+        _jsPlumb.addToPosse([d,d2], "posse");
 
         _t(d, "mousedown", 0, 0);
         _t(document, "mousemove", 100, 100);
@@ -8411,7 +8410,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         };
 
         _jsPlumb.draggable([d,d2]);
-        _jsPlumb.addToPosse(["d1","d2"]);
+        _jsPlumb.addToPosse(["d1","d2"], "posse");
 
         _t(d, "mousedown", 0, 0);
         _t(document, "mousemove", 100, 100);
@@ -8436,6 +8435,22 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(550, parseInt(d2.style.left, 10));
         equal(550, parseInt(d2.style.top, 10));
     });
+
+    test("connection dragging, redrop on original target endpoint", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource:true });
+        var e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
+
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
+
+        _relocateTarget(c, e2.canvas);
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
+
+    });
+
 
 };
 
