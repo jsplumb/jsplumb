@@ -1228,22 +1228,18 @@
 
     var getOffsetRect = function (elem) {
         // (1)
-        var box = elem.getBoundingClientRect();
-
-        var body = document.body;
-        var docElem = document.documentElement;
-
+        var box = elem.getBoundingClientRect(),
+            body = document.body,
+            docElem = document.documentElement,
         // (2)
-        var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop;
-        var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
-
+            scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+            scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
         // (3)
-        var clientTop = docElem.clientTop || body.clientTop || 0;
-        var clientLeft = docElem.clientLeft || body.clientLeft || 0;
-
+            clientTop = docElem.clientTop || body.clientTop || 0,
+            clientLeft = docElem.clientLeft || body.clientLeft || 0,
         // (4)
-        var top  = box.top +  scrollTop - clientTop;
-        var left = box.left + scrollLeft - clientLeft;
+            top  = box.top +  scrollTop - clientTop,
+            left = box.left + scrollLeft - clientLeft;
 
         return { top: Math.round(top), left: Math.round(left) };
     };
@@ -1787,8 +1783,7 @@
                     var _dd = this._dropsByScope[drag.scopes[i]];
                     if (_dd) {
                         for (var j = 0; j < _dd.length; j++) {
-                            //if (_dd[j].canDrop(drag) &&  !_m[_dd[j].el._katavorio] && _dd[j].el !== drag.el) {
-                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].uuid] && _dd[j].el !== drag.el) {
+                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].uuid]/* && _dd[j].el !== drag.el*/) {
                                 _m[_dd[j].uuid] = true;
                                 dd.push(_dd[j]);
                             }
@@ -2038,15 +2033,11 @@
             this._dropsByScope = {};
             _selection = [];
             _selectionMap = {};
+            _posses = {};
         };
 
         // ----- groups
         var _posses = {};
-        var _posseMap = {};
-        var _addToPosseMap = function(id, posse) {
-            _posseMap[id] = _posseMap[id] || {};
-            _posseMap[id][posse.name] = posse;
-        };
         /**
          * Add the given element to the posse with the given id, creating the group if it at first does not exist.
          * @param {Element} el Element to add.
@@ -6513,7 +6504,7 @@
                     _jsPlumb.repaint(placeholder.element, _ui);
                     // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
                     // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
-                    endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation()});
+                    endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation({element:endpoint.element})});
                 }
             },
             stopDrag: function () {
@@ -7088,11 +7079,6 @@
                         // store the original scope (issue 57)
                         var dragScope = _jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
-                        // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
-                        // that have our drop scope (issue 57).
-                        var dropScope = _jsPlumb.getDropScope(canvasElement);
-                        _jsPlumb.setDragScope(canvasElement, dropScope);
-                        //*/
 
                         // fire an event that informs that a connection is being dragged. we do this before
                         // replacing the original target with the floating element info.

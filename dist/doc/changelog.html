@@ -125,16 +125,38 @@
                 <div class="markdown-body col-xs-9">
                     <h2>2.0.0</h2>
 
+<h3>Backwards Compatibility</h3>
+
 <ul>
-<li>removal of the VML renderer. IE8 no longer supported.</li>
-<li>all class names such as <code>_jsPlumb_connector</code> renamed to, for example, <code>jsplumb-connector</code>.</li>
-<li>makeSource now supports multiple registrations per element, keyed by the <code>connectionType</code> parameter.  You can
-configure elements to be connection sources for different connection types, and also when you call <code>connect</code> with
-a <code>type</code> parameter that matches a <code>makeSource</code> registration, that type will be used.</li>
+<li>Removal of the VML renderer. IE8 no longer supported.</li>
+<li>All class names such as <code>_jsPlumb_connector</code> renamed to, for example, <code>jsplumb-connector</code>.</li>
+<li>makeSource and makeTarget require explicit anchor/endpoint parameters: they do not source these things
+from the jsPlumb Defaults.</li>
+</ul>
+
+<p>TWO REMAINING DRAG ISSUES:</p>
+
+<ul>
+<li>redrop (either source or target) no longer works in flowchart demo. write tests and check. (fixed??)</li>
+<li>in draggable connectors, top left blue endpoint moves as soon as you drag (its dynamic). this is because we dont lock
+them anymore, but why does it not choose the one that is closest to the mouse?  doesnt seem to make sense.</li>
+<li>when dragging existing conn by its source, if you hover over another source the connection does not snap to show that you are hovering
+this is actually how it currently works, i consider it a bug.</li>
+</ul>
+
+<h3>New Functionality</h3>
+
+<ul>
+<li>makeSource now supports multiple registrations per element, keyed by the <code>connectionType</code> parameter.  You can configure 
+elements to be connection sources for different connection types, and also when you call <code>connect</code> with a <code>type</code> 
+parameter that matches a <code>makeSource</code> registration, that type will be used.</li>
 <li>new connection drag: if the type of connection is known, that type&#39;s target endpoint is now used.</li>
-<li>addition of support for <code>dragProxy</code> to endpoint/makeSource: an endpoint spec defining what the drag endpoint
-should look like when dragging a new connection. The existence of a <code>dragProxy</code> will override any other behaviour
-(such as the behaviour discussed in the point above)</li>
+<li>addition of support for <code>dragProxy</code> to endpoint/makeSource: an endpoint spec defining what the drag endpoint should 
+look like when dragging a new connection. The existence of a <code>dragProxy</code> will override any other behaviour (such as the 
+behaviour discussed in the point above)</li>
+<li>addition of &quot;posses&quot; - groups of elements that should always be dragged together.</li>
+<li>when dragging a new connection, jsPlumb now uses as the source endpoint a true representation of what the endpoint
+will be if a connection is established. Previous versions just used a static, in-place, endpoint.</li>
 </ul>
 
 <h2>1.7.10</h2>
