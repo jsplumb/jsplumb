@@ -35,7 +35,7 @@
                     _jsPlumb.repaint(placeholder.element, _ui);
                     // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
                     // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
-                    endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation()});
+                    endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation({element:endpoint.element})});
                 }
             },
             stopDrag: function () {
@@ -610,11 +610,6 @@
                         // store the original scope (issue 57)
                         var dragScope = _jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
-                        // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
-                        // that have our drop scope (issue 57).
-                        var dropScope = _jsPlumb.getDropScope(canvasElement);
-                        _jsPlumb.setDragScope(canvasElement, dropScope);
-                        //*/
 
                         // fire an event that informs that a connection is being dragged. we do this before
                         // replacing the original target with the floating element info.
