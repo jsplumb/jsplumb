@@ -270,6 +270,7 @@
             if (_anchors != null) {
                 this.endpoints[0].anchor = _anchors[0];
                 this.endpoints[1].anchor = _anchors[1];
+                if (this.endpoints[1].anchor.isDynamic) this._jsPlumb.instance.repaint(this.endpoints[1].elementId);
             }
 
             _jp.OverlayCapableJsPlumbUIComponent.applyType(this, t);
