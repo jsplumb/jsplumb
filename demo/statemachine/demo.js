@@ -39,6 +39,10 @@ jsPlumb.ready(function () {
         info.connection.getOverlay("label").setLabel(info.connection.id);
     });
 
+    instance.bind("connectionDetach", function() {
+        alert("DETACH!")
+    })
+
     // bind a double click listener to "canvas"; add new node when this occurs.
     jsPlumb.on(canvas, "dblclick", function(e) {
         newNode(e.offsetX, e.offsetY);

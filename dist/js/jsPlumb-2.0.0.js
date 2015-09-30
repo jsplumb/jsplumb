@@ -3972,10 +3972,10 @@
             this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
         };
 
-        this.deleteEndpoint = function (object, dontUpdateHover, dontFireEvents) {
+        this.deleteEndpoint = function (object, dontUpdateHover) {
             var endpoint = (typeof object === "string") ? endpointsByUUID[object] : object;
             if (endpoint) {
-                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, dontFireEvents:dontFireEvents });
+                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover });
             }
             return _currentInstance;
         };
@@ -4164,8 +4164,8 @@
                     jsPlumbUtil.removeWithFunction(connections, function (_c) {
                         return c.id == _c.id;
                     });
-                    if (!params.dontFireEvents)
-                        fireDetachEvent(c, fireEvent, params.originalEvent);
+
+                    fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
 
                     c.endpoints[0].detachFromConnection(c);
                     c.endpoints[1].detachFromConnection(c);
@@ -5156,8 +5156,8 @@
         this.getTargetScope = function (el) {
             return _getScope(el, "targetEndpointDefinitions");
         };
-        this.setScope = function (el, scope) {
-            _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]);
+        this.setScope = function (el, scope, connectionType) {
+            _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ], connectionType);
         };
         this.setSourceScope = function (el, scope, connectionType) {
             _setScope(el, scope, "sourceEndpointDefinitions", connectionType);
@@ -5305,7 +5305,7 @@
             return this;
         };
 
-        this.removeAllEndpoints = function (el, recurse, affectedElements, dontFireEvents) {
+        this.removeAllEndpoints = function (el, recurse, affectedElements) {
             affectedElements = affectedElements || [];
             var _one = function (_el) {
                 var info = _info(_el),
@@ -5315,7 +5315,7 @@
                 if (ebe) {
                     affectedElements.push(info);
                     for (i = 0, ii = ebe.length; i < ii; i++)
-                        _currentInstance.deleteEndpoint(ebe[i], false, dontFireEvents);
+                        _currentInstance.deleteEndpoint(ebe[i], false);
                 }
                 delete endpointsByElement[info.id];
 
@@ -5332,8 +5332,8 @@
             return this;
         };
 
-        var _doRemove = function(info, affectedElements, dontFireEvents) {
-            _currentInstance.removeAllEndpoints(info.id, true, affectedElements, dontFireEvents);
+        var _doRemove = function(info, affectedElements) {
+            _currentInstance.removeAllEndpoints(info.id, true, affectedElements);
             var _one = function(_info) {
                 _currentInstance.getDragManager().elementRemoved(_info.id);
                 _currentInstance.anchorManager.clearFor(_info.id);
@@ -5360,14 +5360,14 @@
          * This is exposed in the public API but also used internally by jsPlumb when removing the
          * element associated with a connection drag.
          */
-        this.remove = function (el, doNotRepaint, dontFireEvents) {
+        this.remove = function (el, doNotRepaint) {
             var info = _info(el), affectedElements = [];
             if (info.text) {
                 info.el.parentNode.removeChild(info.el);
             }
             else if (info.id) {
                 _currentInstance.batch(function () {
-                    _doRemove(info, affectedElements, dontFireEvents);
+                    _doRemove(info, affectedElements);
                 }, doNotRepaint === false);
             }
             return _currentInstance;
@@ -7213,7 +7213,7 @@
                     // remove the element associated with the floating endpoint
                     // (and its associated floating endpoint and visual artefacts)
                     if (placeholderInfo && placeholderInfo.element) {
-                        _jsPlumb.remove(placeholderInfo.element, false, true);
+                        _jsPlumb.remove(placeholderInfo.element, false, false);
                     }
                     // remove the inplace copy
                     if (inPlaceCopy) {
@@ -12273,7 +12273,7 @@
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
                     });
-                    if (options.step != null) options.step();
+                    if (options.step != null) options.step(idx, Math.ceil(steps));
                     idx++;
                     if (idx >= steps) {
                         window.clearInterval(int);
