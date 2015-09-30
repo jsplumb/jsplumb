@@ -485,9 +485,17 @@
                     defaultOpts = {},
                     startEvent = _jp.dragEvents.start,
                     stopEvent = _jp.dragEvents.stop,
-                    dragEvent = _jp.dragEvents.drag;
+                    dragEvent = _jp.dragEvents.drag,
+                    beforeStartEvent = _jp.dragEvents.beforeStart,
+                    payload;
 
-                var start = function () {
+                // respond to beforeStart from katavorio; this will have, optionally, a payload of attribute values
+                // that were placed there by the makeSource mousedown listener.
+                var beforeStart = function(beforeStartParams) {
+                    payload = beforeStartParams.e.payload || {};
+                };
+
+                var start = function (startParams) {
 
 // -------------   first, get a connection to drag. this may be null, in which case we are dragging a new one.
 
@@ -515,6 +523,13 @@
                     });
                     if (beforeDrag === false) _continue = false;
                     // else we might have been given some data. we'll pass it in to a new connection as 'data'.
+                    // here we also merge in the optional payload we were given on mousedown.
+                    else if (typeof beforeDrag === "object") {
+                        jsPlumb.extend(beforeDrag, payload || {});
+                    }
+                    else
+                        // or if no beforeDrag data, maybe use the payload on its own.
+                        beforeDrag = payload || {};
 
                     if (_continue === false) {
                         // this is for mootools and yui. returning false from this causes jquery to stop drag.
@@ -727,7 +742,6 @@
                             }
                         }
 
-
                         // makeTargets sets this flag, to tell us we have been replaced and should delete this object.
                         if (this.deleteAfterDragStop) {
                             _jsPlumb.deleteObject({endpoint: this});
@@ -769,6 +783,7 @@
 
                 dragOptions = _jp.extend(defaultOpts, dragOptions);
                 dragOptions.scope = this.scope || dragOptions.scope;
+                dragOptions[beforeStartEvent] = _ju.wrap(dragOptions[beforeStartEvent], beforeStart, false);
                 dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
                 // extracted drag handler function so can be used by makeSource
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
