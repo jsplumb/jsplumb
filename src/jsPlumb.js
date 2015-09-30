@@ -2303,10 +2303,8 @@
                     var elid = elInfo.id,
                         _del = this.getElement(elInfo.el);
 
-
                     this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};
                     _ensureContainer(elid);
-
 
                     var _def = {
                         def:jsPlumb.extend({}, p),
@@ -2455,9 +2453,20 @@
                         _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
                         _currentInstance.on(elInfo.el, "mouseup", _delTempEndpoint);
 
+                        // optionally check for attributes to extract from the source element
+                        var payload = {};
+                        if (def.def.extract) {
+                            for (var att in def.def.extract) {
+                                var v = e.srcElement.getAttribute(att);
+                                if (v) {
+                                    payload[att] = v;
+                                }
+                            }
+                        }
+
                         // and then trigger its mousedown event, which will kick off a drag, which will start dragging
                         // a new connection from this endpoint.
-                        _currentInstance.trigger(ep.canvas, "mousedown", e);
+                        _currentInstance.trigger(ep.canvas, "mousedown", e, payload);
 
                         jsPlumbUtil.consume(e);
 
