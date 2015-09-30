@@ -60,6 +60,9 @@ jsPlumb.ready(function () {
             connectionType:"basic",
             onMaxConnections: function (info, e) {
                 alert("Maximum connections (" + info.maxConnections + ") reached");
+            },
+            extract:{
+                "action":"the-action"
             }
         });
 

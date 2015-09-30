@@ -1294,7 +1294,7 @@
             noSelect : "katavorio-drag-no-select" // added to the body to provide a hook to suppress text selection
         },
         _defaultScope = "katavorio-drag-scope",
-        _events = [ "stop", "start", "drag", "drop", "over", "out" ],
+        _events = [ "stop", "start", "drag", "drop", "over", "out", "beforeStart" ],
         _devNull = function() {},
         _true = function() { return true; },
         _foreach = function(l, fn, from) {
@@ -1505,6 +1505,7 @@
                     k.markSelection(this);
                     k.markPosses(this);
                     this.params.addClass(document.body, css.noSelect);
+                    _dispatch("beforeStart", {el:this.el, pos:posAtDown, e:e, drag:this});
                 }
                 else if (this.params.consumeFilteredEvents) {
                     _consume(e);
@@ -1568,8 +1569,9 @@
             return dragEl || this.el;
         };
 
-        var listeners = {"start":[], "drag":[], "stop":[], "over":[], "out":[] };
+        var listeners = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[] };
         if (params.events.start) listeners.start.push(params.events.start);
+        if (params.events.beforeStart) listeners.beforeStart.push(params.events.beforeStart);
         if (params.events.stop) listeners.stop.push(params.events.stop);
         if (params.events.drag) listeners.drag.push(params.events.drag);
 
@@ -3970,10 +3972,10 @@
             this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
         };
 
-        this.deleteEndpoint = function (object, dontUpdateHover) {
+        this.deleteEndpoint = function (object, dontUpdateHover, dontFireEvents) {
             var endpoint = (typeof object === "string") ? endpointsByUUID[object] : object;
             if (endpoint) {
-                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover });
+                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, dontFireEvents:dontFireEvents });
             }
             return _currentInstance;
         };
@@ -4162,7 +4164,8 @@
                     jsPlumbUtil.removeWithFunction(connections, function (_c) {
                         return c.id == _c.id;
                     });
-                    fireDetachEvent(c, fireEvent, params.originalEvent);
+                    if (!params.dontFireEvents)
+                        fireDetachEvent(c, fireEvent, params.originalEvent);
 
                     c.endpoints[0].detachFromConnection(c);
                     c.endpoints[1].detachFromConnection(c);
@@ -4899,10 +4902,8 @@
                     var elid = elInfo.id,
                         _del = this.getElement(elInfo.el);
 
-
                     this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};
                     _ensureContainer(elid);
-
 
                     var _def = {
                         def:jsPlumb.extend({}, p),
@@ -5051,9 +5052,20 @@
                         _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
                         _currentInstance.on(elInfo.el, "mouseup", _delTempEndpoint);
 
+                        // optionally check for attributes to extract from the source element
+                        var payload = {};
+                        if (def.def.extract) {
+                            for (var att in def.def.extract) {
+                                var v = e.srcElement.getAttribute(att);
+                                if (v) {
+                                    payload[def.def.extract[att]] = v;
+                                }
+                            }
+                        }
+
                         // and then trigger its mousedown event, which will kick off a drag, which will start dragging
                         // a new connection from this endpoint.
-                        _currentInstance.trigger(ep.canvas, "mousedown", e);
+                        _currentInstance.trigger(ep.canvas, "mousedown", e, payload);
 
                         jsPlumbUtil.consume(e);
 
@@ -5293,7 +5305,7 @@
             return this;
         };
 
-        this.removeAllEndpoints = function (el, recurse, affectedElements) {
+        this.removeAllEndpoints = function (el, recurse, affectedElements, dontFireEvents) {
             affectedElements = affectedElements || [];
             var _one = function (_el) {
                 var info = _info(_el),
@@ -5303,7 +5315,7 @@
                 if (ebe) {
                     affectedElements.push(info);
                     for (i = 0, ii = ebe.length; i < ii; i++)
-                        _currentInstance.deleteEndpoint(ebe[i]);
+                        _currentInstance.deleteEndpoint(ebe[i], false, dontFireEvents);
                 }
                 delete endpointsByElement[info.id];
 
@@ -5320,8 +5332,8 @@
             return this;
         };
 
-        var _doRemove = function(info, affectedElements) {
-            _currentInstance.removeAllEndpoints(info.id, true, affectedElements);
+        var _doRemove = function(info, affectedElements, dontFireEvents) {
+            _currentInstance.removeAllEndpoints(info.id, true, affectedElements, dontFireEvents);
             var _one = function(_info) {
                 _currentInstance.getDragManager().elementRemoved(_info.id);
                 _currentInstance.anchorManager.clearFor(_info.id);
@@ -5348,14 +5360,14 @@
          * This is exposed in the public API but also used internally by jsPlumb when removing the
          * element associated with a connection drag.
          */
-        this.remove = function (el, doNotRepaint) {
+        this.remove = function (el, doNotRepaint, dontFireEvents) {
             var info = _info(el), affectedElements = [];
             if (info.text) {
                 info.el.parentNode.removeChild(info.el);
             }
             else if (info.id) {
                 _currentInstance.batch(function () {
-                    _doRemove(info, affectedElements);
+                    _doRemove(info, affectedElements, dontFireEvents);
                 }, doNotRepaint === false);
             }
             return _currentInstance;
@@ -6923,9 +6935,17 @@
                     defaultOpts = {},
                     startEvent = _jp.dragEvents.start,
                     stopEvent = _jp.dragEvents.stop,
-                    dragEvent = _jp.dragEvents.drag;
+                    dragEvent = _jp.dragEvents.drag,
+                    beforeStartEvent = _jp.dragEvents.beforeStart,
+                    payload;
 
-                var start = function () {
+                // respond to beforeStart from katavorio; this will have, optionally, a payload of attribute values
+                // that were placed there by the makeSource mousedown listener.
+                var beforeStart = function(beforeStartParams) {
+                    payload = beforeStartParams.e.payload || {};
+                };
+
+                var start = function (startParams) {
 
 // -------------   first, get a connection to drag. this may be null, in which case we are dragging a new one.
 
@@ -6953,6 +6973,13 @@
                     });
                     if (beforeDrag === false) _continue = false;
                     // else we might have been given some data. we'll pass it in to a new connection as 'data'.
+                    // here we also merge in the optional payload we were given on mousedown.
+                    else if (typeof beforeDrag === "object") {
+                        jsPlumb.extend(beforeDrag, payload || {});
+                    }
+                    else
+                        // or if no beforeDrag data, maybe use the payload on its own.
+                        beforeDrag = payload || {};
 
                     if (_continue === false) {
                         // this is for mootools and yui. returning false from this causes jquery to stop drag.
@@ -7165,7 +7192,6 @@
                             }
                         }
 
-
                         // makeTargets sets this flag, to tell us we have been replaced and should delete this object.
                         if (this.deleteAfterDragStop) {
                             _jsPlumb.deleteObject({endpoint: this});
@@ -7187,7 +7213,7 @@
                     // remove the element associated with the floating endpoint
                     // (and its associated floating endpoint and visual artefacts)
                     if (placeholderInfo && placeholderInfo.element) {
-                        _jsPlumb.remove(placeholderInfo.element, false);
+                        _jsPlumb.remove(placeholderInfo.element, false, true);
                     }
                     // remove the inplace copy
                     if (inPlaceCopy) {
@@ -7207,6 +7233,7 @@
 
                 dragOptions = _jp.extend(defaultOpts, dragOptions);
                 dragOptions.scope = this.scope || dragOptions.scope;
+                dragOptions[beforeStartEvent] = _ju.wrap(dragOptions[beforeStartEvent], beforeStart, false);
                 dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
                 // extracted drag handler function so can be used by makeSource
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
@@ -7926,6 +7953,7 @@
             if (_anchors != null) {
                 this.endpoints[0].anchor = _anchors[0];
                 this.endpoints[1].anchor = _anchors[1];
+                if (this.endpoints[1].anchor.isDynamic) this._jsPlumb.instance.repaint(this.endpoints[1].elementId);
             }
 
             _jp.OverlayCapableJsPlumbUIComponent.applyType(this, t);
@@ -12321,7 +12349,8 @@
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
-            'over': 'over', 'out': 'out', 'drop': 'drop', 'complete': 'complete'
+            'over': 'over', 'out': 'out', 'drop': 'drop', 'complete': 'complete',
+            'beforeStart':'beforeStart'
         },
         animEvents: {
             'step': "step", 'complete': 'complete'
@@ -12339,8 +12368,8 @@
         clearDragSelection: function () {
             _getDragManager(this).deselectAll();
         },
-        trigger: function (el, event, originalEvent) {
-            this.getEventManager().trigger(el, event, originalEvent);
+        trigger: function (el, event, originalEvent, payload) {
+            this.getEventManager().trigger(el, event, originalEvent, payload);
         },
         doReset:function() {
             // look for katavorio instances and reset each one if found.
