@@ -1374,10 +1374,10 @@
             this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
         };
 
-        this.deleteEndpoint = function (object, dontUpdateHover) {
+        this.deleteEndpoint = function (object, dontUpdateHover, dontFireEvents) {
             var endpoint = (typeof object === "string") ? endpointsByUUID[object] : object;
             if (endpoint) {
-                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover });
+                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, dontFireEvents:dontFireEvents });
             }
             return _currentInstance;
         };
@@ -1566,7 +1566,8 @@
                     jsPlumbUtil.removeWithFunction(connections, function (_c) {
                         return c.id == _c.id;
                     });
-                    fireDetachEvent(c, fireEvent, params.originalEvent);
+                    if (!params.dontFireEvents)
+                        fireDetachEvent(c, fireEvent, params.originalEvent);
 
                     c.endpoints[0].detachFromConnection(c);
                     c.endpoints[1].detachFromConnection(c);
@@ -2706,7 +2707,7 @@
             return this;
         };
 
-        this.removeAllEndpoints = function (el, recurse, affectedElements) {
+        this.removeAllEndpoints = function (el, recurse, affectedElements, dontFireEvents) {
             affectedElements = affectedElements || [];
             var _one = function (_el) {
                 var info = _info(_el),
@@ -2716,7 +2717,7 @@
                 if (ebe) {
                     affectedElements.push(info);
                     for (i = 0, ii = ebe.length; i < ii; i++)
-                        _currentInstance.deleteEndpoint(ebe[i]);
+                        _currentInstance.deleteEndpoint(ebe[i], false, dontFireEvents);
                 }
                 delete endpointsByElement[info.id];
 
@@ -2733,8 +2734,8 @@
             return this;
         };
 
-        var _doRemove = function(info, affectedElements) {
-            _currentInstance.removeAllEndpoints(info.id, true, affectedElements);
+        var _doRemove = function(info, affectedElements, dontFireEvents) {
+            _currentInstance.removeAllEndpoints(info.id, true, affectedElements, dontFireEvents);
             var _one = function(_info) {
                 _currentInstance.getDragManager().elementRemoved(_info.id);
                 _currentInstance.anchorManager.clearFor(_info.id);
@@ -2761,14 +2762,14 @@
          * This is exposed in the public API but also used internally by jsPlumb when removing the
          * element associated with a connection drag.
          */
-        this.remove = function (el, doNotRepaint) {
+        this.remove = function (el, doNotRepaint, dontFireEvents) {
             var info = _info(el), affectedElements = [];
             if (info.text) {
                 info.el.parentNode.removeChild(info.el);
             }
             else if (info.id) {
                 _currentInstance.batch(function () {
-                    _doRemove(info, affectedElements);
+                    _doRemove(info, affectedElements, dontFireEvents);
                 }, doNotRepaint === false);
             }
             return _currentInstance;

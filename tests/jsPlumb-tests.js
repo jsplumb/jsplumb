@@ -7674,21 +7674,44 @@ var testSuite = function (renderMode, _jsPlumb) {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {
             beforeDrop:function() {
-                return true;
+                return false;
             },
             isTarget:true
         });
-        var e2 = jsPlumb.addEndpoint(d2, {isSource:true});
+        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
         var evt = false;
         _jsPlumb.bind('connectionDetached', function (info) {
             evt = true;
         });
-        //_jsPlumb.connect({source:e1, target:e2});
-        _dragConnection(e2, e1)
+        _dragConnection(e2, e1);
         ok(evt == false, "event was not fired");
-        ok(e1.connections.length == 1, "one conn now");
+        equal(e1.connections.length, 0, "no connections");
 
-    })
+    });
+
+    test("drag connection between two endpoints", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1 });
+        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1 });
+
+        var c1 = _jsPlumb.connect({source:e2, target:e1});
+        equal(e1.connections.length, 1, "one conn now");
+
+        var c2 = _dragConnection(e2, e1);
+        equal(e1.connections.length, 2, "two conns now");
+    });
+
+    test("drag connection between two endpoints but endpoints are full", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true });
+        var e2 = _jsPlumb.addEndpoint(d2, { isSource:true });
+
+        var c1 = _jsPlumb.connect({source:e2, target:e1});
+        equal(e1.connections.length, 1, "one conn now");
+
+        var c2 = _dragConnection(e2, e1);
+        equal(e1.connections.length, 1, "one conn now");
+    });
 
     /*
     test("endpoint:connectionSourceDetachable false, mouse interaction", function() {

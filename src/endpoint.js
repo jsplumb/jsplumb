@@ -763,7 +763,7 @@
                     // remove the element associated with the floating endpoint
                     // (and its associated floating endpoint and visual artefacts)
                     if (placeholderInfo && placeholderInfo.element) {
-                        _jsPlumb.remove(placeholderInfo.element, false);
+                        _jsPlumb.remove(placeholderInfo.element, false, true);
                     }
                     // remove the inplace copy
                     if (inPlaceCopy) {
