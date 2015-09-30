@@ -2420,6 +2420,8 @@
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
 
+                        if (def.def.scope) tempEndpointParams.scope = def.def.scope;
+
                         ep = this.addEndpoint(elid, tempEndpointParams);
                         endpointAddedButNoDragYet = true;
                         ep._doNotDeleteOnDetach = false; // reset.
@@ -2559,13 +2561,16 @@
             return _getScope(el, "targetEndpointDefinitions");
         };
         this.setScope = function (el, scope, connectionType) {
-            _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ], connectionType);
+            this.setSourceScope(el, scope, connectionType);
+            this.setTargetScope(el, scope, connectionType);
         };
         this.setSourceScope = function (el, scope, connectionType) {
             _setScope(el, scope, "sourceEndpointDefinitions", connectionType);
+            // TODO should we setDragScope here? i'm not sure yet. we get the source scope during the mousedown event.
         };
         this.setTargetScope = function (el, scope, connectionType) {
             _setScope(el, scope, "targetEndpointDefinitions", connectionType);
+            this.setDropScope(el, scope);
         };
 
         // see api docs
