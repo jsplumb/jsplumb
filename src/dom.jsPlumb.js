@@ -185,6 +185,10 @@
             if (el._katavorioDrag)
                 el._katavorioDrag.k.setDragScope(el, scope);
         },
+        setDropScope:function(el, scope) {
+            if (el._katavorioDrop)
+                el._katavorioDrop.k.setDropScope(el, scope);
+        },
         addToPosse:function(el, posse) {
             var dm = _getDragManager(this);
             jsPlumb.each(el, function(_el) { dm.addToPosse(jsPlumb.getElement(_el), posse); });
