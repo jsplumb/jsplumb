@@ -5018,6 +5018,8 @@
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
 
+                        if (def.def.scope) tempEndpointParams.scope = def.def.scope;
+
                         ep = this.addEndpoint(elid, tempEndpointParams);
                         endpointAddedButNoDragYet = true;
                         ep._doNotDeleteOnDetach = false; // reset.
@@ -5164,6 +5166,7 @@
         };
         this.setTargetScope = function (el, scope, connectionType) {
             _setScope(el, scope, "targetEndpointDefinitions", connectionType);
+            this.setDropScope(el, scope);
         };
 
         // see api docs
@@ -12338,6 +12341,10 @@
         setDragScope: function (el, scope) {
             if (el._katavorioDrag)
                 el._katavorioDrag.k.setDragScope(el, scope);
+        },
+        setDropScope:function(el, scope) {
+            if (el._katavorioDrop)
+                el._katavorioDrop.k.setDropScope(el, scope);
         },
         addToPosse:function(el, posse) {
             var dm = _getDragManager(this);
