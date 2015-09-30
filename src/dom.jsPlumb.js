@@ -195,7 +195,8 @@
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
-            'over': 'over', 'out': 'out', 'drop': 'drop', 'complete': 'complete'
+            'over': 'over', 'out': 'out', 'drop': 'drop', 'complete': 'complete',
+            'beforeStart':'beforeStart'
         },
         animEvents: {
             'step': "step", 'complete': 'complete'
@@ -213,8 +214,8 @@
         clearDragSelection: function () {
             _getDragManager(this).deselectAll();
         },
-        trigger: function (el, event, originalEvent) {
-            this.getEventManager().trigger(el, event, originalEvent);
+        trigger: function (el, event, originalEvent, payload) {
+            this.getEventManager().trigger(el, event, originalEvent, payload);
         },
         doReset:function() {
             // look for katavorio instances and reset each one if found.
