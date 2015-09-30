@@ -7670,6 +7670,26 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
     });
 
+    test("beforeDrop returning false prevents connectionDetached event", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, {
+            beforeDrop:function() {
+                return true;
+            },
+            isTarget:true
+        });
+        var e2 = jsPlumb.addEndpoint(d2, {isSource:true});
+        var evt = false;
+        _jsPlumb.bind('connectionDetached', function (info) {
+            evt = true;
+        });
+        //_jsPlumb.connect({source:e1, target:e2});
+        _dragConnection(e2, e1)
+        ok(evt == false, "event was not fired");
+        ok(e1.connections.length == 1, "one conn now");
+
+    })
+
     /*
     test("endpoint:connectionSourceDetachable false, mouse interaction", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -7881,6 +7901,27 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
         equal(_jsPlumb.select().length, 0, "0 connections in jsplumb instance.");
 
+    });
+
+    /**
+     * Tests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to
+     * read fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the
+     * value from the extract map. In this test we get the attribute `foo` and insert its value into the connection's
+     * data, keyed as `fooAttribute`.
+     */
+    test("connection dragging, extractor atts defined on source", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        d1.setAttribute("foo", "the value of foo");
+        _jsPlumb.makeSource([d1, d2, d3], {
+            extract:{
+                "foo":"fooAttribute"
+            }
+        });
+        _jsPlumb.makeTarget([d1, d2, d3], { });
+
+        var con = _dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        equal(con.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
     });
 
     test("connection dragging, simple drag and detach case, beforeDetach interceptor says no.", function() {
