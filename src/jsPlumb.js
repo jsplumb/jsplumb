@@ -2459,7 +2459,7 @@
                             for (var att in def.def.extract) {
                                 var v = e.srcElement.getAttribute(att);
                                 if (v) {
-                                    payload[att] = v;
+                                    payload[def.def.extract[att]] = v;
                                 }
                             }
                         }
