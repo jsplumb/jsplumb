@@ -782,11 +782,13 @@
                                     tt.taps++;
                                     var tc = _touchCount(e);
                                     for (var eventId in _tapProfiles) {
-                                        var p = _tapProfiles[eventId];
-                                        if (p.touches === tc && (p.taps === 1 || p.taps === tt.taps)) {
-                                            for (var i = 0; i < tt[eventId].length; i++) {
-                                                if (tt[eventId][i][1] == null || matchesSelector(target, tt[eventId][i][1], obj))
-                                                    tt[eventId][i][0].apply(_t(e), [ e ]);
+                                        if (_tapProfiles.hasOwnProperty(eventId)) {
+                                            var p = _tapProfiles[eventId];
+                                            if (p.touches === tc && (p.taps === 1 || p.taps === tt.taps)) {
+                                                for (var i = 0; i < tt[eventId].length; i++) {
+                                                    if (tt[eventId][i][1] == null || matchesSelector(target, tt[eventId][i][1], obj))
+                                                        tt[eventId][i][0].apply(_t(e), [ e ]);
+                                                }
                                             }
                                         }
                                     }
@@ -815,7 +817,9 @@
         },
         meeHelper = function (type, evt, obj, target) {
             for (var i in obj.__tamee[type]) {
-                obj.__tamee[type][i].apply(target, [ evt ]);
+                if (obj.__tamee[type].hasOwnProperty(i)) {
+                    obj.__tamee[type][i].apply(target, [ evt ]);
+                }
             }
         },
         MouseEnterExitHandler = function () {
@@ -1013,8 +1017,11 @@
                 var _el = _gel(this);
                 if (_el.__ta) {
                     for (var evt in _el.__ta) {
-                        for (var h in _el.__ta[evt]) {
-                            _unbind(_el, evt, _el.__ta[evt][h]);
+                        if (_el.__ta.hasOwnProperty(evt)) {
+                            for (var h in _el.__ta[evt]) {
+                                if (_el.__ta[evt].hasOwnProperty(h))
+                                    _unbind(_el, evt, _el.__ta[evt][h]);
+                            }
                         }
                     }
                 }
@@ -5159,10 +5166,12 @@
             return _getScope(el, "targetEndpointDefinitions");
         };
         this.setScope = function (el, scope, connectionType) {
-            _setScope(el, scope, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ], connectionType);
+            this.setSourceScope(el, scope, connectionType);
+            this.setTargetScope(el, scope, connectionType);
         };
         this.setSourceScope = function (el, scope, connectionType) {
             _setScope(el, scope, "sourceEndpointDefinitions", connectionType);
+            // TODO should we setDragScope here? i'm not sure yet. we get the source scope during the mousedown event.
         };
         this.setTargetScope = function (el, scope, connectionType) {
             _setScope(el, scope, "targetEndpointDefinitions", connectionType);
