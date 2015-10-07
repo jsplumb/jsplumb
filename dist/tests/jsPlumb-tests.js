@@ -7708,6 +7708,33 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     });
 
+    /*
+
+    // future state.
+
+    test("beforeDrop fired before onMaxConnections", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var bd = false;
+        var e1 = _jsPlumb.addEndpoint(d1, {
+            beforeDrop:function() {
+                bd = true;
+                return true;
+            },
+            isTarget:true,
+            onMaxConnections:function() {
+                ok(bd === true, "beforeDrop was called before onMaxConnections");
+            }
+        });
+        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1});
+        _dragConnection(e2, e1);
+        equal(e1.connections.length, 1, "one connection");
+        equal(bd, true, "beforeDrop was called");
+        bd = false;
+        _dragConnection(e2, e1);
+        equal(e1.connections.length, 1, "one connection");
+    });
+    */
+
     test("drag connection between two endpoints", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1 });
