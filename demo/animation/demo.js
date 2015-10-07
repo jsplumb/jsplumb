@@ -30,7 +30,6 @@ jsPlumb.ready(function () {
                     jsPlumb.removeClass(elId, "jsPlumb_dragged");
                     return;
                 }
-                e = jsPlumb.getOriginalEvent(e);
                 var o = instance.getOffset(el, true),
                     o2 = instance.getOffset(el),
                     s = jsPlumb.getSize(el),
