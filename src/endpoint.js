@@ -45,10 +45,13 @@
     };
 
     // creates a placeholder div for dragging purposes, adds it, and pre-computes its offset.
-    var _makeDraggablePlaceholder = function (placeholder, _jsPlumb) {
+    var _makeDraggablePlaceholder = function (placeholder, _jsPlumb, ipco, ips) {
         var n = jsPlumb.createElement("div", { position : "absolute" });
         _jsPlumb.appendElement(n);
         var id = _jsPlumb.getId(n);
+        jsPlumb.setPosition(n, ipco);
+        n.style.width = ips[0] + "px";
+        n.style.height = ips[1] + "px";
         _jsPlumb.manage(id, n, true); // TRANSIENT MANAGE
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
@@ -558,9 +561,11 @@
 
 // ----------------    make the element we will drag around, and position it -----------------------------
 
-                    _makeDraggablePlaceholder(placeholderInfo, _jsPlumb);
-                    var ipco = this._jsPlumb.instance.getOffset(this.canvas), canvasElement = this.canvas;
-                    jsPlumb.setPosition(placeholderInfo.element, ipco);
+                    var ipco = this._jsPlumb.instance.getOffset(this.canvas),
+                        canvasElement = this.canvas,
+                        ips = this._jsPlumb.instance.getSize(this.canvas);
+
+                    _makeDraggablePlaceholder(placeholderInfo, _jsPlumb, ipco, ips);
 
                     // store the id of the dragging div and the source element. the drop function will pick these up.                   
                     _jsPlumb.setAttributes(this.canvas, {
@@ -575,7 +580,9 @@
                         var aae = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(this.connectionType);
                         if (aae.endpoints[1]) endpointToFloat = aae.endpoints[1];
                     }
-                    this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, endpointToFloat, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
+                    var centerAnchor = this._jsPlumb.instance.makeAnchor("Center");
+                    this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), centerAnchor, endpointToFloat, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
+
 
                     if (jpc == null) {
 
