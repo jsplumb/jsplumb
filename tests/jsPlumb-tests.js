@@ -7702,14 +7702,16 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
     test("drag connection between two endpoints but endpoints are full", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            d3 = _addDiv("d3");
         var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true });
         var e2 = _jsPlumb.addEndpoint(d2, { isSource:true });
+        var e3 = _jsPlumb.addEndpoint(d3, { isSource:true });
 
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one conn now");
 
-        var c2 = _dragConnection(e2, e1);
+        var c2 = _dragConnection(e3, e1);
         equal(e1.connections.length, 1, "one conn now");
     });
 
