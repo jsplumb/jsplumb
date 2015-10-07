@@ -960,6 +960,8 @@
                 if (!jpc.suspendedEndpoint)
                     connections.push(jpc);
 
+                jpc.pending = null;
+
                 // turn off isTemporarySource on the source endpoint (only viable on first draw)
                 jpc.endpoints[0].isTemporarySource = false;
 
