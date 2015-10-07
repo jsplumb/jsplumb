@@ -189,8 +189,14 @@ jsPlumb.makeSource("el1", {
   anchor:"Continuous",
   endpoint:["Rectangle", { width:40, height:20 }],
   maxConnections:1,
-  onMaxConnections:function(info, originalEvent) {
-    console.log("element is ", info.element, "maxConnections is", info.maxConnections);	
+  onMaxConnections:function(params, originalEvent) {
+      // params contains:
+      // {
+      //    endpoint:..
+      //    connection:...
+      //    maxConnections:N
+      // }
+      //
   }
 });
     
@@ -203,7 +209,8 @@ jsPlumb.connect({
 });
 ```
 
-Note the `onMaxConnections` parameter to this call - it allows you to supply a function to call if the user tries to drag a new Connection when the source has already reached capacity.
+Note the `onMaxConnections` parameter to this call - it allows you to supply a function to call if the user tries to 
+drag a new Connection when the source has already reached capacity.
 
 ##### Reference Parameters
 As with `jsPlumb.connect`, `makeSource` can take an optional third argument consisting of parameters that may be common across several different calls:
@@ -216,15 +223,18 @@ var common = {
 
 jsPlumb.makeSource("el1", {
   maxConnections:1,
-  onMaxConnections:function(info, originalEvent) {
-    console.log("element is ", info.element, "maxConnections is", info.maxConnections);	
+  onMaxConnections:function(params, originalEvent) {
+    console.log("element is ", params.endpoint.element, "maxConnections is", params.maxConnections);
   }
 }, common);
 ```
 
 <a name="maketarget"></a>
 ##### jsPlumb.makeTarget
-This method takes two arguments, the first of which specifies some element (or list of elements); the second specifies the Endpoint you wish to create on that element whenever a Connection is established on it.  In this example we will use the exact same target Endpoint we used before - the gray rectangle - but we will tell jsPlumb that the element `aTargetDiv` will be the drop target:
+This method takes two arguments, the first of which specifies some element (or list of elements); the second specifies 
+the Endpoint you wish to create on that element whenever a Connection is established on it.  In this example we will use 
+the exact same target Endpoint we used before - the gray rectangle - but we will tell jsPlumb that the element 
+`aTargetDiv` will be the drop target:
 
 ```javascript
 var endpointOptions = { 
@@ -236,11 +246,22 @@ var endpointOptions = {
 jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 ```
 		
-The allowed values in 'endpointOptions' are identical for both the `jsPlumb.addEndpoint` and `jsPlumb.makeTarget` methods, but `makeTarget` supports an extended Anchor syntax that allows you more control over the location of the target endpoint.  This is discussed below.	
+The allowed values in 'endpointOptions' are identical for both the `jsPlumb.addEndpoint` and `jsPlumb.makeTarget` methods, 
+but `makeTarget` supports an extended Anchor syntax that allows you more control over the location of the target endpoint.  
+This is discussed below.	
 
-Notice in the `endpointOptions` object above there is a parameted called `isTarget` - this may seem incongruous, since you know you're going to make some element a target.  Remember that the `endpointOptions` object is the information jsPlumb will use to create an Endpoint on the given target element each time a Connection is established to it. It takes the exact same format as you would pass to `addEndpoint`; `makeTarget` is essentially a deferred `addEndpoint` call followed by a `connect` call.  So in this case, we're telling jsPlumb that any Endpoints it happens to create on some element that was configured by the `makeTarget` call are themselves Connection targets.  You may or may not want this behaviour in your application - just control it by setting the approriate value for that parameter (it defaults to false).
+Notice in the `endpointOptions` object above there is a parameted called `isTarget` - this may seem incongruous, since 
+you know you're going to make some element a target.  Remember that the `endpointOptions` object is the information 
+jsPlumb will use to create an Endpoint on the given target element each time a Connection is established to it. It 
+takes the exact same format as you would pass to `addEndpoint`; `makeTarget` is essentially a deferred `addEndpoint` 
+call followed by a `connect` call.  So in this case, we're telling jsPlumb that any Endpoints it happens to create on 
+some element that was configured by the `makeTarget` call are themselves Connection targets.  You may or may not want 
+this behaviour in your application - just control it by setting the approriate value for that parameter (it defaults 
+to false).
 
-`makeTarget` also supports the `maxConnections` and `onMaxConnections` parameters, as `makeSource` does, but note that `onMaxConnections` is passed one extra parameter than its corresponding callback from `makeSource` - the Connection the user tried to drop:</p>
+`makeTarget` also supports the `maxConnections` and `onMaxConnections` parameters, as `makeSource` does, but note that 
+`onMaxConnections` is passed one extra parameter than its corresponding callback from `makeSource` - the Connection 
+the user tried to drop:
 
 ```javascript
 jsPlumb.makeTarget("aTargetDiv", { 
@@ -249,14 +270,15 @@ jsPlumb.makeTarget("aTargetDiv", {
   endpoint:"Rectangle", 
   paintStyle:{ fillStyle:"gray" },
   maxConnections:3,
-  onMaxConnections:function(info, originalEvent) {
-    console.log("user tried to drop connection", info.connection, "on element", info.element, "with max connections", info.maxConnections);
+  onMaxConnections:function(params, originalEvent) {
+    console.log("user tried to drop connection", params.connection, "on element", params.endpoint.element, "with max connections", params.maxConnections);
   }
 };
 ```
 
 ##### Reference Parameters
-As with `jsPlumb.connect` and `jsPlumb.makeSource`, `jsPlumb.makeTarget` can take an optional third argument consisting of parameters that may be common across several different calls:
+As with `jsPlumb.connect` and `jsPlumb.makeSource`, `jsPlumb.makeTarget` can take an optional third argument consisting 
+of parameters that may be common across several different calls:
 
 ```javascript
 var common = {
@@ -266,8 +288,8 @@ var common = {
 
 jsPlumb.makeTarget("el1", {
   maxConnections:1,
-  onMaxConnections:function(info, originalEvent) {
-    console.log("element is ", info.element, "maxConnections is", info.maxConnections);	
+  onMaxConnections:function(params, originalEvent) {
+    console.log("element is ", params.endpoint.element, "maxConnections is", params.maxConnections);
   }
 }, common);
 ```
