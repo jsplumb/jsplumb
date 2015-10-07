@@ -581,7 +581,9 @@
                         if (aae.endpoints[1]) endpointToFloat = aae.endpoints[1];
                     }
                     var centerAnchor = this._jsPlumb.instance.makeAnchor("Center");
+                    centerAnchor.isFloating = true;
                     this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), centerAnchor, endpointToFloat, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint, this.scope);
+                    var _savedAnchor = this._jsPlumb.floatingEndpoint.anchor;
 
 
                     if (jpc == null) {
@@ -606,7 +608,7 @@
                         jpc.pending = true;
                         jpc.addClass(_jsPlumb.draggingClass);
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
-                        this._jsPlumb.floatingEndpoint.anchor.isFloating = true;
+                        this._jsPlumb.floatingEndpoint.anchor = _savedAnchor;
                         // fire an event that informs that a connection is being dragged
                         _jsPlumb.fire("connectionDrag", jpc);
 
