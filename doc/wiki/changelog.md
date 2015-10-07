@@ -1,3 +1,7 @@
+## 2.0.1
+
+Bugfix release: connectionDetached event was no longer firing.
+
 ## 2.0.0
 
 ### Backwards Compatibility
@@ -6,16 +10,6 @@
 - All class names such as `_jsPlumb_connector` renamed to, for example, `jsplumb-connector`.
 - makeSource and makeTarget require explicit anchor/endpoint parameters: they do not source these things
   from the jsPlumb Defaults.
-
-
-TWO REMAINING DRAG ISSUES:
-
-- redrop (either source or target) no longer works in flowchart demo. write tests and check. (fixed??)
-- in draggable connectors, top left blue endpoint moves as soon as you drag (its dynamic). this is because we dont lock
-them anymore, but why does it not choose the one that is closest to the mouse?  doesnt seem to make sense.
-- when dragging existing conn by its source, if you hover over another source the connection does not snap to show that you are hovering
- this is actually how it currently works, i consider it a bug.
-
 
 
 ### New Functionality

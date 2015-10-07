@@ -7670,6 +7670,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
     });
 
+    test("connectionDetached event is fired when no beforeDrop is active", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, {
+            isTarget:true
+        });
+        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
+        var evt = false;
+        _jsPlumb.bind('connectionDetached', function (info) {
+            evt = true;
+        });
+        _dragConnection(e2, e1);
+        equal(e1.connections.length, 1, "one connection");
+
+        _detachConnection(e1, 0);
+
+        equal(e1.connections.length, 0, "no connections");
+        ok(evt == true, "event was fired");
+    });
+
     test("beforeDrop returning false prevents connectionDetached event", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {
@@ -7702,14 +7721,16 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
     test("drag connection between two endpoints but endpoints are full", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            d3 = _addDiv("d3");
         var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true });
         var e2 = _jsPlumb.addEndpoint(d2, { isSource:true });
+        var e3 = _jsPlumb.addEndpoint(d3, { isSource:true });
 
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one conn now");
 
-        var c2 = _dragConnection(e2, e1);
+        var c2 = _dragConnection(e3, e1);
         equal(e1.connections.length, 1, "one conn now");
     });
 

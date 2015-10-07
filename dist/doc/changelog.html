@@ -123,7 +123,11 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h2>2.0.0</h2>
+                    <h2>2.0.1</h2>
+
+<p>Bugfix release: connectionDetached event was no longer firing.</p>
+
+<h2>2.0.0</h2>
 
 <h3>Backwards Compatibility</h3>
 
@@ -132,16 +136,6 @@
 <li>All class names such as <code>_jsPlumb_connector</code> renamed to, for example, <code>jsplumb-connector</code>.</li>
 <li>makeSource and makeTarget require explicit anchor/endpoint parameters: they do not source these things
 from the jsPlumb Defaults.</li>
-</ul>
-
-<p>TWO REMAINING DRAG ISSUES:</p>
-
-<ul>
-<li>redrop (either source or target) no longer works in flowchart demo. write tests and check. (fixed??)</li>
-<li>in draggable connectors, top left blue endpoint moves as soon as you drag (its dynamic). this is because we dont lock
-them anymore, but why does it not choose the one that is closest to the mouse?  doesnt seem to make sense.</li>
-<li>when dragging existing conn by its source, if you hover over another source the connection does not snap to show that you are hovering
-this is actually how it currently works, i consider it a bug.</li>
 </ul>
 
 <h3>New Functionality</h3>
