@@ -1319,7 +1319,7 @@
         },
         _each = function(obj, fn) {
             if (obj == null) return;
-            obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : [ obj ];
+            obj = (typeof obj !== "string" && obj.constructor != String) && (obj.tagName == null && obj.length != null) ? obj : [ obj ];
             for (var i = 0; i < obj.length; i++)
                 fn.apply(obj[i], [ obj[i] ]);
         },
@@ -1458,7 +1458,7 @@
                     _filters[key] = [
                         function(e) {
                             var t = e.srcElement || e.target, m;
-                            if (typeof f === "string") {
+                            if (typeof f === "string" || f.constructor == String) {
                                 m = matchesSelector(t, f, el);
                             }
                             else if (typeof f === "function") {
@@ -1753,7 +1753,7 @@
 
     var _gel = function(el) {
         if (el == null) return null;
-        el = typeof el === "string" ? document.getElementById(el) : el;
+        el = (typeof el === "string" || el.constructor == String)  ? document.getElementById(el) : el;
         if (el == null) return null;
         el._katavorio = el._katavorio || _uuid();
         return el;
