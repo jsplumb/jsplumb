@@ -1,3 +1,7 @@
+## 2.0.2
+
+Fix issues with CSS class documentation.
+
 ## 2.0.1
 
 Bugfix release: connectionDetached event was no longer firing.
