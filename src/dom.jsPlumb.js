@@ -189,13 +189,13 @@
             if (el._katavorioDrop)
                 el._katavorioDrop.k.setDropScope(el, scope);
         },
-        addToPosse:function(el, posse) {
+        addToPosse:function(el, posse, master) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.addToPosse(jsPlumb.getElement(_el), posse); });
+            jsPlumb.each(el, function(_el) { dm.addToPosse(jsPlumb.getElement(_el), posse, master); });
         },
-        removeFromPosse:function(el) {
+        removeFromPosse:function(el, posseId) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.removeFromPosse(jsPlumb.getElement(_el)); });
+            jsPlumb.each(el, function(_el) { dm.removeFromPosse(jsPlumb.getElement(_el), posseId); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
