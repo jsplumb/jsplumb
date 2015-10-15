@@ -8490,10 +8490,10 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(550, parseInt(d2.style.left, 10));
         equal(550, parseInt(d2.style.top, 10));
 
-
-        _jsPlumb.removeFromPosse(d2);
+        _jsPlumb.removeFromPosse(d2, "posse");
         _t(d, "mousedown", 0, 0);
         _t(document, "mousemove", -100, -100);
+        m.trigger(document, "mouseup");
 
         equal(50, parseInt(d.style.left, 10));
         equal(50, parseInt(d.style.top, 10));
@@ -8535,9 +8535,10 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(550, parseInt(d2.style.top, 10));
 
 
-        _jsPlumb.removeFromPosse(d2);
+        _jsPlumb.removeFromPosse(d2, "posse");
         _t(d, "mousedown", 0, 0);
         _t(document, "mousemove", -100, -100);
+        m.trigger(document, "mouseup");
 
         equal(50, parseInt(d.style.left, 10));
         equal(50, parseInt(d.style.top, 10));
