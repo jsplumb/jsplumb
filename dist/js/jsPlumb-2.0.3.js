@@ -5661,10 +5661,21 @@
         },
         registerEndpointType: function (id, type) {
             this._endpointTypes[id] = jsPlumb.extend({}, type);
+            if (type.overlays) {
+                var to = {};
+                for (var i = 0; i < type.overlays.length; i++) {
+                    // if a string, convert to object representation so that we can store the typeid on it.
+                    // also assign an id.
+                    var fo = this.convertToFullOverlaySpec(type.overlays[i]);
+                    to[fo[1].id] = fo;
+                }
+                this._endpointTypes[id].overlays = to;
+            }
         },
         registerEndpointTypes: function (types) {
             for (var i in types)
-                this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
+                //this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
+                this.registerEndpointType(i, types[i]);
         },
         getType: function (id, typeDescriptor) {
             return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id];

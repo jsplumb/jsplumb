@@ -60,11 +60,7 @@ jsPlumb.ready(function () {
             filter: ".ep",
             anchor: "Continuous",
             connectorStyle: { strokeStyle: "#5c96bc", lineWidth: 2, outlineColor: "transparent", outlineWidth: 4 },
-            maxConnections: 5,
             connectionType:"basic",
-            onMaxConnections: function (info, e) {
-                alert("Maximum connections (" + info.maxConnections + ") reached");
-            },
             extract:{
                 "action":"the-action"
             }
@@ -73,7 +69,11 @@ jsPlumb.ready(function () {
         instance.makeTarget(el, {
             dropOptions: { hoverClass: "dragHover" },
             anchor: "Continuous",
-            allowLoopback: true
+            allowLoopback: true,
+            maxConnections: 5,
+            onMaxConnections: function (info, e) {
+                alert("Maximum connections (" + info.maxConnections + ") reached");
+            }
         });
 
         // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
