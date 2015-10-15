@@ -1233,6 +1233,17 @@
 
     "use strict";
 
+    Array.prototype.suggest = function(item, head) {
+        if (this.indexOf(item) === -1) {
+            head ? this.unshift(item) : this.push(item);
+        }
+    };
+
+    Array.prototype.vanquish = function(item) {
+        var idx = this.indexOf(item);
+        if (idx != -1) this.splice(idx, 1);
+    };
+
     var getOffsetRect = function (elem) {
         // (1)
         var box = elem.getBoundingClientRect(),
@@ -1408,6 +1419,9 @@
 
                 return [ _x, _y];
             };
+
+        this.posses = [];
+        this.posseRoles = {};
 
         this.toGrid = function(pos) {
             if (this.params.grid == null) {
@@ -1770,22 +1784,27 @@
         this._dropsByScope = {};
         var _zoom = 1,
             _reg = function(obj, map) {
-                for(var i = 0; i < obj.scopes.length; i++) {
-                    map[obj.scopes[i]] = map[obj.scopes[i]] || [];
-                    map[obj.scopes[i]].push(obj);
-                }
+                _each(obj, function(_obj) {
+                    for(var i = 0; i < _obj.scopes.length; i++) {
+                        map[_obj.scopes[i]] = map[_obj.scopes[i]] || [];
+                        map[_obj.scopes[i]].push(_obj);
+                    }
+                });
             },
             _unreg = function(obj, map) {
                 var c = 0;
-                for(var i = 0; i < obj.scopes.length; i++) {
-                    if (map[obj.scopes[i]]) {
-                        var idx = katavorioParams.indexOf(map[obj.scopes[i]], obj);
-                        if (idx != -1) {
-                            map[obj.scopes[i]].splice(idx, 1);
-                            c++;
+                _each(obj, function(_obj) {
+                    for(var i = 0; i < _obj.scopes.length; i++) {
+                        if (map[_obj.scopes[i]]) {
+                            var idx = katavorioParams.indexOf(map[_obj.scopes[i]], _obj);
+                            if (idx != -1) {
+                                map[_obj.scopes[i]].splice(idx, 1);
+                                c++;
+                            }
                         }
                     }
-                }
+                });
+
                 return c > 0 ;
             },
             _getMatchingDroppables = this.getMatchingDroppables = function(drag) {
@@ -1807,12 +1826,12 @@
                 p = p || {};
                 var _p = {
                     events:{}
-                };
-                for (var i in katavorioParams) _p[i] = katavorioParams[i];
-                for (var i in p) _p[i] = p[i];
+                }, i;
+                for (i in katavorioParams) _p[i] = katavorioParams[i];
+                for (i in p) _p[i] = p[i];
                 // events
 
-                for (var i = 0; i < _events.length; i++) {
+                for (i = 0; i < _events.length; i++) {
                     _p.events[_events[i]] = p[_events[i]] || _devNull;
                 }
                 _p.katavorio = this;
@@ -1878,9 +1897,11 @@
             _each(el, function(_el) {
                 _el = _gel(_el);
                 if (_el != null) {
-                    _el._katavorioDrop = new Drop(_el, _prepareParams(params), _css, _scope);
-                    _reg(_el._katavorioDrop, this._dropsByScope);
-                    o.push(_el._katavorioDrop);
+                    var drop = new Drop(_el, _prepareParams(params), _css, _scope);
+                    _el._katavorioDrop = _el._katavorioDrop || [];
+                    _el._katavorioDrop.push(drop);
+                    _reg(drop, this._dropsByScope);
+                    o.push(drop);
                     katavorioParams.addClass(_el, _css.droppable);
                 }
             }.bind(this));
@@ -1946,8 +1967,14 @@
         };
 
         this.markPosses = function(drag) {
-            if (drag.posse) {
-                _foreach(drag.posse.members, function(d) { d.mark(); }, drag);
+            if (drag.posses) {
+                _each(drag.posses, function(p) {
+                    if (drag.posseRoles[p] && _posses[p]) {
+                        _foreach(_posses[p].members, function (d) {
+                            d.mark();
+                        }, drag);
+                    }
+                })
             }
         };
 
@@ -1956,8 +1983,14 @@
         };
 
         this.unmarkPosses = function(drag, event) {
-            if (drag.posse) {
-                _foreach(drag.posse.members, function(d) { d.unmark(event); }, drag);
+            if (drag.posses) {
+                _each(drag.posses, function(p) {
+                    if (drag.posseRoles[p] && _posses[p]) {
+                        _foreach(_posses[p].members, function (d) {
+                            d.unmark(event);
+                        }, drag);
+                    }
+                });
             }
         };
 
@@ -1968,10 +2001,14 @@
         };
 
         this.updatePosses = function(dx, dy, drag) {
-            if (drag.posse) {
-                _foreach(drag.posse.members, function (e) {
-                    e.moveBy(dx, dy);
-                }, drag);
+            if (drag.posses) {
+                _each(drag.posses, function(p) {
+                    if (drag.posseRoles[p] && _posses[p]) {
+                        _foreach(_posses[p].members, function (e) {
+                            e.moveBy(dx, dy);
+                        }, drag);
+                    }
+                });
             }
         };
 
@@ -1988,11 +2025,11 @@
 
         // does the work of changing scopes
         var _scopeManip = function(kObj, scopes, map, fn) {
-            if (kObj != null) {
-                _unreg(kObj, map);  // deregister existing scopes
-                kObj[fn](scopes); // set scopes
-                _reg(kObj, map); // register new ones
-            }
+            _each(kObj, function(_kObj) {
+                _unreg(_kObj, map);  // deregister existing scopes
+                _kObj[fn](scopes); // set scopes
+                _reg(_kObj, map); // register new ones
+            });
         };
 
         _each([ "set", "add", "remove", "toggle"], function(v) {
@@ -2020,8 +2057,10 @@
         var _destroy = function(el, type, map) {
             el = _gel(el);
             if (el[type]) {
-                if (_unreg(el[type], map))
-                    el[type].destroy();
+                if (_unreg(el[type], map)) {
+                    _each(el[type], function(kObj) { kObj.destroy() });
+                }
+
                 el[type] = null;
             }
         };
@@ -2052,10 +2091,11 @@
         /**
          * Add the given element to the posse with the given id, creating the group if it at first does not exist.
          * @param {Element} el Element to add.
-         * @param posseId ID of the group to add the element to.
-         * @returns {Posse}
+         * @param {String} posseId ID of the group to add the element to.
+         * @param {Boolean} [master=true] Indicates whether or not dragging this element should cause the whole posse to drag. Default is true.
+         * @returns {Posse} The Posse to which the element(s) was/were added.
          */
-        this.addToPosse = function(el, posseId) {
+        this.addToPosse = function(el, posseId, master) {
             var posse = _posses[posseId] || (function() {
                 var g = {name:posseId, members:[]};
                 _posses[posseId] = g;
@@ -2063,8 +2103,9 @@
             })();
             _each(el, function(_el) {
                 if (_el._katavorioDrag) {
-                    posse.members.push(_el._katavorioDrag);
-                    _el._katavorioDrag.posse = posse;
+                    posse.members.suggest(_el._katavorioDrag);
+                    _el._katavorioDrag.posses.suggest(posse.name);
+                    _el._katavorioDrag.posseRoles[posse.name] = !(master === false);
                 }
             });
 
@@ -2072,17 +2113,37 @@
         };
 
         /**
-         * Remove the given element from its posse. Since elements can belong to only one posse at a time we do not need the posse id here.
+         * Remove the given element from the given posse(s).
          * @param {Element} el Element to remove.
-         * @returns {Posse}
+         * @param {String|String[]} posseId Either a single posse ID, or an array of them.
          */
-        this.removeFromPosse = function(el) {
+        this.removeFromPosse = function(el, posseId) {
+            if (posseId == null) throw new TypeError("No posse id provided for remove operation");
             _each(el, function(_el) {
-                if (_el._katavorioDrag && _el._katavorioDrag.posse) {
-                    var d = _el._katavorioDrag, p = d.posse;
-                    var idx = p.members.indexOf(d);
-                    if (idx != -1) p.members.splice(idx, 1);
-                    d.posse = null;
+                if (_el._katavorioDrag && _el._katavorioDrag.posses) {
+                    var d = _el._katavorioDrag;
+                    _each(posseId, function(p) {
+                        _posses[p].members.vanquish(d);
+                        d.posses.vanquish(p);
+                        delete d.posseRoles[p];
+                    });
+                }
+            });
+        };
+
+        /**
+         * Remove the given element from all Posses to which it belongs.
+         * @param {Element|Element[]} el Element to remove from Posses.
+         */
+        this.removeFromAllPosses = function(el) {
+            _each(el, function(_el) {
+                if (_el._katavorioDrag && _el._katavorioDrag.posses) {
+                    var d = _el._katavorioDrag;
+                    _each(d.posses, function(p) {
+                        _posses[p].members.vanquish(d);
+                    });
+                    d.posses.length = 0;
+                    d.posseRoles = {};
                 }
             });
         };
@@ -5175,7 +5236,8 @@
         };
         this.setSourceScope = function (el, scope, connectionType) {
             _setScope(el, scope, "sourceEndpointDefinitions", connectionType);
-            // TODO should we setDragScope here? i'm not sure yet. we get the source scope during the mousedown event.
+            // we get the source scope during the mousedown event, but we also want to set this.
+            this.setDragScope(el, scope);
         };
         this.setTargetScope = function (el, scope, connectionType) {
             _setScope(el, scope, "targetEndpointDefinitions", connectionType);
@@ -12341,9 +12403,6 @@
         getDropEvent: function (args) {
             return args[0].e;
         },
-        getDropScope: function (el) {
-            return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
-        },
         getUIPosition: function (eventArgs, zoom) {
             return {
                 left: eventArgs[0].pos[0],
@@ -12365,16 +12424,21 @@
                 el._katavorioDrag.k.setDragScope(el, scope);
         },
         setDropScope:function(el, scope) {
-            if (el._katavorioDrop)
-                el._katavorioDrop.k.setDropScope(el, scope);
+            if (el._katavorioDrop && el._katavorioDrop.length > 0) {
+                el._katavorioDrop[0].k.setDropScope(el, scope);
+            }
         },
-        addToPosse:function(el, posse) {
+        addToPosse:function(el, posse, master) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.addToPosse(jsPlumb.getElement(_el), posse); });
+            jsPlumb.each(el, function(_el) { dm.addToPosse(jsPlumb.getElement(_el), posse, master); });
         },
-        removeFromPosse:function(el) {
+        removeFromPosse:function(el, posseId) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.removeFromPosse(jsPlumb.getElement(_el)); });
+            jsPlumb.each(el, function(_el) { dm.removeFromPosse(jsPlumb.getElement(_el), posseId); });
+        },
+        removeFromAllPosses:function(el) {
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) { dm.removeFromAllPosses(jsPlumb.getElement(_el)); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
