@@ -162,9 +162,6 @@
         getDropEvent: function (args) {
             return args[0].e;
         },
-        getDropScope: function (el) {
-            return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
-        },
         getUIPosition: function (eventArgs, zoom) {
             return {
                 left: eventArgs[0].pos[0],
@@ -186,8 +183,9 @@
                 el._katavorioDrag.k.setDragScope(el, scope);
         },
         setDropScope:function(el, scope) {
-            if (el._katavorioDrop)
-                el._katavorioDrop.k.setDropScope(el, scope);
+            if (el._katavorioDrop && el._katavorioDrop.length > 0) {
+                el._katavorioDrop[0].k.setDropScope(el, scope);
+            }
         },
         addToPosse:function(el, posse, master) {
             var dm = _getDragManager(this);
@@ -196,6 +194,10 @@
         removeFromPosse:function(el, posseId) {
             var dm = _getDragManager(this);
             jsPlumb.each(el, function(_el) { dm.removeFromPosse(jsPlumb.getElement(_el), posseId); });
+        },
+        removeFromAllPosses:function(el) {
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) { dm.removeFromAllPosses(jsPlumb.getElement(_el)); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
