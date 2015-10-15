@@ -2568,7 +2568,8 @@
         };
         this.setSourceScope = function (el, scope, connectionType) {
             _setScope(el, scope, "sourceEndpointDefinitions", connectionType);
-            // TODO should we setDragScope here? i'm not sure yet. we get the source scope during the mousedown event.
+            // we get the source scope during the mousedown event, but we also want to set this.
+            this.setDragScope(el, scope);
         };
         this.setTargetScope = function (el, scope, connectionType) {
             _setScope(el, scope, "targetEndpointDefinitions", connectionType);
