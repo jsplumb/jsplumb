@@ -197,8 +197,13 @@
             });
         },
         removeFromPosse:function(el, posseId) {
+            var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.removeFromPosse(jsPlumb.getElement(_el), posseId); });
+            jsPlumb.each(el, function(_el) {
+                _el = [ jsPlumb.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.removeFromPosse.apply(dm, _el);
+            });
         },
         removeFromAllPosses:function(el) {
             var dm = _getDragManager(this);
