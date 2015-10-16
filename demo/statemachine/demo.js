@@ -63,17 +63,21 @@ jsPlumb.ready(function () {
             connectionType:"basic",
             extract:{
                 "action":"the-action"
+            },
+            maxConnections: 2,
+            onMaxConnections: function (info, e) {
+                alert("Maximum connections (" + info.maxConnections + ") reached");
             }
         });
 
         instance.makeTarget(el, {
             dropOptions: { hoverClass: "dragHover" },
             anchor: "Continuous",
-            allowLoopback: true,
-            maxConnections: 5,
+            allowLoopback: true
+            /*maxConnections: 5,
             onMaxConnections: function (info, e) {
                 alert("Maximum connections (" + info.maxConnections + ") reached");
-            }
+            }*/
         });
 
         // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped

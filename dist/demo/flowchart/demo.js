@@ -1,6 +1,6 @@
 jsPlumb.ready(function () {
 
-    var instance = jsPlumb.getInstance({
+    var instance = window.jsp = jsPlumb.getInstance({
         // default drag options
         DragOptions: { cursor: 'pointer', zIndex: 2000 },
         // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this

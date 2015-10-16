@@ -129,7 +129,8 @@
 
 <ul>
 <li>Nodes (with class <strong>w</strong>) are positioned absolute.</li>
-<li>CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of <strong><em>jsPlumb</em>connector</strong>). In this case, nodes are placed above connectors.</li>
+<li>CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of <strong>jsplumb-connector</strong>). In 
+this case, nodes are placed above connectors.</li>
 <li>You should use <code>jsPlumb.ready</code> to wrap your initial access to jsPlumb.</li>
 <li>A listener is bound to the <code>connection</code> event on jsPlumb.</li>
 </ul>
@@ -147,7 +148,7 @@
                     height:60px;
                     z-index:10;
                  }</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">             ._jsPlumb_connector { 
+<div class="highlight"><pre><code class="language-text" data-lang="text">             .jsplumb-connector { 
                  z-index:9;
              }
 
