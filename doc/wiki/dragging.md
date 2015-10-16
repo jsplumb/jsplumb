@@ -197,35 +197,65 @@ group of elements that should all move whenever one of them is dragged. This mec
 "permanent" multiple drag arrangements - you may have a set of nodes that should always move together and they do
 not need to be considered to be "selected". 
 
-You can define multiple posses in an instance but each element can belong to one posse only. Two methods are provided
-for working wth posses:
+You can define multiple posses in an instance but each element can belong to one posse only. Three methods are provided
+for working wth Posses:
 
-- **addToPosse(elements, posseId)**
+- **addToPosse(elements, posse...)**
 
 Here, `elements` can be a single element Id or element, or an array of either of these (or, in fact, a jQuery selector,
-since jsPlumb knows that selectors are "list-like"). `posseId` is required.
+since jsPlumb knows that selectors are "list-like"). `posse` is required, and is a varargs parameter: you can provide
+ more than one.  Each `posse` parameter can either be a String, indicating a Posse to which the element should be added
+ as an active drag participant, or an object containing the Posse's ID and also whether or not the element should be an
+ active drag participant. 
+ 
+For example, in the Flowchart demo, we could make these couple of calls:
 
-- **removeFromPosse(elements)**
+```javascript
+jsPlumb.addToPosse(["flowchartWindow1", "flowchartWindow2"], "posse");
+jsPlumb.addToPosse("flowchartWindow3", {id:"posse",active:false})
+```
 
-You do not need to provide the `posseId` when removing an element, since it can only belong to one posse at a time.
+And the result would be that whenever window 1 or 2 was dragged, all of windows 1, 2 and 3 would be dragged. But if 
+ window 3 was dragged, it would be dragged alone; windows 1 and 2 would not move.
 
-The name **posse** was chosen over **group** because `group` is something that will be supported in the future, having one
- key difference from a `posse`: a `group` of elements will have a common parent as their container.  The group container
- will be "collapsible" and connections to/from the group's nodes will be
+- **removeFromPosse(elements, posseId)**
+
+Remove the given element(s) from Posse(s). As with `addToPosse`, the second parameter is a varargs parameter: you can
+supply a number of posse IDs at once:
+
+```javascript
+jsPlumb.removeFromPosse("flowchartWindow1", "posse1", "posse2");
+``` 
+
+- **removeFromAllPosses
+ 
+Remove the given element(s) from all of the Posses to which it/they belong.
+ 
+ ```javascript
+ jsPlumb.removeFromAllPosses("flowchartWindow1");
+ jsPlumb.removeFromAllPosses(["flowchartWindow2", "flowchartWindow3"]);
+ ```
+ 
+ 
+#### What's with the name?
+ 
+ The name **posse** was chosen over **group** because `group` is something that will be supported in the future, having one
+  key difference from a `posse`: a `group` of elements will have a common parent as their container.  
+
 
 <a name="selection"></a>
 #### Text Selection while dragging
 
 The default browser behaviour on mouse drag is to select elements in the DOM. jQuery suppresses this behaviour, but vanilla jsPlumb does not. To assist with handling this, however, this class is attached to the body at drag start:
 
-`_jsPlumb_drag_select`
+`jsplumb-drag-select`
 
 The class is removed at drag end.
 
 A suitable value for this class (this is from the jsPlumb demo pages) is:
 
 ```css
-._jsPlumb_drag_select * {
+.jsplumb-drag-select * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;

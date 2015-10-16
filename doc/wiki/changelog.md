@@ -1,3 +1,31 @@
+## 2.0.3
+
+### Issues
+
+- 444 - maxConnections not honoured in makeSource
+
+### Backwards Compatibility
+
+- `removeFromPosse` now requires the ID of the Posse, since the new Katavorio version supports multiple Posses
+per element.
+
+### New Functionality
+
+- Upgrade to Katavorio 0.12.0, with support for multiple Posses and active/passive elements in a Posse.
+- `removeFromAllPosses(element)` method added.
+
+
+### Miscellaneous
+
+- Fixed an issue in which overlays on Endpoint types were not being converted to 'full' syntax upon registration. This was
+an internal issue that could manifest in user code occasionally.
+
+- We now ensure drag scope is set on an element when source scope changes, even though the code can derive source scope
+when the user begins to drag. The Toolkit edition makes use of this new update.
+
+
+
+    
 ## 2.0.2
 
 Fix issues with CSS class documentation.

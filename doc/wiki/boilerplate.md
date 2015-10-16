@@ -3,7 +3,8 @@
 Here's a simple page that you can copy in order to get going.  A few basic things are illustrated here:
 
  - Nodes (with class **w**) are positioned absolute.
- - CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of **_jsPlumb_connector**). In this case, nodes are placed above connectors.
+ - CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of **jsplumb-connector**). In 
+ this case, nodes are placed above connectors.
  - You should use `jsPlumb.ready` to wrap your initial access to jsPlumb.
  - A listener is bound to the `connection` event on jsPlumb.
 
@@ -23,7 +24,7 @@ Here's a simple page that you can copy in order to get going.  A few basic thing
                     z-index:10;
                  }
                  
-                 ._jsPlumb_connector { 
+                 .jsplumb-connector { 
                      z-index:9;
                  }
 
