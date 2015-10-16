@@ -187,9 +187,14 @@
                 el._katavorioDrop[0].k.setDropScope(el, scope);
             }
         },
-        addToPosse:function(el, posse, master) {
+        addToPosse:function(el, spec) {
+            var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.addToPosse(jsPlumb.getElement(_el), posse, master); });
+            jsPlumb.each(el, function(_el) {
+                _el = [ jsPlumb.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.addToPosse.apply(dm, _el);
+            });
         },
         removeFromPosse:function(el, posseId) {
             var dm = _getDragManager(this);
