@@ -2298,7 +2298,7 @@
             p.endpoint = p.endpoint || aae.endpoints[0];
             p.anchor = p.anchor || aae.anchors[0];
             _setEndpointPaintStylesAndAnchor(p, 0, this);
-            var maxConnections = p.maxConnections || 1,
+            var maxConnections = p.maxConnections || -1,
                 onMaxConnections = p.onMaxConnections,
                 _doOne = function (elInfo) {
                     // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -2399,7 +2399,7 @@
 
                         // if maxConnections reached
                         var sourceCount = this.select({source: elid}).length;
-                        if (def.maxConnections >= 0 && (def.uniqueEndpoint && sourceCount >= def.maxConnections)) {
+                        if (def.maxConnections >= 0 && (sourceCount >= def.maxConnections)) {
                             if (onMaxConnections) {
                                 onMaxConnections({
                                     element: elInfo.el,
