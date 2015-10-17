@@ -754,28 +754,17 @@
                                     ui.left += _ancestorOffset.left;
                                     ui.top += _ancestorOffset.top;
                                     _draw(element, ui, null, true);
-                                    if (_started) _currentInstance.addClass(element, "jsPlumb_dragged");
+                                    if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
                                     _started = true;
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                    var elements = [];
-
-                                    // TODO once jquery is no longer supported, remove this, as we will know
-                                    // exactly what the method signature is. For now, we need to cater for the
-                                    // fact that jquery ui provides two args and katavorio provides only one.
-                                    if (arguments.length == 1 && arguments[0].selection && arguments[0].selection.length > 0) {
-                                        elements = arguments[0].selection;
-                                    }
-                                    else {
-                                        elements = [
-                                            [ element, _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true) ]
-                                        ];
-                                    }
+                                    var elements = arguments[0].selection;
+                                    var uip = _currentInstance.getUIPosition(arguments);
 
                                     // this is one element
                                     var _one = function (_e) {
-                                        _draw(_e[0], _e[1]);
-                                        _currentInstance.removeClass(_e[0], "jsPlumb_dragged");
+                                        _draw(_e[0], uip);
+                                        _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                         _currentInstance.getDragManager().dragEnded(_e[0]);
