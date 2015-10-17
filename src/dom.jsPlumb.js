@@ -34,7 +34,7 @@
                 unbind: e.off,
                 getSize: jsPlumb.getSize,
                 getPosition: function (el) {
-                    var o = instance.getOffset(el);
+                    var o = instance.getOffset(el, false, el.offsetParent);
                     return [o.left, o.top];
                 },
                 setPosition: function (el, xy) {
@@ -163,10 +163,11 @@
             return args[0].e;
         },
         getUIPosition: function (eventArgs, zoom) {
-            return {
-                left: eventArgs[0].pos[0],
-                top: eventArgs[0].pos[1]
-            };
+            var p = { left:eventArgs[0].pos[0], top:eventArgs[0].pos[1] };
+            var oc = this.getOffset(eventArgs[0].el.offsetParent);
+            p.left += oc.left;
+            p.top += oc.top;
+            return p;
         },
         setDragFilter: function (el, filter, _exclude) {
             if (el._katavorioDrag) {
