@@ -423,9 +423,9 @@
 
             return sel;
         },
-        getOffset:function(el, relativeToRoot) {
+        getOffset:function(el, relativeToRoot, container) {
             el = jsPlumb.getElement(el);
-            var container = this.getContainer();
+            container = container || this.getContainer();
             var out = {
                     left: el.offsetLeft,
                     top: el.offsetTop
