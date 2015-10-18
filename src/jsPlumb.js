@@ -66,6 +66,17 @@
             for (var i in obj)
                 map[i] = typeId;
         },
+        _each = function(fn, obj) {
+            obj = jsPlumbUtil.isArray(obj) ? obj : [ obj ];
+            for (var i = 0; i < obj.length; i++) {
+                try {
+                    fn.apply(obj[i], [ obj[i] ]);
+                }
+                catch (e) {
+                    jsPlumbUtil.log(".each iteration failed : " + e);
+                }
+            }
+        },
         _applyTypes = function (component, params, doNotRepaint) {
             if (component.getDefaultType) {
                 var td = component.getTypeDescriptor(), map = {};
@@ -1582,19 +1593,20 @@
         };
 
         this.draggable = function (el, options) {
-            var i, j, info;
-            // allows for array or jquery selector
-            if (typeof el == 'object' && el.length) {
-                for (i = 0, j = el.length; i < j; i++) {
-                    info = _info(el[i]);
-                    if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
-                }
-            }
-            else {
-                //ele = _currentInstance.getElement(el);
-                info = _info(el);
+            var info;
+            _each(function(_el) {
+                 info = _info(_el);
                 if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
-            }
+            }, el);
+            return _currentInstance;
+        };
+
+        this.droppable = function(el, options) {
+            var info;
+            _each(function(_el) {
+                info = _info(_el);
+                if (info.el) _currentInstance.initDroppable(info.el, options);
+            }, el);
             return _currentInstance;
         };
 
