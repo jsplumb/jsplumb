@@ -34,7 +34,9 @@
                 unbind: e.off,
                 getSize: jsPlumb.getSize,
                 getPosition: function (el) {
-                    var o = instance.getOffset(el, false, el.offsetParent);
+                    // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
+                    // compute against the Container's origin. see also the getUIPosition method below.
+                    var o = instance.getOffset(el, false, el._katavorioDrag ? el.offsetParent : null);
                     return [o.left, o.top];
                 },
                 setPosition: function (el, xy) {
@@ -163,10 +165,18 @@
             return args[0].e;
         },
         getUIPosition: function (eventArgs, zoom) {
+            // here the position reported to us by Katavorio is relative to the element's offsetParent. For top
+            // level nodes that is fine, but if we have a nested draggable then its offsetParent is actually
+            // not going to be the jsplumb container; it's going to be some child of that element. In that case
+            // we want to adjust the UI position to account for the offsetParent's position relative to the Container
+            // origin.
+            var el = eventArgs[0].el;
             var p = { left:eventArgs[0].pos[0], top:eventArgs[0].pos[1] };
-            var oc = this.getOffset(eventArgs[0].el.offsetParent);
-            p.left += oc.left;
-            p.top += oc.top;
+            if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
+                var oc = this.getOffset(el.offsetParent);
+                p.left += oc.left;
+                p.top += oc.top;
+            }
             return p;
         },
         setDragFilter: function (el, filter, _exclude) {
