@@ -1603,6 +1603,8 @@
 
         this.droppable = function(el, options) {
             var info;
+            options = options || {};
+            options.allowLoopback = false;
             _each(function(_el) {
                 info = _info(_el);
                 if (info.el) _currentInstance.initDroppable(info.el, options);
