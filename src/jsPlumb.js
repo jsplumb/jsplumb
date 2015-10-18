@@ -67,7 +67,7 @@
                 map[i] = typeId;
         },
         _each = function(fn, obj) {
-            obj = jsPlumbUtil.isArray(obj) ? obj : [ obj ];
+            obj = jsPlumbUtil.isArray(obj) || obj.length != null ? obj : [ obj ];
             for (var i = 0; i < obj.length; i++) {
                 try {
                     fn.apply(obj[i], [ obj[i] ]);
