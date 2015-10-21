@@ -1,3 +1,8 @@
+## 2.0.4
+
+- upgrade to Katavorio 0.13.0
+- 
+
 ## 2.0.3
 
 ### Issues
