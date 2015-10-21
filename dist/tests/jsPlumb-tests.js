@@ -207,18 +207,6 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(_jsPlumb.selectEndpoints({element: "output"}).length, 0, "no endpoints registered for in1");
     });
 
-    test(': draggable silently ignored when jquery ui not present', function () {
-        var d1 = _addDiv("d1");
-        var e = _jsPlumb.addEndpoint(d1, {isSource: true});
-        ok(e, 'endpoint exists');
-    });
-
-    test(': droppable silently ignored when jquery ui not present', function () {
-        var d1 = _addDiv("d1");
-        var e = _jsPlumb.addEndpoint(d1, {isTarget: true});
-        ok(e, 'endpoint exists');
-    });
-
     test(': draggable in nested element does not cause extra ids to be created', function () {
         var d = _addDiv("d1");
         var d2 = document.createElement("div");
@@ -8562,6 +8550,33 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     });
 
+
+    test("draggable function, the various ways in which it can be called", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+
+        _jsPlumb.draggable(d1); // by element
+        _jsPlumb.draggable(["d2", d3]);
+        _jsPlumb.draggable(document.querySelectorAll("#d4"));
+
+        ok(jsPlumb.hasClass(d1, "jsplumb-draggable"), "element registered as Element ok");
+        ok(jsPlumb.hasClass(d2, "jsplumb-draggable", "elements registered as id in array ok"));
+        ok(jsPlumb.hasClass(d3, "jsplumb-draggable", "elements registered as Element in array ok"));
+        ok(jsPlumb.hasClass(d4, "jsplumb-draggable", "querySelectorAll output ok as input"));
+    });
+
+
+    test("droppable function, the various ways in which it can be called", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+
+        _jsPlumb.droppable(d1); // by element
+        _jsPlumb.droppable(["d2", d3]);
+        _jsPlumb.droppable(document.querySelectorAll("#d4"));
+
+        ok(jsPlumb.hasClass(d1, "jsplumb-droppable"), "element registered as Element ok");
+        ok(jsPlumb.hasClass(d2, "jsplumb-droppable", "elements registered as id in array ok"));
+        ok(jsPlumb.hasClass(d3, "jsplumb-droppable", "elements registered as Element in array ok"));
+        ok(jsPlumb.hasClass(d4, "jsplumb-droppable", "querySelectorAll output ok as input"));
+    });
 
 };
 
