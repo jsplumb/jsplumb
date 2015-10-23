@@ -79,7 +79,8 @@
             proximityLimit = params.proximityLimit || 80,
             clockwise = params.orientation && params.orientation === "clockwise",
             loopbackRadius = params.loopbackRadius || 25,
-            showLoopback = params.showLoopback !== false;
+            showLoopback = params.showLoopback !== false,
+            _controlPoint;
 
         this._compute = function (paintInfo, params) {
             var w = Math.abs(params.sourcePos[0] - params.targetPos[0]),
@@ -125,6 +126,14 @@
                     _midy = (_sy + _ty) / 2,
                     segment = _segment(_sx, _sy, _tx, _ty),
                     distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
+                    cp1x, cp2x, cp1y, cp2y,
+                    geometry = this.getGeometry();
+
+                if (geometry != null) {
+                    cp1x = geometry.controlPoints[0][0];cp1y = geometry.controlPoints[0][1];
+                    cp2x = geometry.controlPoints[1][0];cp2y = geometry.controlPoints[1][1];
+                }
+                else {
                     // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
                     // will work by extending the control point to force the curve to be, um, curvier.
                     _controlPoint = _findControlPoint(_midx,
@@ -136,10 +145,16 @@
                         distance,
                         proximityLimit);
 
+                    cp1x = _controlPoint[0];
+                    cp2x = _controlPoint[0];
+                    cp1y = _controlPoint[1];
+                    cp2y = _controlPoint[1];
+                }
+
                 _super.addSegment(this, "Bezier", {
                     x1: _tx, y1: _ty, x2: _sx, y2: _sy,
-                    cp1x: _controlPoint[0], cp1y: _controlPoint[1],
-                    cp2x: _controlPoint[0], cp2y: _controlPoint[1]
+                    cp1x: cp1x, cp1y: cp1y,
+                    cp2x: cp2x, cp2y: cp2y
                 });
             }
             else {
@@ -173,6 +188,8 @@
                 });
             }
         };
+
+        this.getControlPoints = function() { return _controlPoint; };
     };
     _ju.extend(StateMachine, _jp.Connectors.AbstractConnector);
     _jp.registerConnectorType(StateMachine, "StateMachine");
