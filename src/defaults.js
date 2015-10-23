@@ -445,12 +445,14 @@
             targetGap = _ju.isArray(gap) ? gap[1] : gap,
             userProvidedSegments = null,
             edited = false,
-            paintInfo = null;
+            paintInfo = null,
+            geometry = null;
 
-        // to be overridden by subclasses.
-        this.getPath = function () {
+        this.setGeometry = function(g) {
+            geometry = g;
         };
-        this.setPath = function (path) {
+        this.getGeometry = function() {
+            return geometry;
         };
 
         /**
