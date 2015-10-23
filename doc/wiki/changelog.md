@@ -4,6 +4,7 @@
 - upgrade to Mottle 0.7.1
 - add `droppable` method to jsPlumbInstance: the ability to make _elements_ droppable. Not connections or endpoints - DOM 
 elements.
+- fixes for offset calculation when dragging a nested element.
 
 ## 2.0.3
 
