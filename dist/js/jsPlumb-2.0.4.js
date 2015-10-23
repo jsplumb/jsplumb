@@ -623,11 +623,11 @@
 
     "use strict";
 
-    var Sniff = {
-        android: navigator.userAgent.toLowerCase().indexOf("android") > -1
-    };
-
-    var matchesSelector = function (el, selector, ctx) {
+    var root = this,
+        Sniff = {
+            android: navigator.userAgent.toLowerCase().indexOf("android") > -1
+        },
+        matchesSelector = function (el, selector, ctx) {
             ctx = ctx || el.parentNode;
             var possibles = ctx.querySelectorAll(selector);
             for (var i = 0; i < possibles.length; i++) {
@@ -638,7 +638,7 @@
             return false;
         },
         _gel = function (el) {
-            return typeof el == "string" ? document.getElementById(el) : el;
+            return (typeof el == "string" || el.constructor === String) ? document.getElementById(el) : el;
         },
         _t = function (e) {
             return e.srcElement || e.target;
@@ -952,8 +952,6 @@
                 }
             });
         },
-        _devNull = function () {
-        },
         _each = function (obj, fn) {
             if (obj == null) return;
             // if a list (or list-like), use it. if a string, get a list
@@ -977,12 +975,12 @@
      * @class Mottle
      * @constructor
      * @param {Object} params Constructor params
-     * @param {Integer} [params.clickThreshold=150] Threshold, in milliseconds beyond which a touchstart followed by a touchend is not considered to be a click.
-     * @param {Integer} [params.dblClickThreshold=350] Threshold, in milliseconds beyond which two successive tap events are not considered to be a click.
+     * @param {Number} [params.clickThreshold=150] Threshold, in milliseconds beyond which a touchstart followed by a touchend is not considered to be a click.
+     * @param {Number} [params.dblClickThreshold=350] Threshold, in milliseconds beyond which two successive tap events are not considered to be a click.
      * @param {Boolean} [params.smartClicks=false] If true, won't fire click events if the mouse has moved between mousedown and mouseup. Note that this functionality
      * requires that Mottle consume the mousedown event, and so may not be viable in all use cases.
      */
-    this.Mottle = function (params) {
+    root.Mottle = function (params) {
         params = params || {};
         var clickThreshold = params.clickThreshold || 150,
             dblClickThreshold = params.dblClickThreshold || 350,
@@ -1156,12 +1154,13 @@
     };
 
     /**
-     * Static method to assist in 'consuming' an element: uses `stopPropagation` where available, or sets `e.returnValue=false` where it is not.
+     * Static method to assist in 'consuming' an element: uses `stopPropagation` where available, or sets
+     * `e.returnValue=false` where it is not.
      * @method Mottle.consume
      * @param {Event} e Event to consume
      * @param {Boolean} [doNotPreventDefault=false] If true, does not call `preventDefault()` on the event.
      */
-    Mottle.consume = function (e, doNotPreventDefault) {
+    root.Mottle.consume = function (e, doNotPreventDefault) {
         if (e.stopPropagation)
             e.stopPropagation();
         else
@@ -1177,7 +1176,7 @@
      * @param {Event} e Event to get page location for.
      * @return {Integer[]} [left, top] for the given event.
      */
-    Mottle.pageLocation = _pageLocation;
+    root.Mottle.pageLocation = _pageLocation;
 
     /**
      * Forces touch events to be turned "on". Useful for testing: even if you don't have a touch device, you can still
@@ -1185,7 +1184,7 @@
      * @method setForceTouchEvents
      * @param {Boolean} value If true, force touch events to be on.
      */
-    Mottle.setForceTouchEvents = function (value) {
+    root.Mottle.setForceTouchEvents = function (value) {
         isTouchDevice = value;
     };
 
@@ -1195,7 +1194,7 @@
      * @method setForceMouseEvents
      * @param {Boolean} value If true, force mouse events to be on.
      */
-    Mottle.setForceMouseEvents = function (value) {
+    root.Mottle.setForceMouseEvents = function (value) {
         isMouseDevice = value;
     };
 
@@ -1718,10 +1717,11 @@
     var Drop = function(el, params, css, scope) {
         this._class = css.droppable;
         this.params = params || {};
-        this._activeClass = params.activeClass || css.active;
-        this._hoverClass = params.hoverClass || css.hover;
+        this._activeClass = this.params.activeClass || css.active;
+        this._hoverClass = this.params.hoverClass || css.hover;
         Super.apply(this, arguments);
         var hover = false;
+        this.allowLoopback = this.params.allowLoopback !== false;
 
         this.setActive = function(val) {
             this.params[val ? "addClass" : "removeClass"](this.el, this._activeClass);
@@ -1817,7 +1817,7 @@
                     var _dd = this._dropsByScope[drag.scopes[i]];
                     if (_dd) {
                         for (var j = 0; j < _dd.length; j++) {
-                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].uuid]/* && _dd[j].el !== drag.el*/) {
+                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].uuid] && (_dd[j].allowLoopback || _dd[j].el !== drag.el)) {
                                 _m[_dd[j].uuid] = true;
                                 dd.push(_dd[j]);
                             }
@@ -2757,6 +2757,17 @@
             for (var i in obj)
                 map[i] = typeId;
         },
+        _each = function(fn, obj) {
+            obj = jsPlumbUtil.isArray(obj) || (obj.length != null && !jsPlumbUtil.isString(obj)) ? obj : [ obj ];
+            for (var i = 0; i < obj.length; i++) {
+                try {
+                    fn.apply(obj[i], [ obj[i] ]);
+                }
+                catch (e) {
+                    jsPlumbUtil.log(".each iteration failed : " + e);
+                }
+            }
+        },
         _applyTypes = function (component, params, doNotRepaint) {
             if (component.getDefaultType) {
                 var td = component.getTypeDescriptor(), map = {};
@@ -3445,28 +3456,17 @@
                                     ui.left += _ancestorOffset.left;
                                     ui.top += _ancestorOffset.top;
                                     _draw(element, ui, null, true);
-                                    if (_started) _currentInstance.addClass(element, "jsPlumb_dragged");
+                                    if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
                                     _started = true;
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                    var elements = [];
-
-                                    // TODO once jquery is no longer supported, remove this, as we will know
-                                    // exactly what the method signature is. For now, we need to cater for the
-                                    // fact that jquery ui provides two args and katavorio provides only one.
-                                    if (arguments.length == 1 && arguments[0].selection && arguments[0].selection.length > 0) {
-                                        elements = arguments[0].selection;
-                                    }
-                                    else {
-                                        elements = [
-                                            [ element, _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true) ]
-                                        ];
-                                    }
+                                    var elements = arguments[0].selection;
+                                    var uip = _currentInstance.getUIPosition(arguments);
 
                                     // this is one element
                                     var _one = function (_e) {
-                                        _draw(_e[0], _e[1]);
-                                        _currentInstance.removeClass(_e[0], "jsPlumb_dragged");
+                                        _draw(_e[0], uip);
+                                        _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                         _currentInstance.getDragManager().dragEnded(_e[0]);
@@ -4284,19 +4284,22 @@
         };
 
         this.draggable = function (el, options) {
-            var i, j, info;
-            // allows for array or jquery selector
-            if (typeof el == 'object' && el.length) {
-                for (i = 0, j = el.length; i < j; i++) {
-                    info = _info(el[i]);
-                    if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
-                }
-            }
-            else {
-                //ele = _currentInstance.getElement(el);
-                info = _info(el);
+            var info;
+            _each(function(_el) {
+                 info = _info(_el);
                 if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
-            }
+            }, el);
+            return _currentInstance;
+        };
+
+        this.droppable = function(el, options) {
+            var info;
+            options = options || {};
+            options.allowLoopback = false;
+            _each(function(_el) {
+                info = _info(_el);
+                if (info.el) _currentInstance.initDroppable(info.el, options);
+            }, el);
             return _currentInstance;
         };
 
@@ -5798,19 +5801,6 @@
 
     var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 
-    // TODO: remove this once we remove all library adapter versions and have only vanilla jsplumb: this functionality
-    // comes from Mottle.
-        iev = (function () {
-            var rv = -1;
-            if (navigator.appName == 'Microsoft Internet Explorer') {
-                var ua = navigator.userAgent,
-                    re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-                if (re.exec(ua) != null)
-                    rv = parseFloat(RegExp.$1);
-            }
-            return rv;
-        })(),
-        isIELT9 = iev > -1 && iev < 9,
         _genLoc = function (e, prefix) {
             if (e == null) return [ 0, 0 ];
             var ts = _touches(e), t = _getTouch(ts, 0);
@@ -5818,12 +5808,7 @@
         },
         _pageLocation = function (e) {
             if (e == null) return [ 0, 0 ];
-            if (isIELT9) {
-                return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
-            }
-            else {
-                return _genLoc(e, "page");
-            }
+            return _genLoc(e, "page");
         },
         _screenLocation = function (e) {
             return _genLoc(e, "screen");
@@ -6200,9 +6185,9 @@
 
             return sel;
         },
-        getOffset:function(el, relativeToRoot) {
+        getOffset:function(el, relativeToRoot, container) {
             el = jsPlumb.getElement(el);
-            var container = this.getContainer();
+            container = container || this.getContainer();
             var out = {
                     left: el.offsetLeft,
                     top: el.offsetTop
@@ -6592,7 +6577,7 @@
                 }
 
                 if (placeholder.element) {
-                    var _ui = _jp.getUIPosition(arguments, _jsPlumb.getZoom());
+                    var _ui = _jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
                     jsPlumb.setPosition(placeholder.element, _ui);
                     _jsPlumb.repaint(placeholder.element, _ui);
                     // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
@@ -12309,7 +12294,9 @@
                 unbind: e.off,
                 getSize: jsPlumb.getSize,
                 getPosition: function (el) {
-                    var o = instance.getOffset(el);
+                    // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
+                    // compute against the Container's origin. see also the getUIPosition method below.
+                    var o = instance.getOffset(el, false, el._katavorioDrag ? el.offsetParent : null);
                     return [o.left, o.top];
                 },
                 setPosition: function (el, xy) {
@@ -12438,10 +12425,19 @@
             return args[0].e;
         },
         getUIPosition: function (eventArgs, zoom) {
-            return {
-                left: eventArgs[0].pos[0],
-                top: eventArgs[0].pos[1]
-            };
+            // here the position reported to us by Katavorio is relative to the element's offsetParent. For top
+            // level nodes that is fine, but if we have a nested draggable then its offsetParent is actually
+            // not going to be the jsplumb container; it's going to be some child of that element. In that case
+            // we want to adjust the UI position to account for the offsetParent's position relative to the Container
+            // origin.
+            var el = eventArgs[0].el;
+            var p = { left:eventArgs[0].pos[0], top:eventArgs[0].pos[1] };
+            if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
+                var oc = this.getOffset(el.offsetParent);
+                p.left += oc.left;
+                p.top += oc.top;
+            }
+            return p;
         },
         setDragFilter: function (el, filter, _exclude) {
             if (el._katavorioDrag) {
