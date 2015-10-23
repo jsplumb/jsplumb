@@ -3,6 +3,8 @@
 
     var root = this;
     var HANDLE_CLASS = "jsplumb-bezier-handle";
+    var CONNECTION_EDIT_CLASS = "jsplumb-connection-edit";
+    var GUIDELINE_CLASS = "jsplumb-bezier-guideline";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
@@ -40,6 +42,31 @@
         return h;
     };
 
+    var _updateGuideline = function(handle, anchor, line, x, y) {
+        x = x + (handle.offsetWidth / 2);
+        y = y + (handle.offsetHeight / 2);
+        var w = Math.abs(x - anchor.left), h = Math.abs(y - anchor.top);
+        jsPlumbUtil.svg.attr(line, { width:w, height:h });
+        line.style.left = (Math.min(anchor.left, x)) + "px";
+        line.style.top= (Math.min(anchor.top, y)) + "px";
+
+        var path = "M " + (x > anchor.left ? w : "0") + " " + (y > anchor.top ? h : "0") + " L " +
+                   (x > anchor.left ? "0" : w) + " " + (y > anchor.top ? "0" : h);
+        jsPlumbUtil.svg.attr(line.childNodes[0], {d:path});
+
+    };
+
+    var _makeGuideline = function(handle, anchor, x2, y2) {
+        var w = Math.abs(x2-anchor.left), h = Math.abs(y2-anchor.top),
+            s = jsPlumbUtil.svg.node("svg", { width:w, height:h}),
+            l = jsPlumbUtil.svg.node("path", { d:"M " + 0 + " " + 0 + " L " + w + " " + h });
+
+        s.appendChild(l);
+        jsPlumb.addClass(s, GUIDELINE_CLASS);
+        _updateGuideline(handle, anchor, s, x2, y2);
+        return s;
+    };
+
     var AbstractBezierEditor = function(params) {
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance;
         var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this;
@@ -55,10 +82,10 @@
             else {
                 cp = conn.getConnector().getControlPoints();
                 origin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
-                cp1[0] = cp[0];
-                cp1[1] = cp[1];
-                cp2[0] = cp[0];
-                cp2[1] = cp[1];
+                cp1[0] = cp[0][0];
+                cp1[1] = cp[0][1];
+                cp2[0] = cp[1][0];
+                cp2[1] = cp[1][1];
             }
         };
 
@@ -70,9 +97,18 @@
         };
 
         _updateConnectorInfo();
+
+        var sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
+        var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
         var h1 = _makeHandle(origin[0] + cp[0], origin[1] + cp[1]), h2 = _makeHandle(origin[0] + cp[0], origin[1] + cp[1]);
+        var l1 = _makeGuideline(h1, sp, origin[0] + cp[0][0], origin[1] + cp[0][1]);
+        var l2 = _makeGuideline(h2, tp, origin[0] + cp[1][0], origin[1] + cp[1][1]);
+
+        _jsPlumb.appendElement(l1);
+        _jsPlumb.appendElement(l2);
         _jsPlumb.appendElement(h1);
         _jsPlumb.appendElement(h2);
+
 
         var _setGeometry = function() {
             conn.getConnector().setGeometry({
@@ -85,12 +121,18 @@
             conn.repaint();
         };
 
+        var _updateGuidelines = function() {
+            _updateGuideline(h1, sp, l1, origin[0] + cp1[0], origin[1] + cp1[1]);
+            _updateGuideline(h2, tp, l2, origin[0] + cp2[0], origin[1] + cp2[1]);
+        };
+
         var _initDraggable = function(el, arr) {
             _jsPlumb.draggable(el, {
                 drag:function(dp) {
                     arr[0] = dp.pos[0] - origin[0];
                     arr[1] = dp.pos[1] - origin[1];
                     _setGeometry();
+                    _updateGuidelines();
                 }
             });
         };
@@ -103,8 +145,12 @@
         this.activate = function() {
             _updateConnectorInfo();
             _updateHandlePositions();
+           // _updateGuidelines();
             h1.style.display = "block";
             h2.style.display = "block";
+            l1.style.display = "block";
+            l2.style.display = "block";
+            conn.addClass(CONNECTION_EDIT_CLASS);
             _jsPlumb.on(document, "click", self.deactivate);
         };
 
@@ -112,6 +158,9 @@
             if (e && jsPlumb.hasClass(e.srcElement, HANDLE_CLASS)) return;
             h1.style.display = "none";
             h2.style.display = "none";
+            l1.style.display = "none";
+            l2.style.display = "none";
+            conn.removeClass(CONNECTION_EDIT_CLASS);
             _jsPlumb.off(document, "click", self.deactivate);
         };
 
