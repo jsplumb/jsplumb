@@ -1,3 +1,8 @@
+## 2.1.0
+
+- refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
+ connectors now support loopback connections.
+
 ## 2.0.4
 
 - upgrade to Katavorio 0.13.0
