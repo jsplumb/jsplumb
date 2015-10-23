@@ -45,7 +45,7 @@
     var _updateGuideline = function(handle, anchor, line, x, y) {
         x = x + (handle.offsetWidth / 2);
         y = y + (handle.offsetHeight / 2);
-        var w = Math.abs(x - anchor.left), h = Math.abs(y - anchor.top);
+        var w = Math.max(5, Math.abs(x - anchor.left)), h = Math.max(5, Math.abs(y - anchor.top));
         jsPlumbUtil.svg.attr(line, { width:w, height:h });
         line.style.left = (Math.min(anchor.left, x)) + "px";
         line.style.top= (Math.min(anchor.top, y)) + "px";
@@ -63,7 +63,7 @@
 
         s.appendChild(l);
         jsPlumb.addClass(s, GUIDELINE_CLASS);
-        _updateGuideline(handle, anchor, s, x2, y2);
+
         return s;
     };
 
@@ -109,7 +109,6 @@
         _jsPlumb.appendElement(h1);
         _jsPlumb.appendElement(h2);
 
-
         var _setGeometry = function() {
             conn.getConnector().setGeometry({
                 controlPoints:[ cp1, cp2 ]
@@ -145,11 +144,11 @@
         this.activate = function() {
             _updateConnectorInfo();
             _updateHandlePositions();
-           // _updateGuidelines();
             h1.style.display = "block";
             h2.style.display = "block";
             l1.style.display = "block";
             l2.style.display = "block";
+            _updateGuidelines();
             conn.addClass(CONNECTION_EDIT_CLASS);
             _jsPlumb.on(document, "click", self.deactivate);
         };
