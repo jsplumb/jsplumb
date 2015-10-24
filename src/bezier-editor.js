@@ -9,27 +9,31 @@
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
     jsPlumbInstance.prototype.editConnection = function(connection) {
-        var connectorType = connection.getConnector().type;
-        if (!jsPlumb.ConnectorEditors[connectorType]) {
-            throw new TypeError("No editor available for connector type [" + connectorType + "]");
-        }
-        if (connection.editor == null) {
-            connection.editor = new jsPlumb.ConnectorEditors[connectorType]({
-                connection: connection
-            });
+        if (connection.getConnector().isEditable()) {
+            var connectorType = connection.getConnector().type;
+            if (!jsPlumb.ConnectorEditors[connectorType]) {
+                throw new TypeError("No editor available for connector type [" + connectorType + "]");
+            }
+            if (connection.editor == null) {
+                connection.editor = new jsPlumb.ConnectorEditors[connectorType]({
+                    connection: connection
+                });
 
-            //
-            // when user drags source or target node, reset.
-            //
-            connection._jsPlumb.instance.draggable([connection.source, connection.target], {
-                force:true,
-                start:function() {
-                    connection.editor.reset();
-                }
-            });
-        }
+                //
+                // when user drags source or target node, reset.
+                //
+                connection._jsPlumb.instance.draggable([connection.source, connection.target], {
+                    force: true,
+                    start: function () {
+                        connection.editor.reset();
+                    }
+                });
+            }
 
-        setTimeout(function() { connection.editor.activate(); }, 0);
+            setTimeout(function () {
+                connection.editor.activate();
+            }, 0);
+        }
     } ;
 
     var _makeHandle = function(x, y) {
