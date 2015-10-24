@@ -22,9 +22,12 @@
             margin = params.margin || 5,
             proximityLimit = params.proximityLimit || 80,
             clockwise = params.orientation && params.orientation === "clockwise",
-            loopbackRadius = params.loopbackRadius || 25;
+            loopbackRadius = params.loopbackRadius || 25,
+            isLoopbackCurrently = false;
 
         this.getControlPoints = function() { return _controlPoints; };
+
+        this.isEditable = function() { return !isLoopbackCurrently; };
 
         this._compute = function (paintInfo, p) {
 
@@ -34,8 +37,10 @@
                 _h = Math.abs(sp[1] - tp[1]);
 
             if (!showLoopback || (p.sourceEndpoint.elementId !== p.targetEndpoint.elementId)) {
+                isLoopbackCurrently = false;
                 this._computeBezier(paintInfo, p, sp, tp, _w, _h);
             } else {
+                isLoopbackCurrently = true;
                 // a loopback connector.  draw an arc from one anchor to the other.
                 var x1 = p.sourcePos[0], y1 = p.sourcePos[1] - margin,
                     cx = x1, cy = y1 - loopbackRadius,
