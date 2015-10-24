@@ -64,6 +64,8 @@
         s.appendChild(l);
         jsPlumb.addClass(s, GUIDELINE_CLASS);
 
+        _updateGuideline(handle, anchor, s, x2, y2);
+
         return s;
     };
 
@@ -92,17 +94,22 @@
         var _updateHandlePositions = function() {
             h1.style.left = (origin[0] + cp1[0]) + "px";
             h1.style.top = (origin[1] + cp1[1]) + "px";
-            h2.style.left = (origin[0] + cp2[0]) + "px";
-            h2.style.top = (origin[1] + cp2[1]) + "px";
-        };
+
+            var _cp2 = this.lockHandles ? cp1 : cp2;
+            h2.style.left = (origin[0] + _cp2[0]) + "px";
+            h2.style.top = (origin[1] + _cp2[1]) + "px";
+
+
+        }.bind(this);
 
         _updateConnectorInfo();
 
         var sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
         var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
-        var h1 = _makeHandle(origin[0] + cp[0], origin[1] + cp[1]), h2 = _makeHandle(origin[0] + cp[0], origin[1] + cp[1]);
+        var h1 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
+            h2 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]);
         var l1 = _makeGuideline(h1, sp, origin[0] + cp[0][0], origin[1] + cp[0][1]);
-        var l2 = _makeGuideline(h2, tp, origin[0] + cp[1][0], origin[1] + cp[1][1]);
+        var l2 = _makeGuideline(self.lockHandles ? h1 : h2, tp, origin[0] + cp[1][0], origin[1] + cp[1][1]);
 
         _jsPlumb.appendElement(l1);
         _jsPlumb.appendElement(l2);
@@ -122,14 +129,23 @@
 
         var _updateGuidelines = function() {
             _updateGuideline(h1, sp, l1, origin[0] + cp1[0], origin[1] + cp1[1]);
-            _updateGuideline(h2, tp, l2, origin[0] + cp2[0], origin[1] + cp2[1]);
-        };
+            var _cp2 = this.lockHandles ? cp1 : cp2;
+            _updateGuideline(self.lockHandles ? h1 : h2, tp, l2, origin[0] + _cp2[0], origin[1] + _cp2[1]);
+        }.bind(this);
 
         var _initDraggable = function(el, arr) {
             _jsPlumb.draggable(el, {
                 drag:function(dp) {
-                    arr[0] = dp.pos[0] - origin[0];
-                    arr[1] = dp.pos[1] - origin[1];
+                    var l = dp.pos[0] - origin[0], t = dp.pos[1] - origin[1];
+                    if (!self.lockHandles) {
+                        arr[0] = l;
+                        arr[1] = t;
+                    }
+                    else {
+                        cp1[0] = l; cp1[1] = t;
+                        cp2[0] = l; cp2[1] = t;
+                    }
+
                     _setGeometry();
                     _updateGuidelines();
                 }
@@ -145,9 +161,12 @@
             _updateConnectorInfo();
             _updateHandlePositions();
             h1.style.display = "block";
-            h2.style.display = "block";
+            if (!self.lockHandles)
+                h2.style.display = "block";
             l1.style.display = "block";
             l2.style.display = "block";
+            sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
+            tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
             _updateGuidelines();
             conn.addClass(CONNECTION_EDIT_CLASS);
             _jsPlumb.on(document, "click", self.deactivate);
@@ -170,6 +189,7 @@
     };
 
     root.jsPlumb.ConnectorEditors.StateMachine = function() {
+        this.lockHandles = true;
         AbstractBezierEditor.apply(this, arguments);
     };
 
