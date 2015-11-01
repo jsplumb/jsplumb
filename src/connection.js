@@ -222,6 +222,9 @@
 // PAINTING
 
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || _jp.Defaults.Connector, true);
+        if (params.geometry) {
+            this.connector.setGeometry(params.geometry);
+        }
         var data = params.data == null || !jsPlumbUtil.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
