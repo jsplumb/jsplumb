@@ -28,7 +28,8 @@ jsPlumb.ready(function () {
     // just do this: jsPlumb.bind("click", jsPlumb.detach), but I wanted to make it clear what was
     // happening.
     instance.bind("click", function (c) {
-        instance.detach(c);
+        //instance.detach(c);
+        instance.editConnection(c);
     });
 
     // bind a connection listener. note that the parameter passed to this function contains more than
