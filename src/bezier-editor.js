@@ -5,6 +5,8 @@
     var HANDLE_CLASS = "jsplumb-bezier-handle";
     var CONNECTION_EDIT_CLASS = "jsplumb-connection-edit";
     var GUIDELINE_CLASS = "jsplumb-bezier-guideline";
+    var NONE = "none";
+    var BLOCK = "block";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
@@ -75,11 +77,13 @@
 
     var AbstractBezierEditor = function(params) {
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance;
-        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this;
+        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this
 
         var _updateConnectorInfo = function() {
             var geom = conn.getConnector().getGeometry();
             if (geom && geom.controlPoints) {
+                cp = geom.controlPoints;
+                origin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
                 cp1[0] = geom.controlPoints[0][0];
                 cp1[1] = geom.controlPoints[0][1];
                 cp2[0] = geom.controlPoints[1][0];
@@ -103,7 +107,6 @@
             h2.style.left = (origin[0] + _cp2[0]) + "px";
             h2.style.top = (origin[1] + _cp2[1]) + "px";
 
-
         }.bind(this);
 
         _updateConnectorInfo();
@@ -111,12 +114,12 @@
         var sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
         var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
         var h1 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
-            h2 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]);
-        var l1 = _makeGuideline(h1, sp, origin[0] + cp[0][0], origin[1] + cp[0][1]);
-        var l2 = _makeGuideline(self.lockHandles ? h1 : h2, tp, origin[0] + cp[1][0], origin[1] + cp[1][1]);
+            h2 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
+            l1 = _makeGuideline(h2, tp, origin[0] + cp[0][0], origin[1] + cp[0][1]),
+            l2 = _makeGuideline(self.lockHandles ? h2 : h1, sp, origin[0] + cp[1][0], origin[1] + cp[1][1]);
 
-        _jsPlumb.appendElement(l1);
-        _jsPlumb.appendElement(l2);
+        //_jsPlumb.appendElement(l1);
+        //_jsPlumb.appendElement(l2);
         _jsPlumb.appendElement(h1);
         _jsPlumb.appendElement(h2);
 
@@ -132,9 +135,9 @@
         };
 
         var _updateGuidelines = function() {
-            _updateGuideline(h1, sp, l1, origin[0] + cp1[0], origin[1] + cp1[1]);
+            _updateGuideline(h2, tp, l1, origin[0] + cp1[0], origin[1] + cp1[1]);
             var _cp2 = this.lockHandles ? cp1 : cp2;
-            _updateGuideline(self.lockHandles ? h1 : h2, tp, l2, origin[0] + _cp2[0], origin[1] + _cp2[1]);
+            _updateGuideline(self.lockHandles ? h2 : h1, sp, l2, origin[0] + _cp2[0], origin[1] + _cp2[1]);
         }.bind(this);
 
         var _initDraggable = function(el, arr) {
@@ -164,11 +167,11 @@
         this.activate = function() {
             _updateConnectorInfo();
             _updateHandlePositions();
-            h1.style.display = "block";
+            h1.style.display = BLOCK;
             if (!self.lockHandles)
-                h2.style.display = "block";
-            l1.style.display = "block";
-            l2.style.display = "block";
+                h2.style.display = BLOCK;
+            l1.style.display = BLOCK;
+            l2.style.display = BLOCK;
             sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
             tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
             _updateGuidelines();
@@ -178,10 +181,10 @@
 
         this.deactivate = function(e) {
             if (e && jsPlumb.hasClass(e.srcElement, HANDLE_CLASS)) return;
-            h1.style.display = "none";
-            h2.style.display = "none";
-            l1.style.display = "none";
-            l2.style.display = "none";
+            h1.style.display = NONE;
+            h2.style.display = NONE;
+            l1.style.display = NONE;
+            l2.style.display = NONE;
             conn.removeClass(CONNECTION_EDIT_CLASS);
             _jsPlumb.off(document, "click", self.deactivate);
         };
