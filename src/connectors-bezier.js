@@ -25,7 +25,13 @@
             loopbackRadius = params.loopbackRadius || 25,
             isLoopbackCurrently = false;
 
-        this.getControlPoints = function() { return _controlPoints; };
+        var _getControlPoints = this.getControlPoints = function() { return _controlPoints; };
+        var _setControlPoints = this.setControlPoints = function(cp) {
+            _controlPoints[0][0] = cp[0][0];
+            _controlPoints[0][1] = cp[0][1];
+            _controlPoints[1][0] = cp[1][0];
+            _controlPoints[1][1] = cp[1][1];
+        };
 
         this.isEditable = function() { return !isLoopbackCurrently; };
 
@@ -74,12 +80,10 @@
         };
 
         var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
-        _super.setControlPoints = function(cp1, cp2) {
-            _controlPoints[0][0] = cp1[0];
-            _controlPoints[0][1] = cp1[1];
-            _controlPoints[1][0] = cp2[0];
-            _controlPoints[1][1] = cp2[1];
-        };
+
+        _super.setControlPoints = _setControlPoints;
+        _super.getControlPoints = _getControlPoints;
+
         return _super;
     };
     _ju.extend(_jp.Connectors.AbstractBezierConnector, _jp.Connectors.AbstractConnector);
@@ -132,16 +136,16 @@
                 _tx = sp[0] < tp[0] ? 0 : _w,
                 _ty = sp[1] < tp[1] ? 0 : _h;
 
-            if (geometry != null) {
+            if (geometry != null && geometry.controlPoints != null && geometry.controlPoints[0] != null && geometry.controlPoints[1] != null) {
                 _CP = geometry.controlPoints[0];
                 _CP2 = geometry.controlPoints[1];
             }
             else {
-                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to),
+                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to);
                 _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
             }
 
-            _super.setControlPoints(_CP, _CP2);
+            _super.setControlPoints([_CP, _CP2]);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
