@@ -448,10 +448,10 @@
             paintInfo = null,
             geometry = null;
 
-        this.setGeometry = function(g) {
+        var _setGeometry = this.setGeometry = function(g) {
             geometry = g;
         };
-        this.getGeometry = function() {
+        var _getGeometry = this.getGeometry = function() {
             return geometry;
         };
 
@@ -658,7 +658,9 @@
             maxStub: Math.max(sourceStub, targetStub),
             sourceGap: sourceGap,
             targetGap: targetGap,
-            maxGap: Math.max(sourceGap, targetGap)
+            maxGap: Math.max(sourceGap, targetGap),
+            setGeometry:_setGeometry,
+            getGeometry:_getGeometry
         };
     };
     _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
