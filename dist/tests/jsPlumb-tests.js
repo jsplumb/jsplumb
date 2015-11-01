@@ -8578,5 +8578,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(jsPlumb.hasClass(d4, "jsplumb-droppable", "querySelectorAll output ok as input"));
     });
 
+
+// ----------------------------- connector geometry --------------------------------------
+
+    test("set geometry", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source:d1,
+            target:d2,
+            geometry:{
+                controlPoints:[
+                    [ 150, 150 ],
+                    [150, 150 ]
+                ]
+            }
+        });
+
+        var geom = conn.getConnector().getGeometry();
+        equal(geom.controlPoints[0][0], 150);
+    });
+
 };
 

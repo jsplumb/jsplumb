@@ -109,6 +109,18 @@ jsPlumb.ready(function () {
         instance.connect({ source: "opened", target: "phone1", type:"basic" });
         instance.connect({ source: "phone1", target: "phone1", type:"basic" });
         instance.connect({ source: "phone1", target: "inperson", type:"basic" });
+
+        instance.connect({
+            source:"phone2",
+            target:"rejected",
+            type:"basic",
+            geometry:{
+                controlPoints:[
+                    [ 150, 150 ],
+                    [ 150, 150 ]
+                ]
+            }
+        });
     });
 
     jsPlumb.fire("jsPlumbDemoLoaded", instance);

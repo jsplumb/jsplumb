@@ -1288,14 +1288,16 @@
         DEFAULT_GRID_X = 50,
         DEFAULT_GRID_Y = 50,
         isIELT9 = iev > -1 && iev < 9,
+        isIE9 = iev == 9,
         _pl = function(e) {
             if (isIELT9) {
                 return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
             }
             else {
                 var ts = _touches(e), t = _getTouch(ts, 0);
-                // this is for iPad. may not fly for Android.
-                return [t.pageX, t.pageY];
+                // for IE9 pageX might be null if the event was synthesized. We try for pageX/pageY first,
+                // falling back to clientX/clientY if necessary. In every other browser we want to use pageX/pageY.
+                return isIE9 ? [t.pageX || t.clientX, t.pageY || t.clientY] : [t.pageX, t.pageY];
             }
         },
         _getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
@@ -8011,6 +8013,9 @@
 // PAINTING
 
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || _jp.Defaults.Connector, true);
+        if (params.geometry) {
+            this.connector.setGeometry(params.geometry);
+        }
         var data = params.data == null || !jsPlumbUtil.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
@@ -9931,12 +9936,14 @@
             targetGap = _ju.isArray(gap) ? gap[1] : gap,
             userProvidedSegments = null,
             edited = false,
-            paintInfo = null;
+            paintInfo = null,
+            geometry = null;
 
-        // to be overridden by subclasses.
-        this.getPath = function () {
+        var _setGeometry = this.setGeometry = function(g) {
+            geometry = g;
         };
-        this.setPath = function (path) {
+        var _getGeometry = this.getGeometry = function() {
+            return geometry;
         };
 
         /**
@@ -10142,7 +10149,9 @@
             maxStub: Math.max(sourceStub, targetStub),
             sourceGap: sourceGap,
             targetGap: targetGap,
-            maxGap: Math.max(sourceGap, targetGap)
+            maxGap: Math.max(sourceGap, targetGap),
+            setGeometry:_setGeometry,
+            getGeometry:_getGeometry
         };
     };
     _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
@@ -11385,17 +11394,11 @@
     _jp.registerConnectorType(Flowchart, "Flowchart");
 }).call(this);
 /*
- * jsPlumb
- * 
- * Title:jsPlumb 2.0.2
- * 
- * Provides a way to visually connect elements on an HTML page, using SVG.
- * 
- * This file contains the state machine connectors.
+ * This file contains the state machine connectors, which extend AbstractBezierConnector.
  *
  * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
- * http://jsplumbtoolkit.com
+ * https://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
@@ -11459,84 +11462,152 @@
         params = params || {};
         this.type = "StateMachine";
 
-        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments),
+        var _super = _jp.Connectors.AbstractBezierConnector.apply(this, arguments),
+            curviness = params.curviness || 10,
+            margin = params.margin || 5,
+            proximityLimit = params.proximityLimit || 80,
+            clockwise = params.orientation && params.orientation === "clockwise",
+            _controlPoint;
+
+        this._computeBezier = function(paintInfo, params, sp, tp, w, h) {
+            var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
+                _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
+                _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
+                _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
+
+            // now adjust for the margin
+            if (params.sourcePos[2] === 0) _sx -= margin;
+            if (params.sourcePos[2] === 1) _sx += margin;
+            if (params.sourcePos[3] === 0) _sy -= margin;
+            if (params.sourcePos[3] === 1) _sy += margin;
+            if (params.targetPos[2] === 0) _tx -= margin;
+            if (params.targetPos[2] === 1) _tx += margin;
+            if (params.targetPos[3] === 0) _ty -= margin;
+            if (params.targetPos[3] === 1) _ty += margin;
+
+            //
+            // these connectors are quadratic bezier curves, having a single control point. if both anchors
+            // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
+            // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
+            // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
+            // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
+            //
+            // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
+            // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
+            // for example, we might increase the distance the control point is away from the midpoint in a bid to
+            // steer it around that node.  this will work within limits, but i think those limits would also be the likely
+            // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
+            //
+            // the second possible change is actually two possible changes: firstly, it is possible we should gradually
+            // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
+            // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
+            // with respect to how far their anchor is from the center of its respective face. this could either look cool,
+            // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
+            //
+
+            var _midx = (_sx + _tx) / 2,
+                _midy = (_sy + _ty) / 2,
+                segment = _segment(_sx, _sy, _tx, _ty),
+                distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
+                cp1x, cp2x, cp1y, cp2y,
+                geometry = _super.getGeometry();
+
+            if (geometry != null) {
+                cp1x = geometry.controlPoints[0][0];
+                cp1y = geometry.controlPoints[0][1];
+                cp2x = geometry.controlPoints[1][0];
+                cp2y = geometry.controlPoints[1][1];
+            }
+            else {
+                // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+                // will work by extending the control point to force the curve to be, um, curvier.
+                _controlPoint = _findControlPoint(_midx,
+                    _midy,
+                    segment,
+                    params.sourcePos,
+                    params.targetPos,
+                    curviness, curviness,
+                    distance,
+                    proximityLimit);
+
+                cp1x = _controlPoint[0];
+                cp2x = _controlPoint[0];
+                cp1y = _controlPoint[1];
+                cp2y = _controlPoint[1];
+
+                _super.setControlPoints([_controlPoint, _controlPoint]);
+            }
+
+            _super.addSegment(this, "Bezier", {
+                x1: _tx, y1: _ty, x2: _sx, y2: _sy,
+                cp1x: cp1x, cp1y: cp1y,
+                cp2x: cp2x, cp2y: cp2y
+            });
+        };
+    };
+
+    _ju.extend(StateMachine, _jp.Connectors.AbstractBezierConnector);
+    _jp.registerConnectorType(StateMachine, "StateMachine");
+
+}).call(this);
+/*
+ * This file contains the code for the Bezier connector type.
+ *
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * 
+ * https://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
+;
+(function () {
+
+    "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+
+    _jp.Connectors.AbstractBezierConnector = function(params) {
+        params = params || {};
+        var _controlPoints = [ [ 0, 0 ], [ 0, 0 ] ];
+        var showLoopback = params.showLoopback !== false,
             curviness = params.curviness || 10,
             margin = params.margin || 5,
             proximityLimit = params.proximityLimit || 80,
             clockwise = params.orientation && params.orientation === "clockwise",
             loopbackRadius = params.loopbackRadius || 25,
-            showLoopback = params.showLoopback !== false;
+            isLoopbackCurrently = false;
 
-        this._compute = function (paintInfo, params) {
-            var w = Math.abs(params.sourcePos[0] - params.targetPos[0]),
-                h = Math.abs(params.sourcePos[1] - params.targetPos[1]);
+        var _getControlPoints = this.getControlPoints = function() { return _controlPoints; };
+        var _setControlPoints = this.setControlPoints = function(cp) {
+            _controlPoints[0][0] = cp[0][0];
+            _controlPoints[0][1] = cp[0][1];
+            _controlPoints[1][0] = cp[1][0];
+            _controlPoints[1][1] = cp[1][1];
+        };
 
-            if (!showLoopback || (params.sourceEndpoint.elementId !== params.targetEndpoint.elementId)) {
-                var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
-                    _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
-                    _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
-                    _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
+        this.isEditable = function() { return !isLoopbackCurrently; };
 
-                // now adjust for the margin
-                if (params.sourcePos[2] === 0) _sx -= margin;
-                if (params.sourcePos[2] === 1) _sx += margin;
-                if (params.sourcePos[3] === 0) _sy -= margin;
-                if (params.sourcePos[3] === 1) _sy += margin;
-                if (params.targetPos[2] === 0) _tx -= margin;
-                if (params.targetPos[2] === 1) _tx += margin;
-                if (params.targetPos[3] === 0) _ty -= margin;
-                if (params.targetPos[3] === 1) _ty += margin;
+        this._compute = function (paintInfo, p) {
 
-                //
-                // these connectors are quadratic bezier curves, having a single control point. if both anchors
-                // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
-                // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
-                // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
-                // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
-                //
-                // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
-                // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
-                // for example, we might increase the distance the control point is away from the midpoint in a bid to
-                // steer it around that node.  this will work within limits, but i think those limits would also be the likely
-                // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
-                //
-                // the second possible change is actually two possible changes: firstly, it is possible we should gradually
-                // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
-                // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
-                // with respect to how far their anchor is from the center of its respective face. this could either look cool,
-                // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
-                //
+            var sp = p.sourcePos,
+                tp = p.targetPos,
+                _w = Math.abs(sp[0] - tp[0]),
+                _h = Math.abs(sp[1] - tp[1]);
 
-                var _midx = (_sx + _tx) / 2,
-                    _midy = (_sy + _ty) / 2,
-                    segment = _segment(_sx, _sy, _tx, _ty),
-                    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
-                    // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-                    // will work by extending the control point to force the curve to be, um, curvier.
-                    _controlPoint = _findControlPoint(_midx,
-                        _midy,
-                        segment,
-                        params.sourcePos,
-                        params.targetPos,
-                        curviness, curviness,
-                        distance,
-                        proximityLimit);
-
-                _super.addSegment(this, "Bezier", {
-                    x1: _tx, y1: _ty, x2: _sx, y2: _sy,
-                    cp1x: _controlPoint[0], cp1y: _controlPoint[1],
-                    cp2x: _controlPoint[0], cp2y: _controlPoint[1]
-                });
-            }
-            else {
+            if (!showLoopback || (p.sourceEndpoint.elementId !== p.targetEndpoint.elementId)) {
+                isLoopbackCurrently = false;
+                this._computeBezier(paintInfo, p, sp, tp, _w, _h);
+            } else {
+                isLoopbackCurrently = true;
                 // a loopback connector.  draw an arc from one anchor to the other.
-                var x1 = params.sourcePos[0], y1 = params.sourcePos[1] - margin,
+                var x1 = p.sourcePos[0], y1 = p.sourcePos[1] - margin,
                     cx = x1, cy = y1 - loopbackRadius,
                 // canvas sizing stuff, to ensure the whole painted area is visible.
-                    _w = 2 * loopbackRadius,
-                    _h = 2 * loopbackRadius,
                     _x = cx - loopbackRadius,
                     _y = cy - loopbackRadius;
+
+                _w = 2 * loopbackRadius;
+                _h = 2 * loopbackRadius;
 
                 paintInfo.points[0] = _x;
                 paintInfo.points[1] = _y;
@@ -11559,36 +11630,20 @@
                 });
             }
         };
-    };
-    _ju.extend(StateMachine, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(StateMachine, "StateMachine");
-}).call(this);
-/*
- * jsPlumb
- * 
- * Title:jsPlumb 2.0.2
- * 
- * Provides a way to visually connect elements on an HTML page, using SVG.
- * 
- * This file contains the code for the Bezier connector type.
- *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
- * 
- * http://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
- * 
- * Dual licensed under the MIT and GPL2 licenses.
- */
-;
-(function () {
 
-    "use strict";
-    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
+
+        _super.setControlPoints = _setControlPoints;
+        _super.getControlPoints = _getControlPoints;
+
+        return _super;
+    };
+    _ju.extend(_jp.Connectors.AbstractBezierConnector, _jp.Connectors.AbstractConnector);
 
     var Bezier = function (params) {
         params = params || {};
 
-        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments),
+        var _super = _jp.Connectors.AbstractBezierConnector.apply(this, arguments),
             majorAnchor = params.curviness || 150,
             minorAnchor = 10;
 
@@ -11625,26 +11680,35 @@
             return p;
         };
 
-        this._compute = function (paintInfo, p) {
-            var sp = p.sourcePos,
-                tp = p.targetPos,
-                _w = Math.abs(sp[0] - tp[0]),
-                _h = Math.abs(sp[1] - tp[1]),
+        this._computeBezier = function (paintInfo, p, sp, tp, _w, _h) {
+
+            var geometry = this.getGeometry(), _CP, _CP2,
                 _sx = sp[0] < tp[0] ? _w : 0,
                 _sy = sp[1] < tp[1] ? _h : 0,
                 _tx = sp[0] < tp[0] ? 0 : _w,
-                _ty = sp[1] < tp[1] ? 0 : _h,
-                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to),
+                _ty = sp[1] < tp[1] ? 0 : _h;
+
+            if (geometry != null && geometry.controlPoints != null && geometry.controlPoints[0] != null && geometry.controlPoints[1] != null) {
+                _CP = geometry.controlPoints[0];
+                _CP2 = geometry.controlPoints[1];
+            }
+            else {
+                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to);
                 _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
+            }
+
+            _super.setControlPoints([_CP, _CP2]);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
                 cp1x: _CP[0], cp1y: _CP[1], cp2x: _CP2[0], cp2y: _CP2[1]
             });
         };
+
+
     };
 
-    _ju.extend(Bezier, _jp.Connectors.AbstractConnector);
+    _ju.extend(Bezier, _jp.Connectors.AbstractBezierConnector);
     _jp.registerConnectorType(Bezier, "Bezier");
 
 }).call(this);
