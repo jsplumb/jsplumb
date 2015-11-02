@@ -11,7 +11,7 @@ var versions = {
     extraLibraries = [ get("MOTTLE"), get("KATAVORIO") ],
     objects = {
         connectors : [
-            "flowchart", "statemachine", "bezier", "straight"
+            "flowchart", "bezier", "statemachine", "straight"
         ],
         renderers : [
             "svg"
