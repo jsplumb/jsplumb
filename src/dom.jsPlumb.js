@@ -207,6 +207,15 @@
                 dm.addToPosse.apply(dm, _el);
             });
         },
+        setPosse:function(el, spec) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) {
+                _el = [ jsPlumb.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.setPosse.apply(dm, _el);
+            });
+        },
         removeFromPosse:function(el, posseId) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
@@ -219,6 +228,10 @@
         removeFromAllPosses:function(el) {
             var dm = _getDragManager(this);
             jsPlumb.each(el, function(_el) { dm.removeFromAllPosses(jsPlumb.getElement(_el)); });
+        },
+        setPosseState:function(el, posseId, state) {
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) { dm.setPosseState(jsPlumb.getElement(_el), posseId, state); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
