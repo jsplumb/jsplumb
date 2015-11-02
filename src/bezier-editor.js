@@ -10,16 +10,16 @@
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
-    jsPlumbInstance.prototype.editConnection = function(connection) {
+    jsPlumbInstance.prototype.editConnection = function(connection, params) {
         if (connection.getConnector().isEditable()) {
+            params = jsPlumb.extend({}, params || {});
             var connectorType = connection.getConnector().type;
             if (!jsPlumb.ConnectorEditors[connectorType]) {
                 throw new TypeError("No editor available for connector type [" + connectorType + "]");
             }
             if (connection.editor == null) {
-                connection.editor = new jsPlumb.ConnectorEditors[connectorType]({
-                    connection: connection
-                });
+                params.connection = connection;
+                connection.editor = new jsPlumb.ConnectorEditors[connectorType](params);
 
                 //
                 // when user drags source or target node, reset.
@@ -76,7 +76,8 @@
     };
 
     var AbstractBezierEditor = function(params) {
-        var conn = params.connection, _jsPlumb = conn._jsPlumb.instance;
+        var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
+            mode = params.mode || "single";
         var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this
 
         var _updateConnectorInfo = function() {
@@ -113,6 +114,8 @@
 
         var sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
         var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
+        var center = [ (sp.left + tp.left) / 2, (sp.top + tp.top) / 2 ];
+
         var h1 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
             h2 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
             l1 = _makeGuideline(h2, tp, origin[0] + cp[0][0], origin[1] + cp[0][1]),
@@ -140,6 +143,8 @@
             _updateGuideline(self.lockHandles ? h2 : h1, sp, l2, origin[0] + _cp2[0], origin[1] + _cp2[1]);
         }.bind(this);
 
+        var _toBiltongPoint = function(xy) { return { x:xy[0], y:xy[1] }; };
+
         var _initDraggable = function(el, arr) {
             _jsPlumb.draggable(el, {
                 drag:function(dp) {
@@ -149,8 +154,26 @@
                         arr[1] = t;
                     }
                     else {
-                        cp1[0] = l; cp1[1] = t;
-                        cp2[0] = l; cp2[1] = t;
+
+                        if (mode === "dual") {
+                            // get radius and then get a line that is a tangent to the circle, whose length is 1.5 times
+                            // the radius. This has the effect of making the curve more bulbous as you drag it out.
+                            var radius = Biltong.lineLength(center, dp.pos);
+                            var cpLine = Biltong.perpendicularLineTo(_toBiltongPoint(center), _toBiltongPoint(dp.pos), radius*1.5);
+                            // swap the two control points if in segment 4 or 2.
+                            var quadrant = Biltong.quadrant(center, dp.pos);
+                            var idx1 = quadrant == 1 || quadrant == 3 ? 0 : 1,
+                                idx2 = quadrant == 1 || quadrant == 3 ? 1 : 0;
+
+                            cp1[0] = cpLine[idx1].x - origin[0];
+                            cp1[1] = cpLine[idx1].y - origin[1];
+                            cp2[0] = cpLine[idx2].x - origin[0];
+                            cp2[1] = cpLine[idx2].y - origin[1];
+                        }
+                        else {
+                            cp1[0] = l; cp1[1] = t;
+                            cp2[0] = l; cp2[1] = t;
+                        }
                     }
 
                     _setGeometry();
