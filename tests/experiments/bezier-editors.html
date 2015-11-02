@@ -12,6 +12,9 @@
             #n2 { left:250px;top:250px; }
             #n3 { left:50px;top:450px; }
 
+            #n4 { left:350px;top:50px; }
+            #n5 { left:550px;top:450px; }
+
             /* the styles for the editing artifacts. should be moved to the toolkit defaults css */
             .jsplumb-bezier-handle {
                 width:15px;
@@ -40,6 +43,8 @@
         <div id="n2" class="n"></div>
         <div id="n3" class="n"></div>
 
+        <div id="n4" class="n"></div>
+        <div id="n5" class="n"></div>
 
         <!-- JS -->
         <!-- support lib for bezier stuff -->
@@ -96,6 +101,13 @@
             var c2 = jsPlumb.connect({source:"n2", target:"n3", connector:"Bezier", anchor:"Continuous", endpoint:"Blank"});
             c2.bind("click", function(_c) {
                 jsPlumb.editConnection(_c);
+            });
+
+            var c3 = jsPlumb.connect({source:"n4", target:"n5", connector:"StateMachine", anchor:"Continuous", endpoint:"Blank"});
+            c3.bind("click", function(_c) {
+                jsPlumb.editConnection(_c, {
+                    mode:"dual"
+                });
             });
         });
     </script>
