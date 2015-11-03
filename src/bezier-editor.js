@@ -13,6 +13,7 @@
     jsPlumbInstance.prototype.editConnection = function(connection, params) {
         if (connection.getConnector().isEditable()) {
             params = jsPlumb.extend({}, params || {});
+            var clearOnDrag = params.clearOnDrag !== false;
             var connectorType = connection.getConnector().type;
             if (!jsPlumb.ConnectorEditors[connectorType]) {
                 throw new TypeError("No editor available for connector type [" + connectorType + "]");
@@ -27,7 +28,13 @@
                 connection._jsPlumb.instance.draggable([connection.source, connection.target], {
                     force: true,
                     start: function () {
-                        connection.editor.reset();
+                       if (clearOnDrag)
+                           connection.editor.reset();
+                    },
+                    drag:function() {
+                        if (!clearOnDrag) {
+                            connection.editor.update()
+                        }
                     }
                 });
             }
@@ -78,7 +85,8 @@
     var AbstractBezierEditor = function(params) {
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
             mode = params.mode || "single";
-        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this
+        var closeOnMouseUp = params.closeOnMouseUp !== false;
+        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false;
 
         var _updateConnectorInfo = function() {
             var geom = conn.getConnector().getGeometry();
@@ -199,7 +207,10 @@
             tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
             _updateGuidelines();
             conn.addClass(CONNECTION_EDIT_CLASS);
-            _jsPlumb.on(document, "click", self.deactivate);
+            if (closeOnMouseUp) {
+                _jsPlumb.on(document, "click", self.deactivate);
+            }
+            active = true;
         };
 
         this.deactivate = function(e) {
@@ -209,12 +220,20 @@
             l1.style.display = NONE;
             l2.style.display = NONE;
             conn.removeClass(CONNECTION_EDIT_CLASS);
-            _jsPlumb.off(document, "click", self.deactivate);
+            if (closeOnMouseUp) {
+                _jsPlumb.off(document, "click", self.deactivate);
+            }
+            active = false;
         };
 
         this.reset = function() {
             _clearGeometry();
             self.deactivate();
+        };
+
+        this.update = function() {
+            _updateConnectorInfo();
+            _updateHandlePositions();
         };
     };
 
