@@ -7,6 +7,7 @@
     var GUIDELINE_CLASS = "jsplumb-bezier-guideline";
     var NONE = "none";
     var BLOCK = "block";
+    var DUAL = "dual";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
@@ -43,7 +44,7 @@
                 connection.editor.activate();
             }, 0);
         }
-    } ;
+    };
 
     var _makeHandle = function(x, y) {
         var h = document.createElement("div");
@@ -86,13 +87,30 @@
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
             mode = params.mode || "single";
         var closeOnMouseUp = params.closeOnMouseUp !== false;
-        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false;
+        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, sourceOriginOffset/*, targetOriginOffset*/;
 
+        var _updateOrigin = function() {
+            origin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
+            sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
+            var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
+            sourceOriginOffset = [ sp.left - origin[0], sp.top - origin[1] ];
+            //targetOriginOffset = [tp.left - origin[0], tp.top - origin[1] ];
+        };
+
+        //
+        // updates the current origin of the connector's SVG element (the location of its to left corner wrt
+        // the origin of the jsplumb instance's container). Then updates the offset of the source and target points
+        // from the origin of the SVG element. Finally, extracts the control point information from the connection,
+        // either as geometry (if previously edited or set) or from the computed control points.
+        //
+        // The offset of the source and target points is of interest because control points are treated as being
+        // with respect to the source point.  When you drag a handle, you get an offset for it wrt the the jsplumb
+        // instance's container. You can then adjust this
         var _updateConnectorInfo = function() {
+            _updateOrigin();
             var geom = conn.getConnector().getGeometry();
             if (geom && geom.controlPoints) {
                 cp = geom.controlPoints;
-                origin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
                 cp1[0] = geom.controlPoints[0][0];
                 cp1[1] = geom.controlPoints[0][1];
                 cp2[0] = geom.controlPoints[1][0];
@@ -100,7 +118,6 @@
             }
             else {
                 cp = conn.getConnector().getControlPoints();
-                origin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
                 cp1[0] = cp[0][0];
                 cp1[1] = cp[0][1];
                 cp2[0] = cp[1][0];
@@ -109,12 +126,29 @@
         };
 
         var _updateHandlePositions = function() {
-            h1.style.left = (origin[0] + cp1[0]) + "px";
-            h1.style.top = (origin[1] + cp1[1]) + "px";
+            if (mode === DUAL) {
+                h1.style.left = origin[0] + ((cp1[0] + cp2[0]) / 2) + "px";
+                h1.style.top = origin[1] + ((cp1[1] + cp2[1]) / 2) + "px";
 
-            var _cp2 = this.lockHandles ? cp1 : cp2;
-            h2.style.left = (origin[0] + _cp2[0]) + "px";
-            h2.style.top = (origin[1] + _cp2[1]) + "px";
+                h3.style.left = (origin[0] + cp1[0]) + "px";
+                h3.style.top = (origin[1] + cp1[1]) + "px";
+                h4.style.left = (origin[0] + cp2[0]) + "px";
+                h4.style.top = (origin[1] + cp2[1]) + "px";
+
+                console.log("update. h [", h1.style.left, h1.style.top, "], o [", origin[0], origin[1], "], m [", ((cp1[0] + cp2[0]) / 2), ((cp1[1] + cp2[1]) / 2), "], cp1 [", cp1[0] + ",", cp1[1], "], cp2", cp2[0], cp2[1]);
+            }
+            else {
+                h1.style.left = (origin[0] + cp1[0]) + "px";
+                h1.style.top = (origin[1] + cp1[1]) + "px";
+
+                var _cp2 = this.lockHandles ? cp1 : cp2;
+                h2.style.left = (origin[0] + _cp2[0]) + "px";
+                h2.style.top = (origin[1] + _cp2[1]) + "px";
+
+                console.log("update. h [", h1.style.left, h1.style.top, "], o [", origin[0], origin[1], "], m [", ((cp1[0] + cp2[0]) / 2), ((cp1[1] + cp2[1]) / 2), "], cp1 [", cp1[0] + ",", cp1[1], "], cp2", cp2[0], cp2[1]);
+            }
+
+
 
         }.bind(this);
 
@@ -123,11 +157,27 @@
         var sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
         var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
         var center = [ (sp.left + tp.left) / 2, (sp.top + tp.top) / 2 ];
+        var sdx = sp.left - origin[0], sdy = sp.top - origin[1];
+        var tdx = tp.left - origin[0], tdy = tp.top - origin[1];
 
-        var h1 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
-            h2 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
+        console.log(sdx, sdy, tdx, tdy);
+
+        var h1 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),   //_makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
+            h2 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),  //_makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
             l1 = _makeGuideline(h2, tp, origin[0] + cp[0][0], origin[1] + cp[0][1]),
-            l2 = _makeGuideline(self.lockHandles ? h2 : h1, sp, origin[0] + cp[1][0], origin[1] + cp[1][1]);
+            l2 = _makeGuideline(self.lockHandles ? h2 : h1, sp, origin[0] + cp[1][0], origin[1] + cp[1][1]),
+
+            h3 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
+            h4 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]);
+
+        if (mode == DUAL) {
+            h3.style.display="block";
+            h4.style.display="block";
+            _jsPlumb.appendElement(h3);
+            _jsPlumb.appendElement(h4);
+        }
+
+
 
         //_jsPlumb.appendElement(l1);
         //_jsPlumb.appendElement(l2);
@@ -157,13 +207,14 @@
             _jsPlumb.draggable(el, {
                 drag:function(dp) {
                     var l = dp.pos[0] - origin[0], t = dp.pos[1] - origin[1];
+                    //var l = dp.pos[0] - sp.left, t = dp.pos[1] - sp.top;
                     if (!self.lockHandles) {
                         arr[0] = l;
                         arr[1] = t;
                     }
                     else {
 
-                        if (mode === "dual") {
+                        if (mode === DUAL) {
                             // get radius and then get a line that is a tangent to the circle, whose length is 1.5 times
                             // the radius. This has the effect of making the curve more bulbous as you drag it out.
                             var radius = Biltong.lineLength(center, dp.pos);
@@ -177,15 +228,24 @@
                             cp1[1] = cpLine[idx1].y - origin[1];
                             cp2[0] = cpLine[idx2].x - origin[0];
                             cp2[1] = cpLine[idx2].y - origin[1];
+
+                            h3.style.left = (origin[0] + cp1[0]) + "px";
+                            h3.style.top = (origin[1] + cp1[1]) + "px";
+                            h4.style.left = (origin[0] + cp2[0]) + "px";
+                            h4.style.top = (origin[1] + cp2[1]) + "px";
+
+
                         }
                         else {
                             cp1[0] = l; cp1[1] = t;
                             cp2[0] = l; cp2[1] = t;
                         }
-                    }
 
+                        console.log("drag. h ", h1.style.left, h1.style.top, origin[0], origin[1], dp.pos[0]-origin[0], dp.pos[1]-origin[1], "cp1", cp1[0], cp1[1], "cp2", cp2[0], cp2[1]);
+                    }
                     _setGeometry();
                     _updateGuidelines();
+
                 }
             });
         };
@@ -215,6 +275,16 @@
 
         this.deactivate = function(e) {
             if (e && jsPlumb.hasClass(e.srcElement, HANDLE_CLASS)) return;
+
+            //_updateConnectorInfo();
+            //_updateHandlePositions();
+            /*var newOrigin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
+            cp1[0] -= newOrigin[0] - origin[0];
+            cp1[1] -= newOrigin[1] - origin[1];
+            cp2[0] -= newOrigin[0] - origin[0];
+            cp2[1] -= newOrigin[1] - origin[1];
+            _setGeometry();*/
+
             h1.style.display = NONE;
             h2.style.display = NONE;
             l1.style.display = NONE;
