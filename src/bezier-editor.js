@@ -8,6 +8,7 @@
     var NONE = "none";
     var BLOCK = "block";
     var DUAL = "dual";
+    var CLICK = "click";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
@@ -87,14 +88,13 @@
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
             mode = params.mode || "single";
         var closeOnMouseUp = params.closeOnMouseUp !== false;
-        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, sourceOriginOffset/*, targetOriginOffset*/;
+        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp;
 
         var _updateOrigin = function() {
-            origin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
             sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
-            var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
-            sourceOriginOffset = [ sp.left - origin[0], sp.top - origin[1] ];
-            //targetOriginOffset = [tp.left - origin[0], tp.top - origin[1] ];
+            tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
+            origin = [sp.left, sp.top ];
+            center = [ (sp.left + tp.left) / 2, (sp.top + tp.top) / 2 ];
         };
 
         //
@@ -134,8 +134,6 @@
                 h3.style.top = (origin[1] + cp1[1]) + "px";
                 h4.style.left = (origin[0] + cp2[0]) + "px";
                 h4.style.top = (origin[1] + cp2[1]) + "px";
-
-                console.log("update. h [", h1.style.left, h1.style.top, "], o [", origin[0], origin[1], "], m [", ((cp1[0] + cp2[0]) / 2), ((cp1[1] + cp2[1]) / 2), "], cp1 [", cp1[0] + ",", cp1[1], "], cp2", cp2[0], cp2[1]);
             }
             else {
                 h1.style.left = (origin[0] + cp1[0]) + "px";
@@ -144,23 +142,11 @@
                 var _cp2 = this.lockHandles ? cp1 : cp2;
                 h2.style.left = (origin[0] + _cp2[0]) + "px";
                 h2.style.top = (origin[1] + _cp2[1]) + "px";
-
-                console.log("update. h [", h1.style.left, h1.style.top, "], o [", origin[0], origin[1], "], m [", ((cp1[0] + cp2[0]) / 2), ((cp1[1] + cp2[1]) / 2), "], cp1 [", cp1[0] + ",", cp1[1], "], cp2", cp2[0], cp2[1]);
             }
-
-
 
         }.bind(this);
 
         _updateConnectorInfo();
-
-        var sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
-        var tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
-        var center = [ (sp.left + tp.left) / 2, (sp.top + tp.top) / 2 ];
-        var sdx = sp.left - origin[0], sdy = sp.top - origin[1];
-        var tdx = tp.left - origin[0], tdy = tp.top - origin[1];
-
-        console.log(sdx, sdy, tdx, tdy);
 
         var h1 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),   //_makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
             h2 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),  //_makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
@@ -171,13 +157,11 @@
             h4 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]);
 
         if (mode == DUAL) {
-            h3.style.display="block";
-            h4.style.display="block";
+            h3.style.display = BLOCK;
+            h4.style.display = BLOCK;
             _jsPlumb.appendElement(h3);
             _jsPlumb.appendElement(h4);
         }
-
-
 
         //_jsPlumb.appendElement(l1);
         //_jsPlumb.appendElement(l2);
@@ -234,14 +218,11 @@
                             h4.style.left = (origin[0] + cp2[0]) + "px";
                             h4.style.top = (origin[1] + cp2[1]) + "px";
 
-
                         }
                         else {
                             cp1[0] = l; cp1[1] = t;
                             cp2[0] = l; cp2[1] = t;
                         }
-
-                        console.log("drag. h ", h1.style.left, h1.style.top, origin[0], origin[1], dp.pos[0]-origin[0], dp.pos[1]-origin[1], "cp1", cp1[0], cp1[1], "cp2", cp2[0], cp2[1]);
                     }
                     _setGeometry();
                     _updateGuidelines();
@@ -268,7 +249,7 @@
             _updateGuidelines();
             conn.addClass(CONNECTION_EDIT_CLASS);
             if (closeOnMouseUp) {
-                _jsPlumb.on(document, "click", self.deactivate);
+                _jsPlumb.on(document, CLICK, self.deactivate);
             }
             active = true;
         };
@@ -276,22 +257,15 @@
         this.deactivate = function(e) {
             if (e && jsPlumb.hasClass(e.srcElement, HANDLE_CLASS)) return;
 
-            //_updateConnectorInfo();
-            //_updateHandlePositions();
-            /*var newOrigin = [ conn.canvas.offsetLeft, conn.canvas.offsetTop ];
-            cp1[0] -= newOrigin[0] - origin[0];
-            cp1[1] -= newOrigin[1] - origin[1];
-            cp2[0] -= newOrigin[0] - origin[0];
-            cp2[1] -= newOrigin[1] - origin[1];
-            _setGeometry();*/
-
             h1.style.display = NONE;
             h2.style.display = NONE;
+            h3.style.display = NONE;
+            h4.style.display = NONE;
             l1.style.display = NONE;
             l2.style.display = NONE;
             conn.removeClass(CONNECTION_EDIT_CLASS);
             if (closeOnMouseUp) {
-                _jsPlumb.off(document, "click", self.deactivate);
+                _jsPlumb.off(document, CLICK, self.deactivate);
             }
             active = false;
         };
