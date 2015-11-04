@@ -29,7 +29,10 @@ jsPlumb.ready(function () {
     // happening.
     instance.bind("click", function (c) {
         //instance.detach(c);
-        instance.editConnection(c);
+        instance.editConnection(c, {
+            clearOnDrag:false,
+            closeOnMouseUp:false
+        });
     });
 
     // bind a connection listener. note that the parameter passed to this function contains more than
@@ -119,6 +122,11 @@ jsPlumb.ready(function () {
                     [ 150, 150 ],
                     [ 150, 150 ]
                 ]
+            },
+            editable:true,
+            editParams:{
+                clearOnDrag:false,
+                closeOnMouseUp:false
             }
         });
     });
