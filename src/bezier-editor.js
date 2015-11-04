@@ -242,6 +242,10 @@
             h1.style.display = BLOCK;
             if (!self.lockHandles)
                 h2.style.display = BLOCK;
+            if (mode === DUAL) {
+                h3.style.display = BLOCK;
+                h4.style.display = BLOCK;
+            }
             l1.style.display = BLOCK;
             l2.style.display = BLOCK;
             sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
