@@ -237,6 +237,11 @@
 
         this.updateConnectedClass();
 
+        // editable?
+        if (params.editable && _jsPlumb.editConnection && jsPlumb.ConnectorEditors[this.getConnector().type]) {
+            _jsPlumb.editConnection(this, params.editParams);
+        }
+
 // END PAINTING    
     };
 
