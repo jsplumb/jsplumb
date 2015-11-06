@@ -1052,6 +1052,23 @@
             return self.width * 1.5;
         };
 
+        this.elementCreated = function(p, component) {
+            console.log("element created!", p, component)
+            this.path = p;
+            if (params.events) {
+                for (var i in params.events) {
+                    jsPlumb.on(p, i, params.events[i]);
+                }
+            }
+        };
+
+        /* jsPlumbUtil.EventGenerator.apply(this, arguments);
+         if (params.events) {
+         for (i in params.events)
+         self.bind(i, params.events[i]);
+         }
+        */
+
         this.draw = function (component, currentConnectionPaintStyle) {
 
             var hxy, mid, txy, tail, cxy;

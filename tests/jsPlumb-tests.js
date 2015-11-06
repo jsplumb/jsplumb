@@ -8590,6 +8590,42 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(jsPlumb.hasClass(d4, "jsplumb-droppable", "querySelectorAll output ok as input"));
     });
 
+// click events on overlays
+
+    test("overlay click event", function() {
+            _addDiv("d1");
+            _addDiv("d2");
+        var count = 0;
+            var c = _jsPlumb.connect({
+                source: "d1",
+                target: "d2",
+                overlays:[
+                    [ "Label", {
+                        id:"label",
+                        label:'hey',
+                        events:{
+                            click:function() {
+                                count++;
+                            }
+                        }
+                    }],
+                    [ "Arrow", {
+                        id:"arrow",
+                        events:{
+                            click:function() {
+                                count++
+                            }
+                        }
+                    }]
+            ]}), o = c.getOverlay("label"), o2 = c.getOverlay("arrow");
+
+        _jsPlumb.trigger(o.canvas, "click");
+        ok(count == 1, "click event was triggered on label overlay");
+
+        _jsPlumb.trigger(o2.path, "click");
+        ok(count == 2, "click event was triggered on arrow overlay");
+    });
+
 
 // ----------------------------- connector geometry --------------------------------------
 
