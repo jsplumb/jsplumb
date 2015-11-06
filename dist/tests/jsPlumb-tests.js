@@ -7067,21 +7067,33 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
     test(" addClass method of Connection", function () {
-        if (!_jsPlumb.getRenderMode() == jsPlumb.CANVAS) {
-            _addDiv("d1");
+        _addDiv("d1");
             _addDiv("d2");
-            var c = _jsPlumb.connect({source: "d1", target: "d2"});
+            var c = _jsPlumb.connect({source: "d1", target: "d2", overlays:[
+                [ "Label", { id:"label", label:'hey'}]
+            ]}), o = c.getOverlay("label");
             c.addClass("foo");
             ok(!(jsPlumb.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
-            ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'bar'");
+            ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'foo'");
             c.addClass("bar", true);
             ok(jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint has class 'bar'");
             c.removeClass("bar", true);
             ok(c.canvas.className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");
             ok(!jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint doesnt have class 'bar'");
-        }
-        else
-            expect(0);
+
+            ok(jsPlumb.hasClass(o.canvas, "foo"), "overlay has class foo");
+
+            c.addClass("foo2");
+            ok(jsPlumb.hasClass(o.canvas, "foo2"), "overlay has class foo2");
+            ok(c.canvas.className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
+
+            c.removeClass("foo2");
+            ok(!jsPlumb.hasClass(o.canvas, "foo2"), "overlay no longer has class foo2");
+            ok(c.canvas.className.baseVal.indexOf("foo2") == -1, "connection no longer has class 'foo2'");
+
+            c.addClass("foo2", true);
+            ok(!jsPlumb.hasClass(o.canvas, "foo2"), "overlay doesnt have class foo2");
+            ok(c.canvas.className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
     });
 
     test(" addClass via jsPlumb.select", function () {
@@ -8576,6 +8588,42 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(jsPlumb.hasClass(d2, "jsplumb-droppable", "elements registered as id in array ok"));
         ok(jsPlumb.hasClass(d3, "jsplumb-droppable", "elements registered as Element in array ok"));
         ok(jsPlumb.hasClass(d4, "jsplumb-droppable", "querySelectorAll output ok as input"));
+    });
+
+// click events on overlays
+
+    test("overlay click event", function() {
+            _addDiv("d1");
+            _addDiv("d2");
+        var count = 0;
+            var c = _jsPlumb.connect({
+                source: "d1",
+                target: "d2",
+                overlays:[
+                    [ "Label", {
+                        id:"label",
+                        label:'hey',
+                        events:{
+                            click:function() {
+                                count++;
+                            }
+                        }
+                    }],
+                    [ "Arrow", {
+                        id:"arrow",
+                        events:{
+                            click:function() {
+                                count++
+                            }
+                        }
+                    }]
+            ]}), o = c.getOverlay("label"), o2 = c.getOverlay("arrow");
+
+        _jsPlumb.trigger(o.canvas, "click");
+        ok(count == 1, "click event was triggered on label overlay");
+
+        _jsPlumb.trigger(o2.path, "click");
+        ok(count == 2, "click event was triggered on arrow overlay");
     });
 
 

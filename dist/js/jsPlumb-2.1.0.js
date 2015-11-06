@@ -1232,15 +1232,26 @@
 
     "use strict";
 
-    Array.prototype.suggest = function(item, head) {
-        if (this.indexOf(item) === -1) {
-            head ? this.unshift(item) : this.push(item);
+    var _suggest = function(list, item, head) {
+        if (list.indexOf(item) === -1) {
+            head ? list.unshift(item) : list.push(item);
+            return true;
         }
+        return false;
     };
 
-    Array.prototype.vanquish = function(item) {
-        var idx = this.indexOf(item);
-        if (idx != -1) this.splice(idx, 1);
+    var _vanquish = function(list, item) {
+        var idx = list.indexOf(item);
+        if (idx != -1) list.splice(idx, 1);
+    };
+
+    var _difference = function(l1, l2) {
+        var d = [];
+        for (var i = 0; i < l1.length; i++) {
+            if (l2.indexOf(l1[i]) == -1)
+                d.push(l1[i]);
+        }
+        return d;
     };
 
     var _isString = function(f) {
@@ -1656,13 +1667,15 @@
                 k.notifySelectionDragStart(this);
             }
         };
-        this.unmark = function(e) {
+        this.unmark = function(e, doNotCheckDroppables) {
             _setDroppablesActive(matchingDroppables, false, true, this);
             this.params.removeClass(dragEl, this.params.dragClass || css.drag);
             matchingDroppables.length = 0;
-            for (var i = 0; i < intersectingDroppables.length; i++) {
-                var retVal = intersectingDroppables[i].drop(this, e);
-                if (retVal === true) break;
+            if (!doNotCheckDroppables) {
+                for (var i = 0; i < intersectingDroppables.length; i++) {
+                    var retVal = intersectingDroppables[i].drop(this, e);
+                    if (retVal === true) break;
+                }
             }
         };
         this.moveBy = function(dx, dy, e) {
@@ -1993,7 +2006,7 @@
                 _each(drag.posses, function(p) {
                     if (drag.posseRoles[p] && _posses[p]) {
                         _foreach(_posses[p].members, function (d) {
-                            d.unmark(event);
+                            d.unmark(event, true);
                         }, drag);
                     }
                 });
@@ -2044,10 +2057,10 @@
                 _scopeManip(el._katavorioDrop, scopes, this._dropsByScope, v + "Scope");
             }.bind(this);
             this[v + "DragScope"] = function(el, scopes) {
-                _scopeManip(el._katavorioDrag, scopes, this._dragsByScope, v + "Scope");
+                _scopeManip(el.constructor === Drag ? el : el._katavorioDrag, scopes, this._dragsByScope, v + "Scope");
             }.bind(this);
             this[v + "DropScope"] = function(el, scopes) {
-                _scopeManip(el._katavorioDrop, scopes, this._dropsByScope, v + "Scope");
+                _scopeManip(el.constructor === Drop ? el : el._katavorioDrop, scopes, this._dropsByScope, v + "Scope");
             }.bind(this);
         }.bind(this));
 
@@ -2094,48 +2107,86 @@
 
         // ----- groups
         var _posses = {};
+
+        var _processOneSpec = function(el, _spec, dontAddExisting) {
+            var posseId = _isString(_spec) ? _spec : _spec.id;
+            var active = _isString(_spec) ? true : _spec.active !== false;
+            var posse = _posses[posseId] || (function() {
+                var g = {name:posseId, members:[]};
+                _posses[posseId] = g;
+                return g;
+            })();
+            _each(el, function(_el) {
+                if (_el._katavorioDrag) {
+
+                    if (dontAddExisting && _el._katavorioDrag.posseRoles[posse.name] != null) return;
+
+                    _suggest(posse.members, _el._katavorioDrag);
+                    _suggest(_el._katavorioDrag.posses, posse.name);
+                    _el._katavorioDrag.posseRoles[posse.name] = active;
+                }
+            });
+            return posse;
+        };
+
         /**
          * Add the given element to the posse with the given id, creating the group if it at first does not exist.
+         * @method addToPosse
          * @param {Element} el Element to add.
          * @param {String...|Object...} spec Variable args parameters. Each argument can be a either a String, indicating
          * the ID of a Posse to which the element should be added as an active participant, or an Object containing
          * `{ id:"posseId", active:false/true}`. In the latter case, if `active` is not provided it is assumed to be
          * true.
-         * @returns {Posse} The Posse to which the element(s) was/were added.
+         * @returns {Posse|Posse[]} The Posse(s) to which the element(s) was/were added.
          */
         this.addToPosse = function(el, spec) {
 
-            var posses = [], posseId, active;
-
-            var _one = function(_spec) {
-                posseId = _isString(_spec) ? _spec : _spec.id;
-                active = _isString(_spec) ? true : _spec.active !== false;
-                var posse = _posses[posseId] || (function() {
-                    var g = {name:posseId, members:[]};
-                    _posses[posseId] = g;
-                    return g;
-                })();
-                _each(el, function(_el) {
-                    if (_el._katavorioDrag) {
-                        posse.members.suggest(_el._katavorioDrag);
-                        _el._katavorioDrag.posses.suggest(posse.name);
-                        _el._katavorioDrag.posseRoles[posse.name] = active;
-                    }
-                });
-                posses.push(posse);
-            };
+            var posses = [];
 
             for (var i = 1; i < arguments.length; i++) {
-                _one(arguments[i]);
+                posses.push(_processOneSpec(el, arguments[i]));
             }
 
+            return posses.length == 1 ? posses[0] : posses;
+        };
 
+        /**
+         * Sets the posse(s) for the element with the given id, creating those that do not yet exist, and removing from
+         * the element any current Posses that are not specified by this method call. This method will not change the
+         * active/passive state if it is given a posse in which the element is already a member.
+         * @method setPosse
+         * @param {Element} el Element to set posse(s) on.
+         * @param {String...|Object...} spec Variable args parameters. Each argument can be a either a String, indicating
+         * the ID of a Posse to which the element should be added as an active participant, or an Object containing
+         * `{ id:"posseId", active:false/true}`. In the latter case, if `active` is not provided it is assumed to be
+         * true.
+         * @returns {Posse|Posse[]} The Posse(s) to which the element(s) now belongs.
+         */
+        this.setPosse = function(el, spec) {
+
+            var posses = [];
+
+            for (var i = 1; i < arguments.length; i++) {
+                posses.push(_processOneSpec(el, arguments[i], true).name);
+            }
+
+            _each(el, function(_el) {
+                if (_el._katavorioDrag) {
+                    var diff = _difference(_el._katavorioDrag.posses, posses);
+                    var p = [];
+                    Array.prototype.push.apply(p, _el._katavorioDrag.posses);
+                    for (var i = 0; i < diff.length; i++) {
+                        this.removeFromPosse(_el, diff[i]);
+                    }
+                }
+            }.bind(this));
 
             return posses.length == 1 ? posses[0] : posses;
         };
 
         /**
          * Remove the given element from the given posse(s).
+         * @method removeFromPosse
          * @param {Element} el Element to remove.
          * @param {String...} posseId Varargs parameter: one value for each posse to remove the element from.
          */
@@ -2147,8 +2198,8 @@
                     if (_el._katavorioDrag && _el._katavorioDrag.posses) {
                         var d = _el._katavorioDrag;
                         _each(posseId, function (p) {
-                            _posses[p].members.vanquish(d);
-                            d.posses.vanquish(p);
+                            _vanquish(_posses[p].members, d);
+                            _vanquish(d.posses, p);
                             delete d.posseRoles[p];
                         });
                     }
@@ -2158,6 +2209,7 @@
 
         /**
          * Remove the given element from all Posses to which it belongs.
+         * @method removeFromAllPosses
          * @param {Element|Element[]} el Element to remove from Posses.
          */
         this.removeFromAllPosses = function(el) {
@@ -2165,12 +2217,29 @@
                 if (_el._katavorioDrag && _el._katavorioDrag.posses) {
                     var d = _el._katavorioDrag;
                     _each(d.posses, function(p) {
-                        _posses[p].members.vanquish(d);
+                        _vanquish(_posses[p].members, d);
                     });
                     d.posses.length = 0;
                     d.posseRoles = {};
                 }
             });
+        };
+
+        /**
+         * Changes the participation state for the element in the Posse with the given ID.
+         * @param {Element|Element[]} el Element(s) to change state for.
+         * @param {String} posseId ID of the Posse to change element state for.
+         * @param {Boolean} state True to make active, false to make passive.
+         */
+        this.setPosseState = function(el, posseId, state) {
+            var posse = _posses[posseId];
+            if (posse) {
+                _each(el, function(_el) {
+                    if (_el._katavorioDrag && _el._katavorioDrag.posses) {
+                        _el._katavorioDrag.posseRoles[posse.name] = state;
+                    }
+                });
+            }
         };
     };
 }).call(this);
@@ -2760,13 +2829,13 @@
                 map[i] = typeId;
         },
         _each = function(fn, obj) {
-            obj = jsPlumbUtil.isArray(obj) || (obj.length != null && !jsPlumbUtil.isString(obj)) ? obj : [ obj ];
+            obj = _ju.isArray(obj) || (obj.length != null && !_ju.isString(obj)) ? obj : [ obj ];
             for (var i = 0; i < obj.length; i++) {
                 try {
                     fn.apply(obj[i], [ obj[i] ]);
                 }
                 catch (e) {
-                    jsPlumbUtil.log(".each iteration failed : " + e);
+                    _ju.log(".each iteration failed : " + e);
                 }
             }
         },
@@ -2798,9 +2867,9 @@
 
 // ------------------------------ BEGIN jsPlumbUIComponent --------------------------------------------
 
-        jsPlumbUIComponent = window.jsPlumbUIComponent = function (params) {
+        jsPlumbUIComponent = root.jsPlumbUIComponent = function (params) {
 
-            jsPlumbUtil.EventGenerator.apply(this, arguments);
+            _ju.EventGenerator.apply(this, arguments);
 
             var self = this,
                 a = arguments,
@@ -2956,7 +3025,7 @@
         }
     };
 
-    jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
+    _ju.extend(jsPlumbUIComponent, _ju.EventGenerator, {
 
         getParameter: function (name) {
             return this._jsPlumb.parameters[name];
@@ -3186,7 +3255,7 @@
         this._connectionTypes = {};
         this._endpointTypes = {};
 
-        jsPlumbUtil.EventGenerator.apply(this);
+        _ju.EventGenerator.apply(this);
 
         var _currentInstance = this,
             _instanceIndex = getInstanceIndex(),
@@ -3200,7 +3269,7 @@
                 }
                 else {
                     var _el = _currentInstance.getElement(el);
-                    return { el: _el, id: (jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
+                    return { el: _el, id: (_ju.isString(el) && _el == null) ? el : _getId(_el) };
                 }
             };
 
@@ -3820,7 +3889,7 @@
              * have them but also to connections and endpoints.
              */
             _getId = function (element, uuid, doNotCreateIfNotFound) {
-                if (jsPlumbUtil.isString(element)) return element;
+                if (_ju.isString(element)) return element;
                 if (element == null) return null;
                 var id = _currentInstance.getAttribute(element, "id");
                 if (!id || id === "undefined") {
@@ -3982,11 +4051,11 @@
             // create a dedicated 'error' object.
             if (_p) {
                 if (_p.source == null && _p.sourceEndpoint == null) {
-                    jsPlumbUtil.log("Cannot establish connection - source does not exist");
+                    _ju.log("Cannot establish connection - source does not exist");
                     return;
                 }
                 if (_p.target == null && _p.targetEndpoint == null) {
-                    jsPlumbUtil.log("Cannot establish connection - target does not exist");
+                    _ju.log("Cannot establish connection - target does not exist");
                     return;
                 }
                 _ensureContainer(_p.source);
@@ -4151,7 +4220,7 @@
                 conn = firstArgIsConnection ? arguments[0] : params.connection;
 
             if (conn) {
-                if (forceDetach || jsPlumbUtil.functionChain(true, false, [
+                if (forceDetach || _ju.functionChain(true, false, [
                     [ conn.endpoints[0], "isDetachAllowed", [ conn ] ],
                     [ conn.endpoints[1], "isDetachAllowed", [ conn ] ],
                     [ conn, "isDetachAllowed", [ conn ] ],
@@ -4258,7 +4327,7 @@
             for (var i in result.connections) {
                 var c = result.connections[i];
                 if (c._jsPlumb) {
-                    jsPlumbUtil.removeWithFunction(connections, function (_c) {
+                    _ju.removeWithFunction(connections, function (_c) {
                         return c.id == _c.id;
                     });
 
@@ -4658,7 +4727,7 @@
                     fn.apply(this, arguments);
                     jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
                 };
-                jsPlumbUtil.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
+                _ju.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
             };
 
             if (!jsPlumb.connectorsInitialized) {
@@ -4960,6 +5029,8 @@
                     elInfo.def = _def;
                     this.targetEndpointDefinitions[elid][type] = _def;
                     _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true);
+                    // stash the definition on the drop
+                    elInfo.el._katavorioDrop[elInfo.el._katavorioDrop.length - 1].targetDef = _def;
 
                 }.bind(this);
 
@@ -5089,7 +5160,7 @@
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
-                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
+                            var r = _ju.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
                             if (r === false) return;
                         }
 
@@ -5169,7 +5240,7 @@
                         // a new connection from this endpoint.
                         _currentInstance.trigger(ep.canvas, "mousedown", e, payload);
 
-                        jsPlumbUtil.consume(e);
+                        _ju.consume(e);
 
                     }.bind(this);
 
@@ -5179,7 +5250,7 @@
                     // if a filter was provided, set it as a dragFilter on the element,
                     // to prevent the element drag function from kicking in when we want to
                     // drag a new connection
-                    if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
+                    if (p.filter && (_ju.isString(p.filter) || _ju.isFunction(p.filter))) {
                         _currentInstance.setDragFilter(elInfo.el, p.filter);
                     }
 
@@ -5227,7 +5298,7 @@
         };
 
         var _getScope = function (el, types, connectionType) {
-            types = jsPlumbUtil.isArray(types) ? types : [ types ];
+            types = _ju.isArray(types) ? types : [ types ];
             var id = _getId(el);
             connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
@@ -5237,7 +5308,7 @@
         }.bind(this);
 
         var _setScope = function (el, scope, types, connectionType) {
-            types = jsPlumbUtil.isArray(types) ? types : [ types ];
+            types = _ju.isArray(types) ? types : [ types ];
             var id = _getId(el);
             connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
@@ -5554,7 +5625,7 @@
             //
             var id;
 
-            if (jsPlumbUtil.isString(el)) {
+            if (_ju.isString(el)) {
                 id = el;
             }
             else {
@@ -5656,7 +5727,7 @@
         this.addListener = this.bind;
     };
 
-    jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
+    _ju.extend(jsPlumbInstance, _ju.EventGenerator, {
         setAttribute: function (el, a, v) {
             this.setAttribute(el, a, v);
         },
@@ -5664,10 +5735,10 @@
             return this.getAttribute(jsPlumb.getElement(el), a);
         },
         convertToFullOverlaySpec: function(spec) {
-            if (jsPlumbUtil.isString(spec)) {
+            if (_ju.isString(spec)) {
                 spec = [ spec, { } ];
             }
-            spec[1].id = spec[1].id || jsPlumbUtil.uuid();
+            spec[1].id = spec[1].id || _ju.uuid();
             return spec;
         },
         registerConnectionType: function (id, type) {
@@ -6540,6 +6611,19 @@
         },
         getAbsoluteOverlayPosition: function (overlay) {
             return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
+        },
+        _clazzManip:function(action, clazz, dontUpdateOverlays) {
+            if (!dontUpdateOverlays) {
+                for (var i in this._jsPlumb.overlays) {
+                    this._jsPlumb.overlays[i][action + "Class"](clazz);
+                }
+            }
+        },
+        addClass:function(clazz, dontUpdateOverlays) {
+            this._clazzManip("add", clazz, dontUpdateOverlays)
+        },
+        removeClass:function(clazz, dontUpdateOverlays) {
+            this._clazzManip("remove", clazz, dontUpdateOverlays)
         }
     });
 
@@ -8027,6 +8111,11 @@
             this.addType(_types, params.data, true);
 
         this.updateConnectedClass();
+
+        // editable?
+        if (params.editable && _jsPlumb.editConnection && jsPlumb.ConnectorEditors[this.getConnector().type]) {
+            _jsPlumb.editConnection(this, params.editParams);
+        }
 
 // END PAINTING    
     };
@@ -10462,6 +10551,7 @@
         this.component = params.component;
         this.loc = params.location == null ? 0.5 : params.location;
         this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
+        this.visible = params.visible !== false;
     };
     AbstractOverlay.prototype = {
         cleanup: function (force) {
@@ -10540,6 +10630,15 @@
 
         this.computeMaxSize = function () {
             return self.width * 1.5;
+        };
+
+        this.elementCreated = function(p, component) {
+            this.path = p;
+            if (params.events) {
+                for (var i in params.events) {
+                    jsPlumb.on(p, i, params.events[i]);
+                }
+            }
         };
 
         this.draw = function (component, currentConnectionPaintStyle) {
@@ -11394,163 +11493,6 @@
     _jp.registerConnectorType(Flowchart, "Flowchart");
 }).call(this);
 /*
- * This file contains the state machine connectors, which extend AbstractBezierConnector.
- *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
- * 
- * https://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
- * 
- * Dual licensed under the MIT and GPL2 licenses.
- */
-;
-(function () {
-
-    "use strict";
-    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
-
-    var _segment = function (x1, y1, x2, y2) {
-            if (x1 <= x2 && y2 <= y1) return 1;
-            else if (x1 <= x2 && y1 <= y2) return 2;
-            else if (x2 <= x1 && y2 >= y1) return 3;
-            return 4;
-        },
-
-    // the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
-    // two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
-    // are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
-    // center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
-    // direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
-    // lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
-    //
-    // sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
-    //
-    // 0 - absolute x
-    // 1 - absolute y
-    // 2 - proportional x in element (0 is left edge, 1 is right edge)
-    // 3 - proportional y in element (0 is top edge, 1 is bottom edge)
-    //
-        _findControlPoint = function (midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
-            // TODO (maybe)
-            // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
-            if (distance <= proximityLimit) return [midx, midy];
-
-            if (segment === 1) {
-                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
-            }
-            else if (segment === 2) {
-                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + dx, midy + (-1 * dy) ];
-            }
-            else if (segment === 3) {
-                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
-            }
-            else if (segment === 4) {
-                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + dx , midy + (-1 * dy) ];
-            }
-
-        };
-
-    var StateMachine = function (params) {
-        params = params || {};
-        this.type = "StateMachine";
-
-        var _super = _jp.Connectors.AbstractBezierConnector.apply(this, arguments),
-            curviness = params.curviness || 10,
-            margin = params.margin || 5,
-            proximityLimit = params.proximityLimit || 80,
-            clockwise = params.orientation && params.orientation === "clockwise",
-            _controlPoint;
-
-        this._computeBezier = function(paintInfo, params, sp, tp, w, h) {
-            var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
-                _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
-                _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
-                _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
-
-            // now adjust for the margin
-            if (params.sourcePos[2] === 0) _sx -= margin;
-            if (params.sourcePos[2] === 1) _sx += margin;
-            if (params.sourcePos[3] === 0) _sy -= margin;
-            if (params.sourcePos[3] === 1) _sy += margin;
-            if (params.targetPos[2] === 0) _tx -= margin;
-            if (params.targetPos[2] === 1) _tx += margin;
-            if (params.targetPos[3] === 0) _ty -= margin;
-            if (params.targetPos[3] === 1) _ty += margin;
-
-            //
-            // these connectors are quadratic bezier curves, having a single control point. if both anchors
-            // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
-            // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
-            // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
-            // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
-            //
-            // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
-            // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
-            // for example, we might increase the distance the control point is away from the midpoint in a bid to
-            // steer it around that node.  this will work within limits, but i think those limits would also be the likely
-            // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
-            //
-            // the second possible change is actually two possible changes: firstly, it is possible we should gradually
-            // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
-            // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
-            // with respect to how far their anchor is from the center of its respective face. this could either look cool,
-            // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
-            //
-
-            var _midx = (_sx + _tx) / 2,
-                _midy = (_sy + _ty) / 2,
-                segment = _segment(_sx, _sy, _tx, _ty),
-                distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
-                cp1x, cp2x, cp1y, cp2y,
-                geometry = _super.getGeometry();
-
-            if (geometry != null) {
-                cp1x = geometry.controlPoints[0][0];
-                cp1y = geometry.controlPoints[0][1];
-                cp2x = geometry.controlPoints[1][0];
-                cp2y = geometry.controlPoints[1][1];
-            }
-            else {
-                // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-                // will work by extending the control point to force the curve to be, um, curvier.
-                _controlPoint = _findControlPoint(_midx,
-                    _midy,
-                    segment,
-                    params.sourcePos,
-                    params.targetPos,
-                    curviness, curviness,
-                    distance,
-                    proximityLimit);
-
-                cp1x = _controlPoint[0];
-                cp2x = _controlPoint[0];
-                cp1y = _controlPoint[1];
-                cp2y = _controlPoint[1];
-
-                _super.setControlPoints([_controlPoint, _controlPoint]);
-            }
-
-            _super.addSegment(this, "Bezier", {
-                x1: _tx, y1: _ty, x2: _sx, y2: _sy,
-                cp1x: cp1x, cp1y: cp1y,
-                cp2x: cp2x, cp2y: cp2y
-            });
-        };
-    };
-
-    _ju.extend(StateMachine, _jp.Connectors.AbstractBezierConnector);
-    _jp.registerConnectorType(StateMachine, "StateMachine");
-
-}).call(this);
-/*
  * This file contains the code for the Bezier connector type.
  *
  * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
@@ -11710,6 +11652,163 @@
 
     _ju.extend(Bezier, _jp.Connectors.AbstractBezierConnector);
     _jp.registerConnectorType(Bezier, "Bezier");
+
+}).call(this);
+/*
+ * This file contains the state machine connectors, which extend AbstractBezierConnector.
+ *
+ * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * 
+ * https://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
+;
+(function () {
+
+    "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+
+    var _segment = function (x1, y1, x2, y2) {
+            if (x1 <= x2 && y2 <= y1) return 1;
+            else if (x1 <= x2 && y1 <= y2) return 2;
+            else if (x2 <= x1 && y2 >= y1) return 3;
+            return 4;
+        },
+
+    // the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
+    // two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
+    // are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
+    // center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
+    // direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
+    // lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
+    //
+    // sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
+    //
+    // 0 - absolute x
+    // 1 - absolute y
+    // 2 - proportional x in element (0 is left edge, 1 is right edge)
+    // 3 - proportional y in element (0 is top edge, 1 is bottom edge)
+    //
+        _findControlPoint = function (midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
+            // TODO (maybe)
+            // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
+            if (distance <= proximityLimit) return [midx, midy];
+
+            if (segment === 1) {
+                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+            }
+            else if (segment === 2) {
+                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + dx, midy + (-1 * dy) ];
+            }
+            else if (segment === 3) {
+                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+            }
+            else if (segment === 4) {
+                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                else return [ midx + dx , midy + (-1 * dy) ];
+            }
+
+        };
+
+    var StateMachine = function (params) {
+        params = params || {};
+        this.type = "StateMachine";
+
+        var _super = _jp.Connectors.AbstractBezierConnector.apply(this, arguments),
+            curviness = params.curviness || 10,
+            margin = params.margin || 5,
+            proximityLimit = params.proximityLimit || 80,
+            clockwise = params.orientation && params.orientation === "clockwise",
+            _controlPoint;
+
+        this._computeBezier = function(paintInfo, params, sp, tp, w, h) {
+            var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
+                _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
+                _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
+                _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
+
+            // now adjust for the margin
+            if (params.sourcePos[2] === 0) _sx -= margin;
+            if (params.sourcePos[2] === 1) _sx += margin;
+            if (params.sourcePos[3] === 0) _sy -= margin;
+            if (params.sourcePos[3] === 1) _sy += margin;
+            if (params.targetPos[2] === 0) _tx -= margin;
+            if (params.targetPos[2] === 1) _tx += margin;
+            if (params.targetPos[3] === 0) _ty -= margin;
+            if (params.targetPos[3] === 1) _ty += margin;
+
+            //
+            // these connectors are quadratic bezier curves, having a single control point. if both anchors
+            // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
+            // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
+            // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
+            // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
+            //
+            // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
+            // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
+            // for example, we might increase the distance the control point is away from the midpoint in a bid to
+            // steer it around that node.  this will work within limits, but i think those limits would also be the likely
+            // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
+            //
+            // the second possible change is actually two possible changes: firstly, it is possible we should gradually
+            // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
+            // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
+            // with respect to how far their anchor is from the center of its respective face. this could either look cool,
+            // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
+            //
+
+            var _midx = (_sx + _tx) / 2,
+                _midy = (_sy + _ty) / 2,
+                segment = _segment(_sx, _sy, _tx, _ty),
+                distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
+                cp1x, cp2x, cp1y, cp2y,
+                geometry = _super.getGeometry();
+
+            if (geometry != null) {
+                cp1x = geometry.controlPoints[0][0];
+                cp1y = geometry.controlPoints[0][1];
+                cp2x = geometry.controlPoints[1][0];
+                cp2y = geometry.controlPoints[1][1];
+            }
+            else {
+                // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+                // will work by extending the control point to force the curve to be, um, curvier.
+                _controlPoint = _findControlPoint(_midx,
+                    _midy,
+                    segment,
+                    params.sourcePos,
+                    params.targetPos,
+                    curviness, curviness,
+                    distance,
+                    proximityLimit);
+
+                cp1x = _controlPoint[0];
+                cp2x = _controlPoint[0];
+                cp1y = _controlPoint[1];
+                cp2y = _controlPoint[1];
+
+                _super.setControlPoints([_controlPoint, _controlPoint]);
+            }
+
+            _super.addSegment(this, "Bezier", {
+                x1: _tx, y1: _ty, x2: _sx, y2: _sy,
+                cp1x: cp1x, cp1y: cp1y,
+                cp2x: cp2x, cp2y: cp2y
+            });
+        };
+    };
+
+    _ju.extend(StateMachine, _jp.Connectors.AbstractBezierConnector);
+    _jp.registerConnectorType(StateMachine, "StateMachine");
 
 }).call(this);
 /*
@@ -12200,6 +12299,9 @@
                         "pointer-events": "all"
                     });
                     params.component.svg.appendChild(this.path);
+                    if (this.elementCreated) {
+                        this.elementCreated(this.path, params.component);
+                    }
 
                     this.canvas = params.component.svg; // for the sake of completeness; this behaves the same as other overlays
                 }
@@ -12531,6 +12633,15 @@
                 dm.addToPosse.apply(dm, _el);
             });
         },
+        setPosse:function(el, spec) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) {
+                _el = [ jsPlumb.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.setPosse.apply(dm, _el);
+            });
+        },
         removeFromPosse:function(el, posseId) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
@@ -12543,6 +12654,10 @@
         removeFromAllPosses:function(el) {
             var dm = _getDragManager(this);
             jsPlumb.each(el, function(_el) { dm.removeFromAllPosses(jsPlumb.getElement(_el)); });
+        },
+        setPosseState:function(el, posseId, state) {
+            var dm = _getDragManager(this);
+            jsPlumb.each(el, function(_el) { dm.setPosseState(jsPlumb.getElement(_el), posseId, state); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
