@@ -971,6 +971,7 @@
         this.component = params.component;
         this.loc = params.location == null ? 0.5 : params.location;
         this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
+        this.visible = params.visible !== false;
     };
     AbstractOverlay.prototype = {
         cleanup: function (force) {
