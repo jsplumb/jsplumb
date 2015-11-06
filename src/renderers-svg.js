@@ -486,7 +486,9 @@
                         "pointer-events": "all"
                     });
                     params.component.svg.appendChild(this.path);
-                    this.elementCreated && this.elementCreated(this.path, params.component);
+                    if (this.elementCreated) {
+                        this.elementCreated(this.path, params.component);
+                    }
 
                     this.canvas = params.component.svg; // for the sake of completeness; this behaves the same as other overlays
                 }
