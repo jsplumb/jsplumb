@@ -3025,7 +3025,7 @@
         }
     };
 
-    _ju.extend(jsPlumbUIComponent, _ju.EventGenerator, {
+    _ju.extend(root.jsPlumbUIComponent, _ju.EventGenerator, {
 
         getParameter: function (name) {
             return this._jsPlumb.parameters[name];
@@ -6490,7 +6490,7 @@
         }
     };
 
-    _ju.extend(_jp.OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
+    _ju.extend(_jp.OverlayCapableJsPlumbUIComponent, root.jsPlumbUIComponent, {
 
         setHover: function (hover, ignoreAttachedElements) {
             if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
