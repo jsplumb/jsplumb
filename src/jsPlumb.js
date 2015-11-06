@@ -263,7 +263,7 @@
         }
     };
 
-    _ju.extend(jsPlumbUIComponent, _ju.EventGenerator, {
+    _ju.extend(root.jsPlumbUIComponent, _ju.EventGenerator, {
 
         getParameter: function (name) {
             return this._jsPlumb.parameters[name];
