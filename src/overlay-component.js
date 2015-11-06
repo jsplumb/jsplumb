@@ -243,6 +243,19 @@
         },
         getAbsoluteOverlayPosition: function (overlay) {
             return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
+        },
+        _clazzManip:function(action, clazz, dontUpdateOverlays) {
+            if (!dontUpdateOverlays) {
+                for (var i in this._jsPlumb.overlays) {
+                    this._jsPlumb.overlays[i][action + "Class"](clazz);
+                }
+            }
+        },
+        addClass:function(clazz, dontUpdateOverlays) {
+            this._clazzManip("add", clazz, dontUpdateOverlays)
+        },
+        removeClass:function(clazz, dontUpdateOverlays) {
+            this._clazzManip("remove", clazz, dontUpdateOverlays)
         }
     });
 
