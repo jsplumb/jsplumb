@@ -67,13 +67,13 @@
                 map[i] = typeId;
         },
         _each = function(fn, obj) {
-            obj = jsPlumbUtil.isArray(obj) || (obj.length != null && !jsPlumbUtil.isString(obj)) ? obj : [ obj ];
+            obj = _ju.isArray(obj) || (obj.length != null && !_ju.isString(obj)) ? obj : [ obj ];
             for (var i = 0; i < obj.length; i++) {
                 try {
                     fn.apply(obj[i], [ obj[i] ]);
                 }
                 catch (e) {
-                    jsPlumbUtil.log(".each iteration failed : " + e);
+                    _ju.log(".each iteration failed : " + e);
                 }
             }
         },
@@ -105,9 +105,9 @@
 
 // ------------------------------ BEGIN jsPlumbUIComponent --------------------------------------------
 
-        jsPlumbUIComponent = window.jsPlumbUIComponent = function (params) {
+        jsPlumbUIComponent = root.jsPlumbUIComponent = function (params) {
 
-            jsPlumbUtil.EventGenerator.apply(this, arguments);
+            _ju.EventGenerator.apply(this, arguments);
 
             var self = this,
                 a = arguments,
@@ -263,7 +263,7 @@
         }
     };
 
-    jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
+    _ju.extend(jsPlumbUIComponent, _ju.EventGenerator, {
 
         getParameter: function (name) {
             return this._jsPlumb.parameters[name];
@@ -493,7 +493,7 @@
         this._connectionTypes = {};
         this._endpointTypes = {};
 
-        jsPlumbUtil.EventGenerator.apply(this);
+        _ju.EventGenerator.apply(this);
 
         var _currentInstance = this,
             _instanceIndex = getInstanceIndex(),
@@ -507,7 +507,7 @@
                 }
                 else {
                     var _el = _currentInstance.getElement(el);
-                    return { el: _el, id: (jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
+                    return { el: _el, id: (_ju.isString(el) && _el == null) ? el : _getId(_el) };
                 }
             };
 
@@ -1127,7 +1127,7 @@
              * have them but also to connections and endpoints.
              */
             _getId = function (element, uuid, doNotCreateIfNotFound) {
-                if (jsPlumbUtil.isString(element)) return element;
+                if (_ju.isString(element)) return element;
                 if (element == null) return null;
                 var id = _currentInstance.getAttribute(element, "id");
                 if (!id || id === "undefined") {
@@ -1289,11 +1289,11 @@
             // create a dedicated 'error' object.
             if (_p) {
                 if (_p.source == null && _p.sourceEndpoint == null) {
-                    jsPlumbUtil.log("Cannot establish connection - source does not exist");
+                    _ju.log("Cannot establish connection - source does not exist");
                     return;
                 }
                 if (_p.target == null && _p.targetEndpoint == null) {
-                    jsPlumbUtil.log("Cannot establish connection - target does not exist");
+                    _ju.log("Cannot establish connection - target does not exist");
                     return;
                 }
                 _ensureContainer(_p.source);
@@ -1458,7 +1458,7 @@
                 conn = firstArgIsConnection ? arguments[0] : params.connection;
 
             if (conn) {
-                if (forceDetach || jsPlumbUtil.functionChain(true, false, [
+                if (forceDetach || _ju.functionChain(true, false, [
                     [ conn.endpoints[0], "isDetachAllowed", [ conn ] ],
                     [ conn.endpoints[1], "isDetachAllowed", [ conn ] ],
                     [ conn, "isDetachAllowed", [ conn ] ],
@@ -1565,7 +1565,7 @@
             for (var i in result.connections) {
                 var c = result.connections[i];
                 if (c._jsPlumb) {
-                    jsPlumbUtil.removeWithFunction(connections, function (_c) {
+                    _ju.removeWithFunction(connections, function (_c) {
                         return c.id == _c.id;
                     });
 
@@ -1965,7 +1965,7 @@
                     fn.apply(this, arguments);
                     jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
                 };
-                jsPlumbUtil.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
+                _ju.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
             };
 
             if (!jsPlumb.connectorsInitialized) {
@@ -2398,7 +2398,7 @@
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
-                            var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
+                            var r = _ju.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
                             if (r === false) return;
                         }
 
@@ -2478,7 +2478,7 @@
                         // a new connection from this endpoint.
                         _currentInstance.trigger(ep.canvas, "mousedown", e, payload);
 
-                        jsPlumbUtil.consume(e);
+                        _ju.consume(e);
 
                     }.bind(this);
 
@@ -2488,7 +2488,7 @@
                     // if a filter was provided, set it as a dragFilter on the element,
                     // to prevent the element drag function from kicking in when we want to
                     // drag a new connection
-                    if (p.filter && (jsPlumbUtil.isString(p.filter) || jsPlumbUtil.isFunction(p.filter))) {
+                    if (p.filter && (_ju.isString(p.filter) || _ju.isFunction(p.filter))) {
                         _currentInstance.setDragFilter(elInfo.el, p.filter);
                     }
 
@@ -2536,7 +2536,7 @@
         };
 
         var _getScope = function (el, types, connectionType) {
-            types = jsPlumbUtil.isArray(types) ? types : [ types ];
+            types = _ju.isArray(types) ? types : [ types ];
             var id = _getId(el);
             connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
@@ -2546,7 +2546,7 @@
         }.bind(this);
 
         var _setScope = function (el, scope, types, connectionType) {
-            types = jsPlumbUtil.isArray(types) ? types : [ types ];
+            types = _ju.isArray(types) ? types : [ types ];
             var id = _getId(el);
             connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
@@ -2863,7 +2863,7 @@
             //
             var id;
 
-            if (jsPlumbUtil.isString(el)) {
+            if (_ju.isString(el)) {
                 id = el;
             }
             else {
@@ -2965,7 +2965,7 @@
         this.addListener = this.bind;
     };
 
-    jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
+    _ju.extend(jsPlumbInstance, _ju.EventGenerator, {
         setAttribute: function (el, a, v) {
             this.setAttribute(el, a, v);
         },
@@ -2973,10 +2973,10 @@
             return this.getAttribute(jsPlumb.getElement(el), a);
         },
         convertToFullOverlaySpec: function(spec) {
-            if (jsPlumbUtil.isString(spec)) {
+            if (_ju.isString(spec)) {
                 spec = [ spec, { } ];
             }
-            spec[1].id = spec[1].id || jsPlumbUtil.uuid();
+            spec[1].id = spec[1].id || _ju.uuid();
             return spec;
         },
         registerConnectionType: function (id, type) {
