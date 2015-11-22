@@ -42,6 +42,9 @@
         _isf = function (o) {
             return Object.prototype.toString.call(o) === "[object Function]";
         },
+        _isNamedFunction = function(o) {
+            return _isf(o) && o.name != null && o.name.length > 0;
+        },
         _ise = function (o) {
             for (var i in o) {
                 if (o.hasOwnProperty(i)) return false;
@@ -177,7 +180,11 @@
             return successValue;
         },
         // take the given model and expand out any parameters.
-        populate: function (model, values) {
+        // 'functionPrefix' is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
+        // if you do not provide it, jsplumb will run the given values through any functions it finds, and use the function's
+        // output as the value in the result. if you do provide the prefix, only functions that are named and have this prefix
+        // will be executed; other functions will be passed as values to the output.
+        populate: function (model, values, functionPrefix) {
             // for a string, see if it has parameter matches, and if so, try to make the substitutions.
             var getValue = function (fromString) {
                     var matches = fromString.match(/(\${.*?})/g);
@@ -196,6 +203,9 @@
                     if (d != null) {
                         if (_iss(d)) {
                             return getValue(d);
+                        }
+                        else if (_isf(d) && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
+                            return d(values);
                         }
                         else if (_isa(d)) {
                             var r = [];
