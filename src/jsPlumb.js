@@ -95,7 +95,7 @@
                 }
 
                 if (params) {
-                    o = _ju.populate(o, params);
+                    o = _ju.populate(o, params, "_");
                 }
 
                 component.applyType(o, doNotRepaint, map);
