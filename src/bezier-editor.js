@@ -47,9 +47,9 @@
         }
     };
 
-    var _makeHandle = function(x, y) {
+    var _makeHandle = function(x, y, clazz) {
         var h = document.createElement("div");
-        h.className = HANDLE_CLASS;
+        h.className = HANDLE_CLASS + (clazz ? " " + clazz : "");
         h.style.position = "absolute";
         h.style.left = x + "px";
         h.style.top = y + "px";
@@ -88,12 +88,44 @@
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
             mode = params.mode || "single";
         var closeOnMouseUp = params.closeOnMouseUp !== false;
-        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp;
+        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp,
+
+            sourceCenter, sourceMidpoints, targetCenter, targetMidpoints,
+            sourceQuadrant = 1, targetQuadrant = 1,
+            flipY =  false,
+            quadrantMap = [ null, "right", "bottom", "left", "top" ],
+
+            quadrant = function(source, target, rotation) {
+                rotation = rotation || 0;
+                var d = Math.pow(Math.pow(target[0] - source[0], 2) + Math.pow(target[1] - source[1], 2), 0.5),
+                    rotatedTarget = [ target[0] + (d * Math.sin(rotation)), target[1] + (d * Math.cos(rotation))];
+
+                return Biltong.quadrant(source, target);
+            },
+
+            sourceFace, targetFace;
+
+        var sourceEdgeSupported;
+        if (conn.endpoints[0].anchor.isContinuous) {
+            sourceEdgeSupported = conn.endpoints[0].anchor.isEdgeSupported;
+            conn.endpoints[0].anchor.isEdgeSupported = function(e) {
+                //return e === quadrantMap[sourceQuadrant];
+                return sourceFace == null ? sourceEdgeSupported(e) : sourceFace === e;
+            };
+        }
+
+        var targetEdgeSupported;
+        if (conn.endpoints[1].anchor.isContinuous) {
+            targetEdgeSupported = conn.endpoints[1].anchor.isEdgeSupported;
+            conn.endpoints[1].anchor.isEdgeSupported = function(e) {
+                return targetFace == null ? targetEdgeSupported(e) : targetFace === e;
+            };
+        }
 
         var _updateOrigin = function() {
             sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
             tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
-            origin = [sp.left, sp.top ];
+            origin = [Math.min(sp.left, tp.left), Math.min(sp.top, tp.top) ];
             center = [ (sp.left + tp.left) / 2, (sp.top + tp.top) / 2 ];
         };
 
@@ -125,6 +157,20 @@
             }
         };
 
+        var _updateQuadrants = function(pos) {
+            //sourceQuadrant = quadrant(sourceCenter, pos, Math.PI / 4);
+           // targetQuadrant = quadrant(targetCenter, pos, Math.PI / 4);
+            sourceMidpoints.sort(function(a, b) {
+                return Biltong.lineLength(a, pos) < Biltong.lineLength(b, pos) ? -1 : 1;
+            });
+            sourceFace = sourceMidpoints[0][2];
+
+            targetMidpoints.sort(function(a, b) {
+                return Biltong.lineLength(a, pos) < Biltong.lineLength(b, pos) ? -1 : 1;
+            });
+            targetFace = targetMidpoints[0][2];
+        };
+
         var _updateHandlePositions = function() {
             if (mode === DUAL) {
                 h1.style.left = origin[0] + ((cp1[0] + cp2[0]) / 2) + "px";
@@ -134,6 +180,9 @@
                 h3.style.top = (origin[1] + cp1[1]) + "px";
                 h4.style.left = (origin[0] + cp2[0]) + "px";
                 h4.style.top = (origin[1] + cp2[1]) + "px";
+
+                //sourceQuadrant = Biltong.quadrant(sourceCenter, )
+                _updateQuadrants([ (cp1[0] + cp2[0]) / 2, (cp1[1] + cp2[1]) / 2]);
             }
             else {
                 h1.style.left = (origin[0] + cp1[0]) + "px";
@@ -153,14 +202,15 @@
             l1 = _makeGuideline(h2, tp, origin[0] + cp[0][0], origin[1] + cp[0][1]),
             l2 = _makeGuideline(self.lockHandles ? h2 : h1, sp, origin[0] + cp[1][0], origin[1] + cp[1][1]),
 
-            h3 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
-            h4 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]);
+            h3 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1], "jsplumb-bezier-handle-secondary jsplumb-bezier-handle-secondary-source"),
+            h4 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1], "jsplumb-bezier-handle-secondary jsplumb-bezier-handle-secondary-target");
 
         if (mode == DUAL) {
             h3.style.display = BLOCK;
             h4.style.display = BLOCK;
             _jsPlumb.appendElement(h3);
             _jsPlumb.appendElement(h4);
+            flipY = tp.top < sp.top;
         }
 
         //_jsPlumb.appendElement(l1);
@@ -172,7 +222,10 @@
             conn.getConnector().setGeometry({
                 controlPoints:[ cp1, cp2 ]
             });
-            conn.repaint();
+            //conn.repaint();
+            _jsPlumb.repaint(conn.endpoints[0].elementId);
+            if (conn.endpoints[0].elementId != conn.endpoints[1].elementId)
+                _jsPlumb.repaint(conn.endpoints[1].elementId);
         };
         var _clearGeometry = function() {
             conn.getConnector().setGeometry(null);
@@ -191,7 +244,6 @@
             _jsPlumb.draggable(el, {
                 drag:function(dp) {
                     var l = dp.pos[0] - origin[0], t = dp.pos[1] - origin[1];
-                    //var l = dp.pos[0] - sp.left, t = dp.pos[1] - sp.top;
                     if (!self.lockHandles) {
                         arr[0] = l;
                         arr[1] = t;
@@ -208,15 +260,18 @@
                             var idx1 = quadrant == 1 || quadrant == 3 ? 0 : 1,
                                 idx2 = quadrant == 1 || quadrant == 3 ? 1 : 0;
 
-                            cp1[0] = cpLine[idx1].x - origin[0];
-                            cp1[1] = cpLine[idx1].y - origin[1];
-                            cp2[0] = cpLine[idx2].x - origin[0];
-                            cp2[1] = cpLine[idx2].y - origin[1];
+                            // flip control points if source below target
+                            (flipY ? cp2 : cp1)[0] = cpLine[idx1].x - origin[0];
+                            (flipY ? cp2 : cp1)[1] = cpLine[idx1].y - origin[1];
+                            (flipY ? cp1 : cp2)[0] = cpLine[idx2].x - origin[0];
+                            (flipY ? cp1 : cp2)[1] = cpLine[idx2].y - origin[1];
 
                             h3.style.left = (origin[0] + cp1[0]) + "px";
                             h3.style.top = (origin[1] + cp1[1]) + "px";
                             h4.style.left = (origin[0] + cp2[0]) + "px";
                             h4.style.top = (origin[1] + cp2[1]) + "px";
+
+                            _updateQuadrants(dp.pos);
 
                         }
                         else {
@@ -238,14 +293,38 @@
 
         this.activate = function() {
             _updateConnectorInfo();
-            _updateHandlePositions();
+
             h1.style.display = BLOCK;
             if (!self.lockHandles)
                 h2.style.display = BLOCK;
             if (mode === DUAL) {
                 h3.style.display = BLOCK;
                 h4.style.display = BLOCK;
+                // get center point of source and target elements
+                var ss = _jsPlumb.getSize(conn.source), so = _jsPlumb.getOffset(conn.source),
+                    ts = _jsPlumb.getSize(conn.target), to = _jsPlumb.getOffset(conn.target);
+
+                sourceCenter = [ so.left + (ss[0] / 2) , so.top + (ss[1] / 2) ];
+                targetCenter = [ to.left + (ts[0] / 2) , to.top + (ts[1] / 2) ];
+
+                sourceMidpoints = [
+                    [ so.left, sourceCenter[1], "left"],
+                    [ sourceCenter[0], so.top, "top"],
+                    [ so.left + ss[0], sourceCenter[1], "right"],
+                    [ sourceCenter[0], so.top + ss[1], "bottom"]
+                ];
+
+                targetMidpoints = [
+                    [ to.left, targetCenter[1], "left"],
+                    [ targetCenter[0], to.top, "top"],
+                    [ to.left + ts[0], targetCenter[1], "right"],
+                    [ targetCenter[0], to.top + ts[1], "bottom"]
+                ];
+
             }
+
+            _updateHandlePositions();
+
             l1.style.display = BLOCK;
             l2.style.display = BLOCK;
             sp = _jsPlumb.getOffset(conn.endpoints[0].canvas);
@@ -268,6 +347,16 @@
             l1.style.display = NONE;
             l2.style.display = NONE;
             conn.removeClass(CONNECTION_EDIT_CLASS);
+
+            if (mode == DUAL) {
+                if (conn.endpoints[1].anchor.isContinuous && targetEdgeSupported) {
+                    conn.endpoints[1].anchor.isEdgeSupported = targetEdgeSupported;
+                }
+                if (conn.endpoints[0].anchor.isContinuous && sourceEdgeSupported) {
+                    conn.endpoints[0].anchor.isEdgeSupported = sourceEdgeSupported;
+                }
+            }
+
             if (closeOnMouseUp) {
                 _jsPlumb.off(document, CLICK, self.deactivate);
             }
