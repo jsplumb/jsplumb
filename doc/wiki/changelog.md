@@ -1,3 +1,11 @@
+## 2.1.0
+
+- refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
+ connectors now support loopback connections.
+ 
+- issue #446: addClass and removeClass on Endpoint and Connection now also add/remove class from their overlays, by default. This
+ can be overridden by providing 'true' as the second argument to the addClass/removeClass methods.
+
 ## 2.0.4
 
 - upgrade to Katavorio 0.13.0

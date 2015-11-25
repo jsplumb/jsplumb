@@ -551,3 +551,26 @@ Assigned to tile images in a tiled background
     -ms-user-select: none;
     user-select: none;
 }
+
+
+/* the styles for the editing artifacts. */
+.jsplumb-bezier-handle {
+    width:15px;
+    height:15px;
+    border-radius:50%;
+    background-color:darkcyan;
+    cursor:move;
+}
+
+.jsplumb-bezier-guideline {
+    position:absolute;
+}
+
+.jsplumb-bezier-guideline path {
+    stroke:darkcyan;
+    stroke-linewidth:3;
+}
+
+.jsplumb-connection-edit path {
+    stroke-dasharray:2 2;
+}

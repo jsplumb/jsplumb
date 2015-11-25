@@ -28,7 +28,11 @@ jsPlumb.ready(function () {
     // just do this: jsPlumb.bind("click", jsPlumb.detach), but I wanted to make it clear what was
     // happening.
     instance.bind("click", function (c) {
-        instance.detach(c);
+        //instance.detach(c);
+        instance.editConnection(c, {
+            clearOnDrag:false,
+            closeOnMouseUp:false
+        });
     });
 
     // bind a connection listener. note that the parameter passed to this function contains more than
@@ -108,6 +112,23 @@ jsPlumb.ready(function () {
         instance.connect({ source: "opened", target: "phone1", type:"basic" });
         instance.connect({ source: "phone1", target: "phone1", type:"basic" });
         instance.connect({ source: "phone1", target: "inperson", type:"basic" });
+
+        instance.connect({
+            source:"phone2",
+            target:"rejected",
+            type:"basic",
+            geometry:{
+                controlPoints:[
+                    [ 150, 150 ],
+                    [ 150, 150 ]
+                ]
+            },
+            editable:true,
+            editParams:{
+                clearOnDrag:false,
+                closeOnMouseUp:false
+            }
+        });
     });
 
     jsPlumb.fire("jsPlumbDemoLoaded", instance);

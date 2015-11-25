@@ -445,12 +445,14 @@
             targetGap = _ju.isArray(gap) ? gap[1] : gap,
             userProvidedSegments = null,
             edited = false,
-            paintInfo = null;
+            paintInfo = null,
+            geometry = null;
 
-        // to be overridden by subclasses.
-        this.getPath = function () {
+        var _setGeometry = this.setGeometry = function(g) {
+            geometry = g;
         };
-        this.setPath = function (path) {
+        var _getGeometry = this.getGeometry = function() {
+            return geometry;
         };
 
         /**
@@ -656,7 +658,9 @@
             maxStub: Math.max(sourceStub, targetStub),
             sourceGap: sourceGap,
             targetGap: targetGap,
-            maxGap: Math.max(sourceGap, targetGap)
+            maxGap: Math.max(sourceGap, targetGap),
+            setGeometry:_setGeometry,
+            getGeometry:_getGeometry
         };
     };
     _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
@@ -967,6 +971,7 @@
         this.component = params.component;
         this.loc = params.location == null ? 0.5 : params.location;
         this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
+        this.visible = params.visible !== false;
     };
     AbstractOverlay.prototype = {
         cleanup: function (force) {
@@ -1045,6 +1050,15 @@
 
         this.computeMaxSize = function () {
             return self.width * 1.5;
+        };
+
+        this.elementCreated = function(p, component) {
+            this.path = p;
+            if (params.events) {
+                for (var i in params.events) {
+                    jsPlumb.on(p, i, params.events[i]);
+                }
+            }
         };
 
         this.draw = function (component, currentConnectionPaintStyle) {
