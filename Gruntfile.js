@@ -11,7 +11,7 @@ var versions = {
     extraLibraries = [ get("MOTTLE"), get("KATAVORIO") ],
     objects = {
         connectors : [
-            "flowchart", "statemachine", "bezier", "straight"
+            "flowchart", "bezier", "statemachine", "straight"
         ],
         renderers : [
             "svg"
@@ -89,7 +89,8 @@ module.exports = function(grunt) {
             all: {
                 options: {
                     urls:[
-                        'http://localhost:3333/tests/qunit-svg-dom-instance.html'
+                        'http://localhost:3333/tests/qunit-svg-dom-instance.html',
+                        'http://localhost:3333/tests/qunit-bundle.html'
                     ]
                 }
             }
@@ -162,6 +163,13 @@ module.exports = function(grunt) {
                 src: [ 'src/base-library-adapter.js', 'src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/renderers-svg.js', 'src/jsPlumb.js']
             }
         },
+        bundle: {
+          require_build: {
+            src:'src/bundler.js',
+            dest:'src/bundle.js',
+            //tasks:['build'] <-- do tasks before bundling.
+          }
+        },
         watch: {
             scripts: {
                 files: ['src/*.js'],
@@ -197,6 +205,7 @@ module.exports = function(grunt) {
     });
 
     // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-bundle');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -208,6 +217,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-jekyll');
+
 
 
 
@@ -318,7 +328,7 @@ module.exports = function(grunt) {
     grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'copy:external', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage', 'clean:site' ]);
     grunt.registerTask('build-src', ['clean', 'jshint', 'prepare', 'concat', 'uglify' ]);
     grunt.registerTask('default', ['help']);
-    grunt.registerTask('build-all', ['qunit', 'build']);
+    grunt.registerTask('build-all', ['bundle:require_build', 'qunit']);
 
     var _replace = function(cwd, pattern, oldV, newV, exclusions) {
         exclusions = exclusions || [];
