@@ -27,6 +27,16 @@
                 border-radius:50%;
                 background-color:darkcyan;
                 cursor:move;
+                z-index:10;
+            }
+
+            .jsplumb-bezier-handle-secondary {
+                cursor:default;
+                background-color:lightgreen;
+            }
+
+            .jsplumb-bezier-handle-secondary-source {
+                background-color: lavenderblush;
             }
 
             .jsplumb-bezier-guideline {
@@ -44,12 +54,12 @@
 
         </style>
 
-        <div id="n1" class="n"></div>
-        <div id="n2" class="n"></div>
-        <div id="n3" class="n"></div>
+        <div id="n1" class="n">1</div>
+        <div id="n2" class="n">2</div>
+        <div id="n3" class="n">3</div>
 
-        <div id="n4" class="n"></div>
-        <div id="n5" class="n"></div>
+        <div id="n4" class="n">4</div>
+        <div id="n5" class="n">5</div>
 
         <!-- JS -->
         <!-- support lib for bezier stuff -->
