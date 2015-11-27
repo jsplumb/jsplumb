@@ -67,13 +67,11 @@
 
                 for (var sf = 0; sf < axes.length; sf++) {
                     for (var tf = 0; tf < axes.length; tf++) {
-                        if (sf != tf) {
-                            candidates.push({
-                                source: axes[sf],
-                                target: axes[tf],
-                                dist: Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]])
-                            });
-                        }
+                        candidates.push({
+                            source: axes[sf],
+                            target: axes[tf],
+                            dist: Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]])
+                        });
                     }
                 }
 
