@@ -86,35 +86,20 @@
 
     var AbstractBezierEditor = function(params) {
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
-            mode = params.mode || "single";
-        var closeOnMouseUp = params.closeOnMouseUp !== false;
-        var cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp,
-
+            mode = params.mode || "single",
+            closeOnMouseUp = params.closeOnMouseUp !== false,
+            cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp,
             sourceCenter, sourceMidpoints, targetCenter, targetMidpoints,
-            sourceQuadrant = 1, targetQuadrant = 1,
             flipY =  false,
-            quadrantMap = [ null, "right", "bottom", "left", "top" ],
+            sourceFace, targetFace, sourceEdgeSupported, targetEdgeSupported;
 
-            quadrant = function(source, target, rotation) {
-                rotation = rotation || 0;
-                var d = Math.pow(Math.pow(target[0] - source[0], 2) + Math.pow(target[1] - source[1], 2), 0.5),
-                    rotatedTarget = [ target[0] + (d * Math.sin(rotation)), target[1] + (d * Math.cos(rotation))];
-
-                return Biltong.quadrant(source, target);
-            },
-
-            sourceFace, targetFace;
-
-        var sourceEdgeSupported;
         if (conn.endpoints[0].anchor.isContinuous) {
             sourceEdgeSupported = conn.endpoints[0].anchor.isEdgeSupported;
             conn.endpoints[0].anchor.isEdgeSupported = function(e) {
-                //return e === quadrantMap[sourceQuadrant];
                 return sourceFace == null ? sourceEdgeSupported(e) : sourceFace === e;
             };
         }
 
-        var targetEdgeSupported;
         if (conn.endpoints[1].anchor.isContinuous) {
             targetEdgeSupported = conn.endpoints[1].anchor.isEdgeSupported;
             conn.endpoints[1].anchor.isEdgeSupported = function(e) {
@@ -158,12 +143,16 @@
         };
 
         var _updateQuadrants = function(pos) {
-            //sourceQuadrant = quadrant(sourceCenter, pos, Math.PI / 4);
-           // targetQuadrant = quadrant(targetCenter, pos, Math.PI / 4);
+            // test: use the control point locations as the determinant of the face. seems to work quite well.
+            pos = [ origin[0] + cp2[0], origin[1] + cp2[1]];
+
             sourceMidpoints.sort(function(a, b) {
                 return Biltong.lineLength(a, pos) < Biltong.lineLength(b, pos) ? -1 : 1;
             });
             sourceFace = sourceMidpoints[0][2];
+
+            // test: use the control point locations as the determinant of the face. seems to work quite well.
+            pos = [ origin[0] + cp1[0], origin[1] + cp1[1]]
 
             targetMidpoints.sort(function(a, b) {
                 return Biltong.lineLength(a, pos) < Biltong.lineLength(b, pos) ? -1 : 1;
@@ -181,7 +170,6 @@
                 h4.style.left = (origin[0] + cp2[0]) + "px";
                 h4.style.top = (origin[1] + cp2[1]) + "px";
 
-                //sourceQuadrant = Biltong.quadrant(sourceCenter, )
                 _updateQuadrants([ (cp1[0] + cp2[0]) / 2, (cp1[1] + cp2[1]) / 2]);
             }
             else {
