@@ -3,12 +3,16 @@
 
     var root = this;
     var HANDLE_CLASS = "jsplumb-bezier-handle";
+    var SECONDARY_HANDLE_CLASS = "jsplumb-bezier-handle-secondary";
+    var SECONDARY_SOURCE_HANDLE_CLASS = "jsplumb-bezier-handle-secondary-source";
+    var SECONDARY_TARGET_HANDLE_CLASS = "jsplumb-bezier-handle-secondary-target";
     var CONNECTION_EDIT_CLASS = "jsplumb-connection-edit";
     var GUIDELINE_CLASS = "jsplumb-bezier-guideline";
     var NONE = "none";
     var BLOCK = "block";
     var DUAL = "dual";
     var CLICK = "click";
+    var PX = "px";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
@@ -51,8 +55,8 @@
         var h = document.createElement("div");
         h.className = HANDLE_CLASS + (clazz ? " " + clazz : "");
         h.style.position = "absolute";
-        h.style.left = x + "px";
-        h.style.top = y + "px";
+        h.style.left = x + PX;
+        h.style.top = y + PX;
         h.style.display = "none";
         return h;
     };
@@ -62,8 +66,8 @@
         y = y + (handle.offsetHeight / 2);
         var w = Math.max(5, Math.abs(x - anchor.left)), h = Math.max(5, Math.abs(y - anchor.top));
         jsPlumbUtil.svg.attr(line, { width:w, height:h });
-        line.style.left = (Math.min(anchor.left, x)) + "px";
-        line.style.top= (Math.min(anchor.top, y)) + "px";
+        line.style.left = (Math.min(anchor.left, x)) + PX;
+        line.style.top= (Math.min(anchor.top, y)) + PX;
 
         var path = "M " + (x > anchor.left ? w : "0") + " " + (y > anchor.top ? h : "0") + " L " +
                    (x > anchor.left ? "0" : w) + " " + (y > anchor.top ? "0" : h);
@@ -96,14 +100,16 @@
         if (conn.endpoints[0].anchor.isContinuous) {
             sourceEdgeSupported = conn.endpoints[0].anchor.isEdgeSupported;
             conn.endpoints[0].anchor.isEdgeSupported = function(e) {
-                return sourceFace == null ? sourceEdgeSupported(e) : sourceFace === e;
+                return active ? sourceFace == null ? sourceEdgeSupported(e) : sourceFace === e
+                        : sourceEdgeSupported.apply(conn, arguments);
             };
         }
 
         if (conn.endpoints[1].anchor.isContinuous) {
             targetEdgeSupported = conn.endpoints[1].anchor.isEdgeSupported;
             conn.endpoints[1].anchor.isEdgeSupported = function(e) {
-                return targetFace == null ? targetEdgeSupported(e) : targetFace === e;
+                return active ? targetFace == null ? targetEdgeSupported(e) : targetFace === e
+                        : targetEdgeSupported.apply(conn, arguments);
             };
         }
 
@@ -142,56 +148,54 @@
             }
         };
 
-        var _updateQuadrants = function(pos) {
+        var _updateQuadrants = function() {
             // test: use the control point locations as the determinant of the face. seems to work quite well.
-            pos = [ origin[0] + cp2[0], origin[1] + cp2[1]];
+            var sp = [ origin[0] + cp2[0], origin[1] + cp2[1]],
+                tp = [ origin[0] + cp1[0], origin[1] + cp1[1]]
 
             sourceMidpoints.sort(function(a, b) {
-                return Biltong.lineLength(a, pos) < Biltong.lineLength(b, pos) ? -1 : 1;
+                return Biltong.lineLength(a, sp) < Biltong.lineLength(b, sp) ? -1 : 1;
             });
-            sourceFace = sourceMidpoints[0][2];
-
-            // test: use the control point locations as the determinant of the face. seems to work quite well.
-            pos = [ origin[0] + cp1[0], origin[1] + cp1[1]]
+            sourceFace = sourceMidpoints[0][2];;
 
             targetMidpoints.sort(function(a, b) {
-                return Biltong.lineLength(a, pos) < Biltong.lineLength(b, pos) ? -1 : 1;
+                return Biltong.lineLength(a, tp) < Biltong.lineLength(b, tp) ? -1 : 1;
             });
             targetFace = targetMidpoints[0][2];
         };
 
         var _updateHandlePositions = function() {
             if (mode === DUAL) {
-                h1.style.left = origin[0] + ((cp1[0] + cp2[0]) / 2) + "px";
-                h1.style.top = origin[1] + ((cp1[1] + cp2[1]) / 2) + "px";
+                h1.style.left = origin[0] + ((cp1[0] + cp2[0]) / 2) + PX;
+                h1.style.top = origin[1] + ((cp1[1] + cp2[1]) / 2) + PX;
 
-                h3.style.left = (origin[0] + cp1[0]) + "px";
-                h3.style.top = (origin[1] + cp1[1]) + "px";
-                h4.style.left = (origin[0] + cp2[0]) + "px";
-                h4.style.top = (origin[1] + cp2[1]) + "px";
+                h3.style.left = (origin[0] + cp1[0]) + PX;
+                h3.style.top = (origin[1] + cp1[1]) + PX;
+                h4.style.left = (origin[0] + cp2[0]) + PX;
+                h4.style.top = (origin[1] + cp2[1]) + PX;
 
                 _updateQuadrants([ (cp1[0] + cp2[0]) / 2, (cp1[1] + cp2[1]) / 2]);
             }
             else {
-                h1.style.left = (origin[0] + cp1[0]) + "px";
-                h1.style.top = (origin[1] + cp1[1]) + "px";
+                h1.style.left = (origin[0] + cp1[0]) + PX;
+                h1.style.top = (origin[1] + cp1[1]) + PX;
 
                 var _cp2 = this.lockHandles ? cp1 : cp2;
-                h2.style.left = (origin[0] + _cp2[0]) + "px";
-                h2.style.top = (origin[1] + _cp2[1]) + "px";
+                h2.style.left = (origin[0] + _cp2[0]) + PX;
+                h2.style.top = (origin[1] + _cp2[1]) + PX;
             }
 
         }.bind(this);
 
         _updateConnectorInfo();
 
-        var h1 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),   //_makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
-            h2 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),  //_makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1]),
+        var h1 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),
+            h2 = _makeHandle(sp.left + cp[0][0], sp.top + cp[0][1]),
             l1 = _makeGuideline(h2, tp, origin[0] + cp[0][0], origin[1] + cp[0][1]),
             l2 = _makeGuideline(self.lockHandles ? h2 : h1, sp, origin[0] + cp[1][0], origin[1] + cp[1][1]),
 
-            h3 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1], "jsplumb-bezier-handle-secondary jsplumb-bezier-handle-secondary-source"),
-            h4 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1], "jsplumb-bezier-handle-secondary jsplumb-bezier-handle-secondary-target");
+            h3 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1], [SECONDARY_HANDLE_CLASS, SECONDARY_SOURCE_HANDLE_CLASS].join(" ")),
+            h4 = _makeHandle(origin[0] + cp[0][0], origin[1] + cp[0][1], [SECONDARY_HANDLE_CLASS, SECONDARY_TARGET_HANDLE_CLASS].join(" "));
 
         if (mode == DUAL) {
             h3.style.display = BLOCK;
@@ -254,10 +258,10 @@
                             (flipY ? cp1 : cp2)[0] = cpLine[idx2].x - origin[0];
                             (flipY ? cp1 : cp2)[1] = cpLine[idx2].y - origin[1];
 
-                            h3.style.left = (origin[0] + cp1[0]) + "px";
-                            h3.style.top = (origin[1] + cp1[1]) + "px";
-                            h4.style.left = (origin[0] + cp2[0]) + "px";
-                            h4.style.top = (origin[1] + cp2[1]) + "px";
+                            h3.style.left = (origin[0] + cp1[0]) + PX;
+                            h3.style.top = (origin[1] + cp1[1]) + PX;
+                            h4.style.left = (origin[0] + cp2[0]) + PX;
+                            h4.style.top = (origin[1] + cp2[1]) + PX;
 
                             _updateQuadrants(dp.pos);
 
@@ -335,15 +339,6 @@
             l1.style.display = NONE;
             l2.style.display = NONE;
             conn.removeClass(CONNECTION_EDIT_CLASS);
-
-            if (mode == DUAL) {
-                if (conn.endpoints[1].anchor.isContinuous && targetEdgeSupported) {
-                    conn.endpoints[1].anchor.isEdgeSupported = targetEdgeSupported;
-                }
-                if (conn.endpoints[0].anchor.isContinuous && sourceEdgeSupported) {
-                    conn.endpoints[0].anchor.isEdgeSupported = sourceEdgeSupported;
-                }
-            }
 
             if (closeOnMouseUp) {
                 _jsPlumb.off(document, CLICK, self.deactivate);
