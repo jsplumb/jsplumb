@@ -22,7 +22,7 @@
     jsPlumbInstance.prototype.editConnection = function(connection, params) {
         if (connection.getConnector().isEditable()) {
             params = jsPlumb.extend({}, params || {});
-            var clearOnDrag = params.clearOnDrag !== false;
+            var clearOnDrag = params.clearOnDrag === true;
             var connectorType = connection.getConnector().type;
             if (!jsPlumb.ConnectorEditors[connectorType]) {
                 throw new TypeError("No editor available for connector type [" + connectorType + "]");
@@ -94,7 +94,7 @@
     var AbstractBezierEditor = function(params) {
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
             mode = params.mode || SINGLE,
-            closeOnMouseUp = params.closeOnMouseUp !== false,
+            closeOnMouseUp = params.closeOnMouseUp === true,
             cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp,
             sourceCenter, sourceMidpoints, targetCenter, targetMidpoints,
             flipY =  false,
