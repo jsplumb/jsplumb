@@ -11,8 +11,11 @@
     var NONE = "none";
     var BLOCK = "block";
     var DUAL = "dual";
+    var SINGLE = "single";
     var CLICK = "click";
     var PX = "px";
+    var ABSOLUTE = "absolute";
+    var LEFT = "left", TOP = "top", RIGHT = "right", BOTTOM = "bottom";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
@@ -54,10 +57,10 @@
     var _makeHandle = function(x, y, clazz) {
         var h = document.createElement("div");
         h.className = HANDLE_CLASS + (clazz ? " " + clazz : "");
-        h.style.position = "absolute";
+        h.style.position = ABSOLUTE;
         h.style.left = x + PX;
         h.style.top = y + PX;
-        h.style.display = "none";
+        h.style.display = NONE;
         return h;
     };
 
@@ -90,7 +93,7 @@
 
     var AbstractBezierEditor = function(params) {
         var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
-            mode = params.mode || "single",
+            mode = params.mode || SINGLE,
             closeOnMouseUp = params.closeOnMouseUp !== false,
             cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp,
             sourceCenter, sourceMidpoints, targetCenter, targetMidpoints,
@@ -151,12 +154,12 @@
         var _updateQuadrants = function() {
             // test: use the control point locations as the determinant of the face. seems to work quite well.
             var sp = [ origin[0] + cp2[0], origin[1] + cp2[1]],
-                tp = [ origin[0] + cp1[0], origin[1] + cp1[1]]
+                tp = [ origin[0] + cp1[0], origin[1] + cp1[1]];
 
             sourceMidpoints.sort(function(a, b) {
                 return Biltong.lineLength(a, sp) < Biltong.lineLength(b, sp) ? -1 : 1;
             });
-            sourceFace = sourceMidpoints[0][2];;
+            sourceFace = sourceMidpoints[0][2];
 
             targetMidpoints.sort(function(a, b) {
                 return Biltong.lineLength(a, tp) < Biltong.lineLength(b, tp) ? -1 : 1;
@@ -300,17 +303,17 @@
                 targetCenter = [ to.left + (ts[0] / 2) , to.top + (ts[1] / 2) ];
 
                 sourceMidpoints = [
-                    [ so.left, sourceCenter[1], "left"],
-                    [ sourceCenter[0], so.top, "top"],
-                    [ so.left + ss[0], sourceCenter[1], "right"],
-                    [ sourceCenter[0], so.top + ss[1], "bottom"]
+                    [ so.left, sourceCenter[1], LEFT],
+                    [ sourceCenter[0], so.top, TOP],
+                    [ so.left + ss[0], sourceCenter[1], RIGHT],
+                    [ sourceCenter[0], so.top + ss[1], BOTTOM]
                 ];
 
                 targetMidpoints = [
-                    [ to.left, targetCenter[1], "left"],
-                    [ targetCenter[0], to.top, "top"],
-                    [ to.left + ts[0], targetCenter[1], "right"],
-                    [ targetCenter[0], to.top + ts[1], "bottom"]
+                    [ to.left, targetCenter[1], LEFT ],
+                    [ targetCenter[0], to.top, TOP ],
+                    [ to.left + ts[0], targetCenter[1], RIGHT ],
+                    [ targetCenter[0], to.top + ts[1], BOTTOM ]
                 ];
 
             }
