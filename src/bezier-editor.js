@@ -176,8 +176,6 @@
                 h3.style.top = (origin[1] + cp1[1]) + PX;
                 h4.style.left = (origin[0] + cp2[0]) + PX;
                 h4.style.top = (origin[1] + cp2[1]) + PX;
-
-                _updateQuadrants([ (cp1[0] + cp2[0]) / 2, (cp1[1] + cp2[1]) / 2]);
             }
             else {
                 h1.style.left = (origin[0] + cp1[0]) + PX;
@@ -187,6 +185,8 @@
                 h2.style.left = (origin[0] + _cp2[0]) + PX;
                 h2.style.top = (origin[1] + _cp2[1]) + PX;
             }
+
+            _updateQuadrants();
 
         }.bind(this);
 
@@ -266,14 +266,14 @@
                             h4.style.left = (origin[0] + cp2[0]) + PX;
                             h4.style.top = (origin[1] + cp2[1]) + PX;
 
-                            _updateQuadrants(dp.pos);
-
                         }
                         else {
                             cp1[0] = l; cp1[1] = t;
                             cp2[0] = l; cp2[1] = t;
                         }
                     }
+
+                    _updateQuadrants();
                     _setGeometry();
                     _updateGuidelines();
 
@@ -295,28 +295,28 @@
             if (mode === DUAL) {
                 h3.style.display = BLOCK;
                 h4.style.display = BLOCK;
-                // get center point of source and target elements
-                var ss = _jsPlumb.getSize(conn.source), so = _jsPlumb.getOffset(conn.source),
-                    ts = _jsPlumb.getSize(conn.target), to = _jsPlumb.getOffset(conn.target);
-
-                sourceCenter = [ so.left + (ss[0] / 2) , so.top + (ss[1] / 2) ];
-                targetCenter = [ to.left + (ts[0] / 2) , to.top + (ts[1] / 2) ];
-
-                sourceMidpoints = [
-                    [ so.left, sourceCenter[1], LEFT],
-                    [ sourceCenter[0], so.top, TOP],
-                    [ so.left + ss[0], sourceCenter[1], RIGHT],
-                    [ sourceCenter[0], so.top + ss[1], BOTTOM]
-                ];
-
-                targetMidpoints = [
-                    [ to.left, targetCenter[1], LEFT ],
-                    [ targetCenter[0], to.top, TOP ],
-                    [ to.left + ts[0], targetCenter[1], RIGHT ],
-                    [ targetCenter[0], to.top + ts[1], BOTTOM ]
-                ];
-
             }
+
+            // get center point of source and target elements
+            var ss = _jsPlumb.getSize(conn.source), so = _jsPlumb.getOffset(conn.source),
+                ts = _jsPlumb.getSize(conn.target), to = _jsPlumb.getOffset(conn.target);
+
+            sourceCenter = [ so.left + (ss[0] / 2) , so.top + (ss[1] / 2) ];
+            targetCenter = [ to.left + (ts[0] / 2) , to.top + (ts[1] / 2) ];
+
+            sourceMidpoints = [
+                [ so.left, sourceCenter[1], LEFT],
+                [ sourceCenter[0], so.top, TOP],
+                [ so.left + ss[0], sourceCenter[1], RIGHT],
+                [ sourceCenter[0], so.top + ss[1], BOTTOM]
+            ];
+
+            targetMidpoints = [
+                [ to.left, targetCenter[1], LEFT ],
+                [ targetCenter[0], to.top, TOP ],
+                [ to.left + ts[0], targetCenter[1], RIGHT ],
+                [ targetCenter[0], to.top + ts[1], BOTTOM ]
+            ];
 
             _updateHandlePositions();
 
