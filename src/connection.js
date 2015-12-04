@@ -324,8 +324,10 @@
             this.connector = null;
         },
         updateConnectedClass:function(remove) {
-            _updateConnectedClass(this, this.source, this._jsPlumb.instance, remove);
-            _updateConnectedClass(this, this.target, this._jsPlumb.instance, remove);
+            if (this._jsPlumb) {
+                _updateConnectedClass(this, this.source, this._jsPlumb.instance, remove);
+                _updateConnectedClass(this, this.target, this._jsPlumb.instance, remove);
+            }
         },
         setHover: function (state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
@@ -338,7 +340,7 @@
             return [ this.endpoints[0].getUuid(), this.endpoints[1].getUuid() ];
         },
         getCost: function () {
-            return this._jsPlumb.cost;
+            return this._jsPlumb ? this._jsPlumb.cost : -Infinity;
         },
         setCost: function (c) {
             this._jsPlumb.cost = c;
