@@ -92,7 +92,8 @@
     };
 
     var AbstractBezierEditor = function(params) {
-        var conn = params.connection, _jsPlumb = conn._jsPlumb.instance,
+        var conn = params.connection,
+            _jsPlumb = conn._jsPlumb.instance,
             mode = params.mode || SINGLE,
             closeOnMouseUp = params.closeOnMouseUp === true,
             cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp,
@@ -141,13 +142,6 @@
                 cp1[1] = geom.controlPoints[0][1];
                 cp2[0] = geom.controlPoints[1][0];
                 cp2[1] = geom.controlPoints[1][1];
-            }
-            else {
-                cp = conn.getConnector().getControlPoints();
-                cp1[0] = cp[0][0];
-                cp1[1] = cp[0][1];
-                cp2[0] = cp[1][0];
-                cp2[1] = cp[1][1];
             }
         };
 
@@ -329,6 +323,8 @@
             if (closeOnMouseUp) {
                 _jsPlumb.on(document, CLICK, self.deactivate);
             }
+
+            conn.getConnector().setEditing(true);
             active = true;
         };
 
@@ -346,6 +342,8 @@
             if (closeOnMouseUp) {
                 _jsPlumb.off(document, CLICK, self.deactivate);
             }
+
+            conn.getConnector().setEditing(false);
             active = false;
         };
 
