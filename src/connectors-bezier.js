@@ -79,12 +79,7 @@
             }
         };
 
-        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
-
-        //_super.setControlPoints = _setControlPoints;
-        //_super.getControlPoints = _getControlPoints;
-
-        return _super;
+        return _jp.Connectors.AbstractConnector.apply(this, arguments);
     };
     _ju.extend(_jp.Connectors.AbstractBezierConnector, _jp.Connectors.AbstractConnector);
 
@@ -136,7 +131,7 @@
                 _tx = sp[0] < tp[0] ? 0 : _w,
                 _ty = sp[1] < tp[1] ? 0 : _h;
 
-            if (this.isEditing() && geometry != null && geometry.controlPoints != null && geometry.controlPoints[0] != null && geometry.controlPoints[1] != null) {
+            if (this.hasBeenEdited() || this.isEditing() && geometry != null && geometry.controlPoints != null && geometry.controlPoints[0] != null && geometry.controlPoints[1] != null) {
                 _CP = geometry.controlPoints[0];
                 _CP2 = geometry.controlPoints[1];
             }
