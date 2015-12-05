@@ -446,7 +446,8 @@
             userProvidedSegments = null,
             edited = false,
             paintInfo = null,
-            geometry = null;
+            geometry = null,
+            editing = false;
 
         var _setGeometry = this.setGeometry = function(g) {
             geometry = g;
@@ -454,6 +455,9 @@
         var _getGeometry = this.getGeometry = function() {
             return geometry;
         };
+
+        this.setEditing = function(val) { editing = val; };
+        this.isEditing = function() { return editing; };
 
         /**
          * Function: findSegmentForPoint
