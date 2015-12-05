@@ -117,7 +117,7 @@
                 cp1x, cp2x, cp1y, cp2y,
                 geometry = _super.getGeometry();
 
-            if (geometry != null) {
+            if (this.isEditing() && geometry != null) {
                 cp1x = geometry.controlPoints[0][0];
                 cp1y = geometry.controlPoints[0][1];
                 cp2x = geometry.controlPoints[1][0];
@@ -140,7 +140,7 @@
                 cp1y = _controlPoint[1];
                 cp2y = _controlPoint[1];
 
-                _super.setControlPoints([_controlPoint, _controlPoint]);
+                _super.setGeometry({controlPoints:[_controlPoint, _controlPoint]});
             }
 
             _super.addSegment(this, "Bezier", {
