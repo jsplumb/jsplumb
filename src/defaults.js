@@ -450,6 +450,7 @@
             editing = false;
 
         var _setGeometry = this.setGeometry = function(g) {
+            edited = true;
             geometry = g;
         };
         var _getGeometry = this.getGeometry = function() {
@@ -458,6 +459,7 @@
 
         this.setEditing = function(val) { editing = val; };
         this.isEditing = function() { return editing; };
+        this.hasBeenEdited = function() { return edited; };
 
         /**
          * Function: findSegmentForPoint
@@ -641,8 +643,7 @@
         };
 
         this.compute = function (params) {
-            if (!edited)
-                paintInfo = _prepareCompute.call(this, params);
+            paintInfo = _prepareCompute.call(this, params);
 
             _clearSegments();
             this._compute(paintInfo, params);
