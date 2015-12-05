@@ -351,6 +351,8 @@
         getConnector: function () {
             return this.connector;
         },
+        getGeometry : function() { return this.connector ? this.connector.getGeometry() : null; },
+        setGeometry : function(g) { if (this.connector) this.connector.setGeometry(g); },
         prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
