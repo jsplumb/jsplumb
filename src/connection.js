@@ -99,7 +99,7 @@
             this.setHover(false);
         }.bind(this));
 
-        this.editableRequested = params.editable === true;
+        this.editableRequested = params.editable !== false;
         this.setEditable = function(e) {
             return this.connector ? this.connector.setEditable(e) : false;
         };

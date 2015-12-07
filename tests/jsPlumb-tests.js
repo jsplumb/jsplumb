@@ -8666,25 +8666,25 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
     /**
-     * Tests that by default a connection is not editable. This means it will return false from
-     * isEditable and its connector will not have the relevant CSS class on it.
+     * Tests that by default a connection is editable (if it is of an editable type). This means it will return true from
+     * isEditable and its connector will have the relevant CSS class on it.
      *
      * @method Test.ConnectionsNotEditableByDefault
      */
-    test("not editable by default", function() {
+    test("editable by default", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var conn = _jsPlumb.connect({
             source: d1,
             target: d2
         });
 
-        ok(!conn.isEditable(), "connection is not editable, by default");
-        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class not set");
+        ok(conn.isEditable(), "connection is editable, by default");
+        ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class set");
 
-        conn.setEditable(true);
+        conn.setEditable(false);
 
-        ok(conn.isEditable(), "connection is now editable");
-        ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class added");
+        ok(!conn.isEditable(), "connection is no longer editable");
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class removed");
     });
 
     /**
@@ -8697,8 +8697,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var conn = _jsPlumb.connect({
             source: d1,
-            target: d2,
-            editable:true
+            target: d2
         });
 
         ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class set");
@@ -8773,11 +8772,12 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(!conn.isEditing(), "connection is not currently being edited");
     });
 
-    test("editable flag not set, subsequently try to edit the connection, not allowed.", function() {
+    test("editable flag set to false, subsequently try to edit the connection, not allowed.", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var conn = _jsPlumb.connect({
             source: d1,
-            target: d2
+            target: d2,
+            editable:false
         });
 
         ok(!conn.isEditable(), "connection is not editable ");

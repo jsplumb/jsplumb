@@ -447,7 +447,7 @@
             edited = false,
             paintInfo = null,
             geometry = null,
-            editable = params.editable === true && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
+            editable = params.editable !== false && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
 
         var _setGeometry = this.setGeometry = function(g, internallyComputed) {
             edited = (!internallyComputed);
