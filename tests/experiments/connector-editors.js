@@ -71,22 +71,8 @@
         }
         return out;
     };
-    
-    /**
-    * @namespace jsPlumb.ConnectorEditors
-    * @desc These are editors for the various connector types. They are not included in the
-    * main jsPlumb release. To use them you have to build a custom version of jsPlumb - see
-    * the Gruntfile for information on how to do that. 
-    *
-    * Currently there is only an editor for the Flowchart connector.
-    */
+
     jsPlumb.ConnectorEditors = {
-        /**
-        * @name jsPlumb.ConnectorEditors.FlowchartConnectorEditor
-        * @class
-        * @classdesc Lets you drag the segments of a flowchart connection around. If you subsequently
-        * drag an element, your edits are lost.
-        */
         "Flowchart":function(params) {
             AbstractEditor.apply(this, arguments);            
             
