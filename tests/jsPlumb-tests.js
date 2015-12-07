@@ -8762,14 +8762,12 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         ok(conn.isEditable(), "connection is editable because it was requested on a flag.");
         ok(!conn.isEditing(), "connection is not currently being edited");
-        ok(!conn.hasBeenEdited(), "connection has not yet been edited");
 
         _jsPlumb.startEditing(conn);
         ok(conn.isEditing(), "connection is currently being edited");
 
         _jsPlumb.stopEditing(conn);
         ok(!conn.isEditing(), "connection is not currently being edited");
-        ok(conn.hasBeenEdited(), "connection has been edited");
 
         _jsPlumb.clearEdits(conn);
         ok(!conn.isEditing(), "connection is not currently being edited");
@@ -8784,7 +8782,6 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         ok(!conn.isEditable(), "connection is not editable ");
         ok(!conn.isEditing(), "connection is not currently being edited");
-        ok(!conn.hasBeenEdited(), "connection has not yet been edited");
 
         _jsPlumb.startEditing(conn);
         ok(!conn.isEditing(), "connection is not currently being edited");

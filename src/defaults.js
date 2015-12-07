@@ -458,7 +458,6 @@
         };
 
         this.isEditing = function() { return this.editor != null && this.editor.isActive(); };
-        this.hasBeenEdited = function() { return edited; };
         this.setEditable = function(e) {
             // if this connector has an editor already, or
             // if an editor for this connector's type is available, or

@@ -105,7 +105,6 @@
         };
         this.isEditable = function() { return this.connector ? this.connector.isEditable() : false; };
         this.isEditing = function() { return this.connector ? this.connector.isEditing() : false; };
-        this.hasBeenEdited = function() { return this.connector ? this.connector.hasBeenEdited() : false; };
 
 // INITIALISATION CODE
 
