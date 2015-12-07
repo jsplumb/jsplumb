@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -9,7 +9,7 @@
  *
  * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
- * http://jsplumbtoolkit.com
+ * https://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
@@ -21,7 +21,6 @@
     var root = this,
         _jp = root.jsPlumb,
         _ju = root.jsPlumbUtil;
-
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
@@ -99,6 +98,14 @@
         this.bind("mouseout", function () {
             this.setHover(false);
         }.bind(this));
+
+        this.editableRequested = params.editable === true;
+        this.setEditable = function(e) {
+            return this.connector ? this.connector.setEditable(e) : false;
+        };
+        this.isEditable = function() { return this.connector ? this.connector.isEditable() : false; };
+        this.isEditing = function() { return this.connector ? this.connector.isEditing() : false; };
+        this.hasBeenEdited = function() { return this.connector ? this.connector.hasBeenEdited() : false; };
 
 // INITIALISATION CODE
 
@@ -237,11 +244,6 @@
 
         this.updateConnectedClass();
 
-        // editable?
-        if (params.editable && _jsPlumb.editConnection && jsPlumb.ConnectorEditors[this.getConnector().type]) {
-            _jsPlumb.editConnection(this, params.editParams);
-        }
-
 // END PAINTING    
     };
 
@@ -356,9 +358,10 @@
         prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
-                    cssClass: this._jsPlumb.params.cssClass,
+                    cssClass: (this._jsPlumb.params.cssClass || "") + (this.isEditable() ? this._jsPlumb.instance.editableConnectorClass : ""),
                     container: this._jsPlumb.params.container,
-                    "pointer-events": this._jsPlumb.params["pointer-events"]
+                    "pointer-events": this._jsPlumb.params["pointer-events"],
+                    editable:this.editableRequested
                 },
                 renderMode = this._jsPlumb.instance.getRenderMode(),
                 connector;
