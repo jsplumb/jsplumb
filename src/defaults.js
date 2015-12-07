@@ -457,6 +457,7 @@
             return geometry;
         };
 
+        this.hasBeenEdited = function() { return edited; };
         this.isEditing = function() { return this.editor != null && this.editor.isActive(); };
         this.setEditable = function(e) {
             // if this connector has an editor already, or
