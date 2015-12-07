@@ -22,7 +22,8 @@
             proximityLimit = params.proximityLimit || 80,
             clockwise = params.orientation && params.orientation === "clockwise",
             loopbackRadius = params.loopbackRadius || 25,
-            isLoopbackCurrently = false;
+            isLoopbackCurrently = false,
+            _super;
 
         this.overrideSetEditable = function() { return !isLoopbackCurrently; };
 
@@ -70,7 +71,8 @@
             }
         };
 
-        return _jp.Connectors.AbstractConnector.apply(this, arguments);
+        _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
+        return _super;
     };
     _ju.extend(_jp.Connectors.AbstractBezierConnector, _jp.Connectors.AbstractConnector);
 
