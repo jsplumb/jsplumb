@@ -16,7 +16,6 @@
 
     _jp.Connectors.AbstractBezierConnector = function(params) {
         params = params || {};
-        var _controlPoints = [ [ 0, 0 ], [ 0, 0 ] ];
         var showLoopback = params.showLoopback !== false,
             curviness = params.curviness || 10,
             margin = params.margin || 5,
@@ -25,15 +24,7 @@
             loopbackRadius = params.loopbackRadius || 25,
             isLoopbackCurrently = false;
 
-        /*var _getControlPoints = this.getControlPoints = function() { return _controlPoints; };
-        var _setControlPoints = this.setControlPoints = function(cp) {
-            _controlPoints[0][0] = cp[0][0];
-            _controlPoints[0][1] = cp[0][1];
-            _controlPoints[1][0] = cp[1][0];
-            _controlPoints[1][1] = cp[1][1];
-        };*/
-
-        this.isEditable = function() { return !isLoopbackCurrently; };
+        this.overrideSetEditable = function() { return !isLoopbackCurrently; };
 
         this._compute = function (paintInfo, p) {
 
@@ -85,12 +76,12 @@
 
     var Bezier = function (params) {
         params = params || {};
+        this.type = "Bezier";
 
         var _super = _jp.Connectors.AbstractBezierConnector.apply(this, arguments),
             majorAnchor = params.curviness || 150,
             minorAnchor = 10;
 
-        this.type = "Bezier";
         this.getCurviness = function () {
             return majorAnchor;
         };
@@ -140,7 +131,7 @@
                 _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
             }
 
-            _super.setGeometry({controlPoints:[_CP, _CP2]});
+            _super.setGeometry({controlPoints:[_CP, _CP2]}, true);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
