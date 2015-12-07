@@ -2,6 +2,11 @@
 
 QUnit.config.reorder = false;
 
+/**
+ * @name Test
+ * @class
+ */
+
 var makeContent = function (s) {
     var d = document.createElement("div");
     d.innerHTML = s;
@@ -8633,8 +8638,10 @@ var testSuite = function (renderMode, _jsPlumb) {
      * Tests the support for setting and getting a connector's geometry. The specifics of a given geometry depend
      * on the connector. In this test we supply `controlPoints`, which is what the Bezier/StateMachine connectors use,
      * but Flowchart connectors will use something different.
+     *
+     * @method Test.SetGeometryInConnectCall
      */
-    test("set geometry", function() {
+    test("set geometry in connect call", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var conn = _jsPlumb.connect({
             source:d1,
@@ -8656,6 +8663,115 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(geom.controlPoints[0][0], 150);
 
         // 2. test that it is in the output if requested
+    });
+
+    /**
+     * Tests that by default a connection is not editable. This means it will return false from
+     * isEditable and its connector will not have the relevant CSS class on it.
+     *
+     * @method Test.ConnectionsNotEditableByDefault
+     */
+    test("not editable by default", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2
+        });
+
+        ok(!conn.isEditable(), "connection is not editable, by default");
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class not set");
+
+        conn.setEditable(true);
+
+        ok(conn.isEditable(), "connection is now editable");
+        ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class added");
+    });
+
+    /**
+     * Tests that when you set editable:true in a `connect` call, for a connector type for which there is an editor,
+     * (and it is the default, therefore not specified in the call),
+     * the connection reports itself as editable and it has the right css class on it.
+     * @method Test.ConnectionEditableFromFlagInConnect
+     */
+    test("set editable flag, CSS class set and connection editable, default connector Bezier", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            editable:true
+        });
+
+        ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class set");
+        ok(conn.isEditable(), "connection is editable because it was requested on a flag.");
+
+        conn.setEditable(false);
+
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class removed ");
+        ok(!conn.isEditable(), "connection is not editable now.");
+    });
+
+    test("set editable flag, CSS class set and connection editable, specified connector StateMachine", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            editable:true,
+            connector:"StateMachine"
+        });
+
+        ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class set");
+        ok(conn.isEditable(), "connection is editable because it was requested on a flag.");
+
+        conn.setEditable(false);
+
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class removed ");
+        ok(!conn.isEditable(), "connection is not editable now.");
+    });
+
+    /**
+     * Tests that when you set editable:true in a `connect` call, for a connector type for which there is not an editor,
+     * the connection reports itself as not editable and it does not have the editable css class on it
+     * @method Test.ConnectionEditableUnsupportedFromFlagInConnect
+     */
+    test("set editable flag, unsupported edit type", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            connector:"Straight",
+            editable:true
+        });
+
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class not set");
+        ok(!conn.isEditable(), "connection is not editable because Straight connectors are unsupported editable connector type");
+
+        conn.setEditable(true);
+
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class still not set");
+        ok(!conn.isEditable(), "connection is still not editable");
+    });
+
+
+    test("set editable flag and subsequently edit the connection", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            editable:true
+        });
+
+        ok(conn.isEditable(), "connection is editable because it was requested on a flag.");
+        ok(!conn.isEditing(), "connection is not currently being edited");
+        ok(!conn.hasBeenEdited(), "connection has not yet been edited");
+
+        _jsPlumb.startEditing(conn);
+        ok(conn.isEditing(), "connection is currently being edited");
+
+        _jsPlumb.stopEditing(conn);
+        ok(!conn.isEditing(), "connection is not currently being edited");
+        ok(conn.hasBeenEdited(), "connection has been edited");
+
+        //_jsPlumb.clearEdits(conn);
     });
 
 };
