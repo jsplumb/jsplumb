@@ -450,9 +450,7 @@
             editable = params.editable === true && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
 
         var _setGeometry = this.setGeometry = function(g, internallyComputed) {
-            if (!internallyComputed) {
-                edited = true;
-            }
+            edited = (!internallyComputed);
             geometry = g;
         };
         var _getGeometry = this.getGeometry = function() {
