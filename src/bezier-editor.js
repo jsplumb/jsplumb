@@ -19,17 +19,18 @@
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
-    jsPlumbInstance.prototype.editConnection = function(connection, params) {
-        if (connection.getConnector().isEditable()) {
+    jsPlumbInstance.prototype.startEditing = function(connection, params) {
+        var connector = connection.getConnector();
+        if (connector.isEditable()) {
             params = jsPlumb.extend({}, params || {});
             var clearOnDrag = params.clearOnDrag === true;
             var connectorType = connection.getConnector().type;
             if (!jsPlumb.ConnectorEditors[connectorType]) {
                 throw new TypeError("No editor available for connector type [" + connectorType + "]");
             }
-            if (connection.editor == null) {
+            if (connector.editor == null) {
                 params.connection = connection;
-                connection.editor = new jsPlumb.ConnectorEditors[connectorType](params);
+                connector.editor = new jsPlumb.ConnectorEditors[connectorType](params);
 
                 //
                 // when user drags source or target node, reset.
@@ -38,19 +39,33 @@
                     force: true,
                     start: function () {
                        if (clearOnDrag)
-                           connection.editor.reset();
+                           connector.editor.reset();
                     },
                     drag:function() {
                         if (!clearOnDrag) {
-                            connection.editor.update()
+                            connector.editor.update()
                         }
                     }
                 });
             }
 
-            setTimeout(function () {
-                connection.editor.activate();
-            }, 0);
+           // setTimeout(function () {
+                connector.editor.activate();
+            //}, 0);
+        }
+    };
+
+    jsPlumbInstance.prototype.stopEditing = function(connection) {
+        var connector = connection.getConnector();
+        if (connector.editor != null && connector.editor.isActive()) {
+            connector.editor.deactivate();
+        }
+    };
+
+    jsPlumbInstance.prototype.clearEdits = function(connection) {
+        var connector = connection.getConnector();
+        if (connector.editor != null && connector.editor.isActive()) {
+            connector.editor.reset();
         }
     };
 
@@ -281,6 +296,10 @@
         _setGeometry();
 
         this.activate = function() {
+            if (conn._jsPlumb == null) {
+                return;
+            }
+
             _updateConnectorInfo();
 
             h1.style.display = BLOCK;
@@ -324,7 +343,6 @@
                 _jsPlumb.on(document, CLICK, self.deactivate);
             }
 
-            conn.getConnector().setEditing(true);
             active = true;
         };
 
@@ -343,19 +361,22 @@
                 _jsPlumb.off(document, CLICK, self.deactivate);
             }
 
-            conn.getConnector().setEditing(false);
             active = false;
         };
 
         this.reset = function() {
             _clearGeometry();
             self.deactivate();
+            _jsPlumb.revalidate(conn.source);
+            _jsPlumb.revalidate(conn.target);
         };
 
         this.update = function() {
             _updateConnectorInfo();
             _updateHandlePositions();
         };
+
+        this.isActive = function() { return active; };
     };
 
     root.jsPlumb.ConnectorEditors.StateMachine = function() {
