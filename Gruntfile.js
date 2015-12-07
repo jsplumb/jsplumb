@@ -191,7 +191,18 @@ module.exports = function(grunt) {
                     outdir: 'jekyll/apidocs/',
                     helpers:['jekyll/yuitheme/helpers.js']
                 }
-
+            },
+            tests:{
+                name: '<%= pkg.name %> - Test Coverage',
+                description: '<%= pkg.description %>',
+                version: '<%= pkg.version %>',
+                url: '<%= pkg.homepage %>',
+                options: {
+                    paths: 'tests/',
+                    themedir: 'jekyll/yuitheme/',
+                    outdir: 'jekyll/test-apidocs/',
+                    helpers:['jekyll/yuitheme/helpers.js']
+                }
             }
         }
     });
