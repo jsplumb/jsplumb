@@ -2,6 +2,11 @@
 
 QUnit.config.reorder = false;
 
+/**
+ * @name Test
+ * @class
+ */
+
 var makeContent = function (s) {
     var d = document.createElement("div");
     d.innerHTML = s;
@@ -8629,7 +8634,14 @@ var testSuite = function (renderMode, _jsPlumb) {
 
 // ----------------------------- connector geometry --------------------------------------
 
-    test("set geometry", function() {
+    /**
+     * Tests the support for setting and getting a connector's geometry. The specifics of a given geometry depend
+     * on the connector. In this test we supply `controlPoints`, which is what the Bezier/StateMachine connectors use,
+     * but Flowchart connectors will use something different.
+     *
+     * @method Test.SetGeometryInConnectCall
+     */
+    test("set geometry in connect call", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var conn = _jsPlumb.connect({
             source:d1,
@@ -8637,13 +8649,47 @@ var testSuite = function (renderMode, _jsPlumb) {
             geometry:{
                 controlPoints:[
                     [ 150, 150 ],
-                    [150, 150 ]
+                    [ 150, 150 ]
                 ]
             }
         });
 
+        // 1. test that the geometry was set on the connector.
         var geom = conn.getConnector().getGeometry();
         equal(geom.controlPoints[0][0], 150);
+
+        // 2. test it was set on the connection too
+        geom = conn.getGeometry();
+        equal(geom.controlPoints[0][0], 150);
+
+        // 2. test that it is in the output if requested
+    });
+
+    test("editable CSS class not set by default", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2
+        });
+
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class not set");
+
+        conn.setEditable(true);
+        ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class added");
+    });
+
+    test("set editable flag, CSS class set", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            editable:true
+        });
+
+        ok(jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class set");
+
+        conn.setEditable(false);
+        ok(!jsPlumb.hasClass(conn.canvas, "jsplumb-connector-editable"), "editable class removed ");
     });
 
 };
