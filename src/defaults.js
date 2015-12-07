@@ -447,19 +447,32 @@
             edited = false,
             paintInfo = null,
             geometry = null,
-            editing = false;
+            editable = params.editable === true && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
 
-        var _setGeometry = this.setGeometry = function(g) {
-            edited = true;
+        var _setGeometry = this.setGeometry = function(g, internallyComputed) {
+            if (!internallyComputed) {
+                edited = true;
+            }
             geometry = g;
         };
         var _getGeometry = this.getGeometry = function() {
             return geometry;
         };
 
-        this.setEditing = function(val) { editing = val; };
-        this.isEditing = function() { return editing; };
+        this.isEditing = function() { return this.editor != null && this.editor.isActive(); };
         this.hasBeenEdited = function() { return edited; };
+        this.setEditable = function(e) {
+            // if this connector has an editor already, or
+            // if an editor for this connector's type is available, or
+            // if the child declares an overrideSetEditable and it does not return false, editable is true.
+            if (e && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
+                editable = e;
+            } else {
+                editable = false;
+            }
+            return editable;
+        };
+        this.isEditable = function() { return editable; };
 
         /**
          * Function: findSegmentForPoint
