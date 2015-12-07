@@ -576,7 +576,6 @@
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                //_addOneDelegate(id, ".jsplumb-connector, .jsplumb-connector > *", function (e) {
                 _addOneDelegate(id, ".jsplumb-connector > *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
@@ -1161,6 +1160,7 @@
 
         this.connectorClass = "jsplumb-connector";
         this.connectorOutlineClass = "jsplumb-connector-outline";
+        this.editableConnectorClass = "jsplumb-connector-editable";
         this.connectedClass = "jsplumb-connected";
         this.hoverClass = "jsplumb-hover";
         this.endpointClass = "jsplumb-endpoint";
