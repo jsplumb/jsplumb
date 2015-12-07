@@ -16,6 +16,9 @@
     var PX = "px";
     var ABSOLUTE = "absolute";
     var LEFT = "left", TOP = "top", RIGHT = "right", BOTTOM = "bottom";
+    var CLEAR_CONNECTION_EDITS = "clearConnectionEdits";
+    var START_CONNECTION_EDIT = "startConnectionEdit";
+    var STOP_CONNECTION_EDIT = "stopConnectionEdit";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
@@ -64,7 +67,7 @@
 
     jsPlumbInstance.prototype.clearEdits = function(connection) {
         var connector = connection.getConnector();
-        if (connector.editor != null && connector.editor.isActive()) {
+        if (connector.editor != null) {
             connector.editor.reset();
         }
     };
@@ -232,7 +235,7 @@
                 _jsPlumb.repaint(conn.endpoints[1].elementId);
         };
         var _clearGeometry = function() {
-            conn.getConnector().setGeometry(null);
+            conn.getConnector().setGeometry(null, true);
             conn.repaint();
         };
 
@@ -344,6 +347,7 @@
             }
 
             active = true;
+            _jsPlumb.fire(START_CONNECTION_EDIT, conn);
         };
 
         this.deactivate = function(e) {
@@ -362,6 +366,7 @@
             }
 
             active = false;
+            _jsPlumb.fire(STOP_CONNECTION_EDIT, conn);
         };
 
         this.reset = function() {
@@ -369,6 +374,7 @@
             self.deactivate();
             _jsPlumb.revalidate(conn.source);
             _jsPlumb.revalidate(conn.target);
+            _jsPlumb.fire(CLEAR_CONNECTION_EDITS, conn);
         };
 
         this.update = function() {
