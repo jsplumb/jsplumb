@@ -117,7 +117,7 @@
                 cp1x, cp2x, cp1y, cp2y,
                 geometry = _super.getGeometry();
 
-            if (this.isEditing() && geometry != null) {
+            if ((this.hasBeenEdited() || this.isEditing()) && geometry != null) {
                 cp1x = geometry.controlPoints[0][0];
                 cp1y = geometry.controlPoints[0][1];
                 cp2x = geometry.controlPoints[1][0];
