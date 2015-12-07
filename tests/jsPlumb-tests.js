@@ -8771,7 +8771,51 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(!conn.isEditing(), "connection is not currently being edited");
         ok(conn.hasBeenEdited(), "connection has been edited");
 
-        //_jsPlumb.clearEdits(conn);
+        _jsPlumb.clearEdits(conn);
+        ok(!conn.isEditing(), "connection is not currently being edited");
+    });
+
+    test("editable flag not set, subsequently try to edit the connection, not allowed.", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2
+        });
+
+        ok(!conn.isEditable(), "connection is not editable ");
+        ok(!conn.isEditing(), "connection is not currently being edited");
+        ok(!conn.hasBeenEdited(), "connection has not yet been edited");
+
+        _jsPlumb.startEditing(conn);
+        ok(!conn.isEditing(), "connection is not currently being edited");
+    });
+
+    test("connection edit: events", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), started, stopped, cleared;
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            editable:true
+        });
+        _jsPlumb.bind("startConnectionEdit", function(c) {
+            started = c;
+        });
+        _jsPlumb.bind("stopConnectionEdit", function(c) {
+            stopped = c;
+        });
+        _jsPlumb.bind("clearConnectionEdits", function(c) {
+            cleared = c;
+        });
+
+        _jsPlumb.startEditing(conn);
+        ok(started != null && started == conn, "startConnectionEdit event fired");
+
+        _jsPlumb.stopEditing(conn);
+        ok(stopped != null && stopped == conn, "stopConnectionEdit event fired");
+
+        _jsPlumb.clearEdits(conn);
+        ok(cleared != null && cleared == conn, "clearConnectionEdits event fired");
+
     });
 
 };
