@@ -19,10 +19,24 @@
     var CLEAR_CONNECTION_EDITS = "clearConnectionEdits";
     var START_CONNECTION_EDIT = "startConnectionEdit";
     var STOP_CONNECTION_EDIT = "stopConnectionEdit";
+    var CONNECTION_EDIT = "connectionEdit";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
 
+    var _addConnectionDetachListener = function(instance) {
+        instance.bind("connectionDetached", function(params) {
+            var conn = params.connection.getConnector();
+            if (conn && conn.editor) {
+                conn.editor.cleanup();
+            }
+        });
+    };
+
     jsPlumbInstance.prototype.startEditing = function(connection, params) {
+        if (this.connectionDetachListener == null) {
+            _addConnectionDetachListener(this);
+        }
+
         var connector = connection.getConnector();
         if (connector.isEditable()) {
             params = jsPlumb.extend({}, params || {});
@@ -109,6 +123,10 @@
         return s;
     };
 
+    var AbstractConnectionEditor = function(params) {
+        if (!this.cleanup) throw new TypeError("cleanup method not implemented for connection editor");
+    };
+
     var AbstractBezierEditor = function(params) {
         var conn = params.connection,
             _jsPlumb = conn._jsPlumb.instance,
@@ -164,7 +182,6 @@
         };
 
         var _updateQuadrants = function() {
-            // test: use the control point locations as the determinant of the face. seems to work quite well.
             var sp = [ origin[0] + cp2[0], origin[1] + cp2[1]],
                 tp = [ origin[0] + cp1[0], origin[1] + cp1[1]];
 
@@ -289,6 +306,7 @@
                     _setGeometry();
                     _updateGuidelines();
 
+                    _jsPlumb.fire(CONNECTION_EDIT, conn);
                 }
             });
         };
@@ -383,6 +401,19 @@
         };
 
         this.isActive = function() { return active; };
+
+        this.cleanup = function() {
+            self.deactivate();
+            (function(els) {
+                for (var i = 0; i < els.length; i++) {
+                    if (els[i] != null && els[i].parentNode) {
+                        els[i].parentNode.removeChild(els[i]);
+                    }
+                }
+            })([h1,h2,h3,h4,l1,l2]);
+        };
+
+        AbstractConnectionEditor.apply(this, arguments);
     };
 
     root.jsPlumb.ConnectorEditors.StateMachine = function() {
