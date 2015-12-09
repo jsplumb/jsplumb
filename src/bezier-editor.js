@@ -35,6 +35,7 @@
     jsPlumbInstance.prototype.startEditing = function(connection, params) {
         if (this.connectionDetachListener == null) {
             _addConnectionDetachListener(this);
+            this.connectionDetachListener = true;
         }
 
         var connector = connection.getConnector();
@@ -66,9 +67,9 @@
                 });
             }
 
-           // setTimeout(function () {
+            setTimeout(function () {
                 connector.editor.activate();
-            //}, 0);
+            }, 0);
         }
     };
 
@@ -131,11 +132,12 @@
         var conn = params.connection,
             _jsPlumb = conn._jsPlumb.instance,
             mode = params.mode || SINGLE,
-            closeOnMouseUp = params.closeOnMouseUp === true,
-            cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp,
+            closeOnMouseUp = params.closeOnMouseUp !== false,
+            cp, origin, cp1 = [0,0], cp2 = [0,0], self = this, active = false, sp, center, tp, nodeQuadrant,
             sourceCenter, sourceMidpoints, targetCenter, targetMidpoints,
             flipY =  false,
-            sourceFace, targetFace, sourceEdgeSupported, targetEdgeSupported;
+            sourceFace, targetFace, sourceEdgeSupported, targetEdgeSupported,
+            noEdits = true;
 
         if (conn.endpoints[0].anchor.isContinuous) {
             sourceEdgeSupported = conn.endpoints[0].anchor.isEdgeSupported;
@@ -158,6 +160,7 @@
             tp = _jsPlumb.getOffset(conn.endpoints[1].canvas);
             origin = [Math.min(sp.left, tp.left), Math.min(sp.top, tp.top) ];
             center = [ (sp.left + tp.left) / 2, (sp.top + tp.top) / 2 ];
+            nodeQuadrant = Biltong.quadrant([sp.left, sp.top], [tp.left, tp.top]);
         };
 
         //
@@ -267,6 +270,11 @@
         var _initDraggable = function(el, arr) {
             _jsPlumb.draggable(el, {
                 drag:function(dp) {
+                    if (noEdits) {
+                        _setGeometry();
+                        noEdits = false;
+                    }
+
                     var l = dp.pos[0] - origin[0], t = dp.pos[1] - origin[1];
                     if (!self.lockHandles) {
                         arr[0] = l;
@@ -278,17 +286,46 @@
                             // get radius and then get a line that is a tangent to the circle, whose length is 1.5 times
                             // the radius. This has the effect of making the curve more bulbous as you drag it out.
                             var radius = Biltong.lineLength(center, dp.pos);
+
                             var cpLine = Biltong.perpendicularLineTo(_toBiltongPoint(center), _toBiltongPoint(dp.pos), radius*1.5);
+                            // ensure the line has the correct direction; it must match the direction implied by nodeQuadrant:
+                            // if nodeQuadrant is 2 or 3, then the second point's Y must be less than the first point's Y.
+                            var cminy = Math.min(cpLine[0].y, cpLine[1].y), cminx = Math.min(cpLine[0].x, cpLine[1].x);
+                            var cmaxy = Math.max(cpLine[0].y, cpLine[1].y), cmaxx = Math.max(cpLine[0].x, cpLine[1].x);
+                            cpLine = ([
+                                null,
+                                [ {x:cmaxx, y:cminy}, {x:cminx, y:cmaxy } ],// q1. y >  x <
+                                [ {x:cmaxx, y:cmaxy}, {x:cminx, y:cminy } ],// q2. y <, x <
+                                [ {x:cminx, y:cmaxy}, {x:cmaxx, y:cminy } ],// q3, y <, x >
+                                [ {x:cminx, y:cminy}, {x:cmaxx, y:cmaxy } ]// q4, y >, x >
+                            ])[nodeQuadrant];
+
                             // swap the two control points if in segment 4 or 2.
-                            var quadrant = Biltong.quadrant(center, dp.pos);
-                            var idx1 = quadrant == 1 || quadrant == 3 ? 0 : 1,
+                            //var quadrant = Biltong.quadrant(center, dp.pos);
+                            /*var idx1 = quadrant == 1 || quadrant == 3 ? 0 : 1,
                                 idx2 = quadrant == 1 || quadrant == 3 ? 1 : 0;
+
+
 
                             // flip control points if source below target
                             (flipY ? cp2 : cp1)[0] = cpLine[idx1].x - origin[0];
                             (flipY ? cp2 : cp1)[1] = cpLine[idx1].y - origin[1];
                             (flipY ? cp1 : cp2)[0] = cpLine[idx2].x - origin[0];
-                            (flipY ? cp1 : cp2)[1] = cpLine[idx2].y - origin[1];
+                            (flipY ? cp1 : cp2)[1] = cpLine[idx2].y - origin[1];*/
+
+                            /*console.log("nodeQuadrant", nodeQuadrant, "center", center)
+                            console.log("sourceCenter", sourceCenter, "targetCenter", targetCenter)
+                            console.log("dp", dp.pos)
+                            console.log("cpLine", cpLine[0], cpLine[1])
+
+                            console.log("quadrant is ", quadrant);
+                            console.log("flipY is", flipY);
+                            console.log("  ");*/
+
+                            cp1[0] = cpLine[0].x - origin[0];
+                             cp1[1] = cpLine[0].y - origin[1];
+                             cp2[0] = cpLine[1].x - origin[0];
+                             cp2[1] = cpLine[1].y - origin[1];
 
                             h3.style.left = (origin[0] + cp1[0]) + PX;
                             h3.style.top = (origin[1] + cp1[1]) + PX;
@@ -306,7 +343,12 @@
                     _setGeometry();
                     _updateGuidelines();
 
-                    _jsPlumb.fire(CONNECTION_EDIT, conn);
+                },
+                stop:function() {
+                    if (!noEdits) {
+                        _jsPlumb.fire(CONNECTION_EDIT, conn);
+                    }
+                    noEdits = true;
                 }
             });
         };
@@ -314,7 +356,7 @@
         _initDraggable(h1, cp1);
         _initDraggable(h2, cp2);
 
-        _setGeometry();
+        //_setGeometry();
 
         this.activate = function() {
             if (conn._jsPlumb == null) {
@@ -322,6 +364,7 @@
             }
 
             _updateConnectorInfo();
+            //_setGeometry();
 
             h1.style.display = BLOCK;
             if (!self.lockHandles)
@@ -369,7 +412,7 @@
         };
 
         this.deactivate = function(e) {
-            if (e && jsPlumb.hasClass(e.srcElement, HANDLE_CLASS)) return;
+            if (e && !closeOnMouseUp && jsPlumb.hasClass(e.srcElement, HANDLE_CLASS)) return;
 
             h1.style.display = NONE;
             h2.style.display = NONE;
