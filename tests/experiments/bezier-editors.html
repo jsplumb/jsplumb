@@ -46,7 +46,7 @@
 
             .jsplumb-bezier-handle-secondary-source {
                 background-color: lavenderblush;
-            }
+            }e
 
             .jsplumb-bezier-guideline {
                 position:absolute;
@@ -142,7 +142,8 @@
             });
 
             jsPlumb.on(document, "click", ".n", function() {
-                jsPlumb.stopEditing(jsPlumb.select({source:this.id}).get(0));
+                var conns = jsPlumb.select({source:this.id});
+                conns.length > 0 && jsPlumb.stopEditing(conns.get(0));
             });
 
             jsPlumb.on(document, "click", ".reset", function() {
