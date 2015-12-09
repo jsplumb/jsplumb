@@ -552,14 +552,22 @@ Assigned to tile images in a tiled background
     user-select: none;
 }
 
-
-/* the styles for the editing artifacts. */
 .jsplumb-bezier-handle {
     width:15px;
     height:15px;
     border-radius:50%;
     background-color:darkcyan;
     cursor:move;
+    z-index:10;
+}
+
+.jsplumb-bezier-handle-secondary {
+    cursor:default;
+    background-color:lightgreen;
+}
+
+.jsplumb-bezier-handle-secondary-source {
+    background-color: lavenderblush;
 }
 
 .jsplumb-bezier-guideline {
