@@ -29,9 +29,10 @@ jsPlumb.ready(function () {
     // happening.
     instance.bind("click", function (c) {
         //instance.detach(c);
-        instance.editConnection(c, {
+        instance.startEditing(c, {
             clearOnDrag:false,
-            closeOnMouseUp:false
+            closeOnMouseUp:true,
+            mode:"dual"
         });
     });
 
@@ -42,10 +43,6 @@ jsPlumb.ready(function () {
     instance.bind("connection", function (info) {
         info.connection.getOverlay("label").setLabel(info.connection.id);
     });
-
-    instance.bind("connectionDetach", function() {
-        alert("DETACH!")
-    })
 
     // bind a double click listener to "canvas"; add new node when this occurs.
     jsPlumb.on(canvas, "dblclick", function(e) {
@@ -78,10 +75,6 @@ jsPlumb.ready(function () {
             dropOptions: { hoverClass: "dragHover" },
             anchor: "Continuous",
             allowLoopback: true
-            /*maxConnections: 5,
-            onMaxConnections: function (info, e) {
-                alert("Maximum connections (" + info.maxConnections + ") reached");
-            }*/
         });
 
         // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
@@ -116,18 +109,7 @@ jsPlumb.ready(function () {
         instance.connect({
             source:"phone2",
             target:"rejected",
-            type:"basic",
-            geometry:{
-                controlPoints:[
-                    [ 150, 150 ],
-                    [ 150, 150 ]
-                ]
-            },
-            editable:true,
-            editParams:{
-                clearOnDrag:false,
-                closeOnMouseUp:false
-            }
+            type:"basic"
         });
     });
 
