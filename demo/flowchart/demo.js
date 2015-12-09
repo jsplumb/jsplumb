@@ -6,11 +6,21 @@ jsPlumb.ready(function () {
         // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
         // case it returns the 'labelText' member that we set on each connection in the 'init' method below.
         ConnectionOverlays: [
-            [ "Arrow", { location: 1 } ],
+            [ "Arrow", {
+                location: 1,
+                visible:true,
+                id:"ARROW",
+                events:{
+                    click:function() { alert("you clicked on the arrow overlay")}
+                }
+            } ],
             [ "Label", {
                 location: 0.1,
                 id: "label",
-                cssClass: "aLabel"
+                cssClass: "aLabel",
+                events:{
+                    tap:function() { alert("hey"); }
+                }
             }]
         ],
         Container: "canvas"
@@ -64,7 +74,8 @@ jsPlumb.ready(function () {
                 [ "Label", {
                     location: [0.5, 1.5],
                     label: "Drag",
-                    cssClass: "endpointSourceLabel"
+                    cssClass: "endpointSourceLabel",
+                    visible:false
                 } ]
             ]
         },
@@ -77,7 +88,7 @@ jsPlumb.ready(function () {
             dropOptions: { hoverClass: "hover", activeClass: "active" },
             isTarget: true,
             overlays: [
-                [ "Label", { location: [0.5, -0.5], label: "Drop", cssClass: "endpointTargetLabel" } ]
+                [ "Label", { location: [0.5, -0.5], label: "Drop", cssClass: "endpointTargetLabel", visible:false } ]
             ]
         },
         init = function (connection) {
