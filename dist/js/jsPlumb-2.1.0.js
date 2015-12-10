@@ -1587,6 +1587,7 @@
                 k.unmarkPosses(this, e);
                 this.stop(e);
                 k.notifySelectionDragStop(this, e);
+                k.notifyPosseDragStop(this, e);
                 moving = false;
                 if (clone) {
                     dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
@@ -2019,16 +2020,24 @@
             _foreach(_selection, function(e) { e.moveBy(dx, dy); }, drag);
         };
 
-        this.updatePosses = function(dx, dy, drag) {
+        var _posseAction = function(fn, drag) {
             if (drag.posses) {
                 _each(drag.posses, function(p) {
                     if (drag.posseRoles[p] && _posses[p]) {
                         _foreach(_posses[p].members, function (e) {
-                            e.moveBy(dx, dy);
+                            fn(e);
                         }, drag);
                     }
                 });
             }
+        };
+
+        this.updatePosses = function(dx, dy, drag) {
+            _posseAction(function(e) { e.moveBy(dx, dy); }, drag);
+        };
+
+        this.notifyPosseDragStop = function(drag, evt) {
+            _posseAction(function(e) { e.stop(evt, true); }, drag);
         };
 
         this.notifySelectionDragStop = function(drag, evt) {
@@ -2288,6 +2297,9 @@
         _isf = function (o) {
             return Object.prototype.toString.call(o) === "[object Function]";
         },
+        _isNamedFunction = function(o) {
+            return _isf(o) && o.name != null && o.name.length > 0;
+        },
         _ise = function (o) {
             for (var i in o) {
                 if (o.hasOwnProperty(i)) return false;
@@ -2423,7 +2435,11 @@
             return successValue;
         },
         // take the given model and expand out any parameters.
-        populate: function (model, values) {
+        // 'functionPrefix' is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
+        // if you do not provide it, jsplumb will run the given values through any functions it finds, and use the function's
+        // output as the value in the result. if you do provide the prefix, only functions that are named and have this prefix
+        // will be executed; other functions will be passed as values to the output.
+        populate: function (model, values, functionPrefix) {
             // for a string, see if it has parameter matches, and if so, try to make the substitutions.
             var getValue = function (fromString) {
                     var matches = fromString.match(/(\${.*?})/g);
@@ -2442,6 +2458,9 @@
                     if (d != null) {
                         if (_iss(d)) {
                             return getValue(d);
+                        }
+                        else if (_isf(d) && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
+                            return d(values);
                         }
                         else if (_isa(d)) {
                             var r = [];
@@ -2857,7 +2876,7 @@
                 }
 
                 if (params) {
-                    o = _ju.populate(o, params);
+                    o = _ju.populate(o, params, "_");
                 }
 
                 component.applyType(o, doNotRepaint, map);
@@ -3338,7 +3357,6 @@
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                //_addOneDelegate(id, ".jsplumb-connector, .jsplumb-connector > *", function (e) {
                 _addOneDelegate(id, ".jsplumb-connector > *", function (e) {
                     _oneDelegateHandler(id, e);
                 });
@@ -3923,6 +3941,7 @@
 
         this.connectorClass = "jsplumb-connector";
         this.connectorOutlineClass = "jsplumb-connector-outline";
+        this.editableConnectorClass = "jsplumb-connector-editable";
         this.connectedClass = "jsplumb-connected";
         this.hoverClass = "jsplumb-hover";
         this.endpointClass = "jsplumb-endpoint";
@@ -7876,7 +7895,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -7884,7 +7903,7 @@
  *
  * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
  * 
- * http://jsplumbtoolkit.com
+ * https://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
@@ -7896,7 +7915,6 @@
     var root = this,
         _jp = root.jsPlumb,
         _ju = root.jsPlumbUtil;
-
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
@@ -7975,6 +7993,13 @@
             this.setHover(false);
         }.bind(this));
 
+        this.editableRequested = params.editable !== false;
+        this.setEditable = function(e) {
+            return this.connector ? this.connector.setEditable(e) : false;
+        };
+        this.isEditable = function() { return this.connector ? this.connector.isEditable() : false; };
+        this.isEditing = function() { return this.connector ? this.connector.isEditing() : false; };
+
 // INITIALISATION CODE
 
         this.makeEndpoint = function (isSource, el, elId, ep) {
@@ -8020,7 +8045,7 @@
 
         this.appendToDefaultType({
             detachable: _detachable,
-            rettach: _reattach,
+            reattach: _reattach,
             paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
             hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle
         });
@@ -8112,11 +8137,6 @@
 
         this.updateConnectedClass();
 
-        // editable?
-        if (params.editable && _jsPlumb.editConnection && jsPlumb.ConnectorEditors[this.getConnector().type]) {
-            _jsPlumb.editConnection(this, params.editParams);
-        }
-
 // END PAINTING    
     };
 
@@ -8199,8 +8219,10 @@
             this.connector = null;
         },
         updateConnectedClass:function(remove) {
-            _updateConnectedClass(this, this.source, this._jsPlumb.instance, remove);
-            _updateConnectedClass(this, this.target, this._jsPlumb.instance, remove);
+            if (this._jsPlumb) {
+                _updateConnectedClass(this, this.source, this._jsPlumb.instance, remove);
+                _updateConnectedClass(this, this.target, this._jsPlumb.instance, remove);
+            }
         },
         setHover: function (state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
@@ -8213,7 +8235,7 @@
             return [ this.endpoints[0].getUuid(), this.endpoints[1].getUuid() ];
         },
         getCost: function () {
-            return this._jsPlumb.cost;
+            return this._jsPlumb ? this._jsPlumb.cost : -Infinity;
         },
         setCost: function (c) {
             this._jsPlumb.cost = c;
@@ -8224,12 +8246,15 @@
         getConnector: function () {
             return this.connector;
         },
+        getGeometry : function() { return this.connector ? this.connector.getGeometry() : null; },
+        setGeometry : function(g) { if (this.connector) this.connector.setGeometry(g); },
         prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
-                    cssClass: this._jsPlumb.params.cssClass,
+                    cssClass: (this._jsPlumb.params.cssClass || "") + (this.isEditable() ? this._jsPlumb.instance.editableConnectorClass : ""),
                     container: this._jsPlumb.params.container,
-                    "pointer-events": this._jsPlumb.params["pointer-events"]
+                    "pointer-events": this._jsPlumb.params["pointer-events"],
+                    editable:this.editableRequested
                 },
                 renderMode = this._jsPlumb.instance.getRenderMode(),
                 connector;
@@ -8484,13 +8509,11 @@
 
                 for (var sf = 0; sf < axes.length; sf++) {
                     for (var tf = 0; tf < axes.length; tf++) {
-                        if (sf != tf) {
-                            candidates.push({
-                                source: axes[sf],
-                                target: axes[tf],
-                                dist: Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]])
-                            });
-                        }
+                        candidates.push({
+                            source: axes[sf],
+                            target: axes[tf],
+                            dist: Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]])
+                        });
                     }
                 }
 
@@ -10026,14 +10049,31 @@
             userProvidedSegments = null,
             edited = false,
             paintInfo = null,
-            geometry = null;
+            geometry = null,
+            editable = params.editable !== false && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
 
-        var _setGeometry = this.setGeometry = function(g) {
+        var _setGeometry = this.setGeometry = function(g, internallyComputed) {
+            edited = (!internallyComputed);
             geometry = g;
         };
         var _getGeometry = this.getGeometry = function() {
             return geometry;
         };
+
+        this.hasBeenEdited = function() { return edited; };
+        this.isEditing = function() { return this.editor != null && this.editor.isActive(); };
+        this.setEditable = function(e) {
+            // if this connector has an editor already, or
+            // if an editor for this connector's type is available, or
+            // if the child declares an overrideSetEditable and it does not return false, editable is true.
+            if (e && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
+                editable = e;
+            } else {
+                editable = false;
+            }
+            return editable;
+        };
+        this.isEditable = function() { return editable; };
 
         /**
          * Function: findSegmentForPoint
@@ -10217,8 +10257,7 @@
         };
 
         this.compute = function (params) {
-            if (!edited)
-                paintInfo = _prepareCompute.call(this, params);
+            paintInfo = _prepareCompute.call(this, params);
 
             _clearSegments();
             this._compute(paintInfo, params);
@@ -11510,24 +11549,16 @@
 
     _jp.Connectors.AbstractBezierConnector = function(params) {
         params = params || {};
-        var _controlPoints = [ [ 0, 0 ], [ 0, 0 ] ];
         var showLoopback = params.showLoopback !== false,
             curviness = params.curviness || 10,
             margin = params.margin || 5,
             proximityLimit = params.proximityLimit || 80,
             clockwise = params.orientation && params.orientation === "clockwise",
             loopbackRadius = params.loopbackRadius || 25,
-            isLoopbackCurrently = false;
+            isLoopbackCurrently = false,
+            _super;
 
-        var _getControlPoints = this.getControlPoints = function() { return _controlPoints; };
-        var _setControlPoints = this.setControlPoints = function(cp) {
-            _controlPoints[0][0] = cp[0][0];
-            _controlPoints[0][1] = cp[0][1];
-            _controlPoints[1][0] = cp[1][0];
-            _controlPoints[1][1] = cp[1][1];
-        };
-
-        this.isEditable = function() { return !isLoopbackCurrently; };
+        this.overrideSetEditable = function() { return !isLoopbackCurrently; };
 
         this._compute = function (paintInfo, p) {
 
@@ -11573,23 +11604,19 @@
             }
         };
 
-        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
-
-        _super.setControlPoints = _setControlPoints;
-        _super.getControlPoints = _getControlPoints;
-
+        _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
         return _super;
     };
     _ju.extend(_jp.Connectors.AbstractBezierConnector, _jp.Connectors.AbstractConnector);
 
     var Bezier = function (params) {
         params = params || {};
+        this.type = "Bezier";
 
         var _super = _jp.Connectors.AbstractBezierConnector.apply(this, arguments),
             majorAnchor = params.curviness || 150,
             minorAnchor = 10;
 
-        this.type = "Bezier";
         this.getCurviness = function () {
             return majorAnchor;
         };
@@ -11630,7 +11657,7 @@
                 _tx = sp[0] < tp[0] ? 0 : _w,
                 _ty = sp[1] < tp[1] ? 0 : _h;
 
-            if (geometry != null && geometry.controlPoints != null && geometry.controlPoints[0] != null && geometry.controlPoints[1] != null) {
+            if ((this.hasBeenEdited() || this.isEditing()) && geometry != null && geometry.controlPoints != null && geometry.controlPoints[0] != null && geometry.controlPoints[1] != null) {
                 _CP = geometry.controlPoints[0];
                 _CP2 = geometry.controlPoints[1];
             }
@@ -11639,7 +11666,7 @@
                 _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
             }
 
-            _super.setControlPoints([_CP, _CP2]);
+            _super.setGeometry({controlPoints:[_CP, _CP2]}, true);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
@@ -11773,7 +11800,7 @@
                 cp1x, cp2x, cp1y, cp2y,
                 geometry = _super.getGeometry();
 
-            if (geometry != null) {
+            if ((this.hasBeenEdited() || this.isEditing()) && geometry != null) {
                 cp1x = geometry.controlPoints[0][0];
                 cp1y = geometry.controlPoints[0][1];
                 cp2x = geometry.controlPoints[1][0];
@@ -11796,7 +11823,7 @@
                 cp1y = _controlPoint[1];
                 cp2y = _controlPoint[1];
 
-                _super.setControlPoints([_controlPoint, _controlPoint]);
+                _super.setGeometry({controlPoints:[_controlPoint, _controlPoint]}, true);
             }
 
             _super.addSegment(this, "Bezier", {
@@ -12096,12 +12123,18 @@
         var self = this,
             _super = SvgComponent.apply(this, [
                 {
-                    cssClass: params._jsPlumb.connectorClass,
+                    cssClass: params._jsPlumb.connectorClass + (this.isEditable() ? " " + params._jsPlumb.editableConnectorClass : ""),
                     originalArgs: arguments,
                     pointerEventsSpec: "none",
                     _jsPlumb: params._jsPlumb
                 }
             ]);
+
+        var _superSetEditable = this.setEditable;
+        this.setEditable = function(e) {
+            var result = _superSetEditable.apply(this, [e]);
+            jsPlumb[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
+        };
 
         _super.renderer.paint = function (style, anchor, extents) {
 

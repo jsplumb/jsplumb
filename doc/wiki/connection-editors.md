@@ -38,7 +38,9 @@ from calling the `setGeometry` method manually.
 
 You can get the current geometry like this:
 
-```aConnection.getGeometry()```
+```
+aConnection.getGeometry()
+```
 
 for instance, if you wanted to store the geometry for reuse later.
  

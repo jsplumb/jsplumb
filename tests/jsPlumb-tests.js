@@ -8751,7 +8751,7 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
 
-    test("set editable flag and subsequently edit the connection", function() {
+    asyncTest("set editable flag and subsequently edit the connection", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var conn = _jsPlumb.connect({
             source: d1,
@@ -8762,16 +8762,22 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(conn.isEditable(), "connection is editable because it was requested on a flag.");
         ok(!conn.isEditing(), "connection is not currently being edited");
 
+        _jsPlumb.bind("startConnectionEdit", function() {
+
+            QUnit.start();
+            ok(conn.isEditing(), "connection is currently being edited");
+            var handle = _jsPlumb.getContainer().querySelectorAll(".jsplumb-bezier-handle");
+            equal(2, handle.length, "there are two editor handles");
+
+            _jsPlumb.stopEditing(conn);
+            ok(!conn.isEditing(), "connection is not currently being edited");
+
+            _jsPlumb.clearEdits(conn);
+            ok(!conn.isEditing(), "connection is not currently being edited");
+        });
+
         _jsPlumb.startEditing(conn);
-        ok(conn.isEditing(), "connection is currently being edited");
-        var handle = _jsPlumb.getContainer().querySelectorAll(".jsplumb-bezier-handle");
-        equal(2, handle.length, "there are two editor handles");
 
-        _jsPlumb.stopEditing(conn);
-        ok(!conn.isEditing(), "connection is not currently being edited");
-
-        _jsPlumb.clearEdits(conn);
-        ok(!conn.isEditing(), "connection is not currently being edited");
     });
 
     test("editable flag set to false, subsequently try to edit the connection, not allowed.", function() {
@@ -8789,69 +8795,96 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(!conn.isEditing(), "connection is not currently being edited");
     });
 
-    test("connection edit: events", function() {
+    asyncTest("connection edit: events", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), started, stopped, cleared;
         var conn = _jsPlumb.connect({
             source: d1,
             target: d2,
             editable:true
         });
-        _jsPlumb.bind("startConnectionEdit", function(c) {
-            started = c;
-        });
+
         _jsPlumb.bind("stopConnectionEdit", function(c) {
             stopped = c;
         });
         _jsPlumb.bind("clearConnectionEdits", function(c) {
             cleared = c;
         });
+        _jsPlumb.bind("startConnectionEdit", function(c) {
+            started = c;
+            QUnit.start();
+
+            ok(started != null && started == conn, "startConnectionEdit event fired");
+            _jsPlumb.stopEditing(conn);
+            ok(stopped != null && stopped == conn, "stopConnectionEdit event fired");
+            _jsPlumb.clearEdits(conn);
+            ok(cleared != null && cleared == conn, "clearConnectionEdits event fired");
+        });
 
         _jsPlumb.startEditing(conn);
-        ok(started != null && started == conn, "startConnectionEdit event fired");
-
-        _jsPlumb.stopEditing(conn);
-        ok(stopped != null && stopped == conn, "stopConnectionEdit event fired");
-
-        _jsPlumb.clearEdits(conn);
-        ok(cleared != null && cleared == conn, "clearConnectionEdits event fired");
 
     });
 
+    asyncTest("connection edit: ui artifacts", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var conn = _jsPlumb.connect({
+            source: d1,
+            target: d2
+        });
+        _jsPlumb.bind("startConnectionEdit", function() {
 
-    //jsplumb-bezier-handle jsplumb-draggable
+            QUnit.start();
 
-    test("connection edit: ui artifacts", function() {
+            var handle = _jsPlumb.getContainer().querySelectorAll(".jsplumb-bezier-handle");
+            equal(2, handle.length, "there are two editor handles");
+            ok(handle[0].offsetParent != null, "the editor handle is visible");
+            ok(handle[1].offsetParent != null, "the other editor handle is visible");
+
+            var edited = false;
+            _jsPlumb.bind("connectionEdit", function(c) {
+                edited = true;
+                equal(c, conn, "the correct connection was passed to the callback");
+            });
+
+            _dragANodeAround(handle[0]);
+            ok(edited, "edited event fired");
+
+            _jsPlumb.stopEditing(conn);
+            ok(handle[0].offsetParent == null, "the editor handle is not visible");
+            ok(handle[1].offsetParent  == null, "the other editor handle is not visible");
+
+            _jsPlumb.detach(conn);
+            handle = _jsPlumb.getContainer().querySelectorAll(".jsplumb-bezier-handle");
+            equal(0, handle.length, "there are no editor handles");
+        });
+
+        _jsPlumb.startEditing(conn);
+    });
+
+    asyncTest("connection edit: geometry not written if mouse not moved after mousedown", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var conn = _jsPlumb.connect({
             source: d1,
             target: d2
         });
 
-        _jsPlumb.startEditing(conn);
+        // write something to the geometry. we will check later that the geometry has not been overwritten by testing
+        // for the existence of this.
+        conn.getConnector().getGeometry().foo = "foo";
 
-        var handle = _jsPlumb.getContainer().querySelectorAll(".jsplumb-bezier-handle");
-        equal(2, handle.length, "there are two editor handles");
-        ok(handle[0].offsetParent != null, "the editor handle is visible");
-        ok(handle[1].offsetParent != null, "the other editor handle is visible");
+        _jsPlumb.bind("startConnectionEdit", function() {
 
-        var edited = false;
-        _jsPlumb.bind("connectionEdit", function(c) {
-            edited = true;
-            equal(c, conn, "the correct connection was passed to the callback");
+            QUnit.start();
+
+            var handle = _jsPlumb.getContainer().querySelectorAll(".jsplumb-bezier-handle");
+            _jsPlumb.trigger("mousedown", handle[0], _makeEvt(handle[0]));
+            _jsPlumb.trigger("mouseup", document, _makeEvt(handle[0]));
+
+            _jsPlumb.stopEditing(conn);
+
+            ok(conn.getConnector().getGeometry().foo != null, "geometry not rewritten");
         });
 
-        _dragANodeAround(handle[0]);
-        ok(edited, "edited event fired");
-
-        _jsPlumb.stopEditing(conn);
-        ok(handle[0].offsetParent == null, "the editor handle is not visible");
-        ok(handle[1].offsetParent  == null, "the other editor handle is not visible");
-
-        _jsPlumb.detach(conn);
-        handle = _jsPlumb.getContainer().querySelectorAll(".jsplumb-bezier-handle");
-        equal(0, handle.length, "there are no editor handles");
-
-
+        _jsPlumb.startEditing(conn);
     });
 };
 
