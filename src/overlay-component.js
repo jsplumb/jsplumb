@@ -117,7 +117,9 @@
             // now loop through the full overlays and remove those that we dont want to keep
             for (i in component._jsPlumb.overlays) {
                 if (keep[component._jsPlumb.overlays[i].id] == null)
-                    component.removeOverlay(component._jsPlumb.overlays[i].id);
+                    component.removeOverlay(component._jsPlumb.overlays[i].id, true); // remove overlay but dont clean it up.
+                    // that would remove event listeners etc; overlays are never discarded by the types stuff, they are
+                    // just detached/reattached.
             }
         }
     };
@@ -168,10 +170,10 @@
             if (!doNotRepaint)
                 this.repaint();
         },
-        removeOverlay: function (overlayId) {
+        removeOverlay: function (overlayId, dontCleanup) {
             var o = this._jsPlumb.overlays[overlayId];
             if (o) {
-                if (o.cleanup) o.cleanup();
+                if (!dontCleanup && o.cleanup) o.cleanup();
                 delete this._jsPlumb.overlays[overlayId];
                 if (this._jsPlumb.overlayPositions)
                     delete this._jsPlumb.overlayPositions[overlayId];
