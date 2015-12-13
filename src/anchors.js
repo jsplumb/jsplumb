@@ -178,7 +178,7 @@
                                 var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
                                 if (weAreSource)
                                     _setAnchorLocation(c.endpoints[0], anchors[i]);
-                                else if (weAreTarget)
+                                if (weAreTarget)
                                     _setAnchorLocation(c.endpoints[1], anchors[i]);
                             }
                         }
@@ -520,14 +520,8 @@
                             // to put the connector on.  ideally, when drawing, the face should be calculated
                             // by determining which face is closest to the point at which the mouse button
                             // was released.  for now, we're putting it on the top face.
-                            _updateAnchorList(
-                                anchorLists[sourceId],
-                                    -Math.PI / 2,
-                                0,
-                                conn,
-                                false,
-                                targetId,
-                                0, false, "top", sourceId, connectionsToPaint, endpointsToPaint);
+                            _updateAnchorList( anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", sourceId, connectionsToPaint, endpointsToPaint);
+                            _updateAnchorList( anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", targetId, connectionsToPaint, endpointsToPaint);
                         }
                         else {
                             if (!o) {
