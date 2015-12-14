@@ -63,6 +63,7 @@
             },
             writeSegments = function (conn, segments, paintInfo) {
                 var current = null, next;
+                console.dir(segments)
                 for (var i = 0; i < segments.length - 1; i++) {
 
                     current = current || _cloneArray(segments[i]);
@@ -116,13 +117,13 @@
                 }
             };
 
-        this.isEditable = function () {
-            return true;
-        };
-
         this._compute = function (paintInfo, params) {
 
             segments = [];
+            lastx = null;
+            lasty = null;
+            lastOrientation = null;
+
             var commonStubCalculator = function () {
                 return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];
             },
@@ -179,7 +180,7 @@
             addSegment(segments, stubs[0], stubs[1], paintInfo);
 
             // if its a loopback and we should treat it differently.
-            if (params.sourcePos[0] == params.targetPos[0] && params.sourcePos[1] == params.targetPos[1]) {
+            if (false &&params.sourcePos[0] == params.targetPos[0] && params.sourcePos[1] == params.targetPos[1]) {
 
                 // we use loopbackRadius here, as statemachine connectors do.
                 // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
@@ -192,9 +193,7 @@
 
             }
             else {
-                lastx = null;
-                lasty = null;
-                lastOrientation = null;
+
 
                 var midx = paintInfo.startStubX + ((paintInfo.endStubX - paintInfo.startStubX) * midpoint),
                     midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);
@@ -347,7 +346,7 @@
             writeSegments(this, segments, paintInfo);
         };
 
-        this.getPath = function () {
+        /*this.getPath = function () {
             var _last = null, _lastAxis = null, s = [], segs = segments;
             for (var i = 0; i < segs.length; i++) {
                 var seg = segs[i], axis = seg[4], axisIndex = (axis == "v" ? 3 : 2);
@@ -366,7 +365,7 @@
                 }
             }
             return s;
-        };
+        };*/
     };
 
     _ju.extend(Flowchart, _jp.Connectors.AbstractConnector);
