@@ -123,13 +123,23 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h2>2.1.0</h2>
+                    <h2>2.0.5</h2>
 
 <ul>
-<li><p>refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
+<li><p>Refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
 connectors now support loopback connections.</p></li>
-<li><p>issue #446: addClass and removeClass on Endpoint and Connection now also add/remove class from their overlays, by default. This
+<li><p>add support for loopback connections to Flowchart connector (issue 457).</p></li>
+</ul>
+
+<p>ISSUES</p>
+
+<ul>
+<li><p>458 connectionDetached is fired the first time only</p></li>
+<li><p>457 &#39;Flowchart&#39; connector: loopback connections broken</p></li>
+<li><p>451 cannot bind events to arrow overlays</p></li>
+<li><p>446 addClass and removeClass on Endpoint and Connection now also add/remove class from their overlays, by default. This
 can be overridden by providing &#39;true&#39; as the second argument to the addClass/removeClass methods.</p></li>
+<li><p>434 wrong arrow drawing (offset) when creating a connection on IE9 </p></li>
 </ul>
 
 <h2>2.0.4</h2>

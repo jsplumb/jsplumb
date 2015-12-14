@@ -1,10 +1,23 @@
-## 2.1.0
+## 2.0.5
 
-- refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
+- Refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
  connectors now support loopback connections.
  
-- issue #446: addClass and removeClass on Endpoint and Connection now also add/remove class from their overlays, by default. This
+- add support for loopback connections to Flowchart connector (issue 457).
+ 
+ISSUES
+ 
+- 458 connectionDetached is fired the first time only
+
+- 457 'Flowchart' connector: loopback connections broken
+
+- 451 cannot bind events to arrow overlays
+
+- 446 addClass and removeClass on Endpoint and Connection now also add/remove class from their overlays, by default. This
  can be overridden by providing 'true' as the second argument to the addClass/removeClass methods.
+ 
+- 434 wrong arrow drawing (offset) when creating a connection on IE9 
+ 
 
 ## 2.0.4
 
