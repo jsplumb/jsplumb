@@ -63,7 +63,6 @@
             },
             writeSegments = function (conn, segments, paintInfo) {
                 var current = null, next;
-                console.dir(segments)
                 for (var i = 0; i < segments.length - 1; i++) {
 
                     current = current || _cloneArray(segments[i]);
