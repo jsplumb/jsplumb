@@ -9,6 +9,8 @@ There are a few integration issues that you should be aware of: z-index needs sp
 
 This project is the 'Community Edition' of jsPlumb. The 'Toolkit Edition' is a commercially licenses wrapper around this. 
 
+**This project is not the correct place to report issues for the Toolkit edition**. The Toolkit is not a public project.
+
 ## Project Structure
 At any time there is a built version in the `dist` directory, which contains the concatenated and minified files, as well 
 as a full set of demos and tests, and there is a version under development in `src`.  If taking something that is working 
