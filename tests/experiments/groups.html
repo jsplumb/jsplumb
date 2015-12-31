@@ -25,22 +25,36 @@
 
     #container1 { left:0;top:0; }
     #container2 { left:400px;top:0; }
+    #container3 { left:20px;top:450px; }
+    #container4 { left:400px;top:450px; }
 
 </style>
 
 <div id="holder">
     <div class="container" id="container1">
-        <div class="title">container 1</div>
-        <!--div class="content"-->
+        <div class="title">container 1 (my elements are constrained to the group)</div>
+        <!--div class="jtk-group-content"-->
             <div id="c1_1" class="w" style="left:30px;top:30px">1</div>
             <div id="c1_2" class="w" style="left:230px;top:230px">2</div>
-        <!--/div-->
+        <!--</div>-->
     </div>
 
     <div class="container" id="container2">
-        <div class="title">container 2</div>
+        <div class="title">container 2 (my elements are reverted on drop outside)</div>
         <div id="c2_1" class="w" style="left:30px;top:30px">1</div>
         <div id="c2_2" class="w" style="left:230px;top:230px">2</div>
+    </div>
+
+    <div class="container" id="container3">
+        <div class="title">container 3 (my elements are ignored on drop outside)</div>
+        <div id="c3_1" class="w" style="left:30px;top:30px">1</div>
+        <div id="c3_2" class="w" style="left:230px;top:230px">2</div>
+    </div>
+
+    <div class="container" id="container4">
+        <div class="title">container 4 (my elements are removed on drop outside)</div>
+        <div id="c4_1" class="w" style="left:30px;top:30px">1</div>
+        <div id="c4_2" class="w" style="left:230px;top:230px">2</div>
     </div>
 
     <hr/>
@@ -58,7 +72,7 @@
 <!-- geometry functions -->
 <script src="../../lib/biltong-0.2.js"></script>
 <!-- drag -->
-<script src="../../lib/katavorio-0.13.0.js"></script>
+<script src="../../lib/katavorio-0.15.0.js"></script>
 <!-- jsplumb util -->
 <script src="../../src/util.js"></script>
 <script src="../../src/browser-util.js"></script>
@@ -94,21 +108,36 @@
     jsPlumb.ready(function() {
         var j = jsPlumb.getInstance({Container:holder});
 
-        j.addGroup({ el:container1, id:"one" });
-        j.addGroup({ el:container2, id:"two" });
 
+        // NOTE ordering here. we make one draggable before adding it to the group, and we add the other to the group
+        //before making it draggable. they should both be constrained to the group extents.
+        j.draggable(c1_1);
+        j.addGroup({ el:container1, id:"one", constrain:true });
         j.addToGroup("one", c1_1);
+        j.addToGroup("one", c1_2);
+        j.draggable(c1_2);
+
+        j.draggable(c2_1);
+        j.addGroup({ el:container2, id:"two"/*, revert:true */});  //(the default is to revert)
         j.addToGroup("two", c2_1);
-
-        var jj = j.draggable(c1_1, {constrain:true});
-
-        console.log(jj.getInstanceIndex())
-
-        j.draggable(c2_1, {constrain:true});
+        j.addToGroup("two", c2_2);
         j.draggable(c2_2);
 
+        j.draggable(c3_1);
+        j.addGroup({ el:container3, id:"three", revert:false });
+        j.addToGroup("three", c3_1);
+        j.addToGroup("three", c3_2);
+        j.draggable(c3_2);
+
+        j.draggable(c4_1);
+        j.addGroup({ el:container4, id:"four", orphan:true});
+        j.addToGroup("four", c4_1);
+        j.addToGroup("four", c4_2);
+        j.draggable(c4_2);
+
         j.connect({source:c1_1, target:c2_1});
-        //j.addEndpoint(c1_1);
+        j.connect({source:c2_1, target:c3_1});
+        j.connect({source:c3_1, target:c4_1});
     });
 </script>
 
