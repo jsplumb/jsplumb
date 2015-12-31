@@ -46,4 +46,11 @@
         }
     };
 
+    // override the draggable function, so we can insert a 'stop' callback, telling us if an element has moved outside of
+    // its group
+    var originalDraggable = jsPlumbInstance.prototype.draggable;
+    jsPlumbInstance.prototype.wraggable = function(el, options) {
+
+    }
+
 })();
