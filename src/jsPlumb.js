@@ -1592,13 +1592,13 @@
             return result;
         };
 
-        this.draggable = function (el, options) {
+        jsPlumbInstance.prototype.draggable = function (el, options) {
             var info;
             _each(function(_el) {
                  info = _info(_el);
                 if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
             }, el);
-            return _currentInstance;
+            return this;
         };
 
         this.droppable = function(el, options) {
