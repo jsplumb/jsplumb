@@ -1,3 +1,7 @@
+## 2.1.0
+
+- 'elementDraggable' event now fired whenever an element is made draggable via the `draggable` function
+
 ## 2.0.5
 
 - Refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
