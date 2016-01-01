@@ -725,7 +725,7 @@
              * TODO: somehow abstract this to the adapter, because the concept of "draggable" has no
              * place on the server.
              */
-            _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id) {
+            _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id, fireEvent) {
                 // move to DragManager?
                 if (!jsPlumb.headless) {
                     var _draggable = isDraggable == null ? false : isDraggable;
@@ -794,6 +794,7 @@
                                 options.disabled = draggable == null ? false : !draggable;
                                 _currentInstance.initDraggable(element, options);
                                 _currentInstance.getDragManager().register(element);
+                                if (fireEvent) _currentInstance.fire("elementDraggable", {el:element, options:options});
                             }
                             else {
                                 // already draggable. attach any start, drag or stop listeners to the current Drag.
@@ -1592,13 +1593,13 @@
             return result;
         };
 
-        jsPlumbInstance.prototype.draggable = function (el, options) {
+        this.draggable = function (el, options) {
             var info;
             _each(function(_el) {
                  info = _info(_el);
-                if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
+                if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id, true);
             }, el);
-            return this;
+            return _currentInstance;
         };
 
         this.droppable = function(el, options) {
