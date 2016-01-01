@@ -12,49 +12,110 @@
         text-align:center;
         background-color:WhiteSmoke;
         opacity:0.7;
+        z-index:10;
     }
 
     .container {
         position:absolute;
-        width:350px;height:350px;border:2px solid gray;background-color:lightgoldenrodyellow;
+        width:250px;height:250px;border:2px solid gray;background-color:lightgoldenrodyellow;
+    }
+
+    .container.collapsed {
+        height:40px;
     }
 
     .title {
         background-color:skyblue;
+        padding-right:16px;
+        font-size:13px;
+        height:40px;
     }
 
     #container1 { left:0;top:0; }
-    #container2 { left:400px;top:0; }
-    #container3 { left:20px;top:450px; }
-    #container4 { left:400px;top:450px; }
+    #container2 { left:300px;top:0; }
+    #container3 { left:600px;top:00px; }
+    #container4 { left:0;top:350px; }
+    #container5 { left:300px;top:350px; }
+
+    .del, .collapse {
+        position:absolute;
+        top:5px;
+        right:5px;
+        background-color:white;
+        padding:1px;
+        cursor:pointer;
+        font-size:13px;
+    }
+
+    .del:after {
+        content:"X";
+    }
+
+    .collapse {
+        right:19px;
+        width:10px;
+        text-align: center;;
+    }
+
+    .collapse:after {
+        content:"-";
+    }
+
+    .container.collapsed .collapse:after {
+        content:"+";
+    }
+
+    .del[delete-all] {
+        background-color: pink;
+    }
+
+    .jsplumb-connector path {
+        stroke-width:2;
+    }
 
 </style>
 
 <div id="holder">
-    <div class="container" id="container1">
-        <div class="title">container 1 (my elements are constrained to the group)</div>
+    <div class="container" id="container1" group="one">
+        <div class="title">Elements constrained to group. Deletes group + elements.</div>
+        <div class="del" delete-all></div>
+        <div class="collapse"></div>
         <!--div class="jtk-group-content"-->
-            <div id="c1_1" class="w" style="left:30px;top:30px">1</div>
-            <div id="c1_2" class="w" style="left:230px;top:230px">2</div>
+            <div id="c1_1" class="w" style="left:30px;top:30px">1.1</div>
+            <div id="c1_2" class="w" style="left:180px;top:130px">1.2</div>
         <!--</div>-->
     </div>
 
-    <div class="container" id="container2">
-        <div class="title">container 2 (my elements are reverted on drop outside)</div>
-        <div id="c2_1" class="w" style="left:30px;top:30px">1</div>
-        <div id="c2_2" class="w" style="left:230px;top:230px">2</div>
+    <div class="container" id="container2" group="two">
+        <div class="title">My elements are reverted on drop outside</div>
+        <div class="del"></div>
+        <div class="collapse"></div>
+        <div id="c2_1" class="w" style="left:30px;top:30px">2.1</div>
+        <div id="c2_2" class="w" style="left:180px;top:180px">2.2</div>
     </div>
 
-    <div class="container" id="container3">
-        <div class="title">container 3 (my elements are ignored on drop outside)</div>
-        <div id="c3_1" class="w" style="left:30px;top:30px">1</div>
-        <div id="c3_2" class="w" style="left:230px;top:230px">2</div>
+    <div class="container" id="container3" group="three">
+        <div class="title">My elements are ignored on drop outside</div>
+        <div class="del"></div>
+        <div class="collapse"></div>
+        <div id="c3_1" class="w" style="left:30px;top:30px">3.1</div>
+        <div id="c3_2" class="w" style="left:180px;top:180px">3.2</div>
     </div>
 
-    <div class="container" id="container4">
-        <div class="title">container 4 (my elements are removed on drop outside)</div>
-        <div id="c4_1" class="w" style="left:30px;top:30px">1</div>
-        <div id="c4_2" class="w" style="left:230px;top:230px">2</div>
+    <div class="container" id="container4" group="four">
+        <div class="title">Elements pruned on drop outside. Deletes group + members</div>
+        <div class="del" delete-all></div>
+        <div class="collapse"></div>
+        <div id="c4_1" class="w" style="left:30px;top:30px">4.1</div>
+        <div id="c4_2" class="w" style="left:180px;top:180px">4.2</div>
+    </div>
+
+    <div class="container" id="container5" group="five">
+        <div class="title">My elements are orphaned on drop outside</div>
+        <div class="del"></div>
+        <div class="collapse"></div>
+        <div id="c5_1" class="w" style="left:30px;top:30px">5.1</div>
+        <div id="c5_2" class="w" style="left:180px;top:180px">5.2</div>
     </div>
 
     <hr/>
@@ -106,7 +167,7 @@
 <script src="../../src/group.js"></script>
 <script>
     jsPlumb.ready(function() {
-        var j = jsPlumb.getInstance({Container:holder});
+        var j = jsPlumb.getInstance({Container:holder, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
 
 
         // NOTE ordering here. we make one draggable before adding it to the group, and we add the other to the group
@@ -130,14 +191,42 @@
         j.draggable(c3_2);
 
         j.draggable(c4_1);
-        j.addGroup({ el:container4, id:"four", orphan:true});
+        j.addGroup({ el:container4, id:"four", prune:true});
         j.addToGroup("four", c4_1);
         j.addToGroup("four", c4_2);
         j.draggable(c4_2);
 
+        j.draggable(c5_1);
+        j.addGroup({ el:container5, id:"five", orphan:true});
+        j.addToGroup("five", c5_1);
+        j.addToGroup("five", c5_2);
+        j.draggable(c5_2);
+
         j.connect({source:c1_1, target:c2_1});
         j.connect({source:c2_1, target:c3_1});
         j.connect({source:c3_1, target:c4_1});
+        j.connect({source:c4_1, target:c5_1});
+
+        j.connect({source:c1_1,target:c1_2});
+        j.connect({source:c2_1,target:c2_2});
+        j.connect({source:c3_1,target:c3_2});
+        j.connect({source:c4_1,target:c4_2});
+        j.connect({source:c5_1,target:c5_2});
+        j.connect({source:c5_1,target:c3_2});
+
+        j.on(holder, "click", ".del", function() {
+            var g = this.parentNode.getAttribute("group");
+            j.deleteGroup(g, this.getAttribute("delete-all") != null);
+        });
+
+        j.on(holder, "click", ".collapse", function() {
+            var g = this.parentNode.getAttribute("group"), collapsed = j.hasClass(this.parentNode, "collapsed");
+
+            j[collapsed ? "removeClass" : "addClass"](this.parentNode, "collapsed");
+            j[collapsed ? "expandGroup" : "collapseGroup"](g);
+        });
+
+        j.connect({source:container1,target:container2,anchor:"Continuous"})
     });
 </script>
 
