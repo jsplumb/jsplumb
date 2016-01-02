@@ -1,7 +1,9 @@
 ;(function() {
     "use strict";
 
-    var GROUP_CONTAINER_CLASS = ".jtk-group-content";
+    var GROUP_COLLAPSED_CLASS = "jsplumb-group-collapsed";
+    var GROUP_EXPANDED_CLASS = "jsplumb-group-expanded";
+    var GROUP_CONTAINER_CLASS = "jsplumb-group-content";
     var ELEMENT_DRAGGABLE_EVENT = "elementDraggable";
     var STOP = "stop";
     var REVERT = "revert";
@@ -9,24 +11,32 @@
     var GROUP = "_jsPlumbGroup";
 
     var GroupManager = function(_jsPlumb) {
-        var _managedGroups = {};
+        var _managedGroups = {}, _connectionMap = {};
 
         _jsPlumb.bind("connection", function(p) {
-            console.log("connection", p);
             if(p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
-                p.source[GROUP].connections.internal = p.connection;
+                p.source[GROUP].connections.internal.push(p.connection);
+                _connectionMap[p.connection.id] = p.source[GROUP];
             }
             else if (p.source[GROUP] != null) {
                 p.source[GROUP].connections.source.push(p.connection);
+                _connectionMap[p.connection.id] = p.source[GROUP];
             }
             else if (p.target[GROUP] != null) {
                 p.target[GROUP].connections.target.push(p.connection);
+                _connectionMap[p.connection.id] = p.target[GROUP];
             }
-
         });
 
         _jsPlumb.bind("connectionDetached", function(p) {
-            console.log("connectionDetached", p);
+            var group = _connectionMap[p.connection.id];
+            if (group != null) {
+                var f = function(c) { return c.id === p.connection.id; };
+                jsPlumbUtil.removeWithFunction(group.connections.source, f);
+                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                jsPlumbUtil.removeWithFunction(group.connections.internal, f);
+                delete _connectionMap[p.connection.id];
+            }
         });
 
         _jsPlumb.bind("connectionMoved", function(p) {
@@ -34,20 +44,116 @@
         });
 
         this.addGroup = function(group) {
+            _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _managedGroups[group.id] = group;
             group.manager = this;
+            _updateConnectionsForGroup(group);
         };
+
+        this.addToGroup = function(group, el) {
+            this.getGroup(group).add(el);
+        };
+
+        this.removeFromGroup = function(group, el) {
+            this.getGroup(group).remove(el);
+        };
+
+        this.getGroup = function(groupId) {
+            var group = groupId;
+            if (jsPlumbUtil.isString(groupId)) {
+                group = _managedGroups[groupId];
+                if (group == null) throw new TypeError("No such group [" + groupId + "]");
+            }
+            return group;
+        };
+
+        this.removeGroup = function(group, deleteMembers) {
+            group = this.getGroup(group);
+            group[deleteMembers ? "removeAll" : "orphanAll"]();
+            _jsPlumb.remove(group.el);
+            delete _managedGroups[group.id];
+        };
+
+        function _displayInternalLinks(state, group) {
+            // internal links
+            for (var i = 0; i < group.connections.internal.length; i++) {
+                group.connections.internal[i].setVisible(state);
+            }
+        }
+        var _hideInternalLinks = _displayInternalLinks.bind(this, false);
+        var _showInternalLinks = _displayInternalLinks.bind(this, true);
+
+        function _setVisible(group, state) {
+            var m = group.getMembers();
+            for (var i = 0; i < m.length; i++) {
+                _jsPlumb[state ? "show" : "hide"](m[i], true);
+            }
+        }
+
+        this.collapseGroup = function(group) {
+            group = this.getGroup(group);
+            // hide all connections
+            _setVisible(group, false);
+
+            // setup proxies for sources and targets
+
+
+            _jsPlumb.revalidate(group.el);
+            group.collapsed = true;
+            _jsPlumb.removeClass(group.el, GROUP_EXPANDED_CLASS);
+            _jsPlumb.addClass(group.el, GROUP_COLLAPSED_CLASS);
+        };
+
+        this.expandGroup = function(group) {
+            group = this.getGroup(group);
+            _setVisible(group, true);
+
+            // remove proxies for sources and targets
+
+
+            _jsPlumb.revalidate(group.el);
+            group.collapsed = false;
+            _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
+            _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
+        };
+
+        // TODO refactor this with the code that responds to `connection` events.
+        function _updateConnectionsForGroup(group) {
+            var members = group.getMembers();
+            var c1 = _jsPlumb.getConnections({source:members}, true);
+            var c2 = _jsPlumb.getConnections({target:members}, true);
+            var processed = {};
+            group.connections.source.length = 0;
+            group.connections.target.length = 0;
+            group.connections.internal.length = 0;
+            var oneSet = function(c) {
+                for (var i = 0; i < c.length; i++) {
+                    if (processed[c[i].id]) continue;
+                    processed[c[i].id] = true;
+                    if (c[i].source._jsPlumbGroup === group) {
+                        if (c[i].target._jsPlumbGroup === group) {
+                            group.connections.internal.push(c[i]);
+                        }
+                        else {
+                            group.connections.source.push(c[i]);
+                        }
+                        _connectionMap[c[i].id] = p.source[GROUP];
+                    }
+                    else if (c[i].target._jsPlumbGroup === group) {
+                        group.connections.target.push(c[i]);
+                        _connectionMap[c[i].id] = p.target[GROUP];
+                    }
+                }
+            };
+            oneSet(c1); oneSet(c2);
+        }
     };
 
-    function _manageGroup(_jsPlumb, group) {
-        if (_jsPlumb[GROUP_MANAGER] == null) {
 
-            _jsPlumb[GROUP_MANAGER] = new GroupManager(_jsPlumb);
 
-        }
-    }
 
     var Group = function(_jsPlumb, params) {
+        var self = this;
         this.el = params.el;
         this.elId = _jsPlumb.getId(params.el);
         this.id = params.id || jsPlumbUtil.uuid();
@@ -73,18 +179,30 @@
                 }
             });
         }
-        this.add = function(el) {
-            el._jsPlumbGroup = this;
-            elements.push(el);
-            // test if draggable and add handlers if so.
-            if (_jsPlumb.isAlreadyDraggable(el)) {
-                _bindDragHandlers(el);
+        var _each = function(el, fn) {
+            var els = el.nodeType == null ?  el : [ el ];
+            for (var i = 0; i < els.length; i++) {
+                fn(els[i]);
             }
         };
+
+        this.add = function(el) {
+            _each(el, function(_el) {
+                _el._jsPlumbGroup = self;
+                elements.push(_el);
+                // test if draggable and add handlers if so.
+                if (_jsPlumb.isAlreadyDraggable(_el)) {
+                    _bindDragHandlers(_el);
+                }
+            });
+        };
         this.remove = function(el) {
-            delete el._jsPlumbGroup;
-            jsPlumbUtil.removeWithFunction(elements, function(e) {
-                return e === el;
+            _each(el, function(_el) {
+                delete _el._jsPlumbGroup;
+                jsPlumbUtil.removeWithFunction(elements, function(e) {
+                    return e === _el;
+                });
+                _unbindDragHandlers(_el);
             });
         };
         this.removeAll = function() {
@@ -194,7 +312,7 @@
             }
         }
 
-        _manageGroup(_jsPlumb, this);
+        _jsPlumb.getGroupManager().addGroup(this);
     };
 
     /**
@@ -210,77 +328,81 @@
     };
 
     /**
-     * Add an element to a group, by group id.
+     * Add an element to a group.
      * @method addToGroup
-     * @param {String} groupId ID of the group to add the element to.
+     * @param {String} group Group, or ID of the group, to add the element to.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.addToGroup = function(groupId, el) {
-        if (!this._groups || ! this._groups[groupId]) throw new TypeError("No such group [" + groupId + "]");
-        else {
-            var g = this._groups[groupId];
-            g.add(el);
-        }
+    jsPlumbInstance.prototype.addToGroup = function(group, el) {
+        this.getGroupManager().addToGroup(group, el);
+    };
+
+    /**
+     * Remove an element from a group.
+     * @method removeFromGroup
+     * @param {String} group Group, or ID of the group, to remove the element from.
+     * @param {Element} el Element to add to the group.
+     */
+    jsPlumbInstance.prototype.removeFromGroup = function(group, el) {
+        this.getGroupManager().removeFromGroup(group, el);
     };
 
     /**
      * Remove a group, and optionally remove its members from the jsPlumb instance.
-     * @method deleteGroup
-     * @param {String} groupId ID of the group to delete.
+     * @method removeGroup
+     * @param {String|Group} group Group to delete, or ID of Grrup to delete.
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the group. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    jsPlumbInstance.prototype.deleteGroup = function(groupId, deleteMembers) {
-        if (!this._groups || ! this._groups[groupId]) throw new TypeError("No such group [" + groupId + "]");
-        else {
-            var g = this._groups[groupId];
-            g[deleteMembers ? "removeAll" : "orphanAll"]();
-            this.remove(g.el);
-            delete this._groups[groupId];
-        }
+    jsPlumbInstance.prototype.removeGroup = function(group, deleteMembers) {
+        this.getGroupManager().removeGroup(group, deleteMembers);
     };
 
-    jsPlumbInstance.prototype.expandGroup = function(groupId) {
-        if (!this._groups || ! this._groups[groupId]) throw new TypeError("No such group [" + groupId + "]");
-        else {
-            var g = this._groups[groupId];
-            //
-
-            this.revalidate(g.el);
-        }
+    /**
+     * Expands a group element. jsPlumb doesn't do "everything" for you here, because what it means to expand a Group
+     * will vary from application to application. jsPlumb does these things:
+     *
+     * - Hides any connections that are internal to the group (connections between members, and connections from member of
+     * the group to the group itself)
+     * - Proxies all connections for which the source or target is a member of the group.
+     * - Hides the proxied connections.
+     * - Adds the jsplumb-group-expanded class to the group's element
+     * - Removes the jsplumb-group-collapsed class from the group's element.
+     *
+     * @method expandGroup
+     * @param {String|Group} group Group to expand, or ID of Group to expand.
+     */
+    jsPlumbInstance.prototype.expandGroup = function(group) {
+        this.getGroupManager().expandGroup(group);
     };
 
+    /**
+     * Collapses a group element. jsPlumb doesn't do "everything" for you here, because what it means to collapse a Group
+     * will vary from application to application. jsPlumb does these things:
+     *
+     * - Shows any connections that are internal to the group (connections between members, and connections from member of
+     * the group to the group itself)
+     * - Removes proxies for all connections for which the source or target is a member of the group.
+     * - Shows the previously proxied connections.
+     * - Adds the jsplumb-group-collapsed class to the group's element
+     * - Removes the jsplumb-group-expanded class from the group's element.
+     *
+     * @method expandGroup
+     * @param {String|Group} group Group to expand, or ID of Group to expand.
+     */
     jsPlumbInstance.prototype.collapseGroup = function(groupId) {
-        if (!this._groups || ! this._groups[groupId]) throw new TypeError("No such group [" + groupId + "]");
-        else {
-            var g = this._groups[groupId];
-            var members = g.getMembers();
-            var c1 = this.getConnections({source:members}, true);
-            var c2 = this.getConnections({target:members}, true);
-            var processed = {};
-            var sources = [], targets = [], internal = [];
-            var oneSet = function(c) {
-                for (var i = 0; i < c.length; i++) {
-                    if (processed[c[i].id]) continue;
-                    processed[c[i].id] = true;
-                    if (c[i].source._jsPlumbGroup === g) {
-                        if (c[i].target._jsPlumbGroup === g) {
-                            internal.push(c[i]);
-                            c[i].setVisible(false);
-                        }
-                        else {
-                            sources.push(c[i]);
-                        }
-                    }
-                    else if (c[i].target._jsPlumbGroup === g) {
-                        targets.push(c[i]);
-                    }
-                }
-            };
-            oneSet(c1); oneSet(c2);
-            console.log(c1, c2)
-            this.revalidate(g.el);
-        }
+        this.getGroupManager().collapseGroup(groupId);
     };
+
+    //
+    // lazy init a group manager for the given jsplumb instance.
+    //
+    jsPlumbInstance.prototype.getGroupManager = function() {
+        var mgr = this[GROUP_MANAGER];
+        if (mgr == null) {
+            mgr = this[GROUP_MANAGER] = new GroupManager(this);
+        }
+        return mgr;
+    }
 
 })();
