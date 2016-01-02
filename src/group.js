@@ -74,15 +74,6 @@
             delete _managedGroups[group.id];
         };
 
-        function _displayInternalLinks(state, group) {
-            // internal links
-            for (var i = 0; i < group.connections.internal.length; i++) {
-                group.connections.internal[i].setVisible(state);
-            }
-        }
-        var _hideInternalLinks = _displayInternalLinks.bind(this, false);
-        var _showInternalLinks = _displayInternalLinks.bind(this, true);
-
         function _setVisible(group, state) {
             var m = group.getMembers();
             for (var i = 0; i < m.length; i++) {
@@ -148,9 +139,6 @@
             oneSet(c1); oneSet(c2);
         }
     };
-
-
-
 
     var Group = function(_jsPlumb, params) {
         var self = this;
