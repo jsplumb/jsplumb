@@ -1081,14 +1081,16 @@
          * el is either an id, or an element object, or a list of ids/element objects.
          */
             _toggleDraggable = function (el) {
-                return jsPlumb.each(el, function (el) {
+                var state;
+                jsPlumb.each(el, function (el) {
                     var elId = _currentInstance.getAttribute(el, "id");
-                    var state = draggableStates[elId] == null ? false : draggableStates[elId];
+                    state = draggableStates[elId] == null ? false : draggableStates[elId];
                     state = !state;
                     draggableStates[elId] = state;
                     _currentInstance.setDraggable(el, state);
                     return state;
                 }.bind(this));
+                return state;
             },
             /**
              * private method to do the business of toggling hiding/showing.
