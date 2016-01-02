@@ -15,7 +15,7 @@
 
         _jsPlumb.bind("connection", function(p) {
             if(p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
-                p.source[GROUP].connections.internal.push(p.connection);
+                //p.source[GROUP].connections.internal.push(p.connection);
                 _connectionMap[p.connection.id] = p.source[GROUP];
             }
             else if (p.source[GROUP] != null) {
@@ -34,7 +34,7 @@
                 var f = function(c) { return c.id === p.connection.id; };
                 jsPlumbUtil.removeWithFunction(group.connections.source, f);
                 jsPlumbUtil.removeWithFunction(group.connections.target, f);
-                jsPlumbUtil.removeWithFunction(group.connections.internal, f);
+                //jsPlumbUtil.removeWithFunction(group.connections.internal, f);
                 delete _connectionMap[p.connection.id];
             }
         });
@@ -116,14 +116,14 @@
             var processed = {};
             group.connections.source.length = 0;
             group.connections.target.length = 0;
-            group.connections.internal.length = 0;
+            //group.connections.internal.length = 0;
             var oneSet = function(c) {
                 for (var i = 0; i < c.length; i++) {
                     if (processed[c[i].id]) continue;
                     processed[c[i].id] = true;
                     if (c[i].source._jsPlumbGroup === group) {
                         if (c[i].target._jsPlumbGroup === group) {
-                            group.connections.internal.push(c[i]);
+                            //group.connections.internal.push(c[i]);
                         }
                         else {
                             group.connections.source.push(c[i]);
