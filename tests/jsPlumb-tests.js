@@ -90,6 +90,13 @@ var defaults = null,
 
 var testSuite = function (renderMode, _jsPlumb) {
 
+    var _dragANodeAround = jsPlumbTestSupport.dragANodeAround.bind(null, _jsPlumb);
+    var _dragConnection = jsPlumbTestSupport.dragConnection.bind(null, _jsPlumb);
+    var _detachConnection = jsPlumbTestSupport.detachConnection.bind(null, _jsPlumb);
+    var _relocate = jsPlumbTestSupport.relocate.bind(null, _jsPlumb);
+    var _relocateSource = jsPlumbTestSupport.relocateSource.bind(null, _jsPlumb);
+    var _relocateTarget = jsPlumbTestSupport.relocateTarget.bind(null, _jsPlumb);
+
 
     module("jsPlumb", {
         teardown: function () {
@@ -7383,105 +7390,12 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
 
-    var _makeEvt = function (el) {
-        var o = _jsPlumb.getOffset(el),
-            s = _jsPlumb.getSize(el),
-            l = o.left + (s[0] / 2),
-            t = o.top + (s[1] / 2);
-
-        return {
-            clientX: l,
-            clientY: t,
-            screenX: l,
-            screenY: t,
-            pageX: l,
-            pageY: t
-        };
-    };
-
-    var _distantPointEvent = {
-        clientX: 50000,
-        clientY: 50000,
-        screenX: 50000,
-        screenY: 50000,
-        pageX: 50000,
-        pageY: 50000
-    };
-
-    var _randomEvent = function() {
-        var x = parseInt(Math.random() * 2000), y = parseInt(Math.random() * 2000);
-        return {
-            clientX:x,
-            clientY:y,
-            screenX:x,
-            screenY:y,
-            pageX:x,
-            pageY:y
-        };
-    };
-
-    var _dragANodeAround = function(el) {
-        _jsPlumb.trigger(el, "mousedown", _makeEvt(el));
-        var steps = Math.random() * 50;
-        for (var i = 0; i < steps; i++) {
-            var evt = _randomEvent();
-            el.style.left = evt.screenX + "px";
-            el.style.top= evt.screenY + "px";
-            _jsPlumb.trigger(document, "mousemove", evt);
-        }
-        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
-    };
-
-    //
-    // helper method to cause a connection to be dragged via the mouse, but programmatically.
-    //
-    var _dragConnection = function (d1, d2) {
-        var el1 = d1.canvas || d1, el2 = d2.canvas || d2;
-        var e1 = _makeEvt(el1), e2 = _makeEvt(el2);
-
-        var conns = _jsPlumb.select().length;
-
-        _jsPlumb.trigger(el1, "mousedown", e1);
-        _jsPlumb.trigger(document, "mousemove", e2);
-        _jsPlumb.trigger(el2, "mouseup", e2);
-
-        return _jsPlumb.select().get(conns);
-    };
-
-    //
-    // helper method to cause a connection to be detached via the mouse, but programmatically.
-    var _detachConnection = function (e, connIndex) {
-        var el1 = e.canvas,
-            c = e.connections[connIndex];
-
-        var e1 = _makeEvt(el1);
-
-        _jsPlumb.trigger(el1, "mousedown", e1);
-        _jsPlumb.trigger(document, "mousemove", document);
-        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
-    };
 
     var _detachThisConnection = function(c) {
         var idx = c.endpoints[1].connections.indexOf(c);
         _detachConnection(c.endpoints[1], idx);
     };
 
-    var _relocateTarget = function(conn, target) {
-        _relocate(conn, 1, target);
-    };
-
-    var _relocate = function(conn, idx, newEl) {
-        var el1 = conn.endpoints[idx].canvas;
-        var e1 = _makeEvt(el1);
-        var e2 = _makeEvt(newEl);
-        _jsPlumb.trigger(el1, "mousedown", e1);
-        _jsPlumb.trigger(document, "mousemove", e2);
-        _jsPlumb.trigger(newEl, "mouseup", e2);
-    };
-
-    var _relocateSource = function(conn, source) {
-        _relocate(conn, 0, source);
-    };
 
      /**
      * Tests endpoint mouse interaction via event triggering: the ability to drag a connection to another
@@ -8442,29 +8356,27 @@ var testSuite = function (renderMode, _jsPlumb) {
 // ----------------------- draggables and posses ----------------------------------------------------
 
     test("dragging works", function() {
-        var m = new Mottle();
         var d = _addDiv("d1");
         d.style.position = "absolute";
         d.style.left = "50px";
         d.style.top = "50px";
-        var _t = function(el, evt, x, y) {
-            m.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
-        };
 
         _jsPlumb.draggable(d);
 
-        _t(d, "mousedown", 0, 0);
-        _t(document, "mousemove", 100, 100);
-        ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
-        m.trigger(document, "mouseup");
-        ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+        jsPlumbTestSupport.dragNode(_jsPlumb, d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+            },
+            after:function() {
+                ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+            }
+        });
 
         equal(150, parseInt(d.style.left, 10));
         equal(150, parseInt(d.style.top, 10));
     });
 
   test("dragging a posse works, elements as argument", function() {
-        var m = new Mottle();
 
         var d = _addDiv("d1");
         d.style.position = "absolute";
@@ -8476,18 +8388,17 @@ var testSuite = function (renderMode, _jsPlumb) {
         d2.style.left = "450px";
         d2.style.top = "450px";
 
-        var _t = function(el, evt, x, y) {
-            m.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
-        };
-
         _jsPlumb.draggable([d,d2]);
         _jsPlumb.addToPosse([d,d2], "posse");
 
-        _t(d, "mousedown", 0, 0);
-        _t(document, "mousemove", 100, 100);
-        ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
-        m.trigger(document, "mouseup");
-        ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+        jsPlumbTestSupport.dragNode(_jsPlumb, d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+            },
+            after:function() {
+                ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+            }
+        });
 
         equal(150, parseInt(d.style.left, 10));
         equal(150, parseInt(d.style.top, 10));
@@ -8496,9 +8407,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(550, parseInt(d2.style.top, 10));
 
         _jsPlumb.removeFromPosse(d2, "posse");
-        _t(d, "mousedown", 0, 0);
-        _t(document, "mousemove", -100, -100);
-        m.trigger(document, "mouseup");
+        jsPlumbTestSupport.dragNode(_jsPlumb, d, -100, -100);
 
         equal(50, parseInt(d.style.left, 10));
         equal(50, parseInt(d.style.top, 10));
@@ -8508,8 +8417,6 @@ var testSuite = function (renderMode, _jsPlumb) {
     });
 
     test("dragging a posse works, element ids as argument", function() {
-        var m = new Mottle();
-
         var d = _addDiv("d1");
         d.style.position = "absolute";
         d.style.left = "50px";
@@ -8520,18 +8427,17 @@ var testSuite = function (renderMode, _jsPlumb) {
         d2.style.left = "450px";
         d2.style.top = "450px";
 
-        var _t = function(el, evt, x, y) {
-            m.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
-        };
-
         _jsPlumb.draggable([d,d2]);
         _jsPlumb.addToPosse(["d1","d2"], "posse");
 
-        _t(d, "mousedown", 0, 0);
-        _t(document, "mousemove", 100, 100);
-        ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
-        m.trigger(document, "mouseup");
-        ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+        jsPlumbTestSupport.dragNode(_jsPlumb, d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+            },
+            after:function() {
+                ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+            }
+        });
 
         equal(150, parseInt(d.style.left, 10));
         equal(150, parseInt(d.style.top, 10));
@@ -8541,9 +8447,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
 
         _jsPlumb.removeFromPosse(d2, "posse");
-        _t(d, "mousedown", 0, 0);
-        _t(document, "mousemove", -100, -100);
-        m.trigger(document, "mouseup");
+        jsPlumbTestSupport.dragNode(_jsPlumb, d, -100, -100);
 
         equal(50, parseInt(d.style.left, 10));
         equal(50, parseInt(d.style.top, 10));
