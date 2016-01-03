@@ -185,7 +185,7 @@
             // it used to call clone.  but it would be nice to find some time to look
             // further at this.
             this.clone = function () {
-                var o = {};//new Object();
+                var o = Object.create(this.constructor.prototype);
                 this.constructor.apply(o, a);
                 return o;
             }.bind(this);
