@@ -83,10 +83,29 @@
 
         this.collapseGroup = function(group) {
             group = this.getGroup(group);
+
+            // todo remove old proxy endpoints first, just in case?
+            group.proxies.length = 0;
+
             // hide all connections
             _setVisible(group, false);
 
             // setup proxies for sources and targets
+            for (var i = 0; i < group.connections.source.length; i++) {
+                console.log(group.connections.source[i]);
+
+//                var c = group.connections.source[i].clone();
+//                var newEp = _jsPlumb.addEndpoint(group.el, {
+//                    endpoint:group.endpoint,
+//                    anchor:group.anchor
+//                });
+//                group.proxies[group.connections.source[i].id] = {ep:newEp, conn:c};// TODO add proxied connection.
+//                c.endpoints[0] = newEp;
+//                c.source = group.el;
+//                c.sourceId = _jsPlumb.getId(group.el);
+//                c.setVisible(true);
+            }
+
 
 
             _jsPlumb.revalidate(group.el);
@@ -153,6 +172,9 @@
         var prune = params.prune === true;
         var elements = [];
         this.connections = { source:[], target:[], internal:[] };
+        this.proxies = {}; // map of connection id->proxy connections.
+        this.anchor = params.anchor || "Continuous";
+        this.endpoint = params.endpoint || [ "Dot", { radius:2 }];
         this.collapsed = false;
         if (params.draggable !== false) {
             _jsPlumb.draggable(params.el, {
