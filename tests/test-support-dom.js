@@ -118,24 +118,28 @@
 
 
     this.jsPlumbTestSupport = {
-        getAttribute:function(el, att) {
-            return el.getAttribute(att);
-        },
-        droppableClass:"jsplumb-droppable",
+        getInstance:function(_jsPlumb) {
+            return {
+                getAttribute:function(el, att) {
+                    return el.getAttribute(att);
+                },
+                droppableClass:"jsplumb-droppable",
 
-        dragNodeBy:_dragNodeBy,
+                dragNodeBy:_dragNodeBy.bind(null, _jsPlumb),
 
-        dragNodeTo:_dragNodeTo,
+                dragNodeTo:_dragNodeTo.bind(null, _jsPlumb),
 
-        dragANodeAround:_dragANodeAround,
+                dragANodeAround:_dragANodeAround.bind(null, _jsPlumb),
 
-        dragConnection:_dragConnection,
+                dragConnection:_dragConnection.bind(null, _jsPlumb),
 
-        detachConnection:_detachConnection,
+                detachConnection:_detachConnection.bind(null, _jsPlumb),
 
-        relocate:_relocate,
-        relocateSource:_relocateSource,
-        relocateTarget:_relocateTarget
+                relocate:_relocate.bind(null, _jsPlumb),
+                relocateSource:_relocateSource.bind(null, _jsPlumb),
+                relocateTarget:_relocateTarget.bind(null, _jsPlumb)
+            }
+        }
     };
 
 }).call(this);
