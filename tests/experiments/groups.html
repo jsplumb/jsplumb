@@ -70,7 +70,11 @@
     }
 
     .jsplumb-connector path {
-        stroke-width:2;
+        stroke-width:4;
+    }
+
+    .jsplumb-group-collapsed .w {
+        display:none;
     }
 
 </style>
@@ -169,11 +173,22 @@
     jsPlumb.ready(function() {
         var j = jsPlumb.getInstance({Container:holder, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
 
+        j.bind("connection", function(p) {
+            p.connection.bind("click", function() {
+                j.detach(this);
+            });
+        });
 
         // NOTE ordering here. we make one draggable before adding it to the group, and we add the other to the group
         //before making it draggable. they should both be constrained to the group extents.
         j.draggable(c1_1);
-        j.addGroup({ el:container1, id:"one", constrain:true });
+        j.addGroup({
+            el:container1,
+            id:"one",
+            constrain:true,
+            anchor:"Continuous",
+            endpoint:"Blank"
+        });
         j.addToGroup("one", c1_1);
         j.addToGroup("one", c1_2);
         j.draggable(c1_2);
@@ -198,8 +213,7 @@
 
         j.draggable(c5_1);
         j.addGroup({ el:container5, id:"five", orphan:true});
-        j.addToGroup("five", c5_1);
-        j.addToGroup("five", c5_2);
+        j.addToGroup("five", [c5_1, c5_2]);
         j.draggable(c5_2);
 
         j.connect({source:c1_1, target:c2_1});
@@ -214,9 +228,11 @@
         j.connect({source:c5_1,target:c5_2});
         j.connect({source:c5_1,target:c3_2});
 
+        j.connect({source:c5_1,target:container5, anchors:["Center", "Continuous"]});
+
         j.on(holder, "click", ".del", function() {
             var g = this.parentNode.getAttribute("group");
-            j.deleteGroup(g, this.getAttribute("delete-all") != null);
+            j.removeGroup(g, this.getAttribute("delete-all") != null);
         });
 
         j.on(holder, "click", ".collapse", function() {
