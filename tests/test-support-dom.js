@@ -50,6 +50,26 @@
         _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
     };
 
+    var _dragNodeTo = function(_jsPlumb, el, x, y, events) {
+        events = events || {};
+        if (events.before) events.before();
+        _jsPlumb.trigger(el, "mousedown", _makeEvt(_jsPlumb, el));
+        if (events.beforeMouseMove) {
+            events.beforeMouseMove();
+        }
+        _t(document, "mousemove", x, y);
+        if (events.beforeMouseUp) {
+            events.beforeMouseUp();
+        }
+        mottle.trigger(document, "mouseup");
+        if (events.after) events.after();
+    };
+
+    var _dragNodeBy = function(_jsPlumb, el, x, y, events) {
+        var xy = _jsPlumb.getOffset(el);
+        _dragNodeTo(_jsPlumb, el, xy.left+x, xy.top+y, events);
+    };
+
     //
     // helper method to cause a connection to be dragged via the mouse, but programmatically.
     //
@@ -103,20 +123,9 @@
         },
         droppableClass:"jsplumb-droppable",
 
-        dragNode:function(_jsPlumb, el, x, y, events) {
-            events = events || {};
-            if (events.before) events.before();
-            _t(el, "mousedown", 0, 0);
-            if (events.beforeMouseMove) {
-                events.beforeMouseMove();
-            }
-            _t(document, "mousemove", x, y);
-            if (events.beforeMouseUp) {
-                events.beforeMouseUp();
-            }
-            mottle.trigger(document, "mouseup");
-            if (events.after) events.after();
-        },
+        dragNodeBy:_dragNodeBy,
+
+        dragNodeTo:_dragNodeTo,
 
         dragANodeAround:_dragANodeAround,
 
