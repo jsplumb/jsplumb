@@ -650,13 +650,6 @@
                             _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.endpoints[anchorIdx].elementId, jpc.targetId, jpc);
                         }
 
-                        // lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
-                        // TODO SP i commented this out as part of the rewirte; i think now we want the other endpoint
-                        // to behave naturally.
-                        // SJP
-                        //jpc.endpoints[anchorIdx === 0 ? 1 : 0].anchor.locked = true;
-
-
                         // store the original endpoint and assign the new floating endpoint for the drag.
                         jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
 
@@ -765,6 +758,8 @@
                         _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
                         // tell jsplumb that dragging is finished.
                         _jsPlumb.currentlyDragging = false;
+                        jpc.suspendedElement = null;
+                        jpc.suspendedEndpoint = null;
                         jpc = null;
                     }
 
