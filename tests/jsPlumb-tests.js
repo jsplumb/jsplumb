@@ -90,15 +90,7 @@ var defaults = null,
 
 var testSuite = function (renderMode, _jsPlumb) {
 
-//    var support.dragANodeAround = jsPlumbTestSupport.dragANodeAround.bind(null, _jsPlumb);
-//    var support.dragConnection = jsPlumbTestSupport.dragConnection.bind(null, _jsPlumb);
-//    var support.detachConnection = jsPlumbTestSupport.detachConnection.bind(null, _jsPlumb);
-//    var support.relocate = jsPlumbTestSupport.relocate.bind(null, _jsPlumb);
-//    var support.relocateSource = jsPlumbTestSupport.relocateSource.bind(null, _jsPlumb);
-//    var support.relocateTarget = jsPlumbTestSupport.relocateTarget.bind(null, _jsPlumb);
-    
     var support = jsPlumbTestSupport.getInstance(_jsPlumb);
-
 
     module("jsPlumb", {
         teardown: function () {
@@ -7627,6 +7619,28 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(evt == false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
 
+    });
+
+    test("endpoint: suspendedElement set correctly", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
+            e1 = _jsPlumb.addEndpoint(d1, { isSource:true, isTarget:true }),
+            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
+            e3 = _jsPlumb.addEndpoint(d3, {isSource:true, isTarget:true});
+
+        equal(_jsPlumb.select().length, 0, "zero connections before drag");
+        var c = support.dragConnection(e1, e2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        support.relocateTarget(c, e3, {
+            beforeMouseUp:function() {
+                equal(c.suspendedElement, d2, "suspended element is set");
+                equal(c.suspendedEndpoint, e2, "suspended endpoint is set");
+            },
+            after :function() {
+                equal(c.suspendedElement, null, "suspended element is cleared");
+                equal(c.suspendedEndpoint, null, "suspended endpoint is cleared");
+            }
+        });
     });
 
     /*
