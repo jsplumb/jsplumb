@@ -99,23 +99,34 @@
         _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
     };
 
-    var _relocateTarget = function(_jsPlumb, conn, target) {
-        _relocate(_jsPlumb, conn, 1, target);
+    var _relocateTarget = function(_jsPlumb, conn, target, events) {
+        _relocate(_jsPlumb, conn, 1, target, events);
     };
 
-    var _relocate = function(_jsPlumb, conn, idx, newEl) {
+    var _relocate = function(_jsPlumb, conn, idx, newEl, events) {
+        events = events || {};
+
+        // allow Endpoints to be passed in
+        newEl = newEl.canvas || newEl;
+
         var el1 = conn.endpoints[idx].canvas;
         var e1 = _makeEvt(_jsPlumb, el1);
         var e2 = _makeEvt(_jsPlumb, newEl);
+
+        events.before && events.before();
+
         _jsPlumb.trigger(el1, "mousedown", e1);
+        events.beforeMouseMove && events.beforeMouseMove();
         _jsPlumb.trigger(document, "mousemove", e2);
+        events.beforeMouseUp && events.beforeMouseUp();
         _jsPlumb.trigger(newEl, "mouseup", e2);
+
+        events.after && events.after();
     };
 
-    var _relocateSource = function(_jsPlumb, conn, source) {
-        _relocate(_jsPlumb, conn, 0, source);
+    var _relocateSource = function(_jsPlumb, conn, source, events) {
+        _relocate(_jsPlumb, conn, 0, source, events);
     };
-
 
     this.jsPlumbTestSupport = {
         getInstance:function(_jsPlumb) {
@@ -123,6 +134,7 @@
                 getAttribute:function(el, att) {
                     return el.getAttribute(att);
                 },
+
                 droppableClass:"jsplumb-droppable",
 
                 dragNodeBy:_dragNodeBy.bind(null, _jsPlumb),
@@ -136,7 +148,9 @@
                 detachConnection:_detachConnection.bind(null, _jsPlumb),
 
                 relocate:_relocate.bind(null, _jsPlumb),
+
                 relocateSource:_relocateSource.bind(null, _jsPlumb),
+
                 relocateTarget:_relocateTarget.bind(null, _jsPlumb)
             }
         }
