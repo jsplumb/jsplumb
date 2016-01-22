@@ -35,5 +35,5 @@
     "jsPlumb <hello@jsplumbtoolkit.com>"
   ],
   "description": "Visual connectivity for webapps",
-  "license": "MIT/GPL2"
+  "license": "/jsPlumb-LICENSE.txt"
 }
