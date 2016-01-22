@@ -1,6 +1,6 @@
 {
   "name": "jsPlumb",
-  "version": "2.0.5",
+  "version": "2.0.5.1",
   "ignore": [
     "demo",
     "dist/apidocs",
