@@ -7417,6 +7417,10 @@
 
                         // although the connection is no longer valid, there are use cases where this is useful.
                         _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
+                        // fire this event to give people more fine-grained control (connectionDragStop fires a lot)
+                        if (jpc.pending) {
+                            _jsPlumb.fire("connectionAborted", jpc, originalEvent);
+                        }
                         // tell jsplumb that dragging is finished.
                         _jsPlumb.currentlyDragging = false;
                         jpc = null;
