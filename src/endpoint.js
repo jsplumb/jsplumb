@@ -603,6 +603,7 @@
                             type: this.connectionType,
                             cssClass: this.connectorClass,
                             hoverClass: this.connectorHoverClass,
+                            scope:params.scope,
                             data:beforeDrag
                         });
                         jpc.pending = true;

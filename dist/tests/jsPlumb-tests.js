@@ -8662,5 +8662,55 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(count == 2, "click event was triggered on arrow overlay");
     });
 
+    test("endpoint unmatched scopes", function() {
+        var sourceEndpoint = {
+                isSource: true,
+                scope: "blue"
+            }, targetEndpoint = {
+                isTarget:true
+            },
+            d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
+            e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
+
+        var c = _jsPlumb.connect({source:e1, target:e2});
+
+        ok(c == null, "no connection as scopes dont match");
+    });
+
+    test("endpoint passes scope to connection, programmatic connection", function() {
+        var sourceEndpoint = {
+            isSource: true,
+            scope: "blue"
+            }, targetEndpoint = {
+            isTarget:true,
+                scope:"blue"
+            },
+            d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
+            e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
+
+            var c = _jsPlumb.connect({source:e1, target:e2});
+
+        equal(c.scope, "blue", "connection scope is blue.");
+    });
+
+    test("endpoint passes scope to connection, connection via mouse", function() {
+        var sourceEndpoint = {
+                isSource: true,
+                scope: "blue"
+            }, targetEndpoint = {
+                isTarget:true,
+                scope:"blue"
+            },
+            d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
+            e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
+
+        var c = _dragConnection(e1, e2);
+
+        equal(c.scope, "blue", "connection scope is blue.");
+    });
+
 };
 

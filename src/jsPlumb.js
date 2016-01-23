@@ -868,6 +868,11 @@
                     }
                 }
 
+                // scope
+                if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
+                    _p.scope = _p.sourceEndpoint.scope;
+                }
+
                 // pointer events
                 if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
                     _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;

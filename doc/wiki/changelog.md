@@ -8,6 +8,8 @@ target. also fired if `beforeDrop` interceptor returns false.
  ISSUES
  
 - 472 - Pending connections do not fire the documented events
+- 469 - Scopes not applied to new drag & drop connections
+- 452 - Why "connection.scope" property cannot get scope value ?
 
 
 ## 2.0.5
