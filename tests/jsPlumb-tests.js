@@ -7448,6 +7448,14 @@ var testSuite = function (renderMode, _jsPlumb) {
         return _jsPlumb.select().get(conns);
     };
 
+    var _dragAndAbortConnection = function(from) {
+        var el1 = from.canvas || from;
+        var e1 = _makeEvt(el1);
+        _jsPlumb.trigger(el1, "mousedown", e1);
+        _jsPlumb.trigger(document, "mousemove", _distantPointEvent);
+        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
+    };
+
     //
     // helper method to cause a connection to be detached via the mouse, but programmatically.
     var _detachConnection = function (e, connIndex) {
@@ -7703,15 +7711,38 @@ var testSuite = function (renderMode, _jsPlumb) {
             isTarget:true
         });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
-        var evt = false;
+        var evt = false, abortEvent = false;
         _jsPlumb.bind('connectionDetached', function (info) {
             evt = true;
+        });
+        _jsPlumb.bind('connectionAborted', function (info) {
+            abortEvent = true;
         });
         _dragConnection(e2, e1);
         ok(evt == false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
-
+        ok(abortEvent == true, "connectionAborted event was fired");
     });
+
+    test("connectionAborted event", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+
+        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
+        var evt = false, abortEvent = false;
+        _jsPlumb.bind('connectionDetached', function (info) {
+            evt = true;
+        });
+        _jsPlumb.bind('connectionAborted', function (info) {
+            abortEvent = true;
+        });
+        _dragAndAbortConnection(e2);
+        ok(evt == false, "connectionDetached event was not fired");
+        equal(e2.connections.length, 0, "no connections");
+        ok(abortEvent == true, "connectionAborted event was fired");
+    });
+
+   // fhjdsfhsflasdf
+    //TODO: write a test that starts dragging a connection and then abandons it. see a connectionAborted event.
 
     /*
 
