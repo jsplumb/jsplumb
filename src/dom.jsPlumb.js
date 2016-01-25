@@ -33,10 +33,10 @@
                 bind: e.on,
                 unbind: e.off,
                 getSize: jsPlumb.getSize,
-                getPosition: function (el) {
+                getPosition: function (el, relativeToRoot) {
                     // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                     // compute against the Container's origin. see also the getUIPosition method below.
-                    var o = instance.getOffset(el, false, el._katavorioDrag ? el.offsetParent : null);
+                    var o = instance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
                     return [o.left, o.top];
                 },
                 setPosition: function (el, xy) {
