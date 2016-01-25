@@ -261,12 +261,14 @@
         // orphaning an element means taking it out of the group and adding it to the main jsplumb container.
         //
         function _orphan(el) {
+            var id = _jsPlumb.getId(el);
             var pos = _jsPlumb.getOffset(el);
             el.parentNode.removeChild(el);
             _jsPlumb.getContainer().appendChild(el);
             _jsPlumb.setPosition(el, pos);
             delete el._jsPlumbGroup;
             _unbindDragHandlers(el);
+            _jsPlumb.dragManager.clearParent(el, id);
         }
 
         //
@@ -289,7 +291,9 @@
         // redraws the element
         //
         function _revalidate(el) {
+            var id = _jsPlumb.getId(el);
             _jsPlumb.revalidate(el);
+            _jsPlumb.dragManager.revalidateParent(el, id);
         }
 
         //
