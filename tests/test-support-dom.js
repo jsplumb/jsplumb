@@ -86,6 +86,15 @@
         return _jsPlumb.select().get(conns);
     };
 
+    var _dragAndAbort = function (_jsPlumb, d1) {
+        var el1 = d1.canvas || d1;
+        var e1 = _makeEvt(_jsPlumb, el1);
+
+        _jsPlumb.trigger(el1, "mousedown", e1);
+        _jsPlumb.trigger(document, "mousemove", _distantPointEvent);
+        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
+    };
+
     //
     // helper method to cause a connection to be detached via the mouse, but programmatically.
     var _detachConnection = function (_jsPlumb, e, connIndex) {
@@ -144,6 +153,8 @@
                 dragANodeAround:_dragANodeAround.bind(null, _jsPlumb),
 
                 dragConnection:_dragConnection.bind(null, _jsPlumb),
+
+                dragAndAbortConnection:_dragAndAbort.bind(null, _jsPlumb),
 
                 detachConnection:_detachConnection.bind(null, _jsPlumb),
 
