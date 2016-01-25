@@ -7448,6 +7448,14 @@ var testSuite = function (renderMode, _jsPlumb) {
         return _jsPlumb.select().get(conns);
     };
 
+    var _dragAndAbortConnection = function(from) {
+        var el1 = from.canvas || from;
+        var e1 = _makeEvt(el1);
+        _jsPlumb.trigger(el1, "mousedown", e1);
+        _jsPlumb.trigger(document, "mousemove", _distantPointEvent);
+        _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
+    };
+
     //
     // helper method to cause a connection to be detached via the mouse, but programmatically.
     var _detachConnection = function (e, connIndex) {
@@ -7703,15 +7711,38 @@ var testSuite = function (renderMode, _jsPlumb) {
             isTarget:true
         });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
-        var evt = false;
+        var evt = false, abortEvent = false;
         _jsPlumb.bind('connectionDetached', function (info) {
             evt = true;
+        });
+        _jsPlumb.bind('connectionAborted', function (info) {
+            abortEvent = true;
         });
         _dragConnection(e2, e1);
         ok(evt == false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
-
+        ok(abortEvent == true, "connectionAborted event was fired");
     });
+
+    test("connectionAborted event", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+
+        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
+        var evt = false, abortEvent = false;
+        _jsPlumb.bind('connectionDetached', function (info) {
+            evt = true;
+        });
+        _jsPlumb.bind('connectionAborted', function (info) {
+            abortEvent = true;
+        });
+        _dragAndAbortConnection(e2);
+        ok(evt == false, "connectionDetached event was not fired");
+        equal(e2.connections.length, 0, "no connections");
+        ok(abortEvent == true, "connectionAborted event was fired");
+    });
+
+   // fhjdsfhsflasdf
+    //TODO: write a test that starts dragging a connection and then abandons it. see a connectionAborted event.
 
     /*
 
@@ -8629,6 +8660,56 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.trigger(o2.path, "click");
         ok(count == 2, "click event was triggered on arrow overlay");
+    });
+
+    test("endpoint unmatched scopes", function() {
+        var sourceEndpoint = {
+                isSource: true,
+                scope: "blue"
+            }, targetEndpoint = {
+                isTarget:true
+            },
+            d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
+            e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
+
+        var c = _jsPlumb.connect({source:e1, target:e2});
+
+        ok(c == null, "no connection as scopes dont match");
+    });
+
+    test("endpoint passes scope to connection, programmatic connection", function() {
+        var sourceEndpoint = {
+            isSource: true,
+            scope: "blue"
+            }, targetEndpoint = {
+            isTarget:true,
+                scope:"blue"
+            },
+            d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
+            e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
+
+            var c = _jsPlumb.connect({source:e1, target:e2});
+
+        equal(c.scope, "blue", "connection scope is blue.");
+    });
+
+    test("endpoint passes scope to connection, connection via mouse", function() {
+        var sourceEndpoint = {
+                isSource: true,
+                scope: "blue"
+            }, targetEndpoint = {
+                isTarget:true,
+                scope:"blue"
+            },
+            d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
+            e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
+
+        var c = _dragConnection(e1, e2);
+
+        equal(c.scope, "blue", "connection scope is blue.");
     });
 
 };

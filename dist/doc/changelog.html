@@ -123,7 +123,23 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h2>2.0.5</h2>
+                    <h2>2.0.6</h2>
+
+<ul>
+<li><p>add <code>connectionAborted</code> event, fired whenever a new connection is abandoned before being dropped on an endpoint or
+target. also fired if <code>beforeDrop</code> interceptor returns false.</p></li>
+<li><p>fixed docs for <code>connectionDetached</code> to call out the fact that it is not fired when a connection is abandoned.</p></li>
+</ul>
+
+<p>ISSUES</p>
+
+<ul>
+<li>472 - Pending connections do not fire the documented events</li>
+<li>469 - Scopes not applied to new drag &amp; drop connections</li>
+<li>452 - Why &quot;connection.scope&quot; property cannot get scope value ?</li>
+</ul>
+
+<h2>2.0.5</h2>
 
 <ul>
 <li><p>Refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier

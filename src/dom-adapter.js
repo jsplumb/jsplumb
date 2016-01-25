@@ -235,6 +235,14 @@
             }
         };
 
+        this.clearParent = function(el, elId) {
+            var current = _draggablesForElements[elId];
+            if (current) {
+                delete _delements[current][elId];
+                delete _draggablesForElements[elId];
+            }
+        }
+
         this.getDragAncestor = function (el) {
             var de = jsPlumb.getElement(el),
                 id = _currentInstance.getId(de),

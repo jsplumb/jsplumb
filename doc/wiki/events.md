@@ -53,7 +53,7 @@ All of the source/target properties are actually available inside the Connection
 ##### connectionDetached(info, originalEvent)
 Notification a Connection was detached.  
 
-As with `connection`, the first argument to the callback is an object with the following properties:					
+As with `connection`, the first argument to the callback is an object with the following properties:
 
   <ul>
       <li><strong>connection</strong> - the Connection that was detached.</li>
@@ -65,9 +65,14 @@ As with `connection`, the first argument to the callback is an object with the f
       <li><strong>targetEndpoint</strong> -	the targetEndpoint in the Connection before it was detached</li>
   </ul>
 
-In the event that the Connection was new and had never been established between two Endpoints, it has a `pending` flag set on it. 
+This event is not fired when a newly dragged Connection is abandoned before being connected to something. To catch that,
+ use `connectionAborted`.
 
-The `source`/`target` properties are provided separately from the Connection, because this event is fired whenever a Connection is either detached and abandoned, or detached from some Endpoint and attached to another.  In the latter case, the Connection that is passed to this callback is in an indeterminate state (that is, the Endpoints are still in the state they are in when dragging, and do not reflect static reality), and so the `source`/`target` properties give you the real story.
+The `source`/`target` properties are provided separately from the Connection, because this event is fired whenever a 
+Connection is either detached and abandoned, or detached from some Endpoint and attached to another.  In the latter case, 
+the Connection that is passed to this callback is in an indeterminate state (that is, the Endpoints are still in the 
+state they are in when dragging, and do not reflect static reality), and so the `source`/`target` properties give you 
+the real story.
 
 The second argument is the original mouse event that caused the disconnection, if any. 
 
@@ -86,6 +91,9 @@ Notification that an existing connection's source or target endpoint was dragged
         <li><strong>newTargetEndpoint</strong> - target endpoint after move</li>
     </ul>
 
+<a name="evt-connection-aborted"></a>
+##### connectionAborted(connection, originalEvent)
+Fired when a new Connection is dragged but abandoned before being connected to an Endpoint or a target element. 
 	
 <a name="evt-connection-drag"></a>
 ##### connectionDrag(connection)

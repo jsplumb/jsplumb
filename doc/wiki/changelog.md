@@ -2,6 +2,21 @@
 
 - 'elementDraggable' event now fired whenever an element is made draggable via the `draggable` function
 
+
+## 2.0.6
+
+- add `connectionAborted` event, fired whenever a new connection is abandoned before being dropped on an endpoint or
+target. also fired if `beforeDrop` interceptor returns false.
+
+- fixed docs for `connectionDetached` to call out the fact that it is not fired when a connection is abandoned.
+ 
+ ISSUES
+ 
+- 472 - Pending connections do not fire the documented events
+- 469 - Scopes not applied to new drag & drop connections
+- 452 - Why "connection.scope" property cannot get scope value ?
+
+
 ## 2.0.5
 
 - Refactor Bezier and StateMachine connectors to extend common AbstractBezierConnector parent. This means Bezier
