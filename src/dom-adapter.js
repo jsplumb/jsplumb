@@ -220,19 +220,23 @@
 
         this.setParent = function (el, elId, p, pId) {
             var current = _draggablesForElements[elId];
+            if (!_delements[pId]) {
+                _delements[pId] = {};
+            }
+            var pLoc = _currentInstance.getOffset(p),
+                cLoc = _currentInstance.getOffset(el);
             if (current) {
-                if (!_delements[pId])
-                    _delements[pId] = {};
-                _delements[pId][elId] = _delements[current][elId];
                 delete _delements[current][elId];
-                var pLoc = _currentInstance.getOffset(p),
-                    cLoc = _currentInstance.getOffset(el);
-                _delements[pId][elId].offset = {
+            }
+
+            _delements[pId][elId] = {
+                id:elId,
+                offset : {
                     left: cLoc.left - pLoc.left,
                     top: cLoc.top - pLoc.top
-                };
-                _draggablesForElements[elId] = pId;
-            }
+                }
+            };
+            _draggablesForElements[elId] = pId;
         };
 
         this.clearParent = function(el, elId) {
