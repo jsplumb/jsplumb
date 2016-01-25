@@ -159,17 +159,32 @@
         }
     };
 
+    /**
+     *
+     * @param {jsPlumbInstance} _jsPlumb Associated jsPlumb instance.
+     * @param {Object} params
+     * @param {Element} params.el The DOM element representing the Group.
+     * @param {String} [params.id] Optional ID for the Group. A UUID will be assigned as the Group's ID if you do not provide one.
+     * @param {Boolean} [params.constrain=false] If true, child elements will not be able to be dragged outside of the Group container.
+     * @param {Boolean} [params.revert=true] By default, child elements revert to the container if dragged outside. You can change this by setting `revert:false`. This behaviour is also overridden if you set `orphan` or `prune`.
+     * @param {Boolean} [params.orphan=false] If true, child elements dropped outside of the Group container will be removed from the Group (but not from the DOM).
+     * @param {Boolean} [params.prune=false] If true, child elements dropped outside of the Group container will be removed from the Group and also from the DOM.
+     * @param {Boolean} [params.dropOverride=false] If true, a child element that has been dropped onto some other Group will not be subject to the controls imposed by `prune`, `revert` or `orphan`.
+     * @constructor
+     */
     var Group = function(_jsPlumb, params) {
         var self = this;
         this.el = params.el;
         this.elId = _jsPlumb.getId(params.el);
         this.id = params.id || jsPlumbUtil.uuid();
+        this.el._isJsPlumbGroup = true;
         var da = _jsPlumb.getSelector(this.el, GROUP_CONTAINER_CLASS);
         this.dragArea = da && da.length > 0 ? da[0] : this.el;
         var constrain = params.constrain === true;
         var revert = params.revert !== false;
         var orphan = params.orphan === true;
         var prune = params.prune === true;
+        var dropOverride = params.dropOverride === true;
         var elements = [];
         this.connections = { source:[], target:[], internal:[] };
         this.proxies = {}; // map of connection id->proxy connections.
@@ -189,6 +204,38 @@
                 }
             });
         }
+        if (params.droppable !== false) {
+            _jsPlumb.droppable(params.el, {
+                drop:function(p) {
+                    console.log("drop on group!", self.el.id);
+                    var el = p.drag.el;
+                    if (el._isJsPlumbGroup) return;
+                    var currentGroup = el._jsPlumbGroup;
+                    // if already a member of this group, do nothing
+                    if (currentGroup !== self) {
+                        var elpos = _jsPlumb.getOffset(el, true);
+                        var cpos = _jsPlumb.getOffset(self.el, true);
+
+                        // otherwise, transfer to this group.
+                        if (currentGroup != null) {
+                            if (currentGroup.overrideDrop(el, self)) {
+                                return;
+                            }
+                            currentGroup.remove(el, true);
+                        }
+                        self.add(el, true);
+                        var elId = _jsPlumb.getId(el);
+                        // surely the drag manager needs to be told
+                        _jsPlumb.dragManager.setParent(el, elId, self.el, _jsPlumb.getId(self.el));
+                        _jsPlumb.setPosition(el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
+                        _jsPlumb.dragManager.revalidateParent(el, elId);
+                    }
+                },
+                over:function(p) {
+                    console.log("drag hover!");
+                }
+            })
+        }
         var _each = function(el, fn) {
             var els = el.nodeType == null ?  el : [ el ];
             for (var i = 0; i < els.length; i++) {
@@ -196,7 +243,11 @@
             }
         };
 
-        this.add = function(el) {
+        this.overrideDrop = function(el, targetGroup) {
+            return dropOverride && (revert || prune || orphan);
+        }
+
+        this.add = function(el, manipulateDOM) {
             _each(el, function(_el) {
                 _el._jsPlumbGroup = self;
                 elements.push(_el);
@@ -204,14 +255,23 @@
                 if (_jsPlumb.isAlreadyDraggable(_el)) {
                     _bindDragHandlers(_el);
                 }
+                if (manipulateDOM) {
+                    self.el.appendChild(_el);
+                }
             });
         };
-        this.remove = function(el) {
+        this.remove = function(el, manipulateDOM) {
             _each(el, function(_el) {
                 delete _el._jsPlumbGroup;
                 jsPlumbUtil.removeWithFunction(elements, function(e) {
                     return e === _el;
                 });
+                if (manipulateDOM) {
+                    try { self.el.removeChild(_el); }
+                    catch (e) {
+                        console.log(e);
+                    }
+                }
                 _unbindDragHandlers(_el);
             });
         };
