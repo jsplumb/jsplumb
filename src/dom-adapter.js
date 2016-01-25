@@ -241,7 +241,15 @@
                 delete _delements[current][elId];
                 delete _draggablesForElements[elId];
             }
-        }
+        };
+
+        this.revalidateParent = function(el, elId) {
+            var current = _draggablesForElements[elId];
+            if (current) {
+                this.updateOffsets(current);
+                _currentInstance.revalidate(current);
+            }
+        };
 
         this.getDragAncestor = function (el) {
             var de = jsPlumb.getElement(el),
