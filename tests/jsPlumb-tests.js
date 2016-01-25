@@ -7618,7 +7618,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.bind('connectionAborted', function (info) {
             abortEvent = true;
         });
-        _dragConnection(e2, e1);
+        support.dragConnection(e2, e1);
         ok(evt == false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
         ok(abortEvent == true, "connectionAborted event was fired");
@@ -7635,7 +7635,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.bind('connectionAborted', function (info) {
             abortEvent = true;
         });
-        _dragAndAbortConnection(e2);
+        support.dragAndAbortConnection(e2);
         ok(evt == false, "connectionDetached event was not fired");
         equal(e2.connections.length, 0, "no connections");
         ok(abortEvent == true, "connectionAborted event was fired");
@@ -8616,7 +8616,7 @@ test("endpoint: suspendedElement set correctly", function() {
             e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
             e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
 
-        var c = _dragConnection(e1, e2);
+        var c = support.dragConnection(e1, e2);
 
         equal(c.scope, "blue", "connection scope is blue.");
     });
