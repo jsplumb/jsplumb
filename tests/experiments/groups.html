@@ -70,18 +70,22 @@
     }
 
     .jsplumb-connector path {
-        stroke-width:4;
+        stroke-width:3;
     }
 
     .jsplumb-group-collapsed .w {
         display:none;
     }
 
+    .jsplumb-drag-hover {
+        outline:4px solid cornflowerblue;
+    }
+
 </style>
 
 <div id="holder">
     <div class="container" id="container1" group="one">
-        <div class="title">Elements constrained to group. Deletes group + elements.</div>
+        <div class="title">Elements constrained to group. Deletes group + elements. NOT droppable.</div>
         <div class="del" delete-all></div>
         <div class="collapse"></div>
         <!--div class="jtk-group-content"-->
@@ -91,7 +95,7 @@
     </div>
 
     <div class="container" id="container2" group="two">
-        <div class="title">My elements are reverted on drop outside</div>
+        <div class="title">My elements are reverted on drop outside. You cannot drag from this group to other groups.</div>
         <div class="del"></div>
         <div class="collapse"></div>
         <div id="c2_1" class="w" style="left:30px;top:30px">2.1</div>
@@ -115,7 +119,7 @@
     </div>
 
     <div class="container" id="container5" group="five">
-        <div class="title">My elements are orphaned on drop outside</div>
+        <div class="title">My elements are orphaned on drop outside. NOT droppable.</div>
         <div class="del"></div>
         <div class="collapse"></div>
         <div id="c5_1" class="w" style="left:30px;top:30px">5.1</div>
@@ -187,14 +191,15 @@
             id:"one",
             constrain:true,
             anchor:"Continuous",
-            endpoint:"Blank"
+            endpoint:"Blank",
+            droppable:false
         });
         j.addToGroup("one", c1_1);
         j.addToGroup("one", c1_2);
         j.draggable(c1_2);
 
         j.draggable(c2_1);
-        j.addGroup({ el:container2, id:"two"/*, revert:true */});  //(the default is to revert)
+        j.addGroup({ el:container2, id:"two", dropOverride:true});  //(the default is to revert)
         j.addToGroup("two", c2_1);
         j.addToGroup("two", c2_2);
         j.draggable(c2_2);
@@ -212,7 +217,7 @@
         j.draggable(c4_2);
 
         j.draggable(c5_1);
-        j.addGroup({ el:container5, id:"five", orphan:true});
+        j.addGroup({ el:container5, id:"five", orphan:true, droppable:false});
         j.addToGroup("five", [c5_1, c5_2]);
         j.draggable(c5_2);
 
