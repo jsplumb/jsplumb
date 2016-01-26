@@ -9,33 +9,46 @@
     var REVERT = "revert";
     var GROUP_MANAGER = "_groupManager";
     var GROUP = "_jsPlumbGroup";
+    var PROXY_FOR = "proxyFor";
 
     var GroupManager = function(_jsPlumb) {
-        var _managedGroups = {}, _connectionMap = {};
+        var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {};
 
         _jsPlumb.bind("connection", function(p) {
-            if(p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
-                //p.source[GROUP].connections.internal.push(p.connection);
-                _connectionMap[p.connection.id] = p.source[GROUP];
-            }
-            else if (p.source[GROUP] != null) {
-                p.source[GROUP].connections.source.push(p.connection);
-                _connectionMap[p.connection.id] = p.source[GROUP];
-            }
-            else if (p.target[GROUP] != null) {
-                p.target[GROUP].connections.target.push(p.connection);
-                _connectionMap[p.connection.id] = p.target[GROUP];
+            if (p.connection.getParameter(PROXY_FOR) == null) {
+                if (p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
+                    _connectionSourceMap[p.connection.id] = p.source[GROUP];
+                    _connectionTargetMap[p.connection.id] = p.source[GROUP];
+                }
+                else {
+                    if (p.source[GROUP] != null) {
+                        p.source[GROUP].connections.source.push(p.connection);
+                        _connectionSourceMap[p.connection.id] = p.source[GROUP];
+                    }
+                    if (p.target[GROUP] != null) {
+                        p.target[GROUP].connections.target.push(p.connection);
+                        _connectionTargetMap[p.connection.id] = p.target[GROUP];
+                    }
+                }
             }
         });
 
         _jsPlumb.bind("connectionDetached", function(p) {
-            var group = _connectionMap[p.connection.id];
+            // TODO refactor to share code
+            var group = _connectionSourceMap[p.connection.id], f;
             if (group != null) {
-                var f = function(c) { return c.id === p.connection.id; };
+                f = function(c) { return c.id === p.connection.id; };
                 jsPlumbUtil.removeWithFunction(group.connections.source, f);
                 jsPlumbUtil.removeWithFunction(group.connections.target, f);
-                //jsPlumbUtil.removeWithFunction(group.connections.internal, f);
-                delete _connectionMap[p.connection.id];
+                delete _connectionSourceMap[p.connection.id];
+            }
+
+            group = _connectionTargetMap[p.connection.id];
+            if (group != null) {
+                f = function(c) { return c.id === p.connection.id; };
+                jsPlumbUtil.removeWithFunction(group.connections.source, f);
+                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                delete _connectionTargetMap[p.connection.id];
             }
         });
 
@@ -90,22 +103,31 @@
             // hide all connections
             _setVisible(group, false);
 
+            var _collapseSet = function(conns, index) {
+                for (var i = 0; i < conns.length; i++) {
+                    var c = conns[i];
+                    var oidx = index === 0 ? 1 : 0;
+
+                    var newEp = _jsPlumb.addEndpoint(group.el, {
+                        endpoint:group.getEndpoint(c, index),
+                        anchor:group.getAnchor(c, index)
+                    });
+                    c.endpoints[oidx].detachFromConnection(c, null, true);
+                    group.proxies.push(_jsPlumb.connect({
+                        source:index === 0 ? newEp: c.endpoints[0],
+                        target: index === 1 ? newEp : c.endpoints[1],
+                        parameters:{
+                            proxyFor:c,
+                            suspendedEndpoint: c.endpoints[oidx],
+                            suspendedIndex:oidx
+                        }
+                    }));
+                }
+            };
+
             // setup proxies for sources and targets
-            for (var i = 0; i < group.connections.source.length; i++) {
-                console.log(group.connections.source[i]);
-
-//                var c = group.connections.source[i].clone();
-//                var newEp = _jsPlumb.addEndpoint(group.el, {
-//                    endpoint:group.endpoint,
-//                    anchor:group.anchor
-//                });
-//                group.proxies[group.connections.source[i].id] = {ep:newEp, conn:c};// TODO add proxied connection.
-//                c.endpoints[0] = newEp;
-//                c.source = group.el;
-//                c.sourceId = _jsPlumb.getId(group.el);
-//                c.setVisible(true);
-            }
-
+            _collapseSet(group.connections.source, 0);
+            _collapseSet(group.connections.target, 1);
 
 
             _jsPlumb.revalidate(group.el);
@@ -119,7 +141,13 @@
             _setVisible(group, true);
 
             // remove proxies for sources and targets
-
+            for(var i = 0; i < group.proxies.length; i++) {
+                var p = group.proxies[i].getParameters();
+                var proxyEndpoint = group.proxies[i].endpoints[p.suspendedIndex === 0 ? 1 : 0];
+                p.suspendedEndpoint.addConnection(p.proxyFor);
+                _jsPlumb.detach(group.proxies[i]);
+                _jsPlumb.deleteEndpoint(proxyEndpoint);
+            }
 
             _jsPlumb.revalidate(group.el);
             group.collapsed = false;
@@ -141,22 +169,21 @@
                     if (processed[c[i].id]) continue;
                     processed[c[i].id] = true;
                     if (c[i].source._jsPlumbGroup === group) {
-                        if (c[i].target._jsPlumbGroup === group) {
-                            //group.connections.internal.push(c[i]);
-                        }
-                        else {
+                        if (c[i].target._jsPlumbGroup !== group) {
                             group.connections.source.push(c[i]);
                         }
-                        _connectionMap[c[i].id] = p.source[GROUP];
+                        _connectionSourceMap[c[i].id] = group;
                     }
                     else if (c[i].target._jsPlumbGroup === group) {
                         group.connections.target.push(c[i]);
-                        _connectionMap[c[i].id] = p.target[GROUP];
+                        _connectionTargetMap[c[i].id] = group;
                     }
                 }
             };
             oneSet(c1); oneSet(c2);
         }
+
+        this.updateConnectionsForGroup = _updateConnectionsForGroup;
     };
 
     /**
@@ -187,9 +214,18 @@
         var dropOverride = params.dropOverride === true;
         var elements = [];
         this.connections = { source:[], target:[], internal:[] };
-        this.proxies = {}; // map of connection id->proxy connections.
-        this.anchor = params.anchor || "Continuous";
-        this.endpoint = params.endpoint || [ "Dot", { radius:2 }];
+        this.proxies = []; // map of connection id->proxy connections.
+
+        // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
+        // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
+        this.getAnchor = function(conn, endpointIndex) {
+            return params.anchor || "Continuous";
+        };
+
+        this.getEndpoint = function(conn, endpointIndex) {
+            return params.endpoint || [ "Dot", { radius:2 }];
+        };
+
         this.collapsed = false;
         if (params.draggable !== false) {
             _jsPlumb.draggable(params.el, {
@@ -222,6 +258,7 @@
                                 return;
                             }
                             currentGroup.remove(el, true);
+                            _jsPlumb.getGroupManager().updateConnectionsForGroup(currentGroup);
                         }
                         self.add(el, true);
                         var elId = _jsPlumb.getId(el);
@@ -229,6 +266,8 @@
                         _jsPlumb.dragManager.setParent(el, elId, self.el, _jsPlumb.getId(self.el));
                         _jsPlumb.setPosition(el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
                         _jsPlumb.dragManager.revalidateParent(el, elId);
+
+                        _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
                     }
                 },
                 over:function(p) {
@@ -245,7 +284,7 @@
 
         this.overrideDrop = function(el, targetGroup) {
             return dropOverride && (revert || prune || orphan);
-        }
+        };
 
         this.add = function(el, manipulateDOM) {
             _each(el, function(_el) {
@@ -299,7 +338,7 @@
             }
         }.bind(this));
 
-        // TODO: use instead the concept of an optiona .jtk-group-content parent? or should that element be the offset
+        // TODO: use instead the concept of an optional .jtk-group-content parent? or should that element be the offset
         // parent anyway.
         function _findParent(el) {
             return el.offsetParent;
