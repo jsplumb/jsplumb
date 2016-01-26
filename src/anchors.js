@@ -393,8 +393,12 @@
         // 2. updating the source information for the target of the connection
         // 3. re-registering the connection in connectionsByElementId with the newId
         //
-        this.sourceChanged = function (originalId, newId, connection) {
+        this.sourceChanged = function (originalId, newId, connection, newElement) {
             if (originalId !== newId) {
+
+                connection.sourceId = newId;
+                connection.source = newElement;
+
                 // remove the entry that points from the old source to the target
                 _ju.removeWithFunction(connectionsByElementId[originalId], function (info) {
                     return info[0].id === connection.id;
@@ -452,9 +456,9 @@
 
             for (var i = 0; i < ep.connections.length; i++) {
                 if (ep.connections[i].sourceId == currentId) {
-                    ep.connections[i].sourceId = ep.elementId;
-                    ep.connections[i].source = ep.element;
-                    self.sourceChanged(currentId, ep.elementId, ep.connections[i]);
+                    //ep.connections[i].sourceId = ep.elementId;
+                    //ep.connections[i].source = ep.element;
+                    self.sourceChanged(currentId, ep.elementId, ep.connections[i], ep.element);
                 }
                 else if (ep.connections[i].targetId == currentId) {
                     ep.connections[i].targetId = ep.elementId;
