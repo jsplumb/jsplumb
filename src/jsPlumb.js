@@ -1334,6 +1334,7 @@
             if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
                 ep = el;
                 ep.addConnection(c);
+                el = ep.element;
             }
             else {
                 sid = _getId(el);
@@ -1371,13 +1372,14 @@
                     c.repaint();
             }
 
+            evtParams.element = el;
             return evtParams;
 
         }.bind(this);
 
         this.setSource = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 0, doNotRepaint);
-            this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
+            this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
         };
         this.setTarget = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 1, doNotRepaint);
