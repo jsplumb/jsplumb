@@ -82,6 +82,7 @@
 
         this.removeGroup = function(group, deleteMembers) {
             group = this.getGroup(group);
+            this.expandGroup(group); // this reinstates any original connections and removes all proxies.
             group[deleteMembers ? "removeAll" : "orphanAll"]();
             _jsPlumb.remove(group.el);
             delete _managedGroups[group.id];
