@@ -638,10 +638,7 @@
                         // now we replace ourselves with the temporary div we created above:
                         if (anchorIdx === 0) {
                             existingJpcParams = [ jpc.source, jpc.sourceId, canvasElement, dragScope ];
-                            jpc.source = placeholderInfo.element;
-                            jpc.sourceId = placeholderInfo.id;
-
-                            _jsPlumb.anchorManager.sourceChanged(jpc.endpoints[anchorIdx].elementId, jpc.sourceId, jpc);
+                            _jsPlumb.anchorManager.sourceChanged(jpc.endpoints[anchorIdx].elementId, placeholderInfo.id, jpc, placeholderInfo.element);
 
                         } else {
                             existingJpcParams = [ jpc.target, jpc.targetId, canvasElement, dragScope ];
@@ -734,7 +731,7 @@
                                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                                     }
                                     else {
-                                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
+                                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                                     }
 
                                     _jsPlumb.repaint(existingJpcParams[1]);
@@ -1164,7 +1161,7 @@
                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                     }
                     else {
-                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
+                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                     }
 
                     // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
@@ -1209,7 +1206,7 @@
                             _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                         }
                         else {
-                            _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
+                            _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                         }
 
                         _jsPlumb.repaint(jpc.sourceId);
