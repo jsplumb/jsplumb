@@ -10,6 +10,9 @@
     var GROUP_MANAGER = "_groupManager";
     var GROUP = "_jsPlumbGroup";
     var PROXY_FOR = "proxyFor";
+    var GROUP_DRAG_SCOPE = "_jsPlumbGroupDrag";
+    var EVT_CHILD_ADDED = "group:childAdded";
+    var EVT_CHILD_REMOVED = "group:childRemoved";
 
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {};
@@ -109,20 +112,50 @@
                     var c = conns[i];
                     var oidx = index === 0 ? 1 : 0;
 
+
                     var newEp = _jsPlumb.addEndpoint(group.el, {
                         endpoint:group.getEndpoint(c, index),
                         anchor:group.getAnchor(c, index)
                     });
-                    c.endpoints[oidx].detachFromConnection(c, null, true);
-                    group.proxies.push(_jsPlumb.connect({
-                        source:index === 0 ? newEp: c.endpoints[0],
-                        target: index === 1 ? newEp : c.endpoints[1],
-                        parameters:{
-                            proxyFor:c,
-                            suspendedEndpoint: c.endpoints[oidx],
-                            suspendedIndex:oidx
+
+                    if (c.isProxiedBy != null) {
+                        c.isProxiedBy.endpoints[index].detachFromConnection(c, null, true);
+                        newEp.addConnection(c.isProxiedBy);
+                        c.isProxiedBy.endpoints[index] = newEp;
+                        var groupElId = _jsPlumb.getId(group.el);
+
+                        if (index === 0) {
+                            // TODO why are there
+                            // two differently named methods? Why is there not one method that says "some end of this
+                            // connection changed (you give the index), and here's the new element and element id."
+                            _jsPlumb.anchorManager.sourceChanged(c.isProxiedBy.sourceId, groupElId, c.isProxiedBy, group.el);
                         }
-                    }));
+                        else {
+
+                            _jsPlumb.anchorManager.updateOtherEndpoint(c.isProxiedBy.sourceId, c.isProxiedBy.targetId, _jsPlumb.getId(group.el), c.isProxiedBy);
+                            c.isProxiedBy.target = group.el;
+                            c.isProxiedBy.targetId = groupElId;
+                        }
+
+                        c.isProxiedBy.setVisible(true);
+                        group.proxies.push(c.isProxiedBy);
+                        group.proxies.push({connection: c.isProxiedBy, original:c, index:index});
+                    }
+                    else {
+                        c.endpoints[oidx].detachFromConnection(c, null, true);
+                        var proxy = _jsPlumb.connect({
+                            source: index === 0 ? newEp : c.endpoints[0],
+                            target: index === 1 ? newEp : c.endpoints[1],
+                            parameters: {
+                                proxyFor: c,
+                                suspendedEndpoint: c.endpoints[oidx],
+                                suspendedIndex: oidx
+                            }
+                        });
+                        group.proxies.push({connection:proxy, original:c, index:index});
+                        c.isProxiedBy = proxy;
+                        proxy.isProxyFor = c;
+                    }
                 }
             };
 
@@ -143,11 +176,45 @@
 
             // remove proxies for sources and targets
             for(var i = 0; i < group.proxies.length; i++) {
-                var p = group.proxies[i].getParameters();
-                var proxyEndpoint = group.proxies[i].endpoints[p.suspendedIndex === 0 ? 1 : 0];
-                p.suspendedEndpoint.addConnection(p.proxyFor);
-                _jsPlumb.detach(group.proxies[i]);
-                _jsPlumb.deleteEndpoint(proxyEndpoint);
+                var index = group.proxies[i].index,
+                    proxy = group.proxies[i].connection,
+                    original = proxy.isProxyFor,
+                    oidx = index === 0 ? 1 : 0;
+
+                // remove the proxy from the proxy's endpoint for this group (could be source or target)
+                proxy.endpoints[index].detachFromConnection(proxy, null, true);
+                original.endpoints[1].addConnection(proxy);
+
+                // if only this group has a proxied endpoint, just toss the proxy away and show the original.
+                if (proxy.endpoints[oidx] === original.endpoints[oidx]) {
+                    _jsPlumb.detach(proxy);
+                    delete original.isProxiedBy;
+                    original.setVisible(true);
+                }
+                else {
+
+                    // need to keep the proxy
+
+                    var groupElId = _jsPlumb.getId(group.el);
+
+                    if (index === 0) {
+
+                    } else {
+
+                        _jsPlumb.anchorManager.updateOtherEndpoint(proxy.sourceId, groupElId, original.targetId, proxy);
+                        proxy.target = original.target;
+                        proxy.targetId = original.targetId;
+
+                    }
+                }
+
+
+//                var p = group.proxies[i].getParameters();
+//                var proxyEndpoint = group.proxies[i].endpoints[p.suspendedIndex === 0 ? 1 : 0];
+//                p.suspendedEndpoint.addConnection(p.proxyFor);
+//                delete p.proxyFor.isProxiedBy;
+//                _jsPlumb.detach(group.proxies[i]);
+//                _jsPlumb.deleteEndpoint(proxyEndpoint);
             }
 
             _jsPlumb.revalidate(group.el);
@@ -238,7 +305,8 @@
                 },
                 drag:function() {
                     console.log("group drag");
-                }
+                },
+                scope:GROUP_DRAG_SCOPE
             });
         }
         if (params.droppable !== false) {
