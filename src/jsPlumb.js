@@ -1581,8 +1581,8 @@
 
                     fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
 
-                    c.endpoints[0].detachFromConnection(c);
-                    c.endpoints[1].detachFromConnection(c);
+                    c.endpoints[0].detachFromConnection(c, null, params.deleteAttachedObjects !== true);
+                    c.endpoints[1].detachFromConnection(c, null, params.deleteAttachedObjects !== true);
                     c.cleanup(true);
                     c.destroy(true);
                 }
