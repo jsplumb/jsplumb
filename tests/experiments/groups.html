@@ -31,11 +31,11 @@
         height:40px;
     }
 
-    #container1 { left:0;top:0; }
-    #container2 { left:300px;top:0; }
-    #container3 { left:600px;top:00px; }
-    #container4 { left:0;top:350px; }
-    #container5 { left:300px;top:350px; }
+    #container1 { left:0;top:50px; }
+    #container2 { left:300px;top:50px; }
+    #container3 { left:600px;top:50px; }
+    #container4 { left:0;top:400px; }
+    #container5 { left:300px;top:400px; }
 
     .del, .collapse {
         position:absolute;
@@ -73,7 +73,7 @@
         stroke-width:3;
     }
 
-    .jsplumb-group-collapsed .w {
+    .jsplumb-group-collapsed .w, .jsplumb-group-collapsed ul {
         display:none;
     }
 
@@ -85,7 +85,13 @@
 
 <div id="holder">
     <div class="container" id="container1" group="one">
-        <div class="title">Elements constrained to group. Deletes group + elements. NOT droppable.</div>
+        <div class="title"></div>
+        <ul>
+            <li>Elements constrained to group (constrain:true)</li>
+            <li>Elements are draggable to other groups </li>
+            <li>Deletes group + elements</li>
+            <li>Not droppable (droppable:false)</li>
+        </ul>
         <div class="del" delete-all></div>
         <div class="collapse"></div>
         <!--div class="jtk-group-content"-->
@@ -95,7 +101,12 @@
     </div>
 
     <div class="container" id="container2" group="two">
-        <div class="title">My elements are reverted on drop outside. You cannot drag from this group to other groups.</div>
+        <div class="title"></div>
+        <ul>
+            <li>Elements are reverted on drop outside (revert:true)</li>
+            <li>Elements not draggable to other groups (dropOverride:true)</li>
+            <li>Deletes group only</li>
+        </ul>
         <div class="del"></div>
         <div class="collapse"></div>
         <div id="c2_1" class="w" style="left:30px;top:30px">2.1</div>
@@ -103,7 +114,12 @@
     </div>
 
     <div class="container" id="container3" group="three">
-        <div class="title">My elements are ignored on drop outside</div>
+        <div class="title"></div>
+        <ul>
+            <li>Elements may be dragged outside bounds (revert:false)</li>
+            <li>Elements are draggable to other groups </li>
+            <li>Deletes group only</li>
+        </ul>
         <div class="del"></div>
         <div class="collapse"></div>
         <div id="c3_1" class="w" style="left:30px;top:30px">3.1</div>
@@ -111,7 +127,12 @@
     </div>
 
     <div class="container" id="container4" group="four">
-        <div class="title">Elements pruned on drop outside. Deletes group + members</div>
+        <div class="title"></div>
+        <ul>
+            <li>Elements pruned on drop outside (prune:true)</li>
+            <li>Elements are draggable to other groups</li>
+            <li>Deletes groups and children</li>
+        </ul>
         <div class="del" delete-all></div>
         <div class="collapse"></div>
         <div id="c4_1" class="w" style="left:30px;top:30px">4.1</div>
@@ -119,7 +140,13 @@
     </div>
 
     <div class="container" id="container5" group="five">
-        <div class="title">My elements are orphaned on drop outside. NOT droppable.</div>
+        <div class="title"></div>
+        <ul>
+            <li>Elements orphaned on drop outside (orphan:true)</li>
+            <li>Elements are draggable to other groups</li>
+            <li>Deletes group only</li>
+            <li>Not droppable (droppable:false)</li>
+        </ul>
         <div class="del"></div>
         <div class="collapse"></div>
         <div id="c5_1" class="w" style="left:30px;top:30px">5.1</div>
@@ -128,7 +155,7 @@
 
     <hr/>
     <p>
-        This is a test page for the groups functionality in jsPlumb. Here we have two groups
+        This is a test page for the groups functionality in jsPlumb.
     </p>
 </div>
 
@@ -175,7 +202,7 @@
 <script src="../../src/group.js"></script>
 <script>
     jsPlumb.ready(function() {
-        var j = jsPlumb.getInstance({Container:holder, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
+        var j = window.j = jsPlumb.getInstance({Container:holder, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
 
         j.bind("connection", function(p) {
             p.connection.bind("click", function() {
@@ -221,19 +248,19 @@
         j.addToGroup("five", [c5_1, c5_2]);
         j.draggable(c5_2);
 
-        j.connect({source:c1_1, target:c2_1});
-        j.connect({source:c2_1, target:c3_1});
-        j.connect({source:c3_1, target:c4_1});
-        j.connect({source:c4_1, target:c5_1});
-
-        j.connect({source:c1_1,target:c1_2});
-        j.connect({source:c2_1,target:c2_2});
-        j.connect({source:c3_1,target:c3_2});
-        j.connect({source:c4_1,target:c4_2});
-        j.connect({source:c5_1,target:c5_2});
+//        j.connect({source:c1_1, target:c2_1});
+//        j.connect({source:c2_1, target:c3_1});
+//        j.connect({source:c3_1, target:c4_1});
+//        j.connect({source:c4_1, target:c5_1});
+//
+//        j.connect({source:c1_1,target:c1_2});
+//        j.connect({source:c2_1,target:c2_2});
+//        j.connect({source:c3_1,target:c3_2});
+//        j.connect({source:c4_1,target:c4_2});
+//        j.connect({source:c5_1,target:c5_2});
         j.connect({source:c5_1,target:c3_2});
 
-        j.connect({source:c5_1,target:container5, anchors:["Center", "Continuous"]});
+        //j.connect({source:c5_1,target:container5, anchors:["Center", "Continuous"]});
 
         j.on(holder, "click", ".del", function() {
             var g = this.parentNode.getAttribute("group");
@@ -247,7 +274,7 @@
             j[collapsed ? "expandGroup" : "collapseGroup"](g);
         });
 
-        j.connect({source:container1,target:container2,anchor:"Continuous"})
+        //j.connect({source:container1,target:container2,anchor:"Continuous"})
     });
 </script>
 
