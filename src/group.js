@@ -15,7 +15,7 @@
     var EVT_CHILD_REMOVED = "group:childRemoved";
 
     var GroupManager = function(_jsPlumb) {
-        var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {};
+        var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
 
         _jsPlumb.bind("connection", function(p) {
             if (p.connection.getParameter(PROXY_FOR) == null) {
@@ -37,8 +37,19 @@
         });
 
         _jsPlumb.bind("connectionDetached", function(p) {
-            if (p.isProxyFor != null) {
-                _jsPlumb.detach(p.isProxyFor);
+            if (p.connection.isProxyFor != null) {
+                var proxy = p.connection, original = proxy.isProxyFor;
+                original.endpoints[0].detachFromConnection(proxy, null, true);
+                original.endpoints[1].detachFromConnection(proxy, null, true);
+                original.endpoints[0].addConnection(original);
+                original.endpoints[1].addConnection(original);
+
+                _jsPlumb.detach(p.connection.isProxyFor);
+                self.removeProxyFromGroup(p.source[GROUP], p.connection);
+                self.removeProxyFromGroup(p.target[GROUP], p.connection);
+                var eps = p.connection.endpoints;
+                if (eps[0].getParameter("isProxyEndpoint")) eps[0]._forceDeleteOnDetach = true;
+                if (eps[1].getParameter("isProxyEndpoint")) eps[1]._forceDeleteOnDetach = true;
             }
             else {
                 // TODO refactor to share code
@@ -110,7 +121,10 @@
 
             var newEp = _jsPlumb.addEndpoint(group.el, {
                 endpoint:group.getEndpoint(c, index),
-                anchor:group.getAnchor(c, index)
+                anchor:group.getAnchor(c, index),
+                parameters:{
+                    isProxyEndpoint:true
+                }
             });
 
             if (c.isProxiedBy != null) {
@@ -263,7 +277,16 @@
             oneSet(c1); oneSet(c2);
         }
 
+        function _removeProxyFromGroup(group, c) {
+            if (group != null) {
+                jsPlumbUtil.removeWithFunction(group.proxies, function (p) {
+                    return p.connection.id === c.id;
+                });
+            }
+        }
+
         this.updateConnectionsForGroup = _updateConnectionsForGroup;
+        this.removeProxyFromGroup = _removeProxyFromGroup;
     };
 
     /**
@@ -324,7 +347,8 @@
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
-                    console.log("drop on group!", self.el.id);
+                    //console.log("drop on group!", self.el.id);
+                    var groupManager = _jsPlumb.getGroupManager();
                     var el = p.drag.el;
                     if (el._isJsPlumbGroup) return;
                     var currentGroup = el._jsPlumbGroup;
@@ -339,7 +363,7 @@
                                 return;
                             }
                             currentGroup.remove(el, true);
-                            _jsPlumb.getGroupManager().updateConnectionsForGroup(currentGroup);
+                            groupManager.updateConnectionsForGroup(currentGroup);
                         }
                         self.add(el, true);
 
@@ -380,12 +404,10 @@
                                         _jsPlumb.deleteEndpoint(other);
                                         original.endpoints[index].setVisible(false);
 
-                                        jsPlumbUtil.removeWithFunction(self.proxies, function(p) {
-                                            return p.connection.id === c.id;
-                                        });
+                                        groupManager.removeProxyFromGroup(self, c);
                                     }
                                     else {
-                                        _jsPlumb.getGroupManager().collapseConnection(c, index, self);
+                                        groupManager.collapseConnection(c, index, self);
                                         c.endpoints[index].setVisible(false);
                                     }
                                 }
@@ -402,7 +424,7 @@
                         _jsPlumb.setPosition(el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
                         _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
 
-                        _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
+                        groupManager.updateConnectionsForGroup(self);
                     }
                 },
                 over:function(p) {
