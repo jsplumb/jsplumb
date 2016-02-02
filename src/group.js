@@ -367,13 +367,27 @@
                             var oidx = index === 0 ? 1 : 0, c, other;
                             for (var i = 0; i < list.length; i++) {
                                 c = list.get(i);
-                                other = c.endpoints[oidx];
-                                if (other.element === self.el) {
-                                    console.log("a vexing one")
-                                }
-                                else {
-                                    _jsPlumb.getGroupManager().collapseConnection(c, index, self);
-                                    c.endpoints[index].setVisible(false);
+                                if (c.isVisible()) {
+                                    other = c.endpoints[oidx];
+                                    if (other.element === self.el) {
+                                        var original = c.isProxyFor;
+                                        _jsPlumb.detach(c);
+                                        // disconnect original connection's endpoint for this element from the proxy.
+                                        original.endpoints[index].detachFromConnection(c, null, true);
+                                        original.endpoints[index].addConnection(original);
+                                        original.endpoints[oidx].addConnection(original);
+                                        delete original.isProxiedBy;
+                                        _jsPlumb.deleteEndpoint(other);
+                                        original.endpoints[index].setVisible(false);
+
+                                        jsPlumbUtil.removeWithFunction(self.proxies, function(p) {
+                                            return p.connection.id === c.id;
+                                        });
+                                    }
+                                    else {
+                                        _jsPlumb.getGroupManager().collapseConnection(c, index, self);
+                                        c.endpoints[index].setVisible(false);
+                                    }
                                 }
                             }
                         };
@@ -384,7 +398,6 @@
                         }
 
                         var elId = _jsPlumb.getId(el);
-                        // surely the drag manager needs to be told
                         _jsPlumb.dragManager.setParent(el, elId, self.el, _jsPlumb.getId(self.el), elpos);
                         _jsPlumb.setPosition(el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
                         _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
