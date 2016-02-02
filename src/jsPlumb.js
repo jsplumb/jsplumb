@@ -759,13 +759,15 @@
                                     // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
                                     // differs from getUIPosition so much
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
-                                    // adjust by ancestor offset if there is one: this is for the case that a draggable
-                                    // is contained inside some other element that is not the Container.
-                                    ui.left += _ancestorOffset.left;
-                                    ui.top += _ancestorOffset.top;
-                                    _draw(element, ui, null, true);
-                                    if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
-                                    _started = true;
+                                    if (ui != null) {
+                                        // adjust by ancestor offset if there is one: this is for the case that a draggable
+                                        // is contained inside some other element that is not the Container.
+                                        ui.left += _ancestorOffset.left;
+                                        ui.top += _ancestorOffset.top;
+                                        _draw(element, ui, null, true);
+                                        if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
+                                        _started = true;
+                                    }
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
                                     var elements = arguments[0].selection;
@@ -773,7 +775,7 @@
 
                                     // this is one element
                                     var _one = function (_e) {
-                                        _draw(_e[0], uip);
+                                        if (uip != null) _draw(_e[0], uip);
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -1062,11 +1064,8 @@
                 state = state === "block";
                 var endpointFunc = null;
                 if (alsoChangeEndpoints) {
-                    if (state) endpointFunc = function (ep) {
-                        ep.setVisible(true, true, true);
-                    };
-                    else endpointFunc = function (ep) {
-                        ep.setVisible(false, true, true);
+                    endpointFunc = function (ep) {
+                        ep.setVisible(state, true, true);
                     };
                 }
                 var info = _info(el);
@@ -2194,7 +2193,7 @@
                         var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
                             elPosition = _currentInstance.getOffset(elInfo.el),
                             elSize = _currentInstance.getSize(elInfo.el),
-                            ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
+                            ap = dropPosition == null ? [0,0] : newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
 
                         newEndpoint.anchor.x = ap[0];
                         newEndpoint.anchor.y = ap[1];
