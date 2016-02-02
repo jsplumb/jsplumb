@@ -104,6 +104,62 @@
             }
         }
 
+        var _collapseConnection = this.collapseConnection = function(c, index, group) {
+            var oidx = index === 0 ? 1 : 0;
+            c.setVisible(false);
+
+            var newEp = _jsPlumb.addEndpoint(group.el, {
+                endpoint:group.getEndpoint(c, index),
+                anchor:group.getAnchor(c, index)
+            });
+
+            if (c.isProxiedBy != null) {
+                newEp.addConnection(c.isProxiedBy);
+                c.isProxiedBy.endpoints[index] = newEp;
+                var groupElId = _jsPlumb.getId(group.el);
+
+                if (index === 0) {
+                    // TODO why are there
+                    // two differently named methods? Why is there not one method that says "some end of this
+                    // connection changed (you give the index), and here's the new element and element id."
+                    _jsPlumb.anchorManager.sourceChanged(c.isProxiedBy.sourceId, groupElId, c.isProxiedBy, group.el);
+                }
+                else {
+
+                    _jsPlumb.anchorManager.updateOtherEndpoint(c.isProxiedBy.sourceId, c.isProxiedBy.targetId, _jsPlumb.getId(group.el), c.isProxiedBy);
+                    c.isProxiedBy.target = group.el;
+                    c.isProxiedBy.targetId = groupElId;
+                }
+
+                c.endpoints[oidx].detachFromConnection(proxy, null, true);
+                c.endpoints[oidx].addConnection(c);
+
+                c.isProxiedBy.setVisible(true);
+                group.proxies.push({connection: c.isProxiedBy, original:c, index:index});
+            }
+            else {
+                // detach current opposite endpoint, in case it has a maxConnections value, because we're going
+                // to connect a new connection to it.
+                c.endpoints[oidx].detachFromConnection(c, null, true);
+                c.endpoints[index].detachFromConnection(c, null, true);
+                // make the proxy connection
+                var proxy = _jsPlumb.connect({
+                    source: index === 0 ? newEp : c.endpoints[0],
+                    target: index === 1 ? newEp : c.endpoints[1],
+                    paintStyle:{strokeStyle:"red", lineWidth:3},   // remove, obviously, at some stage
+                    parameters: {
+                        proxyFor: c,
+                        suspendedEndpoint: c.endpoints[oidx],
+                        suspendedIndex: oidx
+                    }
+                });
+                // stash it on the group and make each connection point at the other
+                group.proxies.push({connection:proxy, original:c, index:index});
+                c.isProxiedBy = proxy;
+                proxy.isProxyFor = c;
+            }
+        };
+
         this.collapseGroup = function(group) {
             group = this.getGroup(group);
 
@@ -113,70 +169,11 @@
             // hide all connections
             _setVisible(group, false);
 
+            // collapses all connections in a group.
             var _collapseSet = function(conns, index) {
                 for (var i = 0; i < conns.length; i++) {
                     var c = conns[i];
-                    var oidx = index === 0 ? 1 : 0;
-                    //c.endpoints[0].detachFromConnection(c, null, true);
-                    //c.endpoints[1].detachFromConnection(c, null, true);
-                    c.setVisible(false);
-
-                    var newEp = _jsPlumb.addEndpoint(group.el, {
-                        endpoint:group.getEndpoint(c, index),
-                        anchor:group.getAnchor(c, index)
-                    });
-
-                    if (c.isProxiedBy != null) {
-                        // in this case, a group is being collapsed when the group at the other end of the connection
-                        // has already been collapsed. So the situation is:
-                        //
-                        // c.endpoints[index] does not have connection C registered, but it has the proxy.
-                        // proxy.endpoints[oidx] is the endpoint created below
-                        newEp.addConnection(c.isProxiedBy);
-                        c.isProxiedBy.endpoints[index] = newEp;
-                        var groupElId = _jsPlumb.getId(group.el);
-
-                        if (index === 0) {
-                            // TODO why are there
-                            // two differently named methods? Why is there not one method that says "some end of this
-                            // connection changed (you give the index), and here's the new element and element id."
-                            _jsPlumb.anchorManager.sourceChanged(c.isProxiedBy.sourceId, groupElId, c.isProxiedBy, group.el);
-                        }
-                        else {
-
-                            _jsPlumb.anchorManager.updateOtherEndpoint(c.isProxiedBy.sourceId, c.isProxiedBy.targetId, _jsPlumb.getId(group.el), c.isProxiedBy);
-                            c.isProxiedBy.target = group.el;
-                            c.isProxiedBy.targetId = groupElId;
-                        }
-
-                        c.endpoints[oidx].detachFromConnection(proxy, null, true);
-                        c.endpoints[oidx].addConnection(c);
-
-                        c.isProxiedBy.setVisible(true);
-                        //group.proxies.push(c.isProxiedBy);
-                        group.proxies.push({connection: c.isProxiedBy, original:c, index:index});
-                    }
-                    else {
-                        // detach current opposite endpoint, in case it has a maxConnections value, because we're going
-                        // to connect a new connection to it.
-                        c.endpoints[oidx].detachFromConnection(c, null, true);
-                        c.endpoints[index].detachFromConnection(c, null, true);
-                        // make the proxy connection
-                        var proxy = _jsPlumb.connect({
-                            source: index === 0 ? newEp : c.endpoints[0],
-                            target: index === 1 ? newEp : c.endpoints[1],
-                            paintStyle:{strokeStyle:"red", lineWidth:3},
-                            parameters: {
-                                proxyFor: c,
-                                suspendedEndpoint: c.endpoints[oidx],
-                                suspendedIndex: oidx
-                            }
-                        });
-                        // stash it on the group and make each connection point at the other
-                        group.proxies.push({connection:proxy, original:c, index:index});
-                        c.isProxiedBy = proxy;
-                        proxy.isProxyFor = c;
-                    }
+                    _collapseConnection(c, index, group);
                 }
             };
 
@@ -193,7 +190,6 @@
         this.expandGroup = function(group) {
             var epToDelete;
             group = this.getGroup(group);
-            _setVisible(group, true);
 
             // remove proxies for sources and targets
             for(var i = 0; i < group.proxies.length; i++) {
@@ -233,10 +229,11 @@
                 }
             }
 
-            _jsPlumb.revalidate(group.el);
+            _setVisible(group, true);
             group.collapsed = false;
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
+            _jsPlumb.revalidate(group.el);
         };
 
         // TODO refactor this with the code that responds to `connection` events.
@@ -247,7 +244,6 @@
             var processed = {};
             group.connections.source.length = 0;
             group.connections.target.length = 0;
-            //group.connections.internal.length = 0;
             var oneSet = function(c) {
                 for (var i = 0; i < c.length; i++) {
                     if (processed[c[i].id]) continue;
@@ -346,11 +342,52 @@
                             _jsPlumb.getGroupManager().updateConnectionsForGroup(currentGroup);
                         }
                         self.add(el, true);
+
+                        // if this group is collapsed we need to look at all connections to and from the
+                        // dropped element. They may be in one of several states:
+
+                        // 1. a connection to some other element in a group that is not collapsed, or to a standalone element.
+                        // 2. a connection to some other element in a group that is collapsed
+                        // 3. a connection to this group (which is collapsed)
+
+                        // the logic for handling each case is different:
+
+                        // 1. just 'collapse' the connection as we would have any other. this means we make a proxy, set it on this
+                        // element, hide the original, etc. We use the _collapseConnection method for that.
+
+                        // 2. i think in fact we can again use the _collapseConnection function like normal here. it
+                        // will check if the connection is already proxied on the other end and deal with it.
+
+                        // 3. this is trickier. the connection to this group will be proxied on this group's end, but not the
+                        // other end of course: the fact that we could drag the node means its group is not collapsed.
+                        // in this case we want to remove the proxy connection entirely, and leave the proxied one invisible.
+
+
+                        var handleDroppedConnections = function(list, index) {
+                            var oidx = index === 0 ? 1 : 0, c, other;
+                            for (var i = 0; i < list.length; i++) {
+                                c = list.get(i);
+                                other = c.endpoints[oidx];
+                                if (other.element === self.el) {
+                                    console.log("a vexing one")
+                                }
+                                else {
+                                    _jsPlumb.getGroupManager().collapseConnection(c, index, self);
+                                    c.endpoints[index].setVisible(false);
+                                }
+                            }
+                        };
+
+                        if (self.collapsed) {
+                            handleDroppedConnections(_jsPlumb.select({source: el}), 0);
+                            handleDroppedConnections(_jsPlumb.select({target: el}), 1);
+                        }
+
                         var elId = _jsPlumb.getId(el);
                         // surely the drag manager needs to be told
-                        _jsPlumb.dragManager.setParent(el, elId, self.el, _jsPlumb.getId(self.el));
+                        _jsPlumb.dragManager.setParent(el, elId, self.el, _jsPlumb.getId(self.el), elpos);
                         _jsPlumb.setPosition(el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
-                        _jsPlumb.dragManager.revalidateParent(el, elId);
+                        _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
 
                         _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
                     }
