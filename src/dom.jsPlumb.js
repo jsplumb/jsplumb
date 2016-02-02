@@ -171,6 +171,9 @@
             // we want to adjust the UI position to account for the offsetParent's position relative to the Container
             // origin.
             var el = eventArgs[0].el;
+            if (el.offsetParent == null) {
+                return null;
+            }
             var p = { left:eventArgs[0].pos[0], top:eventArgs[0].pos[1] };
             if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
                 var oc = this.getOffset(el.offsetParent);
