@@ -118,6 +118,9 @@
                             var cel = jsPlumb.getElement(i),
                                 cOff = childOffsetOverrides[i] || _currentInstance.getOffset(cel);
 
+                            // do not update if we have a value already and we'd just be writing 0,0
+                            if (cel.offsetParent == null && _delements[id][i] != null) continue;
+
                             _delements[id][i] = {
                                 id: i,
                                 offset: {
