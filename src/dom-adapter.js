@@ -104,8 +104,9 @@
         };
 
         // refresh the offsets for child elements of this element.
-        this.updateOffsets = function (elId) {
+        this.updateOffsets = function (elId, childOffsetOverrides) {
             if (elId != null) {
+                childOffsetOverrides = childOffsetOverrides || {};
                 var domEl = jsPlumb.getElement(elId),
                     id = _currentInstance.getId(domEl),
                     children = _delements[id],
@@ -115,7 +116,7 @@
                     for (var i in children) {
                         if (children.hasOwnProperty(i)) {
                             var cel = jsPlumb.getElement(i),
-                                cOff = _currentInstance.getOffset(cel);
+                                cOff = childOffsetOverrides[i] || _currentInstance.getOffset(cel);
 
                             _delements[id][i] = {
                                 id: i,
@@ -212,19 +213,21 @@
         // ancestor's offsets.
         //
         this.dragEnded = function (el) {
-            var id = _currentInstance.getId(el),
-                ancestor = _draggablesForElements[id];
+            if (el.offsetParent != null) {
+                var id = _currentInstance.getId(el),
+                    ancestor = _draggablesForElements[id];
 
-            if (ancestor) this.updateOffsets(ancestor);
+                if (ancestor) this.updateOffsets(ancestor);
+            }
         };
 
-        this.setParent = function (el, elId, p, pId) {
+        this.setParent = function (el, elId, p, pId, currentChildLocation) {
             var current = _draggablesForElements[elId];
             if (!_delements[pId]) {
                 _delements[pId] = {};
             }
             var pLoc = _currentInstance.getOffset(p),
-                cLoc = _currentInstance.getOffset(el);
+                cLoc = currentChildLocation || _currentInstance.getOffset(el);
             if (current) {
                 delete _delements[current][elId];
             }
@@ -247,10 +250,12 @@
             }
         };
 
-        this.revalidateParent = function(el, elId) {
+        this.revalidateParent = function(el, elId, childOffset) {
             var current = _draggablesForElements[elId];
             if (current) {
-                this.updateOffsets(current);
+                var co = {};
+                co[elId] = childOffset;
+                this.updateOffsets(current, co);
                 _currentInstance.revalidate(current);
             }
         };
