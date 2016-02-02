@@ -1385,10 +1385,10 @@
             this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
         };
 
-        this.deleteEndpoint = function (object, dontUpdateHover) {
+        this.deleteEndpoint = function (object, dontUpdateHover, deleteAttachedObjects) {
             var endpoint = (typeof object === "string") ? endpointsByUUID[object] : object;
             if (endpoint) {
-                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover });
+                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, deleteAttachedObjects:deleteAttachedObjects });
             }
             return _currentInstance;
         };
