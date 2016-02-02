@@ -31,7 +31,7 @@
 
                 if (placeholder.element) {
                     var _ui = _jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
-                    jsPlumb.setPosition(placeholder.element, _ui);
+                    if (_ui != null) jsPlumb.setPosition(placeholder.element, _ui);
                     _jsPlumb.repaint(placeholder.element, _ui);
                     // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
                     // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
