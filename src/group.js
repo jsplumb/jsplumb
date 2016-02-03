@@ -11,8 +11,12 @@
     var GROUP = "_jsPlumbGroup";
     var PROXY_FOR = "proxyFor";
     var GROUP_DRAG_SCOPE = "_jsPlumbGroupDrag";
-    var EVT_CHILD_ADDED = "group:childAdded";
-    var EVT_CHILD_REMOVED = "group:childRemoved";
+    var EVT_CHILD_ADDED = "group:addMember";
+    var EVT_CHILD_REMOVED = "group:removeMember";
+    var EVT_GROUP_ADDED = "group:add";
+    var EVT_GROUP_REMOVED = "group:remove";
+    var EVT_EXPAND = "group:expand";
+    var EVT_COLLAPSE = "group:collapse";
 
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
@@ -81,14 +85,21 @@
             _managedGroups[group.id] = group;
             group.manager = this;
             _updateConnectionsForGroup(group);
+            _jsPlumb.fire(EVT_GROUP_ADDED, { group:group });
         };
 
         this.addToGroup = function(group, el) {
-            this.getGroup(group).add(el);
+            group = this.getGroup(group);
+            if (group) {
+                group.add(el);
+            }
         };
 
         this.removeFromGroup = function(group, el) {
-            this.getGroup(group).remove(el);
+            group = this.getGroup(group);
+            if (group) {
+                group.remove(el);
+            }
         };
 
         this.getGroup = function(groupId) {
@@ -106,6 +117,7 @@
             group[deleteMembers ? "removeAll" : "orphanAll"]();
             _jsPlumb.remove(group.el);
             delete _managedGroups[group.id];
+            _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
         };
 
         function _setVisible(group, state) {
@@ -199,10 +211,11 @@
             _jsPlumb.removeClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.addClass(group.el, GROUP_COLLAPSED_CLASS);
             _jsPlumb.revalidate(group.el);
+            _jsPlumb.fire(EVT_COLLAPSE, { group:group  });
         };
 
         this.expandGroup = function(group) {
-            var epToDelete, deletions = [], index, oidx, proxy, original;
+            var epToDelete, deletions = [], index, oidx, proxy, original, p, o, ep;
             group = this.getGroup(group);
 
             // remove proxies for sources and targets
@@ -237,13 +250,17 @@
             }
 
             for (i = 0; i < deletions.length; i++) {
-                var p = deletions[i].proxy, idx = deletions[i].index, oidx = deletions[i].oidx, o = deletions[i].original,
-                    ep = deletions[i].ep;
+                p = deletions[i].proxy;
+                index = deletions[i].index;
+                oidx = deletions[i].oidx;
+                o = deletions[i].original;
+                ep = deletions[i].ep;
+
                 _jsPlumb.detach({connection:p, fireEvent:false});
                 delete o.isProxiedBy;
                 _jsPlumb.deleteEndpoint(ep);
-                o.endpoints[idx].detachFromConnection(p, null, true);
-                o.endpoints[idx].addConnection(o);
+                o.endpoints[index].detachFromConnection(p, null, true);
+                o.endpoints[index].addConnection(o);
                 o.endpoints[oidx].addConnection(o);
                 o.setVisible(true);
             }
@@ -253,6 +270,7 @@
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
             _jsPlumb.revalidate(group.el);
+            _jsPlumb.fire(EVT_EXPAND, { group:group});
         };
 
         // TODO refactor this with the code that responds to `connection` events.
@@ -459,6 +477,7 @@
                 if (manipulateDOM) {
                     self.el.appendChild(_el);
                 }
+                _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
             });
         };
         this.remove = function(el, manipulateDOM) {
@@ -474,6 +493,7 @@
                     }
                 }
                 _unbindDragHandlers(_el);
+                _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: el});
             });
         };
         this.removeAll = function() {
