@@ -202,26 +202,19 @@
         };
 
         this.expandGroup = function(group) {
-            var epToDelete;
+            var epToDelete, deletions = [], index, oidx, proxy, original;
             group = this.getGroup(group);
 
             // remove proxies for sources and targets
             for(var i = 0; i < group.proxies.length; i++) {
-                var index = group.proxies[i].index,
-                    proxy = group.proxies[i].connection,
-                    original = proxy.isProxyFor,
-                    oidx = index === 0 ? 1 : 0;
+                index = group.proxies[i].index;
+                proxy = group.proxies[i].connection;
+                original = proxy.isProxyFor;
+                oidx = index === 0 ? 1 : 0;
 
                 // if only this group has a proxied endpoint, just toss the proxy away and show the original.
                 if (proxy.endpoints[oidx] === original.endpoints[oidx]) {
-                    epToDelete = proxy.endpoints[index];
-                    _jsPlumb.detach(proxy);
-                    delete original.isProxiedBy;
-                    _jsPlumb.deleteEndpoint(epToDelete);
-                    original.endpoints[index].detachFromConnection(proxy, null, true);
-                    original.endpoints[index].addConnection(original);
-                    original.endpoints[oidx].addConnection(original);
-                    original.setVisible(true);
+                    deletions.push({ep:proxy.endpoints[index], original:original, proxy:proxy, index:index, oidx:oidx});
                 }
                 else {
                     // need to keep the proxy, attached to one of the original endpoints.
@@ -241,6 +234,18 @@
                         proxy.targetId = original.targetId;
                     }
                 }
+            }
+
+            for (i = 0; i < deletions.length; i++) {
+                var p = deletions[i].proxy, idx = deletions[i].index, oidx = deletions[i].oidx, o = deletions[i].original,
+                    ep = deletions[i].ep;
+                _jsPlumb.detach({connection:p, fireEvent:false});
+                delete o.isProxiedBy;
+                _jsPlumb.deleteEndpoint(ep);
+                o.endpoints[idx].detachFromConnection(p, null, true);
+                o.endpoints[idx].addConnection(o);
+                o.endpoints[oidx].addConnection(o);
+                o.setVisible(true);
             }
 
             _setVisible(group, true);
