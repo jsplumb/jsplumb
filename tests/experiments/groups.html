@@ -81,6 +81,15 @@
         outline:4px solid cornflowerblue;
     }
 
+    .events {
+        position:fixed;
+        right:0;
+        top:0;
+        border-left:2px solid cornflowerblue;
+        bottom:0;
+        width:150px;
+    }
+
 </style>
 
 <div id="holder">
@@ -157,6 +166,10 @@
     <p>
         This is a test page for the groups functionality in jsPlumb.
     </p>
+
+    <div class="events">
+
+    </div>
 </div>
 
 
@@ -208,6 +221,29 @@
             p.connection.bind("click", function() {
                 j.detach(this);
             });
+        });
+
+        var evts = document.querySelector(".events");
+        var _appendEvent = function(name, detail) {
+            evts.innerHTML = evts.innerHTML + "<br/>" + name + ": " + detail;
+        };
+        j.bind("group:addMember", function(p) {
+            _appendEvent("group:addMember", p.group.id + " - " + p.el.id);
+        });
+        j.bind("group:removeMember", function(p) {
+            _appendEvent("group:removeMember", p.group.id + " - " + p.el.id);
+        });
+        j.bind("group:expand", function(p) {
+            _appendEvent("group:expand", p.group.id);
+        });
+        j.bind("group:collapse", function(p) {
+            _appendEvent("group:collapse", p.group.id);
+        });
+        j.bind("group:add", function(p) {
+            _appendEvent("group:add", p.group.id);
+        });
+        j.bind("group:remove", function(p) {
+            _appendEvent("group:remove", p.group.id);
         });
 
         // NOTE ordering here. we make one draggable before adding it to the group, and we add the other to the group
