@@ -43,17 +43,18 @@
         _jsPlumb.bind("connectionDetached", function(p) {
             if (p.connection.isProxyFor != null) {
                 var proxy = p.connection, original = proxy.isProxyFor;
+                var eps = p.connection.endpoints;
+                if (eps[0].getParameter("isProxyEndpoint")) eps[0]._forceDeleteOnDetach = true;
+                if (eps[1].getParameter("isProxyEndpoint")) eps[1]._forceDeleteOnDetach = true;
                 original.endpoints[0].detachFromConnection(proxy, null, true);
                 original.endpoints[1].detachFromConnection(proxy, null, true);
                 original.endpoints[0].addConnection(original);
                 original.endpoints[1].addConnection(original);
 
-                _jsPlumb.detach(p.connection.isProxyFor);
+                _jsPlumb.detach(original);
                 self.removeProxyFromGroup(p.source[GROUP], p.connection);
                 self.removeProxyFromGroup(p.target[GROUP], p.connection);
-                var eps = p.connection.endpoints;
-                if (eps[0].getParameter("isProxyEndpoint")) eps[0]._forceDeleteOnDetach = true;
-                if (eps[1].getParameter("isProxyEndpoint")) eps[1]._forceDeleteOnDetach = true;
+
             }
             else {
                 // TODO refactor to share code
