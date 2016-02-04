@@ -317,7 +317,7 @@
                         connection: connection,
                         fireEvent: (!ignoreTarget && fireEvent),
                         originalEvent: originalEvent,
-                        deleteAttachedObjects:true
+                        deleteAttachedObjects:false//true
                     });
                     actuallyDetached = true;
                 }
