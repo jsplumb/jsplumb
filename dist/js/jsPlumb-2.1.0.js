@@ -1412,7 +1412,7 @@
         this._class = css.draggable;
         var k = Super.apply(this, arguments);
         this.rightButtonCanDrag = this.params.rightButtonCanDrag;
-        var downAt = [0,0], posAtDown = null, moving = false,
+        var downAt = [0,0], posAtDown = null, pagePosAtDown = null, pageDelta = [0,0], moving = false,
             consumeStartEvent = this.params.consumeStartEvent !== false,
             dragEl = this.el,
             clone = this.params.clone,
@@ -1456,12 +1456,37 @@
             this.params.setPosition(dragEl, _snap(p, x, y, x, y));
         };
 
-        this.constrain = typeof this.params.constrain === "function" ? this.params.constrain  : (this.params.constrain || this.params.containment) ? function(pos) {
-            return [
-                Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
-                Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
-            ];
-        } : function(pos) { return pos; };
+        var constrain;
+
+        var _setConstrain = function(value) {
+            constrain = typeof value === "function" ? value : value ? function(pos) {
+                return [
+                    Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
+                    Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
+                ];
+            }.bind(this) : function(pos) { return pos; };
+        }.bind(this);
+
+        _setConstrain(typeof this.params.constrain === "function" ? this.params.constrain  : (this.params.constrain || this.params.containment));
+
+        /**
+         * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
+         * will be executed and returns true if the position is allowed.
+         * @param value
+         */
+        this.setConstrain = function(value) {
+            _setConstrain(value);
+        };
+
+        var revertFunction;
+        /**
+         * Sets a function to call on drag stop, which, if it returns true, indicates that the given element should
+         * revert to its position before the previous drag.
+         * @param fn
+         */
+        this.setRevert = function(fn) {
+            revertFunction = fn;
+        };
 
         var _assignId = function(obj) {
                 if (typeof obj == "function") {
@@ -1593,6 +1618,11 @@
                     dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
                     dragEl = null;
                 }
+
+                if (revertFunction && revertFunction(this.el, this.params.getPosition(this.el)) === true) {
+                    this.params.setPosition(this.el, posAtDown);
+                    _dispatch("revert", this.el);
+                }
             }
         }.bind(this);
 
@@ -1607,14 +1637,25 @@
             return dragEl || this.el;
         };
 
-        var listeners = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[] };
+        var listeners = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] };
         if (params.events.start) listeners.start.push(params.events.start);
         if (params.events.beforeStart) listeners.beforeStart.push(params.events.beforeStart);
         if (params.events.stop) listeners.stop.push(params.events.stop);
         if (params.events.drag) listeners.drag.push(params.events.drag);
+        if (params.events.revert) listeners.revert.push(params.events.revert);
 
         this.on = function(evt, fn) {
             if (listeners[evt]) listeners[evt].push(fn);
+        };
+
+        this.off = function(evt, fn) {
+            if (listeners[evt]) {
+                var l = [];
+                for (var i = 0; i < listeners[evt].length; i++) {
+                    if (listeners[evt][i] !== fn) l.push(listeners[evt][i]);
+                }
+                listeners[evt] = l;
+            }
         };
 
         var _dispatch = function(evt, value) {
@@ -1656,14 +1697,16 @@
 
         this.mark = function(andNotify) {
             posAtDown = this.params.getPosition(dragEl);
+            pagePosAtDown = this.params.getPosition(dragEl, true);
+            pageDelta = [pagePosAtDown[0] - posAtDown[0], pagePosAtDown[1] - posAtDown[1]];
             this.size = this.params.getSize(dragEl);
             matchingDroppables = k.getMatchingDroppables(this);
             _setDroppablesActive(matchingDroppables, true, false, this);
             this.params.addClass(dragEl, this.params.dragClass || css.drag);
-            if (this.params.constrain || this.params.containment) {
-                var cs = this.params.getSize(dragEl.parentNode);
-                constrainRect = { w:cs[0], h:cs[1] };
-            }
+            //if (this.params.constrain || this.params.containment) {
+            var cs = this.params.getSize(dragEl.parentNode);
+            constrainRect = { w:cs[0], h:cs[1] };
+            //}
             if (andNotify) {
                 k.notifySelectionDragStart(this);
             }
@@ -1681,14 +1724,15 @@
         };
         this.moveBy = function(dx, dy, e) {
             intersectingDroppables.length = 0;
-            var cPos = this.constrain(this.toGrid(([posAtDown[0] + dx, posAtDown[1] + dy])), dragEl),
+            var cPos = constrain(this.toGrid([posAtDown[0] + dx, posAtDown[1] + dy]), dragEl),
                 rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]},
+                pageRect = { x:rect.x + pageDelta[0], y:rect.y + pageDelta[1], w:rect.w, h:rect.h},
                 focusDropElement = null;
 
             this.params.setPosition(dragEl, cPos);
             for (var i = 0; i < matchingDroppables.length; i++) {
-                var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
-                if (this.params.intersects(rect, r2) && (_multipleDrop || focusDropElement == null || focusDropElement == matchingDroppables[i].el) && matchingDroppables[i].canDrop(this)) {
+                var r2 = { x:matchingDroppables[i].pagePosition[0], y:matchingDroppables[i].pagePosition[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
+                if (this.params.intersects(pageRect, r2) && (_multipleDrop || focusDropElement == null || focusDropElement == matchingDroppables[i].el) && matchingDroppables[i].canDrop(this)) {
                     if (!focusDropElement) focusDropElement = matchingDroppables[i].el;
                     intersectingDroppables.push(matchingDroppables[i]);
                     matchingDroppables[i].setHover(this, true, e);
@@ -1745,6 +1789,7 @@
 
         this.updatePosition = function() {
             this.position = this.params.getPosition(this.el);
+            this.pagePosition = this.params.getPosition(this.el, true);
             this.size = this.params.getSize(this.el);
         };
 
@@ -2256,13 +2301,13 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains utility functions that run in both browsers and headless.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -2713,13 +2758,13 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains utility functions that run in browsers only.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -2782,13 +2827,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the core code.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -2966,7 +3011,7 @@
             // it used to call clone.  but it would be nice to find some time to look
             // further at this.
             this.clone = function () {
-                var o = {};//new Object();
+                var o = Object.create(this.constructor.prototype);
                 this.constructor.apply(o, a);
                 return o;
             }.bind(this);
@@ -3506,7 +3551,7 @@
              * TODO: somehow abstract this to the adapter, because the concept of "draggable" has no
              * place on the server.
              */
-            _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id) {
+            _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id, fireEvent) {
                 // move to DragManager?
                 if (!jsPlumb.headless) {
                     var _draggable = isDraggable == null ? false : isDraggable;
@@ -3540,13 +3585,15 @@
                                     // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
                                     // differs from getUIPosition so much
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
-                                    // adjust by ancestor offset if there is one: this is for the case that a draggable
-                                    // is contained inside some other element that is not the Container.
-                                    ui.left += _ancestorOffset.left;
-                                    ui.top += _ancestorOffset.top;
-                                    _draw(element, ui, null, true);
-                                    if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
-                                    _started = true;
+                                    if (ui != null) {
+                                        // adjust by ancestor offset if there is one: this is for the case that a draggable
+                                        // is contained inside some other element that is not the Container.
+                                        ui.left += _ancestorOffset.left;
+                                        ui.top += _ancestorOffset.top;
+                                        _draw(element, ui, null, true);
+                                        if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
+                                        _started = true;
+                                    }
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
                                     var elements = arguments[0].selection;
@@ -3554,7 +3601,7 @@
 
                                     // this is one element
                                     var _one = function (_e) {
-                                        _draw(_e[0], uip);
+                                        if (uip != null) _draw(_e[0], uip);
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -3575,6 +3622,7 @@
                                 options.disabled = draggable == null ? false : !draggable;
                                 _currentInstance.initDraggable(element, options);
                                 _currentInstance.getDragManager().register(element);
+                                if (fireEvent) _currentInstance.fire("elementDraggable", {el:element, options:options});
                             }
                             else {
                                 // already draggable. attach any start, drag or stop listeners to the current Drag.
@@ -3842,11 +3890,8 @@
                 state = state === "block";
                 var endpointFunc = null;
                 if (alsoChangeEndpoints) {
-                    if (state) endpointFunc = function (ep) {
-                        ep.setVisible(true, true, true);
-                    };
-                    else endpointFunc = function (ep) {
-                        ep.setVisible(false, true, true);
+                    endpointFunc = function (ep) {
+                        ep.setVisible(state, true, true);
                     };
                 }
                 var info = _info(el);
@@ -3866,14 +3911,16 @@
          * el is either an id, or an element object, or a list of ids/element objects.
          */
             _toggleDraggable = function (el) {
-                return jsPlumb.each(el, function (el) {
+                var state;
+                jsPlumb.each(el, function (el) {
                     var elId = _currentInstance.getAttribute(el, "id");
-                    var state = draggableStates[elId] == null ? false : draggableStates[elId];
+                    state = draggableStates[elId] == null ? false : draggableStates[elId];
                     state = !state;
                     draggableStates[elId] = state;
                     _currentInstance.setDraggable(el, state);
                     return state;
                 }.bind(this));
+                return state;
             },
             /**
              * private method to do the business of toggling hiding/showing.
@@ -4112,6 +4159,7 @@
             if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
                 ep = el;
                 ep.addConnection(c);
+                el = ep.element;
             }
             else {
                 sid = _getId(el);
@@ -4149,23 +4197,24 @@
                     c.repaint();
             }
 
+            evtParams.element = el;
             return evtParams;
 
         }.bind(this);
 
         this.setSource = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 0, doNotRepaint);
-            this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
+            this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
         };
         this.setTarget = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 1, doNotRepaint);
             this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
         };
 
-        this.deleteEndpoint = function (object, dontUpdateHover) {
+        this.deleteEndpoint = function (object, dontUpdateHover, deleteAttachedObjects) {
             var endpoint = (typeof object === "string") ? endpointsByUUID[object] : object;
             if (endpoint) {
-                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover });
+                _currentInstance.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, deleteAttachedObjects:deleteAttachedObjects });
             }
             return _currentInstance;
         };
@@ -4357,8 +4406,8 @@
 
                     fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
 
-                    c.endpoints[0].detachFromConnection(c);
-                    c.endpoints[1].detachFromConnection(c);
+                    c.endpoints[0].detachFromConnection(c, null, params.deleteAttachedObjects !== true);
+                    c.endpoints[1].detachFromConnection(c, null, params.deleteAttachedObjects !== true);
                     c.cleanup(true);
                     c.destroy(true);
                 }
@@ -4382,7 +4431,7 @@
             var info;
             _each(function(_el) {
                  info = _info(_el);
-                if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id);
+                if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id, true);
             }, el);
             return _currentInstance;
         };
@@ -4970,7 +5019,7 @@
                         var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
                             elPosition = _currentInstance.getOffset(elInfo.el),
                             elSize = _currentInstance.getSize(elInfo.el),
-                            ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
+                            ap = dropPosition == null ? [0,0] : newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
 
                         newEndpoint.anchor.x = ap[0];
                         newEndpoint.anchor.y = ap[1];
@@ -5878,13 +5927,13 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains the base functionality for DOM type adapters.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -5981,8 +6030,9 @@
         };
 
         // refresh the offsets for child elements of this element.
-        this.updateOffsets = function (elId) {
+        this.updateOffsets = function (elId, childOffsetOverrides) {
             if (elId != null) {
+                childOffsetOverrides = childOffsetOverrides || {};
                 var domEl = jsPlumb.getElement(elId),
                     id = _currentInstance.getId(domEl),
                     children = _delements[id],
@@ -5992,7 +6042,10 @@
                     for (var i in children) {
                         if (children.hasOwnProperty(i)) {
                             var cel = jsPlumb.getElement(i),
-                                cOff = _currentInstance.getOffset(cel);
+                                cOff = childOffsetOverrides[i] || _currentInstance.getOffset(cel);
+
+                            // do not update if we have a value already and we'd just be writing 0,0
+                            if (cel.offsetParent == null && _delements[id][i] != null) continue;
 
                             _delements[id][i] = {
                                 id: i,
@@ -6089,26 +6142,50 @@
         // ancestor's offsets.
         //
         this.dragEnded = function (el) {
-            var id = _currentInstance.getId(el),
-                ancestor = _draggablesForElements[id];
+            if (el.offsetParent != null) {
+                var id = _currentInstance.getId(el),
+                    ancestor = _draggablesForElements[id];
 
-            if (ancestor) this.updateOffsets(ancestor);
+                if (ancestor) this.updateOffsets(ancestor);
+            }
         };
 
-        this.setParent = function (el, elId, p, pId) {
+        this.setParent = function (el, elId, p, pId, currentChildLocation) {
             var current = _draggablesForElements[elId];
+            if (!_delements[pId]) {
+                _delements[pId] = {};
+            }
+            var pLoc = _currentInstance.getOffset(p),
+                cLoc = currentChildLocation || _currentInstance.getOffset(el);
             if (current) {
-                if (!_delements[pId])
-                    _delements[pId] = {};
-                _delements[pId][elId] = _delements[current][elId];
                 delete _delements[current][elId];
-                var pLoc = _currentInstance.getOffset(p),
-                    cLoc = _currentInstance.getOffset(el);
-                _delements[pId][elId].offset = {
+            }
+
+            _delements[pId][elId] = {
+                id:elId,
+                offset : {
                     left: cLoc.left - pLoc.left,
                     top: cLoc.top - pLoc.top
-                };
-                _draggablesForElements[elId] = pId;
+                }
+            };
+            _draggablesForElements[elId] = pId;
+        };
+
+        this.clearParent = function(el, elId) {
+            var current = _draggablesForElements[elId];
+            if (current) {
+                delete _delements[current][elId];
+                delete _draggablesForElements[elId];
+            }
+        };
+
+        this.revalidateParent = function(el, elId, childOffset) {
+            var current = _draggablesForElements[elId];
+            if (current) {
+                var co = {};
+                co[elId] = childOffset;
+                this.updateOffsets(current, co);
+                _currentInstance.revalidate(current);
             }
         };
 
@@ -6393,13 +6470,13 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains code for components that support overlays.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -6660,13 +6737,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the code for Endpoints.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -6690,7 +6767,7 @@
 
                 if (placeholder.element) {
                     var _ui = _jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
-                    jsPlumb.setPosition(placeholder.element, _ui);
+                    if (_ui != null) jsPlumb.setPosition(placeholder.element, _ui);
                     _jsPlumb.repaint(placeholder.element, _ui);
                     // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
                     // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
@@ -6953,7 +7030,7 @@
                 this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);
             }
 
-            if (!doNotCleanup && this._deleteOnDetach && this.connections.length === 0) {
+            if ((this._forceDeleteOnDetach || (!doNotCleanup && this._deleteOnDetach)) && this.connections.length === 0) {
                 _jsPlumb.deleteObject({
                     endpoint: this,
                     fireEvent: false,
@@ -7297,10 +7374,7 @@
                         // now we replace ourselves with the temporary div we created above:
                         if (anchorIdx === 0) {
                             existingJpcParams = [ jpc.source, jpc.sourceId, canvasElement, dragScope ];
-                            jpc.source = placeholderInfo.element;
-                            jpc.sourceId = placeholderInfo.id;
-
-                            _jsPlumb.anchorManager.sourceChanged(jpc.endpoints[anchorIdx].elementId, jpc.sourceId, jpc);
+                            _jsPlumb.anchorManager.sourceChanged(jpc.endpoints[anchorIdx].elementId, placeholderInfo.id, jpc, placeholderInfo.element);
 
                         } else {
                             existingJpcParams = [ jpc.target, jpc.targetId, canvasElement, dragScope ];
@@ -7309,13 +7383,6 @@
 
                             _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.endpoints[anchorIdx].elementId, jpc.targetId, jpc);
                         }
-
-                        // lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
-                        // TODO SP i commented this out as part of the rewirte; i think now we want the other endpoint
-                        // to behave naturally.
-                        // SJP
-                        //jpc.endpoints[anchorIdx === 0 ? 1 : 0].anchor.locked = true;
-
 
                         // store the original endpoint and assign the new floating endpoint for the drag.
                         jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
@@ -7400,7 +7467,7 @@
                                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                                     }
                                     else {
-                                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
+                                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                                     }
 
                                     _jsPlumb.repaint(existingJpcParams[1]);
@@ -7429,6 +7496,8 @@
                         }
                         // tell jsplumb that dragging is finished.
                         _jsPlumb.currentlyDragging = false;
+                        jpc.suspendedElement = null;
+                        jpc.suspendedEndpoint = null;
                         jpc = null;
                     }
 
@@ -7828,7 +7897,7 @@
                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                     }
                     else {
-                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
+                        _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                     }
 
                     // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
@@ -7873,7 +7942,7 @@
                             _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                         }
                         else {
-                            _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc);
+                            _jsPlumb.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                         }
 
                         _jsPlumb.repaint(jpc.sourceId);
@@ -8455,13 +8524,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the code for creating and manipulating anchors.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -8847,8 +8916,12 @@
         // 2. updating the source information for the target of the connection
         // 3. re-registering the connection in connectionsByElementId with the newId
         //
-        this.sourceChanged = function (originalId, newId, connection) {
+        this.sourceChanged = function (originalId, newId, connection, newElement) {
             if (originalId !== newId) {
+
+                connection.sourceId = newId;
+                connection.source = newElement;
+
                 // remove the entry that points from the old source to the target
                 _ju.removeWithFunction(connectionsByElementId[originalId], function (info) {
                     return info[0].id === connection.id;
@@ -8906,9 +8979,9 @@
 
             for (var i = 0; i < ep.connections.length; i++) {
                 if (ep.connections[i].sourceId == currentId) {
-                    ep.connections[i].sourceId = ep.elementId;
-                    ep.connections[i].source = ep.element;
-                    self.sourceChanged(currentId, ep.elementId, ep.connections[i]);
+                    //ep.connections[i].sourceId = ep.elementId;
+                    //ep.connections[i].source = ep.element;
+                    self.sourceChanged(currentId, ep.elementId, ep.connections[i], ep.element);
                 }
                 else if (ep.connections[i].targetId == currentId) {
                     ep.connections[i].targetId = ep.elementId;
@@ -9610,13 +9683,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the default Connectors, Endpoint and Overlay definitions.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -11104,13 +11177,13 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains the base class for library adapters.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -11154,13 +11227,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -11833,13 +11906,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the SVG renderers.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -12452,13 +12525,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.0.2
+ * Title:jsPlumb 2.1.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -12484,10 +12557,10 @@
                 bind: e.on,
                 unbind: e.off,
                 getSize: jsPlumb.getSize,
-                getPosition: function (el) {
+                getPosition: function (el, relativeToRoot) {
                     // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                     // compute against the Container's origin. see also the getUIPosition method below.
-                    var o = instance.getOffset(el, false, el._katavorioDrag ? el.offsetParent : null);
+                    var o = instance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
                     return [o.left, o.top];
                 },
                 setPosition: function (el, xy) {
@@ -12622,6 +12695,9 @@
             // we want to adjust the UI position to account for the offsetParent's position relative to the Container
             // origin.
             var el = eventArgs[0].el;
+            if (el.offsetParent == null) {
+                return null;
+            }
             var p = { left:eventArgs[0].pos[0], top:eventArgs[0].pos[1] };
             if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
                 var oc = this.getOffset(el.offsetParent);

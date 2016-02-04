@@ -3,7 +3,7 @@ var versions = {
         JS_BEZIER : { f:"jsBezier", v:"0.7" },
         BILTONG : { f:"biltong", v:"0.2" },
         MOTTLE : {f:"mottle", v:"0.7.1" },
-        KATAVORIO : {f:"katavorio", v:"0.13.0" }
+        KATAVORIO : {f:"katavorio", v:"0.15.0" }
     },
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
 
@@ -17,7 +17,7 @@ var versions = {
             "svg"
         ],
         common:[
-            'util.js', 'browser-util.js', 'jsPlumb.js', 'dom-adapter.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js'
+            'util.js', 'browser-util.js', 'jsPlumb.js', 'dom-adapter.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js', 'groups.js'
         ]
     },
     optionList = function(grunt, type) {

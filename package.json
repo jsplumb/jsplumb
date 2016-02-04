@@ -1,8 +1,8 @@
 {
   "name": "jsplumb",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "description": "Visual connectivity for webapps",
-  "main": "dist/js/jsPlumb-2.0.6.js",
+  "main": "dist/js/jsPlumb-2.1.0.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -62,7 +62,7 @@
       "Simple example demonstrating jsPlumb's `animate` method"
     ]
   ],
-  "author": "Simon Porritt",
+  "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "MIT/GPL2",
   "devDependencies": {
     "grunt": "~0.4.1",
