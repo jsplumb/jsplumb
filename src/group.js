@@ -558,14 +558,14 @@
         //
         function _pruneOrOrphan(p) {
             if (!_isInsideParent(p.el, p.pos)) {
-                setTimeout(function() {
+                //setTimeout(function() {
                     p.el._jsPlumbGroup.remove(p.el);
                     if (prune) {
                         _jsPlumb.remove(p.el);
                     } else {
                         _orphan(p.el);
                     }
-                }, 0);
+                //}, 0);
             }
         }
 
@@ -652,6 +652,15 @@
      */
     jsPlumbInstance.prototype.removeGroup = function(group, deleteMembers) {
         this.getGroupManager().removeGroup(group, deleteMembers);
+    };
+
+    /**
+     * Get a group
+     * @method getGroup
+     * @param {String} groupId ID of the group to get
+     */
+    jsPlumbInstance.prototype.getGroup = function(groupId) {
+        return this.getGroupManager().getGroup(groupId);
     };
 
     /**

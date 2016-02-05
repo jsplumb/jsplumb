@@ -1579,9 +1579,16 @@
                     });
 
                     fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
+                    var doNotCleanup = params.deleteAttachedObjects == null ? null : !params.deleteAttachedObjects;
 
-                    c.endpoints[0].detachFromConnection(c, null, params.deleteAttachedObjects !== true);
-                    c.endpoints[1].detachFromConnection(c, null, params.deleteAttachedObjects !== true);
+                    // SP GROUPS. this works but blows up lots of original tests
+                    c.endpoints[0].detachFromConnection(c, null, doNotCleanup);
+                    c.endpoints[1].detachFromConnection(c, null, doNotCleanup);
+
+                    // SP GROUPS. this does not work but makes all the original tests work.
+                    //c.endpoints[0].detachFromConnection(c);
+                    //c.endpoints[1].detachFromConnection(c);
+
                     c.cleanup(true);
                     c.destroy(true);
                 }

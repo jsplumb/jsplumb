@@ -47,13 +47,13 @@ var within = function (val, target, _ok, msg) {
 };
 
 var _divs = [];
-var _addDiv = function (id, parent, className) {
+var _addDiv = function (id, parent, className, x, y) {
     var d1 = document.createElement("div");
     d1.style.position = "absolute";
     if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
     d1.setAttribute("id", id);
-    d1.style.left = (Math.floor(Math.random() * 1000)) + "px";
-    d1.style.top = (Math.floor(Math.random() * 1000)) + "px";
+    d1.style.left = (x != null ? x : (Math.floor(Math.random() * 1000))) + "px";
+    d1.style.top = (y!= null ? y : (Math.floor(Math.random() * 1000))) + "px";
     if (className) d1.className = className;
     _divs.push(id);
     return d1;
@@ -8620,6 +8620,218 @@ test("endpoint: suspendedElement set correctly", function() {
 
         equal(c.scope, "blue", "connection scope is blue.");
     });
+
+
+// ------------------------------------------- groups ---------------------------------------------------------------
+
+    var _addGroup = function(j, name, container, members, params) {
+        j.addGroup(jsPlumb.extend({
+            el:container,
+            id:name,
+            anchor:"Continuous",
+            endpoint:"Blank"
+        }, params || {}));
+
+        for (var i = 0; i < members.length; i++) {
+            j.addToGroup(name, members[i]);
+        }
+    };
+
+    var _dragToGroup = function(_jsPlumb, el, targetGroup) {
+        targetGroup = _jsPlumb.getGroup(targetGroup);
+        var tgo = jsPlumb.getOffset(targetGroup.el),
+            tgs = jsPlumb.getSize(targetGroup.el),
+            tx = tgo.left + (tgs[0] / 2),
+            ty = tgo.top + (tgs[1] / 2);
+
+        support.dragNodeTo(el, tx, ty);
+    };
+    var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2;
+
+    var _setupGroups = function() {
+        c1 = _addDiv("container1", null, "container", 0, 50);
+        c2 = _addDiv("container2", null, "container", 300, 50);
+        c3 = _addDiv("container3", null, "container", 600, 50);
+        c4 = _addDiv("container4", null, "container", 0, 400);
+        c5 = _addDiv("container5", null, "container", 300, 400);
+        c6 = _addDiv("container6", null, "container", 0, 50);
+
+        c1_1 = _addDiv("c1_1", c1, "w", 30, 30);
+        c1_2 = _addDiv("c1_2", c1, "w", 180, 130);
+        c5_1 = _addDiv("c5_1", c5, "w", 30, 30);
+        c5_2 = _addDiv("c5_2", c5, "w", 180, 130);
+        c4_1 = _addDiv("c4_1", c4, "w", 30, 30);
+        c4_2 = _addDiv("c4_2", c4, "w", 180, 130);
+        c3_1 = _addDiv("c3_1", c3, "w", 30, 30);
+        c3_2 = _addDiv("c3_2", c3, "w", 180, 130);
+        c2_1 = _addDiv("c2_1", c2, "w", 30, 30);
+        c2_2 = _addDiv("c2_2", c2, "w", 180, 130);
+
+        _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2]);
+
+        _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
+        _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
+        _addGroup(_jsPlumb, "three", c3, [c3_1,c3_2],{ revert:false });
+        _addGroup(_jsPlumb, "four", c4, [c4_1,c4_2], { prune: true });
+        _addGroup(_jsPlumb, "five", c5, [c5_1,c5_2], { orphan:true, droppable:false });
+
+        _jsPlumb.connect({source:c1_1, target:c2_1});
+        _jsPlumb.connect({source:c2_1, target:c3_1});
+        _jsPlumb.connect({source:c3_1, target:c4_1});
+        _jsPlumb.connect({source:c4_1, target:c5_1});
+
+        _jsPlumb.connect({source:c1_1,target:c1_2});
+        _jsPlumb.connect({source:c2_1,target:c2_2});
+        _jsPlumb.connect({source:c3_1,target:c3_2});
+        _jsPlumb.connect({source:c4_1,target:c4_2});
+        _jsPlumb.connect({source:c5_1,target:c5_2});
+        _jsPlumb.connect({source:c5_1,target:c3_2});
+
+        _jsPlumb.connect({source:c5_1,target:c5, anchors:["Center", "Continuous"]});
+    }
+
+    test("groups, simple access", function() {
+
+        _setupGroups();
+
+        // check a group has members
+        equal(_jsPlumb.getGroup("four").getMembers().length, 2, "2 members in group four");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 2, "2 members in group three");
+        // check an unknown group throws an error
+        try {
+            _jsPlumb.getGroup("unknown")
+            ok(false, "should not have been able to retrieve unknown group");
+        }
+        catch (e) {
+            ok(true, "unknown group retrieve threw exception");
+        }
+
+        _jsPlumb.removeGroup("four");
+        try {
+            _jsPlumb.getGroup("four")
+            ok(false, "should not have been able to retrieve remove group");
+        }
+        catch (e) {
+            ok(true, "removed group subsequent retrieve threw exception");
+        }
+        ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+
+        _jsPlumb.removeGroup("five", true);
+        try {
+            _jsPlumb.getGroup("five")
+            ok(false, "should not have been able to retrieve remove group");
+        }
+        catch (e) {
+            ok(true, "removed group subsequent retrieve threw exception");
+        }
+        ok(c5_1.parentNode == null, "c5_1 removed from DOM because flag was set on group remove call");
+
+    });
+
+    test("groups, dragging between groups, take one", function() {
+        _setupGroups();
+
+        // drag 4_1 to group 3
+        _dragToGroup(_jsPlumb, c4_1, "three");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 3, "3 members in group three");
+
+        // drag 4_2 to group 5 (which is not droppable)
+        equal(_jsPlumb.getGroup("five").getMembers().length, 2, "2 members in group five before drop attempt");
+        _dragToGroup(_jsPlumb, c4_2, "five");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 0, "move to group 5 fails, not droppable: 0 members in group four because it prunes");
+        equal(_jsPlumb.getGroup("five").getMembers().length, 2, "but still only 2 members in group five");
+
+    });
+
+    test("groups, dragging between groups, take 2", function() {
+        _setupGroups();
+
+        // drag 4_2 to group 1 (which is not droppable)
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one before attempted drop from group 1");
+        _dragToGroup(_jsPlumb, c4_2, "one");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four (it prunes on drop outside)");
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one after failed drop: group 1 not droppable");
+
+        // drag 4_1 to group 2 (which is droppable)
+        equal(_jsPlumb.getGroup("two").getMembers().length, 2, "2 members in group two before drop from group 4");
+        _dragToGroup(_jsPlumb, c4_1, "two");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 0, "0 members in group four after dropping el on group 2");
+        equal(_jsPlumb.getGroup("two").getMembers().length, 3, "3 members in group two after dropping el from group 4");
+
+        // drag 1_2 to group 2 (group 1 has constrain switched on; should not drop even though 2 is droppable)
+        _dragToGroup(_jsPlumb, c1_2, "two");
+        equal(_jsPlumb.getGroup("two").getMembers().length, 3, "3 members in group two after attempting drop from group 1");
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one after drop on group 2 failed due to constraint");
+
+    });
+
+    test("dragging nodes out of groups", function() {
+        _setupGroups();
+        // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
+        var c12o = _jsPlumb.getOffset(c1_2);
+        support.dragtoDistantLand(c1_2);
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one");
+        // check the node has not actually moved.
+        equal(c12o.left, _jsPlumb.getOffset(c1_2).left, "c1_2 left position unchanged");
+        equal(c12o.top, _jsPlumb.getOffset(c1_2).top, "c1_2 top position unchanged");
+
+        // try dragging 2_2 right out of the box and dropping it. it should not work: c1 has revert switched on.
+        var c22o = _jsPlumb.getOffset(c2_2);
+        support.dragtoDistantLand(c2_2);
+        equal(_jsPlumb.getGroup("two").getMembers().length, 2, "2 members in group two");
+        // check the node has not actually moved.
+        equal(c22o.left, _jsPlumb.getOffset(c2_2).left, "c2_2 left position unchanged");
+        equal(c22o.top, _jsPlumb.getOffset(c2_2).top, "c2_2 top position unchanged");
+
+
+        // c3, should also allow nodes to be dropped outside
+        var c32o = _jsPlumb.getOffset(c3_2);
+        support.dragtoDistantLand(c3_2);
+        equal(_jsPlumb.getGroup("three").getMembers().length, 2, "2 members in group three");
+        // check the node has moved. but just not removed from the group.
+        ok(c32o.left != _jsPlumb.getOffset(c3_2).left, "c3_2 left position changed");
+        ok(c32o.top != _jsPlumb.getOffset(c3_2).top, "c3_2 top position changed");
+
+        // c4 prunes nodes on drop outside
+        support.dragtoDistantLand(c4_2);
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four");
+        ok(c4_2.parentNode == null, "c4_2 removed from DOM");
+
+        // c5 orphans nodes on drop outside (remove from group but not from DOM)
+        support.dragtoDistantLand(c5_2);
+        equal(_jsPlumb.getGroup("five").getMembers().length, 1, "1 member in group five");
+        ok(c5_2.parentNode != null, "c5_2 still in DOM");
+    });
+
+    test("simple group collapse and expand", function() {
+        _setupGroups();
+        equal(_jsPlumb.select({source:"c3_1"}).length, 2, "2 source connections yet for c3_1");
+        equal(_jsPlumb.select({source:"container3"}).length, 0, "no connections yet for container3");
+        equal(_jsPlumb.select({target:"container3"}).length, 0, "no connections yet for container3");
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.select({source:"container3"}).length, 1, "1 source connection for container3");
+        equal(_jsPlumb.select({target:"container3"}).length, 2, "2 target connections for container3");
+
+        var c3_1conns = _jsPlumb.select({source:"c3_1"});
+        equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
+        ok(c3_1conns.get(0).isProxiedBy != null, "first c3_1 connection is proxied");
+        ok(!c3_1conns.get(0).isVisible(), "first c3_1 connection is not visible");
+        ok(c3_1conns.get(1).isProxiedBy == null, "second c3_1 connection is not proxied: it is a connection to c3_2");
+        ok(!c3_1conns.get(1).isVisible(), "second c3_1 connection is not visible");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.select({source:"container3"}).length, 0, "no connections for container3");
+        equal(_jsPlumb.select({target:"container3"}).length, 0, "no connections for container3");
+        c3_1conns = _jsPlumb.select({source:"c3_1"});
+        equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
+        ok(c3_1conns.get(0).isProxiedBy == null, "first c3_1 connection is no longer proxied");
+        ok(c3_1conns.get(0).isVisible(), "first c3_1 connection is visible");
+        ok(c3_1conns.get(1).isProxiedBy == null, "second c3_1 connection is not proxied: it is a connection to c3_2");
+        ok(c3_1conns.get(1).isVisible(), "second c3_1 connection is visible");
+
+    })
+
 
 };
 

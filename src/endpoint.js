@@ -298,12 +298,17 @@
                 _jsPlumb.deleteObject({
                     endpoint: this,
                     fireEvent: false,
-                    deleteAttachedObjects: false
+                    //deleteAttachedObjects: false
+                    deleteAttachedObjects: doNotCleanup !== true
                 });
             }
         };
 
         this.detach = function (connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
+
+//        this.detach = function (params) {
+//            var connectionIndex = params.connectionIndex, connection = params.connection, fireEvent = params.fireEvent,
+//                originalEvent = params.originalEvent, endpointBeingDeleted = params.endpointBeingDeleted, forceDetach = params.forceDetach;
 
             var idx = connectionIndex == null ? this.connections.indexOf(connection) : connectionIndex,
                 actuallyDetached = false;
@@ -316,8 +321,9 @@
                     _jsPlumb.deleteObject({
                         connection: connection,
                         fireEvent: (!ignoreTarget && fireEvent),
-                        originalEvent: originalEvent,
-                        deleteAttachedObjects:false//true
+                        originalEvent: originalEvent//,
+                        ////deleteAttachedObjects:true
+                        //deleteAttachedObjects:null
                     });
                     actuallyDetached = true;
                 }
