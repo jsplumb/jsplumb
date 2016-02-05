@@ -114,7 +114,7 @@
 
         this.removeGroup = function(group, deleteMembers) {
             group = this.getGroup(group);
-            this.expandGroup(group); // this reinstates any original connections and removes all proxies.
+            this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
             group[deleteMembers ? "removeAll" : "orphanAll"]();
             _jsPlumb.remove(group.el);
             delete _managedGroups[group.id];
@@ -221,7 +221,7 @@
             _jsPlumb.fire(EVT_COLLAPSE, { group:group  });
         };
 
-        this.expandGroup = function(group) {
+        this.expandGroup = function(group, doNotFireEvent) {
             var epToDelete, deletions = [], index, oidx, proxy, original, p, o, ep;
             group = this.getGroup(group);
 
@@ -266,6 +266,7 @@
                 _jsPlumb.detach({connection:p, fireEvent:false, deleteAttachedObjects:false});
                 delete o.isProxiedBy;
                 _jsPlumb.deleteEndpoint(ep);
+                o.endpoints[oidx].detachFromConnection(p, null, true);
                 o.endpoints[index].detachFromConnection(p, null, true);
                 o.endpoints[index].addConnection(o);
                 o.endpoints[oidx].addConnection(o);
@@ -274,10 +275,13 @@
 
             _setVisible(group, true);
             group.collapsed = false;
+            group.proxies.length = 0;
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
             _jsPlumb.revalidate(group.el);
-            _jsPlumb.fire(EVT_EXPAND, { group:group});
+            if (!doNotFireEvent) {
+                _jsPlumb.fire(EVT_EXPAND, { group: group});
+            }
         };
 
         // TODO refactor this with the code that responds to `connection` events.
@@ -724,6 +728,10 @@
             mgr = this[GROUP_MANAGER] = new GroupManager(this);
         }
         return mgr;
-    }
+    };
+
+    jsPlumbInstance.prototype.removeGroupManager = function() {
+        delete this[GROUP_MANAGER];
+    };
 
 })();
