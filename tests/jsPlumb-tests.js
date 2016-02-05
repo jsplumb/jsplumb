@@ -1273,7 +1273,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
-        e1.detach(conn);
+        e1.detach({connection:conn});
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
@@ -1476,7 +1476,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         assertConnectionCount(e16, 1);
         assertConnectionCount(e17, 1);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-        e16.detach(conn);
+        e16.detach({connection:conn});
         // but the connection should be gone, meaning not registered by _jsPlumb and not registered on either Endpoint:
         assertConnectionCount(e16, 0);
         assertConnectionCount(e17, 0);

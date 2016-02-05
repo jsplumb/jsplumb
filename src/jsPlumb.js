@@ -1474,7 +1474,12 @@
                     [ _currentInstance, "checkCondition", [ "beforeDetach", conn ] ]
                 ])) {
 
-                    conn.endpoints[0].detach(conn, false, true, fireEvent);
+                    conn.endpoints[0].detach({
+                        connection:conn,
+                        ignoreTarget:false,
+                        forceDetach:true,
+                        fireEvent:fireEvent
+                    });
                 }
             }
             else {
@@ -1490,7 +1495,12 @@
                     _operation(sourceId, function (jpc) {
                         if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
                             if (_currentInstance.checkCondition("beforeDetach", jpc)) {
-                                jpc.endpoints[0].detach(jpc, false, true, fireEvent);
+                                jpc.endpoints[0].detach({
+                                    connection:jpc,
+                                    ignoreTarget:false,
+                                    forceDetach:true,
+                                    fireEvent:fireEvent
+                                });
                             }
                         }
                     });

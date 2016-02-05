@@ -304,11 +304,14 @@
             }
         };
 
-        this.detach = function (connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
+        //this.detach = function (connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
 
-//        this.detach = function (params) {
-//            var connectionIndex = params.connectionIndex, connection = params.connection, fireEvent = params.fireEvent,
-//                originalEvent = params.originalEvent, endpointBeingDeleted = params.endpointBeingDeleted, forceDetach = params.forceDetach;
+        this.detach = function (params) {
+            var connectionIndex = params.connectionIndex,
+                connection = params.connection,
+                ignoreTarget = params.ignoreTarget,
+                fireEvent = params.fireEvent,
+                originalEvent = params.originalEvent, endpointBeingDeleted = params.endpointBeingDeleted, forceDetach = params.forceDetach;
 
             var idx = connectionIndex == null ? this.connections.indexOf(connection) : connectionIndex,
                 actuallyDetached = false;
@@ -335,7 +338,15 @@
             var unaffectedConns = [];
             while (this.connections.length > 0) {
                 // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
-                var actuallyDetached = this.detach(this.connections[0], false, forceDetach === true, fireEvent !== false, null, this, 0);
+                var actuallyDetached = this.detach({
+                    connection:this.connections[0],
+                    ignoreTarget:false,
+                    forceDetach:forceDetach === true,
+                    fireEvent:fireEvent !== false,
+                    originalEvent:null,
+                    endpointBeingDeleted:this,
+                    connectionIndex:0
+                });
                 if (!actuallyDetached) {
                     unaffectedConns.push(this.connections[0]);
                     this.connections.splice(0, 1);
@@ -352,7 +363,13 @@
                 }
             }
             for (var j = 0; j < c.length; j++) {
-                this.detach(c[j], false, true, fireEvent, originalEvent);
+                this.detach({
+                    connection:c[j],
+                    ignoreTarget:false,
+                    forceDetach:true,
+                    fireEvent:fireEvent,
+                    originalEvent:originalEvent
+                });
             }
             return this;
         };
@@ -723,7 +740,11 @@
                                 jpc.endpoints[idx] = jpc.suspendedEndpoint;
                                 // IF the connection should be reattached, or the other endpoint refuses detach, then
                                 // reset the connection to its original state
-                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent, true)) {
+                                if (jpc.isReattach()
+                                    || jpc._forceReattach
+                                    || jpc._forceDetach
+                                    || !jpc.endpoints[idx === 0 ? 1 : 0].detach({connection:jpc, ignoreTarget:false, forceDetach:false, fireEvent:true, originalEvent:originalEvent, endpointBeingDeleted:true})) {
+
                                     jpc.setHover(false);
                                     jpc._forceDetach = null;
                                     jpc._forceReattach = null;
