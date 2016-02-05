@@ -121,6 +121,12 @@
             _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
         };
 
+        this.removeAllGroups = function(deleteMembers) {
+            for (var g in _managedGroups) {
+                this.removeGroup(_managedGroups[g], deleteMembers);
+            }
+        };
+
         function _setVisible(group, state) {
             var m = group.getMembers();
             for (var i = 0; i < m.length; i++) {
@@ -652,6 +658,16 @@
      */
     jsPlumbInstance.prototype.removeGroup = function(group, deleteMembers) {
         this.getGroupManager().removeGroup(group, deleteMembers);
+    };
+
+    /**
+     * Remove all groups, and optionally remove their members from the jsPlumb instance.
+     * @method removeAllGroup
+     * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the groups. Otherwise they will
+     * just be 'orphaned' (returned to the main container).
+     */
+    jsPlumbInstance.prototype.removeAllGroups = function(deleteMembers) {
+        this.getGroupManager().removeAllGroups(deleteMembers);
     };
 
     /**
