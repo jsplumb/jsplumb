@@ -257,7 +257,7 @@
                 o = deletions[i].original;
                 ep = deletions[i].ep;
 
-                _jsPlumb.detach({connection:p, fireEvent:false});
+                _jsPlumb.detach({connection:p, fireEvent:false, deleteAttachedObjects:false});
                 delete o.isProxiedBy;
                 _jsPlumb.deleteEndpoint(ep);
                 o.endpoints[index].detachFromConnection(p, null, true);

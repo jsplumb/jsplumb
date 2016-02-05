@@ -1464,7 +1464,8 @@
                 params = arguments.length == 2 ? firstArgIsConnection ? (arguments[1] || {}) : arguments[0] : arguments[0],
                 fireEvent = (params.fireEvent !== false),
                 forceDetach = params.forceDetach,
-                conn = firstArgIsConnection ? arguments[0] : params.connection;
+                conn = firstArgIsConnection ? arguments[0] : params.connection,
+                deleteAttachedObjects = firstArgIsConnection ? null : params.deleteAttachedObjects;
 
             if (conn) {
                 if (forceDetach || _ju.functionChain(true, false, [
@@ -1478,7 +1479,8 @@
                         connection:conn,
                         ignoreTarget:false,
                         forceDetach:true,
-                        fireEvent:fireEvent
+                        fireEvent:fireEvent,
+                        deleteAttachedObjects:deleteAttachedObjects
                     });
                 }
             }

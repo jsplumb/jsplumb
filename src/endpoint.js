@@ -286,7 +286,6 @@
         };
 
         this.detachFromConnection = function (connection, idx, doNotCleanup) {
-            //idx = idx == null ? findConnectionIndex(connection, this) : idx;
             idx = idx == null ? this.connections.indexOf(connection) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
@@ -311,7 +310,9 @@
                 connection = params.connection,
                 ignoreTarget = params.ignoreTarget,
                 fireEvent = params.fireEvent,
-                originalEvent = params.originalEvent, endpointBeingDeleted = params.endpointBeingDeleted, forceDetach = params.forceDetach;
+                originalEvent = params.originalEvent,
+                endpointBeingDeleted = params.endpointBeingDeleted,
+                forceDetach = params.forceDetach;
 
             var idx = connectionIndex == null ? this.connections.indexOf(connection) : connectionIndex,
                 actuallyDetached = false;
@@ -324,8 +325,8 @@
                     _jsPlumb.deleteObject({
                         connection: connection,
                         fireEvent: (!ignoreTarget && fireEvent),
-                        originalEvent: originalEvent//,
-                        ////deleteAttachedObjects:true
+                        originalEvent: originalEvent,
+                        deleteAttachedObjects:params.deleteAttachedObjects
                         //deleteAttachedObjects:null
                     });
                     actuallyDetached = true;
