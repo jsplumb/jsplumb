@@ -2840,6 +2840,7 @@
 
         this.reset = function () {
             _currentInstance.silently(function() {
+                _currentInstance.removeAllGroups();
                 _currentInstance.deleteEveryEndpoint();
                 _currentInstance.unbind();
                 this.targetEndpointDefinitions = {};
