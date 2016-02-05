@@ -8699,7 +8699,7 @@ test("endpoint: suspendedElement set correctly", function() {
         equal(_jsPlumb.getGroup("three").getMembers().length, 2, "2 members in group three");
         // check an unknown group throws an error
         try {
-            _jsPlumb.getGroup("unknown")
+            _jsPlumb.getGroup("unknown");
             ok(false, "should not have been able to retrieve unknown group");
         }
         catch (e) {
@@ -8708,8 +8708,8 @@ test("endpoint: suspendedElement set correctly", function() {
 
         _jsPlumb.removeGroup("four");
         try {
-            _jsPlumb.getGroup("four")
-            ok(false, "should not have been able to retrieve remove group");
+            _jsPlumb.getGroup("four");
+            ok(false, "should not have been able to retrieve removed group");
         }
         catch (e) {
             ok(true, "removed group subsequent retrieve threw exception");
@@ -8718,13 +8718,23 @@ test("endpoint: suspendedElement set correctly", function() {
 
         _jsPlumb.removeGroup("five", true);
         try {
-            _jsPlumb.getGroup("five")
-            ok(false, "should not have been able to retrieve remove group");
+            _jsPlumb.getGroup("five");
+            ok(false, "should not have been able to retrieve removed group");
         }
         catch (e) {
             ok(true, "removed group subsequent retrieve threw exception");
         }
         ok(c5_1.parentNode == null, "c5_1 removed from DOM because flag was set on group remove call");
+
+        // reset: all groups should be removed
+        _jsPlumb.reset();
+        try {
+            _jsPlumb.getGroup("three");
+            ok(false, "should not have been able to retrieve group after reset");
+        }
+        catch (e) {
+            ok(true, "retrieve group after reset threw exception");
+        }
 
     });
 
