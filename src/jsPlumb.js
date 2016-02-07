@@ -2841,6 +2841,7 @@
         this.reset = function () {
             _currentInstance.silently(function() {
                 _currentInstance.removeAllGroups();
+                _currentInstance.removeGroupManager();
                 _currentInstance.deleteEveryEndpoint();
                 _currentInstance.unbind();
                 this.targetEndpointDefinitions = {};
