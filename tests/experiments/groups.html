@@ -284,19 +284,20 @@
         j.addToGroup("five", [c5_1, c5_2]);
         j.draggable(c5_2);
 
-        j.connect({source:c1_1, target:c2_1});
-        j.connect({source:c2_1, target:c3_1});
+//        j.connect({source:c1_1, target:c2_1});
+//        j.connect({source:c2_1, target:c3_1});
         j.connect({source:c3_1, target:c4_1});
-        j.connect({source:c4_1, target:c5_1});
-
-        j.connect({source:c1_1,target:c1_2});
-        j.connect({source:c2_1,target:c2_2});
-        j.connect({source:c3_1,target:c3_2});
-        j.connect({source:c4_1,target:c4_2});
-        j.connect({source:c5_1,target:c5_2});
-        j.connect({source:c5_1,target:c3_2});
-
-        j.connect({source:c5_1,target:container5, anchors:["Center", "Continuous"]});
+//        j.connect({source:c4_1, target:c5_1});
+//
+//        j.connect({source:c1_1,target:c1_2});
+//        j.connect({source:c2_1,target:c2_2});
+//        j.connect({source:c3_1,target:c3_2});
+//        j.connect({source:c4_1,target:c4_2});
+//        j.connect({source:c5_1,target:c5_2});
+//
+//        j.connect({source:c5_1,target:c3_2});
+//
+//        j.connect({source:c5_1,target:container5, anchors:["Center", "Continuous"]});
 
         j.on(holder, "click", ".del", function() {
             var g = this.parentNode.getAttribute("group");
@@ -310,7 +311,14 @@
             j[collapsed ? "expandGroup" : "collapseGroup"](g);
         });
 
-        j.connect({source:container1,target:container2,anchor:"Continuous"})
+       // j.connect({source:container1,target:container2,anchor:"Continuous"})
+
+        var _log = function(c) {
+            console.log(c.id, c.endpoints[0].id, c.endpoints[1].id, c.sourceId, c.targetId, c.isProxiedBy ? "proxied" : c.isProxyFor ? "proxy" : "normal", c.isVisible() ? "visible" : "hidden");
+        };
+        window.dump = function() {
+            j.select().each(_log);
+        };
     });
 </script>
 
