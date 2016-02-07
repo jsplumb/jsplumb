@@ -8654,7 +8654,6 @@ test("endpoint: suspendedElement set correctly", function() {
         c3 = _addDiv("container3", null, "container", 600, 50);
         c4 = _addDiv("container4", null, "container", 0, 400);
         c5 = _addDiv("container5", null, "container", 300, 400);
-        c6 = _addDiv("container6", null, "container", 0, 50);
 
         c1_1 = _addDiv("c1_1", c1, "w", 30, 30);
         c1_2 = _addDiv("c1_2", c1, "w", 180, 130);
@@ -8814,14 +8813,30 @@ test("endpoint: suspendedElement set correctly", function() {
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
     });
 
-    test("simple group collapse and expand", function() {
+    test("single group collapse and expand", function() {
+
+        console.log("at the start there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
+        console.log(" ");
+
         _setupGroups();
+
+        console.log("after setup there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
+        console.log(" ");
+
+
         equal(_jsPlumb.select({source:"c3_1"}).length, 2, "2 source connections yet for c3_1");
         equal(_jsPlumb.select({source:"container3"}).length, 0, "no connections yet for container3");
         equal(_jsPlumb.select({target:"container3"}).length, 0, "no connections yet for container3");
         _jsPlumb.collapseGroup("three");
         equal(_jsPlumb.select({source:"container3"}).length, 1, "1 source connection for container3");
         equal(_jsPlumb.select({target:"container3"}).length, 2, "2 target connections for container3");
+
+        console.log("after collapse there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); });
+        console.log(" ");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3");
 
         var c3_1conns = _jsPlumb.select({source:"c3_1"});
         equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
@@ -8839,9 +8854,60 @@ test("endpoint: suspendedElement set correctly", function() {
         ok(c3_1conns.get(0).isVisible(), "first c3_1 connection is visible");
         ok(c3_1conns.get(1).isProxiedBy == null, "second c3_1 connection is not proxied: it is a connection to c3_2");
         ok(c3_1conns.get(1).isVisible(), "second c3_1 connection is visible");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are no proxies in group 3");
 
-    })
+        console.log("after expand there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
+        console.log(" ");
 
+    });
+
+    test("multiple group collapse and expand", function() {
+        _setupGroups();
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse");
+        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after group 3 was collapsed");
+
+        _jsPlumb.collapseGroup("five");
+        equal(_jsPlumb.getGroup("five").proxies.length, 2, "there are 2 proxies in group 5 after collapse");
+
+        _jsPlumb.expandGroup("five");
+        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after expand");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after expand");
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse again");
+        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after group 3 was collapsed again");
+    });
+
+    test("drop element on collapsed group", function()
+    {
+        _setupGroups();
+
+        // drop an element on a collapsed group
+        // expand it afterwards
+        // check everything is hunky dory
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse");
+
+        _dragToGroup(_jsPlumb, c4_2, "three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 4, "there are 4 proxies in group 3 after node dropped");
+        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 after node moved out");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "there is 1 member in group 4 after node moved out");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after expand");
+
+        _jsPlumb.collapseGroup("four");
+
+    });
+
+
+    // TODO delete proxy connections. should remove their proxied connection
+    // TODO delete proxIED connections programmatically. should remove their proxy connection.
 
 };
 
