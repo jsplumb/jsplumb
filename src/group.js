@@ -40,6 +40,24 @@
             }
         });
 
+        function _cleanupDetachedConnection(conn) {
+            var group = _connectionSourceMap[conn.id], f;
+            if (group != null) {
+                f = function(c) { return c.id === conn.id; };
+                jsPlumbUtil.removeWithFunction(group.connections.source, f);
+                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                delete _connectionSourceMap[conn.id];
+            }
+
+            group = _connectionTargetMap[conn.id];
+            if (group != null) {
+                f = function(c) { return c.id === conn.id; };
+                jsPlumbUtil.removeWithFunction(group.connections.source, f);
+                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                delete _connectionTargetMap[conn.id];
+            }
+        }
+
         _jsPlumb.bind("connectionDetached", function(p) {
             if (p.connection.isProxyFor != null) {
                 var proxy = p.connection, original = proxy.isProxyFor;
@@ -57,22 +75,7 @@
 
             }
             else {
-                // TODO refactor to share code
-                var group = _connectionSourceMap[p.connection.id], f;
-                if (group != null) {
-                    f = function(c) { return c.id === p.connection.id; };
-                    jsPlumbUtil.removeWithFunction(group.connections.source, f);
-                    jsPlumbUtil.removeWithFunction(group.connections.target, f);
-                    delete _connectionSourceMap[p.connection.id];
-                }
-
-                group = _connectionTargetMap[p.connection.id];
-                if (group != null) {
-                    f = function(c) { return c.id === p.connection.id; };
-                    jsPlumbUtil.removeWithFunction(group.connections.source, f);
-                    jsPlumbUtil.removeWithFunction(group.connections.target, f);
-                    delete _connectionTargetMap[p.connection.id];
-                }
+                _cleanupDetachedConnection(p.connection);
             }
 
         });
@@ -264,6 +267,8 @@
                 ep = deletions[i].ep;
 
                 _jsPlumb.detach({connection:p, fireEvent:false, deleteAttachedObjects:false});
+                _cleanupDetachedConnection(p);
+
                 delete o.isProxiedBy;
                 _jsPlumb.deleteEndpoint(ep);
                 o.endpoints[oidx].detachFromConnection(p, null, true);
