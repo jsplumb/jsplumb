@@ -1,3 +1,8 @@
+## 2.0.7
+
+- fixed an issue with the `removeType` and `setType` methods, in which their failure to support a provided
+parametes object meant that such things as parameterised overlays could lose their values.
+
 ## 2.0.6
 
 - add `connectionAborted` event, fired whenever a new connection is abandoned before being dropped on an endpoint or

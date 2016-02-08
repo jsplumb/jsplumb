@@ -3113,7 +3113,7 @@
             }
         },
 
-        removeType: function (typeId, doNotRepaint) {
+        removeType: function (typeId, params, doNotRepaint) {
             var t = _splitType(typeId), _cont = false, _one = function (tt) {
                 var idx = this._jsPlumb.types.indexOf(tt);
                 if (idx != -1) {
@@ -3129,16 +3129,16 @@
                 for (var i = 0, j = t.length; i < j; i++) {
                     _cont = _one(t[i]) || _cont;
                 }
-                if (_cont) _applyTypes(this, null, doNotRepaint);
+                if (_cont) _applyTypes(this, params, doNotRepaint);
             }
         },
-        clearTypes: function (doNotRepaint) {
+        clearTypes: function (params, doNotRepaint) {
             var i = this._jsPlumb.types.length;
             for (var j = 0; j < i; j++) {
                 _removeTypeCssHelper(this, 0);
                 this._jsPlumb.types.splice(0, 1);
             }
-            _applyTypes(this, {}, doNotRepaint);
+            _applyTypes(this, params, doNotRepaint);
         },
 
         toggleType: function (typeId, params, doNotRepaint) {
