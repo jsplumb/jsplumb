@@ -5705,7 +5705,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label set via setType parameter");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
 
-        c.addType("other");
+        c.addType("other", {lbl:"BAZ"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
@@ -5713,6 +5713,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(_length(c.getOverlays()), 3, "three overlays after adding 'other' type");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class is still set on canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was set on canvas");
+        equal(c.getOverlay("LBL").getLabel(), "BAZ", "overlay's label updated via addType parameter is correct");
 
         c.removeType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
