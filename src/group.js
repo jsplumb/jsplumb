@@ -138,62 +138,44 @@
         }
 
         var _collapseConnection = this.collapseConnection = function(c, index, group) {
-            var oidx = index === 0 ? 1 : 0;
-            c.setVisible(false);
 
-            var newEp = _jsPlumb.addEndpoint(group.el, {
-                endpoint:group.getEndpoint(c, index),
-                anchor:group.getAnchor(c, index),
-                parameters:{
-                    isProxyEndpoint:true
-                }
-            });
+            var proxyEp, groupElId = _jsPlumb.getId(group.el);
 
-            if (c.isProxiedBy != null) {
-                newEp.addConnection(c.isProxiedBy);
-                c.isProxiedBy.endpoints[index] = newEp;
-                var groupElId = _jsPlumb.getId(group.el);
-
-                if (index === 0) {
-                    // TODO why are there
-                    // two differently named methods? Why is there not one method that says "some end of this
-                    // connection changed (you give the index), and here's the new element and element id."
-                    _jsPlumb.anchorManager.sourceChanged(c.isProxiedBy.sourceId, groupElId, c.isProxiedBy, group.el);
-                }
-                else {
-
-                    _jsPlumb.anchorManager.updateOtherEndpoint(c.isProxiedBy.sourceId, c.isProxiedBy.targetId, _jsPlumb.getId(group.el), c.isProxiedBy);
-                    c.isProxiedBy.target = group.el;
-                    c.isProxiedBy.targetId = groupElId;
-                }
-
-                c.endpoints[index].detachFromConnection(c, null, true);
-                c.endpoints[index].detachFromConnection(c.isProxiedBy, null, true);
-
-                c.isProxiedBy.setVisible(true);
-                group.proxies.push({connection: c.isProxiedBy, original:c, index:index});
-            }
-            else {
-                // detach current opposite endpoint, in case it has a maxConnections value, because we're going
-                // to connect a new connection to it.
-                c.endpoints[oidx].detachFromConnection(c, null, true);
-                c.endpoints[index].detachFromConnection(c, null, true);
-                // make the proxy connection
-                var proxy = _jsPlumb.connect({
-                    source: index === 0 ? newEp : c.endpoints[0],
-                    target: index === 1 ? newEp : c.endpoints[1],
-                    paintStyle:{strokeStyle:"red", lineWidth:3},   // remove, obviously, at some stage
-                    parameters: {
-                        proxyFor: c,
-                        suspendedEndpoint: c.endpoints[oidx],
-                        suspendedIndex: oidx
+            c.proxies = c.proxies || [];
+            if(c.proxies[index]) {
+                proxyEp = c.proxies[index].ep;
+            }else {
+                proxyEp = _jsPlumb.addEndpoint(group.el, {
+                    endpoint:group.getEndpoint(c, index),
+                    anchor:group.getAnchor(c, index),
+                    parameters:{
+                        isProxyEndpoint:true
                     }
                 });
-                // stash it on the group and make each connection point at the other
-                group.proxies.push({connection:proxy, original:c, index:index});
-                c.isProxiedBy = proxy;
-                proxy.isProxyFor = c;
+                proxyEp._forceDeleteOnDetach = true;
             }
+            // for this index, stash proxy info: the new EP, the original EP.
+            c.proxies[index] = { ep:proxyEp, originalEp: c.endpoints[index] };
+
+
+            // and advise the anchor manager
+            if (index === 0) {
+                // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+                // connection changed (you give the index), and here's the new element and element id."
+                _jsPlumb.anchorManager.sourceChanged(c.endpoints[index].elementId, groupElId, c, group.el);
+            }
+            else {
+                _jsPlumb.anchorManager.updateOtherEndpoint(proxyEp.elementId, c.endpoints[index].elementId, groupElId, c);
+                c.target = group.el;
+                c.targetId = groupElId;
+            }
+
+            // detach the original EP from the connection.
+            c.endpoints[index].detachFromConnection(c, null, true);
+            proxyEp.connections = [ c ];
+            c.endpoints[index] = proxyEp;
+
+            c.setVisible(true);
         };
 
         this.collapseGroup = function(group) {
@@ -201,7 +183,7 @@
             if (group == null || group.collapsed) return;
 
             // todo remove old proxy endpoints first, just in case?
-            group.proxies.length = 0;
+            //group.proxies.length = 0;
 
             // hide all connections
             _setVisible(group, false);
@@ -225,65 +207,59 @@
             _jsPlumb.fire(EVT_COLLAPSE, { group:group  });
         };
 
+        var _expandConnection = this.expandConnection = function(c, index, group) {
+
+            // if no proxies or none for this end of the connection, abort.
+            if (c.proxies == null || c.proxies[index] == null) return;
+
+            var groupElId = _jsPlumb.getId(group.el),
+                originalElement = c.proxies[index].originalEp.element,
+                originalElementId = c.proxies[index].originalEp.elementId;
+
+            // and advise the anchor manager
+            if (index === 0) {
+                // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+                // connection changed (you give the index), and here's the new element and element id."
+                _jsPlumb.anchorManager.sourceChanged(groupElId, originalElementId, c, originalElement);
+            }
+            else {
+                _jsPlumb.anchorManager.updateOtherEndpoint(originalElementId, groupElId, originalElementId, c);
+                c.target = originalElement;
+                c.targetId = originalElementId;
+            }
+
+            // detach the proxy EP from the connection.
+            c.endpoints[index].detachFromConnection(c, null, true);
+
+            c.endpoints[index] = c.proxies[index].originalEp;
+            c.proxies[index].originalEp.addConnection(c);
+
+            //c.setVisible(true);
+            delete c.proxies[index];
+        };
+
         this.expandGroup = function(group, doNotFireEvent) {
             var epToDelete, deletions = [], index, oidx, proxy, original, p, o, ep;
             group = this.getGroup(group);
 
             if (group == null || !group.collapsed) return;
 
-            // remove proxies for sources and targets
-            for(var i = 0; i < group.proxies.length; i++) {
-                index = group.proxies[i].index;
-                proxy = group.proxies[i].connection;
-                original = proxy.isProxyFor;
-                oidx = index === 0 ? 1 : 0;
-
-                // if only this group has a proxied endpoint, just toss the proxy away and show the original.
-                if (proxy.endpoints[oidx] === original.endpoints[oidx]) {
-                    deletions.push({ep:proxy.endpoints[index], original:original, proxy:proxy, index:index, oidx:oidx});
-                }
-                else {
-                    // need to keep the proxy, attached to one of the original endpoints.
-                    var groupElId = _jsPlumb.getId(group.el);
-                    proxy.endpoints[index].detachFromConnection(proxy, null, true);
-                    original.endpoints[index].detachFromConnection(original, null, true);
-                    original.endpoints[index].addConnection(proxy);
-                    epToDelete = proxy.endpoints[index];
-                    proxy.endpoints[index] = original.endpoints[index];
-                    _jsPlumb.deleteEndpoint(epToDelete);
-
-                    if (index === 0) {
-                        _jsPlumb.anchorManager.sourceChanged(proxy.sourceId, original.sourceId, proxy, original.source);
-                    } else {
-                        _jsPlumb.anchorManager.updateOtherEndpoint(proxy.sourceId, groupElId, original.targetId, proxy);
-                        proxy.target = original.target;
-                        proxy.targetId = original.targetId;
-                    }
-                }
-            }
-
-            for (i = 0; i < deletions.length; i++) {
-                p = deletions[i].proxy;
-                index = deletions[i].index;
-                oidx = deletions[i].oidx;
-                o = deletions[i].original;
-                ep = deletions[i].ep;
-
-                _jsPlumb.detach({connection:p, fireEvent:false, deleteAttachedObjects:false});
-                _cleanupDetachedConnection(p);
-
-                delete o.isProxiedBy;
-                _jsPlumb.deleteEndpoint(ep);
-                o.endpoints[oidx].detachFromConnection(p, null, true);
-                o.endpoints[index].detachFromConnection(p, null, true);
-                o.endpoints[index].addConnection(o);
-                o.endpoints[oidx].addConnection(o);
-                o.setVisible(true);
-            }
-
             _setVisible(group, true);
+
+            // collapses all connections in a group.
+            var _expandSet = function(conns, index) {
+                for (var i = 0; i < conns.length; i++) {
+                    var c = conns[i];
+                    _expandConnection(c, index, group);
+                }
+            };
+
+            // setup proxies for sources and targets
+            _expandSet(group.connections.source, 0);
+            _expandSet(group.connections.target, 1);
+
             group.collapsed = false;
-            group.proxies.length = 0;
+            //group.proxies.length = 0;
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
             _jsPlumb.revalidate(group.el);
