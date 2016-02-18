@@ -156,6 +156,8 @@
 
                 dragAndAbortConnection:_dragAndAbort.bind(null, _jsPlumb),
 
+                dragtoDistantLand:_dragAndAbort.bind(null, _jsPlumb),
+
                 detachConnection:_detachConnection.bind(null, _jsPlumb),
 
                 relocate:_relocate.bind(null, _jsPlumb),
