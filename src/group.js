@@ -73,6 +73,8 @@
                 self.removeProxyFromGroup(p.source[GROUP], p.connection);
                 self.removeProxyFromGroup(p.target[GROUP], p.connection);
 
+                delete proxy.isProxyFor;
+                delete original.isProxiedBy;
             }
             else {
                 _cleanupDetachedConnection(p.connection);
