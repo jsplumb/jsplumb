@@ -66,18 +66,16 @@
                 if (eps[1].getParameter("isProxyEndpoint")) eps[1]._forceDeleteOnDetach = true;
                 original.endpoints[0].detachFromConnection(proxy, null, true);
                 original.endpoints[1].detachFromConnection(proxy, null, true);
-                original.endpoints[0].addConnection(original);
-                original.endpoints[1].addConnection(original);
-
-                _jsPlumb.detach(original);
                 self.removeProxyFromGroup(p.source[GROUP], p.connection);
                 self.removeProxyFromGroup(p.target[GROUP], p.connection);
-
-                delete proxy.isProxyFor;
-                delete original.isProxiedBy;
+                //delete p.connection.isProxyFor.isProxiedBy;
+                //delete p.connection.isProxyFor;
             }
-            else {
-                _cleanupDetachedConnection(p.connection);
+            else if (p.connection.isProxiedBy != null) {
+//                console.log("a proxIED connection was deleted");
+//                prepareProxyForDeletion(p.connection.isProxiedBy);
+//                _jsPlumb.detach(p.connection.isProxiedBy);
+                //_cleanupDetachedConnection(p.connection);
             }
 
         });
