@@ -167,8 +167,8 @@
                     c.isProxiedBy.targetId = groupElId;
                 }
 
-                c.endpoints[oidx].detachFromConnection(proxy, null, true);
-                c.endpoints[oidx].addConnection(c);
+                c.endpoints[index].detachFromConnection(c, null, true);
+                c.endpoints[index].detachFromConnection(c.isProxiedBy, null, true);
 
                 c.isProxiedBy.setVisible(true);
                 group.proxies.push({connection: c.isProxiedBy, original:c, index:index});
@@ -198,6 +198,7 @@
 
         this.collapseGroup = function(group) {
             group = this.getGroup(group);
+            if (group == null || group.collapsed) return;
 
             // todo remove old proxy endpoints first, just in case?
             group.proxies.length = 0;
@@ -227,6 +228,8 @@
         this.expandGroup = function(group, doNotFireEvent) {
             var epToDelete, deletions = [], index, oidx, proxy, original, p, o, ep;
             group = this.getGroup(group);
+
+            if (group == null || !group.collapsed) return;
 
             // remove proxies for sources and targets
             for(var i = 0; i < group.proxies.length; i++) {
