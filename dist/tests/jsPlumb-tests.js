@@ -47,13 +47,13 @@ var within = function (val, target, _ok, msg) {
 };
 
 var _divs = [];
-var _addDiv = function (id, parent, className) {
+var _addDiv = function (id, parent, className, x, y) {
     var d1 = document.createElement("div");
     d1.style.position = "absolute";
     if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
     d1.setAttribute("id", id);
-    d1.style.left = (Math.floor(Math.random() * 1000)) + "px";
-    d1.style.top = (Math.floor(Math.random() * 1000)) + "px";
+    d1.style.left = (x != null ? x : (Math.floor(Math.random() * 1000))) + "px";
+    d1.style.top = (y!= null ? y : (Math.floor(Math.random() * 1000))) + "px";
     if (className) d1.className = className;
     _divs.push(id);
     return d1;
@@ -1273,7 +1273,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
-        e1.detach(conn);
+        e1.detach({connection:conn});
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
@@ -1476,7 +1476,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         assertConnectionCount(e16, 1);
         assertConnectionCount(e17, 1);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-        e16.detach(conn);
+        e16.detach({connection:conn});
         // but the connection should be gone, meaning not registered by _jsPlumb and not registered on either Endpoint:
         assertConnectionCount(e16, 0);
         assertConnectionCount(e17, 0);
@@ -5694,39 +5694,47 @@ var testSuite = function (renderMode, _jsPlumb) {
         });
 
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
-            c = _jsPlumb.connect({source: d1, target: d2});
+            c = _jsPlumb.connect({source: d1, target: d2, overlays:[  [ "Label", {id:"LBL", label:"${lbl}" } ] ]});
 
-        c.setType("basic");
+        equal(_length(c.getOverlays()), 1, "connectoin has one overlay to begin with");
+
+        c.setType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().lineWidth, 4, "connection has linewidth 4");
-        equal(_length(c.getOverlays()), 1, "one overlay");
+        equal(_length(c.getOverlays()), 2, "two overlays after setting type to 'basic'");
+        equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label set via setType parameter");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
 
-        c.addType("other");
+        c.addType("other", {lbl:"BAZ"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-        equal(_length(c.getOverlays()), 2, "two overlays");
+        equal(_length(c.getOverlays()), 3, "three overlays after adding 'other' type");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class is still set on canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was set on canvas");
+        equal(c.getOverlay("LBL").getLabel(), "BAZ", "overlay's label updated via addType parameter is correct");
 
-        c.removeType("basic");
+        c.removeType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
         equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-        equal(_length(c.getOverlays()), 1, "one overlay");
+        equal(_length(c.getOverlays()), 2, "two overlays after removing 'basic' type");
         ok(!_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was removed from canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class is still set on canvas");
+        equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label updated via removeType parameter is correct");
 
         c.toggleType("other");
         equal(c.hasType("other"), false, "connection does not have 'other' type");
         equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
         equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "connection has default linewidth");
-        equal(_length(c.getOverlays()), 0, "nooverlays");
+        equal(_length(c.getOverlays()), 1, "one overlay after toggling 'other' type. this is the original overlay now.");
         ok(!_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was removed from canvas");
+
+        c.removeOverlay("LBL");
+        equal(_length(c.getOverlays()), 0, "zero overlays after removing the original overlay.");
     });
 
     test("connection type tests, check overlays do not disappear", function () {
@@ -8619,6 +8627,463 @@ test("endpoint: suspendedElement set correctly", function() {
         var c = support.dragConnection(e1, e2);
 
         equal(c.scope, "blue", "connection scope is blue.");
+    });
+
+
+// ------------------------------------------- groups ---------------------------------------------------------------
+
+    var _addGroup = function(j, name, container, members, params) {
+        j.addGroup(jsPlumb.extend({
+            el:container,
+            id:name,
+            anchor:"Continuous",
+            endpoint:"Blank"
+        }, params || {}));
+
+        for (var i = 0; i < members.length; i++) {
+            j.addToGroup(name, members[i]);
+        }
+    };
+
+    var _dragToGroup = function(_jsPlumb, el, targetGroup) {
+        targetGroup = _jsPlumb.getGroup(targetGroup);
+        var tgo = jsPlumb.getOffset(targetGroup.el),
+            tgs = jsPlumb.getSize(targetGroup.el),
+            tx = tgo.left + (tgs[0] / 2),
+            ty = tgo.top + (tgs[1] / 2);
+
+        support.dragNodeTo(el, tx, ty);
+    };
+    var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2;
+
+    var _setupGroups = function(doNotMakeConnections) {
+        c1 = _addDiv("container1", null, "container", 0, 50);
+        c2 = _addDiv("container2", null, "container", 300, 50);
+        c3 = _addDiv("container3", null, "container", 600, 50);
+        c4 = _addDiv("container4", null, "container", 0, 400);
+        c5 = _addDiv("container5", null, "container", 300, 400);
+
+        c1_1 = _addDiv("c1_1", c1, "w", 30, 30);
+        c1_2 = _addDiv("c1_2", c1, "w", 180, 130);
+        c5_1 = _addDiv("c5_1", c5, "w", 30, 30);
+        c5_2 = _addDiv("c5_2", c5, "w", 180, 130);
+        c4_1 = _addDiv("c4_1", c4, "w", 30, 30);
+        c4_2 = _addDiv("c4_2", c4, "w", 180, 130);
+        c3_1 = _addDiv("c3_1", c3, "w", 30, 30);
+        c3_2 = _addDiv("c3_2", c3, "w", 180, 130);
+        c2_1 = _addDiv("c2_1", c2, "w", 30, 30);
+        c2_2 = _addDiv("c2_2", c2, "w", 180, 130);
+
+        _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2]);
+
+        _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
+        _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
+        _addGroup(_jsPlumb, "three", c3, [c3_1,c3_2],{ revert:false });
+        _addGroup(_jsPlumb, "four", c4, [c4_1,c4_2], { prune: true });
+        _addGroup(_jsPlumb, "five", c5, [c5_1,c5_2], { orphan:true, droppable:false });
+
+        if (!doNotMakeConnections) {
+
+            _jsPlumb.connect({source: c1_1, target: c2_1});
+            _jsPlumb.connect({source: c2_1, target: c3_1});
+            _jsPlumb.connect({source: c3_1, target: c4_1});
+            _jsPlumb.connect({source: c4_1, target: c5_1});
+
+            _jsPlumb.connect({source: c1_1, target: c1_2});
+            _jsPlumb.connect({source: c2_1, target: c2_2});
+            _jsPlumb.connect({source: c3_1, target: c3_2});
+            _jsPlumb.connect({source: c4_1, target: c4_2});
+            _jsPlumb.connect({source: c5_1, target: c5_2});
+            _jsPlumb.connect({source: c5_1, target: c3_2});
+
+            _jsPlumb.connect({source: c5_1, target: c5, anchors: ["Center", "Continuous"]});
+        }
+    };
+
+    test("groups, simple access", function() {
+
+        _setupGroups();
+
+        // check a group has members
+        equal(_jsPlumb.getGroup("four").getMembers().length, 2, "2 members in group four");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 2, "2 members in group three");
+        // check an unknown group throws an error
+        try {
+            _jsPlumb.getGroup("unknown");
+            ok(false, "should not have been able to retrieve unknown group");
+        }
+        catch (e) {
+            ok(true, "unknown group retrieve threw exception");
+        }
+
+        _jsPlumb.removeGroup("four");
+        try {
+            _jsPlumb.getGroup("four");
+            ok(false, "should not have been able to retrieve removed group");
+        }
+        catch (e) {
+            ok(true, "removed group subsequent retrieve threw exception");
+        }
+        ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+
+        _jsPlumb.removeGroup("five", true);
+        try {
+            _jsPlumb.getGroup("five");
+            ok(false, "should not have been able to retrieve removed group");
+        }
+        catch (e) {
+            ok(true, "removed group subsequent retrieve threw exception");
+        }
+        ok(c5_1.parentNode == null, "c5_1 removed from DOM because flag was set on group remove call");
+
+        // reset: all groups should be removed
+        _jsPlumb.reset();
+        try {
+            _jsPlumb.getGroup("three");
+            ok(false, "should not have been able to retrieve group after reset");
+        }
+        catch (e) {
+            ok(true, "retrieve group after reset threw exception");
+        }
+
+    });
+
+    test("groups, dragging between groups, take one", function() {
+        _setupGroups();
+
+        // drag 4_1 to group 3
+        _dragToGroup(_jsPlumb, c4_1, "three");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 3, "3 members in group three");
+
+        // drag 4_2 to group 5 (which is not droppable)
+        equal(_jsPlumb.getGroup("five").getMembers().length, 2, "2 members in group five before drop attempt");
+        _dragToGroup(_jsPlumb, c4_2, "five");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 0, "move to group 5 fails, not droppable: 0 members in group four because it prunes");
+        equal(_jsPlumb.getGroup("five").getMembers().length, 2, "but still only 2 members in group five");
+
+    });
+
+    test("groups, dragging between groups, take 2", function() {
+        _setupGroups();
+
+        // drag 4_2 to group 1 (which is not droppable)
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one before attempted drop from group 1");
+        _dragToGroup(_jsPlumb, c4_2, "one");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four (it prunes on drop outside)");
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one after failed drop: group 1 not droppable");
+
+        // drag 4_1 to group 2 (which is droppable)
+        equal(_jsPlumb.getGroup("two").getMembers().length, 2, "2 members in group two before drop from group 4");
+        _dragToGroup(_jsPlumb, c4_1, "two");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 0, "0 members in group four after dropping el on group 2");
+        equal(_jsPlumb.getGroup("two").getMembers().length, 3, "3 members in group two after dropping el from group 4");
+
+        // drag 1_2 to group 2 (group 1 has constrain switched on; should not drop even though 2 is droppable)
+        _dragToGroup(_jsPlumb, c1_2, "two");
+        equal(_jsPlumb.getGroup("two").getMembers().length, 3, "3 members in group two after attempting drop from group 1");
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one after drop on group 2 failed due to constraint");
+
+    });
+
+    test("dragging nodes out of groups", function() {
+        _setupGroups();
+        // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
+        var c12o = _jsPlumb.getOffset(c1_2);
+        support.dragtoDistantLand(c1_2);
+        equal(_jsPlumb.getGroup("one").getMembers().length, 2, "2 members in group one");
+        // check the node has not actually moved.
+        equal(c12o.left, _jsPlumb.getOffset(c1_2).left, "c1_2 left position unchanged");
+        equal(c12o.top, _jsPlumb.getOffset(c1_2).top, "c1_2 top position unchanged");
+
+        // try dragging 2_2 right out of the box and dropping it. it should not work: c1 has revert switched on.
+        var c22o = _jsPlumb.getOffset(c2_2);
+        support.dragtoDistantLand(c2_2);
+        equal(_jsPlumb.getGroup("two").getMembers().length, 2, "2 members in group two");
+        // check the node has not actually moved.
+        equal(c22o.left, _jsPlumb.getOffset(c2_2).left, "c2_2 left position unchanged");
+        equal(c22o.top, _jsPlumb.getOffset(c2_2).top, "c2_2 top position unchanged");
+
+
+        // c3, should also allow nodes to be dropped outside
+        var c32o = _jsPlumb.getOffset(c3_2);
+        support.dragtoDistantLand(c3_2);
+        equal(_jsPlumb.getGroup("three").getMembers().length, 2, "2 members in group three");
+        // check the node has moved. but just not removed from the group.
+        ok(c32o.left != _jsPlumb.getOffset(c3_2).left, "c3_2 left position changed");
+        ok(c32o.top != _jsPlumb.getOffset(c3_2).top, "c3_2 top position changed");
+
+        // c4 prunes nodes on drop outside
+        support.dragtoDistantLand(c4_2);
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four");
+        ok(c4_2.parentNode == null, "c4_2 removed from DOM");
+
+        // c5 orphans nodes on drop outside (remove from group but not from DOM)
+        support.dragtoDistantLand(c5_2);
+        equal(_jsPlumb.getGroup("five").getMembers().length, 1, "1 member in group five");
+        ok(c5_2.parentNode != null, "c5_2 still in DOM");
+    });
+
+    test("single group collapse and expand", function() {
+
+        console.log("at the start there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
+        console.log(" ");
+
+        _setupGroups();
+
+        console.log("after setup there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
+        console.log(" ");
+
+
+        equal(_jsPlumb.select({source:"c3_1"}).length, 2, "2 source connections yet for c3_1");
+        equal(_jsPlumb.select({source:"container3"}).length, 0, "no connections yet for container3");
+        equal(_jsPlumb.select({target:"container3"}).length, 0, "no connections yet for container3");
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.select({source:"container3"}).length, 1, "1 source connection for container3");
+        equal(_jsPlumb.select({target:"container3"}).length, 2, "2 target connections for container3");
+
+        console.log("after collapse there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); });
+        console.log(" ");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3");
+
+        var c3_1conns = _jsPlumb.select({source:"c3_1"});
+        equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
+        ok(c3_1conns.get(0).isProxiedBy != null, "first c3_1 connection is proxied");
+        ok(!c3_1conns.get(0).isVisible(), "first c3_1 connection is not visible");
+        ok(c3_1conns.get(1).isProxiedBy == null, "second c3_1 connection is not proxied: it is a connection to c3_2");
+        ok(!c3_1conns.get(1).isVisible(), "second c3_1 connection is not visible");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.select({source:"container3"}).length, 0, "no connections for container3");
+        equal(_jsPlumb.select({target:"container3"}).length, 0, "no connections for container3");
+        c3_1conns = _jsPlumb.select({source:"c3_1"});
+        equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
+        ok(c3_1conns.get(0).isProxiedBy == null, "first c3_1 connection is no longer proxied");
+        ok(c3_1conns.get(0).isVisible(), "first c3_1 connection is visible");
+        ok(c3_1conns.get(1).isProxiedBy == null, "second c3_1 connection is not proxied: it is a connection to c3_2");
+        ok(c3_1conns.get(1).isVisible(), "second c3_1 connection is visible");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are no proxies in group 3");
+
+        console.log("after expand there are " + _jsPlumb.select().length + " connections");
+        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
+        console.log(" ");
+
+    });
+
+    test("multiple group collapse and expand", function() {
+        _setupGroups();
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse");
+        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after group 3 was collapsed");
+
+        _jsPlumb.collapseGroup("five");
+        equal(_jsPlumb.getGroup("five").proxies.length, 2, "there are 2 proxies in group 5 after collapse");
+
+        _jsPlumb.expandGroup("five");
+        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after expand");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after expand");
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse again");
+        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after group 3 was collapsed again");
+    });
+
+    test("drop element on collapsed group", function()
+    {
+        _setupGroups();
+
+        // drop an element on a collapsed group
+        // expand it afterwards
+        // check everything is hunky dory
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse");
+
+        _dragToGroup(_jsPlumb, c4_2, "three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 4, "there are 4 proxies in group 3 after node dropped");
+        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 after node moved out");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "there is 1 member in group 4 after node moved out");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after expand");
+
+        _jsPlumb.collapseGroup("four");
+
+    });
+
+    test("a series of group collapses and expansions", function()
+    {
+        _setupGroups(true);
+
+        var c = _jsPlumb.connect({source: c2_1, target: c3_1}),
+            ep1 = c.endpoints[0],
+            ep2 = c.endpoints[1];
+
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
+        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 to begin");
+
+        equal(_jsPlumb.select().length, 1, "one connection to begin");
+
+        _jsPlumb.collapseGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        equal(_jsPlumb.select().length, 2, "two connections after collapse 2");
+        ok(!_jsPlumb.select().get(0).isVisible(), "original connection is not visible");
+        var proxyConn = _jsPlumb.select().get(1),
+            pep1 = proxyConn.endpoints[0];
+        equal(c.isProxiedBy, proxyConn, "ref to proxy conn is established");
+        equal(proxyConn.isProxyFor, c, "ref to proxIED conn is established");
+        equal(ep1.connections.length, 0, "original source endpoint has no connections");
+        equal(ep2.connections[0], proxyConn, "proxy is connected to original target endpoint");
+        equal(pep1.connections[0], proxyConn, "proxy is connected to proxy source endpoint");
+
+        _jsPlumb.collapseGroup("three");
+        var pep2 = proxyConn.endpoints[1];
+        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 1, "there is 1 proxy in group 3");
+        equal(c.isProxiedBy, proxyConn, "ref to proxy conn is established");
+        equal(proxyConn.isProxyFor, c, "ref to proxIED conn is established");
+        equal(ep1.connections.length, 0, "original source endpoint has no connections");
+        equal(ep2.connections.length, 0, "original target endpoint has no connections");
+        equal(pep1.connections[0], proxyConn, "proxy is connected to proxy source endpoint");
+        equal(pep2.connections[0], proxyConn, "proxy is connected to proxy target endpoint");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.expandGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 1, "there is 1 proxy in group 3");
+    });
+
+
+    // TODO delete proxy connections. should remove their proxied connection
+
+    test("deletion of proxy connections cleans up their proxied connections.", function() {
+        _setupGroups(true);
+
+        var c = _jsPlumb.connect({source: c2_1, target: c3_1}),
+            ep1 = c.endpoints[0],
+            ep2 = c.endpoints[1];
+
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
+        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 to begin");
+
+        equal(_jsPlumb.select().length, 1, "one connection to begin");
+
+        _jsPlumb.collapseGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+        var proxyConn = _jsPlumb.select().get(1);
+
+        // delete the proxy connection. it should clean up the original one. then when we collapse group three
+        // there should be no connections of any sort.
+        _jsPlumb.detach(proxyConn);
+        equal(_jsPlumb.select().length, 0, "no connections");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        ok(c.isProxiedBy == null, "original connection's isProxiedBy has been cleaned up");
+        ok(proxyConn.isProxyFor == null, "proxy connection's isProxyFor has been cleaned up");
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.expandGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+    });
+
+
+    // TODO delete proxIED connections programmatically. should remove their proxy connection.
+    test("deletion of proxIED connections cleans up their proxy connections.", function() {
+        _setupGroups(true);
+
+        var c = _jsPlumb.connect({source: c2_1, target: c3_1}),
+            ep1 = c.endpoints[0],
+            ep2 = c.endpoints[1];
+
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2 to begin");
+
+        equal(_jsPlumb.select().length, 1, "one connection to begin");
+
+        _jsPlumb.collapseGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2 after group collapse");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after group collapse");
+        var proxyConn = _jsPlumb.select().get(1);
+
+        // delete the proxy connection. it should clean up the original one. then when we collapse group three
+        // there should be no connections of any sort.
+        _jsPlumb.detach(c);
+        equal(_jsPlumb.select().length, 0, "there should be no connections left after detach");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2 after detach");
+        ok(c.isProxiedBy == null, "original connection's isProxiedBy has been cleaned up");
+        ok(proxyConn.isProxyFor == null, "proxy connection's isProxyFor has been cleaned up");
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.expandGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+    });
+
+    test("indirect deletion of proxIED connections cleans up their proxy connections.", function() {
+        _setupGroups(true);
+
+        var c = _jsPlumb.connect({source: c2_1, target: c3_1}),
+            ep1 = c.endpoints[0],
+            ep2 = c.endpoints[1];
+
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2 to begin");
+
+        equal(_jsPlumb.select().length, 1, "one connection to begin");
+
+        _jsPlumb.collapseGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+        var proxyConn = _jsPlumb.select().get(1);
+
+        // delete the proxy connection. it should clean up the original one. then when we collapse group three
+        // there should be no connections of any sort.
+        _jsPlumb.deleteEndpoint(c.endpoints[1]);
+        equal(_jsPlumb.select().length, 0, "no connections");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        ok(c.isProxiedBy == null, "original connection's isProxiedBy has been cleaned up");
+        ok(proxyConn.isProxyFor == null, "proxy connection's isProxyFor has been cleaned up");
+
+        _jsPlumb.collapseGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.expandGroup("three");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+
+        _jsPlumb.expandGroup("two");
+        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
+        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
     });
 
 };
