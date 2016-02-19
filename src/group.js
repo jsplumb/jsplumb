@@ -41,6 +41,7 @@
         });
 
         function _cleanupDetachedConnection(conn) {
+            delete conn.proxies;
             var group = _connectionSourceMap[conn.id], f;
             if (group != null) {
                 f = function(c) { return c.id === conn.id; };
@@ -59,25 +60,7 @@
         }
 
         _jsPlumb.bind("connectionDetached", function(p) {
-            if (p.connection.isProxyFor != null) {
-                var proxy = p.connection, original = proxy.isProxyFor;
-                var eps = p.connection.endpoints;
-                if (eps[0].getParameter("isProxyEndpoint")) eps[0]._forceDeleteOnDetach = true;
-                if (eps[1].getParameter("isProxyEndpoint")) eps[1]._forceDeleteOnDetach = true;
-                original.endpoints[0].detachFromConnection(proxy, null, true);
-                original.endpoints[1].detachFromConnection(proxy, null, true);
-                self.removeProxyFromGroup(p.source[GROUP], p.connection);
-                self.removeProxyFromGroup(p.target[GROUP], p.connection);
-                //delete p.connection.isProxyFor.isProxiedBy;
-                //delete p.connection.isProxyFor;
-            }
-            else if (p.connection.isProxiedBy != null) {
-//                console.log("a proxIED connection was deleted");
-//                prepareProxyForDeletion(p.connection.isProxiedBy);
-//                _jsPlumb.detach(p.connection.isProxiedBy);
-                //_cleanupDetachedConnection(p.connection);
-            }
-
+            _cleanupDetachedConnection(p.connection);
         });
 
         _jsPlumb.bind("connectionMoved", function(p) {
@@ -139,7 +122,8 @@
 
         var _collapseConnection = this.collapseConnection = function(c, index, group) {
 
-            var proxyEp, groupElId = _jsPlumb.getId(group.el);
+            var proxyEp, groupElId = _jsPlumb.getId(group.el),
+                originalElementId = c.endpoints[index].elementId;
 
             c.proxies = c.proxies || [];
             if(c.proxies[index]) {
@@ -157,21 +141,23 @@
             // for this index, stash proxy info: the new EP, the original EP.
             c.proxies[index] = { ep:proxyEp, originalEp: c.endpoints[index] };
 
-
             // and advise the anchor manager
             if (index === 0) {
                 // TODO why are there two differently named methods? Why is there not one method that says "some end of this
                 // connection changed (you give the index), and here's the new element and element id."
-                _jsPlumb.anchorManager.sourceChanged(c.endpoints[index].elementId, groupElId, c, group.el);
+                _jsPlumb.anchorManager.sourceChanged(originalElementId, groupElId, c, group.el);
             }
             else {
-                _jsPlumb.anchorManager.updateOtherEndpoint(proxyEp.elementId, c.endpoints[index].elementId, groupElId, c);
+                _jsPlumb.anchorManager.updateOtherEndpoint(c.endpoints[0].elementId, originalElementId, groupElId, c);
                 c.target = group.el;
                 c.targetId = groupElId;
             }
 
+
             // detach the original EP from the connection.
-            c.endpoints[index].detachFromConnection(c, null, true);
+            c.proxies[index].originalEp.detachFromConnection(c, null, true);
+
+            // set the proxy as the new ep
             proxyEp.connections = [ c ];
             c.endpoints[index] = proxyEp;
 
@@ -216,6 +202,7 @@
                 originalElement = c.proxies[index].originalEp.element,
                 originalElementId = c.proxies[index].originalEp.elementId;
 
+            c.endpoints[index] = c.proxies[index].originalEp;
             // and advise the anchor manager
             if (index === 0) {
                 // TODO why are there two differently named methods? Why is there not one method that says "some end of this
@@ -223,23 +210,23 @@
                 _jsPlumb.anchorManager.sourceChanged(groupElId, originalElementId, c, originalElement);
             }
             else {
-                _jsPlumb.anchorManager.updateOtherEndpoint(originalElementId, groupElId, originalElementId, c);
+                _jsPlumb.anchorManager.updateOtherEndpoint(c.endpoints[0].elementId, groupElId, originalElementId, c);
                 c.target = originalElement;
                 c.targetId = originalElementId;
             }
 
             // detach the proxy EP from the connection.
-            c.endpoints[index].detachFromConnection(c, null, true);
+            c.proxies[index].ep.detachFromConnection(c, null, true);
 
-            c.endpoints[index] = c.proxies[index].originalEp;
+
             c.proxies[index].originalEp.addConnection(c);
 
-            //c.setVisible(true);
+            // cleanup
             delete c.proxies[index];
         };
 
         this.expandGroup = function(group, doNotFireEvent) {
-            var epToDelete, deletions = [], index, oidx, proxy, original, p, o, ep;
+
             group = this.getGroup(group);
 
             if (group == null || !group.collapsed) return;
@@ -259,7 +246,6 @@
             _expandSet(group.connections.target, 1);
 
             group.collapsed = false;
-            //group.proxies.length = 0;
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
             _jsPlumb.revalidate(group.el);
@@ -295,16 +281,7 @@
             oneSet(c1); oneSet(c2);
         }
 
-        function _removeProxyFromGroup(group, c) {
-            if (group != null) {
-                jsPlumbUtil.removeWithFunction(group.proxies, function (p) {
-                    return p.connection.id === c.id;
-                });
-            }
-        }
-
         this.updateConnectionsForGroup = _updateConnectionsForGroup;
-        this.removeProxyFromGroup = _removeProxyFromGroup;
     };
 
     /**
@@ -335,7 +312,6 @@
         var dropOverride = params.dropOverride === true;
         var elements = [];
         this.connections = { source:[], target:[], internal:[] };
-        this.proxies = []; // map of connection id->proxy connections.
 
         // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
         // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
