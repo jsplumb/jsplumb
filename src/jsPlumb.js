@@ -1713,8 +1713,11 @@
                 };
 
             for (var j = 0, jj = connections.length; j < jj; j++) {
-                var c = connections[j];
-                if (filterList(scopes, c.scope) && filterList(sources, c.sourceId) && filterList(targets, c.targetId))
+                var c = connections[j],
+                    sourceId = c.proxies && c.proxies[0] ? c.proxies[0].originalEp.elementId : c.sourceId,
+                    targetId = c.proxies && c.proxies[1] ? c.proxies[1].originalEp.elementId : c.targetId;
+
+                if (filterList(scopes, c.scope) && filterList(sources, sourceId) && filterList(targets, targetId))
                     _addOne(c.scope, c);
             }
 
