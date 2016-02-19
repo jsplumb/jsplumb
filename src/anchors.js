@@ -359,10 +359,10 @@
         //
         // find the entry in an endpoint's list for this connection and update its target endpoint
         // with the current target in the connection.
-        // 
+        // This method and sourceChanged need to be folder into one.
         //
-        this.updateOtherEndpoint = function (elId, oldTargetId, newTargetId, connection) {
-            var sIndex = _ju.findWithFunction(connectionsByElementId[elId], function (i) {
+        this.updateOtherEndpoint = function (sourceElId, oldTargetId, newTargetId, connection) {
+            var sIndex = _ju.findWithFunction(connectionsByElementId[sourceElId], function (i) {
                     return i[0].id === connection.id;
                 }),
                 tIndex = _ju.findWithFunction(connectionsByElementId[oldTargetId], function (i) {
@@ -371,9 +371,9 @@
 
             // update or add data for source
             if (sIndex != -1) {
-                connectionsByElementId[elId][sIndex][0] = connection;
-                connectionsByElementId[elId][sIndex][1] = connection.endpoints[1];
-                connectionsByElementId[elId][sIndex][2] = connection.endpoints[1].anchor.constructor == _jp.DynamicAnchor;
+                connectionsByElementId[sourceElId][sIndex][0] = connection;
+                connectionsByElementId[sourceElId][sIndex][1] = connection.endpoints[1];
+                connectionsByElementId[sourceElId][sIndex][2] = connection.endpoints[1].anchor.constructor == _jp.DynamicAnchor;
             }
 
             // remove entry for previous target (if there)
