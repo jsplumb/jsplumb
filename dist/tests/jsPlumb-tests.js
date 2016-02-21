@@ -8826,93 +8826,96 @@ test("endpoint: suspendedElement set correctly", function() {
 
     test("single group collapse and expand", function() {
 
-        console.log("at the start there are " + _jsPlumb.select().length + " connections");
-        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
-        console.log(" ");
-
         _setupGroups();
 
-        console.log("after setup there are " + _jsPlumb.select().length + " connections");
-        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
-        console.log(" ");
-
-
-        equal(_jsPlumb.select({source:"c3_1"}).length, 2, "2 source connections yet for c3_1");
-        equal(_jsPlumb.select({source:"container3"}).length, 0, "no connections yet for container3");
-        equal(_jsPlumb.select({target:"container3"}).length, 0, "no connections yet for container3");
+        equal(_jsPlumb.select({source:"c3_1"}).length, 2, "2 source connections for c3_1");
+        equal(_jsPlumb.select({target:"c3_1"}).length, 1, "1 target connection for c3_1");
         _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.select({source:"container3"}).length, 1, "1 source connection for container3");
-        equal(_jsPlumb.select({target:"container3"}).length, 2, "2 target connections for container3");
-
-        console.log("after collapse there are " + _jsPlumb.select().length + " connections");
-        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); });
-        console.log(" ");
-        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3");
 
         var c3_1conns = _jsPlumb.select({source:"c3_1"});
-        equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
-        ok(c3_1conns.get(0).isProxiedBy != null, "first c3_1 connection is proxied");
-        ok(!c3_1conns.get(0).isVisible(), "first c3_1 connection is not visible");
-        ok(c3_1conns.get(1).isProxiedBy == null, "second c3_1 connection is not proxied: it is a connection to c3_2");
-        ok(!c3_1conns.get(1).isVisible(), "second c3_1 connection is not visible");
+        equal(c3_1conns.length, 2, "still 2 source connections for c3_1");
+        equal(_jsPlumb.select({target:"c3_1"}).length, 1, "still 1 target connection for c3_1");
+        equal(_jsPlumb.select({source:"container3"}).length, 0, "no source connections for container3. the connections are proxied.");
+        equal(_jsPlumb.select({target:"container3"}).length, 0, "no target connections for container3. the connections are proxied.");
 
         _jsPlumb.expandGroup("three");
         equal(_jsPlumb.select({source:"container3"}).length, 0, "no connections for container3");
         equal(_jsPlumb.select({target:"container3"}).length, 0, "no connections for container3");
         c3_1conns = _jsPlumb.select({source:"c3_1"});
         equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
-        ok(c3_1conns.get(0).isProxiedBy == null, "first c3_1 connection is no longer proxied");
         ok(c3_1conns.get(0).isVisible(), "first c3_1 connection is visible");
-        ok(c3_1conns.get(1).isProxiedBy == null, "second c3_1 connection is not proxied: it is a connection to c3_2");
         ok(c3_1conns.get(1).isVisible(), "second c3_1 connection is visible");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are no proxies in group 3");
 
-        console.log("after expand there are " + _jsPlumb.select().length + " connections");
-        _jsPlumb.select().each(function(c) { console.log(c.isProxyFor); })
-        console.log(" ");
 
     });
 
     test("multiple group collapse and expand", function() {
         _setupGroups();
 
+        equal(_jsPlumb.select({source:"c3_1"}).length, 2, "2 source connections for c3_1");
         _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse");
-        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after group 3 was collapsed");
+        var c3_1_source = _jsPlumb.select({source:"c3_1"});
+        equal(c3_1_source.length, 2, "still 2 source connections for c3_1");
+        equal(c3_1_source.get(0).proxies[0].originalEp.elementId, "c3_1", "proxy configured correctly");
+        ok(c3_1_source.get(1).proxies == null, "second source connection from c3_1 not proxied as it goes to c3_2");
+        ok(!c3_1_source.get(1).isVisible(), "second source connection from c3_1 not visible as it goes to c3_2");
 
         _jsPlumb.collapseGroup("five");
-        equal(_jsPlumb.getGroup("five").proxies.length, 2, "there are 2 proxies in group 5 after collapse");
 
         _jsPlumb.expandGroup("five");
-        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after expand");
 
         _jsPlumb.expandGroup("three");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after expand");
 
         _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse again");
-        equal(_jsPlumb.getGroup("five").proxies.length, 0, "there are 0 proxies in group 5 after group 3 was collapsed again");
     });
 
     test("drop element on collapsed group", function()
     {
-        _setupGroups();
+        _setupGroups(true);
+
+        equal(_jsPlumb.select().length, 0, "0 connections to start");
+
+        // a connection to the group to be collapsed
+        var c = _jsPlumb.connect({source:c4_2, target:c3_1});
+        // a connection from the group to be collapsed
+        var c2 = _jsPlumb.connect({source:c3_2, target:c1_1});
+        // a connection between two other elements, but which will become owned by the collapse group.
+        var c3 = _jsPlumb.connect({source:c2_1, target:c5_1});
+
+        equal(_jsPlumb.select().length, 3, "3 connections in total");
 
         // drop an element on a collapsed group
         // expand it afterwards
         // check everything is hunky dory
         _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.getGroup("three").proxies.length, 3, "there are 3 proxies in group 3 after collapse");
+
+        equal(c.proxies[1].originalEp.elementId, "c3_1", "target connection has been correctly proxied");
+        ok(c.proxies[0] == null, "source connection has been correctly proxied");
+
+        equal(c2.proxies[0].originalEp.elementId, "c3_2", "source connection has been correctly proxied");
+        ok(c2.proxies[1] == null, "target connection has been correctly proxied");
 
         _dragToGroup(_jsPlumb, c4_2, "three");
-        equal(_jsPlumb.getGroup("three").proxies.length, 4, "there are 4 proxies in group 3 after node dropped");
-        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 after node moved out");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 3, "there are 3 members in group 3 after node moved dropped ");
         equal(_jsPlumb.getGroup("four").getMembers().length, 1, "there is 1 member in group 4 after node moved out");
 
-        _jsPlumb.expandGroup("three");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after expand");
+        ok(!c.isVisible(), "original connection now between two members of collapsed group and is invisible.");
+        ok(c.proxies[0] == null, "source connection proxy removed now that the connection is internal");
+        ok(c.proxies[1] == null, "target connection proxy removed now that the connection is internal");
+        equal(c.endpoints[0].elementId, "c4_2", "source endpoint reset to original");
+        equal(c.endpoints[1].elementId, "c3_1", "target endpoint reset to original");
 
-        _jsPlumb.collapseGroup("four");
+        _dragToGroup(_jsPlumb, c5_1, "three");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 4, "there are 4 members in group 3 after node moved dropped ");
+        equal(_jsPlumb.getGroup("five").getMembers().length, 1, "there is 1 member in group 5 after node moved out");
+        ok(c3.proxies[0] == null, "source in connection dropped on collapsed group did not need to be proxied");
+        equal(c3.endpoints[0].elementId, "c2_1", "source in connection dropped on collapsed group is unaltered");
+        equal(c3.proxies[1].originalEp.elementId, "c5_1", "target in connection dropped on collapsed group has been correctly proxied");
+
+        equal(_jsPlumb.select().length, 3, "3 connections in total");
+
+
+
 
     });
 
@@ -8924,166 +8927,79 @@ test("endpoint: suspendedElement set correctly", function() {
             ep1 = c.endpoints[0],
             ep2 = c.endpoints[1];
 
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
-        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 to begin");
+//        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
+//        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 to begin");
 
         equal(_jsPlumb.select().length, 1, "one connection to begin");
 
         _jsPlumb.collapseGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+//        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
+//        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
 
-        equal(_jsPlumb.select().length, 2, "two connections after collapse 2");
-        ok(!_jsPlumb.select().get(0).isVisible(), "original connection is not visible");
-        var proxyConn = _jsPlumb.select().get(1),
-            pep1 = proxyConn.endpoints[0];
-        equal(c.isProxiedBy, proxyConn, "ref to proxy conn is established");
-        equal(proxyConn.isProxyFor, c, "ref to proxIED conn is established");
-        equal(ep1.connections.length, 0, "original source endpoint has no connections");
-        equal(ep2.connections[0], proxyConn, "proxy is connected to original target endpoint");
-        equal(pep1.connections[0], proxyConn, "proxy is connected to proxy source endpoint");
+        equal(_jsPlumb.select().length, 1, "one connection after collapse 2");
 
         _jsPlumb.collapseGroup("three");
-        var pep2 = proxyConn.endpoints[1];
-        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 1, "there is 1 proxy in group 3");
-        equal(c.isProxiedBy, proxyConn, "ref to proxy conn is established");
-        equal(proxyConn.isProxyFor, c, "ref to proxIED conn is established");
-        equal(ep1.connections.length, 0, "original source endpoint has no connections");
-        equal(ep2.connections.length, 0, "original target endpoint has no connections");
-        equal(pep1.connections[0], proxyConn, "proxy is connected to proxy source endpoint");
-        equal(pep2.connections[0], proxyConn, "proxy is connected to proxy target endpoint");
 
         _jsPlumb.expandGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
 
         _jsPlumb.expandGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
 
         _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 1, "there is 1 proxy in group 3");
     });
 
-
-    // TODO delete proxy connections. should remove their proxied connection
 
     test("deletion of proxy connections cleans up their proxied connections.", function() {
         _setupGroups(true);
 
-        var c = _jsPlumb.connect({source: c2_1, target: c3_1}),
-            ep1 = c.endpoints[0],
-            ep2 = c.endpoints[1];
-
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
-        equal(_jsPlumb.getGroup("four").proxies.length, 0, "there are 0 proxies in group 4 to begin");
+        var c = _jsPlumb.connect({source: c2_1, target: c3_1});
 
         equal(_jsPlumb.select().length, 1, "one connection to begin");
 
         _jsPlumb.collapseGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-        var proxyConn = _jsPlumb.select().get(1);
-
-        // delete the proxy connection. it should clean up the original one. then when we collapse group three
-        // there should be no connections of any sort.
-        _jsPlumb.detach(proxyConn);
-        equal(_jsPlumb.select().length, 0, "no connections");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        ok(c.isProxiedBy == null, "original connection's isProxiedBy has been cleaned up");
-        ok(proxyConn.isProxyFor == null, "proxy connection's isProxyFor has been cleaned up");
-
-        _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-
-        _jsPlumb.expandGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-
-        _jsPlumb.expandGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-    });
-
-
-    // TODO delete proxIED connections programmatically. should remove their proxy connection.
-    test("deletion of proxIED connections cleans up their proxy connections.", function() {
-        _setupGroups(true);
-
-        var c = _jsPlumb.connect({source: c2_1, target: c3_1}),
-            ep1 = c.endpoints[0],
-            ep2 = c.endpoints[1];
-
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2 to begin");
-
-        equal(_jsPlumb.select().length, 1, "one connection to begin");
-
-        _jsPlumb.collapseGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2 after group collapse");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 after group collapse");
-        var proxyConn = _jsPlumb.select().get(1);
+        equal(c.endpoints[0].elementId, "container2", "proxy configured for source after collapse");
+        equal(c.proxies[0].originalEp.elementId, "c2_1", "source endpoint stashed correctly after collapse");
 
         // delete the proxy connection. it should clean up the original one. then when we collapse group three
         // there should be no connections of any sort.
         _jsPlumb.detach(c);
+        equal(_jsPlumb.select().length, 0, "no connections");
+    });
+
+
+    test("deletion of proxIED connections cleans up their proxy connections.", function() {
+        _setupGroups(true);
+
+        var c = _jsPlumb.connect({source: c2_1, target: c3_1});
+
+
+        equal(_jsPlumb.select().length, 1, "one connection to begin");
+
+        _jsPlumb.collapseGroup("two");
+        equal(c.endpoints[0].elementId, "container2", "proxy configured for source after collapse");
+        equal(c.proxies[0].originalEp.elementId, "c2_1", "source endpoint stashed correctly after collapse");
+
+        // delete the connection. it should clean up the original one. then when we collapse group three
+        // there should be no connections of any sort.
+        _jsPlumb.detach(c);
         equal(_jsPlumb.select().length, 0, "there should be no connections left after detach");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2 after detach");
-        ok(c.isProxiedBy == null, "original connection's isProxiedBy has been cleaned up");
-        ok(proxyConn.isProxyFor == null, "proxy connection's isProxyFor has been cleaned up");
-
-        _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-
-        _jsPlumb.expandGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-
-        _jsPlumb.expandGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
+        ok(c.proxies == null, "proxies removed after detach");
     });
 
     test("indirect deletion of proxIED connections cleans up their proxy connections.", function() {
         _setupGroups(true);
 
-        var c = _jsPlumb.connect({source: c2_1, target: c3_1}),
-            ep1 = c.endpoints[0],
-            ep2 = c.endpoints[1];
-
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3 to begin");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2 to begin");
+        var c = _jsPlumb.connect({source: c2_1, target: c3_1});
 
         equal(_jsPlumb.select().length, 1, "one connection to begin");
 
         _jsPlumb.collapseGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 1, "there is 1 proxy in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-        var proxyConn = _jsPlumb.select().get(1);
+        equal(c.endpoints[0].elementId, "container2", "proxy configured for source after collapse");
+        equal(c.proxies[0].originalEp.elementId, "c2_1", "source endpoint stashed correctly after collapse");
 
-        // delete the proxy connection. it should clean up the original one. then when we collapse group three
-        // there should be no connections of any sort.
+        // delete the connection's endpoint.
         _jsPlumb.deleteEndpoint(c.endpoints[1]);
         equal(_jsPlumb.select().length, 0, "no connections");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        ok(c.isProxiedBy == null, "original connection's isProxiedBy has been cleaned up");
-        ok(proxyConn.isProxyFor == null, "proxy connection's isProxyFor has been cleaned up");
 
-        _jsPlumb.collapseGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-
-        _jsPlumb.expandGroup("three");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
-
-        _jsPlumb.expandGroup("two");
-        equal(_jsPlumb.getGroup("two").proxies.length, 0, "there are 0 proxies in group 2");
-        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
     });
 
 };

@@ -8871,20 +8871,51 @@ test("endpoint: suspendedElement set correctly", function() {
 
     test("drop element on collapsed group", function()
     {
-        _setupGroups();
+        _setupGroups(true);
+
+        equal(_jsPlumb.select().length, 0, "0 connections to start");
+
+        // a connection to the group to be collapsed
+        var c = _jsPlumb.connect({source:c4_2, target:c3_1});
+        // a connection from the group to be collapsed
+        var c2 = _jsPlumb.connect({source:c3_2, target:c1_1});
+        // a connection between two other elements, but which will become owned by the collapse group.
+        var c3 = _jsPlumb.connect({source:c2_1, target:c5_1});
+
+        equal(_jsPlumb.select().length, 3, "3 connections in total");
 
         // drop an element on a collapsed group
         // expand it afterwards
         // check everything is hunky dory
         _jsPlumb.collapseGroup("three");
 
+        equal(c.proxies[1].originalEp.elementId, "c3_1", "target connection has been correctly proxied");
+        ok(c.proxies[0] == null, "source connection has been correctly proxied");
+
+        equal(c2.proxies[0].originalEp.elementId, "c3_2", "source connection has been correctly proxied");
+        ok(c2.proxies[1] == null, "target connection has been correctly proxied");
+
         _dragToGroup(_jsPlumb, c4_2, "three");
-        equal(_jsPlumb.getGroup("three").getMembers().length, 3, "there are 1 members in group 3 after node moved dropped ");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 3, "there are 3 members in group 3 after node moved dropped ");
         equal(_jsPlumb.getGroup("four").getMembers().length, 1, "there is 1 member in group 4 after node moved out");
 
-        _jsPlumb.expandGroup("three");
+        ok(!c.isVisible(), "original connection now between two members of collapsed group and is invisible.");
+        ok(c.proxies[0] == null, "source connection proxy removed now that the connection is internal");
+        ok(c.proxies[1] == null, "target connection proxy removed now that the connection is internal");
+        equal(c.endpoints[0].elementId, "c4_2", "source endpoint reset to original");
+        equal(c.endpoints[1].elementId, "c3_1", "target endpoint reset to original");
 
-        _jsPlumb.collapseGroup("four");
+        _dragToGroup(_jsPlumb, c5_1, "three");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 4, "there are 4 members in group 3 after node moved dropped ");
+        equal(_jsPlumb.getGroup("five").getMembers().length, 1, "there is 1 member in group 5 after node moved out");
+        ok(c3.proxies[0] == null, "source in connection dropped on collapsed group did not need to be proxied");
+        equal(c3.endpoints[0].elementId, "c2_1", "source in connection dropped on collapsed group is unaltered");
+        equal(c3.proxies[1].originalEp.elementId, "c5_1", "target in connection dropped on collapsed group has been correctly proxied");
+
+        equal(_jsPlumb.select().length, 3, "3 connections in total");
+
+
+
 
     });
 
@@ -8906,7 +8937,6 @@ test("endpoint: suspendedElement set correctly", function() {
 //        equal(_jsPlumb.getGroup("three").proxies.length, 0, "there are 0 proxies in group 3");
 
         equal(_jsPlumb.select().length, 1, "one connection after collapse 2");
-       ;
 
         _jsPlumb.collapseGroup("three");
 

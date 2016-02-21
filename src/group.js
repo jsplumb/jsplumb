@@ -3,7 +3,7 @@
 
     var GROUP_COLLAPSED_CLASS = "jtk-group-collapsed";
     var GROUP_EXPANDED_CLASS = "jtk-group-expanded";
-    var GROUP_CONTAINER_CLASS = "jtk-group-content";
+    var GROUP_CONTAINER_SELECTOR = "[jtk-group-content]";
     var ELEMENT_DRAGGABLE_EVENT = "elementDraggable";
     var STOP = "stop";
     var REVERT = "revert";
@@ -22,20 +22,18 @@
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
 
         _jsPlumb.bind("connection", function(p) {
-            if (p.connection.getParameter(PROXY_FOR) == null) {
-                if (p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
+            if (p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
+                _connectionSourceMap[p.connection.id] = p.source[GROUP];
+                _connectionTargetMap[p.connection.id] = p.source[GROUP];
+            }
+            else {
+                if (p.source[GROUP] != null) {
+                    p.source[GROUP].connections.source.push(p.connection);
                     _connectionSourceMap[p.connection.id] = p.source[GROUP];
-                    _connectionTargetMap[p.connection.id] = p.source[GROUP];
                 }
-                else {
-                    if (p.source[GROUP] != null) {
-                        p.source[GROUP].connections.source.push(p.connection);
-                        _connectionSourceMap[p.connection.id] = p.source[GROUP];
-                    }
-                    if (p.target[GROUP] != null) {
-                        p.target[GROUP].connections.target.push(p.connection);
-                        _connectionTargetMap[p.connection.id] = p.target[GROUP];
-                    }
+                if (p.target[GROUP] != null) {
+                    p.target[GROUP].connections.target.push(p.connection);
+                    _connectionTargetMap[p.connection.id] = p.target[GROUP];
                 }
             }
         });
@@ -282,6 +280,12 @@
         }
 
         this.updateConnectionsForGroup = _updateConnectionsForGroup;
+        this.refreshAllGroups = function() {
+            for (var g in _managedGroups) {
+                _updateConnectionsForGroup(_managedGroups[g]);
+                _jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].el));
+            }
+        };
     };
 
     /**
@@ -303,7 +307,7 @@
         this.elId = _jsPlumb.getId(params.el);
         this.id = params.id || jsPlumbUtil.uuid();
         this.el._isJsPlumbGroup = true;
-        var da = _jsPlumb.getSelector(this.el, GROUP_CONTAINER_CLASS);
+        var da = _jsPlumb.getSelector(this.el, GROUP_CONTAINER_SELECTOR);
         this.dragArea = da && da.length > 0 ? da[0] : this.el;
         var constrain = params.constrain === true;
         var revert = params.revert !== false;
@@ -329,8 +333,9 @@
                 start:function() {
                     console.log("group start drag");
                 },
-                stop:function() {
+                stop:function(params) {
                     console.log("group stop drag");
+                    _jsPlumb.fire("groupDragStop", jsPlumb.extend(params, {group:self}));
                 },
                 drag:function() {
                     console.log("group drag");
@@ -341,7 +346,6 @@
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
-                    //console.log("drop on group!", self.el.id);
                     var groupManager = _jsPlumb.getGroupManager();
                     var el = p.drag.el;
                     if (el._isJsPlumbGroup) return;
@@ -349,7 +353,7 @@
                     // if already a member of this group, do nothing
                     if (currentGroup !== self) {
                         var elpos = _jsPlumb.getOffset(el, true);
-                        var cpos = _jsPlumb.getOffset(self.el, true);
+                        var cpos = _jsPlumb.getOffset(self.dragArea, true);
 
                         // otherwise, transfer to this group.
                         if (currentGroup != null) {
@@ -361,51 +365,19 @@
                         }
                         self.add(el, true);
 
-                        // if this group is collapsed we need to look at all connections to and from the
-                        // dropped element. They may be in one of several states:
-
-                        // 1. a connection to some other element in a group that is not collapsed, or to a standalone element.
-                        // 2. a connection to some other element in a group that is collapsed
-                        // 3. a connection to this group (which is collapsed)
-
-                        // the logic for handling each case is different:
-
-                        // 1. just 'collapse' the connection as we would have any other. this means we make a proxy, set it on this
-                        // element, hide the original, etc. We use the _collapseConnection method for that.
-
-                        // 2. i think in fact we can again use the _collapseConnection function like normal here. it
-                        // will check if the connection is already proxied on the other end and deal with it.
-
-                        // 3. this is trickier. the connection to this group will be proxied on this group's end, but not the
-                        // other end of course: the fact that we could drag the node means its group is not collapsed.
-                        // in this case we want to remove the proxy connection entirely, and leave the proxied one invisible.
-
-
                         var handleDroppedConnections = function(list, index) {
-                            var oidx = index === 0 ? 1 : 0, c, other;
-                            for (var i = 0; i < list.length; i++) {
-                                c = list.get(i);
-                                if (c.isVisible()) {
-                                    other = c.endpoints[oidx];
-                                    if (other.element === self.el) {
-                                        var original = c.isProxyFor;
-                                        _jsPlumb.detach(c);
-                                        // disconnect original connection's endpoint for this element from the proxy.
-                                        original.endpoints[index].detachFromConnection(c, null, true);
-                                        original.endpoints[index].addConnection(original);
-                                        original.endpoints[oidx].addConnection(original);
-                                        delete original.isProxiedBy;
-                                        _jsPlumb.deleteEndpoint(other);
-                                        original.endpoints[index].setVisible(false);
-
-                                        groupManager.removeProxyFromGroup(self, c);
-                                    }
-                                    else {
-                                        groupManager.collapseConnection(c, index, self);
-                                        c.endpoints[index].setVisible(false);
-                                    }
+                            var oidx = index == 0 ? 1 : 0;
+                            list.each(function(c) {
+                                c.setVisible(false);
+                                if (c.endpoints[oidx].element._jsPlumbGroup === self) {
+                                    c.endpoints[oidx].setVisible(false);
+                                    groupManager.expandConnection(c, oidx, self);
                                 }
-                            }
+                                else {
+                                    c.endpoints[index].setVisible(false);
+                                    groupManager.collapseConnection(c, index, self);
+                                }
+                            });
                         };
 
                         if (self.collapsed) {
@@ -420,11 +392,8 @@
 
                         groupManager.updateConnectionsForGroup(self);
                     }
-                },
-                over:function(p) {
-                    console.log("drag hover!");
                 }
-            })
+            });
         }
         var _each = function(el, fn) {
             var els = el.nodeType == null ?  el : [ el ];
@@ -445,9 +414,11 @@
                 if (_jsPlumb.isAlreadyDraggable(_el)) {
                     _bindDragHandlers(_el);
                 }
-                if (manipulateDOM) {
-                    self.el.appendChild(_el);
+
+                if (_el.parentNode != self.dragArea) {
+                    self.dragArea.appendChild(_el);
                 }
+                //}
                 _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
             });
         };
