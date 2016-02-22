@@ -3,6 +3,10 @@
 - 'elementDraggable' event now fired whenever an element is made draggable via the `draggable` function
 - add support for 'groups' - elements that can contain other elements, and which are collapsible.
 
+ISSUES
+
+- 483 - srcElement undefined in Firefox
+
 
 ## 2.0.6
 
