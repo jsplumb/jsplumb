@@ -73,17 +73,17 @@
             _jsPlumb.fire(EVT_GROUP_ADDED, { group:group });
         };
 
-        this.addToGroup = function(group, el) {
+        this.addToGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
-                group.add(el);
+                group.add(el, doNotFireEvent);
             }
         };
 
-        this.removeFromGroup = function(group, el) {
+        this.removeFromGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
-                group.remove(el);
+                group.remove(el, null, doNotFireEvent);
             }
         };
 
@@ -406,7 +406,7 @@
             return dropOverride && (revert || prune || orphan);
         };
 
-        this.add = function(el, manipulateDOM) {
+        this.add = function(el, doNotFireEvent) {
             _each(el, function(_el) {
                 _el._jsPlumbGroup = self;
                 elements.push(_el);
@@ -418,11 +418,13 @@
                 if (_el.parentNode != self.dragArea) {
                     self.dragArea.appendChild(_el);
                 }
-                //}
-                _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+
+                if (!doNotFireEvent) {
+                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+                }
             });
         };
-        this.remove = function(el, manipulateDOM) {
+        this.remove = function(el, manipulateDOM, doNotFireEvent) {
             _each(el, function(_el) {
                 delete _el._jsPlumbGroup;
                 jsPlumbUtil.removeWithFunction(elements, function(e) {
@@ -435,7 +437,9 @@
                     }
                 }
                 _unbindDragHandlers(_el);
-                _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: el});
+                if (!doNotFireEvent) {
+                    _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: el});
+                }
             });
         };
         this.removeAll = function() {
@@ -497,14 +501,12 @@
         //
         function _pruneOrOrphan(p) {
             if (!_isInsideParent(p.el, p.pos)) {
-                //setTimeout(function() {
-                    p.el._jsPlumbGroup.remove(p.el);
-                    if (prune) {
-                        _jsPlumb.remove(p.el);
-                    } else {
-                        _orphan(p.el);
-                    }
-                //}, 0);
+                p.el._jsPlumbGroup.remove(p.el);
+                if (prune) {
+                    _jsPlumb.remove(p.el);
+                } else {
+                    _orphan(p.el);
+                }
             }
         }
 
@@ -568,8 +570,8 @@
      * @param {String} group Group, or ID of the group, to add the element to.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.addToGroup = function(group, el) {
-        this.getGroupManager().addToGroup(group, el);
+    jsPlumbInstance.prototype.addToGroup = function(group, el, doNotFireEvent) {
+        this.getGroupManager().addToGroup(group, el, doNotFireEvent);
     };
 
     /**
@@ -578,8 +580,8 @@
      * @param {String} group Group, or ID of the group, to remove the element from.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.removeFromGroup = function(group, el) {
-        this.getGroupManager().removeFromGroup(group, el);
+    jsPlumbInstance.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
+        this.getGroupManager().removeFromGroup(group, el, doNotFireEvent);
     };
 
     /**
