@@ -1,9 +1,9 @@
 ;(function() {
     "use strict";
 
-    var GROUP_COLLAPSED_CLASS = "jtk-group-collapsed";
-    var GROUP_EXPANDED_CLASS = "jtk-group-expanded";
-    var GROUP_CONTAINER_SELECTOR = "[jtk-group-content]";
+    var GROUP_COLLAPSED_CLASS = "jsplumb-group-collapsed";
+    var GROUP_EXPANDED_CLASS = "jsplumb-group-expanded";
+    var GROUP_CONTAINER_SELECTOR = "[jsplumb-group-content]";
     var ELEMENT_DRAGGABLE_EVENT = "elementDraggable";
     var STOP = "stop";
     var REVERT = "revert";
@@ -462,8 +462,6 @@
             }
         }.bind(this));
 
-        // TODO: use instead the concept of an optional .jtk-group-content parent? or should that element be the offset
-        // parent anyway.
         function _findParent(el) {
             return el.offsetParent;
         }
@@ -622,8 +620,8 @@
      * the group to the group itself)
      * - Proxies all connections for which the source or target is a member of the group.
      * - Hides the proxied connections.
-     * - Adds the jtk-group-expanded class to the group's element
-     * - Removes the jtk-group-collapsed class from the group's element.
+     * - Adds the jsplumb-group-expanded class to the group's element
+     * - Removes the jsplumb-group-collapsed class from the group's element.
      *
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
@@ -640,8 +638,8 @@
      * the group to the group itself)
      * - Removes proxies for all connections for which the source or target is a member of the group.
      * - Shows the previously proxied connections.
-     * - Adds the jtk-group-collapsed class to the group's element
-     * - Removes the jtk-group-expanded class from the group's element.
+     * - Adds the jsplumb-group-collapsed class to the group's element
+     * - Removes the jsplumb-group-expanded class from the group's element.
      *
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
