@@ -54,7 +54,8 @@
                     drag: "jsplumb-drag",
                     selected: "jsplumb-drag-selected",
                     active: "jsplumb-drag-active",
-                    hover: "jsplumb-drag-hover"
+                    hover: "jsplumb-drag-hover",
+                    ghostProxy:"jsplumb-ghost-proxy"
                 }
             });
             instance[key] = k;
