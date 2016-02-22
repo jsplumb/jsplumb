@@ -2498,7 +2498,7 @@
                         var payload = {};
                         if (def.def.extract) {
                             for (var att in def.def.extract) {
-                                var v = e.srcElement.getAttribute(att);
+                                var v = (e.srcElement || e.target).getAttribute(att);
                                 if (v) {
                                     payload[def.def.extract[att]] = v;
                                 }
