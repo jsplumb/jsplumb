@@ -172,17 +172,19 @@
             // hide all connections
             _setVisible(group, false);
 
-            // collapses all connections in a group.
-            var _collapseSet = function(conns, index) {
-                for (var i = 0; i < conns.length; i++) {
-                    var c = conns[i];
-                    _collapseConnection(c, index, group);
-                }
-            };
+            if (group.shouldProxy()) {
+                // collapses all connections in a group.
+                var _collapseSet = function (conns, index) {
+                    for (var i = 0; i < conns.length; i++) {
+                        var c = conns[i];
+                        _collapseConnection(c, index, group);
+                    }
+                };
 
-            // setup proxies for sources and targets
-            _collapseSet(group.connections.source, 0);
-            _collapseSet(group.connections.target, 1);
+                // setup proxies for sources and targets
+                _collapseSet(group.connections.source, 0);
+                _collapseSet(group.connections.target, 1);
+            }
 
             group.collapsed = true;
             _jsPlumb.removeClass(group.el, GROUP_EXPANDED_CLASS);
@@ -231,17 +233,19 @@
 
             _setVisible(group, true);
 
-            // collapses all connections in a group.
-            var _expandSet = function(conns, index) {
-                for (var i = 0; i < conns.length; i++) {
-                    var c = conns[i];
-                    _expandConnection(c, index, group);
-                }
-            };
+            if (group.shouldProxy()) {
+                // collapses all connections in a group.
+                var _expandSet = function (conns, index) {
+                    for (var i = 0; i < conns.length; i++) {
+                        var c = conns[i];
+                        _expandConnection(c, index, group);
+                    }
+                };
 
-            // setup proxies for sources and targets
-            _expandSet(group.connections.source, 0);
-            _expandSet(group.connections.target, 1);
+                // setup proxies for sources and targets
+                _expandSet(group.connections.source, 0);
+                _expandSet(group.connections.target, 1);
+            }
 
             group.collapsed = false;
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
@@ -309,11 +313,13 @@
         this.el._isJsPlumbGroup = true;
         var da = _jsPlumb.getSelector(this.el, GROUP_CONTAINER_SELECTOR);
         this.dragArea = da && da.length > 0 ? da[0] : this.el;
-        var constrain = params.constrain === true;
+        var ghost = params.ghost === true;
+        var constrain = ghost || (params.constrain === true);
         var revert = params.revert !== false;
         var orphan = params.orphan === true;
         var prune = params.prune === true;
         var dropOverride = params.dropOverride === true;
+        var proxied = params.proxied !== false;
         var elements = [];
         this.connections = { source:[], target:[], internal:[] };
 
@@ -330,15 +336,8 @@
         this.collapsed = false;
         if (params.draggable !== false) {
             _jsPlumb.draggable(params.el, {
-                start:function() {
-                    console.log("group start drag");
-                },
                 stop:function(params) {
-                    console.log("group stop drag");
                     _jsPlumb.fire("groupDragStop", jsPlumb.extend(params, {group:self}));
-                },
-                drag:function() {
-                    console.log("group drag");
                 },
                 scope:GROUP_DRAG_SCOPE
             });
@@ -391,6 +390,10 @@
                         _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
 
                         groupManager.updateConnectionsForGroup(self);
+
+                        setTimeout(function() {
+                            _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+                        }, 0);
                     }
                 }
             });
@@ -541,6 +544,12 @@
                 el._katavorioDrag.setConstrain(true);
             }
 
+            if (ghost) {
+                el._katavorioDrag.setGhostProxy(function(el) {
+                    return el.cloneNode(true);
+                });
+            }
+
             if (!prune && !orphan && revert) {
                 el._katavorioDrag.on(REVERT, _revalidate);
                 el._katavorioDrag.setRevert(function(el, pos) {
@@ -548,6 +557,10 @@
                 });
             }
         }
+
+        this.shouldProxy = function() {
+            return proxied;s
+        };
 
         _jsPlumb.getGroupManager().addGroup(this);
     };
