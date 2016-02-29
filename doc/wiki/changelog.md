@@ -6,6 +6,7 @@
 ISSUES
 
 - 483 - srcElement undefined in Firefox
+- 484 - changed a couple of variables refs so that they are not reserved words 
 
 
 ## 2.0.6
