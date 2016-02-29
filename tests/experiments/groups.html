@@ -34,8 +34,10 @@
     #container1 { left:0;top:50px; }
     #container2 { left:300px;top:50px; }
     #container3 { left:600px;top:50px; }
-    #container4 { left:0;top:400px; }
-    #container5 { left:300px;top:400px; }
+    #container4 { left:900px;top:50px; }
+    #container5 { left:0;top:400px; }
+    #container6 { left:300px;top:400px; }
+    #container7 { left:600px;top:400px; }
 
     .del, .collapse {
         position:absolute;
@@ -79,6 +81,10 @@
 
     .jsplumb-drag-hover {
         outline:4px solid cornflowerblue;
+    }
+
+    .katavorio-ghost-proxy {
+        outline:2px solid red;
     }
 
     .events {
@@ -138,7 +144,7 @@
         <ul>
             <li>Elements pruned on drop outside (prune:true)</li>
             <li>Elements are draggable to other groups</li>
-            <li>Deletes groups and children</li>
+            <li>Deletes group and children</li>
         </ul>
         <div class="del" delete-all></div>
         <div class="collapse"></div>
@@ -158,6 +164,32 @@
         <div class="collapse"></div>
         <div id="c5_1" class="w" style="left:30px;top:30px">5.1</div>
         <div id="c5_2" class="w" style="left:180px;top:180px">5.2</div>
+    </div>
+
+    <div class="container" id="container6" group="six">
+        <div class="title"></div>
+        <ul>
+            <li>No connections shown when group collapsed</li>
+            <li>Elements are draggable to other groups</li>
+            <li>Deletes group and children</li>
+        </ul>
+        <div class="del" delete-all></div>
+        <div class="collapse"></div>
+        <div id="c6_1" class="w" style="left:30px;top:30px">6.1</div>
+        <div id="c6_2" class="w" style="left:180px;top:180px">6.2</div>
+    </div>
+
+    <div class="container" id="container7" group="seven">
+        <div class="title"></div>
+        <ul>
+            <li></li>
+            <li>Elements are draggable to other groups, using ghost proxy</li>
+            <li>Deletes group and children</li>
+        </ul>
+        <div class="del" delete-all></div>
+        <div class="collapse"></div>
+        <div id="c7_1" class="w" style="left:30px;top:30px">7.1</div>
+        <div id="c7_2" class="w" style="left:180px;top:180px">7.2</div>
     </div>
 
     <hr/>
@@ -282,6 +314,16 @@
         j.addToGroup("five", [c5_1, c5_2]);
         j.draggable(c5_2);
 
+        j.draggable(c6_1);
+        j.addGroup({el:container6, id:"six", proxied:false});
+        j.addToGroup("six", [c6_1, c6_2]);
+        j.draggable(c6_2);
+
+        j.draggable(c7_1);
+        j.addGroup({el:container7, id:"seven", ghost:true});
+        j.addToGroup("seven", [c7_1, c7_2]);
+        j.draggable(c7_2);
+
         j.connect({source:c1_1, target:c2_1});
         j.connect({source:c2_1, target:c3_1});
         j.connect({source:c3_1, target:c4_1});
@@ -296,6 +338,10 @@
         j.connect({source:c5_1,target:c3_2});
 
         j.connect({source:c5_1,target:container5, anchors:["Center", "Continuous"]});
+
+        j.connect({source:c5_2,target:c6_1});
+
+        j.connect({source:c6_2,target:c7_1});
 
         j.on(holder, "click", ".del", function() {
             var g = this.parentNode.getAttribute("group");
