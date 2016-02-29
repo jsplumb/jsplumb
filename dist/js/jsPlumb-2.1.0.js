@@ -1225,7 +1225,7 @@
 
  http://mrsharpoblunto.github.io/foswig.js/
 
- copyright 2015 jsPlumb
+ copyright 2016 jsPlumb
  */
 
 ;(function() {
@@ -1325,7 +1325,8 @@
             selected:"katavorio-drag-selected", // elements in current drag selection
             active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
             hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
-            noSelect : "katavorio-drag-no-select" // added to the body to provide a hook to suppress text selection
+            noSelect : "katavorio-drag-no-select", // added to the body to provide a hook to suppress text selection
+            ghostProxy:"katavorio-ghost-proxy"  // added to a ghost proxy element in use when a drag has exited the bounds of its parent.
         },
         _defaultScope = "katavorio-drag-scope",
         _events = [ "stop", "start", "drag", "drop", "over", "out", "beforeStart" ],
@@ -1417,7 +1418,10 @@
             dragEl = this.el,
             clone = this.params.clone,
             scroll = this.params.scroll,
-            _multipleDrop = params.multipleDrop !== false;
+            _multipleDrop = params.multipleDrop !== false,
+            isConstrained = false,
+            useGhostProxy = params.ghostProxy != null && typeof params.ghostProxy === "function",
+            ghostProxy = params.ghostProxy;
 
         var snapThreshold = params.snapThreshold || 5,
             _snap = function(pos, x, y, thresholdX, thresholdY) {
@@ -1457,17 +1461,27 @@
         };
 
         var constrain;
+        var negativeFilter = function(pos) {
+            return (params.allowNegative === false) ? [ Math.max (0, pos[0]), Math.max(0, pos[1]) ] : pos;
+        };
 
         var _setConstrain = function(value) {
             constrain = typeof value === "function" ? value : value ? function(pos) {
-                return [
+                return negativeFilter([
                     Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
                     Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
-                ];
-            }.bind(this) : function(pos) { return pos; };
+                ]);
+            }.bind(this) : function(pos) { return negativeFilter(pos); };
         }.bind(this);
 
         _setConstrain(typeof this.params.constrain === "function" ? this.params.constrain  : (this.params.constrain || this.params.containment));
+
+        this.setGhostProxy = function(gp) {
+            if (typeof gp === "function") {
+                useGhostProxy = true;
+                ghostProxy = gp;
+            }
+        };
 
         /**
          * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
@@ -1713,9 +1727,21 @@
         };
         this.unmark = function(e, doNotCheckDroppables) {
             _setDroppablesActive(matchingDroppables, false, true, this);
+            var dragOffsets;
+
+            if (isConstrained && useGhostProxy) {
+                dragOffsets = [dragEl.offsetLeft, dragEl.offsetTop];
+                this.el.parentNode.removeChild(dragEl);
+                dragEl = this.el;
+            }
+
             this.params.removeClass(dragEl, this.params.dragClass || css.drag);
             matchingDroppables.length = 0;
+            isConstrained = false;
             if (!doNotCheckDroppables) {
+                if (intersectingDroppables.length > 0 && dragOffsets) {
+                    params.setPosition(this.el, dragOffsets);
+                }
                 for (var i = 0; i < intersectingDroppables.length; i++) {
                     var retVal = intersectingDroppables[i].drop(this, e);
                     if (retVal === true) break;
@@ -1724,10 +1750,38 @@
         };
         this.moveBy = function(dx, dy, e) {
             intersectingDroppables.length = 0;
-            var cPos = constrain(this.toGrid([posAtDown[0] + dx, posAtDown[1] + dy]), dragEl),
-                rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]},
+            var desiredLoc = this.toGrid([posAtDown[0] + dx, posAtDown[1] + dy]),
+                cPos = constrain(desiredLoc, dragEl);
+
+            if (useGhostProxy) {
+                if (desiredLoc[0] != cPos[0] || desiredLoc[1] != cPos[1]) {
+                    if (!isConstrained) {
+                        console.log("flipping to ghost proxy now");
+                        var gp = ghostProxy(this.el);
+                        params.addClass(gp, _classes.ghostProxy);
+                        this.el.parentNode.appendChild(gp);
+                        dragEl = gp;
+                        isConstrained = true;
+                    } else {
+                        console.log("moving the ghost proxy around")
+                    }
+                    cPos = desiredLoc;
+                }
+                else {
+                    if (isConstrained) {
+                        console.log("back inside now; remove the ghost proxy and revert to the main el", this.el);
+                        this.el.parentNode.removeChild(dragEl);
+                        dragEl = this.el;
+                        isConstrained = false;
+                    }
+                }
+            }
+
+            var rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]},
                 pageRect = { x:rect.x + pageDelta[0], y:rect.y + pageDelta[1], w:rect.w, h:rect.h},
                 focusDropElement = null;
+
+
 
             this.params.setPosition(dragEl, cPos);
             for (var i = 0; i < matchingDroppables.length; i++) {
@@ -4741,7 +4795,7 @@
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
-        var _manage = _currentInstance.manage = function (id, element, transient) {
+        var _manage = _currentInstance.manage = function (id, element, _transient) {
             if (!managedElements[id]) {
                 managedElements[id] = {
                     el: element,
@@ -4750,7 +4804,7 @@
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
-                if (!transient) {
+                if (!_transient) {
                     _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
                 }
             }
@@ -5324,7 +5378,7 @@
                         var payload = {};
                         if (def.def.extract) {
                             for (var att in def.def.extract) {
-                                var v = e.srcElement.getAttribute(att);
+                                var v = (e.srcElement || e.target).getAttribute(att);
                                 if (v) {
                                     payload[def.def.extract[att]] = v;
                                 }
@@ -11348,17 +11402,17 @@
             _jsPlumb.fire(EVT_GROUP_ADDED, { group:group });
         };
 
-        this.addToGroup = function(group, el) {
+        this.addToGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
-                group.add(el);
+                group.add(el, doNotFireEvent);
             }
         };
 
-        this.removeFromGroup = function(group, el) {
+        this.removeFromGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
-                group.remove(el);
+                group.remove(el, null, doNotFireEvent);
             }
         };
 
@@ -11447,17 +11501,19 @@
             // hide all connections
             _setVisible(group, false);
 
-            // collapses all connections in a group.
-            var _collapseSet = function(conns, index) {
-                for (var i = 0; i < conns.length; i++) {
-                    var c = conns[i];
-                    _collapseConnection(c, index, group);
-                }
-            };
+            if (group.shouldProxy()) {
+                // collapses all connections in a group.
+                var _collapseSet = function (conns, index) {
+                    for (var i = 0; i < conns.length; i++) {
+                        var c = conns[i];
+                        _collapseConnection(c, index, group);
+                    }
+                };
 
-            // setup proxies for sources and targets
-            _collapseSet(group.connections.source, 0);
-            _collapseSet(group.connections.target, 1);
+                // setup proxies for sources and targets
+                _collapseSet(group.connections.source, 0);
+                _collapseSet(group.connections.target, 1);
+            }
 
             group.collapsed = true;
             _jsPlumb.removeClass(group.el, GROUP_EXPANDED_CLASS);
@@ -11506,17 +11562,19 @@
 
             _setVisible(group, true);
 
-            // collapses all connections in a group.
-            var _expandSet = function(conns, index) {
-                for (var i = 0; i < conns.length; i++) {
-                    var c = conns[i];
-                    _expandConnection(c, index, group);
-                }
-            };
+            if (group.shouldProxy()) {
+                // collapses all connections in a group.
+                var _expandSet = function (conns, index) {
+                    for (var i = 0; i < conns.length; i++) {
+                        var c = conns[i];
+                        _expandConnection(c, index, group);
+                    }
+                };
 
-            // setup proxies for sources and targets
-            _expandSet(group.connections.source, 0);
-            _expandSet(group.connections.target, 1);
+                // setup proxies for sources and targets
+                _expandSet(group.connections.source, 0);
+                _expandSet(group.connections.target, 1);
+            }
 
             group.collapsed = false;
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
@@ -11584,11 +11642,13 @@
         this.el._isJsPlumbGroup = true;
         var da = _jsPlumb.getSelector(this.el, GROUP_CONTAINER_SELECTOR);
         this.dragArea = da && da.length > 0 ? da[0] : this.el;
-        var constrain = params.constrain === true;
+        var ghost = params.ghost === true;
+        var constrain = ghost || (params.constrain === true);
         var revert = params.revert !== false;
         var orphan = params.orphan === true;
         var prune = params.prune === true;
         var dropOverride = params.dropOverride === true;
+        var proxied = params.proxied !== false;
         var elements = [];
         this.connections = { source:[], target:[], internal:[] };
 
@@ -11605,15 +11665,8 @@
         this.collapsed = false;
         if (params.draggable !== false) {
             _jsPlumb.draggable(params.el, {
-                start:function() {
-                    console.log("group start drag");
-                },
                 stop:function(params) {
-                    console.log("group stop drag");
                     _jsPlumb.fire("groupDragStop", jsPlumb.extend(params, {group:self}));
-                },
-                drag:function() {
-                    console.log("group drag");
                 },
                 scope:GROUP_DRAG_SCOPE
             });
@@ -11666,6 +11719,10 @@
                         _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
 
                         groupManager.updateConnectionsForGroup(self);
+
+                        setTimeout(function() {
+                            _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+                        }, 0);
                     }
                 }
             });
@@ -11681,7 +11738,7 @@
             return dropOverride && (revert || prune || orphan);
         };
 
-        this.add = function(el, manipulateDOM) {
+        this.add = function(el, doNotFireEvent) {
             _each(el, function(_el) {
                 _el._jsPlumbGroup = self;
                 elements.push(_el);
@@ -11693,11 +11750,13 @@
                 if (_el.parentNode != self.dragArea) {
                     self.dragArea.appendChild(_el);
                 }
-                //}
-                _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+
+                if (!doNotFireEvent) {
+                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+                }
             });
         };
-        this.remove = function(el, manipulateDOM) {
+        this.remove = function(el, manipulateDOM, doNotFireEvent) {
             _each(el, function(_el) {
                 delete _el._jsPlumbGroup;
                 jsPlumbUtil.removeWithFunction(elements, function(e) {
@@ -11710,7 +11769,9 @@
                     }
                 }
                 _unbindDragHandlers(_el);
-                _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: el});
+                if (!doNotFireEvent) {
+                    _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: el});
+                }
             });
         };
         this.removeAll = function() {
@@ -11772,14 +11833,12 @@
         //
         function _pruneOrOrphan(p) {
             if (!_isInsideParent(p.el, p.pos)) {
-                //setTimeout(function() {
-                    p.el._jsPlumbGroup.remove(p.el);
-                    if (prune) {
-                        _jsPlumb.remove(p.el);
-                    } else {
-                        _orphan(p.el);
-                    }
-                //}, 0);
+                p.el._jsPlumbGroup.remove(p.el);
+                if (prune) {
+                    _jsPlumb.remove(p.el);
+                } else {
+                    _orphan(p.el);
+                }
             }
         }
 
@@ -11814,6 +11873,12 @@
                 el._katavorioDrag.setConstrain(true);
             }
 
+            if (ghost) {
+                el._katavorioDrag.setGhostProxy(function(el) {
+                    return el.cloneNode(true);
+                });
+            }
+
             if (!prune && !orphan && revert) {
                 el._katavorioDrag.on(REVERT, _revalidate);
                 el._katavorioDrag.setRevert(function(el, pos) {
@@ -11821,6 +11886,10 @@
                 });
             }
         }
+
+        this.shouldProxy = function() {
+            return proxied;s
+        };
 
         _jsPlumb.getGroupManager().addGroup(this);
     };
@@ -11843,8 +11912,8 @@
      * @param {String} group Group, or ID of the group, to add the element to.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.addToGroup = function(group, el) {
-        this.getGroupManager().addToGroup(group, el);
+    jsPlumbInstance.prototype.addToGroup = function(group, el, doNotFireEvent) {
+        this.getGroupManager().addToGroup(group, el, doNotFireEvent);
     };
 
     /**
@@ -11853,8 +11922,8 @@
      * @param {String} group Group, or ID of the group, to remove the element from.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.removeFromGroup = function(group, el) {
-        this.getGroupManager().removeFromGroup(group, el);
+    jsPlumbInstance.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
+        this.getGroupManager().removeFromGroup(group, el, doNotFireEvent);
     };
 
     /**
@@ -13306,7 +13375,8 @@
                     drag: "jsplumb-drag",
                     selected: "jsplumb-drag-selected",
                     active: "jsplumb-drag-active",
-                    hover: "jsplumb-drag-hover"
+                    hover: "jsplumb-drag-hover",
+                    ghostProxy:"jsplumb-ghost-proxy"
                 }
             });
             instance[key] = k;
@@ -13368,7 +13438,7 @@
                 linc = (step / d) * ldist,
                 tinc = (step / d) * tdist,
                 idx = 0,
-                int = setInterval(function () {
+                _int = setInterval(function () {
                     jsPlumb.setPosition(el, {
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
@@ -13376,7 +13446,7 @@
                     if (options.step != null) options.step(idx, Math.ceil(steps));
                     idx++;
                     if (idx >= steps) {
-                        window.clearInterval(int);
+                        window.clearInterval(_int);
                         if (options.complete != null) options.complete();
                     }
                 }, step);
