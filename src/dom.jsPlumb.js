@@ -117,7 +117,7 @@
                 linc = (step / d) * ldist,
                 tinc = (step / d) * tdist,
                 idx = 0,
-                int = setInterval(function () {
+                _int = setInterval(function () {
                     jsPlumb.setPosition(el, {
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
@@ -125,7 +125,7 @@
                     if (options.step != null) options.step(idx, Math.ceil(steps));
                     idx++;
                     if (idx >= steps) {
-                        window.clearInterval(int);
+                        window.clearInterval(_int);
                         if (options.complete != null) options.complete();
                     }
                 }, step);
