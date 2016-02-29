@@ -10,6 +10,12 @@ jsplumb-group-content              placeholder class for users to indicate what 
 
 ---
 
+### BEHAVIOUR
+
+proxies when collapsed (by default; optionally can be switched off)
+
+---
+
 ### API
 
 addGroup(group)
@@ -28,7 +34,9 @@ expandGroup
 
 ### DRAG/DROP
 
-outside drop modes: revert, ignore, prune, orphan
+outside drop modes: revert, ignore, prune, orphan, ghost
 
 drag/drop between groups.
+
+
 
