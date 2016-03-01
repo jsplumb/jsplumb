@@ -11681,7 +11681,7 @@
                     // if already a member of this group, do nothing
                     if (currentGroup !== self) {
                         var elpos = _jsPlumb.getOffset(el, true);
-                        var cpos = _jsPlumb.getOffset(self.dragArea, true);
+                        var cpos = self.collapsed ? _jsPlumb.getOffset(self.el, true) : _jsPlumb.getOffset(self.dragArea, true);
 
                         // otherwise, transfer to this group.
                         if (currentGroup != null) {
