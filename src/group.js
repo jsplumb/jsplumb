@@ -335,12 +335,16 @@
 
         this.collapsed = false;
         if (params.draggable !== false) {
-            _jsPlumb.draggable(params.el, {
+            var opts = {
                 stop:function(params) {
                     _jsPlumb.fire("groupDragStop", jsPlumb.extend(params, {group:self}));
                 },
                 scope:GROUP_DRAG_SCOPE
-            });
+            };
+            if (params.dragOptions) {
+                jsPlumb.extend(opts, params.dragOptions);
+            }
+            _jsPlumb.draggable(params.el, opts);
         }
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
@@ -559,7 +563,7 @@
         }
 
         this.shouldProxy = function() {
-            return proxied;s
+            return proxied;
         };
 
         _jsPlumb.getGroupManager().addGroup(this);
