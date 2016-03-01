@@ -2,6 +2,7 @@
 
 - 'elementDraggable' event now fired whenever an element is made draggable via the `draggable` function
 - add support for 'groups' - elements that can contain other elements, and which are collapsible.
+- upgrade to Mottle 0.7.2. a few fixes for event delegation.
 
 ISSUES
 
