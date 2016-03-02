@@ -256,6 +256,17 @@
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
         },
+        suggest : function(list, item, insertAtHead) {
+            if (list.indexOf(item) === -1) {
+                if (insertAtHead) {
+                    list.unshift(item);
+                } else {
+                    list.push(item);
+                }
+                return true;
+            }
+            return false;
+        },
         //
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
