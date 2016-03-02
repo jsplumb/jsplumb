@@ -251,8 +251,17 @@
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
             _jsPlumb.revalidate(group.el);
+            this.repaintGroup(group);
             if (!doNotFireEvent) {
                 _jsPlumb.fire(EVT_EXPAND, { group: group});
+            }
+        };
+
+        this.repaintGroup = function(group) {
+            group = this.getGroup(group);
+            var m = group.getMembers();
+            for (var i = 0; i < m.length; i++) {
+                _jsPlumb.revalidate(m[i]);
             }
         };
 
@@ -665,6 +674,11 @@
      */
     jsPlumbInstance.prototype.collapseGroup = function(groupId) {
         this.getGroupManager().collapseGroup(groupId);
+    };
+
+
+    jsPlumbInstance.prototype.repaintGroup = function(group) {
+        this.getGroupManager().repaintGroup(group);
     };
 
     /**
