@@ -62,7 +62,15 @@
         });
 
         _jsPlumb.bind("connectionMoved", function(p) {
-            console.log("connectionMoved", p);
+            var connMap = p.index === 0 ? _connectionSourceMap : _connectionTargetMap;
+            var group = connMap[p.connection.id];
+            if (group) {
+                var list = group.connections[p.index === 0 ? "source" : "target"];
+                var idx = list.indexOf(p.connection);
+                if (idx != -1) {
+                    list.splice(idx, 1);
+                }
+            }
         });
 
         this.addGroup = function(group) {
