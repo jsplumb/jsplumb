@@ -28,11 +28,11 @@
             }
             else {
                 if (p.source[GROUP] != null) {
-                    p.source[GROUP].connections.source.push(p.connection);
+                    jsPlumbUtil.suggest(p.source[GROUP].connections.source, p.connection);
                     _connectionSourceMap[p.connection.id] = p.source[GROUP];
                 }
                 if (p.target[GROUP] != null) {
-                    p.target[GROUP].connections.target.push(p.connection);
+                    jsPlumbUtil.suggest(p.target[GROUP].connections.target, p.connection);
                     _connectionTargetMap[p.connection.id] = p.target[GROUP];
                 }
             }
