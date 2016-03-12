@@ -1016,15 +1016,15 @@
      * @class Mottle
      * @constructor
      * @param {Object} params Constructor params
-     * @param {Number} [params.clickThreshold=150] Threshold, in milliseconds beyond which a touchstart followed by a touchend is not considered to be a click.
-     * @param {Number} [params.dblClickThreshold=350] Threshold, in milliseconds beyond which two successive tap events are not considered to be a click.
+     * @param {Number} [params.clickThreshold=250] Threshold, in milliseconds beyond which a touchstart followed by a touchend is not considered to be a click.
+     * @param {Number} [params.dblClickThreshold=450] Threshold, in milliseconds beyond which two successive tap events are not considered to be a click.
      * @param {Boolean} [params.smartClicks=false] If true, won't fire click events if the mouse has moved between mousedown and mouseup. Note that this functionality
      * requires that Mottle consume the mousedown event, and so may not be viable in all use cases.
      */
     root.Mottle = function (params) {
         params = params || {};
-        var clickThreshold = params.clickThreshold || 150,
-            dblClickThreshold = params.dblClickThreshold || 350,
+        var clickThreshold = params.clickThreshold || 250,
+            dblClickThreshold = params.dblClickThreshold || 450,
             mouseEnterExitHandler = new MouseEnterExitHandler(),
             tapHandler = new TapHandler(clickThreshold, dblClickThreshold),
             _smartClicks = params.smartClicks,
@@ -1450,6 +1450,9 @@
         return params.katavorio;
     };
 
+    var TRUE = function() { return true; };
+    var FALSE = function() { return false; };
+
     var Drag = function(el, params, css, scope) {
         this._class = css.draggable;
         var k = Super.apply(this, arguments);
@@ -1461,8 +1464,8 @@
             scroll = this.params.scroll,
             _multipleDrop = params.multipleDrop !== false,
             isConstrained = false,
-            useGhostProxy = params.ghostProxy != null && typeof params.ghostProxy === "function",
-            ghostProxy = params.ghostProxy;
+            useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
+            ghostProxy = function(el) { return el.cloneNode(true); };
 
         var snapThreshold = params.snapThreshold || 5,
             _snap = function(pos, x, y, thresholdX, thresholdY) {
@@ -1517,12 +1520,6 @@
 
         _setConstrain(typeof this.params.constrain === "function" ? this.params.constrain  : (this.params.constrain || this.params.containment));
 
-        this.setGhostProxy = function(gp) {
-            if (typeof gp === "function") {
-                useGhostProxy = true;
-                ghostProxy = gp;
-            }
-        };
 
         /**
          * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
@@ -1745,7 +1742,12 @@
                 }
 
                 _dispatch("stop", {
-                    el: dragEl, pos: dPos, e: e, drag: this, selection:positions
+                    el: dragEl,
+                    pos: ghostProxyOffsets || dPos,
+                    finalPos:dPos,
+                    e: e,
+                    drag: this,
+                    selection:positions
                 });
             }
         };
@@ -1766,22 +1768,26 @@
                 k.notifySelectionDragStart(this);
             }
         };
+        var ghostProxyOffsets;
         this.unmark = function(e, doNotCheckDroppables) {
             _setDroppablesActive(matchingDroppables, false, true, this);
-            var dragOffsets;
 
-            if (isConstrained && useGhostProxy) {
-                dragOffsets = [dragEl.offsetLeft, dragEl.offsetTop];
+
+            if (isConstrained && useGhostProxy()) {
+                ghostProxyOffsets = [dragEl.offsetLeft, dragEl.offsetTop];
                 this.el.parentNode.removeChild(dragEl);
                 dragEl = this.el;
+            }
+            else {
+                ghostProxyOffsets = null;
             }
 
             this.params.removeClass(dragEl, this.params.dragClass || css.drag);
             matchingDroppables.length = 0;
             isConstrained = false;
             if (!doNotCheckDroppables) {
-                if (intersectingDroppables.length > 0 && dragOffsets) {
-                    params.setPosition(this.el, dragOffsets);
+                if (intersectingDroppables.length > 0 && ghostProxyOffsets) {
+                    params.setPosition(this.el, ghostProxyOffsets);
                 }
                 for (var i = 0; i < intersectingDroppables.length; i++) {
                     var retVal = intersectingDroppables[i].drop(this, e);
@@ -1794,7 +1800,7 @@
             var desiredLoc = this.toGrid([posAtDown[0] + dx, posAtDown[1] + dy]),
                 cPos = constrain(desiredLoc, dragEl);
 
-            if (useGhostProxy) {
+            if (useGhostProxy()) {
                 if (desiredLoc[0] != cPos[0] || desiredLoc[1] != cPos[1]) {
                     if (!isConstrained) {
                         console.log("flipping to ghost proxy now");
@@ -2650,6 +2656,17 @@
             }
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
+        },
+        suggest : function(list, item, insertAtHead) {
+            if (list.indexOf(item) === -1) {
+                if (insertAtHead) {
+                    list.unshift(item);
+                } else {
+                    list.push(item);
+                }
+                return true;
+            }
+            return false;
         },
         //
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
@@ -11398,11 +11415,11 @@
             }
             else {
                 if (p.source[GROUP] != null) {
-                    p.source[GROUP].connections.source.push(p.connection);
+                    jsPlumbUtil.suggest(p.source[GROUP].connections.source, p.connection);
                     _connectionSourceMap[p.connection.id] = p.source[GROUP];
                 }
                 if (p.target[GROUP] != null) {
-                    p.target[GROUP].connections.target.push(p.connection);
+                    jsPlumbUtil.suggest(p.target[GROUP].connections.target, p.connection);
                     _connectionTargetMap[p.connection.id] = p.target[GROUP];
                 }
             }
@@ -11432,7 +11449,15 @@
         });
 
         _jsPlumb.bind("connectionMoved", function(p) {
-            console.log("connectionMoved", p);
+            var connMap = p.index === 0 ? _connectionSourceMap : _connectionTargetMap;
+            var group = connMap[p.connection.id];
+            if (group) {
+                var list = group.connections[p.index === 0 ? "source" : "target"];
+                var idx = list.indexOf(p.connection);
+                if (idx != -1) {
+                    list.splice(idx, 1);
+                }
+            }
         });
 
         this.addGroup = function(group) {
@@ -11621,8 +11646,17 @@
             _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
             _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
             _jsPlumb.revalidate(group.el);
+            this.repaintGroup(group);
             if (!doNotFireEvent) {
                 _jsPlumb.fire(EVT_EXPAND, { group: group});
+            }
+        };
+
+        this.repaintGroup = function(group) {
+            group = this.getGroup(group);
+            var m = group.getMembers();
+            for (var i = 0; i < m.length; i++) {
+                _jsPlumb.revalidate(m[i]);
             }
         };
 
@@ -11705,12 +11739,16 @@
 
         this.collapsed = false;
         if (params.draggable !== false) {
-            _jsPlumb.draggable(params.el, {
+            var opts = {
                 stop:function(params) {
                     _jsPlumb.fire("groupDragStop", jsPlumb.extend(params, {group:self}));
                 },
                 scope:GROUP_DRAG_SCOPE
-            });
+            };
+            if (params.dragOptions) {
+                jsPlumb.extend(opts, params.dragOptions);
+            }
+            _jsPlumb.draggable(params.el, opts);
         }
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
@@ -11929,7 +11967,7 @@
         }
 
         this.shouldProxy = function() {
-            return proxied;s
+            return proxied;
         };
 
         _jsPlumb.getGroupManager().addGroup(this);
@@ -12031,6 +12069,11 @@
      */
     jsPlumbInstance.prototype.collapseGroup = function(groupId) {
         this.getGroupManager().collapseGroup(groupId);
+    };
+
+
+    jsPlumbInstance.prototype.repaintGroup = function(group) {
+        this.getGroupManager().repaintGroup(group);
     };
 
     /**
