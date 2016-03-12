@@ -9002,5 +9002,23 @@ test("endpoint: suspendedElement set correctly", function() {
 
     });
 
+    test("move connections between group children via dragging connections", function() {
+        _setupGroups(true);
+
+        equal(_jsPlumb.select().length, 0, "0 connections to start");
+
+        // a connection to the group to be collapsed
+        var c = _jsPlumb.connect({source: c4_2, target: c3_1});
+        _jsPlumb.makeTarget(c2_1);
+
+        equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source conn in group 4");
+        equal(_jsPlumb.getGroup("three").connections.target.length, 1, "one target conn in group 3");
+
+        support.relocateTarget(c, c2_1);
+        equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source conn in group 4 after move");
+        equal(_jsPlumb.getGroup("three").connections.target.length, 0, "zero target conns in group 3 after move");
+        equal(_jsPlumb.getGroup("two").connections.target.length, 1, "one target conn in group 2 after move");
+    });
+
 };
 
