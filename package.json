@@ -63,7 +63,7 @@
     ]
   ],
   "author": "Simon Porritt",
-  "license": "MIT/GPL2",
+  "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
