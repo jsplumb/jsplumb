@@ -566,9 +566,7 @@
             }
 
             if (ghost) {
-                el._katavorioDrag.setGhostProxy(function(el) {
-                    return el.cloneNode(true);
-                });
+                el._katavorioDrag.setUseGhostProxy(true);
             }
 
             if (!prune && !orphan && revert) {
