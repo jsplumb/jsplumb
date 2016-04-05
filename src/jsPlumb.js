@@ -2291,7 +2291,7 @@
         // see api docs
         this.unmakeTarget = function (el, doNotClearArrays) {
             var info = _info(el);
-            jsPlumb.destroyDroppable(info.el);
+            jsPlumb.destroyDroppable(info.el, "internal");
             if (!doNotClearArrays) {
                 delete this.targetEndpointDefinitions[info.id];
             }
