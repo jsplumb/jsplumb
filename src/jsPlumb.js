@@ -2514,6 +2514,7 @@
         // see api docs
         this.unmakeSource = function (el, connectionType, doNotClearArrays) {
             var info = _info(el);
+            jsPlumb.destroyDroppable(info.el, "internal");
             var eldefs = this.sourceEndpointDefinitions[info.id];
             if (eldefs) {
                 for (var def in eldefs) {
