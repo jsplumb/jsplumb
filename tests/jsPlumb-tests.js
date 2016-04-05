@@ -47,7 +47,7 @@ var within = function (val, target, _ok, msg) {
 };
 
 var _divs = [];
-var _addDiv = function (id, parent, className, x, y) {
+var _addDiv = function (id, parent, className, x, y, w, h) {
     var d1 = document.createElement("div");
     d1.style.position = "absolute";
     if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
@@ -55,6 +55,8 @@ var _addDiv = function (id, parent, className, x, y) {
     d1.style.left = (x != null ? x : (Math.floor(Math.random() * 1000))) + "px";
     d1.style.top = (y!= null ? y : (Math.floor(Math.random() * 1000))) + "px";
     if (className) d1.className = className;
+    if (w) d1.style.width = w + "px";
+    if (h) d1.style.width = h + "px";
     _divs.push(id);
     return d1;
 };
@@ -405,7 +407,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             [0, 0.8, -1, 0]
         ];
         _jsPlumb.makeAnchor(spec);
-    })
+    });
 
     test(": unknown anchor type should throw Error", function () {
         try {
@@ -8654,7 +8656,7 @@ test("endpoint: suspendedElement set correctly", function() {
 
         support.dragNodeTo(el, tx, ty);
     };
-    var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2;
+    var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2;
 
     var _setupGroups = function(doNotMakeConnections) {
         c1 = _addDiv("container1", null, "container", 0, 50);
@@ -8662,6 +8664,7 @@ test("endpoint: suspendedElement set correctly", function() {
         c3 = _addDiv("container3", null, "container", 600, 50);
         c4 = _addDiv("container4", null, "container", 0, 400);
         c5 = _addDiv("container5", null, "container", 300, 400);
+        c6 = _addDiv("container6", null, "container", 800, 1000);
 
         c1_1 = _addDiv("c1_1", c1, "w", 30, 30);
         c1_2 = _addDiv("c1_2", c1, "w", 180, 130);
@@ -8673,14 +8676,17 @@ test("endpoint: suspendedElement set correctly", function() {
         c3_2 = _addDiv("c3_2", c3, "w", 180, 130);
         c2_1 = _addDiv("c2_1", c2, "w", 30, 30);
         c2_2 = _addDiv("c2_2", c2, "w", 180, 130);
+        c6_1 = _addDiv("c6_1", c6, "w", 30, 30);
+        c6_2 = _addDiv("c6_2", c6, "w", 180, 130);
 
-        _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2]);
+        _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
 
         _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
         _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
         _addGroup(_jsPlumb, "three", c3, [c3_1,c3_2],{ revert:false });
         _addGroup(_jsPlumb, "four", c4, [c4_1,c4_2], { prune: true });
         _addGroup(_jsPlumb, "five", c5, [c5_1,c5_2], { orphan:true, droppable:false });
+        _addGroup(_jsPlumb, "six", c6, [c6_1,c6_2], { orphan:true, droppable:false, proxied:false });
 
         if (!doNotMakeConnections) {
 
@@ -8697,6 +8703,9 @@ test("endpoint: suspendedElement set correctly", function() {
             _jsPlumb.connect({source: c5_1, target: c3_2});
 
             _jsPlumb.connect({source: c5_1, target: c5, anchors: ["Center", "Continuous"]});
+
+            _jsPlumb.connect({source:c6_1, target:c1_1});
+            _jsPlumb.connect({source:c1_2, target:c6_2});
         }
     };
 
@@ -8734,7 +8743,7 @@ test("endpoint: suspendedElement set correctly", function() {
         catch (e) {
             ok(true, "removed group subsequent retrieve threw exception");
         }
-        ok(c5_1.parentNode == null, "c5_1 removed from DOM because flag was set on group remove call");
+        ok(c5_1.parentNode == null, "c5_1 removed from DOM because group 5 also removes its children on group removal");
 
         // reset: all groups should be removed
         _jsPlumb.reset();
@@ -8846,6 +8855,25 @@ test("endpoint: suspendedElement set correctly", function() {
         ok(c3_1conns.get(0).isVisible(), "first c3_1 connection is visible");
         ok(c3_1conns.get(1).isVisible(), "second c3_1 connection is visible");
 
+
+    });
+
+    test("group collapse that does not wish to be proxied.", function() {
+
+        _setupGroups();
+
+        equal(_jsPlumb.select({source:"c6_1"}).length, 1, "1 source connection for c6_1");
+        equal(_jsPlumb.select({target:"c6_2"}).length, 1, "1 target connection for c6_2");
+        _jsPlumb.collapseGroup("six");
+
+        var c6_1conns = _jsPlumb.select({source:"c6_1"});
+        equal(c6_1conns.length, 1, "still 1 source connection for c6_1");
+        equal(_jsPlumb.select({target:"c6_2"}).length, 1, "still 1 target connection for c6_2");
+        equal(c6_1conns.get(0).endpoints[0].elementId, "c6_1", "source endpoint unchanged for connection");
+        ok(!c6_1conns.get(0).isVisible(), "source connection is not visible.");
+
+        _jsPlumb.expandGroup("six");
+        ok(c6_1conns.get(0).isVisible(), "source connection is visible.");
 
     });
 
@@ -9019,6 +9047,31 @@ test("endpoint: suspendedElement set correctly", function() {
         equal(_jsPlumb.getGroup("three").connections.target.length, 0, "zero target conns in group 3 after move");
         equal(_jsPlumb.getGroup("two").connections.target.length, 1, "one target conn in group 2 after move");
     });
+
+    test("cannot create duplicate group", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        _jsPlumb.addGroup({el:d1, id:"group"});
+        try {
+            _jsPlumb.addGroup({el:d2, id:"group"});
+            ok(false, "should have thrown an error when trying to a duplicate group")
+        }
+        catch (e) {
+            expect(0);
+        }
+    });
+
+    test("cannot create a new Group with an element that is already configured as a Group", function() {
+        var d1 = _addDiv("d1");
+        _jsPlumb.addGroup({el:d1, id:"group"});
+        try {
+            _jsPlumb.addGroup({el:d1, id:"group2"});
+            ok(false, "should have thrown an error when trying to a add a group element as a new group")
+        }
+        catch (e) {
+            expect(0);
+        }
+    });
+
 
 };
 
