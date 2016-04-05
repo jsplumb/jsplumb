@@ -110,6 +110,7 @@
             group[deleteMembers ? "removeAll" : "orphanAll"]();
             _jsPlumb.remove(group.el);
             delete _managedGroups[group.id];
+            delete _jsPlumb._groups[group.id];
             _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
         };
 
