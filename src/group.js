@@ -588,12 +588,20 @@
      * Adds a group to the jsPlumb instance.
      * @method addGroup
      * @param {Object} params
+     * @return {Group} The newly created Group.
      */
     jsPlumbInstance.prototype.addGroup = function(params) {
         var j = this;
         j._groups = j._groups || {};
+        if (j._groups[params.id] != null) {
+            throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists");
+        }
+        if (params.el[GROUP] != null) {
+            throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group");
+        }
         var group = new Group(j, params);
         j._groups[group.id] = group;
+        return group;
     };
 
     /**
