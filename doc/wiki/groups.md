@@ -12,7 +12,7 @@ jsplumb-group-content              placeholder class for users to indicate what 
 
 ### BEHAVIOUR
 
-- proxies when collapsed (by default; optionally can be switched off)
+- proxies when collapsed (by default; optionally can be switched off (using `proxied` flag in `addGroup` method call)
 - be careful to ensure you add any elements from the child nodes on which you wish to click etc as selectors to
 a groups `dragOptions:{ filter: ....}`
 
