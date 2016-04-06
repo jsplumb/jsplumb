@@ -445,7 +445,7 @@
                 }
 
                 if (!doNotFireEvent) {
-                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: _el});
                 }
             });
         };
