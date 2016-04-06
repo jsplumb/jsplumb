@@ -67,8 +67,8 @@
         "Demonstrates the various options for defining and working with Groups"
     ]
   ],
-  "author": "jsPlumb (hello@jsplumbtoolkit.com)",
-  "license": "MIT/GPL2",
+  "author": "Simon Porritt",
+  "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
