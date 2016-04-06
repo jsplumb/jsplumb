@@ -1504,6 +1504,10 @@
             this.params.setPosition(dragEl, _snap(p, x, y, x, y));
         };
 
+        this.setUseGhostProxy = function(val) {
+            useGhostProxy = val ? TRUE : FALSE;
+        };
+
         var constrain;
         var negativeFilter = function(pos) {
             return (params.allowNegative === false) ? [ Math.max (0, pos[0]), Math.max(0, pos[1]) ] : pos;
@@ -5255,7 +5259,7 @@
         // see api docs
         this.unmakeTarget = function (el, doNotClearArrays) {
             var info = _info(el);
-            jsPlumb.destroyDroppable(info.el);
+            jsPlumb.destroyDroppable(info.el, "internal");
             if (!doNotClearArrays) {
                 delete this.targetEndpointDefinitions[info.id];
             }
@@ -5478,6 +5482,7 @@
         // see api docs
         this.unmakeSource = function (el, connectionType, doNotClearArrays) {
             var info = _info(el);
+            jsPlumb.destroyDroppable(info.el, "internal");
             var eldefs = this.sourceEndpointDefinitions[info.id];
             if (eldefs) {
                 for (var def in eldefs) {
@@ -11497,6 +11502,7 @@
             group[deleteMembers ? "removeAll" : "orphanAll"]();
             _jsPlumb.remove(group.el);
             delete _managedGroups[group.id];
+            delete _jsPlumb._groups[group.id];
             _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
         };
 
@@ -11831,7 +11837,7 @@
                 }
 
                 if (!doNotFireEvent) {
-                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: _el});
                 }
             });
         };
@@ -11953,9 +11959,7 @@
             }
 
             if (ghost) {
-                el._katavorioDrag.setGhostProxy(function(el) {
-                    return el.cloneNode(true);
-                });
+                el._katavorioDrag.setUseGhostProxy(true);
             }
 
             if (!prune && !orphan && revert) {
@@ -11977,12 +11981,20 @@
      * Adds a group to the jsPlumb instance.
      * @method addGroup
      * @param {Object} params
+     * @return {Group} The newly created Group.
      */
     jsPlumbInstance.prototype.addGroup = function(params) {
         var j = this;
         j._groups = j._groups || {};
+        if (j._groups[params.id] != null) {
+            throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists");
+        }
+        if (params.el[GROUP] != null) {
+            throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group");
+        }
         var group = new Group(j, params);
         j._groups[group.id] = group;
+        return group;
     };
 
     /**
@@ -13580,7 +13592,8 @@
             if (el.offsetParent == null) {
                 return null;
             }
-            var p = { left:eventArgs[0].pos[0], top:eventArgs[0].pos[1] };
+            var finalPos = eventArgs[0].finalPos || eventArgs[0].pos;
+            var p = { left:finalPos[0], top:finalPos[1] };
             if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
                 var oc = this.getOffset(el.offsetParent);
                 p.left += oc.left;
