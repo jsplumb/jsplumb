@@ -200,30 +200,6 @@
         <div id="c7_2" class="w" style="left:180px;top:180px">7.2</div>
     </div>
 
-
-    <div class="container large" id="container8" group="eight">
-        <div class="title"></div>
-        <ul>
-            <li>This group has nested groups</li>
-        </ul>
-        <div class="del" delete-all></div>
-        <div class="collapse"></div>
-        <div id="c8_1" group="eight_1" class="container" style="left:30px;top:30px">
-            <div class="title"></div>
-            <div class="del" delete-all></div>
-            <div class="collapse"></div>
-            <span class="name">Group 8.1</span>
-            <div id="c8_1_1" class="w" style="left:30px;top:30px">8.1.1</div>
-            <div id="c8_1_2" class="w" style="left:30px;top:30px">8.1.2</div>
-        </div>
-        <div id="c8_2" group="eight_2" class="container" style="left:180px;top:180px">
-            <div class="title"></div>
-            <div class="del" delete-all></div>
-            <div class="collapse"></div>
-            <span class="name">Group 8.2</span>
-        </div>
-    </div>
-
     <hr/>
     <p>
         This is a test page for the groups functionality in jsPlumb.
@@ -356,14 +332,6 @@
         j.addToGroup("seven", [c7_1, c7_2]);
         j.draggable(c7_2);
 
-        j.draggable(c8_1_1);
-        j.addGroup({el:container8, id:"eight", constrain:true});
-        j.addGroup({el:c8_1, id:"eight_1"});
-        j.addGroup({el:c8_2, id:"eight_2"});
-        j.addToGroup("eight", [c8_1, c8_2]);
-        j.addGroup({el:c8_1, id:"eight_1", constrain:true});
-        j.addToGroup("eight_1", [c8_1_1, c8_1_2]);
-        j.draggable(c8_1_2);
 
         j.connect({source:c1_1, target:c2_1});
         j.connect({source:c2_1, target:c3_1});
@@ -383,8 +351,6 @@
         j.connect({source:c5_2,target:c6_1});
 
         j.connect({source:c6_2,target:c7_1});
-
-        j.connect({source:c8_1_1, target:c7_2});
 
         j.on(holder, "click", ".del", function() {
             var g = this.parentNode.getAttribute("group");
