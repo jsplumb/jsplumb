@@ -175,7 +175,8 @@
             if (el.offsetParent == null) {
                 return null;
             }
-            var p = { left:eventArgs[0].pos[0], top:eventArgs[0].pos[1] };
+            var finalPos = eventArgs[0].finalPos || eventArgs[0].pos;
+            var p = { left:finalPos[0], top:finalPos[1] };
             if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
                 var oc = this.getOffset(el.offsetParent);
                 p.left += oc.left;
