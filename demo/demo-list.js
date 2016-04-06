@@ -12,7 +12,8 @@
         [ "chart", "Hierarchical Chart" ],
         [ "sourcesAndTargets", "Sources and Targets" ],
         [ "dynamicAnchors", "Dynamic Anchors" ],
-        [ "animation", "Animation" ]
+        [ "animation", "Animation" ],
+        [ "groups", "Groups" ]
     ];
 
     jsPlumb.bind("ready", function () {

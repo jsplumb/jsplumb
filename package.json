@@ -60,6 +60,11 @@
       "animation",
       "Animation",
       "Simple example demonstrating jsPlumb's `animate` method"
+    ],
+    [
+        "groups",
+        "Groups",
+        "Demonstrates the various options for defining and working with Groups"
     ]
   ],
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
