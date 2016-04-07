@@ -107,7 +107,7 @@
             group = this.getGroup(group);
             this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
             group[deleteMembers ? "removeAll" : "orphanAll"]();
-            _jsPlumb.remove(group.el);
+            _jsPlumb.remove(group.getEl());
             delete _managedGroups[group.id];
             delete _jsPlumb._groups[group.id];
             _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
@@ -128,14 +128,14 @@
 
         var _collapseConnection = this.collapseConnection = function(c, index, group) {
 
-            var proxyEp, groupElId = _jsPlumb.getId(group.el),
+            var proxyEp, groupEl = group.getEl(), groupElId = _jsPlumb.getId(groupEl),
                 originalElementId = c.endpoints[index].elementId;
 
             c.proxies = c.proxies || [];
             if(c.proxies[index]) {
                 proxyEp = c.proxies[index].ep;
             }else {
-                proxyEp = _jsPlumb.addEndpoint(group.el, {
+                proxyEp = _jsPlumb.addEndpoint(groupEl, {
                     endpoint:group.getEndpoint(c, index),
                     anchor:group.getAnchor(c, index),
                     parameters:{
@@ -151,11 +151,11 @@
             if (index === 0) {
                 // TODO why are there two differently named methods? Why is there not one method that says "some end of this
                 // connection changed (you give the index), and here's the new element and element id."
-                _jsPlumb.anchorManager.sourceChanged(originalElementId, groupElId, c, group.el);
+                _jsPlumb.anchorManager.sourceChanged(originalElementId, groupElId, c, groupEl);
             }
             else {
                 _jsPlumb.anchorManager.updateOtherEndpoint(c.endpoints[0].elementId, originalElementId, groupElId, c);
-                c.target = group.el;
+                c.target = groupEl;
                 c.targetId = groupElId;
             }
 
@@ -173,6 +173,7 @@
         this.collapseGroup = function(group) {
             group = this.getGroup(group);
             if (group == null || group.collapsed) return;
+            var groupEl = group.getEl();
 
             // todo remove old proxy endpoints first, just in case?
             //group.proxies.length = 0;
@@ -195,9 +196,9 @@
             }
 
             group.collapsed = true;
-            _jsPlumb.removeClass(group.el, GROUP_EXPANDED_CLASS);
-            _jsPlumb.addClass(group.el, GROUP_COLLAPSED_CLASS);
-            _jsPlumb.revalidate(group.el);
+            _jsPlumb.removeClass(groupEl, GROUP_EXPANDED_CLASS);
+            _jsPlumb.addClass(groupEl, GROUP_COLLAPSED_CLASS);
+            _jsPlumb.revalidate(groupEl);
             _jsPlumb.fire(EVT_COLLAPSE, { group:group  });
         };
 
@@ -206,7 +207,7 @@
             // if no proxies or none for this end of the connection, abort.
             if (c.proxies == null || c.proxies[index] == null) return;
 
-            var groupElId = _jsPlumb.getId(group.el),
+            var groupElId = _jsPlumb.getId(group.getEl()),
                 originalElement = c.proxies[index].originalEp.element,
                 originalElementId = c.proxies[index].originalEp.elementId;
 
@@ -238,6 +239,7 @@
             group = this.getGroup(group);
 
             if (group == null || !group.collapsed) return;
+            var groupEl = group.getEl();
 
             _setVisible(group, true);
 
@@ -256,9 +258,9 @@
             }
 
             group.collapsed = false;
-            _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
-            _jsPlumb.removeClass(group.el, GROUP_COLLAPSED_CLASS);
-            _jsPlumb.revalidate(group.el);
+            _jsPlumb.addClass(groupEl, GROUP_EXPANDED_CLASS);
+            _jsPlumb.removeClass(groupEl, GROUP_COLLAPSED_CLASS);
+            _jsPlumb.revalidate(groupEl);
             this.repaintGroup(group);
             if (!doNotFireEvent) {
                 _jsPlumb.fire(EVT_EXPAND, { group: group});
@@ -324,12 +326,12 @@
      */
     var Group = function(_jsPlumb, params) {
         var self = this;
-        this.el = params.el;
-        this.elId = _jsPlumb.getId(params.el);
+        var el = params.el;
+        this.getEl = function() { return el; };
         this.id = params.id || jsPlumbUtil.uuid();
-        this.el._isJsPlumbGroup = true;
-        var da = _jsPlumb.getSelector(this.el, GROUP_CONTAINER_SELECTOR);
-        this.dragArea = da && da.length > 0 ? da[0] : this.el;
+        el._isJsPlumbGroup = true;
+        var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
+        var dragArea = da && da.length > 0 ? da[0] : el;
         var ghost = params.ghost === true;
         var constrain = ghost || (params.constrain === true);
         var revert = params.revert !== false;
@@ -367,23 +369,23 @@
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
                     var groupManager = _jsPlumb.getGroupManager();
-                    var el = p.drag.el;
-                    if (el._isJsPlumbGroup) return;
-                    var currentGroup = el._jsPlumbGroup;
+                    var _el = p.drag.el;
+                    if (_el._isJsPlumbGroup) return;
+                    var currentGroup = _el._jsPlumbGroup;
                     // if already a member of this group, do nothing
                     if (currentGroup !== self) {
-                        var elpos = _jsPlumb.getOffset(el, true);
-                        var cpos = self.collapsed ? _jsPlumb.getOffset(self.el, true) : _jsPlumb.getOffset(self.dragArea, true);
+                        var elpos = _jsPlumb.getOffset(_el, true);
+                        var cpos = self.collapsed ? _jsPlumb.getOffset(el, true) : _jsPlumb.getOffset(dragArea, true);
 
                         // otherwise, transfer to this group.
                         if (currentGroup != null) {
-                            if (currentGroup.overrideDrop(el, self)) {
+                            if (currentGroup.overrideDrop(_el, self)) {
                                 return;
                             }
-                            currentGroup.remove(el, true);
+                            currentGroup.remove(_el, true);
                             groupManager.updateConnectionsForGroup(currentGroup);
                         }
-                        self.add(el, true);
+                        self.add(_el, true);
 
                         var handleDroppedConnections = function(list, index) {
                             var oidx = index == 0 ? 1 : 0;
@@ -401,68 +403,68 @@
                         };
 
                         if (self.collapsed) {
-                            handleDroppedConnections(_jsPlumb.select({source: el}), 0);
-                            handleDroppedConnections(_jsPlumb.select({target: el}), 1);
+                            handleDroppedConnections(_jsPlumb.select({source: _el}), 0);
+                            handleDroppedConnections(_jsPlumb.select({target: _el}), 1);
                         }
 
-                        var elId = _jsPlumb.getId(el);
-                        _jsPlumb.dragManager.setParent(el, elId, self.el, _jsPlumb.getId(self.el), elpos);
-                        _jsPlumb.setPosition(el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
-                        _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
+                        var elId = _jsPlumb.getId(_el);
+                        _jsPlumb.dragManager.setParent(_el, elId, el, _jsPlumb.getId(el), elpos);
+                        _jsPlumb.setPosition(_el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
+                        _jsPlumb.dragManager.revalidateParent(_el, elId, elpos);
 
                         groupManager.updateConnectionsForGroup(self);
 
                         setTimeout(function() {
-                            _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: el});
+                            _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: _el});
                         }, 0);
                     }
                 }
             });
         }
-        var _each = function(el, fn) {
-            var els = el.nodeType == null ?  el : [ el ];
+        var _each = function(_el, fn) {
+            var els = _el.nodeType == null ?  _el : [ _el ];
             for (var i = 0; i < els.length; i++) {
                 fn(els[i]);
             }
         };
 
-        this.overrideDrop = function(el, targetGroup) {
+        this.overrideDrop = function(_el, targetGroup) {
             return dropOverride && (revert || prune || orphan);
         };
 
-        this.add = function(el, doNotFireEvent) {
-            _each(el, function(_el) {
-                _el._jsPlumbGroup = self;
+        this.add = function(_el, doNotFireEvent) {
+            _each(_el, function(__el) {
+                __el._jsPlumbGroup = self;
                 elements.push(_el);
                 // test if draggable and add handlers if so.
-                if (_jsPlumb.isAlreadyDraggable(_el)) {
-                    _bindDragHandlers(_el);
+                if (_jsPlumb.isAlreadyDraggable(__el)) {
+                    _bindDragHandlers(__el);
                 }
 
-                if (_el.parentNode != self.dragArea) {
-                    self.dragArea.appendChild(_el);
+                if (__el.parentNode != dragArea) {
+                    dragArea.appendChild(__el);
                 }
 
                 if (!doNotFireEvent) {
-                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: _el});
+                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: __el});
                 }
             });
         };
         this.remove = function(el, manipulateDOM, doNotFireEvent) {
-            _each(el, function(_el) {
-                delete _el._jsPlumbGroup;
+            _each(el, function(__el) {
+                delete __el._jsPlumbGroup;
                 jsPlumbUtil.removeWithFunction(elements, function(e) {
-                    return e === _el;
+                    return e === __el;
                 });
                 if (manipulateDOM) {
-                    try { self.el.removeChild(_el); }
+                    try { self.el.removeChild(__el); }
                     catch (e) {
                         console.log(e);
                     }
                 }
-                _unbindDragHandlers(_el);
+                _unbindDragHandlers(__el);
                 if (!doNotFireEvent) {
-                    _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: el});
+                    _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: __el});
                 }
             });
         };
@@ -480,24 +482,23 @@
         };
         this.getMembers = function() { return elements; };
 
-        this.el[GROUP] = this;
+        el[GROUP] = this;
 
         _jsPlumb.bind(ELEMENT_DRAGGABLE_EVENT, function(dragParams) {
             // if its for the current group,
             if (dragParams.el._jsPlumbGroup == this) {
-                console.log("an element was made draggable", dragParams.el, dragParams.options);
                 _bindDragHandlers(dragParams.el);
             }
         }.bind(this));
 
-        function _findParent(el) {
-            return el.offsetParent;
+        function _findParent(_el) {
+            return _el.offsetParent;
         }
 
-        function _isInsideParent(el, pos) {
-            var p = _findParent(el),
+        function _isInsideParent(_el, pos) {
+            var p = _findParent(_el),
                 s = _jsPlumb.getSize(p),
-                ss = _jsPlumb.getSize(el),
+                ss = _jsPlumb.getSize(_el),
                 leftEdge = pos[0],
                 rightEdge = leftEdge + ss[0],
                 topEdge = pos[1],
@@ -509,15 +510,15 @@
         //
         // orphaning an element means taking it out of the group and adding it to the main jsplumb container.
         //
-        function _orphan(el) {
-            var id = _jsPlumb.getId(el);
-            var pos = _jsPlumb.getOffset(el);
-            el.parentNode.removeChild(el);
-            _jsPlumb.getContainer().appendChild(el);
-            _jsPlumb.setPosition(el, pos);
-            delete el._jsPlumbGroup;
-            _unbindDragHandlers(el);
-            _jsPlumb.dragManager.clearParent(el, id);
+        function _orphan(_el) {
+            var id = _jsPlumb.getId(_el);
+            var pos = _jsPlumb.getOffset(_el);
+            _el.parentNode.removeChild(_el);
+            _jsPlumb.getContainer().appendChild(_el);
+            _jsPlumb.setPosition(_el, pos);
+            delete _el._jsPlumbGroup;
+            _unbindDragHandlers(_el);
+            _jsPlumb.dragManager.clearParent(_el, id);
         }
 
         //
@@ -537,42 +538,42 @@
         //
         // redraws the element
         //
-        function _revalidate(el) {
-            var id = _jsPlumb.getId(el);
-            _jsPlumb.revalidate(el);
-            _jsPlumb.dragManager.revalidateParent(el, id);
+        function _revalidate(_el) {
+            var id = _jsPlumb.getId(_el);
+            _jsPlumb.revalidate(_el);
+            _jsPlumb.dragManager.revalidateParent(_el, id);
         }
 
         //
         // unbind the group specific drag/revert handlers.
         //
-        function _unbindDragHandlers(el) {
+        function _unbindDragHandlers(_el) {
             if (prune || orphan) {
-                el._katavorioDrag.off(STOP, _pruneOrOrphan);
+                _el._katavorioDrag.off(STOP, _pruneOrOrphan);
             }
             if (!prune && !orphan && revert) {
-                el._katavorioDrag.off(REVERT, _revalidate);
-                el._katavorioDrag.setRevert(null);
+                _el._katavorioDrag.off(REVERT, _revalidate);
+                _el._katavorioDrag.setRevert(null);
             }
         }
 
-        function _bindDragHandlers(el) {
+        function _bindDragHandlers(_el) {
             if (prune || orphan) {
-                el._katavorioDrag.on(STOP, _pruneOrOrphan);
+                _el._katavorioDrag.on(STOP, _pruneOrOrphan);
             }
 
             if (constrain) {
-                el._katavorioDrag.setConstrain(true);
+                _el._katavorioDrag.setConstrain(true);
             }
 
             if (ghost) {
-                el._katavorioDrag.setUseGhostProxy(true);
+                _el._katavorioDrag.setUseGhostProxy(true);
             }
 
             if (!prune && !orphan && revert) {
-                el._katavorioDrag.on(REVERT, _revalidate);
-                el._katavorioDrag.setRevert(function(el, pos) {
-                    return !_isInsideParent(el, pos);
+                _el._katavorioDrag.on(REVERT, _revalidate);
+                _el._katavorioDrag.setRevert(function(__el, pos) {
+                    return !_isInsideParent(__el, pos);
                 });
             }
         }
