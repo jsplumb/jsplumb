@@ -9070,6 +9070,17 @@ test("endpoint: suspendedElement set correctly", function() {
         catch (e) {
             expect(0);
         }
+
+    });
+
+    test("retrieve information about an element's Group, by ID", function() {
+        _setupGroups(true);
+        equal("four", _jsPlumb.getGroupFor("c4_2").id, "group id is correct, element referenced by ID");
+    });
+
+    test("retrieve information about an element's Group, by element", function() {
+        _setupGroups(true);
+        equal("four", _jsPlumb.getGroupFor(document.getElementById("c4_2")).id, "group id is correct, element referenced by ID");
     });
 
 
