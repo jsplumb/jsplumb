@@ -9,7 +9,6 @@
     var REVERT = "revert";
     var GROUP_MANAGER = "_groupManager";
     var GROUP = "_jsPlumbGroup";
-    var PROXY_FOR = "proxyFor";
     var GROUP_DRAG_SCOPE = "_jsPlumbGroupDrag";
     var EVT_CHILD_ADDED = "group:addMember";
     var EVT_CHILD_REMOVED = "group:removeMember";
@@ -724,4 +723,18 @@
         delete this[GROUP_MANAGER];
     };
 
+    /**
+     * Gets the Group that the given element belongs to, null if none.
+     * @method getGroupFor
+     * @param {String|Element} el Element, or element ID.
+     * @returns {Group} A Group, if found, or null.
+     */
+    jsPlumbInstance.prototype.getGroupFor = function(el) {
+        el = this.getElement(el);
+        if (el) {
+            return el[GROUP];
+        }
+    };
+
 })();
+
