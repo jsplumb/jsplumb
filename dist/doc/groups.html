@@ -123,48 +123,249 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h3>CSS</h3>
+                    <h2>Groups</h2>
 
-<p>jsplumb-group-expanded             added to non-collapsed group elements (added when group initialised)
-jsplumb-group-collapsed            added to collapsed group elements</p>
-
-<p>jsplumb-group-content              placeholder class for users to indicate what the draggable area is inside a group
-                                   node. This name may change, as it may be the case that this concept is more generic than
-                                   just a groups concept.</p>
-
-<hr>
-
-<h3>BEHAVIOUR</h3>
+<p>jsPlumb supports the concept of &#39;Groups&#39;, which are elements that act as the parent for a set of child elements. When a
+ Group element is dragged, its child elements (which are, in the DOM, child nodes of the Group element) are dragged 
+ along with it. Groups may be collapsed, which causes all of their child elements to be hidden, and for any connections
+ from a child element to outside of the Group to be &quot;proxied&quot; onto the Group&#39;s collapsed container.</p>
 
 <ul>
-<li>proxies when collapsed (by default; optionally can be switched off (using <code>proxied</code> flag in <code>addGroup</code> method call)</li>
-<li>be careful to ensure you add any elements from the child nodes on which you wish to click etc as selectors to
-a groups <code>dragOptions:{ filter: ....}</code></li>
+<li><a href="#adding">Adding a Group</a></li>
+<li><a href="#removing">Removing a Group</a></li>
+<li><a href="#proxyendpoints">Proxy Endpoints</a></li>
+<li><a href="#addingElement">Adding an element to a Group</a></li>
+<li><a href="#removingElement">Removing an element from a Group</a></li>
+<li><a href="#childdragdrop">Dragging and dropping child elements</a></li>
+<li><a href="#collapseexpand">Collapsing and expanding Groups</a></li>
+<li><a href="#css">CSS Classes</a></li>
+<li><a href="#events">Events</a></li>
+<li><a href="#misc">Miscellaneous Methods</a></li>
 </ul>
 
+<p><a name="adding"></a></p>
+
+<h3>Adding a Group</h3>
+
+<p>To add a Group you first need to have added it as an element in the DOM.  Let&#39;s assume you have some element called
+<code>foo</code>. It can be any valid HTML element but since Groups are by their nature containers for other elements it&#39;s probably
+best to just stick to trusty <code>div</code>. So let&#39;s assume you have a variable <code>foo</code> that references a DIV element.</p>
+
+<p>A simple example, using the defaults:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="nx">foo</span><span class="p">,</span>
+  <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;aGroup&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Here we&#39;ve created a Group with ID <code>aGroup</code>. Its container element - <code>foo</code> - will be made draggable, and it will also
+be configured to accept elements being dropped onto it.  By default, child elements will be draggable outside of the
+Group container, but if they are not dropped onto another Group they will revert to their position inside the Group
+container before they were dragged.</p>
+
+<p>Several aspects of a Group&#39;s behaviour can be configured; broadly speaking these fall into two categories: the behaviour
+of the Group container, and the behaviour of its child elements.</p>
+
+<h4>Group container parameters</h4>
+
+<ul>
+<li><strong>draggable</strong> Set to true by default. If false, the Group container will not be made into a draggable element.</li>
+<li><strong>dragOptions</strong> Options for the Group container&#39;s drag behaviour. One parameter you will likely want to consider in
+the <code>dragOptions</code> is <code>filter</code>, which provides a selector, or selectors, identifying elements that should not cause a 
+drag to begin. For a Group container you will probably want to identify the child elements of the Group, so that they 
+can be dragged without kicking off a drag of the Group container.</li>
+<li><strong>droppable</strong> Set to true by default. If false, the Group container will not allow elements to be dropped onto it in
+order to add them to the Group.</li>
+<li><strong>dropOptions</strong> Options for the Group container&#39;s drop behaviour.</li>
+<li><strong>proxied</strong> True by default. Indicates that connections to child elements inside the Group (which emanate from outside
+of the Group) should be proxied, when the Group is collapsed, by connections attached to the Group&#39;s container.</li>
+</ul>
+
+<h4>Child element behaviour parameters</h4>
+
+<ul>
+<li><p><strong>revert</strong> By default this is true, meaning that child elements dropped outside of the Group (and not onto another Group
+that is accepting droppables) will revert to their last position inside the group on mouseup. If you set <code>revert:false</code> 
+you get a Group that allows child elements to exist outside of the bounds of the Group container, but which will still 
+drag when the Group is dragged and will be made invisible when the Group is collapsed.</p></li>
+<li><p><strong>prune</strong> Set to false by default. If true, a child element dropped in whitespace outside of the Group container will
+be removed from the Group and from the instance of jsPlumb, and any connections attached to the element will also be
+cleaned up.</p></li>
+<li><p><strong>orphan</strong> Set to false by default. If true, a child element dropped in whitespace outside of the Group container will
+be removed from the Group, but not from the instance of jsPlumb.</p></li>
+<li><p><strong>constrain</strong> Set to false by default. If true, child elements are constrained to be dragged inside of the Group
+container only.</p></li>
+<li><p><strong>ghost</strong> Set to false by default. If true, a child element that is dragged outside of the Group container will have 
+its original element left in place, and a &#39;ghost&#39; element - a clone of the original - substituted, which tracks
+with the mouse.</p></li>
+<li><p><strong>dropOverride</strong> False by default. If true, child elements may be dragged outside of the Group container (assuming 
+no other flag prevents this), but may not be dropped onto other Groups.</p></li>
+</ul>
+
+<p><a name="removing"></a>
+Groups can be removed with the <code>removeGroup</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>This will remove the Group with ID <code>aGroup</code>.  If you also wish to remove all of the Group&#39;s child elements you can
+provide a second argument:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+</code></pre></div>
 <hr>
 
-<h3>API</h3>
+<p><a name="proxyendpoints"></a></p>
 
-<p>addGroup(group)</p>
+<h3>Proxy Endpoints</h3>
 
-<p>removeGroup(group, deleteMembers)</p>
-
-<p>addToGroup(group, el)</p>
-
-<p>removeFromGroup</p>
-
-<p>collapseGroup</p>
-
-<p>expandGroup</p>
+<p>You can control the location, appearance and behaviour of the Endpoints that appear when a Group is collapsed with
+ the <code>anchor</code> and <code>endpoint</code> parameters. These take the same values as in the other parts of the API in which they
+ appear. For instance, perhaps you want to show a smallish dot that tracks the perimeter of a Group when it is
+ collapsed:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;aGroup&quot;</span><span class="p">,</span>
+    <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+    <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">3</span> <span class="p">}</span> <span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Perhaps you want to show a large rectangle in the top left corner:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;aGroup&quot;</span><span class="p">,</span>
+    <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;TopLeft&quot;</span><span class="p">,</span>
+    <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">10</span> <span class="p">}</span> <span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>etc. Any valid <code>anchor</code> or <code>endpoint</code> may be used. </p>
 
 <hr>
 
-<h3>DRAG/DROP</h3>
+<p><a name="addingElement"></a></p>
 
-<p>outside drop modes: revert, ignore, prune, orphan, ghost</p>
+<h3>Adding an element to a Group</h3>
 
-<p>drag/drop between groups.</p>
+<p>You can add an element to a Group programmatically with the <code>addToGroup(group, el)</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addToGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">,</span> <span class="nx">someElement</span><span class="p">);</span>
+</code></pre></div>
+<p>If you try to add an element that already belongs to some other Group an exception is thrown.</p>
+
+<hr>
+
+<p><a name="removingElement"></a></p>
+
+<h3>Removing an element from a Group</h3>
+
+<p>You can remove an element from a Group programmatically with the <code>removeGromGroup(el)</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeGroup</span><span class="p">(</span><span class="nx">someElement</span><span class="p">);</span>
+</code></pre></div>
+<p>Note that you do not need to nominate the Group from which you wish to remove the element. Since an element can belong
+to only one Group at a time, it will simply be removed from the Group. If you call this method with an element that does
+not belong to a Group, nothing happens.</p>
+
+<p><a name="childdragdrop"></a></p>
+
+<h3>Dragging and dropping child elements</h3>
+
+<p>By default, Groups are configured to accept elements being dropped onto them - any element that is currently being
+managed by the jsPlumb instance, not just existing members of other groups. There are a few ways to prevent this,
+both already discussed above:</p>
+
+<ul>
+<li>Set <strong>droppable:false</strong> when you create a Group:</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="nx">droppable</span><span class="o">:</span><span class="kc">false</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This prevents the Group from accepting dropped elements.</p>
+
+<ul>
+<li>Set <strong>constrain:true</strong> when you create a Group:</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+  <span class="nx">constrain</span><span class="o">:</span><span class="kc">true</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This will prevent elements from being dragged outside of the Group.</p>
+
+<ul>
+<li>Set <strong>dropOverride:true</strong> when you create a Group:</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+  <span class="nx">dropOverride</span><span class="o">:</span><span class="kc">true</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This will prevent elements from being dropped onto some other Group.</p>
+
+<hr>
+
+<p><a name="collapseexpand"></a></p>
+
+<h3>Collapsing and expanding Groups</h3>
+
+<p>Use <code>collapseGroup</code> and <code>expandGroup</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">collapseGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">expandGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">);</span>
+</code></pre></div>
+<hr>
+
+<p><a name="css"></a></p>
+
+<h3>CSS</h3>
+
+<p>Three CSS classes are used:</p>
+
+<table>
+<tr><td>Class</td><td>Purpose</td></tr>
+<tr><td>jsplumb-group-expanded</td><td>added to non-collapsed group elements (added when group initialised)</td></tr>
+<tr><td>jsplumb-group-collapsed</td><td>added to collapsed group elements</td></tr>
+<tr><td>jsplumb-ghost-proxy</td><td>added to the proxy element used when `ghost` is set to true</td></tr>
+</table>
+
+<hr>
+
+<p><a name="events"></a></p>
+
+<h3>Events</h3>
+
+<p>A number of events are fired by the various methods for working with Groups.</p>
+
+<table>
+<tr><td>Event</td><td>Description</td><td>Parameters</tr>
+<tr><td>group:add</td><td>Fired when a new Group is added</td><td>`{group:Group}`</td></tr>
+<tr><td>group:remove</td><td>Fired when a Group is removed</td><td>`{group:Group}`</td></tr>
+<tr><td>group:addMember</td><td>Fired when an element is added to a Group</td><td>`{group:Group, el:Element}`</td></tr>
+<tr><td>group:removeMember</td><td>Fired when an element is removed from a Group</td><td>`{group:Group, el:Element}`</td></tr>
+<tr><td>group:collapse</td><td>Fired when a Group is collapsed</td><td>`{group:Group}`</td></tr>
+<tr><td>group:expand</td><td>Fired when a Group is expanded</td><td>`{group:Group}`</td></tr>
+</table>
+
+<hr>
+
+<p><a name="misc"></a></p>
+
+<h3>Miscellaneous Methods</h3>
+
+<h4>Retrieving a Group</h4>
+
+<ul>
+<li><strong>getGroup(ID)</strong> Return the Group with the given ID. May be null.</li>
+</ul>
+
+<h4>Finding out the Group to which an element belongs</h4>
+
+<ul>
+<li><strong>getGroupFor(elementOrID)</strong> - Gets the Group to which the given element (specified as a DOM element or element ID) 
+belongs to. Returns null if the element either does not exist or does not belong to a Group.</li>
+</ul>
+
+<h4>Getting the members of a Group</h4>
+
+<ul>
+<li><strong>getMembers()</strong> - Note that this is a method on the Group object, which you either got back from a call to
+<code>addGroup</code> on a jsPlumb instance, which you retrieved from a jsPlumb instance using <code>getGroup(groupId)</code>.</li>
+</ul>
 
                 </div>
             </div>

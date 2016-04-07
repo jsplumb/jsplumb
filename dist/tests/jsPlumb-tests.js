@@ -8649,8 +8649,8 @@ test("endpoint: suspendedElement set correctly", function() {
 
     var _dragToGroup = function(_jsPlumb, el, targetGroup) {
         targetGroup = _jsPlumb.getGroup(targetGroup);
-        var tgo = jsPlumb.getOffset(targetGroup.el),
-            tgs = jsPlumb.getSize(targetGroup.el),
+        var tgo = jsPlumb.getOffset(targetGroup.getEl()),
+            tgs = jsPlumb.getSize(targetGroup.getEl()),
             tx = tgo.left + (tgs[0] / 2),
             ty = tgo.top + (tgs[1] / 2);
 
@@ -9070,8 +9070,22 @@ test("endpoint: suspendedElement set correctly", function() {
         catch (e) {
             expect(0);
         }
+
     });
 
+    test("retrieve information about an element's Group, by ID", function() {
+        _setupGroups(true);
+        equal("four", _jsPlumb.getGroupFor("c4_2").id, "group id is correct, element referenced by ID");
+    });
+
+    test("retrieve information about an element's Group, by element", function() {
+        _setupGroups(true);
+        equal("four", _jsPlumb.getGroupFor(document.getElementById("c4_2")).id, "group id is correct, element referenced by ID");
+    });
+
+    test("retrieve information about a non existent element's Group", function() {
+        equal(null, _jsPlumb.getGroupFor("unknown"), "group is null because element doesn't exist");
+    });
 
 };
 
