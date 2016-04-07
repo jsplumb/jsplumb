@@ -79,6 +79,9 @@ jsPlumb.ready(function () {
     j.addToGroup("seven", [c7_1, c7_2]);
     j.draggable(c7_2);
 
+    // the independent element that demonstrates the fact that it can be dropped onto a group
+    j.draggable("standalone");
+
     j.connect({source:c1_1, target:c2_1});
     j.connect({source:c2_1, target:c3_1});
     j.connect({source:c2_2, target:c6_2});
