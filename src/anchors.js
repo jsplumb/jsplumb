@@ -387,25 +387,6 @@
         };
 
         //
-        //
-        this.updateTargetEndpointSource = function (connection, doNotUpdateConnectedClass) {
-            // find entry for target
-            var tIdx = _ju.findWithFunction(connectionsByElementId[connection.targetId], function (i) {
-                return i[0].id === connection.id;
-            });
-            // update target entry if necessary
-            if (tIdx > -1) {
-                connectionsByElementId[connection.targetId][tIdx][0] = connection;
-                connectionsByElementId[connection.targetId][tIdx][1] = connection.endpoints[0];
-                connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == _jp.DynamicAnchor;
-            }
-            
-            if (!doNotUpdateConnectedClass) {
-                connection.updateConnectedClass();
-            }
-        }		
-		
-        //
         // notification that the connection given has changed source from the originalId to the newId.
         // This involves:
         // 1. removing the connection from the list of connections stored for the originalId

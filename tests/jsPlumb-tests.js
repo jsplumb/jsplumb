@@ -2517,11 +2517,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         // test that new endpoint is set (different from the case that an element or element id was given)
         c.endpoints[0].original = true;
         _jsPlumb.setSource(c, ep2);
-        equal(c.endpoints[0].original, undefined, "setSource with new endpoint honoured in connection");
-		
-		// test that new endpoint is set in connection cache as well as on connection
-		// by looking at the connection's target's connection's otherEndpoint
-		equal(_jsPlumb.anchorManager.getConnectionsFor(c.targetId)[0][1].original, undefined, "setSource with new endpoint honoured in connection cache");
+        equal(c.endpoints[0].original, undefined, "setSource with new endpoint honoured");
+
     });
 
     test(": _jsPlumb.setSource (element, with makeSource)", function () {
