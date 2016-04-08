@@ -387,8 +387,6 @@
         };
 
         //
-        // find the entry in an endpoints list for this connection and update
-		// the target endpoint with the current source in the connection
         //
         this.updateTargetEndpointSource = function (connection, doNotUpdateConnectedClass) {
             // find entry for target
