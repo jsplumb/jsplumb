@@ -2519,6 +2519,9 @@ var testSuite = function (renderMode, _jsPlumb) {
         _jsPlumb.setSource(c, ep2);
         equal(c.endpoints[0].original, undefined, "setSource with new endpoint honoured");
 
+		// test that new endpoint is set in connection cache
+		// we do this by checking the target's connection's otherEndpoint
+		equal(_jsPlumb.anchorManager.getConnectionsFor(c.targetId)[0][1].original, undefined, "setSource with new endpoint honoured in connection cache");
     });
 
     test(": _jsPlumb.setSource (element, with makeSource)", function () {
