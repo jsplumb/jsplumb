@@ -1377,7 +1377,7 @@
             
 			// we only need to do a subset of the sourceChanged work
             // if only the source endpoint and not the source element has changed
-            if (el.constructor === _jp.Endpoint && p.originalSourceId === p.newSourceId) {
+            if (p.originalSourceId === p.newSourceId) {
                 // just make sure the cache gets updated
                 this.anchorManager.updateTargetEndpointSource(connection);
             } else {
