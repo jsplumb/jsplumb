@@ -1374,8 +1374,16 @@
 
         this.setSource = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 0, doNotRepaint);
-            this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
-        };
+            
+			// we only need to do a subset of the sourceChanged work
+            // if only the source endpoint and not the source element has changed
+            if (p.originalSourceId === p.newSourceId) {
+                // just make sure the cache gets updated
+                this.anchorManager.updateTargetEndpointSource(connection);
+            } else {
+                this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
+            }        
+		};
         this.setTarget = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 1, doNotRepaint);
             this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
