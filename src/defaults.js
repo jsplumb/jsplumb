@@ -1490,4 +1490,4 @@
 
     // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

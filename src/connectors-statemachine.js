@@ -154,4 +154,4 @@
     _ju.extend(StateMachine, _jp.Connectors.AbstractBezierConnector);
     _jp.registerConnectorType(StateMachine, "StateMachine");
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

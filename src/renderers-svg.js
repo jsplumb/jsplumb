@@ -615,4 +615,4 @@
         };
     };
     _ju.extend(_jp.Overlays.svg.GuideLines, _jp.Overlays.GuideLines);
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

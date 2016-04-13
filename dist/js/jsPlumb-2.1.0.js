@@ -1,7 +1,7 @@
 /**
- * jsBezier-0.7
+ * jsBezier-0.8
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * licensed under the MIT license.
  *
@@ -421,14 +421,15 @@
         locationAlongCurveFrom:_locationAlongPathFrom,
         getLength:_length
     };
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /**
- * Biltong v0.2
+ * Biltong v0.3
  *
  * Various geometry functions written as part of jsPlumb and perhaps useful for others.
  *
- * Copyright (c) 2014 Simon Porritt
+ * Copyright (c) 2016 jsPlumb
+ * https://jsplumbtoolkit.com
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -453,171 +454,171 @@
  */
 ;(function() {
 
-	
-	"use strict";
+    "use strict";
+    var root = this;
 
-	var Biltong = this.Biltong = {};
+    var Biltong = root.Biltong = {};
 
-	var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
-		_pointHelper = function(p1, p2, fn) {
-		    p1 = _isa(p1) ? p1 : [p1.x, p1.y];
-		    p2 = _isa(p2) ? p2 : [p2.x, p2.y];    
-		    return fn(p1, p2);
-		},
-		/**
-		* @name Biltong.gradient
-		* @function
-		* @desc Calculates the gradient of a line between the two points.
-		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-		* @return {Float} The gradient of a line between the two points.
-		*/
-		_gradient = Biltong.gradient = function(p1, p2) {
-		    return _pointHelper(p1, p2, function(_p1, _p2) { 
-		        if (_p2[0] == _p1[0])
-		            return _p2[1] > _p1[1] ? Infinity : -Infinity;
-		        else if (_p2[1] == _p1[1]) 
-		            return _p2[0] > _p1[0] ? 0 : -0;
-		        else 
-		            return (_p2[1] - _p1[1]) / (_p2[0] - _p1[0]); 
-		    });		
-		},
-		/**
-		* @name Biltong.normal
-		* @function
-		* @desc Calculates the gradient of a normal to a line between the two points.
-		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-		* @return {Float} The gradient of a normal to a line between the two points.
-		*/
-		_normal = Biltong.normal = function(p1, p2) {
-		    return -1 / _gradient(p1, p2);
-		},
-		/**
-		* @name Biltong.lineLength
-		* @function
-		* @desc Calculates the length of a line between the two points.
-		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-		* @return {Float} The length of a line between the two points.
-		*/
-		_lineLength = Biltong.lineLength = function(p1, p2) {
-		    return _pointHelper(p1, p2, function(_p1, _p2) {
-		        return Math.sqrt(Math.pow(_p2[1] - _p1[1], 2) + Math.pow(_p2[0] - _p1[0], 2));			
-		    });
-		},
-		/**
-		* @name Biltong.quadrant
-		* @function
-		* @desc Calculates the quadrant in which the angle between the two points lies. 
-		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-		* @return {Integer} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
-		*/
-		_quadrant = Biltong.quadrant = function(p1, p2) {
-		    return _pointHelper(p1, p2, function(_p1, _p2) {
-		        if (_p2[0] > _p1[0]) {
-		            return (_p2[1] > _p1[1]) ? 2 : 1;
-		        }
-		        else if (_p2[0] == _p1[0]) {
-		            return _p2[1] > _p1[1] ? 2 : 1;    
-		        }
-		        else {
-		            return (_p2[1] > _p1[1]) ? 3 : 4;
-		        }
-		    });
-		},
-		/**
-		* @name Biltong.theta
-		* @function
-		* @desc Calculates the angle between the two points. 
-		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-		* @return {Float} The angle between the two points.
-		*/
-		_theta = Biltong.theta = function(p1, p2) {
-		    return _pointHelper(p1, p2, function(_p1, _p2) {
-		        var m = _gradient(_p1, _p2),
-		            t = Math.atan(m),
-		            s = _quadrant(_p1, _p2);
-		        if ((s == 4 || s== 3)) t += Math.PI;
-		        if (t < 0) t += (2 * Math.PI);
-		    
-		        return t;
-		    });
-		},
-		/**
-		* @name Biltong.intersects
-		* @function
-		* @desc Calculates whether or not the two rectangles intersect.
-		* @param {Rectangle} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-		* @param {Rectangle} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-		* @return {Boolean} True if the rectangles intersect, false otherwise.
-		*/
-		_intersects = Biltong.intersects = function(r1, r2) {
-		    var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
-		        a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h;
-		
-			return  ( (x1 <= a1 && a1 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
-			        ( (x1 <= a2 && a2 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
-			        ( (x1 <= a1 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
-			        ( (x1 <= a2 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||	
-			        ( (a1 <= x1 && x1 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
-			        ( (a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
-			        ( (a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2) ) ||
-			        ( (a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2) );
-		},
-		/**
-		* @name Biltong.encloses
-		* @function
-		* @desc Calculates whether or not r2 is completely enclosed by r1.
-		* @param {Rectangle} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-		* @param {Rectangle} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-		* @param {Boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
-		* @return {Boolean} True if r1 encloses r2, false otherwise.
-		*/
-		_encloses = Biltong.encloses = function(r1, r2, allowSharedEdges) {
-			var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
-		        a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h,
-				c = function(v1, v2, v3, v4) { return allowSharedEdges ? v1 <= v2 && v3>= v4 : v1 < v2 && v3 > v4; };
-				
-			return c(x1,a1,x2,a2) && c(y1,b1,y2,b2);
-		},
-		_segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ],
-		_inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ],
-		/**
-		* @name Biltong.pointOnLine
-		* @function
-		* @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
-		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-		* @return {Point} Point on the line, in the form `{ x:..., y:... }`.
-		*/
-		_pointOnLine = Biltong.pointOnLine = function(fromPoint, toPoint, distance) {
-		    var m = _gradient(fromPoint, toPoint),
-		        s = _quadrant(fromPoint, toPoint),
-		        segmentMultiplier = distance > 0 ? _segmentMultipliers[s] : _inverseSegmentMultipliers[s],
-		        theta = Math.atan(m),
-		        y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-		        x =  Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-		    return { x:fromPoint.x + x, y:fromPoint.y + y };
-		},
-		/**
-		* @name Biltong.perpendicularLineTo
-		* @function
-		* @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
-		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-		* @return {Line} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
-		*/        
-		_perpendicularLineTo = Biltong.perpendicularLineTo = function(fromPoint, toPoint, length) {
-		    var m = _gradient(fromPoint, toPoint),
-		        theta2 = Math.atan(-1 / m),
-		        y =  length / 2 * Math.sin(theta2),
-		        x =  length / 2 * Math.cos(theta2);
-		    return [{x:toPoint.x + x, y:toPoint.y + y}, {x:toPoint.x - x, y:toPoint.y - y}];
-		};	
-}).call(this);
+    var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
+        _pointHelper = function(p1, p2, fn) {
+            p1 = _isa(p1) ? p1 : [p1.x, p1.y];
+            p2 = _isa(p2) ? p2 : [p2.x, p2.y];
+            return fn(p1, p2);
+        },
+        /**
+         * @name Biltong.gradient
+         * @function
+         * @desc Calculates the gradient of a line between the two points.
+         * @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+         * @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+         * @return {Float} The gradient of a line between the two points.
+         */
+        _gradient = Biltong.gradient = function(p1, p2) {
+            return _pointHelper(p1, p2, function(_p1, _p2) {
+                if (_p2[0] == _p1[0])
+                    return _p2[1] > _p1[1] ? Infinity : -Infinity;
+                else if (_p2[1] == _p1[1])
+                    return _p2[0] > _p1[0] ? 0 : -0;
+                else
+                    return (_p2[1] - _p1[1]) / (_p2[0] - _p1[0]);
+            });
+        },
+        /**
+         * @name Biltong.normal
+         * @function
+         * @desc Calculates the gradient of a normal to a line between the two points.
+         * @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+         * @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+         * @return {Float} The gradient of a normal to a line between the two points.
+         */
+        _normal = Biltong.normal = function(p1, p2) {
+            return -1 / _gradient(p1, p2);
+        },
+        /**
+         * @name Biltong.lineLength
+         * @function
+         * @desc Calculates the length of a line between the two points.
+         * @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+         * @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+         * @return {Float} The length of a line between the two points.
+         */
+        _lineLength = Biltong.lineLength = function(p1, p2) {
+            return _pointHelper(p1, p2, function(_p1, _p2) {
+                return Math.sqrt(Math.pow(_p2[1] - _p1[1], 2) + Math.pow(_p2[0] - _p1[0], 2));
+            });
+        },
+        /**
+         * @name Biltong.quadrant
+         * @function
+         * @desc Calculates the quadrant in which the angle between the two points lies.
+         * @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+         * @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+         * @return {Integer} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+         */
+        _quadrant = Biltong.quadrant = function(p1, p2) {
+            return _pointHelper(p1, p2, function(_p1, _p2) {
+                if (_p2[0] > _p1[0]) {
+                    return (_p2[1] > _p1[1]) ? 2 : 1;
+                }
+                else if (_p2[0] == _p1[0]) {
+                    return _p2[1] > _p1[1] ? 2 : 1;
+                }
+                else {
+                    return (_p2[1] > _p1[1]) ? 3 : 4;
+                }
+            });
+        },
+        /**
+         * @name Biltong.theta
+         * @function
+         * @desc Calculates the angle between the two points.
+         * @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+         * @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+         * @return {Float} The angle between the two points.
+         */
+        _theta = Biltong.theta = function(p1, p2) {
+            return _pointHelper(p1, p2, function(_p1, _p2) {
+                var m = _gradient(_p1, _p2),
+                    t = Math.atan(m),
+                    s = _quadrant(_p1, _p2);
+                if ((s == 4 || s== 3)) t += Math.PI;
+                if (t < 0) t += (2 * Math.PI);
+
+                return t;
+            });
+        },
+        /**
+         * @name Biltong.intersects
+         * @function
+         * @desc Calculates whether or not the two rectangles intersect.
+         * @param {Rectangle} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+         * @param {Rectangle} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+         * @return {Boolean} True if the rectangles intersect, false otherwise.
+         */
+        _intersects = Biltong.intersects = function(r1, r2) {
+            var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
+                a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h;
+
+            return  ( (x1 <= a1 && a1 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
+                ( (x1 <= a2 && a2 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
+                ( (x1 <= a1 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
+                ( (x1 <= a2 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
+                ( (a1 <= x1 && x1 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
+                ( (a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
+                ( (a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2) ) ||
+                ( (a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2) );
+        },
+        /**
+         * @name Biltong.encloses
+         * @function
+         * @desc Calculates whether or not r2 is completely enclosed by r1.
+         * @param {Rectangle} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+         * @param {Rectangle} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+         * @param {Boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
+         * @return {Boolean} True if r1 encloses r2, false otherwise.
+         */
+        _encloses = Biltong.encloses = function(r1, r2, allowSharedEdges) {
+            var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
+                a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h,
+                c = function(v1, v2, v3, v4) { return allowSharedEdges ? v1 <= v2 && v3>= v4 : v1 < v2 && v3 > v4; };
+
+            return c(x1,a1,x2,a2) && c(y1,b1,y2,b2);
+        },
+        _segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ],
+        _inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ],
+        /**
+         * @name Biltong.pointOnLine
+         * @function
+         * @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
+         * @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+         * @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+         * @return {Point} Point on the line, in the form `{ x:..., y:... }`.
+         */
+        _pointOnLine = Biltong.pointOnLine = function(fromPoint, toPoint, distance) {
+            var m = _gradient(fromPoint, toPoint),
+                s = _quadrant(fromPoint, toPoint),
+                segmentMultiplier = distance > 0 ? _segmentMultipliers[s] : _inverseSegmentMultipliers[s],
+                theta = Math.atan(m),
+                y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+                x =  Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+            return { x:fromPoint.x + x, y:fromPoint.y + y };
+        },
+        /**
+         * @name Biltong.perpendicularLineTo
+         * @function
+         * @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
+         * @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+         * @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+         * @return {Line} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
+         */
+        _perpendicularLineTo = Biltong.perpendicularLineTo = function(fromPoint, toPoint, length) {
+            var m = _gradient(fromPoint, toPoint),
+                theta2 = Math.atan(-1 / m),
+                y =  length / 2 * Math.sin(theta2),
+                x =  length / 2 * Math.cos(theta2);
+            return [{x:toPoint.x + x, y:toPoint.y + y}, {x:toPoint.x - x, y:toPoint.y - y}];
+        };
+}).call(typeof window !== 'undefined' ? window : this);
 ;
 (function () {
 
@@ -1239,7 +1240,7 @@
         isMouseDevice = value;
     };
 
-}).call(this);
+}).call(typeof window === "undefined" ? this : window);
 
 /**
  drag/drop functionality for use with jsPlumb but with
@@ -1272,6 +1273,7 @@
 ;(function() {
 
     "use strict";
+    var root = this;
 
     var _suggest = function(list, item, head) {
         if (list.indexOf(item) === -1) {
@@ -1945,7 +1947,7 @@
         return el;
     };
 
-    this.Katavorio = function(katavorioParams) {
+    root.Katavorio = function(katavorioParams) {
 
         var _selection = [],
             _selectionMap = {};
@@ -2401,7 +2403,7 @@
             }
         };
     };
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -2776,7 +2778,7 @@
             var _one = function(evt) {
                 exports.addToList(_listeners, evt, listener, insertAtStart);
                 listener.__jsPlumb = listener.__jsPlumb || {};
-                listener.__jsPlumb[jsPlumbUtil.uuid()] = evt;
+                listener.__jsPlumb[root.jsPlumbUtil.uuid()] = evt;
             };
 
             if (typeof event === "string") _one(event);
@@ -2852,7 +2854,7 @@
                 fn();
             }
             catch (e) {
-                jsPlumbUtil.log("Cannot execute silent function " + e);
+                root.jsPlumbUtil.log("Cannot execute silent function " + e);
             }
             this.setSuspendEvents(false);
         };
@@ -2869,7 +2871,7 @@
         }
     };
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -2938,7 +2940,7 @@
    };
 
 
- }).call(this);
+ }).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -3400,7 +3402,7 @@
             return i;
         };
 
-    var jsPlumbInstance = window.jsPlumbInstance = function (_defaults) {
+    var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -4931,29 +4933,29 @@
          * mouse listeners etc; can't do that until the library has provided a bind method)
          */
         this.init = function () {
-            rendererTypes = jsPlumb.getRenderModes();
+            rendererTypes = root.jsPlumb.getRenderModes();
 
             var _oneType = function (renderer, name, fn) {
-                jsPlumb.Connectors[renderer][name] = function () {
+                root.jsPlumb.Connectors[renderer][name] = function () {
                     fn.apply(this, arguments);
-                    jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
+                    root.jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
                 };
-                _ju.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
+                _ju.extend(root.jsPlumb.Connectors[renderer][name], [ fn, root.jsPlumb.ConnectorRenderers[renderer]]);
             };
 
-            if (!jsPlumb.connectorsInitialized) {
+            if (!root.jsPlumb.connectorsInitialized) {
                 for (var i = 0; i < connectorTypes.length; i++) {
                     for (var j = 0; j < rendererTypes.length; j++) {
                         _oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);
                     }
 
                 }
-                jsPlumb.connectorsInitialized = true;
+                root.jsPlumb.connectorsInitialized = true;
             }
 
             if (!initialized) {
                 _getContainerFromDefaults();
-                _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
+                _currentInstance.anchorManager = new root.jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
                 initialized = true;
                 _currentInstance.fire("ready", _currentInstance);
             }
@@ -4971,7 +4973,7 @@
          */
         this.makeAnchor = function () {
             var pp, _a = function (t, p) {
-                if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
+                if (root.jsPlumb.Anchors[t]) return new root.jsPlumb.Anchors[t](p);
                 if (!_currentInstance.Defaults.DoNotThrowErrors)
                     throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
             };
@@ -4993,14 +4995,14 @@
                     if (specimen.length == 2 && _ju.isObject(specimen[1])) {
                         // if first arg is a string, its a named anchor with params
                         if (_ju.isString(specimen[0])) {
-                            pp = jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance}, specimen[1]);
+                            pp = root.jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance}, specimen[1]);
                             newAnchor = _a(specimen[0], pp);
                         }
                         // otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
                         // even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
                         else {
-                            pp = jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance, anchors: specimen[0]}, specimen[1]);
-                            newAnchor = new jsPlumb.DynamicAnchor(pp);
+                            pp = root.jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance, anchors: specimen[0]}, specimen[1]);
+                            newAnchor = new root.jsPlumb.DynamicAnchor(pp);
                         }
                     }
                     else
@@ -5016,9 +5018,9 @@
                         jsPlumbInstance: _currentInstance,
                         cssClass: specimen.length == 7 ? specimen[6] : null
                     };
-                    newAnchor = new jsPlumb.Anchor(anchorParams);
+                    newAnchor = new root.jsPlumb.Anchor(anchorParams);
                     newAnchor.clone = function () {
-                        return new jsPlumb.Anchor(anchorParams);
+                        return new root.jsPlumb.Anchor(anchorParams);
                     };
                 }
             }
@@ -5035,7 +5037,7 @@
             var r = [];
             for (var i = 0, ii = types.length; i < ii; i++) {
                 if (typeof types[i] == "string")
-                    r.push(jsPlumb.Anchors[types[i]]({elementId: elementId, jsPlumbInstance: jsPlumbInstance}));
+                    r.push(root.jsPlumb.Anchors[types[i]]({elementId: elementId, jsPlumbInstance: jsPlumbInstance}));
                 else if (_ju.isArray(types[i]))
                     r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
             }
@@ -5048,7 +5050,7 @@
          * not need to provide this - i think).
          */
         this.makeDynamicAnchor = function (anchors, anchorSelector) {
-            return new jsPlumb.DynamicAnchor({anchors: anchors, selector: anchorSelector, elementId: null, jsPlumbInstance: _currentInstance});
+            return new root.jsPlumb.DynamicAnchor({anchors: anchors, selector: anchorSelector, elementId: null, jsPlumbInstance: _currentInstance});
         };
 
 // --------------------- makeSource/makeTarget ---------------------------------------------- 
@@ -5130,11 +5132,11 @@
                     // (ie. detached), create a new one
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                         var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-                        var pp = eps.endpoints ? jsPlumb.extend(p, {
+                        var pp = eps.endpoints ? root.jsPlumb.extend(p, {
                             endpoint:elInfo.def.def.endpoint || eps.endpoints[1]
                         }) :p;
                         if (eps.anchors) {
-                            pp = jsPlumb.extend(pp, {
+                            pp = root.jsPlumb.extend(pp, {
                                 anchor:elInfo.def.def.anchor || eps.anchors[1]
                             });
                         }
@@ -5180,14 +5182,14 @@
             });
 
             // wrap drop events as needed and initialise droppable
-            var dropEvent = jsPlumb.dragEvents.drop;
+            var dropEvent = root.jsPlumb.dragEvents.drop;
             dropOptions.scope = dropOptions.scope || (p.scope || _currentInstance.Defaults.Scope);
             dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop, true);
 
             // if target, return true from the over event. this will cause katavorio to stop setting drops to hover
             // if multipleDrop is set to false.
             if (isTarget) {
-                dropOptions[jsPlumb.dragEvents.over] = function () { return true; };
+                dropOptions[root.jsPlumb.dragEvents.over] = function () { return true; };
             }
 
             // vanilla jsplumb only
@@ -5207,8 +5209,8 @@
         this.makeTarget = function (el, params, referenceParams) {
 
             // put jsplumb ref into params without altering the params passed in
-            var p = jsPlumb.extend({_jsPlumb: this}, referenceParams);
-            jsPlumb.extend(p, params);
+            var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
+            root.jsPlumb.extend(p, params);
 
             // calculate appropriate paint styles and anchor from the params given
             _setEndpointPaintStylesAndAnchor(p, 1, this);
@@ -5223,7 +5225,7 @@
                     // decode the info for this element (id and element)
                     var elInfo = _info(el),
                         elid = elInfo.id,
-                        dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
+                        dropOptions = root.jsPlumb.extend({}, p.dropOptions || {}),
                         type = "default";
 
                     this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
@@ -5232,7 +5234,7 @@
 
                     // store the definition
                     var _def = {
-                        def: jsPlumb.extend({}, p),
+                        def: root.jsPlumb.extend({}, p),
                         uniqueEndpoint: p.uniqueEndpoint,
                         maxConnections: maxConnections,
                         enabled: true
@@ -5259,7 +5261,7 @@
         // see api docs
         this.unmakeTarget = function (el, doNotClearArrays) {
             var info = _info(el);
-            jsPlumb.destroyDroppable(info.el, "internal");
+            _currentInstance.destroyDroppable(info.el, "internal");
             if (!doNotClearArrays) {
                 delete this.targetEndpointDefinitions[info.id];
             }
@@ -5269,8 +5271,8 @@
 
         // see api docs
         this.makeSource = function (el, params, referenceParams) {
-            var p = jsPlumb.extend({_jsPlumb: this}, referenceParams);
-            jsPlumb.extend(p, params);
+            var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
+            root.jsPlumb.extend(p, params);
             var type = p.connectionType || "default";
             var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
             p.endpoint = p.endpoint || aae.endpoints[0];
@@ -5288,7 +5290,7 @@
                     _ensureContainer(elid);
 
                     var _def = {
-                        def:jsPlumb.extend({}, p),
+                        def:root.jsPlumb.extend({}, p),
                         uniqueEndpoint: p.uniqueEndpoint,
                         maxConnections: maxConnections,
                         enabled: true
@@ -5298,9 +5300,9 @@
                     this.sourceEndpointDefinitions[elid][type] = _def;
                     elInfo.def = _def;
 
-                    var stopEvent = jsPlumb.dragEvents.stop,
-                        dragEvent = jsPlumb.dragEvents.drag,
-                        dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
+                    var stopEvent = root.jsPlumb.dragEvents.stop,
+                        dragEvent = root.jsPlumb.dragEvents.drag,
+                        dragOptions = root.jsPlumb.extend({ }, p.dragOptions || {}),
                         existingDrag = dragOptions.drag,
                         existingStop = dragOptions.stop,
                         ep = null,
@@ -5326,13 +5328,6 @@
                             var anchorDef = p.anchor || this.Defaults.Anchor,
                                 oldAnchor = ep.anchor,
                                 oldConnection = ep.connections[0];
-
-                            // if the connection has a type, try to get an anchor spec for it.
-                            /*if (oldConnection != null) {
-                                var aae = _currentInstance.deriveEndpointAndAnchorSpec(oldConnection.getType().join(" "), false);
-                                if (aae.anchors) anchorDef = aae.anchor[0];
-                                if (aae.endpoints) ep.setEndpoint(aae.endpoints[0]);
-                            }*/
 
                             var    newAnchor = this.makeAnchor(anchorDef, elid, this),
                                 _el = ep.element;
@@ -5389,13 +5384,13 @@
 
                         // find the position on the element at which the mouse was pressed; this is where the endpoint
                         // will be located.
-                        var elxy = jsPlumb.getPositionOnElement(e, _del, _zoom);
+                        var elxy = root.jsPlumb.getPositionOnElement(e, _del, _zoom);
 
                         // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
                         // the params passed in, because after a connection is established we're going to reset the endpoint
                         // to have the anchor we were given.
                         var tempEndpointParams = {};
-                        jsPlumb.extend(tempEndpointParams, p);
+                        root.jsPlumb.extend(tempEndpointParams, p);
                         tempEndpointParams.isTemporarySource = true;
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
@@ -5465,7 +5460,7 @@
                         _currentInstance.setDragFilter(elInfo.el, p.filter);
                     }
 
-                    var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
+                    var dropOptions = root.jsPlumb.extend({}, p.dropOptions || {});
 
                     _makeElementDropHandler(elInfo, p, dropOptions, true, p.isTarget === true);
 
@@ -5482,7 +5477,7 @@
         // see api docs
         this.unmakeSource = function (el, connectionType, doNotClearArrays) {
             var info = _info(el);
-            jsPlumb.destroyDroppable(info.el, "internal");
+            _currentInstance.destroyDroppable(info.el, "internal");
             var eldefs = this.sourceEndpointDefinitions[info.id];
             if (eldefs) {
                 for (var def in eldefs) {
@@ -5727,6 +5722,13 @@
                 _currentInstance.getDragManager().elementRemoved(_info.id);
                 _currentInstance.anchorManager.clearFor(_info.id);
                 _currentInstance.anchorManager.removeFloatingConnection(_info.id);
+
+                if (_currentInstance.isSource(_info.el)) _currentInstance.unmakeSource(_info.el);
+                if (_currentInstance.isTarget(_info.el)) _currentInstance.unmakeTarget(_info.el);
+                _currentInstance.destroyDraggable(_info.el);
+                _currentInstance.destroyDroppable(_info.el);
+
+
                 delete _currentInstance.floatingConnections[_info.id];
                 delete managedElements[_info.id];
                 delete offsets[_info.id];
@@ -5941,12 +5943,12 @@
         this.addListener = this.bind;
     };
 
-    _ju.extend(jsPlumbInstance, _ju.EventGenerator, {
+    _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {
         setAttribute: function (el, a, v) {
             this.setAttribute(el, a, v);
         },
         getAttribute: function (el, a) {
-            return this.getAttribute(jsPlumb.getElement(el), a);
+            return this.getAttribute(root.jsPlumb.getElement(el), a);
         },
         convertToFullOverlaySpec: function(spec) {
             if (_ju.isString(spec)) {
@@ -5956,7 +5958,7 @@
             return spec;
         },
         registerConnectionType: function (id, type) {
-            this._connectionTypes[id] = jsPlumb.extend({}, type);
+            this._connectionTypes[id] = root.jsPlumb.extend({}, type);
             if (type.overlays) {
                 var to = {};
                 for (var i = 0; i < type.overlays.length; i++) {
@@ -5973,7 +5975,7 @@
                 this.registerConnectionType(i, types[i]);
         },
         registerEndpointType: function (id, type) {
-            this._endpointTypes[id] = jsPlumb.extend({}, type);
+            this._endpointTypes[id] = root.jsPlumb.extend({}, type);
             if (type.overlays) {
                 var to = {};
                 for (var i = 0; i < type.overlays.length; i++) {
@@ -6063,7 +6065,7 @@
 
 // --------------------- end static instance + AMD registration -------------------------------------------		
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -6357,8 +6359,8 @@
             return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;
         },
         _classManip = function (el, classesToAdd, classesToRemove) {
-            classesToAdd = classesToAdd == null ? [] : jsPlumbUtil.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
-            classesToRemove = classesToRemove == null ? [] : jsPlumbUtil.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
+            classesToAdd = classesToAdd == null ? [] : _ju.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
+            classesToRemove = classesToRemove == null ? [] : _ju.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
 
             var className = _getClassName(el),
                 curClasses = className.split(/\s+/);
@@ -6383,7 +6385,7 @@
             _setClassName(el, curClasses.join(" "));
         };
 
-    jsPlumb.extend(jsPlumbInstance.prototype, {
+    root.jsPlumb.extend(root.jsPlumbInstance.prototype, {
 
         headless: false,
 
@@ -6606,7 +6608,7 @@
         }
 
     });
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -6643,7 +6645,7 @@
                     component: component,
                     _jsPlumb: component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
                 },
-                mergedParams = jsPlumb.extend(_params, params);
+                mergedParams = _jp.extend(_params, params);
 
             return new _jp.Overlays[component._jsPlumb.instance.getRenderMode()].Label(mergedParams);
         },
@@ -6674,7 +6676,7 @@
 
     _jp.OverlayCapableJsPlumbUIComponent = function (params) {
 
-        jsPlumbUIComponent.apply(this, arguments);
+        root.jsPlumbUIComponent.apply(this, arguments);
         this._jsPlumb.overlays = {};
         this._jsPlumb.overlayPositions = {};
 
@@ -6873,7 +6875,7 @@
 
 // ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -8078,7 +8080,7 @@
                     }
 
                     // if optionalData was given, merge it onto the connection's data.
-                    if (jsPlumbUtil.isObject(optionalData)) {
+                    if (_ju.isObject(optionalData)) {
                         jpc.mergeData(optionalData);
                     }
                     // finalise will inform the anchor manager and also add to
@@ -8137,7 +8139,7 @@
             _jsPlumb.currentlyDragging = false;
         };
     };
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -8372,7 +8374,7 @@
         if (params.geometry) {
             this.connector.setGeometry(params.geometry);
         }
-        var data = params.data == null || !jsPlumbUtil.isObject(params.data) ? {} : params.data;
+        var data = params.data == null || !_ju.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
         this.mergeData = function(d) { data = jsPlumb.extend(data, d); };
@@ -8685,7 +8687,7 @@
         }
 
     }); // END Connection class            
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -9721,7 +9723,7 @@
     // these are the default anchor positions finders, which are used by the makeTarget function.  supplying
     // a position finder argument to that function allows you to specify where the resulting anchor will
     // be located
-    jsPlumbInstance.prototype.AnchorPositionFinders = {
+    root.jsPlumbInstance.prototype.AnchorPositionFinders = {
         "Fixed": function (dp, ep, es) {
             return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];
         },
@@ -9845,7 +9847,7 @@
         a.type = "Perimeter";
         return a;
     };
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 /*
  * jsPlumb
  * 
@@ -11338,7 +11340,7 @@
 
     // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -11389,9 +11391,13 @@
     });
 
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 ;(function() {
     "use strict";
+
+    var root = this,
+        _ju = root.jsPlumbUtil,
+        _jpi = root.jsPlumbInstance;
 
     var GROUP_COLLAPSED_CLASS = "jsplumb-group-collapsed";
     var GROUP_EXPANDED_CLASS = "jsplumb-group-expanded";
@@ -11419,11 +11425,11 @@
             }
             else {
                 if (p.source[GROUP] != null) {
-                    jsPlumbUtil.suggest(p.source[GROUP].connections.source, p.connection);
+                    _ju.suggest(p.source[GROUP].connections.source, p.connection);
                     _connectionSourceMap[p.connection.id] = p.source[GROUP];
                 }
                 if (p.target[GROUP] != null) {
-                    jsPlumbUtil.suggest(p.target[GROUP].connections.target, p.connection);
+                    _ju.suggest(p.target[GROUP].connections.target, p.connection);
                     _connectionTargetMap[p.connection.id] = p.target[GROUP];
                 }
             }
@@ -11434,16 +11440,16 @@
             var group = _connectionSourceMap[conn.id], f;
             if (group != null) {
                 f = function(c) { return c.id === conn.id; };
-                jsPlumbUtil.removeWithFunction(group.connections.source, f);
-                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                _ju.removeWithFunction(group.connections.source, f);
+                _ju.removeWithFunction(group.connections.target, f);
                 delete _connectionSourceMap[conn.id];
             }
 
             group = _connectionTargetMap[conn.id];
             if (group != null) {
                 f = function(c) { return c.id === conn.id; };
-                jsPlumbUtil.removeWithFunction(group.connections.source, f);
-                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                _ju.removeWithFunction(group.connections.source, f);
+                _ju.removeWithFunction(group.connections.target, f);
                 delete _connectionTargetMap[conn.id];
             }
         }
@@ -11488,7 +11494,7 @@
 
         this.getGroup = function(groupId) {
             var group = groupId;
-            if (jsPlumbUtil.isString(groupId)) {
+            if (_ju.isString(groupId)) {
                 group = _managedGroups[groupId];
                 if (group == null) throw new TypeError("No such group [" + groupId + "]");
             }
@@ -11720,7 +11726,7 @@
         var self = this;
         var el = params.el;
         this.getEl = function() { return el; };
-        this.id = params.id || jsPlumbUtil.uuid();
+        this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
         var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
         var dragArea = da && da.length > 0 ? da[0] : el;
@@ -11753,7 +11759,7 @@
                 scope:GROUP_DRAG_SCOPE
             };
             if (params.dragOptions) {
-                jsPlumb.extend(opts, params.dragOptions);
+                root.jsPlumb.extend(opts, params.dragOptions);
             }
             _jsPlumb.draggable(params.el, opts);
         }
@@ -11845,7 +11851,7 @@
         this.remove = function(el, manipulateDOM, doNotFireEvent) {
             _each(el, function(__el) {
                 delete __el._jsPlumbGroup;
-                jsPlumbUtil.removeWithFunction(elements, function(e) {
+                _ju.removeWithFunction(elements, function(e) {
                     return e === __el;
                 });
                 if (manipulateDOM) {
@@ -11983,7 +11989,7 @@
      * @param {Object} params
      * @return {Group} The newly created Group.
      */
-    jsPlumbInstance.prototype.addGroup = function(params) {
+    _jpi.prototype.addGroup = function(params) {
         var j = this;
         j._groups = j._groups || {};
         if (j._groups[params.id] != null) {
@@ -12003,7 +12009,7 @@
      * @param {String} group Group, or ID of the group, to add the element to.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.addToGroup = function(group, el, doNotFireEvent) {
+    _jpi.prototype.addToGroup = function(group, el, doNotFireEvent) {
         this.getGroupManager().addToGroup(group, el, doNotFireEvent);
     };
 
@@ -12013,7 +12019,7 @@
      * @param {String} group Group, or ID of the group, to remove the element from.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
+    _jpi.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
         this.getGroupManager().removeFromGroup(group, el, doNotFireEvent);
     };
 
@@ -12024,7 +12030,7 @@
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the group. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    jsPlumbInstance.prototype.removeGroup = function(group, deleteMembers) {
+    _jpi.prototype.removeGroup = function(group, deleteMembers) {
         this.getGroupManager().removeGroup(group, deleteMembers);
     };
 
@@ -12034,7 +12040,7 @@
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the groups. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    jsPlumbInstance.prototype.removeAllGroups = function(deleteMembers) {
+    _jpi.prototype.removeAllGroups = function(deleteMembers) {
         this.getGroupManager().removeAllGroups(deleteMembers);
     };
 
@@ -12043,7 +12049,7 @@
      * @method getGroup
      * @param {String} groupId ID of the group to get
      */
-    jsPlumbInstance.prototype.getGroup = function(groupId) {
+    _jpi.prototype.getGroup = function(groupId) {
         return this.getGroupManager().getGroup(groupId);
     };
 
@@ -12061,7 +12067,7 @@
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
      */
-    jsPlumbInstance.prototype.expandGroup = function(group) {
+    _jpi.prototype.expandGroup = function(group) {
         this.getGroupManager().expandGroup(group);
     };
 
@@ -12079,12 +12085,12 @@
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
      */
-    jsPlumbInstance.prototype.collapseGroup = function(groupId) {
+    _jpi.prototype.collapseGroup = function(groupId) {
         this.getGroupManager().collapseGroup(groupId);
     };
 
 
-    jsPlumbInstance.prototype.repaintGroup = function(group) {
+    _jpi.prototype.repaintGroup = function(group) {
         this.getGroupManager().repaintGroup(group);
     };
 
@@ -12094,7 +12100,7 @@
      * @method toggleGroup
      * @param {String|Group} group Group to expand/collapse, or ID of Group to expand/collapse.
      */
-    jsPlumbInstance.prototype.toggleGroup = function(group) {
+    _jpi.prototype.toggleGroup = function(group) {
         group = this.getGroupManager().getGroup(group);
         if (group != null) {
             this.getGroupManager()[group.collapsed ? "expandGroup" : "collapseGroup"](group);
@@ -12104,7 +12110,7 @@
     //
     // lazy init a group manager for the given jsplumb instance.
     //
-    jsPlumbInstance.prototype.getGroupManager = function() {
+    _jpi.prototype.getGroupManager = function() {
         var mgr = this[GROUP_MANAGER];
         if (mgr == null) {
             mgr = this[GROUP_MANAGER] = new GroupManager(this);
@@ -12112,7 +12118,7 @@
         return mgr;
     };
 
-    jsPlumbInstance.prototype.removeGroupManager = function() {
+    _jpi.prototype.removeGroupManager = function() {
         delete this[GROUP_MANAGER];
     };
 
@@ -12122,14 +12128,14 @@
      * @param {String|Element} el Element, or element ID.
      * @returns {Group} A Group, if found, or null.
      */
-    jsPlumbInstance.prototype.getGroupFor = function(el) {
+    _jpi.prototype.getGroupFor = function(el) {
         el = this.getElement(el);
         if (el) {
             return el[GROUP];
         }
     };
 
-})();
+}).call(typeof window !== 'undefined' ? window : this);
 
 
 /*
@@ -12503,7 +12509,7 @@
 
     _ju.extend(Flowchart, _jp.Connectors.AbstractConnector);
     _jp.registerConnectorType(Flowchart, "Flowchart");
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 /*
  * This file contains the code for the Bezier connector type.
  *
@@ -12653,7 +12659,7 @@
     _ju.extend(Bezier, _jp.Connectors.AbstractBezierConnector);
     _jp.registerConnectorType(Bezier, "Bezier");
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 /*
  * This file contains the state machine connectors, which extend AbstractBezierConnector.
  *
@@ -12810,7 +12816,7 @@
     _ju.extend(StateMachine, _jp.Connectors.AbstractBezierConnector);
     _jp.registerConnectorType(StateMachine, "StateMachine");
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 /*
  * jsPlumb
  * 
@@ -13428,7 +13434,7 @@
         };
     };
     _ju.extend(_jp.Overlays.svg.GuideLines, _jp.Overlays.GuideLines);
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
@@ -13716,4 +13722,4 @@
     };
     ready(_jp.init);
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

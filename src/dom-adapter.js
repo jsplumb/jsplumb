@@ -290,8 +290,8 @@
             return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;
         },
         _classManip = function (el, classesToAdd, classesToRemove) {
-            classesToAdd = classesToAdd == null ? [] : jsPlumbUtil.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
-            classesToRemove = classesToRemove == null ? [] : jsPlumbUtil.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
+            classesToAdd = classesToAdd == null ? [] : _ju.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
+            classesToRemove = classesToRemove == null ? [] : _ju.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
 
             var className = _getClassName(el),
                 curClasses = className.split(/\s+/);
@@ -316,7 +316,7 @@
             _setClassName(el, curClasses.join(" "));
         };
 
-    jsPlumb.extend(jsPlumbInstance.prototype, {
+    root.jsPlumb.extend(root.jsPlumbInstance.prototype, {
 
         headless: false,
 
@@ -539,4 +539,4 @@
         }
 
     });
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

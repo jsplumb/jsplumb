@@ -371,7 +371,7 @@
             var _one = function(evt) {
                 exports.addToList(_listeners, evt, listener, insertAtStart);
                 listener.__jsPlumb = listener.__jsPlumb || {};
-                listener.__jsPlumb[jsPlumbUtil.uuid()] = evt;
+                listener.__jsPlumb[root.jsPlumbUtil.uuid()] = evt;
             };
 
             if (typeof event === "string") _one(event);
@@ -447,7 +447,7 @@
                 fn();
             }
             catch (e) {
-                jsPlumbUtil.log("Cannot execute silent function " + e);
+                root.jsPlumbUtil.log("Cannot execute silent function " + e);
             }
             this.setSuspendEvents(false);
         };
@@ -464,4 +464,4 @@
         }
     };
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

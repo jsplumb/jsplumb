@@ -1,6 +1,10 @@
 ;(function() {
     "use strict";
 
+    var root = this,
+        _ju = root.jsPlumbUtil,
+        _jpi = root.jsPlumbInstance;
+
     var GROUP_COLLAPSED_CLASS = "jsplumb-group-collapsed";
     var GROUP_EXPANDED_CLASS = "jsplumb-group-expanded";
     var GROUP_CONTAINER_SELECTOR = "[jsplumb-group-content]";
@@ -27,11 +31,11 @@
             }
             else {
                 if (p.source[GROUP] != null) {
-                    jsPlumbUtil.suggest(p.source[GROUP].connections.source, p.connection);
+                    _ju.suggest(p.source[GROUP].connections.source, p.connection);
                     _connectionSourceMap[p.connection.id] = p.source[GROUP];
                 }
                 if (p.target[GROUP] != null) {
-                    jsPlumbUtil.suggest(p.target[GROUP].connections.target, p.connection);
+                    _ju.suggest(p.target[GROUP].connections.target, p.connection);
                     _connectionTargetMap[p.connection.id] = p.target[GROUP];
                 }
             }
@@ -42,16 +46,16 @@
             var group = _connectionSourceMap[conn.id], f;
             if (group != null) {
                 f = function(c) { return c.id === conn.id; };
-                jsPlumbUtil.removeWithFunction(group.connections.source, f);
-                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                _ju.removeWithFunction(group.connections.source, f);
+                _ju.removeWithFunction(group.connections.target, f);
                 delete _connectionSourceMap[conn.id];
             }
 
             group = _connectionTargetMap[conn.id];
             if (group != null) {
                 f = function(c) { return c.id === conn.id; };
-                jsPlumbUtil.removeWithFunction(group.connections.source, f);
-                jsPlumbUtil.removeWithFunction(group.connections.target, f);
+                _ju.removeWithFunction(group.connections.source, f);
+                _ju.removeWithFunction(group.connections.target, f);
                 delete _connectionTargetMap[conn.id];
             }
         }
@@ -96,7 +100,7 @@
 
         this.getGroup = function(groupId) {
             var group = groupId;
-            if (jsPlumbUtil.isString(groupId)) {
+            if (_ju.isString(groupId)) {
                 group = _managedGroups[groupId];
                 if (group == null) throw new TypeError("No such group [" + groupId + "]");
             }
@@ -328,7 +332,7 @@
         var self = this;
         var el = params.el;
         this.getEl = function() { return el; };
-        this.id = params.id || jsPlumbUtil.uuid();
+        this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
         var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
         var dragArea = da && da.length > 0 ? da[0] : el;
@@ -361,7 +365,7 @@
                 scope:GROUP_DRAG_SCOPE
             };
             if (params.dragOptions) {
-                jsPlumb.extend(opts, params.dragOptions);
+                root.jsPlumb.extend(opts, params.dragOptions);
             }
             _jsPlumb.draggable(params.el, opts);
         }
@@ -453,7 +457,7 @@
         this.remove = function(el, manipulateDOM, doNotFireEvent) {
             _each(el, function(__el) {
                 delete __el._jsPlumbGroup;
-                jsPlumbUtil.removeWithFunction(elements, function(e) {
+                _ju.removeWithFunction(elements, function(e) {
                     return e === __el;
                 });
                 if (manipulateDOM) {
@@ -591,7 +595,7 @@
      * @param {Object} params
      * @return {Group} The newly created Group.
      */
-    jsPlumbInstance.prototype.addGroup = function(params) {
+    _jpi.prototype.addGroup = function(params) {
         var j = this;
         j._groups = j._groups || {};
         if (j._groups[params.id] != null) {
@@ -611,7 +615,7 @@
      * @param {String} group Group, or ID of the group, to add the element to.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.addToGroup = function(group, el, doNotFireEvent) {
+    _jpi.prototype.addToGroup = function(group, el, doNotFireEvent) {
         this.getGroupManager().addToGroup(group, el, doNotFireEvent);
     };
 
@@ -621,7 +625,7 @@
      * @param {String} group Group, or ID of the group, to remove the element from.
      * @param {Element} el Element to add to the group.
      */
-    jsPlumbInstance.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
+    _jpi.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
         this.getGroupManager().removeFromGroup(group, el, doNotFireEvent);
     };
 
@@ -632,7 +636,7 @@
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the group. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    jsPlumbInstance.prototype.removeGroup = function(group, deleteMembers) {
+    _jpi.prototype.removeGroup = function(group, deleteMembers) {
         this.getGroupManager().removeGroup(group, deleteMembers);
     };
 
@@ -642,7 +646,7 @@
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the groups. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    jsPlumbInstance.prototype.removeAllGroups = function(deleteMembers) {
+    _jpi.prototype.removeAllGroups = function(deleteMembers) {
         this.getGroupManager().removeAllGroups(deleteMembers);
     };
 
@@ -651,7 +655,7 @@
      * @method getGroup
      * @param {String} groupId ID of the group to get
      */
-    jsPlumbInstance.prototype.getGroup = function(groupId) {
+    _jpi.prototype.getGroup = function(groupId) {
         return this.getGroupManager().getGroup(groupId);
     };
 
@@ -669,7 +673,7 @@
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
      */
-    jsPlumbInstance.prototype.expandGroup = function(group) {
+    _jpi.prototype.expandGroup = function(group) {
         this.getGroupManager().expandGroup(group);
     };
 
@@ -687,12 +691,12 @@
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
      */
-    jsPlumbInstance.prototype.collapseGroup = function(groupId) {
+    _jpi.prototype.collapseGroup = function(groupId) {
         this.getGroupManager().collapseGroup(groupId);
     };
 
 
-    jsPlumbInstance.prototype.repaintGroup = function(group) {
+    _jpi.prototype.repaintGroup = function(group) {
         this.getGroupManager().repaintGroup(group);
     };
 
@@ -702,7 +706,7 @@
      * @method toggleGroup
      * @param {String|Group} group Group to expand/collapse, or ID of Group to expand/collapse.
      */
-    jsPlumbInstance.prototype.toggleGroup = function(group) {
+    _jpi.prototype.toggleGroup = function(group) {
         group = this.getGroupManager().getGroup(group);
         if (group != null) {
             this.getGroupManager()[group.collapsed ? "expandGroup" : "collapseGroup"](group);
@@ -712,7 +716,7 @@
     //
     // lazy init a group manager for the given jsplumb instance.
     //
-    jsPlumbInstance.prototype.getGroupManager = function() {
+    _jpi.prototype.getGroupManager = function() {
         var mgr = this[GROUP_MANAGER];
         if (mgr == null) {
             mgr = this[GROUP_MANAGER] = new GroupManager(this);
@@ -720,7 +724,7 @@
         return mgr;
     };
 
-    jsPlumbInstance.prototype.removeGroupManager = function() {
+    _jpi.prototype.removeGroupManager = function() {
         delete this[GROUP_MANAGER];
     };
 
@@ -730,12 +734,12 @@
      * @param {String|Element} el Element, or element ID.
      * @returns {Group} A Group, if found, or null.
      */
-    jsPlumbInstance.prototype.getGroupFor = function(el) {
+    _jpi.prototype.getGroupFor = function(el) {
         el = this.getElement(el);
         if (el) {
             return el[GROUP];
         }
     };
 
-})();
+}).call(typeof window !== 'undefined' ? window : this);
 

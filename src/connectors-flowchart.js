@@ -369,4 +369,4 @@
 
     _ju.extend(Flowchart, _jp.Connectors.AbstractConnector);
     _jp.registerConnectorType(Flowchart, "Flowchart");
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

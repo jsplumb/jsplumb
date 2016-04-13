@@ -65,4 +65,4 @@
    };
 
 
- }).call(this);
+ }).call(typeof window !== 'undefined' ? window : this);

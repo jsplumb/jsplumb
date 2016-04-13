@@ -1032,7 +1032,7 @@
     // these are the default anchor positions finders, which are used by the makeTarget function.  supplying
     // a position finder argument to that function allows you to specify where the resulting anchor will
     // be located
-    jsPlumbInstance.prototype.AnchorPositionFinders = {
+    root.jsPlumbInstance.prototype.AnchorPositionFinders = {
         "Fixed": function (dp, ep, es) {
             return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];
         },
@@ -1156,4 +1156,4 @@
         a.type = "Perimeter";
         return a;
     };
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

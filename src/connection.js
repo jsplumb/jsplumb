@@ -231,7 +231,7 @@
         if (params.geometry) {
             this.connector.setGeometry(params.geometry);
         }
-        var data = params.data == null || !jsPlumbUtil.isObject(params.data) ? {} : params.data;
+        var data = params.data == null || !_ju.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
         this.mergeData = function(d) { data = jsPlumb.extend(data, d); };
@@ -544,4 +544,4 @@
         }
 
     }); // END Connection class            
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

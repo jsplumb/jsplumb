@@ -458,7 +458,7 @@
             return i;
         };
 
-    var jsPlumbInstance = window.jsPlumbInstance = function (_defaults) {
+    var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -1989,29 +1989,29 @@
          * mouse listeners etc; can't do that until the library has provided a bind method)
          */
         this.init = function () {
-            rendererTypes = jsPlumb.getRenderModes();
+            rendererTypes = root.jsPlumb.getRenderModes();
 
             var _oneType = function (renderer, name, fn) {
-                jsPlumb.Connectors[renderer][name] = function () {
+                root.jsPlumb.Connectors[renderer][name] = function () {
                     fn.apply(this, arguments);
-                    jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
+                    root.jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
                 };
-                _ju.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
+                _ju.extend(root.jsPlumb.Connectors[renderer][name], [ fn, root.jsPlumb.ConnectorRenderers[renderer]]);
             };
 
-            if (!jsPlumb.connectorsInitialized) {
+            if (!root.jsPlumb.connectorsInitialized) {
                 for (var i = 0; i < connectorTypes.length; i++) {
                     for (var j = 0; j < rendererTypes.length; j++) {
                         _oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);
                     }
 
                 }
-                jsPlumb.connectorsInitialized = true;
+                root.jsPlumb.connectorsInitialized = true;
             }
 
             if (!initialized) {
                 _getContainerFromDefaults();
-                _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
+                _currentInstance.anchorManager = new root.jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
                 initialized = true;
                 _currentInstance.fire("ready", _currentInstance);
             }
@@ -2029,7 +2029,7 @@
          */
         this.makeAnchor = function () {
             var pp, _a = function (t, p) {
-                if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
+                if (root.jsPlumb.Anchors[t]) return new root.jsPlumb.Anchors[t](p);
                 if (!_currentInstance.Defaults.DoNotThrowErrors)
                     throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
             };
@@ -2051,14 +2051,14 @@
                     if (specimen.length == 2 && _ju.isObject(specimen[1])) {
                         // if first arg is a string, its a named anchor with params
                         if (_ju.isString(specimen[0])) {
-                            pp = jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance}, specimen[1]);
+                            pp = root.jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance}, specimen[1]);
                             newAnchor = _a(specimen[0], pp);
                         }
                         // otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
                         // even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
                         else {
-                            pp = jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance, anchors: specimen[0]}, specimen[1]);
-                            newAnchor = new jsPlumb.DynamicAnchor(pp);
+                            pp = root.jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance, anchors: specimen[0]}, specimen[1]);
+                            newAnchor = new root.jsPlumb.DynamicAnchor(pp);
                         }
                     }
                     else
@@ -2074,9 +2074,9 @@
                         jsPlumbInstance: _currentInstance,
                         cssClass: specimen.length == 7 ? specimen[6] : null
                     };
-                    newAnchor = new jsPlumb.Anchor(anchorParams);
+                    newAnchor = new root.jsPlumb.Anchor(anchorParams);
                     newAnchor.clone = function () {
-                        return new jsPlumb.Anchor(anchorParams);
+                        return new root.jsPlumb.Anchor(anchorParams);
                     };
                 }
             }
@@ -2093,7 +2093,7 @@
             var r = [];
             for (var i = 0, ii = types.length; i < ii; i++) {
                 if (typeof types[i] == "string")
-                    r.push(jsPlumb.Anchors[types[i]]({elementId: elementId, jsPlumbInstance: jsPlumbInstance}));
+                    r.push(root.jsPlumb.Anchors[types[i]]({elementId: elementId, jsPlumbInstance: jsPlumbInstance}));
                 else if (_ju.isArray(types[i]))
                     r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
             }
@@ -2106,7 +2106,7 @@
          * not need to provide this - i think).
          */
         this.makeDynamicAnchor = function (anchors, anchorSelector) {
-            return new jsPlumb.DynamicAnchor({anchors: anchors, selector: anchorSelector, elementId: null, jsPlumbInstance: _currentInstance});
+            return new root.jsPlumb.DynamicAnchor({anchors: anchors, selector: anchorSelector, elementId: null, jsPlumbInstance: _currentInstance});
         };
 
 // --------------------- makeSource/makeTarget ---------------------------------------------- 
@@ -2188,11 +2188,11 @@
                     // (ie. detached), create a new one
                     if (newEndpoint == null || newEndpoint._jsPlumb == null) {
                         var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-                        var pp = eps.endpoints ? jsPlumb.extend(p, {
+                        var pp = eps.endpoints ? root.jsPlumb.extend(p, {
                             endpoint:elInfo.def.def.endpoint || eps.endpoints[1]
                         }) :p;
                         if (eps.anchors) {
-                            pp = jsPlumb.extend(pp, {
+                            pp = root.jsPlumb.extend(pp, {
                                 anchor:elInfo.def.def.anchor || eps.anchors[1]
                             });
                         }
@@ -2238,14 +2238,14 @@
             });
 
             // wrap drop events as needed and initialise droppable
-            var dropEvent = jsPlumb.dragEvents.drop;
+            var dropEvent = root.jsPlumb.dragEvents.drop;
             dropOptions.scope = dropOptions.scope || (p.scope || _currentInstance.Defaults.Scope);
             dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop, true);
 
             // if target, return true from the over event. this will cause katavorio to stop setting drops to hover
             // if multipleDrop is set to false.
             if (isTarget) {
-                dropOptions[jsPlumb.dragEvents.over] = function () { return true; };
+                dropOptions[root.jsPlumb.dragEvents.over] = function () { return true; };
             }
 
             // vanilla jsplumb only
@@ -2265,8 +2265,8 @@
         this.makeTarget = function (el, params, referenceParams) {
 
             // put jsplumb ref into params without altering the params passed in
-            var p = jsPlumb.extend({_jsPlumb: this}, referenceParams);
-            jsPlumb.extend(p, params);
+            var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
+            root.jsPlumb.extend(p, params);
 
             // calculate appropriate paint styles and anchor from the params given
             _setEndpointPaintStylesAndAnchor(p, 1, this);
@@ -2281,7 +2281,7 @@
                     // decode the info for this element (id and element)
                     var elInfo = _info(el),
                         elid = elInfo.id,
-                        dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
+                        dropOptions = root.jsPlumb.extend({}, p.dropOptions || {}),
                         type = "default";
 
                     this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
@@ -2290,7 +2290,7 @@
 
                     // store the definition
                     var _def = {
-                        def: jsPlumb.extend({}, p),
+                        def: root.jsPlumb.extend({}, p),
                         uniqueEndpoint: p.uniqueEndpoint,
                         maxConnections: maxConnections,
                         enabled: true
@@ -2327,8 +2327,8 @@
 
         // see api docs
         this.makeSource = function (el, params, referenceParams) {
-            var p = jsPlumb.extend({_jsPlumb: this}, referenceParams);
-            jsPlumb.extend(p, params);
+            var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
+            root.jsPlumb.extend(p, params);
             var type = p.connectionType || "default";
             var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
             p.endpoint = p.endpoint || aae.endpoints[0];
@@ -2346,7 +2346,7 @@
                     _ensureContainer(elid);
 
                     var _def = {
-                        def:jsPlumb.extend({}, p),
+                        def:root.jsPlumb.extend({}, p),
                         uniqueEndpoint: p.uniqueEndpoint,
                         maxConnections: maxConnections,
                         enabled: true
@@ -2356,9 +2356,9 @@
                     this.sourceEndpointDefinitions[elid][type] = _def;
                     elInfo.def = _def;
 
-                    var stopEvent = jsPlumb.dragEvents.stop,
-                        dragEvent = jsPlumb.dragEvents.drag,
-                        dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
+                    var stopEvent = root.jsPlumb.dragEvents.stop,
+                        dragEvent = root.jsPlumb.dragEvents.drag,
+                        dragOptions = root.jsPlumb.extend({ }, p.dragOptions || {}),
                         existingDrag = dragOptions.drag,
                         existingStop = dragOptions.stop,
                         ep = null,
@@ -2384,13 +2384,6 @@
                             var anchorDef = p.anchor || this.Defaults.Anchor,
                                 oldAnchor = ep.anchor,
                                 oldConnection = ep.connections[0];
-
-                            // if the connection has a type, try to get an anchor spec for it.
-                            /*if (oldConnection != null) {
-                                var aae = _currentInstance.deriveEndpointAndAnchorSpec(oldConnection.getType().join(" "), false);
-                                if (aae.anchors) anchorDef = aae.anchor[0];
-                                if (aae.endpoints) ep.setEndpoint(aae.endpoints[0]);
-                            }*/
 
                             var    newAnchor = this.makeAnchor(anchorDef, elid, this),
                                 _el = ep.element;
@@ -2447,13 +2440,13 @@
 
                         // find the position on the element at which the mouse was pressed; this is where the endpoint
                         // will be located.
-                        var elxy = jsPlumb.getPositionOnElement(e, _del, _zoom);
+                        var elxy = root.jsPlumb.getPositionOnElement(e, _del, _zoom);
 
                         // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
                         // the params passed in, because after a connection is established we're going to reset the endpoint
                         // to have the anchor we were given.
                         var tempEndpointParams = {};
-                        jsPlumb.extend(tempEndpointParams, p);
+                        root.jsPlumb.extend(tempEndpointParams, p);
                         tempEndpointParams.isTemporarySource = true;
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
@@ -2523,7 +2516,7 @@
                         _currentInstance.setDragFilter(elInfo.el, p.filter);
                     }
 
-                    var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
+                    var dropOptions = root.jsPlumb.extend({}, p.dropOptions || {});
 
                     _makeElementDropHandler(elInfo, p, dropOptions, true, p.isTarget === true);
 
@@ -3006,12 +2999,12 @@
         this.addListener = this.bind;
     };
 
-    _ju.extend(jsPlumbInstance, _ju.EventGenerator, {
+    _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {
         setAttribute: function (el, a, v) {
             this.setAttribute(el, a, v);
         },
         getAttribute: function (el, a) {
-            return this.getAttribute(jsPlumb.getElement(el), a);
+            return this.getAttribute(root.jsPlumb.getElement(el), a);
         },
         convertToFullOverlaySpec: function(spec) {
             if (_ju.isString(spec)) {
@@ -3021,7 +3014,7 @@
             return spec;
         },
         registerConnectionType: function (id, type) {
-            this._connectionTypes[id] = jsPlumb.extend({}, type);
+            this._connectionTypes[id] = root.jsPlumb.extend({}, type);
             if (type.overlays) {
                 var to = {};
                 for (var i = 0; i < type.overlays.length; i++) {
@@ -3038,7 +3031,7 @@
                 this.registerConnectionType(i, types[i]);
         },
         registerEndpointType: function (id, type) {
-            this._endpointTypes[id] = jsPlumb.extend({}, type);
+            this._endpointTypes[id] = root.jsPlumb.extend({}, type);
             if (type.overlays) {
                 var to = {};
                 for (var i = 0; i < type.overlays.length; i++) {
@@ -3128,4 +3121,4 @@
 
 // --------------------- end static instance + AMD registration -------------------------------------------		
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

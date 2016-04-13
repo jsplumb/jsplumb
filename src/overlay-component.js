@@ -33,7 +33,7 @@
                     component: component,
                     _jsPlumb: component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
                 },
-                mergedParams = jsPlumb.extend(_params, params);
+                mergedParams = _jp.extend(_params, params);
 
             return new _jp.Overlays[component._jsPlumb.instance.getRenderMode()].Label(mergedParams);
         },
@@ -64,7 +64,7 @@
 
     _jp.OverlayCapableJsPlumbUIComponent = function (params) {
 
-        jsPlumbUIComponent.apply(this, arguments);
+        root.jsPlumbUIComponent.apply(this, arguments);
         this._jsPlumb.overlays = {};
         this._jsPlumb.overlayPositions = {};
 
@@ -263,4 +263,4 @@
 
 // ------------------------------ END OverlayCapablejsPlumbUIComponent --------------------------------------------
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

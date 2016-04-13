@@ -22,6 +22,8 @@
     var CONNECTION_EDIT = "connectionEdit";
 
     root.jsPlumb.ConnectorEditors = root.jsPlumb.ConnectorEditors || { };
+    var _ju = root.jsPlumbUtil,
+        _jp = root.jsPlumb;
 
     var _addConnectionDetachListener = function(instance) {
         instance.bind("connectionDetached", function(params) {
@@ -101,23 +103,23 @@
         x = x + (handle.offsetWidth / 2);
         y = y + (handle.offsetHeight / 2);
         var w = Math.max(5, Math.abs(x - anchor.left)), h = Math.max(5, Math.abs(y - anchor.top));
-        jsPlumbUtil.svg.attr(line, { width:w, height:h });
+        _ju.svg.attr(line, { width:w, height:h });
         line.style.left = (Math.min(anchor.left, x)) + PX;
         line.style.top= (Math.min(anchor.top, y)) + PX;
 
         var path = "M " + (x > anchor.left ? w : "0") + " " + (y > anchor.top ? h : "0") + " L " +
             (x > anchor.left ? "0" : w) + " " + (y > anchor.top ? "0" : h);
-        jsPlumbUtil.svg.attr(line.childNodes[0], {d:path});
+        _ju.svg.attr(line.childNodes[0], {d:path});
 
     };
 
     var _makeGuideline = function(handle, anchor, x2, y2) {
         var w = Math.abs(x2-anchor.left), h = Math.abs(y2-anchor.top),
-            s = jsPlumbUtil.svg.node("svg", { width:w, height:h}),
-            l = jsPlumbUtil.svg.node("path", { d:"M " + 0 + " " + 0 + " L " + w + " " + h });
+            s = _ju.svg.node("svg", { width:w, height:h}),
+            l = _ju.svg.node("path", { d:"M " + 0 + " " + 0 + " L " + w + " " + h });
 
         s.appendChild(l);
-        jsPlumb.addClass(s, GUIDELINE_CLASS);
+        _jp.addClass(s, GUIDELINE_CLASS);
 
         _updateGuideline(handle, anchor, s, x2, y2);
 
@@ -412,7 +414,7 @@
         };
 
         this.deactivate = function(e) {
-            if (e && !closeOnMouseUp && jsPlumb.hasClass(e.srcElement, HANDLE_CLASS)) return;
+            if (e && !closeOnMouseUp && _jp.hasClass(e.srcElement, HANDLE_CLASS)) return;
 
             h1.style.display = NONE;
             h2.style.display = NONE;
@@ -469,4 +471,4 @@
     };
 
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

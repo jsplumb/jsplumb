@@ -284,4 +284,4 @@
     };
     ready(_jp.init);
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

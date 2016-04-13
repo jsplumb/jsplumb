@@ -147,4 +147,4 @@
     _ju.extend(Bezier, _jp.Connectors.AbstractBezierConnector);
     _jp.registerConnectorType(Bezier, "Bezier");
 
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);

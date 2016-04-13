@@ -1201,7 +1201,7 @@
                     }
 
                     // if optionalData was given, merge it onto the connection's data.
-                    if (jsPlumbUtil.isObject(optionalData)) {
+                    if (_ju.isObject(optionalData)) {
                         jpc.mergeData(optionalData);
                     }
                     // finalise will inform the anchor manager and also add to
@@ -1260,4 +1260,4 @@
             _jsPlumb.currentlyDragging = false;
         };
     };
-}).call(this);
+}).call(typeof window !== 'undefined' ? window : this);
