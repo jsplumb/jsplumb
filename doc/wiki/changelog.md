@@ -4,6 +4,11 @@
 - add support for 'groups' - elements that can contain other elements, and which are collapsible.
 - upgrade to Mottle 0.7.2. a few fixes for event delegation.
 
+- upgrade to katavorio 0.15.0
+- upgrade to mottle 0.7.2
+- upgrade to jsBezier 0.8
+- upgrade to Biltong 0.3
+
 ISSUES
 
 - 483 - srcElement undefined in Firefox
