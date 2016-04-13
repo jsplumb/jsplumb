@@ -2317,7 +2317,7 @@
         // see api docs
         this.unmakeTarget = function (el, doNotClearArrays) {
             var info = _info(el);
-            jsPlumb.destroyDroppable(info.el, "internal");
+            _currentInstance.destroyDroppable(info.el, "internal");
             if (!doNotClearArrays) {
                 delete this.targetEndpointDefinitions[info.id];
             }
@@ -2540,7 +2540,7 @@
         // see api docs
         this.unmakeSource = function (el, connectionType, doNotClearArrays) {
             var info = _info(el);
-            jsPlumb.destroyDroppable(info.el, "internal");
+            _currentInstance.destroyDroppable(info.el, "internal");
             var eldefs = this.sourceEndpointDefinitions[info.id];
             if (eldefs) {
                 for (var def in eldefs) {
@@ -2785,6 +2785,13 @@
                 _currentInstance.getDragManager().elementRemoved(_info.id);
                 _currentInstance.anchorManager.clearFor(_info.id);
                 _currentInstance.anchorManager.removeFloatingConnection(_info.id);
+
+                if (_currentInstance.isSource(_info.el)) _currentInstance.unmakeSource(_info.el);
+                if (_currentInstance.isTarget(_info.el)) _currentInstance.unmakeTarget(_info.el);
+                _currentInstance.destroyDraggable(_info.el);
+                _currentInstance.destroyDroppable(_info.el);
+
+
                 delete _currentInstance.floatingConnections[_info.id];
                 delete managedElements[_info.id];
                 delete offsets[_info.id];
