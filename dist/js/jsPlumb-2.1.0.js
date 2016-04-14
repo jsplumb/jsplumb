@@ -2241,7 +2241,7 @@
                     _each(el[type], function(kObj) { kObj.destroy() });
                 }
 
-                el[type] = null;
+                delete el[type];
             }
         };
 
