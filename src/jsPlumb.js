@@ -3118,6 +3118,10 @@
         exports.jsPlumb = jsPlumb;
     }
 
+    // npm
+    if (typeof module !== "undefined") {
+        module.exports = jsPlumb;
+    }
 
 // --------------------- end static instance + AMD registration -------------------------------------------		
 
