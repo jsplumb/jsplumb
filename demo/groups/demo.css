@@ -14,7 +14,7 @@
 }
 
 .w:hover {
-    background-color:skyblue;
+    background-color:#629f8d;
 }
 
 .group-container {
@@ -22,7 +22,7 @@
     width: 200px;
     height: 200px;
     border-radius: 12px;
-    background-color: lightgoldenrodyellow;
+    background-color: WhiteSmoke;
     font-size: 12px;
     cursor:move;
 }
@@ -47,7 +47,7 @@
 }
 
 .title {
-    background-color:skyblue;
+    background-color:#629f8d;
     padding-right:16px;
     font-size:13px;
     height:30px;
@@ -117,11 +117,12 @@
     position:absolute;
     right:0;
     top:0;
-    border-left:4px solid skyblue;
+    border-left:4px solid #629f8d;
     bottom:0;
-    width:136px;
+    width:156px;
     font-size: 11px;
     padding-left:11px;
+    background-color: white;
 }
 
 #events {
