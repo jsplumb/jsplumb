@@ -135,6 +135,11 @@
             var proxyEp, groupEl = group.getEl(), groupElId = _jsPlumb.getId(groupEl),
                 originalElementId = c.endpoints[index].elementId;
 
+            var otherEl = c.endpoints[index === 0 ? 1 : 0].element;
+            if (otherEl[GROUP] && (!otherEl[GROUP].shouldProxy() && otherEl[GROUP].collapsed)) {
+                return;
+            }
+
             c.proxies = c.proxies || [];
             if(c.proxies[index]) {
                 proxyEp = c.proxies[index].ep;
