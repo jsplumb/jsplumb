@@ -439,7 +439,7 @@
         this.add = function(_el, doNotFireEvent) {
             _each(_el, function(__el) {
                 __el._jsPlumbGroup = self;
-                elements.push(_el);
+                elements.push(__el);
                 // test if draggable and add handlers if so.
                 if (_jsPlumb.isAlreadyDraggable(__el)) {
                     _bindDragHandlers(__el);
@@ -461,7 +461,7 @@
                     return e === __el;
                 });
                 if (manipulateDOM) {
-                    try { self.el.removeChild(__el); }
+                    try { self.getEl().removeChild(__el); }
                     catch (e) {
                         console.log(e);
                     }
