@@ -107,6 +107,14 @@
             return group;
         };
 
+        this.getGroups = function() {
+            var o = [];
+            for (var g in _managedGroups) {
+                o.push(_managedGroups[g]);
+            }
+            return o;
+        };
+
         this.removeGroup = function(group, deleteMembers) {
             group = this.getGroup(group);
             this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
@@ -656,12 +664,21 @@
     };
 
     /**
-     * Get a group
+     * Get a Group
      * @method getGroup
      * @param {String} groupId ID of the group to get
+     * @return {Group} Group with the given ID, null if not found.
      */
     _jpi.prototype.getGroup = function(groupId) {
         return this.getGroupManager().getGroup(groupId);
+    };
+
+    /**
+     * Gets all the Groups managed by the jsPlumb instance.
+     * @returns {Group[]} List of Groups. Empty if none.
+     */
+    _jpi.prototype.getGroups = function() {
+        return this.getGroupManager().getGroups();
     };
 
     /**

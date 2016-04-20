@@ -1,6 +1,6 @@
 jsPlumb.ready(function () {
 
-    var j = window.j = jsPlumb.getInstance({Container:canvas, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
+    var j = jsPlumb.getInstance({Container:canvas, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
 
     j.bind("connection", function(p) {
         p.connection.bind("click", function() {
@@ -135,11 +135,13 @@ jsPlumb.ready(function () {
     });
 
     // collapse/expand group button
-    j.on(canvas, "click", ".collapse", function() {
+    j.on(canvas, "click", ".node-collapse", function() {
         var g = this.parentNode.getAttribute("group"), collapsed = j.hasClass(this.parentNode, "collapsed");
 
         j[collapsed ? "removeClass" : "addClass"](this.parentNode, "collapsed");
         j[collapsed ? "expandGroup" : "collapseGroup"](g);
     });
+
+    jsPlumb.fire("jsPlumbDemoLoaded", j);
 
 });

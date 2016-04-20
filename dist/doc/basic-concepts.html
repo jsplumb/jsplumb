@@ -125,33 +125,50 @@
                 <div class="markdown-body col-xs-9">
                     <h2>Basic Concepts</h2>
 
-<ol>
+<ul>
 <li><a href="#intro">Introduction</a></li>
 <li><a href="#definitions">Connector, Endpoint, Anchor &amp; Overlay Definitions</a></li>
-</ol>
+</ul>
 
 <p><a name="intro"></a></p>
 
 <h3>Introduction</h3>
 
-<p>jsPlumb is all about connecting things together, so the core abstraction in jsPlumb is the <code>Connection</code> object, which is itself broken down into these four concepts:</p>
+<p>jsPlumb is all about connecting things together, so the core abstraction in jsPlumb is the <code>Connection</code> object, which is 
+itself broken down into these five concepts:</p>
 
 <ul>
-<li><p><strong>Anchor</strong> - a location, relative to an element&#39;s origin, at which an Endpoint can exist. You do not create these yourself; you supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or with an array containing various parameters, for greater control. See the <a href="anchors">Anchors</a> page for more detail.</p></li>
-<li><p><strong>Endpoint</strong> - the visual representation of one end of a Connection.  You can create and attach these to elements yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection programmatically using <code>jsPlumb.connect(...)</code>.  You can also join two Endpoints programmatically, by passing them as arguments to <code>jsPlumb.connect(...)</code>. See the <a href="endpoints">Endpoints</a> page for more detail.</p></li>
-<li><p><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has four types of these available as defaults - a Bezier curve, a straight line, &#39;flowchart&#39; connectors and &#39;state machine&#39; connectors. You do not interact with Connectors; you just specify definitions of them when you need to. See the <a href="connectors">Connectors</a> page for more detail.</p></li>
+<li><p><strong>Anchor</strong> - a location, relative to an element&#39;s origin, at which an Endpoint can exist. You do not create these 
+yourself; you supply hints to the various jsPlumb functions, which create them as needed.  They have no visual 
+representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships 
+with, or with an array containing various parameters, for greater control. See the <a href="anchors">Anchors</a> page for more detail.</p></li>
+<li><p><strong>Endpoint</strong> - the visual representation of one end of a Connection.  You can create and attach these to elements 
+yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection 
+programmatically using <code>jsPlumb.connect(...)</code>.  You can also join two Endpoints programmatically, by passing them as 
+arguments to <code>jsPlumb.connect(...)</code>. See the <a href="endpoints">Endpoints</a> page for more detail.</p></li>
+<li><p><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has four types of 
+these available as defaults - a Bezier curve, a straight line, &#39;flowchart&#39; connectors and &#39;state machine&#39; connectors. 
+You do not interact with Connectors; you just specify definitions of them when you need to. See the 
+<a href="connectors">Connectors</a> page for more detail.</p></li>
 <li><p><strong>Overlay</strong> - a UI component that is used to decorate a Connector, such as a Label, Arrow, etc.</p></li>
+<li><p><strong>Group</strong> - a group of elements contained within some other element, which can be collapsed, causing connections to
+all of the Group members to be pooled on the collapsed Group container. For more information, see the <a href="groups">Groups</a>
+page.</p></li>
 </ul>
 
-<p>One Connection is made up of two Endpoints, a Connector, and zero or more Overlays working together to join two elements. Each Endpoint has an associated Anchor.</p>
+<p>One Connection is made up of two Endpoints, a Connector, and zero or more Overlays working together to join two 
+elements. Each Endpoint has an associated Anchor.</p>
 
-<p>jsPlumb&#39;s public API exposes only Connection and Endpoint, handling the creation and configuration of everything else internally. But you still need to be across the concepts encapsulated by Anchor, Connector and Overlay.</p>
+<p>jsPlumb&#39;s public API exposes only Connection and Endpoint, handling the creation and configuration of everything else 
+internally. But you still need to be across the concepts encapsulated by Anchor, Connector and Overlay.</p>
 
 <p><a name="definitions"></a></p>
 
 <h3>Connector, Endpoint, Anchor &amp; Overlay Definitions</h3>
 
-<p>Whenever you need to define a Connector, Endpoint, Anchor or Overlay, you must use a &quot;definition&quot; of it, rather than constructing one directly.  This definition can be either a string that nominates the artifact you want to create - see the <code>endpoint</code> parameter here:</p>
+<p>Whenever you need to define a Connector, Endpoint, Anchor or Overlay, you must use a &quot;definition&quot; of it, rather than 
+constructing one directly.  This definition can be either a string that nominates the artifact you want to create - see 
+the <code>endpoint</code> parameter here:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
     <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span>
     <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherDiv&quot;</span><span class="p">,</span>
@@ -169,7 +186,9 @@
   <span class="p">}]</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>There is also a three-argument method that allows you to specify two sets of parameters, which jsPlumb will merge together for you. The idea behind this is that you will often want to define common characteristics somewhere and reuse them across a bunch of different calls:</p>
+<p>There is also a three-argument method that allows you to specify two sets of parameters, which jsPlumb will merge 
+together for you. The idea behind this is that you will often want to define common characteristics somewhere and reuse 
+them across a bunch of different calls:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">common</span> <span class="o">=</span> <span class="p">{</span>
     <span class="nx">cssClass</span>    <span class="o">:</span>   <span class="s2">&quot;myCssClass&quot;</span><span class="p">,</span>
     <span class="nx">hoverClass</span>  <span class="o">:</span>   <span class="s2">&quot;myHoverClass&quot;</span>
@@ -180,7 +199,8 @@
     <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">30</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">10</span> <span class="p">},</span> <span class="nx">common</span> <span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>This syntax is supported for all Endpoint, Connector, Anchor and Overlay definitions.  Here&#39;s an example using definitions for all four:</p>
+<p>This syntax is supported for all Endpoint, Connector, Anchor and Overlay definitions.  Here&#39;s an example using 
+definitions for all four:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">common</span> <span class="o">=</span> <span class="p">{</span>
     <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;myCssClass&quot;</span>
 <span class="p">};</span>
@@ -196,7 +216,8 @@
     <span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>The allowed constructor parameters are different for each artifact you create, but every artifact takes a single JS object as argument, with the parameters as (key,value) pairs in that object.</p>
+<p>The allowed constructor parameters are different for each artifact you create, but every artifact takes a single JS 
+object as argument, with the parameters as (key,value) pairs in that object.</p>
 
                 </div>
             </div>

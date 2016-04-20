@@ -47,7 +47,7 @@
 }
 
 .title {
-    background-color:#629f8d;
+    background-color:#ABC1BB;
     padding-right:16px;
     font-size:13px;
     height:30px;
@@ -61,7 +61,7 @@
 #container6 { left:370px;top:340px; }
 #container7 { left:140px;top:340px; }
 
-.del, .collapse {
+.del, .node-collapse {
     position:absolute;
     top:5px;
     right:5px;
@@ -80,16 +80,16 @@
     content:"X";
 }
 
-.collapse {
+.node-collapse {
     right:29px;
     text-align: center;
 }
 
-.collapse:after {
+.node-collapse:after {
     content:"-";
 }
 
-.group-container.collapsed .collapse:after {
+.group-container.collapsed .node-collapse:after {
     content:"+";
 }
 
@@ -117,7 +117,7 @@
     position:absolute;
     right:0;
     top:0;
-    border-left:4px solid #629f8d;
+    border-left:4px solid #58775d;
     bottom:0;
     width:156px;
     font-size: 11px;

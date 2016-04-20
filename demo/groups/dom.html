@@ -18,6 +18,42 @@
 
 <body data-demo-id="groups">
 
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="../../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="/">DEMOS</a></li>
+                <li><a href="/doc/home.html">DOCS</a></li>
+                <li><a href="/download">DOWNLOAD</a></li>
+                <li><a href="http://beta.jsplumbtoolkit.com/contact.html">CONTACT</a></li>
+                <li><a href="https://blog.jsplumbtoolkit.com">BLOG</a></li>
+            </ul>
+
+            <div class="apidoc-jsplumb-logo"><div class="container"><img src="/img/logo-docs-jsplumb.png"></div></div>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+                <a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+                <a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+                <a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
     <div class="jtk-demo-main">
         <!-- demo -->
         <div class="jtk-demo-canvas canvas-wide flowchart-demo jtk-surface jtk-surface-nopan" id="canvas">
@@ -31,7 +67,7 @@
                     <li>Not droppable (<strong>droppable:false</strong>)</li>
                 </ul>
                 <div class="del" delete-all></div>
-                <div class="collapse"></div>
+                <div class="node-collapse"></div>
                 <div id="c1_1" class="w" style="left:30px;top:35px">1.1</div>
                 <div id="c1_2" class="w" style="left:160px;top:140px">1.2</div>
             </div>
@@ -44,7 +80,7 @@
                     <li>Deletes group only</li>
                 </ul>
                 <div class="del"></div>
-                <div class="collapse"></div>
+                <div class="node-collapse"></div>
                 <div id="c2_1" class="w" style="left:30px;top:40px">2.1</div>
                 <div id="c2_2" class="w" style="left:150px;top:160px">2.2</div>
             </div>
@@ -57,7 +93,7 @@
                     <li>Deletes group only</li>
                 </ul>
                 <div class="del"></div>
-                <div class="collapse"></div>
+                <div class="node-collapse"></div>
                 <div id="c3_1" class="w" style="left:30px;top:35px">3.1</div>
                 <div id="c3_2" class="w" style="left:80px;top:162px">3.2</div>
             </div>
@@ -70,7 +106,7 @@
                     <li>Deletes group and children</li>
                 </ul>
                 <div class="del" delete-all></div>
-                <div class="collapse"></div>
+                <div class="node-collapse"></div>
                 <div id="c4_1" class="w" style="left:30px;top:35px">4.1</div>
                 <div id="c4_2" class="w" style="left:110px;top:150px">4.2</div>
             </div>
@@ -84,7 +120,7 @@
                     <li>Not droppable (<strong>droppable:false</strong>)</li>
                 </ul>
                 <div class="del"></div>
-                <div class="collapse"></div>
+                <div class="node-collapse"></div>
                 <div id="c5_1" class="w" style="left:30px;top:35px">5.1</div>
                 <div id="c5_2" class="w" style="left:140px;top:130px">5.2</div>
             </div>
@@ -97,7 +133,7 @@
                     <li>Deletes group and children</li>
                 </ul>
                 <div class="del" delete-all></div>
-                <div class="collapse"></div>
+                <div class="node-collapse"></div>
                 <div id="c6_1" class="w" style="left:160px;top:45px">6.1</div>
                 <div id="c6_2" class="w" style="left:30px;top:150px">6.2</div>
             </div>
@@ -109,7 +145,7 @@
                     <li>Deletes group and children</li>
                 </ul>
                 <div class="del" delete-all></div>
-                <div class="collapse"></div>
+                <div class="node-collapse"></div>
                 <div id="c7_1" class="w" style="left:30px;top:35px">7.1</div>
                 <div id="c7_2" class="w" style="left:90px;top:150px">7.2</div>
             </div>
