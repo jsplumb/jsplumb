@@ -16,6 +16,7 @@
   - [Connectors](connectors)
   - [Endpoints](endpoints)
   - [Overlays](overlays)
+  - [Groups](groups)
 - [Element Dragging](dragging)
 - [Establishing Connections](connections)
   - [Programmatic Connections](connections#programmatic)
