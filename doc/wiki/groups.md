@@ -150,12 +150,14 @@ If you try to add an element that already belongs to some other Group an excepti
 You can remove an element from a Group programmatically with the `removeGromGroup(el)` method:
 
 ```javascript
-jsPlumb.removeGroup(someElement);
+jsPlumb.removeFromGroup(someElement);
 ```
 
 Note that you do not need to nominate the Group from which you wish to remove the element. Since an element can belong
 to only one Group at a time, it will simply be removed from the Group. If you call this method with an element that does
 not belong to a Group, nothing happens.
+
+---
 
 <a name="childdragdrop"></a>
 ### Dragging and dropping child elements
@@ -206,11 +208,11 @@ This will prevent elements from being dropped onto some other Group.
 Use `collapseGroup` and `expandGroup`:
 
 ```javascript
-jsPlumb.collapseGroup("aGroup");
-```
 
-```javascript
+jsPlumb.collapseGroup("aGroup");
+
 jsPlumb.expandGroup("aGroup");
+
 ```
 
 --- 
@@ -236,12 +238,12 @@ A number of events are fired by the various methods for working with Groups.
 
 <table>
 <tr><td>Event</td><td>Description</td><td>Parameters</tr>
-<tr><td>group:add</td><td>Fired when a new Group is added</td><td>`{group:Group}`</td></tr>
-<tr><td>group:remove</td><td>Fired when a Group is removed</td><td>`{group:Group}`</td></tr>
-<tr><td>group:addMember</td><td>Fired when an element is added to a Group</td><td>`{group:Group, el:Element}`</td></tr>
-<tr><td>group:removeMember</td><td>Fired when an element is removed from a Group</td><td>`{group:Group, el:Element}`</td></tr>
-<tr><td>group:collapse</td><td>Fired when a Group is collapsed</td><td>`{group:Group}`</td></tr>
-<tr><td>group:expand</td><td>Fired when a Group is expanded</td><td>`{group:Group}`</td></tr>
+<tr><td>group:add</td><td>Fired when a new Group is added</td><td><strong>{group:Group}</strong></td></tr>
+<tr><td>group:remove</td><td>Fired when a Group is removed</td><td><strong>{group:Group}</strong></td></tr>
+<tr><td>group:addMember</td><td>Fired when an element is added to a Group</td><td><strong>{group:Group, el:Element}</strong></td></tr>
+<tr><td>group:removeMember</td><td>Fired when an element is removed from a Group</td><td><strong>{group:Group, el:Element}</strong></td></tr>
+<tr><td>group:collapse</td><td>Fired when a Group is collapsed</td><td><strong>{group:Group}</strong></td></tr>
+<tr><td>group:expand</td><td>Fired when a Group is expanded</td><td><strong>{group:Group}</strong></td></tr>
 </table>
 
 ---
@@ -261,7 +263,7 @@ belongs to. Returns null if the element either does not exist or does not belong
 #### Getting the members of a Group
 
 - **getMembers()** - Note that this is a method on the Group object, which you either got back from a call to
- `addGroup` on a jsPlumb instance, which you retrieved from a jsPlumb instance using `getGroup(groupId)`.
+ `addGroup` on a jsPlumb instance, or you retrieved from a jsPlumb instance using `getGroup(groupId)`.
  
  
 
