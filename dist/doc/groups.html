@@ -254,11 +254,13 @@ provide a second argument:</p>
 <h3>Removing an element from a Group</h3>
 
 <p>You can remove an element from a Group programmatically with the <code>removeGromGroup(el)</code> method:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeGroup</span><span class="p">(</span><span class="nx">someElement</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeFromGroup</span><span class="p">(</span><span class="nx">someElement</span><span class="p">);</span>
 </code></pre></div>
 <p>Note that you do not need to nominate the Group from which you wish to remove the element. Since an element can belong
 to only one Group at a time, it will simply be removed from the Group. If you call this method with an element that does
 not belong to a Group, nothing happens.</p>
+
+<hr>
 
 <p><a name="childdragdrop"></a></p>
 
@@ -306,7 +308,8 @@ both already discussed above:</p>
 
 <p>Use <code>collapseGroup</code> and <code>expandGroup</code>:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">collapseGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">);</span>
-</code></pre></div><div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">expandGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">);</span>
+
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">expandGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">);</span>
 </code></pre></div>
 <hr>
 
@@ -333,12 +336,12 @@ both already discussed above:</p>
 
 <table>
 <tr><td>Event</td><td>Description</td><td>Parameters</tr>
-<tr><td>group:add</td><td>Fired when a new Group is added</td><td>`{group:Group}`</td></tr>
-<tr><td>group:remove</td><td>Fired when a Group is removed</td><td>`{group:Group}`</td></tr>
-<tr><td>group:addMember</td><td>Fired when an element is added to a Group</td><td>`{group:Group, el:Element}`</td></tr>
-<tr><td>group:removeMember</td><td>Fired when an element is removed from a Group</td><td>`{group:Group, el:Element}`</td></tr>
-<tr><td>group:collapse</td><td>Fired when a Group is collapsed</td><td>`{group:Group}`</td></tr>
-<tr><td>group:expand</td><td>Fired when a Group is expanded</td><td>`{group:Group}`</td></tr>
+<tr><td>group:add</td><td>Fired when a new Group is added</td><td><strong>{group:Group}</strong></td></tr>
+<tr><td>group:remove</td><td>Fired when a Group is removed</td><td><strong>{group:Group}</strong></td></tr>
+<tr><td>group:addMember</td><td>Fired when an element is added to a Group</td><td><strong>{group:Group, el:Element}</strong></td></tr>
+<tr><td>group:removeMember</td><td>Fired when an element is removed from a Group</td><td><strong>{group:Group, el:Element}</strong></td></tr>
+<tr><td>group:collapse</td><td>Fired when a Group is collapsed</td><td><strong>{group:Group}</strong></td></tr>
+<tr><td>group:expand</td><td>Fired when a Group is expanded</td><td><strong>{group:Group}</strong></td></tr>
 </table>
 
 <hr>
@@ -364,7 +367,7 @@ belongs to. Returns null if the element either does not exist or does not belong
 
 <ul>
 <li><strong>getMembers()</strong> - Note that this is a method on the Group object, which you either got back from a call to
-<code>addGroup</code> on a jsPlumb instance, which you retrieved from a jsPlumb instance using <code>getGroup(groupId)</code>.</li>
+<code>addGroup</code> on a jsPlumb instance, or you retrieved from a jsPlumb instance using <code>getGroup(groupId)</code>.</li>
 </ul>
 
                 </div>
