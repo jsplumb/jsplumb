@@ -47,35 +47,66 @@ jsPlumb.ready(function () {
     j.draggable(c1_2);
 
     j.draggable(c2_1);
-    j.addGroup({ el:container2, id:"two", dropOverride:true});  //(the default is to revert)
+    j.addGroup({
+        el:container2,
+        id:"two",
+        dropOverride:true,
+        endpoint:["Dot", { radius:3 }]
+    });  //(the default is to revert)
     j.addToGroup("two", c2_1);
     j.addToGroup("two", c2_2);
     j.draggable(c2_2);
 
     j.draggable(c3_1);
-    j.addGroup({ el:container3, id:"three", revert:false });
+    j.addGroup({
+        el:container3,
+        id:"three",
+        revert:false,
+        endpoint:["Dot", { radius:3 }]
+    });
     j.addToGroup("three", c3_1);
     j.addToGroup("three", c3_2);
     j.draggable(c3_2);
 
     j.draggable(c4_1);
-    j.addGroup({ el:container4, id:"four", prune:true});
+    j.addGroup({
+        el:container4,
+        id:"four",
+        prune:true,
+        endpoint:["Dot", { radius:3 }]
+    });
     j.addToGroup("four", c4_1);
     j.addToGroup("four", c4_2);
     j.draggable(c4_2);
 
     j.draggable(c5_1);
-    j.addGroup({ el:container5, id:"five", orphan:true, droppable:false});
+    j.addGroup({
+        el:container5,
+        id:"five",
+        orphan:true,
+        droppable:false,
+        endpoint:["Dot", { radius:3 }]
+    });
     j.addToGroup("five", [c5_1, c5_2]);
     j.draggable(c5_2);
 
     j.draggable(c6_1);
-    j.addGroup({el:container6, id:"six", proxied:false});
+    j.addGroup({
+        el:container6,
+        id:"six",
+        proxied:false,
+        endpoint:["Dot", { radius:3 }]
+    });
     j.addToGroup("six", [c6_1, c6_2]);
     j.draggable(c6_2);
 
     j.draggable(c7_1);
-    j.addGroup({el:container7, id:"seven", ghost:true});
+    j.addGroup({
+        el:container7,
+        id:"seven",
+        ghost:true,
+        endpoint:["Dot", { radius:3 }]
+    });
     j.addToGroup("seven", [c7_1, c7_2]);
     j.draggable(c7_2);
 
