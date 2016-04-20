@@ -1809,20 +1809,16 @@
             if (useGhostProxy()) {
                 if (desiredLoc[0] != cPos[0] || desiredLoc[1] != cPos[1]) {
                     if (!isConstrained) {
-                        console.log("flipping to ghost proxy now");
                         var gp = ghostProxy(this.el);
                         params.addClass(gp, _classes.ghostProxy);
                         this.el.parentNode.appendChild(gp);
                         dragEl = gp;
                         isConstrained = true;
-                    } else {
-                        console.log("moving the ghost proxy around")
                     }
                     cPos = desiredLoc;
                 }
                 else {
                     if (isConstrained) {
-                        console.log("back inside now; remove the ghost proxy and revert to the main el", this.el);
                         this.el.parentNode.removeChild(dragEl);
                         dragEl = this.el;
                         isConstrained = false;
@@ -1851,7 +1847,7 @@
 
             _dispatch("drag", {el:this.el, pos:cPos, e:e, drag:this});
 
-            /* test to see if the parent needs to be scrolled
+            /* test to see if the parent needs to be scrolled (future)
              if (scroll) {
              var pnsl = dragEl.parentNode.scrollLeft, pnst = dragEl.parentNode.scrollTop;
              console.log("scroll!", pnsl, pnst);
@@ -1864,9 +1860,6 @@
             this.downListener = null;
             this.upListener = null;
             this.moveListener = null;
-            //this.params = null;
-            //this.el = null;
-            //dragEl = null;
         };
 
         // init:register mousedown, and perhaps set a filter
@@ -6062,6 +6055,10 @@
         exports.jsPlumb = jsPlumb;
     }
 
+    // npm
+    if (typeof module !== "undefined") {
+        module.exports = jsPlumb;
+    }
 
 // --------------------- end static instance + AMD registration -------------------------------------------		
 
@@ -11529,6 +11526,11 @@
             var proxyEp, groupEl = group.getEl(), groupElId = _jsPlumb.getId(groupEl),
                 originalElementId = c.endpoints[index].elementId;
 
+            var otherEl = c.endpoints[index === 0 ? 1 : 0].element;
+            if (otherEl[GROUP] && (!otherEl[GROUP].shouldProxy() && otherEl[GROUP].collapsed)) {
+                return;
+            }
+
             c.proxies = c.proxies || [];
             if(c.proxies[index]) {
                 proxyEp = c.proxies[index].ep;
@@ -11833,7 +11835,7 @@
         this.add = function(_el, doNotFireEvent) {
             _each(_el, function(__el) {
                 __el._jsPlumbGroup = self;
-                elements.push(_el);
+                elements.push(__el);
                 // test if draggable and add handlers if so.
                 if (_jsPlumb.isAlreadyDraggable(__el)) {
                     _bindDragHandlers(__el);
@@ -11855,7 +11857,7 @@
                     return e === __el;
                 });
                 if (manipulateDOM) {
-                    try { self.el.removeChild(__el); }
+                    try { self.getEl().removeChild(__el); }
                     catch (e) {
                         console.log(e);
                     }

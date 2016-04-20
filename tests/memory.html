@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+    <style>
+        .foo {
+            width:50px;
+            height:50px;
+            background: pink;
+            position: absolute;
+        }
+
+        #canvas {
+            overflow:hidden;
+            width:1000px;
+            height:600px;
+            border:2px solid skyblue;
+        }
+    </style>
+</head>
+
+<body>
+<button>GO</button>
+
+<div id="canvas"></div>
+
+<script src="../dist/js/jsPlumb-2.1.0.js"></script>
+
+<script>
+    (function() {
+
+        var canvas = document.getElementById("canvas");
+        var cw = canvas.offsetWidth, ch = canvas.offsetHeight;
+        var button = document.querySelector("button");
+        var j = jsPlumb.getInstance();
+
+        var divs = [];
+        var ad = function() {
+            var d = document.createElement("div");
+            d.className="foo";
+            canvas.appendChild(d);
+            divs.push(d);
+            var p = rnd();
+            d.style.left = p.left + "px";
+            d.style.top = p.top + "px";
+            j.draggable(d);
+            j.droppable(d);
+            return d;
+        };
+        var cleanup = function() {
+            for (var i = 0; i < divs.length; i++) {
+//                k.destroyDraggable(divs[i]);
+//                k.destroyDroppable(divs[i]);
+                j.remove(divs[i]);
+                //divs[i].parentNode.removeChild(divs[i]);
+            }
+            divs.length = 0;
+        };
+
+        var rnd = function() {
+            return {
+                left: Math.max(0, Math.floor(Math.random() * cw)),
+                top: Math.max(0, Math.floor(Math.random() * ch))
+            };
+        };
+
+        var count = 50;
+        var go = function() {
+            cleanup();
+            for (var i = 0; i < count; i++) {
+                ad();
+            }
+        };
+
+        j.on(button, "click", go);
+
+    })();
+</script>
+</body>
+
+</html>
