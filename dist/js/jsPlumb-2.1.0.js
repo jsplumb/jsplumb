@@ -11867,7 +11867,7 @@
                 if (manipulateDOM) {
                     try { self.getEl().removeChild(__el); }
                     catch (e) {
-                        console.log(e);
+                        jsPlumbUtil.log("Could not remove element from Group " + e);
                     }
                 }
                 _unbindDragHandlers(__el);
