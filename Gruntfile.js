@@ -89,8 +89,22 @@ module.exports = function(grunt) {
             all: {
                 options: {
                     urls:[
-                        'http://localhost:3333/tests/qunit-svg-dom-instance.html'
+                        'http://localhost:3333/tests/qunit-svg-dom-instance.html',
+                        'http://localhost:3333/tests/qunit-browserify-instance.html'
                     ]
+                }
+            }
+        },
+        browserify: {
+            dist: {
+                files: {
+                    'dist/js/bundle.js': ['dist/js/jsPlumb-2.1.0.js']
+                },
+                options: {
+                    external: ['require'],
+                    alias: {
+                      'jsplumb': './dist/js/jsPlumb-2.1.0.js'
+                    }
                 }
             }
         },
@@ -208,6 +222,7 @@ module.exports = function(grunt) {
     });
 
     // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -364,6 +379,6 @@ module.exports = function(grunt) {
 
     });
 
-    grunt.registerTask("test", ["connect:server", "qunit_junit", "qunit"]);
+    grunt.registerTask("test", ["browserify", "connect:server", "qunit_junit", "qunit"]);
 
 };
