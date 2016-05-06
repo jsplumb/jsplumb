@@ -1,3 +1,7 @@
+## 2.1.1
+
+- bugfix for groups: element exposed now via getEl method, not directly as el. 
+
 ## 2.1.0
 
 - 'elementDraggable' event now fired whenever an element is made draggable via the `draggable` function
