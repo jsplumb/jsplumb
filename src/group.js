@@ -323,7 +323,7 @@
         this.refreshAllGroups = function() {
             for (var g in _managedGroups) {
                 _updateConnectionsForGroup(_managedGroups[g]);
-                _jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].el));
+                _jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].getEl()));
             }
         };
     };
