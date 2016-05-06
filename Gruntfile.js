@@ -3,7 +3,7 @@ var versions = {
         JS_BEZIER : { f:"jsBezier", v:"0.8" },
         BILTONG : { f:"biltong", v:"0.3" },
         MOTTLE : {f:"mottle", v:"0.7.2" },
-        KATAVORIO : {f:"katavorio", v:"0.15.0" }
+        KATAVORIO : {f:"katavorio", v:"0.17.0" }
     },
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
 
