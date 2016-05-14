@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -144,7 +144,7 @@
             this.removeClass(oldAnchorClass);
             this.addClass(anchorClass);
             // add and remove at the same time to reduce the number of reflows.
-            jsPlumb.updateClasses(this.element, anchorClass, oldAnchorClass);
+            _jp.updateClasses(this.element, anchorClass, oldAnchorClass);
         }.bind(this);
 
         this.prepareAnchor = function(anchorParams) {
@@ -386,7 +386,7 @@
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function (e) {
                 return e.id == this.id;
             }.bind(this));
-            this.element = jsPlumb.getElement(el);
+            this.element = _jp.getElement(el);
             this.elementId = _jsPlumb.getId(this.element);
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
             _jsPlumb.dragManager.endpointAdded(this.element);
@@ -552,7 +552,7 @@
                     // else we might have been given some data. we'll pass it in to a new connection as 'data'.
                     // here we also merge in the optional payload we were given on mousedown.
                     else if (typeof beforeDrag === "object") {
-                        jsPlumb.extend(beforeDrag, payload || {});
+                        _jp.extend(beforeDrag, payload || {});
                     }
                     else
                         // or if no beforeDrag data, maybe use the payload on its own.
@@ -978,7 +978,7 @@
         },
         cleanup: function () {
             var anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
-            jsPlumb.removeClass(this.element, anchorClass);
+            _jp.removeClass(this.element, anchorClass);
             this.anchor = null;
             this.endpoint.cleanup(true);
             this.endpoint.destroy();
