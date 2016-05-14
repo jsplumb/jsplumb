@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -723,7 +723,7 @@
             if (params.clearUserDefinedLocation)
                 this.userDefinedLocation = null;
 
-            if (timestamp && timestamp === self.timestamp)
+            if (timestamp && timestamp === this.timestamp)
                 return this.lastReturnValue;
 
             if (this.userDefinedLocation != null) {
