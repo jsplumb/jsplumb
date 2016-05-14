@@ -1,13 +1,13 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the code for Connections.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * https://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -23,7 +23,7 @@
         _ju = root.jsPlumbUtil;
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
-            if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
+            if (!_jsPlumb.Defaults.DoNotThrowErrors && _jp.Connectors[renderMode][connectorName] == null)
                 throw { msg: "jsPlumb: unknown connector type '" + connectorName + "'" };
 
             return new _jp.Connectors[renderMode][connectorName](connectorArgs, forComponent);
@@ -152,8 +152,8 @@
         this.appendToDefaultType({
             detachable: _detachable,
             reattach: _reattach,
-            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle
+            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || _jp.Defaults.PaintStyle,
+            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || _jp.Defaults.HoverPaintStyle
         });
 
 
@@ -219,7 +219,7 @@
         // merge all the parameters objects into the connection.  parameters set
         // on the connection take precedence; then source endpoint params, then
         // finally target endpoint params.
-        var _p = jsPlumb.extend({}, this.endpoints[1].getParameters());
+        var _p = _jp.extend({}, this.endpoints[1].getParameters());
         _jp.extend(_p, this.endpoints[0].getParameters());
         _jp.extend(_p, this.getParameters());
         this.setParameters(_p);
@@ -234,7 +234,7 @@
         var data = params.data == null || !_ju.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
-        this.mergeData = function(d) { data = jsPlumb.extend(data, d); };
+        this.mergeData = function(d) { data = _jp.extend(data, d); };
 
         // the very last thing we do is apply types, if there are any.
         var _types = [ "default", this.endpoints[0].connectionType, this.endpoints[1].connectionType,  params.type ].join(" ");
@@ -500,10 +500,10 @@
                 existing.addConnection(conn);
             } else {
                 if (!params.endpoints) params.endpoints = [ null, null ];
-                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
+                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
                 if (!params.endpointStyles) params.endpointStyles = [ null, null ];
                 if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
-                var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+                var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || _jp.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle;
                 // Endpoints derive their fillStyle from the connector's strokeStyle, if no fillStyle was specified.
                 if (es.fillStyle == null && params.paintStyle != null)
                     es.fillStyle = params.paintStyle.strokeStyle;
@@ -513,7 +513,7 @@
                 if (es.outlineWidth == null && params.paintStyle != null)
                     es.outlineWidth = params.paintStyle.outlineWidth;
 
-                var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.EndpointHoverStyles[index] || jsPlumb.Defaults.EndpointHoverStyles[index] || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
+                var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.EndpointHoverStyles[index] || _jp.Defaults.EndpointHoverStyles[index] || _jsPlumb.Defaults.EndpointHoverStyle || _jp.Defaults.EndpointHoverStyle;
                 // endpoint hover fill style is derived from connector's hover stroke style
                 if (params.hoverPaintStyle != null) {
                     if (ehs == null) ehs = {};

@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -447,7 +447,7 @@
             edited = false,
             paintInfo = null,
             geometry = null,
-            editable = params.editable !== false && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
+            editable = params.editable !== false && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null;
 
         var _setGeometry = this.setGeometry = function(g, internallyComputed) {
             edited = (!internallyComputed);
@@ -463,7 +463,7 @@
             // if this connector has an editor already, or
             // if an editor for this connector's type is available, or
             // if the child declares an overrideSetEditable and it does not return false, editable is true.
-            if (e && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
+            if (e && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
                 editable = e;
             } else {
                 editable = false;
@@ -865,7 +865,7 @@
             else return [0, 0, 0, 0];
         };
 
-        this.canvas = jsPlumb.createElement("img", {
+        this.canvas = _jp.createElement("img", {
             position:"absolute",
             margin:0,
             padding:0,
@@ -926,7 +926,7 @@
 
         var clazz = params.cssClass ? " " + params.cssClass : "";
 
-        this.canvas = jsPlumb.createElement("div", {
+        this.canvas = _jp.createElement("div", {
             display: "block",
             width: "1px",
             height: "1px",
@@ -1072,7 +1072,7 @@
             this.path = p;
             if (params.events) {
                 for (var i in params.events) {
-                    jsPlumb.on(p, i, params.events[i]);
+                    _jp.on(p, i, params.events[i]);
                 }
             }
         };
@@ -1185,7 +1185,7 @@
     _jp.Overlays.Diamond = function (params) {
         params = params || {};
         var l = params.length || 40,
-            p = jsPlumb.extend(params, {length: l / 2, foldback: 2});
+            p = _jp.extend(params, {length: l / 2, foldback: 2});
         _jp.Overlays.Arrow.call(this, p);
         this.type = "Diamond";
     };
@@ -1220,7 +1220,7 @@
 
         this.getElement = function () {
             if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = jsPlumb.getElement(this._jsPlumb.create(this._jsPlumb.component));
+                var div = this._jsPlumb.div = _jp.getElement(this._jsPlumb.create(this._jsPlumb.component));
                 div.style.position = "absolute";
                 div.className = this._jsPlumb.instance.overlayClass + " " +
                     (this.cssClass ? this.cssClass :
@@ -1420,7 +1420,7 @@
         this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
         var p = _jp.extend({
             create: function () {
-                return jsPlumb.createElement("div");
+                return _jp.createElement("div");
             }}, params);
         _jp.Overlays.Custom.call(this, p);
         this.type = "Label";
