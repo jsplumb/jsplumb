@@ -3116,11 +3116,6 @@
         exports.jsPlumb = jsPlumb;
     }
 
-    // npm
-    if (typeof module !== "undefined") {
-        module.exports = jsPlumb;
-    }
-
 // --------------------- end static instance + AMD registration -------------------------------------------		
 
 }).call(typeof window !== 'undefined' ? window : this);
