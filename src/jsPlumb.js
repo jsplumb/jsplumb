@@ -678,11 +678,12 @@
         ///
             _draw = function (element, ui, timestamp, clearEdits) {
 
-                // TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
-                // NO. it is not correct.
-                if (!jsPlumb.headless && !_suspendDrawing) {
+                if (!_suspendDrawing) {
                     var id = _getId(element),
-                        repaintEls = _currentInstance.getDragManager().getElementsForDraggable(id);
+                        repaintEls,
+                        dm = _currentInstance.getDragManager();
+
+                    if (dm) repaintEls = dm.getElementsForDraggable(id);
 
                     if (timestamp == null) timestamp = _timestamp();
 
