@@ -310,6 +310,9 @@
                     p += " ";
                 }
 
+                self.pathData = p;
+                self.pathTranslate = offset;
+
                 var a = {
                         d: p,
                         transform: "translate(" + offset[0] + "," + offset[1] + ")",
