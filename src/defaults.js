@@ -408,6 +408,29 @@
         }
     };
 
+    _jp.SegmentRenderer = {
+        getPath: function (segment) {
+            return ({
+                "Straight": function () {
+                    var d = segment.getCoordinates();
+                    return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
+                },
+                "Bezier": function () {
+                    var d = segment.params;
+                    return "M " + d.x1 + " " + d.y1 +
+                        " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
+                },
+                "Arc": function () {
+                    var d = segment.params,
+                        laf = segment.sweep > Math.PI ? 1 : 0,
+                        sf = segment.anticlockwise ? 0 : 1;
+
+                    return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
+                }
+            })[segment.type]();
+        }
+    };
+
     /*
      Class: AbstractComponent
      Superclass for AbstractConnector and AbstractEndpoint.
@@ -455,6 +478,15 @@
         };
         var _getGeometry = this.getGeometry = function() {
             return geometry;
+        };
+
+        this.getPathData = function() {
+            var p = "";
+            for (var i = 0; i < segments.length; i++) {
+                p += _jp.SegmentRenderer.getPath(segments[i]);
+                p += " ";
+            }
+            return p;
         };
 
         this.hasBeenEdited = function() { return edited; };
