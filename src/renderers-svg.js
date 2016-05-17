@@ -293,7 +293,7 @@
         var _superSetEditable = this.setEditable;
         this.setEditable = function(e) {
             var result = _superSetEditable.apply(this, [e]);
-            jsPlumb[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
+            _jp[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
         };
 
         _super.renderer.paint = function (style, anchor, extents) {
