@@ -9097,8 +9097,6 @@ test("endpoint: suspendedElement set correctly", function() {
            });
 
         equal(e.endpoints[0].endpoint.radius, 250, "radius is set correctly and retrievable");
-        ok(e.endpoints[0].endpoint.cx != null, "cx is set and retrievable");
-        ok(e.endpoints[0].endpoint.cy != null, "cy is set and retrievable");
     });
 
     test("retrieve endpoint params, Rectangle endpoint", function() {
