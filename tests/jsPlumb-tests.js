@@ -9087,5 +9087,32 @@ test("endpoint: suspendedElement set correctly", function() {
         equal(null, _jsPlumb.getGroupFor("unknown"), "group is null because element doesn't exist");
     });
 
+
+    test("retrieve endpoint params, Dot endpoint", function() {
+       var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+           e = _jsPlumb.connect({
+               source:d1,
+               target:d2,
+               endpoint:["Dot", { radius:250 }]
+           });
+
+        equal(e.endpoints[0].endpoint.radius, 250, "radius is set correctly and retrievable");
+        ok(e.endpoints[0].endpoint.cx != null, "cx is set and retrievable");
+        ok(e.endpoints[0].endpoint.cy != null, "cy is set and retrievable");
+    });
+
+    test("retrieve endpoint params, Rectangle endpoint", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e = _jsPlumb.connect({
+                source:d1,
+                target:d2,
+                endpoint:["Rectangle", { width:250, height:250 }]
+            });
+
+        equal(e.endpoints[0].endpoint.width, 250, "width is set correctly and retrievable");
+        equal(e.endpoints[0].endpoint.height, 250, "height is set correctly and retrievable");
+        ok(e.endpoints[0].endpoint.x != null, "x is set and retrievable");
+        ok(e.endpoints[0].endpoint.y != null, "y is set and retrievable");
+    });
 };
 
