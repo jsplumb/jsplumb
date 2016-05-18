@@ -3615,11 +3615,12 @@
         ///
             _draw = function (element, ui, timestamp, clearEdits) {
 
-                // TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
-                // NO. it is not correct.
-                if (!jsPlumb.headless && !_suspendDrawing) {
+                if (!_suspendDrawing) {
                     var id = _getId(element),
-                        repaintEls = _currentInstance.getDragManager().getElementsForDraggable(id);
+                        repaintEls,
+                        dm = _currentInstance.getDragManager();
+
+                    if (dm) repaintEls = dm.getElementsForDraggable(id);
 
                     if (timestamp == null) timestamp = _timestamp();
 
@@ -4099,8 +4100,6 @@
         this.getManagedElements = function() {
             return managedElements;
         };
-
-        //this.getRenderMode = function() { return "svg"; };
 
         this.connectorClass = "jsplumb-connector";
         this.connectorOutlineClass = "jsplumb-connector-outline";
@@ -6053,11 +6052,6 @@
     // CommonJS
     if (typeof exports !== 'undefined') {
         exports.jsPlumb = jsPlumb;
-    }
-
-    // npm
-    if (typeof module !== "undefined") {
-        module.exports = jsPlumb;
     }
 
 // --------------------- end static instance + AMD registration -------------------------------------------		
@@ -10256,6 +10250,29 @@
         }
     };
 
+    _jp.SegmentRenderer = {
+        getPath: function (segment) {
+            return ({
+                "Straight": function () {
+                    var d = segment.getCoordinates();
+                    return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
+                },
+                "Bezier": function () {
+                    var d = segment.params;
+                    return "M " + d.x1 + " " + d.y1 +
+                        " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
+                },
+                "Arc": function () {
+                    var d = segment.params,
+                        laf = segment.sweep > Math.PI ? 1 : 0,
+                        sf = segment.anticlockwise ? 0 : 1;
+
+                    return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
+                }
+            })[segment.type]();
+        }
+    };
+
     /*
      Class: AbstractComponent
      Superclass for AbstractConnector and AbstractEndpoint.
@@ -10303,6 +10320,15 @@
         };
         var _getGeometry = this.getGeometry = function() {
             return geometry;
+        };
+
+        this.getPathData = function() {
+            var p = "";
+            for (var i = 0; i < segments.length; i++) {
+                p += _jp.SegmentRenderer.getPath(segments[i]);
+                p += " ";
+            }
+            return p;
         };
 
         this.hasBeenEdited = function() { return edited; };
@@ -10528,23 +10554,6 @@
         };
     };
     _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
-
-    /**
-     * Class: Connectors.Straight
-     * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
-     */
-    var Straight = _jp.Connectors.Straight = function () {
-        this.type = "Straight";
-        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
-
-        this._compute = function (paintInfo, _) {
-            _super.addSegment(this, "Straight", {x1: paintInfo.sx, y1: paintInfo.sy, x2: paintInfo.startStubX, y2: paintInfo.startStubY});
-            _super.addSegment(this, "Straight", {x1: paintInfo.startStubX, y1: paintInfo.startStubY, x2: paintInfo.endStubX, y2: paintInfo.endStubY});
-            _super.addSegment(this, "Straight", {x1: paintInfo.endStubX, y1: paintInfo.endStubY, x2: paintInfo.tx, y2: paintInfo.ty});
-        };
-    };
-    _ju.extend(_jp.Connectors.Straight, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(Straight, "Straight");
 
 
     // ********************************* END OF CONNECTOR TYPES *******************************************************************
@@ -12839,6 +12848,44 @@
 }).call(typeof window !== 'undefined' ? window : this);
 /*
  * jsPlumb
+ *
+ * Title:jsPlumb 2.2.0
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG.
+ *
+ * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
+ *
+ * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
+;
+(function () {
+
+    "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+    var STRAIGHT = "Straight";
+
+    var Straight = function (params) {
+        this.type = STRAIGHT;
+        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
+
+        this._compute = function (paintInfo, _) {
+            _super.addSegment(this, STRAIGHT, {x1: paintInfo.sx, y1: paintInfo.sy, x2: paintInfo.startStubX, y2: paintInfo.startStubY});
+            _super.addSegment(this, STRAIGHT, {x1: paintInfo.startStubX, y1: paintInfo.startStubY, x2: paintInfo.endStubX, y2: paintInfo.endStubY});
+            _super.addSegment(this, STRAIGHT, {x1: paintInfo.endStubX, y1: paintInfo.endStubY, x2: paintInfo.tx, y2: paintInfo.ty});
+        };
+    };
+
+    _ju.extend(Straight, _jp.Connectors.AbstractConnector);
+    _jp.registerConnectorType(Straight, STRAIGHT);
+
+}).call(typeof window !== 'undefined' ? window : this);
+/*
+ * jsPlumb
  * 
  * Title:jsPlumb 2.2.0
  * 
@@ -12891,7 +12938,7 @@
             attributes = attributes || {};
             attributes.version = "1.1";
             attributes.xmlns = ns.xhtml;
-            return jsPlumb.createElementNS(ns.svg, name, null, null, attributes);
+            return _jp.createElementNS(ns.svg, name, null, null, attributes);
         },
         _pos = function (d) {
             return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
@@ -13024,7 +13071,7 @@
         this.svg = _node("svg", svgParams);
 
         if (params.useDivWrapper) {
-            this.canvas = jsPlumb.createElement("div", { position : "absolute" });
+            this.canvas = _jp.createElement("div", { position : "absolute" });
             _ju.sizeElement(this.canvas, 0, 0, 1, 1);
             this.canvas.className = clazz;
         }
@@ -13132,7 +13179,7 @@
         var _superSetEditable = this.setEditable;
         this.setEditable = function(e) {
             var result = _superSetEditable.apply(this, [e]);
-            jsPlumb[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
+            _jp[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
         };
 
         _super.renderer.paint = function (style, anchor, extents) {
@@ -13143,11 +13190,7 @@
 
             if (segments.length > 0) {
 
-                // create path from segments.
-                for (var i = 0; i < segments.length; i++) {
-                    p += _jp.Segments.svg.SegmentRenderer.getPath(segments[i]);
-                    p += " ";
-                }
+                p = self.getPathData();
 
                 var a = {
                         d: p,
@@ -13194,30 +13237,6 @@
 
 // ******************************* svg segment renderer *****************************************************	
 
-    _jp.Segments.svg = {
-        SegmentRenderer: {
-            getPath: function (segment) {
-                return ({
-                    "Straight": function () {
-                        var d = segment.getCoordinates();
-                        return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
-                    },
-                    "Bezier": function () {
-                        var d = segment.params;
-                        return "M " + d.x1 + " " + d.y1 +
-                            " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
-                    },
-                    "Arc": function () {
-                        var d = segment.params,
-                            laf = segment.sweep > Math.PI ? 1 : 0,
-                            sf = segment.anticlockwise ? 0 : 1;
-
-                        return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
-                    }
-                })[segment.type]();
-            }
-        }
-    };
 
 // ******************************* /svg segments *****************************************************
 
