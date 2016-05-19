@@ -1,6 +1,11 @@
+## 2.1.2
+
+- issue 523 - Endpoint click registration problems
+- issue 522 - Groups documentation
+
 ## 2.1.1
 
-- bugfix for groups: element exposed now via getEl method, not directly as el. 
+- bugfix for groups: element exposed now via getEl method, not directly as el.
 
 ## 2.1.0
 
@@ -8,7 +13,7 @@
 - add support for 'groups' - elements that can contain other elements, and which are collapsible.
 - upgrade to Mottle 0.7.2. a few fixes for event delegation.
 
-- upgrade to katavorio 0.15.0
+- upgrade to katavorio 0.17.0
 - upgrade to mottle 0.7.2
 - upgrade to jsBezier 0.8
 - upgrade to Biltong 0.3

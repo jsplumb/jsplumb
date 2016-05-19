@@ -128,7 +128,7 @@
 <p>jsPlumb supports the concept of &#39;Groups&#39;, which are elements that act as the parent for a set of child elements. When a
  Group element is dragged, its child elements (which are, in the DOM, child nodes of the Group element) are dragged 
  along with it. Groups may be collapsed, which causes all of their child elements to be hidden, and for any connections
- from a child element to outside of the Group to be &quot;proxied&quot; onto the Group&#39;s collapsed container.</p>
+ from a child element to outside of the Group to be &quot;proxied&quot; onto the Group&#39;s collapsed element.</p>
 
 <ul>
 <li><a href="#adding">Adding a Group</a></li>
@@ -153,31 +153,31 @@ best to just stick to trusty <code>div</code>. So let&#39;s assume you have a va
 
 <p>A simple example, using the defaults:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
-  <span class="nx">container</span><span class="o">:</span><span class="nx">foo</span><span class="p">,</span>
+  <span class="nx">el</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
   <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;aGroup&quot;</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Here we&#39;ve created a Group with ID <code>aGroup</code>. Its container element - <code>foo</code> - will be made draggable, and it will also
+<p>Here we&#39;ve created a Group with ID <code>aGroup</code>. Its element - <code>foo</code> - will be made draggable, and it will also
 be configured to accept elements being dropped onto it.  By default, child elements will be draggable outside of the
-Group container, but if they are not dropped onto another Group they will revert to their position inside the Group
-container before they were dragged.</p>
+Group element, but if they are not dropped onto another Group they will revert to their position inside the Group
+element before they were dragged.</p>
 
 <p>Several aspects of a Group&#39;s behaviour can be configured; broadly speaking these fall into two categories: the behaviour
-of the Group container, and the behaviour of its child elements.</p>
+of the Group element, and the behaviour of its child elements.</p>
 
-<h4>Group container parameters</h4>
+<h4>Group element parameters</h4>
 
 <ul>
-<li><strong>draggable</strong> Set to true by default. If false, the Group container will not be made into a draggable element.</li>
-<li><strong>dragOptions</strong> Options for the Group container&#39;s drag behaviour. One parameter you will likely want to consider in
+<li><strong>draggable</strong> Set to true by default. If false, the Group element will not be made into a draggable element.</li>
+<li><strong>dragOptions</strong> Options for the Group element&#39;s drag behaviour. One parameter you will likely want to consider in
 the <code>dragOptions</code> is <code>filter</code>, which provides a selector, or selectors, identifying elements that should not cause a 
-drag to begin. For a Group container you will probably want to identify the child elements of the Group, so that they 
-can be dragged without kicking off a drag of the Group container.</li>
-<li><strong>droppable</strong> Set to true by default. If false, the Group container will not allow elements to be dropped onto it in
+drag to begin. For a Group element you will probably want to identify the child elements of the Group, so that they 
+can be dragged without kicking off a drag of the Group element.</li>
+<li><strong>droppable</strong> Set to true by default. If false, the Group element will not allow elements to be dropped onto it in
 order to add them to the Group.</li>
-<li><strong>dropOptions</strong> Options for the Group container&#39;s drop behaviour.</li>
+<li><strong>dropOptions</strong> Options for the Group element&#39;s drop behaviour.</li>
 <li><strong>proxied</strong> True by default. Indicates that connections to child elements inside the Group (which emanate from outside
-of the Group) should be proxied, when the Group is collapsed, by connections attached to the Group&#39;s container.</li>
+of the Group) should be proxied, when the Group is collapsed, by connections attached to the Group&#39;s element.</li>
 </ul>
 
 <h4>Child element behaviour parameters</h4>
@@ -185,19 +185,19 @@ of the Group) should be proxied, when the Group is collapsed, by connections att
 <ul>
 <li><p><strong>revert</strong> By default this is true, meaning that child elements dropped outside of the Group (and not onto another Group
 that is accepting droppables) will revert to their last position inside the group on mouseup. If you set <code>revert:false</code> 
-you get a Group that allows child elements to exist outside of the bounds of the Group container, but which will still 
+you get a Group that allows child elements to exist outside of the bounds of the Group element, but which will still 
 drag when the Group is dragged and will be made invisible when the Group is collapsed.</p></li>
-<li><p><strong>prune</strong> Set to false by default. If true, a child element dropped in whitespace outside of the Group container will
+<li><p><strong>prune</strong> Set to false by default. If true, a child element dropped in whitespace outside of the Group element will
 be removed from the Group and from the instance of jsPlumb, and any connections attached to the element will also be
 cleaned up.</p></li>
-<li><p><strong>orphan</strong> Set to false by default. If true, a child element dropped in whitespace outside of the Group container will
+<li><p><strong>orphan</strong> Set to false by default. If true, a child element dropped in whitespace outside of the Group element will
 be removed from the Group, but not from the instance of jsPlumb.</p></li>
 <li><p><strong>constrain</strong> Set to false by default. If true, child elements are constrained to be dragged inside of the Group
-container only.</p></li>
-<li><p><strong>ghost</strong> Set to false by default. If true, a child element that is dragged outside of the Group container will have 
+element only.</p></li>
+<li><p><strong>ghost</strong> Set to false by default. If true, a child element that is dragged outside of the Group element will have 
 its original element left in place, and a &#39;ghost&#39; element - a clone of the original - substituted, which tracks
 with the mouse.</p></li>
-<li><p><strong>dropOverride</strong> False by default. If true, child elements may be dragged outside of the Group container (assuming 
+<li><p><strong>dropOverride</strong> False by default. If true, child elements may be dragged outside of the Group element (assuming 
 no other flag prevents this), but may not be dropped onto other Groups.</p></li>
 </ul>
 
@@ -220,7 +220,7 @@ provide a second argument:</p>
  appear. For instance, perhaps you want to show a smallish dot that tracks the perimeter of a Group when it is
  collapsed:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
-    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="nx">el</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
     <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;aGroup&quot;</span><span class="p">,</span>
     <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
     <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">3</span> <span class="p">}</span> <span class="p">]</span>
@@ -228,7 +228,7 @@ provide a second argument:</p>
 </code></pre></div>
 <p>Perhaps you want to show a large rectangle in the top left corner:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
-    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="nx">el</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
     <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;aGroup&quot;</span><span class="p">,</span>
     <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;TopLeft&quot;</span><span class="p">,</span>
     <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">10</span> <span class="p">}</span> <span class="p">]</span>
@@ -274,7 +274,7 @@ both already discussed above:</p>
 <li>Set <strong>droppable:false</strong> when you create a Group:</li>
 </ul>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
-    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="nx">el</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
     <span class="nx">droppable</span><span class="o">:</span><span class="kc">false</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -284,7 +284,7 @@ both already discussed above:</p>
 <li>Set <strong>constrain:true</strong> when you create a Group:</li>
 </ul>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
-  <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+  <span class="nx">el</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
   <span class="nx">constrain</span><span class="o">:</span><span class="kc">true</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -294,7 +294,7 @@ both already discussed above:</p>
 <li>Set <strong>dropOverride:true</strong> when you create a Group:</li>
 </ul>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
-  <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+  <span class="nx">el</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
   <span class="nx">dropOverride</span><span class="o">:</span><span class="kc">true</span>
 <span class="p">});</span>
 </code></pre></div>
