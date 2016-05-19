@@ -103,6 +103,7 @@
                     var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
                         c.reattach(component._jsPlumb.instance);
+                        c.setVisible(true);
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1]);
                         component._jsPlumb.overlays[c.id] = c;
@@ -173,6 +174,7 @@
         removeOverlay: function (overlayId, dontCleanup) {
             var o = this._jsPlumb.overlays[overlayId];
             if (o) {
+                c.setVisible(false);
                 if (!dontCleanup && o.cleanup) o.cleanup();
                 delete this._jsPlumb.overlays[overlayId];
                 if (this._jsPlumb.overlayPositions)
