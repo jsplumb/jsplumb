@@ -3491,14 +3491,19 @@
             var previousContainer = _container;
             _container = c;
             _containerDelegations.length = 0;
+            var eventAliases = {
+                "endpointclick":"endpointClick",
+                "endpointdblclick":"endpointDblClick"
+            };
 
-            var _oneDelegateHandler = function (id, e) {
+            var _oneDelegateHandler = function (id, e, componentType) {
                 var t = e.srcElement || e.target,
                     jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
                 if (jp) {
                     jp.fire(id, jp, e);
+                    var alias = componentType ? eventAliases[componentType + id] || id : id;
                     // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
-                    _currentInstance.fire(id, jp.component || jp, e);
+                    _currentInstance.fire(alias, jp.component || jp, e);
                 }
             };
 
@@ -3513,15 +3518,16 @@
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                _addOneDelegate(id, ".jsplumb-connector > *", function (e) {
+                _addOneDelegate(id, ".jsplumb-connector", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                _addOneDelegate(id, ".jsplumb-endpoint, .jsplumb-endpoint > *, .jsplumb-endpoint svg *", function (e) {
-                    _oneDelegateHandler(id, e);
+                //_addOneDelegate(id, ".jsplumb-endpoint, .jsplumb-endpoint > *, .jsplumb-endpoint svg *", function (e) {
+                _addOneDelegate(id, ".jsplumb-endpoint", function (e) {
+                    _oneDelegateHandler(id, e, "endpoint");
                 });
                 // overlays
-                _addOneDelegate(id, ".jsplumb-overlay, .jsplumb-overlay *", function (e) {
+                _addOneDelegate(id, ".jsplumb-overlay", function (e) {
                     _oneDelegateHandler(id, e);
                 });
             };

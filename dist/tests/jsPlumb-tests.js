@@ -9087,5 +9087,152 @@ test("endpoint: suspendedElement set correctly", function() {
         equal(null, _jsPlumb.getGroupFor("unknown"), "group is null because element doesn't exist");
     });
 
+// -------------- endpoint clicks
+    test("endpoint click", function() {
+        var d = _addDiv("d1"),
+            e = _jsPlumb.addEndpoint(d),
+            c = 0,
+            ec = 0;
+
+        _jsPlumb.bind("click", function() {
+            c++;
+        });
+
+        _jsPlumb.bind("endpointClick", function() {
+            ec++;
+        });
+
+        // the SVG element
+        _jsPlumb.trigger(e.canvas.childNodes[0], "click");
+
+        // the path element
+        _jsPlumb.trigger(e.canvas.childNodes[0].childNodes[0], "click");
+
+        // the main endpiint
+        _jsPlumb.trigger(e.canvas, "click");
+
+        // each of those should have triggered a single click
+
+        equal(ec, 3, "3 endpoint clicks");
+        equal(c, 0, "no other clicks");
+    });
+
+    test("endpoint double click", function() {
+        var d = _addDiv("d1"),
+            e = _jsPlumb.addEndpoint(d),
+            c = 0,
+            ec = 0;
+
+        _jsPlumb.bind("dblclick", function() {
+            c++;
+        });
+
+        _jsPlumb.bind("endpointDblClick", function() {
+            ec++;
+        });
+
+        // the SVG element
+        _jsPlumb.trigger(e.canvas.childNodes[0], "dblclick");
+
+        // the path element
+        _jsPlumb.trigger(e.canvas.childNodes[0].childNodes[0], "dblclick");
+
+        // the main endpiint
+        _jsPlumb.trigger(e.canvas, "dblclick");
+
+        // each of those should have triggered a single click
+
+        equal(ec, 3, "3 endpoint dbl clicks");
+        equal(c, 0, "no other dbl clicks");
+    });
+
+    test("connector click", function() {
+        var d = _addDiv("d1"), d2 = _addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2}),
+            c = 0;
+
+        _jsPlumb.bind("click", function() {
+            c++;
+        });
+
+        // the path element
+        _jsPlumb.trigger(conn.canvas.childNodes[0], "click");
+
+        // the SVG element
+        _jsPlumb.trigger(conn.canvas, "click");
+
+        // each of those should have triggered a single click
+
+        equal(c, 2, "2 clicks in total");
+    });
+
+    test("connector dbl click", function() {
+        var d = _addDiv("d1"), d2 = _addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2}),
+            c = 0;
+
+        _jsPlumb.bind("dblclick", function() {
+            c++;
+        });
+
+        // the path element
+        _jsPlumb.trigger(conn.canvas.childNodes[0], "dblclick");
+
+        // the SVG element
+        _jsPlumb.trigger(conn.canvas, "dblclick");
+
+        // each of those should have triggered a single click
+
+        equal(c, 2, "2 dblclicks in total");
+    });
+
+    test("overlay click", function() {
+        var d = _addDiv("d1"), d2 = _addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2, overlays:[
+                [ "Arrow", { id:"lbl" }]
+            ]}),
+            lbl = conn.getOverlay("lbl"),
+            c = 0;
+
+        _jsPlumb.bind("click", function() {
+            c++;
+        });
+
+        // the path element
+        _jsPlumb.trigger(lbl.canvas.childNodes[0], "click");
+        _jsPlumb.trigger(lbl.canvas.childNodes[1], "click");
+
+        // the SVG element
+        _jsPlumb.trigger(lbl.canvas, "click");
+
+        // each of those should have triggered a single click
+
+        equal(c, 3, "3 clicks in total");
+    });
+
+    test("overlay dblclick", function() {
+        var d = _addDiv("d1"), d2 = _addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2, overlays:[
+                [ "Arrow", { id:"lbl" }]
+            ]}),
+            lbl = conn.getOverlay("lbl"),
+            c = 0;
+
+        _jsPlumb.bind("dblclick", function() {
+            c++;
+        });
+
+        // the path element
+        _jsPlumb.trigger(lbl.canvas.childNodes[0], "dblclick");
+        _jsPlumb.trigger(lbl.canvas.childNodes[1], "dblclick");
+
+        // the SVG element
+        _jsPlumb.trigger(lbl.canvas, "dblclick");
+
+        // each of those should have triggered a single click
+
+        equal(c, 3, "3 dblclicks in total");
+    });
+
 };
 
