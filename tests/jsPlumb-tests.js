@@ -9258,5 +9258,19 @@ test("endpoint: suspendedElement set correctly", function() {
         ok(e.endpoints[0].endpoint.x != null, "x is set and retrievable");
         ok(e.endpoints[0].endpoint.y != null, "y is set and retrievable");
     });
+
+// ---------------------------- pluggable size/position handler --------------------------------
+
+
+    test("pluggable getSize", function() {
+        var j = jsPlumb.getInstance(null, {
+            getSize:function() { return [100,100]; }
+        });
+
+        var d = _addDiv("d");
+        equal(j.getSize(d)[0], 100, "width is set by pluggable function");
+        equal(j.getSize(d)[1], 100, "height is set by pluggable function");
+    });
+
 };
 
