@@ -460,33 +460,6 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.Defaults = {
-            Anchor: "Bottom",
-            Anchors: [ null, null ],
-            ConnectionsDetachable: true,
-            ConnectionOverlays: [ ],
-            Connector: "Bezier",
-            Container: null,
-            DoNotThrowErrors: false,
-            DragOptions: { },
-            DropOptions: { },
-            Endpoint: "Dot",
-            EndpointOverlays: [ ],
-            Endpoints: [ null, null ],
-            EndpointStyle: { fillStyle: "#456" },
-            EndpointStyles: [ null, null ],
-            EndpointHoverStyle: null,
-            EndpointHoverStyles: [ null, null ],
-            HoverPaintStyle: null,
-            LabelStyle: { color: "black" },
-            LogEnabled: false,
-            Overlays: [ ],
-            MaxConnections: 1,
-            PaintStyle: { lineWidth: 4, strokeStyle: "#456" },
-            ReattachConnections: false,
-            RenderMode: "svg",
-            Scope: "jsPlumb_DefaultScope"
-        };
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
         this.logEnabled = this.Defaults.LogEnabled;
@@ -585,7 +558,6 @@
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                //_addOneDelegate(id, ".jsplumb-endpoint, .jsplumb-endpoint > *, .jsplumb-endpoint svg *", function (e) {
                 _addOneDelegate(id, ".jsplumb-endpoint", function (e) {
                     _oneDelegateHandler(id, e, "endpoint");
                 });
@@ -650,7 +622,6 @@
             _suspendDrawing = false,
             _suspendedAt = null,
             DEFAULT_SCOPE = this.Defaults.Scope,
-            renderMode = null,  // will be set in init()
             _curIdStamp = 1,
             _idstamp = function () {
                 return "" + _curIdStamp++;
@@ -3086,6 +3057,34 @@
         }
     });
 
+    jsPlumbInstance.prototype.Defaults = {
+        Anchor: "Bottom",
+        Anchors: [ null, null ],
+        ConnectionsDetachable: true,
+        ConnectionOverlays: [ ],
+        Connector: "Bezier",
+        Container: null,
+        DoNotThrowErrors: false,
+        DragOptions: { },
+        DropOptions: { },
+        Endpoint: "Dot",
+        EndpointOverlays: [ ],
+        Endpoints: [ null, null ],
+        EndpointStyle: { fillStyle: "#456" },
+        EndpointStyles: [ null, null ],
+        EndpointHoverStyle: null,
+        EndpointHoverStyles: [ null, null ],
+        HoverPaintStyle: null,
+        LabelStyle: { color: "black" },
+        LogEnabled: false,
+        Overlays: [ ],
+        MaxConnections: 1,
+        PaintStyle: { lineWidth: 4, strokeStyle: "#456" },
+        ReattachConnections: false,
+        RenderMode: "svg",
+        Scope: "jsPlumb_DefaultScope"
+    };
+
 // --------------------- static instance + AMD registration -------------------------------------------	
 
 // create static instance and assign to window if window exists.	
@@ -3093,8 +3092,13 @@
     // register on 'root' (lets us run on server or browser)
     root.jsPlumb = jsPlumb;
     // add 'getInstance' method to static instance
-    jsPlumb.getInstance = function (_defaults) {
+    jsPlumb.getInstance = function (_defaults, overrideFns) {
         var j = new jsPlumbInstance(_defaults);
+        if (overrideFns) {
+            for (var ovf in overrideFns) {
+                j[ovf] = overrideFns[ovf];
+            }
+        }
         j.init();
         return j;
     };
