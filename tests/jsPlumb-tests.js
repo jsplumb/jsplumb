@@ -271,17 +271,17 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(els12["d3"] != null, "d3 registered");
     });
 
-    test(": lineWidth specified as string (eew)", function () {
+    test(": strokeWidth specified as string (eew)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var c = _jsPlumb.connect({
             source: "d1",
             target: "d2",
             paintStyle: {
-                strokeStyle: "red",
-                lineWidth: "3"
+                stroke: "red",
+                strokeWidth: "3"
             }
         });
-        equal(c._jsPlumb.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
     });
 
     test(": outlineWidth specified as string (eew)", function () {
@@ -290,8 +290,8 @@ var testSuite = function (renderMode, _jsPlumb) {
             source: "d1",
             target: "d2",
             paintStyle: {
-                strokeStyle: "red",
-                lineWidth: 3,
+                stroke: "red",
+                strokeWidth: 3,
                 outlineWidth: "5"
             }
         });
@@ -302,20 +302,20 @@ var testSuite = function (renderMode, _jsPlumb) {
 
 
 
-    test(": lineWidth and outlineWidth specified as strings (eew)", function () {
+    test(": strokeWidth and outlineWidth specified as strings (eew)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var c = _jsPlumb.connect({
             source: "d1",
             target: "d2",
             paintStyle: {
-                strokeStyle: "red",
-                lineWidth: "3",
+                stroke: "red",
+                strokeWidth: "3",
                 outlineWidth: "5"
             }
         });
         c.repaint();
         equal(c._jsPlumb.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
-        equal(c._jsPlumb.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
     });
 
     test(': defaultEndpointMaxConnections', function () {
@@ -3293,7 +3293,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(": _jsPlumb.connect (setting outline class on Connector)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var c = _jsPlumb.connect({source: d1, target: d2, paintStyle:{outlineColor:"green", outlineWidth:6, lineWidth:4, strokeStyle:"red"}});
+        var c = _jsPlumb.connect({source: d1, target: d2, paintStyle:{outlineStroke:"green", outlineWidth:6, strokeWidth:4, stroke:"red"}});
         var has = function (clazz, elName) {
             var cn = c.getConnector()[elName].className,
                 cns = cn.constructor == String ? cn : cn.baseVal;
@@ -3349,7 +3349,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         var imageEventListener = function () {
         };
-        var arrowSpec = {width: 40, length: 40, location: 0.7, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"}, id:"a"};
+        var arrowSpec = {width: 40, length: 40, location: 0.7, foldback: 0, paintStyle: {strokeWidth: 1, stroke: "#000000"}, id:"a"};
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
@@ -3377,7 +3377,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             length: 40,
             location: 0.7,
             foldback: 0,
-            paintStyle: {lineWidth: 1, strokeStyle: "#000000"},
+            paintStyle: {strokeWidth: 1, stroke: "#000000"},
             id: "anArrow"
         };
         var connection1 = _jsPlumb.connect({
@@ -3588,7 +3588,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             length: 40,
             location: 0.7,
             foldback: 0,
-            paintStyle: {lineWidth: 1, strokeStyle: "#000000"},
+            paintStyle: {strokeWidth: 1, stroke: "#000000"},
             id: "anArrow"
         };
         var connection1 = _jsPlumb.connect({
@@ -3613,7 +3613,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             length: 40,
             location: 0.7,
             foldback: 0,
-            paintStyle: {lineWidth: 1, strokeStyle: "#000000"},
+            paintStyle: {strokeWidth: 1, stroke: "#000000"},
             id: "anArrow"
         };
         var connection1 = _jsPlumb.connect({
@@ -3635,7 +3635,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         var imageEventListener = function () {
         };
         var loc = { location: 0.7 };
-        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"}, id:"a" };
+        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {strokeWidth: 1, stroke: "#000000"}, id:"a" };
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
@@ -3659,7 +3659,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         var imageEventListener = function () {
         };
         var loc = { location: 0.7 };
-        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {lineWidth: 1, strokeStyle: "#000000"}, id:"a" };
+        var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {strokeWidth: 1, stroke: "#000000"}, id:"a" };
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
@@ -4057,8 +4057,8 @@ var testSuite = function (renderMode, _jsPlumb) {
             paintStyle: {
                 outline: 4,
                 outlineStyle: "red",
-                strokeStyle: "red",
-                lineWidth: 2
+                stroke: "red",
+                strokeWidth: 2
             },
             overlays: [
                 "Label", "Arrow"
@@ -4372,7 +4372,7 @@ var testSuite = function (renderMode, _jsPlumb) {
                 labelStyle: {
                     borderWidth: 2,
                     borderStyle: "red",
-                    fillStyle: "blue",
+                    fill: "blue",
                     color: "green",
                     padding: 10
                 }
@@ -5404,17 +5404,17 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(" setPaintStyle", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), c = _jsPlumb.connect({source: d1, target: d2});
-        c.setPaintStyle({strokeStyle: "FOO", lineWidth: 999});
-        equal(c._jsPlumb.paintStyleInUse.strokeStyle, "FOO", "strokeStyle was set");
-        equal(c._jsPlumb.paintStyleInUse.lineWidth, 999, "lineWidth was set");
+        c.setPaintStyle({stroke: "FOO", strokeWidth: 999});
+        equal(c._jsPlumb.paintStyleInUse.stroke, "FOO", "stroke was set");
+        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 999, "strokeWidth was set");
 
-        c.setHoverPaintStyle({strokeStyle: "BAZ", lineWidth: 444});
+        c.setHoverPaintStyle({stroke: "BAZ", strokeWidth: 444});
         c.setHover(true);
-        equal(c._jsPlumb.paintStyleInUse.strokeStyle, "BAZ", "strokeStyle was set");
-        equal(c._jsPlumb.paintStyleInUse.lineWidth, 444, "lineWidth was set");
+        equal(c._jsPlumb.paintStyleInUse.stroke, "BAZ", "stroke was set");
+        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 444, "strokeWidth was set");
 
-        equal(c.getPaintStyle().strokeStyle, "FOO", "getPaintStyle returns correct value");
-        equal(c.getHoverPaintStyle().strokeStyle, "BAZ", "getHoverPaintStyle returns correct value");
+        equal(c.getPaintStyle().stroke, "FOO", "getPaintStyle returns correct value");
+        equal(c.getHoverPaintStyle().stroke, "BAZ", "getHoverPaintStyle returns correct value");
     });
 
     //
@@ -5424,7 +5424,7 @@ var testSuite = function (renderMode, _jsPlumb) {
      //var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
      //c = _jsPlumb.connect({source:d1, target:d2, paintStyle:ps}),
      //c2 = _jsPlumb.connect({source:d1, target:d3}),
-     //ps = {strokeStyle:"FOO", lineWidth:999};
+     //ps = {stroke:"FOO", strokeWidth:999};
 
      //c2.setPaintStyle(ps);
 
@@ -5474,8 +5474,8 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" set connection type on existing connection", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             cssClass: "FOO",
             endpoint:"Rectangle"
         };
@@ -5485,10 +5485,10 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("basic");
-        equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+        equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
+        equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
         equal(c.endpoints[0].type, "Dot", "endpoint is not of type rectangle, because that only works for new connections");
     });
@@ -5496,8 +5496,8 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" add connection type on existing connection", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             cssClass: "FOO"
         };
 
@@ -5506,24 +5506,24 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.addType("basic");
-        equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+        equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
+        equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
     });
 
     test(" set connection type on existing connection then change type", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             cssClass: "FOO"
         };
         var otherType = {
             connector: "Bezier",
-            paintStyle: { strokeStyle: "red", lineWidth: 14 },
-            hoverPaintStyle: { strokeStyle: "green" },
+            paintStyle: { stroke: "red", strokeWidth: 14 },
+            hoverPaintStyle: { stroke: "green" },
             cssClass: "BAR"
         };
 
@@ -5533,17 +5533,17 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("basic");
-        equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().strokeStyle, "blue", "hoverPaintStyle strokeStyle is blue");
-        equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+        equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
+        equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().stroke, "blue", "hoverPaintStyle stroke is blue");
+        equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
 
         c.setType("other");
-        equal(c.getPaintStyle().lineWidth, 14, "paintStyle lineWidth is 14");
-        equal(c.getPaintStyle().strokeStyle, "red", "paintStyle strokeStyle is red");
-        equal(c.getHoverPaintStyle().strokeStyle, "green", "hoverPaintStyle strokeStyle is green");
-        equal(c.getHoverPaintStyle().lineWidth, 14, "hoverPaintStyle linewidth is 14");
+        equal(c.getPaintStyle().strokeWidth, 14, "paintStyle strokeWidth is 14");
+        equal(c.getPaintStyle().stroke, "red", "paintStyle stroke is red");
+        equal(c.getHoverPaintStyle().stroke, "green", "hoverPaintStyle stroke is green");
+        equal(c.getHoverPaintStyle().strokeWidth, 14, "hoverPaintStyle strokeWidth is 14");
         ok(!_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was removed from canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was set on canvas");
     });
@@ -5551,8 +5551,8 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" set connection type on existing connection, overlays should be set", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
@@ -5569,8 +5569,8 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" set connection type on existing connection, overlays should be removed with second type", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
@@ -5592,7 +5592,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         c.setType("other");
         equal(_length(c.getOverlays()), 0, "no overlays after setting type to `other`, which has no overlays");
-        equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "paintStyle lineWidth is default");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "paintStyle strokeWidth is default");
 
         c.addType("basic");
         equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
@@ -5605,8 +5605,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         var basicType = {
             connector: "Flowchart",
             anchor:"Continuous",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
@@ -5644,8 +5644,8 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" set connection type on existing connection, hasType + toggleType", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
@@ -5662,10 +5662,10 @@ var testSuite = function (renderMode, _jsPlumb) {
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         c.toggleType("basic");
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
         c.toggleType("basic");
         equal(c.hasType("basic"), true, "connection has 'basic' type");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
         equal(_length(c.getOverlays()), 1, "one overlay");
 
     });
@@ -5673,18 +5673,18 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" set connection type on existing connection, merge tests", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ],
             cssClass: "FOO"
         };
-        // this tests all three merge types: connector should overwrite, linewidth should be inserted into
+        // this tests all three merge types: connector should overwrite, strokeWidth should be inserted into
         // basic type's params, and arrow overlay should be added to list to end up with two overlays
         var otherType = {
             connector: "Bezier",
-            paintStyle: { lineWidth: 14 },
+            paintStyle: { strokeWidth: 14 },
             overlays: [
                 ["Arrow", {location: 0.25}]
             ],
@@ -5702,8 +5702,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         c.setType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-        equal(c.getPaintStyle().lineWidth, 4, "connection has linewidth 4");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
+        equal(c.getPaintStyle().strokeWidth, 4, "connection has strokeWidth 4");
         equal(_length(c.getOverlays()), 2, "two overlays after setting type to 'basic'");
         equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label set via setType parameter");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
@@ -5711,8 +5711,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         c.addType("other", {lbl:"BAZ"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-        equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
+        equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
         equal(_length(c.getOverlays()), 3, "three overlays after adding 'other' type");
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class is still set on canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was set on canvas");
@@ -5721,8 +5721,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         c.removeType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-        equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
         equal(_length(c.getOverlays()), 2, "two overlays after removing 'basic' type");
         ok(!_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was removed from canvas");
         ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class is still set on canvas");
@@ -5730,8 +5730,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         c.toggleType("other");
         equal(c.hasType("other"), false, "connection does not have 'other' type");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-        equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "connection has default linewidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "connection has default strokeWidth");
         equal(_length(c.getOverlays()), 1, "one overlay after toggling 'other' type. this is the original overlay now.");
         ok(!_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was removed from canvas");
 
@@ -5743,25 +5743,25 @@ var testSuite = function (renderMode, _jsPlumb) {
         var connectionTypes = {};
         connectionTypes["normal"] = {
             paintStyle: {
-                strokeStyle: "gray",
-                lineWidth: 3,
+                stroke: "gray",
+                strokeWidth: 3,
                 cssClass: "normal"
             },
             hoverPaintStyle: {
-                strokeStyle: "#64c8c8",
-                lineWidth: 3
+                stroke: "#64c8c8",
+                strokeWidth: 3
             }
         };
         connectionTypes["selected"] = {
             paintStyle: {
-                strokeStyle: "blue",
-                lineWidth: 3,
+                stroke: "blue",
+                strokeWidth: 3,
                 cssClass: "selected"
 
             },
             hoverPaintStyle: {
-                strokeStyle: "#64c8c8",
-                lineWidth: 3
+                stroke: "#64c8c8",
+                strokeWidth: 3
             }
         };
 
@@ -5805,19 +5805,19 @@ var testSuite = function (renderMode, _jsPlumb) {
         var epTypes = {};
         epTypes["normal"] = {
             paintStyle: {
-                fillStyle: "gray",
+                fill: "gray",
                 cssClass: "normal"
             }
         };
         epTypes["selected"] = {
             paintStyle: {
-                fillStyle: "blue",
+                fill: "blue",
                 cssClass: "selected"
 
             },
             hoverPaintStyle: {
-                strokeStyle: "#64c8c8",
-                lineWidth: 3
+                stroke: "#64c8c8",
+                strokeWidth: 3
             }
         };
 
@@ -5849,17 +5849,17 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" connection type tests, space separated arguments", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
         };
-        // this tests all three merge types: connector should overwrite, linewidth should be inserted into
+        // this tests all three merge types: connector should overwrite, strokeWidth should be inserted into
         // basic type's params, and arrow overlay should be added to list to end up with two overlays
         var otherType = {
             connector: "Bezier",
-            paintStyle: { lineWidth: 14 },
+            paintStyle: { strokeWidth: 14 },
             overlays: [
                 ["Arrow", {location: 0.25}]
             ]
@@ -5875,54 +5875,54 @@ var testSuite = function (renderMode, _jsPlumb) {
         c.setType("basic other");
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-        equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
+        equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
         equal(_length(c.getOverlays()), 2, "two overlays");
 
         c.toggleType("other basic");
         equal(c.hasType("basic"), false, "after toggle, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after toggle, connection does not have 'other' type");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after toggle, connection has default stroke style");
-        equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after toggle, connection has default linewidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "after toggle, connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "after toggle, connection has default strokeWidth");
         equal(_length(c.getOverlays()), 0, "after toggle, no overlays");
 
         c.toggleType("basic other");
         equal(c.hasType("basic"), true, "after toggle again, connection has 'basic' type");
         equal(c.hasType("other"), true, "after toggle again, connection has 'other' type");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "after toggle again, connection has yellow stroke style");
-        equal(c.getPaintStyle().lineWidth, 14, "after toggle again, connection has linewidth 14");
+        equal(c.getPaintStyle().stroke, "yellow", "after toggle again, connection has yellow stroke style");
+        equal(c.getPaintStyle().strokeWidth, 14, "after toggle again, connection has strokeWidth 14");
         equal(_length(c.getOverlays()), 2, "after toggle again, two overlays");
 
         c.removeType("other basic");
         equal(c.hasType("basic"), false, "after remove, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after remove, connection does not have 'other' type");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after remove, connection has default stroke style");
-        equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after remove, connection has default linewidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "after remove, connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "after remove, connection has default strokeWidth");
         equal(_length(c.getOverlays()), 0, "after remove, no overlays");
 
         c.addType("other basic");
         equal(c.hasType("basic"), true, "after add, connection has 'basic' type");
         equal(c.hasType("other"), true, "after add, connection has 'other' type");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "after add, connection has yellow stroke style");
-        // NOTE here we added the types in the other order to before, so lineWidth 4 - from basic - should win.
-        equal(c.getPaintStyle().lineWidth, 4, "after add, connection has linewidth 4");
+        equal(c.getPaintStyle().stroke, "yellow", "after add, connection has yellow stroke style");
+        // NOTE here we added the types in the other order to before, so strokeWidth 4 - from basic - should win.
+        equal(c.getPaintStyle().strokeWidth, 4, "after add, connection has strokeWidth 4");
         equal(_length(c.getOverlays()), 2, "after add, two overlays");
     });
 
     test(" connection type tests, fluid interface", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
         };
-        // this tests all three merge types: connector should overwrite, linewidth should be inserted into
+        // this tests all three merge types: connector should overwrite, strokeWidth should be inserted into
         // basic type's params, and arrow overlay should be added to list to end up with two overlays
         var otherType = {
             connector: "Bezier",
-            paintStyle: { lineWidth: 14 },
+            paintStyle: { strokeWidth: 14 },
             overlays: [
                 ["Arrow", {location: 0.25}]
             ]
@@ -5937,20 +5937,20 @@ var testSuite = function (renderMode, _jsPlumb) {
             c2 = _jsPlumb.connect({source: d2, target: d3});
 
         _jsPlumb.select().addType("basic");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-        equal(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
+        equal(c2.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
 
         _jsPlumb.select().toggleType("basic");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-        equal(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
 
         _jsPlumb.select().addType("basic");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-        equal(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
+        equal(c2.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
 
         _jsPlumb.select().removeType("basic").addType("other");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-        equal(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
 
 
     });
@@ -5958,12 +5958,12 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" connection type tests, two types, check separation", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 }
+            paintStyle: { stroke: "yellow", strokeWidth: 4 }
         };
-        // this tests all three merge types: connector should overwrite, linewidth should be inserted into
+        // this tests all three merge types: connector should overwrite, strokeWidth should be inserted into
         // basic type's params, and arrow overlay should be added to list to end up with two overlays
         var otherType = {
-            paintStyle: { strokeStyle: "red", lineWidth: 14 }
+            paintStyle: { stroke: "red", strokeWidth: 14 }
         };
         _jsPlumb.registerConnectionTypes({
             "basic": basicType,
@@ -5974,10 +5974,10 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2}),
             c2 = _jsPlumb.connect({source: d2, target: d3});
         c.setType("basic");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "first connection has yellow stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "first connection has yellow stroke style");
         c2.setType("other");
 
-        equal(c.getPaintStyle().strokeStyle, "yellow", "first connection has yellow stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "first connection has yellow stroke style");
 
 
     });
@@ -5987,7 +5987,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType(null);
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
 
     });
 
@@ -5996,7 +5996,7 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("foo");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
 
     });
 
@@ -6006,55 +6006,55 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.registerConnectionType("basic", {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
         });
 
         c.setType("basic foo");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
 
         c.toggleType("foo");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
 
         c.removeType("basic baz");
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
 
         c.addType("basic foo bar baz");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
 
     });
 
     test(" create connection using type parameter", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 
-        _jsPlumb.Defaults.PaintStyle = {strokeStyle: "blue", lineWidth: 34};
+        _jsPlumb.Defaults.PaintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
                 connector: "Flowchart",
-                paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-                hoverPaintStyle: { strokeStyle: "blue" },
+                paintStyle: { stroke: "yellow", strokeWidth: 4 },
+                hoverPaintStyle: { stroke: "blue" },
                 overlays: [
                     "Arrow"
                 ],
                 endpoint:"Rectangle"
             },
             "other": {
-                paintStyle: { lineWidth: 14 }
+                paintStyle: { strokeWidth: 14 }
             }
         });
 
-        equal(_jsPlumb.Defaults.PaintStyle.strokeStyle, "blue", "default value has not been messed up");
+        equal(_jsPlumb.Defaults.PaintStyle.stroke, "blue", "default value has not been messed up");
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
 
         c = _jsPlumb.connect({source: d1, target: d2, type: "basic other"});
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
-        equal(c.getPaintStyle().lineWidth, 14, "connection has other type's lineWidth");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().strokeWidth, 14, "connection has other type's strokeWidth");
         equal(c.endpoints[0].type, "Rectangle", "endpoint is of type rectangle");
 
     });
@@ -6062,13 +6062,13 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" makeSource connection type is honoured", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 
-        _jsPlumb.Defaults.PaintStyle = {strokeStyle: "blue", lineWidth: 34};
+        _jsPlumb.Defaults.PaintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
                 connector: "Flowchart",
-                paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-                hoverPaintStyle: { strokeStyle: "blue" },
+                paintStyle: { stroke: "yellow", strokeWidth: 4 },
+                hoverPaintStyle: { stroke: "blue" },
                 overlays: [
                     "Arrow"
                 ],
@@ -6081,8 +6081,8 @@ var testSuite = function (renderMode, _jsPlumb) {
         });
 
         var c = _jsPlumb.connect({source: d1, target: d2, type:"basic"});
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
-        equal(c.getPaintStyle().lineWidth, 4, "connection has basic type's lineWidth");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
         equal(c.endpoints[0].type, "Rectangle", "endpoint is of type rectangle");
 
         _jsPlumb.detach(c);
@@ -6093,8 +6093,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         support.dragConnection(d1, d2);
         c = _jsPlumb.select().get(0);
-        equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
-        equal(c.getPaintStyle().lineWidth, 4, "connection has basic type's lineWidth");
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
         equal(c.endpoints[0].type, "Rectangle", "source endpoint is of type rectangle");
         equal(c.endpoints[1].type, "Blank", "target endpoint is of type Blank - it was overriden from the type's endpoint.");
     });
@@ -6107,8 +6107,8 @@ var testSuite = function (renderMode, _jsPlumb) {
             connector: "Flowchart",
             scope: "BANANA",
             detachable: false,
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
@@ -6153,8 +6153,8 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" set connection type on existing connection, parameterised type", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "${strokeColor}", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" }
+            paintStyle: { stroke: "${strokeColor}", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" }
         };
 
         _jsPlumb.registerConnectionType("basic", basicType);
@@ -6162,17 +6162,17 @@ var testSuite = function (renderMode, _jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("basic", { strokeColor: "yellow" });
-        equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+        equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
+        equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
     });
 
     test(" create connection with parameterised type", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "${strokeColor}", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "${strokeColor}", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays:[
                 ["Label", {id:"one", label:"one" }],
                 ["Label", {id:"two", label:"${label}" }],
@@ -6189,10 +6189,10 @@ var testSuite = function (renderMode, _jsPlumb) {
                 data: { strokeColor: "yellow", label:"label" }
             });
 
-        equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+        equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
+        equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
 
         var o1 = c.getOverlay("one");
         equal(o1.getLabel(),"one", "static label set correctly");
@@ -6249,8 +6249,8 @@ var testSuite = function (renderMode, _jsPlumb) {
     test(" reapply parameterised type", function () {
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "${strokeColor}", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" }
+            paintStyle: { stroke: "${strokeColor}", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" }
         };
 
         _jsPlumb.registerConnectionType("basic", basicType);
@@ -6261,13 +6261,13 @@ var testSuite = function (renderMode, _jsPlumb) {
             });
 
         c.addType("basic", { strokeColor: "yellow" });
-        equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-        equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
-        equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+        equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
+        equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
 
         c.reapplyTypes({ strokeColor: "green" });
-        equal(c.getPaintStyle().strokeStyle, "green", "paintStyle strokeStyle is now green");
+        equal(c.getPaintStyle().stroke, "green", "paintStyle stroke is now green");
     });
 
     test(" setType, scope, two types", function () {
@@ -6278,8 +6278,8 @@ var testSuite = function (renderMode, _jsPlumb) {
             connector: "Flowchart",
             scope: "BANANA",
             detachable: false,
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             overlays: [
                 "Arrow"
             ]
@@ -6309,35 +6309,35 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
-                paintStyle: { strokeStyle: "blue", lineWidth: 4 },
-                hoverPaintStyle: { strokeStyle: "red" },
+                paintStyle: { stroke: "blue", strokeWidth: 4 },
+                hoverPaintStyle: { stroke: "red" },
                 overlays: [
                     "Arrow"
                 ]
             },
             "other": {
-                paintStyle: { lineWidth: 14 }
+                paintStyle: { strokeWidth: 14 }
             }
         });
 
         var c = _jsPlumb.connect({source: e1, target: e2});
-        equal(c.getPaintStyle().strokeStyle, "blue", "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, "blue", "connection has default stroke style");
     });
 
     test(" simple Endpoint type tests.", function () {
         _jsPlumb.registerEndpointType("basic", {
-            paintStyle: {fillStyle: "blue"},
+            paintStyle: {fill: "blue"},
             cssClass: "FOO"
         });
 
         _jsPlumb.registerEndpointType("other", {
-            paintStyle: {fillStyle: "blue"},
+            paintStyle: {fill: "blue"},
             cssClass: "BAR"
         });
 
         var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
         e.setType("basic");
-        equal(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
+        equal(e.getPaintStyle().fill, "blue", "fill style is correct");
         ok(jsPlumb.hasClass(e.canvas, "FOO"), "css class was set");
         e.removeType("basic");
         ok(!jsPlumb.hasClass(e.canvas, "FOO"), "css class was removed");
@@ -6355,18 +6355,18 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(!jsPlumb.hasClass(e.canvas, "BAR"), "BAR css class was removed");
 
         var d2 = _addDiv('d2'), e2 = _jsPlumb.addEndpoint(d2, {type: "basic"});
-        equal(e2.getPaintStyle().fillStyle, "blue", "fill style is correct");
+        equal(e2.getPaintStyle().fill, "blue", "fill style is correct");
     });
 
     test(" clearTypes", function () {
         _jsPlumb.registerEndpointType("basic", {
-            paintStyle: {fillStyle: "blue"},
+            paintStyle: {fill: "blue"},
             cssClass: "FOO"
         });
 
         var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
         e.setType("basic");
-        equal(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
+        equal(e.getPaintStyle().fill, "blue", "fill style is correct");
         ok(jsPlumb.hasClass(e.canvas, "FOO"), "css class was set");
 
         e.clearTypes();
@@ -6377,30 +6377,30 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         var d = _addDiv('d1'),
             e = _jsPlumb.addEndpoint(d, {
-                paintStyle: {fillStyle: "blue"},
-                endpointStyle: {fillStyle: "green"},
-                hoverPaintStyle: {fillStyle: "red"},
-                endpointHoverStyle: {fillStyle: "yellow"}
+                paintStyle: {fill: "blue"},
+                endpointStyle: {fill: "green"},
+                hoverPaintStyle: {fill: "red"},
+                endpointHoverStyle: {fill: "yellow"}
             });
 
-        equal(e.getPaintStyle().fillStyle, "green", "fill style is correct");
+        equal(e.getPaintStyle().fill, "green", "fill style is correct");
         e.setHover(true);
-        equal(e.getHoverPaintStyle().fillStyle, "yellow", "fill style is correct");
+        equal(e.getHoverPaintStyle().fill, "yellow", "fill style is correct");
     });
 
     test(" Endpoint type, prefer endpointStyle to paintStyle.", function () {
         _jsPlumb.registerEndpointType("basic", {
-            paintStyle: {fillStyle: "blue"},
-            endpointStyle: {fillStyle: "green"},
-            hoverPaintStyle: {fillStyle: "red"},
-            endpointHoverStyle: {fillStyle: "yellow"}
+            paintStyle: {fill: "blue"},
+            endpointStyle: {fill: "green"},
+            hoverPaintStyle: {fill: "red"},
+            endpointHoverStyle: {fill: "yellow"}
         });
 
         var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
         e.setType("basic");
-        equal(e.getPaintStyle().fillStyle, "green", "fill style is correct");
+        equal(e.getPaintStyle().fill, "green", "fill style is correct");
         e.setHover(true);
-        equal(e.getHoverPaintStyle().fillStyle, "yellow", "fill style is correct");
+        equal(e.getHoverPaintStyle().fill, "yellow", "fill style is correct");
     });
 
     test(" create connection from Endpoints - with connector settings in Endpoint type.", function () {
@@ -6411,16 +6411,16 @@ var testSuite = function (renderMode, _jsPlumb) {
                 connectorOverlays: [
                     "Arrow"
                 ],
-                connectorStyle: {strokeStyle: "green" },
-                connectorHoverStyle: {lineWidth: 534 },
-                paintStyle: { fillStyle: "blue" },
-                hoverPaintStyle: { strokeStyle: "red" },
+                connectorStyle: {stroke: "green" },
+                connectorHoverStyle: {strokeWidth: 534 },
+                paintStyle: { fill: "blue" },
+                hoverPaintStyle: { stroke: "red" },
                 overlays: [
                     "Arrow"
                 ]
             },
             "other": {
-                paintStyle: { fillStyle: "red" }
+                paintStyle: { fill: "red" }
             }
         });
 
@@ -6431,9 +6431,9 @@ var testSuite = function (renderMode, _jsPlumb) {
             e2 = _jsPlumb.addEndpoint(d2);
 
         var c = _jsPlumb.connect({source: e1, target: e2});
-        equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
-        equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
-        equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
+        equal(e1.getPaintStyle().fill, "blue", "endpoint has fill style specified in Endpoint type");
+        equal(c.getPaintStyle().stroke, "green", "connection has stroke style specified in Endpoint type");
+        equal(c.getHoverPaintStyle().strokeWidth, 534, "connection has hover style specified in Endpoint type");
         equal(c.getConnector().type, "Flowchart", "connector is Flowchart");
         equal(_length(c._jsPlumb.overlays), 1, "connector has one overlay");
         equal(_length(e1._jsPlumb.overlays), 1, "endpoint has one overlay");
@@ -6443,8 +6443,8 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
-                paintStyle: { strokeStyle: "bazona", lineWidth: 4 },
-                hoverPaintStyle: { strokeStyle: "red" },
+                paintStyle: { stroke: "bazona", strokeWidth: 4 },
+                hoverPaintStyle: { stroke: "red" },
                 overlays: [
                     "Arrow"
                 ]
@@ -6453,7 +6453,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
         _jsPlumb.registerEndpointType("basic", {
             connectionType: "basic",
-            paintStyle: {fillStyle: "GAZOODA"}
+            paintStyle: {fill: "GAZOODA"}
         });
 
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
@@ -6463,8 +6463,8 @@ var testSuite = function (renderMode, _jsPlumb) {
             e2 = _jsPlumb.addEndpoint(d2);
 
         c = _jsPlumb.connect({source: e1, target: e2});
-        equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
-        equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
+        equal(e1.getPaintStyle().fill, "GAZOODA", "endpoint has correct paint style, from type.");
+        equal(c.getPaintStyle().stroke, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
     });
 
     test(" endpoint type", function () {
@@ -6482,18 +6482,18 @@ var testSuite = function (renderMode, _jsPlumb) {
 
     test(" multiple makeSource registrations, switched by connectionType", function () {
         _jsPlumb.importDefaults({
-            PaintStyle:{lineWidth:10, strokeStyle:"red"}
+            PaintStyle:{strokeWidth:10, stroke:"red"}
         });
         var basicType = {
             connector: "Flowchart",
-            paintStyle: { strokeStyle: "yellow", lineWidth: 4 },
-            hoverPaintStyle: { strokeStyle: "blue" },
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
             cssClass: "FOO"
         };
         var otherType = {
             connector: "Straight",
-            paintStyle: { strokeStyle: "red", lineWidth: 14 },
-            hoverPaintStyle: { strokeStyle: "green" },
+            paintStyle: { stroke: "red", strokeWidth: 14 },
+            hoverPaintStyle: { stroke: "green" },
             cssClass: "BAR"
         };
 
@@ -6509,12 +6509,12 @@ var testSuite = function (renderMode, _jsPlumb) {
         // make a connection with type not provided; we should get the jsplumb defaults, as no default makeSource
         // registration has been made.
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getPaintStyle().lineWidth, 10, "connect without type specified gives default type");
+        equal(c.getPaintStyle().strokeWidth, 10, "connect without type specified gives default type");
         ok(!jsPlumb.hasClass(c.getConnector().canvas, "FOO"), "css class not set on connector");
 
         // make a connection whose type matches a register makeSource type; we should get its params.
         var c2 = _jsPlumb.connect({source: d1, target: d2, type:"basic"});
-        equal(c2.getPaintStyle().lineWidth, 4, "connect with type specified matches");
+        equal(c2.getPaintStyle().strokeWidth, 4, "connect with type specified matches");
         ok(jsPlumb.hasClass(c2.getConnector().canvas, "FOO"), "css class set on connector");
         equal(c2.endpoints[0].type, "Blank", "source endpoint is blank, per basic type spec");
 
@@ -6525,7 +6525,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         });
 
         var c3 = _jsPlumb.connect({source: d1, target: d2, type:"other"});
-        equal(c3.getPaintStyle().lineWidth, 14, "connect with type specified matches");
+        equal(c3.getPaintStyle().strokeWidth, 14, "connect with type specified matches");
         ok(jsPlumb.hasClass(c3.getConnector().canvas, "BAR"), "css class set on connector");
         equal(c3.endpoints[0].type, "Rectangle", "source endpoint is Rectangle, per basic type spec");
 
@@ -6534,7 +6534,7 @@ var testSuite = function (renderMode, _jsPlumb) {
 
 
         /*var c2 = _jsPlumb.connect({source: d1, target: d2, type:"other"});
-        equal(c2.getPaintStyle().lineWidth, 14, "connect with type specified matches");*/
+        equal(c2.getPaintStyle().strokeWidth, 14, "connect with type specified matches");*/
 
     });
 
@@ -6551,8 +6551,8 @@ var testSuite = function (renderMode, _jsPlumb) {
                 [0.5, "#09098e"],
                 [1, "#678678"]
             ]},
-            lineWidth: 5,
-            strokeStyle: "#678678",
+            strokeWidth: 5,
+            stroke: "#678678",
             dashstyle: "2 2"
         }});
 
@@ -7303,7 +7303,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         var c = _jsPlumb.connect({
             source: "d1",
             target: "d2",
-            endpointStyle: { fillStyle: "blue" }
+            endpointStyle: { fill: "blue" }
         });
 
         equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
@@ -7350,7 +7350,7 @@ var testSuite = function (renderMode, _jsPlumb) {
         var c = _jsPlumb.connect({
             source: "d1",
             target: "d2",
-            endpointStyle: { fillStyle: "blue" }
+            endpointStyle: { fill: "blue" }
         });
 
         equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");

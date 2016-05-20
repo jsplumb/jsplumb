@@ -228,14 +228,14 @@ that support SVG. </p>
 <p><code>getInstance</code> optionally takes an object that provides the defaults:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">secondInstance</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
   <span class="nx">PaintStyle</span><span class="o">:</span><span class="p">{</span> 
-    <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">6</span><span class="p">,</span> 
-    <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#567567&quot;</span><span class="p">,</span> 
-    <span class="nx">outlineColor</span><span class="o">:</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> 
+    <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">6</span><span class="p">,</span> 
+    <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#567567&quot;</span><span class="p">,</span> 
+    <span class="nx">outlineStroke</span><span class="o">:</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> 
     <span class="nx">outlineWidth</span><span class="o">:</span><span class="mi">1</span> 
   <span class="p">},</span>
   <span class="nx">Connector</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Bezier&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">curviness</span><span class="o">:</span> <span class="mi">30</span> <span class="p">}</span> <span class="p">],</span>
   <span class="nx">Endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">5</span> <span class="p">}</span> <span class="p">],</span>
-  <span class="nx">EndpointStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span> <span class="s2">&quot;#567567&quot;</span>  <span class="p">},</span>
+  <span class="nx">EndpointStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">fill</span><span class="o">:</span> <span class="s2">&quot;#567567&quot;</span>  <span class="p">},</span>
   <span class="nx">Anchor</span> <span class="o">:</span> <span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">]</span>
 <span class="p">});</span>
 
@@ -251,15 +251,19 @@ that support SVG. </p>
 
 <h3>Element Ids</h3>
 
-<p>jsPlumb uses the <code>id</code> attribute of any element with which it interacts. If <code>id</code> is not set, jsPlumb will create an id for the element. It is recommended that you set appropriate ids for the elements in your UI yourself.</p>
+<p>jsPlumb uses the <code>id</code> attribute of any element with which it interacts. If <code>id</code> is not set, jsPlumb will create an id 
+for the element. It is recommended that you set appropriate ids for the elements in your UI yourself.</p>
 
 <h4>Changing Element Id</h4>
 
-<p>Because of the fact that jsPlumb uses element ids, you need to tell jsPlumb if an element id changes. There are two methods to help you do this:</p>
+<p>Because of the fact that jsPlumb uses element ids, you need to tell jsPlumb if an element id changes. There are two 
+methods to help you do this:</p>
 
 <ul>
-<li><p><code>jsPlumb.setId(el, newId)</code> Use this if you want jsPlumb to take care of changing the id in the DOM. It will do so, and then update its references accordingly.</p></li>
-<li><p><code>jsPlumb.setIdChanged(oldId, newId)</code>  Use this if you have already changed the element&#39;s ID, and you just want jsPlumb to update its references.</p></li>
+<li><p><code>jsPlumb.setId(el, newId)</code> Use this if you want jsPlumb to take care of changing the id in the DOM. It will do so, 
+and then update its references accordingly.</p></li>
+<li><p><code>jsPlumb.setIdChanged(oldId, newId)</code>  Use this if you have already changed the element&#39;s ID, and you just want 
+jsPlumb to update its references.</p></li>
 </ul>
 
 <p><a name="arguments"></a></p>
@@ -270,11 +274,16 @@ that support SVG. </p>
 
 <h4>Selectors/NodeLists</h4>
 
-<p>In jQuery there is the concept of a &quot;selector&quot; - a list of elements conforming to some CSS path spec, for instance <code>$(&quot;.myClass&quot;)</code>. Both the jQuery flavour, and also vanilla, jsPlumb support these selectors as arguments for elements (vanilla jsPlumb can do this because jQuery&#39;s selector object is <em>list-like</em>, ie. it has a <code>length</code> property).</p>
+<p>In jQuery there is the concept of a &quot;selector&quot; - a list of elements conforming to some CSS path spec, for instance <code>$(&quot;.myClass&quot;)</code>. 
+Both the jQuery flavour, and also vanilla, jsPlumb support these selectors as arguments for elements (vanilla jsPlumb 
+can do this because jQuery&#39;s selector object is <em>list-like</em>, ie. it has a <code>length</code> property).</p>
 
-<p>When using vanilla jsPlumb, you can use a <code>NodeList</code> - it is, effectively, the native equivalent of the selectors we just discussed.  There are several ways of getting a <code>NodeList</code> from the DOM; perhaps the most useful (supported in IE8+) is <code>document.querySelectorAll(&quot;some selector&quot;)</code>.</p>
+<p>When using vanilla jsPlumb, you can use a <code>NodeList</code> - it is, effectively, the native equivalent of the selectors we 
+just discussed.  There are several ways of getting a <code>NodeList</code> from the DOM; perhaps the most useful (supported in IE8+) 
+is <code>document.querySelectorAll(&quot;some selector&quot;)</code>.</p>
 
-<p>You will see <strong>selector</strong> referred to in many places in the jsPlumb documentation. Just think of it as a list of elements that match some CSS spec.</p>
+<p>You will see <strong>selector</strong> referred to in many places in the jsPlumb documentation. Just think of it as a list of elements 
+that match some CSS spec.</p>
 
 <h4>Element Ids</h4>
 
@@ -286,7 +295,8 @@ that support SVG. </p>
 
 <h4>Arrays</h4>
 
-<p>You can also pass an array of any or all of the types we just listed. The contents of the array can be mixed - they do not have to be all one type.</p>
+<p>You can also pass an array of any or all of the types we just listed. The contents of the array can be mixed - they do 
+not have to be all one type.</p>
 
 <p><a name="zindex"></a></p>
 
@@ -350,7 +360,10 @@ call.</p>
 Container directly via the <code>jsPlumb.Defaults.Container</code> property. You can still do this - we&#39;re in Javascript here of 
 course, it&#39;s a free-for-all - but it will be ignored.</p>
 
-<p><strong>Also Important</strong> If you happen to be using jsPlumb&#39;s <code>draggable</code> method to make other parts of your UI draggable (ie. not just things you&#39;re plumbing together), be careful not to call <code>draggable</code> on the element that is acting as the <code>Container</code> for the current instance, or you will see some odd situations occur when dragging.  It is suggested that the best thing to do if you wish to use jsPlumb to enable dragging on non-plumbed elements is to create a new instance:</p>
+<p><strong>Also Important</strong> If you happen to be using jsPlumb&#39;s <code>draggable</code> method to make other parts of your UI draggable (ie. 
+not just things you&#39;re plumbing together), be careful not to call <code>draggable</code> on the element that is acting as the 
+<code>Container</code> for the current instance, or you will see some odd situations occur when dragging.  It is suggested that 
+the best thing to do if you wish to use jsPlumb to enable dragging on non-plumbed elements is to create a new instance:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">nonPlumbing</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">();</span>
 <span class="nx">nonPlumbing</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;some element&quot;</span><span class="p">);</span>
 </code></pre></div>
@@ -372,7 +385,8 @@ artefact will be a child of the document body:</li>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span> <span class="nx">endpoint</span> <span class="nx">options</span> <span class="p">});</span>
 </code></pre></div>
 <ul>
-<li>Set a container to use as the default container, using an element id, and then connect two elements.  The elements created in this example will be children of the element with id &quot;containerId&quot;:</li>
+<li>Set a container to use as the default container, using an element id, and then connect two elements.  The elements 
+created in this example will be children of the element with id &quot;containerId&quot;:</li>
 </ul>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="s2">&quot;containerId&quot;</span><span class="p">);</span>
 <span class="p">...</span>
@@ -389,7 +403,8 @@ artefact will be a child of the document body:</li>
 </code></pre></div>
 <h5>Container CSS</h5>
 
-<p>The container you choose should have <code>position:relative</code> set on it, because it is the origin of that element that jsPlumb will use to compute the placement of the artefacts it adds to the DOM, and jsPlumb uses absolute positioning.</p>
+<p>The container you choose should have <code>position:relative</code> set on it, because it is the origin of that element that jsPlumb 
+will use to compute the placement of the artefacts it adds to the DOM, and jsPlumb uses absolute positioning.</p>
 
 <p><a name="dragging"></a></p>
 
@@ -406,20 +421,26 @@ artefact will be a child of the document body:</li>
 
 <h3>Performance</h3>
 
-<p>The speed at which jsPlumb executes, and the practical limit to the number of manageable connections, is greatly affected by the browser upon which it is being run.  At the time of writing, it will probably not surprise you to learn that jsPlumb runs fastest in Chrome, followed by Safari/Firefox, and then IE browsers in descending version number order.</p>
+<p>The speed at which jsPlumb executes, and the practical limit to the number of manageable connections, is greatly 
+affected by the browser upon which it is being run.  At the time of writing, it will probably not surprise you to learn 
+that jsPlumb runs fastest in Chrome, followed by Safari/Firefox, and then IE browsers in descending version number order.</p>
 
 <h4>Suspending Drawing</h4>
 
-<p>Every <code>connect</code> or <code>addEndpoint</code> call in jsPlumb ordinarily causes a repaint of the associated element, which for many cases is what you want.  But if you are performing some kind of &quot;bulk&quot; operation - like loading data on page load perhaps - it is recommended that you suspend drawing before doing so:</p>
+<p>Every <code>connect</code> or <code>addEndpoint</code> call in jsPlumb ordinarily causes a repaint of the associated element, which for many 
+cases is what you want.  But if you are performing some kind of &quot;bulk&quot; operation - like loading data on page load 
+perhaps - it is recommended that you suspend drawing before doing so:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setSuspendDrawing</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
 <span class="p">...</span>
 <span class="o">-</span> <span class="nx">load</span> <span class="nx">up</span> <span class="nx">all</span> <span class="nx">your</span> <span class="nx">data</span> <span class="nx">here</span> <span class="o">-</span>
 <span class="p">...</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setSuspendDrawing</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
-<p>Notice the second argument in the last call to <code>setSuspendDrawing</code>: it instructs jsPlumb to immediately perform a full repaint (by calling, internally, <code>repaintEverything</code>).</p>
+<p>Notice the second argument in the last call to <code>setSuspendDrawing</code>: it instructs jsPlumb to immediately perform a full 
+repaint (by calling, internally, <code>repaintEverything</code>).</p>
 
-<p>I said above it is recommended that you do this.  It really is.  It makes an enormous difference to the load time when you&#39;re dealing with a lot of Connections on slower browsers.</p>
+<p>I said above it is recommended that you do this.  It really is.  It makes an enormous difference to the load time when 
+you&#39;re dealing with a lot of Connections on slower browsers.</p>
 
 <h6>batch</h6>
 
@@ -446,9 +467,11 @@ artefact will be a child of the document body:</li>
 
 <h4>Anchor Types</h4>
 
-<p>Continuous anchors are the type that require the most maths, because they have to calculate their position every time a paint cycle occurs. </p>
+<p>Continuous anchors are the type that require the most maths, because they have to calculate their position every time a 
+paint cycle occurs. </p>
 
-<p>Dynamic and Perimeter anchors are the next slowest (with Perimeter being slower than most Dynamic Anchors as they are actually Dynamic Anchors that have, by default, 60 locations to choose from).  </p>
+<p>Dynamic and Perimeter anchors are the next slowest (with Perimeter being slower than most Dynamic Anchors as they are 
+actually Dynamic Anchors that have, by default, 60 locations to choose from).  </p>
 
 <p>Static anchors like <code>Top</code>, <code>Bottom</code> etc are the fastest.</p>
 

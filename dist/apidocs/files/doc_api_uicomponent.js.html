@@ -354,9 +354,9 @@
 * color for example, but leave the rest of the appearance the same.
 * @method setHoverPaintStyle
 * @param {Object} style Style to use when the mouse is hovering. The allowed values in this object originally come from valid values in an HTML5 canvas.
-* @param {String} [style.fillStyle] Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a &#x60;fillStyle&#x60; on a Connector will cause the browser to fill the connector&#x27;s path - probably not what you want.
-* @param {String} [style.strokeStyle] Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use &#x60;strokeStyle&#x60; on Endpoints to define a border.
-* @param {Integer} [style.lineWidth] Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)
+* @param {String} [style.fill] Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a &#x60;fill&#x60; on a Connector will cause the browser to fill the connector&#x27;s path - probably not what you want.
+* @param {String} [style.stroke] Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use &#x60;stroke&#x60; on Endpoints to define a border.
+* @param {Integer} [style.strokeWidth] Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)
 * @param {Boolean} [doNotRepaint] If true, the component will not be repainted. Useful when setting things up initially.
 */
 
@@ -371,9 +371,9 @@
 * Sets the component&#x27;s paint style and then repaints the component.
 * @method setPaintStyle
 * @param {Object} style Style to use. The allowed values in this object originally come from valid values in an HTML5 canvas.
-* @param {String} [style.fillStyle] Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a &#x60;fillStyle&#x60; on a Connector will cause the browser to fill the connector&#x27;s path - probably not what you want.
-* @param {String} [style.strokeStyle] Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use &#x60;strokeStyle&#x60; on Endpoints to define a border.
-* @param {Integer} [style.lineWidth] Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)
+* @param {String} [style.fill] Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a &#x60;fill&#x60; on a Connector will cause the browser to fill the connector&#x27;s path - probably not what you want.
+* @param {String} [style.stroke] Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use &#x60;stroke&#x60; on Endpoints to define a border.
+* @param {Integer} [style.strokeWidth] Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)
 * @param {Boolean} [doNotRepaint=false] If true, the component will not be repainted.
 */
 

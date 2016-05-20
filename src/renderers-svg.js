@@ -39,7 +39,7 @@
         STYLE = "style",
         NONE = "none",
         JSPLUMB_GRADIENT = "jsplumb_gradient_",
-        LINE_WIDTH = "lineWidth",
+        LINE_WIDTH = "strokeWidth",
         ns = {
             svg: "http://www.w3.org/2000/svg",
             xhtml: "http://www.w3.org/1999/xhtml"
@@ -94,13 +94,13 @@
 
                 g.appendChild(s);
             }
-            var applyGradientTo = style.strokeStyle ? STROKE : FILL;
+            var applyGradientTo = style.stroke ? STROKE : FILL;
             node.setAttribute(applyGradientTo, "url(#" + id + ")");
         },
         _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-            node.setAttribute(FILL, style.fillStyle ? style.fillStyle : NONE);
-            node.setAttribute(STROKE, style.strokeStyle ? style.strokeStyle : NONE);
+            node.setAttribute(FILL, style.fill ? style.fill : NONE);
+            node.setAttribute(STROKE, style.stroke ? style.stroke : NONE);
 
             if (style.gradient) {
                 _updateGradient(parent, node, style, dimensions, uiComponent);
@@ -111,8 +111,8 @@
                 node.setAttribute(STYLE, "");
             }
 
-            if (style.lineWidth) {
-                node.setAttribute(STROKE_WIDTH, style.lineWidth);
+            if (style.strokeWidth) {
+                node.setAttribute(STROKE_WIDTH, style.strokeWidth);
             }
 
             // in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
@@ -128,7 +128,7 @@
                     parts = style[DASHSTYLE].split(sep),
                     styleToUse = "";
                 parts.forEach(function (p) {
-                    styleToUse += (Math.floor(p * style.lineWidth) + sep);
+                    styleToUse += (Math.floor(p * style.strokeWidth) + sep);
                 });
                 node.setAttribute(STROKE_DASHARRAY, styleToUse);
             }
@@ -315,13 +315,13 @@
                     d = [self.x, self.y, self.w, self.h];
 
                 // outline style.  actually means drawing an svg object underneath the main one.
-                if (style.outlineColor) {
+                if (style.outlineStroke) {
                     var outlineWidth = style.outlineWidth || 1,
-                        outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+                        outlineStrokeWidth = style.strokeWidth + (2 * outlineWidth);
                     outlineStyle = _jp.extend({}, style);
                     delete outlineStyle.gradient;
-                    outlineStyle.strokeStyle = style.outlineColor;
-                    outlineStyle.lineWidth = outlineStrokeWidth;
+                    outlineStyle.stroke = style.outlineStroke;
+                    outlineStyle.strokeWidth = outlineStrokeWidth;
 
                     if (self.bgPath == null) {
                         self.bgPath = _node("path", a);
@@ -337,7 +337,7 @@
 
                 if (self.path == null) {
                     self.path = _node("path", a);
-                    _appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
+                    _appendAtIndex(self.svg, self.path, style.outlineStroke ? 1 : 0);
                 }
                 else {
                     _attr(self.path, a);
@@ -370,9 +370,9 @@
 
         _super.renderer.paint = function (style) {
             var s = _jp.extend({}, style);
-            if (s.outlineColor) {
-                s.strokeWidth = s.outlineWidth;
-                s.strokeStyle = s.outlineColor;
+            if (s.outlineStroke) {
+                s.strokeWidth = s.strokeWidth;
+                s.stroke = s.outlineStroke;
             }
 
             if (this.node == null) {
@@ -479,8 +479,8 @@
                 _attr(this.path, {
                     "d": makePath(params.d),
                     "class": clazz,
-                    stroke: params.strokeStyle ? params.strokeStyle : null,
-                    fill: params.fillStyle ? params.fillStyle : null,
+                    stroke: params.stroke ? params.stroke : null,
+                    fill: params.fill ? params.fill : null,
                     transform: "translate(" + offset[0] + "," + offset[1] + ")"
                 });
             }

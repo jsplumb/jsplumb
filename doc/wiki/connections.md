@@ -44,7 +44,7 @@ jsPlumb.connect({
   target:"element2",
   anchors:["Right", "Left" ],
   endpoint:"Rectangle",
-  endpointStyle:{ fillStyle: "yellow" }
+  endpointStyle:{ fill: "yellow" }
 });
 ```
 
@@ -121,9 +121,9 @@ One thing that happens quite often is that you have an Endpoint whose appearance
 ```javascript
 var exampleGreyEndpointOptions = {
   endpoint:"Rectangle",
-  paintStyle:{ width:25, height:21, fillStyle:'#666' },
+  paintStyle:{ width:25, height:21, fill:'#666' },
   isSource:true,
-  connectorStyle : { strokeStyle:"#666" },
+  connectorStyle : { stroke:"#666" },
   isTarget:true
 };
 ```
@@ -143,7 +143,7 @@ jsPlumb.addEndpoint("element2", {
 Now that you have a source Endpoint, you need to either create a target Endpoint on some element, or notify jsPlumb that you wish to make an entire element a drop target.  Let's look at how to attach a target Endpoint first:
 
 ```javascript
-var endpointOptions = { isTarget:true, endpoint:"Rectangle", paintStyle:{ fillStyle:"gray" } };
+var endpointOptions = { isTarget:true, endpoint:"Rectangle", paintStyle:{ fill:"gray" } };
 var endpoint = jsPlumb.addEndpoint("otherElementId", endpointOptions);
 ```
 
@@ -241,7 +241,7 @@ var endpointOptions = {
   isTarget:true, 
   maxConnections:5,
   endpoint:"Rectangle", 
-  paintStyle:{ fillStyle:"gray" } 
+  paintStyle:{ fill:"gray" } 
 };
 jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 ```
@@ -268,7 +268,7 @@ jsPlumb.makeTarget("aTargetDiv", {
   isTarget:true, 
   maxConnections:5,
   endpoint:"Rectangle", 
-  paintStyle:{ fillStyle:"gray" },
+  paintStyle:{ fill:"gray" },
   maxConnections:3,
   onMaxConnections:function(params, originalEvent) {
     console.log("user tried to drop connection", params.connection, "on element", params.endpoint.element, "with max connections", params.maxConnections);
@@ -315,7 +315,7 @@ var endpointOptions = {
   isTarget:true, 
   uniqueEndpoint:true,
   endpoint:"Rectangle", 
-  paintStyle:{ fillStyle:"gray" } 
+  paintStyle:{ fill:"gray" } 
 };
 jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 ```
@@ -333,7 +333,7 @@ var endpointOptions = {
   uniqueEndpoint:true,
   deleteEndpointsOnDetach:false,
   endpoint:"Rectangle", 
-  paintStyle:{ fillStyle:"gray" } 
+  paintStyle:{ fill:"gray" } 
 };
 jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 ```
@@ -458,7 +458,7 @@ Here's an example code snippet for the basic use case of makeSource:
 
 ```javascript
 jsPlumb.makeSource(someDiv, {
-  paintStyle:{ fillStyle:"yellow" },
+  paintStyle:{ fill:"yellow" },
   endpoint:"Blank",
   anchor:"BottomCenter"
 });
@@ -532,9 +532,9 @@ Here's an example of specifying that you want an Arrow overlay halfway along any
 ```javascript
 var exampleGreyEndpointOptions = {
   endpoint:"Rectangle",
-  paintStyle:{ width:25, height:21, fillStyle:'#666' },
+  paintStyle:{ width:25, height:21, fill:'#666' },
   isSource:true,
-  connectorStyle : { strokeStyle:"#666" },
+  connectorStyle : { stroke:"#666" },
   isTarget:true,
   connectorOverlays: [ [ "Arrow", { location:0.5 } ] ]
 };
@@ -545,9 +545,9 @@ This is an Endpoint that moves around the element it is attached to dependent on
 ```javascript
 var exampleGreyEndpointOptions = {
   endpoint:"Rectangle",
-  paintStyle:{ width:25, height:21, fillStyle:'#666' },
+  paintStyle:{ width:25, height:21, fill:'#666' },
   isSource:true,
-  connectorStyle : { strokeStyle:"#666" },
+  connectorStyle : { stroke:"#666" },
   isTarget:true,
   connectorOverlays: [ [ "Arrow", { location:0.5 } ] ]
   anchor:[ "TopCenter","RightMiddle","BottomCenter","LeftMiddle" ]
@@ -629,9 +629,9 @@ jsPlumb borrowed the concept of 'scope' from jQuery's drag/drop implementation: 
 ```javascript
 var exampleGreyEndpointOptions = {
   endpoint:"Rectangle",
-  paintStyle:{ width:25, height:21, fillStyle:"#666" },
+  paintStyle:{ width:25, height:21, fill:"#666" },
   isSource:true,
-  connectionStyle : { strokeStyle:"#666" },
+  connectionStyle : { stroke:"#666" },
   isTarget:true,
   scope:"exampleGreyConnection"
 };
@@ -650,9 +650,9 @@ You can also, should you want to, provide the scope value separately on the drag
 ```javascript
 var exampleGreyEndpointOptions = {
   endpoint:"Rectangle",
-  paintStyle:{ width:25, height:21, fillStyle:'#666' },
+  paintStyle:{ width:25, height:21, fill:'#666' },
   isSource:true,
-  connectionStyle : { strokeStyle:"#666" },
+  connectionStyle : { stroke:"#666" },
   isTarget:true,
   dragOptions:{ scope:"dragScope" },
   dropOptions:{ scope:"dropScope" }
@@ -667,9 +667,9 @@ If you're using vanilla jsPlumb you can assign multiple scopes to some Endpoint,
 ```javascript
 var exampleGreyEndpointOptions = {
   endpoint:"Rectangle",
-  paintStyle:{ width:25, height:21, fillStyle:"#666" },
+  paintStyle:{ width:25, height:21, fill:"#666" },
   isSource:true,
-  connectionStyle : { strokeStyle:"#666" },
+  connectionStyle : { stroke:"#666" },
   isTarget:true,
   scope:"foo bar baz"
 };

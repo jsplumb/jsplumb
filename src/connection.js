@@ -444,7 +444,7 @@
                         targetPos: tAnchorP,
                         sourceEndpoint: this.endpoints[sIdx],
                         targetEndpoint: this.endpoints[tIdx],
-                        lineWidth: this._jsPlumb.paintStyleInUse.lineWidth,
+                        "stroke-width": this._jsPlumb.paintStyleInUse.strokeWidth,
                         sourceInfo: sourceInfo,
                         targetInfo: targetInfo
                     });
@@ -466,8 +466,8 @@
                         }
                     }
 
-                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 0),
+                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 1) / 2,
+                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 0),
                         extents = {
                             xmin: Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                             ymin: Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
@@ -504,12 +504,12 @@
                 if (!params.endpointStyles) params.endpointStyles = [ null, null ];
                 if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
                 var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || _jp.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle;
-                // Endpoints derive their fillStyle from the connector's strokeStyle, if no fillStyle was specified.
-                if (es.fillStyle == null && params.paintStyle != null)
-                    es.fillStyle = params.paintStyle.strokeStyle;
+                // Endpoints derive their fill from the connector's stroke, if no fill was specified.
+                if (es.fill == null && params.paintStyle != null)
+                    es.fill = params.paintStyle.stroke;
 
-                if (es.outlineColor == null && params.paintStyle != null)
-                    es.outlineColor = params.paintStyle.outlineColor;
+                if (es.outlineStroke == null && params.paintStyle != null)
+                    es.outlineStroke = params.paintStyle.outlineStroke;
                 if (es.outlineWidth == null && params.paintStyle != null)
                     es.outlineWidth = params.paintStyle.outlineWidth;
 
@@ -517,8 +517,8 @@
                 // endpoint hover fill style is derived from connector's hover stroke style
                 if (params.hoverPaintStyle != null) {
                     if (ehs == null) ehs = {};
-                    if (ehs.fillStyle == null) {
-                        ehs.fillStyle = params.hoverPaintStyle.strokeStyle;
+                    if (ehs.fill == null) {
+                        ehs.fill = params.hoverPaintStyle.stroke;
                     }
                 }
                 var a = params.anchors ? params.anchors[index] :

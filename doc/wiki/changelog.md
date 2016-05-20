@@ -1,3 +1,20 @@
+## 2.2.0
+
+- Overhaul of keys used in paintStyle and hoverPaintStyle objects:
+
+  strokeStyle   -> style
+  fillStyle     -> fill
+  lineWidth     -> strokeWidth
+  outlineColor  -> outlineStroke
+  outlineWidth  -> outlineWidth     (yes, unchanged)
+  
+  
+
+## 2.1.2
+
+- bugfix for endpoint click registration
+- doc inconsistencies fixed for groups
+
 ## 2.1.1
 
 - bugfix for groups: element exposed now via getEl method, not directly as el. 

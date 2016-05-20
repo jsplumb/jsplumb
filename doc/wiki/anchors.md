@@ -190,7 +190,7 @@ Note also that Continuous Anchors can be specified on `addEndpoint` calls:
 ```javascript
 jsPlumb.addEndpoint(someDiv, {
   anchor:"Continuous",
-  paintStyle:{ fillStyle:"red" }
+  paintStyle:{ fill:"red" }
 });
 ```
 
@@ -199,12 +199,12 @@ jsPlumb.addEndpoint(someDiv, {
 ```javascript
 jsPlumb.makeSource(someDiv, {
   anchor:"Continuous",
-  paintStyle:{ fillStyle:"red" }
+  paintStyle:{ fill:"red" }
 });
 
 jsPlumb.makeTarget(someDiv, {
   anchor:"Continuous",
-  paintStyle:{ fillStyle:"red" }
+  paintStyle:{ fill:"red" }
 });
 ```
 

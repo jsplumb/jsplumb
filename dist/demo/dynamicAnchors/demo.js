@@ -26,21 +26,21 @@ jsPlumb.ready(function () {
                 [0.5, '#09098e'],
                 [1, exampleColor]
             ]},
-            lineWidth: 5,
-            strokeStyle: exampleColor
+            strokeWidth: 5,
+            stroke: exampleColor
         },
         hoverStyle = {
-            strokeStyle: "#449999"
+            stroke: "#449999"
         },
         overlays = [
-            ["Diamond", { fillStyle: "#09098e", width: 15, length: 15 } ]
+            ["Diamond", { fill: "#09098e", width: 15, length: 15 } ]
         ],
         endpoint = ["Dot", { cssClass: "endpointClass", radius: 10, hoverClass: "endpointHoverClass" } ],
-        endpointStyle = { fillStyle: exampleColor },
+        endpointStyle = { fill: exampleColor },
         anEndpoint = {
             endpoint: endpoint,
             paintStyle: endpointStyle,
-            hoverPaintStyle: { fillStyle: "#449999" },
+            hoverPaintStyle: { fill: "#449999" },
             isSource: true,
             isTarget: true,
             maxConnections: -1,

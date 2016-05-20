@@ -217,14 +217,14 @@
 <p><code>getInstance</code> optionally takes an object that provides the defaults:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">secondInstance</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
   <span class="nx">PaintStyle</span><span class="o">:</span><span class="p">{</span> 
-    <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">6</span><span class="p">,</span> 
-    <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#567567&quot;</span><span class="p">,</span> 
-    <span class="nx">outlineColor</span><span class="o">:</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> 
+    <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">6</span><span class="p">,</span> 
+    <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#567567&quot;</span><span class="p">,</span> 
+    <span class="nx">outlineStroke</span><span class="o">:</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> 
     <span class="nx">outlineWidth</span><span class="o">:</span><span class="mi">1</span> 
   <span class="p">},</span>
   <span class="nx">Connector</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Bezier&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">curviness</span><span class="o">:</span> <span class="mi">30</span> <span class="p">}</span> <span class="p">],</span>
   <span class="nx">Endpoint</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">5</span> <span class="p">}</span> <span class="p">],</span>
-  <span class="nx">EndpointStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span> <span class="s2">&quot;#567567&quot;</span>  <span class="p">},</span>
+  <span class="nx">EndpointStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">fill</span><span class="o">:</span> <span class="s2">&quot;#567567&quot;</span>  <span class="p">},</span>
   <span class="nx">Anchor</span> <span class="o">:</span> <span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">]</span>
 <span class="p">});</span>
 

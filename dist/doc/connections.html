@@ -182,7 +182,7 @@
   <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;element2&quot;</span><span class="p">,</span>
   <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Right&quot;</span><span class="p">,</span> <span class="s2">&quot;Left&quot;</span> <span class="p">],</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
-  <span class="nx">endpointStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span> <span class="s2">&quot;yellow&quot;</span> <span class="p">}</span>
+  <span class="nx">endpointStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span> <span class="s2">&quot;yellow&quot;</span> <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>This is what we have told jsPlumb we want this time:</p>
@@ -251,9 +251,9 @@
 <p>One thing that happens quite often is that you have an Endpoint whose appearance and behaviour is largely the same between usages on different elements, with just a few differences. </p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fill</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
-  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span>
 <span class="p">};</span>
 </code></pre></div>
@@ -267,7 +267,7 @@
 <span class="p">},</span> <span class="nx">exampleGreyEndpointOptions</span><span class="p">));</span>
 </code></pre></div>
 <p>Now that you have a source Endpoint, you need to either create a target Endpoint on some element, or notify jsPlumb that you wish to make an entire element a drop target.  Let&#39;s look at how to attach a target Endpoint first:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> <span class="p">};</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> <span class="p">};</span>
 <span class="kd">var</span> <span class="nx">endpoint</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;otherElementId&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
 <p>This Endpoint, a gray rectangle, has declared that it can act as a drop target for Connections. </p>
@@ -354,7 +354,7 @@ the exact same target Endpoint we used before - the gray rectangle - but we will
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
   <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
 <span class="p">};</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
@@ -378,7 +378,7 @@ the user tried to drop:</p>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
   <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">},</span>
   <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
   <span class="nx">onMaxConnections</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">originalEvent</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;user tried to drop connection&quot;</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">connection</span><span class="p">,</span> <span class="s2">&quot;on element&quot;</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">endpoint</span><span class="p">.</span><span class="nx">element</span><span class="p">,</span> <span class="s2">&quot;with max connections&quot;</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">maxConnections</span><span class="p">);</span>
@@ -419,7 +419,7 @@ of parameters that may be common across several different calls:</p>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
   <span class="nx">uniqueEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
 <span class="p">};</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
@@ -436,7 +436,7 @@ of parameters that may be common across several different calls:</p>
   <span class="nx">uniqueEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
   <span class="nx">deleteEndpointsOnDetach</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
 <span class="p">};</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
@@ -545,7 +545,7 @@ parameter, which can be the name of some position finder, or a position finder f
 
 <p>Here&#39;s an example code snippet for the basic use case of makeSource:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span> <span class="p">},</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Blank&quot;</span><span class="p">,</span>
   <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;BottomCenter&quot;</span>
 <span class="p">});</span>
@@ -607,9 +607,9 @@ parameter, which can be the name of some position finder, or a position finder f
 <p>Here&#39;s an example of specifying that you want an Arrow overlay halfway along any Connection dragged from this Endpoint:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fill</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
-  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
   <span class="nx">connectorOverlays</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">location</span><span class="o">:</span><span class="mf">0.5</span> <span class="p">}</span> <span class="p">]</span> <span class="p">]</span>
 <span class="p">};</span>
@@ -617,9 +617,9 @@ parameter, which can be the name of some position finder, or a position finder f
 <p>This is an Endpoint that moves around the element it is attached to dependent on the location of other elements in the connections it is attached to (a &#39;dynamic&#39; anchor):</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fill</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
-  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
   <span class="nx">connectorOverlays</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">location</span><span class="o">:</span><span class="mf">0.5</span> <span class="p">}</span> <span class="p">]</span> <span class="p">]</span>
   <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;TopCenter&quot;</span><span class="p">,</span><span class="s2">&quot;RightMiddle&quot;</span><span class="p">,</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span><span class="s2">&quot;LeftMiddle&quot;</span> <span class="p">]</span>
@@ -715,9 +715,9 @@ parameter, which can be the name of some position finder, or a position finder f
 <p>jsPlumb borrowed the concept of &#39;scope&#39; from jQuery&#39;s drag/drop implementation: the notion of which draggables can be dropped on which droppables.  In jsPlumb you can provide a &#39;scope&#39; entry when creating an Endpoint.  Here&#39;s the example grey Endpoint example with &#39;scope&#39; added:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
-  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
   <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;exampleGreyConnection&quot;</span>
 <span class="p">};</span>
@@ -733,9 +733,9 @@ parameter, which can be the name of some position finder, or a position finder f
 <p>You can also, should you want to, provide the scope value separately on the drag/drop options, like this:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fill</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
-  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
   <span class="nx">dragOptions</span><span class="o">:</span><span class="p">{</span> <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;dragScope&quot;</span> <span class="p">},</span>
   <span class="nx">dropOptions</span><span class="o">:</span><span class="p">{</span> <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;dropScope&quot;</span> <span class="p">}</span>
@@ -748,9 +748,9 @@ parameter, which can be the name of some position finder, or a position finder f
 <p>If you&#39;re using vanilla jsPlumb you can assign multiple scopes to some Endpoint, or element configured via <code>makeSource</code> or <code>makeTarget</code>. To do so, provide the scopes as a space-separated list, as you would with CSS classes:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
-  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
   <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo bar baz&quot;</span>
 <span class="p">};</span>

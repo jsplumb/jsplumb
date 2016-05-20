@@ -50,7 +50,7 @@ jsPlumb.ready(function () {
     // implicitly in the default scope.
         endpoint = {
             anchor: [0.5, 0.5, 0, -1],
-            connectorStyle: { lineWidth: 7, strokeStyle: "rgba(198,89,30,0.7)" },
+            connectorStyle: { strokeWidth: 7, stroke: "rgba(198,89,30,0.7)" },
             endpointsOnTop: true,
             isSource: true,
             maxConnections: 10,

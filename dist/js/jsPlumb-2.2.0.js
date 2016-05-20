@@ -2979,8 +2979,8 @@
                 jsPlumb.extend(mergedHoverStyle, component._jsPlumb.paintStyle);
                 jsPlumb.extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
                 delete component._jsPlumb.hoverPaintStyle;
-                // we want the fillStyle of paintStyle to override a gradient, if possible.
-                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fillStyle)
+                // we want the fill of paintStyle to override a gradient, if possible.
+                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fill)
                     delete mergedHoverStyle.gradient;
                 component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
             }
@@ -3397,33 +3397,6 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.Defaults = {
-            Anchor: "Bottom",
-            Anchors: [ null, null ],
-            ConnectionsDetachable: true,
-            ConnectionOverlays: [ ],
-            Connector: "Bezier",
-            Container: null,
-            DoNotThrowErrors: false,
-            DragOptions: { },
-            DropOptions: { },
-            Endpoint: "Dot",
-            EndpointOverlays: [ ],
-            Endpoints: [ null, null ],
-            EndpointStyle: { fillStyle: "#456" },
-            EndpointStyles: [ null, null ],
-            EndpointHoverStyle: null,
-            EndpointHoverStyles: [ null, null ],
-            HoverPaintStyle: null,
-            LabelStyle: { color: "black" },
-            LogEnabled: false,
-            Overlays: [ ],
-            MaxConnections: 1,
-            PaintStyle: { lineWidth: 4, strokeStyle: "#456" },
-            ReattachConnections: false,
-            RenderMode: "svg",
-            Scope: "jsPlumb_DefaultScope"
-        };
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
         this.logEnabled = this.Defaults.LogEnabled;
@@ -3491,14 +3464,19 @@
             var previousContainer = _container;
             _container = c;
             _containerDelegations.length = 0;
+            var eventAliases = {
+                "endpointclick":"endpointClick",
+                "endpointdblclick":"endpointDblClick"
+            };
 
-            var _oneDelegateHandler = function (id, e) {
+            var _oneDelegateHandler = function (id, e, componentType) {
                 var t = e.srcElement || e.target,
                     jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
                 if (jp) {
                     jp.fire(id, jp, e);
+                    var alias = componentType ? eventAliases[componentType + id] || id : id;
                     // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
-                    _currentInstance.fire(id, jp.component || jp, e);
+                    _currentInstance.fire(alias, jp.component || jp, e);
                 }
             };
 
@@ -3513,15 +3491,15 @@
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                _addOneDelegate(id, ".jsplumb-connector > *", function (e) {
+                _addOneDelegate(id, ".jsplumb-connector", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                _addOneDelegate(id, ".jsplumb-endpoint, .jsplumb-endpoint > *, .jsplumb-endpoint svg *", function (e) {
-                    _oneDelegateHandler(id, e);
+                _addOneDelegate(id, ".jsplumb-endpoint", function (e) {
+                    _oneDelegateHandler(id, e, "endpoint");
                 });
                 // overlays
-                _addOneDelegate(id, ".jsplumb-overlay, .jsplumb-overlay *", function (e) {
+                _addOneDelegate(id, ".jsplumb-overlay", function (e) {
                     _oneDelegateHandler(id, e);
                 });
             };
@@ -3581,7 +3559,6 @@
             _suspendDrawing = false,
             _suspendedAt = null,
             DEFAULT_SCOPE = this.Defaults.Scope,
-            renderMode = null,  // will be set in init()
             _curIdStamp = 1,
             _idstamp = function () {
                 return "" + _curIdStamp++;
@@ -6017,6 +5994,34 @@
         }
     });
 
+    jsPlumbInstance.prototype.Defaults = {
+        Anchor: "Bottom",
+        Anchors: [ null, null ],
+        ConnectionsDetachable: true,
+        ConnectionOverlays: [ ],
+        Connector: "Bezier",
+        Container: null,
+        DoNotThrowErrors: false,
+        DragOptions: { },
+        DropOptions: { },
+        Endpoint: "Dot",
+        EndpointOverlays: [ ],
+        Endpoints: [ null, null ],
+        EndpointStyle: { fill: "#456" },
+        EndpointStyles: [ null, null ],
+        EndpointHoverStyle: null,
+        EndpointHoverStyles: [ null, null ],
+        HoverPaintStyle: null,
+        LabelStyle: { color: "black" },
+        LogEnabled: false,
+        Overlays: [ ],
+        MaxConnections: 1,
+        PaintStyle: { "stroke-width": 4, stroke: "#456" },
+        ReattachConnections: false,
+        RenderMode: "svg",
+        Scope: "jsPlumb_DefaultScope"
+    };
+
 // --------------------- static instance + AMD registration -------------------------------------------	
 
 // create static instance and assign to window if window exists.	
@@ -6024,8 +6029,13 @@
     // register on 'root' (lets us run on server or browser)
     root.jsPlumb = jsPlumb;
     // add 'getInstance' method to static instance
-    jsPlumb.getInstance = function (_defaults) {
+    jsPlumb.getInstance = function (_defaults, overrideFns) {
         var j = new jsPlumbInstance(_defaults);
+        if (overrideFns) {
+            for (var ovf in overrideFns) {
+                j[ovf] = overrideFns[ovf];
+            }
+        }
         j.init();
         return j;
     };
@@ -6707,6 +6717,7 @@
                     var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
                         c.reattach(component._jsPlumb.instance);
+                        c.setVisible(true);
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1]);
                         component._jsPlumb.overlays[c.id] = c;
@@ -6777,6 +6788,7 @@
         removeOverlay: function (overlayId, dontCleanup) {
             var o = this._jsPlumb.overlays[overlayId];
             if (o) {
+                o.setVisible(false);
                 if (!dontCleanup && o.cleanup) o.cleanup();
                 delete this._jsPlumb.overlays[overlayId];
                 if (this._jsPlumb.overlayPositions)
@@ -8579,7 +8591,7 @@
                         targetPos: tAnchorP,
                         sourceEndpoint: this.endpoints[sIdx],
                         targetEndpoint: this.endpoints[tIdx],
-                        lineWidth: this._jsPlumb.paintStyleInUse.lineWidth,
+                        "stroke-width": this._jsPlumb.paintStyleInUse.strokeWidth,
                         sourceInfo: sourceInfo,
                         targetInfo: targetInfo
                     });
@@ -8601,8 +8613,8 @@
                         }
                     }
 
-                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 0),
+                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 1) / 2,
+                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 0),
                         extents = {
                             xmin: Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                             ymin: Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
@@ -8639,12 +8651,12 @@
                 if (!params.endpointStyles) params.endpointStyles = [ null, null ];
                 if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
                 var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || _jp.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle;
-                // Endpoints derive their fillStyle from the connector's strokeStyle, if no fillStyle was specified.
-                if (es.fillStyle == null && params.paintStyle != null)
-                    es.fillStyle = params.paintStyle.strokeStyle;
+                // Endpoints derive their fill from the connector's stroke, if no fill was specified.
+                if (es.fill == null && params.paintStyle != null)
+                    es.fill = params.paintStyle.stroke;
 
-                if (es.outlineColor == null && params.paintStyle != null)
-                    es.outlineColor = params.paintStyle.outlineColor;
+                if (es.outlineStroke == null && params.paintStyle != null)
+                    es.outlineStroke = params.paintStyle.outlineStroke;
                 if (es.outlineWidth == null && params.paintStyle != null)
                     es.outlineWidth = params.paintStyle.outlineWidth;
 
@@ -8652,8 +8664,8 @@
                 // endpoint hover fill style is derived from connector's hover stroke style
                 if (params.hoverPaintStyle != null) {
                     if (ehs == null) ehs = {};
-                    if (ehs.fillStyle == null) {
-                        ehs.fillStyle = params.hoverPaintStyle.strokeStyle;
+                    if (ehs.fill == null) {
+                        ehs.fill = params.hoverPaintStyle.stroke;
                     }
                 }
                 var a = params.anchors ? params.anchors[index] :
@@ -10437,11 +10449,11 @@
         };
 
         var _prepareCompute = function (params) {
-            this.lineWidth = params.lineWidth;
+            this.strokeWidth = params.strokeWidth;
             var segment = _jg.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
-                lw = params.lineWidth || 1,
+                lw = params.strokeWidth || 1,
                 so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
                 to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0],
@@ -10608,8 +10620,8 @@
                 w = this.radius * 2,
                 h = this.radius * 2;
 
-            if (endpointStyle.strokeStyle) {
-                var lw = endpointStyle.lineWidth || 1;
+            if (endpointStyle.stroke) {
+                var lw = endpointStyle.strokeWidth || 1;
                 x -= lw;
                 y -= lw;
                 w += (lw * 2);
@@ -10894,18 +10906,17 @@
      * across the tail.
      */
     /*
-     * Function: Constructor
+     * @constructor
      *
-     * Parameters:
-     *
-     * 	length - distance in pixels from head to tail baseline. default 20.
-     * 	width - width in pixels of the tail baseline. default 20.
-     * 	fillStyle - style to use when filling the arrow.  defaults to "black".
-     * 	strokeStyle - style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
-     * 	lineWidth - line width to use when stroking the arrow. defaults to 1, but only used if strokeStyle is not null.
-     * 	foldback - distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
-     * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
-     * 	direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
+     * @param {Object} params Constructor params.
+     * @param {Number} [params.length] Distance in pixels from head to tail baseline. default 20.
+     * @param {Number} [params.width] Width in pixels of the tail baseline. default 20.
+     * @param {String} [params.fill] Style to use when filling the arrow.  defaults to "black".
+     * @param {String} [params.stroke] Style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
+     * @param {Number} [params.stroke-width] Line width to use when stroking the arrow. defaults to 1, but only used if stroke is not null.
+     * @param {Number} [params.foldback] Distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
+     * @param {Number} [params.location] Distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
+     * @param {NUmber} [params.direction] Indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
      */
     _jp.Overlays.Arrow = function (params) {
         this.type = "Arrow";
@@ -10917,7 +10928,7 @@
         this.width = params.width || 20;
         this.id = params.id;
         var direction = (params.direction || 1) < 0 ? -1 : 1,
-            paintStyle = params.paintStyle || { lineWidth: 1 },
+            paintStyle = params.paintStyle || { "stroke-width": 1 },
         // how far along the arrow the lines folding back in come to. default is 62.3%.
             foldback = params.foldback || 0.623;
 
@@ -10977,16 +10988,16 @@
                 cxy = _jg.pointOnLine(hxy, txy, foldback * this.length);
 
                 var d = { hxy: hxy, tail: tail, cxy: cxy },
-                    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
-                    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
-                    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
+                    stroke = paintStyle.stroke || currentConnectionPaintStyle.stroke,
+                    fill = paintStyle.fill || currentConnectionPaintStyle.stroke,
+                    lineWidth = paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
 
                 return {
                     component: component,
                     d: d,
-                    lineWidth: lineWidth,
-                    strokeStyle: strokeStyle,
-                    fillStyle: fillStyle,
+                    "stroke-width": lineWidth,
+                    stroke: stroke,
+                    fill: fill,
                     minX: Math.min(hxy.x, tail[0].x, tail[1].x),
                     maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
                     minY: Math.min(hxy.y, tail[0].y, tail[1].y),
@@ -11225,7 +11236,7 @@
     _jp.Overlays.GuideLines = function () {
         var self = this;
         self.length = 50;
-        self.lineWidth = 5;
+        self.strokeWidth = 5;
         this.type = "GuideLines";
         AbstractOverlay.apply(this, arguments);
         _jp.jsPlumbUIComponent.apply(this, arguments);
@@ -11288,7 +11299,7 @@
             this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
             el.style.font = this.labelStyle.font;
             el.style.color = this.labelStyle.color || "black";
-            if (this.labelStyle.fillStyle) el.style.background = this.labelStyle.fillStyle;
+            if (this.labelStyle.fill) el.style.background = this.labelStyle.fill;
             if (this.labelStyle.borderWidth > 0) {
                 var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
                 el.style.border = this.labelStyle.borderWidth + "px solid " + dStyle;
@@ -12925,7 +12936,7 @@
         STYLE = "style",
         NONE = "none",
         JSPLUMB_GRADIENT = "jsplumb_gradient_",
-        LINE_WIDTH = "lineWidth",
+        LINE_WIDTH = "strokeWidth",
         ns = {
             svg: "http://www.w3.org/2000/svg",
             xhtml: "http://www.w3.org/1999/xhtml"
@@ -12980,13 +12991,13 @@
 
                 g.appendChild(s);
             }
-            var applyGradientTo = style.strokeStyle ? STROKE : FILL;
+            var applyGradientTo = style.stroke ? STROKE : FILL;
             node.setAttribute(applyGradientTo, "url(#" + id + ")");
         },
         _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-            node.setAttribute(FILL, style.fillStyle ? style.fillStyle : NONE);
-            node.setAttribute(STROKE, style.strokeStyle ? style.strokeStyle : NONE);
+            node.setAttribute(FILL, style.fill ? style.fill : NONE);
+            node.setAttribute(STROKE, style.stroke ? style.stroke : NONE);
 
             if (style.gradient) {
                 _updateGradient(parent, node, style, dimensions, uiComponent);
@@ -12997,8 +13008,8 @@
                 node.setAttribute(STYLE, "");
             }
 
-            if (style.lineWidth) {
-                node.setAttribute(STROKE_WIDTH, style.lineWidth);
+            if (style.strokeWidth) {
+                node.setAttribute(STROKE_WIDTH, style.strokeWidth);
             }
 
             // in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
@@ -13014,7 +13025,7 @@
                     parts = style[DASHSTYLE].split(sep),
                     styleToUse = "";
                 parts.forEach(function (p) {
-                    styleToUse += (Math.floor(p * style.lineWidth) + sep);
+                    styleToUse += (Math.floor(p * style.strokeWidth) + sep);
                 });
                 node.setAttribute(STROKE_DASHARRAY, styleToUse);
             }
@@ -13201,13 +13212,13 @@
                     d = [self.x, self.y, self.w, self.h];
 
                 // outline style.  actually means drawing an svg object underneath the main one.
-                if (style.outlineColor) {
+                if (style.outlineStroke) {
                     var outlineWidth = style.outlineWidth || 1,
-                        outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+                        outlineStrokeWidth = style.strokeWidth + (2 * outlineWidth);
                     outlineStyle = _jp.extend({}, style);
                     delete outlineStyle.gradient;
-                    outlineStyle.strokeStyle = style.outlineColor;
-                    outlineStyle.lineWidth = outlineStrokeWidth;
+                    outlineStyle.stroke = style.outlineStroke;
+                    outlineStyle.strokeWidth = outlineStrokeWidth;
 
                     if (self.bgPath == null) {
                         self.bgPath = _node("path", a);
@@ -13223,7 +13234,7 @@
 
                 if (self.path == null) {
                     self.path = _node("path", a);
-                    _appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
+                    _appendAtIndex(self.svg, self.path, style.outlineStroke ? 1 : 0);
                 }
                 else {
                     _attr(self.path, a);
@@ -13256,9 +13267,9 @@
 
         _super.renderer.paint = function (style) {
             var s = _jp.extend({}, style);
-            if (s.outlineColor) {
-                s.strokeWidth = s.outlineWidth;
-                s.strokeStyle = s.outlineColor;
+            if (s.outlineStroke) {
+                s.strokeWidth = s.strokeWidth;
+                s.stroke = s.outlineStroke;
             }
 
             if (this.node == null) {
@@ -13365,8 +13376,8 @@
                 _attr(this.path, {
                     "d": makePath(params.d),
                     "class": clazz,
-                    stroke: params.strokeStyle ? params.strokeStyle : null,
-                    fill: params.fillStyle ? params.fillStyle : null,
+                    stroke: params.stroke ? params.stroke : null,
+                    fill: params.fill ? params.fill : null,
                     transform: "translate(" + offset[0] + "," + offset[1] + ")"
                 });
             }

@@ -42,8 +42,8 @@
                 jsPlumb.extend(mergedHoverStyle, component._jsPlumb.paintStyle);
                 jsPlumb.extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
                 delete component._jsPlumb.hoverPaintStyle;
-                // we want the fillStyle of paintStyle to override a gradient, if possible.
-                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fillStyle)
+                // we want the fill of paintStyle to override a gradient, if possible.
+                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fill)
                     delete mergedHoverStyle.gradient;
                 component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
             }
@@ -3070,7 +3070,7 @@
         Endpoint: "Dot",
         EndpointOverlays: [ ],
         Endpoints: [ null, null ],
-        EndpointStyle: { fillStyle: "#456" },
+        EndpointStyle: { fill: "#456" },
         EndpointStyles: [ null, null ],
         EndpointHoverStyle: null,
         EndpointHoverStyles: [ null, null ],
@@ -3079,7 +3079,7 @@
         LogEnabled: false,
         Overlays: [ ],
         MaxConnections: 1,
-        PaintStyle: { lineWidth: 4, strokeStyle: "#456" },
+        PaintStyle: { "stroke-width": 4, stroke: "#456" },
         ReattachConnections: false,
         RenderMode: "svg",
         Scope: "jsPlumb_DefaultScope"

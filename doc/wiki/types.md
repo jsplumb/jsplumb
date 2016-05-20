@@ -32,8 +32,8 @@ create a Connection, and then assign the Type to it:
 
 ```javascript
 jsPlumb.registerConnectionType("example", {
-  paintStyle:{ strokeStyle:"blue", lineWidth:5  },
-  hoverPaintStyle:{ strokeStyle:"red", lineWidth:7 }
+  paintStyle:{ stroke:"blue", strokeWidth:5  },
+  hoverPaintStyle:{ stroke:"red", strokeWidth:7 }
 });
 
 var c = jsPlumb.connect({ source:"someDiv", target:"someOtherDiv" });
@@ -48,13 +48,13 @@ and you want a different appearance for each state.  Connection Types to the res
 ```javascript
 jsPlumb.registerConnectionTypes({
   "basic": {
-    paintStyle:{ strokeStyle:"blue", lineWidth:5  },
-    hoverPaintStyle:{ strokeStyle:"red", lineWidth:7 },
+    paintStyle:{ stroke:"blue", strokeWidth:5  },
+    hoverPaintStyle:{ stroke:"red", strokeWidth:7 },
     cssClass:"connector-normal"
   },
   "selected":{
-    paintStyle:{ strokeStyle:"red", lineWidth:5 },
-    hoverPaintStyle:{ lineWidth: 7 },
+    paintStyle:{ stroke:"red", strokeWidth:5 },
+    hoverPaintStyle:{ strokeWidth: 7 },
     cssClass:"connector-selected"
   }	
 });
@@ -68,9 +68,13 @@ c.bind("click", function() {
 
 Notice here how we used a different method -`registerConnectionTypes` - to register a few Types at once.
 
-Notice also the `hoverPaintStyle` for the `selected` Type: it declares only a `lineWidth`.  As mentioned above, Types are merged with as much granularity as possible, so that means that in this case the `lineWidth` value from `selected` will be merged into the `hoverPaintStyle` from `basic`, and voila, red, 7 pixels.
+Notice also the `hoverPaintStyle` for the `selected` Type: it declares only a `strokeWidth`.  As mentioned above, Types 
+are merged with as much granularity as possible, so that means that in this case the `strokeWidth` value from `selected` 
+will be merged into the `hoverPaintStyle` from `basic`, and voila, red, 7 pixels.
 
-These examples, of course, use the `jsPlumb.connect` method, but in many UIs Connections are created via drag and drop.  How would you assign that `basic` Type to a Connection created with drag and drop?  You provide it as the Endpoint's `connectionType` parameter, like so:
+These examples, of course, use the `jsPlumb.connect` method, but in many UIs Connections are created via drag and drop.  
+How would you assign that `basic` Type to a Connection created with drag and drop?  You provide it as the Endpoint's 
+`connectionType` parameter, like so:
 
 ```javascript
 var e1 = jsPlumb.addEndpoint("someDiv", {
@@ -90,7 +94,10 @@ var c = jsPlumb.connect({ source:e1, target:e2 });
 console.log(c.hasType("basic));   // -> true
 ```
 
-Note that the second Endpoint we created did not have a `connectionType` parameter - we didn't need it, as the source Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source Endpoint has not declared `connectionType`.  This is the same way jsPlumb treats other Connector parameters such as `paintStyle` etc - the source Endpoint wins.
+Note that the second Endpoint we created did not have a `connectionType` parameter - we didn't need it, as the source 
+Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source 
+Endpoint has not declared `connectionType`.  This is the same way jsPlumb treats other Connector parameters such as 
+`paintStyle` etc - the source Endpoint wins.
 
 ##### Supported Parameters in Connection Type objects
 Not every parameter from a Connection's constructor is supported in a Connection Type - as mentioned above, Types act 
@@ -119,12 +126,13 @@ have provided to the constructor.
 
 <a name="parameterized-connection-type"></a>
 ##### Parameterized Connection Types
-Connection Types support parameterized values - values that are derived at runtime by some object you supply. Here's the first example from above, with a parameterized value for `strokeStyle`:
+Connection Types support parameterized values - values that are derived at runtime by some object you supply. Here's 
+the first example from above, with a parameterized value for `stroke`:
 
 ```javascript
 jsPlumb.registerConnectionType("example", {
-  paintStyle:{ strokeStyle:"${color}", lineWidth:5  },
-  hoverPaintStyle:{ strokeStyle:"red", lineWidth:7 }
+  paintStyle:{ stroke:"${color}", strokeWidth:5  },
+  hoverPaintStyle:{ stroke:"red", strokeWidth:7 }
 });
 
 var c = jsPlumb.connect({ source:"someDiv", target:"someOtherDiv" });
@@ -139,8 +147,8 @@ You can also use a parameterized Type in a `jsPlumb.connect` call, by supplying 
 
 ```javascript
 jsPlumb.registerConnectionType("example", {
-  paintStyle:{ strokeStyle:"${color}", lineWidth:5  },
-  hoverPaintStyle:{ strokeStyle:"red", lineWidth:7 }
+  paintStyle:{ stroke:"${color}", strokeWidth:5  },
+  hoverPaintStyle:{ stroke:"red", strokeWidth:7 }
 });
 
 var c = jsPlumb.connect({ 
@@ -155,10 +163,10 @@ Here are a few examples showing you the full Type API:
 
 ```javascript
 jsPlumb.registerConnectionTypes({
-  "foo":{ paintStyle:{ strokeStyle:"yellow", lineWidth:5, cssClass:"foo" } },
-  "bar":{ paintStyle:{ strokeStyle:"blue", lineWidth:10 } },
-  "baz":{ paintStyle:{ strokeStyle:"green", lineWidth:1, cssClass:"${clazz}" } },
-  "boz":{ paintStyle: { strokeStyle:"${color}", lineWidth:"${width}" } }
+  "foo":{ paintStyle:{ stroke:"yellow", strokeWidth:5, cssClass:"foo" } },
+  "bar":{ paintStyle:{ stroke:"blue", strokeWidth:10 } },
+  "baz":{ paintStyle:{ stroke:"green", strokeWidth:1, cssClass:"${clazz}" } },
+  "boz":{ paintStyle: { stroke:"${color}", strokeWidth:"${width}" } }
 });
 	
 var c = jsPlumb.connect({ 
@@ -209,7 +217,8 @@ c.clearTypes();
 console.log(c.getType()); // -> [  ]
 ```
 
-Things to note here are that every method **except hasType** can take a space-delimited list of Types to work with. So types work like CSS classes, basically. I think I might have mentioned that already though.
+Things to note here are that every method **except hasType** can take a space-delimited list of Types to work with. So 
+types work like CSS classes, basically. I think I might have mentioned that already though.
 
 <a name="endpoint-type"></a>
 ### Endpoint Type
@@ -226,10 +235,14 @@ The only real differences between Endpoint and Connection Types are the allowed 
 - **connectorHoverStyle** - hover paint style for Connections from this Endpoint.
 - **connector** - a Connector definition, like `StateMachine`, or `[ "Flowchart", { stub:50 } ]`
 - **connectionType** - This allows you to specify the Connection Type for Connections made from this Endpoint.
-- **scope** - remember, Endpoints support a single scope. So if you have multiple Types applied, you will get the scope from the last Type that defines one.
-- **cssClass** - This works the same as CSS class for Connections: any class assigned by any active type will be written to the UI artefact.
-- **parameters** - when you add/set a Type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.
-- **overlays** - when you have multiple Types applied to an Endpoint, you get the union of all the Overlays defined across the various types.
+- **scope** - remember, Endpoints support a single scope. So if you have multiple Types applied, you will get the scope 
+from the last Type that defines one.
+- **cssClass** - This works the same as CSS class for Connections: any class assigned by any active type will be written 
+to the UI artefact.
+- **parameters** - when you add/set a Type that has parameters, any existing parameters with the same keys will be 
+overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.
+- **overlays** - when you have multiple Types applied to an Endpoint, you get the union of all the Overlays defined 
+across the various types.
 
 **Note** There are two sets of parameters you can use to set paint styles for Endpoints - `endpointStyle`/`endpointHoverStyle` and `paintStyle`/`hoverPaintStyle`.  The idea behind this is that when you use the `endpoint..` versions, you can use a single object to define a Type that is shared between Endpoints and Connectors.
 	
@@ -238,10 +251,10 @@ One thing to be aware of is that the parameters here that are passed to Connecti
 ```javascript
 jsPlumb.registerEndpointTypes({
   "basic":{			
-    paintStyle:{fillStyle:"blue"}
+    paintStyle:{fill:"blue"}
   },
   "selected":{			
-    paintStyle:{fillStyle:"red"}
+    paintStyle:{fill:"red"}
   }
 });
   
@@ -255,7 +268,9 @@ e.bind("click", function() {
 });
 ```
 
-So it works the same way as Connection Types.  There are several parameters allowed by an Endpoint Type that affect Connections coming from that Endpoint. Note that this does not affect existing Connections.  It affects only Connections that are created after you set the new Type(s) on an Endpoint.
+So it works the same way as Connection Types.  There are several parameters allowed by an Endpoint Type that affect 
+Connections coming from that Endpoint. Note that this does not affect existing Connections.  It affects only Connections 
+that are created after you set the new Type(s) on an Endpoint.
 
 <a name="parameterized-endpoint-type"></a>
 ### Parameterized Endpoint Types
@@ -263,7 +278,7 @@ You can use parameterized Types for Endpoints just as you can Connections:
 
 ```javascript
 jsPlumb.registerEndpointType("example", {
-  paintStyle:{ fillStyle:"${color}"}
+  paintStyle:{ fill:"${color}"}
 });
 
 var e = jsPlumb.addEndpoint("someDiv", { 
@@ -274,13 +289,14 @@ var e = jsPlumb.addEndpoint("someDiv", {
     
 <a name="reapplying"></a>
 ##### Reapplying Types   
-If you have one or more parameterized Types set on some object and you wish for them to change to reflect a change in their underlying data, you can use the `reapplyTypes` function:
+If you have one or more parameterized Types set on some object and you wish for them to change to reflect a change in 
+their underlying data, you can use the `reapplyTypes` function:
 
 ```javascript
 jsPlumb.registerConnectionType("boz",{ 
   paintStyle: { 
-    strokeStyle:"${color}", 
-    lineWidth:"${width}" 
+    stroke:"${color}", 
+    strokeWidth:"${width}" 
   } 
 });
 
@@ -310,4 +326,5 @@ jsPlumb.select({
 }).addType("highlighted available");	
 ```
 
-Obviously, in these examples, `available` and `highlighted` would have previously been registered on jsPlumb using the appropriate register methods.
+Obviously, in these examples, `available` and `highlighted` would have previously been registered on jsPlumb using the 
+appropriate register methods.

@@ -18,8 +18,8 @@ jsPlumb.ready(function () {
                 [ 0, "#0d78bc" ],
                 [ 1, "#558822" ]
             ] },
-            strokeStyle: "#558822",
-            lineWidth: 10
+            stroke: "#558822",
+            strokeWidth: 10
         },
         Container: "canvas"
     });

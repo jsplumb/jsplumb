@@ -37,10 +37,10 @@
 
         var instance = jsPlumb.getInstance({
             DragOptions: { cursor: 'pointer', zIndex: 2000 },
-            PaintStyle: { strokeStyle: '#666' },
-            EndpointHoverStyle: { fillStyle: "orange" },
-            HoverPaintStyle: { strokeStyle: "orange" },
-            EndpointStyle: { width: 20, height: 16, strokeStyle: '#666' },
+            PaintStyle: { stroke: '#666' },
+            EndpointHoverStyle: { fill: "orange" },
+            HoverPaintStyle: { stroke: "orange" },
+            EndpointStyle: { width: 20, height: 16, stroke: '#666' },
             Endpoint: "Rectangle",
             Anchors: ["TopCenter", "TopCenter"],
             Container: "canvas"
@@ -82,7 +82,7 @@
             // that declares 'exampleEndpoint' as its drop scope, and also that
             // only 'exampleConnection' types can be dropped here.
             //
-            // the connection style for this endpoint is a Bezier curve (we didn't provide one, so we use the default), with a lineWidth of
+            // the connection style for this endpoint is a Bezier curve (we didn't provide one, so we use the default), with a strokeWidth of
             // 5 pixels, and a gradient.
             //
             // there is a 'beforeDrop' interceptor on this endpoint which is used to allow the user to decide whether
@@ -91,7 +91,7 @@
             var exampleColor = "#00f";
             var exampleEndpoint = {
                 endpoint: "Rectangle",
-                paintStyle: { width: 25, height: 21, fillStyle: exampleColor },
+                paintStyle: { width: 25, height: 21, fill: exampleColor },
                 isSource: true,
                 reattach: true,
                 scope: "blue",
@@ -101,8 +101,8 @@
                         [0.5, "#09098e"],
                         [1, exampleColor]
                     ]},
-                    lineWidth: 5,
-                    strokeStyle: exampleColor,
+                    strokeWidth: 5,
+                    stroke: exampleColor,
                     dashstyle: "2 2"
                 },
                 isTarget: true,
@@ -119,10 +119,10 @@
             var color2 = "#316b31";
             var exampleEndpoint2 = {
                 endpoint: ["Dot", { radius: 11 }],
-                paintStyle: { fillStyle: color2 },
+                paintStyle: { fill: color2 },
                 isSource: true,
                 scope: "green",
-                connectorStyle: { strokeStyle: color2, lineWidth: 6 },
+                connectorStyle: { stroke: color2, strokeWidth: 6 },
                 connector: ["Bezier", { curviness: 63 } ],
                 maxConnections: 3,
                 isTarget: true,
@@ -141,12 +141,12 @@
             var exampleEndpoint3 = {
                 endpoint: ["Dot", {radius: 17} ],
                 anchor: "BottomLeft",
-                paintStyle: { fillStyle: example3Color, opacity: 0.5 },
+                paintStyle: { fill: example3Color, opacity: 0.5 },
                 isSource: true,
                 scope: 'yellow',
                 connectorStyle: {
-                    strokeStyle: example3Color,
-                    lineWidth: 4
+                    stroke: example3Color,
+                    strokeWidth: 4
                 },
                 connector: "Straight",
                 isTarget: true,

@@ -165,7 +165,7 @@ Provides a text label to decorate Connectors with.  The available constructor ar
 - **cssClass** - Optional css class to use for the Label.  This is now preferred over using the `labelStyle` parameter.
 - **labelStyle** - Optional arguments for the label's appearance.  Valid entries in this JS object are:
   - **font** - a font string in a format suitable for the Canvas element
-  - **fillStyle** - the color to fill the label's background with. Optional.
+  - **fill** - the color to fill the label's background with. Optional.
   - **color** - the color of the label's text. Optional.
   - **padding** - optional padding for the label. This is expressed as a proportion of the width of the label, not in pixels or ems.
   - **borderWidth** - optional width in pixels for the label's border. Defaults to 0.
@@ -235,8 +235,8 @@ var conn = jsPlumb.connect({
   source:"d1",
   target:"d2",
   paintStyle:{
-    strokeStyle:"red",
-    lineWidth:3
+    stroke:"red",
+    strokeWidth:3
   },
   overlays:[
     ["Custom", {

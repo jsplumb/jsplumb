@@ -89,14 +89,14 @@ firstInstance.connect({
 ```javascript
 var secondInstance = jsPlumb.getInstance({
   PaintStyle:{ 
-    lineWidth:6, 
-    strokeStyle:"#567567", 
-    outlineColor:"black", 
+    strokeWidth:6, 
+    stroke:"#567567", 
+    outlineStroke:"black", 
     outlineWidth:1 
   },
   Connector:[ "Bezier", { curviness: 30 } ],
   Endpoint:[ "Dot", { radius:5 } ],
-  EndpointStyle : { fillStyle: "#567567"  },
+  EndpointStyle : { fill: "#567567"  },
   Anchor : [ 0.5, 0.5, 1, 1 ]
 });
 

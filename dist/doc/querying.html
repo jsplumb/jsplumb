@@ -234,8 +234,8 @@
 <li><p>Select all connections in scope &quot;foo&quot; and set their paint style to be a thick blue line:
 <code>javascript
 jsPlumb.select({scope:&quot;foo&quot;}).setPaintStyle({
-    strokeStyle:&quot;blue&quot;, 
-    lineWidth:5 
+    stroke:&quot;blue&quot;, 
+    strokeWidth:5 
 });
 </code></p></li>
 <li><p>Select all Connections from &quot;d1&quot; and detach them:
@@ -488,7 +488,7 @@ jsPlumb.selectEndpoints({source:&quot;d1&quot;}).removeClass(&quot;foo&quot;);
 </code></p></li>
 <li><p>Select all Endpoints in scope &quot;foo&quot; and set their fill style to be blue:
 <code>javascript
-jsPlumb.selectEndpoints({ scope:&quot;foo&quot; }).setPaintStyle({ fillStyle:&quot;blue&quot; });
+jsPlumb.selectEndpoints({ scope:&quot;foo&quot; }).setPaintStyle({ fill:&quot;blue&quot; });
 </code></p></li>
 <li><p>Select all Endpoints from &quot;d1&quot; and detach their Connections:
 <code>javascript

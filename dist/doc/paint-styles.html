@@ -134,18 +134,18 @@ Depending on the method you are calling, the parameter names vary.</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
-    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+    paintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 }
 });
 </code></pre></div>
 <p>or in the <code>connectorPaintStyle</code> parameter on a call to <code>jsPlumb.addEndpoint</code> or <code>jsPlumb.makeSource</code>:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
-    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
-    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+    paintStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
+    connectorPaintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 }
 });
 
 jsPlumb.makeSource(&quot;el1&quot;, {
-    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
-    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+    paintStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
+    connectorPaintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 }
 });
 </code></pre></div>
 <p>Notice the <code>paintStyle</code> parameter in those examples: it is the paint style for the Endpoint, which we&#39;ll discuss below.</p>
@@ -154,16 +154,16 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 
 <p>These are specified in a <code>paintStyle</code> parameter on a call to <code>addEndpoint</code>. This is the example from just above:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
-    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
-    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+    paintStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
+    connectorPaintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 }
 });
 </code></pre></div>
 <p>...or as the <code>endpointStyle</code> parameter to a <code>connect</code> call:     </p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
-    endpointStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
-    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+    endpointStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
+    paintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 }
 });
 </code></pre></div>
 <p>... or as an entry in the <code>endpointStyles</code> array passed to a <code>jsPlumb.connect</code> call:</p>
@@ -171,21 +171,21 @@ jsPlumb.makeSource(&quot;el1&quot;, {
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
     endpointStyles:[ 
-        { fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
-        { fillStyle:&quot;green&quot; }
+        { fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
+        { fill:&quot;green&quot; }
     ],
-    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+    paintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 }
 });
 </code></pre></div>
 <p>or as the <code>paintStyle</code> parameter passed to a <code>makeTarget</code> or <code>makeSource</code> call:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.makeTarget(&quot;el1&quot;, {
     ...
-    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    paintStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
     ...
 });
 
 jsPlumb.makeSource(&quot;el1&quot;, {
-    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 }
+    paintStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 }
     parent:&quot;someOtherDivIJustPutThisHereToRemindYouYouCanDoThis&quot;
 });
 </code></pre></div>
@@ -197,16 +197,16 @@ jsPlumb.makeSource(&quot;el1&quot;, {
 
 <h4>Paint Style Parameters</h4>
 
-<p>This is the full list of parameters you can set in a paintStyle object, but note that <code>fillStyle</code> is ignored by Connectors, and <code>strokeStyle</code> is ignored by Endpoints.  Also, if you create a Connection using jsPlumb.connect and do not specify any Endpoint styles, the Endpoints will derive their fillStyle from the Connector&#39;s strokeStyle.</p>
+<p>This is the full list of parameters you can set in a paintStyle object, but note that <code>fill</code> is ignored by Connectors, and <code>stroke</code> is ignored by Endpoints.  Also, if you create a Connection using jsPlumb.connect and do not specify any Endpoint styles, the Endpoints will derive their fill from the Connector&#39;s stroke.</p>
 
-<p><code>fillStyle</code>, <code>strokeStyle</code> and <code>outlineColor</code> can be specified using any valid CSS3 syntax.</p>
+<p><code>fill</code>, <code>stroke</code> and <code>outlineStroke</code> can be specified using any valid CSS3 syntax.</p>
 
 <ul>
-<li><strong>fillStyle</strong> - color for an Endpoint, eg. rgba(100,100,100,50), &quot;blue&quot;, &quot;#456&quot;, &quot;#993355&quot;, rgb(34, 56, 78).</li>
-<li><strong>strokeStyle</strong> - color for a Connector. see fillStyle examples.</li>
-<li><strong>lineWidth</strong> - width of a Connector&#39;s line. An integer.</li>
+<li><strong>fill</strong> - color for an Endpoint, eg. rgba(100,100,100,50), &quot;blue&quot;, &quot;#456&quot;, &quot;#993355&quot;, rgb(34, 56, 78).</li>
+<li><strong>stroke</strong> - color for a Connector. see fill examples.</li>
+<li><strong>strokeWidth</strong> - width of a Connector&#39;s line. An integer.</li>
 <li><strong>outlineWidth</strong> - width of the outline for an Endpoint or Connector. An integer.</li>
-<li><strong>outlineColor</strong> - color of the outline for an Endpoint or Connector. see fillStyle examples.</li>
+<li><strong>outlineStroke</strong> - color of the outline for an Endpoint or Connector. see fill examples.</li>
 <li><strong>dashstyle</strong> - This comes from VML, and allows you to create dashed or dotted lines.  It has a better syntax than 
 the equivalent attribute in SVG (<code>stroke-dasharray</code>, discussed below), so even though VML is no longer a supported renderer
 we&#39;ve decided to keep this attribute. The <code>dashstyle</code> attribute is specified as an array of strokes and spaces, where 
@@ -217,7 +217,7 @@ absolute pixel values.</li>
 <p><a href="http://www.w3.org/TR/NOTE-VML">The VML spec</a> is a good place to find valid values for dashstyle. Note that jsPlumb does 
 not support the string values for this attribute (&quot;solid&quot;, &quot;dashdot&quot;, etc).</p>
 
-<p>jsPlumb uses the <code>lineWidth</code> parameter in conjunction with the values in a <code>dashstyle</code> attribute to create an appropriate 
+<p>jsPlumb uses the <code>strokeWidth</code> parameter in conjunction with the values in a <code>dashstyle</code> attribute to create an appropriate 
 value for <code>stroke-dasharray</code>.</p>
 
 <ul>
@@ -235,58 +235,58 @@ discusses valid values for this parameter. </li>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
-    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
-    hoverPaintStyle:{ strokeStyle:&quot;red&quot; },
-    endpointStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
-    endpointHoverStyle:{ fillStyle:&quot;red&quot; }
+    paintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 },
+    hoverPaintStyle:{ stroke:&quot;red&quot; },
+    endpointStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
+    endpointHoverStyle:{ fill:&quot;red&quot; }
 });
 </code></pre></div>
 <p>In this example we specified a hover style for both the Connector, and each of its Endpoints.  Here&#39;s the same thing, but using the plural version, to specify a different hover style for each Endpoint:   </p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.connect({
     source:&quot;el1&quot;,
     target:&quot;el2&quot;,
-    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
-    hoverPaintStyle:{ strokeStyle:&quot;red&quot; },
-    endpointStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    paintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 },
+    hoverPaintStyle:{ stroke:&quot;red&quot; },
+    endpointStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
     endpointHoverStyles:[ 
-        { fillStyle:&quot;red&quot; }, 
-        { fillStyle:&quot;yellow&quot; } 
+        { fill:&quot;red&quot; }, 
+        { fill:&quot;yellow&quot; } 
     ]
 });
 </code></pre></div>
 <p>Calls to <code>addEndpoint</code>, <code>makeSource</code> and <code>makeTarget</code> can also specify various hover paint styles:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">jsPlumb.addEndpoint(&quot;el1&quot;, {
-    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
-    hoverPaintStyle:{ fillStyle:&quot;red&quot; },
-    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
-    connectorHoverPaintStyle:{ strokeStyle:&quot;red&quot;, outlineColor:&quot;yellow&quot;, outlineWidth:1 }
+    paintStyle:{ fill:&quot;blue&quot;, outlineStroke:&quot;black&quot;, outlineWidth:1 },
+    hoverPaintStyle:{ fill:&quot;red&quot; },
+    connectorPaintStyle:{ stroke:&quot;blue&quot;, strokeWidth:10 },
+    connectorHoverPaintStyle:{ stroke:&quot;red&quot;, outlineStroke:&quot;yellow&quot;, outlineWidth:1 }
 });
 
 jsPlumb.makeSource(&quot;el2&quot;, {
     paintStyle:{ 
-        fillStyle:&quot;transparent&quot;, 
-        outlineColor:&quot;yellow&quot;, 
+        fill:&quot;transparent&quot;, 
+        outlineStroke:&quot;yellow&quot;, 
         outlineWidth:1 
     },
-    hoverPaintStyle:{ fillStyle:&quot;red&quot; },
+    hoverPaintStyle:{ fill:&quot;red&quot; },
     connectorPaintStyle:{ 
-        strokeStyle:&quot;green&quot;, 
-        lineWidth:3 
+        stroke:&quot;green&quot;, 
+        strokeWidth:3 
     },
     connectorHoverPaintStyle:{ 
-        strokeStyle:&quot;#678&quot;, 
-        outlineColor:&quot;yellow&quot;, 
+        stroke:&quot;#678&quot;, 
+        outlineStroke:&quot;yellow&quot;, 
         outlineWidth:1 
     }
 });
 
 jsPlumb.makeTarget(&quot;el3&quot;, {
     paintStyle:{ 
-        fillStyle:&quot;transparent&quot;, 
-        outlineColor:&quot;yellow&quot;, 
+        fill:&quot;transparent&quot;, 
+        outlineStroke:&quot;yellow&quot;, 
         outlineWidth:1 
     },
-    hoverPaintStyle:{ fillStyle:&quot;red&quot; }
+    hoverPaintStyle:{ fill:&quot;red&quot; }
 });
 </code></pre></div>
 <p>In these examples we specified a hover paint style for both the Endpoint we are adding, and any Connections to/from the Endpoint.</p>
@@ -315,13 +315,13 @@ for instance:</p>
     <span class="nx">gradient</span><span class="o">:</span><span class="p">{</span>
       <span class="nx">stops</span><span class="o">:</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;green&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;red&quot;</span><span class="p">]]</span>
     <span class="p">},</span>
-    <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">15</span>
+    <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">15</span>
   <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>Here we have connected window2 to window3 with a 15 pixel wide connector that has a gradient from green to red.</p>
 
-<p>Notice the <code>gradient</code> object and the <code>stops</code> list inside it - the gradient consists of an arbitrary number of these &quot;color stops&quot;.  Each color stop is comprised of two values - [position, color].  Position must be a decimal value between 0 and 1 (inclusive), and indicates where the color stop is situated as a fraction of the length of the entire gradient.  Valid values for the colors in the stops list are the same as those that are valid for strokeStyle when describing a color.</p>
+<p>Notice the <code>gradient</code> object and the <code>stops</code> list inside it - the gradient consists of an arbitrary number of these &quot;color stops&quot;.  Each color stop is comprised of two values - [position, color].  Position must be a decimal value between 0 and 1 (inclusive), and indicates where the color stop is situated as a fraction of the length of the entire gradient.  Valid values for the colors in the stops list are the same as those that are valid for stroke when describing a color.</p>
 
 <p>As mentioned, the stops list can hold an arbitrary number of entries.  Here&#39;s an example of a gradient that goes from red to blue to green, and back again through blue to red:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
@@ -331,7 +331,7 @@ for instance:</p>
     <span class="nx">gradient</span><span class="o">:</span><span class="p">{</span>
       <span class="nx">stops</span><span class="o">:</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;red&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.33</span><span class="p">,</span><span class="s1">&#39;blue&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.66</span><span class="p">,</span><span class="s1">&#39;green&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.33</span><span class="p">,</span><span class="s1">&#39;blue&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;red&#39;</span><span class="p">]]</span>
     <span class="p">},</span>
-    <span class="nx">lineWidth</span> <span class="o">:</span> <span class="mi">15</span>
+    <span class="nx">strokeWidth</span> <span class="o">:</span> <span class="mi">15</span>
   <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -349,8 +349,8 @@ main demo; it is the Connector joining Window 2 to Window 3:</p>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window2&#39;</span><span class="p">,</span>
   <span class="nx">target</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span>
   <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span>
-    <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">8</span><span class="p">,</span>
-    <span class="nx">strokeStyle</span><span class="o">:</span><span class="nx">w23Stroke</span>
+    <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">8</span><span class="p">,</span>
+    <span class="nx">stroke</span><span class="o">:</span><span class="nx">w23Stroke</span>
   <span class="p">},</span>
   <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;TopCenter&quot;</span> <span class="p">],</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
@@ -392,8 +392,8 @@ radius/2 in each direction.</p>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span>
   <span class="nx">target</span> <span class="o">:</span> <span class="s1">&#39;window4&#39;</span><span class="p">,</span>
   <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span>
-    <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span>
-    <span class="nx">strokeStyle</span><span class="o">:</span><span class="nx">w34Stroke</span>
+    <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span>
+    <span class="nx">stroke</span><span class="o">:</span><span class="nx">w34Stroke</span>
   <span class="p">},</span>
   <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;RightMiddle&quot;</span><span class="p">,</span> <span class="s2">&quot;LeftMiddle&quot;</span> <span class="p">],</span>
   <span class="nx">endpointStyle</span><span class="o">:</span><span class="p">{</span>
@@ -417,8 +417,8 @@ symbol on the end:</p>
   <span class="nx">source</span> <span class="o">:</span> <span class="s1">&#39;window3&#39;</span><span class="p">,</span> 
   <span class="nx">target</span> <span class="o">:</span> <span class="s1">&#39;window4&#39;</span><span class="p">,</span>
   <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span>
-    <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span>
-    <span class="nx">strokeStyle</span><span class="o">:</span><span class="nx">w34Stroke</span>
+    <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span>
+    <span class="nx">stroke</span><span class="o">:</span><span class="nx">w34Stroke</span>
   <span class="p">},</span>
   <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;RightMiddle&quot;</span><span class="p">,</span> <span class="s2">&quot;LeftMiddle&quot;</span> <span class="p">],</span>
   <span class="nx">endpointStyle</span><span class="o">:</span><span class="p">{</span>

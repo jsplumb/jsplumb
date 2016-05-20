@@ -2,9 +2,9 @@ jsPlumb.ready(function () {
 
     var instance = jsPlumb.getInstance({
         Connector: "StateMachine",
-        PaintStyle: { lineWidth: 3, strokeStyle: "#ffa500", "dashstyle": "2 4" },
+        PaintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
         Endpoint: [ "Dot", { radius: 5 } ],
-        EndpointStyle: { fillStyle: "#ffa500" },
+        EndpointStyle: { fill: "#ffa500" },
         Container: "canvas"
     });
 

@@ -9,6 +9,8 @@ jsPlumb.ready(function () {
             [ "Arrow", {
                 location: 1,
                 visible:true,
+                width:11,
+                length:11,
                 id:"ARROW",
                 events:{
                     click:function() { alert("you clicked on the arrow overlay")}
@@ -28,8 +30,8 @@ jsPlumb.ready(function () {
 
     var basicType = {
         connector: "StateMachine",
-        paintStyle: { strokeStyle: "red", lineWidth: 4 },
-        hoverPaintStyle: { strokeStyle: "blue" },
+        paintStyle: { stroke: "red", strokeWidth: 4 },
+        hoverPaintStyle: { stroke: "blue" },
         overlays: [
             "Arrow"
         ]
@@ -38,31 +40,31 @@ jsPlumb.ready(function () {
 
     // this is the paint style for the connecting lines..
     var connectorPaintStyle = {
-            lineWidth: 4,
-            strokeStyle: "#61B7CF",
+            strokeWidth: 2,
+            stroke: "#61B7CF",
             joinstyle: "round",
-            outlineColor: "white",
+            outlineStroke: "white",
             outlineWidth: 2
         },
     // .. and this is the hover style.
         connectorHoverStyle = {
-            lineWidth: 4,
-            strokeStyle: "#216477",
-            outlineWidth: 2,
-            outlineColor: "white"
+            strokeWidth: 3,
+            stroke: "#216477",
+            outlineWidth: 5,
+            outlineStroke: "white"
         },
         endpointHoverStyle = {
-            fillStyle: "#216477",
-            strokeStyle: "#216477"
+            fill: "#216477",
+            stroke: "#216477"
         },
     // the definition of source endpoints (the small blue ones)
         sourceEndpoint = {
             endpoint: "Dot",
             paintStyle: {
-                strokeStyle: "#7AB02C",
-                fillStyle: "transparent",
+                stroke: "#7AB02C",
+                fill: "transparent",
                 radius: 7,
-                lineWidth: 3
+                strokeWidth: 1
             },
             isSource: true,
             connector: [ "Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true } ],
@@ -82,7 +84,7 @@ jsPlumb.ready(function () {
     // the definition of target endpoints (will appear when the user drags a connection)
         targetEndpoint = {
             endpoint: "Dot",
-            paintStyle: { fillStyle: "#7AB02C", radius: 11 },
+            paintStyle: { fill: "#7AB02C", radius: 7 },
             hoverPaintStyle: endpointHoverStyle,
             maxConnections: -1,
             dropOptions: { hoverClass: "hover", activeClass: "active" },

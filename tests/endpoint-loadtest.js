@@ -58,9 +58,9 @@
         spacing:100,
         endpoint:{
             endpoint: [ "Dot", { radius:10 } ],
-            paintStyle:{ fillStyle:"#456", outlineColor:"black", outlineWidth:2 },
-            connectorPaintStyle:{lineWidth:1, strokeStyle:"red"},
-            connectorHoverStyle:{strokeStyle:"#943"},
+            paintStyle:{ fill:"#456", outlineColor:"black", outlineWidth:2 },
+            connectorPaintStyle:{strokeWidth:1, stroke:"red"},
+            connectorHoverStyle:{stroke:"#943"},
             isSource:true,
             isTarget:true,
             maxConnections:-1

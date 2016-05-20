@@ -91,8 +91,8 @@ jsPlumb.select({source:"d1"}).removeAllOverlays();
 - Select all connections in scope "foo" and set their paint style to be a thick blue line:
 ```javascript
 jsPlumb.select({scope:"foo"}).setPaintStyle({
-        strokeStyle:"blue", 
-        lineWidth:5 
+        stroke:"blue", 
+        strokeWidth:5 
 });
 ```
 
@@ -347,7 +347,7 @@ jsPlumb.selectEndpoints({source:"d1"}).removeClass("foo");
 
 - Select all Endpoints in scope "foo" and set their fill style to be blue:
 ```javascript
-jsPlumb.selectEndpoints({ scope:"foo" }).setPaintStyle({ fillStyle:"blue" });
+jsPlumb.selectEndpoints({ scope:"foo" }).setPaintStyle({ fill:"blue" });
 ```
 
 - Select all Endpoints from "d1" and detach their Connections:

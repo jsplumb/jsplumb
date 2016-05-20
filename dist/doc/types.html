@@ -161,8 +161,8 @@
 <p>Probably the easiest way to explain Types is with some code. In this snippet, we&#39;ll register a Connection Type on jsPlumb, 
 create a Connection, and then assign the Type to it:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionType</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
-  <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
+  <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span>
 <span class="p">});</span>
 
 <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherDiv&quot;</span> <span class="p">});</span>
@@ -174,13 +174,13 @@ create a Connection, and then assign the Type to it:</p>
 and you want a different appearance for each state.  Connection Types to the rescue!</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionTypes</span><span class="p">({</span>
   <span class="s2">&quot;basic&quot;</span><span class="o">:</span> <span class="p">{</span>
-    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
-    <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">},</span>
+    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
+    <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">},</span>
     <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;connector-normal&quot;</span>
   <span class="p">},</span>
   <span class="s2">&quot;selected&quot;</span><span class="o">:</span><span class="p">{</span>
-    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span> <span class="p">},</span>
-    <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">lineWidth</span><span class="o">:</span> <span class="mi">7</span> <span class="p">},</span>
+    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">5</span> <span class="p">},</span>
+    <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeWidth</span><span class="o">:</span> <span class="mi">7</span> <span class="p">},</span>
     <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;connector-selected&quot;</span>
   <span class="p">}</span> 
 <span class="p">});</span>
@@ -193,9 +193,13 @@ and you want a different appearance for each state.  Connection Types to the res
 </code></pre></div>
 <p>Notice here how we used a different method -<code>registerConnectionTypes</code> - to register a few Types at once.</p>
 
-<p>Notice also the <code>hoverPaintStyle</code> for the <code>selected</code> Type: it declares only a <code>lineWidth</code>.  As mentioned above, Types are merged with as much granularity as possible, so that means that in this case the <code>lineWidth</code> value from <code>selected</code> will be merged into the <code>hoverPaintStyle</code> from <code>basic</code>, and voila, red, 7 pixels.</p>
+<p>Notice also the <code>hoverPaintStyle</code> for the <code>selected</code> Type: it declares only a <code>strokeWidth</code>.  As mentioned above, Types 
+are merged with as much granularity as possible, so that means that in this case the <code>strokeWidth</code> value from <code>selected</code> 
+will be merged into the <code>hoverPaintStyle</code> from <code>basic</code>, and voila, red, 7 pixels.</p>
 
-<p>These examples, of course, use the <code>jsPlumb.connect</code> method, but in many UIs Connections are created via drag and drop.  How would you assign that <code>basic</code> Type to a Connection created with drag and drop?  You provide it as the Endpoint&#39;s <code>connectionType</code> parameter, like so:</p>
+<p>These examples, of course, use the <code>jsPlumb.connect</code> method, but in many UIs Connections are created via drag and drop.<br>
+How would you assign that <code>basic</code> Type to a Connection created with drag and drop?  You provide it as the Endpoint&#39;s 
+<code>connectionType</code> parameter, like so:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">e1</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
   <span class="nx">connectionType</span><span class="o">:</span><span class="s2">&quot;basic&quot;</span><span class="p">,</span>
   <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span>
@@ -212,7 +216,10 @@ and you want a different appearance for each state.  Connection Types to the res
 <span class="c1">// now c has type &#39;basic&#39;</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">hasType</span><span class="p">(</span><span class="err">&quot;</span><span class="nx">basic</span><span class="p">));</span>   <span class="c1">// -&gt; true</span>
 </code></pre></div>
-<p>Note that the second Endpoint we created did not have a <code>connectionType</code> parameter - we didn&#39;t need it, as the source Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source Endpoint has not declared <code>connectionType</code>.  This is the same way jsPlumb treats other Connector parameters such as <code>paintStyle</code> etc - the source Endpoint wins.</p>
+<p>Note that the second Endpoint we created did not have a <code>connectionType</code> parameter - we didn&#39;t need it, as the source 
+Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source 
+Endpoint has not declared <code>connectionType</code>.  This is the same way jsPlumb treats other Connector parameters such as 
+<code>paintStyle</code> etc - the source Endpoint wins.</p>
 
 <h5>Supported Parameters in Connection Type objects</h5>
 
@@ -246,10 +253,11 @@ have provided to the constructor.</li>
 
 <h5>Parameterized Connection Types</h5>
 
-<p>Connection Types support parameterized values - values that are derived at runtime by some object you supply. Here&#39;s the first example from above, with a parameterized value for <code>strokeStyle</code>:</p>
+<p>Connection Types support parameterized values - values that are derived at runtime by some object you supply. Here&#39;s 
+the first example from above, with a parameterized value for <code>stroke</code>:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionType</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
-  <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
+  <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span>
 <span class="p">});</span>
 
 <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherDiv&quot;</span> <span class="p">});</span>
@@ -261,8 +269,8 @@ have provided to the constructor.</li>
 
 <p>You can also use a parameterized Type in a <code>jsPlumb.connect</code> call, by supplying a <code>data</code> value:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionType</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
-  <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">5</span>  <span class="p">},</span>
+  <span class="nx">hoverPaintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span>
 <span class="p">});</span>
 
 <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> 
@@ -274,10 +282,10 @@ have provided to the constructor.</li>
 </code></pre></div>
 <p>Here are a few examples showing you the full Type API:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionTypes</span><span class="p">({</span>
-  <span class="s2">&quot;foo&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span> <span class="p">}</span> <span class="p">},</span>
-  <span class="s2">&quot;bar&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">10</span> <span class="p">}</span> <span class="p">},</span>
-  <span class="s2">&quot;baz&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;${clazz}&quot;</span> <span class="p">}</span> <span class="p">},</span>
-  <span class="s2">&quot;boz&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span><span class="s2">&quot;${width}&quot;</span> <span class="p">}</span> <span class="p">}</span>
+  <span class="s2">&quot;foo&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span> <span class="p">}</span> <span class="p">},</span>
+  <span class="s2">&quot;bar&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">10</span> <span class="p">}</span> <span class="p">},</span>
+  <span class="s2">&quot;baz&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="nx">cssClass</span><span class="o">:</span><span class="s2">&quot;${clazz}&quot;</span> <span class="p">}</span> <span class="p">},</span>
+  <span class="s2">&quot;boz&quot;</span><span class="o">:</span><span class="p">{</span> <span class="nx">paintStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> <span class="nx">strokeWidth</span><span class="o">:</span><span class="s2">&quot;${width}&quot;</span> <span class="p">}</span> <span class="p">}</span>
 <span class="p">});</span>
 
 <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> 
@@ -327,7 +335,8 @@ have provided to the constructor.</li>
 
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">getType</span><span class="p">());</span> <span class="c1">// -&gt; [  ]</span>
 </code></pre></div>
-<p>Things to note here are that every method <strong>except hasType</strong> can take a space-delimited list of Types to work with. So types work like CSS classes, basically. I think I might have mentioned that already though.</p>
+<p>Things to note here are that every method <strong>except hasType</strong> can take a space-delimited list of Types to work with. So 
+types work like CSS classes, basically. I think I might have mentioned that already though.</p>
 
 <p><a name="endpoint-type"></a></p>
 
@@ -347,10 +356,14 @@ have provided to the constructor.</li>
 <li><strong>connectorHoverStyle</strong> - hover paint style for Connections from this Endpoint.</li>
 <li><strong>connector</strong> - a Connector definition, like <code>StateMachine</code>, or <code>[ &quot;Flowchart&quot;, { stub:50 } ]</code></li>
 <li><strong>connectionType</strong> - This allows you to specify the Connection Type for Connections made from this Endpoint.</li>
-<li><strong>scope</strong> - remember, Endpoints support a single scope. So if you have multiple Types applied, you will get the scope from the last Type that defines one.</li>
-<li><strong>cssClass</strong> - This works the same as CSS class for Connections: any class assigned by any active type will be written to the UI artefact.</li>
-<li><strong>parameters</strong> - when you add/set a Type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.</li>
-<li><strong>overlays</strong> - when you have multiple Types applied to an Endpoint, you get the union of all the Overlays defined across the various types.</li>
+<li><strong>scope</strong> - remember, Endpoints support a single scope. So if you have multiple Types applied, you will get the scope 
+from the last Type that defines one.</li>
+<li><strong>cssClass</strong> - This works the same as CSS class for Connections: any class assigned by any active type will be written 
+to the UI artefact.</li>
+<li><strong>parameters</strong> - when you add/set a Type that has parameters, any existing parameters with the same keys will be 
+overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.</li>
+<li><strong>overlays</strong> - when you have multiple Types applied to an Endpoint, you get the union of all the Overlays defined 
+across the various types.</li>
 </ul>
 
 <p><strong>Note</strong> There are two sets of parameters you can use to set paint styles for Endpoints - <code>endpointStyle</code>/<code>endpointHoverStyle</code> and <code>paintStyle</code>/<code>hoverPaintStyle</code>.  The idea behind this is that when you use the <code>endpoint..</code> versions, you can use a single object to define a Type that is shared between Endpoints and Connectors.</p>
@@ -358,10 +371,10 @@ have provided to the constructor.</li>
 <p>One thing to be aware of is that the parameters here that are passed to Connections are only passed from a source Endpoint, not targets. Here&#39;s an example of using Endpoint Types:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerEndpointTypes</span><span class="p">({</span>
   <span class="s2">&quot;basic&quot;</span><span class="o">:</span><span class="p">{</span>         
-    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span><span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">}</span>
+    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span><span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">}</span>
   <span class="p">},</span>
   <span class="s2">&quot;selected&quot;</span><span class="o">:</span><span class="p">{</span>          
-    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span><span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">}</span>
+    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span><span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">}</span>
   <span class="p">}</span>
 <span class="p">});</span>
 
@@ -374,7 +387,9 @@ have provided to the constructor.</li>
   <span class="nx">e</span><span class="p">.</span><span class="nx">toggleType</span><span class="p">(</span><span class="s2">&quot;selected&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>So it works the same way as Connection Types.  There are several parameters allowed by an Endpoint Type that affect Connections coming from that Endpoint. Note that this does not affect existing Connections.  It affects only Connections that are created after you set the new Type(s) on an Endpoint.</p>
+<p>So it works the same way as Connection Types.  There are several parameters allowed by an Endpoint Type that affect 
+Connections coming from that Endpoint. Note that this does not affect existing Connections.  It affects only Connections 
+that are created after you set the new Type(s) on an Endpoint.</p>
 
 <p><a name="parameterized-endpoint-type"></a></p>
 
@@ -382,7 +397,7 @@ have provided to the constructor.</li>
 
 <p>You can use parameterized Types for Endpoints just as you can Connections:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerEndpointType</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">}</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">}</span>
 <span class="p">});</span>
 
 <span class="kd">var</span> <span class="nx">e</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span> 
@@ -394,11 +409,12 @@ have provided to the constructor.</li>
 
 <h5>Reapplying Types</h5>
 
-<p>If you have one or more parameterized Types set on some object and you wish for them to change to reflect a change in their underlying data, you can use the <code>reapplyTypes</code> function:</p>
+<p>If you have one or more parameterized Types set on some object and you wish for them to change to reflect a change in 
+their underlying data, you can use the <code>reapplyTypes</code> function:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">registerConnectionType</span><span class="p">(</span><span class="s2">&quot;boz&quot;</span><span class="p">,{</span> 
   <span class="nx">paintStyle</span><span class="o">:</span> <span class="p">{</span> 
-    <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> 
-    <span class="nx">lineWidth</span><span class="o">:</span><span class="s2">&quot;${width}&quot;</span> 
+    <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;${color}&quot;</span><span class="p">,</span> 
+    <span class="nx">strokeWidth</span><span class="o">:</span><span class="s2">&quot;${width}&quot;</span> 
   <span class="p">}</span> 
 <span class="p">});</span>
 
@@ -426,7 +442,8 @@ have provided to the constructor.</li>
   <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span>
 <span class="p">}).</span><span class="nx">addType</span><span class="p">(</span><span class="s2">&quot;highlighted available&quot;</span><span class="p">);</span>    
 </code></pre></div>
-<p>Obviously, in these examples, <code>available</code> and <code>highlighted</code> would have previously been registered on jsPlumb using the appropriate register methods.</p>
+<p>Obviously, in these examples, <code>available</code> and <code>highlighted</code> would have previously been registered on jsPlumb using the 
+appropriate register methods.</p>
 
                 </div>
             </div>
