@@ -889,6 +889,7 @@
                             var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
                             if (newEndpoint.isFull()) return false;
                             _p[type + "Endpoint"] = newEndpoint;
+                            if (!_p.scope && tep.def.scope) _p.scope = tep.def.scope; // provide scope if not already provided and endpoint def has one.
                             newEndpoint._doNotDeleteOnDetach = false; // reset.
                             newEndpoint._deleteOnDetach = true;
                             if (tep.uniqueEndpoint) {
