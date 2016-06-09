@@ -1,0 +1,17 @@
+{
+  "name": "jsplumb-webpack-demo",
+  "version": "1.0.0",
+  "description": "example of using webpack to bundle jsplumb",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jsPlumb <hello@jsplumbtoolkit.com> (https://jsplumbtoolkit.com)",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt-webpack": "^1.0.11",
+    "jsplumb": "file:../../jsplumb-2.2.0.tgz",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
+  }
+}

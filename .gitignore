@@ -2,3 +2,6 @@ node_modules
 /.idea
 *.iml
 
+
+demo/webpack/node_modules
+demo/webpack/dist
