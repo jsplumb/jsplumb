@@ -3119,9 +3119,6 @@
         define("jsplumb", [], function () {
             return jsPlumb;
         });
-        define("jsplumbinstance", [], function () {
-            return jsPlumb.getInstance();
-        });
     }
     // CommonJS
     if (typeof exports !== 'undefined') {
