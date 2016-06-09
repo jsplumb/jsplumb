@@ -1,6 +1,6 @@
 {
   "name": "jsPlumb",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "ignore": [
     "demo",
     "dist/apidocs",
@@ -31,7 +31,7 @@
     "test"
   ],
   "main": [
-    "dist/js/jsPlumb-2.1.3.js"
+    "dist/js/jsPlumb-2.2.0.js"
   ],
   "homepage": "http://jsplumbtoolkit.com",
   "authors": [
