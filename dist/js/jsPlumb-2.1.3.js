@@ -11865,13 +11865,18 @@
                     _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: __el});
                 }
             });
+
+            _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
         };
-        this.remove = function(el, manipulateDOM, doNotFireEvent) {
+
+        this.remove = function(el, manipulateDOM, doNotFireEvent, doNotUpdateConnections) {
+
             _each(el, function(__el) {
                 delete __el._jsPlumbGroup;
                 _ju.removeWithFunction(elements, function(e) {
                     return e === __el;
                 });
+
                 if (manipulateDOM) {
                     try { self.getEl().removeChild(__el); }
                     catch (e) {
@@ -11883,12 +11888,16 @@
                     _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: __el});
                 }
             });
+            if (!doNotUpdateConnections) {
+                _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
+            }
         };
-        this.removeAll = function() {
-            for (var i = 0; i < elements.length; i++) {
-                _jsPlumb.remove(elements[i]);
+        this.removeAll = function(manipulateDOM, doNotFireEvent) {
+            for (var i = 0, l = elements.length; i < l; i++) {
+                self.remove(elements[0], manipulateDOM, doNotFireEvent, true);
             }
             elements.length = 0;
+            _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
         };
         this.orphanAll = function() {
             for (var i = 0; i < elements.length; i++) {
@@ -11964,6 +11973,7 @@
         // unbind the group specific drag/revert handlers.
         //
         function _unbindDragHandlers(_el) {
+            if (!_el._katavorioDrag) return;
             if (prune || orphan) {
                 _el._katavorioDrag.off(STOP, _pruneOrOrphan);
             }
@@ -11974,6 +11984,7 @@
         }
 
         function _bindDragHandlers(_el) {
+            if (!_el._katavorioDrag) return;
             if (prune || orphan) {
                 _el._katavorioDrag.on(STOP, _pruneOrOrphan);
             }
