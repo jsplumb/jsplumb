@@ -9087,6 +9087,52 @@ test("endpoint: suspendedElement set correctly", function() {
         equal(null, _jsPlumb.getGroupFor("unknown"), "group is null because element doesn't exist");
     });
 
+    test("add elements that already have connections to a group", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = _jsPlumb.connect({source:d1, target:d2}),
+            g = _addDiv("group");
+
+        var group = _jsPlumb.addGroup({
+            el:g
+        });
+
+        // add d1; it has a connection
+        group.add(d1);
+        // collapse the group. the connection from d1 should be proxied.
+        _jsPlumb.collapseGroup(group);
+        // test for proxied
+        equal("d1", c.proxies[0].originalEp.elementId, "endpoint was proxied after collapse");
+        // expand and test proxy was cleared
+        _jsPlumb.expandGroup(group);
+        ok(c.proxies[0] == null, "proxies removed after expand");
+        // remove from the group and collapse
+        group.remove(d1);
+        _jsPlumb.collapseGroup(group);
+        // test proxy was not attached
+        ok(c.proxies[0] == null, "proxies not setup since element was removed");
+
+        // expand
+        _jsPlumb.expandGroup(group);
+
+        // add d1 again; it has a connection
+        group.add(d1);
+        // collapse the group. the connection from d1 should be proxied.
+        _jsPlumb.collapseGroup(group);
+        // test for proxied
+        equal("d1", c.proxies[0].originalEp.elementId, "endpoint was proxied after collapse");
+        equal(1, group.getMembers().length, "one member in group");
+
+        group.removeAll();
+        equal(0, group.getMembers().length, "no members in group");
+        _jsPlumb.expandGroup(group);
+
+        c.proxies[0] = "flag";
+
+        _jsPlumb.collapseGroup(group);
+        // test proxy was not attached
+        ok(c.proxies[0] == "flag", "proxies not setup since all elements were removed");
+    });
+
 // -------------- endpoint clicks
     test("endpoint click", function() {
         var d = _addDiv("d1"),
