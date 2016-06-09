@@ -1,3 +1,8 @@
+## 2.1.3
+
+- issue 530 - Element with existing connections being added to Groups.
+- issue 526 - bower version incorrect
+
 ## 2.1.2
 
 - issue 523 - Endpoint click registration problems
