@@ -1,6 +1,6 @@
 jsPlumb.ready(function () {
 
-    var j = jsPlumb.getInstance({Container:canvas, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
+    var j = window.j = jsPlumb.getInstance({Container:canvas, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
 
     j.bind("connection", function(p) {
         p.connection.bind("click", function() {
@@ -31,6 +31,15 @@ jsPlumb.ready(function () {
         _appendEvent("group:remove", p.group.id);
     });
 
+    // connect some before configuring group
+    j.connect({source:c1_1, target:c2_1});
+    j.connect({source:c2_1, target:c3_1});
+    j.connect({source:c2_2, target:c6_2});
+    j.connect({source:c3_1, target:c4_1});
+    j.connect({source:c4_1, target:c5_1});
+    j.connect({source:c1_1,target:c1_2});
+    j.connect({source:c2_1,target:c2_2});
+
     // NOTE ordering here. we make one draggable before adding it to the group, and we add the other to the group
     //before making it draggable. they should both be constrained to the group extents.
     j.draggable(c1_1);
@@ -45,6 +54,7 @@ jsPlumb.ready(function () {
     j.addToGroup("one", c1_1);
     j.addToGroup("one", c1_2);
     j.draggable(c1_2);
+
 
     j.draggable(c2_1);
     j.addGroup({
@@ -113,13 +123,7 @@ jsPlumb.ready(function () {
     // the independent element that demonstrates the fact that it can be dropped onto a group
     j.draggable("standalone");
 
-    j.connect({source:c1_1, target:c2_1});
-    j.connect({source:c2_1, target:c3_1});
-    j.connect({source:c2_2, target:c6_2});
-    j.connect({source:c3_1, target:c4_1});
-    j.connect({source:c4_1, target:c5_1});
-    j.connect({source:c1_1,target:c1_2});
-    j.connect({source:c2_1,target:c2_2});
+    //... and connect others afterwards.
     j.connect({source:c3_1,target:c3_2});
     j.connect({source:c4_1,target:c4_2});
     j.connect({source:c5_1,target:c5_2});
