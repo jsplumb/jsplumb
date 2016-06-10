@@ -9088,20 +9088,29 @@ test("endpoint: suspendedElement set correctly", function() {
     });
 
     test("add elements that already have connections to a group", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
             c = _jsPlumb.connect({source:d1, target:d2}),
+            c2 = _jsPlumb.connect({source:d1, target:d3}),
             g = _addDiv("group");
+
+        equal(2, _jsPlumb.select().length, "there are two connections");
 
         var group = _jsPlumb.addGroup({
             el:g
         });
 
-        // add d1; it has a connection
-        group.add(d1);
-        // collapse the group. the connection from d1 should be proxied.
+        // add d1; it has a connection to outside and also one to d3, which will be inside the group. add d3.
+        group.add(d1); group.add(d3);
+        // collapse the group. the connection from d1 should be proxied. the connection from d3 should not.
         _jsPlumb.collapseGroup(group);
+        equal(2, _jsPlumb.select().length, "there are two connections");
         // test for proxied
         equal("d1", c.proxies[0].originalEp.elementId, "endpoint was proxied after collapse");
+        // test for proxied
+        equal("d1", c2.endpoints[0].elementId, "endpoint to internal element was not proxied after collapse");
+        equal("d3", c2.endpoints[1].elementId, "endpoint to internal element was not proxied after collapse");
+        equal(null, c2.proxies, "connection 2 did not get proxies added");
+
         // expand and test proxy was cleared
         _jsPlumb.expandGroup(group);
         ok(c.proxies[0] == null, "proxies removed after expand");
@@ -9120,7 +9129,7 @@ test("endpoint: suspendedElement set correctly", function() {
         _jsPlumb.collapseGroup(group);
         // test for proxied
         equal("d1", c.proxies[0].originalEp.elementId, "endpoint was proxied after collapse");
-        equal(1, group.getMembers().length, "one member in group");
+        equal(2, group.getMembers().length, "two members in group");
 
         group.removeAll();
         equal(0, group.getMembers().length, "no members in group");
