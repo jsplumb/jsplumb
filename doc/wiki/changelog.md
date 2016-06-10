@@ -1,3 +1,9 @@
+## 2.1.4
+
+- issue 530 - Further fix related to issue 530, in which elements that had connections prior to being added to a group
+were sometimes getting an offset applied when dragging. The fix for this removed some code that was put in for issue 231, 
+but it turns out the fix for issue 231 had broken somewhere along the line and this change set that right too.
+
 ## 2.1.3
 
 - issue 530 - Element with existing connections being added to Groups.
