@@ -743,16 +743,11 @@
                                 var dragEvent = jsPlumb.dragEvents.drag,
                                     stopEvent = jsPlumb.dragEvents.stop,
                                     startEvent = jsPlumb.dragEvents.start,
-                                    _del = _currentInstance.getElement(element),
-                                    _ancestor = _currentInstance.getDragManager().getDragAncestor(_del),
-                                    _noOffset = {left: 0, top: 0},
-                                    _ancestorOffset = _noOffset,
                                     _started = false;
 
                                 _manage(id, element);
 
                                 options[startEvent] = _ju.wrap(options[startEvent], function () {
-                                    _ancestorOffset = _ancestor != null ? _currentInstance.getOffset(_ancestor) : _noOffset;
                                     _currentInstance.setHoverSuspended(true);
                                     _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                     _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -766,10 +761,6 @@
                                     // differs from getUIPosition so much
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
                                     if (ui != null) {
-                                        // adjust by ancestor offset if there is one: this is for the case that a draggable
-                                        // is contained inside some other element that is not the Container.
-                                        ui.left += _ancestorOffset.left;
-                                        ui.top += _ancestorOffset.top;
                                         _draw(element, ui, null, true);
                                         if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
                                         _started = true;
@@ -791,7 +782,6 @@
                                     for (var i = 0; i < elements.length; i++)
                                         _one(elements[i]);
 
-                                    // this is common across all
                                     _started = false;
                                     _currentInstance.setHoverSuspended(false);
                                     _currentInstance.setConnectionBeingDragged(false);
@@ -1599,13 +1589,8 @@
                     fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
                     var doNotCleanup = params.deleteAttachedObjects == null ? null : !params.deleteAttachedObjects;
 
-                    // SP GROUPS. this works but blows up lots of original tests
                     c.endpoints[0].detachFromConnection(c, null, doNotCleanup);
                     c.endpoints[1].detachFromConnection(c, null, doNotCleanup);
-
-                    // SP GROUPS. this does not work but makes all the original tests work.
-                    //c.endpoints[0].detachFromConnection(c);
-                    //c.endpoints[1].detachFromConnection(c);
 
                     c.cleanup(true);
                     c.destroy(true);
