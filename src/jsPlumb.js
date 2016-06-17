@@ -179,7 +179,7 @@
             }
 
             // all components get this clone function.
-            // TODO issue 116 showed a problem with this - it seems 'a' that is in
+            // TODO issue 116 showed a problem with this - it seems 'a' that is inoptions[stopEvent]
             // the clone function's scope is shared by all invocations of it, the classic
             // JS closure problem.  for now, jsPlumb does a version of this inline where
             // it used to call clone.  but it would be nice to find some time to look
@@ -768,11 +768,10 @@
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
                                     var elements = arguments[0].selection;
-                                    var uip = _currentInstance.getUIPosition(arguments);
 
                                     // this is one element
                                     var _one = function (_e) {
-                                        if (uip != null) _draw(_e[0], uip);
+                                        _draw(_e[0], _e[1]);
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
