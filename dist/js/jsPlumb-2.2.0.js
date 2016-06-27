@@ -3656,16 +3656,11 @@
                                 var dragEvent = jsPlumb.dragEvents.drag,
                                     stopEvent = jsPlumb.dragEvents.stop,
                                     startEvent = jsPlumb.dragEvents.start,
-                                    _del = _currentInstance.getElement(element),
-                                    _ancestor = _currentInstance.getDragManager().getDragAncestor(_del),
-                                    _noOffset = {left: 0, top: 0},
-                                    _ancestorOffset = _noOffset,
                                     _started = false;
 
                                 _manage(id, element);
 
                                 options[startEvent] = _ju.wrap(options[startEvent], function () {
-                                    _ancestorOffset = _ancestor != null ? _currentInstance.getOffset(_ancestor) : _noOffset;
                                     _currentInstance.setHoverSuspended(true);
                                     _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                     _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -3679,10 +3674,6 @@
                                     // differs from getUIPosition so much
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
                                     if (ui != null) {
-                                        // adjust by ancestor offset if there is one: this is for the case that a draggable
-                                        // is contained inside some other element that is not the Container.
-                                        ui.left += _ancestorOffset.left;
-                                        ui.top += _ancestorOffset.top;
                                         _draw(element, ui, null, true);
                                         if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
                                         _started = true;
@@ -3704,7 +3695,6 @@
                                     for (var i = 0; i < elements.length; i++)
                                         _one(elements[i]);
 
-                                    // this is common across all
                                     _started = false;
                                     _currentInstance.setHoverSuspended(false);
                                     _currentInstance.setConnectionBeingDragged(false);
@@ -4511,13 +4501,8 @@
                     fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
                     var doNotCleanup = params.deleteAttachedObjects == null ? null : !params.deleteAttachedObjects;
 
-                    // SP GROUPS. this works but blows up lots of original tests
                     c.endpoints[0].detachFromConnection(c, null, doNotCleanup);
                     c.endpoints[1].detachFromConnection(c, null, doNotCleanup);
-
-                    // SP GROUPS. this does not work but makes all the original tests work.
-                    //c.endpoints[0].detachFromConnection(c);
-                    //c.endpoints[1].detachFromConnection(c);
 
                     c.cleanup(true);
                     c.destroy(true);
@@ -13533,7 +13518,7 @@
             k = new _jk({
                 bind: e.on,
                 unbind: e.off,
-                getSize: jsPlumb.getSize,
+                getSize: _jp.getSize,
                 getPosition: function (el, relativeToRoot) {
                     // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                     // compute against the Container's origin. see also the getUIPosition method below.
@@ -13544,10 +13529,11 @@
                     el.style.left = xy[0] + "px";
                     el.style.top = xy[1] + "px";
                 },
-                addClass: jsPlumb.addClass,
-                removeClass: jsPlumb.removeClass,
+                addClass: _jp.addClass,
+                removeClass: _jp.removeClass,
                 intersects: _jg.intersects,
                 indexOf: function(l, i) { return l.indexOf(i); },
+                scope:instance.getDefaultScope(),
                 css: {
                     noSelect: instance.dragSelectClass,
                     droppable: "jsplumb-droppable",
@@ -13619,7 +13605,7 @@
                 tinc = (step / d) * tdist,
                 idx = 0,
                 _int = setInterval(function () {
-                    jsPlumb.setPosition(el, {
+                    _jp.setPosition(el, {
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
                     });
@@ -13654,7 +13640,7 @@
             return true;
         },
         isElementDraggable: function (el) {
-            el = jsPlumb.getElement(el);
+            el = _jp.getElement(el);
             return el._katavorioDrag && el._katavorioDrag.isEnabled();
         },
         getDragObject: function (eventArgs) {
@@ -13691,7 +13677,7 @@
             }
         },
         setElementDraggable: function (el, draggable) {
-            el = jsPlumb.getElement(el);
+            el = _jp.getElement(el);
             if (el._katavorioDrag)
                 el._katavorioDrag.setEnabled(draggable);
         },
@@ -13707,8 +13693,8 @@
         addToPosse:function(el, spec) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.addToPosse.apply(dm, _el);
             });
@@ -13716,8 +13702,8 @@
         setPosse:function(el, spec) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.setPosse.apply(dm, _el);
             });
@@ -13725,19 +13711,19 @@
         removeFromPosse:function(el, posseId) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.removeFromPosse.apply(dm, _el);
             });
         },
         removeFromAllPosses:function(el) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.removeFromAllPosses(jsPlumb.getElement(_el)); });
+            _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
         },
         setPosseState:function(el, posseId, state) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.setPosseState(jsPlumb.getElement(_el), posseId, state); });
+            _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
