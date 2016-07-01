@@ -1,4 +1,8 @@
 node_modules
 /.idea
 *.iml
-
+_build/
+dist/doc/editing.html
+dist/test-apidocs/
+dist/tests/bind-shim.js
+jekyll/test-apidocs/
