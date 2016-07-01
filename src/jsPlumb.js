@@ -749,7 +749,7 @@
 
                                 options[startEvent] = _ju.wrap(options[startEvent], function () {
 
-                                    _currentInstance.fire("nodeDragStart", element);
+                                    _currentInstance.fire("nodeDragStart", {element: element});
                                     _currentInstance.setHoverSuspended(true);
                                     _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                     _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -762,7 +762,7 @@
                                     // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
                                     // differs from getUIPosition so much
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
-                                    _currentInstance.fire("nodeDrag", ui);
+                                    _currentInstance.fire("nodeDrag", {element: element, ui: ui});
                                     if (ui != null) {
                                         _draw(element, ui, null, true);
                                         if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
@@ -788,7 +788,7 @@
                                     _started = false;
                                     _currentInstance.setHoverSuspended(false);
                                     _currentInstance.setConnectionBeingDragged(false);
-                                    _currentInstance.fire("nodeDragStop", uip);
+                                    _currentInstance.fire("nodeDragStop", {element: element, ui: uip});
                                 });
                                 var elId = _getId(element); // need ID
                                 draggableStates[elId] = true;
