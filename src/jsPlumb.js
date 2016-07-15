@@ -795,7 +795,7 @@
                             }
                             else {
                                 // already draggable. attach any start, drag or stop listeners to the current Drag.
-                                if (dragOptions.force) {
+                                if (dragOptions && dragOptions.force) {
                                     _currentInstance.initDraggable(element, options);
                                 }
                             }
