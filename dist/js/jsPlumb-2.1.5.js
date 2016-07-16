@@ -3705,19 +3705,17 @@
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
                                     var elements = arguments[0].selection;
-                                    var uip = _currentInstance.getUIPosition(arguments);
-
-                                    // this is one element
                                     var _one = function (_e) {
-                                        if (uip != null) _draw(_e[0], uip);
+                                        if (_e[1] != null) _draw(_e[0], _e[1]);
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                         _currentInstance.getDragManager().dragEnded(_e[0]);
                                     };
 
-                                    for (var i = 0; i < elements.length; i++)
+                                    for (var i = 0; i < elements.length; i++) {
                                         _one(elements[i]);
+                                    }
 
                                     _started = false;
                                     _currentInstance.setHoverSuspended(false);
@@ -5772,6 +5770,7 @@
 
         this.reset = function () {
             _currentInstance.silently(function() {
+                _hoverSuspended = false;
                 _currentInstance.removeAllGroups();
                 _currentInstance.removeGroupManager();
                 _currentInstance.deleteEveryEndpoint();
@@ -6076,23 +6075,14 @@
 
     var root = this, _ju = root.jsPlumbUtil;
 
-    var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-
-        _genLoc = function (e, prefix) {
+    var _genLoc = function (prefix, e) {
             if (e == null) return [ 0, 0 ];
             var ts = _touches(e), t = _getTouch(ts, 0);
             return [t[prefix + "X"], t[prefix + "Y"]];
         },
-        _pageLocation = function (e) {
-            if (e == null) return [ 0, 0 ];
-            return _genLoc(e, "page");
-        },
-        _screenLocation = function (e) {
-            return _genLoc(e, "screen");
-        },
-        _clientLocation = function (e) {
-            return _genLoc(e, "client");
-        },
+        _pageLocation = _genLoc.bind(this, "page"),
+        _screenLocation = _genLoc.bind(this, "screen"),
+        _clientLocation = _genLoc.bind(this, "client"),
         _getTouch = function (touches, idx) {
             return touches.item ? touches.item(idx) : touches[idx];
         },
