@@ -19,23 +19,14 @@
 
     var root = this, _ju = root.jsPlumbUtil;
 
-    var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-
-        _genLoc = function (e, prefix) {
+    var _genLoc = function (prefix, e) {
             if (e == null) return [ 0, 0 ];
             var ts = _touches(e), t = _getTouch(ts, 0);
             return [t[prefix + "X"], t[prefix + "Y"]];
         },
-        _pageLocation = function (e) {
-            if (e == null) return [ 0, 0 ];
-            return _genLoc(e, "page");
-        },
-        _screenLocation = function (e) {
-            return _genLoc(e, "screen");
-        },
-        _clientLocation = function (e) {
-            return _genLoc(e, "client");
-        },
+        _pageLocation = _genLoc.bind(this, "page"),
+        _screenLocation = _genLoc.bind(this, "screen"),
+        _clientLocation = _genLoc.bind(this, "client"),
         _getTouch = function (touches, idx) {
             return touches.item ? touches.item(idx) : touches[idx];
         },
