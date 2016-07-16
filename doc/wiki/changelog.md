@@ -9,6 +9,13 @@
   outlineWidth  -> outlineWidth     (yes, unchanged)
 
 
+## 2.1.5
+
+- issue 533 - Dragging multiple nodes causes incorrect connectors position
+- `reset` method sets hover suspended flag to false now.
+
+
+
 ## 2.1.4
 
 - issue 530 - Further fix related to issue 530, in which elements that had connections prior to being added to a group
