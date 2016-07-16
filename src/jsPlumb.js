@@ -740,19 +740,17 @@
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
                                     var elements = arguments[0].selection;
-                                    var uip = _currentInstance.getUIPosition(arguments);
-
-                                    // this is one element
                                     var _one = function (_e) {
-                                        if (uip != null) _draw(_e[0], uip);
+                                        if (_e[1] != null) _draw(_e[0], _e[1]);
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[0]}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                         _currentInstance.getDragManager().dragEnded(_e[0]);
                                     };
 
-                                    for (var i = 0; i < elements.length; i++)
+                                    for (var i = 0; i < elements.length; i++) {
                                         _one(elements[i]);
+                                    }
 
                                     _started = false;
                                     _currentInstance.setHoverSuspended(false);
