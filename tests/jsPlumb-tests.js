@@ -61,6 +61,12 @@ var _addDiv = function (id, parent, className, x, y, w, h) {
     return d1;
 };
 
+var _addDraggableDiv = function (_jsPlumb, id, parent, className, x, y, w, h) {
+    var d = _addDiv.apply(null, [id, parent, className, x, y, w, h]);
+    _jsPlumb.draggable(d);
+    return d;
+};
+
 var _addDivs = function (ids, parent) {
     for (var i = 0; i < ids.length; i++)
         _addDiv(ids[i], parent);
@@ -271,7 +277,62 @@ var testSuite = function (renderMode, _jsPlumb) {
         ok(els12["d3"] != null, "d3 registered");
     });
 
-    test(": strokeWidth specified as string (eew)", function () {
+test("drag multiple elements and ensure their connections are painted correctly at the end", function() {
+
+        var d1 = _addDraggableDiv (_jsPlumb, 'd1', null, null,50, 50, 100, 100);
+        var d2 = _addDraggableDiv (_jsPlumb, 'd2', null, null,250, 250, 100, 100);
+        var d3 = _addDraggableDiv (_jsPlumb, 'd3', null, null,500, 500, 100, 100);
+
+        var e1 = _jsPlumb.addEndpoint(d1, {
+            anchor:"TopLeft"
+        });
+        var e2 = _jsPlumb.addEndpoint(d2, {
+            anchor:"TopLeft",
+            maxConnections:-1
+        });
+        var e3 = _jsPlumb.addEndpoint(d3, {
+            anchor:"TopLeft"
+        });
+
+        _jsPlumb.connect({source:e1, target:e2});
+        _jsPlumb.connect({source:e2, target:e3});
+
+        equal(e1.canvas.offsetLeft, 50 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        equal(e1.canvas.offsetTop, 50 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        equal(e2.canvas.offsetLeft, 250 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 250 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        equal(e3.canvas.offsetLeft, 500 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        equal(e3.canvas.offsetTop, 500 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+
+        _jsPlumb.addToDragSelection("d1");
+        _jsPlumb.addToDragSelection("d3");
+
+        // drag node 2 by 750,750. we expect its endpoint to have moved too
+
+        support.dragNodeTo(d2, 1000, 1000);
+
+        equal(d2.offsetLeft, 950, "div 2 is at the right left position");
+        equal(d2.offsetTop, 1000, "div 2 is at the right top position");
+
+        // divs 1 and 3 have moved too, make sure they are in the right place
+        equal(d1.offsetLeft, 750, "div 1 is at the right left position");
+        equal(d1.offsetTop, 800, "div 1 is at the right top position");
+        equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
+        equal(d3.offsetTop, 1250, "div 3 is at the right top position");
+
+        // check the endpoints
+        equal(e2.canvas.offsetLeft, 950 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 1000 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+
+        equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        equal(e1.canvas.offsetTop, 800 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+
+        equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        equal(e3.canvas.offsetTop, 1250 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+
+    });
+
+    test(": lineWidth specified as string (eew)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var c = _jsPlumb.connect({
             source: "d1",
