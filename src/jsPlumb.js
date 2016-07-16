@@ -2804,6 +2804,7 @@
 
         this.reset = function () {
             _currentInstance.silently(function() {
+                _hoverSuspended = false;
                 _currentInstance.removeAllGroups();
                 _currentInstance.removeGroupManager();
                 _currentInstance.deleteEveryEndpoint();
