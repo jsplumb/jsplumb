@@ -11514,19 +11514,19 @@
             return o;
         };
 
-        this.removeGroup = function(group, deleteMembers) {
+        this.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
             group = this.getGroup(group);
             this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
-            group[deleteMembers ? "removeAll" : "orphanAll"]();
+            group[deleteMembers ? "removeAll" : "orphanAll"](manipulateDOM, doNotFireEvent);
             _jsPlumb.remove(group.getEl());
             delete _managedGroups[group.id];
             delete _jsPlumb._groups[group.id];
             _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
         };
 
-        this.removeAllGroups = function(deleteMembers) {
+        this.removeAllGroups = function(deleteMembers, manipulateDOM, doNotFireEvent) {
             for (var g in _managedGroups) {
-                this.removeGroup(_managedGroups[g], deleteMembers);
+                this.removeGroup(_managedGroups[g], deleteMembers, manipulateDOM, doNotFireEvent);
             }
         };
 
@@ -12055,12 +12055,12 @@
     /**
      * Remove a group, and optionally remove its members from the jsPlumb instance.
      * @method removeGroup
-     * @param {String|Group} group Group to delete, or ID of Grrup to delete.
+     * @param {String|Group} group Group to delete, or ID of Group to delete.
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the group. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    _jpi.prototype.removeGroup = function(group, deleteMembers) {
-        this.getGroupManager().removeGroup(group, deleteMembers);
+    _jpi.prototype.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
+        this.getGroupManager().removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
     };
 
     /**
@@ -12069,8 +12069,8 @@
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the groups. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    _jpi.prototype.removeAllGroups = function(deleteMembers) {
-        this.getGroupManager().removeAllGroups(deleteMembers);
+    _jpi.prototype.removeAllGroups = function(deleteMembers, manipulateDOM, doNotFireEvent) {
+        this.getGroupManager().removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
     };
 
     /**
