@@ -347,8 +347,12 @@
         this.getEl = function() { return el; };
         this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
-        var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
-        var dragArea = da && da.length > 0 ? da[0] : el;
+
+        var getDragArea = this.getDragArea = function() {
+            var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
+            return da && da.length > 0 ? da[0] : el;
+        };
+
         var ghost = params.ghost === true;
         var constrain = ghost || (params.constrain === true);
         var revert = params.revert !== false;
@@ -392,7 +396,7 @@
                     // if already a member of this group, do nothing
                     if (currentGroup !== self) {
                         var elpos = _jsPlumb.getOffset(_el, true);
-                        var cpos = self.collapsed ? _jsPlumb.getOffset(el, true) : _jsPlumb.getOffset(dragArea, true);
+                        var cpos = self.collapsed ? _jsPlumb.getOffset(el, true) : _jsPlumb.getOffset(getDragArea(), true);
 
                         // otherwise, transfer to this group.
                         if (currentGroup != null) {
@@ -450,6 +454,7 @@
         };
 
         this.add = function(_el, doNotFireEvent) {
+            var dragArea = getDragArea();
             _each(_el, function(__el) {
                 __el._jsPlumbGroup = self;
                 elements.push(__el);
