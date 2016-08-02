@@ -77,7 +77,7 @@
         });
 
         this.addGroup = function(group) {
-            _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
+            _jsPlumb.addClass(group.getEl(), GROUP_EXPANDED_CLASS);
             _managedGroups[group.id] = group;
             group.manager = this;
             _updateConnectionsForGroup(group);
