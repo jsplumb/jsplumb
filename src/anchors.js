@@ -142,7 +142,7 @@
                 var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
                     p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
                 if (p1 > p2) return 1;
-                else return a[0][1] > b[0][1] ? 1 : -1;
+                else return -1;
             },
         // used by placeAnchors
             edgeSortFunctions = {
