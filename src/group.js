@@ -484,7 +484,7 @@
                 });
 
                 if (manipulateDOM) {
-                    try { self.getEl().removeChild(__el); }
+                    try { self.getDragArea().removeChild(__el); }
                     catch (e) {
                         jsPlumbUtil.log("Could not remove element from Group " + e);
                     }
