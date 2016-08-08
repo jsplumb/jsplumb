@@ -513,11 +513,14 @@ parameter, which can be the name of some position finder, or a position finder f
   <span class="k">return</span> <span class="p">[</span> <span class="p">((</span><span class="nx">mx</span> <span class="o">*</span> <span class="nx">gx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">gx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="nx">elementSize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">((</span><span class="nx">my</span> <span class="o">*</span> <span class="nx">gy</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">gy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="nx">elementSize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">];</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>The four arguments are:
-- <strong>eventOffset</strong> - Page left/top where the mouse button was released (a JS object containing left/top members like you get from a jQuery offset call)
-- <strong>elementOffset</strong> - JS offset object containing offsets for the element on which the Connection is to be created
-- <strong>elementSize</strong> - [width, height] array of the dimensions of the element on which the Connection is to be created
-- <strong>constructorParams</strong> - the parameters that were passed to the Anchor&#39;s constructor. In the example given above, those parameters are &#39;position&#39; and &#39;grid&#39;; you can pass arbitrary parameters.</p>
+<p>The four arguments are:</p>
+
+<ul>
+<li><strong>eventOffset</strong> - Page left/top where the mouse button was released (a JS object containing left/top members like you get from a jQuery offset call)</li>
+<li><strong>elementOffset</strong> - JS offset object containing offsets for the element on which the Connection is to be created</li>
+<li><strong>elementSize</strong> - [width, height] array of the dimensions of the element on which the Connection is to be created</li>
+<li><strong>constructorParams</strong> - the parameters that were passed to the Anchor&#39;s constructor. In the example given above, those parameters are &#39;position&#39; and &#39;grid&#39;; you can pass arbitrary parameters.</li>
+</ul>
 
 <p>The return value of this function is an array of [x, y] - proportional values between 0 and 1 inclusive, such as you can pass to a static Anchor.</p>
 

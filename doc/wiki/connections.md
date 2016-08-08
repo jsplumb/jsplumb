@@ -420,6 +420,7 @@ function(eventOffset, elementOffset, elementSize, constructorParams) {
 ```
 
 The four arguments are:
+
 - **eventOffset** - Page left/top where the mouse button was released (a JS object containing left/top members like you get from a jQuery offset call)
 - **elementOffset** - JS offset object containing offsets for the element on which the Connection is to be created
 - **elementSize** - [width, height] array of the dimensions of the element on which the Connection is to be created

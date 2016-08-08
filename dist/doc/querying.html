@@ -157,7 +157,11 @@
 
 <h4>Selecting and operating on a list of Connections</h4>
 
-<p>The <code>jsPlumb.select</code> function provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for <code>getConnections</code>, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.</p>
+<p>The <code>jsPlumb.select</code> function provides a fluid interface for working with lists of Connections.  The syntax used to 
+specify which Connections you want is identical to that which you use for <code>getConnections</code>, but the return value is an 
+object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. 
+Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the 
+Connections in the selection along with the return value for that Connection.</p>
 
 <p><a name="selectSetters"></a></p>
 
@@ -231,28 +235,29 @@
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">}).</span><span class="nx">removeAllOverlays</span><span class="p">();</span>
 </code></pre></div>
 <ul>
-<li><p>Select all connections in scope &quot;foo&quot; and set their paint style to be a thick blue line:
-<code>javascript
-jsPlumb.select({scope:&quot;foo&quot;}).setPaintStyle({
-    stroke:&quot;blue&quot;, 
-    strokeWidth:5 
-});
-</code></p></li>
-<li><p>Select all Connections from &quot;d1&quot; and detach them:
-<code>javascript
-jsPlumb.select({source:&quot;d1&quot;}).detach();
-</code></p></li>
-<li><p>Select all Connections and add the classes &quot;foo&quot; and &quot;bar&quot; to them :
-<code>javascript
-jsPlumb.select().addClass(&quot;foo bar&quot;);
-</code></p></li>
-<li><p>Select all Connections and remove the class &quot;foo&quot; from them :
-<code>javascript
-jsPlumb.select().removeClass(&quot;foo&quot;);
-</code>    </p></li>
+<li>Select all connections in scope &quot;foo&quot; and set their paint style to be a thick blue line:</li>
 </ul>
-
-<p><a name="selectIterate"></a>                      </p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">setPaintStyle</span><span class="p">({</span>
+        <span class="nx">stroke</span><span class="o">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> 
+        <span class="nx">strokeWidth</span><span class="o">:</span><span class="mi">5</span> 
+<span class="p">});</span>
+</code></pre></div>
+<ul>
+<li>Select all Connections from &quot;d1&quot; and detach them:</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">}).</span><span class="nx">detach</span><span class="p">();</span>
+</code></pre></div>
+<ul>
+<li>Select all Connections and add the classes &quot;foo&quot; and &quot;bar&quot; to them :</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">().</span><span class="nx">addClass</span><span class="p">(</span><span class="s2">&quot;foo bar&quot;</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Select all Connections and remove the class &quot;foo&quot; from them :</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">().</span><span class="nx">removeClass</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p><a name="selectIterate"></a></p>
 
 <h5>Iterating through results</h5>
 
@@ -310,7 +315,7 @@ jsPlumb.select().removeClass(&quot;foo&quot;);
   <span class="nx">scope</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;someScope&quot;</span><span class="p">,</span> <span class="s2">&quot;someCustomScope&quot;</span><span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>would result in this output:            </p>
+<p>would result in this output:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">{</span>
   <span class="s2">&quot;someScope&quot;</span> <span class="o">:</span> <span class="p">[</span> <span class="mi">1</span><span class="p">..</span><span class="nx">n</span> <span class="nx">Connections</span> <span class="p">],</span>
   <span class="s2">&quot;someCustomScope&quot;</span><span class="o">:</span> <span class="p">[</span> <span class="mi">1</span><span class="p">..</span><span class="nx">m</span> <span class="nx">Connections</span> <span class="p">]</span>
@@ -323,7 +328,7 @@ jsPlumb.select().removeClass(&quot;foo&quot;);
   <span class="nx">scope</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;someScope&quot;</span><span class="p">,</span> <span class="s2">&quot;someCustomScope&quot;</span><span class="p">]</span>
 <span class="p">},</span> <span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
-<p>...and would result in this output:         </p>
+<p>...and would result in this output:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">[ 1..n Connections ]
 </code></pre></div>
 <p><a name="getConnectionsExamples"></a>
@@ -345,25 +350,25 @@ jsPlumb.getConnections({scope:&quot;myTestScope&quot;});&lt;/pre&gt;
 <li><p>Get all connections for the given scopes (return value is a map of scope names to connection lists):<br>
 <code>javascript
 jsPlumb.getConnections({
-    scope:[&quot;myTestScope&quot;, &quot;yourTestScope&quot;]
+scope:[&quot;myTestScope&quot;, &quot;yourTestScope&quot;]
 });
 </code></p></li>
 <li><p>Get all connections for the given source (return value is a map of scope names to connection lists):
 <code>javascript
 jsPlumb.getConnections({
-    source:&quot;mySourceElement&quot;
+source:&quot;mySourceElement&quot;
 });
 </code></p></li>
 <li><p>Get all connections for the given sources (return value is a map of scope names to connection lists): 
 <code>javascript
 jsPlumb.getConnections({
-    source:[&quot;mySourceElement&quot;, &quot;yourSourceElement&quot;]
+source:[&quot;mySourceElement&quot;, &quot;yourSourceElement&quot;]
 });
 </code></p></li>
 <li><p>Get all connections for the given target (return value is a map of scope names to connection lists):
 <code>javascript
 jsPlumb.getConnections({
-    target:&quot;myTargetElement&quot;
+target:&quot;myTargetElement&quot;
 });
 </code></p></li>
 <li><p>Get all connections for the given source and targets (return value is a map of scope names to connection lists):
@@ -397,7 +402,7 @@ jsPlumb.getConnections({
 <li><strong>element</strong> - element(s) to get both source and target endpoints from</li>
 <li><strong>source</strong> - element(s) to get source endpoints from</li>
 <li><strong>target</strong> - element(s) to get target endpoints from</li>
-<li><strong>scope</strong> - scope(s) for endpoints to retrieve<br></li>
+<li><strong>scope</strong> - scope(s) for endpoints to retrieve</li>
 </ul>
 
 <p><a name="selectEndpointsSetters"></a></p>
