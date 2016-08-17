@@ -40,6 +40,26 @@
     color: orange;
 }
 
+.enableDisableTarget {
+    color:white;
+    left:auto;
+    right:5px;
+    top:5px;
+    position:absolute;
+}
+
+.enableDisableTarget:visited, .enableDisableTarget:focus {
+    color:white;
+}
+
+.enableDisableTarget:hover {
+    color: orange;
+}
+
+.element-disabled {
+    outline:2px solid lightcoral;
+}
+
 /** LARGE WINDOW STYLE AND POSITION **/
 #sourceWindow1 {
     background-color: #0d78bc;
