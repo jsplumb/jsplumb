@@ -8723,7 +8723,7 @@ test("endpoint: suspendedElement set correctly", function() {
         c1 = _addDiv("container1", null, "container", 0, 50);
         c2 = _addDiv("container2", null, "container", 300, 50);
         c3 = _addDiv("container3", null, "container", 600, 50);
-        c4 = _addDiv("container4", null, "container", 0, 400);
+        c4 = _addDiv("container4", null, "container", 1000, 400);
         c5 = _addDiv("container5", null, "container", 300, 400);
         c6 = _addDiv("container6", null, "container", 800, 1000);
 
@@ -8786,7 +8786,18 @@ test("endpoint: suspendedElement set correctly", function() {
             ok(true, "unknown group retrieve threw exception");
         }
 
-        _jsPlumb.removeGroup("four");
+        // group4 is at [1000, 400]
+        // its children are
+
+        equal(parseInt(c4.style.left), 1000, "c4 at 1000 left");
+        equal(parseInt(c4.style.top), 400, "c4 at 400 top");
+        equal(parseInt(c4_1.style.left), 30, "c4_1 at 30 left");
+        equal(parseInt(c4_1.style.top), 30, "c4_1 at 30 top");
+        equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
+        equal(parseInt(c4_2.style.top), 130, "c4_2 at 130 top");
+
+
+        _jsPlumb.removeGroup("four", false);
         try {
             _jsPlumb.getGroup("four");
             ok(false, "should not have been able to retrieve removed group");
@@ -8795,6 +8806,12 @@ test("endpoint: suspendedElement set correctly", function() {
             ok(true, "removed group subsequent retrieve threw exception");
         }
         ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+        // check positions of child nodes; they should have been adjusted.
+        equal(parseInt(c4_1.style.left), 1030, "c4_1 at 1030 left");
+        equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
+        equal(parseInt(c4_2.style.left), 1180, "c4_2 at 1180 left");
+        equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
+
 
         _jsPlumb.removeGroup("five", true);
         try {
