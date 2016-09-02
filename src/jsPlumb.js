@@ -741,8 +741,6 @@
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
                                     var elements = arguments[0].selection;
                                     var _one = function (_e) {
-                                        // TODO verify this is all correct (we use the EL from the Drag, in case _el[0] is
-                                        // just a proxy element.
                                         if (_e[1] != null) _draw(_e[2].el, _e[1]);
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
