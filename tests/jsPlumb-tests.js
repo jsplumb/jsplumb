@@ -2456,10 +2456,44 @@ test("drag multiple elements and ensure their connections are painted correctly 
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        _jsPlumb.setTargetEnabled(d17, false);
+        var originallyEnabled = _jsPlumb.setTargetEnabled("d17", false);
         _jsPlumb.connect({source: e16, target: "d17"});
         assertEndpointCount("d16", 1, _jsPlumb);
         assertEndpointCount("d17", 0, _jsPlumb);
+
+
+        // tests for css class for disabled target
+        ok(_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class added");
+
+        ok(originallyEnabled, "setTargetEnabled returned the original enabled value of true when setting to false");
+        originallyEnabled = _jsPlumb.setTargetEnabled("d17", true);
+        ok(!originallyEnabled, "setTargetEnabled returned the previous enabled value of false when setting to true");
+
+        ok(!_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class removed");
+    });
+
+    // makeSource, then disable it. should not be able to make a connection to it.
+    test(": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (DOM element as argument)", function () {
+        var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
+            [0, 0.5, 0, -1],
+            [1, 0.5, 0, 1]
+        ]});
+        _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        var originallyEnabled = _jsPlumb.setTargetEnabled(d17, false);
+        _jsPlumb.connect({source: e16, target: "d17"});
+        assertEndpointCount("d16", 1, _jsPlumb);
+        assertEndpointCount("d17", 0, _jsPlumb);
+
+
+        // tests for css class for disabled target
+        ok(_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class added");
+
+        ok(originallyEnabled, "setTargetEnabled returned the original enabled value of true when setting to false");
+        originallyEnabled = _jsPlumb.setTargetEnabled(d17, true);
+        ok(!originallyEnabled, "setTargetEnabled returned the previous enabled value of false when setting to true");
+
+        ok(!_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class removed");
     });
 
     // makeTarget, then disable it. should not be able to make a connection to it.
