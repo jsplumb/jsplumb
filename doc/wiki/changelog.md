@@ -1,5 +1,6 @@
 ## 2.2.0
 
+
 - Overhaul of keys used in paintStyle and hoverPaintStyle objects:
 
   strokeStyle   -> style
@@ -7,6 +8,11 @@
   lineWidth     -> strokeWidth
   outlineColor  -> outlineStroke
   outlineWidth  -> outlineWidth     (yes, unchanged)
+
+## 2.1.6
+
+- setTargetEnabled/setSourceEnabled now return the previous value of the enabled state.
+- disabled source/target elements get a `jtk-source-disabled` or `jtk-target-disabled` class added.
 
 
 ## 2.1.5
