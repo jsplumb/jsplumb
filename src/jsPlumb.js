@@ -2577,27 +2577,36 @@
 
         // does the work of setting a source enabled or disabled.
         var _setEnabled = function (type, el, state, toggle, connectionType) {
-            var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions;
+            var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions,
+                originalState, info, newState;
+
             connectionType = connectionType || "default";
 
-
-            if (_ju.isString(el) && a[el] && a[el][connectionType]) {
-                a[el][connectionType].enabled = toggle ? !a[el][connectionType].enabled : state;
-            }
-            else if (el.length) {
+            // a selector or an array
+            if (el.length && !_ju.isString(el)) {
+                originalState = [];
                 for (var i = 0, ii = el.length; i < ii; i++) {
-                    var info = _info(el[i]);
-                    if (a[info.id] && a[info.id][connectionType])
-                        a[info.id][connectionType].enabled = toggle ? !a[info.id][connectionType].enabled : state;
+                    info = _info(el[i]);
+                    if (a[info.id] && a[info.id][connectionType]) {
+                        originalState[i] = a[info.id][connectionType].enabled;
+                        newState = toggle ? !originalState[i] : state;
+                        a[info.id][connectionType].enabled = newState;
+                        _currentInstance[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled");
+                    }
                 }
             }
-            // otherwise a DOM element
+            // otherwise a DOM element or a String ID.
             else {
-                var id = _info(el).id;
-                if (a[id] && a[id][connectionType])
-                    a[id][connectionType].enabled = toggle ? !a[id][connectionType].enabled : state;
+                info = _info(el);
+                var id = info.id;
+                if (a[id] && a[id][connectionType]) {
+                    originalState = a[id][connectionType].enabled;
+                    newState = toggle ? !originalState : state;
+                    a[id][connectionType].enabled = newState;
+                    _currentInstance[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled");
+                }
             }
-            return this;
+            return originalState;
         }.bind(this);
 
         var _first = function (el, fn) {
