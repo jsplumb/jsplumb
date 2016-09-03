@@ -1391,8 +1391,12 @@
                     sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
                 } : jpc;
 
-            if (doFireEvent)
+            if (doFireEvent) {
                 _currentInstance.fire("connectionDetached", params, originalEvent);
+            }
+
+            // always fire this. used by internal jsplumb stuff.
+            _currentInstance.fire("internal.connectionDetached", params, originalEvent);
 
             _currentInstance.anchorManager.connectionDetached(params);
         };
