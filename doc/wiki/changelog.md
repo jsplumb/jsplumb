@@ -1,3 +1,9 @@
+## 2.1.6
+
+- setTargetEnabled/setSourceEnabled now return the previous value of the enabled state.
+- disabled source/target elements get a `jtk-source-disabled` or `jtk-target-disabled` class added.
+
+
 ## 2.1.5
 
 - issue 533 - Dragging multiple nodes causes incorrect connectors position
