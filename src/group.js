@@ -60,7 +60,7 @@
             }
         }
 
-        _jsPlumb.bind("connectionDetached", function(p) {
+        _jsPlumb.bind("internal.connectionDetached", function(p) {
             _cleanupDetachedConnection(p.connection);
         });
 
