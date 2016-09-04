@@ -256,7 +256,7 @@ jsPlumb will use to create an Endpoint on the given target element each time a C
 takes the exact same format as you would pass to `addEndpoint`; `makeTarget` is essentially a deferred `addEndpoint` 
 call followed by a `connect` call.  So in this case, we're telling jsPlumb that any Endpoints it happens to create on 
 some element that was configured by the `makeTarget` call are themselves Connection targets.  You may or may not want 
-this behaviour in your application - just control it by setting the approriate value for that parameter (it defaults 
+this behaviour in your application - just control it by setting the appropriate value for that parameter (it defaults 
 to false).
 
 `makeTarget` also supports the `maxConnections` and `onMaxConnections` parameters, as `makeSource` does, but note that 
