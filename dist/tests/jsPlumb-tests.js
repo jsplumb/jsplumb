@@ -2456,10 +2456,44 @@ test("drag multiple elements and ensure their connections are painted correctly 
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        _jsPlumb.setTargetEnabled(d17, false);
+        var originallyEnabled = _jsPlumb.setTargetEnabled("d17", false);
         _jsPlumb.connect({source: e16, target: "d17"});
         assertEndpointCount("d16", 1, _jsPlumb);
         assertEndpointCount("d17", 0, _jsPlumb);
+
+
+        // tests for css class for disabled target
+        ok(_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class added");
+
+        ok(originallyEnabled, "setTargetEnabled returned the original enabled value of true when setting to false");
+        originallyEnabled = _jsPlumb.setTargetEnabled("d17", true);
+        ok(!originallyEnabled, "setTargetEnabled returned the previous enabled value of false when setting to true");
+
+        ok(!_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class removed");
+    });
+
+    // makeSource, then disable it. should not be able to make a connection to it.
+    test(": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (DOM element as argument)", function () {
+        var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
+            [0, 0.5, 0, -1],
+            [1, 0.5, 0, 1]
+        ]});
+        _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        var originallyEnabled = _jsPlumb.setTargetEnabled(d17, false);
+        _jsPlumb.connect({source: e16, target: "d17"});
+        assertEndpointCount("d16", 1, _jsPlumb);
+        assertEndpointCount("d17", 0, _jsPlumb);
+
+
+        // tests for css class for disabled target
+        ok(_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class added");
+
+        ok(originallyEnabled, "setTargetEnabled returned the original enabled value of true when setting to false");
+        originallyEnabled = _jsPlumb.setTargetEnabled(d17, true);
+        ok(!originallyEnabled, "setTargetEnabled returned the previous enabled value of false when setting to true");
+
+        ok(!_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class removed");
     });
 
     // makeTarget, then disable it. should not be able to make a connection to it.
@@ -8723,7 +8757,7 @@ test("endpoint: suspendedElement set correctly", function() {
         c1 = _addDiv("container1", null, "container", 0, 50);
         c2 = _addDiv("container2", null, "container", 300, 50);
         c3 = _addDiv("container3", null, "container", 600, 50);
-        c4 = _addDiv("container4", null, "container", 0, 400);
+        c4 = _addDiv("container4", null, "container", 1000, 400);
         c5 = _addDiv("container5", null, "container", 300, 400);
         c6 = _addDiv("container6", null, "container", 800, 1000);
 
@@ -8786,7 +8820,18 @@ test("endpoint: suspendedElement set correctly", function() {
             ok(true, "unknown group retrieve threw exception");
         }
 
-        _jsPlumb.removeGroup("four");
+        // group4 is at [1000, 400]
+        // its children are
+
+        equal(parseInt(c4.style.left), 1000, "c4 at 1000 left");
+        equal(parseInt(c4.style.top), 400, "c4 at 400 top");
+        equal(parseInt(c4_1.style.left), 30, "c4_1 at 30 left");
+        equal(parseInt(c4_1.style.top), 30, "c4_1 at 30 top");
+        equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
+        equal(parseInt(c4_2.style.top), 130, "c4_2 at 130 top");
+
+
+        _jsPlumb.removeGroup("four", false);
         try {
             _jsPlumb.getGroup("four");
             ok(false, "should not have been able to retrieve removed group");
@@ -8795,6 +8840,12 @@ test("endpoint: suspendedElement set correctly", function() {
             ok(true, "removed group subsequent retrieve threw exception");
         }
         ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+        // check positions of child nodes; they should have been adjusted.
+        equal(parseInt(c4_1.style.left), 1030, "c4_1 at 1030 left");
+        equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
+        equal(parseInt(c4_2.style.left), 1180, "c4_2 at 1180 left");
+        equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
+
 
         _jsPlumb.removeGroup("five", true);
         try {
