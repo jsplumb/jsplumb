@@ -3710,10 +3710,10 @@
                                         if (_e[1] != null) {
                                             // run the reported offset through the code that takes parent containers
                                             // into account, to adjust if necessary (issue 554)
-                                            uip = _currentInstance.getUIPosition({
+                                            uip = _currentInstance.getUIPosition([{
                                                 el:_e[2].el,
                                                 pos:[_e[1].left, _e[1].top]
-                                            });
+                                            }]);
                                             _draw(_e[2].el, uip);
                                         }
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
