@@ -35,7 +35,7 @@
                     _jsPlumb.repaint(placeholder.element, _ui);
                     // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
                     // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
-                    endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation({element:endpoint.element})});
+                    endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation({element:endpoint})});
                 }
             },
             stopDrag: function () {
