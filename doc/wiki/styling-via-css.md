@@ -53,6 +53,8 @@ jsPlumb assigns these classes on both Connectors and Endpoints when specific use
 <tr><td>Connection Hover</td><td>jsplumb-source-hover</td><td>hoverSourceClass</td><td>Assigned to the source element in a Connection when the mouse is hovering over the Connection</td></tr>
 <tr><td>Connection Hover</td><td>jsplumb-target-hover</td><td>hoverTargetClass</td><td>Assigned to the target element in a Connection when the mouse is hovering over the Connection</td></tr>
 <tr><td>Drag</td><td>jsplumb-drag-select</td><td>dragSelectClass</td><td>Assigned to the document body whenever a drag is in progress. It allows you to ensure document selection is disabled - see [here](home#dragSelection)</td></tr>
+<tr><td>Source disable</td><td>jsplumb-source-disabled</td><td>-</td><td>Assigned to an element that was configured with `makeSource` and was subsequently disabled via `setEnabled(el, false)`.</td></tr>
+<tr><td>Target disable</td><td>jsplumb-target-disabled</td><td>-</td><td>Assigned to an element that was configured with `makeTarget` and was subsequently disabled via `setEnabled(el, false)`.</td></tr>
 </table>
 
 **Note** the last two classes work in conjunction with the `checkDropAllowed` interceptor that you can register on 

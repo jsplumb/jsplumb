@@ -1,3 +1,11 @@
+## 2.1.6
+
+- setTargetEnabled/setSourceEnabled now return the previous value of the enabled state.
+- disabled source/target elements get a `jtk-source-disabled` or `jtk-target-disabled` class added.
+- issue 552 - in place endpoint painted in wrong location during connection drag
+- issue 554 - after drag, connections to a node inside a group are positioned incorrectly.
+
+
 ## 2.1.5
 
 - issue 533 - Dragging multiple nodes causes incorrect connectors position

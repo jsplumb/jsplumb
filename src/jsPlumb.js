@@ -767,11 +767,18 @@
                                     }
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                    var elements = arguments[0].selection;
+                                    var elements = arguments[0].selection, uip;
+
                                     var _one = function (_e) {
-                                        // TODO verify this is all correct (we use the EL from the Drag, in case _el[0] is
-                                        // just a proxy element.
-                                        if (_e[1] != null) _draw(_e[2].el, _e[1]);
+                                        if (_e[1] != null) {
+                                            // run the reported offset through the code that takes parent containers
+                                            // into account, to adjust if necessary (issue 554)
+                                            uip = _currentInstance.getUIPosition({
+                                                el:_e[2].el,
+                                                pos:[_e[1].left, _e[1].top]
+                                            });
+                                            _draw(_e[2].el, uip);
+                                        }
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -2608,27 +2615,36 @@
 
         // does the work of setting a source enabled or disabled.
         var _setEnabled = function (type, el, state, toggle, connectionType) {
-            var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions;
+            var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions,
+                originalState, info, newState;
+
             connectionType = connectionType || "default";
 
-
-            if (_ju.isString(el) && a[el] && a[el][connectionType]) {
-                a[el][connectionType].enabled = toggle ? !a[el][connectionType].enabled : state;
-            }
-            else if (el.length) {
+            // a selector or an array
+            if (el.length && !_ju.isString(el)) {
+                originalState = [];
                 for (var i = 0, ii = el.length; i < ii; i++) {
-                    var info = _info(el[i]);
-                    if (a[info.id] && a[info.id][connectionType])
-                        a[info.id][connectionType].enabled = toggle ? !a[info.id][connectionType].enabled : state;
+                    info = _info(el[i]);
+                    if (a[info.id] && a[info.id][connectionType]) {
+                        originalState[i] = a[info.id][connectionType].enabled;
+                        newState = toggle ? !originalState[i] : state;
+                        a[info.id][connectionType].enabled = newState;
+                        _currentInstance[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled");
+                    }
                 }
             }
-            // otherwise a DOM element
+            // otherwise a DOM element or a String ID.
             else {
-                var id = _info(el).id;
-                if (a[id] && a[id][connectionType])
-                    a[id][connectionType].enabled = toggle ? !a[id][connectionType].enabled : state;
+                info = _info(el);
+                var id = info.id;
+                if (a[id] && a[id][connectionType]) {
+                    originalState = a[id][connectionType].enabled;
+                    newState = toggle ? !originalState : state;
+                    a[id][connectionType].enabled = newState;
+                    _currentInstance[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled");
+                }
             }
-            return this;
+            return originalState;
         }.bind(this);
 
         var _first = function (el, fn) {
