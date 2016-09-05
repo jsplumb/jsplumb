@@ -3704,11 +3704,18 @@
                                     }
                                 });
                                 options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                    var elements = arguments[0].selection;
+                                    var elements = arguments[0].selection, uip;
+
                                     var _one = function (_e) {
-                                        // TODO verify this is all correct (we use the EL from the Drag, in case _el[0] is
-                                        // just a proxy element.
-                                        if (_e[1] != null) _draw(_e[2].el, _e[1]);
+                                        if (_e[1] != null) {
+                                            // run the reported offset through the code that takes parent containers
+                                            // into account, to adjust if necessary (issue 554)
+                                            uip = _currentInstance.getUIPosition({
+                                                el:_e[2].el,
+                                                pos:[_e[1].left, _e[1].top]
+                                            });
+                                            _draw(_e[2].el, uip);
+                                        }
                                         _currentInstance.removeClass(_e[0], "jsplumb-dragged");
                                         _currentInstance.select({source: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
