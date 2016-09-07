@@ -185,12 +185,12 @@ To help you organise z-indices correctly, jsPlumb adds a CSS class to each type 
 
 <table style="color:black;font-size:90%;width:100%;">
   <tr><td><strong>Component</strong></td><td><strong>Class</strong></td></tr>
-  <tr><td>Endpoint</td><td>jsplumb-endpoint</td></tr>
-  <tr><td>Connector</td><td>jsplumb-connector</td></tr>
-  <tr><td>Overlay</td><td>jsplumb-overlay</td></tr>
+  <tr><td>Endpoint</td><td>jtk-endpoint</td></tr>
+  <tr><td>Connector</td><td>jtk-connector</td></tr>
+  <tr><td>Overlay</td><td>jtk-overlay</td></tr>
 </table>            
                             
-In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class `jsplumb-hover`. 
+In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class `jtk-hover`. 
 For more information about styling jsPlumb with CSS, see [this page](styling-via-css). 
 
 <a name="container"></a>

@@ -3,7 +3,7 @@
 Here's a simple page that you can copy in order to get going.  A few basic things are illustrated here:
 
  - Nodes (with class **w**) are positioned absolute.
- - CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of **jsplumb-connector**). In 
+ - CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of **jtk-connector**). In 
  this case, nodes are placed above connectors.
  - You should use `jsPlumb.ready` to wrap your initial access to jsPlumb.
  - A listener is bound to the `connection` event on jsPlumb.
@@ -24,7 +24,7 @@ Here's a simple page that you can copy in order to get going.  A few basic thing
                     z-index:10;
                  }
                  
-                 .jsplumb-connector { 
+                 .jtk-connector { 
                      z-index:9;
                  }
 
@@ -47,7 +47,7 @@ Here's a simple page that you can copy in order to get going.  A few basic thing
 
             <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script>
             <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
-            <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all.js"></script>
+            <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jtk-1.4.1-all.js"></script>
         
             <script type="text/javascript">
                 jsPlumb.ready(function() {

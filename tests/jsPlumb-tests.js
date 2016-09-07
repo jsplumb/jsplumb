@@ -1237,38 +1237,38 @@ test("drag multiple elements and ensure their connections are painted correctly 
     test(': addEndpoint, css class on anchor added to endpoint artefact and element', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, { anchor: [0, 0, 1, 1, 0, 0, "foo" ]});
-        ok(jsPlumb.hasClass(ep.canvas, "jsplumb-endpoint-anchor-foo"), "class set on endpoint");
-        ok(jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor-foo"), "class set on element");
+        ok(jsPlumb.hasClass(ep.canvas, "jtk-endpoint-anchor-foo"), "class set on endpoint");
+        ok(jsPlumb.hasClass(d1, "jtk-endpoint-anchor-foo"), "class set on element");
         _jsPlumb.deleteEndpoint(ep);
-        ok(!jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor-foo"), "class removed from element");
+        ok(!jsPlumb.hasClass(d1, "jtk-endpoint-anchor-foo"), "class removed from element");
     });
 
     test(': addEndpoint, blank css class on anchor does not add extra prefix ', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, { anchor: [0, 0, 1, 1, 0, 0  ]});
-        ok(jsPlumb.hasClass(ep.canvas, "jsplumb-endpoint-anchor"), "class set on endpoint");
-        ok(jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor"), "class set on element");
+        ok(jsPlumb.hasClass(ep.canvas, "jtk-endpoint-anchor"), "class set on endpoint");
+        ok(jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class set on element");
         _jsPlumb.deleteEndpoint(ep);
-        ok(!jsPlumb.hasClass(d1, "jsplumb-endpoint-anchor"), "class removed from element");
+        ok(!jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class removed from element");
     });
 
     test(': connect, jsplumb connected class added to elements', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         // connect two elements and check they both get the class.
         var c = _jsPlumb.connect({source:d1, target:d2});
-        ok(jsPlumb.hasClass(d1, "jsplumb-connected"), "class set on element d1");
-        ok(jsPlumb.hasClass(d2, "jsplumb-connected"), "class set on element d2");
+        ok(jsPlumb.hasClass(d1, "jtk-connected"), "class set on element d1");
+        ok(jsPlumb.hasClass(d2, "jtk-connected"), "class set on element d2");
         // connect d1 to another element and check d3 gets the class
         var c2 = _jsPlumb.connect({source:d1, target:d3});
-        ok(jsPlumb.hasClass(d3, "jsplumb-connected"), "class set on element d3");
+        ok(jsPlumb.hasClass(d3, "jtk-connected"), "class set on element d3");
         // now disconnect original connection. d2 should no longer have the class, but d1 should, since it has
         // still one connection.
         _jsPlumb.detach(c);
-        ok(jsPlumb.hasClass(d1, "jsplumb-connected"), "class still on element d1");
-        ok(!jsPlumb.hasClass(d2, "jsplumb-connected"), "class removed from element d2");
+        ok(jsPlumb.hasClass(d1, "jtk-connected"), "class still on element d1");
+        ok(!jsPlumb.hasClass(d2, "jtk-connected"), "class removed from element d2");
         _jsPlumb.detach(c2);
-        ok(!jsPlumb.hasClass(d1, "jsplumb-connected"), "class removed from element d1");
-        ok(!jsPlumb.hasClass(d3, "jsplumb-connected"), "class removed from element d3");
+        ok(!jsPlumb.hasClass(d1, "jtk-connected"), "class removed from element d1");
+        ok(!jsPlumb.hasClass(d3, "jtk-connected"), "class removed from element d3");
     });
 
     test(': connection event listeners', function () {
@@ -3397,7 +3397,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         };
         ok(has(_jsPlumb.connectorClass, "canvas"), "basic connector class set correctly");
 
-        ok(has("jsplumb-connector-outline", "bgPath"), "outline canvas set correctly");
+        ok(has("jtk-connector-outline", "bgPath"), "outline canvas set correctly");
         ok(has(_jsPlumb.connectorOutlineClass, "bgPath"), "outline canvas set correctly");
     });
 
@@ -6746,7 +6746,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(t.bar, "bar");
     });
 
-    // -- geometry tests have been moved into the jsplumb-geom project (because that's where the code is now) ---
+    // -- geometry tests have been moved into the jtk-geom project (because that's where the code is now) ---
 
     //
      // test the merge function in jsplumb util: it should create an entirely new object
@@ -8506,10 +8506,10 @@ test("endpoint: suspendedElement set correctly", function() {
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
-                ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
             },
             after:function() {
-                ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
             }
         });
 
@@ -8534,10 +8534,10 @@ test("endpoint: suspendedElement set correctly", function() {
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
-                ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
             },
             after:function() {
-                ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
             }
         });
 
@@ -8573,10 +8573,10 @@ test("endpoint: suspendedElement set correctly", function() {
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
-                ok(d.classList.contains("jsplumb-drag"), "drag class set on element");
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
             },
             after:function() {
-                ok(!d.classList.contains("jsplumb-drag"), "drag class no longer set on element");
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
             }
         });
 
@@ -8620,10 +8620,10 @@ test("endpoint: suspendedElement set correctly", function() {
         _jsPlumb.draggable(["d2", d3]);
         _jsPlumb.draggable(document.querySelectorAll("#d4"));
 
-        ok(jsPlumb.hasClass(d1, "jsplumb-draggable"), "element registered as Element ok");
-        ok(jsPlumb.hasClass(d2, "jsplumb-draggable", "elements registered as id in array ok"));
-        ok(jsPlumb.hasClass(d3, "jsplumb-draggable", "elements registered as Element in array ok"));
-        ok(jsPlumb.hasClass(d4, "jsplumb-draggable", "querySelectorAll output ok as input"));
+        ok(jsPlumb.hasClass(d1, "jtk-draggable"), "element registered as Element ok");
+        ok(jsPlumb.hasClass(d2, "jtk-draggable", "elements registered as id in array ok"));
+        ok(jsPlumb.hasClass(d3, "jtk-draggable", "elements registered as Element in array ok"));
+        ok(jsPlumb.hasClass(d4, "jtk-draggable", "querySelectorAll output ok as input"));
     });
 
 
@@ -8634,10 +8634,10 @@ test("endpoint: suspendedElement set correctly", function() {
         _jsPlumb.droppable(["d2", d3]);
         _jsPlumb.droppable(document.querySelectorAll("#d4"));
 
-        ok(jsPlumb.hasClass(d1, "jsplumb-droppable"), "element registered as Element ok");
-        ok(jsPlumb.hasClass(d2, "jsplumb-droppable", "elements registered as id in array ok"));
-        ok(jsPlumb.hasClass(d3, "jsplumb-droppable", "elements registered as Element in array ok"));
-        ok(jsPlumb.hasClass(d4, "jsplumb-droppable", "querySelectorAll output ok as input"));
+        ok(jsPlumb.hasClass(d1, "jtk-droppable"), "element registered as Element ok");
+        ok(jsPlumb.hasClass(d2, "jtk-droppable", "elements registered as id in array ok"));
+        ok(jsPlumb.hasClass(d3, "jtk-droppable", "elements registered as Element in array ok"));
+        ok(jsPlumb.hasClass(d4, "jtk-droppable", "querySelectorAll output ok as input"));
     });
 
 // click events on overlays

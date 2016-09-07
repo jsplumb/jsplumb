@@ -554,15 +554,15 @@
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                _addOneDelegate(id, ".jsplumb-connector", function (e) {
+                _addOneDelegate(id, ".jtk-connector", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                _addOneDelegate(id, ".jsplumb-endpoint", function (e) {
+                _addOneDelegate(id, ".jtk-endpoint", function (e) {
                     _oneDelegateHandler(id, e, "endpoint");
                 });
                 // overlays
-                _addOneDelegate(id, ".jsplumb-overlay", function (e) {
+                _addOneDelegate(id, ".jtk-overlay", function (e) {
                     _oneDelegateHandler(id, e);
                 });
             };
@@ -734,7 +734,7 @@
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
                                     if (ui != null) {
                                         _draw(element, ui, null, true);
-                                        if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
+                                        if (_started) _currentInstance.addClass(element, "jtk-dragged");
                                         _started = true;
                                     }
                                 });
@@ -751,7 +751,7 @@
                                             }]);
                                             _draw(_e[2].el, uip);
                                         }
-                                        _currentInstance.removeClass(_e[0], "jsplumb-dragged");
+                                        _currentInstance.removeClass(_e[0], "jtk-dragged");
                                         _currentInstance.select({source: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                         _currentInstance.getDragManager().dragEnded(_e[2].el);
@@ -1139,25 +1139,25 @@
             return managedElements;
         };
 
-        this.connectorClass = "jsplumb-connector";
-        this.connectorOutlineClass = "jsplumb-connector-outline";
-        this.editableConnectorClass = "jsplumb-connector-editable";
-        this.connectedClass = "jsplumb-connected";
-        this.hoverClass = "jsplumb-hover";
-        this.endpointClass = "jsplumb-endpoint";
-        this.endpointConnectedClass = "jsplumb-endpoint-connected";
-        this.endpointFullClass = "jsplumb-endpoint-full";
-        this.endpointDropAllowedClass = "jsplumb-endpoint-drop-allowed";
-        this.endpointDropForbiddenClass = "jsplumb-endpoint-drop-forbidden";
-        this.overlayClass = "jsplumb-overlay";
-        this.draggingClass = "jsplumb-dragging";
-        this.elementDraggingClass = "jsplumb-element-dragging";
-        this.sourceElementDraggingClass = "jsplumb-source-element-dragging";
-        this.targetElementDraggingClass = "jsplumb-target-element-dragging";
-        this.endpointAnchorClassPrefix = "jsplumb-endpoint-anchor";
-        this.hoverSourceClass = "jsplumb-source-hover";
-        this.hoverTargetClass = "jsplumb-target-hover";
-        this.dragSelectClass = "jsplumb-drag-select";
+        this.connectorClass = "jtk-connector";
+        this.connectorOutlineClass = "jtk-connector-outline";
+        this.editableConnectorClass = "jtk-connector-editable";
+        this.connectedClass = "jtk-connected";
+        this.hoverClass = "jtk-hover";
+        this.endpointClass = "jtk-endpoint";
+        this.endpointConnectedClass = "jtk-endpoint-connected";
+        this.endpointFullClass = "jtk-endpoint-full";
+        this.endpointDropAllowedClass = "jtk-endpoint-drop-allowed";
+        this.endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden";
+        this.overlayClass = "jtk-overlay";
+        this.draggingClass = "jtk-dragging";
+        this.elementDraggingClass = "jtk-element-dragging";
+        this.sourceElementDraggingClass = "jtk-source-element-dragging";
+        this.targetElementDraggingClass = "jtk-target-element-dragging";
+        this.endpointAnchorClassPrefix = "jtk-endpoint-anchor";
+        this.hoverSourceClass = "jtk-source-hover";
+        this.hoverTargetClass = "jtk-target-hover";
+        this.dragSelectClass = "jtk-drag-select";
 
         this.Anchors = {};
         this.Connectors = {  "svg": {} };

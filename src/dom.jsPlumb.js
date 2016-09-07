@@ -50,13 +50,13 @@
                 scope:instance.getDefaultScope(),
                 css: {
                     noSelect: instance.dragSelectClass,
-                    droppable: "jsplumb-droppable",
-                    draggable: "jsplumb-draggable",
-                    drag: "jsplumb-drag",
-                    selected: "jsplumb-drag-selected",
-                    active: "jsplumb-drag-active",
-                    hover: "jsplumb-drag-hover",
-                    ghostProxy:"jsplumb-ghost-proxy"
+                    droppable: "jtk-droppable",
+                    draggable: "jtk-draggable",
+                    drag: "jtk-drag",
+                    selected: "jtk-drag-selected",
+                    active: "jtk-drag-active",
+                    hover: "jtk-drag-hover",
+                    ghostProxy:"jtk-ghost-proxy"
                 }
             });
             instance[key] = k;

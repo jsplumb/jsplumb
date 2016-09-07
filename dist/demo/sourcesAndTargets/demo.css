@@ -97,11 +97,11 @@
 }
 
 /** JSPLUMB ARTEFACTS **/
-.jsplumb-endpoint {
+.jtk-endpoint {
     z-index: 32;
 }
 
-path, .jsplumb-endpoint {
+path, .jtk-endpoint {
     cursor: pointer;
 }
 

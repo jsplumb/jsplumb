@@ -224,9 +224,9 @@ Three CSS classes are used:
 
 <table>
 <tr><td>Class</td><td>Purpose</td></tr>
-<tr><td>jsplumb-group-expanded</td><td>added to non-collapsed group elements (added when group initialised)</td></tr>
-<tr><td>jsplumb-group-collapsed</td><td>added to collapsed group elements</td></tr>
-<tr><td>jsplumb-ghost-proxy</td><td>added to the proxy element used when `ghost` is set to true</td></tr>
+<tr><td>jtk-group-expanded</td><td>added to non-collapsed group elements (added when group initialised)</td></tr>
+<tr><td>jtk-group-collapsed</td><td>added to collapsed group elements</td></tr>
+<tr><td>jtk-ghost-proxy</td><td>added to the proxy element used when `ghost` is set to true</td></tr>
 </table>
 
 ---

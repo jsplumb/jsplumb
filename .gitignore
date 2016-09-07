@@ -3,5 +3,4 @@ node_modules
 *.iml
 
 
-demo/webpack/node_modules
 demo/webpack/dist

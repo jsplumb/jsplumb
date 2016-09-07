@@ -241,7 +241,7 @@ A Static Anchor is of course always "selected", but a Dynamic Anchor cycles thro
 The CSS class that gets written to the Endpoint and Element is prefixed with the associated jsPlumb instance's `endpointAnchorClass` prefix, which defaults to:
 
 ```javascript
-jsplumb-endpoint-anchor-
+jtk-endpoint-anchor-
 ```
     
 So if you had the following, for example:
@@ -255,7 +255,7 @@ var ep = jsPlumb.addEndpoint("someDiv", {
 Then the Endpoint created by jsPlumb and also the element `someDiv` would have this class assigned to them:
 
 ```javascript
-jsplumb-endpoint-anchor-top
+jtk-endpoint-anchor-top
 ```
     
 An example using Dynamic Anchors:
@@ -274,10 +274,10 @@ var ep = jsPlumb.addEndpoint("someDiv", {
 Here, the class assigned to Endpoint and Element would cycle through these values as the anchor location changes:
 
 ```javascript
-jsplumb-endpoint-anchor-top
-jsplumb-endpoint-anchor-right
-jsplumb-endpoint-anchor-left
-jsplumb-endpoint-anchor-bottom
+jtk-endpoint-anchor-top
+jtk-endpoint-anchor-right
+jtk-endpoint-anchor-left
+jtk-endpoint-anchor-bottom
 ```
     
 Note that if you supply a class name that consists of more than one term, jsPlumb will not prepend the prefix to each term in the class:
@@ -291,7 +291,7 @@ var ep = jsPlumb.addEndpoint("someDiv", {
 would result in **2** classes being added to the Endpoint and Element:
 
 ```javascript
-jsplumb-endpoint-anchor-foo
+jtk-endpoint-anchor-foo
 ```
 
 and

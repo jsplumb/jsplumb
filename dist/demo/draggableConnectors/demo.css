@@ -82,4 +82,4 @@
 #list table { width:100%;}
 #list table th, #list strong { color:black; font-size:12px; text-align: center; }
 
-path, .jsplumb-endpoint { cursor:pointer; }
+path, .jtk-endpoint { cursor:pointer; }

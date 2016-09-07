@@ -346,14 +346,15 @@ supply a number of posse IDs at once:</p>
 
 <h4>Text Selection while dragging</h4>
 
-<p>The default browser behaviour on mouse drag is to select elements in the DOM. jQuery suppresses this behaviour, but vanilla jsPlumb does not. To assist with handling this, however, this class is attached to the body at drag start:</p>
+<p>The default browser behaviour on mouse drag is to select elements in the DOM. To assist with handling this, this class is 
+attached to the body at drag start:</p>
 
-<p><code>jsplumb-drag-select</code></p>
+<p><code>jtk-drag-select</code></p>
 
 <p>The class is removed at drag end.</p>
 
 <p>A suitable value for this class (this is from the jsPlumb demo pages) is:</p>
-<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.jsplumb-drag-select</span> <span class="o">*</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.jtk-drag-select</span> <span class="o">*</span> <span class="p">{</span>
     <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">touch</span><span class="o">-</span><span class="n">callout</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
     <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">user</span><span class="o">-</span><span class="n">select</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
     <span class="o">-</span><span class="n">khtml</span><span class="o">-</span><span class="n">user</span><span class="o">-</span><span class="n">select</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>

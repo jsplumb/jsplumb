@@ -8,6 +8,9 @@
   lineWidth     -> strokeWidth
   outlineColor  -> outlineStroke
   outlineWidth  -> outlineWidth     (yes, unchanged)
+  
+  
+- All classnames changed from `jsplumb-` prefix to `jtk-`, to bring them into line with the prefix used by the Toolkit edition.  
 
 ## 2.1.6
 

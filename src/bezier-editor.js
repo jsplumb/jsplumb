@@ -2,12 +2,12 @@
     "use strict";
 
     var root = this;
-    var HANDLE_CLASS = "jsplumb-bezier-handle";
-    var SECONDARY_HANDLE_CLASS = "jsplumb-bezier-handle-secondary";
-    var SECONDARY_SOURCE_HANDLE_CLASS = "jsplumb-bezier-handle-secondary-source";
-    var SECONDARY_TARGET_HANDLE_CLASS = "jsplumb-bezier-handle-secondary-target";
-    var CONNECTION_EDIT_CLASS = "jsplumb-connection-edit";
-    var GUIDELINE_CLASS = "jsplumb-bezier-guideline";
+    var HANDLE_CLASS = "jtk-bezier-handle";
+    var SECONDARY_HANDLE_CLASS = "jtk-bezier-handle-secondary";
+    var SECONDARY_SOURCE_HANDLE_CLASS = "jtk-bezier-handle-secondary-source";
+    var SECONDARY_TARGET_HANDLE_CLASS = "jtk-bezier-handle-secondary-target";
+    var CONNECTION_EDIT_CLASS = "jtk-connection-edit";
+    var GUIDELINE_CLASS = "jtk-bezier-guideline";
     var NONE = "none";
     var BLOCK = "block";
     var DUAL = "dual";
