@@ -813,7 +813,7 @@
                 }.bind(this);
 
                 dragOptions = _jp.extend(defaultOpts, dragOptions);
-                dragOptions.scope = this.scope || dragOptions.scope;
+                dragOptions.scope = dragOptions.scope || this.scope;
                 dragOptions[beforeStartEvent] = _ju.wrap(dragOptions[beforeStartEvent], beforeStart, false);
                 dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
                 // extracted drag handler function so can be used by makeSource
