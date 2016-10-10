@@ -10,7 +10,13 @@
   outlineWidth  -> outlineWidth     (yes, unchanged)
   
   
-- All classnames changed from `jsplumb-` prefix to `jtk-`, to bring them into line with the prefix used by the Toolkit edition.  
+- All classnames changed from `jsplumb-` prefix to `jtk-`, to bring them into line with the prefix used by the Toolkit edition.
+  
+- support webpack
+- add webpack demo page
+- upgrade to Mottle 0.7.3
+- straight connectors extracted to a separate JS file for dev
+- added disable/enable functionality example to sources and targets demo
 
 ## 2.1.6
 
