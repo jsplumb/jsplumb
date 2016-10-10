@@ -15,6 +15,7 @@
 - support webpack
 - add webpack demo page
 - upgrade to Mottle 0.7.3
+- upgrade to Katavorio 0.17.0
 - straight connectors extracted to a separate JS file for dev
 - added disable/enable functionality example to sources and targets demo
 
