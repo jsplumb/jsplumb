@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -53,7 +53,7 @@
         };
 
     var root = this;
-    var exports = root.jsPlumbUtil = {
+    root.jsPlumbUtil = {
         isArray: _isa,
         isString: _iss,
         isBoolean: _isb,
@@ -234,7 +234,7 @@
             return -1;
         },
         removeWithFunction: function (a, f) {
-            var idx = exports.findWithFunction(a, f);
+            var idx = root.jsPlumbUtil.findWithFunction(a, f);
             if (idx > -1) a.splice(idx, 1);
             return idx != -1;
         },
@@ -245,7 +245,7 @@
         },
         // TODO support insert index
         addWithFunction: function (list, item, hashFunction) {
-            if (exports.findWithFunction(list, hashFunction) == -1) list.push(item);
+            if (root.jsPlumbUtil.findWithFunction(list, hashFunction) == -1) list.push(item);
         },
         addToList: function (map, key, value, insertAtStart) {
             var l = map[key];
@@ -314,7 +314,7 @@
         },
         logEnabled: true,
         log: function () {
-            if (exports.logEnabled && typeof console != "undefined") {
+            if (root.jsPlumbUtil.logEnabled && typeof console != "undefined") {
                 try {
                     var msg = arguments[arguments.length - 1];
                     console.log(msg);
@@ -347,13 +347,13 @@
                 try {
                     r = newFunction.apply(this, arguments);
                 } catch (e) {
-                    exports.log("jsPlumb function failed : " + e);
+                    root.jsPlumbUtil.log("jsPlumb function failed : " + e);
                 }
                 if (returnOnThisValue == null || (r !== returnOnThisValue)) {
                     try {
                         r = wrappedFunction.apply(this, arguments);
                     } catch (e) {
-                        exports.log("wrapped function failed : " + e);
+                        root.jsPlumbUtil.log("wrapped function failed : " + e);
                     }
                 }
                 return r;
@@ -361,7 +361,7 @@
         }
     };
 
-    exports.EventGenerator = function () {
+    root.jsPlumbUtil.EventGenerator = function () {
         var _listeners = {},
             eventsSuspended = false,
         // this is a list of events that should re-throw any errors that occur during their dispatch. it is current private.
@@ -369,7 +369,7 @@
 
         this.bind = function (event, listener, insertAtStart) {
             var _one = function(evt) {
-                exports.addToList(_listeners, evt, listener, insertAtStart);
+                root.jsPlumbUtil.addToList(_listeners, evt, listener, insertAtStart);
                 listener.__jsPlumb = listener.__jsPlumb || {};
                 listener.__jsPlumb[root.jsPlumbUtil.uuid()] = evt;
             };
@@ -397,7 +397,7 @@
                             try {
                                 ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
                             } catch (e) {
-                                exports.log("jsPlumb: fire failed for event " + event + " : " + e);
+                                root.jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
                             }
                         }
                         i++;
@@ -421,12 +421,12 @@
                     var evt;
                     for (var i in eventOrListener.__jsPlumb) {
                         evt = eventOrListener.__jsPlumb[i];
-                        exports.remove(_listeners[evt] || [], eventOrListener);
+                        root.jsPlumbUtil.remove(_listeners[evt] || [], eventOrListener);
                     }
                 }
             }
             else if (arguments.length === 2) {
-                exports.remove(_listeners[eventOrListener] || [], listener);
+                root.jsPlumbUtil.remove(_listeners[eventOrListener] || [], listener);
             }
 
             return this;
@@ -458,10 +458,14 @@
         };
     };
 
-    exports.EventGenerator.prototype = {
+    root.jsPlumbUtil.EventGenerator.prototype = {
         cleanup: function () {
             this.cleanupListeners();
         }
     };
+
+    if (typeof exports !== "undefined") {
+        exports.jsPlumbUtil = root.jsPlumbUtil;
+    }
 
 }).call(typeof window !== 'undefined' ? window : this);

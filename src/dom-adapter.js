@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -527,7 +527,8 @@
         },
         getHeight: function (el) {
             return el.offsetHeight;
-        }
+        },
+        getRenderMode : function() { return "svg"; }
 
     });
 }).call(typeof window !== 'undefined' ? window : this);

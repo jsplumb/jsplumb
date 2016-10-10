@@ -13,8 +13,8 @@ jsPlumb.connect({source:"window1", target:"window2"});
 jsPlumb.connect({
       source:'window1',
       target:'window2',
-      paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
-      endpointStyle:{fillStyle:'rgb(243,229,0)'}
+      paintStyle:{strokeWidth:15,stroke:'rgb(243,230,18)'},
+      endpointStyle:{fill:'rgb(243,229,0)'}
 });
 </pre>
 - Connect window1 to window2 with a 15 pixel wide yellow Connector, and a slightly brighter endpoint:
@@ -22,8 +22,8 @@ jsPlumb.connect({
 jsPlumb.connect({
 	  source:'window1',
 	  target:'window2',
-	  paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
-	  endpointStyle:{fillStyle:'rgb(243,229,0)'}
+	  paintStyle:{strokeWidth:15,stroke:'rgb(243,230,18)'},
+	  endpointStyle:{fill:'rgb(243,229,0)'}
 });
 </pre>
 - Connect window3 to 'window4' with a 10 pixel wide, semi opaque blue Connector, anchored to the left middle of window3, and the right middle of window4, with a Rectangle endpoint of width 10 and height 8:
@@ -31,7 +31,7 @@ jsPlumb.connect({
 jsPlumb.connect({
 	  source:'window3',
 	  target:'window4',
-	  paintStyle:{ lineWidth:10, strokeStyle:'rgba(0, 0, 200, 0.5)' },
+	  paintStyle:{ strokeWidth:10, stroke:'rgba(0, 0, 200, 0.5)' },
 	  anchors:["Right", "Left"],
 	  endpoint:[ "Rectangle", { width:10, height:8 } ]
 });
@@ -41,7 +41,7 @@ jsPlumb.connect({
 jsPlumb.connect({
       source:'window2',
       target:'window3',
-      paintStyle:{lineWidth:8, strokeStyle:'rgb(189,11,11    )'},
+      paintStyle:{strokeWidth:8, stroke:'rgb(189,11,11    )'},
       anchors:["Bottom", "Top"],
       endpoint:"Rectangle"
 });
@@ -53,8 +53,8 @@ jsPlumb.connect({
 	  source:'window1',
 	  target:'window2',
 	  anchors:["Bottom", [0.75,0,0,-1]],
-	  paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
-	  endpointStyle:{fillStyle:'rgb(243,229,0)'}
+	  paintStyle:{strokeWidth:15,stroke:'rgb(243,230,18)'},
+	  endpointStyle:{fill:'rgb(243,229,0)'}
 });
 </pre>
 
@@ -65,7 +65,7 @@ jsPlumb.connect({
         jsPlumb.connect( {
       	  source:'window3',
       	  target:'window4',
-          paintStyle:{lineWidth:10, strokeStyle:w34Stroke},
+          paintStyle:{strokeWidth:10, stroke:w34Stroke},
           anchors:["RightMiddle", "LeftMiddle"],
           endpointStyle:{ gradient : {stops:[[ 0, w34Stroke ], [ 1, w34HlStroke ]], offset:17.5, innerRadius:15 }, radius:35},
           //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }
@@ -78,7 +78,7 @@ jsPlumb.connect({
         jsPlumb.connect({
 	        source:'window2',
 	        target:'window3',
-            paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
+            paintStyle:{strokeWidth:8,stroke:w23Stroke},
       	    anchors:[[0.3,1,0,1], "Top"],
       	    endpoint:"Rectangle",
       	    endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
@@ -92,7 +92,7 @@ jsPlumb.connect({
 	  source:'window5',
 	  target:'window6',
 	  anchors:["Center", "Center"],
-	  paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'},
+	  paintStyle:{strokeWidth:5,stroke:'rgba(0,255,0,0.5)'},
       endpointStyle:{radius:125}
 });
 </pre>
@@ -104,7 +104,7 @@ jsPlumb.connect({
 	source:"window4",
 	target:"window5",
 	anchors:[ "BottomRight","TopLeft" ],
-	paintStyle:{ lineWidth:7, strokeStyle:"rgb(131,8,135)" },
+	paintStyle:{ strokeWidth:7, stroke:"rgb(131,8,135)" },
 	endpoint:[ "Image", { src:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png" } ],
 	connector:"Straight"
 });
@@ -115,7 +115,7 @@ jsPlumb.connect({
       source:"window5",
 	  target:"window6",
 	  anchors:[ "Center", "Center" ],
-	  paintStyle:{ lineWidth:5, strokeStyle:"rgba(0,255,0,0.5)" },
+	  paintStyle:{ strokeWidth:5, stroke:"rgba(0,255,0,0.5)" },
 	  endpointStyle:{ radius:125 }
 });
 </pre>
@@ -125,7 +125,7 @@ jsPlumb.connect({
 jsPlumb.connect({
       source:"window7",
 	  target:"window8",
-	  paintStyle:{ lineWidth:10, strokeStyle:"blue" },
+	  paintStyle:{ strokeWidth:10, stroke:"blue" },
 	  anchors:[ "TopLeft", "BottomRight" ]
 });
 </pre>
@@ -136,8 +136,8 @@ jsPlumb.connect({
 	  source:"window4",
 	  target:"window5",
 	  anchors:["BottomRight","TopLeft"],
-	  paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'},
-	  hoverPaintStyle:{ strokeStyle:"rgb(0, 0, 135)" },
+	  paintStyle:{strokeWidth:7,stroke:'rgb(131,8,135)'},
+	  hoverPaintStyle:{ stroke:"rgb(0, 0, 135)" },
 	  endpointStyle:{ width:40, height:40 },
 	  endpoint:"Rectangle",
 	  connector:"Straight"

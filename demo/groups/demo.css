@@ -97,15 +97,15 @@
     background-color: pink;
 }
 
-.jsplumb-connector path {
+.jtk-connector path {
     stroke-width:1;
 }
 
-.jsplumb-group-collapsed .w, .jsplumb-group-collapsed ul, .jsplumb-group-collapsed .container, .jsplumb-group-collapsed .name {
+.jtk-group-collapsed .w, .jtk-group-collapsed ul, .jtk-group-collapsed .container, .jtk-group-collapsed .name {
     display:none;
 }
 
-.jsplumb-drag-hover {
+.jtk-drag-hover {
     outline:4px solid cornflowerblue;
 }
 

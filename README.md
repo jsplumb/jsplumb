@@ -1,6 +1,6 @@
 # jsPlumb
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG and runs on all browsers
-from IE9 and later.
+from IE9 and later. 
 
 The final version of jsPlumb to support IE8 was 1.7.10. You can still get 1.7.10 from a tag, if you need it. 
 

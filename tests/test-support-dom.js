@@ -144,7 +144,7 @@
                     return el.getAttribute(att);
                 },
 
-                droppableClass:"jsplumb-droppable",
+                droppableClass:"jtk-droppable",
 
                 dragNodeBy:_dragNodeBy.bind(null, _jsPlumb),
 

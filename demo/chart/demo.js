@@ -7,17 +7,17 @@ jsPlumb.ready(function () {
         // than the curves on the first demo, which use the default curviness value.
         Connector: [ "Bezier", { curviness: 50 } ],
         DragOptions: { cursor: "pointer", zIndex: 2000 },
-        PaintStyle: { strokeStyle: color, lineWidth: 2 },
-        EndpointStyle: { radius: 9, fillStyle: color },
-        HoverPaintStyle: {strokeStyle: "#ec9f2e" },
-        EndpointHoverStyle: {fillStyle: "#ec9f2e" },
+        PaintStyle: { stroke: color, strokeWidth: 2 },
+        EndpointStyle: { radius: 9, fill: color },
+        HoverPaintStyle: {stroke: "#ec9f2e" },
+        EndpointHoverStyle: {fill: "#ec9f2e" },
         Container: "canvas"
     });
 
     // suspend drawing and initialise.
     instance.batch(function () {
         // declare some common values:
-        var arrowCommon = { foldback: 0.7, fillStyle: color, width: 14 },
+        var arrowCommon = { foldback: 0.7, fill: color, width: 14 },
         // use three-arg spec to create two different arrows with the common values:
             overlays = [
                 [ "Arrow", { location: 0.7 }, arrowCommon ],

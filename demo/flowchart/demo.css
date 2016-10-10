@@ -66,11 +66,11 @@
     left: 22em;
 }
 
-.flowchart-demo .jsplumb-connector {
+.flowchart-demo .jtk-connector {
     z-index: 4;
 }
 
-.flowchart-demo .jsplumb-endpoint, .endpointTargetLabel, .endpointSourceLabel {
+.flowchart-demo .jtk-endpoint, .endpointTargetLabel, .endpointSourceLabel {
     z-index: 21;
     cursor: pointer;
 }
@@ -86,24 +86,24 @@
     cursor: pointer;
 }
 
-.flowchart-demo .aLabel.jsplumb-hover {
+.flowchart-demo .aLabel.jtk-hover {
     background-color: #5C96BC;
     color: white;
     border: 1px solid white;
 }
 
-.window.jsplumb-connected {
-    border: 2px solid green;
+.window.jtk-connected {
+    border: 1px solid green;
 }
 
-.jsplumb-drag {
+.jtk-drag {
     outline: 4px solid pink !important;
 }
 
-path, .jsplumb-endpoint {
+path, .jtk-endpoint {
     cursor: pointer;
 }
 
-.jsplumb-overlay {
+.jtk-overlay {
     background-color:transparent;
 }

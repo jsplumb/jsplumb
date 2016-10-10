@@ -314,18 +314,18 @@
 <p>Note also that Continuous Anchors can be specified on <code>addEndpoint</code> calls:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
   <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>...and in <code>makeSource</code> / <code>makeTarget</code>:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
   <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
 <span class="p">});</span>
 
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
   <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>... and in the jsPlumb defaults:</p>
@@ -357,7 +357,7 @@
 <p>A Static Anchor is of course always &quot;selected&quot;, but a Dynamic Anchor cycles through a number of different locations, and each of these may have a different CSS class associated with it.</p>
 
 <p>The CSS class that gets written to the Endpoint and Element is prefixed with the associated jsPlumb instance&#39;s <code>endpointAnchorClass</code> prefix, which defaults to:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsplumb</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jtk</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span>
 </code></pre></div>
 <p>So if you had the following, for example:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ep</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
@@ -365,7 +365,7 @@
 <span class="p">};</span>
 </code></pre></div>
 <p>Then the Endpoint created by jsPlumb and also the element <code>someDiv</code> would have this class assigned to them:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsplumb</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">top</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jtk</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">top</span>
 </code></pre></div>
 <p>An example using Dynamic Anchors:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ep</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
@@ -378,10 +378,10 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Here, the class assigned to Endpoint and Element would cycle through these values as the anchor location changes:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsplumb</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">top</span>
-<span class="nx">jsplumb</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">right</span>
-<span class="nx">jsplumb</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">left</span>
-<span class="nx">jsplumb</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">bottom</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jtk</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">top</span>
+<span class="nx">jtk</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">right</span>
+<span class="nx">jtk</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">left</span>
+<span class="nx">jtk</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">bottom</span>
 </code></pre></div>
 <p>Note that if you supply a class name that consists of more than one term, jsPlumb will not prepend the prefix to each term in the class:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ep</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
@@ -389,7 +389,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>would result in <strong>2</strong> classes being added to the Endpoint and Element:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsplumb</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">foo</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jtk</span><span class="o">-</span><span class="nx">endpoint</span><span class="o">-</span><span class="nx">anchor</span><span class="o">-</span><span class="nx">foo</span>
 </code></pre></div>
 <p>and</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">bar</span>

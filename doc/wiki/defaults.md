@@ -17,7 +17,7 @@ DropOptions : { },
 Endpoint : "Dot",
 Endpoints : [ null, null ],
 EndpointOverlays : [ ],
-EndpointStyle : { fillStyle : "#456" },
+EndpointStyle : { fill : "#456" },
 EndpointStyles : [ null, null ],
 EndpointHoverStyle : null,
 EndpointHoverStyles : [ null, null ],
@@ -26,13 +26,13 @@ LabelStyle : { color : "black" },
 LogEnabled : false,
 Overlays : [ ],
 MaxConnections : 1,
-PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
+PaintStyle : { strokeWidth : 8, stroke : "#456" },
 ReattachConnections : false,
 RenderMode : "svg",
 Scope : "jsPlumb_DefaultScope"
 ```
 
-Note that in `EndpointHoverStyle`, the default `fillStyle` is **null**.  This instructs jsPlumb to use the `strokeStyle` from the attached Connector's hover style to fill the Endpoint.
+Note that in `EndpointHoverStyle`, the default `fill` is **null**.  This instructs jsPlumb to use the `stroke` from the attached Connector's hover style to fill the Endpoint.
 
 Note also that you can specify either or both (or neither) of `EndpointStyle` and `EndpointStyles`.  This allows you to specify a different
 style for each Endpoint in a Connection.  `Endpoint` and `Endpoints` use the same concept.  jsPlumb will look first in the
@@ -43,12 +43,12 @@ You can override these defaults by using the `importDefaults` method:
 ```javascript
 jsPlumb.importDefaults({
   PaintStyle : {
-    lineWidth:13,
-    strokeStyle: 'rgba(200,0,0,0.5)'
+    strokeWidth:13,
+    stroke: 'rgba(200,0,0,0.5)'
   },
   DragOptions : { cursor: "crosshair" },
   Endpoints : [ [ "Dot", { radius:7 } ], [ "Dot", { radius:11 } ] ],
-  EndpointStyles : [{ fillStyle:"#225588" }, { fillStyle:"#558822" }]
+  EndpointStyles : [{ fill:"#225588" }, { fill:"#558822" }]
 });
 ```
 
@@ -119,14 +119,14 @@ When you create a new instance of jsPlumb via `jsPlumb.getInstance` you can prov
 ```javascript
 jsPlumb.getInstance({
   PaintStyle : {
-    lineWidth:13,
-    strokeStyle: 'rgba(200,0,0,100)'
+    strokeWidth:13,
+    stroke: 'rgba(200,0,0,100)'
   },
   DragOptions : { cursor: "crosshair" },
   Endpoints : [ [ "Dot", { radius:7 } ], [ "Dot", { radius:11 } ] ],
   EndpointStyles : [
-    { fillStyle:"#225588" }, 
-    { fillStyle:"#558822" }
+    { fill:"#225588" }, 
+    { fill:"#558822" }
   ]
 });
 ```

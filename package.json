@@ -1,8 +1,8 @@
 {
   "name": "jsplumb",
-  "version": "2.1.7",
+  "version": "2.2.0",
   "description": "Visual connectivity for webapps",
-  "main": "dist/js/jsPlumb-2.1.7.js",
+  "main": "dist/js/jsPlumb-2.2.0.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -19,6 +19,20 @@
     "svg",
     "visual",
     "connectivity"
+  ],
+  "includes":{
+      "JS_BEZIER" : { "f":"jsBezier", "v":"0.8" },
+      "BILTONG" : { "f":"biltong", "v":"0.3" },
+      "MOTTLE" : {"f":"mottle", "v":"0.7.3" },
+      "KATAVORIO" : {"f":"katavorio", "v":"0.17.0" }
+  },
+  "coreLibs": [ "JS_BEZIER", "BILTONG" ],
+  "browserLibs":[ "MOTTLE", "KATAVORIO" ],
+  "connectors" : [
+    "flowchart", "bezier", "statemachine", "straight"
+  ],
+  "renderers" : [
+    "svg"
   ],
   "demos": [
     [
@@ -67,7 +81,7 @@
         "Demonstrates the various options for defining and working with Groups"
     ]
   ],
-  "author": "jsPlumbToolkit.com",
+  "author": "Simon Porritt",
   "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
     "grunt": "~0.4.1",

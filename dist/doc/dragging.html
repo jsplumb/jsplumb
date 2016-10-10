@@ -335,30 +335,26 @@ supply a number of posse IDs at once:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeFromPosse</span><span class="p">(</span><span class="s2">&quot;flowchartWindow1&quot;</span><span class="p">,</span> <span class="s2">&quot;posse1&quot;</span><span class="p">,</span> <span class="s2">&quot;posse2&quot;</span><span class="p">);</span>
 </code></pre></div>
 <ul>
-<li>**removeFromAllPosses</li>
+<li><strong>removeFromAllPosses</strong></li>
 </ul>
 
 <p>Remove the given element(s) from all of the Posses to which it/they belong.</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeFromAllPosses</span><span class="p">(</span><span class="s2">&quot;flowchartWindow1&quot;</span><span class="p">);</span>
  <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeFromAllPosses</span><span class="p">([</span><span class="s2">&quot;flowchartWindow2&quot;</span><span class="p">,</span> <span class="s2">&quot;flowchartWindow3&quot;</span><span class="p">]);</span>
 </code></pre></div>
-<h4>What&#39;s with the name?</h4>
-
-<p>The name <strong>posse</strong> was chosen over <strong>group</strong> because <code>group</code> is something that will be supported in the future, having one
-  key difference from a <code>posse</code>: a <code>group</code> of elements will have a common parent as their container.  </p>
-
 <p><a name="selection"></a></p>
 
 <h4>Text Selection while dragging</h4>
 
-<p>The default browser behaviour on mouse drag is to select elements in the DOM. jQuery suppresses this behaviour, but vanilla jsPlumb does not. To assist with handling this, however, this class is attached to the body at drag start:</p>
+<p>The default browser behaviour on mouse drag is to select elements in the DOM. To assist with handling this, this class is 
+attached to the body at drag start:</p>
 
-<p><code>jsplumb-drag-select</code></p>
+<p><code>jtk-drag-select</code></p>
 
 <p>The class is removed at drag end.</p>
 
 <p>A suitable value for this class (this is from the jsPlumb demo pages) is:</p>
-<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.jsplumb-drag-select</span> <span class="o">*</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.jtk-drag-select</span> <span class="o">*</span> <span class="p">{</span>
     <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">touch</span><span class="o">-</span><span class="n">callout</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
     <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">user</span><span class="o">-</span><span class="n">select</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
     <span class="o">-</span><span class="n">khtml</span><span class="o">-</span><span class="n">user</span><span class="o">-</span><span class="n">select</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>

@@ -5,9 +5,9 @@
         _ju = root.jsPlumbUtil,
         _jpi = root.jsPlumbInstance;
 
-    var GROUP_COLLAPSED_CLASS = "jsplumb-group-collapsed";
-    var GROUP_EXPANDED_CLASS = "jsplumb-group-expanded";
-    var GROUP_CONTAINER_SELECTOR = "[jsplumb-group-content]";
+    var GROUP_COLLAPSED_CLASS = "jtk-group-collapsed";
+    var GROUP_EXPANDED_CLASS = "jtk-group-expanded";
+    var GROUP_CONTAINER_SELECTOR = "[jtk-group-content]";
     var ELEMENT_DRAGGABLE_EVENT = "elementDraggable";
     var STOP = "stop";
     var REVERT = "revert";
@@ -60,7 +60,7 @@
             }
         }
 
-        _jsPlumb.bind("connectionDetached", function(p) {
+        _jsPlumb.bind("internal.connectionDetached", function(p) {
             _cleanupDetachedConnection(p.connection);
         });
 
@@ -77,7 +77,7 @@
         });
 
         this.addGroup = function(group) {
-            _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
+            _jsPlumb.addClass(group.getEl(), GROUP_EXPANDED_CLASS);
             _managedGroups[group.id] = group;
             group.manager = this;
             _updateConnectionsForGroup(group);
@@ -115,19 +115,19 @@
             return o;
         };
 
-        this.removeGroup = function(group, deleteMembers) {
+        this.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
             group = this.getGroup(group);
             this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
-            group[deleteMembers ? "removeAll" : "orphanAll"]();
+            group[deleteMembers ? "removeAll" : "orphanAll"](manipulateDOM, doNotFireEvent);
             _jsPlumb.remove(group.getEl());
             delete _managedGroups[group.id];
             delete _jsPlumb._groups[group.id];
             _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
         };
 
-        this.removeAllGroups = function(deleteMembers) {
+        this.removeAllGroups = function(deleteMembers, manipulateDOM, doNotFireEvent) {
             for (var g in _managedGroups) {
-                this.removeGroup(_managedGroups[g], deleteMembers);
+                this.removeGroup(_managedGroups[g], deleteMembers, manipulateDOM, doNotFireEvent);
             }
         };
 
@@ -347,8 +347,12 @@
         this.getEl = function() { return el; };
         this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
-        var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
-        var dragArea = da && da.length > 0 ? da[0] : el;
+
+        var getDragArea = this.getDragArea = function() {
+            var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
+            return da && da.length > 0 ? da[0] : el;
+        };
+
         var ghost = params.ghost === true;
         var constrain = ghost || (params.constrain === true);
         var revert = params.revert !== false;
@@ -392,7 +396,7 @@
                     // if already a member of this group, do nothing
                     if (currentGroup !== self) {
                         var elpos = _jsPlumb.getOffset(_el, true);
-                        var cpos = self.collapsed ? _jsPlumb.getOffset(el, true) : _jsPlumb.getOffset(dragArea, true);
+                        var cpos = self.collapsed ? _jsPlumb.getOffset(el, true) : _jsPlumb.getOffset(getDragArea(), true);
 
                         // otherwise, transfer to this group.
                         if (currentGroup != null) {
@@ -450,6 +454,7 @@
         };
 
         this.add = function(_el, doNotFireEvent) {
+            var dragArea = getDragArea();
             _each(_el, function(__el) {
                 __el._jsPlumbGroup = self;
                 elements.push(__el);
@@ -479,7 +484,7 @@
                 });
 
                 if (manipulateDOM) {
-                    try { self.getEl().removeChild(__el); }
+                    try { self.getDragArea().removeChild(__el); }
                     catch (e) {
                         jsPlumbUtil.log("Could not remove element from Group " + e);
                     }
@@ -656,12 +661,12 @@
     /**
      * Remove a group, and optionally remove its members from the jsPlumb instance.
      * @method removeGroup
-     * @param {String|Group} group Group to delete, or ID of Grrup to delete.
+     * @param {String|Group} group Group to delete, or ID of Group to delete.
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the group. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    _jpi.prototype.removeGroup = function(group, deleteMembers) {
-        this.getGroupManager().removeGroup(group, deleteMembers);
+    _jpi.prototype.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
+        this.getGroupManager().removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
     };
 
     /**
@@ -670,8 +675,8 @@
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the groups. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    _jpi.prototype.removeAllGroups = function(deleteMembers) {
-        this.getGroupManager().removeAllGroups(deleteMembers);
+    _jpi.prototype.removeAllGroups = function(deleteMembers, manipulateDOM, doNotFireEvent) {
+        this.getGroupManager().removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
     };
 
     /**
@@ -700,8 +705,8 @@
      * the group to the group itself)
      * - Proxies all connections for which the source or target is a member of the group.
      * - Hides the proxied connections.
-     * - Adds the jsplumb-group-expanded class to the group's element
-     * - Removes the jsplumb-group-collapsed class from the group's element.
+     * - Adds the jtk-group-expanded class to the group's element
+     * - Removes the jtk-group-collapsed class from the group's element.
      *
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
@@ -718,8 +723,8 @@
      * the group to the group itself)
      * - Removes proxies for all connections for which the source or target is a member of the group.
      * - Shows the previously proxied connections.
-     * - Adds the jsplumb-group-collapsed class to the group's element
-     * - Removes the jsplumb-group-expanded class from the group's element.
+     * - Adds the jtk-group-collapsed class to the group's element
+     * - Removes the jtk-group-expanded class from the group's element.
      *
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.

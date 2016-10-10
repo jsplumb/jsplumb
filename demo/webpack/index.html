@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+    <head>
+        <title>jsPlumb Webpack Test Page</title>
+        <style>
+            .w {
+                width:102px;
+                height:102px;
+                border-radius: 50%;
+                border:4px solid #800080;
+                background-color: navajowhite;
+                color:white;
+                font-size:40px;
+                text-align:center;
+                line-height:102px;
+                position:absolute;
+            }
+            #one {
+                left:30%;
+                top:10px;
+            }
+            #two {
+                right:30%;
+                top:10px;
+            }
+
+            span {
+                font-family: courier, sans-serif;
+                background-color: #EEF;
+                padding:3px
+            }
+
+            #setup {
+                margin-top: 200px;
+                text-align: left;
+                width:600px;
+                margin-left:auto;
+                margin-right:auto;
+            }
+
+            body {
+                text-align: center;
+                font-family:Arial, sans-serif;
+            }
+
+        </style>
+    </head>
+    <body>
+
+        <div id="one" class="w">HEY</div>
+        <div id="two" class="w">HO</div>
+
+        <div id="setup">
+
+            Are the circles joined with two connections?  The first connection is made through a static instance of jsPlumb,
+            which was registered on the window object by the built webpack bundle. The second connection is made by an
+            instance of jsPlumb which is returned from a `require` call to some JS inside the bundle.
+
+            <h3>Setup</h3>
+            To run this demo you need to do a few things:
+            <ol>
+                <li>
+                    <p>Run <span>grunt build</span> in the project root.</p>
+                    <p>In fact we generally commit built versions, but if you want to be certain you have the latest, you can build it.</p>
+                </li>
+                <li>
+                    <p>Run <span>npm pack</span> in the project root</p>
+                    <p>This will build the bundle that would be published to npm via the <span>npm publish</span>
+                    command. In this demo we use a local require in our package json:
+                    <pre>
+  "devDependencies": {
+    "grunt-webpack": "^1.0.11",
+    "jsplumb": "file:../../jsplumb-x.x.x.tgz",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
+  }
+                    </pre>
+
+                    but we'd expect you to require jsPlumb from the npm repo:
+                    <pre>
+  "devDependencies": {
+    "grunt-webpack": "^1.0.11",
+    "jsplumb": "X.X.X",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
+  }
+                    </pre>
+                    </p>
+
+                </li>
+                <li>
+                    <p>Run <span>npm install</span> in this demo's directory.</p>
+                    <p>To get webpack and jsPlumb.</p>
+                </li>
+                <li>
+                    <p>Run <span>grunt build</span> in this demo's directory</p>
+                    <p>This will run webpack and generate a <span>bundle.js</span> file in the <span>dist</span> directory of this demo</p>
+                </li>
+            </ol>
+        </div>
+
+        <!-- bundle.js both loads jsPlumb into the window and also uses `require` to get an instance on which it operates. -->
+        <script src="dist/bundle.js"></script>
+
+        <script>
+            // global jsplumb on the window object.
+            jsPlumb.ready(function () {
+
+                var jsp = jsPlumb.getInstance({
+                    Connector: "StateMachine",
+                    Anchor: ["Perimeter", { shape: "Circle" }],
+                    Endpoint: [ "Dot", { radius: 2 }],
+                    ConnectionOverlays: [
+                        [ "Arrow", { location: 1, width: 10, length: 7, foldbackPoint: 0.62 }]
+                    ]
+                });
+
+                jsp.connect({source: "one", target: "two" });
+
+                jsp.on(window, "resize", jsp.repaintEverything);
+            });
+        </script>
+
+    </body>
+</html>

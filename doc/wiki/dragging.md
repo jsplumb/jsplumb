@@ -225,37 +225,31 @@ supply a number of posse IDs at once:
 
 ```javascript
 jsPlumb.removeFromPosse("flowchartWindow1", "posse1", "posse2");
-``` 
+```
 
-- **removeFromAllPosses
+- **removeFromAllPosses**
  
 Remove the given element(s) from all of the Posses to which it/they belong.
  
- ```javascript
+```javascript
  jsPlumb.removeFromAllPosses("flowchartWindow1");
  jsPlumb.removeFromAllPosses(["flowchartWindow2", "flowchartWindow3"]);
- ```
- 
- 
-#### What's with the name?
- 
- The name **posse** was chosen over **group** because `group` is something that will be supported in the future, having one
-  key difference from a `posse`: a `group` of elements will have a common parent as their container.  
-
+```
 
 <a name="selection"></a>
 #### Text Selection while dragging
 
-The default browser behaviour on mouse drag is to select elements in the DOM. jQuery suppresses this behaviour, but vanilla jsPlumb does not. To assist with handling this, however, this class is attached to the body at drag start:
+The default browser behaviour on mouse drag is to select elements in the DOM. To assist with handling this, this class is 
+attached to the body at drag start:
 
-`jsplumb-drag-select`
+`jtk-drag-select`
 
 The class is removed at drag end.
 
 A suitable value for this class (this is from the jsPlumb demo pages) is:
 
 ```css
-.jsplumb-drag-select * {
+.jtk-drag-select * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;

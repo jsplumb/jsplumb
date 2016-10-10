@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -32,7 +32,7 @@
             k = new _jk({
                 bind: e.on,
                 unbind: e.off,
-                getSize: jsPlumb.getSize,
+                getSize: _jp.getSize,
                 getPosition: function (el, relativeToRoot) {
                     // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                     // compute against the Container's origin. see also the getUIPosition method below.
@@ -43,19 +43,20 @@
                     el.style.left = xy[0] + "px";
                     el.style.top = xy[1] + "px";
                 },
-                addClass: jsPlumb.addClass,
-                removeClass: jsPlumb.removeClass,
+                addClass: _jp.addClass,
+                removeClass: _jp.removeClass,
                 intersects: _jg.intersects,
                 indexOf: function(l, i) { return l.indexOf(i); },
+                scope:instance.getDefaultScope(),
                 css: {
                     noSelect: instance.dragSelectClass,
-                    droppable: "jsplumb-droppable",
-                    draggable: "jsplumb-draggable",
-                    drag: "jsplumb-drag",
-                    selected: "jsplumb-drag-selected",
-                    active: "jsplumb-drag-active",
-                    hover: "jsplumb-drag-hover",
-                    ghostProxy:"jsplumb-ghost-proxy"
+                    droppable: "jtk-droppable",
+                    draggable: "jtk-draggable",
+                    drag: "jtk-drag",
+                    selected: "jtk-drag-selected",
+                    active: "jtk-drag-active",
+                    hover: "jtk-drag-hover",
+                    ghostProxy:"jtk-ghost-proxy"
                 }
             });
             instance[key] = k;
@@ -118,7 +119,7 @@
                 tinc = (step / d) * tdist,
                 idx = 0,
                 _int = setInterval(function () {
-                    jsPlumb.setPosition(el, {
+                    _jp.setPosition(el, {
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
                     });
@@ -153,7 +154,7 @@
             return true;
         },
         isElementDraggable: function (el) {
-            el = jsPlumb.getElement(el);
+            el = _jp.getElement(el);
             return el._katavorioDrag && el._katavorioDrag.isEnabled();
         },
         getDragObject: function (eventArgs) {
@@ -190,7 +191,7 @@
             }
         },
         setElementDraggable: function (el, draggable) {
-            el = jsPlumb.getElement(el);
+            el = _jp.getElement(el);
             if (el._katavorioDrag)
                 el._katavorioDrag.setEnabled(draggable);
         },
@@ -206,8 +207,8 @@
         addToPosse:function(el, spec) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.addToPosse.apply(dm, _el);
             });
@@ -215,8 +216,8 @@
         setPosse:function(el, spec) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.setPosse.apply(dm, _el);
             });
@@ -224,19 +225,19 @@
         removeFromPosse:function(el, posseId) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.removeFromPosse.apply(dm, _el);
             });
         },
         removeFromAllPosses:function(el) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.removeFromAllPosses(jsPlumb.getElement(_el)); });
+            _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
         },
         setPosseState:function(el, posseId, state) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.setPosseState(jsPlumb.getElement(_el), posseId, state); });
+            _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',

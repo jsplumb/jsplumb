@@ -62,7 +62,7 @@ window.setZoom = function(zoom, instance, transformOrigin, el) {
 
   instance.setZoom(zoom);    
 };
-``` 
+```
 
 **Notes**
 

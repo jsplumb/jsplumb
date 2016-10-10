@@ -48,7 +48,7 @@ jsPlumb.connect({
   source:window3Endpoint,
   target:window4Endpoint,
   connector: [ "Bezier", { curviness:175 } ],
-  paintStyle:{ lineWidth:25, strokeStyle:'yellow' }
+  paintStyle:{ strokeWidth:25, stroke:'yellow' }
 });  
 ```
 
@@ -59,7 +59,7 @@ var endpointOptions = {
 	  isSource:true, 
 	  isTarget:true,
 	  connector : "Straight",
-	  connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+	  connectorStyle: { strokeWidth:20, stroke:'blue' },
 	  scope:"blueline",
 	  dragAllowedWhenFull:false	 
 }; 
@@ -73,7 +73,7 @@ var endpointOptions = {
 	  isSource:true, 
 	  isTarget:true,
 	  connector : "Straight",
-	  connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+	  connectorStyle: { strokeWidth:20, stroke:'blue' },
 	  scope:"blueline",
 	  dragAllowedWhenFull:false	 
 }; 
@@ -87,7 +87,7 @@ var endpointOptions = {
 	  isSource:true, 
 	  isTarget:true,
 	  connector : "Straight",
-	  connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+	  connectorStyle: { strokeWidth:20, stroke:'blue' },
 	  scope:"blueline",
 	  dragAllowedWhenFull:false	 
 }; 
@@ -101,7 +101,7 @@ var endpointOptions = {
   isSource:true, 
   isTarget:true,
   connector : "Straight",
-  connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+  connectorStyle: { strokeWidth:20, stroke:'blue' },
   scope:"blueline",
   dragAllowedWhenFull:false	 
 }; 
@@ -114,9 +114,9 @@ var endpointOptions = {
   isSource:true, 
   isTarget:true,
   endpoint: [ "Dot", { radius:30 } ],
-  style:{fillStyle:'blue'},
+  style:{fill:'blue'},
   connector : "Straight",
-  connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+  connectorStyle: { strokeWidth:20, stroke:'blue' },
   scope:"blueline",
   dropOptions:{ 
     drop:function(e, ui) { 
@@ -133,10 +133,10 @@ var endpointOptions = {
   	isSource:true, 
   	isTarget:true,
   	endpoint: [ "Dot", {radius:30} ],
-  	style:{ fillStyle:'blue' },
+  	style:{ fill:'blue' },
   	maxConnections:-1,
   	connector : "Straight",
-  	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+  	connectorStyle: { strokeWidth:20, stroke:'blue' },
   	scope:"blueline",
   	dropOptions:{ 
           drop:function(e, ui) { 

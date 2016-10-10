@@ -18,16 +18,27 @@ jsPlumb.ready(function () {
                 [ 0, "#0d78bc" ],
                 [ 1, "#558822" ]
             ] },
-            strokeStyle: "#558822",
-            lineWidth: 10
+            stroke: "#558822",
+            strokeWidth: 10
         },
         Container: "canvas"
     });
 
-    // click listener for the enable/disable link.
+    // click listener for the enable/disable link in the source box (the blue one).
     jsPlumb.on(document.getElementById("enableDisableSource"), "click", function (e) {
-        var state = instance.toggleSourceEnabled("sourceWindow1");
+        var sourceDiv = (e.target|| e.srcElement).parentNode;
+        var state = instance.toggleSourceEnabled(sourceDiv);
         this.innerHTML = (state ? "disable" : "enable");
+        jsPlumb[state ? "removeClass" : "addClass"](sourceDiv, "element-disabled");
+        jsPlumbUtil.consume(e);
+    });
+
+    // click listener for enable/disable in the small green boxes
+    jsPlumb.on(document.getElementById("canvas"), "click", ".enableDisableTarget", function (e) {
+        var targetDiv = (e.target || e.srcElement).parentNode;
+        var state = instance.toggleTargetEnabled(targetDiv);
+        this.innerHTML = (state ? "disable" : "enable");
+        jsPlumb[state ? "removeClass" : "addClass"](targetDiv, "element-disabled");
         jsPlumbUtil.consume(e);
     });
 
@@ -40,7 +51,9 @@ jsPlumb.ready(function () {
     // get the list of ".smallWindow" elements.            
     var smallWindows = jsPlumb.getSelector(".smallWindow");
     // make them draggable
-    instance.draggable(smallWindows);
+    instance.draggable(smallWindows, {
+        filter:".enableDisableTarget"
+    });
 
     // suspend drawing and initialise.
     instance.batch(function () {

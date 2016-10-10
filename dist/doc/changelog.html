@@ -123,7 +123,29 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h2>2.1.6</h2>
+                    <h2>2.2.0</h2>
+
+<ul>
+<li>Overhaul of keys used in paintStyle and hoverPaintStyle objects:</li>
+</ul>
+
+<p>strokeStyle   -&gt; style
+  fillStyle     -&gt; fill
+  lineWidth     -&gt; strokeWidth
+  outlineColor  -&gt; outlineStroke
+  outlineWidth  -&gt; outlineWidth     (yes, unchanged)</p>
+
+<ul>
+<li><p>All classnames changed from <code>jsplumb-</code> prefix to <code>jtk-</code>, to bring them into line with the prefix used by the Toolkit edition.</p></li>
+<li><p>support webpack</p></li>
+<li><p>add webpack demo page</p></li>
+<li><p>upgrade to Mottle 0.7.3</p></li>
+<li><p>upgrade to Katavorio 0.17.0</p></li>
+<li><p>straight connectors extracted to a separate JS file for dev</p></li>
+<li><p>added disable/enable functionality example to sources and targets demo</p></li>
+</ul>
+
+<h2>2.1.6</h2>
 
 <ul>
 <li>setTargetEnabled/setSourceEnabled now return the previous value of the enabled state.</li>
@@ -164,7 +186,7 @@ but it turns out the fix for issue 231 had broken somewhere along the line and t
 <h2>2.1.1</h2>
 
 <ul>
-<li>bugfix for groups: element exposed now via getEl method, not directly as el.</li>
+<li>bugfix for groups: element exposed now via getEl method, not directly as el. </li>
 </ul>
 
 <h2>2.1.0</h2>

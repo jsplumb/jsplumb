@@ -22,7 +22,11 @@
 
 <a name="select"></a>
 #### Selecting and operating on a list of Connections
-The `jsPlumb.select` function provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for `getConnections`, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.
+The `jsPlumb.select` function provides a fluid interface for working with lists of Connections.  The syntax used to 
+specify which Connections you want is identical to that which you use for `getConnections`, but the return value is an 
+object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. 
+Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the 
+Connections in the selection along with the return value for that Connection.
 
 <a name="selectSetters"></a>
 ##### Setter Operations
@@ -89,30 +93,35 @@ jsPlumb.select({source:"d1"}).removeAllOverlays();
 ```
 
 - Select all connections in scope "foo" and set their paint style to be a thick blue line:
+
 ```javascript
 jsPlumb.select({scope:"foo"}).setPaintStyle({
-        strokeStyle:"blue", 
-        lineWidth:5 
+        stroke:"blue", 
+        strokeWidth:5 
 });
 ```
 
 - Select all Connections from "d1" and detach them:
+
 ```javascript
 jsPlumb.select({source:"d1"}).detach();
 ```
 
 - Select all Connections and add the classes "foo" and "bar" to them :
+
 ```javascript
 jsPlumb.select().addClass("foo bar");
 ```
 
 - Select all Connections and remove the class "foo" from them :
+
 ```javascript
 jsPlumb.select().removeClass("foo");
-```    
+```
 
-<a name="selectIterate"></a>                      
+<a name="selectIterate"></a>
 ##### Iterating through results
+
 The return value of `jsPlumb.select` has a `.each` function that allows you to iterate through the list, performing an operation on each one:
 
 ```javascript
@@ -171,7 +180,7 @@ jsPlumb.getConnections({
 });
 ```
 
-would result in this output:			
+would result in this output:
 
 ```javascript
 {
@@ -190,7 +199,7 @@ jsPlumb.getConnections({
 }, true);
 ```
 
-...and would result in this output:			
+...and would result in this output:
 
     [ 1..n Connections ]
 
@@ -213,28 +222,28 @@ jsPlumb.getConnections({scope:"myTestScope"});</pre>
 - Get all connections for the given scopes (return value is a map of scope names to connection lists):	
 ```javascript
 jsPlumb.getConnections({
-        scope:["myTestScope", "yourTestScope"]
+    scope:["myTestScope", "yourTestScope"]
 });
 ```
 
 - Get all connections for the given source (return value is a map of scope names to connection lists):
 ```javascript
 jsPlumb.getConnections({
-        source:"mySourceElement"
+    source:"mySourceElement"
 });
 ```
 
 - Get all connections for the given sources (return value is a map of scope names to connection lists):	
 ```javascript
 jsPlumb.getConnections({
-        source:["mySourceElement", "yourSourceElement"]
+    source:["mySourceElement", "yourSourceElement"]
 });
 ```
 
 - Get all connections for the given target (return value is a map of scope names to connection lists):
 ```javascript
 jsPlumb.getConnections({
-        target:"myTargetElement"
+    target:"myTargetElement"
 });
 ```
 
@@ -266,7 +275,7 @@ Four parameters are supported by selectEndpoints - each of these except `scope` 
 - **element** - element(s) to get both source and target endpoints from
 - **source** - element(s) to get source endpoints from
 - **target** - element(s) to get target endpoints from
-- **scope** - scope(s) for endpoints to retrieve					
+- **scope** - scope(s) for endpoints to retrieve
             
 <a name="selectEndpointsSetters"></a>
 #### Setter Operations
@@ -347,7 +356,7 @@ jsPlumb.selectEndpoints({source:"d1"}).removeClass("foo");
 
 - Select all Endpoints in scope "foo" and set their fill style to be blue:
 ```javascript
-jsPlumb.selectEndpoints({ scope:"foo" }).setPaintStyle({ fillStyle:"blue" });
+jsPlumb.selectEndpoints({ scope:"foo" }).setPaintStyle({ fill:"blue" });
 ```
 
 - Select all Endpoints from "d1" and detach their Connections:

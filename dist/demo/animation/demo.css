@@ -3,16 +3,16 @@
     touch-action:none;
 }
 /** JSPLUMB ARTEFACTS **/
-.jsplumb-overlay {
+.jtk-overlay {
     z-index: 51;
 }
 
-.jsplumb-endpoint {
+.jtk-endpoint {
     z-index: 50;
     cursor: move;
 }
 
-.jsplumb-connector {
+.jtk-connector {
     z-index: 1;
 }
 
@@ -56,6 +56,6 @@
     left: 46em;
 }
 
-path, .jsplumb-endpoint {
+path, .jtk-endpoint {
     cursor: pointer;
 }

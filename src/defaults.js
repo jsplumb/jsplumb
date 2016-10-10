@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -408,6 +408,29 @@
         }
     };
 
+    _jp.SegmentRenderer = {
+        getPath: function (segment) {
+            return ({
+                "Straight": function () {
+                    var d = segment.getCoordinates();
+                    return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
+                },
+                "Bezier": function () {
+                    var d = segment.params;
+                    return "M " + d.x1 + " " + d.y1 +
+                        " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
+                },
+                "Arc": function () {
+                    var d = segment.params,
+                        laf = segment.sweep > Math.PI ? 1 : 0,
+                        sf = segment.anticlockwise ? 0 : 1;
+
+                    return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
+                }
+            })[segment.type]();
+        }
+    };
+
     /*
      Class: AbstractComponent
      Superclass for AbstractConnector and AbstractEndpoint.
@@ -447,7 +470,7 @@
             edited = false,
             paintInfo = null,
             geometry = null,
-            editable = params.editable !== false && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
+            editable = params.editable !== false && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null;
 
         var _setGeometry = this.setGeometry = function(g, internallyComputed) {
             edited = (!internallyComputed);
@@ -457,13 +480,22 @@
             return geometry;
         };
 
+        this.getPathData = function() {
+            var p = "";
+            for (var i = 0; i < segments.length; i++) {
+                p += _jp.SegmentRenderer.getPath(segments[i]);
+                p += " ";
+            }
+            return p;
+        };
+
         this.hasBeenEdited = function() { return edited; };
         this.isEditing = function() { return this.editor != null && this.editor.isActive(); };
         this.setEditable = function(e) {
             // if this connector has an editor already, or
             // if an editor for this connector's type is available, or
             // if the child declares an overrideSetEditable and it does not return false, editable is true.
-            if (e && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
+            if (e && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
                 editable = e;
             } else {
                 editable = false;
@@ -563,11 +595,11 @@
         };
 
         var _prepareCompute = function (params) {
-            this.lineWidth = params.lineWidth;
+            this.strokeWidth = params.strokeWidth;
             var segment = _jg.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
-                lw = params.lineWidth || 1,
+                lw = params.strokeWidth || 1,
                 so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
                 to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0],
@@ -681,23 +713,6 @@
     };
     _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
 
-    /**
-     * Class: Connectors.Straight
-     * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
-     */
-    var Straight = _jp.Connectors.Straight = function () {
-        this.type = "Straight";
-        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
-
-        this._compute = function (paintInfo, _) {
-            _super.addSegment(this, "Straight", {x1: paintInfo.sx, y1: paintInfo.sy, x2: paintInfo.startStubX, y2: paintInfo.startStubY});
-            _super.addSegment(this, "Straight", {x1: paintInfo.startStubX, y1: paintInfo.startStubY, x2: paintInfo.endStubX, y2: paintInfo.endStubY});
-            _super.addSegment(this, "Straight", {x1: paintInfo.endStubX, y1: paintInfo.endStubY, x2: paintInfo.tx, y2: paintInfo.ty});
-        };
-    };
-    _ju.extend(_jp.Connectors.Straight, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(Straight, "Straight");
-
 
     // ********************************* END OF CONNECTOR TYPES *******************************************************************
 
@@ -751,8 +766,8 @@
                 w = this.radius * 2,
                 h = this.radius * 2;
 
-            if (endpointStyle.strokeStyle) {
-                var lw = endpointStyle.lineWidth || 1;
+            if (endpointStyle.stroke) {
+                var lw = endpointStyle.strokeWidth || 1;
                 x -= lw;
                 y -= lw;
                 w += (lw * 2);
@@ -865,7 +880,7 @@
             else return [0, 0, 0, 0];
         };
 
-        this.canvas = jsPlumb.createElement("img", {
+        this.canvas = _jp.createElement("img", {
             position:"absolute",
             margin:0,
             padding:0,
@@ -926,7 +941,7 @@
 
         var clazz = params.cssClass ? " " + params.cssClass : "";
 
-        this.canvas = jsPlumb.createElement("div", {
+        this.canvas = _jp.createElement("div", {
             display: "block",
             width: "1px",
             height: "1px",
@@ -1037,18 +1052,17 @@
      * across the tail.
      */
     /*
-     * Function: Constructor
+     * @constructor
      *
-     * Parameters:
-     *
-     * 	length - distance in pixels from head to tail baseline. default 20.
-     * 	width - width in pixels of the tail baseline. default 20.
-     * 	fillStyle - style to use when filling the arrow.  defaults to "black".
-     * 	strokeStyle - style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
-     * 	lineWidth - line width to use when stroking the arrow. defaults to 1, but only used if strokeStyle is not null.
-     * 	foldback - distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
-     * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
-     * 	direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
+     * @param {Object} params Constructor params.
+     * @param {Number} [params.length] Distance in pixels from head to tail baseline. default 20.
+     * @param {Number} [params.width] Width in pixels of the tail baseline. default 20.
+     * @param {String} [params.fill] Style to use when filling the arrow.  defaults to "black".
+     * @param {String} [params.stroke] Style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
+     * @param {Number} [params.stroke-width] Line width to use when stroking the arrow. defaults to 1, but only used if stroke is not null.
+     * @param {Number} [params.foldback] Distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
+     * @param {Number} [params.location] Distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
+     * @param {NUmber} [params.direction] Indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
      */
     _jp.Overlays.Arrow = function (params) {
         this.type = "Arrow";
@@ -1060,7 +1074,7 @@
         this.width = params.width || 20;
         this.id = params.id;
         var direction = (params.direction || 1) < 0 ? -1 : 1,
-            paintStyle = params.paintStyle || { lineWidth: 1 },
+            paintStyle = params.paintStyle || { "stroke-width": 1 },
         // how far along the arrow the lines folding back in come to. default is 62.3%.
             foldback = params.foldback || 0.623;
 
@@ -1072,7 +1086,7 @@
             this.path = p;
             if (params.events) {
                 for (var i in params.events) {
-                    jsPlumb.on(p, i, params.events[i]);
+                    _jp.on(p, i, params.events[i]);
                 }
             }
         };
@@ -1120,16 +1134,16 @@
                 cxy = _jg.pointOnLine(hxy, txy, foldback * this.length);
 
                 var d = { hxy: hxy, tail: tail, cxy: cxy },
-                    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
-                    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
-                    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
+                    stroke = paintStyle.stroke || currentConnectionPaintStyle.stroke,
+                    fill = paintStyle.fill || currentConnectionPaintStyle.stroke,
+                    lineWidth = paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
 
                 return {
                     component: component,
                     d: d,
-                    lineWidth: lineWidth,
-                    strokeStyle: strokeStyle,
-                    fillStyle: fillStyle,
+                    "stroke-width": lineWidth,
+                    stroke: stroke,
+                    fill: fill,
                     minX: Math.min(hxy.x, tail[0].x, tail[1].x),
                     maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
                     minY: Math.min(hxy.y, tail[0].y, tail[1].y),
@@ -1185,7 +1199,7 @@
     _jp.Overlays.Diamond = function (params) {
         params = params || {};
         var l = params.length || 40,
-            p = jsPlumb.extend(params, {length: l / 2, foldback: 2});
+            p = _jp.extend(params, {length: l / 2, foldback: 2});
         _jp.Overlays.Arrow.call(this, p);
         this.type = "Diamond";
     };
@@ -1220,7 +1234,7 @@
 
         this.getElement = function () {
             if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = jsPlumb.getElement(this._jsPlumb.create(this._jsPlumb.component));
+                var div = this._jsPlumb.div = _jp.getElement(this._jsPlumb.create(this._jsPlumb.component));
                 div.style.position = "absolute";
                 div.className = this._jsPlumb.instance.overlayClass + " " +
                     (this.cssClass ? this.cssClass :
@@ -1368,7 +1382,7 @@
     _jp.Overlays.GuideLines = function () {
         var self = this;
         self.length = 50;
-        self.lineWidth = 5;
+        self.strokeWidth = 5;
         this.type = "GuideLines";
         AbstractOverlay.apply(this, arguments);
         _jp.jsPlumbUIComponent.apply(this, arguments);
@@ -1420,7 +1434,7 @@
         this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
         var p = _jp.extend({
             create: function () {
-                return jsPlumb.createElement("div");
+                return _jp.createElement("div");
             }}, params);
         _jp.Overlays.Custom.call(this, p);
         this.type = "Label";
@@ -1431,7 +1445,7 @@
             this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
             el.style.font = this.labelStyle.font;
             el.style.color = this.labelStyle.color || "black";
-            if (this.labelStyle.fillStyle) el.style.background = this.labelStyle.fillStyle;
+            if (this.labelStyle.fill) el.style.background = this.labelStyle.fill;
             if (this.labelStyle.borderWidth > 0) {
                 var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
                 el.style.border = this.labelStyle.borderWidth + "px solid " + dStyle;

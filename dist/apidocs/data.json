@@ -2,7 +2,7 @@
     "project": {
         "name": "jsplumb",
         "description": "Visual connectivity for webapps",
-        "version": "2.1.7",
+        "version": "2.2.0",
         "url": ""
     },
     "files": {
@@ -1290,7 +1290,7 @@
                             "optional": true
                         },
                         {
-                            "name": "fillStyle",
+                            "name": "fill",
                             "description": "A string specifying the background for the label, in valid CSS format.",
                             "type": "String",
                             "optional": true
@@ -4039,7 +4039,7 @@
         {
             "file": "doc/api/jsplumb-api.js",
             "line": 943,
-            "description": "The default style definition to use for all endpoints. Default is `{ fillStyle:\"#456\" }`",
+            "description": "The default style definition to use for all endpoints. Default is `{ fill:\"#456\" }`",
             "itemtype": "property",
             "name": "Defaults.EndpointStyle",
             "type": "{Object}",
@@ -4715,19 +4715,19 @@
                     "type": "Object",
                     "props": [
                         {
-                            "name": "fillStyle",
-                            "description": "Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a `fillStyle` on a Connector will cause the browser to fill the connector's path - probably not what you want.",
+                            "name": "fill",
+                            "description": "Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a `fill` on a Connector will cause the browser to fill the connector's path - probably not what you want.",
                             "type": "String",
                             "optional": true
                         },
                         {
-                            "name": "strokeStyle",
-                            "description": "Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use `strokeStyle` on Endpoints to define a border.",
+                            "name": "stroke",
+                            "description": "Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use `stroke` on Endpoints to define a border.",
                             "type": "String",
                             "optional": true
                         },
                         {
-                            "name": "lineWidth",
+                            "name": "strokeWidth",
                             "description": "Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)",
                             "type": "Integer",
                             "optional": true
@@ -4778,19 +4778,19 @@
                     "type": "Object",
                     "props": [
                         {
-                            "name": "fillStyle",
-                            "description": "Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a `fillStyle` on a Connector will cause the browser to fill the connector's path - probably not what you want.",
+                            "name": "fill",
+                            "description": "Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a `fill` on a Connector will cause the browser to fill the connector's path - probably not what you want.",
                             "type": "String",
                             "optional": true
                         },
                         {
-                            "name": "strokeStyle",
-                            "description": "Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use `strokeStyle` on Endpoints to define a border.",
+                            "name": "stroke",
+                            "description": "Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use `stroke` on Endpoints to define a border.",
                             "type": "String",
                             "optional": true
                         },
                         {
-                            "name": "lineWidth",
+                            "name": "strokeWidth",
                             "description": "Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)",
                             "type": "Integer",
                             "optional": true

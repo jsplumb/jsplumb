@@ -941,7 +941,7 @@
   * @type {String[]}
   */
   /**
-  * The default style definition to use for all endpoints. Default is `{ fillStyle:"#456" }`
+  * The default style definition to use for all endpoints. Default is `{ fill:"#456" }`
   * @property Defaults.EndpointStyle
   * @type {Object}
   */

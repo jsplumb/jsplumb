@@ -1,21 +1,7 @@
 
-var versions = {
-        JS_BEZIER : { f:"jsBezier", v:"0.8" },
-        BILTONG : { f:"biltong", v:"0.3" },
-        MOTTLE : {f:"mottle", v:"0.7.3" },
-        KATAVORIO : {f:"katavorio", v:"0.17.0" }
-    },
-    get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
-
-    renderers = [ "svg" ],
-    extraLibraries = [ get("MOTTLE"), get("KATAVORIO") ],
+var package = require('./package.json'),
+    get = function(name) { return "lib/" + package.includes[name].f + "-" + package.includes[name].v + ".js"; },
     objects = {
-        connectors : [
-            "flowchart", "bezier", "statemachine", "straight"
-        ],
-        renderers : [
-            "svg"
-        ],
         common:[
             'util.js', 'browser-util.js', 'jsPlumb.js', 'dom-adapter.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js', 'group.js'
         ]
@@ -32,15 +18,17 @@ var versions = {
             o.push("src/" + t + "-" + v + ".js");
     },
     getList = function(grunt, type) {
-        var ol = optionList(grunt, type), l = objects[type], out = [];
+        var ol = optionList(grunt, type), l = package[type], out = [];
         for (var i = 0; i < l.length; i++)
             filter(ol, l[i], type, out);
 
         return out;
     },
     getSources = function(grunt) {
-        var sources = [ get("JS_BEZIER"), get("BILTONG") ];
-        sources.push.apply(sources, extraLibraries);
+        var sources =  package.coreLibs.map(get);
+
+        sources.push.apply(sources, package.browserLibs.map(get));
+
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers"));
@@ -261,16 +249,16 @@ module.exports = function(grunt) {
     //
     var _createTests = function() {
         // unit tests
-        for (var j = 0; j < renderers.length; j++) {
+        for (var j = 0; j < package.renderers.length; j++) {
 
             var frontMatter = support.createFrontMatter({
                 layout:"test",
                 date:support.timestamp(),
                 categories:"test",
-                renderer:renderers[j],
+                renderer:package.renderers[j],
                 base:".."
             });
-            grunt.file.write("jekyll/tests/qunit-" + renderers[j] + "-dom-instance.html", frontMatter);
+            grunt.file.write("jekyll/tests/qunit-" + package.renderers[j] + "-dom-instance.html", frontMatter);
         }
 
         // load tests
@@ -327,7 +315,7 @@ module.exports = function(grunt) {
     grunt.registerTask('createDemos', _createDemos);
     grunt.registerTask('prepare', _prepareSite);
     grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'copy:external', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage', 'clean:site' ]);
-    grunt.registerTask('build-src', ['clean', 'jshint', 'prepare', 'concat', 'uglify' ]);
+    grunt.registerTask('build-src', ['clean', 'jshint', 'prepare', 'concat',  'uglify' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 

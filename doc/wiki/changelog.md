@@ -1,3 +1,24 @@
+## 2.2.0
+
+
+- Overhaul of keys used in paintStyle and hoverPaintStyle objects:
+
+  strokeStyle   -> style
+  fillStyle     -> fill
+  lineWidth     -> strokeWidth
+  outlineColor  -> outlineStroke
+  outlineWidth  -> outlineWidth     (yes, unchanged)
+  
+  
+- All classnames changed from `jsplumb-` prefix to `jtk-`, to bring them into line with the prefix used by the Toolkit edition.
+  
+- support webpack
+- add webpack demo page
+- upgrade to Mottle 0.7.3
+- upgrade to Katavorio 0.17.0
+- straight connectors extracted to a separate JS file for dev
+- added disable/enable functionality example to sources and targets demo
+
 ## 2.1.6
 
 - setTargetEnabled/setSourceEnabled now return the previous value of the enabled state.
@@ -11,11 +32,14 @@
 - issue 533 - Dragging multiple nodes causes incorrect connectors position
 - `reset` method sets hover suspended flag to false now.
 
+
+
 ## 2.1.4
 
 - issue 530 - Further fix related to issue 530, in which elements that had connections prior to being added to a group
 were sometimes getting an offset applied when dragging. The fix for this removed some code that was put in for issue 231, 
 but it turns out the fix for issue 231 had broken somewhere along the line and this change set that right too.
+
 
 ## 2.1.3
 
@@ -29,7 +53,7 @@ but it turns out the fix for issue 231 had broken somewhere along the line and t
 
 ## 2.1.1
 
-- bugfix for groups: element exposed now via getEl method, not directly as el.
+- bugfix for groups: element exposed now via getEl method, not directly as el. 
 
 ## 2.1.0
 

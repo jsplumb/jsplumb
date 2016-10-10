@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.2.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -39,7 +39,7 @@
         STYLE = "style",
         NONE = "none",
         JSPLUMB_GRADIENT = "jsplumb_gradient_",
-        LINE_WIDTH = "lineWidth",
+        LINE_WIDTH = "strokeWidth",
         ns = {
             svg: "http://www.w3.org/2000/svg",
             xhtml: "http://www.w3.org/1999/xhtml"
@@ -52,7 +52,7 @@
             attributes = attributes || {};
             attributes.version = "1.1";
             attributes.xmlns = ns.xhtml;
-            return jsPlumb.createElementNS(ns.svg, name, null, null, attributes);
+            return _jp.createElementNS(ns.svg, name, null, null, attributes);
         },
         _pos = function (d) {
             return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
@@ -94,13 +94,13 @@
 
                 g.appendChild(s);
             }
-            var applyGradientTo = style.strokeStyle ? STROKE : FILL;
+            var applyGradientTo = style.stroke ? STROKE : FILL;
             node.setAttribute(applyGradientTo, "url(#" + id + ")");
         },
         _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-            node.setAttribute(FILL, style.fillStyle ? style.fillStyle : NONE);
-            node.setAttribute(STROKE, style.strokeStyle ? style.strokeStyle : NONE);
+            node.setAttribute(FILL, style.fill ? style.fill : NONE);
+            node.setAttribute(STROKE, style.stroke ? style.stroke : NONE);
 
             if (style.gradient) {
                 _updateGradient(parent, node, style, dimensions, uiComponent);
@@ -111,8 +111,8 @@
                 node.setAttribute(STYLE, "");
             }
 
-            if (style.lineWidth) {
-                node.setAttribute(STROKE_WIDTH, style.lineWidth);
+            if (style.strokeWidth) {
+                node.setAttribute(STROKE_WIDTH, style.strokeWidth);
             }
 
             // in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
@@ -128,7 +128,7 @@
                     parts = style[DASHSTYLE].split(sep),
                     styleToUse = "";
                 parts.forEach(function (p) {
-                    styleToUse += (Math.floor(p * style.lineWidth) + sep);
+                    styleToUse += (Math.floor(p * style.strokeWidth) + sep);
                 });
                 node.setAttribute(STROKE_DASHARRAY, styleToUse);
             }
@@ -185,7 +185,7 @@
         this.svg = _node("svg", svgParams);
 
         if (params.useDivWrapper) {
-            this.canvas = jsPlumb.createElement("div", { position : "absolute" });
+            this.canvas = _jp.createElement("div", { position : "absolute" });
             _ju.sizeElement(this.canvas, 0, 0, 1, 1);
             this.canvas.className = clazz;
         }
@@ -293,7 +293,7 @@
         var _superSetEditable = this.setEditable;
         this.setEditable = function(e) {
             var result = _superSetEditable.apply(this, [e]);
-            jsPlumb[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
+            _jp[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
         };
 
         _super.renderer.paint = function (style, anchor, extents) {
@@ -304,11 +304,7 @@
 
             if (segments.length > 0) {
 
-                // create path from segments.
-                for (var i = 0; i < segments.length; i++) {
-                    p += _jp.Segments.svg.SegmentRenderer.getPath(segments[i]);
-                    p += " ";
-                }
+                p = self.getPathData();
 
                 var a = {
                         d: p,
@@ -319,13 +315,13 @@
                     d = [self.x, self.y, self.w, self.h];
 
                 // outline style.  actually means drawing an svg object underneath the main one.
-                if (style.outlineColor) {
+                if (style.outlineStroke) {
                     var outlineWidth = style.outlineWidth || 1,
-                        outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+                        outlineStrokeWidth = style.strokeWidth + (2 * outlineWidth);
                     outlineStyle = _jp.extend({}, style);
                     delete outlineStyle.gradient;
-                    outlineStyle.strokeStyle = style.outlineColor;
-                    outlineStyle.lineWidth = outlineStrokeWidth;
+                    outlineStyle.stroke = style.outlineStroke;
+                    outlineStyle.strokeWidth = outlineStrokeWidth;
 
                     if (self.bgPath == null) {
                         self.bgPath = _node("path", a);
@@ -341,7 +337,7 @@
 
                 if (self.path == null) {
                     self.path = _node("path", a);
-                    _appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
+                    _appendAtIndex(self.svg, self.path, style.outlineStroke ? 1 : 0);
                 }
                 else {
                     _attr(self.path, a);
@@ -355,30 +351,6 @@
 
 // ******************************* svg segment renderer *****************************************************	
 
-    _jp.Segments.svg = {
-        SegmentRenderer: {
-            getPath: function (segment) {
-                return ({
-                    "Straight": function () {
-                        var d = segment.getCoordinates();
-                        return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
-                    },
-                    "Bezier": function () {
-                        var d = segment.params;
-                        return "M " + d.x1 + " " + d.y1 +
-                            " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
-                    },
-                    "Arc": function () {
-                        var d = segment.params,
-                            laf = segment.sweep > Math.PI ? 1 : 0,
-                            sf = segment.anticlockwise ? 0 : 1;
-
-                        return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
-                    }
-                })[segment.type]();
-            }
-        }
-    };
 
 // ******************************* /svg segments *****************************************************
 
@@ -398,9 +370,9 @@
 
         _super.renderer.paint = function (style) {
             var s = _jp.extend({}, style);
-            if (s.outlineColor) {
-                s.strokeWidth = s.outlineWidth;
-                s.strokeStyle = s.outlineColor;
+            if (s.outlineStroke) {
+                s.strokeWidth = s.strokeWidth;
+                s.stroke = s.outlineStroke;
             }
 
             if (this.node == null) {
@@ -507,8 +479,8 @@
                 _attr(this.path, {
                     "d": makePath(params.d),
                     "class": clazz,
-                    stroke: params.strokeStyle ? params.strokeStyle : null,
-                    fill: params.fillStyle ? params.fillStyle : null,
+                    stroke: params.stroke ? params.stroke : null,
+                    fill: params.fill ? params.fill : null,
                     transform: "translate(" + offset[0] + "," + offset[1] + ")"
                 });
             }

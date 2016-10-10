@@ -53,11 +53,11 @@
 }
 
 /** JSPLUMB ARTEFACTS **/
-.jsplumb-connector {
+.jtk-connector {
     z-index: 4;
 }
 
-.jsplumb-endpoint {
+.jtk-endpoint {
     z-index: 5;
 }
 
@@ -91,7 +91,7 @@
     font-family: helvetica, sans-serif;
 }
 
-path, .jsplumb-endpoint {
+path, .jtk-endpoint {
     cursor: pointer;
 }
 

@@ -35,7 +35,7 @@
     transition: background-color 0.25s ease-in;
 }
 
-.aLabel.jsplumb-hover, .jsplumb-source-hover, .jsplumb-target-hover {
+.aLabel.jtk-hover, .jtk-source-hover, .jtk-target-hover {
     background-color: #1e8151;
     color: white;
 }
@@ -67,7 +67,7 @@
     box-shadow: 0 0 6px black;
 }
 
-.statemachine-demo .jsplumb-endpoint {
+.statemachine-demo .jtk-endpoint {
     z-index: 3;
 }
 
@@ -101,4 +101,4 @@
     border: 2px solid orange;
 }
 
-path, .jsplumb-endpoint { cursor:pointer; }
+path, .jtk-endpoint { cursor:pointer; }

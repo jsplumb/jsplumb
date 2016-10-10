@@ -19,11 +19,11 @@ exposed on the jsPlumb object and can be overridden if you need to do so - see t
 
 <table width="90%" class="table" style="align:left;font-size:12px;">
 <tr><th>Component</th><th>CSS Class</th><th>jsPlumb Member</th></tr>
-<tr><td>Connector</td><td>jsplumb-connector</td><td>connectorClass</td></tr>
-<tr><td>Connector Outline</td><td>jsplumb-connector-outline</td><td>connectorOutlineClass (SVG only)</td></tr>
-<tr><td>Endpoint</td><td>jsplumb-endpoint</td><td>endpointClass</td></tr>
-<tr><td>Endpoint when full</td><td>jsplumb-endpoint-full</td><td>endpointFullClass</td></tr>
-<tr><td>Overlay</td><td>jsplumb-overlay</td><td>overlayClass</td></tr>
+<tr><td>Connector</td><td>jtk-connector</td><td>connectorClass</td></tr>
+<tr><td>Connector Outline</td><td>jtk-connector-outline</td><td>connectorOutlineClass (SVG only)</td></tr>
+<tr><td>Endpoint</td><td>jtk-endpoint</td><td>endpointClass</td></tr>
+<tr><td>Endpoint when full</td><td>jtk-endpoint-full</td><td>endpointFullClass</td></tr>
+<tr><td>Overlay</td><td>jtk-overlay</td><td>overlayClass</td></tr>
 </table>
 
 In a simple UI, you can set appropriate z-index values for these classes. The jsPlumb demo pages, for instance, 
@@ -32,9 +32,9 @@ rules like this:
 
 ```css
 .window { z-index:20; }
-.jsplumb-connector { z-index:4; }
-.jsplumb-endpoint { z-index:5; }
-.jsplumb-overlay { z-index:6; }
+.jtk-connector { z-index:4; }
+.jtk-endpoint { z-index:5; }
+.jtk-overlay { z-index:6; }
 ```
 
 ### Interactive CSS Classes
@@ -42,19 +42,19 @@ jsPlumb assigns these classes on both Connectors and Endpoints when specific use
 
 <table width="90%" class="table" style="align:left;font-size:12px;">
 <tr><th>Activity</th><th>CSS Class</th><th>jsPlumb Member</th><th>Description</th></tr>
-<tr><td>Mouse Hover</td><td>jsplumb-hover</td><td>hoverClass</td><td>Assigned to both Connectors and Endpoints when the mouse is hovering over them</td></tr>
-<tr><td>Connection Drag</td><td>jsplumb-dragging</td><td>draggingClass</td><td>Assigned to a Connection when it is being dragged (either a new Connection or an existing Connection)</td></tr>
-<tr><td>Element Dragging</td><td>jsplumb-element-dragging</td><td>elementDraggingClass</td><td>Assigned to all Connections whose source or target element is currently being dragged, and to their Endpoints.</td></tr>
-<tr><td>Source Element Dragging</td><td>jsplumb-source-element-dragging</td><td>sourceElementDraggingClass</td><td>Assigned to all Connections whose source element is being dragged, and to their Endpoints</td></tr>
-<tr><td>Target Element Dragging</td><td>jsplumb-target-element-dragging</td><td>targetElementDraggingClass</td><td>Assigned to all Connections whose target element is being dragged, and to their Endpoints</td></tr>
-<tr><td>Anchor Class</td><td>***jsplumb-endpoint-anchor-***</td><td>endpointAnchorClassPrefix</td><td>Assigned to Endpoints, and their associated elements, that have either a static Anchor with an associated class, or a Dynamic Anchor whose individual locations have an associated CSS class. The `***` suffix in the class name above is the associated class.  Note that this class is added to both the artefact that jsPlumb creates and also the element on which the Endpoint resides, so you will normally have to build a selector with more criteria than just this class in order to target things properly. See the documentation regarding Anchors for a discussion of this.</td></tr>
-<tr><td>Drop Allowed on Endpoint</td><td>jsplumb-endpoint-drop-allowed</td><td>endpointDropAllowedClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would be allowed</td></tr>
-<tr><td>Drop Forbidden on Endpoint</td><td>jsplumb-endpoint-drop-forbidden</td><td>endpointDropForbiddenClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would not be allowed</td></tr>
-<tr><td>Connection Hover</td><td>jsplumb-source-hover</td><td>hoverSourceClass</td><td>Assigned to the source element in a Connection when the mouse is hovering over the Connection</td></tr>
-<tr><td>Connection Hover</td><td>jsplumb-target-hover</td><td>hoverTargetClass</td><td>Assigned to the target element in a Connection when the mouse is hovering over the Connection</td></tr>
-<tr><td>Drag</td><td>jsplumb-drag-select</td><td>dragSelectClass</td><td>Assigned to the document body whenever a drag is in progress. It allows you to ensure document selection is disabled - see [here](home#dragSelection)</td></tr>
-<tr><td>Source disable</td><td>jsplumb-source-disabled</td><td>-</td><td>Assigned to an element that was configured with `makeSource` and was subsequently disabled via `setEnabled(el, false)`.</td></tr>
-<tr><td>Target disable</td><td>jsplumb-target-disabled</td><td>-</td><td>Assigned to an element that was configured with `makeTarget` and was subsequently disabled via `setEnabled(el, false)`.</td></tr>
+<tr><td>Mouse Hover</td><td>jtk-hover</td><td>hoverClass</td><td>Assigned to both Connectors and Endpoints when the mouse is hovering over them</td></tr>
+<tr><td>Connection Drag</td><td>jtk-dragging</td><td>draggingClass</td><td>Assigned to a Connection when it is being dragged (either a new Connection or an existing Connection)</td></tr>
+<tr><td>Element Dragging</td><td>jtk-element-dragging</td><td>elementDraggingClass</td><td>Assigned to all Connections whose source or target element is currently being dragged, and to their Endpoints.</td></tr>
+<tr><td>Source Element Dragging</td><td>jtk-source-element-dragging</td><td>sourceElementDraggingClass</td><td>Assigned to all Connections whose source element is being dragged, and to their Endpoints</td></tr>
+<tr><td>Target Element Dragging</td><td>jtk-target-element-dragging</td><td>targetElementDraggingClass</td><td>Assigned to all Connections whose target element is being dragged, and to their Endpoints</td></tr>
+<tr><td>Anchor Class</td><td>***jtk-endpoint-anchor-***</td><td>endpointAnchorClassPrefix</td><td>Assigned to Endpoints, and their associated elements, that have either a static Anchor with an associated class, or a Dynamic Anchor whose individual locations have an associated CSS class. The `***` suffix in the class name above is the associated class.  Note that this class is added to both the artefact that jsPlumb creates and also the element on which the Endpoint resides, so you will normally have to build a selector with more criteria than just this class in order to target things properly. See the documentation regarding Anchors for a discussion of this.</td></tr>
+<tr><td>Drop Allowed on Endpoint</td><td>jtk-endpoint-drop-allowed</td><td>endpointDropAllowedClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would be allowed</td></tr>
+<tr><td>Drop Forbidden on Endpoint</td><td>jtk-endpoint-drop-forbidden</td><td>endpointDropForbiddenClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would not be allowed</td></tr>
+<tr><td>Connection Hover</td><td>jtk-source-hover</td><td>hoverSourceClass</td><td>Assigned to the source element in a Connection when the mouse is hovering over the Connection</td></tr>
+<tr><td>Connection Hover</td><td>jtk-target-hover</td><td>hoverTargetClass</td><td>Assigned to the target element in a Connection when the mouse is hovering over the Connection</td></tr>
+<tr><td>Drag</td><td>jtk-drag-select</td><td>dragSelectClass</td><td>Assigned to the document body whenever a drag is in progress. It allows you to ensure document selection is disabled - see [here](home#dragSelection)</td></tr>
+<tr><td>Source disable</td><td>jtk-source-disabled</td><td>-</td><td>Assigned to an element that was configured with `makeSource` and was subsequently disabled via `setEnabled(el, false)`.</td></tr>
+<tr><td>Target disable</td><td>jtk-target-disabled</td><td>-</td><td>Assigned to an element that was configured with `makeTarget` and was subsequently disabled via `setEnabled(el, false)`.</td></tr>
 </table>
 
 **Note** the last two classes work in conjunction with the `checkDropAllowed` interceptor that you can register on 
@@ -78,13 +78,13 @@ jsPlumb puts a class on the body that you can use to disable the default browser
 when dragging:
 
 ```css
-jsplumb-drag-select
+jtk-drag-select
 ```
     
 A suitable value for this (from the jsPlumb demos) is:
 
 ```css
-.jsplumb-drag-select {
+.jtk-drag-select {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

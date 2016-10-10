@@ -4,7 +4,7 @@ jsPlumb.ready(function () {
     var instance = jsPlumb.getInstance({
         Endpoint: ["Dot", {radius: 2}],
         Connector:"StateMachine",
-        HoverPaintStyle: {strokeStyle: "#1e8151", lineWidth: 2 },
+        HoverPaintStyle: {stroke: "#1e8151", strokeWidth: 2 },
         ConnectionOverlays: [
             [ "Arrow", {
                 location: 1,
@@ -55,7 +55,7 @@ jsPlumb.ready(function () {
         instance.makeSource(el, {
             filter: ".ep",
             anchor: "Continuous",
-            connectorStyle: { strokeStyle: "#5c96bc", lineWidth: 2, outlineColor: "transparent", outlineWidth: 4 },
+            connectorStyle: { stroke: "#5c96bc", strokeWidth: 2, outlineStroke: "transparent", outlineWidth: 4 },
             connectionType:"basic",
             extract:{
                 "action":"the-action"

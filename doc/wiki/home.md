@@ -111,14 +111,14 @@ firstInstance.connect({
 ```javascript
 var secondInstance = jsPlumb.getInstance({
   PaintStyle:{ 
-    lineWidth:6, 
-    strokeStyle:"#567567", 
-    outlineColor:"black", 
+    strokeWidth:6, 
+    stroke:"#567567", 
+    outlineStroke:"black", 
     outlineWidth:1 
   },
   Connector:[ "Bezier", { curviness: 30 } ],
   Endpoint:[ "Dot", { radius:5 } ],
-  EndpointStyle : { fillStyle: "#567567"  },
+  EndpointStyle : { fill: "#567567"  },
   Anchor : [ 0.5, 0.5, 1, 1 ]
 });
     
@@ -133,25 +133,34 @@ It is recommended to use separate instances of jsPlumb wherever possible.
 
 <a name="ids"></a>
 ### Element Ids
-jsPlumb uses the `id` attribute of any element with which it interacts. If `id` is not set, jsPlumb will create an id for the element. It is recommended that you set appropriate ids for the elements in your UI yourself.
+jsPlumb uses the `id` attribute of any element with which it interacts. If `id` is not set, jsPlumb will create an id 
+for the element. It is recommended that you set appropriate ids for the elements in your UI yourself.
 
 #### Changing Element Id
-Because of the fact that jsPlumb uses element ids, you need to tell jsPlumb if an element id changes. There are two methods to help you do this:
+Because of the fact that jsPlumb uses element ids, you need to tell jsPlumb if an element id changes. There are two 
+methods to help you do this:
 
-- `jsPlumb.setId(el, newId)` Use this if you want jsPlumb to take care of changing the id in the DOM. It will do so, and then update its references accordingly.
+- `jsPlumb.setId(el, newId)` Use this if you want jsPlumb to take care of changing the id in the DOM. It will do so, 
+and then update its references accordingly.
                      
-- `jsPlumb.setIdChanged(oldId, newId)`  Use this if you have already changed the element's ID, and you just want jsPlumb to update its references.
+- `jsPlumb.setIdChanged(oldId, newId)`  Use this if you have already changed the element's ID, and you just want 
+jsPlumb to update its references.
 
 <a name="arguments"></a>
 ### Method Arguments
 Almost every method in jsPlumb that operates on elements supports multiple formats for specifying the element(s) on which to operate.
 
 #### Selectors/NodeLists
-In jQuery there is the concept of a "selector" - a list of elements conforming to some CSS path spec, for instance `$(".myClass")`. Both the jQuery flavour, and also vanilla, jsPlumb support these selectors as arguments for elements (vanilla jsPlumb can do this because jQuery's selector object is _list-like_, ie. it has a `length` property).
+In jQuery there is the concept of a "selector" - a list of elements conforming to some CSS path spec, for instance `$(".myClass")`. 
+Both the jQuery flavour, and also vanilla, jsPlumb support these selectors as arguments for elements (vanilla jsPlumb 
+can do this because jQuery's selector object is _list-like_, ie. it has a `length` property).
 
-When using vanilla jsPlumb, you can use a `NodeList` - it is, effectively, the native equivalent of the selectors we just discussed.  There are several ways of getting a `NodeList` from the DOM; perhaps the most useful (supported in IE8+) is `document.querySelectorAll("some selector")`.
+When using vanilla jsPlumb, you can use a `NodeList` - it is, effectively, the native equivalent of the selectors we 
+just discussed.  There are several ways of getting a `NodeList` from the DOM; perhaps the most useful (supported in IE8+) 
+is `document.querySelectorAll("some selector")`.
 
-You will see **selector** referred to in many places in the jsPlumb documentation. Just think of it as a list of elements that match some CSS spec.
+You will see **selector** referred to in many places in the jsPlumb documentation. Just think of it as a list of elements 
+that match some CSS spec.
 
 #### Element Ids
 Passing a single string as argument will cause jsPlumb to treat that string as an element id.
@@ -160,7 +169,8 @@ Passing a single string as argument will cause jsPlumb to treat that string as a
 You can pass DOM elements as arguments.  This will probably not surprise you.
 
 #### Arrays
-You can also pass an array of any or all of the types we just listed. The contents of the array can be mixed - they do not have to be all one type.
+You can also pass an array of any or all of the types we just listed. The contents of the array can be mixed - they do 
+not have to be all one type.
 
 
 <a name="zindex"></a>
@@ -175,12 +185,12 @@ To help you organise z-indices correctly, jsPlumb adds a CSS class to each type 
 
 <table style="color:black;font-size:90%;width:100%;">
   <tr><td><strong>Component</strong></td><td><strong>Class</strong></td></tr>
-  <tr><td>Endpoint</td><td>jsplumb-endpoint</td></tr>
-  <tr><td>Connector</td><td>jsplumb-connector</td></tr>
-  <tr><td>Overlay</td><td>jsplumb-overlay</td></tr>
+  <tr><td>Endpoint</td><td>jtk-endpoint</td></tr>
+  <tr><td>Connector</td><td>jtk-connector</td></tr>
+  <tr><td>Overlay</td><td>jtk-overlay</td></tr>
 </table>            
                             
-In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class `jsplumb-hover`. 
+In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is assigned the class `jtk-hover`. 
 For more information about styling jsPlumb with CSS, see [this page](styling-via-css). 
 
 <a name="container"></a>
@@ -218,7 +228,10 @@ call.
 Container directly via the `jsPlumb.Defaults.Container` property. You can still do this - we're in Javascript here of 
 course, it's a free-for-all - but it will be ignored.
 
-**Also Important** If you happen to be using jsPlumb's `draggable` method to make other parts of your UI draggable (ie. not just things you're plumbing together), be careful not to call `draggable` on the element that is acting as the `Container` for the current instance, or you will see some odd situations occur when dragging.  It is suggested that the best thing to do if you wish to use jsPlumb to enable dragging on non-plumbed elements is to create a new instance:
+**Also Important** If you happen to be using jsPlumb's `draggable` method to make other parts of your UI draggable (ie. 
+not just things you're plumbing together), be careful not to call `draggable` on the element that is acting as the 
+`Container` for the current instance, or you will see some odd situations occur when dragging.  It is suggested that 
+the best thing to do if you wish to use jsPlumb to enable dragging on non-plumbed elements is to create a new instance:
 
 ```javascript
 var nonPlumbing = jsPlumb.getInstance();
@@ -244,7 +257,8 @@ jsPlumb.setContainer(document.getElementById("foo"));
 jsPlumb.addEndpoint(someDiv, { endpoint options });
 ```
 		
-- Set a container to use as the default container, using an element id, and then connect two elements.  The elements created in this example will be children of the element with id "containerId":
+- Set a container to use as the default container, using an element id, and then connect two elements.  The elements 
+created in this example will be children of the element with id "containerId":
 
 ```javascript
 jsPlumb.setContainer("containerId");
@@ -263,7 +277,8 @@ jsPlumb.addEndpoint(someDiv, { endpoint options });
 ```
 
 ##### Container CSS
-The container you choose should have `position:relative` set on it, because it is the origin of that element that jsPlumb will use to compute the placement of the artefacts it adds to the DOM, and jsPlumb uses absolute positioning.
+The container you choose should have `position:relative` set on it, because it is the origin of that element that jsPlumb 
+will use to compute the placement of the artefacts it adds to the DOM, and jsPlumb uses absolute positioning.
 
 <a name="dragging"></a>
 ### Element Dragging
@@ -279,11 +294,15 @@ Dragging is covered in detail [on this page](dragging).
 
 <a name="performance"></a>
 ### Performance
-The speed at which jsPlumb executes, and the practical limit to the number of manageable connections, is greatly affected by the browser upon which it is being run.  At the time of writing, it will probably not surprise you to learn that jsPlumb runs fastest in Chrome, followed by Safari/Firefox, and then IE browsers in descending version number order.
+The speed at which jsPlumb executes, and the practical limit to the number of manageable connections, is greatly 
+affected by the browser upon which it is being run.  At the time of writing, it will probably not surprise you to learn 
+that jsPlumb runs fastest in Chrome, followed by Safari/Firefox, and then IE browsers in descending version number order.
 
 #### Suspending Drawing
 
-Every `connect` or `addEndpoint` call in jsPlumb ordinarily causes a repaint of the associated element, which for many cases is what you want.  But if you are performing some kind of "bulk" operation - like loading data on page load perhaps - it is recommended that you suspend drawing before doing so:
+Every `connect` or `addEndpoint` call in jsPlumb ordinarily causes a repaint of the associated element, which for many 
+cases is what you want.  But if you are performing some kind of "bulk" operation - like loading data on page load 
+perhaps - it is recommended that you suspend drawing before doing so:
 
 ```javascript
 jsPlumb.setSuspendDrawing(true);
@@ -293,9 +312,11 @@ jsPlumb.setSuspendDrawing(true);
 jsPlumb.setSuspendDrawing(false, true);
 ```
 
-Notice the second argument in the last call to `setSuspendDrawing`: it instructs jsPlumb to immediately perform a full repaint (by calling, internally, `repaintEverything`).
+Notice the second argument in the last call to `setSuspendDrawing`: it instructs jsPlumb to immediately perform a full 
+repaint (by calling, internally, `repaintEverything`).
 
-I said above it is recommended that you do this.  It really is.  It makes an enormous difference to the load time when you're dealing with a lot of Connections on slower browsers.
+I said above it is recommended that you do this.  It really is.  It makes an enormous difference to the load time when 
+you're dealing with a lot of Connections on slower browsers.
 
 ###### batch
 This function abstracts out the pattern of suspending drawing, doing something, and then re-enabling drawing:
@@ -332,9 +353,11 @@ jsPlumb.batch(function() {
 *Note* this method used to be called `doWhileSuspended` and was renamed in version 1.7.3.
 
 #### Anchor Types
-Continuous anchors are the type that require the most maths, because they have to calculate their position every time a paint cycle occurs. 
+Continuous anchors are the type that require the most maths, because they have to calculate their position every time a 
+paint cycle occurs. 
 
-Dynamic and Perimeter anchors are the next slowest (with Perimeter being slower than most Dynamic Anchors as they are actually Dynamic Anchors that have, by default, 60 locations to choose from).  
+Dynamic and Perimeter anchors are the next slowest (with Perimeter being slower than most Dynamic Anchors as they are 
+actually Dynamic Anchors that have, by default, 60 locations to choose from).  
 
 Static anchors like `Top`, `Bottom` etc are the fastest.
 
