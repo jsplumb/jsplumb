@@ -164,7 +164,9 @@
 
                 relocateSource:_relocateSource.bind(null, _jsPlumb),
 
-                relocateTarget:_relocateTarget.bind(null, _jsPlumb)
+                relocateTarget:_relocateTarget.bind(null, _jsPlumb),
+
+                makeEvent:_makeEvt.bind(null, _jsPlumb)
             }
         }
     };

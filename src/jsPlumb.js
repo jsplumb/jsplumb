@@ -667,7 +667,7 @@
                     // update the offset of everything _before_ we try to draw anything.
                     var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
 
-                    if (repaintEls) {
+                    if (repaintEls && o && o.o) {
                         for (var i in repaintEls) {
                             _updateOffset({
                                 elId: repaintEls[i].id,
