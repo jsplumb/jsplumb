@@ -5192,8 +5192,7 @@
             // calculate appropriate paint styles and anchor from the params given
             _setEndpointPaintStylesAndAnchor(p, 1, this);
 
-            var deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
-                maxConnections = p.maxConnections || -1,
+            var maxConnections = p.maxConnections || -1,
 
                 _doOne = function (el) {
 
@@ -5208,6 +5207,12 @@
                     this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
 
                     _ensureContainer(elid);
+
+                    // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
+                    // precedence.
+                    if (elInfo.el._isJsPlumbGroup && dropOptions.rank == null) {
+                        dropOptions.rank = -1;
+                    }
 
                     // store the definition
                     var _def = {

@@ -9450,11 +9450,11 @@ test("endpoint: suspendedElement set correctly", function() {
 
         _jsPlumb.makeTarget(d1);
 
-        _jsPlumb.makeTarget(d2, {
+        _jsPlumb.makeTarget(d2/*, {
             dropOptions:{
                 rank:10
             }
-        });
+        }*/);
 
         _jsPlumb.makeSource(d3);
 
@@ -9482,13 +9482,71 @@ test("endpoint: suspendedElement set correctly", function() {
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d1, {
+        _jsPlumb.makeTarget(d1/*, {
             dropOptions:{
                 rank:-10
             }
-        });
+        }*/);
 
         _jsPlumb.makeTarget(d2);
+
+        _jsPlumb.makeSource(d3);
+
+        var sourceEvent = support.makeEvent(d3);
+        var d2TargetEvent = support.makeEvent(d2);
+
+        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+
+
+        ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
+        ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
+
+        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+        equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
+
+    });
+
+    test("drop precedence, default ranks (order of droppable is ignored), group first", function() {
+        var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = _addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _addGroup(_jsPlumb, "g1", d1, [d2]);
+
+        _jsPlumb.makeTarget(d1);
+        _jsPlumb.makeTarget(d2);
+
+        _jsPlumb.makeSource(d3);
+
+        var sourceEvent = support.makeEvent(d3);
+        var d2TargetEvent = support.makeEvent(d2);
+
+        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+
+
+        ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
+        ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, even though it was second.");
+
+        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+        equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
+
+    });
+
+    test("drop precedence, default ranks (order of droppable is ignored), group last", function() {
+        var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = _addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _addGroup(_jsPlumb, "g1", d1, [d2]);
+
+        _jsPlumb.makeTarget(d2);
+        _jsPlumb.makeTarget(d1);
 
         _jsPlumb.makeSource(d3);
 
@@ -9516,8 +9574,16 @@ test("endpoint: suspendedElement set correctly", function() {
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d1);
-        _jsPlumb.makeTarget(d2);
+        _jsPlumb.makeTarget(d1, {
+            dropOptions: {
+                rank: 5
+            }
+        });
+        _jsPlumb.makeTarget(d2, {
+            dropOptions: {
+                rank: 5
+            }
+        });
 
         _jsPlumb.makeSource(d3);
 
@@ -9545,8 +9611,8 @@ test("endpoint: suspendedElement set correctly", function() {
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d2);
-        _jsPlumb.makeTarget(d1);
+        _jsPlumb.makeTarget(d2, { rank:5 });
+        _jsPlumb.makeTarget(d1, { rank:5 });
 
         _jsPlumb.makeSource(d3);
 
