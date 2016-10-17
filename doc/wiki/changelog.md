@@ -1,5 +1,11 @@
 ## 2.1.1
 
+- upgrade to Katavorio 0.18.0; now `rank` is supported in `dropOptions` to `makeTarget` or `addEndpoint`. Use this when
+you want to make a Group container a connection target but you want to give prededence to Nodes inside the Groups.
+
+
+
+
 ## 2.2.0
 
 
