@@ -312,23 +312,23 @@ test("drag multiple elements and ensure their connections are painted correctly 
         support.dragNodeTo(d2, 1000, 1000);
 
         equal(d2.offsetLeft, 950, "div 2 is at the right left position");
-        equal(d2.offsetTop, 1000, "div 2 is at the right top position");
+        equal(d2.offsetTop, 950, "div 2 is at the right top position");
 
         // divs 1 and 3 have moved too, make sure they are in the right place
         equal(d1.offsetLeft, 750, "div 1 is at the right left position");
-        equal(d1.offsetTop, 800, "div 1 is at the right top position");
+        equal(d1.offsetTop, 750, "div 1 is at the right top position");
         equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
-        equal(d3.offsetTop, 1250, "div 3 is at the right top position");
+        equal(d3.offsetTop, 1200, "div 3 is at the right top position");
 
         // check the endpoints
         equal(e2.canvas.offsetLeft, 950 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2.canvas.offsetTop, 1000 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 950 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
 
         equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
-        equal(e1.canvas.offsetTop, 800 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        equal(e1.canvas.offsetTop, 750 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
 
         equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
-        equal(e3.canvas.offsetTop, 1250 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+        equal(e3.canvas.offsetTop, 1200 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
 
     });
 
