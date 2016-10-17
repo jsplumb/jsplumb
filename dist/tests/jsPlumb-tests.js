@@ -56,7 +56,7 @@ var _addDiv = function (id, parent, className, x, y, w, h) {
     d1.style.top = (y!= null ? y : (Math.floor(Math.random() * 1000))) + "px";
     if (className) d1.className = className;
     if (w) d1.style.width = w + "px";
-    if (h) d1.style.width = h + "px";
+    if (h) d1.style.height = h + "px";
     _divs.push(id);
     return d1;
 };
@@ -312,23 +312,23 @@ test("drag multiple elements and ensure their connections are painted correctly 
         support.dragNodeTo(d2, 1000, 1000);
 
         equal(d2.offsetLeft, 950, "div 2 is at the right left position");
-        equal(d2.offsetTop, 1000, "div 2 is at the right top position");
+        equal(d2.offsetTop, 950, "div 2 is at the right top position");
 
         // divs 1 and 3 have moved too, make sure they are in the right place
         equal(d1.offsetLeft, 750, "div 1 is at the right left position");
-        equal(d1.offsetTop, 800, "div 1 is at the right top position");
+        equal(d1.offsetTop, 750, "div 1 is at the right top position");
         equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
-        equal(d3.offsetTop, 1250, "div 3 is at the right top position");
+        equal(d3.offsetTop, 1200, "div 3 is at the right top position");
 
         // check the endpoints
         equal(e2.canvas.offsetLeft, 950 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2.canvas.offsetTop, 1000 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 950 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
 
         equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
-        equal(e1.canvas.offsetTop, 800 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        equal(e1.canvas.offsetTop, 750 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
 
         equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
-        equal(e3.canvas.offsetTop, 1250 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+        equal(e3.canvas.offsetTop, 1200 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
 
     });
 
@@ -9437,6 +9437,134 @@ test("endpoint: suspendedElement set correctly", function() {
         var d = _addDiv("d");
         equal(j.getSize(d)[0], 100, "width is set by pluggable function");
         equal(j.getSize(d)[1], 100, "height is set by pluggable function");
+    });
+
+
+// -------------------------- drop precedence (required for nodes inside groups that are also droppables)
+    test("drop precedence, set positive rank on element to upgrade", function() {
+        var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = _addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _addGroup(_jsPlumb, "g1", d1, [d2]);
+
+        _jsPlumb.makeTarget(d1);
+
+        _jsPlumb.makeTarget(d2, {
+            dropOptions:{
+                rank:10
+            }
+        });
+
+        _jsPlumb.makeSource(d3);
+
+        var sourceEvent = support.makeEvent(d3);
+        var d2TargetEvent = support.makeEvent(d2);
+
+        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+
+
+        ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
+        ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
+
+        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+        equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
+
+    });
+
+    test("drop precedence, set negative rank on element to downgrade", function() {
+        var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = _addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _addGroup(_jsPlumb, "g1", d1, [d2]);
+
+        _jsPlumb.makeTarget(d1, {
+            dropOptions:{
+                rank:-10
+            }
+        });
+
+        _jsPlumb.makeTarget(d2);
+
+        _jsPlumb.makeSource(d3);
+
+        var sourceEvent = support.makeEvent(d3);
+        var d2TargetEvent = support.makeEvent(d2);
+
+        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+
+
+        ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
+        ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
+
+        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+        equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
+
+    });
+
+    test("drop precedence, equal ranks, order of droppable is used, group first", function() {
+        var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = _addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _addGroup(_jsPlumb, "g1", d1, [d2]);
+
+        _jsPlumb.makeTarget(d1);
+        _jsPlumb.makeTarget(d2);
+
+        _jsPlumb.makeSource(d3);
+
+        var sourceEvent = support.makeEvent(d3);
+        var d2TargetEvent = support.makeEvent(d2);
+
+        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+
+
+        ok(d1.classList.contains("jtk-drag-hover"), "d1 has hover class");
+        ok(!d2.classList.contains("jtk-drag-hover"), "d2 does not have hover class; only d1 has, and it was first.");
+
+        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+        equal(d1, _jsPlumb.select().get(0).target, "connection target is d1");
+
+    });
+
+    test("drop precedence, equal ranks, order of droppable is used, group last", function() {
+        var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = _addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _addGroup(_jsPlumb, "g1", d1, [d2]);
+
+        _jsPlumb.makeTarget(d2);
+        _jsPlumb.makeTarget(d1);
+
+        _jsPlumb.makeSource(d3);
+
+        var sourceEvent = support.makeEvent(d3);
+        var d2TargetEvent = support.makeEvent(d2);
+
+        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+
+
+        ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
+        ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
+
+        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+        equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
+
     });
 
 };
