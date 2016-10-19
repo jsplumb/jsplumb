@@ -12,7 +12,7 @@ Groups.
 
 - Overhaul of keys used in paintStyle and hoverPaintStyle objects:
 
-  strokeStyle   -> style
+  strokeStyle   -> stroke
   fillStyle     -> fill
   lineWidth     -> strokeWidth
   outlineColor  -> outlineStroke
