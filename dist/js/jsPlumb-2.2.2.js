@@ -1795,6 +1795,7 @@
                 if (intersectingDroppables.length > 0 && ghostProxyOffsets) {
                     params.setPosition(this.el, ghostProxyOffsets);
                 }
+                intersectingDroppables.sort(_rankSort);
                 for (var i = 0; i < intersectingDroppables.length; i++) {
                     var retVal = intersectingDroppables[i].drop(this, e);
                     if (retVal === true) break;
@@ -1877,6 +1878,7 @@
     var Drop = function(el, params, css, scope) {
         this._class = css.droppable;
         this.params = params || {};
+        this.rank = params.rank || 0;
         this._activeClass = this.params.activeClass || css.active;
         this._hoverClass = this.params.hoverClass || css.hover;
         Super.apply(this, arguments);
@@ -1932,6 +1934,10 @@
         }));
     };
 
+    var _rankSort = function(a,b) {
+        return a.rank < b.rank ? 1 : a.rank > b.rank ? -1 : 0;
+    };
+
     var _gel = function(el) {
         if (el == null) return null;
         el = (typeof el === "string" || el.constructor == String)  ? document.getElementById(el) : el;
@@ -1985,6 +1991,7 @@
                         }
                     }
                 }
+                dd.sort(_rankSort);
                 return dd;
             },
             _prepareParams = function(p) {
@@ -2408,7 +2415,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -2880,7 +2887,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -2949,7 +2956,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -6091,7 +6098,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -6626,7 +6633,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -6895,7 +6902,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -8159,7 +8166,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -8707,7 +8714,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -9866,7 +9873,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -11374,7 +11381,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -12208,7 +12215,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -12887,7 +12894,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -12925,7 +12932,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -13516,7 +13523,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 

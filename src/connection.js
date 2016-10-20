@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.1
+ * Title:jsPlumb 2.2.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
