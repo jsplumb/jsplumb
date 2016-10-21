@@ -1,3 +1,7 @@
+## 2.2.3
+
+- add support for connectionType to makeTarget call (to allow multiple types of target)
+
 ## 2.2.2
 
 - corrected deployment issue in 2.2.1. 2.2.1 does not do what it says; it is an impostor.

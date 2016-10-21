@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.2
+ * Title:jsPlumb 2.2.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -2254,7 +2254,7 @@
                     var elInfo = _info(el),
                         elid = elInfo.id,
                         dropOptions = root.jsPlumb.extend({}, p.dropOptions || {}),
-                        type = "default";
+                        type = p.connectionType || "default";
 
                     this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
 
