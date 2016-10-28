@@ -30,6 +30,14 @@ you're just asking a question.
 
 No external dependencies.
 
+## Bower?
+
+See [https://github.com/jsplumb/bower-jsplumb](https://github.com/jsplumb/bower-jsplumb)
+
+## NPM ?
+
+See [https://github.com/jsplumb/bower-jsplumb](https://github.com/jsplumb/bower-jsplumb)
+
 ## jsPlumb in action
 
 Links to various demonstrations can be found [here](https://jsplumbtoolkit.com).
