@@ -344,7 +344,6 @@ module.exports = function(grunt) {
             // now update version number in all demos and src files etc
             _replace("src", "*.js", oldV, newV);
             _replace("demo", "**/*.html", oldV, newV);
-            _replace(".", "bower.json", oldV, newV);
             _replace(".", "package.json", oldV, newV);
             _replace(".", "README.md", oldV, newV);
             _replace("jekyll", "**/*.*", oldV, newV);
