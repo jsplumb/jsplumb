@@ -1,3 +1,11 @@
+## 2.2.5
+
+- upgrade to mottle 0.7.4 
+
+## 2.2.4
+
+- no code change from 2.2.3. built to provide initial build in the bower-jsplumb repo.
+
 ## 2.2.3
 
 - add support for connectionType to makeTarget call (to allow multiple types of target)
