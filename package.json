@@ -1,8 +1,8 @@
 {
   "name": "jsplumb",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "description": "Visual connectivity for webapps",
-  "main": "dist/js/jsPlumb-2.2.5.js",
+  "main": "dist/js/jsPlumb-2.2.6.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -23,7 +23,7 @@
   "includes":{
       "JS_BEZIER" : { "f":"jsBezier", "v":"0.8" },
       "BILTONG" : { "f":"biltong", "v":"0.3" },
-      "MOTTLE" : {"f":"mottle", "v":"0.7.3" },
+      "MOTTLE" : {"f":"mottle", "v":"0.7.4" },
       "KATAVORIO" : {"f":"katavorio", "v":"0.18.0" }
   },
   "coreLibs": [ "JS_BEZIER", "BILTONG" ],

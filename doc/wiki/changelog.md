@@ -1,3 +1,10 @@
+## 2.2.6
+
+05 November 2016
+
+- fix deployment issue in 2.2.6
+
+
 ## 2.2.5
 
 - upgrade to mottle 0.7.4 
