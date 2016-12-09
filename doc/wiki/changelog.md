@@ -1,3 +1,9 @@
+## 2.2.7
+
+10 December 2016
+
+- fixed an issue with setting a blank label on a Label overlay.
+
 ## 2.2.6
 
 05 November 2016

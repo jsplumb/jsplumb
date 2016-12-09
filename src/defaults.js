@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.6
+ * Title:jsPlumb 2.2.7
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -1498,7 +1498,9 @@
             }
         },
         updateFrom:function(d) {
-            if(d.label) this.setLabel(d.label);
+            if(d.label != null){
+                this.setLabel(d.label);
+            }
         }
     });
 
