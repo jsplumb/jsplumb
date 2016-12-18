@@ -456,6 +456,15 @@
         this.add = function(_el, doNotFireEvent) {
             var dragArea = getDragArea();
             _each(_el, function(__el) {
+
+                if (__el._jsPlumbGroup != null) {
+                    if (__el._jsPlumbGroup === self) {
+                        return;
+                    } else {
+                        __el._jsPlumbGroup.remove(__el, true, doNotFireEvent, false);
+                    }
+                }
+
                 __el._jsPlumbGroup = self;
                 elements.push(__el);
                 // test if draggable and add handlers if so.
