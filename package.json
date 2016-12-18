@@ -1,8 +1,8 @@
 {
   "name": "jsplumb",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "description": "Visual connectivity for webapps",
-  "main": "dist/js/jsPlumb-2.2.7.js",
+  "main": "dist/js/jsPlumb-2.2.8.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
