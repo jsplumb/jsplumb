@@ -24,6 +24,14 @@ var _head = function(obj) {
         return obj[i];
 };
 
+var countKeys = function(obj) {
+    var i = 0;
+    for (var k in obj) {
+        if (obj.hasOwnProperty(k)) i++;
+    }
+    return i;
+};
+
 var assertEndpointCount = function (elId, count, _jsPlumb) {
     var ep = _jsPlumb.getEndpoints(elId),
         epl = ep ? ep.length : 0;
@@ -8729,8 +8737,13 @@ test("endpoint: suspendedElement set correctly", function() {
 
 // ------------------------------------------- groups ---------------------------------------------------------------
 
+    var _addGroupAndDomElement = function(j, name, params) {
+        var c = _addDiv(name, null, "container")
+        return _addGroup(j, name, c, []);
+    };
+
     var _addGroup = function(j, name, container, members, params) {
-        j.addGroup(jsPlumb.extend({
+         var g = j.addGroup(jsPlumb.extend({
             el:container,
             id:name,
             anchor:"Continuous",
@@ -8740,6 +8753,8 @@ test("endpoint: suspendedElement set correctly", function() {
         for (var i = 0; i < members.length; i++) {
             j.addToGroup(name, members[i]);
         }
+
+        return g;
     };
 
     var _dragToGroup = function(_jsPlumb, el, targetGroup) {
@@ -8751,7 +8766,7 @@ test("endpoint: suspendedElement set correctly", function() {
 
         support.dragNodeTo(el, tx, ty);
     };
-    var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2;
+    var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2, c_noparent;
 
     var _setupGroups = function(doNotMakeConnections) {
         c1 = _addDiv("container1", null, "container", 0, 50);
@@ -8773,6 +8788,8 @@ test("endpoint: suspendedElement set correctly", function() {
         c2_2 = _addDiv("c2_2", c2, "w", 180, 130);
         c6_1 = _addDiv("c6_1", c6, "w", 30, 30);
         c6_2 = _addDiv("c6_2", c6, "w", 180, 130);
+
+        c_noparent = _addDiv("c_noparent", null, "w", 1000, 1000);
 
         _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
 
@@ -8869,19 +8886,113 @@ test("endpoint: suspendedElement set correctly", function() {
 
     });
 
+    test("simple adding to group", function() {
+        var g = _addGroupAndDomElement(_jsPlumb, "g1");
+        var d1 = _addDiv("d1");
+
+        equal(g.getMembers().length, 0, "0 members in group");
+
+        _jsPlumb.addToGroup(g, d1);
+        equal(g.getMembers().length, 1, "1 member in group");
+
+        var els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
+        equal(countKeys(els), 1, "1 element for group g1 to repaint");
+
+        // add again; should ignore.
+        _jsPlumb.addToGroup(g, d1);
+        equal(g.getMembers().length, 1, "1 member in group");
+
+        var g2 = _addGroupAndDomElement(_jsPlumb, "g2");
+        _jsPlumb.addToGroup(g2, d1);
+        equal(g.getMembers().length, 0, "0 members in group g1 after node removal");
+        equal(g2.getMembers().length, 1, "1 member in group g2 after node addition");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
+        equal(countKeys(els), 0, "0 elements for group g1 to repaint");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
+        equal(countKeys(els), 1, "1 element for group g2 to repaint");
+
+    });
+
     test("groups, dragging between groups, take one", function() {
         _setupGroups();
+        var els;
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
+        equal(countKeys(els), 2, "2 elements for group 3 to repaint");
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
+        equal(countKeys(els), 2, "2 elements for group 4 to repaint");
 
         // drag 4_1 to group 3
         _dragToGroup(_jsPlumb, c4_1, "three");
-        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four");
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four after moving a node out");
         equal(_jsPlumb.getGroup("three").getMembers().length, 3, "3 members in group three");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
+        equal(countKeys(els), 3, "3 elements for group 3 to repaint");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
+        equal(countKeys(els), 1, "1 element for group 4 to repaint");
 
         // drag 4_2 to group 5 (which is not droppable)
         equal(_jsPlumb.getGroup("five").getMembers().length, 2, "2 members in group five before drop attempt");
         _dragToGroup(_jsPlumb, c4_2, "five");
         equal(_jsPlumb.getGroup("four").getMembers().length, 0, "move to group 5 fails, not droppable: 0 members in group four because it prunes");
         equal(_jsPlumb.getGroup("five").getMembers().length, 2, "but still only 2 members in group five");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
+        equal(countKeys(els), 0, "0 elements for group 4 to repaint");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
+        equal(countKeys(els), 3, "3 elements for group 3 to repaint");
+
+    });
+
+    test("groups, moving between groups, take one", function() {
+        _setupGroups();
+        var els;
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
+        equal(countKeys(els), 2, "2 elements for group 3 to repaint");
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
+        equal(countKeys(els), 2, "2 elements for group 4 to repaint");
+
+        var addEvt = false, removeEvt = false;
+        _jsPlumb.bind("group:addMember", function() {
+            addEvt = true;
+        });
+        _jsPlumb.bind("group:removeMember", function() {
+            removeEvt = true;
+        });
+        // move 4_1 to group 3
+        _jsPlumb.addToGroup(_jsPlumb.getGroup("three"), c4_1);
+        equal(_jsPlumb.getGroup("four").getMembers().length, 1, "1 member in group four");
+        equal(_jsPlumb.getGroup("three").getMembers().length, 3, "3 members in group three");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
+        equal(countKeys(els), 3, "3 elements for group 3 to repaint");
+
+        els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
+        equal(countKeys(els), 1, "1 element for group 4 to repaint");
+
+
+        ok(addEvt, "add event was fired");
+        ok(removeEvt, "remove event was fired");
+
+        // add again: it is already a member and should not be re-added
+        addEvt = false;
+        removeEvt = false;
+        _jsPlumb.addToGroup(_jsPlumb.getGroup("three"), c4_1);
+        equal(_jsPlumb.getGroup("three").getMembers().length, 3, "3 members in group three");
+        ok(!addEvt, "add event was NOT fired");
+        ok(!removeEvt, "remove event was NOT fired");
+
+        // momve 4_2 to group 5 (which is not droppable)
+//        equal(_jsPlumb.getGroup("five").getMembers().length, 2, "2 members in group five before drop attempt");
+//        _jsPlumb.addToGroup(_jsPlumb.getGroup("five"), c4_2);
+//        equal(_jsPlumb.getGroup("four").getMembers().length, 0, "move to group 5 fails, not droppable: 0 members in group four because it prunes");
+//        equal(_jsPlumb.getGroup("five").getMembers().length, 2, "but still only 2 members in group five");
 
     });
 
