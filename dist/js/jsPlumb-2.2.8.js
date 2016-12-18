@@ -2415,7 +2415,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -2887,7 +2887,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -2956,7 +2956,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -6098,7 +6098,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -6633,7 +6633,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -6902,7 +6902,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -8166,7 +8166,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -8714,7 +8714,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -9873,7 +9873,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -11383,7 +11383,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -11519,7 +11519,66 @@
         this.addToGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
-                group.add(el, doNotFireEvent);
+                //group.add(el, doNotFireEvent);
+                var groupEl = group.getEl();
+
+                if (el._isJsPlumbGroup) return;
+                var currentGroup = el._jsPlumbGroup;
+                // if already a member of this group, do nothing
+                if (currentGroup !== group) {
+                    var elpos = _jsPlumb.getOffset(el, true);
+                    var cpos = group.collapsed ? _jsPlumb.getOffset(groupEl, true) : _jsPlumb.getOffset(group.getDragArea(), true);
+
+                    // otherwise, transfer to this group.
+                    if (currentGroup != null) {
+//                        if (isDropAction && currentGroup.overrideDrop(el, self)) {
+//                            return;
+//                        }
+                        currentGroup.remove(el, doNotFireEvent);
+                        self.updateConnectionsForGroup(currentGroup);
+                    }
+                    group.add(el, doNotFireEvent);
+
+                    var handleDroppedConnections = function(list, index) {
+                        var oidx = index == 0 ? 1 : 0;
+                        list.each(function(c) {
+                            c.setVisible(false);
+                            if (c.endpoints[oidx].element._jsPlumbGroup === group) {
+                                c.endpoints[oidx].setVisible(false);
+                                self.expandConnection(c, oidx, group);
+                            }
+                            else {
+                                c.endpoints[index].setVisible(false);
+                                self.collapseConnection(c, index, group);
+                            }
+                        });
+                    };
+
+                    if (group.collapsed) {
+                        handleDroppedConnections(_jsPlumb.select({source: el}), 0);
+                        handleDroppedConnections(_jsPlumb.select({target: el}), 1);
+                    }
+
+                    var elId = _jsPlumb.getId(el);
+                    _jsPlumb.dragManager.setParent(el, elId, groupEl, _jsPlumb.getId(groupEl), elpos);
+
+                    var newPosition = { left:elpos.left - cpos.left, top:elpos.top - cpos.top };
+
+                    _jsPlumb.setPosition(el, newPosition);
+
+                    _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
+
+                    self.updateConnectionsForGroup(group);
+
+                    setTimeout(function() {
+                        _jsPlumb.fire(EVT_CHILD_ADDED, {group: group, el: el});
+                    }, 0);
+                }
+
+
+
+
+
             }
         };
 
@@ -11821,10 +11880,22 @@
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
-                    var groupManager = _jsPlumb.getGroupManager();
-                    var _el = p.drag.el;
-                    if (_el._isJsPlumbGroup) return;
-                    var currentGroup = _el._jsPlumbGroup;
+                    var el = p.drag.el;
+                    if (el._isJsPlumbGroup) return;
+                    var currentGroup = el._jsPlumbGroup;
+                    if (currentGroup !== self) {
+                        if (currentGroup != null) {
+                            if (currentGroup.overrideDrop(el, self)) {
+                                return;
+                            }
+                        }
+                        _jsPlumb.getGroupManager().addToGroup(self, el, false);
+                    }
+
+
+                    /*
+
+
                     // if already a member of this group, do nothing
                     if (currentGroup !== self) {
                         var elpos = _jsPlumb.getOffset(_el, true);
@@ -11870,7 +11941,7 @@
                         setTimeout(function() {
                             _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: _el});
                         }, 0);
-                    }
+                    }*/
                 }
             });
         }
@@ -11888,6 +11959,15 @@
         this.add = function(_el, doNotFireEvent) {
             var dragArea = getDragArea();
             _each(_el, function(__el) {
+
+                if (__el._jsPlumbGroup != null) {
+                    if (__el._jsPlumbGroup === self) {
+                        return;
+                    } else {
+                        __el._jsPlumbGroup.remove(__el, true, doNotFireEvent, false);
+                    }
+                }
+
                 __el._jsPlumbGroup = self;
                 elements.push(__el);
                 // test if draggable and add handlers if so.
@@ -12217,7 +12297,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -12896,7 +12976,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -12934,7 +13014,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -13525,7 +13605,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.7
+ * Title:jsPlumb 2.2.8
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 

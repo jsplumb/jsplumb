@@ -6,7 +6,7 @@
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
 		<link rel="shortcut icon" type="image/png" href="../../img/favicon.png">
-        <title>jsPlumb 2.2.7 demo - groups</title>
+        <title>jsPlumb 2.2.8 demo - groups</title>
 		
 
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
@@ -69,8 +69,12 @@
                 </ul>
                 <div class="del" delete-all></div>
                 <div class="node-collapse"></div>
-                <div id="c1_1" class="w" style="left:30px;top:35px">1.1</div>
-                <div id="c1_2" class="w" style="left:160px;top:140px">1.2</div>
+                <div id="c1_1" class="w" style="left:30px;top:35px">1.1
+                    <div class="connect"></div>
+                </div>
+                <div id="c1_2" class="w" style="left:160px;top:140px">1.2
+                    <div class="connect"></div>
+                </div>
             </div>
 
             <div class="group-container" id="container2" group="two">
@@ -82,8 +86,12 @@
                 </ul>
                 <div class="del"></div>
                 <div class="node-collapse"></div>
-                <div id="c2_1" class="w" style="left:30px;top:40px">2.1</div>
-                <div id="c2_2" class="w" style="left:150px;top:160px">2.2</div>
+                <div id="c2_1" class="w" style="left:30px;top:40px">2.1
+                    <div class="connect"></div>
+                </div>
+                <div id="c2_2" class="w" style="left:150px;top:160px">2.2
+                    <div class="connect"></div>
+                </div>
             </div>
 
             <div class="group-container" id="container3" group="three">
@@ -151,14 +159,14 @@
                 <div id="c7_2" class="w" style="left:90px;top:150px">7.2</div>
             </div>
 
-            <div class="w" id="standalone" style="left:455px;top:280px" title="drag me into a group. if you want to.">?</div>
+            <div class="w" id="standalone" style="left:455px;top:380px" title="drag me into a group. if you want to.">?</div>
 
             <div class="events"><h3>Events</h3><div id="events"></div></div>
         </div>
         <!-- /demo -->
         </div>
 		
-		<script src="../../js/jsPlumb-2.2.7-min.js"></script>
+		<script src="../../js/jsPlumb-2.2.8-min.js"></script>
 		
 		<script src="demo.js"></script>
 		<script src="../../js/demo-list.js"></script>
