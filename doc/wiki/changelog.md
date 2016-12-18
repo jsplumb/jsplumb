@@ -1,3 +1,8 @@
+## 2.2.8
+
+- disallow addition of some node to a group in which it is already a member
+- remove node from its current group (if there is one) upon addition to new group.
+
 ## 2.2.7
 
 10 December 2016
