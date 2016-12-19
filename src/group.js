@@ -667,6 +667,8 @@
      * @param {Element} el Element to add to the group.
      */
     _jpi.prototype.addToGroup = function(group, el, doNotFireEvent) {
+        var id = this.getId(el);
+        this.manage(id, el);
         this.getGroupManager().addToGroup(group, el, doNotFireEvent);
     };
 
