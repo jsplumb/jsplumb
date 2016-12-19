@@ -42,40 +42,30 @@ jsPlumb.ready(function () {
 
     // NOTE ordering here. we make one draggable before adding it to the group, and we add the other to the group
     //before making it draggable. they should both be constrained to the group extents.
-    j.draggable(c1_1, { filter:".connect"});
-    j.makeSource(c1_1, { filter:".connect"});
+    j.draggable(c1_1);
     j.addGroup({
         el:container1,
         id:"one",
         constrain:true,
         anchor:"Continuous",
         endpoint:"Blank",
-        droppable:false,
-        dragOptions:{
-            filter:".connect"
-        }
+        droppable:false
     });
     j.addToGroup("one", c1_1);
     j.addToGroup("one", c1_2);
-    j.draggable(c1_2, { filter:".connect"});
-    j.makeSource(c1_2, { filter:".connect"});
+    j.draggable(c1_2);
 
 
-    j.draggable(c2_1, { filter:".connect"});
-    j.makeSource(c2_1, { filter:".connect"});
+    j.draggable(c2_1);
     j.addGroup({
         el:container2,
         id:"two",
         dropOverride:true,
-        endpoint:["Dot", { radius:3 }],
-        dragOptions:{
-            filter:".connect"
-        }
+        endpoint:["Dot", { radius:3 }]
     });  //(the default is to revert)
     j.addToGroup("two", c2_1);
     j.addToGroup("two", c2_2);
-    j.draggable(c2_2, { filter:".connect"});
-    j.makeSource(c2_2, { filter:".connect"});
+    j.draggable(c2_2);
 
     j.draggable(c3_1);
     j.addGroup({

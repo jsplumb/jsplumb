@@ -11531,17 +11531,14 @@
 
                     // otherwise, transfer to this group.
                     if (currentGroup != null) {
-//                        if (isDropAction && currentGroup.overrideDrop(el, self)) {
-//                            return;
-//                        }
                         currentGroup.remove(el, doNotFireEvent);
                         self.updateConnectionsForGroup(currentGroup);
                     }
                     group.add(el, doNotFireEvent);
 
-                    var handleDroppedConnections = function(list, index) {
+                    var handleDroppedConnections = function (list, index) {
                         var oidx = index == 0 ? 1 : 0;
-                        list.each(function(c) {
+                        list.each(function (c) {
                             c.setVisible(false);
                             if (c.endpoints[oidx].element._jsPlumbGroup === group) {
                                 c.endpoints[oidx].setVisible(false);
@@ -11562,7 +11559,7 @@
                     var elId = _jsPlumb.getId(el);
                     _jsPlumb.dragManager.setParent(el, elId, groupEl, _jsPlumb.getId(groupEl), elpos);
 
-                    var newPosition = { left:elpos.left - cpos.left, top:elpos.top - cpos.top };
+                    var newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top };
 
                     _jsPlumb.setPosition(el, newPosition);
 
@@ -11570,15 +11567,10 @@
 
                     self.updateConnectionsForGroup(group);
 
-                    setTimeout(function() {
+                    setTimeout(function () {
                         _jsPlumb.fire(EVT_CHILD_ADDED, {group: group, el: el});
                     }, 0);
                 }
-
-
-
-
-
             }
         };
 
@@ -11892,56 +11884,6 @@
                         _jsPlumb.getGroupManager().addToGroup(self, el, false);
                     }
 
-
-                    /*
-
-
-                    // if already a member of this group, do nothing
-                    if (currentGroup !== self) {
-                        var elpos = _jsPlumb.getOffset(_el, true);
-                        var cpos = self.collapsed ? _jsPlumb.getOffset(el, true) : _jsPlumb.getOffset(getDragArea(), true);
-
-                        // otherwise, transfer to this group.
-                        if (currentGroup != null) {
-                            if (currentGroup.overrideDrop(_el, self)) {
-                                return;
-                            }
-                            currentGroup.remove(_el, true);
-                            groupManager.updateConnectionsForGroup(currentGroup);
-                        }
-                        self.add(_el, true);
-
-                        var handleDroppedConnections = function(list, index) {
-                            var oidx = index == 0 ? 1 : 0;
-                            list.each(function(c) {
-                                c.setVisible(false);
-                                if (c.endpoints[oidx].element._jsPlumbGroup === self) {
-                                    c.endpoints[oidx].setVisible(false);
-                                    groupManager.expandConnection(c, oidx, self);
-                                }
-                                else {
-                                    c.endpoints[index].setVisible(false);
-                                    groupManager.collapseConnection(c, index, self);
-                                }
-                            });
-                        };
-
-                        if (self.collapsed) {
-                            handleDroppedConnections(_jsPlumb.select({source: _el}), 0);
-                            handleDroppedConnections(_jsPlumb.select({target: _el}), 1);
-                        }
-
-                        var elId = _jsPlumb.getId(_el);
-                        _jsPlumb.dragManager.setParent(_el, elId, el, _jsPlumb.getId(el), elpos);
-                        _jsPlumb.setPosition(_el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
-                        _jsPlumb.dragManager.revalidateParent(_el, elId, elpos);
-
-                        groupManager.updateConnectionsForGroup(self);
-
-                        setTimeout(function() {
-                            _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: _el});
-                        }, 0);
-                    }*/
                 }
             });
         }
@@ -12157,6 +12099,8 @@
      * @param {Element} el Element to add to the group.
      */
     _jpi.prototype.addToGroup = function(group, el, doNotFireEvent) {
+        var id = this.getId(el);
+        this.manage(id, el);
         this.getGroupManager().addToGroup(group, el, doNotFireEvent);
     };
 

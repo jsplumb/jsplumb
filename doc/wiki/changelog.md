@@ -2,6 +2,8 @@
 
 - disallow addition of some node to a group in which it is already a member
 - remove node from its current group (if there is one) upon addition to new group.
+- fix for drag manager not being called to re-register a node if it was added to a new group
+programmatically and not via drag/drop
 
 ## 2.2.7
 
