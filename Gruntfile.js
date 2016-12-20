@@ -9,9 +9,10 @@ var package = require('./package.json'),
     optionList = function(grunt, type) {
         return grunt.option(type) && grunt.option(type).split(",") || [];
     },
-    getOutputFilename = function(grunt, suffix) {
+    getOutputFilename = function(grunt, suffix, version) {
+        version = version || "";
         var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
-        return 'dist/js/jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js';
+        return 'dist/js/jsPlumb' + suffix2 + version + suffix + '.js';
     },
     filter = function(l, v, t, o) {
         if (l.length === 0 || l.indexOf(v) != -1)
@@ -62,6 +63,10 @@ module.exports = function(grunt) {
         suffix = suffix || "";
         return {
             "dom":{
+                src:getSources(grunt),
+                dest:getOutputFilename(grunt, suffix, '-<%= pkg.version%>')
+            },
+            "noversion":{
                 src:getSources(grunt),
                 dest:getOutputFilename(grunt, suffix)
             }
