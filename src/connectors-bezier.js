@@ -1,9 +1,15 @@
 /*
+ * jsPlumb
+ *
+ * Title:jsPlumb 2.2.9
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG.
+ *
  * This file contains the code for the Bezier connector type.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
- * 
- * https://jsplumbtoolkit.com
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.

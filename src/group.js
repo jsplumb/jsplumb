@@ -1,3 +1,19 @@
+/*
+ * jsPlumb
+ *
+ * Title:jsPlumb 2.2.9
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG.
+ *
+ * This file contains the code for working with Groups.
+ *
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
     "use strict";
 
