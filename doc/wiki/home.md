@@ -27,7 +27,7 @@ It is a good idea to read this entire page.  There are a few things you need to 
 
 <a name="browser"></a>
 ### Browser Compatibility
-jsPlumb runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
+jsPlumb 2.x runs on everything from IE9 up.  There are some caveats, though, because of various browser/library bugs:
                 
   - jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.
   - jQuery 2.0 does not support IE 6,7 or 8.
@@ -54,7 +54,7 @@ This gives you Standards mode in all browsers and access to HTML5.
 No required imports. 
 
 ```html
-<script src="PATH_TO/jsPlumb-x.x.x-min.js "></script>
+<script src="PATH_TO/jsplumb.min.js "></script>
 ```
 
 <a name="initializing"></a>
