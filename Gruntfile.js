@@ -311,11 +311,18 @@ module.exports = function(grunt) {
         grunt.file.write("jekyll/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home.html'/></head></html>");
     });
 
+    grunt.registerTask('insertVersion', function() {
+        var src = grunt.file.read("dist/js/jsplumb.js");
+        grunt.file.write("dist/js/jsplumb.js", src.replace("<% pkg.version %>", package.version));
+        src = grunt.file.read("dist/js/jsplumb.min.js");
+        grunt.file.write("dist/js/jsplumb.min.js", src.replace("<% pkg.version %>", package.version));
+    });
+
     grunt.registerTask('createTests', _createTests);
     grunt.registerTask('createDemos', _createDemos);
     grunt.registerTask('prepare', _prepareSite);
     grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'copy:external', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage', 'clean:site' ]);
-    grunt.registerTask('build-src', ['clean', 'jshint', 'prepare', 'concat',  'uglify' ]);
+    grunt.registerTask('build-src', ['clean', 'jshint', 'prepare', 'concat', 'uglify', 'insertVersion' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 

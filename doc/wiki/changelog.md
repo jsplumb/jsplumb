@@ -1,3 +1,10 @@
+## 2.2.10
+
+13 January 2017
+
+- addition of `version` member to built JS. current version is now accessible via `jsPlumb.version` (or `.version` on 
+an instance).
+
 ## 2.2.9
 
 13 January 2017
