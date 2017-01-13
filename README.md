@@ -4,12 +4,13 @@ from IE9 and later.
 
 The final version of jsPlumb to support IE8 was 1.7.10. You can still get 1.7.10 from a tag, if you need it. 
 
-If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc). 
+If you're new to jsPlumb, please do take the time to read the [documentation](https://jsplumbtoolkit.com/docs.html). 
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 This project is the 'Community Edition' of jsPlumb. The 'Toolkit Edition' is a commercially-licensed wrapper around this. 
 
 **This project is not the correct place to report issues for the Toolkit edition**. The Toolkit is not a public project.
+Issues reported for the Toolkit edition in this issue tracker will be cleared.
 
 ## Project Structure
 At any time there is a built version in the `dist` directory, which contains the concatenated and minified files, as well 

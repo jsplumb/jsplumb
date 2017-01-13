@@ -4,8 +4,7 @@ jsPlumb Community edition provides a means for a developer to visually connect e
 
 jsPlumb has no external dependencies.
 
-The 1.7.x line of releases will be the last ones to support IE8. We are trickling the occasional bugfix and feature into
-1.7.x but the next major event in the Community edition will be release 2.0.0, which will work only in modern browsers
+The 1.7.x line of releases were the last ones to support IE8. From version 2.0.0, the Community edition works only in modern browsers
 that support SVG. 
 
 ## Imports and Setup
@@ -27,7 +26,8 @@ It is a good idea to read this entire page.  There are a few things you need to 
 
 <a name="browser"></a>
 ### Browser Compatibility
-jsPlumb 2.x runs on everything from IE9 up.  There are some caveats, though, because of various browser/library bugs:
+jsPlumb 1.7.x runs on everything from IE6 up. jsPlumb 2.x runs on everything from IE9 up.  There are some 
+caveats, though, because of various browser/library bugs:
                 
   - jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.
   - jQuery 2.0 does not support IE 6,7 or 8.

@@ -1,6 +1,9 @@
-## 2.3.0
+## 2.2.9
 
+13 January 2017
 
+- limit files that are published to npm to just js, minified js and css
+- remove version number from built filename
 
 ## 2.2.8
 
