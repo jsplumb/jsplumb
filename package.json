@@ -1,18 +1,23 @@
 {
   "name": "jsplumb",
-  "version": "2.2.8",
+  "version": "2.2.9",
   "description": "Visual connectivity for webapps",
-  "main": "dist/js/jsPlumb-2.2.8.js",
+  "main": "dist/js/jsplumb.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
+    "files":[
+        "dist/js/jsplumb.js",
+        "dist/js/jsplumb.min.js",
+        "dist/css/jsPlumbToolkit-defaults.css"
+    ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/sporritt/jsPlumb.git"
+    "url": "git://github.com/jsplumb/jsPlumb.git"
   },
   "keywords": [
     "javascript",
@@ -81,7 +86,7 @@
         "Demonstrates the various options for defining and working with Groups"
     ]
   ],
-  "author": "Simon Porritt",
+  "author": "jsPlumb",
   "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
     "grunt": "~0.4.1",
