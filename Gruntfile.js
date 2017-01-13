@@ -10,8 +10,8 @@ var package = require('./package.json'),
         return grunt.option(type) && grunt.option(type).split(",") || [];
     },
     getOutputFilename = function(grunt, suffix) {
-        var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
-        return 'dist/js/jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js';
+        var suffix2 = grunt.option('outputSuffix') ? ('.' + grunt.option("outputSuffix")) : '';
+        return 'dist/js/jsplumb' + suffix2 + suffix + '.js';
     },
     filter = function(l, v, t, o) {
         if (l.length === 0 || l.indexOf(v) != -1)
@@ -72,7 +72,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         concat: fileLists(),
-        uglify: fileLists("-min"),
+        uglify: fileLists(".min"),
         qunit: {
             all: {
                 options: {
