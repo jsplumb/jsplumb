@@ -37,8 +37,7 @@
       "p": "node_modules/mottle/js/mottle.js"
     },
     "KATAVORIO": {
-      "f": "katavorio",
-      "v": "0.18.0"
+      "p":"node_modules/katavorio/src/katavorio.js"
     }
   },
   "coreLibs": [
@@ -121,6 +120,7 @@
     "grunt-contrib-yuidoc": "0.5.2",
     "grunt-jekyll": "~0.4.1",
     "grunt-qunit-junit": "^0.3.1",
+    "katavorio": "^0.19.0",
     "mottle": "^0.8.0"
   }
 }

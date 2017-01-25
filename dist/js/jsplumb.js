@@ -2421,6 +2421,13 @@
                 });
             }
         };
+
+
+        root.Katavorio.version = "0.19.0";
+
+        if (typeof exports !== "undefined") {
+            exports.Katavorio = root.Katavorio;
+        }
     };
 }).call(typeof window !== 'undefined' ? window : this);
 
