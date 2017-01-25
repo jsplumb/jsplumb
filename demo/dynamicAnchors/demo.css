@@ -7,7 +7,9 @@
 .dynamic-demo .window {
     width: 5em;
     height: 5em;
-    line-height: 5em;
+    display:flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.5em;
 }
 
