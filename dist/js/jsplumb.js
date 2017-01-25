@@ -1,7 +1,7 @@
 /**
- * jsBezier-0.8
+ * jsBezier
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * licensed under the MIT license.
  *
@@ -419,7 +419,8 @@
         pointAlongCurveFrom : _pointAlongPathFrom,
         perpendicularToCurveAt : _perpendicularToPathAt,
         locationAlongCurveFrom:_locationAlongPathFrom,
-        getLength:_length
+        getLength:_length,
+        version:"0.9.0"
     };
 }).call(typeof window !== 'undefined' ? window : this);
 
