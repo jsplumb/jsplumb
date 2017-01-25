@@ -1,6 +1,13 @@
 
 var package = require('./package.json'),
-    get = function(name) { return "lib/" + package.includes[name].f + "-" + package.includes[name].v + ".js"; },
+    get = function(name) {
+        if (package.includes[name].p) {
+            // the new way, with libs from npm
+            return package.includes[name].p;
+        } else {
+            return "lib/" + package.includes[name].f + "-" + package.includes[name].v + ".js";
+        }
+    },
     objects = {
         common:[
             'util.js', 'browser-util.js', 'jsPlumb.js', 'dom-adapter.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js', 'group.js'

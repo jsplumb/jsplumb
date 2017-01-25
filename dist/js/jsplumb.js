@@ -424,11 +424,11 @@
 }).call(typeof window !== 'undefined' ? window : this);
 
 /**
- * Biltong v0.3
+ * Biltong v0.4.0
  *
  * Various geometry functions written as part of jsPlumb and perhaps useful for others.
  *
- * Copyright (c) 2016 jsPlumb
+ * Copyright (c) 2017 jsPlumb
  * https://jsplumbtoolkit.com
  *
  * Permission is hereby granted, free of charge, to any person
@@ -457,7 +457,13 @@
     "use strict";
     var root = this;
 
-    var Biltong = root.Biltong = {};
+    var Biltong = root.Biltong = {
+        version:"0.4.0"
+    };
+
+    if (typeof exports !== "undefined") {
+        exports.Biltong = Biltong;
+    }
 
     var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
         _pointHelper = function(p1, p2, fn) {
@@ -1239,6 +1245,12 @@
     root.Mottle.setForceMouseEvents = function (value) {
         isMouseDevice = value;
     };
+
+    root.Mottle.version = "0.8.0";
+
+    if (typeof exports !== "undefined") {
+        exports.Mottle = root.Mottle;
+    }
 
 }).call(typeof window === "undefined" ? this : window);
 
@@ -2415,7 +2427,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -2887,7 +2899,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -2956,7 +2968,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -3415,7 +3427,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.2.10";
+        this.version = "2.2.11";
 
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
@@ -6100,7 +6112,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -6635,7 +6647,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -6904,7 +6916,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -8168,7 +8180,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -8716,7 +8728,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -9875,7 +9887,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -11385,7 +11397,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -11435,7 +11447,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -12259,7 +12271,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -12631,7 +12643,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -12787,7 +12799,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -12950,7 +12962,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -12988,7 +13000,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -13579,7 +13591,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.2.10
+ * Title:jsPlumb 2.2.11
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 

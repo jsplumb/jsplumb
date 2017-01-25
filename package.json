@@ -1,17 +1,17 @@
 {
   "name": "jsplumb",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
-    "files":[
-        "dist/js/jsplumb.js",
-        "dist/js/jsplumb.min.js",
-        "dist/css/jsPlumbToolkit-defaults.css"
-    ],
+  "files": [
+    "dist/js/jsplumb.js",
+    "dist/js/jsplumb.min.js",
+    "dist/css/jsPlumbToolkit-defaults.css"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,18 +25,37 @@
     "visual",
     "connectivity"
   ],
-  "includes":{
-      "JS_BEZIER" : { "f":"jsBezier", "v":"0.8" },
-      "BILTONG" : { "f":"biltong", "v":"0.3" },
-      "MOTTLE" : {"f":"mottle", "v":"0.7.4" },
-      "KATAVORIO" : {"f":"katavorio", "v":"0.18.0" }
+  "includes": {
+    "JS_BEZIER": {
+      "f": "jsBezier",
+      "v": "0.8"
+    },
+    "BILTONG": {
+      "p": "node_modules/biltong/src/biltong.js"
+    },
+    "MOTTLE": {
+      "p": "node_modules/mottle/js/mottle.js"
+    },
+    "KATAVORIO": {
+      "f": "katavorio",
+      "v": "0.18.0"
+    }
   },
-  "coreLibs": [ "JS_BEZIER", "BILTONG" ],
-  "browserLibs":[ "MOTTLE", "KATAVORIO" ],
-  "connectors" : [
-    "flowchart", "bezier", "statemachine", "straight"
+  "coreLibs": [
+    "JS_BEZIER",
+    "BILTONG"
   ],
-  "renderers" : [
+  "browserLibs": [
+    "MOTTLE",
+    "KATAVORIO"
+  ],
+  "connectors": [
+    "flowchart",
+    "bezier",
+    "statemachine",
+    "straight"
+  ],
+  "renderers": [
     "svg"
   ],
   "demos": [
@@ -81,14 +100,15 @@
       "Simple example demonstrating jsPlumb's `animate` method"
     ],
     [
-        "groups",
-        "Groups",
-        "Demonstrates the various options for defining and working with Groups"
+      "groups",
+      "Groups",
+      "Demonstrates the various options for defining and working with Groups"
     ]
   ],
   "author": "jsPlumb",
   "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
+    "biltong": "^0.4.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.3.0",
@@ -100,6 +120,7 @@
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-yuidoc": "0.5.2",
     "grunt-jekyll": "~0.4.1",
-    "grunt-qunit-junit": "^0.3.1"
+    "grunt-qunit-junit": "^0.3.1",
+    "mottle": "^0.8.0"
   }
 }
