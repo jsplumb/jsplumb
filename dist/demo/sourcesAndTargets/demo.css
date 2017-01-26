@@ -19,7 +19,9 @@
     border: 2px dotted #346789;
     width: 14em;
     height: 4em;
-    line-height: 4em;
+    display:flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.5em;
 }
 
@@ -32,8 +34,9 @@
 #enableDisableSource {
     position: absolute;
     top: 1em;
-    left: 15em;
+    right:5px;
     color: #DDD;
+    font-size:12px;
 }
 
 #enableDisableSource:hover {
@@ -42,10 +45,10 @@
 
 .enableDisableTarget {
     color:white;
-    left:auto;
     right:5px;
     top:5px;
     position:absolute;
+    font-size:12px;
 }
 
 .enableDisableTarget:visited, .enableDisableTarget:focus {

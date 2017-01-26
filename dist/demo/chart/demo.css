@@ -44,7 +44,9 @@
     padding:0.5em;
     width:80px;
     height:80px;
-    line-height: 80px;
+    display:flex;
+    align-items: center;
+    justify-content: center;
     -webkit-transition: -webkit-box-shadow 0.15s ease-in;
     -moz-transition: -moz-box-shadow 0.15s ease-in;
     -o-transition: -o-box-shadow 0.15s ease-in;

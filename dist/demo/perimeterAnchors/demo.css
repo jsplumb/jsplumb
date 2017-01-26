@@ -16,6 +16,9 @@
     cursor:pointer;
     text-align:center;
     color:#333;
+    display:flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /** SHAPES **/
@@ -25,7 +28,6 @@
     height:70px;
     left:380px;
     top:505px;
-    line-height: 70px;
     background-image:url(rectangle.png);
 }
 
@@ -34,7 +36,6 @@
     height:70px;
     left:250px;
     top:300px;
-    line-height: 70px;
     background-image:url(ellipse.png);
 }
 
@@ -43,21 +44,21 @@
     height:150px;
     left:100px;
     top:60px;
-    line-height: 150px;
+    display:flex;
+    align-items: center;
+    justify-content: center;
     background-image:url(circle.png);
 }
 
 [data-shape=Triangle] {
     width:150px;
     height:150px;
-    line-height: 150px;
     background-image:url(triangle.png);
 }
 
 ._90[data-shape=Triangle] {
     width:150px;
     height:150px;
-    line-height: 150px;
     background-image:url(triangle_90.png);
 }
 
@@ -66,6 +67,5 @@
     height:150px;
     left:550px;
     top:150px;
-    line-height: 150px;
     background-image:url(diamond.png);
 }
