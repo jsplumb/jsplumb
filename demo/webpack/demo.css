@@ -1,0 +1,42 @@
+.w {
+    width:102px;
+    height:102px;
+    border-radius: 50%;
+    border:4px solid #800080;
+    background-color: navajowhite;
+    color:white;
+    font-size:40px;
+    text-align:center;
+    line-height:102px;
+    position:absolute;
+}
+#one {
+    left:30%;
+    top:10px;
+}
+#two {
+    right:30%;
+    top:10px;
+}
+
+span {
+    font-family: courier, sans-serif;
+    background-color: #EEF;
+    padding:3px
+}
+
+#setup {
+    margin-top: 200px;
+    text-align: left;
+    width:800px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+body {
+    font-family:Arial, sans-serif;
+}
+
+ol li {
+    list-style-type:decimal;
+}
