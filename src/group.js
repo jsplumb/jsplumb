@@ -683,9 +683,20 @@
      * @param {Element} el Element to add to the group.
      */
     _jpi.prototype.addToGroup = function(group, el, doNotFireEvent) {
-        var id = this.getId(el);
-        this.manage(id, el);
-        this.getGroupManager().addToGroup(group, el, doNotFireEvent);
+
+        var _one = function(_el) {
+            var id = this.getId(_el);
+            this.manage(id, _el);
+            this.getGroupManager().addToGroup(group, _el, doNotFireEvent);
+        }.bind(this);
+
+        if (Array.isArray(el)) {
+            for (var i = 0; i < el.length; i++) {
+                _one(el[i]);
+            }
+        } else {
+            _one(el);
+        }
     };
 
     /**
