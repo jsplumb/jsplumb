@@ -8913,6 +8913,12 @@ test("endpoint: suspendedElement set correctly", function() {
         els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
         equal(countKeys(els), 1, "1 element for group g2 to repaint");
 
+        var d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        _jsPlumb.addToGroup(g2, [ d2, d3 ]);
+        equal(g2.getMembers().length, 3, "3 members in group g2 after node additions");
+        els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
+        equal(countKeys(els), 3, "3 elements for group g2 to repaint");
+
     });
 
     test("groups, dragging between groups, take one", function() {
