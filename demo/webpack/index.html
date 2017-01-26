@@ -2,75 +2,41 @@
 <html>
     <head>
         <title>jsPlumb Webpack Test Page</title>
-        <style>
-            .w {
-                width:102px;
-                height:102px;
-                border-radius: 50%;
-                border:4px solid #800080;
-                background-color: navajowhite;
-                color:white;
-                font-size:40px;
-                text-align:center;
-                line-height:102px;
-                position:absolute;
-            }
-            #one {
-                left:30%;
-                top:10px;
-            }
-            #two {
-                right:30%;
-                top:10px;
-            }
-
-            span {
-                font-family: courier, sans-serif;
-                background-color: #EEF;
-                padding:3px
-            }
-
-            #setup {
-                margin-top: 200px;
-                text-align: left;
-                width:600px;
-                margin-left:auto;
-                margin-right:auto;
-            }
-
-            body {
-                text-align: center;
-                font-family:Arial, sans-serif;
-            }
-
-        </style>
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/jsPlumbToolkit-demo.css">
+        <link rel="stylesheet" href="demo.css">
     </head>
-    <body>
+    <body data-demo-id="webpack">
+
+    <a style="margin:10px 0 0 10px;display:inline-block" href="https://jsplumbtoolkit.com"><img src="../../img/logo-jsplumb-green.png"></a>
 
         <div id="one" class="w">HEY</div>
         <div id="two" class="w">HO</div>
 
         <div id="setup">
 
-            Are the circles joined with two connections?  The first connection is made through a static instance of jsPlumb,
+            Are the circles joined with two connections?
+
+            <h3>Yes</h3>
+            The first connection is made through a static instance of jsPlumb,
             which was registered on the window object by the built webpack bundle. The second connection is made by an
             instance of jsPlumb which is returned from a `require` call to some JS inside the bundle.
 
-            <h3>Setup</h3>
-            To run this demo you need to do a few things:
+            <h3>No</h3>
+            You need to run <span>npm install</span> in the project root. This does a few things:
+
             <ol>
+                <li><p>Installs jsPlumb's dependencies</p></li>
+                <li>Builds the final version of jsPlumb (not actually required for this demo; just telling you).</li>
                 <li>
-                    <p>Run <span>grunt build</span> in the project root.</p>
-                    <p>In fact we generally commit built versions, but if you want to be certain you have the latest, you can build it.</p>
-                </li>
-                <li>
-                    <p>Run <span>npm pack</span> in the project root</p>
-                    <p>This will build the bundle that would be published to npm via the <span>npm publish</span>
-                    command. In this demo we use a local require in our package json:
+                    <p>Builds (and renames, to remove the version suffix, so we dont have to keep updating this page) the bundle that would
+                        be published to npm via the <span>npm publish</span> command. In this demo we use a local require in our package json:
+                    </p>
                     <pre>
   "devDependencies": {
     "grunt-webpack": "^1.0.11",
-    "jsplumb": "file:../../jsplumb-x.x.x.tgz",
+    "jsplumb": "file:../../jsplumb.tgz",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   }
@@ -85,18 +51,38 @@
     "webpack-dev-server": "^1.14.1"
   }
                     </pre>
-                    </p>
 
                 </li>
                 <li>
-                    <p>Run <span>npm install</span> in this demo's directory.</p>
+                    <p>Runs <span>npm install</span> in this demo's directory.</p>
                     <p>To get webpack and jsPlumb.</p>
                 </li>
                 <li>
-                    <p>Run <span>grunt build</span> in this demo's directory</p>
-                    <p>This will run webpack and generate a <span>bundle.js</span> file in the <span>dist</span> directory of this demo</p>
+                    <p>Runs <span>grunt build</span> in this demo's directory</p>
+                    <p>Which runs webpack and generates a <span>bundle.js</span> file in the <span>dist</span> directory of this demo</p>
+                    <p>The webpack config is in the file <span>webpack.config.js</span></p>
+                    <pre>
+var path = require("path");
+var webpack = require("webpack");
+module.exports = {
+    cache: true,
+    entry: {
+        bundle: "./index.js"
+    },
+    output: {
+        path: path.join(__dirname, "dist"),
+        publicPath: "dist/",
+        filename: "[name].js",
+        chunkFilename: "[chunkhash].js"
+    }
+};
+                    </pre>
                 </li>
             </ol>
+
+            Steps (3) and (4) are accomplished by executing <span>install.js</span> from the project root as a <span>preinstall</span>
+            script - it recurses through each directory in the project and runs <span>npm install</span> when it finds a package.json,
+            and <span>grunt build</span> when it finds a Gruntfile.js.
         </div>
 
         <!-- bundle.js both loads jsPlumb into the window and also uses `require` to get an instance on which it operates. -->
@@ -120,6 +106,8 @@
                 jsp.on(window, "resize", jsp.repaintEverything);
             });
         </script>
+
+    <script src="../demo-list.js"></script>
 
     </body>
 </html>
