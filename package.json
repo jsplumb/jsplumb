@@ -13,7 +13,8 @@
     "dist/css/jsPlumbToolkit-defaults.css"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "preinstall":"node ./install.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,7 @@
   ],
   "includes": {
     "JS_BEZIER": {
-      "p":"node_modules/jsbezier/js/jsbezier.js"
+      "p": "node_modules/jsbezier/js/jsbezier.js"
     },
     "BILTONG": {
       "p": "node_modules/biltong/src/biltong.js"
@@ -117,10 +118,12 @@
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-yuidoc": "0.5.2",
+    "grunt-exec": "^1.0.1",
     "grunt-jekyll": "~0.4.1",
     "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "^0.9.0",
     "katavorio": "^0.19.0",
     "mottle": "^0.8.0"
   }
+
 }
