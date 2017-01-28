@@ -13,8 +13,7 @@
         [ "sourcesAndTargets", "Sources and Targets" ],
         [ "dynamicAnchors", "Dynamic Anchors" ],
         [ "animation", "Animation" ],
-        [ "groups", "Groups" ],
-        [ "webpack", "Webpack" ]
+        [ "groups", "Groups" ]
     ];
 
     jsPlumb.bind("ready", function () {
