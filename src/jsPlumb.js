@@ -3099,7 +3099,7 @@
         Scope: "jsPlumb_DefaultScope"
     };
 
-// --------------------- static instance + AMD registration -------------------------------------------	
+// --------------------- static instance + module registration -------------------------------------------
 
 // create static instance and assign to window if window exists.	
     var jsPlumb = new jsPlumbInstance();
