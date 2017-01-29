@@ -1,4 +1,4 @@
-var j = require("./node_modules/jsplumb/dist/js/jsplumb.js").getInstance({
+var j = require("./node_modules/jsplumb/dist/js/jsplumb.js").jsPlumb.getInstance({
     Connector: "Flowchart",
     Anchor: "Bottom",
     Endpoint: [ "Dot", { radius: 2 }],

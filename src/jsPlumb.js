@@ -3128,11 +3128,11 @@
             fn(spec); // assume it's an element.
     };
 // maybe register static instance as an AMD module, and getInstance method too.
-    if (typeof define === "function") {
-        define("jsplumb", [], function () {
-            return jsPlumb;
-        });
-    }
+//    if (typeof define === "function") {
+//        define("jsplumb", [], function () {
+//            return jsPlumb;
+//        });
+//    }
     // CommonJS
     if (typeof exports !== 'undefined') {
         exports.jsPlumb = jsPlumb;

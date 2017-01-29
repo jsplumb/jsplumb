@@ -38,6 +38,8 @@
 - [Querying jsPlumb](querying)
 - [Animation](animation)
 - [Utility Functions](utilities)
+- Bundling jsPlumb
+  - [Webpack](webpack)
 - Examples
   - [jsPlumb.connect](connect-examples)
   - [Draggable Connections](draggable-connections-examples)

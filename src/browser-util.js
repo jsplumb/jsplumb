@@ -19,9 +19,8 @@
   "use strict";
 
    var root = this;
-   var exports = root.jsPlumbUtil;
 
-   exports.matchesSelector = function(el, selector, ctx) {
+    root.jsPlumbUtil.matchesSelector = function(el, selector, ctx) {
        ctx = ctx || el.parentNode;
        var possibles = ctx.querySelectorAll(selector);
        for (var i = 0; i < possibles.length; i++) {
@@ -31,7 +30,7 @@
        return false;
    };
 
-   exports.consume = function(e, doNotPreventDefault) {
+    root.jsPlumbUtil.consume = function(e, doNotPreventDefault) {
        if (e.stopPropagation)
            e.stopPropagation();
        else
@@ -53,7 +52,7 @@
     *  h - [int] height of the element
     *
     */
-   exports.sizeElement = function(el, x, y, w, h) {
+    root.jsPlumbUtil.sizeElement = function(el, x, y, w, h) {
        if (el) {
            el.style.height = h + "px";
            el.height = h;
@@ -63,6 +62,5 @@
            el.style.top = y + "px";
        }
    };
-
 
  }).call(typeof window !== 'undefined' ? window : this);

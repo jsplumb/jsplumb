@@ -410,7 +410,7 @@
         return [{x:p.point.x + x, y:p.point.y + y}, {x:p.point.x - x, y:p.point.y - y}];
     };
 
-    this.jsBezier = {
+    var jsBezier = this.jsBezier = {
         distanceFromCurve : _distanceFromCurve,
         gradientAtPoint : _gradientAtPoint,
         gradientAtPointAlongCurveFrom : _gradientAtPointAlongPathFrom,
@@ -422,6 +422,11 @@
         getLength:_length,
         version:"0.9.0"
     };
+
+    if (typeof exports !== "undefined") {
+        exports.jsBezier = jsBezier;
+    }
+
 }).call(typeof window !== 'undefined' ? window : this);
 
 /**
@@ -2423,13 +2428,14 @@
             }
         };
 
-
-        root.Katavorio.version = "0.19.0";
-
-        if (typeof exports !== "undefined") {
-            exports.Katavorio = root.Katavorio;
-        }
     };
+
+    root.Katavorio.version = "0.19.1";
+
+    if (typeof exports !== "undefined") {
+        exports.Katavorio = root.Katavorio;
+    }
+
 }).call(typeof window !== 'undefined' ? window : this);
 
 /*
@@ -2925,9 +2931,8 @@
   "use strict";
 
    var root = this;
-   var exports = root.jsPlumbUtil;
 
-   exports.matchesSelector = function(el, selector, ctx) {
+    root.jsPlumbUtil.matchesSelector = function(el, selector, ctx) {
        ctx = ctx || el.parentNode;
        var possibles = ctx.querySelectorAll(selector);
        for (var i = 0; i < possibles.length; i++) {
@@ -2937,7 +2942,7 @@
        return false;
    };
 
-   exports.consume = function(e, doNotPreventDefault) {
+    root.jsPlumbUtil.consume = function(e, doNotPreventDefault) {
        if (e.stopPropagation)
            e.stopPropagation();
        else
@@ -2959,7 +2964,7 @@
     *  h - [int] height of the element
     *
     */
-   exports.sizeElement = function(el, x, y, w, h) {
+    root.jsPlumbUtil.sizeElement = function(el, x, y, w, h) {
        if (el) {
            el.style.height = h + "px";
            el.height = h;
@@ -2969,7 +2974,6 @@
            el.style.top = y + "px";
        }
    };
-
 
  }).call(typeof window !== 'undefined' ? window : this);
 
@@ -6103,11 +6107,11 @@
             fn(spec); // assume it's an element.
     };
 // maybe register static instance as an AMD module, and getInstance method too.
-    if (typeof define === "function") {
-        define("jsplumb", [], function () {
-            return jsPlumb;
-        });
-    }
+//    if (typeof define === "function") {
+//        define("jsplumb", [], function () {
+//            return jsPlumb;
+//        });
+//    }
     // CommonJS
     if (typeof exports !== 'undefined') {
         exports.jsPlumb = jsPlumb;
