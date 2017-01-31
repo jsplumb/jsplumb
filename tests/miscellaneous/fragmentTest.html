@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+	<head>
+		<style>
+			.foo {
+				width:10px;
+				height:10px;
+				border:1px solid blue;
+				float:left;
+			}
+
+			.c {
+				width:500px;
+				height:400px;
+				border:2px solid red;
+			}
+		</style>
+	<body>
+		<div id="container1" class="c">
+
+		</div>
+
+		<div id="container2">
+
+		</div>
+
+		<script>
+
+			var count = 10000,
+				el = function() {
+					var d = document.createElement("div");
+					d.className ="foo";
+					return d;
+				},
+				c1 = document.getElementById("container1"),
+				c2 = document.getElementById("container2");
+
+			console.time("direct append");
+			for (var i = 0; i < count; i++) {
+				c1.appendChild(el());
+			}
+			console.timeEnd("direct append");
+
+			console.time("fragment append");
+			var f = document.createDocumentFragment();
+			for (var i = 0; i < count; i++) {
+				f.appendChild(el());
+			}
+			c2.appendChild(f);
+			console.timeEnd("fragment append");
+
+		</script>
+	</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+
+<body>
+
+    <div id="one"></div>
+    <div id="two"></div>
+
+    <button>OK</button>
+
+    <script src="../dist/js/jsPlumb-2.1.0.js"></script>
+    <script>
+        jsPlumb.ready(function() {
+            var btn = document.querySelector("button");
+            var go = function() {
+                for (var i = 0; i < 50; i++) {
+                    jsPlumb.makeSource("one");
+                    jsPlumb.unmakeSource("one");
+
+                    jsPlumb.makeTarget("two");
+                    jsPlumb.unmakeTarget("two");
+                }
+            };
+            jsPlumb.on(btn, "click", go);
+
+        })
+    </script>
+
+
+</body>

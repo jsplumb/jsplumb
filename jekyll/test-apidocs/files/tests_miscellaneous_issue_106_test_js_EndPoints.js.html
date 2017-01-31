@@ -1,0 +1,227 @@
+---
+layout: apidoc
+title:  "tests/miscellaneous/issue_106_test/js/EndPoints.js - jsplumb - Test Coverage API documentation"
+date:   2014-01-01 00:00:00
+yuiGridsUrl: http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css
+yuiSeedUrl: http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js
+projectAssets: ../assets
+base: "../.."
+---
+
+
+
+<div id="doc">
+    <div id="bd" class="yui3-g">
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Mottle.html">Mottle</a></li>
+            
+                <li><a href="../classes/Test.html">Test</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: tests/miscellaneous/issue_106_test/js/EndPoints.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+// JavaScript Document
+EP_MIN_DIS = 10;         // the min distance between two endpoints
+exampleDropOptions =
+{
+	tolerance:&#x27;touch&#x27;,
+	hoverClass:&#x27;dropHover&#x27;,
+	activeClass:&#x27;dragActive&#x27;
+};
+// end points
+/**
+					first example endpoint.  it&#x27;s a 25x21 rectangle (the size is provided in the &#x27;style&#x27; arg to the Endpoint), and it&#x27;s both a source
+					and target.  the &#x27;scope&#x27; of this Endpoint is &#x27;exampleConnection&#x27;, meaning any connection starting from this Endpoint is of type
+					&#x27;exampleConnection&#x27; and can only be dropped on an Endpoint target that declares &#x27;exampleEndpoint&#x27; as its drop scope, and also that
+					only &#x27;exampleConnection&#x27; types can be dropped here.
+ 
+					the connection style for this endpoint is a Bezier curve (we didn&#x27;t provide one, so we use the default), with a lineWidth of
+					5 pixels, and a gradient.
+ 
+					note the use of the &#x27;$.extend&#x27; function to setup generic connection types.  this will save you a lot of typing, and probably
+					errors.
+ 
+				*/
+
+InputEPColor = &#x27;#00f&#x27;;
+InputEP = 
+{
+	endpoint : &quot;Rectangle&quot;,
+	isSource : false,
+	isTarget : true,
+	paintStyle: { width:20, height:20, fillStyle : InputEPColor},
+	connectorStyle : {
+		gradient : {stops : [[0, InputEPColor], [0.5, &#x27;#09098e&#x27;], [1, InputEPColor]]},
+		lineWidth : 5,
+		strokeStyle : InputEPColor
+	},
+	dropOptions : exampleDropOptions
+};
+
+OutputEPColor = &#x27;#f00&#x27;;
+OutputEP =
+{
+		endpoint : [ &quot;Rectangle&quot;, { width:20, height:20 } ],
+		isSource : true,
+		isTarget : false,
+		paintStyle: { fillStyle : OutputEPColor },
+		connectorStyle : {
+			gradient : {stops : [[0, OutputEPColor], [0.5, &#x27;#09098e&#x27;], [1, OutputEPColor]]},
+			lineWidth : 5,
+			strokeStyle : OutputEPColor
+		} 	
+};
+
+ControlColor = &#x27;#000&#x27;;
+ControlEP =
+{
+		endpoint : [ &quot;Rectangle&quot;, { width:10, height:10 } ],
+		isSource : false,
+		isTarget : true,
+		paintStyle: { fillStyle : ControlColor },
+		connectorStyle : {
+			gradient : {stops : [[0, ControlColor], [0.5, &#x27;#09098e&#x27;], [1, ControlColor]]},
+			lineWidth : 5,
+			strokeStyle : ControlColor
+		},
+		dropOptions : exampleDropOptions
+};
+
+RDColor = &#x27;#FFFF5C&#x27;;
+RDEP =
+{
+		endpoint : [ &quot;Dot&quot;, { radius:10 } ],
+		isSource : false,
+		isTarget : false,
+		paintStyle: { fillStyle : RDColor },
+		connectorStyle : {
+			gradient : {stops : [[0, RDColor], [0.5, &#x27;#09098e&#x27;], [1, RDColor]]},
+			lineWidth : 10,
+			strokeStyle : RDColor
+		},
+		dropOptions : exampleDropOptions
+};
+
+NumberEPColor = &#x27;#00f&#x27;;
+NumberEP = 
+{
+	endpoint:[ &quot;Rectangle&quot;, { width:5, height:5 } ],
+	paintStyle:{fillStyle:NumberEPColor },
+	isSource:true,
+	scope:&#x27;blue rectangle&#x27;,
+	connectorStyle : {
+				gradient:{stops:[[0, NumberEPColor], [0.5, &#x27;#09098e&#x27;], [1, NumberEPColor]]},
+				lineWidth:5,
+				strokeStyle:NumberEPColor
+			},
+	isTarget:true,
+	dropOptions : exampleDropOptions
+};
+/**
+	the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
+	&#x27;exampleConnection2&#x27;.
+*/
+StringEPColor = &#x27;#316b31&#x27;;
+StringEP = 
+{
+	endpoint: [ &quot;Dot&quot;, { radius:5 } ],
+	style:{ strokeStyle:StringEPColor },
+	isSource:true,
+	scope:&#x27;green dot&#x27;,
+	connectorStyle:{ strokeStyle:StringEPColor, lineWidth:8 },
+	connector: new jsPlumb.Connectors.Bezier(63),
+	maxConnections:3,
+	isTarget:true,
+	dropOptions : exampleDropOptions
+};
+
+/**
+the third example uses a Dot of radius 17 as the endpoint marker, is both a source and target, and has scope
+&#x27;exampleConnection3&#x27;.  it uses a Straight connector, and the Anchor is created here (bottom left corner) and never
+overriden, so it appears in the same place on every element.
+
+this example also sets the &#x27;reattach&#x27; flag for the Endpoint, meaning that when you drag a
+connection off an endpoint and release it, it snaps back.  the default behaviour in this case
+is to delete the connection.
+
+*/
+NumberArrayEPColor = &quot;rgba(229,219,61,0.5)&quot;;
+NumberArrayEP = 
+{
+	endpoint:[ &quot;Dot&quot;, { radius:10 } ],
+	reattach:true,
+	anchor:&quot;BottomLeft&quot;,
+	style:{ strokeStyle:NumberArrayEPColor, opacity:0.5 },
+	isSource:true,
+	scope:&#x27;yellow dot&#x27;,
+	connectorStyle:{ strokeStyle:NumberArrayEPColor, lineWidth:4 },
+	connector : new jsPlumb.Connectors.Straight(),
+	isTarget:true,
+	dropOptions : exampleDropOptions
+};
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

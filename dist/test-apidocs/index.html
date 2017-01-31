@@ -1,0 +1,199 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+    <title>jsplumb - Test Coverage API documentation</title>
+
+    
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/jsplumb-doc.css">
+
+    <!-- yuidoc -->
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="./assets/vendor/prettify/prettify-min.css">
+
+    <link rel="stylesheet" href="../css/external/cssgrids-min.css">
+    <link rel="stylesheet" href="../css/external/prettify-min.css">
+
+    <link rel="shortcut icon" type="image/png" href="../img/favicon.png">
+    <script src="https://yui-s.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+    <style>
+        #doc {
+            text-align:left;
+            margin-top:44px;
+        }
+    </style>
+</head>
+<body class="yui3-skin-sam">
+
+    <div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/"><img src="../../img/logo-medium-jsplumb.png"></a>
+            <div class="community"></div>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../">DEMOS</a></li>
+                <li><a href="../doc/home.html">DOCS</a></li>
+                <li><a href="../apidocs/index.html">API</a></li>
+                <li><a href="../download">DOWNLOAD</a></li>
+                <li><a href="http://beta.jsplumbtoolkit.com/contact.html">CONTACT</a></li>
+                <li><a href="https://blog.jsplumbtoolkit.com">BLOG</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+                <a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+                <a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+    <div class="container">
+        <div class="row">
+            <div id="doc">
+    <div id="bd" class="yui3-g">
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="./classes/Mottle.html">Mottle</a></li>
+            
+                <li><a href="./classes/Test.html">Test</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <div class="apidocs">
+    <div id="docs-main" class="content apidoc-intro">
+        <h3>jsPlumb API documentation</h3>
+        jsPlumb is organised into several classes and namespaces.
+        <p>The main classes you will deal with are <code>jsPlumbInstance</code>, <code>Endpoint</code>, <code>Connection</code>, <code>Anchor</code> and <code>Overlay</code>, but only rarely will you deal 
+        with these directly.  All objects are constructed by jsPlumb from "definitions" that you provide, and most of the operations you 
+        wish to perform on jsPlumb objects are mediated through an instance of the <code>jsPlumbInstance</code> class.
+        </p>
+        <h4>Static jsPlumb instance</h4>
+        <p>An important point to keep in mind is that the global <code>jsPlumb</code> object is just an instance of the 
+        <a href="classes/jsPlumbInstance.html">jsPlumbInstance</a> class that is registered by default on the browser window.</p>  
+        <p>For many people this single static instance is sufficient, but others need more than one instance.</p>
+        <p>Either way, remember as you read through the API documentation that a reference to a method on the <code>jsPlumbInstance</code> 
+        class means that <code>jsPlumb</code> has that method.</p>  
+
+        <h5>Keyboard Shortcuts</h5>
+
+        <ul>
+            <li><p>Press <kbd>s</kbd> to focus the API search box.</p></li>
+
+            <li><p>Use <kbd>Up</kbd> and <kbd>Down</kbd> to select classes, modules, and search results.</p></li>
+
+            <li class="mac-only"><p>With the API search box or sidebar focused, use <kbd><span class="cmd">&#x2318;</span>-Left</kbd> or <kbd><span class="cmd">&#x2318;</span>-Right</kbd> to switch sidebar tabs.</p></li>
+
+            <li class="pc-only"><p>With the API search box or sidebar focused, use <kbd>Ctrl+Left</kbd> and <kbd>Ctrl+Right</kbd> to switch sidebar tabs.</p></li>
+        </ul>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </div>
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-49979015-1', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+    
+<script src="./assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="./assets/js/yui-prettify.js"></script>
+<script src="./assets/../api.js"></script>
+<script src="./assets/js/api-filter.js"></script>
+<script src="./assets/js/api-list.js"></script>
+<script src="./assets/js/api-search.js"></script>
+<script src="./assets/js/apidocs.js"></script>
+</body>
+</html>

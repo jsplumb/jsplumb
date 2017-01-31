@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+	<body>
+		mousedown and drag in this div.  is a click event fired? what about if the mouseup occurs outside of the
+		element on which the mousedown occurred?
+		<div id="foo" style="width:300px;height:300px;border:1px solid green;"></div>
+		<div id="debug"></div>
+
+
+		<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
+
+		<script>
+			$(function() {
+				var f = document.getElementById("foo"),
+					d = document.getElementById("debug"),
+					down = false,
+					moving = false,
+					debug = function(t, e) {
+						var target = e.srcElement || e.target;
+						$(d).append(t + " [" + $(target).attr("id") +  "]<br/>");
+					};
+
+				$(f).bind("mousedown", function(e) {
+					$(d).empty();
+					down = true;
+					debug("down", e);
+					$(document).bind("mouseup", _up);
+					$(document).bind("mousemove", _move);
+				});
+
+				var _move = function(e) {
+					if (down && !moving) debug("move", e);
+					moving = true;
+				};
+
+				var _up = function(e) {
+					down = false;
+					moving = false;
+					debug("up", e);
+					$(document).unbind("mouseup", _up);
+					$(document).unbind("mousemove", _move);
+				};
+
+				$(f).bind("click", function(e) {
+					debug("click", e);
+				});
+
+
+			});
+		</script>
+
+		<script>
+			// click handler.  use this to register click events on an element, because it wont fire a click event
+			// if the mouse moved between a mousedown and mouseup event on some element.
+			// 
+			// also, it fakes click events for touch devices.
+			//
+			window.ClickHandler = function(params) {
+
+			};
+		</script>
+
+	</body>
+</html>	

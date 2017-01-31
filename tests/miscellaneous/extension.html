@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+    <body>
+
+        <script>
+            var extend = function(child, parent, _protoFn) {
+                var i;
+                parent = _isa(parent) ? parent : [ parent ];
+
+                for (i = 0; i < parent.length; i++) {
+                    for (var j in parent[i].prototype) {
+                        if(parent[i].prototype.hasOwnProperty(j)) {
+                            child.prototype[j] = parent[i].prototype[j];
+                        }
+                    }
+                }
+
+                var _makeFn = function(name, protoFn) {
+                    return function() {
+                        for (i = 0; i < parent.length; i++) {
+                            if (parent[i].prototype[name])
+                                parent[i].prototype[name].apply(this, arguments);
+                        }
+                        return protoFn.apply(this, arguments);
+                    };
+                };
+
+                var _oneSet = function(fns) {
+                    for (var k in fns) {
+                        child.prototype[k] = _makeFn(k, fns[k]);
+                    }
+                };
+
+                if (arguments.length > 2) {
+                    for (i = 2; i < arguments.length; i++)
+                        _oneSet(arguments[i]);
+                }
+
+                return child;
+            }
+        </script>
+
+    </body>
+</html>

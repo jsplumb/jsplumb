@@ -1,0 +1,934 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+	<testsuite name="jsPlumb" errors="0" failures="1" tests="461" time="11.26">
+		<testcase classname="jsPlumb" name=" : getElement" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb setup" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getId" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": create a simple endpoint" assertions="4" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name=": create and remove a simple endpoint" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="endpoint with overlays" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": create two simple endpoints, registered using a selector" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": create two simple endpoints, registered using an array of element ids" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumb.remove after element removed from DOM" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": draggable in nested element does not cause extra ids to be created" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : draggable, reference elements returned correctly" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : draggable + setParent, reference elements returned correctly" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": lineWidth specified as string (eew)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": outlineWidth specified as string (eew)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": lineWidth and outlineWidth specified as strings (eew)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": defaultEndpointMaxConnections" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": specifiedEndpointMaxConnections" assertions="9" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": noEndpointMaxConnections" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": endpoint.isConnectdTo" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": anchors equal" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": anchors equal with offsets" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": anchors not equal" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": anchor not equal with offsets" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="simple makeAnchor, dynamicAnchors" assertions="0" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unknown anchor type should throw Error" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unknown anchor type should not throw Error because it is suppressed in Defaults" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unknown endpoint type should throw Error" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unknown endpoint type should not throw Error because it is suppressed in Defaults" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unknown connector type should throw Error" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unknown connector type should not throw Error because it is suppressed in Defaults" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach does not fail when no arguments are provided" assertions="0" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach should fire detach event by default" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach should fire detach event by default, using params object" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach should not fire detach event when instructed to not do so" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach should fire only one detach event (pass Connection as argument)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach should fire only one detach event (pass Connection as param in argument)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach should fire only one detach event (pass source and targets as strings as arguments in params object)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach should fire only one detach event (pass source and targets as divs as arguments in params object)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getConnections (simple case, default scope)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="getConnections (uuids)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="getConnections (simple case, default scope; detach by element id using params object)" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getConnections (simple case, default scope; detach by id using params object)" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getConnections (simple case, default scope; detach by element object using params object)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getConnections (simple case, default scope; detach by Connection)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach; beforeDetach on connect call returns false" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach; beforeDetach on connect call returns undefined" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach; beforeDetach on connect call returns true" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach; beforeDetach on connect call throws an exception; we treat it with the contempt it deserves and pretend it said the detach was ok." assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach; beforeDetach on addEndpoint call to source Endpoint returns false" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach; beforeDetach on addEndpoint call to source Endpoint returns true" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.detach; beforeDetach on addEndpoint call to source Endpoint returns false; Endpoint.detach returns false too (the UI needs it to)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false but detach is forced" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns true" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns false" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns true" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns false" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachAllConnections ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns false and we dont detach" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns true and we do detach" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachEveryConnection ; beforeDetach on jsPlumb returns false and we dont detach" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachEveryConnection ; beforeDetach on jsPlumb returns true and we do detach" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachEveryConnection ; beforeDetach on jsPlumb returns true but we have forced detach" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.detachAll ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachEveryConnection fires events" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachEveryConnection doesn't fire events when instructed not to" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachAllConnections fires events" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detachAllConnections doesn't fire events when instructed not to" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : deletions, simple endpoint case" assertions="23" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getConnections (scope testScope)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.getAllConnections (filtered by scope)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.getConnections (filtered by scope and sourceId)" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.getConnections (filtered by scope, source id and target id)" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.getConnections (filtered by a list of scopes)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.getConnections (filtered by a list of scopes and source ids)" assertions="3" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.getConnections (filtered by a list of scopes, source ids and target ids)" assertions="7" time="0.05">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getEndpoints, one Endpoint added by addEndpoint, get Endpoints by selector" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": getEndpoints, one Endpoint added by addEndpoint, get Endpoints by id" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": addEndpoint, css class on anchor added to endpoint artefact and element" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": addEndpoint, blank css class on anchor does not add extra prefix " assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": connect, jsplumb connected class added to elements" assertions="7" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": connection event listeners" assertions="9" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (detach by connection)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (detach by element ids)" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (detach by elements)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (via Endpoint.detach method)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (via Endpoint.detachFrom method)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (via Endpoint.detachAll method)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (via _jsPlumb.deleteEndpoint method)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": detach event listeners (ensure cleared by _jsPlumb.reset)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": connection events that throw errors" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unbinding connection event listeners, connection" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unbinding connection event listeners, detach" assertions="4" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": unbinding connection event listeners, all listeners" assertions="3" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.detachFrom" assertions="7" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.detachFromConnection" assertions="7" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.detachAll" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.detach" assertions="7" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="Image Endpoint remove" assertions="2" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": setting endpoint uuid" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.getEndpoint (by uuid)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.deleteEndpoint (by uuid, simple case)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": deleteEndpoint (by uuid, connections too)" assertions="9" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": deleteEndpoint (by reference, simple case)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.deleteEndpoint (by reference, connections too)" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.deleteEveryEndpoint" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.deleteEveryEndpoint (connections too)" assertions="5" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": removeAllEndpoints, referenced as string" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": removeAllEndpoints, referenced as selector" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.remove, element identified by string" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.remove, element identified by selector" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.remove, element identified by string, nested endpoints" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.remove, nested element, element identified by string, nested endpoints" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="jsPlumb.remove fires connectionDetached events" assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name="jsPlumb.removeAllEndpoints fires connectionDetached events" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.empty, element identified by string" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoint (simple case)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoint (simple case, dynamic anchors)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoint (simple case, two arg method)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoints (simple case)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoint (empty array)" assertions="0" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoints (with reference params)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoint (simple case, dynamic anchors, two arg method)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoints (default overlays)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoints (default overlays)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoints (end point set label)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoints (end point set label in constructor, as string)" assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoints (end point set label in constructor, as function)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.addEndpoint (events)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": setConnector, check the connector is set" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": setConnector, overlays are retained" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeTarget (simple case)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeTarget (specify two divs in an array)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeTarget (specify two divs by id in an array)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeTarget (specify divs by selector)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget (simple case)" assertions="8" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget (simple case, two connect calls)" assertions="7" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget (simple case, two connect calls, uniqueEndpoint set)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget (newConnection:true specified)" assertions="7" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeSource (simple case)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeSource (simple case, two connect calls)" assertions="6" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": endpoint source and target scope" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": endpoint source and target scope, multiple scope" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": makeSource/makeTarget scope" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": makeSource, manipulate scope programmatically" assertions="11" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeSource (parameters)" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget (simple case, two connect calls, uniqueEndpoint set)" assertions="7" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget (newConnection:true specified)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeSource and setSourceEnabled(false) (string id as argument)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeSource and setSourceEnabled(false) (selector as argument)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeSource and toggleSourceEnabled() (string id as argument)" assertions="8" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeSource and toggleSourceEnabled() (selector as argument)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.isSource and jsPlumb.isSourceEnabled" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (string id as argument)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (selector as argument)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget and toggleTargetEnabled() (string id as argument)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect after makeTarget and toggleTargetEnabled() (selector as argument)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.isTarget and jsPlumb.isTargetEnabled" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeTarget - endpoints deleted by default." assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.setSource (element)" assertions="9" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.setSource (endpoint)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.setSource (element, with makeSource)" assertions="5" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.setTarget (element)" assertions="7" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.setTarget (endpoint)" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.setTarget (element, with makeSource)" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeSource (parameters)" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.unmakeSource (string id as argument)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.unmakeTarget (string id as argument)" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.removeEverySource and removeEveryTarget (string id as argument)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (between two Endpoints)" assertions="11" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)" assertions="10" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : _jsPlumb.connect, passing 'anchors' array" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (by endpoint)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (cost)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (default cost)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (set cost)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect two endpoints (connectionCost)" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect two endpoints (change connectionCost)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (directed is false by default)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (directed true)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect two endpoints (connectionsDirected)" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect two endpoints (change connectionsDirected)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (two Endpoints - that have been already added - by UUID)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (two Endpoints - that have not been already added - by UUID)" assertions="7" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (two Endpoints - that have been already added - by endpoint reference)" assertions="3" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (two elements)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Connector test, straight)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Connector test, bezier, no params)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Connector test, bezier, curviness as int)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Connector test, bezier, curviness as named option)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as strings)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (two argument method in which some data is reused across connections)" assertions="11" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Connector as string test)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Endpoint test)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Endpoint as string test)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Endpoints test)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Blank Endpoint specified via 'endpoint' param)" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Blank Endpoint specified via 'endpoints' param)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (Endpoint as string test)" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (by Endpoints, connector test)" assertions="2" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (by Endpoints, connector as string test)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (by Endpoints, anchors as string test)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (by Endpoints, endpoints create anchors)" assertions="10" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchor')" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchors')" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (connect by element, default endpoint, supplied dynamic anchors)" assertions="9" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (connect by element, default endpoint, supplied dynamic anchors, delete on detach false)" assertions="9" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": delete endpoints on detach, makeSource and makeTarget)" assertions="8" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": delete endpoints on detach, addEndpoint and makeTarget)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": delete endpoints on detach, makeSource and addEndpoint)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (connect by element, supplied endpoint and dynamic anchors)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (connect by element, supplied endpoints using 'source' and 'target' (this test is identical to the one above apart from the param names), and dynamic anchors)" assertions="8" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumb.connect, events specified" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" detachable parameter defaults to true on _jsPlumb.connect" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" detachable parameter set to false on _jsPlumb.connect" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setDetachable on initially detachable connection" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setDetachable on initially not detachable connection" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.Defaults.ConnectionsDetachable" assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (testing for connection event callback)" assertions="7" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (setting outline class on Connector)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (setting cssClass on Connector)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoint (setting cssClass on Endpoint)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.addEndpoint (setting cssClass on blank Endpoint)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (overlays, long-hand version)" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (overlays, long-hand version, IDs specified)" assertions="8" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (default overlays)" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (default overlays + overlays specified in connect call)" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (default connection overlays)" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (default connection overlays + overlays specified in connect call)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (default overlays + default connection overlays)" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (default overlays + default connection overlays)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (label overlay set using 'label')" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (set label after construction, with string)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (set label after construction, with function)" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (set label after construction, with params object)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (set label after construction with existing label set, with params object)" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (getLabelOverlay, label on connect call)" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (getLabelOverlay, label on connect call, location set)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (remove single overlay by id)" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (remove multiple overlays by id)" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (overlays, short-hand version)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (removeAllOverlays)" assertions="7" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect, specify arrow overlay using string identifier only" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Connection.getOverlay method, existing overlay" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Connection.getOverlay method, non-existent overlay" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Overlay.setVisible method" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (custom label overlay, set on Defaults, return plain DOM element)" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.connect (custom label overlay, set on Defaults, return selector)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": overlay events" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach (by element ids)" assertions="9" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach (params object, using element ids)" assertions="5" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach (params object, using element objects)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach (source and target as endpoint UUIDs)" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.detach (sourceEndpoint and targetEndpoint supplied)" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeDynamicAnchors (longhand)" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": _jsPlumb.makeDynamicAnchors (shorthand)" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Connection.isVisible/setVisible" assertions="5" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.isVisible/setVisible basic test (no connections)" assertions="5" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.isVisible/setVisible (one connection, other Endpoint's visibility should track changes in the source, because it has only this connection.)" assertions="7" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=": Endpoint.isVisible/setVisible (one connection, other Endpoint's visibility should not track changes in the source, because it has another connection.)" assertions="10" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.setContainer, specified with a selector" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.setContainer, specified with DOM element" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.setContainer, moves managed nodes" assertions="5" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" change Container programmatically" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" detachable defaults to true when connection made between two endpoints" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" connection detachable when target endpoint has connectionsDetachable set to true" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" connection detachable when source endpoint has connectionsDetachable set to true" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" Connector has 'type' member set" assertions="3" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" Endpoints have 'type' member set" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" Overlays have 'type' member set" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.hide, original one-arg version" assertions="10" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.hide, two-arg version, endpoints should also be hidden" assertions="9" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.show, two-arg version, endpoints should become visible" assertions="6" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" _jsPlumb.show, two-arg version, endpoints should become visible, but not all connections, because some other endpoints are  not visible." assertions="13" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name="show/hide Overlays" assertions="3" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" label cleans itself up properly" assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" arrow cleans itself up properly" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" label overlay getElement function" assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" label overlay provides getLabel and setLabel methods" assertions="5" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" label overlay custom css class" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" label overlay custom css class in labelStyle" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" label overlay - labelStyle" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" parameters object works for Endpoint" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" parameters object works for Connection" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" parameters set on Endpoints and Connections are all merged, and merged correctly at that." assertions="3" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" anchorManager registers standard connection" assertions="8" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" anchorManager registers dynamic anchor connection, and removes it." assertions="5" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" anchorManager registers continuous anchor connection, and removes it." assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" Continuous anchor default face, no faces supplied" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" Continuous anchor default face, faces supplied" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setImage on Endpoint, with supplied onload" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" id clashes between instances" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" id clashes between instances" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" importDefaults" assertions="6" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=" restoreDefaults" assertions="8" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setId, taking two strings, only default scope" assertions="18" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setId, taking a selector and a string, only default scope" assertions="22" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setId, taking a DOM element and a string, only default scope" assertions="18" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setId, taking two strings, mix of scopes" assertions="18" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setId, taking a selector and a string, mix of scopes" assertions="18" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setId, taking a DOM element and a string, mix of scopes" assertions="18" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setIdChanged, " assertions="18" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setId, taking two strings, testing makeSource/makeTarget" assertions="4" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" endpoint hide/show should hide/show overlays" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" connection hide/show should hide/show overlays" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test with multiple scopes; dont filter on scope." assertions="4" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test with multiple scopes; filter on scope" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test with multiple scopes; filter on scopes" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test with multiple scopes; scope but no scope filter; single source id" assertions="4" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test with multiple scopes; filter on scopes; single source id" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setHoverSuspended overrides setHover on connections" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test with multiple scopes; filter on scope; dont supply sourceid" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, basic test with multiple scopes; filter on scope; dont supply sourceid" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, two connections, with overlays" assertions="3" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, chaining with setHover and hideOverlay" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, .each function" assertions="2" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, multiple connections + chaining" assertions="21" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, simple getter" assertions="6" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, getter + chaining" assertions="6" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, detach method" assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" select, repaint method" assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, basic tests" assertions="10" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, basic tests, various input argument formats" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, basic tests, scope" assertions="4" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, isSource tests" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, isTarget tests" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, isSource + isTarget tests" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, delete endpoints" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, detach connections" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, hover tests" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, setEnabled tests" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" selectEndpoints, setEnabled tests" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setPaintStyle" assertions="6" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="Manage fires events" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" getEndpoints" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection" assertions="6" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" add connection type on existing connection" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection then change type" assertions="11" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection, overlays should be set" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection, overlays should be removed with second type" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection, anchors and connectors created only once" assertions="8" time="0.05">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection, hasType + toggleType" assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection, merge tests" assertions="24" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection type tests, check overlays do not disappear" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name="endpoint type tests, check overlays do not disappear" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" connection type tests, space separated arguments" assertions="25" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" connection type tests, fluid interface" assertions="8" time="0.05">
+		</testcase>
+		<testcase classname="jsPlumb" name=" connection type tests, two types, check separation" assertions="2" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setType when null" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setType to unknown type" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setType to mix of known and unknown types" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" create connection using type parameter" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" makeSource connection type is honoured" assertions="7" time="0.08">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setType, scope" assertions="2" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setType, parameters" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" set connection type on existing connection, parameterised type" assertions="4" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" create connection with parameterised type" assertions="7" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" create connection with parameterised type, label" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" create connection with parameterised type, label, value empty" assertions="1" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" reapply parameterised type" assertions="5" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" setType, scope, two types" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" create connection from Endpoints - type should be passed through." assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" simple Endpoint type tests." assertions="8" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name=" clearTypes" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" new Endpoint, prefer endpointStyle to paintStyle." assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" Endpoint type, prefer endpointStyle to paintStyle." assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" create connection from Endpoints - with connector settings in Endpoint type." assertions="6" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" create connection from Endpoints - type should be passed through." assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" endpoint type" assertions="0" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" multiple makeSource registrations, switched by connectionType" assertions="8" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="svg gradients cleaned up correctly" assertions="2" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="node drag events" assertions="9" time="0.10">
+		</testcase>
+		<testcase classname="jsPlumb" name="jsPlumbUtil typeof functions" assertions="64" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name="jsPlumb.extend, filter values" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumbUtil.merge" assertions="7" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumbUtil.merge, array overwriting string" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumbUtil.clone" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="jsPlumbUtil.replace" assertions="10" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" arc segment tests" assertions="58" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumbUtil.extend, single parent" assertions="9" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumbUtil.extend, multiple parents" assertions="9" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumb.getSelector, simple case" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumb.getSelector, with context node given as selector" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" jsPlumb.getSelector, with context node given as DOM element" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" addClass method of Connection" assertions="12" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" addClass via jsPlumb.select" assertions="5" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="pointer-events, jsPlumb.connect" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="connector-pointer-events, jsPlumb.addEndpoint" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=": jsPlumbUtil.isEmpty" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : DOM adapter addClass/hasClass/removeClass" assertions="16" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : DOM adapter addClass/removeClass, multiple elements, with selector" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="DOM adapter addClass/removeClass, multiple elements, with array of DOM elements" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="DOM adapter addClass/removeClass, multiple elements, with array of IDs" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : DOM adapter addClass and removeClass at the same time, pass as arrays" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name=" : DOM adapter addClass and removeClass at the same time, pass as strings" assertions="8" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="endpointStyle on connect method" assertions="1" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="recalculateOffsets" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="offset body scroll" assertions="0" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="endpointStyle on connect method, with makeSource prepared element" assertions="1" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name="setContainer does not cause multiple event registrations (issue 307)" assertions="1" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name="connections via mouse between Endpoints configured with addEndpoint" assertions="6" time="0.16">
+		</testcase>
+		<testcase classname="jsPlumb" name="connections via mouse between elements configured with makeSource/makeTarget" assertions="12" time="0.30">
+		</testcase>
+		<testcase classname="jsPlumb" name="issue 415: spurious endpoints after dragging" assertions="11" time="0.22">
+		</testcase>
+		<testcase classname="jsPlumb" name="drag connection so it turns into a self-loop. ensure endpoints registered correctly. target not continuous anchor so not hidden (issue 419)" assertions="8" time="0.23">
+		</testcase>
+		<testcase classname="jsPlumb" name="drag connection so it turns into a self-loop. ensure endpoints registered correctly. target is continuous anchor so is hidden. (issue 419)" assertions="4" time="0.15">
+		</testcase>
+		<testcase classname="jsPlumb" name="endpoint:connectionsDetachable mouse interaction" assertions="3" time="0.12">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection:detachable false, mouse interaction" assertions="3" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection:detachable true by default, mouse interaction" assertions="3" time="0.08">
+		</testcase>
+		<testcase classname="jsPlumb" name="connectionDetached event is fired when no beforeDrop is active" assertions="3" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="beforeDrop returning false prevents connectionDetached event" assertions="2" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="drag connection between two endpoints" assertions="2" time="0.08">
+		</testcase>
+		<testcase classname="jsPlumb" name="drag connection between two endpoints but endpoints are full" assertions="2" time="0.08">
+		</testcase>
+		<testcase classname="jsPlumb" name="endpoint:beforeDetach listener via mouse interaction" assertions="6" time="0.10">
+		</testcase>
+		<testcase classname="jsPlumb" name="unbind a single event listener does not unbind them all" assertions="5" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name="bind multiple listeners via array (multiple events, one function)" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="setDraggable with array" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="offset cache cleared" assertions="5" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name="jsPlumb.empty removes connections" assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple drag and detach case" assertions="7" time="0.13">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, extractor atts defined on source" assertions="2" time="0.05">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple drag and detach case, beforeDetach interceptor says no." assertions="7" time="0.13">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple drag and detach case, reattach=true on connection prevents detach." assertions="7" time="0.11">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple move target case" assertions="6" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple move source case" assertions="7" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple move source case, continuous anchors" assertions="7" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple move target case, beforeDetach aborts the move" assertions="6" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple move source case, beforeDetach aborts the move" assertions="5" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, simple move case, connection reattach=true aborts the move" assertions="6" time="0.05">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, redrop on original target" assertions="5" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, redrop on original source" assertions="5" time="0.07">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, move source to element not configured as drag source" assertions="7" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, move source to element not configured as drag source, beforeDetach cancels connection" assertions="7" time="0.13">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, move source to element not configured as drag source, beforeDrop cancels connection" assertions="7" time="0.08">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, move source to element not configured as drag source" assertions="7" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, move source to element not configured as drag source, beforeDetach cancels connection" assertions="7" time="0.08">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, makeSource sets source endpoint and anchor" assertions="5" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, makeSource overrides source endpoint and anchor" assertions="8" time="0.12">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, makeSource overrides source endpoint and anchor" assertions="8" time="0.10">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, makeTarget overrides endpoint and anchor" assertions="5" time="0.07">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging" assertions="4" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="dragging works" assertions="4" time="0.04">
+		</testcase>
+		<testcase classname="jsPlumb" name="dragging a posse works, elements as argument" assertions="10" time="0.09">
+		</testcase>
+		<testcase classname="jsPlumb" name="dragging a posse works, element ids as argument" assertions="10" time="0.11">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection dragging, redrop on original target endpoint" assertions="4" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="draggable function, the various ways in which it can be called" assertions="4" time="0.02">
+		</testcase>
+		<testcase classname="jsPlumb" name="droppable function, the various ways in which it can be called" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="overlay click event" assertions="2" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name="set geometry in connect call" assertions="2" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="editable by default" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="set editable flag, CSS class set and connection editable, default connector Bezier" assertions="4" time="0.05">
+		</testcase>
+		<testcase classname="jsPlumb" name="set editable flag, CSS class set and connection editable, specified connector StateMachine" assertions="4" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="set editable flag, unsupported edit type" assertions="4" time="0.03">
+		</testcase>
+		<testcase classname="jsPlumb" name="set editable flag and subsequently edit the connection" assertions="6" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="editable flag set to false, subsequently try to edit the connection, not allowed." assertions="3" time="0.01">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection edit: events" assertions="3" time="0.06">
+		</testcase>
+		<testcase classname="jsPlumb" name="connection edit: ui artifacts" assertions="8" time="0.13">
+			<failure type="failed" message="there are no editor handles">
+	    at http://localhost:3333/tests/qunit-1.11.0.js:543
+    at http://localhost:3333/tests/jsPlumb-tests.js:8857
+    at http://localhost:3333/src/util.js:387
+    at http://localhost:3333/src/bezier-editor.js:411
+    at http://localhost:3333/src/bezier-editor.js:71
+			</failure>
+		</testcase>
+		<testcase classname="jsPlumb" name="connection edit: geometry not written if mouse not moved after mousedown" assertions="1" time="0.07">
+		</testcase>
+	</testsuite>
+</testsuites>

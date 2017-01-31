@@ -1,0 +1,111 @@
+---
+layout: apidoc
+title:  "jsplumb - Test Coverage API documentation"
+date:   2014-01-01 00:00:00
+yuiGridsUrl: http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css
+yuiSeedUrl: http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js
+projectAssets: ./assets
+base: ".."
+---
+
+
+
+<div id="doc">
+    <div id="bd" class="yui3-g">
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="./classes/Mottle.html">Mottle</a></li>
+            
+                <li><a href="./classes/Test.html">Test</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <div class="apidocs">
+    <div id="docs-main" class="content apidoc-intro">
+        <h3>jsPlumb API documentation</h3>
+        jsPlumb is organised into several classes and namespaces.
+        <p>The main classes you will deal with are <code>jsPlumbInstance</code>, <code>Endpoint</code>, <code>Connection</code>, <code>Anchor</code> and <code>Overlay</code>, but only rarely will you deal 
+        with these directly.  All objects are constructed by jsPlumb from "definitions" that you provide, and most of the operations you 
+        wish to perform on jsPlumb objects are mediated through an instance of the <code>jsPlumbInstance</code> class.
+        </p>
+        <h4>Static jsPlumb instance</h4>
+        <p>An important point to keep in mind is that the global <code>jsPlumb</code> object is just an instance of the 
+        <a href="classes/jsPlumbInstance.html">jsPlumbInstance</a> class that is registered by default on the browser window.</p>  
+        <p>For many people this single static instance is sufficient, but others need more than one instance.</p>
+        <p>Either way, remember as you read through the API documentation that a reference to a method on the <code>jsPlumbInstance</code> 
+        class means that <code>jsPlumb</code> has that method.</p>  
+
+        <h5>Keyboard Shortcuts</h5>
+
+        <ul>
+            <li><p>Press <kbd>s</kbd> to focus the API search box.</p></li>
+
+            <li><p>Use <kbd>Up</kbd> and <kbd>Down</kbd> to select classes, modules, and search results.</p></li>
+
+            <li class="mac-only"><p>With the API search box or sidebar focused, use <kbd><span class="cmd">&#x2318;</span>-Left</kbd> or <kbd><span class="cmd">&#x2318;</span>-Right</kbd> to switch sidebar tabs.</p></li>
+
+            <li class="pc-only"><p>With the API search box or sidebar focused, use <kbd>Ctrl+Left</kbd> and <kbd>Ctrl+Right</kbd> to switch sidebar tabs.</p></li>
+        </ul>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
