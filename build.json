@@ -1,0 +1,77 @@
+{
+    "includes": {
+        "JS_BEZIER": {
+            "p": "node_modules/jsbezier/js/jsbezier.js"
+        },
+        "BILTONG": {
+            "p": "node_modules/biltong/src/biltong.js"
+        },
+        "MOTTLE": {
+            "p": "node_modules/mottle/js/mottle.js"
+        },
+        "KATAVORIO": {
+            "p": "node_modules/katavorio/src/katavorio.js"
+        }
+    },
+    "coreLibs": [
+        "JS_BEZIER",
+        "BILTONG"
+    ],
+    "browserLibs": [
+        "MOTTLE",
+        "KATAVORIO"
+    ],
+    "connectors": [
+        "flowchart",
+        "bezier",
+        "statemachine",
+        "straight"
+    ],
+    "demos":[
+        [
+            "flowchart",
+            "Flowchart",
+            "Example of using the Flowchart connectors"
+        ],
+        [
+            "statemachine",
+            "State Machine",
+            "Example of how to use the 'StateMachine' connectors, with elements as drag sources and targets"
+        ],
+        [
+            "draggableConnectors",
+            "Drag and Drop",
+            "The original jsPlumb drag and drop example"
+        ],
+        [
+            "perimeterAnchors",
+            "Perimeter Anchors",
+            "A simple example demonstrating the 'Perimeter' anchor type"
+        ],
+        [
+            "chart",
+            "Hierarchical Chart",
+            "Simple hierarchical chart (without automatic layout)"
+        ],
+        [
+            "sourcesAndTargets",
+            "Sources and Targets",
+            "An example of using elements as drag sources and targets"
+        ],
+        [
+            "dynamicAnchors",
+            "Dynamic Anchors",
+            "An example showing the 'Dynamic' anchor type"
+        ],
+        [
+            "animation",
+            "Animation",
+            "Simple example demonstrating jsPlumb's `animate` method"
+        ],
+        [
+            "groups",
+            "Groups",
+            "Demonstrates the various options for defining and working with Groups"
+        ]
+    ]
+}
