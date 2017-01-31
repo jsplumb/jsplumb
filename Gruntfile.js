@@ -39,7 +39,8 @@ var package = require('./package.json'),
 
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
-        sources.push.apply(sources, ["svg"]);
+        //sources.push.apply(sources, ["svg"]);
+        sources.push.apply(sources, getList(grunt, "renderers"));
         sources.push("src/dom.jsPlumb.js");
         return sources;
     },

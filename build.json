@@ -27,6 +27,9 @@
         "statemachine",
         "straight"
     ],
+    "renderers" : [
+        "svg"
+    ],
     "demos":[
         [
             "flowchart",
