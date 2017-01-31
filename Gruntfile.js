@@ -1,11 +1,12 @@
 
 var package = require('./package.json'),
+    BUILD = require("./build.json"),
     get = function(name) {
-        if (package.includes[name].p) {
+        if (BUILD.includes[name].p) {
             // the new way, with libs from npm
-            return package.includes[name].p;
+            return BUILD.includes[name].p;
         } else {
-            return "lib/" + package.includes[name].f + "-" + package.includes[name].v + ".js";
+            return "lib/" + BUILD.includes[name].f + "-" + BUILD.includes[name].v + ".js";
         }
     },
     objects = {
@@ -25,20 +26,20 @@ var package = require('./package.json'),
             o.push("src/" + t + "-" + v + ".js");
     },
     getList = function(grunt, type) {
-        var ol = optionList(grunt, type), l = package[type], out = [];
+        var ol = optionList(grunt, type), l = BUILD[type], out = [];
         for (var i = 0; i < l.length; i++)
             filter(ol, l[i], type, out);
 
         return out;
     },
     getSources = function(grunt) {
-        var sources =  package.coreLibs.map(get);
+        var sources =  BUILD.coreLibs.map(get);
 
-        sources.push.apply(sources, package.browserLibs.map(get));
+        sources.push.apply(sources, BUILD.browserLibs.map(get));
 
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
-        sources.push.apply(sources, getList(grunt, "renderers"));
+        sources.push.apply(sources, ["svg"]);
         sources.push("src/dom.jsPlumb.js");
         return sources;
     },
@@ -224,12 +225,12 @@ module.exports = function(grunt) {
 
 // ------------------------- prepare jekyll site task --------------------------------------------------------
 
-    var package = require('./package.json');
     var support = require("./build-support.js");
+    var demoList = BUILD.demos;
 
     var _createDemos = function() {
-        for (var i = 0; i < package.demos.length; i++) {
-            var d = package.demos[i][0],
+        for (var i = 0; i < demoList.length; i++) {
+            var d = demoList[i][0],
                 js = grunt.file.read("demo/" + d + "/demo.js"),
                 css = grunt.file.read("demo/" + d + "/demo.css");
 
@@ -237,7 +238,7 @@ module.exports = function(grunt) {
             //for (var j = 0; j < libraries.length; j++) {
                 var html = grunt.file.read("demo/" + d + "/dom.html"),
                     m = html.match(/(<!-- demo.*>.*\n)(.*\n)*(.*\/demo -->)/),
-                    t = package.demos[i][1];
+                    t = demoList[i][1];
 
                 grunt.file.write("jekyll/demo/" + d + "/demo.js", js);
                 grunt.file.write("jekyll/demo/" + d + "/demo.css", css);
@@ -249,7 +250,7 @@ module.exports = function(grunt) {
                     base:"../..",
                     demo:d
                 });
-                grunt.file.write("jekyll/demo/" + package.demos[i][0] + "/dom.html", fm + m[0]);
+                grunt.file.write("jekyll/demo/" + demoList[i][0] + "/dom.html", fm + m[0]);
            // }
         }
     };
@@ -261,17 +262,17 @@ module.exports = function(grunt) {
     //
     var _createTests = function() {
         // unit tests
-        for (var j = 0; j < package.renderers.length; j++) {
+
 
             var frontMatter = support.createFrontMatter({
                 layout:"test",
                 date:support.timestamp(),
                 categories:"test",
-                renderer:package.renderers[j],
+                renderer:"svg",
                 base:".."
             });
-            grunt.file.write("jekyll/tests/qunit-" + package.renderers[j] + "-dom-instance.html", frontMatter);
-        }
+            grunt.file.write("jekyll/tests/qunit-svg-dom-instance.html", frontMatter);
+
 
         // load tests
         var lt = grunt.file.read("tests/loadtest-template.html");
