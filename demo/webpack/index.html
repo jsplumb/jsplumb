@@ -24,7 +24,11 @@
             instance of jsPlumb which is returned from a `require` call to some JS inside the bundle.
 
             <h3>No</h3>
-            You need to run <span>npm install</span> in the project root. This does a few things:
+            <p>
+            You need to run a couple of npm commands in the project root.
+            </p>
+
+            <span>npm install</span>
 
             <ol>
                 <li><p>Installs jsPlumb's dependencies</p></li>
@@ -53,6 +57,13 @@
                     </pre>
 
                 </li>
+            </ol>
+
+            <p>
+                <span>npm run init</span>
+            </p>
+
+            <ol>
                 <li>
                     <p>Runs <span>npm install</span> in this demo's directory.</p>
                     <p>To get webpack and jsPlumb.</p>
@@ -80,8 +91,7 @@ module.exports = {
                 </li>
             </ol>
 
-            Steps (3) and (4) are accomplished by executing <span>install.js</span> from the project root as a <span>preinstall</span>
-            script - it recurses through each directory in the project and runs <span>npm install</span> when it finds a package.json,
+            The <span>init</span> script recurses through each directory in the project and runs <span>npm install</span> when it finds a package.json,
             and <span>grunt build</span> when it finds a Gruntfile.js.
         </div>
 
