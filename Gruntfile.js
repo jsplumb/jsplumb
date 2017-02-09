@@ -231,7 +231,7 @@ module.exports = function(grunt) {
 
     var _createDemos = function() {
         for (var i = 0; i < demoList.length; i++) {
-            var d = demoList[i][0],
+            var d = demoList[i].id,
                 js = grunt.file.read("demo/" + d + "/demo.js"),
                 css = grunt.file.read("demo/" + d + "/demo.css");
 
@@ -239,7 +239,7 @@ module.exports = function(grunt) {
             //for (var j = 0; j < libraries.length; j++) {
                 var html = grunt.file.read("demo/" + d + "/dom.html"),
                     m = html.match(/(<!-- demo.*>.*\n)(.*\n)*(.*\/demo -->)/),
-                    t = demoList[i][1];
+                    t = demoList[i].name;
 
                 grunt.file.write("jekyll/demo/" + d + "/demo.js", js);
                 grunt.file.write("jekyll/demo/" + d + "/demo.css", css);
@@ -251,7 +251,7 @@ module.exports = function(grunt) {
                     base:"../..",
                     demo:d
                 });
-                grunt.file.write("jekyll/demo/" + demoList[i][0] + "/dom.html", fm + m[0]);
+                grunt.file.write("jekyll/demo/" + demoList[i].id + "/dom.html", fm + m[0]);
            // }
         }
     };

@@ -10,7 +10,7 @@
   "files": [
     "dist/js/jsplumb.js",
     "dist/js/jsplumb.min.js",
-    "dist/css/jsPlumbToolkit-defaults.css"
+    "dist/css/jsplumbtoolkit-defaults.css"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

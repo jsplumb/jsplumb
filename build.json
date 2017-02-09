@@ -31,50 +31,50 @@
         "svg"
     ],
     "demos":[
-        [
-            "flowchart",
-            "Flowchart",
-            "Example of using the Flowchart connectors"
-        ],
-        [
-            "statemachine",
-            "State Machine",
-            "Example of how to use the 'StateMachine' connectors, with elements as drag sources and targets"
-        ],
-        [
-            "draggableConnectors",
-            "Drag and Drop",
-            "The original jsPlumb drag and drop example"
-        ],
-        [
-            "perimeterAnchors",
-            "Perimeter Anchors",
-            "A simple example demonstrating the 'Perimeter' anchor type"
-        ],
-        [
-            "chart",
-            "Hierarchical Chart",
-            "Simple hierarchical chart (without automatic layout)"
-        ],
-        [
-            "sourcesAndTargets",
-            "Sources and Targets",
-            "An example of using elements as drag sources and targets"
-        ],
-        [
-            "dynamicAnchors",
-            "Dynamic Anchors",
-            "An example showing the 'Dynamic' anchor type"
-        ],
-        [
-            "animation",
-            "Animation",
-            "Simple example demonstrating jsPlumb's `animate` method"
-        ],
-        [
-            "groups",
-            "Groups",
-            "Demonstrates the various options for defining and working with Groups"
-        ]
+        {
+            "id":"flowchart",
+            "name":"Flowchart",
+            "desc":"Example of using the Flowchart connectors"
+        },
+        {
+            "id":"statemachine",
+            "name":"State Machine",
+            "desc":"Example of how to use the 'StateMachine' connectors, with elements as drag sources and targets"
+        },
+        {
+            "id":"draggableConnectors",
+            "name":"Drag and Drop",
+            "desc":"The original jsPlumb drag and drop example"
+        },
+        {
+            "id":"perimeterAnchors",
+            "name":"Perimeter Anchors",
+            "desc":"A simple example demonstrating the 'Perimeter' anchor type"
+        },
+        {
+            "id":"chart",
+            "name":"Hierarchical Chart",
+            "desc":"Simple hierarchical chart (without automatic layout)"
+        },
+        {
+            "id":"sourcesAndTargets",
+            "name":"Sources and Targets",
+            "desc":"An example of using elements as drag sources and targets"
+        },
+        {
+            "id":"dynamicAnchors",
+            "name":"Dynamic Anchors",
+            "desc":"An example showing the 'Dynamic' anchor type"
+        },
+        {
+            "id":"animation",
+            "name":"Animation",
+            "desc":"Simple example demonstrating jsPlumb's `animate` method"
+        },
+        {
+            "id":"groups",
+            "name":"Groups",
+            "desc":"Demonstrates the various options for defining and working with Groups"
+        }
     ]
 }

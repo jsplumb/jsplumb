@@ -1,7 +1,7 @@
 /* 
     Default styles for jsPlumb Toolkit
 
-    Copyright 2015 https://jsplumbtoolkit.com
+    Copyright 2017 https://jsplumbtoolkit.com
 */
 
 /* --------------------------------------------------------------------------------------------- */
@@ -9,11 +9,31 @@
 /* --------------------------------------------------------------------------------------------- */
 
 /*
-    Assigned to every node managed by an instance of the Toolkit. They are required to be positioned absolute, to
+    Assigned to every Node managed by an instance of the Toolkit. They are required to be positioned absolute, to
     enable dragging to work properly.
 */
 .jtk-node {
     position: absolute;
+}
+
+/*
+    Assigned to every Group managed by an instance of the Toolkit. They are required to be positioned absolute, to
+    enable dragging to work properly. We set overflow:visible on Group elements too, as a drag outside of the bounds
+    is automatically reverted anyway, and without overflow:visible you cannot drag a node to some other element. You can
+    also drag a node out of the element's viewport and if you drop it you can never get it back.
+*/
+.jtk-group {
+    position: absolute;
+    overflow: visible;
+}
+
+/*
+
+    This is the attribute used to mark which part of a Group DOM element should contain the child Nodes. We mark it
+    as having `position:relative` so that the absolute positioned Nodes are drawn correctly.
+*/
+[jtk-group-content] {
+    position:relative;
 }
 
 /*
@@ -24,7 +44,7 @@
     the issue has been fixed in more recent versions of Chrome, but the style is left here in case you come across
     the problem.
 */
-.jtk-node.jsplumb-drag {
+.jtk-node.jtk-drag {
     /*-webkit-backface-visibility: hidden;*/
 }
 
@@ -66,7 +86,7 @@
 
 /*
     Assigned to the surface when it is being panned. The default is to change the cursor (in browsers that support
-    a `grabbing` cursor), and to disable tex selection.
+    a `grabbing` cursor), and to disable text selection.
 */
 .jtk-surface-panning {
     cursor: -moz-grabbing;
@@ -123,7 +143,6 @@ Assigned to tile images in a tiled background
     border: 2px solid rgb(49, 119, 184);
     background-color: WhiteSmoke;
     opacity: 0.5;
-    filter: alpha(opacity=50);
     display: none;
     z-index: 20000;
     position: absolute;
@@ -142,6 +161,22 @@ Assigned to tile images in a tiled background
     user-select: none;
 }
 
+/**
+    Added to the lasso mask when it is operating in 'inverted' mode, ie. the excluded parts of the UI are covered, rather
+    than the normal mode in which the selected parts of the UI are covered.
+*/
+.jtk-lasso-mask {
+    position:fixed;
+    z-index:20000;
+    display:none;
+    opacity:0.5;
+    background-color: #07234E;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+}
+
 /*
     Assigned to some element that has been selected (either via lasso or programmatically).
 */
@@ -155,7 +190,6 @@ Assigned to tile images in a tiled background
 .jtk-surface-pan {
     background-color: Azure;
     opacity: 0.4;
-    filter: alpha(opacity=40);
     text-align: center;
     cursor: pointer;
     z-index: 2;
@@ -180,7 +214,6 @@ Assigned to tile images in a tiled background
 */
 .jtk-surface-pan-top:hover, .jtk-surface-pan-bottom:hover, .jtk-surface-pan-left:hover, .jtk-surface-pan-right:hover {
     opacity: 0.6;
-    filter: alpha(opacity=60);
     background-color: rgb(49, 119, 184);
     color: white;
     font-weight: bold;
@@ -232,7 +265,6 @@ Assigned to tile images in a tiled background
 .jtk-miniview-panner {
     border: 5px dotted WhiteSmoke;
     opacity: 0.4;
-    filter: alpha(opacity=40);
     background-color: rgb(79, 111, 126);
     cursor: move;
     cursor: -moz-grab;
@@ -253,6 +285,14 @@ Assigned to tile images in a tiled background
 .jtk-miniview-element {
     background-color: rgb(96, 122, 134);
     position: absolute;
+}
+
+/*
+    Added to Group elements displayed in a miniview
+*/
+.jtk-miniview-group-element {
+    background: transparent;
+    border: 2px solid rgb(96,122,134);
 }
 
 /*
@@ -543,7 +583,7 @@ Assigned to tile images in a tiled background
     This class is added to the document body on drag resize start and removed at the end of resizing. Its purpose
     is to switch off text selection on all elements while the user is resizing an element.
 */
-.jtk-draw-select-defeat * {
+.jtk-drag-select-defeat * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
