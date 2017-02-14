@@ -1,3 +1,15 @@
+## 2.3.0
+
+14 February 2017
+
+- removed version extension from built file names and made filenames lower case : jsplumb.js, jsplumb.min.js
+- npm pack the project at build time (to local file jsplumb.tgz)
+- reinstate bower.json in this project 
+- reorganise files used for building
+- ensure element connections repainted correctly after element added to group 
+- fix addToGroup to support multiple elements
+- switch to imports using npm (jsBezier, katavorio, biltong, mottle) rather then included in lib dir of project
+
 ## 2.2.10
 
 13 January 2017

@@ -29,6 +29,7 @@
   "author": "jsPlumb",
   "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
+    "morgan":"1.8.0",
     "biltong": "^0.4.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
