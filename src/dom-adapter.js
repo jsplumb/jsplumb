@@ -222,7 +222,8 @@
             }
             var pLoc = _currentInstance.getOffset(p),
                 cLoc = currentChildLocation || _currentInstance.getOffset(el);
-            if (current) {
+
+            if (current && _delements[current]) {
                 delete _delements[current][elId];
             }
 

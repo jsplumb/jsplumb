@@ -2087,25 +2087,6 @@
 // --------------------- makeSource/makeTarget ---------------------------------------------- 
 
         this.targetEndpointDefinitions = {};
-        var _setEndpointPaintStylesAndAnchor = function (ep, epIndex, _instance) {
-           /* ep.paintStyle = ep.paintStyle ||
-                _instance.Defaults.EndpointStyles[epIndex] ||
-                _instance.Defaults.EndpointStyle;
-
-            ep.hoverPaintStyle = ep.hoverPaintStyle ||
-                _instance.Defaults.EndpointHoverStyles[epIndex] ||
-                _instance.Defaults.EndpointHoverStyle;
-
-            ep.anchor = ep.anchor ||
-                _instance.Defaults.Anchors[epIndex] ||
-                _instance.Defaults.Anchor;
-
-            ep.endpoint = ep.endpoint ||
-                _instance.Defaults.Endpoints[epIndex] ||
-                _instance.Defaults.Endpoint;*/
-        };
-
-        // TODO put all the source stuff inside one parent, keyed by id.
         this.sourceEndpointDefinitions = {};
 
         var selectorFilter = function (evt, _el, selector, _instance, negate) {
@@ -2243,9 +2224,6 @@
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
 
-            // calculate appropriate paint styles and anchor from the params given
-            _setEndpointPaintStylesAndAnchor(p, 1, this);
-
             var maxConnections = p.maxConnections || -1,
 
                 _doOne = function (el) {
@@ -2313,7 +2291,6 @@
             var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
             p.endpoint = p.endpoint || aae.endpoints[0];
             p.anchor = p.anchor || aae.anchors[0];
-            _setEndpointPaintStylesAndAnchor(p, 0, this);
             var maxConnections = p.maxConnections || -1,
                 onMaxConnections = p.onMaxConnections,
                 _doOne = function (elInfo) {

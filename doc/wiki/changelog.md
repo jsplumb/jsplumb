@@ -1,3 +1,10 @@
+## 2.3.1
+
+15th March 2017
+
+- fixed possible NPE when adding child to group
+- do not override endpoints in connect call with endpoints from type if endpoints are specified.
+
 ## 2.3.0
 
 14 February 2017

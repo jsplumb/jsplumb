@@ -3439,7 +3439,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.3.0";
+        this.version = "2.3.1";
 
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
@@ -5066,25 +5066,6 @@
 // --------------------- makeSource/makeTarget ---------------------------------------------- 
 
         this.targetEndpointDefinitions = {};
-        var _setEndpointPaintStylesAndAnchor = function (ep, epIndex, _instance) {
-           /* ep.paintStyle = ep.paintStyle ||
-                _instance.Defaults.EndpointStyles[epIndex] ||
-                _instance.Defaults.EndpointStyle;
-
-            ep.hoverPaintStyle = ep.hoverPaintStyle ||
-                _instance.Defaults.EndpointHoverStyles[epIndex] ||
-                _instance.Defaults.EndpointHoverStyle;
-
-            ep.anchor = ep.anchor ||
-                _instance.Defaults.Anchors[epIndex] ||
-                _instance.Defaults.Anchor;
-
-            ep.endpoint = ep.endpoint ||
-                _instance.Defaults.Endpoints[epIndex] ||
-                _instance.Defaults.Endpoint;*/
-        };
-
-        // TODO put all the source stuff inside one parent, keyed by id.
         this.sourceEndpointDefinitions = {};
 
         var selectorFilter = function (evt, _el, selector, _instance, negate) {
@@ -5222,9 +5203,6 @@
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
 
-            // calculate appropriate paint styles and anchor from the params given
-            _setEndpointPaintStylesAndAnchor(p, 1, this);
-
             var maxConnections = p.maxConnections || -1,
 
                 _doOne = function (el) {
@@ -5292,7 +5270,6 @@
             var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
             p.endpoint = p.endpoint || aae.endpoints[0];
             p.anchor = p.anchor || aae.anchors[0];
-            _setEndpointPaintStylesAndAnchor(p, 0, this);
             var maxConnections = p.maxConnections || -1,
                 onMaxConnections = p.onMaxConnections,
                 _doOne = function (elInfo) {
@@ -6340,7 +6317,8 @@
             }
             var pLoc = _currentInstance.getOffset(p),
                 cLoc = currentChildLocation || _currentInstance.getOffset(el);
-            if (current) {
+
+            if (current && _delements[current]) {
                 delete _delements[current][elId];
             }
 
@@ -8303,7 +8281,7 @@
         // we apply types at the end of this constructor but endpoints are only honoured in a type definition at
         // create time.
         if (params.type) {
-            params.endpoints = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
+            params.endpoints = params.endpoints || this._jsPlumb.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
         }
 
         var eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),

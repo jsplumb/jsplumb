@@ -117,7 +117,7 @@
         // we apply types at the end of this constructor but endpoints are only honoured in a type definition at
         // create time.
         if (params.type) {
-            params.endpoints = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
+            params.endpoints = params.endpoints || this._jsPlumb.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
         }
 
         var eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
