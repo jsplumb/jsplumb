@@ -1695,6 +1695,8 @@
                     dragEl = null;
                 }
 
+                intersectingDroppables.length = 0;
+
                 if (revertFunction && revertFunction(this.el, this.params.getPosition(this.el)) === true) {
                     this.params.setPosition(this.el, posAtDown);
                     _dispatch("revert", this.el);
@@ -2430,7 +2432,7 @@
 
     };
 
-    root.Katavorio.version = "0.19.1";
+    root.Katavorio.version = "0.19.2";
 
     if (typeof exports !== "undefined") {
         exports.Katavorio = root.Katavorio;
@@ -3439,7 +3441,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.3.1";
+        this.version = "2.3.2";
 
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 

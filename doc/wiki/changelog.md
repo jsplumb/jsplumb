@@ -1,3 +1,9 @@
+## 2.3.2
+
+22nd March 2017
+
+- upgrade Katavorio to version 0.19.2, to fix a minor issue with droppables not being cleared after mouseup.
+
 ## 2.3.1
 
 15th March 2017
