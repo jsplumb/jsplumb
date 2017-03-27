@@ -9750,5 +9750,39 @@ test("endpoint: suspendedElement set correctly", function() {
 
     });
 
+
+
+    test("endpoint deletion: no deletion by default", function() {
+        var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = _addDiv("d3", null, null, 700, 700, 500, 500);
+        var ep1 = _jsPlumb.addEndpoint(d1, { maxConnections:-1}), ep2 = _jsPlumb.addEndpoint(d2), ep3 = _jsPlumb.addEndpoint(d3);
+        var c1 = _jsPlumb.connect({source:ep1, target:ep2});
+        var c2 = _jsPlumb.connect({source:ep1, target:ep3});
+
+        equal(_jsPlumb.select().length, 2, "two connections in the instance");
+        equal(_jsPlumb.selectEndpoints().length, 3, "three endpoints in the instance");
+        _jsPlumb.detach({connection:c1});
+        equal(_jsPlumb.select().length, 1, "one connection in the instance");
+        equal(_jsPlumb.selectEndpoints().length, 3, "three endpoints in the instance");
+    });
+
+    /*
+     test("endpoint deletion: no deletion by default", function() {
+     var d1 = _addDiv("d1", null, null, 0, 0, 500, 500);
+     var d2 = _addDiv("d2", d1, null, 200, 200, 50, 50);
+     var d3 = _addDiv("d3", null, null, 700, 700, 500, 500);
+     var ep1 = _jsPlumb.addEndpoint(d1, { maxConnections:-1}), ep2 = _jsPlumb.addEndpoint(d2), ep3 = _jsPlumb.addEndpoint(d3);
+     var c1 = _jsPlumb.connect({source:ep1, target:ep2});
+     var c2 = _jsPlumb.connect({source:ep1, target:ep3});
+
+     equal(_jsPlumb.select().length, 2, "two connections in the instance");
+     equal(_jsPlumb.selectEndpoints().length, 3, "three endpoints in the instance");
+     _jsPlumb.detach({connection:c1});
+     equal(_jsPlumb.select().length, 1, "one connection in the instance");
+     equal(_jsPlumb.selectEndpoints().length, 3, "three endpoints in the instance");
+     });
+     */
+
 };
 
