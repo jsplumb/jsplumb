@@ -135,6 +135,9 @@
         this._jsPlumb.currentAnchorClass = "";
         this._jsPlumb.events = {};
 
+        var deleteOnEmpty = params.deleteOnEmpty === true;
+        this.setDeleteOnEmpty = function(d) { deleteOnEmpty = d; };
+
         var _updateAnchorClass = function () {
             // stash old, get new
             var oldAnchorClass = _jsPlumb.endpointAnchorClassPrefix + "-" + this._jsPlumb.currentAnchorClass;
@@ -293,69 +296,77 @@
                 this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);
             }
 
-            if ((this._forceDeleteOnDetach || (!doNotCleanup && this._deleteOnDetach)) && this.connections.length === 0) {
+            //if ((this._forceDeleteOnDetach || (!doNotCleanup && this._deleteOnDetach)) && this.connections.length === 0) {
+            if (deleteOnEmpty && this.connections.length === 0) {
                 _jsPlumb.deleteObject({
                     endpoint: this,
                     fireEvent: false,
-                    //deleteAttachedObjects: false
                     deleteAttachedObjects: doNotCleanup !== true
                 });
             }
         };
 
+        this.deleteEveryConnection = function(params) {
+            var c = this.connections.length;
+            for (var i = 0; i < c; i++) {
+                _jsPlumb.deleteConnection(this.connections[0], params);
+            }
+        };
+
         //this.detach = function (connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
 
-        this.detach = function (params) {
-            var connectionIndex = params.connectionIndex,
-                connection = params.connection,
-                ignoreTarget = params.ignoreTarget,
-                fireEvent = params.fireEvent,
-                originalEvent = params.originalEvent,
-                endpointBeingDeleted = params.endpointBeingDeleted,
-                forceDetach = params.forceDetach;
+//        this.detach = function (params) {
+//            var connectionIndex = params.connectionIndex,
+//                connection = params.connection,
+//                ignoreTarget = params.ignoreTarget,
+//                fireEvent = params.fireEvent,
+//                originalEvent = params.originalEvent,
+//                endpointBeingDeleted = params.endpointBeingDeleted,
+//                forceDetach = params.forceDetach;
+//
+//            var idx = connectionIndex == null ? this.connections.indexOf(connection) : connectionIndex,
+//                actuallyDetached = false;
+//            fireEvent = (fireEvent !== false);
+//
+//            if (idx >= 0) {
+//
+//                if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) && _jsPlumb.checkCondition("beforeDetach", connection, endpointBeingDeleted) )) {
+//
+//                    _jsPlumb.deleteObject({
+//                        connection: connection,
+//                        fireEvent: (!ignoreTarget && fireEvent),
+//                        originalEvent: originalEvent,
+//                        deleteAttachedObjects:params.deleteAttachedObjects
+//                        //deleteAttachedObjects:null
+//                    });
+//                    actuallyDetached = true;
+//                }
+//            }
+//            return actuallyDetached;
+//        };
 
-            var idx = connectionIndex == null ? this.connections.indexOf(connection) : connectionIndex,
-                actuallyDetached = false;
-            fireEvent = (fireEvent !== false);
+//        this.detachAll = function (fireEvent, forceDetach) {
+//            var unaffectedConns = [];
+//            while (this.connections.length > 0) {
+//                // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
+//                var actuallyDetached = _jsPlumb.detach({
+//                    connection:this.connections[0],
+//                    ignoreTarget:false,
+//                    forceDetach:forceDetach === true,
+//                    fireEvent:fireEvent !== false,
+//                    originalEvent:null,
+//                    endpointBeingDeleted:this,
+//                    connectionIndex:0
+//                });
+//                if (!actuallyDetached) {
+//                    unaffectedConns.push(this.connections[0]);
+//                    this.connections.splice(0, 1);
+//                }
+//            }
+//            this.connections = unaffectedConns;
+//            return this;
+//        };
 
-            if (idx >= 0) {
-
-                if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) && _jsPlumb.checkCondition("beforeDetach", connection, endpointBeingDeleted) )) {
-
-                    _jsPlumb.deleteObject({
-                        connection: connection,
-                        fireEvent: (!ignoreTarget && fireEvent),
-                        originalEvent: originalEvent,
-                        deleteAttachedObjects:params.deleteAttachedObjects
-                        //deleteAttachedObjects:null
-                    });
-                    actuallyDetached = true;
-                }
-            }
-            return actuallyDetached;
-        };
-
-        this.detachAll = function (fireEvent, forceDetach) {
-            var unaffectedConns = [];
-            while (this.connections.length > 0) {
-                // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
-                var actuallyDetached = this.detach({
-                    connection:this.connections[0],
-                    ignoreTarget:false,
-                    forceDetach:forceDetach === true,
-                    fireEvent:fireEvent !== false,
-                    originalEvent:null,
-                    endpointBeingDeleted:this,
-                    connectionIndex:0
-                });
-                if (!actuallyDetached) {
-                    unaffectedConns.push(this.connections[0]);
-                    this.connections.splice(0, 1);
-                }
-            }
-            this.connections = unaffectedConns;
-            return this;
-        };
         this.detachFrom = function (targetEndpoint, fireEvent, originalEvent) {
             var c = [];
             for (var i = 0; i < this.connections.length; i++) {
@@ -363,14 +374,16 @@
                     c.push(this.connections[i]);
                 }
             }
-            for (var j = 0; j < c.length; j++) {
-                this.detach({
-                    connection:c[j],
-                    ignoreTarget:false,
-                    forceDetach:true,
-                    fireEvent:fireEvent,
-                    originalEvent:originalEvent
-                });
+            var count = c.length;
+            for (var j = 0; j < count; j++) {
+//                this.detach({
+//                    connection:c[j],
+//                    ignoreTarget:false,
+//                    forceDetach:true,
+//                    fireEvent:fireEvent,
+//                    originalEvent:originalEvent
+//                });
+                _jsPlumb.deleteConnection(c[0]);
             }
             return this;
         };
