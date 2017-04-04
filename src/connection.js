@@ -128,16 +128,16 @@
         // if scope not set, set it to be the scope for the source endpoint.
         if (!this.scope) this.scope = this.endpoints[0].scope;
 
-        // if explicitly told to (or not to) delete endpoints on detach, override endpoint's preferences
-        if (params.deleteEndpointsOnDetach != null) {
-            this.endpoints[0]._deleteOnDetach = params.deleteEndpointsOnDetach;
-            this.endpoints[1]._deleteOnDetach = params.deleteEndpointsOnDetach;
+        // if explicitly told to (or not to) delete endpoints when empty, override endpoint's preferences
+        if (params.deleteEndpointsOnEmpty != null) {
+            this.endpoints[0].setDeleteOnEmpty(params.deleteEndpointsOnEmpty);
+            this.endpoints[1].setDeleteOnEmpty(params.deleteEndpointsOnEmpty);
         }
-        else {
-            // otherwise, unless the endpoints say otherwise, mark them for deletion.
-            if (!this.endpoints[0]._doNotDeleteOnDetach) this.endpoints[0]._deleteOnDetach = true;
-            if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
-        }
+//        else {
+//            // otherwise, unless the endpoints say otherwise, mark them for deletion.
+//            if (!this.endpoints[0]._doNotDeleteOnDetach) this.endpoints[0]._deleteOnDetach = true;
+//            if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
+//        }
 
 // -------------------------- DEFAULT TYPE ---------------------------------------------
 
@@ -203,6 +203,12 @@
         this.setReattach = function (reattach) {
             this._jsPlumb.reattach = reattach === true;
         };
+
+//        this["delete"] = function() {
+//            this.endpoints[0].detachFromConnection(this);
+//            this.endpoints[1].detachFromConnection(this);
+//            params.deleteConnection(this);
+//        };
 
 // END INITIALISATION CODE
 
