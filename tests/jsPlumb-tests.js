@@ -564,7 +564,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
     test(': detach does not fail when no arguments are provided', function () {
         var d3 = _addDiv("d3"), d4 = _addDiv("d4");
         _jsPlumb.connect({source: d3, target: d4});
-        _jsPlumb.detach();
+        _jsPlumb.deleteConnection();
         expect(0);
     });
 
@@ -576,7 +576,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.detach(conn);
+        _jsPlumb.deleteConnection(conn);
         equal(eventCount, 1);
     });
 
@@ -588,7 +588,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.detach({connection: conn});
+        _jsPlumb.deleteConnection(conn);
         equal(eventCount, 1);
     });
 
@@ -600,7 +600,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.detach(conn, {fireEvent: false});
+        _jsPlumb.deleteConnection(conn, {fireEvent: false});
         equal(eventCount, 0);
     });
 
@@ -612,7 +612,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.detach(conn);
+        _jsPlumb.deleteConnection(conn);
         equal(eventCount, 1);
     });
 
@@ -624,19 +624,19 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.detach({connection: conn});
+        _jsPlumb.deleteConnection(conn);
         equal(eventCount, 1);
     });
 
     // issue 81
-    test(': detach should fire only one detach event (pass source and targets as strings as arguments in params object)', function () {
+    test(': delete should fire only one detach event (pass source and targets as strings as arguments in params object)', function () {
         var d5 = _addDiv("d5"), d6 = _addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.detach({source: "d5", target: "d6"});
+        _jsPlumb.select({source: "d5", target: "d6"}).delete();
         equal(eventCount, 1);
     });
 
@@ -648,7 +648,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.detach({source: d5, target: d6, fireEvent: true});
+        _jsPlumb.select({source: d5, target: d6}).delete();
         equal(eventCount, 1);
     });
 
@@ -680,7 +680,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source: d6, target: d7});
         var c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 2, "there are two connections initially");
-        _jsPlumb.detach({source: 'd5', target: 'd6'});
+        _jsPlumb.select({source: 'd5', target: 'd6'}).delete();
         c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 1, "after detaching one, there is now one connection.");
     });
@@ -691,7 +691,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source: d6, target: d7});
         var c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 2, "there are two connections initially");
-        _jsPlumb.detach({source: "d5", target: "d6"});
+        _jsPlumb.select({source: "d5", target: "d6"}).delete();
         c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 1, "after detaching one, there is now one connection.");
     });
@@ -702,7 +702,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source: d6, target: d7});
         var c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 2, "there are two connections initially");
-        _jsPlumb.detach({source: d5, target: d6});
+        _jsPlumb.select({source: d5, target: d6}).delete();
         c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 1, "after detaching one, there is now one connection.");
     });
@@ -713,7 +713,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         var c67 = _jsPlumb.connect({source: d6, target: d7});
         var c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 2, "there are two connections initially");
-        _jsPlumb.detach(c56);
+        _jsPlumb.deleteConnection(c56);
         c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 1, "after detaching one, there is now one connection.");
     });
@@ -730,7 +730,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             beforeDetachCount++;
         });
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
         equal(beforeDetachCount, 0, "jsplumb before detach was not called");
     });
@@ -743,7 +743,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             beforeDetachCount++;
         });
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints, null, "connection's endpoints were removed");
     });
 
@@ -753,7 +753,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             return true;
         }});
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints, null, "connection's endpoints were removed");
     });
 
@@ -763,7 +763,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             throw "i am an example of badly coded beforeDetach, but i don't break jsPlumb ";
         }});
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints, null, "connection's endpoints were removed");
     });
 
@@ -779,7 +779,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             beforeDetachCount++;
         });
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
         equal(beforeDetachCount, 0, "jsplumb before detach was not called");
     });
@@ -792,7 +792,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints, null, "connection's endpoints were removed");
     });
 
@@ -805,12 +805,12 @@ test("drag multiple elements and ensure their connections are painted correctly 
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-        var success = e1.detach(c);
+        var success = _jsPlumb.deleteConnection(c);
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
         ok(!success, "Endpoint reported detach did not execute");
     });
 
-    test(": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false", function () {
+    test(": _jsPlumb.deleteConnection; beforeDetach on addEndpoint call to target Endpoint returns false", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
@@ -818,11 +818,11 @@ test("drag multiple elements and ensure their connections are painted correctly 
             } });
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
     });
 
-    test(": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false but detach is forced", function () {
+    test(": _jsPlumb.deleteConnection; beforeDetach on addEndpoint call to target Endpoint returns false but detach is forced", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
@@ -830,11 +830,11 @@ test("drag multiple elements and ensure their connections are painted correctly 
             } });
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detach(c, {forceDetach: true});
+        _jsPlumb.deleteConnection(c, {force: true});
         equal(c.endpoints, null, "connection's endpoints were removed");
     });
 
-    test(": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns true", function () {
+    test(": _jsPlumb.deleteConnection; beforeDetach on addEndpoint call to target Endpoint returns true", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
@@ -842,13 +842,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
             } });
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints, null, "connection's endpoints were removed");
         equal(e1.connections.length, 0, "source endpoint has no connections");
         equal(e2.connections.length, 0, "target endpoint has no connections");
     });
 
-    test(": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns false", function () {
+    test(": _jsPlumb.deleteConnection; beforeDetach bound to _jsPlumb returns false", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
@@ -861,12 +861,12 @@ test("drag multiple elements and ensure their connections are painted correctly 
             return false;
         });
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
         equal(beforeDetachCount, 1, "beforeDetach was called only one time");
     });
 
-    test(": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns true", function () {
+    test(": _jsPlumb.deleteConnection; beforeDetach bound to _jsPlumb returns true", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
@@ -877,13 +877,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
             return true;
         });
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(c.endpoints, null, "connection's endpoints were removed");
         equal(e1.connections.length, 0, "source endpoint has no connections");
         equal(e2.connections.length, 0, "target endpoint has no connections");
     });
 
-    test(": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns false", function () {
+    test(": _jsPlumb.deleteConnection; beforeDetach bound to _jsPlumb returns false", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
@@ -892,25 +892,56 @@ test("drag multiple elements and ensure their connections are painted correctly 
             return false;
         });
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detach(c);
+        var deleted = _jsPlumb.deleteConnection(c);
         equal(e1.connections.length, 1, "source endpoint's connection was not removed");
+        equal(deleted, false, "deleteConnection reports connection not deleted");
     });
 
-    test(": _jsPlumb.detachAllConnections ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function () {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
-            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
-                return false;
-            } });
-        var c = _jsPlumb.connect({source: e1, target: e2});
-        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detachAllConnections(d1);
-        equal(c.endpoints, null, "connection's endpoints were removed");
-        equal(e1.connections.length, 0, "source endpoint has no connections");
-        equal(e2.connections.length, 0, "target endpoint has no connections");
-    });
+//    test(": _jsPlumb.detachAllConnections ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function () {
+//        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+//        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+//            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
+//                return false;
+//            } });
+//        var c = _jsPlumb.connect({source: e1, target: e2});
+//        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+//        _jsPlumb.detachAllConnections(d1);
+//        equal(c.endpoints, null, "connection's endpoints were removed");
+//        equal(e1.connections.length, 0, "source endpoint has no connections");
+//        equal(e2.connections.length, 0, "target endpoint has no connections");
+//    });
+//
+//    test(": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns false and we dont detach", function () {
+//        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+//        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+//            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
+//        var c = _jsPlumb.connect({source: e1, target: e2});
+//        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+//        _jsPlumb.bind("beforeDetach", function (conn) {
+//            return false;
+//        });
+//        _jsPlumb.detachAllConnections(d1);
+//        equal(c.endpoints.length, 2, "connection's endpoints were not removed");
+//        equal(e1.connections.length, 1, "source endpoint has a connection");
+//        equal(e2.connections.length, 1, "target endpoint has a connection");
+//    });
+//
+//    test(": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns true and we do detach", function () {
+//        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+//        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+//            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
+//        var c = _jsPlumb.connect({source: e1, target: e2});
+//        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+//        _jsPlumb.bind("beforeDetach", function (conn) {
+//            return true;
+//        });
+//        _jsPlumb.detachAllConnections(d1);
+//        equal(c.endpoints, null, "connection's endpoints were removed");
+//        equal(e1.connections.length, 0, "source endpoint has no connections");
+//        equal(e2.connections.length, 0, "target endpoint has no connections");
+//    });
 
-    test(": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns false and we dont detach", function () {
+    test(": _jsPlumb.deleteEveryConnection ; beforeDetach on jsPlumb returns false and we dont detach", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
@@ -919,13 +950,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("beforeDetach", function (conn) {
             return false;
         });
-        _jsPlumb.detachAllConnections(d1);
+        _jsPlumb.deleteEveryConnection();
         equal(c.endpoints.length, 2, "connection's endpoints were not removed");
         equal(e1.connections.length, 1, "source endpoint has a connection");
         equal(e2.connections.length, 1, "target endpoint has a connection");
     });
 
-    test(": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns true and we do detach", function () {
+    test(": _jsPlumb.deleteEveryConnection ; beforeDetach on jsPlumb returns true and we do detach", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
@@ -934,13 +965,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("beforeDetach", function (conn) {
             return true;
         });
-        _jsPlumb.detachAllConnections(d1);
+        _jsPlumb.deleteEveryConnection();
         equal(c.endpoints, null, "connection's endpoints were removed");
         equal(e1.connections.length, 0, "source endpoint has no connections");
         equal(e2.connections.length, 0, "target endpoint has no connections");
     });
 
-    test(": _jsPlumb.detachEveryConnection ; beforeDetach on jsPlumb returns false and we dont detach", function () {
+    test(": _jsPlumb.deleteEveryConnection ; beforeDetach on jsPlumb returns true but we have forced deletion of the connection", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
@@ -949,43 +980,29 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("beforeDetach", function (conn) {
             return false;
         });
-        _jsPlumb.detachEveryConnection();
+        var deletedCount = _jsPlumb.deleteEveryConnection({force: true});
+        equal(c.endpoints, null, "connection's endpoints were removed");
+        equal(e1.connections.length, 0, "source endpoint has no connections");
+        equal(e2.connections.length, 0, "target endpoint has no connections");
+        equal(deletedCount, 1, "deleteEveryConnection reports one connection deleted");
+    });
+
+    test(": _jsPlumb.deleteEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false so we do not delete the connection", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
+                return false;
+            } });
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+        _jsPlumb.deleteEveryConnection();
         equal(c.endpoints.length, 2, "connection's endpoints were not removed");
-        equal(e1.connections.length, 1, "source endpoint has a connection");
-        equal(e2.connections.length, 1, "target endpoint has a connection");
+        equal(e1.connections.length, 1, "source endpoint has 1 connection");
+        equal(e2.connections.length, 1, "target endpoint has 1 connection");
+        equal(_jsPlumb.select().length, 1, "one connection in the instance");
     });
 
-    test(": _jsPlumb.detachEveryConnection ; beforeDetach on jsPlumb returns true and we do detach", function () {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
-            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
-        var c = _jsPlumb.connect({source: e1, target: e2});
-        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.bind("beforeDetach", function (conn) {
-            return true;
-        });
-        _jsPlumb.detachEveryConnection();
-        equal(c.endpoints, null, "connection's endpoints were removed");
-        equal(e1.connections.length, 0, "source endpoint has no connections");
-        equal(e2.connections.length, 0, "target endpoint has no connections");
-    });
-
-    test(": _jsPlumb.detachEveryConnection ; beforeDetach on jsPlumb returns true but we have forced detach", function () {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
-            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
-        var c = _jsPlumb.connect({source: e1, target: e2});
-        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.bind("beforeDetach", function (conn) {
-            return false;
-        });
-        _jsPlumb.detachEveryConnection({forceDetach: true});
-        equal(c.endpoints, null, "connection's endpoints were removed");
-        equal(e1.connections.length, 0, "source endpoint has no connections");
-        equal(e2.connections.length, 0, "target endpoint has no connections");
-    });
-
-    test(": _jsPlumb.detachEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function () {
+    test(": Endpoint.deleteEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false so we dont delete the connection", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
@@ -993,13 +1010,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
             } });
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        _jsPlumb.detachEveryConnection();
-        equal(c.endpoints, null, "connection's endpoints were removed");
-        equal(e1.connections.length, 0, "source endpoint has no connections");
-        equal(e2.connections.length, 0, "target endpoint has no connections");
+        e1.deleteEveryConnection();
+        equal(c.endpoints.length, 2, "connection's endpoints were not removed");
+        equal(e1.connections.length, 1, "source endpoint has one connection");
+        equal(e2.connections.length, 1, "target endpoint has one connection");
     });
 
-    test(": Endpoint.detachAll ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function () {
+    test(": Endpoint.deleteEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false but force is true so we delete the connection", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
@@ -1007,8 +1024,8 @@ test("drag multiple elements and ensure their connections are painted correctly 
             } });
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-        e1.detachAll();
-        equal(c.endpoints, null, "connection's endpoints were removed");
+        e1.deleteEveryConnection({force:true});
+        equal(c.endpoints, null, "connection's endpoints were not removed");
         equal(e1.connections.length, 0, "source endpoint has no connections");
         equal(e2.connections.length, 0, "target endpoint has no connections");
     });
@@ -1017,7 +1034,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
 // detachEveryConnection/detachAllConnections fireEvent overrides tests
 
-    test(": _jsPlumb.detachEveryConnection fires events", function () {
+    test(": _jsPlumb.deleteEveryConnection fires events", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0;
         _jsPlumb.bind("connection", function () {
             connCount++;
@@ -1028,12 +1045,12 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d2});
         equal(connCount, 2, "two connections registered");
-        _jsPlumb.detachEveryConnection();
+        _jsPlumb.deleteEveryConnection();
         equal(connCount, 0, "no connections registered");
     });
 
 
-    test(": _jsPlumb.detachEveryConnection doesn't fire events when instructed not to", function () {
+    test(": _jsPlumb.deleteEveryConnection doesn't fire events when instructed not to", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0;
         _jsPlumb.bind("connection", function () {
             connCount++;
@@ -1044,11 +1061,11 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d2});
         equal(connCount, 2, "two connections registered");
-        _jsPlumb.detachEveryConnection({fireEvent: false});
+        _jsPlumb.deleteEveryConnection({fireEvent: false});
         equal(connCount, 2, "two connections registered");
     });
 
-    test(": _jsPlumb.detachAllConnections fires events", function () {
+    test(": _jsPlumb.deleteConnectionsForElement fires events", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0,
             e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2);
         _jsPlumb.bind("connection", function () {
@@ -1060,11 +1077,11 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d2});
         equal(connCount, 2, "two connections registered");
-        _jsPlumb.detachAllConnections("d1");
-        equal(connCount, 0, "no connections registered");
+        _jsPlumb.deleteConnectionsForElement("d1");
+        equal(connCount, 0, "no connections registered after delete connections for element");
     });
 
-    test(": _jsPlumb.detachAllConnections doesn't fire events when instructed not to", function () {
+    test(": _jsPlumb.deleteConnectionsForElement doesn't fire events when instructed not to", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0,
             e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2);
         _jsPlumb.bind("connection", function () {
@@ -1075,9 +1092,9 @@ test("drag multiple elements and ensure their connections are painted correctly 
         });
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d2});
-        equal(connCount, 2, "two connections registered");
-        _jsPlumb.detachAllConnections("d1", {fireEvent: false});
-        equal(connCount, 2, "two connections registered");
+        equal(connCount, 2, "two connections counted by event listener");
+        _jsPlumb.deleteConnectionsForElement("d1", {fireEvent: false});
+        equal(connCount, 2, "two connections still registered by event listener");
     });
 
 // **************************** / DETACHING CONNECTIONS ****************************************************    
@@ -1086,13 +1103,17 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
         // 1. simplest case - an endpoint that exists on some element.		
         var d1 = _addDiv("d1"),
-            e = _jsPlumb.addEndpoint(d1),
-            dt = _jsPlumb.deleteObject({endpoint: e});
+            e = _jsPlumb.addEndpoint(d1);
+            //dt = _jsPlumb.deleteObject({endpoint: e});
 
-        equal(jsPlumbUtil.isEmpty(dt.endpoints), false, "one endpoint to delete");
-        equal(dt.endpointCount, 1, "one endpoint to delete");
-        equal(jsPlumbUtil.isEmpty(dt.connections), true, "zero connections to delete");
-        equal(dt.connectionCount, 0, "zero connections to delete");
+        equal(_jsPlumb.selectEndpoints().length, 1, "1 endpoint registered");
+        _jsPlumb.deleteEndpoint(e);
+        equal(_jsPlumb.selectEndpoints().length, 0, "0 endpoints registered");
+
+//        equal(jsPlumbUtil.isEmpty(dt.endpoints), false, "one endpoint to delete");
+//        equal(dt.endpointCount, 1, "one endpoint to delete");
+//        equal(jsPlumbUtil.isEmpty(dt.connections), true, "zero connections to delete");
+//        equal(dt.connectionCount, 0, "zero connections to delete");
 
         // 2. create two endpoints and connect them, then delete one. the other endpoint should
         // still exist.
@@ -1101,44 +1122,53 @@ test("drag multiple elements and ensure their connections are painted correctly 
             e3 = _jsPlumb.addEndpoint(d3);
 
         _jsPlumb.connect({source: e2, target: e3});
+
         equal(_jsPlumb.select({source: d2}).length, 1, "one connection exists");
-
-        var dt2 = _jsPlumb.deleteObject({endpoint: e2});
-        equal(jsPlumbUtil.isEmpty(dt2.endpoints), false, "one endpoint to delete");
-        equal(jsPlumbUtil.isEmpty(dt2.connections), false, "one connection to delete");
-        equal(_jsPlumb.select({source: d2}).length, 0, "zero connections exist");
-        equal(_jsPlumb.getEndpoints(d2), null, "zero endpoints on d2");
+//
         equal(_jsPlumb.getEndpoints(d3).length, 1, "one endpoint on d3");
-
-        // 3. create two endpoints and connect them, then detach the connection. the two endpoints
-        // should still exist.
+        _jsPlumb.deleteEndpoint(e2);
+//        var dt2 = _jsPlumb.deleteObject({endpoint: e2});
+//        equal(jsPlumbUtil.isEmpty(dt2.endpoints), false, "one endpoint to delete");
+//        equal(jsPlumbUtil.isEmpty(dt2.connections), false, "one connection to delete");
+        equal(_jsPlumb.select({source: d2}).length, 0, "zero connections exist");
+        equal(_jsPlumb.getEndpoints(d2).length, 0, "zero endpoints on d2");
+        equal(_jsPlumb.getEndpoints(d3).length, 1, "one endpoint on d3");
+//
+//        // 3. create two endpoints and connect them, then detach the connection. the two endpoints
+//        // should still exist, because they did not set `deleteOnEmpty`.
         var d4 = _addDiv("d4"), d5 = _addDiv("d5"),
             e4 = _jsPlumb.addEndpoint(d4),
             e5 = _jsPlumb.addEndpoint(d5);
 
         var c = _jsPlumb.connect({source: e4, target: e5});
         equal(_jsPlumb.select({source: d4}).length, 1, "one connection exists");
-
-        var dt3 = _jsPlumb.deleteObject({connection: c});
-        equal(jsPlumbUtil.isEmpty(dt3.endpoints), true, "zero endpoints to delete");
-        equal(jsPlumbUtil.isEmpty(dt3.connections), false, "connections to delete");
+        _jsPlumb.deleteConnection(c);
         equal(_jsPlumb.select({source: d4}).length, 0, "zero connections exist");
         equal(_jsPlumb.getEndpoints(d4).length, 1, "one endpoint on d4");
         equal(_jsPlumb.getEndpoints(d5).length, 1, "one endpoint on d5");
 
-        // 4. same as (3), except set deleteEndpointsOnDetach on the connect call.
+        // set deleteOnEmpty on e4
+        e4.setDeleteOnEmpty(true);
+
+        // 4. same as (3) but now deleteOnEmpty is set on e4
+        c = _jsPlumb.connect({source: e4, target: e5});
+        equal(_jsPlumb.select({source: d4}).length, 1, "one connection exists between e4 and e5");
+        _jsPlumb.deleteConnection(c);
+        equal(_jsPlumb.select({source: d4}).length, 0, "zero connections exist after connection delete");
+        equal(_jsPlumb.getEndpoints(d4).length, 0, "no endpoints on d4");
+        equal(_jsPlumb.getEndpoints(d5).length, 1, "one endpoint on d5");
+//
+//        // 5.set deleteEndpointsOnDetach on the connect call, then delete the connection.
         var d6 = _addDiv("d6"), d7 = _addDiv("d7");
 
-        var c2 = _jsPlumb.connect({source: d6, target: d7, deleteEndpointsOnDetach: true});
+        var c2 = _jsPlumb.connect({source: d6, target: d7, deleteEndpointsOnEmpty: true});
         equal(_jsPlumb.select({source: d6}).length, 1, "one connection exists");
+        _jsPlumb.deleteConnection(c2);
+//
 
-        var dt4 = _jsPlumb.deleteObject({connection: c2});
-        equal(jsPlumbUtil.isEmpty(dt4.endpoints), false, "endpoints to delete");
-        equal(dt4.endpointCount, 2, "2 endpoints to delete");
-        equal(jsPlumbUtil.isEmpty(dt4.connections), false, "zero connections to delete");
         equal(_jsPlumb.select({source: d6}).length, 0, "zero connections exist");
-        equal(_jsPlumb.getEndpoints(d6), null, "no endpoints on d4");
-        equal(_jsPlumb.getEndpoints(d7), null, "no endpoints on d5");
+        equal(_jsPlumb.getEndpoints(d6).length, 0, "no endpoints on d6");
+        equal(_jsPlumb.getEndpoints(d7).length, 0, "no endpoints on d7");
 
     });
 
@@ -1209,7 +1239,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
     });
 
     test(': _jsPlumb.getConnections (filtered by a list of scopes, source ids and target ids)', function () {
-        _jsPlumb.detachEveryConnection();
+        _jsPlumb.deleteEveryConnection();
         var d11 = _addDiv("d11"), d12 = _addDiv("d12"), d13 = _addDiv('d13'), d14 = _addDiv("d14"), d15 = _addDiv("d15");
         _jsPlumb.connect({source: d11, target: d12, scope: 'testScope'});
         _jsPlumb.connect({source: d13, target: d12, scope: 'testScope'});
@@ -1271,10 +1301,10 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ok(jsPlumb.hasClass(d3, "jtk-connected"), "class set on element d3");
         // now disconnect original connection. d2 should no longer have the class, but d1 should, since it has
         // still one connection.
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         ok(jsPlumb.hasClass(d1, "jtk-connected"), "class still on element d1");
         ok(!jsPlumb.hasClass(d2, "jtk-connected"), "class removed from element d2");
-        _jsPlumb.detach(c2);
+        _jsPlumb.deleteConnection(c2);
         ok(!jsPlumb.hasClass(d1, "jtk-connected"), "class removed from element d1");
         ok(!jsPlumb.hasClass(d3, "jtk-connected"), "class removed from element d3");
     });
@@ -1297,7 +1327,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (params) {
             returnedParams = jsPlumb.extend({}, params);
         });
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         ok(returnedParams.connection != null, 'connection is set');
     });
 
@@ -1308,7 +1338,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
-        _jsPlumb.detach(conn);
+        _jsPlumb.deleteConnection(conn);
         ok(returnedParams != null, "removed connection listener event was fired");
         ok(returnedParams.connection != null, "removed connection listener event passed in connection");
     });
@@ -1319,8 +1349,8 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (params) {
             returnedParams = jsPlumb.extend({}, params);
         });
-        var conn = _jsPlumb.connect({source: d1, target: d2});
-        _jsPlumb.detach({source: "d1", target: "d2"});
+        _jsPlumb.connect({source: d1, target: d2});
+        _jsPlumb.select({source: "d1", target: "d2"}).delete();
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
@@ -1331,11 +1361,11 @@ test("drag multiple elements and ensure their connections are painted correctly 
             returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
-        _jsPlumb.detach({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
-    test(': detach event listeners (via Endpoint.detach method)', function () {
+    test(': detach event listeners (via jsPlumb.deleteConnection method)', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {});
         var e2 = _jsPlumb.addEndpoint(d2, {});
@@ -1344,7 +1374,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
-        e1.detach({connection:conn});
+        _jsPlumb.deleteConnection(conn);
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
@@ -1361,7 +1391,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
-    test(': detach event listeners (via Endpoint.detachAll method)', function () {
+    test(': detach event listeners (via Endpoint.deleteEveryConnection method)', function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {});
         var e2 = _jsPlumb.addEndpoint(d2, {});
@@ -1370,7 +1400,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
-        e1.detachAll();
+        e1.deleteEveryConnection();
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
@@ -1394,13 +1424,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
             returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
-        _jsPlumb.detach({source: d1, target: d2, fireEvent: true});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         ok(returnedParams != null, "removed connection listener event was fired");
         returnedParams = null;
 
         _jsPlumb.reset();
-        var conn = _jsPlumb.connect({source: d1, target: d2});
-        _jsPlumb.detach({source: d1, target: d2, fireEvent: true});
+        conn = _jsPlumb.connect({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         ok(returnedParams == null, "connection listener was cleared by _jsPlumb.reset()");
         equal(_jsPlumb.select({source: d1}).length, 0, "no connections from d1 after detach with two connections as arguments");
     });
@@ -1433,7 +1463,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (params) {
             count--;
         });
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         ok(count == 0, "count of events is now zero");
     });
 
@@ -1451,10 +1481,10 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (params) {
             count--;
         });
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         ok(count == 1, "count of events is now one");
         _jsPlumb.unbind("connectionDetached");
-        _jsPlumb.detach(c2);
+        _jsPlumb.deleteConnection(c2);
         ok(count == 1, "count of events is still one");
     });
 
@@ -1473,13 +1503,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.bind("connectionDetached", function (params) {
             count--;
         });
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         ok(count == 2, "count of events is now two");
 
         _jsPlumb.unbind();  // unbind everything
 
-        _jsPlumb.detach(c2);
-        _jsPlumb.detach(c3);
+        _jsPlumb.deleteConnection(c2);
+        _jsPlumb.deleteConnection(c3);
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d2});
@@ -1532,7 +1562,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionCount(e17, 1);
         assertConnectionCount(e18, 1);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 2, _jsPlumb);
-        e16.detachAll();
+        e16.deleteEveryConnection();
         assertConnectionCount(e16, 0);
         assertConnectionCount(e17, 0);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
@@ -1547,7 +1577,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionCount(e16, 1);
         assertConnectionCount(e17, 1);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-        e16.detach({connection:conn});
+        _jsPlumb.deleteConnection(conn);
         // but the connection should be gone, meaning not registered by _jsPlumb and not registered on either Endpoint:
         assertConnectionCount(e16, 0);
         assertConnectionCount(e17, 0);
@@ -1569,7 +1599,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
         ok(ep.canvas.parentNode != null, "endpoint 1 is in the DOM");
 
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         ok(ep.canvas.parentNode == null, "endpoint 1 is no longer in the DOM");
     });
 
@@ -1621,7 +1651,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         var f = _jsPlumb.getEndpoint(uuid);
         equal(f, null, "endpoint has been deleted");
         var ebe = _jsPlumb.getEndpoints("d16");
-        ok(ebe == null, "no endpoints registered for element d16 anymore");
+        equal(ebe.length, 0, "no endpoints registered for element d16 anymore");
     });
 
 
@@ -1644,7 +1674,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(e16.connections.length, 0, "e16 has no connections");
         equal(e17.connections.length, 0, "e17 has no connections");
         var ebe = _jsPlumb.getEndpoints("d16");
-        ok(ebe == null, "no endpoints registered for element d16 anymore");
+        equal(ebe.length, 0, "no endpoints registered for element d16 anymore");
         ebe = _jsPlumb.getEndpoints("d17");
         equal(ebe.length, 1, "element d17 still has its Endpoint");
 
@@ -1653,7 +1683,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         f = _jsPlumb.getEndpoint(e17);
         equal(f, null, "endpoint has been deleted");
         ebe = _jsPlumb.getEndpoints("d17");
-        ok(ebe == null, "element d17 no longer has any Endpoints");
+        equal(ebe.length, 0, "element d17 no longer has any Endpoints");
     });
 
     test(": deleteEndpoint (by reference, simple case)", function () {
@@ -1771,7 +1801,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
-        ok(_jsPlumb.getEndpoints("d1") == null, "no endpoints for the given element");
+        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
         ok(e1.canvas.parentNode == null, "e1 cleaned up");
     });
 
@@ -1785,7 +1815,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
-        ok(_jsPlumb.getEndpoints("d1") == null, "no endpoints for the given element");
+        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
         ok(e1.canvas.parentNode == null, "e1 cleaned up");
     });
 
@@ -1806,9 +1836,9 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
-        ok(_jsPlumb.getEndpoints("d1") == null, "no endpoints for the main div");
-        ok(_jsPlumb.getEndpoints("d2") == null, "no endpoints for the nested div");
-        ok(_jsPlumb.getEndpoints("d3") == null, "no endpoints for the nested div");
+        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the main div");
+        equal(_jsPlumb.getEndpoints("d2").length, 0, "no endpoints for the nested div");
+        equal(_jsPlumb.getEndpoints("d3").length, 0, "no endpoints for the nested div");
 
     });
 
@@ -1824,8 +1854,8 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.repaint("d1"); // shouldn't complain
         _jsPlumb.recalculateOffsets("d1");
 
-        ok(_jsPlumb.getEndpoints("d1") == null, "no endpoints for the main div");
-        ok(_jsPlumb.getEndpoints("d2") == null, "no endpoints for the nested div");
+        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the main div");
+        equal(_jsPlumb.getEndpoints("d2").length, 0, "no endpoints for the nested div");
 
         expect(2);
     });
@@ -1879,9 +1909,9 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
-        ok(_jsPlumb.getEndpoints("d1").length == 1, " 1 endpoint exists for the parent div");
-        ok(_jsPlumb.getEndpoints("d2") == null, "no endpoints for the first nested div");
-        ok(_jsPlumb.getEndpoints("d3") == null, "no endpoints for the second nested div");
+        equal(_jsPlumb.getEndpoints("d1").length, 1, " 1 endpoint exists for the parent div");
+        equal(_jsPlumb.getEndpoints("d2").length, 0, "no endpoints for the first nested div");
+        equal(_jsPlumb.getEndpoints("d3").length, 0, "no endpoints for the second nested div");
 
     });
 
@@ -2572,7 +2602,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         var c = _jsPlumb.connect({source: "d16", target: "d17"});
         assertEndpointCount("d16", 1, _jsPlumb);
         assertEndpointCount("d17", 1, _jsPlumb);
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         assertEndpointCount("d16", 0, _jsPlumb);
         assertEndpointCount("d17", 0, _jsPlumb);
     });
@@ -3211,13 +3241,14 @@ test("drag multiple elements and ensure their connections are painted correctly 
             [0.75, 1, 0, 1],
             [0, 0.75, -1, 0]
         ];
-        _jsPlumb.connect({source: d1, target: d2, dynamicAnchors: anchors});                // auto connect with default endpoint and provided anchors
+        _jsPlumb.connect({source: d1, target: d2, dynamicAnchors: anchors, deleteEndpointsOnEmpty:true});                // auto connect with default endpoint and provided anchors
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         // this changed in 1.3.5, because auto generated endpoints are now removed by detach.  so i added the test below this one
         // to check that the deleteEndpointsOnDetach flag is honoured.
+        // and changed back in 2.4.0...maybe
         assertEndpointCount("d1", 0, _jsPlumb);
         assertEndpointCount("d2", 0, _jsPlumb);
     });
@@ -3239,7 +3270,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         // this changed in 1.3.5, because auto generated endpoints are now removed by detach.  so i added this test
         // to check that the deleteEndpointsOnDetach flag is honoured.
         assertEndpointCount("d1", 1, _jsPlumb);
@@ -3256,7 +3287,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         });
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         // both endpoints should have been deleted, as they were both created automatically
         assertEndpointCount("d1", 0, _jsPlumb);
         assertEndpointCount("d2", 0, _jsPlumb);
@@ -3272,7 +3303,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         });
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         // only target endpoint should have been deleted, as the other was not added automatically
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 0, _jsPlumb);
@@ -3288,7 +3319,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         });
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         // only source endpoint should have been deleted, as the other was not added automatically
         assertEndpointCount("d1", 0, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
@@ -3303,7 +3334,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2, dynamicAnchors: anchors});
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
     });
@@ -3317,7 +3348,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source: e1, target: e2, dynamicAnchors: anchors});
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
     });
@@ -3390,7 +3421,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
-        _jsPlumb.detach({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         ok(detachCallback != null, "detach callback was made");
     });
 
@@ -3784,7 +3815,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         /*connection1.removeAllOverlays();
         equal(0, connection1._jsPlumb.overlays.length);
         equal(0, jsPlumb.getSelector(".PPPP").length);*/
-        _jsPlumb.detach(connection1);
+        _jsPlumb.deleteConnection(connection1);
         equal(0, jsPlumb.getSelector(".PPPP").length, "overlay has been fully cleaned up");
     });
 
@@ -3898,7 +3929,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionCount(e3, 1);
         assertConnectionCount(e4, 1);
 
-        _jsPlumb.detach({source: "d1", target: "d2"});
+        _jsPlumb.select({source: "d1", target: "d2"}).delete();
 
         assertConnectionCount(e1, 0);
         assertConnectionCount(e2, 0);
@@ -3910,14 +3941,14 @@ test("drag multiple elements and ensure their connections are painted correctly 
     // detach is being made to operate more like connect - by taking one argument with a whole 
     // bunch of possible params in it.  if two args are passed in it will continue working
     // in the old way.
-    test(": _jsPlumb.detach (params object, using element ids)", function () {
+    test(": _jsPlumb.select+delete (params object, using element ids)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1);
         var e2 = _jsPlumb.addEndpoint(d2);
         _jsPlumb.connect({ sourceEndpoint: e1, targetEndpoint: e2 });
         assertConnectionCount(e1, 1);
         assertConnectionCount(e2, 1);
-        _jsPlumb.detach({source: "d1", target: "d2"});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         assertConnectionCount(e1, 0);
         assertConnectionCount(e2, 0);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
@@ -3940,7 +3971,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
      //assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1);
      //});
 
-    test(": _jsPlumb.detach (params object, using element objects)", function () {
+    test(": _jsPlumb.select+delete (params object, using element objects)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1);
         var e2 = _jsPlumb.addEndpoint(d2);
@@ -3948,13 +3979,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         assertConnectionCount(e1, 1);
         assertConnectionCount(e2, 1);
-        _jsPlumb.detach({source: d1, target: d2});
+        _jsPlumb.select({source: d1, target: d2}).delete();
         assertConnectionCount(e1, 0);
         assertConnectionCount(e2, 0);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
     });
 
-    test(": _jsPlumb.detach (source and target as endpoint UUIDs)", function () {
+    test(": _jsPlumb.select+delete (source and target as endpoint UUIDs)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {uuid: "abcdefg"});
         ok(_jsPlumb.getEndpoint("abcdefg") != null, "e1 exists");
@@ -3964,13 +3995,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         assertConnectionCount(e1, 1);
         assertConnectionCount(e2, 1);
-        _jsPlumb.detach({uuids: ["abcdefg", "hijklmn"]});
+        _jsPlumb.select({uuids: ["abcdefg", "hijklmn"]}).delete();
         assertConnectionCount(e1, 0);
         assertConnectionCount(e2, 0);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
     });
 
-    test(": _jsPlumb.detach (sourceEndpoint and targetEndpoint supplied)", function () {
+    test(": _jsPlumb.select+delete (sourceEndpoint and targetEndpoint supplied)", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1);
         var e2 = _jsPlumb.addEndpoint(d2);
@@ -3978,7 +4009,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         assertConnectionCount(e1, 1);
         assertConnectionCount(e2, 1);
-        _jsPlumb.detach({ sourceEndpoint: e1, targetEndpoint: e2 });
+        _jsPlumb.select({ sourceEndpoint: e1, targetEndpoint: e2 }).delete();
         assertConnectionCount(e1, 0);
         assertConnectionCount(e2, 0);
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
@@ -4588,7 +4619,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 2);
 
         equal(_jsPlumb.anchorManager.getEndpointsFor("d3").length, 2);
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
     });
 
@@ -4600,7 +4631,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
         equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 1);
 
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0);
         equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 0);
 
@@ -5333,7 +5364,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             });
         }
 
-        var params = _jsPlumb.select().detach();
+        var params = _jsPlumb.select().delete();
 
         equal(_jsPlumb.select().length, 0, "there are no connections");
     });
@@ -5451,7 +5482,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
             e1 = _jsPlumb.addEndpoint(d1, {isSource: true, isTarget: true});
 
         equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 1, "there is one endpoint on d1");
-        _jsPlumb.selectEndpoints({source: "d1"}).remove();
+        _jsPlumb.selectEndpoints({source: "d1"}).delete();
         equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 0, "there are zero endpoints on d1");
     });
 
@@ -5465,7 +5496,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(e1.connections.length, 1, "there is one connection on d1's endpoint");
         equal(e2.connections.length, 1, "there is one connection on d2's endpoint");
 
-        _jsPlumb.selectEndpoints({source: "d1"}).detachAll();
+        _jsPlumb.selectEndpoints({source: "d1"}).deleteEveryConnection();
 
         equal(e1.connections.length, 0, "there are zero connections on d1's endpoint");
         equal(e2.connections.length, 0, "there are zero connections on d2's endpoint");
@@ -6188,13 +6219,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
         equal(c.endpoints[0].type, "Rectangle", "endpoint is of type rectangle");
 
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
 
         _jsPlumb.makeTarget(d2, {
             endpoint:"Blank"
         });
 
-        support.dragConnection(d1, d2);
+        c = support.dragConnection(d1, d2);
         c = _jsPlumb.select().get(0);
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
         equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
@@ -7518,7 +7549,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
 
-        _jsPlumb.select().detach();
+        _jsPlumb.select().delete();
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
 
          // now disable e1 and try to drag a new connection: it should fail
@@ -9218,7 +9249,7 @@ test("endpoint: suspendedElement set correctly", function() {
 
         // delete the proxy connection. it should clean up the original one. then when we collapse group three
         // there should be no connections of any sort.
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(_jsPlumb.select().length, 0, "no connections");
     });
 
@@ -9237,7 +9268,7 @@ test("endpoint: suspendedElement set correctly", function() {
 
         // delete the connection. it should clean up the original one. then when we collapse group three
         // there should be no connections of any sort.
-        _jsPlumb.detach(c);
+        _jsPlumb.deleteConnection(c);
         equal(_jsPlumb.select().length, 0, "there should be no connections left after detach");
         ok(c.proxies == null, "proxies removed after detach");
     });
@@ -9762,9 +9793,13 @@ test("endpoint: suspendedElement set correctly", function() {
 
         equal(_jsPlumb.select().length, 2, "two connections in the instance");
         equal(_jsPlumb.selectEndpoints().length, 3, "three endpoints in the instance");
-        _jsPlumb.detach({connection:c1});
+
+        _jsPlumb.deleteConnection(c1);
+
         equal(_jsPlumb.select().length, 1, "one connection in the instance");
         equal(_jsPlumb.selectEndpoints().length, 3, "three endpoints in the instance");
+
+        _jsPlumb.deleteEndpoint(ep1);
     });
 
     /*
