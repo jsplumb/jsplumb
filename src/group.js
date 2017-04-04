@@ -228,7 +228,7 @@
                         isProxyEndpoint:true
                     }
                 });
-                proxyEp._forceDeleteOnDetach = true;
+                //proxyEp._forceDeleteOnDetach = true;
             }
             // for this index, stash proxy info: the new EP, the original EP.
             c.proxies[index] = { ep:proxyEp, originalEp: c.endpoints[index] };
