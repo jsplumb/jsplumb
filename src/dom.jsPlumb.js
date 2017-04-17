@@ -59,6 +59,7 @@
                     ghostProxy:"jtk-ghost-proxy"
                 }
             });
+            k.setZoom(instance.getZoom());
             instance[key] = k;
             instance.bind("zoom", k.setZoom);
         }
