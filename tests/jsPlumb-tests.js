@@ -3265,14 +3265,14 @@ test("drag multiple elements and ensure their connections are painted correctly 
             source: d1,
             target: d2,
             dynamicAnchors: anchors,
-            deleteEndpointsOnDetach: false
+            deleteEndpointsOnEmpty: false
         });                // auto connect with default endpoint and provided anchors
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
         _jsPlumb.select({source: d1, target: d2}).delete();
         // this changed in 1.3.5, because auto generated endpoints are now removed by detach.  so i added this test
-        // to check that the deleteEndpointsOnDetach flag is honoured.
+        // to check that the deleteEndpointsOnEmpty flag is honoured.
         assertEndpointCount("d1", 1, _jsPlumb);
         assertEndpointCount("d2", 1, _jsPlumb);
     });
@@ -7609,6 +7609,8 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
     });
 
+
+    // https://github.com/jsplumb/jsPlumb/issues/415
     test("issue 415: spurious endpoints after dragging", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
         _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], {
