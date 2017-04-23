@@ -3441,7 +3441,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.3.2";
+        this.version = "2.3.3";
 
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
@@ -5670,6 +5670,7 @@
             return _elEach(el, function(_el) {
                 var elId = isIdAlready ? _el : _currentInstance.getId(_el);
                 _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
+                _currentInstance.dragManager.updateOffsets(elId);
                 _currentInstance.repaint(_el);
             });
         };
@@ -13649,6 +13650,7 @@
                     ghostProxy:"jtk-ghost-proxy"
                 }
             });
+            k.setZoom(instance.getZoom());
             instance[key] = k;
             instance.bind("zoom", k.setZoom);
         }
