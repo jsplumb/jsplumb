@@ -541,6 +541,9 @@
                     reattach: params.reattach || _jsPlumb.Defaults.ReattachConnections,
                     detachable: params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
                 });
+                if (existing == null) {
+                    e.setDeleteOnEmpty(true);
+                }
                 conn.endpoints[index] = e;
 
                 if (params.drawEndpoints === false) e.setVisible(false, true, true);
