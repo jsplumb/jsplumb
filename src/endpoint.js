@@ -297,7 +297,7 @@
             }
 
             //if ((this._forceDeleteOnDetach || (!doNotCleanup && this._deleteOnDetach)) && this.connections.length === 0) {
-            if (deleteOnEmpty && this.connections.length === 0) {
+            if (!doNotCleanup && deleteOnEmpty && this.connections.length === 0) {
                 _jsPlumb.deleteObject({
                     endpoint: this,
                     fireEvent: false,
@@ -754,7 +754,8 @@
                                 jpc.endpoints[idx] = jpc.suspendedEndpoint;
                                 // IF the connection should be reattached, or the other endpoint refuses detach, then
                                 // reset the connection to its original state
-                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach({connection:jpc, ignoreTarget:false, forceDetach:false, fireEvent:true, originalEvent:originalEvent, endpointBeingDeleted:true})) {
+                                //if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach({connection:jpc, ignoreTarget:false, forceDetach:false, fireEvent:true, originalEvent:originalEvent, endpointBeingDeleted:true})) {
+                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !_jsPlumb.deleteConnection(jpc)) {
 
                                     jpc.setHover(false);
                                     jpc._forceDetach = null;
