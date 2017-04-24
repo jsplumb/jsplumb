@@ -597,12 +597,14 @@
         //
         function _pruneOrOrphan(p) {
             if (!_isInsideParent(p.el, p.pos)) {
-                p.el._jsPlumbGroup.remove(p.el);
+                var group = p.el._jsPlumbGroup;
                 if (prune) {
                     _jsPlumb.remove(p.el);
                 } else {
                     _orphan(p.el);
                 }
+
+                group.remove(p.el);
             }
         }
 
