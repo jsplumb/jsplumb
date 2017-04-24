@@ -3441,7 +3441,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.3.4";
+        this.version = "2.3.5";
 
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
@@ -12031,12 +12031,14 @@
         //
         function _pruneOrOrphan(p) {
             if (!_isInsideParent(p.el, p.pos)) {
-                p.el._jsPlumbGroup.remove(p.el);
+                var group = p.el._jsPlumbGroup;
                 if (prune) {
                     _jsPlumb.remove(p.el);
                 } else {
                     _orphan(p.el);
                 }
+
+                group.remove(p.el);
             }
         }
 

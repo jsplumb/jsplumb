@@ -1,3 +1,21 @@
+## 2.3.5
+
+24th April 2017
+
+- Reordered the sequence of events when a node is dragged out of a group.
+
+## 2.3.4
+
+23rd April 2017
+
+- fixed a reference to dragManager which short-circuited the lazy loading. 
+
+## 2.3.3
+
+23rd April 2017
+
+- update drag manager offsets during revalidate
+
 ## 2.3.2
 
 22nd March 2017

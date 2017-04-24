@@ -2,7 +2,7 @@
     "project": {
         "name": "jsplumb - Test Coverage",
         "description": "Visual connectivity for webapps",
-        "version": "2.3.4",
+        "version": "2.3.5",
         "url": ""
     },
     "files": {
