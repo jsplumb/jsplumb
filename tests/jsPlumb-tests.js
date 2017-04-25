@@ -897,49 +897,78 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(deleted, false, "deleteConnection reports connection not deleted");
     });
 
-//    test(": _jsPlumb.detachAllConnections ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function () {
-//        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-//        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
-//            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
-//                return false;
-//            } });
-//        var c = _jsPlumb.connect({source: e1, target: e2});
-//        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-//        _jsPlumb.detachAllConnections(d1);
-//        equal(c.endpoints, null, "connection's endpoints were removed");
-//        equal(e1.connections.length, 0, "source endpoint has no connections");
-//        equal(e2.connections.length, 0, "target endpoint has no connections");
-//    });
+    test("Endpoint.deleteEveryConnection", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(_jsPlumb.select().length, 1, "there is one connection in the instance");
+
+        e1.deleteEveryConnection();
+        equal(_jsPlumb.select().length, 0, "there are no connections in the instance");
+    });
+
+    test(": _jsPlumb.deleteConnectionsForElement ; beforeDetach on addEndpoint call to target Endpoint returns true so we detach", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
+                return true;
+            } });
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(_jsPlumb.select().length, 1, "there is one connection in the instance");
+        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+        _jsPlumb.deleteConnectionsForElement(d1);
+        equal(_jsPlumb.select().length, 0, "there are no connections in the instance");
+        equal(c.endpoints, null, "connection's endpoints were removed");
+        equal(e1.connections.length, 0, "source endpoint has no connections");
+        equal(e2.connections.length, 0, "target endpoint has no connections");
+    });
+
+    test(": _jsPlumb.deleteConnectionsForElement ; beforeDetach on addEndpoint call to target Endpoint returns false so we do not detach", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true, beforeDetach: function (conn) {
+                return false;
+            } });
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(_jsPlumb.select().length, 1, "there is one connection in the instance");
+        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+        _jsPlumb.deleteConnectionsForElement(d1);
+        equal(_jsPlumb.select().length, 1, "there is still 1 connection in the instance");
+        equal(c.endpoints.length, 2, "connection's endpoints are in place");
+        equal(e1.connections.length, 1, "source endpoint has one connection");
+        equal(e2.connections.length, 1, "target endpoint has one connection");
+    });
 //
-//    test(": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns false and we dont detach", function () {
-//        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-//        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
-//            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
-//        var c = _jsPlumb.connect({source: e1, target: e2});
-//        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-//        _jsPlumb.bind("beforeDetach", function (conn) {
-//            return false;
-//        });
-//        _jsPlumb.detachAllConnections(d1);
-//        equal(c.endpoints.length, 2, "connection's endpoints were not removed");
-//        equal(e1.connections.length, 1, "source endpoint has a connection");
-//        equal(e2.connections.length, 1, "target endpoint has a connection");
-//    });
+    test(": _jsPlumb.deleteConnectionsForElement ; beforeDetach on jsPlumb returns false and we dont detach", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+        _jsPlumb.bind("beforeDetach", function (conn) {
+            return false;
+        });
+        _jsPlumb.deleteConnectionsForElement(d1);
+        equal(c.endpoints.length, 2, "connection's endpoints were not removed");
+        equal(e1.connections.length, 1, "source endpoint has a connection");
+        equal(e2.connections.length, 1, "target endpoint has a connection");
+    });
 //
-//    test(": _jsPlumb.detachAllConnections ; beforeDetach on jsPlumb returns true and we do detach", function () {
-//        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-//        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
-//            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
-//        var c = _jsPlumb.connect({source: e1, target: e2});
-//        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-//        _jsPlumb.bind("beforeDetach", function (conn) {
-//            return true;
-//        });
-//        _jsPlumb.detachAllConnections(d1);
-//        equal(c.endpoints, null, "connection's endpoints were removed");
-//        equal(e1.connections.length, 0, "source endpoint has no connections");
-//        equal(e2.connections.length, 0, "target endpoint has no connections");
-//    });
+    test(": _jsPlumb.deleteConnectionsForElement ; beforeDetach on jsPlumb returns true and we do detach", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource: true }),
+            e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+        _jsPlumb.bind("beforeDetach", function (conn) {
+            return true;
+        });
+        _jsPlumb.deleteConnectionsForElement(d1);
+        equal(c.endpoints, null, "connection's endpoints were removed");
+        equal(e1.connections.length, 0, "source endpoint has no connections");
+        equal(e2.connections.length, 0, "target endpoint has no connections");
+    });
 
     test(": _jsPlumb.deleteEveryConnection ; beforeDetach on jsPlumb returns false and we dont detach", function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
