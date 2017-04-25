@@ -1,3 +1,29 @@
+## 2.4.0
+
+Several methods and parameters have been renamed to better reflect their function:
+
+#### jsPlumbInstance
+
+  - `detachAllConnections` renamed to `deleteConnectionsForElement`
+  
+  - `detach` renamed to `deleteConnection`. `detach ({source.., target:...})` can be achieved with `select({source:..,target:..}).delete()`
+  
+  - `detachEveryConnection` renamed to `deleteEveryConnection` 
+  
+  - `connect` method: the `deleteEndpointsOnDetach` parameter is now `deleteEndpointsOnEmpty`
+  
+  - `getEndpoints` method returns empty list when none found now, not null.
+  
+  - `select` method: the return value of this now has a `delete` method, instead of `detach`.
+  
+  - `selectEndpoints` method : the return value of this now has a `delete` method, instead of `detachAll`.  
+  
+#### Endpoint
+  
+  - `detach` method removed
+  - `detachAll` renamed to `deleteEveryConnection`
+ 
+
 ## 2.3.5
 
 24th April 2017
