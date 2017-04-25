@@ -22,9 +22,6 @@
     var connectorTypes = [], rendererTypes;
 
     var _ju = root.jsPlumbUtil,
-        _getOffset = function (el, _instance, relativeToRoot) {
-            return _instance.getOffset(el, relativeToRoot);
-        },
 
         /**
          * creates a timestamp, using milliseconds since 1970, but as a string.
@@ -234,12 +231,7 @@
                 return r;
             };
 
-            var boundListeners = [],
-                bindAListener = function (obj, type, fn) {
-                    boundListeners.push([obj, type, fn]);
-                    obj.bind(type, fn);
-                },
-                domListeners = [];
+            var domListeners = [];
 
             // sets the component associated with listener events. for instance, an overlay delegates
             // its events back to a connector. but if the connector is swapped on the underlying connection,
@@ -1439,7 +1431,8 @@
         var CHECK_CONDITION = "checkCondition";
 
         /**
-         * New in 2.4. Basically the old `detach` method renamed.
+         * Deletes a Connection.
+         * @method deleteConnection
          * @param connection Connection to delete
          * @param {Object} [params] Optional delete parameters
          * @param {Boolean} [params.doNotFireEvent=false] If true, a connection detached event will not be fired. Otherwise one will.
@@ -1475,8 +1468,11 @@
         };
 
         /**
-         * Deletes every connection in the instance of jsPlumb.
-         * @param params
+         * Remove all Connections from all elements, but leaves Endpoints in place ((unless a connection is set to auto delete its Endpoints).
+         * @method deleteEveryConnection
+         * @param {Object} [params] optional params object for the call
+         * @param {Boolean} [params.fireEvent=true] Whether or not to fire detach events
+         * @param {Boolean} [params.forceDetach=false] If true, this call will ignore any `beforeDetach` interceptors.
          * @returns {Number} The number of connections that were deleted.
          */
         this.deleteEveryConnection = function (params) {
@@ -1486,80 +1482,19 @@
                 for (var i = 0; i < count; i++) {
                     deletedCount += _currentInstance.deleteConnection(connections[0], params) ? 1 : 0;
                 }
-//                for (var id in endpointsByElement) {
-//                    var endpoints = endpointsByElement[id];
-//                    if (endpoints && endpoints.length) {
-//                        for (var i = 0, j = endpoints.length; i < j; i++) {
-//                            endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
-//                        }
-//                    }
-//                }
-                //connections.length = 0;
             });
             return deletedCount;
         };
 
         /**
-         * The current way to DELETE a connection. checks interceptors (unless forceDetach is set) and
-         *
-        this.detach = function () {
-
-            if (arguments.length === 0) return;
-            var connType = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
-                firstArgIsConnection = arguments[0].constructor == connType,
-                params = arguments.length == 2 ? firstArgIsConnection ? (arguments[1] || {}) : arguments[0] : arguments[0],
-                fireEvent = (params.fireEvent !== false),
-                forceDetach = params.forceDetach,
-                conn = firstArgIsConnection ? arguments[0] : params.connection,
-                deleteAttachedObjects = firstArgIsConnection ? null : params.deleteAttachedObjects;
-
-            if (conn) {
-                if (forceDetach || _ju.functionChain(true, false, [
-                    [ conn.endpoints[0], "isDetachAllowed", [ conn ] ],
-                    [ conn.endpoints[1], "isDetachAllowed", [ conn ] ],
-                    [ conn, "isDetachAllowed", [ conn ] ],
-                    [ _currentInstance, "checkCondition", [ "beforeDetach", conn ] ]
-                ])) {
-
-                    _currentInstance.deleteConnection(conn, !fireEvent);
-
-//                    conn.endpoints[0].detach({
-//                        connection:conn,
-//                        ignoreTarget:false,
-//                        forceDetach:true,
-//                        fireEvent:fireEvent,
-//                        deleteAttachedObjects:deleteAttachedObjects
-//                    });
-                }
-            }
-            else {
-                var _p = jsPlumb.extend({}, params); // a backwards compatibility hack: source should be thought of as 'params' in this case.
-                // test for endpoint uuids to detach
-                if (_p.uuids) {
-                    _getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]), fireEvent);
-                } else if (_p.sourceEndpoint && _p.targetEndpoint) {
-                    _p.sourceEndpoint.detachFrom(_p.targetEndpoint);
-                } else {
-                    var sourceId = _getId(_currentInstance.getElement(_p.source)),
-                        targetId = _getId(_currentInstance.getElement(_p.target));
-                    _operation(sourceId, function (jpc) {
-                        if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-                            if (_currentInstance.checkCondition("beforeDetach", jpc)) {
-//                                jpc.endpoints[0].detach({
-//                                    connection:jpc,
-//                                    ignoreTarget:false,
-//                                    forceDetach:true,
-//                                    fireEvent:fireEvent
-//                                });
-                                _currentInstance.deleteConnection(jpc, !fireEvent);
-                            }
-                        }
-                    });
-                }
-            }
-        };*/
-
-
+         * Removes all an element's Connections.
+         * @method deleteConnectionsForElement
+         * @param {Object} el Either the id of the element, or a selector for the element.
+         * @param {Object} [params] Optional parameters.
+         * @param {Boolean} [params.fireEvent=true] Whether or not to fire the detach event.
+         * @param {Boolean} [params.forceDetach=false] If true, this call will ignore any `beforeDetach` interceptors.
+         * @return {jsPlumbInstance} The current jsPlumb instance.
+         */
         this.deleteConnectionsForElement = function (el, params) {
             params = params || {};
             el = _currentInstance.getElement(el);
@@ -1571,22 +1506,6 @@
             }
             return _currentInstance;
         };
-
-//        this.detachEveryConnection = function (params) {
-//            params = params || {};
-//            _currentInstance.batch(function () {
-//                for (var id in endpointsByElement) {
-//                    var endpoints = endpointsByElement[id];
-//                    if (endpoints && endpoints.length) {
-//                        for (var i = 0, j = endpoints.length; i < j; i++) {
-//                            endpoints[i].detachAll(params.fireEvent !== false, params.forceDetach);
-//                        }
-//                    }
-//                }
-//                connections.length = 0;
-//            });
-//            return _currentInstance;
-//        };
 
         /// not public.  but of course its exposed. how to change this.
         this.deleteObject = function (params) {
@@ -1895,7 +1814,12 @@
         };
         // get an endpoint by uuid.
         this.getEndpoint = _getEndpoint;
-        // get endpoints for some element.
+        /**
+         * Gets the list of Endpoints for a given element.
+         * @method getEndpoints
+         * @param {String|Element|Selector} el The element to get endpoints for.
+         * @return {Endpoint[]} An array of Endpoints for the specified element.
+         */
         this.getEndpoints = function (el) {
             return endpointsByElement[_info(el).id] || [];
         };
