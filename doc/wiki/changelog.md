@@ -16,7 +16,7 @@ Several methods and parameters have been renamed to better reflect their functio
   
   - `select` method: the return value of this now has a `delete` method, instead of `detach`.
   
-  - `selectEndpoints` method : the return value of this now has a `delete` method, instead of `detachAll`.  
+  - `selectEndpoints` method : the return value of this now has a `deleteEveryConnection` method, instead of `detachAll`.  
   
 #### Endpoint
   
