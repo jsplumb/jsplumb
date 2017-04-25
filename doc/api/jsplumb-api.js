@@ -225,7 +225,7 @@
 * - **addClass** : Adds a class to all the Connections in the list.
 * -	**addOverlay** : Adds an Overlay to all the Connections in the list.
 * -	**addType** : Adds a type to all the Connections in the list.
-* -	**detach** : Detaches all the Connections in the list. Not chainable, and does not return anything.		
+* -	**delete** : Deletes all the Connections in the list. Not chainable, and does not return anything.
 * -	**each(function(connection)...)** : Allows you to specify your own function to execute; this function is chainable.		
 * -	**get(index)** : Returns the Connection at 'index' in the list.			
 * -	**getHoverPaintStyle**
@@ -309,7 +309,7 @@
 * -	**getParameters**
 * -	**getPaintStyle**
 * -	**getHoverPaintStyle**
-* -	**detachAll** : Detaches all the Connections from every Endpoint in the list. not chainable and does not return anything.
+* -	**deleteEveryConnection** : Deletes all the Connections from every Endpoint in the list. not chainable and does not return anything.
 * -	**delete** : Deletes every Endpoint in the list. not chainable and does not return anything.		
 * -	**length** : returns the length of the list.
 * -	**get(index)** : returns the Endpoint at 'index' in the list.
@@ -411,14 +411,7 @@
    * though.
    * @method getDefaultScope
    * @return {String} The default scope for the given jsPlumbInstance
-   */  
-
-   /**
-    * Gets the list of Endpoints for a given element.
-    * @method getEndpoints
-    * @param {String|Element|Selector} el The element to get endpoints for.
-    * @return {Endpoint[]} An array of Endpoints for the specified element.
-    */   
+   */
 
 /**
 * Gets an Endpoint by UUID
@@ -439,7 +432,7 @@
 * @param {String|Array} [params.endpoint] Specification of an Endpoint to create when a Connection is established.
 * @param {String} [params.scope] Scope for the drop zone.
 * @param {Object} [params.dropOptions] Same stuff as you would pass to dropOptions of an Endpoint definition.
-* @param {Boolean} [params.deleteEndpointsOnDetach=true] Whether or not to delete any Endpoints created by a connection to this target if
+* @param {Boolean} [params.deleteEndpointsOnEmpty=true] Whether or not to delete any Endpoints created by a connection to this target if
 * the connection is subsequently detached. this will not remove Endpoints that have had more Connections attached
 * to them after they were created.
 * @param {Integer} [params.maxConnections=-1] Specifies the maximum number of Connections that can be made to this element as a target.
@@ -467,7 +460,7 @@
 * @param {String|Element} [params.parent] The element to add Endpoints to when a Connection is established.  if you omit this, Endpoints will be added to 'el'.
 * @param {String} [params.scope] Scope for the connections dragged from this element.
 * @param {Object} [params.dragOptions] Same stuff as you would pass to dragOptions of an Endpoint definition.
-* @param {Boolean} [params.deleteEndpointsOnDetach=false] Whether or not to delete any Endpoints created by a connection from this source if the connection is subsequently detached. this will not 
+* @param {Boolean} [params.deleteEndpointsOnEmpty=false] Whether or not to delete any Endpoints created by a connection from this source if the connection is subsequently detached. this will not
 * remove Endpoints that have had more Connections attached to them after they were created.
 * @param {Function} [params.filter] Function to call when the user presses the mouse button to start a drag. This function is passed the original 
 * event and the element on which the associated makeSource call was made.  If it returns anything other than false,
@@ -681,38 +674,6 @@
 * @return {jsPlumbInstance} The current jsPlumb instance.
 */ 
 
-    /**
-    * Detaches a Connection.
-    * @method detach
-    * @param {Connection} connection  The Connection to detach
-    * @param {Object} [params] Optional parameters to the detach call.
-    * @param {Boolean} [params.fireEvent=false] Indicates you want jsPlumb to fire a connection
-    * detached event. The thinking behind this is that if you made a programmatic
-    * call to detach an event, you probably don't need the callback.
-    * @param {Boolean} [params.forceDetach=false] Allows you to override any beforeDetach listeners that may be registered.
-    * @return {boolean} True if successful, false if not.  
-    */
-
-    // SP
-
-    /**    
-    * Removes all an element's Connections.
-    * @method detachAllConnections
-    * @param {Object} el Either the id of the element, or a selector for the element.
-    * @param {Object} [params] Optional parameters.
-    * @param {Boolean} [params.fireEvent=true] Whether or not to fire the detach event.
-     * @param {Boolean} [paramsforceDetach=false] If true, this call will ignore any `beforeDetach` interceptors.
-    * @return {jsPlumbInstance} The current jsPlumb instance.
-    */  
-    /**        
-    * Remove all Connections from all elements, but leaves Endpoints in place ((unless a connection is set to auto delete its Endpoints).
-    * @method detachEveryConnection
-    * @param {Object} [params] optional params object for the call
-    * @param {Boolean} [params.fireEvent=true] Whether or not to fire detach events
-    * @param {Boolean} [paramsforceDetach=false] If true, this call will ignore any `beforeDetach` interceptors.
-    * @return {jsPlumbInstance} The current jsPlumb Instance
-    * @see jsPlumbInstance#deleteEveryEndpoint
-    */
 
 /**
 * Initialises some element or elements to be draggable.  You should use this instead of your
