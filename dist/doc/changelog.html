@@ -123,7 +123,30 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h2>2.3.5</h2>
+                    <h2>2.4.0</h2>
+
+<p>Several methods and parameters have been renamed to better reflect their function:</p>
+
+<h4>jsPlumbInstance</h4>
+
+<ul>
+<li><p><code>detachAllConnections</code> renamed to <code>deleteConnectionsForElement</code></p></li>
+<li><p><code>detach</code> renamed to <code>deleteConnection</code>. <code>detach ({source.., target:...})</code> can be achieved with <code>select({source:..,target:..}).delete()</code></p></li>
+<li><p><code>detachEveryConnection</code> renamed to <code>deleteEveryConnection</code> </p></li>
+<li><p><code>connect</code> method: the <code>deleteEndpointsOnDetach</code> parameter is now <code>deleteEndpointsOnEmpty</code></p></li>
+<li><p><code>getEndpoints</code> method returns empty list when none found now, not null.</p></li>
+<li><p><code>select</code> method: the return value of this now has a <code>delete</code> method, instead of <code>detach</code>.</p></li>
+<li><p><code>selectEndpoints</code> method : the return value of this now has a <code>deleteEveryConnection</code> method, instead of <code>detachAll</code>.  </p></li>
+</ul>
+
+<h4>Endpoint</h4>
+
+<ul>
+<li><code>detach</code> method removed</li>
+<li><code>detachAll</code> renamed to <code>deleteEveryConnection</code></li>
+</ul>
+
+<h2>2.3.5</h2>
 
 <p>24th April 2017</p>
 
