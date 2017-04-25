@@ -2170,7 +2170,6 @@
             return negate ? !ok : ok;
         };
 
-        // SP target source refactor
         var _makeElementDropHandler = function (elInfo, p, dropOptions, isSource, isTarget) {
             var proxyComponent = new jsPlumbUIComponent(p);
             var _drop = p._jsPlumb.EndpointDropHandler({
@@ -2225,10 +2224,11 @@
                         newEndpoint._mtNew = true;
                     }
 
-                    if (p.uniqueEndpoint) elInfo.def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
-                    // TODO test options to makeTarget to see if we should do this?
-//                    newEndpoint._doNotDeleteOnDetach = false; // reset.
-//                    newEndpoint._deleteOnDetach = true;
+                    if (p.uniqueEndpoint) {
+                        elInfo.def.endpoint = newEndpoint;
+                    }
+
+                    newEndpoint.setDeleteOnEmpty(true);
 
                     // if connection is detachable, init the new endpoint to be draggable, to support that happening.
                     if (jpc.isDetachable())
