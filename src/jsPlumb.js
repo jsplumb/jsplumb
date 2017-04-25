@@ -2756,6 +2756,7 @@
             return _elEach(el, function(_el) {
                 var elId = isIdAlready ? _el : _currentInstance.getId(_el);
                 _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
+                _currentInstance.getDragManager().updateOffsets(elId);
                 _currentInstance.repaint(_el);
             });
         };
