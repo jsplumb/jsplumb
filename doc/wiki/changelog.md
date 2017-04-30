@@ -1,3 +1,9 @@
+## 2.3.6
+
+1st May 2017
+
+- fix for the filenames to the toolkit css files (they are lower case now)
+
 ## 2.4.0
 
 Several methods and parameters have been renamed to better reflect their function:
