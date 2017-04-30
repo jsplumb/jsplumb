@@ -1,3 +1,9 @@
+## 2.3.6
+
+1st May 2017
+
+- fix for the filenames to the toolkit css files (they are lower case now)
+
 ## 2.3.5
 
 24th April 2017
