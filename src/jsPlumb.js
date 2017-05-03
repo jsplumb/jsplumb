@@ -1449,6 +1449,7 @@
                     [ _currentInstance, CHECK_CONDITION, [ BEFORE_DETACH, connection ] ]
                 ])) {
 
+                    connection.setHover(false);
                     fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
 
                     connection.endpoints[0].detachFromConnection(connection);
