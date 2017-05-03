@@ -36,6 +36,14 @@
     var EVT_GROUP_REMOVED = "group:remove";
     var EVT_EXPAND = "group:expand";
     var EVT_COLLAPSE = "group:collapse";
+    var EVT_GROUP_DRAG_STOP = "groupDragStop";
+    var EVT_CONNECTION_MOVED = "connectionMoved";
+    var EVT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
+
+    var CMD_REMOVE_ALL = "removeAll";
+    var CMD_ORPHAN_ALL = "orphanAll";
+    var CMD_SHOW = "show";
+    var CMD_HIDE = "hide";
 
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
@@ -76,11 +84,11 @@
             }
         }
 
-        _jsPlumb.bind("internal.connectionDetached", function(p) {
+        _jsPlumb.bind(EVT_INTERNAL_CONNECTION_DETACHED, function(p) {
             _cleanupDetachedConnection(p.connection);
         });
 
-        _jsPlumb.bind("connectionMoved", function(p) {
+        _jsPlumb.bind(EVT_CONNECTION_MOVED, function(p) {
             var connMap = p.index === 0 ? _connectionSourceMap : _connectionTargetMap;
             var group = connMap[p.connection.id];
             if (group) {
@@ -187,7 +195,7 @@
         this.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
             group = this.getGroup(group);
             this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
-            group[deleteMembers ? "removeAll" : "orphanAll"](manipulateDOM, doNotFireEvent);
+            group[deleteMembers ? CMD_REMOVE_ALL : CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
             _jsPlumb.remove(group.getEl());
             delete _managedGroups[group.id];
             delete _jsPlumb._groups[group.id];
@@ -203,7 +211,7 @@
         function _setVisible(group, state) {
             var m = group.getMembers();
             for (var i = 0; i < m.length; i++) {
-                _jsPlumb[state ? "show" : "hide"](m[i], true);
+                _jsPlumb[state ? CMD_SHOW : CMD_HIDE](m[i], true);
             }
         }
 
@@ -228,8 +236,9 @@
                         isProxyEndpoint:true
                     }
                 });
-                //proxyEp._forceDeleteOnDetach = true;
             }
+            proxyEp.setDeleteOnEmpty(true);
+
             // for this index, stash proxy info: the new EP, the original EP.
             c.proxies[index] = { ep:proxyEp, originalEp: c.endpoints[index] };
 
@@ -310,9 +319,8 @@
                 c.targetId = originalElementId;
             }
 
-            // detach the proxy EP from the connection.
-            c.proxies[index].ep.detachFromConnection(c, null, true);
-
+            // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
+            c.proxies[index].ep.detachFromConnection(c, null);
 
             c.proxies[index].originalEp.addConnection(c);
 
@@ -446,7 +454,7 @@
         if (params.draggable !== false) {
             var opts = {
                 stop:function(params) {
-                    _jsPlumb.fire("groupDragStop", jsPlumb.extend(params, {group:self}));
+                    _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
                 },
                 scope:GROUP_DRAG_SCOPE
             };
