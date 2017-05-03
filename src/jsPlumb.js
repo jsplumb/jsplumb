@@ -1177,9 +1177,7 @@
 
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
-                // SP new. here we have introduced a class-wide element manager, which is responsible
-                // for getting object dimensions and width/height, and for updating these values only
-                // when necessary (after a drag, or on a forced refresh call).
+                // ensure element is managed.
                 var myOffset = _manage(id, p.source).info.o;
                 _ju.addToList(endpointsByElement, id, e);
 
@@ -1191,7 +1189,6 @@
                 }
 
                 results.push(e);
-                //e._doNotDeleteOnDetach = true; // mark this as being added via addEndpoint.
             }
 
             return results.length == 1 ? results[0] : results;
@@ -1296,7 +1293,7 @@
                 connection: c
             };
 
-            if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
+            if (el.constructor == jsPlumb.Endpoint) {
                 ep = el;
                 ep.addConnection(c);
                 el = ep.element;
@@ -1311,16 +1308,14 @@
                     for (var t in sep) {
                         if (!sep[t].enabled) return;
                         ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
-                        if (sep[t].uniqueEndpoint) sep[t].endpoint = ep;
-//                        ep._doNotDeleteOnDetach = false;
-//                        ep._deleteOnDetach = true;
+                        if (sep[t].uniqueEndpoint) {
+                            sep[t].endpoint = ep;
+                        }
                         ep.addConnection(c);
                     }
                 }
                 else {
                     ep = c.makeEndpoint(idx === 0, el, sid);
-//                    ep._doNotDeleteOnDetach = false;
-//                    ep._deleteOnDetach = true;
                 }
             }
 
@@ -1333,8 +1328,9 @@
 
                 fireMoveEvent(evtParams);
 
-                if (!doNotRepaint)
+                if (!doNotRepaint) {
                     c.repaint();
+                }
             }
 
             evtParams.element = el;
@@ -1370,14 +1366,15 @@
                 }
             }
             endpointsByElement = {};
-            // SP new
             managedElements = {};
             endpointsByUUID = {};
             offsets = {};
             offsetTimestamps = {};
             _currentInstance.anchorManager.reset();
             _currentInstance.getDragManager().reset();
-            if (!_is) _currentInstance.setSuspendDrawing(false);
+            if (!_is) {
+                _currentInstance.setSuspendDrawing(false);
+            }
             return _currentInstance;
         };
 
@@ -1407,8 +1404,9 @@
         };
 
         this.unregisterEndpoint = function (endpoint) {
-            //if (endpoint._jsPlumb == null) return;
-            if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;
+            if (endpoint._jsPlumb.uuid) {
+                endpointsByUUID[endpoint._jsPlumb.uuid] = null;
+            }
             _currentInstance.anchorManager.deleteEndpoint(endpoint);
             // TODO at least replace this with a removeWithFunction call.
             for (var e in endpointsByElement) {
@@ -1515,7 +1513,6 @@
                     endpointCount: 0,
                     connectionCount: 0
                 },
-                fireEvent = params.fireEvent !== false,
                 deleteAttachedObjects = params.deleteAttachedObjects !== false;
 
             var unravelConnection = function (connection) {
