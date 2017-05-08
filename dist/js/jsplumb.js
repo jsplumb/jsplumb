@@ -4158,9 +4158,7 @@
 
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
-                // SP new. here we have introduced a class-wide element manager, which is responsible
-                // for getting object dimensions and width/height, and for updating these values only
-                // when necessary (after a drag, or on a forced refresh call).
+                // ensure element is managed.
                 var myOffset = _manage(id, p.source).info.o;
                 _ju.addToList(endpointsByElement, id, e);
 
@@ -4172,7 +4170,6 @@
                 }
 
                 results.push(e);
-                //e._doNotDeleteOnDetach = true; // mark this as being added via addEndpoint.
             }
 
             return results.length == 1 ? results[0] : results;
@@ -4277,7 +4274,7 @@
                 connection: c
             };
 
-            if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
+            if (el.constructor == jsPlumb.Endpoint) {
                 ep = el;
                 ep.addConnection(c);
                 el = ep.element;
@@ -4292,16 +4289,14 @@
                     for (var t in sep) {
                         if (!sep[t].enabled) return;
                         ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
-                        if (sep[t].uniqueEndpoint) sep[t].endpoint = ep;
-//                        ep._doNotDeleteOnDetach = false;
-//                        ep._deleteOnDetach = true;
+                        if (sep[t].uniqueEndpoint) {
+                            sep[t].endpoint = ep;
+                        }
                         ep.addConnection(c);
                     }
                 }
                 else {
                     ep = c.makeEndpoint(idx === 0, el, sid);
-//                    ep._doNotDeleteOnDetach = false;
-//                    ep._deleteOnDetach = true;
                 }
             }
 
@@ -4314,8 +4309,9 @@
 
                 fireMoveEvent(evtParams);
 
-                if (!doNotRepaint)
+                if (!doNotRepaint) {
                     c.repaint();
+                }
             }
 
             evtParams.element = el;
@@ -4351,14 +4347,15 @@
                 }
             }
             endpointsByElement = {};
-            // SP new
             managedElements = {};
             endpointsByUUID = {};
             offsets = {};
             offsetTimestamps = {};
             _currentInstance.anchorManager.reset();
             _currentInstance.getDragManager().reset();
-            if (!_is) _currentInstance.setSuspendDrawing(false);
+            if (!_is) {
+                _currentInstance.setSuspendDrawing(false);
+            }
             return _currentInstance;
         };
 
@@ -4388,8 +4385,9 @@
         };
 
         this.unregisterEndpoint = function (endpoint) {
-            //if (endpoint._jsPlumb == null) return;
-            if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;
+            if (endpoint._jsPlumb.uuid) {
+                endpointsByUUID[endpoint._jsPlumb.uuid] = null;
+            }
             _currentInstance.anchorManager.deleteEndpoint(endpoint);
             // TODO at least replace this with a removeWithFunction call.
             for (var e in endpointsByElement) {
@@ -4432,6 +4430,7 @@
                     [ _currentInstance, CHECK_CONDITION, [ BEFORE_DETACH, connection ] ]
                 ])) {
 
+                    connection.setHover(false);
                     fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
 
                     connection.endpoints[0].detachFromConnection(connection);
@@ -4496,7 +4495,6 @@
                     endpointCount: 0,
                     connectionCount: 0
                 },
-                fireEvent = params.fireEvent !== false,
                 deleteAttachedObjects = params.deleteAttachedObjects !== false;
 
             var unravelConnection = function (connection) {
@@ -11484,6 +11482,14 @@
     var EVT_GROUP_REMOVED = "group:remove";
     var EVT_EXPAND = "group:expand";
     var EVT_COLLAPSE = "group:collapse";
+    var EVT_GROUP_DRAG_STOP = "groupDragStop";
+    var EVT_CONNECTION_MOVED = "connectionMoved";
+    var EVT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
+
+    var CMD_REMOVE_ALL = "removeAll";
+    var CMD_ORPHAN_ALL = "orphanAll";
+    var CMD_SHOW = "show";
+    var CMD_HIDE = "hide";
 
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
@@ -11524,11 +11530,11 @@
             }
         }
 
-        _jsPlumb.bind("internal.connectionDetached", function(p) {
+        _jsPlumb.bind(EVT_INTERNAL_CONNECTION_DETACHED, function(p) {
             _cleanupDetachedConnection(p.connection);
         });
 
-        _jsPlumb.bind("connectionMoved", function(p) {
+        _jsPlumb.bind(EVT_CONNECTION_MOVED, function(p) {
             var connMap = p.index === 0 ? _connectionSourceMap : _connectionTargetMap;
             var group = connMap[p.connection.id];
             if (group) {
@@ -11635,7 +11641,7 @@
         this.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
             group = this.getGroup(group);
             this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
-            group[deleteMembers ? "removeAll" : "orphanAll"](manipulateDOM, doNotFireEvent);
+            group[deleteMembers ? CMD_REMOVE_ALL : CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
             _jsPlumb.remove(group.getEl());
             delete _managedGroups[group.id];
             delete _jsPlumb._groups[group.id];
@@ -11651,7 +11657,7 @@
         function _setVisible(group, state) {
             var m = group.getMembers();
             for (var i = 0; i < m.length; i++) {
-                _jsPlumb[state ? "show" : "hide"](m[i], true);
+                _jsPlumb[state ? CMD_SHOW : CMD_HIDE](m[i], true);
             }
         }
 
@@ -11676,8 +11682,9 @@
                         isProxyEndpoint:true
                     }
                 });
-                //proxyEp._forceDeleteOnDetach = true;
             }
+            proxyEp.setDeleteOnEmpty(true);
+
             // for this index, stash proxy info: the new EP, the original EP.
             c.proxies[index] = { ep:proxyEp, originalEp: c.endpoints[index] };
 
@@ -11758,9 +11765,8 @@
                 c.targetId = originalElementId;
             }
 
-            // detach the proxy EP from the connection.
-            c.proxies[index].ep.detachFromConnection(c, null, true);
-
+            // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
+            c.proxies[index].ep.detachFromConnection(c, null);
 
             c.proxies[index].originalEp.addConnection(c);
 
@@ -11894,7 +11900,7 @@
         if (params.draggable !== false) {
             var opts = {
                 stop:function(params) {
-                    _jsPlumb.fire("groupDragStop", jsPlumb.extend(params, {group:self}));
+                    _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
                 },
                 scope:GROUP_DRAG_SCOPE
             };
