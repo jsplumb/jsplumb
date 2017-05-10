@@ -1371,7 +1371,10 @@
             offsets = {};
             offsetTimestamps = {};
             _currentInstance.anchorManager.reset();
-            _currentInstance.getDragManager().reset();
+            var dm = _currentInstance.getDragManager();
+            if (dm) {
+                dm.reset();
+            }
             if (!_is) {
                 _currentInstance.setSuspendDrawing(false);
             }
@@ -2678,7 +2681,10 @@
             return _elEach(el, function(_el) {
                 var elId = isIdAlready ? _el : _currentInstance.getId(_el);
                 _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
-                _currentInstance.getDragManager().updateOffsets(elId);
+                var dm = _currentInstance.getDragManager();
+                if (dm) {
+                    dm.updateOffsets(elId);
+                }
                 _currentInstance.repaint(_el);
             });
         };
@@ -2730,8 +2736,12 @@
 
         var _doRemove = function(info, affectedElements) {
             _currentInstance.removeAllEndpoints(info.id, true, affectedElements);
+            var dm = _currentInstance.getDragManager();
             var _one = function(_info) {
-                _currentInstance.getDragManager().elementRemoved(_info.id);
+
+                if (dm) {
+                    dm.elementRemoved(_info.id);
+                }
                 _currentInstance.anchorManager.clearFor(_info.id);
                 _currentInstance.anchorManager.removeFloatingConnection(_info.id);
 
@@ -2887,7 +2897,10 @@
             delete this.targetEndpointDefinitions[id];
 
             this.anchorManager.changeId(id, newId);
-            this.getDragManager().changeId(id, newId);
+            var dm = this.getDragManager();
+            if (dm) {
+                dm.changeId(id, newId);
+            }
             managedElements[newId] = managedElements[id];
             delete managedElements[id];
 
@@ -3016,11 +3029,14 @@
             var _dom = this.getElement(el),
                 _id = this.getId(_dom),
                 _pdom = this.getElement(newParent),
-                _pid = this.getId(_pdom);
+                _pid = this.getId(_pdom),
+                dm = this.getDragManager()
 
             _dom.parentNode.removeChild(_dom);
             _pdom.appendChild(_dom);
-            this.getDragManager().setParent(_dom, _id, _pdom, _pid);
+            if (dm) {
+                dm.setParent(_dom, _id, _pdom, _pid);
+            }
         },
         extend: function (o1, o2, names) {
             var i;
