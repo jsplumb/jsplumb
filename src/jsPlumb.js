@@ -3030,7 +3030,7 @@
                 _id = this.getId(_dom),
                 _pdom = this.getElement(newParent),
                 _pid = this.getId(_pdom),
-                dm = this.getDragManager()
+                dm = this.getDragManager();
 
             _dom.parentNode.removeChild(_dom);
             _pdom.appendChild(_dom);
