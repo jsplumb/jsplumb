@@ -685,6 +685,9 @@
         }
         var group = new Group(j, params);
         j._groups[group.id] = group;
+        if (params.collapsed) {
+            this.collapseGroup(group);
+        }
         return group;
     };
 

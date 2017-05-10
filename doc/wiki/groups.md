@@ -78,6 +78,16 @@ element only.
 - **dropOverride** False by default. If true, child elements may be dragged outside of the Group element (assuming 
 no other flag prevents this), but may not be dropped onto other Groups.
 
+#### Collapsed state
+
+By default, a Group will initially be rendered in its expanded state. You can request the Group be collapsed initially:
+
+```javascript
+jsPlumb.addGroup({
+  el:"foo",
+  collapsed:true
+});
+```
 
 
 
