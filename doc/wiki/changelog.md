@@ -1,3 +1,9 @@
+## 2.4.2
+
+10th May 2017
+
+- update calls to drag manager to handle the case that one is not set
+
 ## 2.4.1
 
 10th May 2017
