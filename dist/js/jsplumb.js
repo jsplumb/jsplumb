@@ -3433,7 +3433,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.4.0";
+        this.version = "2.4.1";
 
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
@@ -12131,6 +12131,9 @@
         }
         var group = new Group(j, params);
         j._groups[group.id] = group;
+        if (params.collapsed) {
+            this.collapseGroup(group);
+        }
         return group;
     };
 

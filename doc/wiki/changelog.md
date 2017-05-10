@@ -1,4 +1,12 @@
+## 2.4.1
+
+10th May 2017
+
+- Support `collapsed` as a parameter to the `addGroup` method, which specifies that a Group be initially collapsed.
+
 ## 2.4.0
+
+8th May 2017
 
 Several methods and parameters have been renamed to better reflect their function:
 

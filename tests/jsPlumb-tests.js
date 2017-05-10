@@ -9132,6 +9132,7 @@ test("endpoint: suspendedElement set correctly", function() {
         equal(_jsPlumb.select({target:"c3_1"}).length, 1, "1 target connection for c3_1");
         _jsPlumb.collapseGroup("three");
 
+        ok(jsPlumb.hasClass(c3, "jtk-group-collapsed"), "group has collapsed class");
         var c3_1conns = _jsPlumb.select({source:"c3_1"});
         equal(c3_1conns.length, 2, "still 2 source connections for c3_1");
         equal(_jsPlumb.select({target:"c3_1"}).length, 1, "still 1 target connection for c3_1");
@@ -9145,6 +9146,24 @@ test("endpoint: suspendedElement set correctly", function() {
         equal(c3_1conns.length, 2, "still 2 source connections yet for c3_1");
         ok(c3_1conns.get(0).isVisible(), "first c3_1 connection is visible");
         ok(c3_1conns.get(1).isVisible(), "second c3_1 connection is visible");
+        ok(!jsPlumb.hasClass(c3, "jtk-group-collapsed"), "group doesnt have collapsed class");
+
+    });
+
+    test("group in collapsed state to start", function() {
+
+        c1 = _addDiv("container1", null, "container", 0, 50);
+        var g = _addGroup(_jsPlumb, "one", c1, [], { collapsed:true });
+        ok(jsPlumb.hasClass(c1, "jtk-group-collapsed"), "group has collapsed class");
+        ok(g.collapsed === true, "Group is collapsed");
+
+        _jsPlumb.expandGroup("one");
+        ok(!jsPlumb.hasClass(c1, "jtk-group-collapsed"), "group doesnt have collapsed class");
+        ok(g.collapsed !== true, "Group is not collapsed");
+
+        _jsPlumb.collapseGroup("one");
+        ok(jsPlumb.hasClass(c1, "jtk-group-collapsed"), "group has collapsed class");
+        ok(g.collapsed === true, "Group is collapsed");
 
 
     });

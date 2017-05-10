@@ -201,6 +201,14 @@ with the mouse.</p></li>
 no other flag prevents this), but may not be dropped onto other Groups.</p></li>
 </ul>
 
+<h4>Collapsed state</h4>
+
+<p>By default, a Group will initially be rendered in its expanded state. You can request the Group be collapsed initially:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addGroup</span><span class="p">({</span>
+  <span class="nx">el</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+  <span class="nx">collapsed</span><span class="o">:</span><span class="kc">true</span>
+<span class="p">});</span>
+</code></pre></div>
 <p><a name="removing"></a>
 Groups can be removed with the <code>removeGroup</code> method:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeGroup</span><span class="p">(</span><span class="s2">&quot;aGroup&quot;</span><span class="p">);</span>
