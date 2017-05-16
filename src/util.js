@@ -47,7 +47,9 @@
         },
         _ise = function (o) {
             for (var i in o) {
-                if (o.hasOwnProperty(i)) return false;
+                if (o.hasOwnProperty(i)) {
+                    return false;
+                }
             }
             return true;
         };
@@ -64,30 +66,43 @@
         isEmpty: _ise,
         isNumber: _isnum,
         clone: function (a) {
-            if (_iss(a)) return "" + a;
-            else if (_isb(a)) return !!a;
-            else if (_isd(a)) return new Date(a.getTime());
-            else if (_isf(a)) return a;
+            if (_iss(a)) {
+                return "" + a;
+            }
+            else if (_isb(a)) {
+                return !!a;
+            }
+            else if (_isd(a)) {
+                return new Date(a.getTime());
+            }
+            else if (_isf(a)) {
+                return a;
+            }
             else if (_isa(a)) {
                 var b = [];
-                for (var i = 0; i < a.length; i++)
+                for (var i = 0; i < a.length; i++) {
                     b.push(this.clone(a[i]));
+                }
                 return b;
             }
             else if (_iso(a)) {
                 var c = {};
-                for (var j in a)
+                for (var j in a) {
                     c[j] = this.clone(a[j]);
+                }
                 return c;
             }
-            else return a;
+            else {
+                return a;
+            }
         },
         merge: function (a, b, collations) {
             // first change the collations array - if present - into a lookup table, because its faster.
             var cMap = {}, ar, i;
             collations = collations || [];
-            for (i = 0; i < collations.length; i++)
+            for (i = 0; i < collations.length; i++) {
                 cMap[collations[i]] = true;
+            }
 
             var c = this.clone(a);
             for (i in b) {
@@ -110,14 +125,17 @@
                     if (_isa(b[i])) {
                         ar = [];
                         // if c's object is also an array we can keep its values.
-                        if (_isa(c[i])) ar.push.apply(ar, c[i]);
+                        if (_isa(c[i])) {
+                            ar.push.apply(ar, c[i]);
+                        }
                         ar.push.apply(ar, b[i]);
                         c[i] = ar;
                     }
                     else if (_iso(b[i])) {
                         // overwite c's value with an object if it is not already one.
-                        if (!_iso(c[i]))
+                        if (!_iso(c[i])) {
                             c[i] = {};
+                        }
                         for (var j in b[i]) {
                             c[i][j] = b[i][j];
                         }
@@ -128,7 +146,9 @@
             return c;
         },
         replace: function (inObj, path, value) {
-            if (inObj == null) return;
+            if (inObj == null) {
+                return;
+            }
             var q = inObj, t = q;
             path.replace(/([^\.])+/g, function (term, lc, pos, str) {
                 var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/),
@@ -142,10 +162,12 @@
 
                 if (last) {
                     // set term = value on current t, creating term as array if necessary.
-                    if (array)
+                    if (array) {
                         _getArray()[array[3]] = value;
-                    else
+                    }
+                    else {
                         t[term] = value;
+                    }
                 }
                 else {
                     // set to current t[term], creating t[term] if necessary.
@@ -156,11 +178,12 @@
                             return a[array[3]];
                         })();
                     }
-                    else
+                    else {
                         t = t[term] || (function () {
                             t[term] = {};
                             return t[term];
                         })();
+                    }
                 }
             });
 
@@ -209,8 +232,9 @@
                         }
                         else if (_isa(d)) {
                             var r = [];
-                            for (var i = 0; i < d.length; i++)
+                            for (var i = 0; i < d.length; i++) {
                                 r.push(_one(d[i]));
+                            }
                             return r;
                         }
                         else if (_iso(d)) {
@@ -229,23 +253,34 @@
             return _one(model);
         },
         findWithFunction: function (a, f) {
-            if (a)
-                for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
+            if (a) {
+                for (var i = 0; i < a.length; i++) {
+                    if (f(a[i])) {
+                        return i;
+                    }
+                }
+            }
             return -1;
         },
         removeWithFunction: function (a, f) {
             var idx = root.jsPlumbUtil.findWithFunction(a, f);
-            if (idx > -1) a.splice(idx, 1);
-            return idx != -1;
+            if (idx > -1) {
+                a.splice(idx, 1);
+            }
+            return idx !== -1;
         },
         remove: function (l, v) {
             var idx = l.indexOf(v);
-            if (idx > -1) l.splice(idx, 1);
-            return idx != -1;
+            if (idx > -1) {
+                l.splice(idx, 1);
+            }
+            return idx !== -1;
         },
         // TODO support insert index
         addWithFunction: function (list, item, hashFunction) {
-            if (root.jsPlumbUtil.findWithFunction(list, hashFunction) == -1) list.push(item);
+            if (root.jsPlumbUtil.findWithFunction(list, hashFunction) === -1) {
+                list.push(item);
+            }
         },
         addToList: function (map, key, value, insertAtStart) {
             var l = map[key];
@@ -286,8 +321,9 @@
             var _makeFn = function (name, protoFn) {
                 return function () {
                     for (i = 0; i < parent.length; i++) {
-                        if (parent[i].prototype[name])
+                        if (parent[i].prototype[name]) {
                             parent[i].prototype[name].apply(this, arguments);
+                        }
                     }
                     return protoFn.apply(this, arguments);
                 };
@@ -300,21 +336,22 @@
             };
 
             if (arguments.length > 2) {
-                for (i = 2; i < arguments.length; i++)
+                for (i = 2; i < arguments.length; i++) {
                     _oneSet(arguments[i]);
+                }
             }
 
             return child;
         },
         uuid: function () {
             return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             }));
         },
         logEnabled: true,
         log: function () {
-            if (root.jsPlumbUtil.logEnabled && typeof console != "undefined") {
+            if (root.jsPlumbUtil.logEnabled && typeof console !== "undefined") {
                 try {
                     var msg = arguments[arguments.length - 1];
                     console.log(msg);
@@ -374,7 +411,9 @@
                 listener.__jsPlumb[root.jsPlumbUtil.uuid()] = evt;
             };
 
-            if (typeof event === "string") _one(event);
+            if (typeof event === "string") {
+                _one(event);
+            }
             else if (event.length != null) {
                 for (var i = 0; i < event.length; i++) {
                     _one(event[i]);
@@ -391,8 +430,9 @@
                     while (!_gone && i < l && ret !== false) {
                         // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
                         // method will have the whole call stack available in the debugger.
-                        if (eventsToDieOn[event])
+                        if (eventsToDieOn[event]) {
                             _listeners[event][i].apply(this, [ value, originalEvent]);
+                        }
                         else {
                             try {
                                 ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
@@ -401,8 +441,9 @@
                             }
                         }
                         i++;
-                        if (_listeners == null || _listeners[event] == null)
+                        if (_listeners == null || _listeners[event] == null) {
                             _gone = true;
+                        }
                     }
                 }
             }
@@ -415,8 +456,9 @@
                 _listeners = {};
             }
             else if (arguments.length === 1) {
-                if (typeof eventOrListener === "string")
+                if (typeof eventOrListener === "string") {
                     delete _listeners[eventOrListener];
+                }
                 else if (eventOrListener.__jsPlumb) {
                     var evt;
                     for (var i in eventOrListener.__jsPlumb) {

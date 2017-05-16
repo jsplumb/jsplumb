@@ -40,10 +40,12 @@
             floatingConnections = {},
             calculateOrientation = function (sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
 
-                if (sourceId === targetId) return {
-                    orientation: Orientation.IDENTITY,
-                    a: ["top", "top"]
-                };
+                if (sourceId === targetId) {
+                    return {
+                        orientation: Orientation.IDENTITY,
+                        a: ["top", "top"]
+                    };
+                }
 
                 var theta = Math.atan2((td.centery - sd.centery), (td.centerx - sd.centerx)),
                     theta2 = Math.atan2((sd.centery - td.centery), (sd.centerx - td.centerx));
@@ -84,18 +86,23 @@
                 var sourceEdge = candidates[0].source, targetEdge = candidates[0].target;
                 for (var i = 0; i < candidates.length; i++) {
 
-                    if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source))
+                    if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
                         sourceEdge = candidates[i].source;
-                    else
+                    }
+                    else {
                         sourceEdge = null;
+                    }
 
-                    if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target))
+                    if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
                         targetEdge = candidates[i].target;
+                    }
                     else {
                         targetEdge = null;
                     }
 
-                    if (sourceEdge != null && targetEdge != null) break;
+                    if (sourceEdge != null && targetEdge != null) {
+                        break;
+                    }
                 }
 
 // --------------------------------------------------------------------------------------
@@ -112,8 +119,9 @@
 
                 for (var i = 0; i < connections.length; i++) {
                     var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
-                    if (reverse)
+                    if (reverse) {
                         val = elementDimensions[horizontal ? 0 : 1] - val;
+                    }
 
                     var dx = (horizontal ? val : other), x = elementPosition[0] + dx, xp = dx / elementDimensions[0],
                         dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
@@ -141,8 +149,12 @@
                 // first get adjusted values
                 var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
                     p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-                if (p1 > p2) return 1;
-                else return -1;
+                if (p1 > p2) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
             },
         // used by placeAnchors
             edgeSortFunctions = {
@@ -176,10 +188,12 @@
 
                             for (var i = 0; i < anchors.length; i++) {
                                 var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
-                                if (weAreSource)
+                                if (weAreSource) {
                                     _setAnchorLocation(c.endpoints[0], anchors[i]);
-                                if (weAreTarget)
+                                }
+                                if (weAreTarget) {
                                     _setAnchorLocation(c.endpoints[1], anchors[i]);
+                                }
                             }
                         }
                     };
@@ -206,23 +220,24 @@
                 ep = conn.endpoints,
                 doRegisterTarget = true,
                 registerConnection = function (otherIndex, otherEndpoint, otherAnchor, elId, c) {
-                    if ((sourceId == targetId) && otherAnchor.isContinuous) {
+                    if ((sourceId === targetId) && otherAnchor.isContinuous) {
                         // remove the target endpoint's canvas.  we dont need it.
                         conn._jsPlumb.instance.removeElement(ep[1].canvas);
                         doRegisterTarget = false;
                     }
-                    _ju.addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == _jp.DynamicAnchor]);
+                    _ju.addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor === _jp.DynamicAnchor]);
                 };
 
             registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
-            if (doRegisterTarget)
+            if (doRegisterTarget) {
                 registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
+            }
         };
         var removeEndpointFromAnchorLists = function (endpoint) {
             (function (list, eId) {
                 if (list) {  // transient anchors dont get entries in this list.
                     var f = function (e) {
-                        return e[4] == eId;
+                        return e[4] === eId;
                     };
                     _ju.removeWithFunction(list.top, f);
                     _ju.removeWithFunction(list.left, f);
@@ -238,7 +253,7 @@
                 ep = connection.endpoints,
                 removeConnection = function (otherIndex, otherEndpoint, otherAnchor, elId, c) {
                    _ju.removeWithFunction(connectionsByElementId[elId], function (_c) {
-                        return _c[0].id == c.id;
+                        return _c[0].id === c.id;
                     });
                 };
 
@@ -255,8 +270,9 @@
 
             if (!doNotRedraw) {
                 self.redraw(connection.sourceId);
-                if (connection.targetId !== connection.sourceId)
+                if (connection.targetId !== connection.sourceId) {
                     self.redraw(connection.targetId);
+                }
             }
         };
         this.add = function (endpoint, elementId) {
@@ -276,7 +292,7 @@
         };
         this.deleteEndpoint = function (endpoint) {
             _ju.removeWithFunction(_amEndpoints[endpoint.elementId], function (e) {
-                return e.id == endpoint.id;
+                return e.id === endpoint.id;
             });
             removeEndpointFromAnchorLists(endpoint);
         };
@@ -310,21 +326,21 @@
 
             if (listToRemoveFrom) {
                 var rIdx = _ju.findWithFunction(listToRemoveFrom, function (e) {
-                    return e[4] == endpointId;
+                    return e[4] === endpointId;
                 });
-                if (rIdx != -1) {
+                if (rIdx !== -1) {
                     listToRemoveFrom.splice(rIdx, 1);
                     // get all connections from this list
                     for (i = 0; i < listToRemoveFrom.length; i++) {
                         candidate = listToRemoveFrom[i][1];
                         _ju.addWithFunction(connsToPaint, candidate, function (c) {
-                            return c.id == candidate.id;
+                            return c.id === candidate.id;
                         });
                         _ju.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function (e) {
-                            return e.id == candidate.endpoints[idx].id;
+                            return e.id === candidate.endpoints[idx].id;
                         });
                         _ju.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function (e) {
-                            return e.id == candidate.endpoints[oIdx].id;
+                            return e.id === candidate.endpoints[oIdx].id;
                         });
                     }
                 }
@@ -332,23 +348,24 @@
 
             for (i = 0; i < listToAddTo.length; i++) {
                 candidate = listToAddTo[i][1];
-                if (params.idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1)
+                if (params.idx === 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx === -1) {
                     firstMatchingElIdx = i;
+                }
                 _ju.addWithFunction(connsToPaint, candidate, function (c) {
-                    return c.id == candidate.id;
+                    return c.id === candidate.id;
                 });
                 _ju.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function (e) {
-                    return e.id == candidate.endpoints[idx].id;
+                    return e.id === candidate.endpoints[idx].id;
                 });
                 _ju.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], function (e) {
-                    return e.id == candidate.endpoints[oIdx].id;
+                    return e.id === candidate.endpoints[oIdx].id;
                 });
             }
-            if (exactIdx != -1) {
+            if (exactIdx !== -1) {
                 listToAddTo[exactIdx] = values;
             }
             else {
-                var insertIdx = reverse ? firstMatchingElIdx != -1 ? firstMatchingElIdx : 0 : listToAddTo.length; // of course we will get this from having looked through the array shortly.
+                var insertIdx = reverse ? firstMatchingElIdx !== -1 ? firstMatchingElIdx : 0 : listToAddTo.length; // of course we will get this from having looked through the array shortly.
                 listToAddTo.splice(insertIdx, 0, values);
             }
 
@@ -370,17 +387,17 @@
                 });
 
             // update or add data for source
-            if (sIndex != -1) {
+            if (sIndex !== -1) {
                 connectionsByElementId[sourceElId][sIndex][0] = connection;
                 connectionsByElementId[sourceElId][sIndex][1] = connection.endpoints[1];
-                connectionsByElementId[sourceElId][sIndex][2] = connection.endpoints[1].anchor.constructor == _jp.DynamicAnchor;
+                connectionsByElementId[sourceElId][sIndex][2] = connection.endpoints[1].anchor.constructor === _jp.DynamicAnchor;
             }
 
             // remove entry for previous target (if there)
             if (tIndex > -1) {
                 connectionsByElementId[oldTargetId].splice(tIndex, 1);
                 // add entry for new target
-                _ju.addToList(connectionsByElementId, newTargetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor == _jp.DynamicAnchor]);
+                _ju.addToList(connectionsByElementId, newTargetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor === _jp.DynamicAnchor]);
             }
 
             connection.updateConnectedClass();
@@ -410,10 +427,10 @@
                 if (tIdx > -1) {
                     connectionsByElementId[connection.targetId][tIdx][0] = connection;
                     connectionsByElementId[connection.targetId][tIdx][1] = connection.endpoints[0];
-                    connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == _jp.DynamicAnchor;
+                    connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor === _jp.DynamicAnchor;
                 }
                 // add entry for new source
-                _ju.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == _jp.DynamicAnchor]);
+                _ju.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor === _jp.DynamicAnchor]);
 
                 // TODO SP not final on this yet. when a user drags an existing connection and it turns into a self
                 // loop, then this code hides the target endpoint (by removing it from the DOM) But I think this should
@@ -455,12 +472,10 @@
             }
 
             for (var i = 0; i < ep.connections.length; i++) {
-                if (ep.connections[i].sourceId == currentId) {
-                    //ep.connections[i].sourceId = ep.elementId;
-                    //ep.connections[i].source = ep.element;
+                if (ep.connections[i].sourceId === currentId) {
                     self.sourceChanged(currentId, ep.elementId, ep.connections[i], ep.element);
                 }
-                else if (ep.connections[i].targetId == currentId) {
+                else if (ep.connections[i].targetId === currentId) {
                     ep.connections[i].targetId = ep.elementId;
                     ep.connections[i].target = ep.element;
                     self.updateOtherEndpoint(ep.connections[i].sourceId, currentId, ep.elementId, ep.connections[i]);
@@ -508,18 +523,26 @@
                     if (sourceContinuous || targetContinuous) {
                         var oKey = sourceId + "_" + targetId,
                             o = orientationCache[oKey],
-                            oIdx = conn.sourceId == elementId ? 1 : 0;
+                            oIdx = conn.sourceId === elementId ? 1 : 0;
 
-                        if (sourceContinuous && !anchorLists[sourceId]) anchorLists[sourceId] = { top: [], right: [], bottom: [], left: [] };
-                        if (targetContinuous && !anchorLists[targetId]) anchorLists[targetId] = { top: [], right: [], bottom: [], left: [] };
+                        if (sourceContinuous && !anchorLists[sourceId]) {
+                            anchorLists[sourceId] = { top: [], right: [], bottom: [], left: [] };
+                        }
+                        if (targetContinuous && !anchorLists[targetId]) {
+                            anchorLists[targetId] = { top: [], right: [], bottom: [], left: [] };
+                        }
 
-                        if (elementId != targetId) jsPlumbInstance.updateOffset({ elId: targetId, timestamp: timestamp });
-                        if (elementId != sourceId) jsPlumbInstance.updateOffset({ elId: sourceId, timestamp: timestamp });
+                        if (elementId !== targetId) {
+                            jsPlumbInstance.updateOffset({ elId: targetId, timestamp: timestamp });
+                        }
+                        if (elementId !== sourceId) {
+                            jsPlumbInstance.updateOffset({ elId: sourceId, timestamp: timestamp });
+                        }
 
                         var td = jsPlumbInstance.getCachedData(targetId),
                             sd = jsPlumbInstance.getCachedData(sourceId);
 
-                        if (targetId == sourceId && (sourceContinuous || targetContinuous)) {
+                        if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
                             // here we may want to improve this by somehow determining the face we'd like
                             // to put the connector on.  ideally, when drawing, the face should be calculated
                             // by determining which face is closest to the point at which the mouse button
@@ -540,30 +563,41 @@
                                  theta2:o.theta2 + Math.PI
                                  };*/
                             }
-                            if (sourceContinuous) _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
-                            if (targetContinuous) _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
+                            if (sourceContinuous) {
+                                _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
+                            }
+                            if (targetContinuous) {
+                                _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
+                            }
                         }
 
-                        if (sourceContinuous) _ju.addWithFunction(anchorsToUpdate, sourceId, function (a) {
-                            return a === sourceId;
-                        });
-                        if (targetContinuous) _ju.addWithFunction(anchorsToUpdate, targetId, function (a) {
-                            return a === targetId;
-                        });
-                        _ju.addWithFunction(connectionsToPaint, conn, function (c) {
-                            return c.id == conn.id;
-                        });
-                        if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1))
-                            _ju.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function (e) {
-                                return e.id == conn.endpoints[oIdx].id;
+                        if (sourceContinuous) {
+                            _ju.addWithFunction(anchorsToUpdate, sourceId, function (a) {
+                                return a === sourceId;
                             });
+                        }
+                        if (targetContinuous) {
+                            _ju.addWithFunction(anchorsToUpdate, targetId, function (a) {
+                                return a === targetId;
+                            });
+                        }
+                        _ju.addWithFunction(connectionsToPaint, conn, function (c) {
+                            return c.id === conn.id;
+                        });
+                        if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1)) {
+                            _ju.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function (e) {
+                                return e.id === conn.endpoints[oIdx].id;
+                            });
+                        }
                     }
                 }
 
                 // place Endpoints whose anchors are continuous but have no Connections
                 for (i = 0; i < ep.length; i++) {
                     if (ep[i].connections.length === 0 && ep[i].anchor.isContinuous) {
-                        if (!anchorLists[elementId]) anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] };
+                        if (!anchorLists[elementId]) {
+                            anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] };
+                        }
                         _updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [ep[i], ep[i]], paint: function () {
                         }}, false, elementId, 0, false, ep[i].anchor.getDefaultFace(), elementId, connectionsToPaint, endpointsToPaint);
                         _ju.addWithFunction(anchorsToUpdate, elementId, function (a) {
@@ -571,7 +605,6 @@
                         });
                     }
                 }
-
 
                 // now place all the continuous anchors we need to;
                 for (i = 0; i < anchorsToUpdate.length; i++) {
@@ -597,29 +630,31 @@
                 // TODO we could have compiled a list of these in the first pass through connections; might save some time.
                 for (i = 0; i < endpointConnections.length; i++) {
                     var otherEndpoint = endpointConnections[i][1];
-                    if (otherEndpoint.anchor.constructor == _jp.DynamicAnchor) {
+                    if (otherEndpoint.anchor.constructor === _jp.DynamicAnchor) {
                         otherEndpoint.paint({ elementWithPrecedence: elementId, timestamp: timestamp });
                         _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
-                            return c.id == endpointConnections[i][0].id;
+                            return c.id === endpointConnections[i][0].id;
                         });
                         // all the connections for the other endpoint now need to be repainted
                         for (var k = 0; k < otherEndpoint.connections.length; k++) {
-                            if (otherEndpoint.connections[k] !== endpointConnections[i][0])
+                            if (otherEndpoint.connections[k] !== endpointConnections[i][0]) {
                                 _ju.addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function (c) {
-                                    return c.id == otherEndpoint.connections[k].id;
+                                    return c.id === otherEndpoint.connections[k].id;
                                 });
+                            }
                         }
-                    } else if (otherEndpoint.anchor.constructor == _jp.Anchor) {
+                    } else if (otherEndpoint.anchor.constructor === _jp.Anchor) {
                         _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
-                            return c.id == endpointConnections[i][0].id;
+                            return c.id === endpointConnections[i][0].id;
                         });
                     }
                 }
 
                 // paint current floating connection for this element, if there is one.
                 var fc = floatingConnections[elementId];
-                if (fc)
+                if (fc) {
                     fc.paint({timestamp: timestamp, recalc: false, elId: elementId});
+                }
 
                 // paint all the connections
                 for (i = 0; i < connectionsToPaint.length; i++) {
@@ -654,10 +689,18 @@
             // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
             // supported. if none supported we also return the request edge.
             this.verifyEdge = function (edge) {
-                if (availableFaces[edge]) return edge;
-                else if (availableFaces[opposites[edge]]) return opposites[edge];
-                else if (availableFaces[secondBest[edge]]) return secondBest[edge];
-                else if (availableFaces[lastChoice[edge]]) return lastChoice[edge];
+                if (availableFaces[edge]) {
+                    return edge;
+                }
+                else if (availableFaces[opposites[edge]]) {
+                    return opposites[edge];
+                }
+                else if (availableFaces[secondBest[edge]]) {
+                    return secondBest[edge];
+                }
+                else if (availableFaces[lastChoice[edge]]) {
+                    return lastChoice[edge];
+                }
                 return edge; // we have to give them something.
             };
 
@@ -720,11 +763,13 @@
 
             var xy = params.xy, wh = params.wh, timestamp = params.timestamp;
 
-            if (params.clearUserDefinedLocation)
+            if (params.clearUserDefinedLocation) {
                 this.userDefinedLocation = null;
+            }
 
-            if (timestamp && timestamp === this.timestamp)
+            if (timestamp && timestamp === this.timestamp) {
                 return this.lastReturnValue;
+            }
 
             if (this.userDefinedLocation != null) {
                 this.lastReturnValue = this.userDefinedLocation;
@@ -739,15 +784,17 @@
 
         this.getCurrentLocation = function (params) {
             params = params || {};
-            return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp != params.timestamp)) ? this.compute(params) : this.lastReturnValue;
+            return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp !== params.timestamp)) ? this.compute(params) : this.lastReturnValue;
         };
     };
     _ju.extend(_jp.Anchor, _ju.EventGenerator, {
         equals: function (anchor) {
-            if (!anchor) return false;
+            if (!anchor) {
+                return false;
+            }
             var ao = anchor.getOrientation(),
                 o = this.getOrientation();
-            return this.x == anchor.x && this.y == anchor.y && this.offsets[0] == anchor.offsets[0] && this.offsets[1] == anchor.offsets[1] && o[0] == ao[0] && o[1] == ao[1];
+            return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1];
         },
         getUserDefinedLocation: function () {
             return this.userDefinedLocation;
@@ -813,7 +860,9 @@
         };
 
         this.getOrientation = function (_endpoint) {
-            if (orientation) return orientation;
+            if (orientation) {
+                return orientation;
+            }
             else {
                 var o = ref.getOrientation(_endpoint);
                 // here we take into account the orientation of the other
@@ -849,7 +898,7 @@
     _ju.extend(_jp.FloatingAnchor, _jp.Anchor);
 
     var _convertAnchor = function (anchor, jsPlumbInstance, elementId) {
-        return anchor.constructor == _jp.Anchor ? anchor : jsPlumbInstance.makeAnchor(anchor, elementId, jsPlumbInstance);
+        return anchor.constructor === _jp.Anchor ? anchor : jsPlumbInstance.makeAnchor(anchor, elementId, jsPlumbInstance);
     };
 
     /* 
@@ -869,8 +918,9 @@
         this.elementId = params.elementId;
         this.jsPlumbInstance = params.jsPlumbInstance;
 
-        for (var i = 0; i < params.anchors.length; i++)
+        for (var i = 0; i < params.anchors.length; i++) {
             this.anchors[i] = _convertAnchor(params.anchors[i], this.jsPlumbInstance, this.elementId);
+        }
 
         this.getAnchors = function () {
             return this.anchors;
@@ -920,17 +970,20 @@
             // if anchor is locked or an opposite element was not given, we
             // maintain our state. anchor will be locked
             // if it is the source of a drag and drop.
-            if (this.locked || txy == null || twh == null)
+            if (this.locked || txy == null || twh == null) {
                 return _curAnchor.compute(params);
-            else
+            }
+            else {
                 params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
+            }
 
             _curAnchor = _anchorSelector(xy, wh, txy, twh, this.anchors);
             this.x = _curAnchor.x;
             this.y = _curAnchor.y;
 
-            if (_curAnchor != _lastAnchor)
+            if (_curAnchor !== _lastAnchor) {
                 this.fire("anchorChanged", _curAnchor);
+            }
 
             _lastAnchor = _curAnchor;
 
@@ -945,10 +998,14 @@
             return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ];
         };
         this.over = function (anchor, endpoint) {
-            if (_curAnchor != null) _curAnchor.over(anchor, endpoint);
+            if (_curAnchor != null) {
+                _curAnchor.over(anchor, endpoint);
+            }
         };
         this.out = function () {
-            if (_curAnchor != null) _curAnchor.out();
+            if (_curAnchor != null) {
+                _curAnchor.out();
+            }
         };
 
         this.getCssClass = function () {
@@ -962,7 +1019,9 @@
         _jp.Anchors[type] = function (params) {
             var a = params.jsPlumbInstance.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
             a.type = type;
-            if (fnInit) fnInit(a, params);
+            if (fnInit) {
+                fnInit(a, params);
+            }
             return a;
         };
     };
@@ -1023,7 +1082,7 @@
         // the id of a position finder in jsPlumb.AnchorPositionFinders, or the user may have supplied the
         // position finder as a function.  we find out what to use and then set it on the anchor.
         var pf = params.position || "Fixed";
-        anchor.positionFinder = pf.constructor == String ? params.jsPlumbInstance.AnchorPositionFinders[pf] : pf;
+        anchor.positionFinder = pf.constructor === String ? params.jsPlumbInstance.AnchorPositionFinders[pf] : pf;
         // always set the constructor params; the position finder might need them later (the Grid one does,
         // for example)
         anchor.constructorParams = params;
@@ -1051,7 +1110,9 @@
         var anchorCount = params.anchorCount || 60,
             shape = params.shape;
 
-        if (!shape) throw new Error("no shape supplied to Perimeter Anchor type");
+        if (!shape) {
+            throw new Error("no shape supplied to Perimeter Anchor type");
+        }
 
         var _circle = function () {
                 var r = 0.5, step = Math.PI * 2 / anchorCount, current = 0, a = [];
@@ -1078,8 +1139,9 @@
                         }
                     };
 
-                for (var i = 0; i < segments.length; i++)
+                for (var i = 0; i < segments.length; i++) {
                     _computeFace.apply(null, segments[i]);
+                }
 
                 return a;
             },
@@ -1148,10 +1210,14 @@
                 return o;
             };
 
-        if (!_shapes[shape]) throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
+        if (!_shapes[shape]) {
+            throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
+        }
 
         var da = _shapes[shape](params);
-        if (params.rotation) da = _rotate(da, params.rotation);
+        if (params.rotation) {
+            da = _rotate(da, params.rotation);
+        }
         var a = params.jsPlumbInstance.makeDynamicAnchor(da);
         a.type = "Perimeter";
         return a;
