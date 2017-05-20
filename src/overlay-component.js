@@ -1,7 +1,5 @@
 /*
- * jsPlumb
- *
- * Title:jsPlumb 2.3.0
+ * jsPlumb Community Edition
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -9,8 +7,8 @@
  *
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
- * http://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
+ * https://jsplumbtoolkit.com
+ * https://github.com/jsplumb/jsplumb
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -46,9 +44,11 @@
                 var type = o[0],
                 // make a copy of the object so as not to mess up anyone else's reference...
                     p = _jp.extend({component: component, _jsPlumb: component._jsPlumb.instance}, o[1]);
-                if (o.length == 3) _jp.extend(p, o[2]);
+                if (o.length === 3) {
+                    _jp.extend(p, o[2]);
+                }
                 _newOverlay = new _jp.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
-            } else if (o.constructor == String) {
+            } else if (o.constructor === String) {
                 _newOverlay = new _jp.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component: component, _jsPlumb: component._jsPlumb.instance});
             } else {
                 _newOverlay = o;
@@ -56,7 +56,6 @@
 
             _newOverlay.id = _newOverlay.id || _ju.uuid();
             component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
-            //component._jsPlumb.overlays.push(_newOverlay);
             component._jsPlumb.overlays[_newOverlay.id] = _newOverlay;
 
             return _newOverlay;
@@ -79,8 +78,9 @@
 
         this.setListenerComponent = function (c) {
             if (this._jsPlumb) {
-                for (var i in this._jsPlumb.overlays)
+                for (var i in this._jsPlumb.overlays) {
                     this._jsPlumb.overlays[i].setListenerComponent(c);
+                }
             }
         };
     };
@@ -117,10 +117,11 @@
 
             // now loop through the full overlays and remove those that we dont want to keep
             for (i in component._jsPlumb.overlays) {
-                if (keep[component._jsPlumb.overlays[i].id] == null)
+                if (keep[component._jsPlumb.overlays[i].id] == null) {
                     component.removeOverlay(component._jsPlumb.overlays[i].id, true); // remove overlay but dont clean it up.
                     // that would remove event listeners etc; overlays are never discarded by the types stuff, they are
                     // just detached/reattached.
+                }
             }
         }
     };
@@ -136,7 +137,9 @@
         },
         addOverlay: function (overlay, doNotRepaint) {
             var o = _processOverlay(this, overlay);
-            if (!doNotRepaint) this.repaint();
+            if (!doNotRepaint) {
+                this.repaint();
+            }
             return o;
         },
         getOverlay: function (id) {
@@ -147,43 +150,56 @@
         },
         hideOverlay: function (id) {
             var o = this.getOverlay(id);
-            if (o) o.hide();
+            if (o) {
+                o.hide();
+            }
         },
         hideOverlays: function () {
-            for (var i in this._jsPlumb.overlays)
+            for (var i in this._jsPlumb.overlays) {
                 this._jsPlumb.overlays[i].hide();
+            }
         },
         showOverlay: function (id) {
             var o = this.getOverlay(id);
-            if (o) o.show();
+            if (o) {
+                o.show();
+            }
         },
         showOverlays: function () {
-            for (var i in this._jsPlumb.overlays)
+            for (var i in this._jsPlumb.overlays) {
                 this._jsPlumb.overlays[i].show();
+            }
         },
         removeAllOverlays: function (doNotRepaint) {
             for (var i in this._jsPlumb.overlays) {
-                if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
+                if (this._jsPlumb.overlays[i].cleanup) {
+                    this._jsPlumb.overlays[i].cleanup();
+                }
             }
 
             this._jsPlumb.overlays = {};
             this._jsPlumb.overlayPositions = null;
-            if (!doNotRepaint)
+            if (!doNotRepaint) {
                 this.repaint();
+            }
         },
         removeOverlay: function (overlayId, dontCleanup) {
             var o = this._jsPlumb.overlays[overlayId];
             if (o) {
                 o.setVisible(false);
-                if (!dontCleanup && o.cleanup) o.cleanup();
+                if (!dontCleanup && o.cleanup) {
+                    o.cleanup();
+                }
                 delete this._jsPlumb.overlays[overlayId];
-                if (this._jsPlumb.overlayPositions)
+                if (this._jsPlumb.overlayPositions) {
                     delete this._jsPlumb.overlayPositions[overlayId];
+                }
             }
         },
         removeOverlays: function () {
-            for (var i = 0, j = arguments.length; i < j; i++)
+            for (var i = 0, j = arguments.length; i < j; i++) {
                 this.removeOverlay(arguments[i]);
+            }
         },
         moveParent: function (newParent) {
             if (this.bgCanvas) {
@@ -214,20 +230,27 @@
         setLabel: function (l) {
             var lo = this.getOverlay(_internalLabelOverlayId);
             if (!lo) {
-                var params = l.constructor == String || l.constructor == Function ? { label: l } : l;
+                var params = l.constructor === String || l.constructor === Function ? { label: l } : l;
                 lo = _makeLabelOverlay(this, params);
                 this._jsPlumb.overlays[_internalLabelOverlayId] = lo;
             }
             else {
-                if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
+                if (l.constructor === String || l.constructor === Function) {
+                    lo.setLabel(l);
+                }
                 else {
-                    if (l.label) lo.setLabel(l.label);
-                    if (l.location) lo.setLocation(l.location);
+                    if (l.label) {
+                        lo.setLabel(l.label);
+                    }
+                    if (l.location) {
+                        lo.setLocation(l.location);
+                    }
                 }
             }
 
-            if (!this._jsPlumb.instance.isSuspendDrawing())
+            if (!this._jsPlumb.instance.isSuspendDrawing()) {
                 this.repaint();
+            }
         },
         cleanup: function (force) {
             for (var i in this._jsPlumb.overlays) {
@@ -256,10 +279,10 @@
             }
         },
         addClass:function(clazz, dontUpdateOverlays) {
-            this._clazzManip("add", clazz, dontUpdateOverlays)
+            this._clazzManip("add", clazz, dontUpdateOverlays);
         },
         removeClass:function(clazz, dontUpdateOverlays) {
-            this._clazzManip("remove", clazz, dontUpdateOverlays)
+            this._clazzManip("remove", clazz, dontUpdateOverlays);
         }
     });
 
