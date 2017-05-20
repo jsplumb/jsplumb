@@ -1,16 +1,14 @@
 /*
- * jsPlumb
- * 
- * Title:jsPlumb 2.3.0
- * 
+ * jsPlumb Community Edition
+ *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
  *
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
- * http://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
+ * https://jsplumbtoolkit.com
+ * https://github.com/jsplumb/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -74,10 +72,13 @@
                         v = p[pName].substring(2);
                     return o[pName] + (m * v);
                 }
-                else return p[pName];
+                else {
+                    return p[pName];
+                }
             }
-            else
+            else {
                 return o[pName];
+            }
         };
         return [ _one("left"), _one("top") ];
     };
@@ -86,7 +87,9 @@
 
         animationSupported:true,
         getElement: function (el) {
-            if (el == null) return null;
+            if (el == null) {
+                return null;
+            }
             // here we pluck the first entry if el was a list of entries.
             // this is not my favourite thing to do, but previous versions of
             // jsplumb supported jquery selectors, and it is possible a selector
@@ -124,11 +127,15 @@
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
                     });
-                    if (options.step != null) options.step(idx, Math.ceil(steps));
+                    if (options.step != null) {
+                        options.step(idx, Math.ceil(steps));
+                    }
                     idx++;
                     if (idx >= steps) {
                         window.clearInterval(_int);
-                        if (options.complete != null) options.complete();
+                        if (options.complete != null) {
+                            options.complete();
+                        }
                     }
                 }, step);
         },
@@ -193,12 +200,14 @@
         },
         setElementDraggable: function (el, draggable) {
             el = _jp.getElement(el);
-            if (el._katavorioDrag)
+            if (el._katavorioDrag) {
                 el._katavorioDrag.setEnabled(draggable);
+            }
         },
         setDragScope: function (el, scope) {
-            if (el._katavorioDrag)
+            if (el._katavorioDrag) {
                 el._katavorioDrag.k.setDragScope(el, scope);
+            }
         },
         setDropScope:function(el, scope) {
             if (el._katavorioDrop && el._katavorioDrop.length > 0) {
@@ -249,8 +258,9 @@
             'step': "step", 'complete': 'complete'
         },
         stopDrag: function (el) {
-            if (el._katavorioDrag)
+            if (el._katavorioDrag) {
                 el._katavorioDrag.abort();
+            }
         },
         addToDragSelection: function (spec) {
             _getDragManager(this).select(spec);
@@ -276,10 +286,12 @@
 
     var ready = function (f) {
         var _do = function () {
-            if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "undefined" && document.body != null)
+            if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) !== "undefined" && document.body != null) {
                 f();
-            else
+            }
+            else {
                 setTimeout(_do, 9);
+            }
         };
 
         _do();
