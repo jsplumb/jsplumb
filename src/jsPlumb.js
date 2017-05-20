@@ -179,8 +179,8 @@
             // all components can generate events
 
             if (params.events) {
-                for (i in params.events) {
-                    self.bind(i, params.events[i]);
+                for (var evtName in params.events) {
+                    self.bind(evtName, params.events[evtName]);
                 }
             }
 
@@ -434,10 +434,10 @@
             if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
 
                 this._jsPlumb.hover = hover;
+                var method = hover ? "addClass" : "removeClass";
 
                 if (this.canvas != null) {
                     if (this._jsPlumb.instance.hoverClass != null) {
-                        var method = hover ? "addClass" : "removeClass";
                         this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
                     }
                     if (this._jsPlumb.hoverClass != null) {
