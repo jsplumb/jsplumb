@@ -43,8 +43,9 @@
             xhtml: "http://www.w3.org/1999/xhtml"
         },
         _attr = function (node, attributes) {
-            for (var i in attributes)
+            for (var i in attributes) {
                 node.setAttribute(i, "" + attributes[i]);
+            }
         },
         _node = function (name, attributes) {
             attributes = attributes || {};
@@ -57,8 +58,9 @@
         },
         _clearGradient = function (parent) {
             var els = parent.querySelectorAll(" defs,linearGradient,radialGradient");
-            for (var i = 0; i < els.length; i++)
+            for (var i = 0; i < els.length; i++) {
                 els[i].parentNode.removeChild(els[i]);
+            }
         },
         _updateGradient = function (parent, node, style, dimensions, uiComponent) {
             var id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance.idstamp();
@@ -72,10 +74,12 @@
             // issue 244 suggested the 'gradientUnits' attribute; without this, straight/flowchart connectors with gradients would
             // not show gradients when the line was perfectly horizontal or vertical.
             var g;
-            if (!style.gradient.offset)
+            if (!style.gradient.offset) {
                 g = _node(LINEAR_GRADIENT, {id: id, gradientUnits: "userSpaceOnUse"});
-            else
+            }
+            else {
                 g = _node(RADIAL_GRADIENT, { id: id });
+            }
 
             var defs = _node(DEFS);
             parent.appendChild(defs);
@@ -85,8 +89,7 @@
             // order to how canvas does it.  so we want to keep all the maths the same, but
             // iterate the actual style declarations in reverse order, if the x indexes are not in order.
             for (var i = 0; i < style.gradient.stops.length; i++) {
-                var styleToUse = uiComponent.segment == 1 || uiComponent.segment == 2 ? i : style.gradient.stops.length - 1 - i,
-                    //stopColor = _ju.convertStyle(style.gradient.stops[styleToUse][1], true),
+                var styleToUse = uiComponent.segment === 1 || uiComponent.segment === 2 ? i : style.gradient.stops.length - 1 - i,
                     stopColor = style.gradient.stops[styleToUse][1],
                     s = _node(STOP, {"offset": Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color": stopColor});
 
@@ -122,7 +125,7 @@
             // attribute given in terms of stroke width into a pixel representation, by using the
             // stroke's lineWidth.
             if (style[DASHSTYLE] && style[LINE_WIDTH] && !style[STROKE_DASHARRAY]) {
-                var sep = style[DASHSTYLE].indexOf(",") == -1 ? " " : ",",
+                var sep = style[DASHSTYLE].indexOf(",") === -1 ? " " : ",",
                     parts = style[DASHSTYLE].split(sep),
                     styleToUse = "";
                 parts.forEach(function (p) {
@@ -145,7 +148,9 @@
             if (svg.childNodes.length > idx) {
                 svg.insertBefore(path, svg.childNodes[idx]);
             }
-            else svg.appendChild(path);
+            else {
+                svg.appendChild(path);
+            }
         };
 
     /**
@@ -193,7 +198,9 @@
         }
 
         params._jsPlumb.appendElement(this.canvas, params.originalArgs[0].parent);
-        if (params.useDivWrapper) this.canvas.appendChild(this.svg);
+        if (params.useDivWrapper) {
+            this.canvas.appendChild(this.svg);
+        }
 
         var displayElements = [ this.canvas ];
         this.getDisplayElements = function () {
@@ -209,8 +216,12 @@
 
                 var xy = [ this.x, this.y ], wh = [ this.w, this.h ], p;
                 if (extents != null) {
-                    if (extents.xmin < 0) xy[0] += extents.xmin;
-                    if (extents.ymin < 0) xy[1] += extents.ymin;
+                    if (extents.xmin < 0) {
+                        xy[0] += extents.xmin;
+                    }
+                    if (extents.ymin < 0) {
+                        xy[1] += extents.ymin;
+                    }
                     wh[0] = extents.xmax + ((extents.xmin < 0) ? -extents.xmin : 0);
                     wh[1] = extents.ymax + ((extents.ymin < 0) ? -extents.ymin : 0);
                 }
@@ -221,8 +232,9 @@
                     xy[1] = 0;
                     p = _pos([ 0, 0 ]);
                 }
-                else
+                else {
                     p = _pos([ xy[0], xy[1] ]);
+                }
 
                 renderer.paint.apply(this, arguments);
 
@@ -242,14 +254,22 @@
     _ju.extend(SvgComponent, _jp.jsPlumbUIComponent, {
         cleanup: function (force) {
             if (force || this.typeId == null) {
-                if (this.canvas) this.canvas._jsPlumb = null;
-                if (this.svg) this.svg._jsPlumb = null;
-                if (this.bgCanvas) this.bgCanvas._jsPlumb = null;
+                if (this.canvas) {
+                    this.canvas._jsPlumb = null;
+                }
+                if (this.svg) {
+                    this.svg._jsPlumb = null;
+                }
+                if (this.bgCanvas) {
+                    this.bgCanvas._jsPlumb = null;
+                }
 
-                if (this.canvas && this.canvas.parentNode)
+                if (this.canvas && this.canvas.parentNode) {
                     this.canvas.parentNode.removeChild(this.canvas);
-                if (this.bgCanvas && this.bgCanvas.parentNode)
+                }
+                if (this.bgCanvas && this.bgCanvas.parentNode) {
                     this.canvas.parentNode.removeChild(this.canvas);
+                }
 
                 this.svg = null;
                 this.canvas = null;
@@ -258,14 +278,22 @@
             }
             else {
                 // if not a forced cleanup, just detach from DOM for now.
-                if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
-                if (this.bgCanvas && this.bgCanvas.parentNode) this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+                if (this.canvas && this.canvas.parentNode) {
+                    this.canvas.parentNode.removeChild(this.canvas);
+                }
+                if (this.bgCanvas && this.bgCanvas.parentNode) {
+                    this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+                }
             }
         },
         reattach:function(instance) {
             var c = instance.getContainer();
-            if (this.canvas && this.canvas.parentNode == null) c.appendChild(this.canvas);
-            if (this.bgCanvas && this.bgCanvas.parentNode == null) c.appendChild(this.bgCanvas);
+            if (this.canvas && this.canvas.parentNode == null) {
+                c.appendChild(this.canvas);
+            }
+            if (this.bgCanvas && this.bgCanvas.parentNode == null) {
+                c.appendChild(this.bgCanvas);
+            }
         },
         setVisible: function (v) {
             if (this.canvas) {
@@ -297,8 +325,12 @@
         _super.renderer.paint = function (style, anchor, extents) {
 
             var segments = self.getSegments(), p = "", offset = [0, 0];
-            if (extents.xmin < 0) offset[0] = -extents.xmin;
-            if (extents.ymin < 0) offset[1] = -extents.ymin;
+            if (extents.xmin < 0) {
+                offset[0] = -extents.xmin;
+            }
+            if (extents.ymin < 0) {
+                offset[1] = -extents.ymin;
+            }
 
             if (segments.length > 0) {
 
@@ -468,11 +500,15 @@
 
                     this.canvas = params.component.svg; // for the sake of completeness; this behaves the same as other overlays
                 }
-                var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
+                var clazz = originalArgs && (originalArgs.length === 1) ? (originalArgs[0].cssClass || "") : "",
                     offset = [0, 0];
 
-                if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
-                if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
+                if (containerExtents.xmin < 0) {
+                    offset[0] = -containerExtents.xmin;
+                }
+                if (containerExtents.ymin < 0) {
+                    offset[1] = -containerExtents.ymin;
+                }
 
                 _attr(this.path, {
                     "d": makePath(params.d),
@@ -500,19 +536,25 @@
     _ju.extend(AbstractSvgArrowOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay], {
         cleanup: function (force) {
             if (this.path != null) {
-                if (force)
+                if (force) {
                     this._jsPlumb.instance.removeElement(this.path);
-                else
-                    if (this.path.parentNode)
+                }
+                else {
+                    if (this.path.parentNode) {
                         this.path.parentNode.removeChild(this.path);
+                    }
+                }
             }
         },
         reattach:function(instance) {
-            if (this.path && this.canvas && this.path.parentNode == null)
+            if (this.path && this.canvas && this.path.parentNode == null) {
                 this.canvas.appendChild(this.path);
+            }
         },
         setVisible: function (v) {
-            if (this.path != null) (this.path.style.display = (v ? "block" : "none"));
+            if (this.path != null) {
+                (this.path.style.display = (v ? "block" : "none"));
+            }
         }
     });
 
@@ -554,8 +596,12 @@
             }
 
             var offset = [0, 0];
-            if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
-            if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
+            if (containerExtents.xmin < 0) {
+                offset[0] = -containerExtents.xmin;
+            }
+            if (containerExtents.ymin < 0) {
+                offset[1] = -containerExtents.ymin;
+            }
 
             _attr(path, {
                 "d": makePath(params.head, params.tail),
