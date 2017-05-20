@@ -1,16 +1,13 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.3.0
- *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains utility functions that run in browsers only.
  *
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
- * http://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
+ * https://jsplumbtoolkit.com
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -24,20 +21,24 @@
        ctx = ctx || el.parentNode;
        var possibles = ctx.querySelectorAll(selector);
        for (var i = 0; i < possibles.length; i++) {
-           if (possibles[i] === el)
+           if (possibles[i] === el) {
                return true;
+           }
        }
        return false;
    };
 
     root.jsPlumbUtil.consume = function(e, doNotPreventDefault) {
-       if (e.stopPropagation)
+       if (e.stopPropagation) {
            e.stopPropagation();
-       else
+       }
+       else {
            e.returnValue = false;
+       }
 
-       if (!doNotPreventDefault && e.preventDefault)
-            e.preventDefault();
+       if (!doNotPreventDefault && e.preventDefault){
+           e.preventDefault();
+       }
    };
 
    /*
