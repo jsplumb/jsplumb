@@ -40,10 +40,12 @@
              * helper method to add a segment.
              */
             addSegment = function (segments, x, y, paintInfo) {
-                if (lastx == x && lasty == y) return;
+                if (lastx === x && lasty === y) {
+                    return;
+                }
                 var lx = lastx == null ? paintInfo.sx : lastx,
                     ly = lasty == null ? paintInfo.sy : lasty,
-                    o = lx == x ? "v" : "h",
+                    o = lx === x ? "v" : "h",
                     sgnx = sgn(x - lx),
                     sgny = sgn(y - ly);
 
@@ -65,19 +67,19 @@
 
                     current = current || _cloneArray(segments[i]);
                     next = _cloneArray(segments[i + 1]);
-                    if (cornerRadius > 0 && current[4] != next[4]) {
+                    if (cornerRadius > 0 && current[4] !== next[4]) {
                         var radiusToUse = Math.min(cornerRadius, segLength(current), segLength(next));
                         // right angle. adjust current segment's end point, and next segment's start point.
                         current[2] -= current[5] * radiusToUse;
                         current[3] -= current[6] * radiusToUse;
                         next[0] += next[5] * radiusToUse;
                         next[1] += next[6] * radiusToUse;
-                        var ac = (current[6] == next[5] && next[5] == 1) ||
-                                ((current[6] == next[5] && next[5] === 0) && current[5] != next[6]) ||
-                                (current[6] == next[5] && next[5] == -1),
+                        var ac = (current[6] === next[5] && next[5] === 1) ||
+                                ((current[6] === next[5] && next[5] === 0) && current[5] !== next[6]) ||
+                                (current[6] === next[5] && next[5] === -1),
                             sgny = next[1] > current[3] ? 1 : -1,
                             sgnx = next[0] > current[2] ? 1 : -1,
-                            sgnEqual = sgny == sgnx,
+                            sgnEqual = sgny === sgnx,
                             cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
                             cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];
 
@@ -98,8 +100,8 @@
                     }
                     else {
                         // dx + dy are used to adjust for line width.
-                        var dx = (current[2] == current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
-                            dy = (current[3] == current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
+                        var dx = (current[2] === current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
+                            dy = (current[3] === current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
                         _super.addSegment(conn, "Straight", {
                             x1: current[0] - dx, y1: current[1] - dy, x2: current[2] + dx, y2: current[3] + dy
                         });
@@ -129,23 +131,23 @@
                     orthogonal: commonStubCalculator,
                     opposite: function (axis) {
                         var pi = paintInfo,
-                            idx = axis == "x" ? 0 : 1,
+                            idx = axis === "x" ? 0 : 1,
                             areInProximity = {
                                 "x": function () {
-                                    return ( (pi.so[idx] == 1 && (
+                                    return ( (pi.so[idx] === 1 && (
                                         ( (pi.startStubX > pi.endStubX) && (pi.tx > pi.startStubX) ) ||
                                         ( (pi.sx > pi.endStubX) && (pi.tx > pi.sx))))) ||
 
-                                        ( (pi.so[idx] == -1 && (
+                                        ( (pi.so[idx] === -1 && (
                                             ( (pi.startStubX < pi.endStubX) && (pi.tx < pi.startStubX) ) ||
                                             ( (pi.sx < pi.endStubX) && (pi.tx < pi.sx)))));
                                 },
                                 "y": function () {
-                                    return ( (pi.so[idx] == 1 && (
+                                    return ( (pi.so[idx] === 1 && (
                                         ( (pi.startStubY > pi.endStubY) && (pi.ty > pi.startStubY) ) ||
                                         ( (pi.sy > pi.endStubY) && (pi.ty > pi.sy))))) ||
 
-                                        ( (pi.so[idx] == -1 && (
+                                        ( (pi.so[idx] === -1 && (
                                             ( (pi.startStubY < pi.endStubY) && (pi.ty < pi.startStubY) ) ||
                                             ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))));
                                 }
@@ -165,8 +167,8 @@
 
             // calculate Stubs.
             var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
-                idx = paintInfo.sourceAxis == "x" ? 0 : 1,
-                oidx = paintInfo.sourceAxis == "x" ? 1 : 0,
+                idx = paintInfo.sourceAxis === "x" ? 0 : 1,
+                oidx = paintInfo.sourceAxis === "x" ? 1 : 0,
                 ss = stubs[idx],
                 oss = stubs[oidx],
                 es = stubs[idx + 2],
@@ -177,7 +179,7 @@
             addSegment(segments, stubs[0], stubs[1], paintInfo);
 
             // if its a loopback and we should treat it differently.
-            if (false &&params.sourcePos[0] == params.targetPos[0] && params.sourcePos[1] == params.targetPos[1]) {
+            if (false &&params.sourcePos[0] === params.targetPos[0] && params.sourcePos[1] === params.targetPos[1]) {
 
                 // we use loopbackRadius here, as statemachine connectors do.
                 // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
@@ -238,29 +240,29 @@
                                 soIdx = orientations[axis][0], toIdx = orientations[axis][1],
                                 _so = pi.so[soIdx] + 1,
                                 _to = pi.to[toIdx] + 1,
-                                otherFlipped = (pi.to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (pi.to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
+                                otherFlipped = (pi.to[toIdx] === -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (pi.to[toIdx] === 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
                                 stub1 = stubs[axis][_so][0],
                                 stub2 = stubs[axis][_so][1],
                                 segmentIndexes = sis[axis][_so][_to];
 
-                            if (pi.segment == segmentIndexes[3] || (pi.segment == segmentIndexes[2] && otherFlipped)) {
+                            if (pi.segment === segmentIndexes[3] || (pi.segment === segmentIndexes[2] && otherFlipped)) {
                                 return midLines[axis];
                             }
-                            else if (pi.segment == segmentIndexes[2] && stub2 < stub1) {
+                            else if (pi.segment === segmentIndexes[2] && stub2 < stub1) {
                                 return linesToEnd[axis];
                             }
-                            else if ((pi.segment == segmentIndexes[2] && stub2 >= stub1) || (pi.segment == segmentIndexes[1] && !otherFlipped)) {
+                            else if ((pi.segment === segmentIndexes[2] && stub2 >= stub1) || (pi.segment === segmentIndexes[1] && !otherFlipped)) {
                                 return startToMidToEnd[axis];
                             }
-                            else if (pi.segment == segmentIndexes[0] || (pi.segment == segmentIndexes[1] && otherFlipped)) {
+                            else if (pi.segment === segmentIndexes[0] || (pi.segment === segmentIndexes[1] && otherFlipped)) {
                                 return startToEnd[axis];
                             }
                         },
                         orthogonal: function (axis, startStub, otherStartStub, endStub, otherEndStub) {
                             var pi = paintInfo,
                                 extent = {
-                                    "x": pi.so[0] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
-                                    "y": pi.so[1] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
+                                    "x": pi.so[0] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
+                                    "y": pi.so[1] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
                                 }[axis];
 
                             return {
@@ -282,7 +284,7 @@
                                 dim = {"x": "height", "y": "width"}[axis],
                                 comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
 
-                            if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
+                            if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
                                 var _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
                                 return {
                                     "x": [
@@ -296,7 +298,7 @@
                                 }[axis];
 
                             }
-                            else if (!comparator || (pi.so[idx] == 1 && ss > es) || (pi.so[idx] == -1 && ss < es)) {
+                            else if (!comparator || (pi.so[idx] === 1 && ss > es) || (pi.so[idx] === -1 && ss < es)) {
                                 return {
                                     "x": [
                                         [ ss, midy ],
@@ -308,7 +310,7 @@
                                     ]
                                 }[axis];
                             }
-                            else if ((pi.so[idx] == 1 && ss < es) || (pi.so[idx] == -1 && ss > es)) {
+                            else if ((pi.so[idx] === 1 && ss < es) || (pi.so[idx] === -1 && ss > es)) {
                                 return {
                                     "x": [
                                         [ midx, pi.sy ],
