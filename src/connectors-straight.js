@@ -1,7 +1,5 @@
 /*
- * jsPlumb
- *
- * Title:jsPlumb 2.3.0
+ * jsPlumb Community Edition
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -9,8 +7,8 @@
  *
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
- * http://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
+ * https://jsplumbtoolkit.com
+ * https://github.com/jsplumb/jsplumb
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
