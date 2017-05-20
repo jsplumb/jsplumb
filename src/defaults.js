@@ -998,8 +998,8 @@
      *
      * Parameters:
      *
-     * 	width	-	width of the triangle's base.  defaults to 55 pixels.
-     * 	height	-	height of the triangle from base to apex.  defaults to 55 pixels.
+     * width   width of the triangle's base.  defaults to 55 pixels.
+     * height  height of the triangle from base to apex.  defaults to 55 pixels.
      */
     _jp.Endpoints.Triangle = function (params) {
         this.type = "Triangle";
@@ -1409,10 +1409,10 @@
      * Function: Constructor
      * 
      * Parameters:
-     * 	create - function for jsPlumb to call that returns a DOM element.
-     * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
-     * 	id - optional id to use for later retrieval of this overlay.
-     * 	
+     * create - function for jsPlumb to call that returns a DOM element.
+     * location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
+     * id - optional id to use for later retrieval of this overlay.
+     *
      */
     _jp.Overlays.Custom = function (params) {
         this.type = "Custom";
@@ -1459,14 +1459,14 @@
      * Function: Constructor
      * 
      * Parameters:
-     * 	cssClass - optional css class string to append to css class. This string is appended "as-is", so you can of course have multiple classes
+     * cssClass - optional css class string to append to css class. This string is appended "as-is", so you can of course have multiple classes
      *             defined.  This parameter is preferred to using labelStyle, borderWidth and borderStyle.
-     * 	label - the label to paint.  May be a string or a function that returns a string.  Nothing will be painted if your label is null or your
+     * label - the label to paint.  May be a string or a function that returns a string.  Nothing will be painted if your label is null or your
      *         label function returns null.  empty strings _will_ be painted.
-     * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
-     * 	id - optional id to use for later retrieval of this overlay.
+     * location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
+     * id - optional id to use for later retrieval of this overlay.
      * 
-     * 	
+     *
      */
     _jp.Overlays.Label = function (params) {
         this.labelStyle = params.labelStyle;
