@@ -1,7 +1,5 @@
 /*
- * jsPlumb
- *
- * Title:jsPlumb 2.3.0
+ * jsPlumb Community Edition
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -9,8 +7,8 @@
  *
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
- * http://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
+ * https://jsplumbtoolkit.com
+ * https://github.com/jsplumb/jsplumb
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -94,7 +92,7 @@
             if (group) {
                 var list = group.connections[p.index === 0 ? "source" : "target"];
                 var idx = list.indexOf(p.connection);
-                if (idx != -1) {
+                if (idx !== -1) {
                     list.splice(idx, 1);
                 }
             }
@@ -114,7 +112,9 @@
                 //group.add(el, doNotFireEvent);
                 var groupEl = group.getEl();
 
-                if (el._isJsPlumbGroup) return;
+                if (el._isJsPlumbGroup) {
+                    return;
+                }
                 var currentGroup = el._jsPlumbGroup;
                 // if already a member of this group, do nothing
                 if (currentGroup !== group) {
@@ -129,7 +129,7 @@
                     group.add(el, doNotFireEvent);
 
                     var handleDroppedConnections = function (list, index) {
-                        var oidx = index == 0 ? 1 : 0;
+                        var oidx = index === 0 ? 1 : 0;
                         list.each(function (c) {
                             c.setVisible(false);
                             if (c.endpoints[oidx].element._jsPlumbGroup === group) {
@@ -179,7 +179,9 @@
             var group = groupId;
             if (_ju.isString(groupId)) {
                 group = _managedGroups[groupId];
-                if (group == null) throw new TypeError("No such group [" + groupId + "]");
+                if (group == null) {
+                    throw new TypeError("No such group [" + groupId + "]");
+                }
             }
             return group;
         };
@@ -267,7 +269,9 @@
 
         this.collapseGroup = function(group) {
             group = this.getGroup(group);
-            if (group == null || group.collapsed) return;
+            if (group == null || group.collapsed) {
+                return;
+            }
             var groupEl = group.getEl();
 
             // todo remove old proxy endpoints first, just in case?
@@ -300,7 +304,9 @@
         var _expandConnection = this.expandConnection = function(c, index, group) {
 
             // if no proxies or none for this end of the connection, abort.
-            if (c.proxies == null || c.proxies[index] == null) return;
+            if (c.proxies == null || c.proxies[index] == null) {
+                return;
+            }
 
             var groupElId = _jsPlumb.getId(group.getEl()),
                 originalElement = c.proxies[index].originalEp.element,
@@ -332,7 +338,9 @@
 
             group = this.getGroup(group);
 
-            if (group == null || !group.collapsed) return;
+            if (group == null || !group.collapsed) {
+                return;
+            }
             var groupEl = group.getEl();
 
             _setVisible(group, true);
@@ -379,7 +387,9 @@
             group.connections.target.length = 0;
             var oneSet = function(c) {
                 for (var i = 0; i < c.length; i++) {
-                    if (processed[c[i].id]) continue;
+                    if (processed[c[i].id]) {
+                        continue;
+                    }
                     processed[c[i].id] = true;
                     if (c[i].source._jsPlumbGroup === group) {
                         if (c[i].target._jsPlumbGroup !== group) {
@@ -467,7 +477,9 @@
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
                     var el = p.drag.el;
-                    if (el._isJsPlumbGroup) return;
+                    if (el._isJsPlumbGroup) {
+                        return;
+                    }
                     var currentGroup = el._jsPlumbGroup;
                     if (currentGroup !== self) {
                         if (currentGroup != null) {
@@ -511,7 +523,7 @@
                     _bindDragHandlers(__el);
                 }
 
-                if (__el.parentNode != dragArea) {
+                if (__el.parentNode !== dragArea) {
                     dragArea.appendChild(__el);
                 }
 
@@ -565,7 +577,7 @@
 
         _jsPlumb.bind(ELEMENT_DRAGGABLE_EVENT, function(dragParams) {
             // if its for the current group,
-            if (dragParams.el._jsPlumbGroup == this) {
+            if (dragParams.el._jsPlumbGroup === this) {
                 _bindDragHandlers(dragParams.el);
             }
         }.bind(this));
@@ -629,7 +641,9 @@
         // unbind the group specific drag/revert handlers.
         //
         function _unbindDragHandlers(_el) {
-            if (!_el._katavorioDrag) return;
+            if (!_el._katavorioDrag) {
+                return;
+            }
             if (prune || orphan) {
                 _el._katavorioDrag.off(STOP, _pruneOrOrphan);
             }
@@ -640,7 +654,9 @@
         }
 
         function _bindDragHandlers(_el) {
-            if (!_el._katavorioDrag) return;
+            if (!_el._katavorioDrag) {
+                return;
+            }
             if (prune || orphan) {
                 _el._katavorioDrag.on(STOP, _pruneOrOrphan);
             }
