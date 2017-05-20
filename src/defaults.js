@@ -1,7 +1,5 @@
 /*
- * jsPlumb
- * 
- * Title:jsPlumb 2.3.0
+ * jsPlumb Community Edition
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -106,10 +104,12 @@
              * 0 to 1 inclusive. for the straight line segment this is simple maths.
              */
             this.pointOnPath = function (location, absolute) {
-                if (location === 0 && !absolute)
+                if (location === 0 && !absolute) {
                     return { x: x1, y: y1 };
-                else if (location == 1 && !absolute)
+                }
+                else if (location === 1 && !absolute) {
                     return { x: x2, y: y2 };
+                }
                 else {
                     var l = absolute ? location > 0 ? location : length + location : location * length;
                     return _jg.pointOnLine({x: x1, y: y1}, {x: x2, y: y2}, l);
@@ -139,7 +139,9 @@
                  } :
                  */
 
-                if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
+                if (distance <= 0 && Math.abs(distance) > 1) {
+                    distance *= -1;
+                }
 
                 return _jg.pointOnLine(p, farAwayPoint, distance);
             };
@@ -174,7 +176,7 @@
                     out.y = y1;
                     out.x = within(x1, x2, x) ? x : closest(x1, x2, x);
                 }
-                else if (m == Infinity || m == -Infinity) {
+                else if (m === Infinity || m === -Infinity) {
                     out.x = x1;
                     out.y = within(y1, y2, y) ? y : closest(y1, y2, y);
                 }
@@ -262,8 +264,12 @@
                 this.y2 = params.y2;
             }
 
-            if (this.endAngle < 0) this.endAngle += TWO_PI;
-            if (this.startAngle < 0) this.startAngle += TWO_PI;
+            if (this.endAngle < 0) {
+                this.endAngle += TWO_PI;
+            }
+            if (this.startAngle < 0) {
+                this.startAngle += TWO_PI;
+            }
 
             // segment is used by vml     
             //this.segment = _jg.quadrant([this.x1, this.y1], [this.x2, this.y2]);
@@ -274,7 +280,9 @@
 
             var ea = this.endAngle < this.startAngle ? this.endAngle + TWO_PI : this.endAngle;
             this.sweep = Math.abs(ea - this.startAngle);
-            if (this.anticlockwise) this.sweep = TWO_PI - this.sweep;
+            if (this.anticlockwise) {
+                this.sweep = TWO_PI - this.sweep;
+            }
             var circumference = 2 * Math.PI * this.radius,
                 frac = this.sweep / TWO_PI,
                 length = circumference * frac;
@@ -295,10 +303,12 @@
             var VERY_SMALL_VALUE = 0.0000000001,
                 gentleRound = function (n) {
                     var f = Math.floor(n), r = Math.ceil(n);
-                    if (n - f < VERY_SMALL_VALUE)
+                    if (n - f < VERY_SMALL_VALUE) {
                         return f;
-                    else if (r - n < VERY_SMALL_VALUE)
+                    }
+                    else if (r - n < VERY_SMALL_VALUE) {
                         return r;
+                    }
                     return n;
                 };
 
@@ -311,7 +321,7 @@
                 if (location === 0) {
                     return { x: this.x1, y: this.y1, theta: this.startAngle };
                 }
-                else if (location == 1) {
+                else if (location === 1) {
                     return { x: this.x2, y: this.y2, theta: this.endAngle };
                 }
 
@@ -332,7 +342,9 @@
             this.gradientAtPoint = function (location, absolute) {
                 var p = this.pointOnPath(location, absolute);
                 var m = _jg.normal([ params.cx, params.cy ], [p.x, p.y ]);
-                if (!this.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
+                if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
+                    m *= -1;
+                }
                 return m;
             };
 
@@ -370,8 +382,9 @@
             this.type = "Bezier";
 
             var _translateLocation = function (_curve, location, absolute) {
-                if (absolute)
+                if (absolute) {
                     location = root.jsBezier.locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
+                }
 
                 return location;
             };
@@ -564,14 +577,16 @@
                     if (segmentProportions[i][1] >= location) {
                         idx = i;
                         // todo is this correct for all connector path types?
-                        inSegmentProportion = location == 1 ? 1 : location === 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
+                        inSegmentProportion = location === 1 ? 1 : location === 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
                         break;
                     }
                 }
                 return { segment: segments[idx], proportion: inSegmentProportion, index: idx };
             },
             _addSegment = function (conn, type, params) {
-                if (params.x1 == params.x2 && params.y1 == params.y2) return;
+                if (params.x1 === params.x2 && params.y1 === params.y2) {
+                    return;
+                }
                 var s = new _jp.Segments[type](params);
                 segments.push(s);
                 totalLength += s.getLength();
@@ -640,9 +655,9 @@
                 endStubY: ty + (to[1] * targetStub),
                 isXGreaterThanStubTimes2: Math.abs(sx - tx) > (sourceStub + targetStub),
                 isYGreaterThanStubTimes2: Math.abs(sy - ty) > (sourceStub + targetStub),
-                opposite: oProduct == -1,
+                opposite: oProduct === -1,
                 perpendicular: oProduct === 0,
-                orthogonal: oProduct == 1,
+                orthogonal: oProduct === 1,
                 sourceAxis: so[0] === 0 ? "y" : "x",
                 points: [x, y, w, h, sx, sy, tx, ty ]
             };
@@ -864,20 +879,25 @@
          onload      -   optional; a callback to execute once the image has loaded.
          */
         this._jsPlumb.endpoint.setImage = function (_img, onload) {
-            var s = _img.constructor == String ? _img : _img.src;
+            var s = _img.constructor === String ? _img : _img.src;
             _onload = onload;
             this._jsPlumb.img.src = s;
 
-            if (this.canvas != null)
+            if (this.canvas != null) {
                 this.canvas.setAttribute("src", this._jsPlumb.img.src);
+            }
         }.bind(this);
 
         this._jsPlumb.endpoint.setImage(src, _onload);
         this._compute = function (anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
             this.anchorPoint = anchorPoint;
-            if (this._jsPlumb.ready) return [anchorPoint[0] - this._jsPlumb.widthToUse / 2, anchorPoint[1] - this._jsPlumb.heightToUse / 2,
-                this._jsPlumb.widthToUse, this._jsPlumb.heightToUse];
-            else return [0, 0, 0, 0];
+            if (this._jsPlumb.ready) {
+                return [anchorPoint[0] - this._jsPlumb.widthToUse / 2, anchorPoint[1] - this._jsPlumb.heightToUse / 2,
+                    this._jsPlumb.widthToUse, this._jsPlumb.heightToUse];
+            }
+            else {
+                return [0, 0, 0, 0];
+            }
         };
 
         this.canvas = _jp.createElement("img", {
@@ -887,8 +907,12 @@
             outline:0
         }, this._jsPlumb.instance.endpointClass + clazz);
 
-        if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
-        if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);
+        if (this._jsPlumb.widthToUse) {
+            this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
+        }
+        if (this._jsPlumb.heightToUse) {
+            this.canvas.setAttribute("height", this._jsPlumb.heightToUse);
+        }
         this._jsPlumb.instance.appendElement(this.canvas);
 
         this.actuallyPaint = function (d, style, anchor) {
@@ -921,7 +945,9 @@
         cleanup: function (force) {
             if (force) {
                 this._jsPlumb.deleted = true;
-                if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
+                if (this.canvas) {
+                    this.canvas.parentNode.removeChild(this.canvas);
+                }
                 this.canvas = null;
             }
         }
@@ -978,6 +1004,7 @@
     _jp.Endpoints.Triangle = function (params) {
         this.type = "Triangle";
         _jp.Endpoints.AbstractEndpoint.apply(this, arguments);
+        var self = this;
         params = params || {  };
         params.width = params.width || 55;
         params.height = params.height || 55;
@@ -1069,6 +1096,7 @@
         AbstractOverlay.apply(this, arguments);
         this.isAppendedAtTopLevel = false;
         params = params || {};
+        var self = this;
 
         this.length = params.length || 20;
         this.width = params.width || 20;
@@ -1103,12 +1131,12 @@
                     mid = component.pointAlongPathFrom(fromLoc, l - (direction * this.length / 2), false);
                     txy = _jg.pointOnLine(hxy, mid, this.length);
                 }
-                else if (this.loc == 1) {
+                else if (this.loc === 1) {
                     hxy = component.pointOnPath(this.loc);
                     mid = component.pointAlongPathFrom(this.loc, -(this.length));
                     txy = _jg.pointOnLine(hxy, mid, this.length);
 
-                    if (direction == -1) {
+                    if (direction === -1) {
                         var _ = txy;
                         txy = hxy;
                         hxy = _;
@@ -1118,7 +1146,7 @@
                     txy = component.pointOnPath(this.loc);
                     mid = component.pointAlongPathFrom(this.loc, this.length);
                     hxy = _jg.pointOnLine(txy, mid, this.length);
-                    if (direction == -1) {
+                    if (direction === -1) {
                         var __ = txy;
                         txy = hxy;
                         hxy = __;
@@ -1150,7 +1178,9 @@
                     maxY: Math.max(hxy.y, tail[0].y, tail[1].y)
                 };
             }
-            else return {component: component, minX: 0, maxX: 0, minY: 0, maxY: 0};
+            else {
+                return {component: component, minX: 0, maxX: 0, minY: 0, maxY: 0};
+            }
         };
     };
     _ju.extend(_jp.Overlays.Arrow, AbstractOverlay, {
@@ -1206,8 +1236,9 @@
     _ju.extend(_jp.Overlays.Diamond, _jp.Overlays.Arrow);
 
     var _getDimensions = function (component, forceRefresh) {
-        if (component._jsPlumb.cachedDimensions == null || forceRefresh)
+        if (component._jsPlumb.cachedDimensions == null || forceRefresh) {
             component._jsPlumb.cachedDimensions = component.getDimensions();
+        }
         return component._jsPlumb.cachedDimensions;
     };
 
@@ -1220,7 +1251,9 @@
         var _f = this.fire;
         this.fire = function () {
             _f.apply(this, arguments);
-            if (this.component) this.component.fire.apply(this.component, arguments);
+            if (this.component) {
+                this.component.fire.apply(this.component, arguments);
+            }
         };
 
         this.detached=false;
@@ -1255,15 +1288,16 @@
                 // write the related component into the created element
                 div._jsPlumb = this;
 
-                if (params.visible === false)
+                if (params.visible === false) {
                     div.style.display = "none";
+                }
             }
             return this._jsPlumb.div;
         };
 
         this.draw = function (component, currentConnectionPaintStyle, absolutePosition) {
             var td = _getDimensions(this);
-            if (td != null && td.length == 2) {
+            if (td != null && td.length === 2) {
                 var cxy = { x: 0, y: 0 };
 
                 // absolutePosition would have been set by a call to connection.setAbsoluteOverlayPosition.
@@ -1279,7 +1313,7 @@
                     cxy = component.pointOnPath(loc, absolute);  // a connection
                 }
                 else {
-                    var locToUse = this.loc.constructor == Array ? this.loc : this.endpointLoc;
+                    var locToUse = this.loc.constructor === Array ? this.loc : this.endpointLoc;
                     cxy = { x: locToUse[0] * component.w,
                         y: locToUse[1] * component.h };
                 }
@@ -1296,7 +1330,9 @@
                     maxY: miny + td[1]
                 };
             }
-            else return {minX: 0, maxX: 0, minY: 0, maxY: 0};
+            else {
+                return {minX: 0, maxX: 0, minY: 0, maxY: 0};
+            }
         };
     };
     _ju.extend(AbstractDOMOverlay, [_jp.jsPlumbUIComponent, AbstractOverlay], {
@@ -1333,14 +1369,17 @@
             }
             else {
                 // if not a forced cleanup, just detach child from parent for now.
-                if (this._jsPlumb && this._jsPlumb.div && this._jsPlumb.div.parentNode)
+                if (this._jsPlumb && this._jsPlumb.div && this._jsPlumb.div.parentNode) {
                     this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
+                }
                 this.detached = true;
             }
 
         },
         reattach:function(instance) {
-            if (this._jsPlumb.div != null) instance.getContainer().appendChild(this._jsPlumb.div);
+            if (this._jsPlumb.div != null) {
+                instance.getContainer().appendChild(this._jsPlumb.div);
+            }
             this.detached = false;
         },
         computeMaxSize: function () {
@@ -1352,7 +1391,9 @@
                 this.getElement();
                 p.component.appendDisplayElement(this._jsPlumb.div);
                 this._jsPlumb.initialised = true;
-                if (this.detached) this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
+                if (this.detached) {
+                    this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
+                }
             }
             this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
             this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";
@@ -1445,12 +1486,16 @@
             this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
             el.style.font = this.labelStyle.font;
             el.style.color = this.labelStyle.color || "black";
-            if (this.labelStyle.fill) el.style.background = this.labelStyle.fill;
+            if (this.labelStyle.fill) {
+                el.style.background = this.labelStyle.fill;
+            }
             if (this.labelStyle.borderWidth > 0) {
                 var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
                 el.style.border = this.labelStyle.borderWidth + "px solid " + dStyle;
             }
-            if (this.labelStyle.padding) el.style.padding = this.labelStyle.padding;
+            if (this.labelStyle.padding) {
+                el.style.padding = this.labelStyle.padding;
+            }
         }
 
     };
@@ -1486,7 +1531,7 @@
             return AbstractDOMOverlay.prototype.getDimensions.apply(this, arguments);
         },
         update: function () {
-            if (typeof this.label == "function") {
+            if (typeof this.label === "function") {
                 var lt = this.label(this);
                 this.getElement().innerHTML = lt.replace(/\r\n/g, "<br/>");
             }
