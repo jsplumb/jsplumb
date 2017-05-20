@@ -95,26 +95,38 @@
         this._findControlPoint = function (point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, soo, too) {
             // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
             // points around if so (code could be tightened up)
-            var perpendicular = soo[0] != too[0] || soo[1] == too[1],
+            var perpendicular = soo[0] !== too[0] || soo[1] === too[1],
                 p = [];
 
             if (!perpendicular) {
-                if (soo[0] === 0) // X
+                if (soo[0] === 0) {
                     p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-                else p.push(point[0] - (majorAnchor * soo[0]));
+                }
+                else {
+                    p.push(point[0] - (majorAnchor * soo[0]));
+                }
 
-                if (soo[1] === 0) // Y
+                if (soo[1] === 0) {
                     p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-                else p.push(point[1] + (majorAnchor * too[1]));
+                }
+                else {
+                    p.push(point[1] + (majorAnchor * too[1]));
+                }
             }
             else {
-                if (too[0] === 0) // X
+                if (too[0] === 0) {
                     p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-                else p.push(point[0] + (majorAnchor * too[0]));
+                }
+                else {
+                    p.push(point[0] + (majorAnchor * too[0]));
+                }
 
-                if (too[1] === 0) // Y
+                if (too[1] === 0) {
                     p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-                else p.push(point[1] + (majorAnchor * soo[1]));
+                }
+                else {
+                    p.push(point[1] + (majorAnchor * soo[1]));
+                }
             }
 
             return p;
