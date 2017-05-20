@@ -392,8 +392,8 @@
             this._jsPlumb.paintStyleInUse = this.getPaintStyle();
         },
         setPaintStyle: function (style, doNotRepaint) {
-//		    	this._jsPlumb.paintStyle = jsPlumb.extend({}, style);
-// TODO figure out if we want components to clone paintStyle so as not to share it.
+            // this._jsPlumb.paintStyle = jsPlumb.extend({}, style);
+            // TODO figure out if we want components to clone paintStyle so as not to share it.
             this._jsPlumb.paintStyle = style;
             this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
             _updateHoverStyle(this);
@@ -406,7 +406,7 @@
         },
         setHoverPaintStyle: function (style, doNotRepaint) {
             //this._jsPlumb.hoverPaintStyle = jsPlumb.extend({}, style);
-// TODO figure out if we want components to clone paintStyle so as not to share it.		    	
+            // TODO figure out if we want components to clone paintStyle so as not to share it.
             this._jsPlumb.hoverPaintStyle = style;
             _updateHoverStyle(this);
             if (!doNotRepaint) {
@@ -2151,9 +2151,9 @@
                 newAnchor = _a(arguments[0], {elementId: elementId, jsPlumbInstance: _currentInstance});
             }
             // is it an array? it will be one of:
-            // 		an array of [spec, params] - this defines a single anchor, which may be dynamic, but has parameters.
-            //		an array of arrays - this defines some dynamic anchors
-            //		an array of numbers - this defines a single anchor.
+            // an array of [spec, params] - this defines a single anchor, which may be dynamic, but has parameters.
+            // an array of arrays - this defines some dynamic anchors
+            // an array of numbers - this defines a single anchor.
             else if (_ju.isArray(specimen)) {
                 if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
                     // if [spec, params] format
@@ -2821,7 +2821,7 @@
             return _setEnabled("target", el, state, null, connectionType);
         };
 
-// --------------------- end makeSource/makeTarget ---------------------------------------------- 				
+// --------------------- end makeSource/makeTarget ----------------------------------------------
 
         this.ready = function (fn) {
             _currentInstance.bind("ready", fn);
