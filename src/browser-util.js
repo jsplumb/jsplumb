@@ -1,5 +1,5 @@
 /*
- * jsPlumb
+ * jsPlumb Community Edition
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
