@@ -147,16 +147,33 @@ module.exports = function(grunt) {
             options: {
                   eqnull: true,
                   loopfunc:true,
-                  '-W099': true,
-                  '-W018':true,
-                  '-W038':true,
-				  '-W044':true,
-				  '-W053':true,
-				  '-W055':true,
-                  '-W032':true
-                },
+                curly: true,
+                eqeqeq: true,
+                immed: true,
+                latedef: true,
+                newcap: true,
+                noarg: true,
+                sub: true,
+                undef: true,
+                  '-W018':true, // confusing use of '!'
+				  '-W055':true,  // a constructor name should start with an uppercase letter.
+                  '-W032':true,  // unnecessary semicolon.
+                globals:{
+                    window:true,
+                    Biltong:true,
+                    exports:true,
+                    console:true,
+                    Image:true,
+                    setTimeout:true,
+                    document:true,
+                    setInterval:true,
+                    jsPlumb:true,
+                    jsPlumbUtil:true,
+                    getComputedStyle:true
+                }
+            },
             files:{
-                src: [ 'src/base-library-adapter.js', 'src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/renderers-svg.js', 'src/jsPlumb.js']
+                src: [ 'src/anchors.js', 'src/base-library-adapter.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/connectors-straight.js', 'src/defaults.js', 'src/dom.jsPlumb.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/group.js', 'src/jsPlumb.js', 'src/overlay-component.js', 'src/renderers-svg.js', 'src/util.js' ]
             }
         },
         watch: {
