@@ -1,7 +1,5 @@
 /*
- * jsPlumb
- * 
- * Title:jsPlumb 2.3.0
+ * jsPlumb Community Edition
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
@@ -10,7 +8,7 @@
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * https://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
+ * https://github.com/jsplumb/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -23,8 +21,9 @@
         _ju = root.jsPlumbUtil;
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
-            if (!_jsPlumb.Defaults.DoNotThrowErrors && _jp.Connectors[renderMode][connectorName] == null)
+            if (!_jsPlumb.Defaults.DoNotThrowErrors && _jp.Connectors[renderMode][connectorName] == null) {
                 throw { msg: "jsPlumb: unknown connector type '" + connectorName + "'" };
+            }
 
             return new _jp.Connectors[renderMode][connectorName](connectorArgs, forComponent);
         },
@@ -34,16 +33,19 @@
         _updateConnectedClass = function (conn, element, _jsPlumb, remove) {
             if (element != null) {
                 element._jsPlumbConnections = element._jsPlumbConnections || {};
-                if (remove)
+                if (remove) {
                     delete element._jsPlumbConnections[conn.id];
-                else
+                }
+                else {
                     element._jsPlumbConnections[conn.id] = true;
+                }
 
                 if (_ju.isEmpty(element._jsPlumbConnections)) {
                     _jsPlumb.removeClass(element, _jsPlumb.connectedClass);
                 }
-                else
+                else {
                     _jsPlumb.addClass(element, _jsPlumb.connectedClass);
+                }
             }
         };
 
@@ -64,8 +66,12 @@
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
-        if (params.sourceEndpoint) this.source = params.sourceEndpoint.getElement();
-        if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();
+        if (params.sourceEndpoint) {
+            this.source = params.sourceEndpoint.getElement();
+        }
+        if (params.targetEndpoint) {
+            this.target = params.targetEndpoint.getElement();
+        }
 
         _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
@@ -123,10 +129,16 @@
         var eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
             eT = this.makeEndpoint(false, this.target, this.targetId, params.targetEndpoint);
 
-        if (eS) _ju.addToList(params.endpointsByElement, this.sourceId, eS);
-        if (eT) _ju.addToList(params.endpointsByElement, this.targetId, eT);
+        if (eS) {
+            _ju.addToList(params.endpointsByElement, this.sourceId, eS);
+        }
+        if (eT) {
+            _ju.addToList(params.endpointsByElement, this.targetId, eT);
+        }
         // if scope not set, set it to be the scope for the source endpoint.
-        if (!this.scope) this.scope = this.endpoints[0].scope;
+        if (!this.scope) {
+            this.scope = this.endpoints[0].scope;
+        }
 
         // if explicitly told to (or not to) delete endpoints when empty, override endpoint's preferences
         if (params.deleteEndpointsOnEmpty != null) {
@@ -143,9 +155,15 @@
 
         // DETACHABLE
         var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
-        if (params.detachable === false) _detachable = false;
-        if (this.endpoints[0].connectionsDetachable === false) _detachable = false;
-        if (this.endpoints[1].connectionsDetachable === false) _detachable = false;
+        if (params.detachable === false) {
+            _detachable = false;
+        }
+        if (this.endpoints[0].connectionsDetachable === false) {
+            _detachable = false;
+        }
+        if (this.endpoints[1].connectionsDetachable === false) {
+            _detachable = false;
+        }
         // REATTACH
         var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
 
@@ -155,7 +173,6 @@
             paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || _jp.Defaults.PaintStyle,
             hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || _jp.Defaults.HoverPaintStyle
         });
-
 
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         if (!_jsPlumb.isSuspendDrawing()) {
@@ -218,7 +235,9 @@
         this._jsPlumb.cost = params.cost || this.endpoints[0].getConnectionCost();
         this._jsPlumb.directed = params.directed;
         // inherit directed flag if set no source endpoint
-        if (params.directed == null) this._jsPlumb.directed = this.endpoints[0].areConnectionsDirected();
+        if (params.directed == null) {
+            this._jsPlumb.directed = this.endpoints[0].areConnectionsDirected();
+        }
 // END COST + DIRECTIONALITY
 
 // PARAMETERS
@@ -244,8 +263,9 @@
 
         // the very last thing we do is apply types, if there are any.
         var _types = [ "default", this.endpoints[0].connectionType, this.endpoints[1].connectionType,  params.type ].join(" ");
-        if (/[^\s]/.test(_types))
+        if (/[^\s]/.test(_types)) {
             this.addType(_types, params.data, true);
+        }
 
         this.updateConnectedClass();
 
@@ -256,11 +276,19 @@
         applyType: function (t, doNotRepaint, typeMap) {
 
             // none of these things result in the creation of objects so can be ignored.
-            if (t.detachable != null) this.setDetachable(t.detachable);
-            if (t.reattach != null) this.setReattach(t.reattach);
-            if (t.scope) this.scope = t.scope;
+            if (t.detachable != null) {
+                this.setDetachable(t.detachable);
+            }
+            if (t.reattach != null) {
+                this.setReattach(t.reattach);
+            }
+            if (t.scope) {
+                this.scope = t.scope;
+            }
 
-            if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+            if (t.cssClass != null && this.canvas) {
+                this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+            }
 
             var _anchors = null;
             // this also results in the creation of objects.
@@ -285,7 +313,9 @@
             if (_anchors != null) {
                 this.endpoints[0].anchor = _anchors[0];
                 this.endpoints[1].anchor = _anchors[1];
-                if (this.endpoints[1].anchor.isDynamic) this._jsPlumb.instance.repaint(this.endpoints[1].elementId);
+                if (this.endpoints[1].anchor.isDynamic) {
+                    this._jsPlumb.instance.repaint(this.endpoints[1].elementId);
+                }
             }
 
             _jp.OverlayCapableJsPlumbUIComponent.applyType(this, t);
@@ -294,7 +324,9 @@
             if (informEndpoints) {
                 this.endpoints[0].addClass(c);
                 this.endpoints[1].addClass(c);
-                if (this.suspendedEndpoint) this.suspendedEndpoint.addClass(c);
+                if (this.suspendedEndpoint) {
+                    this.suspendedEndpoint.addClass(c);
+                }
             }
             if (this.connector) {
                 this.connector.addClass(c);
@@ -304,7 +336,9 @@
             if (informEndpoints) {
                 this.endpoints[0].removeClass(c);
                 this.endpoints[1].removeClass(c);
-                if (this.suspendedEndpoint) this.suspendedEndpoint.removeClass(c);
+                if (this.suspendedEndpoint) {
+                    this.suspendedEndpoint.removeClass(c);
+                }
             }
             if (this.connector) {
                 this.connector.removeClass(c);
@@ -315,8 +349,9 @@
         },
         setVisible: function (v) {
             this._jsPlumb.visible = v;
-            if (this.connector)
+            if (this.connector) {
                 this.connector.setVisible(v);
+            }
             this.repaint();
         },
         cleanup: function () {
@@ -358,8 +393,14 @@
         getConnector: function () {
             return this.connector;
         },
-        getGeometry : function() { return this.connector ? this.connector.getGeometry() : null; },
-        setGeometry : function(g) { if (this.connector) this.connector.setGeometry(g); },
+        getGeometry : function() {
+            return this.connector ? this.connector.getGeometry() : null;
+        },
+        setGeometry : function(g) {
+            if (this.connector) {
+                this.connector.setGeometry(g);
+            }
+        },
         prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
@@ -371,15 +412,20 @@
                 renderMode = this._jsPlumb.instance.getRenderMode(),
                 connector;
 
-            if (_ju.isString(connectorSpec))
-                connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this); // lets you use a string as shorthand.
+            if (_ju.isString(connectorSpec)) {
+                connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec, connectorArgs, this);
+            } // lets you use a string as shorthand.
             else if (_ju.isArray(connectorSpec)) {
-                if (connectorSpec.length == 1)
+                if (connectorSpec.length === 1) {
                     connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], connectorArgs, this);
-                else
+                }
+                else {
                     connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs), this);
+                }
             }
-            if (typeId != null) connector.typeId = typeId;
+            if (typeId != null) {
+                connector.typeId = typeId;
+            }
             return connector;
         },
         setPreparedConnector: function(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
@@ -408,18 +454,28 @@
             // new: instead of binding listeners per connector, we now just have one delegate on the container.
             // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
             // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
-            if (this.canvas) this.canvas._jsPlumb = this;
-            if (this.bgCanvas) this.bgCanvas._jsPlumb = this;
+            if (this.canvas) {
+                this.canvas._jsPlumb = this;
+            }
+            if (this.bgCanvas) {
+                this.bgCanvas._jsPlumb = this;
+            }
 
             if (previous != null) {
                 var o = this.getOverlays();
                 for (var i = 0; i < o.length; i++) {
-                    if (o[i].transfer) o[i].transfer(this.connector);
+                    if (o[i].transfer) {
+                        o[i].transfer(this.connector);
+                    }
                 }
             }
 
-            if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
-            if (!doNotRepaint) this.repaint();
+            if (!doNotChangeListenerComponent) {
+                this.setListenerComponent(this.connector);
+            }
+            if (!doNotRepaint) {
+                this.repaint();
+            }
         },
         setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
             var connector = this.prepareConnector(connectorSpec, typeId);
@@ -435,7 +491,7 @@
                     tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
                     tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
-                if (timestamp == null || timestamp != this._jsPlumb.lastPaintedAt) {
+                if (timestamp == null || timestamp !== this._jsPlumb.lastPaintedAt) {
                     var sourceInfo = this._jsPlumb.instance.updateOffset({elId:sId}).o,
                         targetInfo = this._jsPlumb.instance.updateOffset({elId:tId}).o,
                         sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
@@ -505,24 +561,35 @@
                 conn.endpoints[index] = existing;
                 existing.addConnection(conn);
             } else {
-                if (!params.endpoints) params.endpoints = [ null, null ];
+                if (!params.endpoints) {
+                    params.endpoints = [ null, null ];
+                }
                 var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
-                if (!params.endpointStyles) params.endpointStyles = [ null, null ];
-                if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
+                if (!params.endpointStyles) {
+                    params.endpointStyles = [ null, null ];
+                }
+                if (!params.endpointHoverStyles) {
+                    params.endpointHoverStyles = [ null, null ];
+                }
                 var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || _jp.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle;
                 // Endpoints derive their fill from the connector's stroke, if no fill was specified.
-                if (es.fill == null && params.paintStyle != null)
+                if (es.fill == null && params.paintStyle != null) {
                     es.fill = params.paintStyle.stroke;
+                }
 
-                if (es.outlineStroke == null && params.paintStyle != null)
+                if (es.outlineStroke == null && params.paintStyle != null) {
                     es.outlineStroke = params.paintStyle.outlineStroke;
-                if (es.outlineWidth == null && params.paintStyle != null)
+                }
+                if (es.outlineWidth == null && params.paintStyle != null) {
                     es.outlineWidth = params.paintStyle.outlineWidth;
+                }
 
                 var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.EndpointHoverStyles[index] || _jp.Defaults.EndpointHoverStyles[index] || _jsPlumb.Defaults.EndpointHoverStyle || _jp.Defaults.EndpointHoverStyle;
                 // endpoint hover fill style is derived from connector's hover stroke style
                 if (params.hoverPaintStyle != null) {
-                    if (ehs == null) ehs = {};
+                    if (ehs == null) {
+                        ehs = {};
+                    }
                     if (ehs.fill == null) {
                         ehs.fill = params.hoverPaintStyle.stroke;
                     }
@@ -546,7 +613,9 @@
                 }
                 conn.endpoints[index] = e;
 
-                if (params.drawEndpoints === false) e.setVisible(false, true, true);
+                if (params.drawEndpoints === false) {
+                    e.setVisible(false, true, true);
+                }
 
             }
             return e;
