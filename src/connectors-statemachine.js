@@ -19,9 +19,15 @@
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
 
     var _segment = function (x1, y1, x2, y2) {
-            if (x1 <= x2 && y2 <= y1) return 1;
-            else if (x1 <= x2 && y1 <= y2) return 2;
-            else if (x2 <= x1 && y2 >= y1) return 3;
+            if (x1 <= x2 && y2 <= y1) {
+                return 1;
+            }
+            else if (x1 <= x2 && y1 <= y2) {
+                return 2;
+            }
+            else if (x2 <= x1 && y2 >= y1) {
+                return 3;
+            }
             return 4;
         },
 
@@ -42,27 +48,53 @@
         _findControlPoint = function (midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
             // TODO (maybe)
             // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
-            if (distance <= proximityLimit) return [midx, midy];
+            if (distance <= proximityLimit) {
+                return [midx, midy];
+            }
 
             if (segment === 1) {
-                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
+                    return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                }
+                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
+                    return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                }
+                else {
+                    return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+                }
             }
             else if (segment === 2) {
-                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + dx, midy + (-1 * dy) ];
+                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
+                    return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                }
+                else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
+                    return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                }
+                else {
+                    return [ midx + dx, midy + (-1 * dy) ];
+                }
             }
             else if (segment === 3) {
-                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+                if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
+                    return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                }
+                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
+                    return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                }
+                else {
+                    return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+                }
             }
             else if (segment === 4) {
-                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
-                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
-                else return [ midx + dx , midy + (-1 * dy) ];
+                if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
+                    return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+                }
+                else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
+                    return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+                }
+                else {
+                    return [ midx + dx , midy + (-1 * dy) ];
+                }
             }
 
         };
@@ -85,14 +117,30 @@
                 _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
 
             // now adjust for the margin
-            if (params.sourcePos[2] === 0) _sx -= margin;
-            if (params.sourcePos[2] === 1) _sx += margin;
-            if (params.sourcePos[3] === 0) _sy -= margin;
-            if (params.sourcePos[3] === 1) _sy += margin;
-            if (params.targetPos[2] === 0) _tx -= margin;
-            if (params.targetPos[2] === 1) _tx += margin;
-            if (params.targetPos[3] === 0) _ty -= margin;
-            if (params.targetPos[3] === 1) _ty += margin;
+            if (params.sourcePos[2] === 0) {
+                _sx -= margin;
+            }
+            if (params.sourcePos[2] === 1) {
+                _sx += margin;
+            }
+            if (params.sourcePos[3] === 0) {
+                _sy -= margin;
+            }
+            if (params.sourcePos[3] === 1) {
+                _sy += margin;
+            }
+            if (params.targetPos[2] === 0) {
+                _tx -= margin;
+            }
+            if (params.targetPos[2] === 1) {
+                _tx += margin;
+            }
+            if (params.targetPos[3] === 0) {
+                _ty -= margin;
+            }
+            if (params.targetPos[3] === 1) {
+                _ty += margin;
+            }
 
             //
             // these connectors are quadratic bezier curves, having a single control point. if both anchors
