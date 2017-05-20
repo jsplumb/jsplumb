@@ -1,7 +1,5 @@
 /*
- * jsPlumb
- *
- * Title:jsPlumb 2.3.0
+ * jsPlumb Community Edition
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
@@ -9,8 +7,8 @@
  *
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
- * http://jsplumbtoolkit.com
- * http://github.com/sporritt/jsplumb
+ * https://jsplumbtoolkit.com
+ * https://github.com/jsplumb/jsplumb
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -20,7 +18,9 @@
     var root = this, _ju = root.jsPlumbUtil;
 
     var _genLoc = function (prefix, e) {
-            if (e == null) return [ 0, 0 ];
+            if (e == null) {
+                return [ 0, 0 ];
+            }
             var ts = _touches(e), t = _getTouch(ts, 0);
             return [t[prefix + "X"], t[prefix + "Y"]];
         },
@@ -71,7 +71,7 @@
             var _oneLevel = function (p) {
                 if (p) {
                     for (var i = 0; i < p.childNodes.length; i++) {
-                        if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
+                        if (p.childNodes[i].nodeType !== 3 && p.childNodes[i].nodeType !== 8) {
                             var cEl = jsPlumb.getElement(p.childNodes[i]),
                                 cid = _currentInstance.getId(p.childNodes[i], null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
@@ -110,7 +110,9 @@
                                 cOff = childOffsetOverrides[i] || _currentInstance.getOffset(cel);
 
                             // do not update if we have a value already and we'd just be writing 0,0
-                            if (cel.offsetParent == null && _delements[id][i] != null) continue;
+                            if (cel.offsetParent == null && _delements[id][i] != null) {
+                                continue;
+                            }
 
                             _delements[id][i] = {
                                 id: i,
@@ -140,7 +142,7 @@
 
             _elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
 
-            while (p != null && p != b) {
+            while (p != null && p !== b) {
                 var pid = _currentInstance.getId(p, null, true);
                 if (pid && _draggables[pid]) {
                     var pLoc = _currentInstance.getOffset(p);
@@ -211,7 +213,9 @@
                 var id = _currentInstance.getId(el),
                     ancestor = _draggablesForElements[id];
 
-                if (ancestor) this.updateOffsets(ancestor);
+                if (ancestor) {
+                    this.updateOffsets(ancestor);
+                }
             }
         };
 
@@ -260,10 +264,12 @@
                 id = _currentInstance.getId(de),
                 aid = _draggablesForElements[id];
 
-            if (aid)
+            if (aid) {
                 return jsPlumb.getElement(aid);
-            else
+            }
+            else {
                 return null;
+            }
         };
 
     };
@@ -273,13 +279,15 @@
         },
         _setClassName = function (el, cn) {
             cn = trim(cn);
-            if (typeof el.className.baseVal != "undefined")  // SVG
+            if (typeof el.className.baseVal !== "undefined") {
                 el.className.baseVal = cn;
-            else
+            }
+            else {
                 el.className = cn;
+            }
         },
         _getClassName = function (el) {
-            return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;
+            return (typeof el.className.baseVal === "undefined") ? el.className : el.className.baseVal;
         },
         _classManip = function (el, classesToAdd, classesToRemove) {
             classesToAdd = classesToAdd == null ? [] : _ju.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
@@ -291,13 +299,15 @@
             var _oneSet = function (add, classes) {
                 for (var i = 0; i < classes.length; i++) {
                     if (add) {
-                        if (curClasses.indexOf(classes[i]) == -1)
+                        if (curClasses.indexOf(classes[i]) === -1) {
                             curClasses.push(classes[i]);
+                        }
                     }
                     else {
                         var idx = curClasses.indexOf(classes[i]);
-                        if (idx != -1)
+                        if (idx !== -1) {
                             curClasses.splice(idx, 1);
+                        }
                     }
                 }
             };
@@ -317,8 +327,9 @@
         clientLocation: _clientLocation,
 
         getDragManager:function() {
-            if (this.dragManager == null)
+            if (this.dragManager == null) {
                 this.dragManager = new DragManager(this);
+            }
 
             return this.dragManager;
         },
@@ -335,15 +346,18 @@
             var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
             var i;
             style = style || {};
-            for (i in style)
+            for (i in style) {
                 e.style[i] = style[i];
+            }
 
-            if (clazz)
+            if (clazz) {
                 e.className = clazz;
+            }
 
             atts = atts || {};
-            for (i in atts)
+            for (i in atts) {
                 e.setAttribute(i, "" + atts[i]);
+            }
 
             return e;
         },
@@ -353,12 +367,17 @@
         },
 
         setAttribute: function (el, a, v) {
-            if (el.setAttribute != null) el.setAttribute(a, v);
+            if (el.setAttribute != null) {
+                el.setAttribute(a, v);
+            }
         },
 
         setAttributes: function (el, atts) {
-            for (var i in atts)
-                if (atts.hasOwnProperty(i)) el.setAttribute(i, atts[i]);
+            for (var i in atts) {
+                if (atts.hasOwnProperty(i)) {
+                    el.setAttribute(i, atts[i]);
+                }
+            }
         },
         appendToRoot: function (node) {
             document.body.appendChild(node);
@@ -374,9 +393,11 @@
         },
         hasClass: function (el, clazz) {
             el = jsPlumb.getElement(el);
-            if (el.classList) return el.classList.contains(clazz);
+            if (el.classList) {
+                return el.classList.contains(clazz);
+            }
             else {
-                return _getClassName(el).indexOf(clazz) != -1;
+                return _getClassName(el).indexOf(clazz) !== -1;
             }
         },
         removeClass: function (el, clazz) {
@@ -417,11 +438,12 @@
         },
         getSelector: function (ctx, spec) {
             var sel = null;
-            if (arguments.length == 1) {
+            if (arguments.length === 1) {
                 sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
             }
-            else
+            else {
                 sel = ctx.querySelectorAll(spec);
+            }
 
             return sel;
         },
@@ -432,7 +454,7 @@
                     left: el.offsetLeft,
                     top: el.offsetTop
                 },
-                op = (relativeToRoot  || (container != null && (el != container && el.offsetParent != container))) ?  el.offsetParent : null,
+                op = (relativeToRoot  || (container != null && (el !== container && el.offsetParent !== container))) ?  el.offsetParent : null,
                 _maybeAdjustScroll = function(offsetParent) {
                     if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                         out.left -= offsetParent.scrollLeft;
@@ -445,14 +467,14 @@
                 out.top += op.offsetTop;
                 _maybeAdjustScroll(op);
                 op = relativeToRoot ? op.offsetParent :
-                        op.offsetParent == container ? null : op.offsetParent;
+                        op.offsetParent === container ? null : op.offsetParent;
             }
 
             // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
             if (container != null && !relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
                 var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, "position") : "static",
                     p = this.getStyle(el, "position");
-                if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp != "fixed") {
+                if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp !== "fixed") {
                     out.left -= container.scrollLeft;
                     out.top -= container.scrollTop;
                 }
@@ -492,7 +514,9 @@
         getAbsolutePosition: function (el) {
             var _one = function (s) {
                 var ss = el.style[s];
-                if (ss) return parseFloat(ss.substring(0, ss.length - 2));
+                if (ss) {
+                    return parseFloat(ss.substring(0, ss.length - 2));
+                }
             };
             return [ _one("left"), _one("top") ];
         },
