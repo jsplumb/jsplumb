@@ -40,8 +40,9 @@
                 jsPlumb.extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
                 delete component._jsPlumb.hoverPaintStyle;
                 // we want the fill of paintStyle to override a gradient, if possible.
-                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fill)
+                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fill) {
                     delete mergedHoverStyle.gradient;
+                }
                 component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
             }
         },
@@ -51,8 +52,9 @@
             var affectedElements = component.getAttachedElements();
             if (affectedElements) {
                 for (var i = 0, j = affectedElements.length; i < j; i++) {
-                    if (!sourceElement || sourceElement != affectedElements[i])
+                    if (!sourceElement || sourceElement !== affectedElements[i]) {
                         affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
+                    }
                 }
             }
         },
@@ -60,8 +62,9 @@
             return t == null ? null : t.split(" ");
         },
         _mapType = function(map, obj, typeId) {
-            for (var i in obj)
+            for (var i in obj) {
                 map[i] = typeId;
+            }
         },
         _each = function(fn, obj) {
             obj = _ju.isArray(obj) || (obj.length != null && !_ju.isString(obj)) ? obj : [ obj ];
@@ -96,7 +99,9 @@
                 }
 
                 component.applyType(o, doNotRepaint, map);
-                if (!doNotRepaint) component.repaint();
+                if (!doNotRepaint) {
+                    component.repaint();
+                }
             }
         },
 
@@ -143,8 +148,9 @@
 
             var o = params.overlays || [], oo = {};
             if (this.defaultOverlayKeys) {
-                for (var i = 0; i < this.defaultOverlayKeys.length; i++)
+                for (var i = 0; i < this.defaultOverlayKeys.length; i++) {
                     Array.prototype.push.apply(o, this._jsPlumb.instance.Defaults[this.defaultOverlayKeys[i]] || []);
+                }
 
                 for (i = 0; i < o.length; i++) {
                     // if a string, convert to object representation so that we can store the typeid on it.
@@ -163,7 +169,9 @@
                 return _defaultType;
             };
             this.appendToDefaultType = function(obj) {
-                for (var i in obj) _defaultType[i] = obj[i];
+                for (var i in obj) {
+                    _defaultType[i] = obj[i];
+                }
             };
 
 // ----------------------------- end default type --------------------------------------------
@@ -171,8 +179,9 @@
             // all components can generate events
 
             if (params.events) {
-                for (i in params.events)
+                for (i in params.events) {
                     self.bind(i, params.events[i]);
+                }
             }
 
             // all components get this clone function.
@@ -237,8 +246,9 @@
             // its events back to a connector. but if the connector is swapped on the underlying connection,
             // then this component must be changed. This is called by setConnector in the Connection class.
             this.setListenerComponent = function (c) {
-                for (var i = 0; i < domListeners.length; i++)
+                for (var i = 0; i < domListeners.length; i++) {
                     domListeners[i][3] = c;
+                }
             };
 
 
@@ -248,10 +258,8 @@
         var typeId = component._jsPlumb.types[typeIndex],
             type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
 
-        if (type != null) {
-
-            if (type.cssClass && component.canvas)
-                component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
+        if (type != null && type.cssClass && component.canvas) {
+            component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
         }
     };
 
@@ -308,7 +316,7 @@
         },
 
         hasType: function (typeId) {
-            return this._jsPlumb.types.indexOf(typeId) != -1;
+            return this._jsPlumb.types.indexOf(typeId) !== -1;
         },
 
         addType: function (typeId, params, doNotRepaint) {
@@ -320,14 +328,16 @@
                         _cont = true;
                     }
                 }
-                if (_cont) _applyTypes(this, params, doNotRepaint);
+                if (_cont) {
+                    _applyTypes(this, params, doNotRepaint);
+                }
             }
         },
 
         removeType: function (typeId, params, doNotRepaint) {
             var t = _splitType(typeId), _cont = false, _one = function (tt) {
                 var idx = this._jsPlumb.types.indexOf(tt);
-                if (idx != -1) {
+                if (idx !== -1) {
                     // remove css class if necessary
                     _removeTypeCssHelper(this, idx);
                     this._jsPlumb.types.splice(idx, 1);
@@ -340,7 +350,9 @@
                 for (var i = 0, j = t.length; i < j; i++) {
                     _cont = _one(t[i]) || _cont;
                 }
-                if (_cont) _applyTypes(this, params, doNotRepaint);
+                if (_cont) {
+                    _applyTypes(this, params, doNotRepaint);
+                }
             }
         },
         clearTypes: function (params, doNotRepaint) {
@@ -357,12 +369,13 @@
             if (t != null) {
                 for (var i = 0, j = t.length; i < j; i++) {
                     var idx = this._jsPlumb.types.indexOf(t[i]);
-                    if (idx != -1) {
+                    if (idx !== -1) {
                         _removeTypeCssHelper(this, idx);
                         this._jsPlumb.types.splice(idx, 1);
                     }
-                    else
+                    else {
                         this._jsPlumb.types.push(t[i]);
+                    }
                 }
 
                 _applyTypes(this, params, doNotRepaint);
@@ -372,8 +385,9 @@
             this.setPaintStyle(t.paintStyle, doNotRepaint);
             this.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
             if (t.parameters) {
-                for (var i in t.parameters)
+                for (var i in t.parameters) {
                     this.setParameter(i, t.parameters[i]);
+                }
             }
             this._jsPlumb.paintStyleInUse = this.getPaintStyle();
         },
@@ -383,7 +397,9 @@
             this._jsPlumb.paintStyle = style;
             this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
             _updateHoverStyle(this);
-            if (!doNotRepaint) this.repaint();
+            if (!doNotRepaint) {
+                this.repaint();
+            }
         },
         getPaintStyle: function () {
             return this._jsPlumb.paintStyle;
@@ -393,7 +409,9 @@
 // TODO figure out if we want components to clone paintStyle so as not to share it.		    	
             this._jsPlumb.hoverPaintStyle = style;
             _updateHoverStyle(this);
-            if (!doNotRepaint) this.repaint();
+            if (!doNotRepaint) {
+                this.repaint();
+            }
         },
         getHoverPaintStyle: function () {
             return this._jsPlumb.hoverPaintStyle;
@@ -435,8 +453,9 @@
                 }
                 // get the list of other affected elements, if supported by this component.
                 // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-                if (this.getAttachedElements && !ignoreAttachedElements)
+                if (this.getAttachedElements && !ignoreAttachedElements) {
                     _updateAttachedElements(this, hover, _timestamp(), this);
+                }
             }
         }
     });
@@ -454,7 +473,9 @@
 
         this.version = "<% pkg.version %>";
 
-        if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
+        if (_defaults) {
+            jsPlumb.extend(this.Defaults, _defaults);
+        }
 
         this.logEnabled = this.Defaults.LogEnabled;
         this._connectionTypes = {};
@@ -468,8 +489,10 @@
             _initialDefaults = {},
             _zoom = 1,
             _info = function (el) {
-                if (el == null) return null;
-                else if (el.nodeType == 3 || el.nodeType == 8) {
+                if (el == null) {
+                    return null;
+                }
+                else if (el.nodeType === 3 || el.nodeType === 8) {
                     return { el:el, text:true };
                 }
                 else {
@@ -485,15 +508,18 @@
         this.setZoom = function (z, repaintEverything) {
             _zoom = z;
             _currentInstance.fire("zoom", _zoom);
-            if (repaintEverything) _currentInstance.repaintEverything();
+            if (repaintEverything) {
+                _currentInstance.repaintEverything();
+            }
             return true;
         };
         this.getZoom = function () {
             return _zoom;
         };
 
-        for (var i in this.Defaults)
+        for (var i in this.Defaults) {
             _initialDefaults[i] = this.Defaults[i];
+        }
 
         var _container, _containerDelegations = [];
         this.unbindContainer = function() {
@@ -561,8 +587,9 @@
                 });
             };
 
-            for (var i = 0; i < events.length; i++)
+            for (var i = 0; i < events.length; i++) {
                 _oneDelegate(events[i]);
+            }
 
             // managed elements
             for (var elId in managedElements) {
@@ -579,16 +606,21 @@
         };
 
         this.bind = function (event, fn) {
-            if ("ready" === event && initialized) fn();
-            else _bb.apply(_currentInstance, [event, fn]);
+            if ("ready" === event && initialized) {
+                fn();
+            }
+            else {
+                _bb.apply(_currentInstance, [event, fn]);
+            }
         };
 
         _currentInstance.importDefaults = function (d) {
             for (var i in d) {
                 _currentInstance.Defaults[i] = d[i];
             }
-            if (d.Container)
+            if (d.Container) {
                 _currentInstance.setContainer(d.Container);
+            }
 
             return _currentInstance;
         };
@@ -630,12 +662,15 @@
         //
         //
             _appendElement = function (el, parent) {
-                if (_container)
+                if (_container) {
                     _container.appendChild(el);
-                else if (!parent)
+                }
+                else if (!parent) {
                     this.appendToRoot(el);
-                else
+                }
+                else {
                     this.getElement(parent).appendChild(el);
+                }
             }.bind(this),
 
         //
@@ -654,9 +689,13 @@
                         repaintEls,
                         dm = _currentInstance.getDragManager();
 
-                    if (dm) repaintEls = dm.getElementsForDraggable(id);
+                    if (dm) {
+                        repaintEls = dm.getElementsForDraggable(id);
+                    }
 
-                    if (timestamp == null) timestamp = _timestamp();
+                    if (timestamp == null) {
+                        timestamp = _timestamp();
+                    }
 
                     // update the offset of everything _before_ we try to draw anything.
                     var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
@@ -718,7 +757,9 @@
                                     _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                     _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                     _currentInstance.setConnectionBeingDragged(true);
-                                    if (options.canDrag) return dragOptions.canDrag();
+                                    if (options.canDrag) {
+                                        return dragOptions.canDrag();
+                                    }
                                 }, false);
 
                                 options[dragEvent] = _ju.wrap(options[dragEvent], function () {
@@ -728,7 +769,9 @@
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
                                     if (ui != null) {
                                         _draw(element, ui, null, true);
-                                        if (_started) _currentInstance.addClass(element, "jtk-dragged");
+                                        if (_started) {
+                                            _currentInstance.addClass(element, "jtk-dragged");
+                                        }
                                         _started = true;
                                     }
                                 });
@@ -765,7 +808,9 @@
                                 options.disabled = draggable == null ? false : !draggable;
                                 _currentInstance.initDraggable(element, options);
                                 _currentInstance.getDragManager().register(element);
-                                if (fireEvent) _currentInstance.fire("elementDraggable", {el:element, options:options});
+                                if (fireEvent) {
+                                    _currentInstance.fire("elementDraggable", {el:element, options:options});
+                                }
                             }
                             else {
                                 // already draggable. attach any start, drag or stop listeners to the current Drag.
@@ -780,9 +825,13 @@
 
             _scopeMatch = function (e1, e2) {
                 var s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
-                for (var i = 0; i < s1.length; i++)
-                    for (var j = 0; j < s2.length; j++)
-                        if (s2[j] == s1[i]) return true;
+                for (var i = 0; i < s1.length; i++) {
+                    for (var j = 0; j < s2.length; j++) {
+                        if (s2[j] === s1[i]) {
+                            return true;
+                        }
+                    }
+                }
 
                 return false;
             },
@@ -792,20 +841,26 @@
          */
             _prepareConnectionParams = function (params, referenceParams) {
                 var _p = jsPlumb.extend({ }, params);
-                if (referenceParams) jsPlumb.extend(_p, referenceParams);
+                if (referenceParams) {
+                    jsPlumb.extend(_p, referenceParams);
+                }
 
                 // hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
                 if (_p.source) {
-                    if (_p.source.endpoint)
+                    if (_p.source.endpoint) {
                         _p.sourceEndpoint = _p.source;
-                    else
+                    }
+                    else {
                         _p.source = _currentInstance.getElement(_p.source);
+                    }
                 }
                 if (_p.target) {
-                    if (_p.target.endpoint)
+                    if (_p.target.endpoint) {
                         _p.targetEndpoint = _p.target;
-                    else
+                    }
+                    else {
                         _p.target = _currentInstance.getElement(_p.target);
+                    }
                 }
 
                 // test for endpoint uuids to connect
@@ -828,8 +883,9 @@
                 }
 
                 // if source endpoint mandates connection type and nothing specified in our params, use it.
-                if (!_p.type && _p.sourceEndpoint)
+                if (!_p.type && _p.sourceEndpoint) {
                     _p.type = _p.sourceEndpoint.connectionType;
+                }
 
                 // copy in any connectorOverlays that were specified on the source endpoint.
                 // it doesnt copy target endpoint overlays.  i'm not sure if we want it to or not.
@@ -846,13 +902,16 @@
                 }
 
                 // pointer events
-                if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
+                if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents) {
                     _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
+                }
 
                 var _mergeOverrides = function (def, values) {
                     var m = jsPlumb.extend({}, def);
                     for (var i in values) {
-                        if (values[i]) m[i] = values[i];
+                        if (values[i]) {
+                            m[i] = values[i];
+                        }
                     }
                     return m;
                 };
@@ -876,30 +935,44 @@
 
                         if (tep) {
                             // if not enabled, return.
-                            if (!tep.enabled) return false;
+                            if (!tep.enabled) {
+                                return false;
+                            }
                             var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
-                            if (newEndpoint.isFull()) return false;
+                            if (newEndpoint.isFull()) {
+                                return false;
+                            }
                             _p[type + "Endpoint"] = newEndpoint;
-                            if (!_p.scope && tep.def.scope) _p.scope = tep.def.scope; // provide scope if not already provided and endpoint def has one.
+                            if (!_p.scope && tep.def.scope) {
+                                _p.scope = tep.def.scope;
+                            } // provide scope if not already provided and endpoint def has one.
                             newEndpoint.setDeleteOnEmpty(true);
                             if (tep.uniqueEndpoint) {
                                 if (!tep.endpoint) {
                                     tep.endpoint = newEndpoint;
                                     newEndpoint.setDeleteOnEmpty(false);
                                 }
-                                else
+                                else {
                                     newEndpoint.finalEndpoint = tep.endpoint;
+                                }
                             }
                         }
                     }
                 };
 
-                if (_oneElementDef("source", 0, this.sourceEndpointDefinitions, _p.type || "default") === false) return;
-                if (_oneElementDef("target", 1, this.targetEndpointDefinitions, _p.type || "default") === false) return;
+                if (_oneElementDef("source", 0, this.sourceEndpointDefinitions, _p.type || "default") === false) {
+                    return;
+                }
+                if (_oneElementDef("target", 1, this.targetEndpointDefinitions, _p.type || "default") === false) {
+                    return;
+                }
 
                 // last, ensure scopes match
-                if (_p.sourceEndpoint && _p.targetEndpoint)
-                    if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) _p = null;
+                if (_p.sourceEndpoint && _p.targetEndpoint) {
+                    if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) {
+                        _p = null;
+                    }
+                }
 
                 return _p;
             }.bind(_currentInstance),
@@ -932,8 +1005,9 @@
             _finaliseConnection = _currentInstance.finaliseConnection = function (jpc, params, originalEvent, doInformAnchorManager) {
                 params = params || {};
                 // add to list of connections (by scope).
-                if (!jpc.suspendedEndpoint)
+                if (!jpc.suspendedEndpoint) {
                     connections.push(jpc);
+                }
 
                 jpc.pending = null;
 
@@ -944,8 +1018,9 @@
                 // except that if jpc has a suspended endpoint it's not true to say the
                 // connection is new; it has just (possibly) moved. the question is whether
                 // to make that call here or in the anchor manager.  i think perhaps here.
-                if (doInformAnchorManager !== false)
+                if (doInformAnchorManager !== false) {
                     _currentInstance.anchorManager.newConnection(jpc);
+                }
 
                 // force a paint
                 _draw(jpc.source);
@@ -982,8 +1057,9 @@
                 ep.id = "ep_" + _idstamp();
                 _manage(_p.elementId, _p.source);
 
-                if (!jsPlumb.headless)
+                if (!jsPlumb.headless) {
                     _currentInstance.getDragManager().endpointAdded(_p.source, id);
+                }
 
                 return ep;
             },
@@ -1003,9 +1079,13 @@
                             var retVal = func(endpoints[i].connections[j]);
                             // if the function passed in returns true, we exit.
                             // most functions return false.
-                            if (retVal) return;
+                            if (retVal) {
+                                return;
+                            }
                         }
-                        if (endpointFunc) endpointFunc(endpoints[i]);
+                        if (endpointFunc) {
+                            endpointFunc(endpoints[i]);
+                        }
                     }
                 }
             },
@@ -1042,10 +1122,13 @@
                         // this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
                         // this block will only set a connection to be visible if the other endpoint in the connection is also visible.
                         var oidx = jpc.sourceId === info.id ? 1 : 0;
-                        if (jpc.endpoints[oidx].isVisible()) jpc.setVisible(true);
+                        if (jpc.endpoints[oidx].isVisible()) {
+                            jpc.setVisible(true);
+                        }
                     }
-                    else  // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
+                    else { // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
                         jpc.setVisible(state);
+                    }
                 }, endpointFunc);
             },
         /*
@@ -1084,10 +1167,12 @@
         // TODO comparison performance
             _getCachedData = function (elId) {
                 var o = offsets[elId];
-                if (!o)
+                if (!o) {
                     return _updateOffset({elId: elId});
-                else
+                }
+                else {
                     return {o: o, s: sizes[elId]};
+                }
             },
 
             /**
@@ -1101,17 +1186,25 @@
              * have them but also to connections and endpoints.
              */
             _getId = function (element, uuid, doNotCreateIfNotFound) {
-                if (_ju.isString(element)) return element;
-                if (element == null) return null;
+                if (_ju.isString(element)) {
+                    return element;
+                }
+                if (element == null) {
+                    return null;
+                }
                 var id = _currentInstance.getAttribute(element, "id");
                 if (!id || id === "undefined") {
                     // check if fixed uuid parameter is given
-                    if (arguments.length == 2 && arguments[1] !== undefined)
+                    if (arguments.length === 2 && arguments[1] !== undefined) {
                         id = uuid;
-                    else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
+                    }
+                    else if (arguments.length === 1 || (arguments.length === 3 && !arguments[2])) {
                         id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
+                    }
 
-                    if (!doNotCreateIfNotFound) _currentInstance.setAttribute(element, "id", id);
+                    if (!doNotCreateIfNotFound) {
+                        _currentInstance.setAttribute(element, "id", id);
+                    }
                 }
                 return id;
             };
@@ -1191,22 +1284,27 @@
                 results.push(e);
             }
 
-            return results.length == 1 ? results[0] : results;
+            return results.length === 1 ? results[0] : results;
         };
 
         this.addEndpoints = function (el, endpoints, referenceParams) {
             var results = [];
             for (var i = 0, j = endpoints.length; i < j; i++) {
                 var e = _currentInstance.addEndpoint(el, endpoints[i], referenceParams);
-                if (_ju.isArray(e))
+                if (_ju.isArray(e)) {
                     Array.prototype.push.apply(results, e);
-                else results.push(e);
+                }
+                else {
+                    results.push(e);
+                }
             }
             return results;
         };
 
         this.animate = function (el, properties, options) {
-            if (!this.animationSupported) return false;
+            if (!this.animationSupported) {
+                return false;
+            }
 
             options = options || {};
             var del = _currentInstance.getElement(el),
@@ -1288,12 +1386,12 @@
                 index: idx,
                 originalSourceId: idx === 0 ? cId : c.sourceId,
                 newSourceId: c.sourceId,
-                originalTargetId: idx == 1 ? cId : c.targetId,
+                originalTargetId: idx === 1 ? cId : c.targetId,
                 newTargetId: c.targetId,
                 connection: c
             };
 
-            if (el.constructor == jsPlumb.Endpoint) {
+            if (el.constructor === jsPlumb.Endpoint) {
                 ep = el;
                 ep.addConnection(c);
                 el = ep.element;
@@ -1302,11 +1400,14 @@
                 sid = _getId(el);
                 sep = this[_st.epDefs][sid];
 
-                if (sid === c[_st.elId])
-                    ep = null;  // dont change source/target if the element is already the one given.
+                if (sid === c[_st.elId]) {
+                    ep = null; // dont change source/target if the element is already the one given.
+                }
                 else if (sep) {
                     for (var t in sep) {
-                        if (!sep[t].enabled) return;
+                        if (!sep[t].enabled) {
+                            return;
+                        }
                         ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
                         if (sep[t].uniqueEndpoint) {
                             sep[t].endpoint = ep;
@@ -1384,7 +1485,7 @@
         var fireDetachEvent = function (jpc, doFireEvent, originalEvent) {
             // may have been given a connection, or in special cases, an object
             var connType = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
-                argIsConnection = jpc.constructor == connType,
+                argIsConnection = jpc.constructor === connType,
                 params = argIsConnection ? {
                     connection: jpc,
                     source: jpc.source, target: jpc.target,
@@ -1416,8 +1517,11 @@
                 var endpoints = endpointsByElement[e];
                 if (endpoints) {
                     var newEndpoints = [];
-                    for (var i = 0, j = endpoints.length; i < j; i++)
-                        if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
+                    for (var i = 0, j = endpoints.length; i < j; i++) {
+                        if (endpoints[i] !== endpoint) {
+                            newEndpoints.push(endpoints[i]);
+                        }
+                    }
 
                     endpointsByElement[e] = newEndpoints;
                 }
@@ -1458,7 +1562,7 @@
                     connection.endpoints[0].detachFromConnection(connection);
                     connection.endpoints[1].detachFromConnection(connection);
                     _ju.removeWithFunction(connections, function (_c) {
-                        return connection.id == _c.id;
+                        return connection.id === _c.id;
                     });
 
                     connection.cleanup();
@@ -1521,20 +1625,18 @@
 
             var unravelConnection = function (connection) {
                 if (connection != null && result.connections[connection.id] == null) {
-                    if (!params.dontUpdateHover && connection._jsPlumb != null) connection.setHover(false);
+                    if (!params.dontUpdateHover && connection._jsPlumb != null) {
+                        connection.setHover(false);
+                    }
                     result.connections[connection.id] = connection;
                     result.connectionCount++;
-                    if (deleteAttachedObjects) {
-                        for (var j = 0; j < connection.endpoints.length; j++) {
-//                            if (connection.endpoints[j]._deleteOnDetach)
-//                                unravelEndpoint(connection.endpoints[j]);
-                        }
-                    }
                 }
             };
             var unravelEndpoint = function (endpoint) {
                 if (endpoint != null && result.endpoints[endpoint.id] == null) {
-                    if (!params.dontUpdateHover && endpoint._jsPlumb != null) endpoint.setHover(false);
+                    if (!params.dontUpdateHover && endpoint._jsPlumb != null) {
+                        endpoint.setHover(false);
+                    }
                     result.endpoints[endpoint.id] = endpoint;
                     result.endpointCount++;
 
@@ -1547,16 +1649,19 @@
                 }
             };
 
-            if (params.connection)
+            if (params.connection) {
                 unravelConnection(params.connection);
-            else unravelEndpoint(params.endpoint);
+            }
+            else {
+                unravelEndpoint(params.endpoint);
+            }
 
             // loop through connections
             for (var i in result.connections) {
                 var c = result.connections[i];
                 if (c._jsPlumb) {
                     _ju.removeWithFunction(connections, function (_c) {
-                        return c.id == _c.id;
+                        return c.id === _c.id;
                     });
 
                     fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
@@ -1588,7 +1693,9 @@
             var info;
             _each(function(_el) {
                  info = _info(_el);
-                if (info.el) _initDraggableIfNecessary(info.el, true, options, info.id, true);
+                if (info.el) {
+                    _initDraggableIfNecessary(info.el, true, options, info.id, true);
+                }
             }, el);
             return _currentInstance;
         };
@@ -1599,7 +1706,9 @@
             options.allowLoopback = false;
             _each(function(_el) {
                 info = _info(_el);
-                if (info.el) _currentInstance.initDroppable(info.el, options);
+                if (info.el) {
+                    _currentInstance.initDroppable(info.el, options);
+                }
             }, el);
             return _currentInstance;
         };
@@ -1631,34 +1740,42 @@
             prepareList = function (input, doNotGetIds) {
                 var r = [];
                 if (input) {
-                    if (typeof input == 'string') {
-                        if (input === "*") return input;
+                    if (typeof input === 'string') {
+                        if (input === "*") {
+                            return input;
+                        }
                         r.push(input);
                     }
                     else {
-                        if (doNotGetIds) r = input;
+                        if (doNotGetIds) {
+                            r = input;
+                        }
                         else {
                             if (input.length) {
-                                for (var i = 0, j = input.length; i < j; i++)
+                                for (var i = 0, j = input.length; i < j; i++) {
                                     r.push(_info(input[i]).id);
+                                }
                             }
-                            else
+                            else {
                                 r.push(_info(input).id);
+                            }
                         }
                     }
                 }
                 return r;
             },
             filterList = function (list, value, missingIsFalse) {
-                if (list === "*") return true;
-                return list.length > 0 ? list.indexOf(value) != -1 : !missingIsFalse;
+                if (list === "*") {
+                    return true;
+                }
+                return list.length > 0 ? list.indexOf(value) !== -1 : !missingIsFalse;
             };
 
         // get some connections, specifying source/target/scope
         this.getConnections = function (options, flat) {
             if (!options) {
                 options = {};
-            } else if (options.constructor == String) {
+            } else if (options.constructor === String) {
                 options = { "scope": options };
             }
             var scope = options.scope || _currentInstance.getDefaultScope(),
@@ -1673,7 +1790,9 @@
                             ss = results[scope] = [];
                         }
                         ss.push(obj);
-                    } else results.push(obj);
+                    } else {
+                        results.push(obj);
+                    }
                 };
 
             for (var j = 0, jj = connections.length; j < jj; j++) {
@@ -1681,8 +1800,9 @@
                     sourceId = c.proxies && c.proxies[0] ? c.proxies[0].originalEp.elementId : c.sourceId,
                     targetId = c.proxies && c.proxies[1] ? c.proxies[1].originalEp.elementId : c.targetId;
 
-                if (filterList(scopes, c.scope) && filterList(sources, sourceId) && filterList(targets, targetId))
+                if (filterList(scopes, c.scope) && filterList(sources, sourceId) && filterList(targets, targetId)) {
                     _addOne(c.scope, c);
+                }
             }
 
             return results;
@@ -1717,11 +1837,13 @@
                     "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ],
                 i, ii;
 
-            for (i = 0, ii = setters.length; i < ii; i++)
+            for (i = 0, ii = setters.length; i < ii; i++) {
                 out[setters[i]] = setter(list, setters[i], executor);
+            }
 
-            for (i = 0, ii = getters.length; i < ii; i++)
+            for (i = 0, ii = getters.length; i < ii; i++) {
                 out[getters[i]] = getter(list, getters[i]);
+            }
 
             return out;
         };
@@ -1734,8 +1856,9 @@
                 setReattach: setter(list, "setReattach", _makeConnectionSelectHandler),
                 setConnector: setter(list, "setConnector", _makeConnectionSelectHandler),
                 delete: function () {
-                    for (var i = 0, ii = list.length; i < ii; i++)
+                    for (var i = 0, ii = list.length; i < ii; i++) {
                         _currentInstance.deleteConnection(list[i]);
+                    }
                 },
                 // getters
                 isDetachable: getter(list, "isDetachable"),
@@ -1750,12 +1873,14 @@
                 setAnchor: setter(list, "setAnchor", _makeEndpointSelectHandler),
                 isEnabled: getter(list, "isEnabled"),
                 deleteEveryConnection: function () {
-                    for (var i = 0, ii = list.length; i < ii; i++)
+                    for (var i = 0, ii = list.length; i < ii; i++) {
                         list[i].deleteEveryConnection();
+                    }
                 },
                 "delete": function () {
-                    for (var i = 0, ii = list.length; i < ii; i++)
+                    for (var i = 0, ii = list.length; i < ii; i++) {
                         _currentInstance.deleteEndpoint(list[i]);
+                    }
                 }
             });
         };
@@ -1780,9 +1905,9 @@
             for (var el in endpointsByElement) {
                 var either = filterList(elements, el, true),
                     source = filterList(sources, el, true),
-                    sourceMatchExact = sources != "*",
+                    sourceMatchExact = sources !== "*",
                     target = filterList(targets, el, true),
-                    targetMatchExact = targets != "*";
+                    targetMatchExact = targets !== "*";
 
                 // if they requested 'either' then just match scope. otherwise if they requested 'source' (not as a wildcard) then we have to match only endpoints that have isSource set to to true, and the same thing with isTarget.
                 if (either || source || target) {
@@ -1794,8 +1919,9 @@
                                 var noMatchSource = (sourceMatchExact && sources.length > 0 && !_ep.isSource),
                                     noMatchTarget = (targetMatchExact && targets.length > 0 && !_ep.isTarget);
 
-                                if (noMatchSource || noMatchTarget)
+                                if (noMatchSource || noMatchTarget) {
                                     continue inner;
+                                }
 
                                 ep.push(_ep);
                             }
@@ -1873,13 +1999,16 @@
         var _ensureContainer = function (candidate) {
             if (!_container && candidate) {
                 var can = _currentInstance.getElement(candidate);
-                if (can.offsetParent) _currentInstance.setContainer(can.offsetParent);
+                if (can.offsetParent) {
+                    _currentInstance.setContainer(can.offsetParent);
+                }
             }
         };
 
         var _getContainerFromDefaults = function () {
-            if (_currentInstance.Defaults.Container)
+            if (_currentInstance.Defaults.Container) {
                 _currentInstance.setContainer(_currentInstance.Defaults.Container);
+            }
         };
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
@@ -1917,7 +2046,9 @@
         var _updateOffset = this.updateOffset = function (params) {
 
             var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
-            if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
+            if (_suspendDrawing && !timestamp) {
+                timestamp = _suspendedAt;
+            }
             if (!recalc) {
                 if (timestamp && timestamp === offsetTimestamps[elId]) {
                     return {o: params.offset || offsets[elId], s: sizes[elId]};
@@ -1936,7 +2067,9 @@
                 offsets[elId] = offset || offsets[elId];
                 if (sizes[elId] == null) {
                     s = managedElements[elId].el;
-                    if (s != null) sizes[elId] = _currentInstance.getSize(s);
+                    if (s != null) {
+                        sizes[elId] = _currentInstance.getSize(s);
+                    }
                 }
                 offsetTimestamps[elId] = timestamp;
             }
@@ -1998,16 +2131,23 @@
          */
         this.makeAnchor = function () {
             var pp, _a = function (t, p) {
-                if (root.jsPlumb.Anchors[t]) return new root.jsPlumb.Anchors[t](p);
-                if (!_currentInstance.Defaults.DoNotThrowErrors)
+                if (root.jsPlumb.Anchors[t]) {
+                    return new root.jsPlumb.Anchors[t](p);
+                }
+                if (!_currentInstance.Defaults.DoNotThrowErrors) {
                     throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
+                }
             };
-            if (arguments.length === 0) return null;
+            if (arguments.length === 0) {
+                return null;
+            }
             var specimen = arguments[0], elementId = arguments[1], jsPlumbInstance = arguments[2], newAnchor = null;
             // if it appears to be an anchor already...
-            if (specimen.compute && specimen.getOrientation) return specimen;  //TODO hazy here about whether it should be added or is already added somehow.
+            if (specimen.compute && specimen.getOrientation) {
+                return specimen;
+            }  //TODO hazy here about whether it should be added or is already added somehow.
             // is it the name of an anchor type?
-            else if (typeof specimen == "string") {
+            else if (typeof specimen === "string") {
                 newAnchor = _a(arguments[0], {elementId: elementId, jsPlumbInstance: _currentInstance});
             }
             // is it an array? it will be one of:
@@ -2017,7 +2157,7 @@
             else if (_ju.isArray(specimen)) {
                 if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
                     // if [spec, params] format
-                    if (specimen.length == 2 && _ju.isObject(specimen[1])) {
+                    if (specimen.length === 2 && _ju.isObject(specimen[1])) {
                         // if first arg is a string, its a named anchor with params
                         if (_ju.isString(specimen[0])) {
                             pp = root.jsPlumb.extend({elementId: elementId, jsPlumbInstance: _currentInstance}, specimen[1]);
@@ -2030,8 +2170,9 @@
                             newAnchor = new root.jsPlumb.DynamicAnchor(pp);
                         }
                     }
-                    else
+                    else {
                         newAnchor = new jsPlumb.DynamicAnchor({anchors: specimen, selector: null, elementId: elementId, jsPlumbInstance: _currentInstance});
+                    }
 
                 }
                 else {
@@ -2041,7 +2182,7 @@
                         offsets: (specimen.length >= 6) ? [ specimen[4], specimen[5] ] : [ 0, 0 ],
                         elementId: elementId,
                         jsPlumbInstance: _currentInstance,
-                        cssClass: specimen.length == 7 ? specimen[6] : null
+                        cssClass: specimen.length === 7 ? specimen[6] : null
                     };
                     newAnchor = new root.jsPlumb.Anchor(anchorParams);
                     newAnchor.clone = function () {
@@ -2050,7 +2191,9 @@
                 }
             }
 
-            if (!newAnchor.id) newAnchor.id = "anchor_" + _idstamp();
+            if (!newAnchor.id) {
+                newAnchor.id = "anchor_" + _idstamp();
+            }
             return newAnchor;
         };
 
@@ -2061,10 +2204,12 @@
         this.makeAnchors = function (types, elementId, jsPlumbInstance) {
             var r = [];
             for (var i = 0, ii = types.length; i < ii; i++) {
-                if (typeof types[i] == "string")
+                if (typeof types[i] === "string") {
                     r.push(root.jsPlumb.Anchors[types[i]]({elementId: elementId, jsPlumbInstance: jsPlumbInstance}));
-                else if (_ju.isArray(types[i]))
+                }
+                else if (_ju.isArray(types[i])) {
                     r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
+                }
             }
             return r;
         };
@@ -2087,7 +2232,7 @@
             var t = evt.target || evt.srcElement, ok = false,
                 sel = _instance.getSelector(_el, selector);
             for (var j = 0; j < sel.length; j++) {
-                if (sel[j] == t) {
+                if (sel[j] === t) {
                     ok = true;
                     break;
                 }
@@ -2156,8 +2301,9 @@
                     newEndpoint.setDeleteOnEmpty(true);
 
                     // if connection is detachable, init the new endpoint to be draggable, to support that happening.
-                    if (jpc.isDetachable())
+                    if (jpc.isDetachable()) {
                         newEndpoint.initDraggable();
+                    }
 
                     // if the anchor has a 'positionFinder' set, then delegate to that function to find
                     // out where to locate the anchor.
@@ -2182,8 +2328,9 @@
                     if (ep._mtNew && ep.connections.length === 0) {
                         _currentInstance.deleteObject({endpoint: ep});
                     }
-                    else
+                    else {
                         delete ep._mtNew;
+                    }
                 }
             });
 
@@ -2202,7 +2349,7 @@
             if (p.allowLoopback === false) {
                 dropOptions.canDrop = function (_drag) {
                     var de = _drag.getDragElement()._jsPlumbRelatedElement;
-                    return de != elInfo.el;
+                    return de !== elInfo.el;
                 };
             }
             _currentInstance.initDroppable(elInfo.el, dropOptions, "internal");
@@ -2256,7 +2403,7 @@
                 }.bind(this);
 
             // make an array if only given one element
-            var inputs = el.length && el.constructor != String ? el : [ el ];
+            var inputs = el.length && el.constructor !== String ? el : [ el ];
 
             // register each one in the list.
             for (var i = 0, ii = inputs.length; i < ii; i++) {
@@ -2319,13 +2466,17 @@
                     dragOptions.scope = dragOptions.scope || p.scope;
 
                     dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], function () {
-                        if (existingDrag) existingDrag.apply(this, arguments);
+                        if (existingDrag) {
+                            existingDrag.apply(this, arguments);
+                        }
                         endpointAddedButNoDragYet = false;
                     });
 
                     dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent], function () {
 
-                        if (existingStop) existingStop.apply(this, arguments);
+                        if (existingStop) {
+                            existingStop.apply(this, arguments);
+                        }
                         this.currentlyDragging = false;
                         if (ep._jsPlumb != null) { // if not cleaned up...
 
@@ -2354,27 +2505,35 @@
                             ep.setAnchor(newAnchor, true);
                             ep.repaint();
                             this.repaint(ep.elementId);
-                            if (oldConnection != null) this.repaint(oldConnection.targetId);
+                            if (oldConnection != null) {
+                                this.repaint(oldConnection.targetId);
+                            }
                         }
                     }.bind(this));
 
                     // when the user presses the mouse, add an Endpoint, if we are enabled.
                     var mouseDownListener = function (e) {
                         // on right mouse button, abort.
-                        if (e.which === 3 || e.button === 2) return;
+                        if (e.which === 3 || e.button === 2) {
+                            return;
+                        }
 
                         // TODO store def on element.
                         var def = this.sourceEndpointDefinitions[elid][type];
 
                         // if disabled, return.
-                        if (!def.enabled) return;
+                        if (!def.enabled) {
+                            return;
+                        }
 
                         elid = this.getId(this.getElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
                             var r = _ju.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
-                            if (r === false) return;
+                            if (r === false) {
+                                return;
+                            }
                         }
 
                         // if maxConnections reached
@@ -2402,7 +2561,9 @@
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
 
-                        if (def.def.scope) tempEndpointParams.scope = def.def.scope;
+                        if (def.def.scope) {
+                            tempEndpointParams.scope = def.def.scope;
+                        }
 
                         ep = this.addEndpoint(elid, tempEndpointParams);
                         endpointAddedButNoDragYet = true;
@@ -2416,8 +2577,9 @@
                                 def.endpoint = ep;
                                 ep.setDeleteOnEmpty(false);
                             }
-                            else
+                            else {
                                 ep.finalEndpoint = def.endpoint;
+                            }
                         }
 
                         var _delTempEndpoint = function () {
@@ -2471,7 +2633,7 @@
 
                 }.bind(this);
 
-            var inputs = el.length && el.constructor != String ? el : [ el ];
+            var inputs = el.length && el.constructor !== String ? el : [ el ];
             for (var i = 0, ii = inputs.length; i < ii; i++) {
                 _doOne(_info(inputs[i]));
             }
@@ -2488,8 +2650,9 @@
                 for (var def in eldefs) {
                     if (connectionType == null || connectionType === def) {
                         var mouseDownListener = eldefs[def].trigger;
-                        if (mouseDownListener)
+                        if (mouseDownListener) {
                             _currentInstance.off(info.el, "mousedown", mouseDownListener);
+                        }
                         if (!doNotClearArrays) {
                             delete this.sourceEndpointDefinitions[info.id][def];
                         }
@@ -2502,8 +2665,9 @@
 
         // see api docs
         this.unmakeEverySource = function () {
-            for (var i in this.sourceEndpointDefinitions)
+            for (var i in this.sourceEndpointDefinitions) {
                 _currentInstance.unmakeSource(i, null, true);
+            }
 
             this.sourceEndpointDefinitions = {};
             return this;
@@ -2515,7 +2679,9 @@
             connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
                 var eldefs = this[types[i]][id];
-                if (eldefs && eldefs[connectionType]) return eldefs[connectionType].def.scope || this.Defaults.Scope;
+                if (eldefs && eldefs[connectionType]) {
+                    return eldefs[connectionType].def.scope || this.Defaults.Scope;
+                }
             }
         }.bind(this);
 
@@ -2557,8 +2723,9 @@
 
         // see api docs
         this.unmakeEveryTarget = function () {
-            for (var i in this.targetEndpointDefinitions)
+            for (var i in this.targetEndpointDefinitions) {
                 _currentInstance.unmakeTarget(i, true);
+            }
 
             this.targetEndpointDefinitions = {};
             return this;
@@ -2566,7 +2733,7 @@
 
         // does the work of setting a source enabled or disabled.
         var _setEnabled = function (type, el, state, toggle, connectionType) {
-            var a = type == "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions,
+            var a = type === "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions,
                 originalState, info, newState;
 
             connectionType = connectionType || "default";
@@ -2599,10 +2766,12 @@
         }.bind(this);
 
         var _first = function (el, fn) {
-            if (_ju.isString(el) || !el.length)
+            if (_ju.isString(el) || !el.length) {
                 return fn.apply(this, [ el ]);
-            else if (el.length)
+            }
+            else if (el.length) {
                 return fn.apply(this, [ el[0] ]);
+            }
 
         }.bind(this);
 
@@ -2660,12 +2829,14 @@
 
         var _elEach = function(el, fn) {
             // support both lists...
-            if (typeof el == 'object' && el.length)
+            if (typeof el === 'object' && el.length) {
                 for (var i = 0, ii = el.length; i < ii; i++) {
                     fn(el[i]);
                 }
-            else // ...and single strings or elements.
+            }
+            else {// ...and single strings or elements.
                 fn(el);
+            }
 
             return _currentInstance;
         };
@@ -2716,13 +2887,14 @@
 
                 if (ebe) {
                     affectedElements.push(info);
-                    for (i = 0, ii = ebe.length; i < ii; i++)
+                    for (i = 0, ii = ebe.length; i < ii; i++) {
                         _currentInstance.deleteEndpoint(ebe[i], false);
+                    }
                 }
                 delete endpointsByElement[info.id];
 
                 if (recurse) {
-                    if (info.el && info.el.nodeType != 3 && info.el.nodeType != 8) {
+                    if (info.el && info.el.nodeType !== 3 && info.el.nodeType !== 8) {
                         for (i = 0, ii = info.el.childNodes.length; i < ii; i++) {
                             _one(info.el.childNodes[i]);
                         }
@@ -2745,8 +2917,12 @@
                 _currentInstance.anchorManager.clearFor(_info.id);
                 _currentInstance.anchorManager.removeFloatingConnection(_info.id);
 
-                if (_currentInstance.isSource(_info.el)) _currentInstance.unmakeSource(_info.el);
-                if (_currentInstance.isTarget(_info.el)) _currentInstance.unmakeTarget(_info.el);
+                if (_currentInstance.isSource(_info.el)) {
+                    _currentInstance.unmakeSource(_info.el);
+                }
+                if (_currentInstance.isTarget(_info.el)) {
+                    _currentInstance.unmakeTarget(_info.el);
+                }
                 _currentInstance.destroyDraggable(_info.el);
                 _currentInstance.destroyDroppable(_info.el);
 
@@ -2797,7 +2973,9 @@
                     while(info.el.childNodes.length > 0) {
                         _one(info.el.childNodes[0]);
                     }
-                    if (!dontRemoveFocus) _doRemove(info, affectedElements);
+                    if (!dontRemoveFocus) {
+                        _doRemove(info, affectedElements);
+                    }
                 }
             };
 
@@ -2818,13 +2996,16 @@
                 this.targetEndpointDefinitions = {};
                 this.sourceEndpointDefinitions = {};
                 connections.length = 0;
-                if (this.doReset) this.doReset();
+                if (this.doReset) {
+                    this.doReset();
+                }
             }.bind(this));
         };
 
         var _clearObject = function (obj) {
-            if (obj.canvas && obj.canvas.parentNode)
+            if (obj.canvas && obj.canvas.parentNode) {
                 obj.canvas.parentNode.removeChild(obj.canvas);
+            }
             obj.cleanup();
             obj.destroy();
         };
@@ -2850,10 +3031,18 @@
             for (var i = 0; i < bits.length; i++) {
                 var _t = _currentInstance.getType(bits[i], "connection");
                 if (_t) {
-                    if (_t.endpoints) eps = _t.endpoints;
-                    if (_t.endpoint) ep = _t.endpoint;
-                    if (_t.anchors) as = _t.anchors;
-                    if (_t.anchor) a = _t.anchor;
+                    if (_t.endpoints) {
+                        eps = _t.endpoints;
+                    }
+                    if (_t.endpoint) {
+                        ep = _t.endpoint;
+                    }
+                    if (_t.anchors) {
+                        as = _t.anchors;
+                    }
+                    if (_t.anchor) {
+                        a = _t.anchor;
+                    }
                 }
             }
             return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]};
@@ -2881,8 +3070,9 @@
                 el = this.getElement(id);
                 this.setAttribute(el, "id", newId);
             }
-            else
+            else {
                 el = this.getElement(newId);
+            }
 
             endpointsByElement[newId] = endpointsByElement[id] || [];
             for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
@@ -2925,8 +3115,14 @@
         this.setSuspendDrawing = function (val, repaintAfterwards) {
             var curVal = _suspendDrawing;
             _suspendDrawing = val;
-            if (val) _suspendedAt = new Date().getTime(); else _suspendedAt = null;
-            if (repaintAfterwards) this.repaintEverything();
+            if (val) {
+                _suspendedAt = new Date().getTime();
+            } else {
+                _suspendedAt = null;
+            }
+            if (repaintAfterwards) {
+                this.repaintEverything();
+            }
             return curVal;
         };
 
@@ -2942,16 +3138,18 @@
 
         this.batch = function (fn, doNotRepaintAfterwards) {
             var _wasSuspended = this.isSuspendDrawing();
-            if (!_wasSuspended)
+            if (!_wasSuspended) {
                 this.setSuspendDrawing(true);
+            }
             try {
                 fn();
             }
             catch (e) {
                 _ju.log("Function run while suspended failed", e);
             }
-            if (!_wasSuspended)
+            if (!_wasSuspended) {
                 this.setSuspendDrawing(false, !doNotRepaintAfterwards);
+            }
         };
 
         this.doWhileSuspended = this.batch;
@@ -2997,8 +3195,9 @@
             }
         },
         registerConnectionTypes: function (types) {
-            for (var i in types)
+            for (var i in types) {
                 this.registerConnectionType(i, types[i]);
+            }
         },
         registerEndpointType: function (id, type) {
             this._endpointTypes[id] = root.jsPlumb.extend({}, type);
@@ -3014,9 +3213,9 @@
             }
         },
         registerEndpointTypes: function (types) {
-            for (var i in types)
-                //this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
+            for (var i in types) {
                 this.registerEndpointType(i, types[i]);
+            }
         },
         getType: function (id, typeDescriptor) {
             return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
@@ -3041,11 +3240,16 @@
         extend: function (o1, o2, names) {
             var i;
             if (names) {
-                for (i = 0; i < names.length; i++)
+                for (i = 0; i < names.length; i++) {
                     o1[names[i]] = o2[names[i]];
+                }
             }
-            else
-                for (i in o2) o1[i] = o2[i];
+            else {
+                for (i in o2) {
+                    o1[i] = o2[i];
+                }
+            }
+
             return o1;
         },
         floatingConnections: {},
@@ -3100,15 +3304,20 @@
         return j;
     };
     jsPlumb.each = function (spec, fn) {
-        if (spec == null) return;
-        if (typeof spec === "string")
-            fn(jsPlumb.getElement(spec));
-        else if (spec.length != null) {
-            for (var i = 0; i < spec.length; i++)
-                fn(jsPlumb.getElement(spec[i]));
+        if (spec == null) {
+            return;
         }
-        else
-            fn(spec); // assume it's an element.
+        if (typeof spec === "string") {
+            fn(jsPlumb.getElement(spec));
+        }
+        else if (spec.length != null) {
+            for (var i = 0; i < spec.length; i++) {
+                fn(jsPlumb.getElement(spec[i]));
+            }
+        }
+        else {
+            fn(spec);
+        } // assume it's an element.
     };
 
     // CommonJS
