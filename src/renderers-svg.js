@@ -39,8 +39,7 @@
         JSPLUMB_GRADIENT = "jsplumb_gradient_",
         LINE_WIDTH = "strokeWidth",
         ns = {
-            svg: "http://www.w3.org/2000/svg",
-            xhtml: "http://www.w3.org/1999/xhtml"
+            svg: "http://www.w3.org/2000/svg"
         },
         _attr = function (node, attributes) {
             for (var i in attributes) {
@@ -50,7 +49,7 @@
         _node = function (name, attributes) {
             attributes = attributes || {};
             attributes.version = "1.1";
-            attributes.xmlns = ns.xhtml;
+            attributes.xmlns = ns.svg;
             return _jp.createElementNS(ns.svg, name, null, null, attributes);
         },
         _pos = function (d) {
