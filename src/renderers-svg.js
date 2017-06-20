@@ -400,7 +400,6 @@
         _super.renderer.paint = function (style) {
             var s = _jp.extend({}, style);
             if (s.outlineStroke) {
-                s.strokeWidth = s.strokeWidth;
                 s.stroke = s.outlineStroke;
             }
 
