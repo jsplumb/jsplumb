@@ -1,8 +1,9 @@
 ## 2.4.3
 
-TBA
+20th June 2017
 
 - update documentation to remove references to the now defunct jQuery flavour of jsPlumb.
+- SVG elements use SVG namespace rather than XHTML
 
 ## 2.4.2
 

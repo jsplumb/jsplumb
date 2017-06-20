@@ -6,7 +6,7 @@
 
 There are two methods in jsPlumb that allow you to configure an element from which Connections can be 
 dragged - **addEndpoint** and **makeSource**. Each of these methods supports a `dragOptions` object is one of the 
-parameters in its options.  The allowed values in this object are those supported by [https://github.com/jsplumb/katavorio](Katavorio).
+parameters in its options.  The allowed values in this object are those supported by [Katavorio](https://github.com/jsplumb/katavorio).
 `dragOptions` is passed directly through to Katavorio.
 
 ###### dropOptions
