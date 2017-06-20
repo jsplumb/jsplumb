@@ -2226,7 +2226,7 @@
         },
         {
             "file": "tests/jsPlumb-tests.js",
-            "line": 7499,
+            "line": 7507,
             "description": "Tests that the `getOffset` function correctly ignores body scroll when adjusting for parent element scroll.",
             "itemtype": "method",
             "name": "Test.offset_body_scroll",
@@ -2234,7 +2234,7 @@
         },
         {
             "file": "tests/jsPlumb-tests.js",
-            "line": 7567,
+            "line": 7575,
             "description": "Tests endpoint mouse interaction via event triggering: the ability to drag a connection to another\nendpoint, what happens when it is full, if it is disabled etc.",
             "itemtype": "method",
             "name": "jsPlumb.Test.EndpointEventTriggering",
@@ -2242,25 +2242,25 @@
         },
         {
             "file": "tests/jsPlumb-tests.js",
-            "line": 8107,
+            "line": 8115,
             "description": "Tests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to\nread fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the\nvalue from the extract map. In this test we get the attribute `foo` and insert its value into the connection's\ndata, keyed as `fooAttribute`.",
             "class": ""
         },
         {
             "file": "tests/jsPlumb-tests.js",
-            "line": 8400,
+            "line": 8408,
             "description": "Tests that `endpoint` and `anchor` in a makeSource definition are honoured. The next test uses a connection type\nbut has the makeSource override the anchor.",
             "class": ""
         },
         {
             "file": "tests/jsPlumb-tests.js",
-            "line": 8419,
+            "line": 8427,
             "description": "Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
             "class": ""
         },
         {
             "file": "tests/jsPlumb-tests.js",
-            "line": 8451,
+            "line": 8459,
             "description": "Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
             "class": ""
         },
@@ -3433,19 +3433,19 @@
         },
         {
             "message": "Missing item type\nTests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to\nread fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the\nvalue from the extract map. In this test we get the attribute `foo` and insert its value into the connection's\ndata, keyed as `fooAttribute`.",
-            "line": " tests/jsPlumb-tests.js:8107"
+            "line": " tests/jsPlumb-tests.js:8115"
         },
         {
             "message": "Missing item type\nTests that `endpoint` and `anchor` in a makeSource definition are honoured. The next test uses a connection type\nbut has the makeSource override the anchor.",
-            "line": " tests/jsPlumb-tests.js:8400"
+            "line": " tests/jsPlumb-tests.js:8408"
         },
         {
             "message": "Missing item type\nTests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
-            "line": " tests/jsPlumb-tests.js:8419"
+            "line": " tests/jsPlumb-tests.js:8427"
         },
         {
             "message": "Missing item type\nTests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
-            "line": " tests/jsPlumb-tests.js:8451"
+            "line": " tests/jsPlumb-tests.js:8459"
         },
         {
             "message": "Missing item type\nQUnit v1.11.0 - A JavaScript Unit Testing Framework\n\nhttp://qunitjs.com\n\nCopyright 2012 jQuery Foundation and other contributors\nReleased under the MIT license.\nhttp://jquery.org/license",

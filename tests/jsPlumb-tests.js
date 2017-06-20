@@ -662,6 +662,14 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(c.length, 1, "there is one connection");
     });
 
+    test(': getConnections (simple case, multiple targets, default scope)', function () {
+        var d5 = _addDiv("d5"), d6 = _addDiv("d6"), d7 = _addDiv("d7");
+        _jsPlumb.connect({source: d5, target: d6});
+        _jsPlumb.connect({source: d5, target: d7});
+        var c = _jsPlumb.getConnections();  // will get all connections in the default scope.
+        equal(c.length, 2, "there are two connections");
+    });
+
     test('getConnections (uuids)', function () {
         var d5 = _addDiv("d5"),
             d6 = _addDiv("d6"),

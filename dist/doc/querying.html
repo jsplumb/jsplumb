@@ -345,33 +345,33 @@ jsPlumb.getConnections();
 </code></li>
 <li><p>Get all connections for the given scope (return value is a list): 
 <code>javascript
-jsPlumb.getConnections({scope:&quot;myTestScope&quot;});&lt;/pre&gt;
+jsPlumb.getConnections({scope:&quot;myTestScope&quot;});
 </code></p></li>
-<li><p>Get all connections for the given scopes (return value is a map of scope names to connection lists):<br>
+<li><p>Get all connections for the given scopes (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):<br>
 <code>javascript
 jsPlumb.getConnections({
 scope:[&quot;myTestScope&quot;, &quot;yourTestScope&quot;]
 });
 </code></p></li>
-<li><p>Get all connections for the given source (return value is a map of scope names to connection lists):
+<li><p>Get all connections for the given source (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
 <code>javascript
 jsPlumb.getConnections({
 source:&quot;mySourceElement&quot;
 });
 </code></p></li>
-<li><p>Get all connections for the given sources (return value is a map of scope names to connection lists): 
+<li><p>Get all connections for the given sources (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):<br>
 <code>javascript
 jsPlumb.getConnections({
 source:[&quot;mySourceElement&quot;, &quot;yourSourceElement&quot;]
 });
 </code></p></li>
-<li><p>Get all connections for the given target (return value is a map of scope names to connection lists):
+<li><p>Get all connections for the given target (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
 <code>javascript
 jsPlumb.getConnections({
 target:&quot;myTargetElement&quot;
 });
 </code></p></li>
-<li><p>Get all connections for the given source and targets (return value is a map of scope names to connection lists):
+<li><p>Get all connections for the given source and targets (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
 <code>javascript
 jsPlumb.getConnections({
     source:&quot;mySourceElement&quot;, 
