@@ -216,7 +216,7 @@ jsPlumb.getConnections();
 ```
 - Get all connections for the given scope (return value is a list):	
 ```javascript
-jsPlumb.getConnections({scope:"myTestScope"});</pre>
+jsPlumb.getConnections({scope:"myTestScope"});
 ```
 
 - Get all connections for the given scopes (return value is a map of scope names to connection lists):	
