@@ -75,8 +75,7 @@ When you position an element relative, the `left`/`top` values are taken to mean
 position by these amounts_, where "normal position" is dependent on document flow. You might have a test case or two 
 in which relative positioning appears to work; for each of these you could create several others where it does not.
 
-You cannot trust relative positioning with dragging, and, despite popular opinion, jQuery's `draggable` method does 
-not "work" with it at all, it just might seem to at times.
+You cannot trust relative positioning with dragging.
 
 <a name="containment"></a>
 #### Drag Containment

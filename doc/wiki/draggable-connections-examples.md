@@ -4,7 +4,10 @@
 
 ###### dragOptions
 
-There are two methods in jsPlumb that allow you to configure an element from which Connections can be dragged - **addEndpoint** and **makeSource**. Each of these methods supports a `dragOptions` object is one of the parameters in its options.  The allowed values in this object vary depending on the drag library in use: if you are using vanilla jsPlumb then the drag library is [https://github.com/jsplumb/katavorio](Katavorio); otherwise with the jQuery flavour it is jQuery UI.  `dragOptions` is passed directly through to the underlying library; check the docs for each of these to find out what options are available to you.
+There are two methods in jsPlumb that allow you to configure an element from which Connections can be 
+dragged - **addEndpoint** and **makeSource**. Each of these methods supports a `dragOptions` object is one of the 
+parameters in its options.  The allowed values in this object are those supported by [https://github.com/jsplumb/katavorio](Katavorio).
+`dragOptions` is passed directly through to Katavorio.
 
 ###### dropOptions
 
@@ -168,5 +171,8 @@ jsPlumb.addEndpoint( "window1", sourceEndpoint );
 jsPlumb.makeTarget( "window2", targetEndpoint );
 ```
 
-Notice that the endpoint definition we use on the target window does not include the `isTarget:true` directive.  jsPlumb ignores that flag when creating a Connection using an element as the target; but if you then tried to drag another connection to the Endpoint that was created, you would not be able to.  To permit that, you would set `isTarget:true` on the targetEndpoint options defined above.
+Notice that the endpoint definition we use on the target window does not include the `isTarget:true` directive.  jsPlumb 
+ignores that flag when creating a Connection using an element as the target; but if you then tried to drag another 
+Connection to the Endpoint that was created, you would not be able to.  To permit that, you would set `isTarget:true` 
+on the `targetEndpoint` options defined above.
 	

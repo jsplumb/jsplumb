@@ -155,14 +155,7 @@ that support SVG. </p>
 
 <h3>Browser Compatibility</h3>
 
-<p>jsPlumb 1.7.x runs on everything from IE6 up. jsPlumb 2.x runs on everything from IE9 up.  There are some 
-caveats, though, because of various browser/library bugs:</p>
-
-<ul>
-<li>jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.</li>
-<li>jQuery 2.0 does not support IE 6,7 or 8.</li>
-<li>Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)<br></li>
-</ul>
+<p>jsPlumb 1.7.x runs on everything from IE6 up. jsPlumb 2.x runs on everything from IE9 up.                  </p>
 
 <p><a name="setup"></a></p>
 
@@ -190,7 +183,8 @@ caveats, though, because of various browser/library bugs:</p>
 
 <h3>Initializing jsPlumb</h3>
 
-<p>You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  To handle this, you should bind to the <code>ready</code> event on jsPlumb (or the instance of jsPlumb you are working with):           </p>
+<p>You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  To handle 
+this, you should bind to the <code>ready</code> event on jsPlumb (or the instance of jsPlumb you are working with):            </p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;ready&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
   <span class="p">...</span>           
   <span class="c1">// your jsPlumb related init code goes here</span>
@@ -210,10 +204,12 @@ caveats, though, because of various browser/library bugs:</p>
 
 <h3>Multiple jsPlumb instances</h3>
 
-<p>jsPlumb is registered on the browser&#39;s window by default, providing one static instance for the whole page to use.  You can also instantiate independent instances of jsPlumb, using the <code>getInstance</code> method, for example:</p>
+<p>jsPlumb is registered on the browser&#39;s window by default, providing one static instance for the whole page to use.  You 
+can also instantiate independent instances of jsPlumb, using the <code>getInstance</code> method, for example:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">firstInstance</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">();</span>
 </code></pre></div>
-<p>The variable <code>firstInstance</code> can now be treated exactly as you would treat the <code>jsPlumb</code> variable - you can set defaults, call the <code>connect</code> method, whatever:</p>
+<p>The variable <code>firstInstance</code> can now be treated exactly as you would treat the <code>jsPlumb</code> variable - you can set defaults, 
+call the <code>connect</code> method, whatever:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">firstInstance</span><span class="p">.</span><span class="nx">importDefaults</span><span class="p">({</span>
   <span class="nx">Connector</span> <span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;Bezier&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">curviness</span><span class="o">:</span> <span class="mi">150</span> <span class="p">}</span> <span class="p">],</span>
   <span class="nx">Anchors</span> <span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;TopCenter&quot;</span><span class="p">,</span> <span class="s2">&quot;BottomCenter&quot;</span> <span class="p">]</span>
@@ -272,19 +268,19 @@ jsPlumb to update its references.</p></li>
 
 <p>Almost every method in jsPlumb that operates on elements supports multiple formats for specifying the element(s) on which to operate.</p>
 
-<h4>Selectors/NodeLists</h4>
+<h4>NodeLists/Selectors</h4>
 
-<p>In jQuery there is the concept of a &quot;selector&quot; - a list of elements conforming to some CSS path spec, for instance <code>$(&quot;.myClass&quot;)</code>. 
-Both the jQuery flavour, and also vanilla, jsPlumb support these selectors as arguments for elements (vanilla jsPlumb 
-can do this because jQuery&#39;s selector object is <em>list-like</em>, ie. it has a <code>length</code> property).</p>
+<p>In the jsPlumb documentation you will see references to the concept of a <code>selector</code>. This is a list of elements that match 
+some CSS spec. In modern browsers you can get one of these via a call like:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="nx">someElement</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s1">&#39;.someSelector&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>The native element that <code>querySelectorAll</code> returns is a <code>NodeList</code>. </p>
 
-<p>When using vanilla jsPlumb, you can use a <code>NodeList</code> - it is, effectively, the native equivalent of the selectors we 
-just discussed.  There are several ways of getting a <code>NodeList</code> from the DOM; perhaps the most useful (supported in IE8+) 
-is <code>document.querySelectorAll(&quot;some selector&quot;)</code>.</p>
-
-<p>You will see <strong>selector</strong> referred to in many places in the jsPlumb documentation. Just think of it as a list of elements 
-that match some CSS spec.</p>
-
+<p>Although jsPlumb has no dependency on jQuery, it also supports jQuery selectors as arguments for elements (vanilla jsPlumb 
+because jQuery&#39;s selector object is <em>list-like</em>, ie. it has a <code>length</code> property and indexed accessors). So this will 
+also work, if you happen to be using jQuery in your page:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">$</span><span class="p">(</span><span class="nx">someElement</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.someSelector&quot;</span><span class="p">)</span>
+</code></pre></div>
 <h4>Element Ids</h4>
 
 <p>Passing a single string as argument will cause jsPlumb to treat that string as an element id.</p>
@@ -370,15 +366,7 @@ the best thing to do if you wish to use jsPlumb to enable dragging on non-plumbe
 <h5>Some examples</h5>
 
 <ul>
-<li>Set a Container to use as the default Container, using a jQuery selector, and then add an Endpoint.  The related UI 
-artefact will be a child of the document body:</li>
-</ul>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">));</span>
-<span class="p">...</span>
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span> <span class="nx">endpoint</span> <span class="nx">options</span> <span class="p">});</span>
-</code></pre></div>
-<ul>
-<li>Set a container to use as the default container, using Plain Old DOM:</li>
+<li>Set a container to use as the default container:</li>
 </ul>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">));</span>
 <span class="p">...</span>
@@ -399,7 +387,7 @@ created in this example will be children of the element with id &quot;containerI
   <span class="nx">Container</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span>
 <span class="p">});</span>
 <span class="p">...</span>
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span> <span class="nx">endpoint</span> <span class="nx">options</span> <span class="p">});</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span> <span class="nx">endpoint</span><span class="o">:</span><span class="nx">options</span> <span class="p">});</span>
 </code></pre></div>
 <h5>Container CSS</h5>
 

@@ -421,7 +421,7 @@ function(eventOffset, elementOffset, elementSize, constructorParams) {
 
 The four arguments are:
 
-- **eventOffset** - Page left/top where the mouse button was released (a JS object containing left/top members like you get from a jQuery offset call)
+- **eventOffset** - Page left/top where the mouse button was released (a JS object)
 - **elementOffset** - JS offset object containing offsets for the element on which the Connection is to be created
 - **elementSize** - [width, height] array of the dimensions of the element on which the Connection is to be created
 - **constructorParams** - the parameters that were passed to the Anchor's constructor. In the example given above, those parameters are 'position' and 'grid'; you can pass arbitrary parameters.
@@ -609,23 +609,23 @@ Given that the options here are library-specific, and they are all well-document
 - **zIndex** - the zIndex of an element that is being dragged.
 - **scope** - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.
 
-For more information about drag options, take a look at the [jQuery](http://docs.jquery.com/UI/Draggable) or [Katavorio](https://github.com/jsplumb/katavorio) docs.	
+For more information about drag options, take a look at the [Katavorio](https://github.com/jsplumb/katavorio) docs.	
 	
 <a name="dropOptions"></a>
 #### Drop Options
 Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  
 
-Here are three common jQuery/Katavorio droppable options that you might want to consider using:
+Here are three common Katavorio droppable options that you might want to consider using:
 
 - **hoverClass** - the CSS class to attach to the droppable when a draggable is hovering over it.
 - **activeClass** - the CSS class to attach to the droppable when a draggable is, um, being dragged.
 - **scope** - the scope of the draggable.  The draggable can only be dropped on a droppable with the same scope.  This is discussed below.
 
-For more information about drop options when using jQuery, see [here](http://docs.jquery.com/UI/Droppable)
 
 <a name="dragScope"></a>		
 #### Drag and Drop Scope
-jsPlumb borrowed the concept of 'scope' from jQuery's drag/drop implementation: the notion of which draggables can be dropped on which droppables.  In jsPlumb you can provide a 'scope' entry when creating an Endpoint.  Here's the example grey Endpoint example with 'scope' added:
+jsPlumb borrowed the concept of 'scope' from jQuery's drag/drop implementation: the notion of which draggables can be dropped on which droppables.  
+In jsPlumb you can provide a 'scope' entry when creating an Endpoint.  Here's the example grey Endpoint example with 'scope' added:
 
 ```javascript
 var exampleGreyEndpointOptions = {

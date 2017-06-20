@@ -5,7 +5,7 @@
 <a name="nodes"></a>
 ### Removing Nodes
 
-If you have configured a DOM element with jsPlumb in any way you should use jsPlumb to remove the element from the DOM (as opposed to using something like jQuery's `remove` function, for example).
+If you have configured a DOM element with jsPlumb in any way you should use jsPlumb to remove the element from the DOM.
 
 To help you with this, jsPlumb offers two methods:
 

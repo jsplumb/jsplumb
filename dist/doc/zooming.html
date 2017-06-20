@@ -182,10 +182,10 @@
 <p><strong>Notes</strong></p>
 
 <ul>
-<li>This is not a jQuery function. It does not, amazingly, even know jQuery exists.</li>
-<li><code>el</code> must be a plain DOM element. If you&#39;ve got a jQuery selector, pass in <code>el[0]</code>. You don&#39;t have to pass in <code>el</code>; if you do not, it uses the Container from the jsPlumb instance. Note that jsPlumb automatically converts the Container into a plain DOM element, so it doesn&#39;t matter what you pass to jsPlumb as the value of Container.</li>
+<li><code>el</code> is a DOM element. You don&#39;t have to pass in <code>el</code>; if you do not, it uses the Container from the jsPlumb instance. </li>
 <li><code>transformOrigin</code> is optional; it defaults to [0.5, 0.5] - the middle of the element (this is the browser default too)</li>
-<li><code>instance</code> is an instance of jsPlumb - either <code>jsPlumb</code>, the static instance, or some instance you got through <code>jsPlumb.newInstance(...)</code>. The function will default to using the static instance of jsPlumb if you do not provide one.</li>
+<li><code>instance</code> is an instance of jsPlumb - either <code>jsPlumb</code>, the static instance, or some instance you got through 
+<code>jsPlumb.newInstance(...)</code>. The function will default to using the static instance of jsPlumb if you do not provide one.</li>
 <li><code>zoom</code> is a decimal where 1 means 100%.</li>
 </ul>
 

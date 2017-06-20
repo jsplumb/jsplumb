@@ -12,7 +12,7 @@
 
 A Type is a collection of attributes such as paint style, hover paint style, overlays etc - it is a subset, including most but not all, of the parameters you can set in an Endpoint or Connection definition. It also covers behavioural attributes such as `isSource` or `maxConnections` on Endpoints.
 
-An Endpoint or Connection can have zero or more Types assigned; they are merged as granularly as possible, in the order in which they were assigned. There is a supporting API that works in the same way as the class stuff does in jQuery:
+An Endpoint or Connection can have zero or more Types assigned; they are merged as granularly as possible, in the order in which they were assigned. There is a supporting API with these methods:
 
 - **hasType**
 - **addType**
@@ -21,9 +21,12 @@ An Endpoint or Connection can have zero or more Types assigned; they are merged 
 - **setType**
 - **clearTypes**
 
-and each of these methods (except `hasType`) takes a space-separated string so you can add several at once.  Support for these methods has been added to the `jsPlumb.select` and `jsPlumb.selectEndpoint` methods, and you can also now specify a `type` parameter to an Endpoint or Connection at create time.
+and each of these methods (except `hasType`) takes a space-separated string so you can add several at once.  Support for 
+these methods has been added to the `jsPlumb.select` and `jsPlumb.selectEndpoint` methods, and you can also now 
+specify a `type` parameter to an Endpoint or Connection at create time.
 
-Types are a useful tool when you are building a UI that has connections whose appearance change under certain circumstances, or a UI that has various types of connections etc. 
+Types are a useful tool when you are building a UI that has connections whose appearance change under certain circumstances, 
+or a UI that has various types of connections etc. 
 
 <a name="connection-type"></a>
 ### Connection Type

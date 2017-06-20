@@ -129,7 +129,10 @@
 
 <h6>dragOptions</h6>
 
-<p>There are two methods in jsPlumb that allow you to configure an element from which Connections can be dragged - <strong>addEndpoint</strong> and <strong>makeSource</strong>. Each of these methods supports a <code>dragOptions</code> object is one of the parameters in its options.  The allowed values in this object vary depending on the drag library in use: if you are using vanilla jsPlumb then the drag library is <a href="Katavorio">https://github.com/jsplumb/katavorio</a>; otherwise with the jQuery flavour it is jQuery UI.  <code>dragOptions</code> is passed directly through to the underlying library; check the docs for each of these to find out what options are available to you.</p>
+<p>There are two methods in jsPlumb that allow you to configure an element from which Connections can be 
+dragged - <strong>addEndpoint</strong> and <strong>makeSource</strong>. Each of these methods supports a <code>dragOptions</code> object is one of the 
+parameters in its options.  The allowed values in this object are those supported by <a href="Katavorio">https://github.com/jsplumb/katavorio</a>.
+<code>dragOptions</code> is passed directly through to Katavorio.</p>
 
 <h6>dropOptions</h6>
 
@@ -282,7 +285,10 @@
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span> <span class="s2">&quot;window1&quot;</span><span class="p">,</span> <span class="nx">sourceEndpoint</span> <span class="p">);</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span> <span class="s2">&quot;window2&quot;</span><span class="p">,</span> <span class="nx">targetEndpoint</span> <span class="p">);</span>
 </code></pre></div>
-<p>Notice that the endpoint definition we use on the target window does not include the <code>isTarget:true</code> directive.  jsPlumb ignores that flag when creating a Connection using an element as the target; but if you then tried to drag another connection to the Endpoint that was created, you would not be able to.  To permit that, you would set <code>isTarget:true</code> on the targetEndpoint options defined above.</p>
+<p>Notice that the endpoint definition we use on the target window does not include the <code>isTarget:true</code> directive.  jsPlumb 
+ignores that flag when creating a Connection using an element as the target; but if you then tried to drag another 
+Connection to the Endpoint that was created, you would not be able to.  To permit that, you would set <code>isTarget:true</code> 
+on the <code>targetEndpoint</code> options defined above.</p>
 
                 </div>
             </div>

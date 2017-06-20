@@ -1,3 +1,9 @@
+## 2.4.3
+
+TBA
+
+- update documentation to remove references to the now defunct jQuery flavour of jsPlumb.
+
 ## 2.4.2
 
 10th May 2017

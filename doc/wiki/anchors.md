@@ -92,7 +92,7 @@ The algorithm that decides which location to choose just calculates which locati
 ##### Draggable Connections
 Dynamic Anchors and Draggable Connections can interoperate: jsPlumb locks the position of a dynamic anchor when you start to drag a connection from it, and unlocks it once the connection is either established or abandoned. At that point you may see the position of the dynamic anchor change, as jsPlumb optimises the connection.  
 
-You can see this behaviour in the [draggable connections](http://jsplumbtoolkit.com/demo/draggableConnectors/dom.html) demonstration, when you drag a connection from the blue endpoint on window 1 to the blue endpoint on window 3 - the connection is established and then window 1's blue endpoint jumps down to a location that is closer to window 3.
+You can see this behaviour in the [draggable connections](https://jsplumbtoolkit.com/community/demo/draggableConnectors/dom.html) demonstration, when you drag a connection from the blue endpoint on window 1 to the blue endpoint on window 3 - the connection is established and then window 1's blue endpoint jumps down to a location that is closer to window 3.
 
 <a name="perimeter"></a>
 #### Perimeter Anchors
@@ -145,7 +145,7 @@ jsPlumb.connect({
 
 <a name="perimeterrotation"></a>
 ##### Perimeter Anchor Rotation
-You can supply a `rotation` value to a Perimeter anchor - an example can be seen in <a href="../jquery/perimeterAnchorsDemo.html" target="_blank">this demo</a>. Here's how you would use it:
+You can supply a `rotation` value to a Perimeter anchor - an example can be seen in [this demonstration](https://jsplumbtoolkit.com/community/demo/perimeterAnchors/index.html). Here's how you would use it:
 
 ```javascript
 jsPlumb.connect({

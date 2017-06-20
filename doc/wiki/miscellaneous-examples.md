@@ -67,23 +67,15 @@ jsPlumb.setDraggable("window1", false);
 <pre>
 jsPlumb.setDraggable(["window1","window2"], false);
 </pre>
-- Initialises window1 as a draggable element (all libraries). Passes in an on drag callback				
+- Initialises window1 as a draggable element. Passes in an on drag callback				
 <pre>
 jsPlumb.draggable("window1");
 </pre>
-- Initialises window1 and window2 as draggable elements (all libraries)
+- Initialises window1 and window2 as draggable elements
 <pre>
 jsPlumb.draggable(["window1","window2"]);
 </pre>
-- Initialises window1 as a draggable element (all libraries)
+- Initialises window1 as a draggable element
 <pre>
 jsPlumb.draggable("window1");
-</pre>
-- Initialises all elements with class 'window' as draggable elements (jQuery)
-<pre>
-jsPlumb.draggable($(".window"));
-</pre>
-- Initialises window1 as a draggable element (jQuery)
-<pre>
-jsPlumb.draggable($("#window1"));
 </pre>

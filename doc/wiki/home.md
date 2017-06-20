@@ -26,12 +26,7 @@ It is a good idea to read this entire page.  There are a few things you need to 
 
 <a name="browser"></a>
 ### Browser Compatibility
-jsPlumb 1.7.x runs on everything from IE6 up. jsPlumb 2.x runs on everything from IE9 up.  There are some 
-caveats, though, because of various browser/library bugs:
-                
-  - jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.
-  - jQuery 2.0 does not support IE 6,7 or 8.
-  - Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)                
+jsPlumb 1.7.x runs on everything from IE6 up. jsPlumb 2.x runs on everything from IE9 up.                  
 
 <a name="setup"></a>
 ### Setup
@@ -60,7 +55,8 @@ No required imports.
 <a name="initializing"></a>
 ### Initializing jsPlumb
 
-You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  To handle this, you should bind to the `ready` event on jsPlumb (or the instance of jsPlumb you are working with):			
+You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  To handle 
+this, you should bind to the `ready` event on jsPlumb (or the instance of jsPlumb you are working with):			
 
 ```javascript
 jsPlumb.bind("ready", function() {
@@ -85,13 +81,15 @@ If you bind to the `ready` event after jsPlumb has already been initialized, you
 
 <a name="multiple"></a>
 ### Multiple jsPlumb instances
-jsPlumb is registered on the browser's window by default, providing one static instance for the whole page to use.  You can also instantiate independent instances of jsPlumb, using the `getInstance` method, for example:
+jsPlumb is registered on the browser's window by default, providing one static instance for the whole page to use.  You 
+can also instantiate independent instances of jsPlumb, using the `getInstance` method, for example:
 
 ```javascript
 var firstInstance = jsPlumb.getInstance();
 ```
 
-The variable `firstInstance` can now be treated exactly as you would treat the `jsPlumb` variable - you can set defaults, call the `connect` method, whatever:
+The variable `firstInstance` can now be treated exactly as you would treat the `jsPlumb` variable - you can set defaults, 
+call the `connect` method, whatever:
 
 ```javascript
 firstInstance.importDefaults({
@@ -150,17 +148,25 @@ jsPlumb to update its references.
 ### Method Arguments
 Almost every method in jsPlumb that operates on elements supports multiple formats for specifying the element(s) on which to operate.
 
-#### Selectors/NodeLists
-In jQuery there is the concept of a "selector" - a list of elements conforming to some CSS path spec, for instance `$(".myClass")`. 
-Both the jQuery flavour, and also vanilla, jsPlumb support these selectors as arguments for elements (vanilla jsPlumb 
-can do this because jQuery's selector object is _list-like_, ie. it has a `length` property).
+#### NodeLists/Selectors
 
-When using vanilla jsPlumb, you can use a `NodeList` - it is, effectively, the native equivalent of the selectors we 
-just discussed.  There are several ways of getting a `NodeList` from the DOM; perhaps the most useful (supported in IE8+) 
-is `document.querySelectorAll("some selector")`.
+In the jsPlumb documentation you will see references to the concept of a `selector`. This is a list of elements that match 
+some CSS spec. In modern browsers you can get one of these via a call like:
+ 
+ ```javascript
+ someElement.querySelectorAll('.someSelector')
+ ```
+ 
+The native element that `querySelectorAll` returns is a `NodeList`. 
+ 
+Although jsPlumb has no dependency on jQuery, it also supports jQuery selectors as arguments for elements (vanilla jsPlumb 
+because jQuery's selector object is _list-like_, ie. it has a `length` property and indexed accessors). So this will 
+also work, if you happen to be using jQuery in your page:
 
-You will see **selector** referred to in many places in the jsPlumb documentation. Just think of it as a list of elements 
-that match some CSS spec.
+```javascript
+$(someElement).find(".someSelector")
+```
+
 
 #### Element Ids
 Passing a single string as argument will cause jsPlumb to treat that string as an element id.
@@ -240,16 +246,7 @@ nonPlumbing.draggable("some element");
 
 ##### Some examples
 		
-- Set a Container to use as the default Container, using a jQuery selector, and then add an Endpoint.  The related UI 
-artefact will be a child of the document body:
-
-```javascript
-jsPlumb.setContainer($("body"));
-...
-jsPlumb.addEndpoint(someDiv, { endpoint options });
-```
-
-- Set a container to use as the default container, using Plain Old DOM:
+- Set a container to use as the default container:
 
 ```javascript
 jsPlumb.setContainer(document.getElementById("foo"));
@@ -273,7 +270,7 @@ var j = jsPlumb.getInstance({
   Container:"foo"
 });
 ...
-jsPlumb.addEndpoint(someDiv, { endpoint options });
+jsPlumb.addEndpoint(someDiv, { endpoint:options });
 ```
 
 ##### Container CSS

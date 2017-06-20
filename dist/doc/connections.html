@@ -516,7 +516,7 @@ parameter, which can be the name of some position finder, or a position finder f
 <p>The four arguments are:</p>
 
 <ul>
-<li><strong>eventOffset</strong> - Page left/top where the mouse button was released (a JS object containing left/top members like you get from a jQuery offset call)</li>
+<li><strong>eventOffset</strong> - Page left/top where the mouse button was released (a JS object)</li>
 <li><strong>elementOffset</strong> - JS offset object containing offsets for the element on which the Connection is to be created</li>
 <li><strong>elementSize</strong> - [width, height] array of the dimensions of the element on which the Connection is to be created</li>
 <li><strong>constructorParams</strong> - the parameters that were passed to the Anchor&#39;s constructor. In the example given above, those parameters are &#39;position&#39; and &#39;grid&#39;; you can pass arbitrary parameters.</li>
@@ -693,7 +693,7 @@ parameter, which can be the name of some position finder, or a position finder f
 <li><strong>scope</strong> - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.</li>
 </ul>
 
-<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a> or <a href="https://github.com/jsplumb/katavorio">Katavorio</a> docs.    </p>
+<p>For more information about drag options, take a look at the <a href="https://github.com/jsplumb/katavorio">Katavorio</a> docs. </p>
 
 <p><a name="dropOptions"></a></p>
 
@@ -701,7 +701,7 @@ parameter, which can be the name of some position finder, or a position finder f
 
 <p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  </p>
 
-<p>Here are three common jQuery/Katavorio droppable options that you might want to consider using:</p>
+<p>Here are three common Katavorio droppable options that you might want to consider using:</p>
 
 <ul>
 <li><strong>hoverClass</strong> - the CSS class to attach to the droppable when a draggable is hovering over it.</li>
@@ -709,13 +709,12 @@ parameter, which can be the name of some position finder, or a position finder f
 <li><strong>scope</strong> - the scope of the draggable.  The draggable can only be dropped on a droppable with the same scope.  This is discussed below.</li>
 </ul>
 
-<p>For more information about drop options when using jQuery, see <a href="http://docs.jquery.com/UI/Droppable">here</a></p>
-
 <p><a name="dragScope"></a>        </p>
 
 <h4>Drag and Drop Scope</h4>
 
-<p>jsPlumb borrowed the concept of &#39;scope&#39; from jQuery&#39;s drag/drop implementation: the notion of which draggables can be dropped on which droppables.  In jsPlumb you can provide a &#39;scope&#39; entry when creating an Endpoint.  Here&#39;s the example grey Endpoint example with &#39;scope&#39; added:</p>
+<p>jsPlumb borrowed the concept of &#39;scope&#39; from jQuery&#39;s drag/drop implementation: the notion of which draggables can be dropped on which droppables.<br>
+In jsPlumb you can provide a &#39;scope&#39; entry when creating an Endpoint.  Here&#39;s the example grey Endpoint example with &#39;scope&#39; added:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
   <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>

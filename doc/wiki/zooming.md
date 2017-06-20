@@ -66,8 +66,8 @@ window.setZoom = function(zoom, instance, transformOrigin, el) {
 
 **Notes**
 
-- This is not a jQuery function. It does not, amazingly, even know jQuery exists.
-- `el` must be a plain DOM element. If you've got a jQuery selector, pass in `el[0]`. You don't have to pass in `el`; if you do not, it uses the Container from the jsPlumb instance. Note that jsPlumb automatically converts the Container into a plain DOM element, so it doesn't matter what you pass to jsPlumb as the value of Container.
+- `el` is a DOM element. You don't have to pass in `el`; if you do not, it uses the Container from the jsPlumb instance. 
 - `transformOrigin` is optional; it defaults to [0.5, 0.5] - the middle of the element (this is the browser default too)
-- `instance` is an instance of jsPlumb - either `jsPlumb`, the static instance, or some instance you got through `jsPlumb.newInstance(...)`. The function will default to using the static instance of jsPlumb if you do not provide one.
+- `instance` is an instance of jsPlumb - either `jsPlumb`, the static instance, or some instance you got through 
+`jsPlumb.newInstance(...)`. The function will default to using the static instance of jsPlumb if you do not provide one.
 - `zoom` is a decimal where 1 means 100%.
