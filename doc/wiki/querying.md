@@ -219,35 +219,35 @@ jsPlumb.getConnections();
 jsPlumb.getConnections({scope:"myTestScope"});
 ```
 
-- Get all connections for the given scopes (return value is a map of scope names to connection lists):	
+- Get all connections for the given scopes (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):	
 ```javascript
 jsPlumb.getConnections({
     scope:["myTestScope", "yourTestScope"]
 });
 ```
 
-- Get all connections for the given source (return value is a map of scope names to connection lists):
+- Get all connections for the given source (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
 ```javascript
 jsPlumb.getConnections({
     source:"mySourceElement"
 });
 ```
 
-- Get all connections for the given sources (return value is a map of scope names to connection lists):	
+- Get all connections for the given sources (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):	
 ```javascript
 jsPlumb.getConnections({
     source:["mySourceElement", "yourSourceElement"]
 });
 ```
 
-- Get all connections for the given target (return value is a map of scope names to connection lists):
+- Get all connections for the given target (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
 ```javascript
 jsPlumb.getConnections({
     target:"myTargetElement"
 });
 ```
 
-- Get all connections for the given source and targets (return value is a map of scope names to connection lists):
+- Get all connections for the given source and targets (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
 ```javascript
 jsPlumb.getConnections({
         source:"mySourceElement", 
