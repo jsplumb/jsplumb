@@ -338,10 +338,12 @@
             this.getDragManager().updateOffsets(elId);
         },
 
+        // t
         createElement:function(tag, style, clazz, atts) {
             return this.createElementNS(null, tag, style, clazz, atts);
         },
 
+        // t
         createElementNS:function(ns, tag, style, clazz, atts) {
             var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
             var i;
