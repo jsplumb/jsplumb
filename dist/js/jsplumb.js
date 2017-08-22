@@ -2843,8 +2843,10 @@
     root.jsPlumbUtil.EventGenerator = function () {
         var _listeners = {},
             eventsSuspended = false,
+            tick = false,
         // this is a list of events that should re-throw any errors that occur during their dispatch. it is current private.
-            eventsToDieOn = { "ready": true };
+            eventsToDieOn = { "ready": true },
+            queue = [];
 
         this.bind = function (event, listener, insertAtStart) {
             var _one = function(evt) {
@@ -2866,31 +2868,45 @@
         };
 
         this.fire = function (event, value, originalEvent) {
-            if (!eventsSuspended && _listeners[event]) {
-                var l = _listeners[event].length, i = 0, _gone = false, ret = null;
-                if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
-                    while (!_gone && i < l && ret !== false) {
-                        // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
-                        // method will have the whole call stack available in the debugger.
-                        if (eventsToDieOn[event]) {
-                            _listeners[event][i].apply(this, [ value, originalEvent]);
-                        }
-                        else {
-                            try {
-                                ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
-                            } catch (e) {
-                                root.jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+            if (!tick) {
+                tick = true;
+                if (!eventsSuspended && _listeners[event]) {
+                    var l = _listeners[event].length, i = 0, _gone = false, ret = null;
+                    if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
+                        while (!_gone && i < l && ret !== false) {
+                            // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
+                            // method will have the whole call stack available in the debugger.
+                            if (eventsToDieOn[event]) {
+                                _listeners[event][i].apply(this, [value, originalEvent]);
                             }
-                        }
-                        i++;
-                        if (_listeners == null || _listeners[event] == null) {
-                            _gone = true;
+                            else {
+                                try {
+                                    ret = _listeners[event][i].apply(this, [value, originalEvent]);
+                                } catch (e) {
+                                    root.jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+                                }
+                            }
+                            i++;
+                            if (_listeners == null || _listeners[event] == null) {
+                                _gone = true;
+                            }
                         }
                     }
                 }
+                tick = false;
+                _drain();
+            } else {
+                queue.unshift(arguments);
             }
             return this;
         };
+
+        var _drain = function() {
+            var n = queue.pop();
+            if (n) {
+                this.fire.apply(this, n);
+            }
+        }.bind(this);
 
         this.unbind = function (eventOrListener, listener) {
 
@@ -3496,7 +3512,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.4.3";
+        this.version = "2.5.0";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);

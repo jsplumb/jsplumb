@@ -123,7 +123,17 @@
 </ul>
                 </div>
                 <div class="markdown-body col-xs-9">
-                    <h2>2.4.3</h2>
+                    <h2>2.5.0</h2>
+
+<ul>
+<li>removed the old changelog.txt, which hadnt been used since 2.0.3 and was probably confusing matters.</li>
+<li>fixed stale references to various detach methods which were renamed a few versions ago.</li>
+<li>EventGenerator was updated to fire each event on a separate tick of the event loop. Previously, if an event was fired during
+the callback to a previous event, the second event handler was executed in its entirety before the original event handler. 
+Enqueuing events that are fired during the event loop and running them after each tick prevents this from happening.</li>
+</ul>
+
+<h2>2.4.3</h2>
 
 <p>20th June 2017</p>
 

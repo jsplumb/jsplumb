@@ -9877,5 +9877,32 @@ test("endpoint: suspendedElement set correctly", function() {
      });
      */
 
+    test("events fired on discrete ticks of the event loop", function() {
+        var a = {}, count = 0, flip = false;
+        jsPlumbUtil.EventGenerator.apply(a, []);
+
+        a.bind("event", function() {
+
+            if (flip)
+                equal(count, 1, "an event was already fired when the second event is processed");
+            else
+                equal(count, 0, "an event was not yet fired");
+
+            // if this is the first event, we want to set a flag and fire a new event.
+
+            if (!flip) {
+                flip = true;
+                a.fire("event");
+            }
+
+            count++
+
+        });
+
+        a.fire("event");
+
+        equal(count, 2, "an event was fired");
+    })
+
 };
 
