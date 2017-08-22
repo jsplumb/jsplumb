@@ -13,5 +13,5 @@
     "suppressImplicitAnyIndexErrors": true
 
   },
-  "files":[ "main.ts", "renderer/svg-component.ts" ]
+  "files":[ "main.ts", "renderer/svg/svg-component.ts" ]
 }

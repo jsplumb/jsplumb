@@ -128,7 +128,10 @@ interface OnConnectionBindInfo {
 }
 
 interface Defaults {
-    Endpoint?: any[];
+    Endpoint?: any;
+    Endpoints?:any[];
+    Anchor?:any;
+    Anchors?:any[];
     PaintStyle?: PaintStyle;
     HoverPaintStyle?: PaintStyle;
     ConnectionsDetachable?: boolean;

@@ -1,11 +1,11 @@
-import {RawElement, createElement} from "../dom/dom-adapter";
+import {RawElement, createElement} from "../../dom/dom-adapter";
 import { node, attr, pos } from "./svg-util";
-import { Extents, jsPlumbUIComponent } from "./abstract-renderer";
+import { Extents, jsPlumbUIComponent } from "../abstract-renderer";
 
 // note that here we are getting this from browser util when it is in fact a function supplied by the current renderer,
 // which may not in fact know about the browser. this will need to be fixed.
-import { sizeElement } from "../browser-util";
-import {JsPlumbInstance} from "../jsplumb";
+import { sizeElement } from "../../browser-util";
+import {JsPlumbInstance} from "../../jsplumb";
 
 export class SvgComponent extends jsPlumbUIComponent {
 

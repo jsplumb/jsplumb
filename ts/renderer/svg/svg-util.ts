@@ -1,6 +1,6 @@
 // it's possible in fact this should import from an 'abstract adapter' class, since dom adapter is
 // browser specific and we want to support headless.
-import { createElementNS, RawElement } from "../dom/dom-adapter";
+import { createElementNS, RawElement } from "../../dom/dom-adapter";
 
 const svgAttributeMap = {
     "stroke-linejoin": "stroke-linejoin",
@@ -145,3 +145,4 @@ function appendAtIndex(svg:Element, path:any, idx:number) {
 export { _attr as attr }
 export { _node as node }
 export { _pos as pos }
+export { _applyStyles as applyStyles }
