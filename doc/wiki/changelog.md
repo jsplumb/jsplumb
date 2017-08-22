@@ -1,3 +1,8 @@
+## 2.5.0
+
+- removed the old changelog.txt, which hadnt been used since 2.0.3 and was probably confusing matters.
+- fixed stale references to various detach methods which were renamed a few versions ago.
+
 ## 2.4.3
 
 20th June 2017
