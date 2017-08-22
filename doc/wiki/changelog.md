@@ -1,5 +1,8 @@
 ## 2.5.0
 
+22nd August 2017
+
+
 - removed the old changelog.txt, which hadnt been used since 2.0.3 and was probably confusing matters.
 - fixed stale references to various detach methods which were renamed a few versions ago.
 - EventGenerator was updated to fire each event on a separate tick of the event loop. Previously, if an event was fired during
