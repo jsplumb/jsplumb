@@ -9460,6 +9460,28 @@ test("endpoint: suspendedElement set correctly", function() {
         ok(c.proxies[0] == "flag", "proxies not setup since all elements were removed");
     });
 
+
+    // groups within groups.
+    test("groups within groups", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var g1 = _addDiv("group"), g2 = _addDiv("group2");
+
+
+        var group1 = _jsPlumb.addGroup({ el:g1 });
+        var group2 = _jsPlumb.addGroup({ el:g2 });
+
+        _jsPlumb.addToGroup(group1, d1);
+        _jsPlumb.addToGroup(group2, d2);
+
+        equal(_jsPlumb.getGroupManager().getGroups().length, 2, "expected 2 groups");
+
+        _jsPlumb.connect({source:d1, target:d2});
+        _jsPlumb.connect({source:d3, target:d4});
+
+        _jsPlumb.addToGroup(group1, g2);
+
+    });
+
 // -------------- endpoint clicks
     test("endpoint click", function() {
         var d = _addDiv("d1"),
