@@ -686,8 +686,13 @@ jsPlumb offers a few methods for changing the scope(s) of some element configure
 - `setTargetScope(el, scopeString)` Sets both the target scope(s) for the given element.
 
 <a name="disconnectreconnect"></a>
+
 #### Disconnecting and Reconnecting
-By default, jsPlumb will allow you to detach connections from either Endpoint by dragging (assuming the Endpoint allows it; Blank Endpoints, for example, have nothing you can grab with the mouse). If you then drop a Connection you have dragged off an Endpoint, the Connection will be detached. This behaviour can be controlled using the `detachable` and `reattach`parameters, or their equivalents in the jsPlumb Defaults.
+
+By default, jsPlumb will allow you to detach connections from either Endpoint by dragging (assuming the Endpoint allows it; 
+Blank Endpoints, for example, have nothing you can grab with the mouse). If you then drop a Connection you have dragged 
+off an Endpoint, the Connection will be detached. This behaviour can be controlled using the `detachable` and `reattach` 
+parameters, or their equivalents in the jsPlumb Defaults.
 
 Some examples should help explain:	  
 
@@ -713,16 +718,28 @@ jsPlumb.importDefaults({
 });
 ```
 
-The default value of ConnectionsDetachable is **true**, and the default value of ReattachConnections is **false**, so in actual fact those defaults are kind of pointless. But you probably get the idea.
+The default value of ConnectionsDetachable is **true**, and the default value of ReattachConnections is **false**, so 
+in actual fact those defaults are kind of pointless. But you probably get the idea.
 
 ##### Setting detachable/reattach on Endpoints
 
-Endpoints support the `detachable` and `reattach` parameters too. If you create an Endpoint and mark `detachable:false`, then all Connections made from that Endpoint will not be detachable.  However, since there are two Endpoints involved in any Connection, jsPlumb takes into account the `detachable` and `reattach` parameters from both Endpoints when establishing a Connection. If either Endpoint declares either of these values as true, jsPlumb assumes the value to be true.  It is possible that in a future version of jsPlumb the concepts of detachable and reattach could be made more granular, through the
+Endpoints support the `detachable` and `reattach` parameters too. If you create an Endpoint and mark `detachable:false`, 
+then all Connections made from that Endpoint will not be detachable.  However, since there are two Endpoints involved in 
+any Connection, jsPlumb takes into account the `detachable` and `reattach` parameters from both Endpoints when establishing 
+a Connection. If either Endpoint declares either of these values as true, jsPlumb assumes the value to be true.  It is 
+possible that in a future version of jsPlumb the concepts of detachable and reattach could be made more granular, through the
 introduction of parameters like `sourceDetachable`/`targetReattach` etc.
 
 ##### Dropping a dragged Connection on another Endpoint
 
-If you drag a Connection from its target Endpoint you can then drop it on another suitable target Endpoint - suitable meaning that it is of the correct scope and it is not full.  If you try to drop a Connection on another target that is full, the drop will be aborted and then the same rules will apply as if you had dropped the Connection in whitespace: if `reattach` is set, the Connection will reattach, otherwise it will be removed.
+If you drag a Connection from its target Endpoint you can then drop it on another suitable target Endpoint - suitable 
+meaning that it is of the correct scope and it is not full.  If you try to drop a Connection on another target that is full, 
+the drop will be aborted and then the same rules will apply as if you had dropped the Connection in whitespace: if 
+`reattach` is set, the Connection will reattach, otherwise it will be removed.
 
-You can drag a Connection from its source Endpoint, but you can only drop it back on its source Endpoint - if you try to drop it on any other source or target Endpoint jsPlumb will treat the drop as if it happened in whitespace. Note that there is an issue with the `hoverClass` parameter when dragging a source Endpoint: target Endpoints are assigned the hover class, as if you could drop there. But you cannot; this is caused by how jsPlumb uses the underlying library's drag and drop, and is something that will be addressed in a future release.
+You can drag a Connection from its source Endpoint, but you can only drop it back on its source Endpoint - if you try 
+to drop it on any other source or target Endpoint jsPlumb will treat the drop as if it happened in whitespace. Note 
+that there is an issue with the `hoverClass` parameter when dragging a source Endpoint: target Endpoints are assigned the 
+hover class, as if you could drop there. But you cannot; this is caused by how jsPlumb uses the underlying library's 
+drag and drop, and is something that will be addressed in a future release.
 	

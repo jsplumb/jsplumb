@@ -1,8 +1,4 @@
 ### Utility Functions
-- Detach window5 from all connections
-<pre>
-jsPlumb.detachAll("window5");
-</pre>
 - Hide all window5's connections
 <pre>
 jsPlumb.hide("window5");
@@ -35,13 +31,13 @@ jsPlumb.repaint( [ "window5", "window6", "window11" ] );
 <pre>
 jsPlumb.repaintEverything();
 </pre>
-- Detach every connection that the given instance of jsPlumb is managing
+- Delete every connection that the given instance of jsPlumb is managing
 <pre>
-jsPlumb.detachEveryConnection();
+jsPlumb.deleteEveryConnection();
 </pre>
-- Detach all connections from "window1"
+- Delete all connections to/from "window1"
 <pre>
-jsPlumb.detachAllConnections("window1");
+jsPlumb.deleteConnectionsForElement("window1");
 </pre>
 - Remove all Endpoints for the element 'window1', deleting their Connections.
 <pre>
