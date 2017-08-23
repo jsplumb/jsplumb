@@ -140,12 +140,13 @@
 <li><a href="#maketarget">Targets</a>
 
 <ul>
-<li><a href="#loopback">Preventing Loopback Connections</a></li>
-<li><a href="#uniqueEndpoint">Unique Endpoint per Target</a></li>
+<li><a href="#loopback">Preventing Loopback Connections</a><br></li>
 <li><a href="#deleteOnDetach">Deleting Endpoints on Detach</a></li>
 <li><a href="#detachMouse">Detaching connections made with the mouse</a></li>
 <li><a href="#targetAnchorPositions">Target Anchors positions with makeTarget</a></li>
 </ul></li>
+<li><a href="#uniqueEndpoint">Unique Endpoint per Source/Target</a></li>
+<li><a href="#createEndpoint">Creating an Endpoint on a Source/Target prior to any Connections</a></li>
 </ul></li>
 <li><a href="#dragOptions">Drag Options</a></li>
 <li><a href="#dropOptions">Drop Options</a></li>
@@ -410,21 +411,6 @@ of parameters that may be common across several different calls:</p>
   <span class="nx">allowLoopback</span><span class="o">:</span><span class="kc">false</span>
 <span class="p">});</span>
 </code></pre></div>
-<p><a id="uniqueEndpoint"></a></p>
-
-<h5>Unique Endpoint per Target</h5>
-
-<p>jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on the target element, by default, but you can override this behaviour and tell jsPlumb that it should create at most one Endpoint, which it should attempt to use for subsequent Connections:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
-  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
-  <span class="nx">uniqueEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
-  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
-  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
-<span class="p">};</span>
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
-</code></pre></div>
-<p>Here, the <code>uniqueEndpoint</code> parameter tells jsPlumb that there should be at most one Endpoint on this element.  Notice that <code>maxConnections</code> is not set: the default is 1, so in this setup we have told jsPlumb that <code>aTargetDiv</code> can receive one Connection and no more.</p>
-
 <p><a id="deleteOnDetach"></a></p>
 
 <h5>Deleting Endpoints on detach</h5>
@@ -676,6 +662,60 @@ parameter, which can be the name of some position finder, or a position finder f
 
 <p><code>unmakeTarget</code> and <code>unmakeSource</code> both take as argument the same sorts of values that <code>makeTarget</code> and <code>makeSource</code> accept - a string id, or a selector, or an array of either of these:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">unmakeTarget</span><span class="p">(</span><span class="s2">&quot;aDivId&quot;</span><span class="p">).</span><span class="nx">unmakeSource</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.aSelector&quot;</span><span class="p">));</span>
+</code></pre></div>
+<p><a id="uniqueEndpoint"></a></p>
+
+<h5>Unique Endpoint per Source/Target</h5>
+
+<p>jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on 
+a source or target element, by default, but you can override this behaviour and tell jsPlumb that it should create at 
+most one Endpoint, which it should attempt to use for subsequent Connections:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">uniqueEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
+</code></pre></div>
+<p>Here, the <code>uniqueEndpoint</code> parameter tells jsPlumb that there should be at most one Endpoint on this element.<br>
+Notice that <code>maxConnections</code> is not set: the default is 1, so in this setup we have told jsPlumb that <code>aTargetDiv</code> 
+can receive one Connection and no more.</p>
+
+<p>The same parameter can be supplied to <code>makeSource</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">uniqueEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;aSourceDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
+</code></pre></div>
+<p><a id="createEndpoint"></a></p>
+
+<h5>Creating an Endpoint on a Source/Target prior to any Connections</h5>
+
+<p>You can instruct jsPlumb to create a new Endpoint using the supplied information before any Connections have been established on 
+a source or target element:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">createEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
+</code></pre></div>
+<p>Setting <code>createEndpoint</code> to <code>true</code> will cause jsPlumb to also implicitly set <code>uniqueEndpoint</code> to be true. The characteristics of
+the behaviour of this Endpiont will be as discussed above in the section on <code>uniqueEndpoint</code>. </p>
+
+<p>The same parameter can be supplied to <code>makeSource</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">createEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fill</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;aSourceDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
 <p><a name="dragOptions"></a></p>
 

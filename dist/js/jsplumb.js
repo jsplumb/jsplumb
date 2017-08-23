@@ -3512,7 +3512,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.5.0";
+        this.version = "2.5.1";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -3877,6 +3877,16 @@
                 return false;
             },
 
+            _mergeOverrides = function (def, values) {
+                var m = jsPlumb.extend({}, def);
+                for (var i in values) {
+                    if (values[i]) {
+                        m[i] = values[i];
+                    }
+                }
+                return m;
+            },
+
         /*
          * prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
          */
@@ -3947,15 +3957,6 @@
                     _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
                 }
 
-                var _mergeOverrides = function (def, values) {
-                    var m = jsPlumb.extend({}, def);
-                    for (var i in values) {
-                        if (values[i]) {
-                            m[i] = values[i];
-                        }
-                    }
-                    return m;
-                };
 
                 var _addEndpoint = function (el, def, idx) {
                     return _currentInstance.addEndpoint(el, _mergeOverrides(def, {
@@ -3987,7 +3988,6 @@
                             if (!_p.scope && tep.def.scope) {
                                 _p.scope = tep.def.scope;
                             } // provide scope if not already provided and endpoint def has one.
-                            newEndpoint.setDeleteOnEmpty(true);
                             if (tep.uniqueEndpoint) {
                                 if (!tep.endpoint) {
                                     tep.endpoint = newEndpoint;
@@ -3996,6 +3996,8 @@
                                 else {
                                     newEndpoint.finalEndpoint = tep.endpoint;
                                 }
+                            } else {
+                                newEndpoint.setDeleteOnEmpty(true);
                             }
                         }
                     }
@@ -5435,6 +5437,13 @@
                         maxConnections: maxConnections,
                         enabled: true
                     };
+
+                    if (p.createEndpoint) {
+                        _def.uniqueEndpoint = true;
+                        _def.endpoint = _currentInstance.addEndpoint(el, _def.def);
+                        _def.endpoint.setDeleteOnEmpty(false);
+                    }
+
                     elInfo.def = _def;
                     this.targetEndpointDefinitions[elid][type] = _def;
                     _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true);
@@ -5491,6 +5500,11 @@
                         enabled: true
                     };
 
+                    if (p.createEndpoint) {
+                        _def.uniqueEndpoint = true;
+                        _def.endpoint = _currentInstance.addEndpoint(el, _def.def);
+                        _def.endpoint.setDeleteOnEmpty(false);
+                    }
 
                     this.sourceEndpointDefinitions[elid][type] = _def;
                     elInfo.def = _def;
@@ -7362,7 +7376,9 @@
         this._jsPlumb.events = {};
 
         var deleteOnEmpty = params.deleteOnEmpty === true;
-        this.setDeleteOnEmpty = function(d) { deleteOnEmpty = d; };
+        this.setDeleteOnEmpty = function(d) {
+            deleteOnEmpty = d;
+        };
 
         var _updateAnchorClass = function () {
             // stash old, get new

@@ -2,7 +2,7 @@
     "project": {
         "name": "jsplumb - Test Coverage",
         "description": "Visual connectivity for webapps",
-        "version": "2.5.0",
+        "version": "2.5.1",
         "url": ""
     },
     "files": {
@@ -36,8 +36,8 @@
             "fors": {},
             "namespaces": {}
         },
-        "tests/jsPlumb-tests.js": {
-            "name": "tests/jsPlumb-tests.js",
+        "tests/unit/all/tests.js": {
+            "name": "tests/unit/all/tests.js",
             "modules": {},
             "classes": {
                 "": 1
@@ -45,8 +45,8 @@
             "fors": {},
             "namespaces": {}
         },
-        "tests/qunit-1.11.0.js": {
-            "name": "tests/qunit-1.11.0.js",
+        "tests/unit/qunit-1.11.0.js": {
+            "name": "tests/unit/qunit-1.11.0.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -99,7 +99,7 @@
             ]
         },
         "": {
-            "file": "tests/jsPlumb-tests.js",
+            "file": "tests/unit/all/tests.js",
             "line": 5,
             "name": "Test"
         }
@@ -2225,53 +2225,53 @@
             "class": ""
         },
         {
-            "file": "tests/jsPlumb-tests.js",
-            "line": 7507,
+            "file": "tests/unit/all/tests.js",
+            "line": 6953,
             "description": "Tests that the `getOffset` function correctly ignores body scroll when adjusting for parent element scroll.",
             "itemtype": "method",
             "name": "Test.offset_body_scroll",
             "class": ""
         },
         {
-            "file": "tests/jsPlumb-tests.js",
-            "line": 7575,
+            "file": "tests/unit/all/tests.js",
+            "line": 7021,
             "description": "Tests endpoint mouse interaction via event triggering: the ability to drag a connection to another\nendpoint, what happens when it is full, if it is disabled etc.",
             "itemtype": "method",
             "name": "jsPlumb.Test.EndpointEventTriggering",
             "class": ""
         },
         {
-            "file": "tests/jsPlumb-tests.js",
-            "line": 8115,
+            "file": "tests/unit/all/tests.js",
+            "line": 7561,
             "description": "Tests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to\nread fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the\nvalue from the extract map. In this test we get the attribute `foo` and insert its value into the connection's\ndata, keyed as `fooAttribute`.",
             "class": ""
         },
         {
-            "file": "tests/jsPlumb-tests.js",
-            "line": 8408,
+            "file": "tests/unit/all/tests.js",
+            "line": 7854,
             "description": "Tests that `endpoint` and `anchor` in a makeSource definition are honoured. The next test uses a connection type\nbut has the makeSource override the anchor.",
             "class": ""
         },
         {
-            "file": "tests/jsPlumb-tests.js",
-            "line": 8427,
+            "file": "tests/unit/all/tests.js",
+            "line": 7873,
             "description": "Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
             "class": ""
         },
         {
-            "file": "tests/jsPlumb-tests.js",
-            "line": 8459,
+            "file": "tests/unit/all/tests.js",
+            "line": 7905,
             "description": "Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 1,
             "description": "QUnit v1.11.0 - A JavaScript Unit Testing Framework\n\nhttp://qunitjs.com\n\nCopyright 2012 jQuery Foundation and other contributors\nReleased under the MIT license.\nhttp://jquery.org/license",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 36,
             "description": "Provides a normalized error string, correcting an issue\nwith IE 7 (and prior) where Error.prototype.toString is\nnot properly implemented\n\nBased on http://es5.github.com/#x15.11.4.4",
             "params": [
@@ -2288,7 +2288,7 @@
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 65,
             "description": "Makes a clone of an object using only Array or Object as base,\nand copies over the own enumerable properties.",
             "params": [
@@ -2305,7 +2305,7 @@
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 497,
             "description": "Asserts rough true-ish result.",
             "name": "",
@@ -2316,7 +2316,7 @@
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 534,
             "description": "Assert that the first two arguments are equal, with an optional message.\nPrints out both actual and expected values.",
             "name": "",
@@ -2327,100 +2327,100 @@
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 546,
             "name": "",
             "itemtype": "method",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 555,
             "name": "",
             "itemtype": "method",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 565,
             "name": "",
             "itemtype": "method",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 575,
             "name": "",
             "itemtype": "method",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 583,
             "name": "",
             "itemtype": "method",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 591,
             "name": "",
             "itemtype": "method",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 599,
             "name": "",
             "itemtype": "method",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 650,
             "deprecate": "since 1.8.0\nKept assertion helpers in root for backwards compatibility.",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 656,
             "deprecated": true,
             "deprecationMessage": "since 1.9.0\nKept root \"raises()\" for backwards compatibility.\n(Note that we don't introduce assert.raises).",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 663,
             "deprecated": true,
             "deprecationMessage": "since 1.0.0, replaced with error pushes since 1.3.0\nKept to avoid TypeErrors for undefined methods.",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 683,
             "description": "Config object: Maintain internal state\nLater exposed as QUnit.config\n`config` initialized at top of scope",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 1004,
             "deprecated": true,
             "deprecationMessage": ": Created for backwards compatibility with test runner that set the hook function\ninto QUnit.{hook}, instead of invoking it and passing the hook function.\nQUnit.constructor is set to the empty F() above so that we can add to it's prototype here.\nDoing this allows us to tell if the following methods have been overwritten on the actual\nQUnit object.",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 1290,
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 1378,
             "description": "Escape text for attribute or text content.",
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 1495,
             "params": [
                 {
@@ -2442,7 +2442,7 @@
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 1510,
             "params": [
                 {
@@ -2464,7 +2464,7 @@
             "class": ""
         },
         {
-            "file": "tests/qunit-1.11.0.js",
+            "file": "tests/unit/qunit-1.11.0.js",
             "line": 1752,
             "description": "jsDump Copyright (c) 2008 Ariel Flesler - aflesler(at)gmail(dot)com |\nhttp://flesler.blogspot.com Licensed under BSD\n(http://www.opensource.org/licenses/bsd-license.php) Date: 5/15/2008",
             "projectdescription": "Advanced and extensible data dumping for Javascript.",
@@ -2629,95 +2629,95 @@
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/jsPlumb-tests.js:5"
+            "line": " tests/unit/all/tests.js:5"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:497"
+            "line": " tests/unit/qunit-1.11.0.js:497"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:497"
+            "line": " tests/unit/qunit-1.11.0.js:497"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:534"
+            "line": " tests/unit/qunit-1.11.0.js:534"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:534"
+            "line": " tests/unit/qunit-1.11.0.js:534"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:546"
+            "line": " tests/unit/qunit-1.11.0.js:546"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:546"
+            "line": " tests/unit/qunit-1.11.0.js:546"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:555"
+            "line": " tests/unit/qunit-1.11.0.js:555"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:555"
+            "line": " tests/unit/qunit-1.11.0.js:555"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:565"
+            "line": " tests/unit/qunit-1.11.0.js:565"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:565"
+            "line": " tests/unit/qunit-1.11.0.js:565"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:575"
+            "line": " tests/unit/qunit-1.11.0.js:575"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:575"
+            "line": " tests/unit/qunit-1.11.0.js:575"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:583"
+            "line": " tests/unit/qunit-1.11.0.js:583"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:583"
+            "line": " tests/unit/qunit-1.11.0.js:583"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:591"
+            "line": " tests/unit/qunit-1.11.0.js:591"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:591"
+            "line": " tests/unit/qunit-1.11.0.js:591"
         },
         {
             "message": "unknown tag: name",
-            "line": " tests/qunit-1.11.0.js:599"
+            "line": " tests/unit/qunit-1.11.0.js:599"
         },
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " tests/qunit-1.11.0.js:599"
+            "line": " tests/unit/qunit-1.11.0.js:599"
         },
         {
             "message": "unknown tag: deprecate",
-            "line": " tests/qunit-1.11.0.js:650"
+            "line": " tests/unit/qunit-1.11.0.js:650"
         },
         {
             "message": "unknown tag: projectdescription",
-            "line": " tests/qunit-1.11.0.js:1752"
+            "line": " tests/unit/qunit-1.11.0.js:1752"
         },
         {
             "message": "unknown tag: version",
-            "line": " tests/qunit-1.11.0.js:1752"
+            "line": " tests/unit/qunit-1.11.0.js:1752"
         },
         {
             "message": "unknown tag: link",
-            "line": " tests/qunit-1.11.0.js:1752"
+            "line": " tests/unit/qunit-1.11.0.js:1752"
         },
         {
             "message": "Missing item type\njsBezier-0.8\n\nCopyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)\n\nlicensed under the MIT license.\n\na set of Bezier curve functions that deal with Beziers, used by jsPlumb, and perhaps useful for other people.  These functions work with Bezier\ncurves of arbitrary degree.\n\n- functions are all in the 'jsBezier' namespace.\n\n- all input points should be in the format {x:.., y:..}. all output points are in this format too.\n\n- all input curves should be in the format [ {x:.., y:..}, {x:.., y:..}, {x:.., y:..}, {x:.., y:..} ]\n\n- 'location' as used as an input here refers to a decimal in the range 0-1 inclusive, which indicates a point some proportion along the length\nof the curve.  location as output has the same format and meaning.\n\n\nFunction List:\n--------------\n\ndistanceFromCurve(point, curve)\n\n\tCalculates the distance that the given point lies from the given Bezier.  Note that it is computed relative to the center of the Bezier,\nso if you have stroked the curve with a wide pen you may wish to take that into account!  The distance returned is relative to the values\nof the curve and the point - it will most likely be pixels.\n\ngradientAtPoint(curve, location)\n\n\tCalculates the gradient to the curve at the given location, as a decimal between 0 and 1 inclusive.\n\ngradientAtPointAlongCurveFrom (curve, location)\n\n\tCalculates the gradient at the point on the given curve that is 'distance' units from location.\n\nnearestPointOnCurve(point, curve)\n\n\tCalculates the nearest point to the given point on the given curve.  The return value of this is a JS object literal, containing both the\npoint's coordinates and also the 'location' of the point (see above), for example:  { point:{x:551,y:150}, location:0.263365 }.\n\npointOnCurve(curve, location)\n\n\tCalculates the coordinates of the point on the given Bezier curve at the given location.\n\npointAlongCurveFrom(curve, location, distance)\n\n\tCalculates the coordinates of the point on the given curve that is 'distance' units from location.  'distance' should be in the same coordinate\nspace as that used to construct the Bezier curve.  For an HTML Canvas usage, for example, distance would be a measure of pixels.\n\nlocationAlongCurveFrom(curve, location, distance)\n\n\tCalculates the location on the given curve that is 'distance' units from location.  'distance' should be in the same coordinate\nspace as that used to construct the Bezier curve.  For an HTML Canvas usage, for example, distance would be a measure of pixels.\n\nperpendicularToCurveAt(curve, location, length, distance)\n\n\tCalculates the perpendicular to the given curve at the given location.  length is the length of the line you wish for (it will be centered\non the point at 'location'). distance is optional, and allows you to specify a point along the path from the given location as the center of\nthe perpendicular returned.  The return value of this is an array of two points: [ {x:...,y:...}, {x:...,y:...} ].",
@@ -3433,71 +3433,71 @@
         },
         {
             "message": "Missing item type\nTests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to\nread fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the\nvalue from the extract map. In this test we get the attribute `foo` and insert its value into the connection's\ndata, keyed as `fooAttribute`.",
-            "line": " tests/jsPlumb-tests.js:8115"
+            "line": " tests/unit/all/tests.js:7561"
         },
         {
             "message": "Missing item type\nTests that `endpoint` and `anchor` in a makeSource definition are honoured. The next test uses a connection type\nbut has the makeSource override the anchor.",
-            "line": " tests/jsPlumb-tests.js:8408"
+            "line": " tests/unit/all/tests.js:7854"
         },
         {
             "message": "Missing item type\nTests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
-            "line": " tests/jsPlumb-tests.js:8427"
+            "line": " tests/unit/all/tests.js:7873"
         },
         {
             "message": "Missing item type\nTests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
-            "line": " tests/jsPlumb-tests.js:8459"
+            "line": " tests/unit/all/tests.js:7905"
         },
         {
             "message": "Missing item type\nQUnit v1.11.0 - A JavaScript Unit Testing Framework\n\nhttp://qunitjs.com\n\nCopyright 2012 jQuery Foundation and other contributors\nReleased under the MIT license.\nhttp://jquery.org/license",
-            "line": " tests/qunit-1.11.0.js:1"
+            "line": " tests/unit/qunit-1.11.0.js:1"
         },
         {
             "message": "Missing item type\nProvides a normalized error string, correcting an issue\nwith IE 7 (and prior) where Error.prototype.toString is\nnot properly implemented\n\nBased on http://es5.github.com/#x15.11.4.4",
-            "line": " tests/qunit-1.11.0.js:36"
+            "line": " tests/unit/qunit-1.11.0.js:36"
         },
         {
             "message": "Missing item type\nMakes a clone of an object using only Array or Object as base,\nand copies over the own enumerable properties.",
-            "line": " tests/qunit-1.11.0.js:65"
+            "line": " tests/unit/qunit-1.11.0.js:65"
         },
         {
             "message": "Missing item type",
-            "line": " tests/qunit-1.11.0.js:650"
+            "line": " tests/unit/qunit-1.11.0.js:650"
         },
         {
             "message": "Missing item type",
-            "line": " tests/qunit-1.11.0.js:656"
+            "line": " tests/unit/qunit-1.11.0.js:656"
         },
         {
             "message": "Missing item type",
-            "line": " tests/qunit-1.11.0.js:663"
+            "line": " tests/unit/qunit-1.11.0.js:663"
         },
         {
             "message": "Missing item type\nConfig object: Maintain internal state\nLater exposed as QUnit.config\n`config` initialized at top of scope",
-            "line": " tests/qunit-1.11.0.js:683"
+            "line": " tests/unit/qunit-1.11.0.js:683"
         },
         {
             "message": "Missing item type",
-            "line": " tests/qunit-1.11.0.js:1004"
+            "line": " tests/unit/qunit-1.11.0.js:1004"
         },
         {
             "message": "Missing item type",
-            "line": " tests/qunit-1.11.0.js:1290"
+            "line": " tests/unit/qunit-1.11.0.js:1290"
         },
         {
             "message": "Missing item type\nEscape text for attribute or text content.",
-            "line": " tests/qunit-1.11.0.js:1378"
+            "line": " tests/unit/qunit-1.11.0.js:1378"
         },
         {
             "message": "Missing item type",
-            "line": " tests/qunit-1.11.0.js:1495"
+            "line": " tests/unit/qunit-1.11.0.js:1495"
         },
         {
             "message": "Missing item type",
-            "line": " tests/qunit-1.11.0.js:1510"
+            "line": " tests/unit/qunit-1.11.0.js:1510"
         },
         {
             "message": "Missing item type\njsDump Copyright (c) 2008 Ariel Flesler - aflesler(at)gmail(dot)com |\nhttp://flesler.blogspot.com Licensed under BSD\n(http://www.opensource.org/licenses/bsd-license.php) Date: 5/15/2008",
-            "line": " tests/qunit-1.11.0.js:1752"
+            "line": " tests/unit/qunit-1.11.0.js:1752"
         }
     ]
 }
