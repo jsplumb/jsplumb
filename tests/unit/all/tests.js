@@ -104,8 +104,9 @@ var defaults = null,
         document.getElementById("container").innerHTML = "";
     };
 
-var testSuite = function (renderMode, _jsPlumb) {
+var testSuite = function (_jsPlumb) {
 
+    var renderMode = jsPlumb.SVG;
     var support = jsPlumbTestSupport.getInstance(_jsPlumb);
 
     module("jsPlumb", {
