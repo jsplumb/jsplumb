@@ -138,7 +138,9 @@
         this._jsPlumb.events = {};
 
         var deleteOnEmpty = params.deleteOnEmpty === true;
-        this.setDeleteOnEmpty = function(d) { deleteOnEmpty = d; };
+        this.setDeleteOnEmpty = function(d) {
+            deleteOnEmpty = d;
+        };
 
         var _updateAnchorClass = function () {
             // stash old, get new
