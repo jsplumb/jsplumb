@@ -7,11 +7,12 @@
       - [Specifying drag source area](#sourcefilter)
       - [Endpoint options](#makeSourceOptions)
   - [Targets](#maketarget)
-      - [Preventing Loopback Connections](#loopback)
-      - [Unique Endpoint per Target](#uniqueEndpoint)
+      - [Preventing Loopback Connections](#loopback)      
       - [Deleting Endpoints on Detach](#deleteOnDetach)
       - [Detaching connections made with the mouse](#detachMouse)
       - [Target Anchors positions with makeTarget](#targetAnchorPositions)
+  - [Unique Endpoint per Source/Target](#uniqueEndpoint)
+  - [Creating an Endpoint on a Source/Target prior to any Connections](#createEndpoint)
 - [Drag Options](#dragOptions)
 - [Drop Options](#dropOptions)
 - [Drag and Drop Scope](#dragScope)
@@ -305,23 +306,6 @@ jsPlumb.makeTarget("foo", {
 });
 ```
 
-<a id="uniqueEndpoint"></a>
-##### Unique Endpoint per Target
-
-jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on the target element, by default, but you can override this behaviour and tell jsPlumb that it should create at most one Endpoint, which it should attempt to use for subsequent Connections:
-
-```javascript
-var endpointOptions = { 
-  isTarget:true, 
-  uniqueEndpoint:true,
-  endpoint:"Rectangle", 
-  paintStyle:{ fill:"gray" } 
-};
-jsPlumb.makeTarget("aTargetDiv", endpointOptions);
-```
-
-Here, the `uniqueEndpoint` parameter tells jsPlumb that there should be at most one Endpoint on this element.  Notice that `maxConnections` is not set: the default is 1, so in this setup we have told jsPlumb that `aTargetDiv` can receive one Connection and no more.
-
 <a id="deleteOnDetach"></a>
 ##### Deleting Endpoints on detach
 By default, any Endpoints created using makeTarget have `deleteEndpointsOnDetach` set to true, which means that once all Connections to that Endpoint are removed, the Endpoint is deleted.  You can override this by setting the flag to true on the `makeTarget` call:
@@ -595,6 +579,70 @@ These last two are analogous to the `removeEveryConnection` and `deleteEveryEndp
 
 ```javascript
 jsPlumb.unmakeTarget("aDivId").unmakeSource($(".aSelector"));
+```
+
+<a id="uniqueEndpoint"></a>
+##### Unique Endpoint per Source/Target
+
+jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on 
+a source or target element, by default, but you can override this behaviour and tell jsPlumb that it should create at 
+most one Endpoint, which it should attempt to use for subsequent Connections:
+
+```javascript
+var endpointOptions = { 
+  isTarget:true, 
+  uniqueEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeTarget("aTargetDiv", endpointOptions);
+```
+
+Here, the `uniqueEndpoint` parameter tells jsPlumb that there should be at most one Endpoint on this element.  
+Notice that `maxConnections` is not set: the default is 1, so in this setup we have told jsPlumb that `aTargetDiv` 
+can receive one Connection and no more.
+
+The same parameter can be supplied to `makeSource`:
+
+```javascript
+var endpointOptions = { 
+  isSource:true, 
+  uniqueEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeSource("aSourceDiv", endpointOptions);
+```
+
+<a id="createEndpoint"></a>
+##### Creating an Endpoint on a Source/Target prior to any Connections
+
+You can instruct jsPlumb to create a new Endpoint using the supplied information before any Connections have been established on 
+a source or target element:
+
+```javascript
+var endpointOptions = { 
+  isTarget:true, 
+  createEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeTarget("aTargetDiv", endpointOptions);
+```
+
+Setting `createEndpoint` to `true` will cause jsPlumb to also implicitly set `uniqueEndpoint` to be true. The characteristics of
+the behaviour of this Endpiont will be as discussed above in the section on `uniqueEndpoint`. 
+
+The same parameter can be supplied to `makeSource`:
+
+```javascript
+var endpointOptions = { 
+  isSource:true, 
+  createEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeSource("aSourceDiv", endpointOptions);
 ```
 
 <a name="dragOptions"></a>
