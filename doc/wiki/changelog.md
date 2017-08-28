@@ -1,3 +1,9 @@
+## 2.5.1
+
+28th August 2017
+
+- fix for the setType method: if the new type had a different connector, arrow overlays were not being transferred.
+
 ## 2.5.0
 
 22nd August 2017

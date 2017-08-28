@@ -7048,7 +7048,7 @@
                 else {
                     var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
-                        c.reattach(component._jsPlumb.instance);
+                        c.reattach(component._jsPlumb.instance, component);
                         c.setVisible(true);
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1]);
@@ -11406,9 +11406,7 @@
                 this.endpointLoc = null;
             }
         },
-        reattach:function(instance) {
-
-        },
+        reattach:function(instance, component) { },
         setVisible: function (val) {
             this.visible = val;
             this.component.repaint();
@@ -11743,7 +11741,7 @@
             }
 
         },
-        reattach:function(instance) {
+        reattach:function(instance, component) {
             if (this._jsPlumb.div != null) {
                 instance.getContainer().appendChild(this._jsPlumb.div);
             }
@@ -14163,9 +14161,9 @@
                 }
             }
         },
-        reattach:function(instance) {
-            if (this.path && this.canvas && this.path.parentNode == null) {
-                this.canvas.appendChild(this.path);
+        reattach:function(instance, component) {
+            if (this.path && component.canvas) {
+                component.canvas.appendChild(this.path);
             }
         },
         setVisible: function (v) {
