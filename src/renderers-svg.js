@@ -544,9 +544,9 @@
                 }
             }
         },
-        reattach:function(instance) {
-            if (this.path && this.canvas && this.path.parentNode == null) {
-                this.canvas.appendChild(this.path);
+        reattach:function(instance, component) {
+            if (this.path && component.canvas) {
+                component.canvas.appendChild(this.path);
             }
         },
         setVisible: function (v) {

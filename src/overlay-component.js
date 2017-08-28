@@ -102,7 +102,7 @@
                 else {
                     var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
-                        c.reattach(component._jsPlumb.instance);
+                        c.reattach(component._jsPlumb.instance, component);
                         c.setVisible(true);
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1]);
