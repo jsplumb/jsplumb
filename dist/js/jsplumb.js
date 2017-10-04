@@ -1357,8 +1357,8 @@
             }
             return rv;
         })(),
-        DEFAULT_GRID_X = 50,
-        DEFAULT_GRID_Y = 50,
+        DEFAULT_GRID_X = 10,
+        DEFAULT_GRID_Y = 10,
         isIELT9 = iev > -1 && iev < 9,
         isIE9 = iev == 9,
         _pl = function(e) {
@@ -1487,18 +1487,16 @@
             useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
             ghostProxy = function(el) { return el.cloneNode(true); };
 
-        var snapThreshold = params.snapThreshold || 5,
-            _snap = function(pos, x, y, thresholdX, thresholdY) {
-                thresholdX = thresholdX || snapThreshold;
-                thresholdY = thresholdY || snapThreshold;
-                var _dx = Math.floor(pos[0] / x),
-                    _dxl = x * _dx,
-                    _dxt = _dxl + x,
+        var snapThreshold = params.snapThreshold,
+            _snap = function(pos, gridX, gridY, thresholdX, thresholdY) {
+                var _dx = Math.floor(pos[0] / gridX),
+                    _dxl = gridX * _dx,
+                    _dxt = _dxl + gridX,
                     _x = Math.abs(pos[0] - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos[0]) <= thresholdX ? _dxt : pos[0];
 
-                var _dy = Math.floor(pos[1] / y),
-                    _dyl = y * _dy,
-                    _dyt = _dyl + y,
+                var _dy = Math.floor(pos[1] / gridY),
+                    _dyl = gridY * _dy,
+                    _dyt = _dyl + gridY,
                     _y = Math.abs(pos[1] - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos[1]) <= thresholdY ? _dyt : pos[1];
 
                 return [ _x, _y];
@@ -1512,7 +1510,10 @@
                 return pos;
             }
             else {
-                return _snap(pos, this.params.grid[0], this.params.grid[1]);
+                var tx = this.params.grid ? this.params.grid[0] / 2 : snapThreshold ? snapThreshold : DEFAULT_GRID_X / 2,
+                    ty = this.params.grid ? this.params.grid[1] / 2 : snapThreshold ? snapThreshold : DEFAULT_GRID_Y / 2;
+
+                return _snap(pos, this.params.grid[0], this.params.grid[1], tx, ty);
             }
         };
 
@@ -1520,8 +1521,11 @@
             if (dragEl == null) return;
             x = x || (this.params.grid ? this.params.grid[0] : DEFAULT_GRID_X);
             y = y || (this.params.grid ? this.params.grid[1] : DEFAULT_GRID_Y);
-            var p = this.params.getPosition(dragEl);
-            this.params.setPosition(dragEl, _snap(p, x, y, x, y));
+            var p = this.params.getPosition(dragEl),
+                tx = this.params.grid ? this.params.grid[0] / 2 : snapThreshold,
+                ty = this.params.grid ? this.params.grid[1] / 2 : snapThreshold;
+
+            this.params.setPosition(dragEl, _snap(p, x, y, tx, ty));
         };
 
         this.setUseGhostProxy = function(val) {
@@ -2432,7 +2436,7 @@
 
     };
 
-    root.Katavorio.version = "0.19.2";
+    root.Katavorio.version = "0.19.3";
 
     if (typeof exports !== "undefined") {
         exports.Katavorio = root.Katavorio;
@@ -3512,7 +3516,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.5.1";
+        this.version = "2.5.2";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);

@@ -1,3 +1,10 @@
+## 2.5.2
+
+4th October 2017
+
+- upgrade to Katavorio 0.20.0.  Fixes issue #618, in which constraining drag to a grid did not work for anything other than
+a grid of size [10,10]
+
 ## 2.5.1
 
 28th August 2017
