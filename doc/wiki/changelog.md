@@ -1,3 +1,9 @@
+## 2.5.3
+
+5th October 2017
+
+- expose Connection to anchor at compute time.
+
 ## 2.5.2
 
 4th October 2017
@@ -14,7 +20,6 @@ a grid of size [10,10]
 ## 2.5.0
 
 22nd August 2017
-
 
 - removed the old changelog.txt, which hadnt been used since 2.0.3 and was probably confusing matters.
 - fixed stale references to various detach methods which were renamed a few versions ago.
