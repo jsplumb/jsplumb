@@ -2,14 +2,14 @@
  * jsPlumb Community Edition
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
- * 
+ *
  * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
  *
  * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
- * 
+ *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
- * 
+ *
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;
@@ -31,6 +31,7 @@
                 bind: e.on,
                 unbind: e.off,
                 getSize: _jp.getSize,
+                getContainmentSize: _jp.getContainmentSize,
                 getPosition: function (el, relativeToRoot) {
                     // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                     // compute against the Container's origin. see also the getUIPosition method below.
