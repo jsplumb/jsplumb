@@ -547,6 +547,9 @@
         getSize: function (el) {
             return [ el.offsetWidth, el.offsetHeight ];
         },
+        getContainmentSize: function(el){
+            return [ el.scrollWidth, el.scrollHeight ];
+        },
         getWidth: function (el) {
             return el.offsetWidth;
         },
