@@ -25,7 +25,7 @@ jsPlumb.ready(function () {
     var windows = jsPlumb.getSelector(".statemachine-demo .w");
 
     // bind a click listener to each connection; the connection is deleted. you could of course
-    // just do this: jsPlumb.bind("click", jsPlumb.detach), but I wanted to make it clear what was
+    // just do this: instance.bind("click", instance.deleteConnection), but I wanted to make it clear what was
     // happening.
     instance.bind("click", function (c) {
         instance.deleteConnection(c);
