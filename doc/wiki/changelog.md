@@ -1,3 +1,9 @@
+## 2.5.4
+
+7th October 2017
+
+- fix issue with drag containment in elements whose scroll height is larger than their client height.
+
 ## 2.5.3
 
 5th October 2017
