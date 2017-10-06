@@ -145,11 +145,6 @@
             this.endpoints[0].setDeleteOnEmpty(params.deleteEndpointsOnEmpty);
             this.endpoints[1].setDeleteOnEmpty(params.deleteEndpointsOnEmpty);
         }
-//        else {
-//            // otherwise, unless the endpoints say otherwise, mark them for deletion.
-//            if (!this.endpoints[0]._doNotDeleteOnDetach) this.endpoints[0]._deleteOnDetach = true;
-//            if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
-//        }
 
 // -------------------------- DEFAULT TYPE ---------------------------------------------
 
@@ -220,12 +215,6 @@
         this.setReattach = function (reattach) {
             this._jsPlumb.reattach = reattach === true;
         };
-
-//        this["delete"] = function() {
-//            this.endpoints[0].detachFromConnection(this);
-//            this.endpoints[1].detachFromConnection(this);
-//            params.deleteConnection(this);
-//        };
 
 // END INITIALISATION CODE
 
