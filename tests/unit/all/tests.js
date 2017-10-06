@@ -551,7 +551,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
 // **************************** DETACHING CONNECTIONS ****************************************************
 
 
-    test(': detach does not fail when no arguments are provided', function () {
+    test(': deleteConnection does not fail when no arguments are provided', function () {
         var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         _jsPlumb.connect({source: d3, target: d4});
         _jsPlumb.deleteConnection();
@@ -7218,9 +7218,10 @@ test("drag multiple elements and ensure their connections are painted correctly 
             isTarget:true
         });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
-        var evt = false;
-        _jsPlumb.bind('connectionDetached', function (info) {
+        var evt = false, originalEvent;
+        _jsPlumb.bind('connectionDetached', function (info, oevt) {
             evt = true;
+            originalEvent = oevt;
         });
         support.dragConnection(e2, e1);
         equal(e1.connections.length, 1, "one connection");
@@ -7229,6 +7230,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
         equal(e1.connections.length, 0, "no connections");
         ok(evt == true, "event was fired");
+        ok(originalEvent != null, "original event was provided in event callback");
     });
 
     test("beforeDrop returning false prevents connectionDetached event", function() {
