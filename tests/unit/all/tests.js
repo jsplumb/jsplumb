@@ -5122,7 +5122,10 @@ test("drag multiple elements and ensure their connections are painted correctly 
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
 
+        equal(c.getConnector().type, "Bezier", "connector has bezier type before state add");
+
         c.addType("basic");
+        equal(c.getConnector().type, "Flowchart", "connector has Flowchart type after state add");
         equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
         equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
         equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
@@ -5149,7 +5152,10 @@ test("drag multiple elements and ensure their connections are painted correctly 
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
 
+        equal(c.getConnector().type, "Bezier", "connector has bezier type before state change");
+
         c.setType("basic");
+        equal(c.getConnector().type, "Flowchart", "connector has bezier type after state change");
         equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
         equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
         equal(c.getHoverPaintStyle().stroke, "blue", "hoverPaintStyle stroke is blue");
@@ -5157,6 +5163,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
 
         c.setType("other");
+        equal(c.getConnector().type, "Bezier", "connector has bezier type after second state change");
         equal(c.getPaintStyle().strokeWidth, 14, "paintStyle strokeWidth is 14");
         equal(c.getPaintStyle().stroke, "red", "paintStyle stroke is red");
         equal(c.getHoverPaintStyle().stroke, "green", "hoverPaintStyle stroke is green");
