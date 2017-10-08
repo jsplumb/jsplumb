@@ -1,3 +1,9 @@
+## 2.5.5
+
+8th October 2017
+
+- issue 675, connector not changed in setType/addType
+
 ## 2.5.4
 
 7th October 2017
