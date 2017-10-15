@@ -8,10 +8,12 @@
     "test": "tests"
   },
   "files": [
+    "index.d.ts",
     "dist/js/jsplumb.js",
     "dist/js/jsplumb.min.js",
     "dist/css/jsplumbtoolkit-defaults.css"
   ],
+  "types": "index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init":"node ./install.js"
