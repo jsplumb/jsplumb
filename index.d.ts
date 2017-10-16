@@ -1,15 +1,17 @@
 // Type definitions for jsPlumb 2.2.4
 // Ron Newcomb
 
-/// <reference types="jquery"/>
+// /// <reference types="jquery" />
+// /// <reference path="../jquery/jquery.d.ts" />
 
 declare var jsPlumb: jsPlumbInstance;
 
-type Selector = string;
-type UUID = string;
+interface Selector extends String { }
+interface UUID extends String { }
+interface ConnectionID extends String { }
 
 interface jsPlumbInstance {
-    addEndpoint(el: string | Object | Array<any>, params?: Object, referenceParams?: Object): Object | Array<any>;
+    addEndpoint(el: string | Object | Array<any>, params?: EndpointConfig, referenceParams?: Object): Object | Array<any>;
     addEndpoints(target: string | Object | Array<any>, endpoints: Array<any>, referenceParams?: Object): Array<any>;
     animate(el: string | Element | Selector, properties?: Object, options?: Object): void;
     batch(fn: Function, doNotRepaintAfterwards?: boolean/* =false */): void;
@@ -63,6 +65,7 @@ interface jsPlumbInstance {
     restoreDefaults(): jsPlumbInstance;
     revalidate(el: string | Element | Selector): void;
     select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Connection[]): { each(fn: (conn: Connection) => void): void };
+    setContainer(el: HTMLElement):void;
     getHoverPaintStyle(params?: Object, scope?: string | string/* =jsPlumb.DefaultScope */, source?: string | Element | Selector | Array<any>, target?: string | Element | Selector | Array<any>, element?: string | Element | Selector | Array<any>): Selection;
     setHover(container: string | Element | Selector): void;
     setDefaultScope(scope: string): jsPlumbInstance;
@@ -103,12 +106,12 @@ interface ConnectionMadeEventInfo {
 
 interface OnConnectionBindInfo {
     connection: Connection;// the new Connection.you can register listeners on this etc.
-    sourceId: number;// - id of the source element in the Connection
-    originalSourceId: number;
-    newSourceId: number;
-    targetId: number;// - id of the target element in the Connection
-    originalTargetId: number;
-    newTargetId: number;
+    sourceId: string;// - id of the source element in the Connection
+    originalSourceId: string;
+    newSourceId: string;
+    targetId: string;// - id of the target element in the Connection
+    originalTargetId: string;
+    newTargetId: string;
     source: Element;// - the source element in the Connection
     target: Element;//- the target element in the Connection
     sourceEndpoint: Endpoint;//- the source Endpoint in the Connection
@@ -164,7 +167,7 @@ interface Connections {
 }
 
 interface ConnectParams {
-    uuids?: any[];
+    uuids?: [UUID,UUID];
     source?: any; // string, element or endpoint
     target?: any; // string, element or endpoint
     detachable?: boolean;
@@ -175,8 +178,22 @@ interface ConnectParams {
     label?: string;
 }
 
+interface Katavorio_DragEventOptions {
+    drag: object; // The associated Drag instance
+    e: MouseEvent;
+    el: HTMLElement; // element being dragged
+    pos: [number, number]; // x,y location of the element. drag event only.
+}
+
 interface DragOptions {
     containment?: string;
+    grid?: [number, number];
+    DragOptions?: Object; // exists??
+    Container?: string; // exists??
+    start?: (params: Katavorio_DragEventOptions) => void;
+    drag?: (params: Katavorio_DragEventOptions) => void;
+    stop?: (params: Katavorio_DragEventOptions) => void;
+    drop?: () => boolean; // whether to claim element as own & not send to parent elements underneath
 }
 
 interface SourceOptions {
@@ -208,7 +225,7 @@ interface SelectParams {
 }
 
 interface Connection {
-    id: string;
+    id: ConnectionID;
     setDetachable(detachable: boolean): void;
     setParameter<T>(name: string, value: T): void;
     endpoints: Endpoint[];
@@ -217,6 +234,37 @@ interface Connection {
     hideOverlay(s: string): void;
     setLabel(s: string): void;
     getElement(): Connection;
+}
+
+interface EndpointConfig {
+    anchor?: String | Array<String>;
+    deleteEndpointsOnDetach?: boolean;
+    endpoint?: String | Array<String>;
+    enabled?: Boolean;
+    paintStyle?: Object;
+    hoverPaintStyle?: Object;
+    cssClass?: String;
+    hoverClass?: String;
+    source?: String | Selector | Element;
+    container?: String | Selector | Element;
+    connections?: Connection[];
+    isSource?: Boolean;
+    maxConnections?: number;
+    dragOptions?: Object;
+    connectorStyle?: Object;
+    connectorHoverStyle?: Object;
+    connector?: String | Object;
+    connectorOverlays?: Object;
+    connectorClass?: String;
+    connectorHoverClass?: String;
+    connectionsDetachable?: Boolean;
+    isTarget?: Boolean;
+    dropOptions?: Object;
+    reattach?: Boolean;
+    parameters?: Object;
+    "connector-pointer-events"?: String;
+    connectionType?: String;
+    dragProxy?: String | Array<String>;
 }
 
 interface Endpoint {
