@@ -1,3 +1,9 @@
+## 2.5.6
+
+18th October 2017
+
+- fix for an issue seen in Chrome where setting the className of an SVG element does not result in the element's classList being updated.
+
 ## 2.5.5
 
 8th October 2017

@@ -213,6 +213,11 @@
                         d && d.parentNode.removeChild(d);
                     }
                     _divs.length = 0;
+                },
+                makeContent : function (s) {
+                    var d = document.createElement("div");
+                    d.innerHTML = s;
+                    return d.firstChild;
                 }
             }
         }
