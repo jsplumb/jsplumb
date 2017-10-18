@@ -1,6 +1,6 @@
 {
   "name": "jsplumb",
-  "version": "2.4.4",
+  "version": "2.5.6",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
@@ -8,10 +8,12 @@
     "test": "tests"
   },
   "files": [
+    "index.d.ts",
     "dist/js/jsplumb.js",
     "dist/js/jsplumb.min.js",
     "dist/css/jsplumbtoolkit-defaults.css"
   ],
+  "types": "index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init": "node ./install.js"
@@ -29,6 +31,7 @@
   "author": "jsPlumb",
   "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
+    "morgan":"1.8.0",
     "biltong": "^0.4.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
@@ -44,9 +47,9 @@
     "grunt-jekyll": "~0.4.1",
     "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "^0.9.1",
-    "katavorio": "^0.19.2",
-    "morgan": "1.8.0",
+    "katavorio": "^0.21.0",
     "mottle": "^0.8.0",
     "typescript": "^2.4.2"
   }
+
 }

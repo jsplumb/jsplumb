@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+    <head>
+        <title>All qUnit tests</title>
+        <link rel="stylesheet" href="../qunit-1.11.0.css" type="text/css" media="screen">
+        <script src="../bind-shim.js"></script>
+        <script src="../qunit-1.11.0.js"></script>
+
+        <!-- JS -->
+        <!-- support lib for bezier stuff -->
+        <script src="../../../node_modules/jsbezier/js/jsbezier.js"></script>
+        <!-- event adapter -->
+        <script src="../../../node_modules/mottle/js/mottle.js"></script>
+        <!-- geometry functions -->
+        <script src="../../../node_modules/biltong/src/biltong.js"></script>
+        <!-- drag -->
+        <script src="../../../node_modules/katavorio/src/katavorio.js"></script>
+        <!-- jsplumb util -->
+        <script src="../../../src/util.js"></script>
+        <script src="../../../src/browser-util.js"></script>
+
+        <!-- main jsplumb engine -->
+        <script src="../../../src/jsPlumb.js"></script>
+        <!-- base DOM adapter -->
+        <script src="../../../src/dom-adapter.js"></script>
+        <script src="../../../src/overlay-component.js"></script>
+        <!-- endpoint -->
+        <script src="../../../src/endpoint.js"></script>
+        <!-- connection -->
+        <script src="../../../src/connection.js"></script>
+        <!-- anchors -->
+        <script src="../../../src/anchors.js"></script>
+        <!-- connectors, endpoint and overlays  -->
+        <script src="../../../src/defaults.js"></script>
+        <!-- bezier connectors -->
+        <script src="../../../src/connectors-bezier.js"></script>
+        <!-- state machine connectors -->
+        <script src="../../../src/connectors-statemachine.js"></script>
+        <!-- flowchart connectors -->
+        <script src="../../../src/connectors-flowchart.js"></script>
+        <!-- straight connectors -->
+        <script src="../../../src/connectors-straight.js"></script>
+        <!-- SVG renderer -->
+        <script src="../../../src/renderers-svg.js"></script>
+
+        <!-- common adapter -->
+        <script src="../../../src/base-library-adapter.js"></script>
+        <!-- jquery jsPlumb adapter -->
+        <script src="../../../src/dom.jsPlumb.js"></script>
+        <script src="../../../src/group.js"></script>
+        <!-- /JS -->
+
+        <!-- TEST -->
+        <script src="tests.js"></script>
+        <script src="../test-support-dom.js"></script>
+        <!-- /TEST -->
+
+    </head>
+    <body>
+        <h1 id="qunit-header">All qUnit tests</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+
+        <script type="text/javascript">
+            jsPlumb.ready(testSuite.bind(testSuite, jsPlumb.getInstance()));
+        </script>
+    </body>
+</html>

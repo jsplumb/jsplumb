@@ -1039,9 +1039,7 @@
                 this.endpointLoc = null;
             }
         },
-        reattach:function(instance) {
-
-        },
+        reattach:function(instance, component) { },
         setVisible: function (val) {
             this.visible = val;
             this.component.repaint();
@@ -1376,7 +1374,7 @@
             }
 
         },
-        reattach:function(instance) {
+        reattach:function(instance, component) {
             if (this._jsPlumb.div != null) {
                 instance.getContainer().appendChild(this._jsPlumb.div);
             }

@@ -139,6 +139,40 @@
 
     this.jsPlumbTestSupport = {
         getInstance:function(_jsPlumb) {
+
+            var _divs = [];
+            var _addDiv = function (id, parent, className, x, y, w, h) {
+                var d1 = document.createElement("div");
+                d1.style.position = "absolute";
+                if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
+                d1.setAttribute("id", id);
+                d1.style.left = (x != null ? x : (Math.floor(Math.random() * 1000))) + "px";
+                d1.style.top = (y!= null ? y : (Math.floor(Math.random() * 1000))) + "px";
+                if (className) d1.className = className;
+                if (w) d1.style.width = w + "px";
+                if (h) d1.style.height = h + "px";
+                _divs.push(id);
+                return d1;
+            };
+
+            var _addDraggableDiv = function (_jsPlumb, id, parent, className, x, y, w, h) {
+                var d = _addDiv.apply(null, [id, parent, className, x, y, w, h]);
+                _jsPlumb.draggable(d);
+                return d;
+            };
+
+            var _addDivs = function (ids, parent) {
+                for (var i = 0; i < ids.length; i++)
+                    _addDiv(ids[i], parent);
+            };
+
+            var _assertEndpointCount = function (_jsPlumb, elId, count) {
+                var ep = _jsPlumb.getEndpoints(elId),
+                    epl = ep ? ep.length : 0;
+                equal(epl, count, elId + " has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint"));
+                equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
+            };
+
             return {
                 getAttribute:function(el, att) {
                     return el.getAttribute(att);
@@ -166,7 +200,25 @@
 
                 relocateTarget:_relocateTarget.bind(null, _jsPlumb),
 
-                makeEvent:_makeEvt.bind(null, _jsPlumb)
+                makeEvent:_makeEvt.bind(null, _jsPlumb),
+
+                addDiv:_addDiv,
+                addDivs:_addDivs,
+                addDraggableDiv:_addDraggableDiv.bind(null, _jsPlumb),
+                assertEndpointCount:_assertEndpointCount.bind(null, _jsPlumb),
+
+                cleanup:function() {
+                    for (var i in _divs) {
+                        var d = document.getElementById(_divs[i]);
+                        d && d.parentNode.removeChild(d);
+                    }
+                    _divs.length = 0;
+                },
+                makeContent : function (s) {
+                    var d = document.createElement("div");
+                    d.innerHTML = s;
+                    return d.firstChild;
+                }
             }
         }
     };

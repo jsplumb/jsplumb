@@ -138,7 +138,9 @@
         this._jsPlumb.events = {};
 
         var deleteOnEmpty = params.deleteOnEmpty === true;
-        this.setDeleteOnEmpty = function(d) { deleteOnEmpty = d; };
+        this.setDeleteOnEmpty = function(d) {
+            deleteOnEmpty = d;
+        };
 
         var _updateAnchorClass = function () {
             // stash old, get new
@@ -427,6 +429,9 @@
                                 oId = oIdx === 0 ? c.sourceId : c.targetId,
                                 oInfo = _jsPlumb.getCachedData(oId),
                                 oOffset = oInfo.o, oWH = oInfo.s;
+
+                            anchorParams.index = oIdx === 0 ? 1 : 0;
+                            anchorParams.connection = c;
                             anchorParams.txy = [ oOffset.left, oOffset.top ];
                             anchorParams.twh = oWH;
                             anchorParams.tElement = c.endpoints[oIdx];
@@ -721,10 +726,9 @@
                                 // restore the original scope (issue 57)
                                 _jsPlumb.setDragScope(existingJpcParams[2], existingJpcParams[3]);
                                 jpc.endpoints[idx] = jpc.suspendedEndpoint;
-                                // IF the connection should be reattached, or the other endpoint refuses detach, then
+                                // if the connection should be reattached, or the other endpoint refuses detach, then
                                 // reset the connection to its original state
-                                //if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach({connection:jpc, ignoreTarget:false, forceDetach:false, fireEvent:true, originalEvent:originalEvent, endpointBeingDeleted:true})) {
-                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !_jsPlumb.deleteConnection(jpc)) {
+                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !_jsPlumb.deleteConnection(jpc, {originalEvent: originalEvent})) {
 
                                     jpc.setHover(false);
                                     jpc._forceDetach = null;

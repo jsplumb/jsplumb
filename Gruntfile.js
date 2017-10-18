@@ -86,7 +86,7 @@ module.exports = function(grunt) {
             all: {
                 options: {
                     urls:[
-                        'http://localhost:3333/tests/qunit-svg-dom-instance.html'
+                        'http://localhost:3333/tests/unit/index.html'
                     ]
                 }
             }

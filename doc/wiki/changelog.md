@@ -1,5 +1,49 @@
-## 2.4.4
+## 2.5.6
 
+18th October 2017
+
+- fix for an issue seen in Chrome where setting the className of an SVG element does not result in the element's classList being updated.
+
+## 2.5.5
+
+8th October 2017
+
+- issue 675, connector not changed in setType/addType
+
+## 2.5.4
+
+7th October 2017
+
+- fix issue with drag containment in elements whose scroll height is larger than their client height.
+
+## 2.5.3
+
+5th October 2017
+
+- expose Connection to anchor at compute time.
+
+## 2.5.2
+
+4th October 2017
+
+- upgrade to Katavorio 0.20.0.  Fixes issue #618, in which constraining drag to a grid did not work for anything other than
+a grid of size [10,10]
+
+## 2.5.1
+
+28th August 2017
+
+- fix for the setType method: if the new type had a different connector, arrow overlays were not being transferred.
+
+## 2.5.0
+
+22nd August 2017
+
+- removed the old changelog.txt, which hadnt been used since 2.0.3 and was probably confusing matters.
+- fixed stale references to various detach methods which were renamed a few versions ago.
+- EventGenerator was updated to fire each event on a separate tick of the event loop. Previously, if an event was fired during
+the callback to a previous event, the second event handler was executed in its entirety before the original event handler. 
+Enqueuing events that are fired during the event loop and running them after each tick prevents this from happening.
 
 ## 2.4.3
 

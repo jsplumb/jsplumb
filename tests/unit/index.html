@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>QUnit Test Suite Runner</title>
+
+	<link rel="stylesheet" href="./qunit-1.11.0.css" />
+	<link rel="stylesheet" href="./qunit-composite.css" />
+
+	<script src="./bind-shim.js"></script>
+	<script src="./qunit-1.11.0.js"></script>
+	<script src="./qunit-composite.js"></script>
+
+
+	<script>
+
+        function cachedBustedTestSuites(values) {
+            var d = new Date().getTime();
+            return values.map(function(v) { return v + "?" + d; });
+        }
+
+	QUnit.testSuites(cachedBustedTestSuites([
+	    "all/qunit.html",
+		"make-source/qunit.html",
+		"util/qunit.html"
+    ]));
+	</script>
+</head>
+<body>
+	<div id="qunit"></div>
+	<div id="qunit-fixture">
+</div>
+</body>
+</html>

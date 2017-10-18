@@ -145,11 +145,6 @@
             this.endpoints[0].setDeleteOnEmpty(params.deleteEndpointsOnEmpty);
             this.endpoints[1].setDeleteOnEmpty(params.deleteEndpointsOnEmpty);
         }
-//        else {
-//            // otherwise, unless the endpoints say otherwise, mark them for deletion.
-//            if (!this.endpoints[0]._doNotDeleteOnDetach) this.endpoints[0]._deleteOnDetach = true;
-//            if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
-//        }
 
 // -------------------------- DEFAULT TYPE ---------------------------------------------
 
@@ -221,12 +216,6 @@
             this._jsPlumb.reattach = reattach === true;
         };
 
-//        this["delete"] = function() {
-//            this.endpoints[0].detachFromConnection(this);
-//            this.endpoints[1].detachFromConnection(this);
-//            params.deleteConnection(this);
-//        };
-
 // END INITIALISATION CODE
 
 
@@ -274,6 +263,16 @@
 
     _ju.extend(_jp.Connection, _jp.OverlayCapableJsPlumbUIComponent, {
         applyType: function (t, doNotRepaint, typeMap) {
+
+            var _connector = null;
+            if (t.connector != null) {
+                _connector = this.getCachedTypeItem("connector", typeMap.connector);
+                if (_connector == null) {
+                    _connector = this.prepareConnector(t.connector, typeMap.connector);
+                    this.cacheTypeItem("connector", _connector, typeMap.connector);
+                }
+                this.setPreparedConnector(_connector);
+            }
 
             // none of these things result in the creation of objects so can be ignored.
             if (t.detachable != null) {

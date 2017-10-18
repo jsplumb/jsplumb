@@ -31,6 +31,9 @@
                 bind: e.on,
                 unbind: e.off,
                 getSize: _jp.getSize,
+                getConstrainingRectangle:function(el) {
+                    return [ el.parentNode.scrollWidth, el.parentNode.scrollHeight ];
+                },
                 getPosition: function (el, relativeToRoot) {
                     // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                     // compute against the Container's origin. see also the getUIPosition method below.

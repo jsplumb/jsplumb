@@ -7,11 +7,12 @@
       - [Specifying drag source area](#sourcefilter)
       - [Endpoint options](#makeSourceOptions)
   - [Targets](#maketarget)
-      - [Preventing Loopback Connections](#loopback)
-      - [Unique Endpoint per Target](#uniqueEndpoint)
+      - [Preventing Loopback Connections](#loopback)      
       - [Deleting Endpoints on Detach](#deleteOnDetach)
       - [Detaching connections made with the mouse](#detachMouse)
       - [Target Anchors positions with makeTarget](#targetAnchorPositions)
+  - [Unique Endpoint per Source/Target](#uniqueEndpoint)
+  - [Creating an Endpoint on a Source/Target prior to any Connections](#createEndpoint)
 - [Drag Options](#dragOptions)
 - [Drop Options](#dropOptions)
 - [Drag and Drop Scope](#dragScope)
@@ -305,23 +306,6 @@ jsPlumb.makeTarget("foo", {
 });
 ```
 
-<a id="uniqueEndpoint"></a>
-##### Unique Endpoint per Target
-
-jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on the target element, by default, but you can override this behaviour and tell jsPlumb that it should create at most one Endpoint, which it should attempt to use for subsequent Connections:
-
-```javascript
-var endpointOptions = { 
-  isTarget:true, 
-  uniqueEndpoint:true,
-  endpoint:"Rectangle", 
-  paintStyle:{ fill:"gray" } 
-};
-jsPlumb.makeTarget("aTargetDiv", endpointOptions);
-```
-
-Here, the `uniqueEndpoint` parameter tells jsPlumb that there should be at most one Endpoint on this element.  Notice that `maxConnections` is not set: the default is 1, so in this setup we have told jsPlumb that `aTargetDiv` can receive one Connection and no more.
-
 <a id="deleteOnDetach"></a>
 ##### Deleting Endpoints on detach
 By default, any Endpoints created using makeTarget have `deleteEndpointsOnDetach` set to true, which means that once all Connections to that Endpoint are removed, the Endpoint is deleted.  You can override this by setting the flag to true on the `makeTarget` call:
@@ -597,6 +581,70 @@ These last two are analogous to the `removeEveryConnection` and `deleteEveryEndp
 jsPlumb.unmakeTarget("aDivId").unmakeSource($(".aSelector"));
 ```
 
+<a id="uniqueEndpoint"></a>
+##### Unique Endpoint per Source/Target
+
+jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on 
+a source or target element, by default, but you can override this behaviour and tell jsPlumb that it should create at 
+most one Endpoint, which it should attempt to use for subsequent Connections:
+
+```javascript
+var endpointOptions = { 
+  isTarget:true, 
+  uniqueEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeTarget("aTargetDiv", endpointOptions);
+```
+
+Here, the `uniqueEndpoint` parameter tells jsPlumb that there should be at most one Endpoint on this element.  
+Notice that `maxConnections` is not set: the default is 1, so in this setup we have told jsPlumb that `aTargetDiv` 
+can receive one Connection and no more.
+
+The same parameter can be supplied to `makeSource`:
+
+```javascript
+var endpointOptions = { 
+  isSource:true, 
+  uniqueEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeSource("aSourceDiv", endpointOptions);
+```
+
+<a id="createEndpoint"></a>
+##### Creating an Endpoint on a Source/Target prior to any Connections
+
+You can instruct jsPlumb to create a new Endpoint using the supplied information before any Connections have been established on 
+a source or target element:
+
+```javascript
+var endpointOptions = { 
+  isTarget:true, 
+  createEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeTarget("aTargetDiv", endpointOptions);
+```
+
+Setting `createEndpoint` to `true` will cause jsPlumb to also implicitly set `uniqueEndpoint` to be true. The characteristics of
+the behaviour of this Endpiont will be as discussed above in the section on `uniqueEndpoint`. 
+
+The same parameter can be supplied to `makeSource`:
+
+```javascript
+var endpointOptions = { 
+  isSource:true, 
+  createEndpoint:true,
+  endpoint:"Rectangle", 
+  paintStyle:{ fill:"gray" } 
+};
+jsPlumb.makeSource("aSourceDiv", endpointOptions);
+```
+
 <a name="dragOptions"></a>
 #### Drag Options
 These are options that will be passed through to the supporting library's drag API.  jsPlumb passes everything you supply here through, inserting wrapping functions if necessary for the various lifecycle events that jsPlumb needs to know about.  So if, for example, you pass a function to be called when dragging starts, jsPlumb will wrap that function with a function that does what jsPlumb needs to do, then call yours.
@@ -686,8 +734,13 @@ jsPlumb offers a few methods for changing the scope(s) of some element configure
 - `setTargetScope(el, scopeString)` Sets both the target scope(s) for the given element.
 
 <a name="disconnectreconnect"></a>
+
 #### Disconnecting and Reconnecting
-By default, jsPlumb will allow you to detach connections from either Endpoint by dragging (assuming the Endpoint allows it; Blank Endpoints, for example, have nothing you can grab with the mouse). If you then drop a Connection you have dragged off an Endpoint, the Connection will be detached. This behaviour can be controlled using the `detachable` and `reattach`parameters, or their equivalents in the jsPlumb Defaults.
+
+By default, jsPlumb will allow you to detach connections from either Endpoint by dragging (assuming the Endpoint allows it; 
+Blank Endpoints, for example, have nothing you can grab with the mouse). If you then drop a Connection you have dragged 
+off an Endpoint, the Connection will be detached. This behaviour can be controlled using the `detachable` and `reattach` 
+parameters, or their equivalents in the jsPlumb Defaults.
 
 Some examples should help explain:	  
 
@@ -713,16 +766,28 @@ jsPlumb.importDefaults({
 });
 ```
 
-The default value of ConnectionsDetachable is **true**, and the default value of ReattachConnections is **false**, so in actual fact those defaults are kind of pointless. But you probably get the idea.
+The default value of ConnectionsDetachable is **true**, and the default value of ReattachConnections is **false**, so 
+in actual fact those defaults are kind of pointless. But you probably get the idea.
 
 ##### Setting detachable/reattach on Endpoints
 
-Endpoints support the `detachable` and `reattach` parameters too. If you create an Endpoint and mark `detachable:false`, then all Connections made from that Endpoint will not be detachable.  However, since there are two Endpoints involved in any Connection, jsPlumb takes into account the `detachable` and `reattach` parameters from both Endpoints when establishing a Connection. If either Endpoint declares either of these values as true, jsPlumb assumes the value to be true.  It is possible that in a future version of jsPlumb the concepts of detachable and reattach could be made more granular, through the
+Endpoints support the `detachable` and `reattach` parameters too. If you create an Endpoint and mark `detachable:false`, 
+then all Connections made from that Endpoint will not be detachable.  However, since there are two Endpoints involved in 
+any Connection, jsPlumb takes into account the `detachable` and `reattach` parameters from both Endpoints when establishing 
+a Connection. If either Endpoint declares either of these values as true, jsPlumb assumes the value to be true.  It is 
+possible that in a future version of jsPlumb the concepts of detachable and reattach could be made more granular, through the
 introduction of parameters like `sourceDetachable`/`targetReattach` etc.
 
 ##### Dropping a dragged Connection on another Endpoint
 
-If you drag a Connection from its target Endpoint you can then drop it on another suitable target Endpoint - suitable meaning that it is of the correct scope and it is not full.  If you try to drop a Connection on another target that is full, the drop will be aborted and then the same rules will apply as if you had dropped the Connection in whitespace: if `reattach` is set, the Connection will reattach, otherwise it will be removed.
+If you drag a Connection from its target Endpoint you can then drop it on another suitable target Endpoint - suitable 
+meaning that it is of the correct scope and it is not full.  If you try to drop a Connection on another target that is full, 
+the drop will be aborted and then the same rules will apply as if you had dropped the Connection in whitespace: if 
+`reattach` is set, the Connection will reattach, otherwise it will be removed.
 
-You can drag a Connection from its source Endpoint, but you can only drop it back on its source Endpoint - if you try to drop it on any other source or target Endpoint jsPlumb will treat the drop as if it happened in whitespace. Note that there is an issue with the `hoverClass` parameter when dragging a source Endpoint: target Endpoints are assigned the hover class, as if you could drop there. But you cannot; this is caused by how jsPlumb uses the underlying library's drag and drop, and is something that will be addressed in a future release.
+You can drag a Connection from its source Endpoint, but you can only drop it back on its source Endpoint - if you try 
+to drop it on any other source or target Endpoint jsPlumb will treat the drop as if it happened in whitespace. Note 
+that there is an issue with the `hoverClass` parameter when dragging a source Endpoint: target Endpoints are assigned the 
+hover class, as if you could drop there. But you cannot; this is caused by how jsPlumb uses the underlying library's 
+drag and drop, and is something that will be addressed in a future release.
 	

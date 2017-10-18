@@ -277,13 +277,31 @@
     var trim = function (str) {
             return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
         },
-        _setClassName = function (el, cn) {
+        _setClassName = function (el, cn, classList) {
             cn = trim(cn);
             if (typeof el.className.baseVal !== "undefined") {
                 el.className.baseVal = cn;
             }
             else {
                 el.className = cn;
+            }
+
+            // recent (i currently have  61.0.3163.100) version of chrome do not update classList when you set the base val
+            // of an svg element's className. in the long run we'd like to move to just using classList anyway
+            try {
+                var cl = el.classList;
+                while (cl.length > 0) {
+                    cl.remove(cl.item(0));
+                }
+                for (var i = 0; i < classList.length; i++) {
+                    if (classList[i]) {
+                        cl.add(classList[i]);
+                    }
+                }
+            }
+            catch(e) {
+                // not fatal
+                console.log("JSPLUMB: cannot set class list", e);
             }
         },
         _getClassName = function (el) {
@@ -315,7 +333,7 @@
             _oneSet(true, classesToAdd);
             _oneSet(false, classesToRemove);
 
-            _setClassName(el, curClasses.join(" "));
+            _setClassName(el, curClasses.join(" "), curClasses);
         };
 
     root.jsPlumb.extend(root.jsPlumbInstance.prototype, {
@@ -413,9 +431,11 @@
             });
         },
         setClass: function (el, clazz) {
-            jsPlumb.each(el, function (e) {
-                _setClassName(e, clazz);
-            });
+            if (clazz != null) {
+                jsPlumb.each(el, function (e) {
+                    _setClassName(e, clazz, clazz.split(/\s+/));
+                });
+            }
         },
         setPosition: function (el, p) {
             el.style.left = p.left + "px";
