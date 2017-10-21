@@ -1,4 +1,4 @@
-import {Connector} from "./abstract-connector";
+import {Connector} from "./connector";
 import {JsPlumbInstance} from "../core";
 export class StraightConnector<EventType, ElementType> extends Connector<EventType, ElementType> {
 

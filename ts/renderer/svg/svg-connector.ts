@@ -1,82 +1,83 @@
-import { jsPlumb } from "../jsplumb";
-import {SvgComponent} from "./svg-component";
+import {Extents, SvgComponent} from "./svg-component";
+import {ConnectorRenderer} from "../ConnectorRenderer";
+import {Connector} from "../../connector/connector";
+import {RawElement} from "../../dom/dom-adapter";
+import {JsPlumb} from "../../core";
+import {_applyStyles, _attr, _node, appendAtIndex} from "./svg-util";
 
 
-export class SvgConnector extends SvgComponent {
+export class SvgConnector<EventType> extends SvgComponent<EventType> implements ConnectorRenderer {
 
+    connector:Connector<EventType, RawElement>;
+    path:any;
+    bgPath:any;
 
     constructor(params:any) {
 
         super({
-            cssClass: params._jsPlumb.connectorClass + (this.isEditable() ? " " + params._jsPlumb.editableConnectorClass : ""),
+            cssClass: params._jsPlumb.connectorClass,
             originalArgs: arguments,
             pointerEventsSpec: "none",
             _jsPlumb: params._jsPlumb
         });
 
+        this.connector = params.connector;
+        this.pointerEventsSpec = params["pointer-events"] || "visibleStroke";
 
-        this.renderer.paint = function (style, anchor, extents) {
+    }
 
-            var segments = self.getSegments(), p = "", offset = [0, 0];
-            if (extents.xmin < 0) {
-                offset[0] = -extents.xmin;
-            }
-            if (extents.ymin < 0) {
-                offset[1] = -extents.ymin;
-            }
+    _paint(style:any, anchor:any, extents:Extents) {
 
-            if (segments.length > 0) {
+        let segments = this.connector.getSegments(), p = "", offset = [0, 0];
+        if (extents.xmin < 0) {
+            offset[0] = -extents.xmin;
+        }
+        if (extents.ymin < 0) {
+            offset[1] = -extents.ymin;
+        }
 
-                p = self.getPathData();
+        if (segments.length > 0) {
 
-                var a = {
-                        d: p,
-                        transform: "translate(" + offset[0] + "," + offset[1] + ")",
-                        "pointer-events": params["pointer-events"] || "visibleStroke"
-                    },
-                    outlineStyle = null,
-                    d = [self.x, self.y, self.w, self.h];
+            p = this.connector.getPathData();
 
-                // outline style.  actually means drawing an svg object underneath the main one.
-                if (style.outlineStroke) {
-                    var outlineWidth = style.outlineWidth || 1,
-                        outlineStrokeWidth = style.strokeWidth + (2 * outlineWidth);
-                    outlineStyle = _jp.extend({}, style);
-                    delete outlineStyle.gradient;
-                    outlineStyle.stroke = style.outlineStroke;
-                    outlineStyle.strokeWidth = outlineStrokeWidth;
+            let a = {
+                    d: p,
+                    transform: "translate(" + offset[0] + "," + offset[1] + ")",
+                    "pointer-events": this.pointerEventsSpec
+                },
+                outlineStyle = null,
+                d = [this.x, this.y, this.w, this.h];
 
-                    if (self.bgPath == null) {
-                        self.bgPath = _node("path", a);
-                        _jp.addClass(self.bgPath, _jp.connectorOutlineClass);
-                        _appendAtIndex(self.svg, self.bgPath, 0);
-                    }
-                    else {
-                        _attr(self.bgPath, a);
-                    }
+            // outline style.  actually means drawing an svg object underneath the main one.
+            if (style.outlineStroke) {
+                let outlineWidth = style.outlineWidth || 1,
+                    outlineStrokeWidth = style.strokeWidth + (2 * outlineWidth);
+                outlineStyle = JsPlumb.extend({}, style);
+                delete outlineStyle.gradient;
+                outlineStyle.stroke = style.outlineStroke;
+                outlineStyle.strokeWidth = outlineStrokeWidth;
 
-                    _applyStyles(self.svg, self.bgPath, outlineStyle, d, self);
-                }
-
-                if (self.path == null) {
-                    self.path = _node("path", a);
-                    _appendAtIndex(self.svg, self.path, style.outlineStroke ? 1 : 0);
+                if (this.bgPath == null) {
+                    this.bgPath = _node("path", a);
+                    this.instance.addClass(this.bgPath, this.instance.connectorOutlineClass);
+                    appendAtIndex(this.svg, this.bgPath, 0);
                 }
                 else {
-                    _attr(self.path, a);
+                    _attr(this.bgPath, a);
                 }
 
-                _applyStyles(self.svg, self.path, style, d, self);
+                _applyStyles(this.svg, this.bgPath, outlineStyle, d, self);
             }
-        };
 
-    }
+            if (this.path == null) {
+                this.path = _node("path", a);
+                appendAtIndex(this.svg, this.path, style.outlineStroke ? 1 : 0);
+            }
+            else {
+                _attr(this.path, a);
+            }
 
-    setEditable (e:boolean) {
-    if (super.setEditable(e)) {
-        jsPlumb.addClass(this.canvas, this._jsPlumb.instance.editableConnectorClass)
-    } else {
-        jsPlumb.removeClass(this.canvas, this._jsPlumb.instance.editableConnectorClass)
+            _applyStyles(this.svg, this.path, style, d, self);
+        }
     }
-};
 }

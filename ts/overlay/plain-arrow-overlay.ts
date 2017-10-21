@@ -1,6 +1,6 @@
 import {ArrowOverlay} from "./arrow-overlay";
 import {JsPlumb} from "../core";
-import {Overlays} from "./overlay-capable-component";
+import {Overlay} from "./overlay";
 /**
  * Created by simon on 19/10/2017.
  */
@@ -15,4 +15,4 @@ export class PlainArrowOverlay<EventType, ElementType> extends ArrowOverlay<Even
 }
 
 
-Overlays.map["PlainArrow"] = PlainArrowOverlay;
+Overlay.map["PlainArrow"] = PlainArrowOverlay;

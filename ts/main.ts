@@ -10,9 +10,16 @@ import {Endpoint} from "./endpoint";
 import {Connection} from "./connection";
 import {Anchors} from "./anchor/anchors";
 
-export {FlowchartConnector as FlowchartConnector} from "./connector/flowchart-connector";
-export {BezierConnector as BezierConnector} from "./connector/bezier-connector";
-export {StraightConnector as StraightConnector} from "./connector/straight-connector";
+export {FlowchartConnector} from "./connector/flowchart-connector";
+export {BezierConnector} from "./connector/bezier-connector";
+export {StraightConnector} from "./connector/straight-connector";
+
+export {SvgDotEndpoint} from "./renderer/svg/svg-dot-endpoint";
+
+export {LabelOverlay} from "./overlay/label-overlay";
+export {ArrowOverlay} from "./overlay/arrow-overlay";
+export {DiamondOverlay} from "./overlay/diamond-overlay";
+export {PlainArrowOverlay} from "./overlay/plain-arrow-overlay";
 
 export class JsPlumbDOMInstance extends JsPlumbInstance<Event, RawElement> {
 

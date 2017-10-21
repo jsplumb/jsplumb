@@ -1,6 +1,6 @@
 import {DOMOverlay} from "./dom-overlay";
 import {ArrayLocation} from "../jsplumb-defaults";
-import {Overlays} from "./overlay-capable-component";
+import {Overlay} from "./overlay";
 import {JsPlumb} from "../core";
 
 export class LabelOverlay<EventType, ElementType> extends DOMOverlay<EventType, ElementType> {
@@ -13,7 +13,12 @@ export class LabelOverlay<EventType, ElementType> extends DOMOverlay<EventType, 
     div:any;
 
     constructor(params:any) {
-        super(params);
+
+        super(JsPlumb.extend(params, {
+            create: () => {
+                return this.instance.createElement("div");
+            }
+        }));
 
         this.labelStyle = params.labelStyle;
 
@@ -49,7 +54,11 @@ export class LabelOverlay<EventType, ElementType> extends DOMOverlay<EventType, 
     }
 
     cleanup(force?:Boolean) {
+
         if (force) {
+
+            super.cleanup(force);
+
             this.div = null;
             this.label = null;
             this.labelText = null;
@@ -95,5 +104,5 @@ export class LabelOverlay<EventType, ElementType> extends DOMOverlay<EventType, 
     }
 }
 
-Overlays.map["Label"] = LabelOverlay;
+Overlay.map["Label"] = LabelOverlay;
 

@@ -1,13 +1,11 @@
 
-import {jsPlumb} from "../../jsplumb";
 import {SvgComponent} from "./svg-component";
-import { applyStyles, pos } from "./svg-util";
-import {RawElement} from "../../dom/dom-adapter";
+import {_node, applyStyles, pos} from "./svg-util";
+import {JsPlumb} from "../../core";
 
-export abstract class SvgEndpoint extends SvgComponent {
+export class SvgEndpoint<EventType> extends SvgComponent<EventType> {
 
-    abstract makeNode(style:any):RawElement;
-    abstract updateNode(el:RawElement):void;
+    node:any;
 
     constructor(params:any) {
         super({
@@ -18,30 +16,33 @@ export abstract class SvgEndpoint extends SvgComponent {
             _jsPlumb: params._jsPlumb
         });
 
-        this.renderer.paint = function (style) {
-            let s = jsPlumb.extend({}, style);
-            if (s.outlineStroke) {
-                s.stroke = s.outlineStroke;
-            }
+    }
 
-            if (this.node == null) {
-                this.node = this.makeNode(s);
-                this.svg.appendChild(this.node);
-            }
-            else if (this.updateNode != null) {
-                this.updateNode(this.node);
-            }
-            applyStyles(this.svg, this.node, s, [ this.x, this.y, this.w, this.h ], this);
+    _paint(style:any) {
+        let s = JsPlumb.extend({}, style);
+        if (s.outlineStroke) {
+            s.stroke = s.outlineStroke;
+        }
+
+        if (this.node == null) {
+            this.node = _node(s);
+            this.svg.appendChild(this.node);
+        }
+
+        // SP: what is this for? i noticed it while converting to typecript.
+        // else if (this.updateNode != null) {
+        //     this.updateNode(this.node);
+        // }
+        applyStyles(this.svg, this.node, s, [ this.x, this.y, this.w, this.h ], this);
 
 
 
-            // a bug found by migrating to typescript: 'pos' only takes one argument, the array, and returns a string.
-            // it does not set the absolute position of some element.  given that that is the case, it seems that this
-            // line of cofe does nothing, and can be removed.
-            //pos(this.node, [ this.x, this.y ]);
-
-        };
+        // a bug found by migrating to typescript: 'pos' only takes one argument, the array, and returns a string.
+        // it does not set the absolute position of some element.  given that that is the case, it seems that this
+        // line of cofe does nothing, and can be removed.
+        //pos(this.node, [ this.x, this.y ]);
 
     }
+
 
 }

@@ -1,11 +1,9 @@
 
 import {Overlay} from "./overlay";
-import {OverlayCapableComponent, Overlays} from "./overlay-capable-component";
+import {OverlayCapableComponent} from "./overlay-capable-component";
 import {isString} from "../util/_is";
-import {PathBasedComponent} from "../component/path-based-component";
-/**
- * Created by simon on 19/10/2017.
- */
+import {isPathBasedComponent} from "../component/path-based-component";
+
 
 declare var Biltong:any;
 
@@ -37,10 +35,10 @@ export class ArrowOverlay<EventType, ElementType> extends Overlay<EventType, Ele
         this.foldback = params.foldback || 0.623;
     }
 
-    draw(component:OverlayCapableComponent<EventType, ElementType>, currentConnectionPaintStyle:any) {
+    draw(component:OverlayCapableComponent<EventType, ElementType>, currentConnectionPaintStyle:any):any {
 
         let hxy, mid, txy, tail, cxy;
-       if (component instanceof PathBasedComponent) {
+       if (isPathBasedComponent(component)) {
 
             if (isString(this.loc) || this.loc > 1 || this.loc < 0) {
                 let fromLoc = this.loc < 0 ? 1 : 0;
@@ -118,10 +116,10 @@ export class ArrowOverlay<EventType, ElementType> extends Overlay<EventType, Ele
         this.path = p;
         if (this.events) {
             for (let i in this.events) {
-                this._jsPlumb.on(p, i, this.events[i]);
+                this.instance.on(p, i, this.events[i]);
             }
         }
     }
 }
 
-Overlays.map["Arrow"] = ArrowOverlay;
+Overlay.map["Arrow"] = ArrowOverlay;

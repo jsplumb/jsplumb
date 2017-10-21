@@ -1,4 +1,4 @@
-import {Connector} from "./abstract-connector";
+import {Connector} from "./connector";
 import {cloneArray, sgn} from "../util";
 import {JsPlumbInstance} from "../core";
 

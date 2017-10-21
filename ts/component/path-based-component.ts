@@ -1,10 +1,14 @@
-import {OverlayCapableComponent} from "../overlay/overlay-capable-component";
 import {Point} from "./ui-component";
-export abstract class PathBasedComponent<EventType, ElementType> extends OverlayCapableComponent<EventType, ElementType> {
 
-    abstract pointOnPath(location:number, absolute?:Boolean):Point;
+export interface PathBasedComponent<EventType, ElementType> {
 
-    abstract gradientAtPoint(location:number, absolute?:Boolean):number;
+    pointOnPath(location:number, absolute?:Boolean):Point;
 
-    abstract pointAlongPathFrom(location:number, distance:number, absolute?:Boolean):Point;
+    gradientAtPoint(location:number, absolute?:Boolean):number;
+
+    pointAlongPathFrom(location:number, distance:number, absolute?:Boolean):Point;
+}
+
+export function isPathBasedComponent<EventType, ElementType>(component:any): component is PathBasedComponent<EventType, ElementType> {
+    return component.pointOnPath != null && component.gradientAtPoint != null && component.pointAlongPathFrom != null;
 }

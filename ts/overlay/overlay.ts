@@ -1,11 +1,15 @@
 import {OverlayCapableComponent} from "./overlay-capable-component";
-import {UIComponent} from "../component/ui-component";
+
 import {ArrayLocation} from "../jsplumb-defaults";
+import {JsPlumbInstance} from "../core";
+import {EventGenerator} from "../event/event-generator";
 /**
  * Created by simon on 19/10/2017.
  */
 
-export abstract class Overlay<EventType, ElementType> extends UIComponent<EventType, ElementType> {
+export abstract class Overlay<EventType, ElementType> extends EventGenerator<EventType> {
+
+    static map:Map<string, Overlay<any, any>> = new Map();
 
     visible:Boolean = true;
     isAppendedAtRootLevel:Boolean = true;
@@ -13,16 +17,18 @@ export abstract class Overlay<EventType, ElementType> extends UIComponent<EventT
     loc:number = 0.5;
     endpointLoc:Array<number> = [0.5, 0.5];
     canvas:ElementType;
-    _jsPlumb:any;
+    instance:JsPlumbInstance<EventType, ElementType>;
+    _jsPlumb:any = {};
 
     abstract overlayType:string;
 
     idPrefix:string = "_jsplumb_o";
 
     constructor(params:any) {
-        super(params);
 
-        this._jsPlumb = params._jsPlumb;
+        super();
+
+        this.instance = params._jsPlumb;
         this.component = params.component;
         if (params.location != null) {
             this.loc = params.location;
@@ -35,10 +41,6 @@ export abstract class Overlay<EventType, ElementType> extends UIComponent<EventT
 
     abstract draw(component:OverlayCapableComponent<EventType, ElementType>, currentConnectionPaintStyle:any):void;
 
-    getTypeDescriptor():string {
-        return "overlay"
-    }
-
     cleanup(force?:Boolean) {
         if (force) {
             this.component = null;
@@ -46,6 +48,8 @@ export abstract class Overlay<EventType, ElementType> extends UIComponent<EventT
             this.endpointLoc = null;
         }
     }
+
+    reattach(instance:JsPlumbInstance<EventType, ElementType>, component:any) { }
 
     setVisible(val:Boolean) {
         this.visible = val;
@@ -94,12 +98,14 @@ export abstract class Overlay<EventType, ElementType> extends UIComponent<EventT
      */
     repaint(params?:any) {}
 
-    protected _getDimensions(forceRefresh?:Boolean) {
-        if (this._jsPlumb.cachedDimensions == null || forceRefresh) {
-            this._jsPlumb.cachedDimensions = this.getDimensions();
-        }
-        return this._jsPlumb.cachedDimensions;
-    }
+    // protected _getDimensions(forceRefresh?:Boolean) {
+    //     if (this._jsPlumb.cachedDimensions == null || forceRefresh) {
+    //         this._jsPlumb.cachedDimensions = this.getDimensions();
+    //     }
+    //     return this._jsPlumb.cachedDimensions;
+    // }
+    //
+    // abstract getDimensions():ArrayLocation;
 
-    abstract getDimensions():ArrayLocation;
+
 }

@@ -4,6 +4,9 @@ import {JsPlumbInstance} from "../core";
 import {each, log, trim} from "../util";
 import {isArray} from "../util/_is";
 import { ArrayLocation, LeftTopLocation } from "../jsplumb-defaults";
+import {Connector} from "../connector/connector";
+import {ConnectorRenderer} from "../renderer/ConnectorRenderer";
+import {SvgConnector} from "../renderer/svg/svg-connector";
 
 export class DomViewAdapter implements ViewAdapter<Event, RawElement> {
 
@@ -346,5 +349,14 @@ export class DomViewAdapter implements ViewAdapter<Event, RawElement> {
             p.top += oc.top;
         }
         return p;
+    }
+
+
+    createConnectorRenderer(connector: Connector<Event, RawElement>): ConnectorRenderer {
+        return new SvgConnector(connector);
+    }
+
+    removeElement(el: RawElement): void {
+        (<any>this.instance).getDragManager().elementRemoved(el);
     }
 }

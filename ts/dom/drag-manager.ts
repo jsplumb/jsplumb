@@ -55,7 +55,7 @@ export class DragManager {
             k = new Katavorio({
                 bind: e.on,
                 unbind: e.off,
-                getSize: () => { instance.getSize.apply(instance, arguments); },
+                getSize: (el:any) => instance.getSize(el),
                 getConstrainingRectangle:(el:RawElement) => {
                     return [ el.parentNode.scrollWidth, el.parentNode.scrollHeight ];
                 },
@@ -69,8 +69,8 @@ export class DragManager {
                     el.style.left = xy[0] + "px";
                     el.style.top = xy[1] + "px";
                 },
-                addClass: () => { instance.addClass.apply(instance, arguments); },
-                removeClass: () => { instance.removeClass.apply(instance, arguments); },
+                addClass: (el:any, cls:any) => instance.addClass(el, cls),
+                removeClass: (el:any, cls:any) => instance.removeClass(el, cls),
                 intersects: Biltong.intersects,
                 indexOf: (l:Array<any>, i:any) => { return l.indexOf(i); },
                 scope:instance.getDefaultScope(),

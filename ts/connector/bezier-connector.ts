@@ -1,4 +1,4 @@
-import {Connector} from "./abstract-connector";
+import {Connector} from "./connector";
 import {AnchorOrientation} from "../anchor/anchors";
 import {JsPlumbInstance} from "../core";
 /**

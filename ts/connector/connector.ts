@@ -3,6 +3,7 @@ import {isArray} from "../util/_is";
 import {Segment} from "./segment";
 import {JsPlumb} from "../core";
 import {UIComponent} from "../component/ui-component";
+import {ConnectorRenderer} from "../renderer/ConnectorRenderer";
 
 // TODO Biltong should be ts
 declare var Biltong:any;
@@ -49,6 +50,8 @@ export abstract class Connector<EventType, ElementType> extends UIComponent<Even
     strokeWidth:number;
     segment:Segment;
 
+    renderer:ConnectorRenderer;
+
     idPrefix:string = "_jsplumb_connector";
 
     abstract type:string;
@@ -60,7 +63,9 @@ export abstract class Connector<EventType, ElementType> extends UIComponent<Even
     // prior to TS, we had a nice multiple inheritance/mixin mechanism for this. TS has
     // a mixin thing but it doesn't look pretty. they should support Traits.
     //
-    paint(style:any, anchor:any, extents:any):void {};
+    paint(style:any, anchor:any, extents:any):void {
+        this.renderer.paint(style, anchor, extents)
+    }
 
     repaint(params?: any): void { }
 
@@ -74,7 +79,10 @@ export abstract class Connector<EventType, ElementType> extends UIComponent<Even
         this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
         this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
 
-        this.resetBounds()
+        this.resetBounds();
+        this.renderer = this.instance.viewAdapter.createConnectorRenderer(JsPlumb.extend(params, {connector:this}));
+        this.canvas = this.renderer.canvas;
+        this.bgCanvas = this.renderer.bgCanvas;
     }
 
     resetBounds () {

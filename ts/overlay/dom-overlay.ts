@@ -1,13 +1,22 @@
 import {Overlay} from "./overlay";
 import {ArrayLocation} from "../jsplumb-defaults";
-import {PathBasedComponent} from "../component/path-based-component";
+import {isPathBasedComponent, PathBasedComponent} from "../component/path-based-component";
 import {JsPlumbInstance} from "../core";
+import {EventGenerator} from "../event/event-generator";
 
 export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventType, ElementType> {
 
     detached:Boolean = false;
     id:string;
     cssClass:string;
+    _jsPlumb:any;
+
+    static _getDimensions<EventType, ElementType>(overlay:DOMOverlay<EventType, ElementType>, forceRefresh?:Boolean):[number, number] {
+        if (overlay._jsPlumb.cachedDimensions == null || forceRefresh) {
+            overlay._jsPlumb.cachedDimensions = overlay.getDimensions();
+        }
+        return overlay._jsPlumb.cachedDimensions;
+    }
 
     constructor(params:any) {
         super(params);
@@ -28,7 +37,7 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
      * @param value
      * @param originalEvent
      */
-    fire(event:string, value?:any, originalEvent?:EventType) {
+    fire(event:string, value?:any, originalEvent?:EventType):EventGenerator<EventType> {
 
         if (this.component) {
             this.component.fire.apply(this.component, arguments);
@@ -39,12 +48,12 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
 
     getElement() {
         if (this._jsPlumb.div == null) {
-            let div = this._jsPlumb.div = this._jsPlumb.instance.getElement(this._jsPlumb.create(this._jsPlumb.component));
+            let div:any = this._jsPlumb.div = this.instance.getElement(this._jsPlumb.create(this._jsPlumb.component));
             div.style.position = "absolute";
-            div.className = this._jsPlumb.instance.overlayClass + " " +
+            div.className = this.instance.overlayClass + " " +
                 (this.cssClass || "");
-            this._jsPlumb.instance.appendElement(div);
-            this._jsPlumb.instance.getId(div);
+            this.instance.appendElement(div);
+            this.instance.getId(div);
             this.canvas = div;
 
             // in IE the top left corner is what it placed at the desired location.  This will not
@@ -73,6 +82,7 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
         return overlay._jsPlumb.cachedDimensions;
     }
 
+
     draw(currentConnectionPaintStyle:any, absolutePosition:ArrayLocation):any {
         let td = DOMOverlay.getOverlayDimensions(this);
         if (td != null && td.length === 2) {
@@ -82,7 +92,7 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
             if (absolutePosition) {
                 cxy = { x: absolutePosition[0], y: absolutePosition[1] };
             }
-            else if (this.component instanceof PathBasedComponent) {
+            else if (isPathBasedComponent(this.component)) {
                 let loc = this.loc, absolute = false;
                 if (/*isString(this.loc) || */this.loc < 0 || this.loc > 1) {
                     //loc = parseInt(this.loc, 10);
@@ -122,7 +132,7 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
             this._jsPlumb.div.style.display = state ? "block" : "none";
             // if initially invisible, dimensions are 0,0 and never get updated
             if (state && this._jsPlumb.initiallyInvisible) {
-                this._getDimensions(true);
+                DOMOverlay._getDimensions(this, true);
                 this.component.repaint();
                 this._jsPlumb.initiallyInvisible = false;
             }
@@ -143,7 +153,7 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
         if (force) {
             if (this._jsPlumb.div != null) {
                 this._jsPlumb.div._jsPlumb = null;
-                this._jsPlumb.instance.removeElement(this._jsPlumb.div);
+                this.instance.removeElement(this._jsPlumb.div);
             }
         }
         else {
@@ -162,8 +172,8 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
         this.detached = false;
     }
 
-    computeMaxSize() {
-        let td = this._getDimensions();
+    computeMaxSize():number {
+        let td = DOMOverlay._getDimensions(this);
         return Math.max(td[0], td[1]);
     }
 

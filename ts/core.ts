@@ -221,6 +221,11 @@ export abstract class JsPlumbInstance<EventType, ElementType> extends EventGener
         }
     }
 
+    removeElement(el:ElementType) {
+        this.getEventManager().remove(el);
+        this.viewAdapter.removeElement(el);
+    }
+
     /**
      * abstract method from EventGenerator
      * @returns {boolean}
@@ -1523,10 +1528,6 @@ export class JsPlumb {
     static removeClass(el:RawElement, clazz:string) {
 
     }
-
-    // TODO none of these are desirable, we want the individual managers to
-    // have factory methods.
-    static Overlays = {}
 
     static SegmentRenderer:any = {};
 

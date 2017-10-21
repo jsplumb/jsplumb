@@ -1,4 +1,6 @@
 import {ArrayLocation, LeftTopLocation} from "./jsplumb-defaults";
+import {Connector} from "./connector/connector";
+import {ConnectorRenderer} from "./renderer/ConnectorRenderer";
 
 export interface ViewAdapter<EventType,ElementType> {
     getSelector(ctx:any, spec:string):any;
@@ -58,6 +60,10 @@ export interface ViewAdapter<EventType,ElementType> {
     clientLocation(evt:EventType):ArrayLocation;
 
     getUIPosition(eventArgs:any, zoom:number):LeftTopLocation;
+
+    createConnectorRenderer(connector:Connector<EventType, ElementType>):ConnectorRenderer;
+
+    removeElement(el:ElementType):void;
 
 
 // getHeadlessInstance:function(fnSize, fnPosition) {

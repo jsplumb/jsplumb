@@ -16,6 +16,8 @@ export abstract class EventGenerator<EventType> {
 
     abstract shouldFireEvent(event:string, value:any, originalEvent?:EventType):Boolean
 
+    constructor() {}
+
     bind(event:string|Array<string>, listener:Function, insertAtStart?:Boolean) {
         let _one = (evt:string) => {
             addToList(this.listeners, evt, listener, insertAtStart);

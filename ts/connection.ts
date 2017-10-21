@@ -3,7 +3,7 @@
  */
 
 import {Endpoint} from "./endpoint";
-import {Connector} from "./connector/abstract-connector";
+import {Connector} from "./connector/connector";
 import { JsPlumb, JsPlumbInstance } from "./core";
 import {ComponentParams, Point} from "./component/ui-component";
 import {_timestamp, addToList, merge} from "./util";
@@ -11,6 +11,7 @@ import {ParameterConfiguration} from "./jsplumb-defaults";
 import {isArray, isEmpty, isObject, isString} from "./util/_is";
 import {Anchors} from "./anchor/anchors";
 import {PathBasedComponent} from "./component/path-based-component";
+import {OverlayCapableComponent} from "./overlay/overlay-capable-component";
 
 export type ConnectionParams<EventType, ElementType> = ComponentParams<EventType, ElementType> & {
     id?:string,
@@ -39,7 +40,7 @@ export type ConnectionParams<EventType, ElementType> = ComponentParams<EventType
     _newEndpoint?:Function
 }
 
-export class Connection<EventType, ElementType> extends PathBasedComponent<EventType, ElementType> {
+export class Connection<EventType, ElementType> extends OverlayCapableComponent<EventType, ElementType> implements PathBasedComponent<EventType, ElementType> {
 
     static makeConnector<EventType, ElementType>(_jsPlumb:JsPlumbInstance<EventType, ElementType>, connectorName:string, connectorArgs?:any, forComponent?:any) {
         if (!_jsPlumb.Defaults.DoNotThrowErrors && Connector.map[connectorName] == null) {
@@ -293,7 +294,7 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
 
     paint(params?:any) {
 
-        if (!this._jsPlumb.instance.isSuspendDrawing() && this._jsPlumb.visible) {
+        if (!this.instance.isSuspendDrawing() && this._jsPlumb.visible) {
             params = params || {};
             let timestamp = params.timestamp,
                 // if the moving object is not the source we must transpose the two references.
@@ -302,8 +303,8 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
                 tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
             if (timestamp == null || timestamp !== this._jsPlumb.lastPaintedAt) {
-                let sourceInfo = this._jsPlumb.instance.updateOffset({elId:sId}).o,
-                    targetInfo = this._jsPlumb.instance.updateOffset({elId:tId}).o,
+                let sourceInfo:any = this.instance.updateOffset({elId:sId}).o,
+                    targetInfo:any = this.instance.updateOffset({elId:tId}).o,
                     sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
 
                 let sAnchorP = sE.anchor.getCurrentLocation({xy: [sourceInfo.left, sourceInfo.top], wh: [sourceInfo.width, sourceInfo.height], element: sE, timestamp: timestamp}),
@@ -348,6 +349,7 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
                     };
                 // paint the connector.
                 this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
+
                 // and then the overlays
                 for (let j in this._jsPlumb.overlays) {
                     if (this._jsPlumb.overlays.hasOwnProperty(j)) {
@@ -437,7 +439,7 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
 
     applyType(t:any, doNotRepaint:Boolean, typeMap?:any) {
 
-        super.applyType(t, doNotRepaint, typeMap)
+        super.applyType(t, doNotRepaint, typeMap);
 
         let _connector = null;
         if (t.connector != null) {
@@ -461,7 +463,7 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
         }
 
         if (t.cssClass != null && this.canvas) {
-            this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+            this.instance.addClass(this.canvas, t.cssClass);
         }
 
         let _anchors = null;
@@ -470,7 +472,7 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
             // note that even if the param was anchor, we store `anchors`.
             _anchors = this.getCachedTypeItem("anchors", typeMap.anchor);
             if (_anchors == null) {
-                _anchors = [ this._jsPlumb.instance.makeAnchor(t.anchor), this._jsPlumb.instance.makeAnchor(t.anchor) ];
+                _anchors = [ Anchors.makeAnchor(t.anchor, null, this.instance), Anchors.makeAnchor(t.anchor, null, this.instance) ];
                 this.cacheTypeItem("anchors", _anchors, typeMap.anchor);
             }
         }
@@ -478,8 +480,8 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
             _anchors = this.getCachedTypeItem("anchors", typeMap.anchors);
             if (_anchors == null) {
                 _anchors = [
-                    this._jsPlumb.instance.makeAnchor(t.anchors[0]),
-                    this._jsPlumb.instance.makeAnchor(t.anchors[1])
+                    Anchors.makeAnchor(t.anchors[0], null, this.instance),
+                    Anchors.makeAnchor(t.anchors[1], null, this.instance)
                 ];
                 this.cacheTypeItem("anchors", _anchors, typeMap.anchors);
             }
@@ -488,7 +490,7 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
             this.endpoints[0].anchor = _anchors[0];
             this.endpoints[1].anchor = _anchors[1];
             if (this.endpoints[1].anchor.isDynamic) {
-                this._jsPlumb.instance.repaint(this.endpoints[1].elementId);
+                this.instance.repaint(this.endpoints[1].elementId);
             }
         }
 
@@ -552,17 +554,17 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
 
     updateConnectedClass(remove?:Boolean) {
         if (this._jsPlumb) {
-            Connection._updateConnectedClass(this, this.source, this._jsPlumb.instance, remove);
-            Connection._updateConnectedClass(this, this.target, this._jsPlumb.instance, remove);
+            Connection._updateConnectedClass(this, this.source, this.instance, remove);
+            Connection._updateConnectedClass(this, this.target, this.instance, remove);
         }
     }
 
     setHover(state:Boolean) {
         super.setHover(state);
-        if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
+        if (this.connector && this._jsPlumb && !(<any>this.instance).isConnectionBeingDragged()) {
             this.connector.setHover(state);
-            this._jsPlumb.instance[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
-            this._jsPlumb.instance[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
+            this.instance[state ? "addClass" : "removeClass"](this.source, this.instance.hoverSourceClass);
+            this.instance[state ? "addClass" : "removeClass"](this.target, this.instance.hoverTargetClass);
         }
     }
 
@@ -679,7 +681,6 @@ export class Connection<EventType, ElementType> extends PathBasedComponent<Event
     pointAlongPathFrom(location: number, distance: number, absolute?: Boolean): Point {
         return this.connector.pointAlongPathFrom(location, distance, absolute);
     }
-
 
     reattach(instance: JsPlumbInstance<EventType, ElementType>, component?: any): void {
     }

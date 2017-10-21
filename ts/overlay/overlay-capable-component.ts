@@ -1,4 +1,4 @@
-import {UIComponent} from "../component/ui-component";
+import {ComponentParams, UIComponent} from "../component/ui-component";
 import {JsPlumb, JsPlumbInstance} from "../core";
 import {isArray, isString} from "../util/_is";
 import {log, uuid} from "../util";
@@ -45,9 +45,9 @@ export abstract class OverlayCapableComponent<EventType, ElementType> extends UI
             if (o.length === 3) {
                 JsPlumb.extend(p, o[2]);
             }
-            _newOverlay = new JsPlumb.Overlays[type](p);
+            _newOverlay = new Overlay.map[type](p);
         } else if (o.constructor === String) {
-            _newOverlay = new JsPlumb.Overlays[o]({component: this, _jsPlumb: this.instance});
+            _newOverlay = new Overlay.map[o]({component: this, _jsPlumb: this.instance});
         } else {
             _newOverlay = o;
         }
@@ -351,8 +351,4 @@ export abstract class OverlayCapableComponent<EventType, ElementType> extends UI
         return true;
     }
 
-}
-
-export class Overlays {
-    static map:Map<string, Overlay<any, any>> = new Map();
 }

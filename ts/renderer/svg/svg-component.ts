@@ -5,7 +5,8 @@ import { node, attr, pos } from "./svg-util";
 // which may not in fact know about the browser. this will need to be fixed.
 import { sizeElement } from "../../browser-util";
 import {JsPlumbInstance} from "../../core";
-import {ConnectionAwareComponent} from "../../component/connection-aware-component";
+import {UIComponent} from "../../component/ui-component";
+import {AbstractComponent} from "../../component/abstract-component";
 
 export type Extents = {
     xmin:number,
@@ -14,12 +15,12 @@ export type Extents = {
     ymax:number
 }
 
-export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType, RawElement> {
+export abstract class SvgComponent<EventType> {
 
     idPrefix = "";
 
     pointerEventsSpec:string;
-    renderer:any = {};
+    renderer:AbstractComponent;
     canvas:RawElement = null;
     path:RawElement = null;
     svg:RawElement = null;
@@ -28,10 +29,16 @@ export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType,
     clazz:string = null;
     displayElements:RawElement[] = [];
     useDivWrapper:boolean = false;
+    x:number;
+    y:number;
+    w:number;
+    h:number;
+    instance:JsPlumbInstance<EventType, RawElement>;
+    typeId:string;
 
     constructor(params:any) {
 
-        super(params);
+        this.instance = params._jsPlumb;
 
         this.pointerEventsSpec = params.pointerEventsSpec || "all";
         this.clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || "");
@@ -73,6 +80,8 @@ export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType,
         this.displayElements.push(el);
     };
 
+    abstract _paint(style:any, anchor:any, extents:Extents):void;
+
     paint(style?:any, anchor?:any, extents?:Extents) {
         if (style != null) {
 
@@ -98,7 +107,7 @@ export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType,
                 p = pos([ xy[0], xy[1] ]);
             }
 
-            this.renderer.paint.apply(this, arguments);
+            this._paint.apply(this, arguments);
 
             attr(this.svg, {
                 "style": p,
@@ -109,8 +118,6 @@ export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType,
     }
 
     cleanup(force?:boolean) {
-
-        super.cleanup(force)
 
         if (force || this.typeId == null) {
             if (this.canvas) {
@@ -148,8 +155,6 @@ export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType,
 
     reattach(instance:JsPlumbInstance<EventType, RawElement>) {
 
-        super.reattach(instance);
-
         let c = instance.getContainer();
         if (this.canvas && this.canvas.parentNode == null) {
             (<any>c).appendChild(this.canvas);
@@ -160,11 +165,12 @@ export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType,
     }
 
     setVisible (v:boolean) {
-
-        super.setVisible(v);
-
         if (this.canvas) {
             this.canvas.style.display = v ? "block" : "none";
+        }
+
+        if (this.bgCanvas) {
+            this.bgCanvas.style.display = v ? "block" : "none";
         }
     }
 

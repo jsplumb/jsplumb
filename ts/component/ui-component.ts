@@ -13,7 +13,10 @@ export type ComponentParams<EventType, ElementType> = {
     hoverClass?:string,
     overlays?:any,
     scope?:string,
-    events?:Map<string, Function>
+    events?:Map<string, Function>,
+    label?:string,
+    labelStyle?:string,
+    labelLocation?:number
 }
 
 export abstract class UIComponent<EventType, ElementType> extends EventGenerator<EventType> {

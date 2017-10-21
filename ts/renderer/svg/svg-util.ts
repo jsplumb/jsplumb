@@ -25,31 +25,31 @@ const  ns = {
     svg: "http://www.w3.org/2000/svg"
 };
 
-function _attr(node:Element, attributes:any) {
+export function _attr(node:Element, attributes:any) {
     for (let i in attributes) {
             node.setAttribute(i, "" + attributes[i]);
     }
 }
 
-function _node(name:string, attributes?:any):RawElement {
+export function _node(name:string, attributes?:any):RawElement {
     attributes = attributes || {};
     attributes.version = "1.1";
     attributes.xmlns = ns.svg;
     return createElementNS(ns.svg, name, null, null, attributes);
 }
 
-function _pos(d:number[]) {
+export function _pos(d:number[]) {
     return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
 }
 
-function _clearGradient(parent:Element) {
+export function _clearGradient(parent:Element) {
     let els = parent.querySelectorAll(" defs,linearGradient,radialGradient");
     for (let i = 0; i < els.length; i++) {
         els[i].parentNode.removeChild(els[i]);
     }
 }
 
-function _updateGradient(parent:Element, node:Element, style:any, dimensions:number[], uiComponent:any) {
+export function _updateGradient(parent:Element, node:Element, style:any, dimensions:number[], uiComponent:any) {
     let id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance.idstamp();
     // first clear out any existing gradient
     _clearGradient(parent);
@@ -86,7 +86,7 @@ function _updateGradient(parent:Element, node:Element, style:any, dimensions:num
     node.setAttribute(applyGradientTo, "url(#" + id + ")");
 }
 
-function _applyStyles(parent:Element, node:Element, style:any, dimensions:number[], uiComponent:any) {
+export function _applyStyles(parent:Element, node:Element, style:any, dimensions:number[], uiComponent:any) {
 
     node.setAttribute(FILL, style.fill ? style.fill : NONE);
     node.setAttribute(STROKE, style.stroke ? style.stroke : NONE);
@@ -133,7 +133,7 @@ function _applyStyles(parent:Element, node:Element, style:any, dimensions:number
     }
 }
 
-function appendAtIndex(svg:Element, path:any, idx:number) {
+export function appendAtIndex(svg:Element, path:any, idx:number) {
     if (svg.childNodes.length > idx) {
         svg.insertBefore(path, svg.childNodes[idx]);
     }

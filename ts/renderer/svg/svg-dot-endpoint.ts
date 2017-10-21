@@ -5,7 +5,7 @@ import { node, attr } from "./svg-util";
 import { DotEndpoint } from "../../endpoint/dot-endpoint";
 import {applyMixins} from "../../util/mixin-util";
 
-export class SvgDotEndpoint extends SvgEndpoint implements DotEndpoint {
+export class SvgDotEndpoint extends DotEndpoint {
 
     radius:number = 0;
 
@@ -25,6 +25,11 @@ export class SvgDotEndpoint extends SvgEndpoint implements DotEndpoint {
             "cy": this.h / 2,
             "r": this.radius
         });
+    }
+
+    constructor(params:any) {
+        super(params);
+        SvgEndpoint.apply(this, arguments)
     }
 }
 

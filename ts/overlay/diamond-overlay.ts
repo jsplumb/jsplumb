@@ -1,6 +1,6 @@
 import {ArrowOverlay} from "./arrow-overlay";
 import {JsPlumb} from "../core";
-import {Overlays} from "./overlay-capable-component";
+import {Overlay} from "./overlay";
 
 export class DiamondOverlay<EventType, ElementType> extends ArrowOverlay<EventType, ElementType> {
 
@@ -12,4 +12,4 @@ export class DiamondOverlay<EventType, ElementType> extends ArrowOverlay<EventTy
 
 }
 
-Overlays.map["Diamond"] = DiamondOverlay;
+Overlay.map["Diamond"] = DiamondOverlay;
