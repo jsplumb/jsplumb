@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "outDir": "../_build",
+    "target": "es2015",
+    "module": "es2015",
+    "outDir": "../_build/es6",
+    "rootDir":".",
     "moduleResolution": "node",
     "sourceMap": true,
     "declaration":true,
@@ -13,5 +14,5 @@
     "suppressImplicitAnyIndexErrors": true
 
   },
-  "files":[ "main.ts", "renderer/svg/svg-component.ts" ]
+  "files":[ "main.ts" ]
 }

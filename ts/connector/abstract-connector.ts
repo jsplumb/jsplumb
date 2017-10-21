@@ -1,12 +1,38 @@
-import {AbstractComponent} from "../abstract-component";
+import {AbstractComponent, Bounds} from "../component/abstract-component";
 import {isArray} from "../util/_is";
 import {Segment} from "./segment";
+import {JsPlumb} from "../core";
+import {UIComponent} from "../component/ui-component";
 
 // TODO Biltong should be ts
-declare const Biltong;
+declare var Biltong:any;
 
-export class AbstractConnector extends AbstractComponent {
+export abstract class Connector<EventType, ElementType> extends UIComponent<EventType, ElementType> {
 
+    static map:Map<string, Connector<any, any>> = new Map();
+
+
+    /**
+     * @override
+     * @returns {string}
+     */
+    getTypeDescriptor(): string {
+        return "connector";
+    }
+
+
+    /**
+     * @override
+     * @param event
+     * @param value
+     * @param originalEvent
+     * @returns {boolean}
+     */
+    shouldFireEvent(event: string, value: any, originalEvent?: EventType): Boolean {
+        return true;
+    }
+
+    bounds:Bounds;
     segments:Array<Segment> = [];
     totalLength:number = 0;
     segmentProportions:Array<Array<number>> = [];
@@ -21,9 +47,25 @@ export class AbstractConnector extends AbstractComponent {
     paintInfo:any = null;
     geometry:any = null;
     strokeWidth:number;
+    segment:Segment;
+
+    idPrefix:string = "_jsplumb_connector";
+
+    abstract type:string;
+
+    //
+    // it isnt the greatest that this is here, it's because `paint` is in UIComponent,
+    // and Connector extends UIComponent. of course we want to paint a Connector but in
+    // fact the paint method should be on some specific renderer, like a DOM SVG renderer.
+    // prior to TS, we had a nice multiple inheritance/mixin mechanism for this. TS has
+    // a mixin thing but it doesn't look pretty. they should support Traits.
+    //
+    paint(style:any, anchor:any, extents:any):void {};
+
+    repaint(params?: any): void { }
 
     constructor(params:any) {
-        super();
+        super(params);
         this.stub = params.stub || 0;
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
@@ -31,6 +73,12 @@ export class AbstractConnector extends AbstractComponent {
         this.gap = params.gap || 0;
         this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
         this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
+
+        this.resetBounds()
+    }
+
+    resetBounds () {
+        this.bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
     }
 
     setGeometry(g:any, internallyComputed:boolean):void {
@@ -44,19 +92,19 @@ export class AbstractConnector extends AbstractComponent {
     getPathData():string {
         let p = "";
         for (let i = 0; i < this.segments.length; i++) {
-            p += _jp.SegmentRenderer.getPath(this.segments[i]);
+            p += JsPlumb.SegmentRenderer.getPath(this.segments[i]);
             p += " ";
         }
         return p;
     }
 
     findSegmentForPoint(x:number, y:number) {
-        let out = { d: Infinity, s: null, x: null, y: null, l: null, x1:null, x2:null, y1:null, y2:null, index:null };
+        let out:any = { d: Infinity, s: null, x: null, y: null, l: null, x1:null, x2:null, y1:null, y2:null, index:null };
         for (let i = 0; i < this.segments.length; i++) {
             let _s = this.segments[i].findClosestPointOnPath(x, y);
-            if (_s.d < out.d) {
-                out.d = _s.d;
-                out.l = _s.l;
+            if (_s.distance < out.d) {
+                out.d = _s.distance;
+                out.l = _s.location;
                 out.x = _s.x;
                 out.y = _s.y;
                 out.s = this.segments[i];
@@ -103,7 +151,7 @@ export class AbstractConnector extends AbstractComponent {
      * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
      * as the absolute distance in pixels, rather than a proportion of the total path.
      */
-    private _findSegmentForLocation(location:number, absolute:boolean):any {
+    private _findSegmentForLocation(location:number, absolute?:Boolean):any {
         if (absolute) {
             location = location > 0 ? location / this.totalLength : (this.totalLength + location) / this.totalLength;
         }
@@ -119,11 +167,11 @@ export class AbstractConnector extends AbstractComponent {
         return { segment: this.segments[idx], proportion: inSegmentProportion, index: idx };
     }
 
-    private _addSegmentfunction (conn:AbstractConnector, type:string, params:any) {
+    protected _addSegment(conn:Connector<EventType, ElementType>, segmentType:string, params:any) {
         if (params.x1 === params.x2 && params.y1 === params.y2) {
             return;
         }
-        let s = new _jp.Segments[type](params);
+        let s = new JsPlumb.Segments[segmentType](params);
         this.segments.push(s);
         this.totalLength += s.getLength();
         conn.updateBounds(s);
@@ -189,72 +237,47 @@ export class AbstractConnector extends AbstractComponent {
         result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
         return result;
     }
-}
 
-/*
-
-
-
-var ;
-
-this.getSegments = function () {
-    return segments;
-};
-
-this.updateBounds = function (segment) {
-    var segBounds = segment.getBounds();
-    this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
-    this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
-    this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
-    this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
-};
-
-var dumpSegmentsToConsole = function () {
-    console.log("SEGMENTS:");
-    for (var i = 0; i < segments.length; i++) {
-        console.log(segments[i].type, segments[i].getLength(), segmentProportions[i]);
+    getSegments() {
+        return this.segments;
     }
-};
 
-this.pointOnPath = function (location, absolute) {
-    var seg = _findSegmentForLocation(location, absolute);
-    return seg.segment && seg.segment.pointOnPath(seg.proportion, false) || [0, 0];
-};
+    updateBounds(segment:Segment) {
+        let segBounds = segment.getBounds();
+        this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
+        this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
+        this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
+        this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
+    }
 
-this.gradientAtPoint = function (location, absolute) {
-    var seg = _findSegmentForLocation(location, absolute);
-    return seg.segment && seg.segment.gradientAtPoint(seg.proportion, false) || 0;
-};
+    pointOnPath(location:number, absolute?:Boolean) {
+        let seg = this._findSegmentForLocation(location, absolute);
+        return seg.segment && seg.segment.pointOnPath(seg.proportion, false) || [0, 0];
+    }
 
-this.pointAlongPathFrom = function (location, distance, absolute) {
-    var seg = _findSegmentForLocation(location, absolute);
-    // TODO what happens if this crosses to the next segment?
-    return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || [0, 0];
-};
+    gradientAtPoint(location:number, absolute?:Boolean) {
+        let seg = this._findSegmentForLocation(location, absolute);
+        return seg.segment && seg.segment.gradientAtPoint(seg.proportion, false) || 0;
+    }
 
-this.compute = function (params) {
-    paintInfo = _prepareCompute.call(this, params);
+    pointAlongPathFrom(location:number, distance:number, absolute?:Boolean) {
+        let seg = this._findSegmentForLocation(location, absolute);
+        // TODO what happens if this crosses to the next segment?
+        return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || [0, 0];
+    }
 
-    _clearSegments();
-    this._compute(paintInfo, params);
-    this.x = paintInfo.points[0];
-    this.y = paintInfo.points[1];
-    this.w = paintInfo.points[2];
-    this.h = paintInfo.points[3];
-    this.segment = paintInfo.segment;
-    _updateSegmentProportions();
-};
+    compute(params:any) {
+        this.paintInfo = this._prepareCompute.call(this, params);
 
-return {
-    addSegment: _addSegment,
-    prepareCompute: _prepareCompute,
-    sourceStub: sourceStub,
-    targetStub: targetStub,
-    maxStub: Math.max(sourceStub, targetStub),
-    sourceGap: sourceGap,
-    targetGap: targetGap,
-    maxGap: Math.max(sourceGap, targetGap),
-    setGeometry:_setGeometry,
-    getGeometry:_getGeometry
-};
- */
+        this._clearSegments();
+        this._compute(this.paintInfo, params);
+        this.x = this.paintInfo.points[0];
+        this.y = this.paintInfo.points[1];
+        this.w = this.paintInfo.points[2];
+        this.h = this.paintInfo.points[3];
+        this.segment = this.paintInfo.segment;
+        this._updateSegmentProportions();
+    }
+
+    abstract _compute(paintInfo:any, params?:any):void;
+}

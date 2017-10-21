@@ -1,7 +1,7 @@
-declare const Arrays:any;
+declare const Array:any;
 
 export function isArray(a:any):a is Array<any> {
-    return Arrays.isArray(a);
+    return Array.isArray(a);
 }
 
 export function isBoolean(b:any):b is boolean {
@@ -30,4 +30,13 @@ export function isFunction(f:any):f is Function {
 
 export function isNamedFunction(f:any):f is Function {
     return isFunction(f) && f.name != null && f.name.length > 0;
+}
+
+export function isEmpty(o:any) {
+    for (let i in o) {
+        if (o.hasOwnProperty(i)) {
+            return false;
+        }
+    }
+    return true;
 }

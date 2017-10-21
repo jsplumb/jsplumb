@@ -253,6 +253,7 @@
             return _one(model);
         },
         findWithFunction: function (a, f) {
+            // CONVERTED
             if (a) {
                 for (var i = 0; i < a.length; i++) {
                     if (f(a[i])) {
@@ -263,6 +264,7 @@
             return -1;
         },
         removeWithFunction: function (a, f) {
+            // CONVERTED
             var idx = root.jsPlumbUtil.findWithFunction(a, f);
             if (idx > -1) {
                 a.splice(idx, 1);
@@ -270,6 +272,7 @@
             return idx !== -1;
         },
         remove: function (l, v) {
+            // CONVERTED
             var idx = l.indexOf(v);
             if (idx > -1) {
                 l.splice(idx, 1);

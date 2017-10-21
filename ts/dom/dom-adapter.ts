@@ -1,4 +1,4 @@
-import {JsPlumbInstance} from "../jsplumb";
+import {JsPlumbInstance} from "../core";
 declare const document:Document;
 
 export class RawElement extends Element {
@@ -6,7 +6,16 @@ export class RawElement extends Element {
     className:any;
     height:number;
     width:number;
-    _jsPlumb:JsPlumbInstance;
+    offsetWidth:number;
+    offsetHeight:number;
+    offsetLeft:number;
+    offsetTop:number;
+    offsetParent:RawElement;
+    currentStyle:Map<string, string>;
+    _jsPlumb:JsPlumbInstance<Event, RawElement>;
+    _katavorioDrag:any;
+    _katavorioDrop:any;
+    parentNode:RawElement;
 }
 
 export function createElementNS(namespace:string, tag:string, style?:any, clazz?:string, attributes?:any) {
@@ -36,3 +45,4 @@ export function createElement(tag:string, style:any, clazz?:string, atts?:any) {
 export function getClass(el:RawElement) {
     return (typeof el.className.baseVal === "undefined") ? el.className : el.className.baseVal;
 }
+

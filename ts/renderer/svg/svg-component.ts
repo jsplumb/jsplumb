@@ -1,13 +1,22 @@
 import {RawElement, createElement} from "../../dom/dom-adapter";
 import { node, attr, pos } from "./svg-util";
-import { Extents, jsPlumbUIComponent } from "../abstract-renderer";
 
 // note that here we are getting this from browser util when it is in fact a function supplied by the current renderer,
 // which may not in fact know about the browser. this will need to be fixed.
 import { sizeElement } from "../../browser-util";
-import {JsPlumbInstance} from "../../jsplumb";
+import {JsPlumbInstance} from "../../core";
+import {ConnectionAwareComponent} from "../../component/connection-aware-component";
 
-export class SvgComponent extends jsPlumbUIComponent {
+export type Extents = {
+    xmin:number,
+    xmax:number,
+    ymin:number,
+    ymax:number
+}
+
+export class SvgComponent<EventType> extends ConnectionAwareComponent<EventType, RawElement> {
+
+    idPrefix = "";
 
     pointerEventsSpec:string;
     renderer:any = {};
@@ -137,16 +146,16 @@ export class SvgComponent extends jsPlumbUIComponent {
         }
     }
 
-    reattach(instance:JsPlumbInstance) {
+    reattach(instance:JsPlumbInstance<EventType, RawElement>) {
 
         super.reattach(instance);
 
         let c = instance.getContainer();
         if (this.canvas && this.canvas.parentNode == null) {
-            c.appendChild(this.canvas);
+            (<any>c).appendChild(this.canvas);
         }
         if (this.bgCanvas && this.bgCanvas.parentNode == null) {
-            c.appendChild(this.bgCanvas);
+            (<any>c).appendChild(this.bgCanvas);
         }
     }
 
@@ -157,5 +166,10 @@ export class SvgComponent extends jsPlumbUIComponent {
         if (this.canvas) {
             this.canvas.style.display = v ? "block" : "none";
         }
+    }
+
+
+    shouldFireEvent(event: string, value: any, originalEvent?: EventType): Boolean {
+        return true;
     }
 }

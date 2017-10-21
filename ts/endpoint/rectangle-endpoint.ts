@@ -7,7 +7,7 @@ export class RectangleEndpoint extends AbstractEndpoint {
     height:number;
 
     constructor(params:any) {
-        super(params);
+        super();
         params = params || {};
         this.width = params.width || 20;
         this.height = params.height || 20;

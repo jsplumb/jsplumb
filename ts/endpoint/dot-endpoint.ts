@@ -8,7 +8,7 @@ export class DotEndpoint extends AbstractEndpoint {
     defaultInnerRadius:number;
 
     constructor(params:any) {
-        super(params);
+        super();
         params = params || {};
         this.radius = params.radius || 10;
         this.defaultOffset = 0.5 * this.radius;
