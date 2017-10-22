@@ -1,3 +1,9 @@
+## 2.5.7
+
+22nd October 2017
+
+- update Katavorio to version 0.22.0
+
 ## 2.5.6
 
 18th October 2017

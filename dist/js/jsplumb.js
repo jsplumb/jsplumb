@@ -1660,9 +1660,13 @@
                 if (!moving) {
                     var _continue = _dispatch("start", {el:this.el, pos:posAtDown, e:e, drag:this});
                     if (_continue !== false) {
-                        if (!downAt) return;
+                        if (!downAt) {
+                            return;
+                        }
                         this.mark(true);
                         moving = true;
+                    } else {
+                        this.abort();
                     }
                 }
 
@@ -1741,14 +1745,19 @@
         };
 
         var _dispatch = function(evt, value) {
+            var result = null;
             if (listeners[evt]) {
                 for (var i = 0; i < listeners[evt].length; i++) {
                     try {
-                        listeners[evt][i](value);
+                        var v = listeners[evt][i](value);
+                        if (v != null) {
+                            result = v;
+                        }
                     }
                     catch (e) { }
                 }
             }
+            return result;
         };
 
         this.notifyStart = function(e) {
@@ -2825,18 +2834,16 @@
          * note that this is a simple comparison and only works for primitives right now.
          */
         wrap: function (wrappedFunction, newFunction, returnOnThisValue) {
-            wrappedFunction = wrappedFunction || function () {
-            };
-            newFunction = newFunction || function () {
-            };
             return function () {
                 var r = null;
                 try {
-                    r = newFunction.apply(this, arguments);
+                    if (newFunction != null) {
+                        r = newFunction.apply(this, arguments);
+                    }
                 } catch (e) {
                     root.jsPlumbUtil.log("jsPlumb function failed : " + e);
                 }
-                if (returnOnThisValue == null || (r !== returnOnThisValue)) {
+                if ((wrappedFunction != null) && (returnOnThisValue == null || (r !== returnOnThisValue))) {
                     try {
                         r = wrappedFunction.apply(this, arguments);
                     } catch (e) {
@@ -3520,7 +3527,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.5.6";
+        this.version = "2.5.7";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);

@@ -1,6 +1,6 @@
 {
     "name": "jsplumb",
-    "version":"2.5.6",
+    "version":"2.5.7",
     "ignore": [
         "node_modules",
         "Gruntfile.js",
