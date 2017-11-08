@@ -17,13 +17,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init": "node ./install.js",
-    "tsc": "cd ts;tsc",
+    "tsc": "tsc",
     "rollup": "./node_modules/.bin/rollup -c",
-    "build": "cd ts;tsc;cd ..;./node_modules/.bin/rollup -c"
+    "build": "tsc;./node_modules/.bin/rollup -c"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jsplumb/jsPlumb.git"
+    "url": "git://github.com/jsplumb/jsplumb.git"
   },
   "keywords": [
     "javascript",
