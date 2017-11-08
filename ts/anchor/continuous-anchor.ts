@@ -4,6 +4,7 @@
 
 import {Anchor} from "./abstract-anchor";
 import {AnchorManager} from "./anchor-manager";
+import {Endpoint} from "../endpoint";
 
 export class ContinuousAnchor<EventType, ElementType> extends Anchor<EventType, ElementType> {
 
@@ -31,7 +32,7 @@ export class ContinuousAnchor<EventType, ElementType> extends Anchor<EventType, 
 
     faces:Array<string>;
     clockwise:Boolean;
-    availableFaces = { };
+    availableFaces:Map<string, Boolean> = new Map();
     secondBest:any;
     lastChoice:any;
     cssClass:string;
@@ -58,7 +59,7 @@ export class ContinuousAnchor<EventType, ElementType> extends Anchor<EventType, 
         return this.faces.length === 0 ? "top" : this.faces[0];
     };
 
-    verifyEdge = function (edge) {
+    verifyEdge = function (edge:string) {
         if (this.availableFaces[edge]) {
             return edge;
         }
@@ -74,11 +75,11 @@ export class ContinuousAnchor<EventType, ElementType> extends Anchor<EventType, 
         return edge; // we have to give them something.
     };
 
-    isEdgeSupported = function (edge) {
+    isEdgeSupported = function (edge:string) {
         return this.availableFaces[edge] === true;
     };
 
-    compute(params) {
+    compute(params:any) {
         return this.anchorManager.userDefinedContinuousAnchorLocations[params.element.id] || this.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0];
     }
 
@@ -86,7 +87,7 @@ export class ContinuousAnchor<EventType, ElementType> extends Anchor<EventType, 
         return this.anchorManager.userDefinedContinuousAnchorLocations[params.element.id] || this.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0];
     }
 
-    getOrientation(endpoint) {
+    getOrientation(endpoint:Endpoint<EventType, ElementType>) {
         return this.anchorManager.continuousAnchorOrientations[endpoint.id] || [0, 0];
     }
 
@@ -94,7 +95,7 @@ export class ContinuousAnchor<EventType, ElementType> extends Anchor<EventType, 
         delete this.anchorManager.userDefinedContinuousAnchorLocations[this.elementId];
     }
 
-    setUserDefinedLocation(loc) {
+    setUserDefinedLocation(loc:[number, number]) {
         this.anchorManager.userDefinedContinuousAnchorLocations[this.elementId] = loc;
     }
 

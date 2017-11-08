@@ -1,5 +1,7 @@
 
-import {Anchor, AnchorComputeParams, AnchorLocation, AnchorSize} from "./abstract-anchor";
+import {Anchor} from "./abstract-anchor";
+import {AnchorComputeParams, AnchorLocation, AnchorSize} from "./anchors";
+import {Endpoint} from "../endpoint";
 
 export class FloatingAnchor<EventType, ElementType> extends Anchor<EventType, ElementType> {
 
@@ -9,6 +11,7 @@ export class FloatingAnchor<EventType, ElementType> extends Anchor<EventType, El
     yDir:any;
     _lastResult:AnchorLocation;
     size:AnchorSize;
+
 
     constructor(params:any) {
         super(params);
@@ -30,7 +33,7 @@ export class FloatingAnchor<EventType, ElementType> extends Anchor<EventType, El
         return result;
     }
 
-    getOrientation(_endpoint) {
+    getOrientation(_endpoint:Endpoint<EventType, ElementType>) {
         if (this.orientation) {
             return this.orientation;
         }
@@ -49,7 +52,7 @@ export class FloatingAnchor<EventType, ElementType> extends Anchor<EventType, El
      * over another anchor; we want to assume that anchor's orientation
      * for the duration of the hover.
      */
-    over(anchor, endpoint) {
+    over(anchor:Anchor<EventType, ElementType>, endpoint:Endpoint<EventType, ElementType>) {
         this.orientation = anchor.getOrientation(endpoint);
     }
 
@@ -62,7 +65,7 @@ export class FloatingAnchor<EventType, ElementType> extends Anchor<EventType, El
         this.orientation = null;
     }
 
-    getCurrentLocation(params) {
+    getCurrentLocation(params:any) {
         return this._lastResult == null ? this.compute(params) : this._lastResult;
     }
 

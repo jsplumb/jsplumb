@@ -39,7 +39,7 @@ export abstract class Overlay<EventType, ElementType> extends EventGenerator<Eve
         this.visible = params.visible !== false;
     }
 
-    abstract draw(component:OverlayCapableComponent<EventType, ElementType>, currentConnectionPaintStyle:any):void;
+    abstract draw(component:OverlayCapableComponent<EventType, ElementType>, paintStyle:any, absolutePosition?:ArrayLocation):void;
 
     cleanup(force?:Boolean) {
         if (force) {

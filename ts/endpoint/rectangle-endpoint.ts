@@ -1,19 +1,19 @@
 
-import {AbstractEndpoint} from "./abstract-endpoint";
-export class RectangleEndpoint extends AbstractEndpoint {
+import {Endpoint} from "../endpoint";
+export class RectangleEndpoint<EventType, ElementType> extends Endpoint<EventType, ElementType> {
 
     tipe:string = "Rectangle";
     width:number;
     height:number;
 
     constructor(params:any) {
-        super();
+        super(params);
         params = params || {};
         this.width = params.width || 20;
         this.height = params.height || 20;
     }
 
-    _compute (anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
+    _compute (anchorPoint:[number, number], orientation:any, endpointStyle:any, connectorPaintStyle:any) {
         let width = endpointStyle.width || this.width,
             height = endpointStyle.height || this.height,
             x = anchorPoint[0] - (width / 2),
@@ -22,3 +22,5 @@ export class RectangleEndpoint extends AbstractEndpoint {
         return [ x, y, width, height];
     }
 }
+
+Endpoint.map["Rectangle"] = RectangleEndpoint;

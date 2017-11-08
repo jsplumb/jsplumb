@@ -5,8 +5,9 @@ import {Anchor} from "./anchor/abstract-anchor";
 import {LeftTopLocation, ParameterConfiguration} from "./jsplumb-defaults";
 import {DragManager} from "./dom/drag-manager";
 import {JsPlumbDOMInstance} from "./main";
-import {addToList, wrap} from "./util";
+import {addToList, merge, wrap} from "./util";
 import {OverlayCapableComponent} from "./overlay/overlay-capable-component";
+import {isArray, isString} from "./util/_is";
 
 
 export type EndpointParams<EventType, ElementType> = {
@@ -29,6 +30,10 @@ export type EndpointParams<EventType, ElementType> = {
     connectorOverlays?:any,
     connectorTooltip?:any,
     source?:any,
+    endpoint?:any,
+    anchor?:any,
+    anchors?:any,
+
 
     _newConnection?:Function,
 
@@ -56,6 +61,8 @@ export type EndpointParams<EventType, ElementType> = {
 
 
 export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<EventType, ElementType> {
+
+    static map:Map<string, Endpoint<any, any>> = new Map();
 
     static _makeConnectionDragHandler<EventType, ElementType>(endpoint:Endpoint<EventType, ElementType>, placeholder:any, _jsPlumb:JsPlumbInstance<EventType, ElementType>) {
         let stopped = false;
@@ -138,6 +145,11 @@ export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<Ev
     maxConnections:number = -1;
     enabled:Boolean = true;
     _newConnection:Function;
+    _continuousAnchorEdge:number;
+    type:string;
+    cssClass:string;
+    tooltip:string;
+    connectorTooltip:string;
 
     dragOptions:any;
 
@@ -190,6 +202,7 @@ export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<Ev
         this.connector = params.connector;
         this.connectorClass = params.connectorClass;
         this.connectorHoverClass = params.connectorHoverClass;
+        this.connectorStyle = params.connectorStyle;
 
         this.connectionType = params.connectionType;
         this.connectorOverlays = params.connectorOverlays;
@@ -255,6 +268,11 @@ export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<Ev
         if (params.onMaxConnections) {
             this.bind("maxConnections", params.onMaxConnections);
         }
+
+        let ep = params.endpoint || this.instance.Defaults.Endpoint;
+        this.setEndpoint(ep, true);
+        let anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (this.instance.Defaults.Anchor || "Top");
+        this.setAnchor(anchorParamsToUse, true);
     }
 
     isEnabled() {
@@ -395,6 +413,75 @@ export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<Ev
         return this;
     }
 
+    prepareEndpoint(ep:any, typeId?:string) {
+        let _e = function (t:any, p:any) {
+            if (Endpoint.map[t]) {
+                return new Endpoint.map[t](p);
+            }
+            if (!this.instance.Defaults.DoNotThrowErrors) {
+                throw { msg: "jsPlumb: unknown endpoint type '" + t + "'" };
+            }
+        };
+
+        let endpointArgs = {
+            _jsPlumb: this.instance,
+            cssClass: this.cssClass,
+            container: this.instance.getContainer,
+            tooltip: this.tooltip,
+            connectorTooltip: this.connectorTooltip,
+            endpoint: this
+        };
+
+        let endpoint;
+
+        if (isString(ep)) {
+            endpoint = _e(ep, endpointArgs);
+        }
+        else if (isArray(ep)) {
+            endpointArgs = merge(ep[1], endpointArgs);
+            endpoint = _e(ep[0], endpointArgs);
+        }
+        else {
+            endpoint = ep.clone();
+        }
+
+        // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
+        // and the clone is left in its place while the original one goes off on a magical journey.
+        // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
+        // the whole world.
+        //var argsForClone = jsPlumb.extend({}, endpointArgs);
+        endpoint.clone = function () {
+            // TODO this, and the code above, can be refactored to be more dry.
+            if (isString(ep)) {
+                return _e(ep, endpointArgs);
+            }
+            else if (isArray(ep)) {
+                endpointArgs = merge(ep[1], endpointArgs);
+                return _e(ep[0], endpointArgs);
+            }
+        }.bind(this);
+
+        endpoint.typeId = typeId;
+        return endpoint;
+    }
+
+    setEndpoint(ep:any, doNotRepaint?:Boolean) {
+        let _ep = this.prepareEndpoint(ep);
+        this.setPreparedEndpoint(_ep, true);
+    };
+
+    setPreparedEndpoint(ep:Endpoint<EventType, ElementType>, doNotRepaint?:Boolean) {
+        if (this.endpoint != null) {
+            this.endpoint.cleanup();
+            this.endpoint.destroy();
+        }
+        this.endpoint = ep;
+        this.type = this.endpoint.type;
+        this.canvas = this.endpoint.canvas;
+    };
+
+
+
     connectorSelector() {
         let candidate = this.connections[0];
         if (candidate) {
@@ -406,7 +493,7 @@ export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<Ev
     }
 
     cleanup(force?:Boolean) {
-        let anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
+        let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
         this.instance.removeClass(this.element, anchorClass);
         this.anchor = null;
         this.endpoint.cleanup(true);
@@ -526,9 +613,9 @@ export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<Ev
 
     // ----------------    make the element we will drag around, and position it -----------------------------
 
-                let ipco = this._jsPlumb.instance.getOffset(this.canvas),
+                let ipco = this.instance.getOffset(this.canvas),
                     canvasElement = this.canvas,
-                    ips = this._jsPlumb.instance.getSize(this.canvas);
+                    ips = this.instance.getSize(this.canvas);
 
                 Endpoint._makeDraggablePlaceholder(placeholderInfo, this.instance, ipco, ips);
 
@@ -542,12 +629,12 @@ export class Endpoint<EventType, ElementType> extends OverlayCapableComponent<Ev
 
                 let endpointToFloat = this.dragProxy || this.endpoint;
                 if (this.dragProxy == null && this.connectionType != null) {
-                    let aae = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(this.connectionType);
+                    let aae = this.instance.deriveEndpointAndAnchorSpec(this.connectionType);
                     if (aae.endpoints[1]) {
                         endpointToFloat = aae.endpoints[1];
                     }
                 }
-                let centerAnchor = this._jsPlumb.instance.makeAnchor("Center");
+                let centerAnchor = Anchors.makeAnchor("Center", placeholderInfo.id, this.instance);
                 centerAnchor.isFloating = true;
                 this._jsPlumb.floatingEndpoint = (<any>this.instance)._makeFloatingEndpoint(this.getPaintStyle(), centerAnchor, endpointToFloat, this.canvas, placeholderInfo.element, this.scope);
                 let _savedAnchor = this._jsPlumb.floatingEndpoint.anchor;

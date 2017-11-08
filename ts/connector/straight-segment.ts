@@ -1,5 +1,4 @@
 import {Segment} from "./segment";
-import {JsPlumb} from "../core";
 import {Bounds} from "../component/abstract-component";
 import {Point} from "../component/ui-component";
 
@@ -134,4 +133,3 @@ export class StraightSegment extends Segment {
     }
 }
 
-JsPlumb.Segments["Straight"] = StraightSegment;

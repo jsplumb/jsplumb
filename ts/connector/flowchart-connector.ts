@@ -334,4 +334,4 @@ export class FlowchartConnector<EventType, ElementType> extends Connector<EventT
     }
 }
 
-Connector.map["Flowchart"] = FlowchartConnector;
+//Connector.map["Flowchart"] = FlowchartConnector;

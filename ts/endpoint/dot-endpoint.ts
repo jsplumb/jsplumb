@@ -1,14 +1,20 @@
 
-import {AbstractEndpoint} from "./abstract-endpoint";
-export class DotEndpoint extends AbstractEndpoint {
+import {Endpoint} from "../endpoint";
+
+// TODO what class should this extend? it's not Endpoint, as that's the jsplumb class. this is the visual representation
+// of an Endpoint.
+export class DotEndpoint<EventType, ElementType> {
 
     radius:number;
     tipe:string = "Dot";
     defaultOffset:number;
     defaultInnerRadius:number;
+    w:number;
+    h:number;
+
 
     constructor(params:any) {
-        super();
+        //super(params);
         params = params || {};
         this.radius = params.radius || 10;
         this.defaultOffset = 0.5 * this.radius;
@@ -32,3 +38,6 @@ export class DotEndpoint extends AbstractEndpoint {
         return [ x, y, w, h, this.radius ];
     }
 }
+
+
+Endpoint.map["Dot"] = DotEndpoint;

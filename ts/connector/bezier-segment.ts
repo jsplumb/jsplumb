@@ -9,7 +9,7 @@ export type ControlPoint = {
 
 export type CurveDescriptor = [ ControlPoint, ControlPoint, ControlPoint, ControlPoint ];
 
-declare var jsBezier;
+declare const jsBezier:any;
 
 export class BezierSegment extends Segment {
 
@@ -18,8 +18,8 @@ export class BezierSegment extends Segment {
     curve:CurveDescriptor;
     bounds:Bounds;
 
-    constructor(params) {
-        super(params)
+    constructor(params:any) {
+        super(params);
 
         this.curve = [
             { x: params.x1, y: params.y1},
@@ -41,7 +41,8 @@ export class BezierSegment extends Segment {
 
     }
 
-    private _translateLocation(_curve, location, absolute) {
+    // TODO get jsBezier types
+    private static _translateLocation(_curve:any, location:number, absolute?:Boolean) {
         if (absolute) {
             location = jsBezier.locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
         }
@@ -54,7 +55,7 @@ export class BezierSegment extends Segment {
      * 0 to 1 inclusive.
      */
     pointOnPath(location:number, absolute?:Boolean) {
-        location = this._translateLocation(this.curve, location, absolute);
+        location = BezierSegment._translateLocation(this.curve, location, absolute);
         return jsBezier.pointOnCurve(this.curve, location);
     }
 
@@ -62,12 +63,12 @@ export class BezierSegment extends Segment {
      * returns the gradient of the segment at the given point.
      */
     gradientAtPoint(location:number, absolute?:Boolean) {
-        location = this._translateLocation(this.curve, location, absolute);
+        location = BezierSegment._translateLocation(this.curve, location, absolute);
         return jsBezier.gradientAtPoint(this.curve, location);
     }
 
     pointAlongPathFrom(location:number, distance:number, absolute?:Boolean) {
-        location = this._translateLocation(this.curve, location, absolute);
+        location = BezierSegment._translateLocation(this.curve, location, absolute);
         return jsBezier.pointAlongCurveFrom(this.curve, location, distance);
     }
 
@@ -81,4 +82,3 @@ export class BezierSegment extends Segment {
 
 }
 
-JsPlumb.Segments["Bezier"] = BezierSegment;

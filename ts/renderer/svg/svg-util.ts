@@ -50,7 +50,7 @@ export function _clearGradient(parent:Element) {
 }
 
 export function _updateGradient(parent:Element, node:Element, style:any, dimensions:number[], uiComponent:any) {
-    let id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance.idstamp();
+    let id = JSPLUMB_GRADIENT + uiComponent.instance.idstamp();
     // first clear out any existing gradient
     _clearGradient(parent);
     // this checks for an 'offset' property in the gradient, and in the absence of it, assumes

@@ -24,7 +24,7 @@ export class Types {
             for (let i = 0, j = component._jsPlumb.types.length; i < j; i++) {
                 let tid = component._jsPlumb.types[i];
                 if (tid !== "__default") {
-                    let _t = component._jsPlumb.instance.getType(tid, td);
+                    let _t = component.instance.getType(tid, td);
                     if (_t != null) {
                         o = merge(o, _t, [ "cssClass" ]);
                         Types.map(map, _t, tid);
@@ -45,10 +45,10 @@ export class Types {
 
     static cleanupCss<EventType, ElementType>(component:UIComponent<EventType, ElementType>, typeIndex:number) {
         let typeId = component._jsPlumb.types[typeIndex],
-            type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
+            type = component.instance.getType(typeId, component.getTypeDescriptor());
 
         if (type != null && type.cssClass && component.canvas) {
-            component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
+            component.instance.removeClass(component.canvas, type.cssClass);
 
         }
     }

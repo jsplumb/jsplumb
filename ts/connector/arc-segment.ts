@@ -19,10 +19,9 @@
  y2          -   y for end point
 
  */
-import {Segment} from "./segment";
-import {JsPlumb} from "../core";
+import { Segment } from "./segment";
 
-declare var Biltong:any;
+declare const Biltong:any;
 
 export class ArcSegment extends Segment {
 
@@ -77,8 +76,6 @@ export class ArcSegment extends Segment {
 
     constructor(params:any) {
         super(params);
-
-
 
         this.cx = params.cx;
         this.cy = params.cy;
@@ -188,5 +185,3 @@ export class ArcSegment extends Segment {
     }
 
 }
-
-JsPlumb.Segments["Arc"] = ArcSegment;

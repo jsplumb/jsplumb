@@ -2,6 +2,7 @@ import {JsPlumbDOMInstance} from "../main";
 import {RawElement} from "./dom-adapter";
 import {ArrayLocation} from "../jsplumb-defaults";
 import {Endpoint} from "../endpoint";
+//import {Katavorio} from "katavorio";
 
 declare var Katavorio:any;
 declare var Biltong:any;

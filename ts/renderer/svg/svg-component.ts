@@ -80,7 +80,7 @@ export abstract class SvgComponent<EventType> {
         this.displayElements.push(el);
     };
 
-    abstract _paint(style:any, anchor:any, extents:Extents):void;
+    //abstract _paint(style:any, anchor:any, extents:Extents):void;
 
     paint(style?:any, anchor?:any, extents?:Extents) {
         if (style != null) {
@@ -107,7 +107,7 @@ export abstract class SvgComponent<EventType> {
                 p = pos([ xy[0], xy[1] ]);
             }
 
-            this._paint.apply(this, arguments);
+            //this.paint.apply(this, arguments);
 
             attr(this.svg, {
                 "style": p,

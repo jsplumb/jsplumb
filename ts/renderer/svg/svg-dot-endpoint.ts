@@ -5,7 +5,7 @@ import { node, attr } from "./svg-util";
 import { DotEndpoint } from "../../endpoint/dot-endpoint";
 import {applyMixins} from "../../util/mixin-util";
 
-export class SvgDotEndpoint extends DotEndpoint {
+export class SvgDotEndpoint<EventType, ElementType> extends DotEndpoint<EventType, ElementType> {
 
     radius:number = 0;
 

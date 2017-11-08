@@ -1,6 +1,7 @@
 
 import { Anchor } from "./abstract-anchor";
 import {JsPlumb} from "../core";
+import {Anchors} from "./anchors";
 
 export class PerimeterAnchor<EventType, ElementType> extends Anchor<EventType, ElementType> {
      constructor(params:any) {
@@ -23,9 +24,9 @@ export class PerimeterAnchor<EventType, ElementType> extends Anchor<EventType, E
                  }
                  return a;
              },
-             _path = function (segments) {
-                 let anchorsPerFace = anchorCount / segments.length, a = [],
-                     _computeFace = function (x1, y1, x2, y2, fractionalLength) {
+             _path = function (segments:Array<any>) {
+                 let anchorsPerFace = anchorCount / segments.length, a:Array<any> = [],
+                     _computeFace = function (x1:number, y1:number, x2:number, y2:number, fractionalLength:number) {
                          anchorsPerFace = anchorCount * fractionalLength;
                          let dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
                          for (let i = 0; i < anchorsPerFace; i++) {
@@ -44,7 +45,7 @@ export class PerimeterAnchor<EventType, ElementType> extends Anchor<EventType, E
 
                  return a;
              },
-             _shape = function (faces) {
+             _shape = function (faces:Array<any>) {
                  let s = [];
                  for (let i = 0; i < faces.length; i++) {
                      s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length]);
@@ -80,7 +81,7 @@ export class PerimeterAnchor<EventType, ElementType> extends Anchor<EventType, E
                          [0, 1, 0.5, 0]
                      ]);
                  },
-                 "Path": function (params) {
+                 "Path": function (params:any) {
                      let points = params.points, p = [], tl = 0;
                      for (let i = 0; i < points.length - 1; i++) {
                          let l = Math.sqrt(Math.pow(points[i][2] - points[i][0], 2) + Math.pow(points[i][3] - points[i][1], 2));
@@ -93,7 +94,7 @@ export class PerimeterAnchor<EventType, ElementType> extends Anchor<EventType, E
                      return _path(p);
                  }
              },
-             _rotate = function (points, amountInDegrees) {
+             _rotate = function (points:Array<any>, amountInDegrees:number) {
                  let o = [], theta = amountInDegrees / 180 * Math.PI;
                  for (let i = 0; i < points.length; i++) {
                      let _x = points[i][0] - 0.5,
@@ -123,4 +124,4 @@ export class PerimeterAnchor<EventType, ElementType> extends Anchor<EventType, E
      }
 }
 
-JsPlumb.Anchors["Perimeter"] = PerimeterAnchor;
+Anchors.map["Perimeter"] = PerimeterAnchor;

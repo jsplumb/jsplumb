@@ -26,7 +26,7 @@ export abstract class OverlayCapableComponent<EventType, ElementType> extends UI
                 labelStyle: this.labelStyle,
                 id: OverlayCapableComponent._internalLabelOverlayId,
                 component: this,
-                _jsPlumb: this._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
+                _jsPlumb: this.instance  // TODO not necessary, since the instance can be accessed through the component.
             },
             mergedParams = JsPlumb.extend(_params, params);
 
@@ -122,7 +122,7 @@ export abstract class OverlayCapableComponent<EventType, ElementType> extends UI
                 else {
                     let c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
-                        c.reattach(this._jsPlumb.instance, this);
+                        c.reattach(this.instance, this);
                         c.setVisible(true);
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1]);
@@ -156,9 +156,9 @@ export abstract class OverlayCapableComponent<EventType, ElementType> extends UI
 
         super.setHover(hover, ignoreAttachedElements, timestamp);
 
-        if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
+        if (this._jsPlumb && !this.instance.isConnectionBeingDragged()) {
             for (let i in this._jsPlumb.overlays) {
-                this._jsPlumb.overlays[i][hover ? "addClass" : "removeClass"](this._jsPlumb.instance.hoverClass);
+                this._jsPlumb.overlays[i][hover ? "addClass" : "removeClass"](this.instance.hoverClass);
             }
         }
     }
@@ -321,7 +321,7 @@ export abstract class OverlayCapableComponent<EventType, ElementType> extends UI
     }
 
     isDropAllowed (sourceId:string, targetId:string, scope:string, connection:Connection<EventType, ElementType>, dropEndpoint:Endpoint<EventType, ElementType>, source:ElementType, target:ElementType) {
-        let r = this._jsPlumb.instance.checkCondition("beforeDrop", {
+        let r = this.instance.checkCondition("beforeDrop", {
             sourceId: sourceId,
             targetId: targetId,
             scope: scope,

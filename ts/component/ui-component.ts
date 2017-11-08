@@ -41,14 +41,17 @@ export abstract class UIComponent<EventType, ElementType> extends EventGenerator
 
     instance:JsPlumbInstance<EventType, ElementType>;
 
+    constructorArguments:IArguments;
+
     constructor(params:ComponentParams<EventType, ElementType>) {
         super();
+
+        this.constructorArguments = arguments;
 
         this.id = this.idPrefix + (new Date()).getTime();
         this.instance = params._jsPlumb;
 
         this._jsPlumb = {
-            instance: params._jsPlumb,
             parameters: params.parameters || {},
             paintStyle: null,
             hoverPaintStyle: null,
@@ -64,7 +67,7 @@ export abstract class UIComponent<EventType, ElementType> extends EventGenerator
 
         this._defaultType = {
             parameters: params.parameters || {},
-            scope: params.scope || this._jsPlumb.instance.getDefaultScope()
+            scope: params.scope || this.instance.getDefaultScope()
         };
 
         if (params.events) {
@@ -87,11 +90,11 @@ export abstract class UIComponent<EventType, ElementType> extends EventGenerator
         }
     }
 
-    // clone() {
-    //     let o = Object.create(this.constructor.prototype);
-    //     this.constructor.apply(o, a);
-    //     return o;
-    // }
+    clone() {
+        let o = Object.create(this.constructor.prototype);
+        this.constructor.apply(o, this.constructorArguments);
+        return o;
+    }
 
     cacheTypeItem(key:string, item:any, typeId:string) {
         this._jsPlumb.typeCache[typeId] = this._jsPlumb.typeCache[typeId] || {};
@@ -131,23 +134,23 @@ export abstract class UIComponent<EventType, ElementType> extends EventGenerator
     }
 
     getClass():string {
-        return this._jsPlumb.instance.getClass(this.canvas);
+        return this.instance.getClass(this.canvas);
     }
 
     hasClass(clazz:string):Boolean {
-        return this._jsPlumb.instance.hasClass(this.canvas, clazz);
+        return this.instance.hasClass(this.canvas, clazz);
     }
 
     addClass(clazz:string) {
-        this._jsPlumb.instance.addClass(this.canvas, clazz);
+        this.instance.addClass(this.canvas, clazz);
     }
 
     removeClass(clazz:string) {
-        this._jsPlumb.instance.removeClass(this.canvas, clazz);
+        this.instance.removeClass(this.canvas, clazz);
     }
 
     updateClasses(classesToAdd:string|Array<string>, classesToRemove?:string|Array<string>) {
-        this._jsPlumb.instance.updateClasses(this.canvas, classesToAdd, classesToRemove);
+        this.instance.updateClasses(this.canvas, classesToAdd, classesToRemove);
     }
 
     setType(typeId:string, params:any, doNotRepaint?:Boolean) {
@@ -322,22 +325,23 @@ export abstract class UIComponent<EventType, ElementType> extends EventGenerator
     setHover(hover:Boolean, ignoreAttachedElements?:Boolean, timestamp?:string) {
         // while dragging, we ignore these events.  this keeps the UI from flashing and
         // swishing and whatevering.
-        if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
+        // TODO `currentlyDragging` is not, strictly speaking, something that jsplumb should know, ie. if it were running headless.
+        if (this._jsPlumb && !this.instance.currentlyDragging && !this.instance.isHoverSuspended()) {
 
             this._jsPlumb.hover = hover;
             let method = hover ? "addClass" : "removeClass";
 
             if (this.canvas != null) {
-                if (this._jsPlumb.instance.hoverClass != null) {
-                    this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
+                if (this.instance.hoverClass != null) {
+                    this.instance[method](this.canvas, this.instance.hoverClass);
                 }
                 if (this._jsPlumb.hoverClass != null) {
-                    this._jsPlumb.instance[method](this.canvas, this._jsPlumb.hoverClass);
+                    this.instance[method](this.canvas, this._jsPlumb.hoverClass);
                 }
             }
             if (this._jsPlumb.hoverPaintStyle != null) {
                 this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
-                if (!this._jsPlumb.instance.isSuspendDrawing()) {
+                if (!this.instance.isSuspendDrawing()) {
                     timestamp = timestamp || _timestamp();
                     this.repaint({timestamp: timestamp, recalc: false});
                 }

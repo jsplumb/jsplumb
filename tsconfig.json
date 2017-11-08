@@ -2,8 +2,7 @@
   "compilerOptions": {
     "target": "es2015",
     "module": "es2015",
-    "outDir": "../_build/es6",
-    "rootDir":".",
+    "outDir": "_build/es6",
     "moduleResolution": "node",
     "sourceMap": true,
     "declaration":true,
@@ -14,5 +13,5 @@
     "suppressImplicitAnyIndexErrors": true
 
   },
-  "files":[ "main.ts" ]
+  "include":[ "ts/**/*" ]
 }

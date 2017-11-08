@@ -54,6 +54,16 @@ export abstract class JsPlumbInstance<EventType, ElementType> extends EventGener
     hoverTargetClass = "jtk-target-hover";
     dragSelectClass = "jtk-drag-select";
 
+    /**
+     * TODO - move this drag aware stuff to a browser aware file.
+     */
+    currentlyDragging:Boolean;
+    connectionBeingDragged:Boolean = false;
+
+    isConnectionBeingDragged() {
+        return this.connectionBeingDragged;
+    }
+
     Defaults:DefaultsContainer;
     _initialDefaults:DefaultsContainer = DefaultsFactory.getDefaults();
     targetEndpointDefinitions = {};
@@ -195,7 +205,9 @@ export abstract class JsPlumbInstance<EventType, ElementType> extends EventGener
     getWidth(el:ElementType):number { return this.viewAdapter.getWidth(el); }
     getHeight(el:ElementType):number { return this.viewAdapter.getHeight(el); }
     addClass(el:ElementType, clazz:string) { this.viewAdapter.addClass(el, clazz); }
+    getClass(el:ElementType):string { return this.viewAdapter.getClass(el); }
     setClass(el:ElementType, clazz:string) { this.viewAdapter.setClass(el, clazz); }
+    updateClasses(el:ElementType, classesToAdd?:string|Array<string>, classesToRemove?:string|Array<string>) { return this.viewAdapter.updateClasses(el, classesToAdd, classesToRemove); }
     removeClass(el:ElementType, clazz:string) { this.viewAdapter.removeClass(el, clazz); }
     hasClass(el:ElementType, clazz:string):Boolean { return this.viewAdapter.hasClass(el, clazz); }
     getOffset(el:ElementType, relativeToRoot?:Boolean, container?:ElementType):LeftTopLocation { return this.viewAdapter.getOffset(el, relativeToRoot, container); }
@@ -1521,15 +1533,12 @@ export class JsPlumb {
     //     return new JsPlumbInstance(options)
     // }
 
-    static addClass(el:RawElement, clazz:string) {
-
-    }
-
-    static removeClass(el:RawElement, clazz:string) {
-
-    }
-
-    static SegmentRenderer:any = {};
-
-    static Segments = {}
+    // static addClass(el:RawElement, clazz:string) {
+    //
+    // }
+    //
+    // static removeClass(el:RawElement, clazz:string) {
+    //
+    // }
+    //
 }

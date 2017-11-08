@@ -260,7 +260,7 @@ export class Connection<EventType, ElementType> extends OverlayCapableComponent<
     }
 
     makeEndpoint(isSource:Boolean, el:ElementType, elId:string, ep?:Endpoint<EventType, ElementType>) {
-        elId = elId || this._jsPlumb.instance.getId(el);
+        elId = elId || this.instance.getId(el);
         return this.prepareEndpoint(this.instance, this._newEndpoint, this, ep, isSource ? 0 : 1, this.constructorParams, el, elId);
     }
 
@@ -351,14 +351,14 @@ export class Connection<EventType, ElementType> extends OverlayCapableComponent<
                 this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
 
                 // and then the overlays
-                for (let j in this._jsPlumb.overlays) {
-                    if (this._jsPlumb.overlays.hasOwnProperty(j)) {
-                        let p = this._jsPlumb.overlays[j];
-                        if (p.isVisible()) {
-                            p.paint(this._jsPlumb.overlayPlacements[j], extents);
-                        }
-                    }
-                }
+                // for (let j in this._jsPlumb.overlays) {
+                //     if (this._jsPlumb.overlays.hasOwnProperty(j)) {
+                //         let p = this._jsPlumb.overlays[j];
+                //         if (p.isVisible()) {
+                //             p.paint(this._jsPlumb.overlayPlacements[j], extents);
+                //         }
+                //     }
+                // }
             }
             this._jsPlumb.lastPaintedAt = timestamp;
         }

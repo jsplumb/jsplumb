@@ -9,12 +9,14 @@ import {DragManager} from "./dom/drag-manager";
 import {Endpoint} from "./endpoint";
 import {Connection} from "./connection";
 import {Anchors} from "./anchor/anchors";
+import {AnchorManager} from "./anchor/anchor-manager";
 
 export {FlowchartConnector} from "./connector/flowchart-connector";
 export {BezierConnector} from "./connector/bezier-connector";
 export {StraightConnector} from "./connector/straight-connector";
 
 export {SvgDotEndpoint} from "./renderer/svg/svg-dot-endpoint";
+export {SvgFlowchartConnector} from "./renderer/svg/svg-flowchart-connector";
 
 export {LabelOverlay} from "./overlay/label-overlay";
 export {ArrowOverlay} from "./overlay/arrow-overlay";
@@ -27,6 +29,7 @@ export class JsPlumbDOMInstance extends JsPlumbInstance<Event, RawElement> {
 
     constructor(defaults: any) {
         super(defaults);
+        new AnchorManager(this);
     }
 
     draggableStates:Map<string, Boolean> = new Map();
@@ -100,11 +103,11 @@ export class JsPlumbDOMInstance extends JsPlumbInstance<Event, RawElement> {
                         }
                     }, false);
 
-                    options[dragEvent] = wrap(options[dragEvent], () => {
+                    options[dragEvent] = wrap(options[dragEvent], (dragParams:any) => {
                         // TODO: here we could actually use getDragObject, and then compute it ourselves,
                         // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
                         // differs from getUIPosition so much
-                        let ui = this.viewAdapter.getUIPosition(arguments, this.getZoom());
+                        let ui = this.viewAdapter.getUIPosition(dragParams, this.getZoom());
                         if (ui != null) {
                             this._draw(element, ui, null, true);
                             if (_started) {
@@ -113,17 +116,17 @@ export class JsPlumbDOMInstance extends JsPlumbInstance<Event, RawElement> {
                             _started = true;
                         }
                     });
-                    options[stopEvent] = wrap(options[stopEvent], () => {
-                        let elements = arguments[0].selection, uip;
+                    options[stopEvent] = wrap(options[stopEvent], (stopParams:any) => {
+                        let elements = stopParams.selection, uip;
 
                         let _one = (_e:any) => {
                             if (_e[1] != null) {
                                 // run the reported offset through the code that takes parent containers
                                 // into account, to adjust if necessary (issue 554)
-                                uip = this.viewAdapter.getUIPosition([{
+                                uip = this.viewAdapter.getUIPosition({
                                     el:_e[2].el,
                                     pos:[_e[1].left, _e[1].top]
-                                }], this.getZoom());
+                                }, this.getZoom());
 
                                 this._draw(_e[2].el, uip);
                             }

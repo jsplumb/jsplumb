@@ -4,6 +4,8 @@ import {ContinuousAnchor} from "./continuous-anchor";
 import {DynamicAnchor} from "./dynamic-anchor";
 import {Anchor} from "./abstract-anchor";
 import {LeftTopLocation} from "../jsplumb-defaults";
+import {Endpoint} from "../endpoint";
+import {Connection} from "../connection";
 
 declare var Biltong:any;
 
@@ -24,6 +26,7 @@ export class AnchorManager<EventType, ElementType> {
 
     constructor(instance:JsPlumbInstance<EventType, ElementType>) {
         this.instance = instance;
+        (<any>this.instance).anchorManager = this;
 
         instance.bind("reset", () => {
             this.reset();
@@ -49,7 +52,7 @@ export class AnchorManager<EventType, ElementType> {
                 params.newTargetId, params.connection);
         });
 
-        instance.bind("internal:deleteEndpoint", (endpoint) => { this.deleteEndpoint(endpoint); });
+        instance.bind("internal:deleteEndpoint", (endpoint:Endpoint<EventType, ElementType>) => { this.deleteEndpoint(endpoint); });
 
         instance.bind("internal:newEndpoint", (params:any) => {
             this.add(params.endpoint, params.elementId);
@@ -60,17 +63,17 @@ export class AnchorManager<EventType, ElementType> {
         });
 
         (<any>this.instance).continuousAnchorFactory = {
-            get: function (params) {
+            get: (params:any) => {
                 return new ContinuousAnchor(params, this);
             },
-            clear: function (elementId) {
+            clear: (elementId:string) => {
                 delete this.userDefinedContinuousAnchorLocations[elementId];
                 delete this.continuousAnchorLocations[elementId];
             }
         }
     }
 
-    calculateOrientation(sourceId:string, targetId:string, sd, td, sourceAnchor, targetAnchor) {
+    calculateOrientation(sourceId:string, targetId:string, sd:any, td:any, sourceAnchor:Anchor<EventType, ElementType>, targetAnchor:Anchor<EventType, ElementType>) {
 
         if (sourceId === targetId) {
             return {
@@ -118,14 +121,14 @@ export class AnchorManager<EventType, ElementType> {
         let sourceEdge = candidates[0].source, targetEdge = candidates[0].target;
         for (let i = 0; i < candidates.length; i++) {
 
-            if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
+            if (!sourceAnchor.isContinuous || (<ContinuousAnchor<EventType, ElementType>>sourceAnchor).isEdgeSupported(candidates[i].source)) {
                 sourceEdge = candidates[i].source;
             }
             else {
                 sourceEdge = null;
             }
 
-            if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
+            if (!targetAnchor.isContinuous || (<ContinuousAnchor<EventType, ElementType>>targetAnchor).isEdgeSupported(candidates[i].target)) {
                 targetEdge = candidates[i].target;
             }
             else {
@@ -146,7 +149,9 @@ export class AnchorManager<EventType, ElementType> {
         };
     }
 
-    static placeAnchorsOnLine(desc, elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse) {
+    static placeAnchorsOnLine(desc:string, elementDimensions:[number, number], elementPosition:[number, number], connections:Array<any>,
+                              horizontal:Boolean, otherMultiplier:number, reverse:Boolean) {
+
         let a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
 
         for (let i = 0; i < connections.length; i++) {
@@ -165,7 +170,7 @@ export class AnchorManager<EventType, ElementType> {
     }
 
     currySort(reverseAngles:Boolean):Function {
-        return function (a, b) {
+        return function (a:Array<any>, b:Array<any>) {
             let r = true;
             if (reverseAngles) {
                 r = a[0][0] < b[0][0];
@@ -177,7 +182,7 @@ export class AnchorManager<EventType, ElementType> {
         };
     }
 
-    static leftSort(a, b) {
+    static leftSort(a:Array<any>, b:Array<any>) {
         // first get adjusted values
         let p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
             p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
@@ -190,7 +195,7 @@ export class AnchorManager<EventType, ElementType> {
     }
 
     edgeSortFunctions = {
-        "top": (a, b) => {
+        "top": (a:Array<any>, b:Array<any>) => {
             return a[0] > b[0] ? 1 : -1;
         },
         "right": this.currySort(true),
@@ -198,15 +203,16 @@ export class AnchorManager<EventType, ElementType> {
         "left": AnchorManager.leftSort
     };
 
-    static _sortHelper(_array, _fn) {
+    static _sortHelper<T>(_array:Array<T>, _fn:(a:T,b:T)=>number) {
         return _array.sort(_fn);
     }
 
-    placeAnchors(elementId, _anchorLists) {
+    placeAnchors(elementId:string, _anchorLists:any) {
         let cd = this.instance.getCachedData(elementId),
             sS = cd.s,
             sO = cd.o,
-            placeSomeAnchors = function (desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
+            placeSomeAnchors = function (desc:string, elementDimensions:[number,number], elementPosition:[number,number],
+                                         unsortedConnections:Array<any>, isHorizontal:Boolean, otherMultiplier:number, orientation:any) {
                 if (unsortedConnections.length > 0) {
                     let sc = AnchorManager._sortHelper(unsortedConnections, this.edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
                         reverse = desc === "right" || desc === "top",
@@ -215,7 +221,7 @@ export class AnchorManager<EventType, ElementType> {
                             isHorizontal, otherMultiplier, reverse);
 
                     // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-                    let _setAnchorLocation = function (endpoint, anchorPos) {
+                    let _setAnchorLocation = function (endpoint:Endpoint<EventType, Element>, anchorPos:Array<number>) {
                         this.continuousAnchorLocations[endpoint.id] = [ anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3] ];
                         this.continuousAnchorOrientations[endpoint.id] = orientation;
                     };
@@ -244,22 +250,22 @@ export class AnchorManager<EventType, ElementType> {
         this.anchorLists = {};
     }
 
-    addFloatingConnection(key, conn) {
+    addFloatingConnection(key:string, conn:Connection<EventType, ElementType>) {
         this.floatingConnections[key] = conn;
     }
 
-    removeFloatingConnection(key) {
+    removeFloatingConnection(key:string) {
         delete this.floatingConnections[key];
     }
 
-    newConnection = function (conn) {
+    newConnection = function (conn:Connection<EventType, ElementType>) {
         let sourceId = conn.sourceId, targetId = conn.targetId,
             ep = conn.endpoints,
             doRegisterTarget = true,
-            registerConnection = function (otherIndex, otherEndpoint, otherAnchor, elId, c) {
+            registerConnection = (otherIndex:number, otherEndpoint:Endpoint<EventType, ElementType>, otherAnchor:Anchor<EventType, ElementType>, elId:string, c:Connection<EventType, ElementType>) => {
                 if ((sourceId === targetId) && otherAnchor.isContinuous) {
                     // remove the target endpoint's canvas.  we dont need it.
-                    conn._jsPlumb.instance.removeElement(ep[1].canvas);
+                    conn.instance.removeElement(ep[1].canvas);
                     doRegisterTarget = false;
                 }
                 addToList(this.connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor === DynamicAnchor]);
@@ -271,10 +277,10 @@ export class AnchorManager<EventType, ElementType> {
         }
     };
 
-    removeEndpointFromAnchorLists = function (endpoint) {
+    removeEndpointFromAnchorLists = function (endpoint:Endpoint<EventType, ElementType>) {
         (function (list, eId) {
             if (list) {  // transient anchors dont get entries in this list.
-                let f = function (e) {
+                let f = (e:Array<any>) => {
                     return e[4] === eId;
                 };
                 removeWithFunction(list.top, f);
@@ -285,13 +291,13 @@ export class AnchorManager<EventType, ElementType> {
         })(this.anchorLists[endpoint.elementId], endpoint.id);
     };
 
-    connectionDetached(connInfo, doNotRedraw?:Boolean) {
+    connectionDetached(connInfo:any, doNotRedraw?:Boolean) {
         let connection = connInfo.connection || connInfo,
             sourceId = connInfo.sourceId,
             targetId = connInfo.targetId,
             ep = connection.endpoints,
-            removeConnection = function (otherIndex, otherEndpoint, otherAnchor, elId, c) {
-                removeWithFunction(this.connectionsByElementId[elId], function (_c) {
+            removeConnection = (otherIndex:number, otherEndpoint:Endpoint<EventType, ElementType>, otherAnchor:Anchor<EventType, ElementType>, elId:string, c:Connection<EventType, ElementType>) => {
+                removeWithFunction(this.connectionsByElementId[elId], function (_c:Array<any>) {
                     return _c[0].id === c.id;
                 });
             };
@@ -315,33 +321,33 @@ export class AnchorManager<EventType, ElementType> {
         }
     }
 
-    add(endpoint, elementId) {
+    add(endpoint:Endpoint<EventType, ElementType>, elementId:string) {
         addToList(this._amEndpoints, elementId, endpoint);
     }
 
-    changeId(oldId, newId) {
+    changeId(oldId:string, newId:string) {
         this.connectionsByElementId[newId] = this.connectionsByElementId[oldId];
         this._amEndpoints[newId] = this._amEndpoints[oldId];
         delete this.connectionsByElementId[oldId];
         delete this._amEndpoints[oldId];
     }
 
-    getConnectionsFor(elementId) {
+    getConnectionsFor(elementId:string) {
         return this.connectionsByElementId[elementId] || [];
     };
 
-    getEndpointsFor(elementId) {
+    getEndpointsFor(elementId:string) {
         return this._amEndpoints[elementId] || [];
     };
 
-    deleteEndpoint(endpoint) {
-        removeWithFunction(this._amEndpoints[endpoint.elementId], function (e) {
+    deleteEndpoint(endpoint:Endpoint<EventType, ElementType>) {
+        removeWithFunction(this._amEndpoints[endpoint.elementId], (e:Endpoint<EventType, ElementType>) => {
             return e.id === endpoint.id;
         });
         this.removeEndpointFromAnchorLists(endpoint);
     };
 
-    clearFor(elementId) {
+    clearFor(elementId:string) {
         delete this._amEndpoints[elementId];
         this._amEndpoints[elementId] = [];
     };
@@ -351,7 +357,10 @@ export class AnchorManager<EventType, ElementType> {
     // all connections found along the way (those that are connected to one of the faces this function
     // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
     // them wthout having to calculate anything else about them.
-    _updateAnchorList(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, elId, connsToPaint, endpointsToPaint) {
+    _updateAnchorList(lists:Map<string, Array<any>>, theta:number, order:number, conn:any,
+                      aBoolean:Boolean, otherElId:string, idx:number, reverse:Boolean, edgeId:string, elId:string, connsToPaint:Array<Connection<EventType, ElementType>>,
+                      endpointsToPaint:Array<Endpoint<EventType, ElementType>>) {
+
         // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
         let exactIdx = -1,
             firstMatchingElIdx = -1,
@@ -368,10 +377,10 @@ export class AnchorManager<EventType, ElementType> {
             listToAddTo = lists[edgeId],
             listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
             i,
-            candidate;
+            candidate:any;
 
         if (listToRemoveFrom) {
-            let rIdx = findWithFunction(listToRemoveFrom, function (e) {
+            let rIdx = findWithFunction(listToRemoveFrom, (e:any) => {
                 return e[4] === endpointId;
             });
             if (rIdx !== -1) {
@@ -379,13 +388,13 @@ export class AnchorManager<EventType, ElementType> {
                 // get all connections from this list
                 for (i = 0; i < listToRemoveFrom.length; i++) {
                     candidate = listToRemoveFrom[i][1];
-                    addWithFunction(connsToPaint, candidate, function (c) {
+                    addWithFunction(connsToPaint, candidate, (c:any) => {
                         return c.id === candidate.id;
                     });
-                    addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function (e) {
+                    addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx],  (e:any) => {
                         return e.id === candidate.endpoints[idx].id;
                     });
-                    addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function (e) {
+                    addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], (e:any) => {
                         return e.id === candidate.endpoints[oIdx].id;
                     });
                 }
@@ -398,13 +407,13 @@ export class AnchorManager<EventType, ElementType> {
             // if (params.idx === 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx === -1) {
             //     firstMatchingElIdx = i;
             // }
-            addWithFunction(connsToPaint, candidate, function (c) {
+            addWithFunction(connsToPaint, candidate, (c:any) =>{
                 return c.id === candidate.id;
             });
-            addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function (e) {
+            addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], (e:any) => {
                 return e.id === candidate.endpoints[idx].id;
             });
-            addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], function (e) {
+            addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], (e:any) => {
                 return e.id === candidate.endpoints[oIdx].id;
             });
         }
@@ -425,11 +434,11 @@ export class AnchorManager<EventType, ElementType> {
     // with the current target in the connection.
     // This method and sourceChanged need to be folder into one.
     //
-    updateOtherEndpoint(sourceElId, oldTargetId, newTargetId, connection) {
-        let sIndex = findWithFunction(this.connectionsByElementId[sourceElId], function (i) {
+    updateOtherEndpoint(sourceElId:string, oldTargetId:string, newTargetId:string, connection:Connection<EventType, ElementType>) {
+        let sIndex = findWithFunction(this.connectionsByElementId[sourceElId], (i:any) => {
                 return i[0].id === connection.id;
             }),
-            tIndex = findWithFunction(this.connectionsByElementId[oldTargetId], function (i) {
+            tIndex = findWithFunction(this.connectionsByElementId[oldTargetId], (i:any) => {
                 return i[0].id === connection.id;
             });
 
@@ -457,18 +466,18 @@ export class AnchorManager<EventType, ElementType> {
     // 2. updating the source information for the target of the connection
     // 3. re-registering the connection in connectionsByElementId with the newId
     //
-    sourceChanged(originalId, newId, connection, newElement) {
+    sourceChanged(originalId:string, newId:string, connection:Connection<EventType, ElementType>, newElement:any) {
         if (originalId !== newId) {
 
             connection.sourceId = newId;
             connection.source = newElement;
 
             // remove the entry that points from the old source to the target
-            removeWithFunction(this.connectionsByElementId[originalId], function (info) {
+            removeWithFunction(this.connectionsByElementId[originalId], (info:any) => {
                 return info[0].id === connection.id;
             });
             // find entry for target and update it
-            let tIdx = findWithFunction(this.connectionsByElementId[connection.targetId], function (i) {
+            let tIdx = findWithFunction(this.connectionsByElementId[connection.targetId], (i:any) => {
                 return i[0].id === connection.id;
             });
             if (tIdx > -1) {
@@ -484,11 +493,11 @@ export class AnchorManager<EventType, ElementType> {
             // occur only if the anchor is Continuous
             if (connection.endpoints[1].anchor.isContinuous) {
                 if (connection.source === connection.target) {
-                    connection._jsPlumb.instance.removeElement(connection.endpoints[1].canvas);
+                    connection.instance.removeElement(connection.endpoints[1].canvas);
                 }
                 else {
-                    if (connection.endpoints[1].canvas.parentNode == null) {
-                        connection._jsPlumb.instance.appendElement(connection.endpoints[1].canvas);
+                    if ((<any>connection.endpoints[1].canvas).parentNode == null) {
+                        connection.instance.appendElement(connection.endpoints[1].canvas);
                     }
                 }
             }
@@ -506,7 +515,7 @@ export class AnchorManager<EventType, ElementType> {
     // 3. changing the array in connectionsByElementId in which the endpoint's connections
     //    are stored (done by either sourceChanged or updateOtherEndpoint)
     //
-    rehomeEndpoint(ep, currentId, element) {
+    rehomeEndpoint(ep:Endpoint<EventType, ElementType>, currentId:string, element:any) {
         let eps = this._amEndpoints[currentId] || [],
             elementId = this.instance.getId(element);
 
@@ -530,15 +539,15 @@ export class AnchorManager<EventType, ElementType> {
         }
     };
 
-    redraw(elementId, ui?:any, timestamp?:string, offsetToUI?:LeftTopLocation, clearEdits?:Boolean, doNotRecalcEndpoint?:Boolean) {
+    redraw(elementId:string, ui?:any, timestamp?:string, offsetToUI?:LeftTopLocation, clearEdits?:Boolean, doNotRecalcEndpoint?:Boolean) {
 
         if (!this.instance.isSuspendDrawing()) {
             // get all the endpoints for this element
             let ep = this._amEndpoints[elementId] || [],
                 endpointConnections = this.connectionsByElementId[elementId] || [],
-                connectionsToPaint = [],
-                endpointsToPaint = [],
-                anchorsToUpdate = [];
+                connectionsToPaint:Array<any> = [],
+                endpointsToPaint:Array<any> = [],
+                anchorsToUpdate:Array<any> = [];
 
             timestamp = timestamp || _timestamp();
             // offsetToUI are values that would have been calculated in the dragManager when registering
@@ -619,20 +628,20 @@ export class AnchorManager<EventType, ElementType> {
                     }
 
                     if (sourceContinuous) {
-                        addWithFunction(anchorsToUpdate, sourceId, function (a) {
+                        addWithFunction(anchorsToUpdate, sourceId, (a:any) => {
                             return a === sourceId;
                         });
                     }
                     if (targetContinuous) {
-                        addWithFunction(anchorsToUpdate, targetId, function (a) {
+                        addWithFunction(anchorsToUpdate, targetId, (a:any) => {
                             return a === targetId;
                         });
                     }
-                    addWithFunction(connectionsToPaint, conn, function (c) {
+                    addWithFunction(connectionsToPaint, conn, (c:any) => {
                         return c.id === conn.id;
                     });
                     if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1)) {
-                        addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function (e) {
+                        addWithFunction(endpointsToPaint, conn.endpoints[oIdx], (e:any)  => {
                             return e.id === conn.endpoints[oIdx].id;
                         });
                     }
@@ -645,9 +654,9 @@ export class AnchorManager<EventType, ElementType> {
                     if (!this.anchorLists[elementId]) {
                         this.anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] };
                     }
-                    this._updateAnchorList(this.anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [ep[i], ep[i]], paint: function () {
+                    this._updateAnchorList(this.anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [ep[i], ep[i]], paint:  () => {
                     }}, false, elementId, 0, false, ep[i].anchor.getDefaultFace(), elementId, connectionsToPaint, endpointsToPaint);
-                    addWithFunction(anchorsToUpdate, elementId, function (a) {
+                    addWithFunction(anchorsToUpdate, elementId, (a:any) => {
                         return a === elementId;
                     });
                 }
@@ -679,19 +688,19 @@ export class AnchorManager<EventType, ElementType> {
                 let otherEndpoint = endpointConnections[i][1];
                 if (otherEndpoint.anchor.constructor === DynamicAnchor) {
                     otherEndpoint.paint({ elementWithPrecedence: elementId, timestamp: timestamp });
-                    addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
+                    addWithFunction(connectionsToPaint, endpointConnections[i][0],  (c:any) => {
                         return c.id === endpointConnections[i][0].id;
                     });
                     // all the connections for the other endpoint now need to be repainted
                     for (let k = 0; k < otherEndpoint.connections.length; k++) {
                         if (otherEndpoint.connections[k] !== endpointConnections[i][0]) {
-                            addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function (c) {
+                            addWithFunction(connectionsToPaint, otherEndpoint.connections[k], (c:any) => {
                                 return c.id === otherEndpoint.connections[k].id;
                             });
                         }
                     }
                 } else if (otherEndpoint.anchor.constructor === Anchor) {
-                    addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
+                    addWithFunction(connectionsToPaint, endpointConnections[i][0], (c:any) => {
                         return c.id === endpointConnections[i][0].id;
                     });
                 }

@@ -83,7 +83,7 @@ export abstract class DOMOverlay<EventType, ElementType> extends Overlay<EventTy
     }
 
 
-    draw(currentConnectionPaintStyle:any, absolutePosition:ArrayLocation):any {
+    draw(currentConnectionPaintStyle:any, paintStyle:any, absolutePosition?:ArrayLocation):any {
         let td = DOMOverlay.getOverlayDimensions(this);
         if (td != null && td.length === 2) {
             let cxy = { x: 0, y: 0 };

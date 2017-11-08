@@ -337,11 +337,11 @@ export class DomViewAdapter implements ViewAdapter<Event, RawElement> {
         // not going to be the jsplumb container; it's going to be some child of that element. In that case
         // we want to adjust the UI position to account for the offsetParent's position relative to the Container
         // origin.
-        let el = eventArgs[0].el;
+        let el = eventArgs.el;
         if (el.offsetParent == null) {
             return null;
         }
-        let finalPos = eventArgs[0].finalPos || eventArgs[0].pos;
+        let finalPos = eventArgs.finalPos || eventArgs.pos;
         let p = { left:finalPos[0], top:finalPos[1] };
         if (el._katavorioDrag && el.offsetParent !== this.instance.getContainer()) {
             let oc = this.getOffset(el.offsetParent);

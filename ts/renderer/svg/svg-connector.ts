@@ -26,7 +26,9 @@ export class SvgConnector<EventType> extends SvgComponent<EventType> implements 
 
     }
 
-    _paint(style:any, anchor:any, extents:Extents) {
+    paint(style:any, anchor:any, extents:Extents) {
+
+        super.paint(style, anchor, extents);
 
         let segments = this.connector.getSegments(), p = "", offset = [0, 0];
         if (extents.xmin < 0) {

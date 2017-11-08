@@ -1,9 +1,10 @@
-import {AbstractComponent, Bounds} from "../component/abstract-component";
+import {Bounds} from "../component/abstract-component";
 import {isArray} from "../util/_is";
 import {Segment} from "./segment";
 import {JsPlumb} from "../core";
 import {UIComponent} from "../component/ui-component";
 import {ConnectorRenderer} from "../renderer/ConnectorRenderer";
+import {SegmentRenderer} from "./segment-renderer";
 
 // TODO Biltong should be ts
 declare var Biltong:any;
@@ -100,7 +101,7 @@ export abstract class Connector<EventType, ElementType> extends UIComponent<Even
     getPathData():string {
         let p = "";
         for (let i = 0; i < this.segments.length; i++) {
-            p += JsPlumb.SegmentRenderer.getPath(this.segments[i]);
+            p += SegmentRenderer.getPath(this.segments[i]);
             p += " ";
         }
         return p;
@@ -179,7 +180,7 @@ export abstract class Connector<EventType, ElementType> extends UIComponent<Even
         if (params.x1 === params.x2 && params.y1 === params.y2) {
             return;
         }
-        let s = new JsPlumb.Segments[segmentType](params);
+        let s = SegmentRenderer.createSegment(segmentType, params);
         this.segments.push(s);
         this.totalLength += s.getLength();
         conn.updateBounds(s);
