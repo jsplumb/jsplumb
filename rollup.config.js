@@ -1,5 +1,4 @@
 import babel from 'rollup-plugin-babel';
-//import eslint from 'rollup-plugin-eslint';
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
 
@@ -20,6 +19,14 @@ export default {
             jsnext: true,
             main: true
         }),
-        commonjs()
+        commonjs({
+            exclude:'node_modules/**',
+            include: 'node_modules/katavorio/src',
+
+            extensions:["js"],
+            ignoreGlobal: false,  // Default: false
+            // if false then skip sourceMap generation for CommonJS modules
+            sourceMap: false
+        })
     ]
 };
