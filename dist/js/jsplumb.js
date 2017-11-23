@@ -1660,9 +1660,13 @@
                 if (!moving) {
                     var _continue = _dispatch("start", {el:this.el, pos:posAtDown, e:e, drag:this});
                     if (_continue !== false) {
-                        if (!downAt) return;
+                        if (!downAt) {
+                            return;
+                        }
                         this.mark(true);
                         moving = true;
+                    } else {
+                        this.abort();
                     }
                 }
 
@@ -1741,14 +1745,19 @@
         };
 
         var _dispatch = function(evt, value) {
+            var result = null;
             if (listeners[evt]) {
                 for (var i = 0; i < listeners[evt].length; i++) {
                     try {
-                        listeners[evt][i](value);
+                        var v = listeners[evt][i](value);
+                        if (v != null) {
+                            result = v;
+                        }
                     }
                     catch (e) { }
                 }
             }
+            return result;
         };
 
         this.notifyStart = function(e) {
@@ -2703,6 +2712,7 @@
             return _one(model);
         },
         findWithFunction: function (a, f) {
+            // CONVERTED
             if (a) {
                 for (var i = 0; i < a.length; i++) {
                     if (f(a[i])) {
@@ -2713,6 +2723,7 @@
             return -1;
         },
         removeWithFunction: function (a, f) {
+            // CONVERTED
             var idx = root.jsPlumbUtil.findWithFunction(a, f);
             if (idx > -1) {
                 a.splice(idx, 1);
@@ -2720,6 +2731,7 @@
             return idx !== -1;
         },
         remove: function (l, v) {
+            // CONVERTED
             var idx = l.indexOf(v);
             if (idx > -1) {
                 l.splice(idx, 1);
@@ -3520,7 +3532,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.5.6";
+        this.version = "2.5.8";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -3554,6 +3566,7 @@
             return _instanceIndex;
         };
 
+        // CONVERTED
         this.setZoom = function (z, repaintEverything) {
             _zoom = z;
             _currentInstance.fire("zoom", _zoom);
@@ -3562,6 +3575,7 @@
             }
             return true;
         };
+        // CONVERTED
         this.getZoom = function () {
             return _zoom;
         };
@@ -4286,10 +4300,10 @@
         this.endpointDropAllowedClass = "jtk-endpoint-drop-allowed";
         this.endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden";
         this.overlayClass = "jtk-overlay";
-        this.draggingClass = "jtk-dragging";
-        this.elementDraggingClass = "jtk-element-dragging";
-        this.sourceElementDraggingClass = "jtk-source-element-dragging";
-        this.targetElementDraggingClass = "jtk-target-element-dragging";
+        this.draggingClass = "jtk-dragging";// CONVERTED
+        this.elementDraggingClass = "jtk-element-dragging";// CONVERTED
+        this.sourceElementDraggingClass = "jtk-source-element-dragging"; // CONVERTED
+        this.targetElementDraggingClass = "jtk-target-element-dragging";// CONVERTED
         this.endpointAnchorClassPrefix = "jtk-endpoint-anchor";
         this.hoverSourceClass = "jtk-source-hover";
         this.hoverTargetClass = "jtk-target-hover";
@@ -6228,6 +6242,17 @@
         this.toggleVisible = _toggleVisible;
         this.toggleDraggable = _toggleDraggable;
         this.addListener = this.bind;
+
+        var floatingConnections = [];
+        this.registerFloatingConnection = function(info, conn, ep) {
+            floatingConnections[info.id] = conn;
+            // only register for the target endpoint; we will not be dragging the source at any time
+            // before this connection is either discarded or made into a permanent connection.
+            _ju.addToList(endpointsByElement, info.id, ep);
+        };
+        this.getFloatingConnectionFor = function(id) {
+            return floatingConnections[id];
+        };
     };
 
     _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {
@@ -6746,14 +6771,17 @@
             return this.dragManager;
         },
 
+        // NEVER CALLED IN THE CURRENT JS
         recalculateOffsets:function(elId) {
             this.getDragManager().updateOffsets(elId);
         },
 
+        // CONVERTED
         createElement:function(tag, style, clazz, atts) {
             return this.createElementNS(null, tag, style, clazz, atts);
         },
 
+        // CONVERTED
         createElementNS:function(ns, tag, style, clazz, atts) {
             var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
             var i;
@@ -6774,16 +6802,19 @@
             return e;
         },
 
+        // CONVERTED
         getAttribute: function (el, attName) {
             return el.getAttribute != null ? el.getAttribute(attName) : null;
         },
 
+        // CONVERTED
         setAttribute: function (el, a, v) {
             if (el.setAttribute != null) {
                 el.setAttribute(a, v);
             }
         },
 
+        // CONVERTED
         setAttributes: function (el, atts) {
             for (var i in atts) {
                 if (atts.hasOwnProperty(i)) {
@@ -6794,15 +6825,19 @@
         appendToRoot: function (node) {
             document.body.appendChild(node);
         },
+        // NOT CONVERTING
         getRenderModes: function () {
             return [ "svg"  ];
         },
+        // CONVERTED
         getClass:_getClassName,
+        // CONVERTED
         addClass: function (el, clazz) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, clazz);
             });
         },
+        // CONVERTED
         hasClass: function (el, clazz) {
             el = jsPlumb.getElement(el);
             if (el.classList) {
@@ -6812,16 +6847,19 @@
                 return _getClassName(el).indexOf(clazz) !== -1;
             }
         },
+        // CONVERTED
         removeClass: function (el, clazz) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, null, clazz);
             });
         },
+        // CONVERTED
         updateClasses: function (el, toAdd, toRemove) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, toAdd, toRemove);
             });
         },
+        // CONVERTED
         setClass: function (el, clazz) {
             if (clazz != null) {
                 jsPlumb.each(el, function (e) {
@@ -6829,10 +6867,12 @@
                 });
             }
         },
+        // CONVERTED
         setPosition: function (el, p) {
             el.style.left = p.left + "px";
             el.style.top = p.top + "px";
         },
+        // CONVERTED
         getPosition: function (el) {
             var _one = function (prop) {
                 var v = el.style[prop];
@@ -6843,6 +6883,7 @@
                 top: _one("top")
             };
         },
+        // CONVERTED
         getStyle:function(el, prop) {
             if (typeof window.getComputedStyle !== 'undefined') {
                 return getComputedStyle(el, null).getPropertyValue(prop);
@@ -6850,6 +6891,7 @@
                 return el.currentStyle[prop];
             }
         },
+        // CONVERTED
         getSelector: function (ctx, spec) {
             var sel = null;
             if (arguments.length === 1) {
@@ -6861,6 +6903,7 @@
 
             return sel;
         },
+        // CONVERTED
         getOffset:function(el, relativeToRoot, container) {
             el = jsPlumb.getElement(el);
             container = container || this.getContainer();
@@ -6958,12 +7001,15 @@
         /**
          * gets the size for the element, in an array : [ width, height ].
          */
+        // CONVERTED
         getSize: function (el) {
             return [ el.offsetWidth, el.offsetHeight ];
         },
+        // CONVERTED
         getWidth: function (el) {
             return el.offsetWidth;
         },
+        // CONVERTED
         getHeight: function (el) {
             return el.offsetHeight;
         },
@@ -7941,11 +7987,16 @@
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     }
 
-                    // register it and register connection on it.
-                    _jsPlumb.floatingConnections[placeholderInfo.id] = jpc;
-                    // only register for the target endpoint; we will not be dragging the source at any time
-                    // before this connection is either discarded or made into a permanent connection.
-                    _ju.addToList(params.endpointsByElement, placeholderInfo.id, this._jsPlumb.floatingEndpoint);
+                    _jsPlumb.registerFloatingConnection(placeholderInfo, jpc, this._jsPlumb.floatingEndpoint);
+
+                    // // register it and register connection on it.
+                    // _jsPlumb.floatingConnections[placeholderInfo.id] = jpc;
+                    //
+                    // // only register for the target endpoint; we will not be dragging the source at any time
+                    // // before this connection is either discarded or made into a permanent connection.
+                    // _ju.addToList(params.endpointsByElement, placeholderInfo.id, this._jsPlumb.floatingEndpoint);
+
+
                     // tell jsplumb about it
                     _jsPlumb.currentlyDragging = true;
                 }.bind(this);
@@ -8145,7 +8196,7 @@
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function () {
                     var draggable = _jp.getDragObject(arguments),
                         id = _jsPlumb.getAttribute(_jp.getElement(draggable), "dragId"),
-                        _jpc = _jsPlumb.floatingConnections[id];
+                        _jpc = _jsPlumb.getFloatingConnectionFor(id);//_jsPlumb.floatingConnections[id];
 
                     if (_jpc != null) {
                         var idx = _jsPlumb.getFloatingAnchorIndex(_jpc);
@@ -8168,7 +8219,7 @@
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function () {
                     var draggable = _jp.getDragObject(arguments),
                         id = draggable == null ? null : _jsPlumb.getAttribute(_jp.getElement(draggable), "dragId"),
-                        _jpc = id ? _jsPlumb.floatingConnections[id] : null;
+                        _jpc = id ? _jsPlumb.getFloatingConnectionFor(id) : null;
 
                     if (_jpc != null) {
                         var idx = _jsPlumb.getFloatingAnchorIndex(_jpc);
@@ -8324,7 +8375,7 @@
                 id = _jsPlumb.getAttribute(draggable, "dragId"),
                 elId = _jsPlumb.getAttribute(draggable, "elId"),
                 scope = _jsPlumb.getAttribute(draggable, "originalScope"),
-                jpc = _jsPlumb.floatingConnections[id];
+                jpc = _jsPlumb.getFloatingConnectionFor(id);
 
             // if no active connection, bail.
             if (jpc == null) {
