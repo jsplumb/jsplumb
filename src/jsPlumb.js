@@ -505,6 +505,7 @@
             return _instanceIndex;
         };
 
+        // CONVERTED
         this.setZoom = function (z, repaintEverything) {
             _zoom = z;
             _currentInstance.fire("zoom", _zoom);
@@ -513,6 +514,7 @@
             }
             return true;
         };
+        // CONVERTED
         this.getZoom = function () {
             return _zoom;
         };
@@ -1237,10 +1239,10 @@
         this.endpointDropAllowedClass = "jtk-endpoint-drop-allowed";
         this.endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden";
         this.overlayClass = "jtk-overlay";
-        this.draggingClass = "jtk-dragging";
-        this.elementDraggingClass = "jtk-element-dragging";
-        this.sourceElementDraggingClass = "jtk-source-element-dragging";
-        this.targetElementDraggingClass = "jtk-target-element-dragging";
+        this.draggingClass = "jtk-dragging";// CONVERTED
+        this.elementDraggingClass = "jtk-element-dragging";// CONVERTED
+        this.sourceElementDraggingClass = "jtk-source-element-dragging"; // CONVERTED
+        this.targetElementDraggingClass = "jtk-target-element-dragging";// CONVERTED
         this.endpointAnchorClassPrefix = "jtk-endpoint-anchor";
         this.hoverSourceClass = "jtk-source-hover";
         this.hoverTargetClass = "jtk-target-hover";
@@ -3179,6 +3181,17 @@
         this.toggleVisible = _toggleVisible;
         this.toggleDraggable = _toggleDraggable;
         this.addListener = this.bind;
+
+        var floatingConnections = [];
+        this.registerFloatingConnection = function(info, conn, ep) {
+            floatingConnections[info.id] = conn;
+            // only register for the target endpoint; we will not be dragging the source at any time
+            // before this connection is either discarded or made into a permanent connection.
+            _ju.addToList(endpointsByElement, info.id, ep);
+        };
+        this.getFloatingConnectionFor = function(id) {
+            return floatingConnections[id];
+        };
     };
 
     _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {

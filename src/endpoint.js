@@ -675,11 +675,16 @@
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     }
 
-                    // register it and register connection on it.
-                    _jsPlumb.floatingConnections[placeholderInfo.id] = jpc;
-                    // only register for the target endpoint; we will not be dragging the source at any time
-                    // before this connection is either discarded or made into a permanent connection.
-                    _ju.addToList(params.endpointsByElement, placeholderInfo.id, this._jsPlumb.floatingEndpoint);
+                    _jsPlumb.registerFloatingConnection(placeholderInfo, jpc, this._jsPlumb.floatingEndpoint);
+
+                    // // register it and register connection on it.
+                    // _jsPlumb.floatingConnections[placeholderInfo.id] = jpc;
+                    //
+                    // // only register for the target endpoint; we will not be dragging the source at any time
+                    // // before this connection is either discarded or made into a permanent connection.
+                    // _ju.addToList(params.endpointsByElement, placeholderInfo.id, this._jsPlumb.floatingEndpoint);
+
+
                     // tell jsplumb about it
                     _jsPlumb.currentlyDragging = true;
                 }.bind(this);
@@ -879,7 +884,7 @@
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function () {
                     var draggable = _jp.getDragObject(arguments),
                         id = _jsPlumb.getAttribute(_jp.getElement(draggable), "dragId"),
-                        _jpc = _jsPlumb.floatingConnections[id];
+                        _jpc = _jsPlumb.getFloatingConnectionFor(id);//_jsPlumb.floatingConnections[id];
 
                     if (_jpc != null) {
                         var idx = _jsPlumb.getFloatingAnchorIndex(_jpc);
@@ -902,7 +907,7 @@
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function () {
                     var draggable = _jp.getDragObject(arguments),
                         id = draggable == null ? null : _jsPlumb.getAttribute(_jp.getElement(draggable), "dragId"),
-                        _jpc = id ? _jsPlumb.floatingConnections[id] : null;
+                        _jpc = id ? _jsPlumb.getFloatingConnectionFor(id) : null;
 
                     if (_jpc != null) {
                         var idx = _jsPlumb.getFloatingAnchorIndex(_jpc);
@@ -1058,7 +1063,7 @@
                 id = _jsPlumb.getAttribute(draggable, "dragId"),
                 elId = _jsPlumb.getAttribute(draggable, "elId"),
                 scope = _jsPlumb.getAttribute(draggable, "originalScope"),
-                jpc = _jsPlumb.floatingConnections[id];
+                jpc = _jsPlumb.getFloatingConnectionFor(id);
 
             // if no active connection, bail.
             if (jpc == null) {

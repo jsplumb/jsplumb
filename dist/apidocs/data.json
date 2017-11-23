@@ -2,7 +2,7 @@
     "project": {
         "name": "jsplumb",
         "description": "Visual connectivity for webapps",
-        "version": "2.5.7",
+        "version": "2.5.8",
         "url": ""
     },
     "files": {
@@ -93,7 +93,7 @@
             "name": "doc/api/overlays-api.js",
             "modules": {},
             "classes": {
-                "AbstractOverlay": 1,
+                "Overlay": 1,
                 "Overlays.Arrow": 1,
                 "Overlays.PlainArrow": 1,
                 "Overlays.Diamond": 1,
@@ -1050,9 +1050,9 @@
             "description": "Base class for components that support Overlays. This class should never be directly instantiated.",
             "extends": "jsPlumbUIComponent"
         },
-        "AbstractOverlay": {
-            "name": "AbstractOverlay",
-            "shortname": "AbstractOverlay",
+        "Overlay": {
+            "name": "Overlay",
+            "shortname": "Overlay",
             "classitems": [],
             "plugins": [],
             "extensions": [],

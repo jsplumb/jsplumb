@@ -14,7 +14,9 @@
     opacity: 0.8;
     width: 80px;
     height: 80px;
-    line-height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
     text-align: center;
     z-index: 20;

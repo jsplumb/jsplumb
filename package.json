@@ -1,6 +1,6 @@
 {
   "name": "jsplumb",
-  "version": "2.5.7",
+  "version": "2.5.8",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
@@ -16,11 +16,14 @@
   "types": "index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init":"node ./install.js"
+    "init": "node ./install.js",
+    "tsc": "tsc",
+    "rollup": "./node_modules/.bin/rollup -c",
+    "build": "tsc;./node_modules/.bin/rollup -c"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jsplumb/jsPlumb.git"
+    "url": "git://github.com/jsplumb/jsplumb.git"
   },
   "keywords": [
     "javascript",
@@ -31,7 +34,9 @@
   "author": "jsPlumb",
   "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
-    "morgan":"1.8.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-es2015": "^6.24.1",
     "biltong": "^0.4.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
@@ -48,7 +53,14 @@
     "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "^0.9.1",
     "katavorio": "^0.22.0",
-    "mottle": "^0.8.0"
+    "morgan": "1.8.0",
+    "mottle": "^0.8.0",
+    "rollup": "^0.50.0",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-commonjs": "^8.2.4",
+    "rollup-plugin-eslint": "^4.0.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "typescript": "^2.4.2"
   }
 
 }

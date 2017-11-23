@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+    <head>
+
+        <title>jsPlumb - flowchart demonstration</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+
+        <link rel="stylesheet" href="../../css/jsplumbtoolkit-defaults.css">
+        <link rel="stylesheet" href="../../css/main.css">
+        <link rel="stylesheet" href="../../css/jsplumbtoolkit-demo.css">
+        <link rel="stylesheet" href="demo.css">
+
+    </head>
+    <body data-demo-id="flowchart">
+
+        <a style="margin:10px 0 0 10px;display:inline-block" href="https://jsplumbtoolkit.com"><img src="../../img/logo-jsplumb-green.png"></a>
+
+        <div class="jtk-demo-main">
+			<!-- demo -->
+            <div class="jtk-demo-canvas canvas-wide flowchart-demo jtk-surface jtk-surface-nopan" id="canvas">
+                <div class="window jtk-node" id="flowchartWindow1"><strong>1</strong><br/><br/></div>
+                <div class="window jtk-node" id="flowchartWindow2"><strong>2</strong><br/><br/></div>
+                <div class="window jtk-node" id="flowchartWindow3"><strong>3</strong><br/><br/></div>
+                <div class="window jtk-node" id="flowchartWindow4"><strong>4</strong><br/><br/></div>
+            </div>
+            <!-- /demo -->
+            <!-- explanation -->
+            <div class="description">
+                <h4>FLOWCHART</h4>
+                <p>Nodes are connected with the Flowchart connector.</p>
+                <p>Hover over connections to highlight them, click to delete. </p>
+                <p>Drag new connections from hollow dots to solid dots. You can also drag connections from their source/target to other sources/targets, or back onto themselves.</p>
+                <p>By default, Flowchart connectors have square corners, but by setting the 'cornerRadius' parameter, as we have here, you can get rounded corners.</p>
+            </div>
+            <!-- /explanation -->
+        </div>
+
+        <!-- JS -->
+        <!-- support lib for bezier stuff -->
+        <script src="../../node_modules/mottle/js/mottle.js"></script>
+        <script src="../../node_modules/katavorio/src/katavorio.js"></script>
+        <script src="../../node_modules/biltong/src/biltong.js"></script>
+        <script src="../../_build/es5/jsplumb.js"></script>
+
+        <!--  demo code-->
+        <script src="demo.js"></script>
+
+        <!-- demo list>
+        <script src="../demo-list.js"></script-->
+
+
+    </body>
+</html>

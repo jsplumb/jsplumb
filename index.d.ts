@@ -1,17 +1,27 @@
-// Type definitions for jsPlumb 2.2.4
+// Type definitions for jsPlumb
 // Ron Newcomb
-
-/// <reference types="jquery"/>
+// Simon Porritt
 
 declare var jsPlumb: jsPlumbInstance;
 
 type Selector = string;
 type UUID = string;
+type ElementId = string;
+type ElementRef = ElementId | Element;
+type ElementGroupRef = ElementId | Element | Array<ElementId> | Array<Element>;
+type Endpoint = Object;
+
+// TODO improve this
+type EndpointParams = Object;
 
 interface jsPlumbInstance {
-    addEndpoint(el: string | Object | Array<any>, params?: Object, referenceParams?: Object): Object | Array<any>;
-    addEndpoints(target: string | Object | Array<any>, endpoints: Array<any>, referenceParams?: Object): Array<any>;
-    animate(el: string | Element | Selector, properties?: Object, options?: Object): void;
+
+    addEndpoint(el: ElementGroupRef, params?: EndpointParams, referenceParams?: EndpointParams): Endpoint | Array<Endpoint>;
+
+    addEndpoints(target: ElementGroupRef, endpoints: Array<EndpointParams>, referenceParams?: EndpointParams): Array<Endpoint>;
+
+    animate(el: ElementRef, properties?: Object, options?: Object): void;
+
     batch(fn: Function, doNotRepaintAfterwards?: boolean/* =false */): void;
     bind(event: "connection", callback: (info: ConnectionMadeEventInfo, originalEvent: Event) => void, insertAtStart?: boolean/* =false */): void;
     bind(event: "click", callback: (info: Connection, originalEvent: Event) => void, insertAtStart?: boolean/* =false */): void;
@@ -118,7 +128,10 @@ interface OnConnectionBindInfo {
 }
 
 interface Defaults {
-    Endpoint?: any[];
+    Endpoint?: any;
+    Endpoints?:any[];
+    Anchor?:any;
+    Anchors?:any[];
     PaintStyle?: PaintStyle;
     HoverPaintStyle?: PaintStyle;
     ConnectionsDetachable?: boolean;
@@ -169,7 +182,7 @@ interface ConnectParams {
     target?: any; // string, element or endpoint
     detachable?: boolean;
     deleteEndpointsOnDetach?: boolean;
-    endPoint?: string;
+    endpoint?: string;
     anchor?: string;
     anchors?: any[];
     label?: string;

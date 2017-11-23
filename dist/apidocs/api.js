@@ -1,7 +1,6 @@
 YUI.add("yuidoc-meta", function(Y) {
    Y.YUIDoc = { meta: {
     "classes": [
-        "AbstractOverlay",
         "Anchors.Assign",
         "Anchors.AutoDefault",
         "Anchors.Bottom",
@@ -34,6 +33,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "Endpoints.Dot",
         "Endpoints.Image",
         "Endpoints.Rectangle",
+        "Overlay",
         "OverlayCapableJsPlumbUIComponent",
         "Overlays.Arrow",
         "Overlays.Diamond",

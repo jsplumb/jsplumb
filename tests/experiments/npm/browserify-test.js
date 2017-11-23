@@ -10267,8 +10267,8 @@ jsPlumb.ready(function() {
     };
 
     /*
-     Class: AbstractComponent
-     Superclass for AbstractConnector and AbstractEndpoint.
+     Class: UIComponent
+     Superclass for Connector and AbstractEndpoint.
      */
     var AbstractComponent = function () {
         this.resetBounds = function () {
@@ -10278,7 +10278,7 @@ jsPlumb.ready(function() {
     };
 
     /*
-     * Class: AbstractConnector
+     * Class: Connector
      * Superclass for all Connectors; here is where Segments are managed.  This is exposed on jsPlumb just so it
      * can be accessed from other files. You should not try to instantiate one of these directly.
      *

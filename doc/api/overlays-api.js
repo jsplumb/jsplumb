@@ -12,7 +12,7 @@
 *     - An array of two values which are proportional to the width and height of the Endpoint.
 *
 * For Endpoints, the default value is `[0.5, 0.5]`.
-* @class AbstractOverlay
+* @class Overlay
 */
 
 /**
