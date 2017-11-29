@@ -641,7 +641,7 @@
                                 });
                             }
                         }
-                    } else if (otherEndpoint.anchor.constructor === _jp.Anchor) {
+                    } else {
                         _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
                             return c.id === endpointConnections[i][0].id;
                         });
