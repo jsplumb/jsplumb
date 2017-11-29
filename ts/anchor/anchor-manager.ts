@@ -699,7 +699,7 @@ export class AnchorManager<EventType, ElementType> {
                             });
                         }
                     }
-                } else if (otherEndpoint.anchor.constructor === Anchor) {
+                } else {
                     addWithFunction(connectionsToPaint, endpointConnections[i][0], (c:any) => {
                         return c.id === endpointConnections[i][0].id;
                     });
