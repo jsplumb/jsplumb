@@ -435,6 +435,8 @@
                             anchorParams.txy = [ oOffset.left, oOffset.top ];
                             anchorParams.twh = oWH;
                             anchorParams.tElement = c.endpoints[oIdx];
+                        } else if (this.connections.length > 0) {
+                            anchorParams.connection = this.connections[0];
                         }
                         ap = this.anchor.compute(anchorParams);
                     }
