@@ -616,51 +616,53 @@ export class Connection<EventType, ElementType> extends OverlayCapableComponent<
 
     setPreparedConnector(connector:Connector<EventType, ElementType>, doNotRepaint?:Boolean, doNotChangeListenerComponent?:Boolean, typeId?:string) {
 
-        let previous, previousClasses = "";
-        // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
-        // and we havent passed in `true` for "force" here.
-        if (this.connector != null) {
-            previous = this.connector;
-            previousClasses = previous.getClass();
-            this.connector.cleanup();
-            this.connector.destroy();
-        }
+        if (this.connector != connector) {
+            let previous, previousClasses = "";
+            // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
+            // and we havent passed in `true` for "force" here.
+            if (this.connector != null) {
+                previous = this.connector;
+                previousClasses = previous.getClass();
+                this.connector.cleanup();
+                this.connector.destroy();
+            }
 
-        this.connector = connector;
-        if (typeId) {
-            this.cacheTypeItem("connector", connector, typeId);
-        }
+            this.connector = connector;
+            if (typeId) {
+                this.cacheTypeItem("connector", connector, typeId);
+            }
 
-        this.canvas = this.connector.canvas;
-        this.bgCanvas = this.connector.bgCanvas;
+            this.canvas = this.connector.canvas;
+            this.bgCanvas = this.connector.bgCanvas;
 
-        // put classes from prior connector onto the canvas
-        this.addClass(previousClasses);
+            // put classes from prior connector onto the canvas
+            this.addClass(previousClasses);
 
-        // new: instead of binding listeners per connector, we now just have one delegate on the container.
-        // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
-        // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
-        if (this.canvas) {
-            (<any>this.canvas)._jsPlumb = this;
-        }
-        if (this.bgCanvas) {
-            (<any>this.bgCanvas)._jsPlumb = this;
-        }
+            // new: instead of binding listeners per connector, we now just have one delegate on the container.
+            // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
+            // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
+            if (this.canvas) {
+                (<any>this.canvas)._jsPlumb = this;
+            }
+            if (this.bgCanvas) {
+                (<any>this.bgCanvas)._jsPlumb = this;
+            }
 
-        if (previous != null) {
-            let o = this.getOverlays();
-            for (let i = 0; i < o.length; i++) {
-                if (o[i].transfer) {
-                    o[i].transfer(this.connector);
+            if (previous != null) {
+                let o = this.getOverlays();
+                for (let i = 0; i < o.length; i++) {
+                    if (o[i].transfer) {
+                        o[i].transfer(this.connector);
+                    }
                 }
             }
-        }
 
-        if (!doNotChangeListenerComponent) {
-            this.setListenerComponent(this.connector);
-        }
-        if (!doNotRepaint) {
-            this.repaint();
+            if (!doNotChangeListenerComponent) {
+                this.setListenerComponent(this.connector);
+            }
+            if (!doNotRepaint) {
+                this.repaint();
+            }
         }
     }
 
