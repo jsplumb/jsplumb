@@ -429,51 +429,54 @@
         },
         setPreparedConnector: function(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
 
-            var previous, previousClasses = "";
-            // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
-            // and we havent passed in `true` for "force" here.
-            if (this.connector != null) {
-                previous = this.connector;
-                previousClasses = previous.getClass();
-                this.connector.cleanup();
-                this.connector.destroy();
-            }
+            if (this.connector !== connector) {
 
-            this.connector = connector;
-            if (typeId) {
-                this.cacheTypeItem("connector", connector, typeId);
-            }
+                var previous, previousClasses = "";
+                // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
+                // and we havent passed in `true` for "force" here.
+                if (this.connector != null) {
+                    previous = this.connector;
+                    previousClasses = previous.getClass();
+                    this.connector.cleanup();
+                    this.connector.destroy();
+                }
 
-            this.canvas = this.connector.canvas;
-            this.bgCanvas = this.connector.bgCanvas;
+                this.connector = connector;
+                if (typeId) {
+                    this.cacheTypeItem("connector", connector, typeId);
+                }
 
-            // put classes from prior connector onto the canvas
-            this.addClass(previousClasses);
+                this.canvas = this.connector.canvas;
+                this.bgCanvas = this.connector.bgCanvas;
 
-            // new: instead of binding listeners per connector, we now just have one delegate on the container.
-            // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
-            // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
-            if (this.canvas) {
-                this.canvas._jsPlumb = this;
-            }
-            if (this.bgCanvas) {
-                this.bgCanvas._jsPlumb = this;
-            }
+                // put classes from prior connector onto the canvas
+                this.addClass(previousClasses);
 
-            if (previous != null) {
-                var o = this.getOverlays();
-                for (var i = 0; i < o.length; i++) {
-                    if (o[i].transfer) {
-                        o[i].transfer(this.connector);
+                // new: instead of binding listeners per connector, we now just have one delegate on the container.
+                // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
+                // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
+                if (this.canvas) {
+                    this.canvas._jsPlumb = this;
+                }
+                if (this.bgCanvas) {
+                    this.bgCanvas._jsPlumb = this;
+                }
+
+                if (previous != null) {
+                    var o = this.getOverlays();
+                    for (var i = 0; i < o.length; i++) {
+                        if (o[i].transfer) {
+                            o[i].transfer(this.connector);
+                        }
                     }
                 }
-            }
 
-            if (!doNotChangeListenerComponent) {
-                this.setListenerComponent(this.connector);
-            }
-            if (!doNotRepaint) {
-                this.repaint();
+                if (!doNotChangeListenerComponent) {
+                    this.setListenerComponent(this.connector);
+                }
+                if (!doNotRepaint) {
+                    this.repaint();
+                }
             }
         },
         setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
