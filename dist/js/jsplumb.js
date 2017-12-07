@@ -2837,18 +2837,16 @@
          * note that this is a simple comparison and only works for primitives right now.
          */
         wrap: function (wrappedFunction, newFunction, returnOnThisValue) {
-            wrappedFunction = wrappedFunction || function () {
-            };
-            newFunction = newFunction || function () {
-            };
             return function () {
                 var r = null;
                 try {
-                    r = newFunction.apply(this, arguments);
+                    if (newFunction != null) {
+                        r = newFunction.apply(this, arguments);
+                    }
                 } catch (e) {
                     root.jsPlumbUtil.log("jsPlumb function failed : " + e);
                 }
-                if (returnOnThisValue == null || (r !== returnOnThisValue)) {
+                if ((wrappedFunction != null) && (returnOnThisValue == null || (r !== returnOnThisValue))) {
                     try {
                         r = wrappedFunction.apply(this, arguments);
                     } catch (e) {
@@ -7747,6 +7745,8 @@
                             anchorParams.txy = [ oOffset.left, oOffset.top ];
                             anchorParams.twh = oWH;
                             anchorParams.tElement = c.endpoints[oIdx];
+                        } else if (this.connections.length > 0) {
+                            anchorParams.connection = this.connections[0];
                         }
                         ap = this.anchor.compute(anchorParams);
                     }
@@ -9028,51 +9028,54 @@
         },
         setPreparedConnector: function(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
 
-            var previous, previousClasses = "";
-            // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
-            // and we havent passed in `true` for "force" here.
-            if (this.connector != null) {
-                previous = this.connector;
-                previousClasses = previous.getClass();
-                this.connector.cleanup();
-                this.connector.destroy();
-            }
+            if (this.connector !== connector) {
 
-            this.connector = connector;
-            if (typeId) {
-                this.cacheTypeItem("connector", connector, typeId);
-            }
+                var previous, previousClasses = "";
+                // the connector will not be cleaned up if it was set as part of a type, because `typeId` will be set on it
+                // and we havent passed in `true` for "force" here.
+                if (this.connector != null) {
+                    previous = this.connector;
+                    previousClasses = previous.getClass();
+                    this.connector.cleanup();
+                    this.connector.destroy();
+                }
 
-            this.canvas = this.connector.canvas;
-            this.bgCanvas = this.connector.bgCanvas;
+                this.connector = connector;
+                if (typeId) {
+                    this.cacheTypeItem("connector", connector, typeId);
+                }
 
-            // put classes from prior connector onto the canvas
-            this.addClass(previousClasses);
+                this.canvas = this.connector.canvas;
+                this.bgCanvas = this.connector.bgCanvas;
 
-            // new: instead of binding listeners per connector, we now just have one delegate on the container.
-            // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
-            // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
-            if (this.canvas) {
-                this.canvas._jsPlumb = this;
-            }
-            if (this.bgCanvas) {
-                this.bgCanvas._jsPlumb = this;
-            }
+                // put classes from prior connector onto the canvas
+                this.addClass(previousClasses);
 
-            if (previous != null) {
-                var o = this.getOverlays();
-                for (var i = 0; i < o.length; i++) {
-                    if (o[i].transfer) {
-                        o[i].transfer(this.connector);
+                // new: instead of binding listeners per connector, we now just have one delegate on the container.
+                // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
+                // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
+                if (this.canvas) {
+                    this.canvas._jsPlumb = this;
+                }
+                if (this.bgCanvas) {
+                    this.bgCanvas._jsPlumb = this;
+                }
+
+                if (previous != null) {
+                    var o = this.getOverlays();
+                    for (var i = 0; i < o.length; i++) {
+                        if (o[i].transfer) {
+                            o[i].transfer(this.connector);
+                        }
                     }
                 }
-            }
 
-            if (!doNotChangeListenerComponent) {
-                this.setListenerComponent(this.connector);
-            }
-            if (!doNotRepaint) {
-                this.repaint();
+                if (!doNotChangeListenerComponent) {
+                    this.setListenerComponent(this.connector);
+                }
+                if (!doNotRepaint) {
+                    this.repaint();
+                }
             }
         },
         setConnector: function (connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
@@ -9865,7 +9868,7 @@
                                 });
                             }
                         }
-                    } else if (otherEndpoint.anchor.constructor === _jp.Anchor) {
+                    } else {
                         _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
                             return c.id === endpointConnections[i][0].id;
                         });
@@ -13435,7 +13438,11 @@
                 _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
             }
 
-            _super.setGeometry({controlPoints:[_CP, _CP2]}, true);
+            _super.setGeometry({
+                controlPoints:[_CP, _CP2],
+                sourcePos:sp,
+                targetPos:tp
+            }, true);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
@@ -13644,7 +13651,13 @@
                 cp1y = _controlPoint[1];
                 cp2y = _controlPoint[1];
 
-                _super.setGeometry({controlPoints:[_controlPoint, _controlPoint]}, true);
+                _super.setGeometry({
+                    controlPoints:[_controlPoint, _controlPoint],
+                    sourcePos:sp,
+                    targetPos:tp,
+                    quadrant:segment,
+                    curviness:curviness
+                }, true);
             }
 
             _super.addSegment(this, "Bezier", {

@@ -1,3 +1,9 @@
+## 2.5.8
+
+7th December 2017
+
+- minor updates to the way anchors and connectors are set to fix a couple of small bugs related to types.
+
 ## 2.5.7
 
 22nd October 2017
