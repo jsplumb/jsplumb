@@ -192,7 +192,13 @@
                 cp1y = _controlPoint[1];
                 cp2y = _controlPoint[1];
 
-                _super.setGeometry({controlPoints:[_controlPoint, _controlPoint]}, true);
+                _super.setGeometry({
+                    controlPoints:[_controlPoint, _controlPoint],
+                    sourcePos:sp,
+                    targetPos:tp,
+                    quadrant:segment,
+                    curviness:curviness
+                }, true);
             }
 
             _super.addSegment(this, "Bezier", {

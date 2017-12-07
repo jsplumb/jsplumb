@@ -149,7 +149,11 @@
                 _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
             }
 
-            _super.setGeometry({controlPoints:[_CP, _CP2]}, true);
+            _super.setGeometry({
+                controlPoints:[_CP, _CP2],
+                sourcePos:sp,
+                targetPos:tp
+            }, true);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
