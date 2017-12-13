@@ -1,3 +1,7 @@
+## 2.5.9
+
+- dont default to false for 'directed' on a connection; allow it to be undefined if not set.
+
 ## 2.5.8
 
 7th December 2017

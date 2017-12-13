@@ -3530,7 +3530,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.5.8";
+        this.version = "2.5.9";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -8986,7 +8986,7 @@
             this._jsPlumb.cost = c;
         },
         isDirected: function () {
-            return this._jsPlumb.directed === true;
+            return this._jsPlumb.directed;
         },
         getConnector: function () {
             return this.connector;
