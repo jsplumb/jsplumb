@@ -387,7 +387,7 @@
             this._jsPlumb.cost = c;
         },
         isDirected: function () {
-            return this._jsPlumb.directed === true;
+            return this._jsPlumb.directed;
         },
         getConnector: function () {
             return this.connector;
