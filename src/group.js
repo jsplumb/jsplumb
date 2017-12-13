@@ -380,8 +380,8 @@
         // TODO refactor this with the code that responds to `connection` events.
         function _updateConnectionsForGroup(group) {
             var members = group.getMembers();
-            var c1 = _jsPlumb.getConnections({source:members}, true);
-            var c2 = _jsPlumb.getConnections({target:members}, true);
+            var c1 = _jsPlumb.getConnections({source:members, scope:"*"}, true);
+            var c2 = _jsPlumb.getConnections({target:members, scope:"*"}, true);
             var processed = {};
             group.connections.source.length = 0;
             group.connections.target.length = 0;
