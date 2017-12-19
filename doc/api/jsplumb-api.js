@@ -181,7 +181,13 @@
  * @return {Object} The object into which values were extended.
  */
 
- /**
+/**
+ * Removes a Connection, detaching it from its Endpoints.
+ * @method deleteConnection
+ * @param {Connection} Connection to delete
+ */
+
+/**
   * Gets all or a subset of connections currently managed by this jsPlumb instance.  If only one scope is passed in to this method,
   * the result will be a list of connections having that scope (passing in no scope at all will result in jsPlumb assuming you want the
   * default scope).
