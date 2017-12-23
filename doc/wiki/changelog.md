@@ -1,3 +1,9 @@
+## 2.5.11
+
+December 23rd 2017
+
+- doc updates to include `deleteConnection` method on jsPlumbInstance.
+
 ## 2.5.10
 
 - fix for connections lost when group collapsed (issue 694)
