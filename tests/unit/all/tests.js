@@ -2406,12 +2406,12 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(c2.getCost(), 23, "connection cost is 23 after change on endpoint");
     });
 
-    test(': _jsPlumb.connect (directed is false by default)', function () {
+    test(': _jsPlumb.connect (directed is undefined by default)', function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"),
             e16 = _jsPlumb.addEndpoint(d16, {isSource: true}),
             e17 = _jsPlumb.addEndpoint(d17, {isSource: true}),
             c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.isDirected(), false, "default connection is not directed");
+        equal(c.isDirected(), undefined, "default connection is not directed");
     });
 
     test(': _jsPlumb.connect (directed true)', function () {
