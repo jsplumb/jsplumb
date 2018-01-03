@@ -9,7 +9,6 @@ type UUID = string;
 type ElementId = string;
 type ElementRef = ElementId | Element;
 type ElementGroupRef = ElementId | Element | Array<ElementId> | Array<Element>;
-type Endpoint = Object;
 
 // TODO improve this
 type EndpointParams = Object;
@@ -40,7 +39,7 @@ interface jsPlumbInstance {
     getContainer(): Element;
     getDefaultScope(): string;
     getEndpoint(uuid: string): Endpoint;
-    getInstance(_defaults?: Object): void;
+    getInstance(_defaults?: Object): any;
     getScope(Element: Element | string): string;
     getSelector(context?: Element | Selector, spec?: string): void;
     getSourceScope(Element: Element | string): string;
