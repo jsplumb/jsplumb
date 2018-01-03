@@ -3530,7 +3530,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.5.11";
+        this.version = "2.5.12";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -7709,13 +7709,7 @@
          * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
          */
         this.connectorSelector = function () {
-            var candidate = this.connections[0];
-            if (candidate) {
-                return candidate;
-            }
-            else {
-                return (this.connections.length < this._jsPlumb.maxConnections) || this._jsPlumb.maxConnections === -1 ? null : candidate;
-            }
+            return this.connections[0];
         };
 
         this.setStyle = this.setPaintStyle;
