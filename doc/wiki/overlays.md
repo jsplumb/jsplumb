@@ -8,6 +8,7 @@ Overlays are UI elements that are painted onto Connections, such as Labels or Ar
     - [Arrow](#type-arrow)
     - [Plain Arrow](#type-plain-arrow)
     - [Diamond](#type-diamond)
+    - [Rectangle](#type-rectangle)
     - [Label](#type-label)
     - [Custom](#type-custom)
   - [Hiding/Showing Overlays](#visibility)
@@ -150,12 +151,22 @@ Draws an arrow, using four points: the head and two tail points, and a `foldback
 - **paintStyle** - a style object in the form used for paintStyle values for Endpoints and Connectors. 
 
 <a name="type-plain-arrow"></a>
-###### PlainArrow 
+###### PlainArrow
 This is just a specialized instance of `Arrow` in which jsPlumb hardcodes `foldback` to 1, meaning the tail of the Arrow is a flat edge.  All of the constructor parameters from Arrow apply for PlainArrow.
-               
+
 <a name="type-diamond"></a>
 ###### Diamond
 This is a specialized instance of `Arrow` in which jsPlumb hardcodes 'foldback' to 2, meaning the Arrow turns into a Diamond.  All of the constructor parameters from Arrow apply for Diamond.
+
+<a name="type-rectangle"></a>
+###### Rectangle 
+
+Draws a rectangle defined by four points, the two points tangental to the start point and two points tangental to the stop point. The start and stop are both points on the connector line, relative to the supplied `location`, which determine the orientation of the rectangle. Available constructor arguments for this Overlay are:
+
+- **width** - width of the rectangle, this is prependicular to the direction of the overlayed connection.
+- **length** - distance along the overlayed connection for the rectangle to cover.
+- **location** - where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Rectangle should appear on the Connector
+- **paintStyle** - a style object in the form used for paintStyle values for Endpoints and Connectors. 
 
 <a name="type-label"></a>
 ###### Label

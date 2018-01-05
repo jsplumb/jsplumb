@@ -478,11 +478,10 @@
      */
     _jp.Overlays.svg.Custom = _jp.Overlays.Custom;
 
-    var AbstractSvgArrowOverlay = function (superclass, originalArgs) {
+    var AbstractSvgPathOverlay = function (superclass, originalArgs) {
         superclass.apply(this, originalArgs);
         _jp.jsPlumbUIComponent.apply(this, originalArgs);
         this.isAppendedAtTopLevel = false;
-        var self = this;
         this.path = null;
         this.paint = function (params, containerExtents) {
             // only draws on connections, not endpoints.
@@ -509,7 +508,7 @@
                 }
 
                 _attr(this.path, {
-                    "d": makePath(params.d),
+                    "d": makePolygonPath(params.d),
                     "class": clazz,
                     stroke: params.stroke ? params.stroke : null,
                     fill: params.fill ? params.fill : null,
@@ -517,12 +516,25 @@
                 });
             }
         };
-        var makePath = function (d) {
-            return (isNaN(d.cxy.x) || isNaN(d.cxy.y)) ? "" : "M" + d.hxy.x + "," + d.hxy.y +
-                " L" + d.tail[0].x + "," + d.tail[0].y +
-                " L" + d.cxy.x + "," + d.cxy.y +
-                " L" + d.tail[1].x + "," + d.tail[1].y +
-                " L" + d.hxy.x + "," + d.hxy.y;
+        var makePolygonPath = function (d) {
+            var path = "";
+
+            for(var i = 0; i < d.length; i++) {
+                if (isNaN(d[i].x) || isNaN(d[i].y)) {
+                    // https://github.com/jsplumb/jsplumb/issues/345
+                    return "";
+                }
+
+                if (i === 0) {
+                    path += "M";
+                } else {
+                    path += " L";
+                }
+                
+                path += d[i].x + "," + d[i].y;
+            }
+
+            return path;
         };
         this.transfer = function(target) {
             if (target.canvas && this.path && this.path.parentNode) {
@@ -531,7 +543,7 @@
             }
         };
     };
-    _ju.extend(AbstractSvgArrowOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay], {
+    _ju.extend(AbstractSvgPathOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay], {
         cleanup: function (force) {
             if (this.path != null) {
                 if (force) {
@@ -557,19 +569,24 @@
     });
 
     _jp.Overlays.svg.Arrow = function () {
-        AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Arrow, arguments]);
+        AbstractSvgPathOverlay.apply(this, [_jp.Overlays.Arrow, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.Arrow, [ _jp.Overlays.Arrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Arrow, [ _jp.Overlays.Arrow, AbstractSvgPathOverlay ]);
 
     _jp.Overlays.svg.PlainArrow = function () {
-        AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.PlainArrow, arguments]);
+        AbstractSvgPathOverlay.apply(this, [_jp.Overlays.PlainArrow, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.PlainArrow, [ _jp.Overlays.PlainArrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.PlainArrow, [ _jp.Overlays.PlainArrow, AbstractSvgPathOverlay ]);
 
     _jp.Overlays.svg.Diamond = function () {
-        AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Diamond, arguments]);
+        AbstractSvgPathOverlay.apply(this, [_jp.Overlays.Diamond, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.Diamond, [ _jp.Overlays.Diamond, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Diamond, [ _jp.Overlays.Diamond, AbstractSvgPathOverlay ]);
+
+    _jp.Overlays.svg.Rectangle = function () {
+        AbstractSvgPathOverlay.apply(this, [_jp.Overlays.Rectangle, arguments]);
+    };
+    _ju.extend(_jp.Overlays.svg.Rectangle, [ _jp.Overlays.Rectangle, AbstractSvgPathOverlay ]);
 
     // a test
     _jp.Overlays.svg.GuideLines = function () {

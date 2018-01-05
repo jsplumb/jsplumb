@@ -1039,7 +1039,7 @@
                 this.endpointLoc = null;
             }
         },
-        reattach:function(instance, component) { },
+        reattach: function(instance, component) { },
         setVisible: function (val) {
             this.visible = val;
             this.component.repaint();
@@ -1064,7 +1064,7 @@
         getLocation: function () {
             return this.loc;
         },
-        updateFrom:function() { }
+        updateFrom: function() { }
     };
 
 
@@ -1159,7 +1159,7 @@
                 tail = _jg.perpendicularLineTo(hxy, txy, this.width);
                 cxy = _jg.pointOnLine(hxy, txy, foldback * this.length);
 
-                var d = { hxy: hxy, tail: tail, cxy: cxy },
+                var d = [hxy, tail[0], tail[1], cxy],
                     stroke = paintStyle.stroke || currentConnectionPaintStyle.stroke,
                     fill = paintStyle.fill || currentConnectionPaintStyle.stroke,
                     lineWidth = paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
@@ -1184,9 +1184,9 @@
     _ju.extend(_jp.Overlays.Arrow, AbstractOverlay, {
         updateFrom:function(d) {
             this.length = d.length || this.length;
-            this.width = d.width|| this.width;
+            this.width = d.width || this.width;
             this.direction = d.direction != null ? d.direction : this.direction;
-            this.foldback = d.foldback|| this.foldback;
+            this.foldback = d.foldback || this.foldback;
         }
     });
 
@@ -1233,6 +1233,110 @@
     };
     _ju.extend(_jp.Overlays.Diamond, _jp.Overlays.Arrow);
 
+    /*
+     * Class: Overlays.Rectangle
+     *
+     * An rectangle overlay, defined by four points, the two points tangental to the start point and two points tangental to the stop point.
+     * The start and stop are both points on the connector line which determine the orientation of the rectangle.
+     */
+    /*
+     * @constructor
+     *
+     * @param {Object} params Constructor params.
+     * @param {Number} [params.length] Distance in pixels from head to tail baseline. default 20.
+     * @param {Number} [params.width] Width in pixels of the tail baseline. default 20.
+     * @param {String} [params.fill] Style to use when filling the rectangle.  defaults to "black".
+     * @param {String} [params.stroke] Style to use when stroking the rectangle. defaults to null, which means the rectangle is not stroked.
+     * @param {Number} [params.stroke-width] Line width to use when stroking the rectangle. defaults to 1, but only used if stroke is not null.
+     * @param {Number} [params.location] Distance (as a decimal from 0 to 1 inclusive) marking where the rectangle should sit on the connector. defaults to 0.5.
+     */
+    _jp.Overlays.Rectangle = function (params) {
+        this.type = "Rectangle";
+        AbstractOverlay.apply(this, arguments);
+        this.isAppendedAtTopLevel = false;
+        params = params || {};
+        var self = this;
+
+        this.length = params.length || 20;
+        this.width = params.width || 20;
+        this.id = params.id;
+        var paintStyle = params.paintStyle || { "stroke-width": 1 };
+
+        // TODO: Find out what this is used for.
+        this.computeMaxSize = function () {
+            return self.width * 1.5;
+        };
+
+        this.elementCreated = function(p) {
+            this.path = p;
+            if (params.events) {
+                for (var i in params.events) {
+                    _jp.on(p, i, params.events[i]);
+                }
+            }
+        };
+
+        this.draw = function (component, currentConnectionPaintStyle) {
+            if (component.pointAlongPathFrom) {
+                var startxy, stopxy, points;
+                if (_ju.isString(this.loc) || this.loc > 1 || this.loc < 0) {
+                    var l = parseInt(this.loc, 10),
+                        fromLoc = this.loc < 0 ? 1 : 0;
+                    startxy = component.pointAlongPathFrom(fromLoc, l + (this.length / 2), false);
+                    stopxy = component.pointAlongPathFrom(fromLoc, l - (this.length / 2), false);
+                }
+                else if (this.loc === 1) {
+                    startxy = component.pointOnPath(this.loc);
+                    stopxy = component.pointAlongPathFrom(this.loc, -this.length);
+                }
+                else if (this.loc === 0) {
+                    startxy = component.pointOnPath(this.loc);
+                    stopxy = component.pointAlongPathFrom(this.loc, this.length);
+                }
+                else {
+                    startxy = component.pointAlongPathFrom(this.loc, this.length / 2);
+                    stopxy = component.pointAlongPathFrom(this.loc, -(this.length / 2));
+                }
+
+                var start = _jg.perpendicularLineTo(startxy, stopxy, this.width),
+                    stop = _jg.perpendicularLineTo(stopxy, startxy, this.width);
+
+                // Build the path's points to sequentially build a rectangle (This prevents the path from creating a Z).
+                if ((start[0].x - start[1].x).toFixed() > 0) {
+                    points = [start[0], stop[0], stop[1], start[1]];
+                } else {
+                    points = [start[0], start[1], stop[0], stop[1]];
+                }
+                
+                var d = points,
+                    stroke = paintStyle.stroke || currentConnectionPaintStyle.stroke,
+                    fill = paintStyle.fill || currentConnectionPaintStyle.stroke,
+                    lineWidth = paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
+
+                return {
+                    component: component,
+                    d: d,
+                    "stroke-width": lineWidth,
+                    stroke: stroke,
+                    fill: fill,
+                    minX: Math.min(start[0].x, start[1].x, stop[0].x, stop[1].x),
+                    maxX: Math.max(start[0].x, start[1].x, stop[0].x, stop[1].x),
+                    minY: Math.min(start[0].y, start[1].y, stop[0].y, stop[1].y),
+                    maxY: Math.max(start[0].y, start[1].y, stop[0].y, stop[1].y)
+                };
+            }
+            else {
+                return {component: component, minX: 0, maxX: 0, minY: 0, maxY: 0};
+            }
+        };
+    };
+    _ju.extend(_jp.Overlays.Rectangle, AbstractOverlay, {
+        updateFrom: function(d) {
+            this.length = d.length || this.length;
+            this.width = d.width || this.width;
+        }
+    });
+
     var _getDimensions = function (component, forceRefresh) {
         if (component._jsPlumb.cachedDimensions == null || forceRefresh) {
             component._jsPlumb.cachedDimensions = component.getDimensions();
@@ -1254,7 +1358,7 @@
             }
         };
 
-        this.detached=false;
+        this.detached = false;
         this.id = params.id;
         this._jsPlumb.div = null;
         this._jsPlumb.initialised = false;
