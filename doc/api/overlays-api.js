@@ -51,6 +51,20 @@
 */
 
 /**
+* Draws a rectangle, defined by four points, the two points tangental to the start point and two points tangental to the stop point.
+* The start and stop are both points on the connector line which determine the orientation of the rectangle, they are `length` distance apart.
+* @constructor
+* @class Overlays.Rectangle
+* @param {Object} params Constructor params.
+* @param {Number} [params.length] Distance in pixels from the start to stop. default 20.
+* @param {Number} [params.width] Width in pixels of the rectangle. default 20.
+* @param {String} [params.fill] Style to use when filling the rectangle.  defaults to "black".
+* @param {String} [params.stroke] Style to use when stroking the rectangle. defaults to null, which means the rectangle is not stroked.
+* @param {Number} [params.stroke-width] Line width to use when stroking the rectangle. defaults to 1, but only used if stroke is not null.
+* @param {Number} [params.location] Distance (as a decimal from 0 to 1 inclusive) marking where the rectangle should sit on the connector. defaults to 0.5.
+*/
+
+/**
 * Provides a text label with which to decorate Connectors or Endpoints. jsPlumb draws a Label overlay as a styled DIV.  You can style a Label
 * using the `cssClass` parameter, or - if you need to programmatically generate the appearance - the `labelStyle` parameter.     
 * @class Overlays.Label

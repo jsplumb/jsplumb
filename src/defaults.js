@@ -1236,15 +1236,16 @@
     /*
      * Class: Overlays.Rectangle
      *
-     * An rectangle overlay, defined by four points, the two points tangental to the start point and two points tangental to the stop point.
-     * The start and stop are both points on the connector line which determine the orientation of the rectangle.
+     * Draws a rectangle, defined by four points, the two points tangental to the start point and two points tangental to the stop point.
+     * The start and stop are both points on the connector line which determine the orientation of the rectangle,
+     * they are `length` distance apart on the line. The tangental points are each half of the supplied `width` from the line.
      */
     /*
      * @constructor
      *
      * @param {Object} params Constructor params.
-     * @param {Number} [params.length] Distance in pixels from head to tail baseline. default 20.
-     * @param {Number} [params.width] Width in pixels of the tail baseline. default 20.
+     * @param {Number} [params.length] Distance in pixels from the start to stop. default 20.
+     * @param {Number} [params.width] Width in pixels of the rectangle. default 20.
      * @param {String} [params.fill] Style to use when filling the rectangle.  defaults to "black".
      * @param {String} [params.stroke] Style to use when stroking the rectangle. defaults to null, which means the rectangle is not stroked.
      * @param {Number} [params.stroke-width] Line width to use when stroking the rectangle. defaults to 1, but only used if stroke is not null.
