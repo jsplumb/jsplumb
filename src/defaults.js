@@ -1263,7 +1263,6 @@
         this.id = params.id;
         var paintStyle = params.paintStyle || { "stroke-width": 1 };
 
-        // TODO: Find out what this is used for.
         this.computeMaxSize = function () {
             return self.width * 1.5;
         };
