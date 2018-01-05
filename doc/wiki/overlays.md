@@ -161,7 +161,7 @@ This is a specialized instance of `Arrow` in which jsPlumb hardcodes 'foldback' 
 <a name="type-rectangle"></a>
 ###### Rectangle 
 
-Draws a rectangle defined by four points, the two points tangental to the start point and two points tangental to the stop point. The start and stop are both points on the connector line, relative to the supplied `location`, which determine the orientation of the rectangle. Available constructor arguments for this Overlay are:
+Draws a rectangle. The rectangle is built using four points that are perpendicular to the connector line. These points are relative to the supplied `location`, which determine the orientation of the rectangle. Available constructor arguments for this Overlay are:
 
 - **width** - width of the rectangle, this is prependicular to the direction of the overlayed connection.
 - **length** - distance along the overlayed connection for the rectangle to cover.

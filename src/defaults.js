@@ -1159,7 +1159,7 @@
                 tail = _jg.perpendicularLineTo(hxy, txy, this.width);
                 cxy = _jg.pointOnLine(hxy, txy, foldback * this.length);
 
-                var d = [hxy, tail[0], tail[1], cxy],
+                var d = [hxy, tail[0], cxy, tail[1], hxy],
                     stroke = paintStyle.stroke || currentConnectionPaintStyle.stroke,
                     fill = paintStyle.fill || currentConnectionPaintStyle.stroke,
                     lineWidth = paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
@@ -1302,7 +1302,7 @@
                 var start = _jg.perpendicularLineTo(startxy, stopxy, this.width),
                     stop = _jg.perpendicularLineTo(stopxy, startxy, this.width);
 
-                // Build the path's points to sequentially build a rectangle (This prevents the path from creating a Z).
+                // Sequence the path's points to ensure when drawn they build a rectangle (This prevents the path from creating a Z shape).
                 if ((start[0].x - start[1].x).toFixed() > 0) {
                     points = [start[0], stop[0], stop[1], start[1]];
                 } else {
