@@ -1,5 +1,7 @@
 ## 2.5.13
 
+January 14th 2018
+
 - minor internal refactoring of the flowchart connectors
  
 ## 2.5.12
