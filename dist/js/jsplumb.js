@@ -12928,6 +12928,8 @@
 
     "use strict";
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+    var STRAIGHT = "Straight";
+    var ARC = "Arc";
 
     var Flowchart = function (params) {
         this.type = "Flowchart";
@@ -12943,8 +12945,6 @@
             // TODO now common between this and AbstractBezierEditor; refactor into superclass?
             loopbackRadius = params.loopbackRadius || 25,
             isLoopbackCurrently = false,
-
-            geometry,
 
             sgn = function (n) {
                 return n < 0 ? -1 : n === 0 ? 0 : 1;
@@ -12964,13 +12964,11 @@
                 }
                 var lx = lastx == null ? paintInfo.sx : lastx,
                     ly = lasty == null ? paintInfo.sy : lasty,
-                    o = lx === x ? "v" : "h";//,
-                    // sgnx = sgn(x - lx),
-                    // sgny = sgn(y - ly);
+                    o = lx === x ? "v" : "h";
 
                 lastx = x;
                 lasty = y;
-                segments.push([lx, ly, x, y, o/*, sgnx, sgny*/]);
+                segments.push([ lx, ly, x, y, o ]);
             },
             segLength = function (s) {
                 return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
@@ -12992,24 +12990,12 @@
 
                     if (cornerRadius > 0 && current[4] !== next[4]) {
                         var radiusToUse = Math.min(cornerRadius, segLength(current), segLength(next));
-                        // right angle. adjust current segment's end point, and next segment's start point.
-                        // current[2] -= current[5] * radiusToUse;
-                        // current[3] -= current[6] * radiusToUse;
-                        // next[0] += next[5] * radiusToUse;
-                        // next[1] += next[6] * radiusToUse;
-                        // var ac = (current[6] === next[5] && next[5] === 1) ||
-                        //         ((current[6] === next[5] && next[5] === 0) && current[5] !== next[6]) ||
-                        //         (current[6] === next[5] && next[5] === -1),
-                        //     sgny = next[1] > current[3] ? 1 : -1,
-                        //     sgnx = next[0] > current[2] ? 1 : -1,
-                        //     sgnEqual = sgny === sgnx,
-                        //     cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
-                        //     cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];
 
                         current[2] -= currentDirection[0] * radiusToUse;
                         current[3] -= currentDirection[1] * radiusToUse;
                         next[0] += nextDirection[0] * radiusToUse;
                         next[1] += nextDirection[1] * radiusToUse;
+
                         var ac = (currentDirection[1] === nextDirection[0] && nextDirection[0] === 1) ||
                                 ((currentDirection[1] === nextDirection[0] && nextDirection[0] === 0) && currentDirection[0] !== nextDirection[1]) ||
                                 (currentDirection[1] === nextDirection[0] && nextDirection[0] === -1),
@@ -13019,11 +13005,11 @@
                                 cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
                                 cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];
 
-                        _super.addSegment(conn, "Straight", {
+                        _super.addSegment(conn, STRAIGHT, {
                             x1: current[0], y1: current[1], x2: current[2], y2: current[3]
                         });
 
-                        _super.addSegment(conn, "Arc", {
+                        _super.addSegment(conn, ARC, {
                             r: radiusToUse,
                             x1: current[2],
                             y1: current[3],
@@ -13038,7 +13024,8 @@
                         // dx + dy are used to adjust for line width.
                         var dx = (current[2] === current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
                             dy = (current[3] === current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
-                        _super.addSegment(conn, "Straight", {
+
+                        _super.addSegment(conn, STRAIGHT, {
                             x1: current[0] - dx, y1: current[1] - dy, x2: current[2] + dx, y2: current[3] + dy
                         });
                     }
@@ -13046,7 +13033,7 @@
                 }
                 if (next != null) {
                     // last segment
-                    _super.addSegment(conn, "Straight", {
+                    _super.addSegment(conn, STRAIGHT, {
                         x1: next[0], y1: next[1], x2: next[2], y2: next[3]
                     });
                 }
@@ -13058,9 +13045,9 @@
             lastx = null;
             lasty = null;
             lastOrientation = null;
-            geometry = this.getGeometry();
 
-            var sp = [ paintInfo.x, paintInfo.y ],
+            var geometry = this.getGeometry(),
+                sp = [ paintInfo.x, paintInfo.y ],
                 tp = [ paintInfo.x + paintInfo.w, paintInfo.y + paintInfo.h ];
 
             if ((this.hasBeenEdited() || this.isEditing()) && geometry != null && geometry.segments != null && geometry.segments.length > 0) {
@@ -13302,33 +13289,12 @@
             // write out the segments.
             writeSegments(this, segments, paintInfo);
 
-
         };
-
-        /*this.getPath = function () {
-            var _last = null, _lastAxis = null, s = [], segs = segments;
-            for (var i = 0; i < segs.length; i++) {
-                var seg = segs[i], axis = seg[4], axisIndex = (axis == "v" ? 3 : 2);
-                if (_last != null && _lastAxis === axis) {
-                    _last[axisIndex] = seg[axisIndex];
-                }
-                else {
-                    if (seg[0] != seg[2] || seg[1] != seg[3]) {
-                        s.push({
-                            start: [ seg[0], seg[1] ],
-                            end: [ seg[2], seg[3] ]
-                        });
-                        _last = seg;
-                        _lastAxis = seg[4];
-                    }
-                }
-            }
-            return s;
-        };*/
     };
 
     _ju.extend(Flowchart, _jp.Connectors.AbstractConnector);
     _jp.registerConnectorType(Flowchart, "Flowchart");
+
 }).call(typeof window !== 'undefined' ? window : this);
 /*
  * jsPlumb Community Edition
