@@ -26,7 +26,7 @@
         };
     };
 
+    _jp.Connectors.Straight = Straight;
     _ju.extend(Straight, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(Straight, STRAIGHT);
 
 }).call(typeof window !== 'undefined' ? window : this);

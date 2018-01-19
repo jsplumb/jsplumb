@@ -13,7 +13,6 @@
     "use strict";
 
     var root = this;
-    var connectorTypes = [], rendererTypes;
 
     var _ju = root.jsPlumbUtil,
 
@@ -1983,10 +1982,10 @@
         // exposed for other objects to use to get a unique id.
         this.idstamp = _idstamp;
 
-        this.connectorsInitialized = false;
-        this.registerConnectorType = function (connector, name) {
-            connectorTypes.push([connector, name]);
-        };
+        // this.connectorsInitialized = false;
+        // this.registerConnectorType = function (connector, name) {
+        //     connectorTypes.push([connector, name]);
+        // };
 
         // ensure that, if the current container exists, it is a DOM element and not a selector.
         // if it does not exist and `candidate` is supplied, the offset parent of that element will be set as the Container.
@@ -2089,26 +2088,6 @@
          * mouse listeners etc; can't do that until the library has provided a bind method)
          */
         this.init = function () {
-            rendererTypes = root.jsPlumb.getRenderModes();
-
-            var _oneType = function (renderer, name, fn) {
-                root.jsPlumb.Connectors[renderer][name] = function () {
-                    fn.apply(this, arguments);
-                    root.jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
-                };
-                _ju.extend(root.jsPlumb.Connectors[renderer][name], [ fn, root.jsPlumb.ConnectorRenderers[renderer]]);
-            };
-
-            if (!root.jsPlumb.connectorsInitialized) {
-                for (var i = 0; i < connectorTypes.length; i++) {
-                    for (var j = 0; j < rendererTypes.length; j++) {
-                        _oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);
-                    }
-
-                }
-                root.jsPlumb.connectorsInitialized = true;
-            }
-
             if (!initialized) {
                 _getContainerFromDefaults();
                 _currentInstance.anchorManager = new root.jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});

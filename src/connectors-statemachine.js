@@ -205,7 +205,7 @@
         };
     };
 
+    _jp.Connectors.StateMachine = StateMachine;
     _ju.extend(StateMachine, _jp.Connectors.AbstractBezierConnector);
-    _jp.registerConnectorType(StateMachine, "StateMachine");
 
 }).call(typeof window !== 'undefined' ? window : this);

@@ -377,7 +377,7 @@
         };
     };
 
-    _ju.extend(Flowchart, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(Flowchart, "Flowchart");
+    _jp.Connectors.Flowchart = Flowchart;
+    _ju.extend(_jp.Connectors.Flowchart, _jp.Connectors.AbstractConnector);
 
 }).call(typeof window !== 'undefined' ? window : this);

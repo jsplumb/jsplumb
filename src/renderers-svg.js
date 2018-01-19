@@ -457,6 +457,43 @@
     };
     _ju.extend(_jp.Endpoints.svg.Rectangle, [_jp.Endpoints.Rectangle, SvgEndpoint]);
 
+// ---------------------------------- Connectors ------------------------------------------------------------
+
+
+    _jp.Connectors.svg.Flowchart = function() {
+        _jp.Connectors.Flowchart.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.Flowchart, [ _jp.Connectors.Flowchart, _jp.ConnectorRenderers.svg]);
+
+
+
+    _jp.Connectors.svg.Bezier = function() {
+        _jp.Connectors.Bezier.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.Bezier, [ _jp.Connectors.Bezier, _jp.ConnectorRenderers.svg]);
+
+    _jp.Connectors.svg.Straight = function() {
+        _jp.Connectors.Straight.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.Straight, [ _jp.Connectors.Straight, _jp.ConnectorRenderers.svg]);
+
+
+    _jp.Connectors.svg.StateMachine = function() {
+        _jp.Connectors.StateMachine.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.StateMachine, [ _jp.Connectors.StateMachine, _jp.ConnectorRenderers.svg]);
+
+
+// ------------------------------------------ / Connectors -----------------------------------------
+
     /*
      * SVG Image Endpoint is the default image endpoint.
      */
