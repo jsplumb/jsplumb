@@ -1,11 +1,7 @@
 /*
- * jsPlumb Community Edition
- *
- * Provides a way to visually connect elements on an HTML page, using SVG.
- *
  * This file contains the base functionality for DOM type adapters.
  *
- * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2018 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
