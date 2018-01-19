@@ -1,3 +1,9 @@
+## 2.6.0
+
+January 20th 2018
+
+- switch from lazy loading of connector types to direct registration. In certain Webpack scenarios the lazy loading was causing connectors to not be found.
+
 ## 2.5.14
 
 January 19th 2018

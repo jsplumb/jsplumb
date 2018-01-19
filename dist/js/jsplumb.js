@@ -3062,7 +3062,6 @@
     "use strict";
 
     var root = this;
-    var connectorTypes = [], rendererTypes;
 
     var _ju = root.jsPlumbUtil,
 
@@ -3514,7 +3513,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.5.14";
+        this.version = "2.6.0";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -5032,10 +5031,10 @@
         // exposed for other objects to use to get a unique id.
         this.idstamp = _idstamp;
 
-        this.connectorsInitialized = false;
-        this.registerConnectorType = function (connector, name) {
-            connectorTypes.push([connector, name]);
-        };
+        // this.connectorsInitialized = false;
+        // this.registerConnectorType = function (connector, name) {
+        //     connectorTypes.push([connector, name]);
+        // };
 
         // ensure that, if the current container exists, it is a DOM element and not a selector.
         // if it does not exist and `candidate` is supplied, the offset parent of that element will be set as the Container.
@@ -5138,26 +5137,6 @@
          * mouse listeners etc; can't do that until the library has provided a bind method)
          */
         this.init = function () {
-            rendererTypes = root.jsPlumb.getRenderModes();
-
-            var _oneType = function (renderer, name, fn) {
-                root.jsPlumb.Connectors[renderer][name] = function () {
-                    fn.apply(this, arguments);
-                    root.jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);
-                };
-                _ju.extend(root.jsPlumb.Connectors[renderer][name], [ fn, root.jsPlumb.ConnectorRenderers[renderer]]);
-            };
-
-            if (!root.jsPlumb.connectorsInitialized) {
-                for (var i = 0; i < connectorTypes.length; i++) {
-                    for (var j = 0; j < rendererTypes.length; j++) {
-                        _oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);
-                    }
-
-                }
-                root.jsPlumb.connectorsInitialized = true;
-            }
-
             if (!initialized) {
                 _getContainerFromDefaults();
                 _currentInstance.anchorManager = new root.jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
@@ -13236,8 +13215,8 @@
         };
     };
 
-    _ju.extend(Flowchart, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(Flowchart, "Flowchart");
+    _jp.Connectors.Flowchart = Flowchart;
+    _ju.extend(_jp.Connectors.Flowchart, _jp.Connectors.AbstractConnector);
 
 }).call(typeof window !== 'undefined' ? window : this);
 /*
@@ -13402,8 +13381,8 @@
 
     };
 
+    _jp.Connectors.Bezier = Bezier;
     _ju.extend(Bezier, _jp.Connectors.AbstractBezierConnector);
-    _jp.registerConnectorType(Bezier, "Bezier");
 
 }).call(typeof window !== 'undefined' ? window : this);
 /*
@@ -13613,8 +13592,8 @@
         };
     };
 
+    _jp.Connectors.StateMachine = StateMachine;
     _ju.extend(StateMachine, _jp.Connectors.AbstractBezierConnector);
-    _jp.registerConnectorType(StateMachine, "StateMachine");
 
 }).call(typeof window !== 'undefined' ? window : this);
 /*
@@ -13645,8 +13624,8 @@
         };
     };
 
+    _jp.Connectors.Straight = Straight;
     _ju.extend(Straight, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(Straight, STRAIGHT);
 
 }).call(typeof window !== 'undefined' ? window : this);
 /*
@@ -14107,6 +14086,43 @@
         };
     };
     _ju.extend(_jp.Endpoints.svg.Rectangle, [_jp.Endpoints.Rectangle, SvgEndpoint]);
+
+// ---------------------------------- Connectors ------------------------------------------------------------
+
+
+    _jp.Connectors.svg.Flowchart = function() {
+        _jp.Connectors.Flowchart.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.Flowchart, [ _jp.Connectors.Flowchart, _jp.ConnectorRenderers.svg]);
+
+
+
+    _jp.Connectors.svg.Bezier = function() {
+        _jp.Connectors.Bezier.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.Bezier, [ _jp.Connectors.Bezier, _jp.ConnectorRenderers.svg]);
+
+    _jp.Connectors.svg.Straight = function() {
+        _jp.Connectors.Straight.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.Straight, [ _jp.Connectors.Straight, _jp.ConnectorRenderers.svg]);
+
+
+    _jp.Connectors.svg.StateMachine = function() {
+        _jp.Connectors.StateMachine.apply(this, arguments);
+        _jp.ConnectorRenderers.svg.apply(this, arguments);
+    };
+
+    _ju.extend(_jp.Connectors.svg.StateMachine, [ _jp.Connectors.StateMachine, _jp.ConnectorRenderers.svg]);
+
+
+// ------------------------------------------ / Connectors -----------------------------------------
 
     /*
      * SVG Image Endpoint is the default image endpoint.
