@@ -1,8 +1,22 @@
-// Type definitions for jsPlumb
-// Ron Newcomb
-// Simon Porritt
 
-declare var jsPlumb: jsPlumbInstance;
+interface PaintStyle {
+    stroke?: string;
+    fill?: string;
+    strokeWidth?: number;
+}
+
+export module jsPlumb {
+    function extend(target:Object, source:Object):any;
+    function addClass(el:NodeListOf<Element>, clazz:string):void;
+    function removeClass(el:NodeListOf<Element>, clazz:string):void;
+
+    function on(el:any, event:string, delegateSelector:string, handler:Function):void;
+    function on(el:any, event:string, handler:Function):void;
+    function off(el:any, event:string, handler:Function):void;
+
+    function revalidate(el:Element):void;
+}
+
 
 type Selector = string;
 type UUID = string;
@@ -10,14 +24,11 @@ type ElementId = string;
 type ElementRef = ElementId | Element;
 type ElementGroupRef = ElementId | Element | Array<ElementId> | Array<Element>;
 
-// TODO improve this
-type EndpointParams = Object;
+declare class jsPlumbInstance {
 
-interface jsPlumbInstance {
+    addEndpoint(el: ElementGroupRef, params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint | Array<Endpoint>;
 
-    addEndpoint(el: ElementGroupRef, params?: EndpointParams, referenceParams?: EndpointParams): Endpoint | Array<Endpoint>;
-
-    addEndpoints(target: ElementGroupRef, endpoints: Array<EndpointParams>, referenceParams?: EndpointParams): Array<Endpoint>;
+    addEndpoints(target: ElementGroupRef, endpoints: Array<EndpointOptions>, referenceParams?: EndpointOptions): Array<Endpoint>;
 
     animate(el: ElementRef, properties?: Object, options?: Object): void;
 
@@ -140,35 +151,6 @@ interface Defaults {
     DragOptions?: DragOptions;
 }
 
-interface PaintStyle {
-    stroke: string;
-    fill: string;
-    strokeWidth: number;
-}
-
-interface ArrowOverlay {
-    width?: number; // 20
-    length?: number; // 20
-    location?: number; // 0.5
-    direction?: number; // 1
-    foldback?: number; // 0.623
-    paintStyle?: PaintStyle;
-}
-
-interface LabelOverlay {
-    label: string;
-    cssClass?: string;
-    location?: number; // 0.5
-    labelStyle?: {
-        font?: string;
-        color?: string;
-        fill?: string;
-        borderStyle?: string;
-        borderWidth?: number;// integer
-        padding?: number; //integer
-    };
-}
-
 interface Connections {
     detach(): void;
     length: number;
@@ -176,110 +158,153 @@ interface Connections {
 }
 
 interface ConnectParams {
-    uuids?: any[];
-    source?: any; // string, element or endpoint
-    target?: any; // string, element or endpoint
+    uuids?: [ UUID, UUID ];
+    source?: ElementRef | Endpoint;
+    target?: ElementRef | Endpoint;
     detachable?: boolean;
     deleteEndpointsOnDetach?: boolean;
-    endpoint?: string;
-    anchor?: string;
-    anchors?: any[];
+    endpoint?: EndpointSpec;
+    anchor?: AnchorSpec;
+    anchors?: [ AnchorSpec, AnchorSpec ];
     label?: string;
 }
 
 interface DragOptions {
     containment?: string;
-}
-
-interface SourceOptions {
-    parent: string;
-    endpoint?: string;
-    anchor?: string;
-    connector?: any[];
-    connectorStyle?: PaintStyle;
-}
-
-interface TargetOptions {
-    isTarget?: boolean;
-    maxConnections?: number;
-    uniqueEndpoint?: boolean;
-    deleteEndpointsOnDetach?: boolean;
-    endpoint?: string;
-    dropOptions?: DropOptions;
-    anchor?: any;
+    start?:Function;
+    drag?:Function;
+    stop?:Function;
 }
 
 interface DropOptions {
     hoverClass: string;
 }
 
-interface SelectParams {
-    scope?: string;
-    source: string;
-    target: string;
-}
+// interface SourceOptions {
+//     parent: string;
+//     endpoint?: string;
+//     anchor?: string;
+//     connector?: any[];
+//     connectorStyle?: PaintStyle;
+// }
+//
+// interface TargetOptions {
+//     isTarget?: boolean;
+//     maxConnections?: number;
+//     uniqueEndpoint?: boolean;
+//     deleteEndpointsOnDetach?: boolean;
+//     endpoint?: string;
+//     dropOptions?: DropOptions;
+//     anchor?: any;
+// }
+
+
+
+// interface SelectParams {
+//     scope?: string;
+//     source: string;
+//     target: string;
+// }
 
 interface Connection {
     id: string;
     setDetachable(detachable: boolean): void;
-    setParameter<T>(name: string, value: T): void;
-    endpoints: Endpoint[];
-    getOverlay(s: string): Connection;
+    setParameter(name: string, value: any): void;
+    endpoints: [ Endpoint, Endpoint ];
+    getOverlay(s: string): Overlay;
     showOverlay(s: string): void;
     hideOverlay(s: string): void;
     setLabel(s: string): void;
     getElement(): Connection;
 }
 
-interface Endpoint {
-    anchor?: AnchorObj;// | Array<AnchorObj>;
+
+/* -------------------------------------------- CONNECTORS ---------------------------------------------------- */
+
+interface ConnectorOptions {}
+type UserDefinedConnectorId = string;
+type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
+type ConnectorSpec = ConnectorId| [ ConnectorId, ConnectorOptions ];
+
+
+/* -------------------------------------------- ENDPOINTS ------------------------------------------------------ */
+
+type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
+type UserDefinedEndpointId = string;
+type EndpointSpec = EndpointId | [ EndpointId, EndpointOptions ];
+
+interface EndpointOptions {
+    anchor?: AnchorSpec;
     endpoint?: Endpoint;
     enabled?: boolean;//= true
-    paintStyle?: Object;
-    hoverPaintStyle?: Object;
+    paintStyle?: PaintStyle;
+    hoverPaintStyle?: PaintStyle;
     cssClass?: string;
     hoverClass?: string;
-    source: String | Selector | Element
-    container?: String | Selector | Element;
-    connections?: Connection[];
-    isSource?: boolean;//= false
     maxConnections: number;//= 1?
     dragOptions?: DragOptions;
-    connectorStyle?: Object;
-    connectorHoverStyle?: Object;
-    connector?: string | Object;
-    connectorOverlays?: Object;
+    dropOptions?: DropOptions;
+    connectorStyle?: PaintStyle;
+    connectorHoverStyle?: PaintStyle;
+    connector?: ConnectorSpec;
+    connectorOverlays?: Array<OverlaySpec>;
     connectorClass?: string;
     connectorHoverClass?: string;
-    connectionsDetachable?: Boolean;//= true
+    connectionsDetachable?: boolean;//= true
+    isSource?: boolean;//= false
     isTarget?: boolean;//= false
-    dropOptions?: DropOptions;
     reattach?: boolean;//= false
-    parameters: Object;
-    "connector-pointer-events"?: String;
-    connectionType?: String;
-    dragProxy?: String | Array<String>;
+    parameters: object;
+    "connector-pointer-events"?: string;
+    connectionType?: string;
+    dragProxy?: string | Array<string>;
     id: string;
     scope: string;
     reattachConnections: boolean;
     type: string; // "Dot", etc.
-
-    addConnection(c: Connection): void;
 }
 
-interface AnchorObj {
-    type: Anchor;
+declare class Endpoint {
+    anchor: Anchor;
+    connections?: Array<Connection>;
+    maxConnections: number;//= 1?
+    id: string;
+    scope: string;
+    type: EndpointId;
+
+    setEndpoint(spec:EndpointSpec):void;
+    connectorSelector():Connection;
+    isEnabled(): boolean;
+    setEnabled(enabled:boolean):void;
+    setHover(hover:boolean):void;
+    getElement():Element;
+    setElement(el:Element):void;
+}
+
+/**
+ * The actual component that does the rendering.
+ */
+interface EndpointRenderer {}
+
+/* -------------------------------------------- ANCHORS -------------------------------------------------------- */
+
+interface AnchorOptions { }
+
+type AnchorOrientationHint = -1 | 0 | 1;
+
+interface Anchor {
+    type: AnchorId;
     cssClass: string;
     elementId: string;
     id: string;
     locked: boolean;
-    offsets: number[];
-    orientation: number[];
+    offsets: [ number, number ];
+    orientation: [ AnchorOrientationHint, AnchorOrientationHint ];
     x: number;
     y: number;
 }
 
-type Anchor =
+type AnchorId =
     "Assign" |
     "AutoDefault" |
     "Bottom" |
@@ -301,3 +326,40 @@ type Anchor =
     "TopCenter" |
     "TopLeft" |
     "TopRight";
+
+
+type AnchorSpec = AnchorId | [ AnchorId, AnchorOptions ]
+
+
+/* --------------------------------------- OVERLAYS ------------------------------------------------------------- */
+
+interface OverlayOptions {}
+
+interface ArrowOverlayOptions extends OverlayOptions {
+    width?: number; // 20
+    length?: number; // 20
+    location?: number; // 0.5
+    direction?: number; // 1
+    foldback?: number; // 0.623
+    paintStyle?: PaintStyle;
+}
+
+interface LabelOverlayOptions extends OverlayOptions {
+    label: string;
+    cssClass?: string;
+    location?: number; // 0.5
+    labelStyle?: {
+        font?: string;
+        color?: string;
+        fill?: string;
+        borderStyle?: string;
+        borderWidth?: number;// integer
+        padding?: number; //integer
+    };
+}
+
+type OverlayId = "Label" | "Arrow" | "PlainArrow" | "Custom";
+
+type OverlaySpec = OverlayId | [ OverlayId, OverlayOptions ];
+
+interface Overlay {}
