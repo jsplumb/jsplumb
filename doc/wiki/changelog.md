@@ -1,3 +1,9 @@
+## 2.5.14
+
+January 19th 2018
+
+- improvements to the .d.ts file.
+
 ## 2.5.13
 
 January 14th 2018
@@ -10,7 +16,6 @@ January 4th 2018
 
 - refactor the method that chooses which connection is being dragged on some endpoint that has more than one connection. no functional change.
 - update to index.d.ts to fix compile error
-
 
 ## 2.5.11
 
