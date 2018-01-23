@@ -1,3 +1,9 @@
+## 2.6.1
+
+January 24th 2018
+
+- comment out a block of code instead of using 'if false' to prevent its execution (issue 707)
+
 ## 2.6.0
 
 January 20th 2018

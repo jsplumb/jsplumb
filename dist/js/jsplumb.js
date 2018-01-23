@@ -3513,7 +3513,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.6.0";
+        this.version = "2.6.1";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -13040,19 +13040,19 @@
                 addSegment(segments, stubs[0], stubs[1], paintInfo);
 
                 // if its a loopback and we should treat it differently.
-                if (false && params.sourcePos[0] === params.targetPos[0] && params.sourcePos[1] === params.targetPos[1]) {
-
-                    // we use loopbackRadius here, as statemachine connectors do.
-                    // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
-                    // down by 2*radius, left by radius.
-                    addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo);
-                    addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
-                    addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
-                    addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo);
-                    addSegment(segments, stubs[0], stubs[1], paintInfo);
-
-                }
-                else {
+                // if (false && params.sourcePos[0] === params.targetPos[0] && params.sourcePos[1] === params.targetPos[1]) {
+                //
+                //     // we use loopbackRadius here, as statemachine connectors do.
+                //     // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
+                //     // down by 2*radius, left by radius.
+                //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo);
+                //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
+                //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
+                //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo);
+                //     addSegment(segments, stubs[0], stubs[1], paintInfo);
+                //
+                // }
+                // else {
 
 
                     var midx = paintInfo.startStubX + ((paintInfo.endStubX - paintInfo.startStubX) * midpoint),
@@ -13197,7 +13197,7 @@
                     // line to end stub
                     addSegment(segments, stubs[2], stubs[3], paintInfo);
 
-                }
+                //}
 
                 // end stub to end (common)
                 addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);
