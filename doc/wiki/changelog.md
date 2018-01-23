@@ -1,3 +1,9 @@
+## 2.6.2
+
+January 24th 2018
+
+- `getInstance` method in index.d.ts returns `jsPlumbInstance` instead of `any` (issue 680)
+
 ## 2.6.1
 
 January 24th 2018

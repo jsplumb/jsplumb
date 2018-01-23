@@ -71,7 +71,7 @@ declare module jsPlumb {
 
         getEndpoint(uuid: string): Endpoint;
 
-        getInstance(_defaults?: Object): any;
+        getInstance(_defaults?: Object): jsPlumbInstance;
 
         getScope(Element: Element | string): string;
 

@@ -3513,7 +3513,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.6.1";
+        this.version = "2.6.2";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
