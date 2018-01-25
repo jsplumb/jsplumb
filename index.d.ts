@@ -20,6 +20,8 @@ declare module jsPlumb {
         function off(el: any, event: string, handler: Function): void;
 
         function revalidate(el: Element): void;
+
+        function getInstance(_defaults?: Defaults): jsPlumbInstance;
     }
 
 
@@ -28,6 +30,7 @@ declare module jsPlumb {
     type ElementId = string;
     type ElementRef = ElementId | Element;
     type ElementGroupRef = ElementId | Element | Array<ElementId> | Array<Element>;
+    type ConnectionId = string;
 
     class jsPlumbInstance {
 
@@ -70,8 +73,6 @@ declare module jsPlumb {
         getDefaultScope(): string;
 
         getEndpoint(uuid: string): Endpoint;
-
-        getInstance(_defaults?: Object): jsPlumbInstance;
 
         getScope(Element: Element | string): string;
 
@@ -202,12 +203,12 @@ declare module jsPlumb {
 
     interface OnConnectionBindInfo {
         connection: Connection;// the new Connection.you can register listeners on this etc.
-        sourceId: number;// - id of the source element in the Connection
-        originalSourceId: number;
-        newSourceId: number;
-        targetId: number;// - id of the target element in the Connection
-        originalTargetId: number;
-        newTargetId: number;
+        sourceId: string;// - id of the source element in the Connection
+        originalSourceId: string;
+        newSourceId: string;
+        targetId: string;// - id of the target element in the Connection
+        originalTargetId: string;
+        newTargetId: string;
         source: Element;// - the source element in the Connection
         target: Element;//- the target element in the Connection
         sourceEndpoint: Endpoint;//- the source Endpoint in the Connection
@@ -217,15 +218,15 @@ declare module jsPlumb {
     }
 
     interface Defaults {
-        Endpoint?: any;
-        Endpoints?: any[];
-        Anchor?: any;
-        Anchors?: any[];
+        Endpoint?: EndpointSpec;
+        Endpoints?: [ EndpointSpec, EndpointSpec ];
+        Anchor?: AnchorSpec;
+        Anchors?: [ AnchorSpec, AnchorSpec ];
         PaintStyle?: PaintStyle;
         HoverPaintStyle?: PaintStyle;
         ConnectionsDetachable?: boolean;
         ReattachConnections?: boolean;
-        ConnectionOverlays?: any[][];
+        ConnectionOverlays?: Array<OverlaySpec>;
         Container?: any; // string(selector or id) or element
         DragOptions?: DragOptions;
     }
@@ -248,19 +249,51 @@ declare module jsPlumb {
         label?: string;
     }
 
+    interface DragEventCallbackOptions {
+        drag: object; // The associated Drag instance
+        e: MouseEvent;
+        el: HTMLElement; // element being dragged
+        pos: [number, number]; // x,y location of the element. drag event only.
+    }
+
     interface DragOptions {
         containment?: string;
-        start?: Function;
-        drag?: Function;
-        stop?: Function;
+        start?: (params:DragEventCallbackOptions) => void;
+        drag?: (params:DragEventCallbackOptions) => void;
+        stop?: (params:DragEventCallbackOptions) => void;
     }
 
     interface DropOptions {
         hoverClass: string;
     }
 
+    // interface SourceOptions {
+    //     parent: string;
+    //     endpoint?: string;
+    //     anchor?: string;
+    //     connector?: any[];
+    //     connectorStyle?: PaintStyle;
+    // }
+    //
+    // interface TargetOptions {
+    //     isTarget?: boolean;
+    //     maxConnections?: number;
+    //     uniqueEndpoint?: boolean;
+    //     deleteEndpointsOnDetach?: boolean;
+    //     endpoint?: string;
+    //     dropOptions?: DropOptions;
+    //     anchor?: any;
+    // }
+
+
+    // interface SelectParams {
+    //     scope?: string;
+    //     source: string;
+    //     target: string;
+    // }
+
     interface Connection {
-        id: string;
+        id: ConnectionId;
         setDetachable(detachable: boolean): void;
         setParameter(name: string, value: any): void;
         endpoints: [Endpoint, Endpoint];
