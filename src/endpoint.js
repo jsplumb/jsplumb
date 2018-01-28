@@ -8,7 +8,7 @@
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-(function () {
+;(function () {
 
     "use strict";
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;

@@ -8,7 +8,7 @@
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
-(function () {
+;(function () {
 
     "use strict";
 
