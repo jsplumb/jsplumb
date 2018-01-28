@@ -3057,7 +3057,7 @@
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
-(function () {
+;(function () {
 
     "use strict";
 
@@ -3513,7 +3513,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.6.3";
+        this.version = "2.6.4";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -7271,7 +7271,7 @@
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-(function () {
+;(function () {
 
     "use strict";
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
