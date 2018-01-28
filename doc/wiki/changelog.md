@@ -1,3 +1,15 @@
+## 2.6.4
+
+January 28th 2018
+
+- trivial formatting issue required by upstream collation mechanism in Toolkit
+
+## 2.6.3
+
+January 26th 2018
+
+- Updates to Typescript typings files
+
 ## 2.6.2
 
 January 24th 2018
