@@ -1303,20 +1303,20 @@
 
     var _vanquish = function(list, item) {
         var idx = list.indexOf(item);
-        if (idx != -1) list.splice(idx, 1);
+        if (idx !== -1) list.splice(idx, 1);
     };
 
     var _difference = function(l1, l2) {
         var d = [];
         for (var i = 0; i < l1.length; i++) {
-            if (l2.indexOf(l1[i]) == -1)
+            if (l2.indexOf(l1[i]) === -1)
                 d.push(l1[i]);
         }
         return d;
     };
 
     var _isString = function(f) {
-        return f == null ? false : (typeof f === "string" || f.constructor == String);
+        return f == null ? false : (typeof f === "string" || f.constructor === String);
     };
 
     var getOffsetRect = function (elem) {
@@ -1349,7 +1349,7 @@
 
     var iev = (function() {
             var rv = -1;
-            if (navigator.appName == 'Microsoft Internet Explorer') {
+            if (navigator.appName === 'Microsoft Internet Explorer') {
                 var ua = navigator.userAgent,
                     re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
                 if (re.exec(ua) != null)
@@ -1360,7 +1360,7 @@
         DEFAULT_GRID_X = 10,
         DEFAULT_GRID_Y = 10,
         isIELT9 = iev > -1 && iev < 9,
-        isIE9 = iev == 9,
+        isIE9 = iev === 9,
         _pl = function(e) {
             if (isIELT9) {
                 return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
@@ -1387,7 +1387,8 @@
             active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
             hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
             noSelect : "katavorio-drag-no-select", // added to the body to provide a hook to suppress text selection
-            ghostProxy:"katavorio-ghost-proxy"  // added to a ghost proxy element in use when a drag has exited the bounds of its parent.
+            ghostProxy:"katavorio-ghost-proxy",  // added to a ghost proxy element in use when a drag has exited the bounds of its parent.
+            clonedDrag:"katavorio-clone-drag"     // added to a node that is a clone of an element created at the start of a drag
         },
         _defaultScope = "katavorio-drag-scope",
         _events = [ "stop", "start", "drag", "drop", "over", "out", "beforeStart" ],
@@ -1637,6 +1638,7 @@
                         var b = getOffsetRect(this.el);
                         dragEl.style.left = b.left + "px";
                         dragEl.style.top = b.top + "px";
+                        dragEl.className = _classes.clonedDrag;
                         document.body.appendChild(dragEl);
                     }
                     consumeStartEvent && _consume(e);
@@ -1845,7 +1847,7 @@
                 cPos = constrain(desiredLoc, dragEl);
 
             if (useGhostProxy(this.el)) {
-                if (desiredLoc[0] != cPos[0] || desiredLoc[1] != cPos[1]) {
+                if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
                     if (!isConstrained) {
                         var gp = ghostProxy(this.el);
                         params.addClass(gp, _classes.ghostProxy);
@@ -1873,7 +1875,7 @@
             this.params.setPosition(dragEl, cPos);
             for (var i = 0; i < matchingDroppables.length; i++) {
                 var r2 = { x:matchingDroppables[i].pagePosition[0], y:matchingDroppables[i].pagePosition[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
-                if (this.params.intersects(pageRect, r2) && (_multipleDrop || focusDropElement == null || focusDropElement == matchingDroppables[i].el) && matchingDroppables[i].canDrop(this)) {
+                if (this.params.intersects(pageRect, r2) && (_multipleDrop || focusDropElement == null || focusDropElement === matchingDroppables[i].el) && matchingDroppables[i].canDrop(this)) {
                     if (!focusDropElement) focusDropElement = matchingDroppables[i].el;
                     intersectingDroppables.push(matchingDroppables[i]);
                     matchingDroppables[i].setHover(this, true, e);
@@ -1940,7 +1942,7 @@
 
         this.setHover = function(drag, val, e) {
             // if turning off hover but this was not the drag that caused the hover, ignore.
-            if (val || this.el._katavorioDragHover == null || this.el._katavorioDragHover == drag.el._katavorio) {
+            if (val || this.el._katavorioDragHover == null || this.el._katavorioDragHover === drag.el._katavorio) {
                 this.params[val ? "addClass" : "removeClass"](this.el, this._hoverClass);
                 //this.el._katavorioDragHover = val ? drag.el._katavorio : null;
                 this.el._katavorioDragHover = val ? drag.el._katavorio : null;
@@ -1966,7 +1968,7 @@
 
     var _uuid = function() {
         return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
             return v.toString(16);
         }));
     };
@@ -1977,7 +1979,7 @@
 
     var _gel = function(el) {
         if (el == null) return null;
-        el = (typeof el === "string" || el.constructor == String)  ? document.getElementById(el) : el;
+        el = (typeof el === "string" || el.constructor === String)  ? document.getElementById(el) : el;
         if (el == null) return null;
         el._katavorio = el._katavorio || _uuid();
         return el;
@@ -2005,7 +2007,7 @@
                     for(var i = 0; i < _obj.scopes.length; i++) {
                         if (map[_obj.scopes[i]]) {
                             var idx = katavorioParams.indexOf(map[_obj.scopes[i]], _obj);
-                            if (idx != -1) {
+                            if (idx !== -1) {
                                 map[_obj.scopes[i]].splice(idx, 1);
                                 c++;
                             }
@@ -2352,7 +2354,7 @@
                 posses.push(_processOneSpec(el, arguments[i]));
             }
 
-            return posses.length == 1 ? posses[0] : posses;
+            return posses.length === 1 ? posses[0] : posses;
         };
 
         /**
@@ -2386,7 +2388,7 @@
                 }
             }.bind(this));
 
-            return posses.length == 1 ? posses[0] : posses;
+            return posses.length === 1 ? posses[0] : posses;
         };
 
         /**
@@ -2449,7 +2451,7 @@
 
     };
 
-    root.Katavorio.version = "0.19.3";
+    root.Katavorio.version = "0.23.0";
 
     if (typeof exports !== "undefined") {
         exports.Katavorio = root.Katavorio;
@@ -4001,6 +4003,14 @@
                                 }
                             } else {
                                 newEndpoint.setDeleteOnEmpty(true);
+                            }
+
+                            //
+                            // copy in connector overlays if present on the source definition.
+                            //
+                            if (idx === 0 && tep.def.connectorOverlays) {
+                                _p.overlays = _p.overlays || [];
+                                Array.prototype.push.apply(_p.overlays, tep.def.connectorOverlays);
                             }
                         }
                     }
@@ -11040,7 +11050,8 @@
                 perpendicular: oProduct === 0,
                 orthogonal: oProduct === 1,
                 sourceAxis: so[0] === 0 ? "y" : "x",
-                points: [x, y, w, h, sx, sy, tx, ty ]
+                points: [x, y, w, h, sx, sy, tx, ty ],
+                stubs:[sourceStub, targetStub]
             };
             result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
             return result;
