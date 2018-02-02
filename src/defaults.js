@@ -655,7 +655,8 @@
                 perpendicular: oProduct === 0,
                 orthogonal: oProduct === 1,
                 sourceAxis: so[0] === 0 ? "y" : "x",
-                points: [x, y, w, h, sx, sy, tx, ty ]
+                points: [x, y, w, h, sx, sy, tx, ty ],
+                stubs:[sourceStub, targetStub]
             };
             result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
             return result;
