@@ -657,5 +657,19 @@ var testSuite = function (_jsPlumb) {
         ok(_jsPlumb.isSource(d18) == false, "d18 is no longer a source");
     });
 
+    test(": connectorOverlays", function () {
+        var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
+
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", connectorOverlays:[
+            ["Label", {label:"FOO", id:"overlay"}]
+        ]  });
+
+        var c = _jsPlumb.connect({source: "d17", target: "d16"});
+        support.assertEndpointCount("d16", 1, _jsPlumb);
+        support.assertEndpointCount("d17", 1, _jsPlumb);
+
+        ok(c.getOverlay("overlay") != null);
+    });
+
 
 };
