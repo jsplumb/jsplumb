@@ -1,8 +1,15 @@
+## 2.6.5
+
+February 2nd 2018
+
+- add support for `connectorOverlays` to `makeSource` method
+- upgrade to Katavorio 0.24.0
+
 ## 2.6.4
 
 January 28th 2018
 
-- trivial formatting issue required by upstream collation mechanism in Toolkit
+- trivial formatting issue required by upstream collation mechanism in Toolkit 
 
 ## 2.6.3
 
