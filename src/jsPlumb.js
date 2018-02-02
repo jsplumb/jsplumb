@@ -953,6 +953,14 @@
                             } else {
                                 newEndpoint.setDeleteOnEmpty(true);
                             }
+
+                            //
+                            // copy in connector overlays if present on the source definition.
+                            //
+                            if (idx === 0 && tep.def.connectorOverlays) {
+                                _p.overlays = _p.overlays || [];
+                                Array.prototype.push.apply(_p.overlays, tep.def.connectorOverlays);
+                            }
                         }
                     }
                 };
