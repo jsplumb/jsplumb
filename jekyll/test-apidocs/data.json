@@ -2,7 +2,7 @@
     "project": {
         "name": "jsplumb - Test Coverage",
         "description": "Visual connectivity for webapps",
-        "version": "2.6.5",
+        "version": "2.6.6",
         "url": ""
     },
     "files": {
@@ -2242,25 +2242,25 @@
         },
         {
             "file": "tests/unit/all/tests.js",
-            "line": 7259,
+            "line": 7280,
             "description": "Tests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to\nread fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the\nvalue from the extract map. In this test we get the attribute `foo` and insert its value into the connection's\ndata, keyed as `fooAttribute`.",
             "class": ""
         },
         {
             "file": "tests/unit/all/tests.js",
-            "line": 7552,
+            "line": 7573,
             "description": "Tests that `endpoint` and `anchor` in a makeSource definition are honoured. The next test uses a connection type\nbut has the makeSource override the anchor.",
             "class": ""
         },
         {
             "file": "tests/unit/all/tests.js",
-            "line": 7571,
+            "line": 7592,
             "description": "Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
             "class": ""
         },
         {
             "file": "tests/unit/all/tests.js",
-            "line": 7603,
+            "line": 7624,
             "description": "Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
             "class": ""
         },
@@ -3433,19 +3433,19 @@
         },
         {
             "message": "Missing item type\nTests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to\nread fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the\nvalue from the extract map. In this test we get the attribute `foo` and insert its value into the connection's\ndata, keyed as `fooAttribute`.",
-            "line": " tests/unit/all/tests.js:7259"
+            "line": " tests/unit/all/tests.js:7280"
         },
         {
             "message": "Missing item type\nTests that `endpoint` and `anchor` in a makeSource definition are honoured. The next test uses a connection type\nbut has the makeSource override the anchor.",
-            "line": " tests/unit/all/tests.js:7552"
+            "line": " tests/unit/all/tests.js:7573"
         },
         {
             "message": "Missing item type\nTests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
-            "line": " tests/unit/all/tests.js:7571"
+            "line": " tests/unit/all/tests.js:7592"
         },
         {
             "message": "Missing item type\nTests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived\nfrom an applied type.",
-            "line": " tests/unit/all/tests.js:7603"
+            "line": " tests/unit/all/tests.js:7624"
         },
         {
             "message": "Missing item type\nQUnit v1.11.0 - A JavaScript Unit Testing Framework\n\nhttp://qunitjs.com\n\nCopyright 2012 jQuery Foundation and other contributors\nReleased under the MIT license.\nhttp://jquery.org/license",

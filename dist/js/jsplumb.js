@@ -3515,7 +3515,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.6.5";
+        this.version = "2.6.6";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -6034,13 +6034,15 @@
             return _currentInstance;
         };
 
-        this.reset = function () {
+        this.reset = function (doNotUnbindInstanceEventListeners) {
             _currentInstance.silently(function() {
                 _hoverSuspended = false;
                 _currentInstance.removeAllGroups();
                 _currentInstance.removeGroupManager();
                 _currentInstance.deleteEveryEndpoint();
-                _currentInstance.unbind();
+                if (!doNotUnbindInstanceEventListeners) {
+                    _currentInstance.unbind();
+                }
                 this.targetEndpointDefinitions = {};
                 this.sourceEndpointDefinitions = {};
                 connections.length = 0;
