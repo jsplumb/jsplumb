@@ -7218,6 +7218,27 @@ test("endpoint: suspendedElement set correctly", function() {
         ok(cd3.o != null, "d1 is cached");
     });
 
+    test("reset, and reset with optional retention of event bindings", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var c = false;
+        _jsPlumb.bind("connection", function() { c = true; });
+        _jsPlumb.connect({source:d1, target:d2});
+        ok(c, "connection event fired");
+
+        c = false;
+
+        _jsPlumb.reset(true);
+        _jsPlumb.connect({source:d1, target:d2});
+        ok(c, "connection event fired after reset that did not unbind event listeners");
+
+        c = false;
+
+        _jsPlumb.reset();
+        _jsPlumb.connect({source:d1, target:d2});
+        ok(!c, "connection event NOT fired after reset, because reset's default behaviour is to unbind event listeners.");
+
+    })
+
 // ---------------------- issue 405, jsPlumb.empty doesnt remove connections (cannot reproduce) -----------------------
 
     test("jsPlumb.empty removes connections", function() {
