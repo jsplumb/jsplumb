@@ -679,7 +679,8 @@
                 secondBest = clockwise ? clockwiseOptions : antiClockwiseOptions,
                 lastChoice = clockwise ? antiClockwiseOptions : clockwiseOptions,
                 cssClass = anchorParams.cssClass || "",
-                _currentFace = null, _lockedFace = null;
+                _currentFace = null, _lockedFace = null, X_AXIS_FACES = ["left", "right"], Y_AXIS_FACES = ["top", "bottom"],
+                _lockedAxis = null;
 
             for (var i = 0; i < faces.length; i++) {
                 availableFaces[faces[i]] = true;
@@ -708,7 +709,11 @@
             };
 
             this.isEdgeSupported = function (edge) {
-                return _lockedFace == null ? availableFaces[edge] === true : _lockedFace === edge;
+                return  _lockedAxis == null ?
+
+                            (_lockedFace == null ? availableFaces[edge] === true : _lockedFace === edge)
+
+                        : _lockedAxis.indexOf(edge) !== -1;
             };
 
             this.setCurrentFace = function(face) {
@@ -722,6 +727,16 @@
             };
 
             this.unlockCurrentFace = function() { _lockedFace = null; };
+
+            this.lockCurrentAxis = function() {
+                if (_currentFace != null) {
+                    _lockedAxis = (_currentFace === "left" || _currentFace === "right") ? X_AXIS_FACES : Y_AXIS_FACES;
+                }
+            };
+
+            this.unlockCurrentAxis = function() {
+                _lockedAxis = null;
+            };
 
             this.compute = function (params) {
                 return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0, 0];
