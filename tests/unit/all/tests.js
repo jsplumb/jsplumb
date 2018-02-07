@@ -4131,6 +4131,68 @@ test("drag multiple elements and ensure their connections are painted correctly 
         });
 
         equal(ep.anchor.getDefaultFace(), "bottom", "default is bottom");
+        ok(ep.anchor.isEdgeSupported("bottom"), "bottom edge supported");
+        ok(ep.anchor.isEdgeSupported("left"), "left edge supported");
+        ok(!ep.anchor.isEdgeSupported("right"), "right edge not supported");
+        ok(!ep.anchor.isEdgeSupported("top"), "top edge not supported");
+
+        ok(!ep.anchor.isEdgeSupported("unknown"), "unknown edge not supported");
+
+        // TODO: support locking to a specific face.
+        //ep.anchor.lock();
+    });
+
+    test(" Continuous anchor current face is set", function () {
+        var d3 = support.addDiv("d3", null, "", 50, 50, 200, 200),
+            ep3 = _jsPlumb.addEndpoint(d3, {
+                anchor: "Continuous"
+            }),
+            d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
+            ep4 = _jsPlumb.addEndpoint(d4, {
+                anchor: "Continuous"
+            });
+
+        _jsPlumb.connect({source:ep3, target:ep4});
+
+        // we should have picked 'bottom' face for ep3 and 'top' for ep4, based on the orientation of their elements.
+        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
+        equal(ep4.anchor.getCurrentFace(), "top", "ep4's anchor is 'top'");
+
+        // move d3, redraw, and check the anchors have changed appropriately.
+        d3.style.top = "1050px";
+        _jsPlumb.revalidate(d3);
+        equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after d3 moved below d4");
+        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+    });
+
+    test(" Continuous anchor current face is set", function () {
+        var d3 = support.addDiv("d3", null, "", 50, 50, 200, 200),
+            ep3 = _jsPlumb.addEndpoint(d3, {
+                anchor: "Continuous"
+            }),
+            d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
+            ep4 = _jsPlumb.addEndpoint(d4, {
+                anchor: "Continuous"
+            });
+
+        _jsPlumb.connect({source:ep3, target:ep4});
+
+        // as before, we should have picked 'bottom' face for ep3 and 'top' for ep4, based on the orientation of their elements.
+        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
+        equal(ep4.anchor.getCurrentFace(), "top", "ep4's anchor is 'top'");
+
+        // lock ep3's face, move, redraw, check that only ep4's face has changed.
+        ep3.anchor.lockCurrentFace();
+        d3.style.top = "1050px";
+        _jsPlumb.revalidate(d3);
+        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom' after d3 moved below d4, because ep3's current face is locked");
+        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+
+        // unlock ep3's face, redraw, check that only ep4's face has changed.
+        ep3.anchor.unlockCurrentFace();
+        _jsPlumb.revalidate(d3);
+        equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after ep3's current face unlocked and a redraw called");
+        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
     });
 
     asyncTest(" setImage on Endpoint, with supplied onload", function () {
