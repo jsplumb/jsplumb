@@ -4165,7 +4165,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
     });
 
-    test(" Continuous anchor current face is set", function () {
+    test(" Continuous anchor lock current face", function () {
         var d3 = support.addDiv("d3", null, "", 50, 50, 200, 200),
             ep3 = _jsPlumb.addEndpoint(d3, {
                 anchor: "Continuous"
@@ -4192,6 +4192,54 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ep3.anchor.unlockCurrentFace();
         _jsPlumb.revalidate(d3);
         equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after ep3's current face unlocked and a redraw called");
+        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+    });
+
+    test(" Continuous anchor lock current axis", function () {
+        var d3 = support.addDiv("d3", null, "", 50, 50, 200, 200),
+            ep3 = _jsPlumb.addEndpoint(d3, {
+                anchor: "Continuous"
+            }),
+            d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
+            ep4 = _jsPlumb.addEndpoint(d4, {
+                anchor: "Continuous"
+            });
+
+        _jsPlumb.connect({source:ep3, target:ep4});
+
+        // as before, we should have picked 'bottom' face for ep3 and 'top' for ep4, based on the orientation of their elements.
+        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
+        equal(ep4.anchor.getCurrentFace(), "top", "ep4's anchor is 'top'");
+
+        // move d3 to the right of d4, redraw, check that the anchor faces are correct
+
+        d3.style.top = "450px";
+        d3.style.left = "450px";
+        _jsPlumb.revalidate(d3);
+        equal(ep3.anchor.getCurrentFace(), "left", "ep3's anchor is 'left' after d3 moved to the right of d4");
+        equal(ep4.anchor.getCurrentFace(), "right", "ep4's anchor is 'right' after d3 moved to the right of d4");
+
+        // lock ep3's face, move, redraw, check that ep3's axis is 'right' (on the x axis; the choice of right is
+        // a result of the face picking algorithm. it's directly underneath so it could be left or right without
+        // affecting the user's perception)
+        ep3.anchor.lockCurrentAxis();
+        d3.style.top = "1050px";
+        d3.style.left = "50px";
+        _jsPlumb.revalidate(d3);
+        equal(ep3.anchor.getCurrentFace(), "right", "ep3's anchor is 'right' after d3 moved below d4, because ep3's current axis is locked");
+        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+
+        // now move d3 over to the right far enough that the anchor would ordinarily switch to 'top', but the axis is locked.
+        d3.style.top = "1050px";
+        d3.style.left = "350px";
+        _jsPlumb.revalidate(d3);
+        equal(ep3.anchor.getCurrentFace(), "left", "ep3's anchor is 'left' after d3 moved below d4, because ep3's current axis is locked");
+        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+
+        // unlock the axis for ep3, redraw. should move to 'top' now.
+        ep3.anchor.unlockCurrentAxis();
+        _jsPlumb.revalidate(d3);
+        equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after axis unlocked");
         equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
     });
 
