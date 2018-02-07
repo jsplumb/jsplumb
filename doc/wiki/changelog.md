@@ -1,3 +1,10 @@
+## 2.6.6
+
+February 8th 2018
+
+- add the ability to lock a Continuous Anchor's current face.
+- upgrade to Katavorio 0.25.0
+
 ## 2.6.5
 
 February 2nd 2018
