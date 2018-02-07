@@ -1,3 +1,9 @@
+## 2.6.7
+
+February 8th 2018
+
+- add the ability to lock a Continuous Anchor's current 'axis' (ie. it can choose left/right OR top/bottom).
+
 ## 2.6.6
 
 February 8th 2018
