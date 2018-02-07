@@ -99,6 +99,14 @@
                     }
                 }
 
+                if (sourceAnchor.isContinuous) {
+                    sourceAnchor.setCurrentFace(sourceEdge);
+                }
+
+                if (targetAnchor.isContinuous) {
+                    targetAnchor.setCurrentFace(targetEdge);
+                }
+
 // --------------------------------------------------------------------------------------
 
                 return {
@@ -670,7 +678,8 @@
                 antiClockwiseOptions = { "top": "left", "right": "top", "left": "bottom", "bottom": "right" },
                 secondBest = clockwise ? clockwiseOptions : antiClockwiseOptions,
                 lastChoice = clockwise ? antiClockwiseOptions : clockwiseOptions,
-                cssClass = anchorParams.cssClass || "";
+                cssClass = anchorParams.cssClass || "",
+                _currentFace = null, _lockedFace = null;
 
             for (var i = 0; i < faces.length; i++) {
                 availableFaces[faces[i]] = true;
@@ -699,8 +708,20 @@
             };
 
             this.isEdgeSupported = function (edge) {
-                return availableFaces[edge] === true;
+                return _lockedFace == null ? availableFaces[edge] === true : _lockedFace === edge;
             };
+
+            this.setCurrentFace = function(face) {
+                _currentFace = face;
+            };
+
+            this.getCurrentFace = function() { return _currentFace; };
+
+            this.lockCurrentFace = function() {
+                _lockedFace = _currentFace;
+            };
+
+            this.unlockCurrentFace = function() { _lockedFace = null; };
 
             this.compute = function (params) {
                 return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0, 0];
