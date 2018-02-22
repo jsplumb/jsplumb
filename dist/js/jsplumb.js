@@ -3515,7 +3515,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.6.7";
+        this.version = "2.6.8";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -8618,15 +8618,22 @@
         // instead we use the source that the Endpoint declares will be the final source element.
         if (params.sourceEndpoint) {
             this.source = params.sourceEndpoint.getElement();
+            this.sourceId = params.sourceEndpoint.elementId;
+        } else {
+            this.sourceId = this._jsPlumb.instance.getId(this.source);
         }
+
         if (params.targetEndpoint) {
             this.target = params.targetEndpoint.getElement();
+            this.targetId = params.targetEndpoint.elementId;
+        } else {
+            this.targetId = this._jsPlumb.instance.getId(this.target);
         }
 
         _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
-        this.sourceId = this._jsPlumb.instance.getId(this.source);
-        this.targetId = this._jsPlumb.instance.getId(this.target);
+
+
         this.scope = params.scope; // scope may have been passed in to the connect call. if it wasn't, we will pull it from the source endpoint, after having initialised the endpoints.            
         this.endpoints = [];
         this.endpointStyles = [];
