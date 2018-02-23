@@ -142,8 +142,14 @@
         destroyDraggable: function (el, category) {
             _getDragManager(this, category).destroyDraggable(el);
         },
+        unbindDraggable: function (el, evt, fn, category) {
+            _getDragManager(this, category).destroyDraggable(el, evt, fn);
+        },
         destroyDroppable: function (el, category) {
             _getDragManager(this, category).destroyDroppable(el);
+        },
+        unbindDroppable: function (el, evt, fn, category) {
+            _getDragManager(this, category).destroyDroppable(el, evt, fn);
         },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
