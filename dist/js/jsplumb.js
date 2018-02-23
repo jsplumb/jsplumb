@@ -2291,17 +2291,48 @@
             }
         };
 
+        var _removeListener = function(el, type, evt, fn) {
+            el = _gel(el);
+            if (el[type]) {
+                el[type].off(evt, fn);
+            }
+        };
+
         this.elementRemoved = function(el) {
             this.destroyDraggable(el);
             this.destroyDroppable(el);
         };
 
-        this.destroyDraggable = function(el) {
-            _destroy(el, "_katavorioDrag", this._dragsByScope);
+        /**
+         * Either completely remove drag functionality from the given element, or remove a specific event handler. If you
+         * call this method with a single argument - the element - all drag functionality is removed from it. Otherwise, if
+         * you provide an event name and listener function, this function is de-registered (if found).
+         * @param el Element to update
+         * @param {string} [evt] Optional event name to unsubscribe
+         * @param {Function} [fn] Optional function to unsubscribe
+         */
+        this.destroyDraggable = function(el, evt, fn) {
+            if (arguments.length === 1) {
+                _destroy(el, "_katavorioDrag", this._dragsByScope);
+            } else {
+                _removeListener(el, "_katavorioDrag", evt, fn);
+            }
         };
 
-        this.destroyDroppable = function(el) {
-            _destroy(el, "_katavorioDrop", this._dropsByScope);
+        /**
+         * Either completely remove drop functionality from the given element, or remove a specific event handler. If you
+         * call this method with a single argument - the element - all drop functionality is removed from it. Otherwise, if
+         * you provide an event name and listener function, this function is de-registered (if found).
+         * @param el Element to update
+         * @param {string} [evt] Optional event name to unsubscribe
+         * @param {Function} [fn] Optional function to unsubscribe
+         */
+        this.destroyDroppable = function(el, evt, fn) {
+            if (arguments.length === 1) {
+                _destroy(el, "_katavorioDrop", this._dropsByScope);
+            } else {
+                _removeListener(el, "_katavorioDrop", evt, fn);
+            }
         };
 
         this.reset = function() {
@@ -3809,9 +3840,6 @@
                                 }, false);
 
                                 options[dragEvent] = _ju.wrap(options[dragEvent], function () {
-                                    // TODO: here we could actually use getDragObject, and then compute it ourselves,
-                                    // since every adapter does the same thing. but i'm not sure why YUI's getDragObject
-                                    // differs from getUIPosition so much
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
                                     if (ui != null) {
                                         _draw(element, ui, null, true);
@@ -8613,6 +8641,10 @@
         this.previousConnection = params.previousConnection;
         this.source = _jp.getElement(params.source);
         this.target = _jp.getElement(params.target);
+
+
+        _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
@@ -8629,9 +8661,6 @@
         } else {
             this.targetId = this._jsPlumb.instance.getId(this.target);
         }
-
-        _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
-
 
 
         this.scope = params.scope; // scope may have been passed in to the connect call. if it wasn't, we will pull it from the source endpoint, after having initialised the endpoints.            
@@ -14494,8 +14523,14 @@
         destroyDraggable: function (el, category) {
             _getDragManager(this, category).destroyDraggable(el);
         },
+        unbindDraggable: function (el, evt, fn, category) {
+            _getDragManager(this, category).destroyDraggable(el, evt, fn);
+        },
         destroyDroppable: function (el, category) {
             _getDragManager(this, category).destroyDroppable(el);
+        },
+        unbindDroppable: function (el, evt, fn, category) {
+            _getDragManager(this, category).destroyDroppable(el, evt, fn);
         },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
