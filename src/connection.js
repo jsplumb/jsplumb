@@ -59,6 +59,10 @@
         this.previousConnection = params.previousConnection;
         this.source = _jp.getElement(params.source);
         this.target = _jp.getElement(params.target);
+
+
+        _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
@@ -75,9 +79,6 @@
         } else {
             this.targetId = this._jsPlumb.instance.getId(this.target);
         }
-
-        _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
-
 
 
         this.scope = params.scope; // scope may have been passed in to the connect call. if it wasn't, we will pull it from the source endpoint, after having initialised the endpoints.            
