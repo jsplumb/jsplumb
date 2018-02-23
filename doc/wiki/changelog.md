@@ -1,3 +1,10 @@
+## 2.6.8
+
+February 24th 2018
+
+- upgrade to Katavorio 0.26.0
+- added unbindDraggable and unbindDroppable methods
+
 ## 2.6.7
 
 February 8th 2018
