@@ -302,6 +302,7 @@ declare module jsPlumb {
         hideOverlay(s: string): void;
         setLabel(s: string): void;
         getElement(): Connection;
+        repaint():void;
     }
 
 
