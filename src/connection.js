@@ -91,7 +91,7 @@
         _jsPlumb.manage(this.targetId, this.target);
 
         this._jsPlumb.visible = true;
-        this._jsPlumb.editable = params.editable === true;
+
         this._jsPlumb.params = {
             cssClass: params.cssClass,
             container: params.container,
@@ -109,12 +109,6 @@
             this.setHover(false);
         }.bind(this));
 
-        this.editableRequested = params.editable !== false;
-        this.setEditable = function(e) {
-            return this.connector ? this.connector.setEditable(e) : false;
-        };
-        this.isEditable = function() { return this.connector ? this.connector.isEditable() : false; };
-        this.isEditing = function() { return this.connector ? this.connector.isEditing() : false; };
 
 // INITIALISATION CODE
 
@@ -246,9 +240,6 @@
 // PAINTING
 
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || _jp.Defaults.Connector, true);
-        if (params.geometry) {
-            this.connector.setGeometry(params.geometry);
-        }
         var data = params.data == null || !_ju.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
@@ -396,21 +387,12 @@
         getConnector: function () {
             return this.connector;
         },
-        getGeometry : function() {
-            return this.connector ? this.connector.getGeometry() : null;
-        },
-        setGeometry : function(g) {
-            if (this.connector) {
-                this.connector.setGeometry(g);
-            }
-        },
         prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
-                    cssClass: (this._jsPlumb.params.cssClass || "") + (this.isEditable() ? this._jsPlumb.instance.editableConnectorClass : ""),
+                    cssClass: (this._jsPlumb.params.cssClass || ""),
                     container: this._jsPlumb.params.container,
-                    "pointer-events": this._jsPlumb.params["pointer-events"],
-                    editable:this.editableRequested
+                    "pointer-events": this._jsPlumb.params["pointer-events"]
                 },
                 renderMode = this._jsPlumb.instance.getRenderMode(),
                 connector;
