@@ -25,8 +25,6 @@
             isLoopbackCurrently = false,
             _super;
 
-        this.overrideSetEditable = function() { return !isLoopbackCurrently; };
-
         this._compute = function (paintInfo, p) {
 
             var sp = p.sourcePos,
@@ -130,26 +128,15 @@
 
         this._computeBezier = function (paintInfo, p, sp, tp, _w, _h) {
 
-            var geometry = this.getGeometry(), _CP, _CP2,
+            var _CP, _CP2,
                 _sx = sp[0] < tp[0] ? _w : 0,
                 _sy = sp[1] < tp[1] ? _h : 0,
                 _tx = sp[0] < tp[0] ? 0 : _w,
                 _ty = sp[1] < tp[1] ? 0 : _h;
 
-            if ((this.hasBeenEdited() || this.isEditing()) && geometry != null && geometry.controlPoints != null && geometry.controlPoints[0] != null && geometry.controlPoints[1] != null) {
-                _CP = geometry.controlPoints[0];
-                _CP2 = geometry.controlPoints[1];
-            }
-            else {
-                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to);
-                _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
-            }
+            _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, paintInfo.so, paintInfo.to);
+            _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, paintInfo.to, paintInfo.so);
 
-            _super.setGeometry({
-                controlPoints:[_CP, _CP2],
-                sourcePos:sp,
-                targetPos:tp
-            }, true);
 
             _super.addSegment(this, "Bezier", {
                 x1: _sx, y1: _sy, x2: _tx, y2: _ty,
