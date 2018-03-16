@@ -304,18 +304,12 @@
         var self = this,
             _super = SvgComponent.apply(this, [
                 {
-                    cssClass: params._jsPlumb.connectorClass + (this.isEditable() ? " " + params._jsPlumb.editableConnectorClass : ""),
+                    cssClass: params._jsPlumb.connectorClass,
                     originalArgs: arguments,
                     pointerEventsSpec: "none",
                     _jsPlumb: params._jsPlumb
                 }
             ]);
-
-        var _superSetEditable = this.setEditable;
-        this.setEditable = function(e) {
-            var result = _superSetEditable.apply(this, [e]);
-            _jp[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
-        };
 
         _super.renderer.paint = function (style, anchor, extents) {
 
