@@ -162,40 +162,24 @@
                 _midy = (_sy + _ty) / 2,
                 segment = _segment(_sx, _sy, _tx, _ty),
                 distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
-                cp1x, cp2x, cp1y, cp2y,
-                geometry = _super.getGeometry();
+                cp1x, cp2x, cp1y, cp2y;
 
-            if ((this.hasBeenEdited() || this.isEditing()) && geometry != null) {
-                cp1x = geometry.controlPoints[0][0];
-                cp1y = geometry.controlPoints[0][1];
-                cp2x = geometry.controlPoints[1][0];
-                cp2y = geometry.controlPoints[1][1];
-            }
-            else {
-                // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-                // will work by extending the control point to force the curve to be, um, curvier.
-                _controlPoint = _findControlPoint(_midx,
-                    _midy,
-                    segment,
-                    params.sourcePos,
-                    params.targetPos,
-                    curviness, curviness,
-                    distance,
-                    proximityLimit);
 
-                cp1x = _controlPoint[0];
-                cp2x = _controlPoint[0];
-                cp1y = _controlPoint[1];
-                cp2y = _controlPoint[1];
+            // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+            // will work by extending the control point to force the curve to be, um, curvier.
+            _controlPoint = _findControlPoint(_midx,
+                _midy,
+                segment,
+                params.sourcePos,
+                params.targetPos,
+                curviness, curviness,
+                distance,
+                proximityLimit);
 
-                _super.setGeometry({
-                    controlPoints:[_controlPoint, _controlPoint],
-                    sourcePos:sp,
-                    targetPos:tp,
-                    quadrant:segment,
-                    curviness:curviness
-                }, true);
-            }
+            cp1x = _controlPoint[0];
+            cp2x = _controlPoint[0];
+            cp1y = _controlPoint[1];
+            cp2y = _controlPoint[1];
 
             _super.addSegment(this, "Bezier", {
                 x1: _tx, y1: _ty, x2: _sx, y2: _sy,
