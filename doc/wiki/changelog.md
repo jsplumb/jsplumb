@@ -1,3 +1,9 @@
+## 2.6.9
+
+March 16th 2018
+
+- removal of unused 'editable' stubs. No functional change.
+ 
 ## 2.6.8
 
 February 24th 2018
