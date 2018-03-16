@@ -1228,7 +1228,6 @@
 
         this.connectorClass = "jtk-connector";
         this.connectorOutlineClass = "jtk-connector-outline";
-        this.editableConnectorClass = "jtk-connector-editable";
         this.connectedClass = "jtk-connected";
         this.hoverClass = "jtk-hover";
         this.endpointClass = "jtk-endpoint";

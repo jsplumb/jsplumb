@@ -476,18 +476,7 @@
             sourceGap = _ju.isArray(gap) ? gap[0] : gap,
             targetGap = _ju.isArray(gap) ? gap[1] : gap,
             userProvidedSegments = null,
-            edited = false,
-            paintInfo = null,
-            geometry = null,
-            editable = params.editable !== false && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null;
-
-        var _setGeometry = this.setGeometry = function(g, internallyComputed) {
-            edited = (!internallyComputed);
-            geometry = g;
-        };
-        var _getGeometry = this.getGeometry = function() {
-            return geometry;
-        };
+            paintInfo = null;
 
         this.getPathData = function() {
             var p = "";
@@ -497,21 +486,6 @@
             }
             return p;
         };
-
-        this.hasBeenEdited = function() { return edited; };
-        this.isEditing = function() { return this.editor != null && this.editor.isActive(); };
-        this.setEditable = function(e) {
-            // if this connector has an editor already, or
-            // if an editor for this connector's type is available, or
-            // if the child declares an overrideSetEditable and it does not return false, editable is true.
-            if (e && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
-                editable = e;
-            } else {
-                editable = false;
-            }
-            return editable;
-        };
-        this.isEditable = function() { return editable; };
 
         /**
          * Function: findSegmentForPoint
@@ -718,9 +692,7 @@
             maxStub: Math.max(sourceStub, targetStub),
             sourceGap: sourceGap,
             targetGap: targetGap,
-            maxGap: Math.max(sourceGap, targetGap),
-            setGeometry:_setGeometry,
-            getGeometry:_getGeometry
+            maxGap: Math.max(sourceGap, targetGap)
         };
     };
     _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
