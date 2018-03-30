@@ -1,3 +1,7 @@
+## 2.6.10
+
+- documentation updates
+
 ## 2.6.9
 
 March 16th 2018
