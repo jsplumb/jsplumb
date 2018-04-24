@@ -52,6 +52,8 @@ declare module jsPlumb {
 
         deleteEndpoint(object: UUID | Endpoint, doNotRepaintAfterwards?: boolean/* =false */): jsPlumbInstance;
 
+        deleteEveryConnection(): void;
+
         deleteEveryEndpoint(): jsPlumbInstance;
 
         deleteConnection(conn: Connection): void;
@@ -139,6 +141,8 @@ declare module jsPlumb {
         select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Connection[]): { each(fn: (conn: Connection) => void): void };
 
         getHoverPaintStyle(params?: Object, scope?: string | string/* =jsPlumb.DefaultScope */, source?: string | Element | Selector | Array<any>, target?: string | Element | Selector | Array<any>, element?: string | Element | Selector | Array<any>): Selection;
+
+        setContainer(el: string | Element | Selector): void;
 
         setHover(container: string | Element | Selector): void;
 
