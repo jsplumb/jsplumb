@@ -1,3 +1,7 @@
+## 2.6.11
+
+- slight refactor of AnchorManager to put a commonly used method on the prototype.
+
 ## 2.6.10
 
 - documentation updates
