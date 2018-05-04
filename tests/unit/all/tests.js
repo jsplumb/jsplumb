@@ -4182,14 +4182,14 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(ep4.anchor.getCurrentFace(), "top", "ep4's anchor is 'top'");
 
         // lock ep3's face, move, redraw, check that only ep4's face has changed.
-        ep3.anchor.lockCurrentFace();
+        ep3.anchor.lock();
         d3.style.top = "1050px";
         _jsPlumb.revalidate(d3);
         equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom' after d3 moved below d4, because ep3's current face is locked");
         equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
 
         // unlock ep3's face, redraw, check that only ep4's face has changed.
-        ep3.anchor.unlockCurrentFace();
+        ep3.anchor.unlock();
         _jsPlumb.revalidate(d3);
         equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after ep3's current face unlocked and a redraw called");
         equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
