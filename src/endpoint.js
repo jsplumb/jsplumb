@@ -689,7 +689,7 @@
                         var originalEvent = _jsPlumb.getDropEvent(arguments);
                         // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                         var idx = _jsPlumb.getFloatingAnchorIndex(jpc);
-                        jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
+                        jpc.endpoints[idx === 0 ? 1 : 0].anchor.unlock();
                         // TODO: Dont want to know about css classes inside jsplumb, ideally.
                         jpc.removeClass(_jsPlumb.draggingClass);
 
@@ -789,7 +789,7 @@
                         // make our canvas visible (TODO: hand off to library; we should not know about DOM)
                         this.canvas.style.visibility = "visible";
                         // unlock our anchor
-                        this.anchor.locked = false;
+                        this.anchor.unlock();
                         // clear floating anchor.
                         this._jsPlumb.floatingEndpoint = null;
                     }
