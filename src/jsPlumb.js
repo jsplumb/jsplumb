@@ -2244,7 +2244,7 @@
                 },
                 onDrop: function (jpc) {
                     var source = jpc.endpoints[0];
-                    source.anchor.locked = false;
+                    source.anchor.unlock();
                 },
                 isDropAllowed: function () {
                     return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
