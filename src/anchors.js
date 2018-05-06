@@ -636,6 +636,15 @@
             };
 
             this.getCurrentFace = function() { return _currentFace; };
+            this.getSupportedFaces = function() {
+                var af = [];
+                for (var k in availableFaces) {
+                    if (availableFaces[k]) {
+                        af.push(k);
+                    }
+                }
+                return af;
+            };
 
             this.lock = function() {
                 _lockedFace = _currentFace;
