@@ -2950,7 +2950,7 @@
             else if (info.id) {
                 _currentInstance.batch(function () {
                     _doRemove(info, affectedElements);
-                }, doNotRepaint === false);
+                }, doNotRepaint === true);
             }
             return _currentInstance;
         };
