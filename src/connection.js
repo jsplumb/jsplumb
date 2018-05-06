@@ -540,8 +540,9 @@
             }
         },
         repaint: function (params) {
-            params = params || {};
-            this.paint({ elId: this.sourceId, recalc: !(params.recalc === false), timestamp: params.timestamp});
+            var p = jsPlumb.extend(params || {}, {});
+            p.elId = this.sourceId;
+            this.paint(p);
         },
         prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
             var e;
