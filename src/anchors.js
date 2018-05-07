@@ -605,6 +605,9 @@
                 return faces.length === 0 ? "top" : faces[0];
             };
 
+            this.isRelocatable = function() { return true; };
+            this.isSnapOnRelocate = function() { return true; };
+
             // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
             // supported. if none supported we also return the request edge.
             this.verifyEdge = function (edge) {
@@ -631,8 +634,12 @@
                     : _lockedAxis.indexOf(edge) !== -1;
             };
 
-            this.setCurrentFace = function(face) {
+            this.setCurrentFace = function(face, overrideLock) {
                 _currentFace = face;
+                // if currently locked, and the user wants to override, do that.
+                if (overrideLock && _lockedFace != null) {
+                    _lockedFace = _currentFace;
+                }
             };
 
             this.getCurrentFace = function() { return _currentFace; };
@@ -801,6 +808,12 @@
         this.lastReturnValue = null;
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
+
+        var relocatable = params.relocatable !== false;
+        this.isRelocatable = function() { return relocatable; };
+        this.setRelocatable = function(_relocatable) { relocatable = _relocatable; };
+        var snapOnRelocate = params.snapOnRelocate !== false;
+        this.isSnapOnRelocate = function() { return snapOnRelocate; };
 
         var locked = false;
         this.lock = function() { locked = true; };
