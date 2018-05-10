@@ -325,8 +325,7 @@
             return null;
         }
         var str = s.replace(/^\s\s*/, ''), ws = /\s/, i = str.length;
-        while (ws.test(str.charAt(--i)))
-            ;
+        while (ws.test(str.charAt(--i))) { }
         return str.slice(0, i + 1);
     }
     function each(obj, fn) {
@@ -351,18 +350,21 @@
             return def ? _def(def[parentAttribute]) : null;
         };
         var _one = function (parent, def) {
-            if (parent == null)
+            if (parent == null) {
                 return def;
+            }
             else {
                 var d_1 = merge(parent, def);
                 return _one(_parent(parent), d_1);
             }
         };
         var _getDef = function (t) {
-            if (t == null)
+            if (t == null) {
                 return {};
-            if (typeof t == "string")
+            }
+            if (typeof t === "string") {
                 return _def(t);
+            }
             else if (t.length) {
                 var done = false, i = 0, _dd = void 0;
                 while (!done && i < t.length) {
@@ -370,8 +372,9 @@
                     if (_dd) {
                         done = true;
                     }
-                    else
+                    else {
                         i++;
+                    }
                 }
                 return _dd;
             }
