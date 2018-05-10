@@ -158,6 +158,8 @@ module.exports = function(grunt) {
                   '-W018':true, // confusing use of '!'
 				  '-W055':true,  // a constructor name should start with an uppercase letter.
                   '-W032':true,  // unnecessary semicolon.
+                    '-W068':true, // Wrapping non-IIFE function literals in parens is unnecessary. (rollup does this. it isnt a problem)
+                '-W030':true,   // rollup header issue
                 globals:{
                     window:true,
                     Biltong:true,
@@ -169,7 +171,8 @@ module.exports = function(grunt) {
                     setInterval:true,
                     jsPlumb:true,
                     jsPlumbUtil:true,
-                    getComputedStyle:true
+                    getComputedStyle:true,
+                    define:true
                 }
             },
             files:{
