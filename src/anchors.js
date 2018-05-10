@@ -849,6 +849,15 @@
             params = params || {};
             return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp !== params.timestamp)) ? this.compute(params) : this.lastReturnValue;
         };
+
+        this.setPosition = function(x, y, ox, oy, overrideLock) {
+            if (!locked || overrideLock) {
+                this.x = x;
+                this.y = y;
+                this.orientation = [ ox, oy ];
+                this.lastReturnValue = null;
+            }
+        };
     };
     _ju.extend(_jp.Anchor, _ju.EventGenerator, {
         equals: function (anchor) {
@@ -1069,6 +1078,10 @@
             if (_curAnchor != null) {
                 _curAnchor.out();
             }
+        };
+
+        this.setAnchor = function(a) {
+            _curAnchor = a;
         };
 
         this.getCssClass = function () {
