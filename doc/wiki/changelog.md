@@ -1,3 +1,7 @@
+## 2.1.12
+
+- improvement to the calculation of corner radius when segments are short in a Flowchart connector
+
 ## 2.6.11
 
 - slight refactor of AnchorManager to put a commonly used method on the prototype.
