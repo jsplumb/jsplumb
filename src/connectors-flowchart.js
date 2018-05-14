@@ -74,7 +74,9 @@
                     nextDirection = segmentDirections(next);
 
                     if (cornerRadius > 0 && current[4] !== next[4]) {
-                        var radiusToUse = Math.min(cornerRadius, segLength(current), segLength(next));
+
+                        var minSegLength = Math.min(segLength(current), segLength(next));
+                        var radiusToUse = Math.min(cornerRadius, minSegLength / 2);
 
                         current[2] -= currentDirection[0] * radiusToUse;
                         current[3] -= currentDirection[1] * radiusToUse;

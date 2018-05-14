@@ -1,3 +1,10 @@
+## 2.6.12
+
+May 15th 2018
+
+- improvement to the calculation of corner radius when segments are short in a Flowchart connector
+- upgrade to Katavorio 0.28.0
+
 ## 2.6.11
 
 - slight refactor of AnchorManager to put a commonly used method on the prototype.
