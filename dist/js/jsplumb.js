@@ -1539,10 +1539,10 @@
         };
 
         var _setConstrain = function(value) {
-            constrain = typeof value === "function" ? value : value ? function(pos) {
+            constrain = typeof value === "function" ? value : value ? function(pos, dragEl, _constrainRect, _size) {
                 return negativeFilter([
-                    Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
-                    Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
+                    Math.max(0, Math.min(_constrainRect.w - _size[0], pos[0])),
+                    Math.max(0, Math.min(_constrainRect.h - _size[1], pos[1]))
                 ]);
             }.bind(this) : function(pos) { return negativeFilter(pos); };
         }.bind(this);
@@ -1620,7 +1620,8 @@
         this.canDrag = this.params.canDrag || _true;
 
         var constrainRect,
-            matchingDroppables = [], intersectingDroppables = [];
+            matchingDroppables = [],
+            intersectingDroppables = [];
 
         this.downListener = function(e) {
             var isNotRightClick = this.rightButtonCanDrag || (e.which !== 3 && e.button !== 2);
@@ -1631,15 +1632,26 @@
                         dragEl = this.el;
                     else {
                         dragEl = this.el.cloneNode(true);
+                        this.params.addClass(dragEl, _classes.clonedDrag);
+
                         dragEl.setAttribute("id", null);
                         dragEl.style.position = "absolute";
-                        // the clone node is added to the body; getOffsetRect gives us a value
-                        // relative to the body.
-                        var b = getOffsetRect(this.el);
-                        dragEl.style.left = b.left + "px";
-                        dragEl.style.top = b.top + "px";
-                        this.params.addClass(dragEl, _classes.clonedDrag);
-                        document.body.appendChild(dragEl);
+
+                        if (this.params.parent != null) {
+                            var p = this.params.getPosition(this.el);
+                            dragEl.style.left = p[0] + "px";
+                            dragEl.style.top = p[1] + "px";
+                            this.params.parent.appendChild(dragEl);
+                        } else {
+                            // the clone node is added to the body; getOffsetRect gives us a value
+                            // relative to the body.
+                            var b = getOffsetRect(this.el);
+                            dragEl.style.left = b.left + "px";
+                            dragEl.style.top = b.top + "px";
+
+                            document.body.appendChild(dragEl);
+                        }
+
                     }
                     consumeStartEvent && _consume(e);
                     downAt = _pl(e);
@@ -1844,7 +1856,7 @@
         this.moveBy = function(dx, dy, e) {
             intersectingDroppables.length = 0;
             var desiredLoc = this.toGrid([posAtDown[0] + dx, posAtDown[1] + dy]),
-                cPos = constrain(desiredLoc, dragEl);
+                cPos = constrain(desiredLoc, dragEl, constrainRect, this.size);
 
             if (useGhostProxy(this.el)) {
                 if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
@@ -1869,8 +1881,6 @@
             var rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]},
                 pageRect = { x:rect.x + pageDelta[0], y:rect.y + pageDelta[1], w:rect.w, h:rect.h},
                 focusDropElement = null;
-
-
 
             this.params.setPosition(dragEl, cPos);
             for (var i = 0; i < matchingDroppables.length; i++) {
@@ -2482,7 +2492,7 @@
 
     };
 
-    root.Katavorio.version = "0.23.0";
+    root.Katavorio.version = "0.27.0";
 
     if (typeof exports !== "undefined") {
         exports.Katavorio = root.Katavorio;
@@ -3546,7 +3556,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.6.11";
+        this.version = "2.6.12";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -6032,7 +6042,7 @@
             else if (info.id) {
                 _currentInstance.batch(function () {
                     _doRemove(info, affectedElements);
-                }, doNotRepaint === false);
+                }, doNotRepaint === true);
             }
             return _currentInstance;
         };
@@ -9121,8 +9131,9 @@
             }
         },
         repaint: function (params) {
-            params = params || {};
-            this.paint({ elId: this.sourceId, recalc: !(params.recalc === false), timestamp: params.timestamp});
+            var p = jsPlumb.extend(params || {}, {});
+            p.elId = this.sourceId;
+            this.paint(p);
         },
         prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
             var e;
@@ -9800,6 +9811,9 @@
                 return faces.length === 0 ? "top" : faces[0];
             };
 
+            this.isRelocatable = function() { return true; };
+            this.isSnapOnRelocate = function() { return true; };
+
             // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
             // supported. if none supported we also return the request edge.
             this.verifyEdge = function (edge) {
@@ -9826,17 +9840,24 @@
                     : _lockedAxis.indexOf(edge) !== -1;
             };
 
-            this.setCurrentFace = function(face) {
+            this.setCurrentFace = function(face, overrideLock) {
                 _currentFace = face;
+                // if currently locked, and the user wants to override, do that.
+                if (overrideLock && _lockedFace != null) {
+                    _lockedFace = _currentFace;
+                }
             };
 
             this.getCurrentFace = function() { return _currentFace; };
-
-            // this.lockCurrentFace = function() {
-            //     _lockedFace = _currentFace;
-            // };
-            //
-            // this.unlockCurrentFace = function() { _lockedFace = null; };
+            this.getSupportedFaces = function() {
+                var af = [];
+                for (var k in availableFaces) {
+                    if (availableFaces[k]) {
+                        af.push(k);
+                    }
+                }
+                return af;
+            };
 
             this.lock = function() {
                 _lockedFace = _currentFace;
@@ -9993,6 +10014,12 @@
         this.lastReturnValue = null;
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
+
+        var relocatable = params.relocatable !== false;
+        this.isRelocatable = function() { return relocatable; };
+        this.setRelocatable = function(_relocatable) { relocatable = _relocatable; };
+        var snapOnRelocate = params.snapOnRelocate !== false;
+        this.isSnapOnRelocate = function() { return snapOnRelocate; };
 
         var locked = false;
         this.lock = function() { locked = true; };
@@ -12967,7 +12994,9 @@
                     nextDirection = segmentDirections(next);
 
                     if (cornerRadius > 0 && current[4] !== next[4]) {
-                        var radiusToUse = Math.min(cornerRadius, segLength(current), segLength(next));
+
+                        var minSegLength = Math.min(segLength(current), segLength(next));
+                        var radiusToUse = Math.min(cornerRadius, minSegLength / 2);
 
                         current[2] -= currentDirection[0] * radiusToUse;
                         current[3] -= currentDirection[1] * radiusToUse;
