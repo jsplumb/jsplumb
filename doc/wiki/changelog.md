@@ -1,4 +1,4 @@
-## 2.1.12
+## 2.6.12
 
 - improvement to the calculation of corner radius when segments are short in a Flowchart connector
 - upgrade to Katavorio 0.28.0
