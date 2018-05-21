@@ -11,7 +11,7 @@
     "index.d.ts",
     "dist/js/jsplumb.js",
     "dist/js/jsplumb.min.js",
-    "dist/css/jsplumbtoolkit-defaults.css"
+    "css/jsplumbtoolkit-defaults.css"
   ],
   "types": "index",
   "scripts": {
@@ -36,14 +36,12 @@
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-connect": "^0.11.2",
-    "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-jshint": "~0.6.2",
     "grunt-contrib-qunit": "^0.7.0",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-yuidoc": "0.5.2",
     "grunt-exec": "^1.0.1",
-    "grunt-jekyll": "~0.4.1",
     "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "^0.9.1",
     "katavorio": "0.28.0",

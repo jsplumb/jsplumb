@@ -1,7 +1,0 @@
-name: Your New Jekyll Site
-markdown: redcarpet
-pygments: true
-permalink: :categories/:title.html
-exclude: [ "yuitheme" ]
-demos: [ [ "home", "Kitchen Sink" ], [ "flowchart", "Flowchart" ], [ "statemachine", "State Machine" ],  [ "draggableConnectors", "Drag and Drop"], [ "perimeterAnchors", "Perimeter Anchors"], [ "chart", "Hierarchical Chart" ], [ "sourcesAndTargets", "Sources and Targets" ], [ "dynamicAnchors", "Dynamic Anchors" ], [ "animation", "Animation" ] ]
-jsplumb: "2.3.0"

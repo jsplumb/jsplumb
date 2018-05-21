@@ -1,3 +1,8 @@
+## 2.7.0
+
+- jsPlumb.extend now copies the __proto__ chain too
+
+ 
 ## 2.6.12
 
 May 15th 2018
