@@ -160,6 +160,7 @@ module.exports = function(grunt) {
                   '-W032':true,  // unnecessary semicolon.
                     '-W068':true, // Wrapping non-IIFE function literals in parens is unnecessary. (rollup does this. it isnt a problem)
                 '-W030':true,   // rollup header issue
+                '-W103':true, // the __proto__ property is deprecated
                 globals:{
                     window:true,
                     Biltong:true,
