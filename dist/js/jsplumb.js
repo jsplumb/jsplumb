@@ -2502,8 +2502,8 @@
 
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-    typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    (factory((global.jsPlumbUtil = {})));
+        typeof define === 'function' && define.amd ? define(['exports'], factory) :
+            (factory((global.jsPlumbUtil = {})));
 }(this, (function (exports) { 'use strict';
 
     function isArray(a) {
@@ -2627,9 +2627,9 @@
         path.replace(/([^\.])+/g, function (term, lc, pos, str) {
             var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/), last = pos + term.length >= str.length, _getArray = function () {
                 return t[array[1]] || (function () {
-                    t[array[1]] = [];
-                    return t[array[1]];
-                })();
+                        t[array[1]] = [];
+                        return t[array[1]];
+                    })();
             };
             if (last) {
                 // set term = value on current t, creating term as array if necessary.
@@ -2645,15 +2645,15 @@
                 if (array) {
                     var a_1 = _getArray();
                     t = a_1[array[3]] || (function () {
-                        a_1[array[3]] = {};
-                        return a_1[array[3]];
-                    })();
+                            a_1[array[3]] = {};
+                            return a_1[array[3]];
+                        })();
                 }
                 else {
                     t = t[term] || (function () {
-                        t[term] = {};
-                        return t[term];
-                    })();
+                            t[term] = {};
+                            return t[term];
+                        })();
                 }
             }
             return "";
@@ -2787,12 +2787,29 @@
     function extend(child, parent, _protoFn) {
         var i;
         parent = isArray(parent) ? parent : [parent];
+        var _copyProtoChain = function (focus) {
+            var proto = focus.__proto__;
+            while (proto != null) {
+                if (proto.prototype != null) {
+                    for (var j in proto.prototype) {
+                        if (proto.prototype.hasOwnProperty(j) && !child.prototype.hasOwnProperty(j)) {
+                            child.prototype[j] = proto.prototype[j];
+                        }
+                    }
+                    proto = proto.prototype.__proto__;
+                }
+                else {
+                    proto = null;
+                }
+            }
+        };
         for (i = 0; i < parent.length; i++) {
             for (var j in parent[i].prototype) {
-                if (parent[i].prototype.hasOwnProperty(j)) {
+                if (parent[i].prototype.hasOwnProperty(j) && !child.prototype.hasOwnProperty(j)) {
                     child.prototype[j] = parent[i].prototype[j];
                 }
             }
+            _copyProtoChain(parent[i]);
         }
         var _makeFn = function (name, protoFn) {
             return function () {
