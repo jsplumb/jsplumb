@@ -838,7 +838,7 @@
                 this.lastReturnValue = this.userDefinedLocation;
             }
             else {
-                this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1] ];
+                this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
             }
 
             this.timestamp = timestamp;
@@ -1086,6 +1086,23 @@
 
         this.getCssClass = function () {
             return (_curAnchor && _curAnchor.getCssClass()) || "";
+        };
+
+        /**
+         * Attempt to match an anchor with the given coordinates and then set it.
+         * @param coords
+         * @returns true if matching anchor found, false otherwise.
+         */
+        this.setAnchorCoordinates = function(coords) {
+            var idx = jsPlumbUtil.findWithFunction(this.anchors, function(a) {
+                return a.x === coords[0] && a.y === coords[1];
+            });
+            if (idx !== -1) {
+                this.setAnchor(this.anchors[idx]);
+                return true;
+            } else {
+                return false;
+            }
         };
     };
     _ju.extend(_jp.DynamicAnchor, _jp.Anchor);
