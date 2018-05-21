@@ -492,6 +492,8 @@
                     this.connector.compute({
                         sourcePos: sAnchorP,
                         targetPos: tAnchorP,
+                        sourceOrientation:sE.anchor.getOrientation(sE),
+                        targetOrientation:tE.anchor.getOrientation(tE),
                         sourceEndpoint: this.endpoints[sIdx],
                         targetEndpoint: this.endpoints[tIdx],
                         "stroke-width": this._jsPlumb.paintStyleInUse.strokeWidth,
