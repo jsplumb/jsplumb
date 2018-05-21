@@ -135,7 +135,7 @@ var testSuite = function (_jsPlumb) {
 
         jsPlumbUtil.extend(Child, [Mother, Father]);
         var aChild = new Child();
-        equal(aChild.id(), "father", "child has inherited father's id method");
+        equal(aChild.id(), "mother", "child has NOT inherited father's id method, as extensions dont override");
         equal(aChild.mother(), "mother", "child has inherited mother's method");
         equal(aChild.father(), "father", "child has inherited father's method");
         equal(aChild.aValue, "father", "child has inherited father's aValue property");
