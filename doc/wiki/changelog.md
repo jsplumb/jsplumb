@@ -1,7 +1,9 @@
 ## 2.7.0
 
-- jsPlumb.extend now copies the __proto__ chain too
+May 22nd 2018
 
+- jsPlumb.extend now copies the __proto__ chain too. 
+- Remove old site code. We manage the site in a different project now.
  
 ## 2.6.12
 
