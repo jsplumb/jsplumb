@@ -1,6 +1,6 @@
 {
     "name": "jsplumb",
-    "version":"2.6.12",
+    "version":"2.7.0",
     "ignore": [
         "node_modules",
         "Gruntfile.js",
@@ -10,7 +10,6 @@
         "css",
         "doc",
         "img",
-        "jekyll",
         "src",
         "tests",
         "dist/apidocs",
