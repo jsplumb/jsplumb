@@ -603,4 +603,6 @@
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
+    window.jsPlumbUtil = exports;
+
 })));
