@@ -1,3 +1,9 @@
+## 2.7.1
+
+May 25th 2018
+
+- added Connector to the Defaults interface in the TS typings file (#744)
+
 ## 2.7.0
 
 May 22nd 2018
