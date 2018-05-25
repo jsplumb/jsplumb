@@ -1,4 +1,5 @@
 # jsPlumb
+
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG and runs on all browsers
 from IE9 and later. 
 
@@ -12,15 +13,28 @@ This project is the 'Community Edition' of jsPlumb. The 'Toolkit Edition' is a c
 **This project is not the correct place to report issues for the Toolkit edition**. The Toolkit is not a public project.
 Issues reported for the Toolkit edition in this issue tracker will be cleared.
 
-## Project Structure
-At any time there is a built version in the `dist` directory, which contains the concatenated and minified files, as well 
-as a full set of demos and tests, and there is a version under development in `src`.  If taking something that is working 
-and adapting it for your needs is what you want to do, use the files in the `dist` directory.  If you need to work 
-directly with the version in development - maybe there's a bug fix you need or whatever - you need the files in the 
-`src` directory.
+## Installation
 
-Note that the demos in the `demos` directory are always pointing at the current development version, and therefore have 
-a long list of imports.  
+```
+npm install jsplumb
+```
+
+We package the following files:
+
+```javascript
+"files": [
+    "index.d.ts",
+    "dist/js/jsplumb.js",
+    "dist/js/jsplumb.min.js",
+    "css/jsplumbtoolkit-defaults.css"
+  ],
+```
+
+We recommend including the `jsplumbtoolkit-defaults.css` file to begin with, as it provides some sane default values.
+
+
+## Typescript
+An `index.d.ts` is included in the npm package.
 
 ## Issues
 jsPlumb uses GitHub's issue tracker for enhancements and bugs.  But please do check the 
@@ -33,11 +47,7 @@ No external dependencies.
 
 ## Bower?
 
-See [https://github.com/jsplumb/bower-jsplumb](https://github.com/jsplumb/bower-jsplumb)
-
-## NPM ?
-
-See [https://github.com/jsplumb/bower-jsplumb](https://github.com/jsplumb/bower-jsplumb)
+There's a bower.json checked in to the root directory, but perhaps not for long. It just doesn't seem necessary now that npm can do everything Bower could do.
 
 ## jsPlumb in action
 
@@ -54,7 +64,7 @@ API documentation is in the apidoc folder of the project, and online [here](http
 
 - Bezier curve functions:
 
-[https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
+[https://github.com/jsplumb/jsBezier](https://github.com/sporritt/jsBezier)
 
 - Simple geometry functions:
 
