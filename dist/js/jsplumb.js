@@ -3105,6 +3105,8 @@
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
+    window.jsPlumbUtil = exports;
+
 })));
 
 /*
@@ -3121,7 +3123,7 @@
 
   "use strict";
 
-   var root = this;
+   var root = window;
 
     root.jsPlumbUtil.matchesSelector = function(el, selector, ctx) {
        ctx = ctx || el.parentNode;
@@ -3638,7 +3640,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.1";
+        this.version = "2.7.2";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
