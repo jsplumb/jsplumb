@@ -229,6 +229,7 @@ declare module jsPlumb {
         ConnectionOverlays?: Array<OverlaySpec>;
         Container?: any; // string(selector or id) or element
         DragOptions?: DragOptions;
+        Connector?:ConnectorSpec;
     }
 
     interface Connections {
@@ -266,31 +267,6 @@ declare module jsPlumb {
     interface DropOptions {
         hoverClass: string;
     }
-
-    // interface SourceOptions {
-    //     parent: string;
-    //     endpoint?: string;
-    //     anchor?: string;
-    //     connector?: any[];
-    //     connectorStyle?: PaintStyle;
-    // }
-    //
-    // interface TargetOptions {
-    //     isTarget?: boolean;
-    //     maxConnections?: number;
-    //     uniqueEndpoint?: boolean;
-    //     deleteEndpointsOnDetach?: boolean;
-    //     endpoint?: string;
-    //     dropOptions?: DropOptions;
-    //     anchor?: any;
-    // }
-
-
-    // interface SelectParams {
-    //     scope?: string;
-    //     source: string;
-    //     target: string;
-    // }
 
     interface Connection {
         id: ConnectionId;
