@@ -1,3 +1,9 @@
+## 2.7.2
+
+May 25th 2018
+
+- browser util assumes 'window' as root
+
 ## 2.7.1
 
 May 25th 2018
