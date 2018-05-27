@@ -45,10 +45,6 @@ you're just asking a question.
 
 No external dependencies.
 
-## Bower?
-
-There's a bower.json checked in to the root directory, but perhaps not for long. It just doesn't seem necessary now that npm can do everything Bower could do.
-
 ## jsPlumb in action
 
 Links to various demonstrations can be found [here](https://jsplumbtoolkit.com).
