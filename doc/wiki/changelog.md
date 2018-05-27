@@ -1,3 +1,10 @@
+## 2.7.3
+
+May 27th 2018
+
+- switched util back to an older method of declaring it on the window.
+- removed bower.json
+
 ## 2.7.2
 
 May 25th 2018
