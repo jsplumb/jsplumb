@@ -1,8 +1,9 @@
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-        typeof define === 'function' && define.amd ? define(['exports'], factory) :
-            (factory((global.jsPlumbUtil = {})));
-}(this, (function (exports) { 'use strict';
+;(function() {
+
+    "use strict";
+
+    var root = this;
+    var exports = root.jsPlumbUtil = {};
 
     function isArray(a) {
         return Object.prototype.toString.call(a) === "[object Array]";
@@ -601,8 +602,5 @@
     exports.wrap = wrap;
     exports.EventGenerator = EventGenerator;
 
-    Object.defineProperty(exports, '__esModule', { value: true });
 
-    window.jsPlumbUtil = exports;
-
-})));
+}).call(typeof window !== 'undefined' ? window : this);

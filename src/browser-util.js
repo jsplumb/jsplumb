@@ -12,7 +12,7 @@
 
   "use strict";
 
-   var root = window;
+   var root = this;
 
     root.jsPlumbUtil.matchesSelector = function(el, selector, ctx) {
        ctx = ctx || el.parentNode;
