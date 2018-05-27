@@ -2500,11 +2500,12 @@
 
 }).call(typeof window !== 'undefined' ? window : this);
 
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-        typeof define === 'function' && define.amd ? define(['exports'], factory) :
-            (factory((global.jsPlumbUtil = {})));
-}(this, (function (exports) { 'use strict';
+;(function() {
+
+    "use strict";
+
+    var root = this;
+    var exports = root.jsPlumbUtil = {};
 
     function isArray(a) {
         return Object.prototype.toString.call(a) === "[object Array]";
@@ -3103,11 +3104,8 @@
     exports.wrap = wrap;
     exports.EventGenerator = EventGenerator;
 
-    Object.defineProperty(exports, '__esModule', { value: true });
 
-    window.jsPlumbUtil = exports;
-
-})));
+}).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * This file contains utility functions that run in browsers only.
@@ -3123,7 +3121,7 @@
 
   "use strict";
 
-   var root = window;
+   var root = this;
 
     root.jsPlumbUtil.matchesSelector = function(el, selector, ctx) {
        ctx = ctx || el.parentNode;
@@ -3640,7 +3638,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.2";
+        this.version = "2.7.3";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
