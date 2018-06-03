@@ -390,7 +390,7 @@
         prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
-                    cssClass: (this._jsPlumb.params.cssClass || ""),
+                    cssClass: this._jsPlumb.params.cssClass,
                     container: this._jsPlumb.params.container,
                     "pointer-events": this._jsPlumb.params["pointer-events"]
                 },
