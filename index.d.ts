@@ -140,6 +140,8 @@ declare module jsPlumb {
 
         getHoverPaintStyle(params?: Object, scope?: string | string/* =jsPlumb.DefaultScope */, source?: string | Element | Selector | Array<any>, target?: string | Element | Selector | Array<any>, element?: string | Element | Selector | Array<any>): Selection;
 
+        setContainer(el: string | Element | Selector): void;
+
         setHover(container: string | Element | Selector): void;
 
         setDefaultScope(scope: string): jsPlumbInstance;
