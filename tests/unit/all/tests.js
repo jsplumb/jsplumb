@@ -9177,6 +9177,15 @@ test("endpoint: suspendedElement set correctly", function() {
         a.fire("event");
 
         equal(count, 2, "an event was fired");
+    });
+
+    test("connectorClass specified in addEndpoint params", function() {
+        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
+        var e1 = jsPlumb.addEndpoint(d1, { anchor: "Top", connector:["Flowchart", {cssClass: "connector"}], endpoint: "Rectangle"} );
+        _jsPlumb.connect({source:e1, target:d2});
+        ok(_jsPlumb.hasClass(e1.connections[0].getConnector().canvas, "connector", "connector class set"));
+
     })
 
 };
