@@ -52,6 +52,8 @@ declare module jsPlumb {
 
         deleteEndpoint(object: UUID | Endpoint, doNotRepaintAfterwards?: boolean/* =false */): jsPlumbInstance;
 
+        deleteEveryConnection(): void;
+
         deleteEveryEndpoint(): jsPlumbInstance;
 
         deleteConnection(conn: Connection): void;
