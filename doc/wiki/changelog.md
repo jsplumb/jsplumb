@@ -1,3 +1,10 @@
+## 2.7.4
+
+June 14th 2018
+
+- fix for cssClass being ignored in `addEndpoint` method (PR 750)
+- minor updates to the Typescript typings file.
+
 ## 2.7.3
 
 May 27th 2018

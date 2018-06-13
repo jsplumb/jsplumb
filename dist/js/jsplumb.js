@@ -3638,7 +3638,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.3";
+        this.version = "2.7.4";
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -9063,7 +9063,7 @@
         prepareConnector:function(connectorSpec, typeId) {
             var connectorArgs = {
                     _jsPlumb: this._jsPlumb.instance,
-                    cssClass: (this._jsPlumb.params.cssClass || ""),
+                    cssClass: this._jsPlumb.params.cssClass,
                     container: this._jsPlumb.params.container,
                     "pointer-events": this._jsPlumb.params["pointer-events"]
                 },
