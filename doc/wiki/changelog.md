@@ -1,3 +1,9 @@
+## 2.7.5
+
+June 17th 2018
+
+- added toggleClass method to jsPlumb
+
 ## 2.7.4
 
 June 14th 2018
