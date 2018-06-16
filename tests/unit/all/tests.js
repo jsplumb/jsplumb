@@ -6580,7 +6580,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
     });
     
 
-    test(" : DOM adapter addClass/hasClass/removeClass", function () {
+    test(" : DOM adapter addClass/hasClass/removeClass/toggleClass", function () {
         var d1 = support.addDiv(d1), // d1 is a DOM element
             _d1 = jsPlumb.getSelector(d1);  // _d1 is a selector. we will test using each one.
 
@@ -6631,6 +6631,13 @@ test("drag multiple elements and ensure their connections are painted correctly 
         // set class for d1 to be BAZ only
         jsPlumb.setClass(d1, "BAZ");
         equal(d1.className, "BAZ", "element has only the class set with setClass");
+
+        jsPlumb.toggleClass(d1, "BAZ");
+        ok(!jsPlumb.hasClass(d1, "BAZ"), "class toggled off");
+        jsPlumb.toggleClass(d1, "BAZ");
+        ok(jsPlumb.hasClass(d1, "BAZ"), "class toggled back on");
+        jsPlumb.toggleClass(d1, "BAR");
+        ok(jsPlumb.hasClass(d1, "BAR"), "another class toggled on");
     });
 
     test(" : DOM adapter addClass/removeClass, multiple elements, with selector", function () {
