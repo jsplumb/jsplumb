@@ -402,19 +402,15 @@
         appendToRoot: function (node) {
             document.body.appendChild(node);
         },
-        // NOT CONVERTING
         getRenderModes: function () {
             return [ "svg"  ];
         },
-        // CONVERTED
         getClass:_getClassName,
-        // CONVERTED
         addClass: function (el, clazz) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, clazz);
             });
         },
-        // CONVERTED
         hasClass: function (el, clazz) {
             el = jsPlumb.getElement(el);
             if (el.classList) {
@@ -424,19 +420,23 @@
                 return _getClassName(el).indexOf(clazz) !== -1;
             }
         },
-        // CONVERTED
         removeClass: function (el, clazz) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, null, clazz);
             });
         },
-        // CONVERTED
+        toggleClass:function(el, clazz) {
+            if (jsPlumb.hasClass(el, clazz)) {
+                jsPlumb.removeClass(el, clazz);
+            } else {
+                jsPlumb.addClass(el, clazz);
+            }
+        },
         updateClasses: function (el, toAdd, toRemove) {
             jsPlumb.each(el, function (e) {
                 _classManip(e, toAdd, toRemove);
             });
         },
-        // CONVERTED
         setClass: function (el, clazz) {
             if (clazz != null) {
                 jsPlumb.each(el, function (e) {
@@ -444,12 +444,10 @@
                 });
             }
         },
-        // CONVERTED
         setPosition: function (el, p) {
             el.style.left = p.left + "px";
             el.style.top = p.top + "px";
         },
-        // CONVERTED
         getPosition: function (el) {
             var _one = function (prop) {
                 var v = el.style[prop];
@@ -460,7 +458,6 @@
                 top: _one("top")
             };
         },
-        // CONVERTED
         getStyle:function(el, prop) {
             if (typeof window.getComputedStyle !== 'undefined') {
                 return getComputedStyle(el, null).getPropertyValue(prop);
@@ -468,7 +465,6 @@
                 return el.currentStyle[prop];
             }
         },
-        // CONVERTED
         getSelector: function (ctx, spec) {
             var sel = null;
             if (arguments.length === 1) {
@@ -480,7 +476,6 @@
 
             return sel;
         },
-        // CONVERTED
         getOffset:function(el, relativeToRoot, container) {
             el = jsPlumb.getElement(el);
             container = container || this.getContainer();
@@ -578,15 +573,12 @@
         /**
          * gets the size for the element, in an array : [ width, height ].
          */
-        // CONVERTED
         getSize: function (el) {
             return [ el.offsetWidth, el.offsetHeight ];
         },
-        // CONVERTED
         getWidth: function (el) {
             return el.offsetWidth;
         },
-        // CONVERTED
         getHeight: function (el) {
             return el.offsetHeight;
         },
