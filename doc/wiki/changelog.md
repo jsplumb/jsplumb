@@ -1,3 +1,10 @@
+## 2.7.6
+
+June 20th 2018
+
+- replaced incorrect call to detachAllConnections in demo to deleteConnectionsForElement
+- fixed docs to change references from `detachAllConnections` to `deleteConnectionsForElement`
+
 ## 2.7.5
 
 June 17th 2018
