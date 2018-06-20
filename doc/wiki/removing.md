@@ -73,11 +73,11 @@ The Endpoints *will not* be deleted under the following circumstances:
 
 
 
-##### Detaching all Connections from a single element
+##### Deleting all Connections from a single element
 
-To detach all the Connections from some given element:
+To delete all the Connections from some given element:
 
-    jsPlumb.detachAllConnections(el, [params])
+    jsPlumb.deleteConnectionsForElement(el, [params])
 
 
 **el** may be:
