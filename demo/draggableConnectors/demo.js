@@ -213,7 +213,7 @@
 
             var detachLinks = jsPlumb.getSelector(".drag-drop-demo .detach");
             instance.on(detachLinks, "click", function (e) {
-                instance.detachAllConnections(this.getAttribute("rel"));
+                instance.deleteConnectionsForElement(this.getAttribute("rel"));
                 jsPlumbUtil.consume(e);
             });
 
