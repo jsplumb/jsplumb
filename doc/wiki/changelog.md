@@ -1,3 +1,10 @@
+## 2.7.7
+
+June 21st 2018
+
+- ensure 'rank' is passed through to drop library when present
+- separate out unit tests for drag/drop and for groups.
+
 ## 2.7.6
 
 June 20th 2018
