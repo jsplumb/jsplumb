@@ -696,4 +696,72 @@ var testSuite = function (_jsPlumb) {
         ok(c.proxies[0] == "flag", "proxies not setup since all elements were removed");
     });
 
+    test("drag a connection from an element to a group", function() {
+        var d1 = support.addDiv("d1", null, null, 0,0, 40, 40),
+            //c = _jsPlumb.connect({source:d1, target:d2}),
+            //c2 = _jsPlumb.connect({source:d1, target:d3}),
+            g = support.addDiv("group", null, null, 600,600, 400, 400);
+
+        var group = _jsPlumb.addGroup({ el:g });
+        _jsPlumb.makeTarget(g);
+        _jsPlumb.makeSource(d1);
+
+        var c = support.dragConnection(d1, g);
+        var conns = _jsPlumb.select();
+
+        equal(1, conns.length, "there is one connection");
+
+        equal(conns.get(0).target, g, "target is the group element");
+        equal(conns.get(0).source, d1, "source is the node element");
+    });
+
+    test("drag a connection from an element to an element inside a group, element added to group before any elements made source/target", function() {
+        var d1 = support.addDiv("d1", null, null, 0,0, 40, 40),
+            d2 = support.addDiv("d2", null, null, 0,0, 40, 40),
+            g = support.addDiv("group", null, null, 600,600, 400, 400);
+
+        var group = _jsPlumb.addGroup({ el:g });
+        _jsPlumb.addToGroup(group, d2);
+        _jsPlumb.makeTarget(g);
+        _jsPlumb.makeSource(d1);
+        _jsPlumb.makeTarget(d2);
+
+        d2.style.left = "40px";
+        d2.style.top = "40px";
+
+        var c = support.dragConnection(d1, d2);
+        var conns = _jsPlumb.select();
+
+        equal(1, conns.length, "there is one connection");
+
+        equal(conns.get(0).target, d2, "target is d2");
+        equal(conns.get(0).source, d1, "source is d1");
+    });
+
+    test("drag a connection from an element to an element inside a group, element added to group after elements made source/target", function() {
+        var d1 = support.addDiv("d1", null, null, 0,0, 40, 40),
+            g = support.addDiv("group", null, null, 600,600, 400, 400);
+
+        _jsPlumb.makeSource(d1);
+
+        var group = _jsPlumb.addGroup({ el:g });
+        _jsPlumb.makeTarget(g);
+
+
+        var d2 = support.addDiv("d2", null, null, 0,0, 40, 40);
+        _jsPlumb.addToGroup(group, d2);
+        _jsPlumb.makeTarget(d2);
+
+        d2.style.left = "40px";
+        d2.style.top = "40px";
+
+        var c = support.dragConnection(d1, d2);
+        var conns = _jsPlumb.select();
+
+        equal(1, conns.length, "there is one connection");
+
+        equal(conns.get(0).target, d2, "target is d2");
+        equal(conns.get(0).source, d1, "source is d1");
+    })
+
 };
