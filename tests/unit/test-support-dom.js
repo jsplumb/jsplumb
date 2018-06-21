@@ -137,6 +137,14 @@
         _relocate(_jsPlumb, conn, 0, source, events);
     };
 
+    var countKeys = function(obj) {
+        var i = 0;
+        for (var k in obj) {
+            if (obj.hasOwnProperty(k)) i++;
+        }
+        return i;
+    };
+
     this.jsPlumbTestSupport = {
         getInstance:function(_jsPlumb) {
 
@@ -218,7 +226,9 @@
                     var d = document.createElement("div");
                     d.innerHTML = s;
                     return d.firstChild;
-                }
+                },
+
+                countKeys:countKeys
             }
         }
     };
