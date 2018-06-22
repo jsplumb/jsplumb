@@ -117,10 +117,10 @@
 
                     // otherwise, transfer to this group.
                     if (currentGroup != null) {
-                        currentGroup.remove(el, doNotFireEvent);
+                        currentGroup.remove(el, false, doNotFireEvent, false, group);
                         self.updateConnectionsForGroup(currentGroup);
                     }
-                    group.add(el, doNotFireEvent);
+                    group.add(el, doNotFireEvent, currentGroup);
 
                     var handleDroppedConnections = function (list, index) {
                         var oidx = index === 0 ? 1 : 0;
@@ -498,7 +498,7 @@
             return dropOverride && (revert || prune || orphan);
         };
 
-        this.add = function(_el, doNotFireEvent) {
+        this.add = function(_el, doNotFireEvent, sourceGroup) {
             var dragArea = getDragArea();
             _each(_el, function(__el) {
 
@@ -522,14 +522,18 @@
                 }
 
                 if (!doNotFireEvent) {
-                    _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: __el});
+                    var p = {group: self, el: __el};
+                    if (sourceGroup) {
+                        p.sourceGroup = sourceGroup;
+                    }
+                    _jsPlumb.fire(EVT_CHILD_ADDED, p);
                 }
             });
 
             _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
         };
 
-        this.remove = function(el, manipulateDOM, doNotFireEvent, doNotUpdateConnections) {
+        this.remove = function(el, manipulateDOM, doNotFireEvent, doNotUpdateConnections, targetGroup) {
 
             _each(el, function(__el) {
                 delete __el._jsPlumbGroup;
@@ -545,7 +549,11 @@
                 }
                 _unbindDragHandlers(__el);
                 if (!doNotFireEvent) {
-                    _jsPlumb.fire(EVT_CHILD_REMOVED, {group: self, el: __el});
+                    var p = {group: self, el: __el};
+                    if (targetGroup) {
+                        p.targetGroup = targetGroup;
+                    }
+                    _jsPlumb.fire(EVT_CHILD_REMOVED, p);
                 }
             });
             if (!doNotUpdateConnections) {
