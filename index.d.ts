@@ -24,6 +24,25 @@ declare module jsPlumb {
         function getInstance(_defaults?: Defaults): jsPlumbInstance;
     }
 
+    module jsPlumbUtil {
+        function isArray(obj:any):boolean;
+        function isNumber(obj:any):boolean;
+        function isString(obj:any):boolean;
+        function isBoolean(obj:any):boolean;
+        function isNull(obj:any):boolean;
+        function isObject(obj:any):boolean;
+        function isDate(obj:any):boolean;
+        function isFunction(obj:any):boolean;
+        function isNamedFunction(obj:any):boolean;
+        function isEmpty(obj:any):boolean;
+        function extend(target: Object, source: Object): any;
+        function uuid():UUID;
+        function findWithFunction(list:Array<any>, fn:(obj:any)=>boolean):number;
+        function addWithFunction(list:Array<any>, item:any, fn:(obj:any)=>boolean):void;
+        function removeWithFunction(list:Array<any>, fn:(obj:any)=>boolean):number;
+        function suggest(list:Array<any>, item:any, insertAtHead?:boolean):boolean;
+        function fastTrim(s:string):string;
+    }
 
     type Selector = string;
     type UUID = string;
@@ -266,6 +285,8 @@ declare module jsPlumb {
         start?: (params:DragEventCallbackOptions) => void;
         drag?: (params:DragEventCallbackOptions) => void;
         stop?: (params:DragEventCallbackOptions) => void;
+        cursor?: string;
+        zIndex?: number;
     }
 
     interface DropOptions {
