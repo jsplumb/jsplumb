@@ -247,6 +247,8 @@ declare module jsPlumb {
         Anchors?: [ AnchorSpec, AnchorSpec ];
         PaintStyle?: PaintStyle;
         HoverPaintStyle?: PaintStyle;
+        EndpointStyle?: PaintStyle;
+        EndpointHoverStyle?: PaintStyle;
         ConnectionsDetachable?: boolean;
         ReattachConnections?: boolean;
         ConnectionOverlays?: Array<OverlaySpec>;
