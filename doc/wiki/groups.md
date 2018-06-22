@@ -247,13 +247,39 @@ Three CSS classes are used:
 A number of events are fired by the various methods for working with Groups.
 
 <table>
-<tr><td>Event</td><td>Description</td><td>Parameters</tr>
-<tr><td>group:add</td><td>Fired when a new Group is added</td><td><strong>{group:Group}</strong></td></tr>
-<tr><td>group:remove</td><td>Fired when a Group is removed</td><td><strong>{group:Group}</strong></td></tr>
-<tr><td>group:addMember</td><td>Fired when an element is added to a Group</td><td><strong>{group:Group, el:Element}</strong></td></tr>
-<tr><td>group:removeMember</td><td>Fired when an element is removed from a Group</td><td><strong>{group:Group, el:Element}</strong></td></tr>
-<tr><td>group:collapse</td><td>Fired when a Group is collapsed</td><td><strong>{group:Group}</strong></td></tr>
-<tr><td>group:expand</td><td>Fired when a Group is expanded</td><td><strong>{group:Group}</strong></td></tr>
+<tr>
+    <td>Event</td><td>Description</td><td>Parameters</td>
+</tr>
+<tr>
+    <td>group:add</td>
+    <td>Fired when a new Group is added</td>
+    <td><strong>{group:Group}</strong></td>
+</tr>
+<tr>
+    <td>group:remove</td>
+    <td>Fired when a Group is removed</td>
+    <td><strong>{group:Group}</strong></td>
+</tr>
+<tr>
+    <td>group:addMember</td>
+    <td>Fired when an element is added to a Group. If `sourceGroup` is provided, then it indicates the element was previously a member of that group before being added to this group.</td>
+    <td><strong>{group:Group, el:Element, [sourceGroup]:Group}</strong></td>
+</tr>
+<tr>
+    <td>group:removeMember</td>
+    <td>Fired when an element is removed from a Group. If `targetGroup` is provided, then it indicates the element will be added to that group after having been removed from this one.</td>
+    <td><strong>{group:Group, el:Element, [targetGroup]:Group}</strong></td>
+</tr>
+<tr>
+    <td>group:collapse</td>
+    <td>Fired when a Group is collapsed</td>
+    <td><strong>{group:Group}</strong></td>
+</tr>
+<tr>
+    <td>group:expand</td>
+    <td>Fired when a Group is expanded</td>
+    <td><strong>{group:Group}</strong></td>
+</tr>
 </table>
 
 ---
