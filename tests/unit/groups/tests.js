@@ -44,7 +44,7 @@ var testSuite = function (_jsPlumb) {
 
 
     var _addGroupAndDomElement = function(j, name, params) {
-        var c = support.addDiv(name, null, "container")
+        var c = support.addDiv(name, null, "container");
         return _addGroup(j, name, c, []);
     };
 
@@ -954,6 +954,68 @@ var testSuite = function (_jsPlumb) {
 
         equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
         equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
+
+    });
+
+    test("drag node out of group and then back in", function() {
+        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _jsPlumb.draggable(d2);
+
+        _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
+
+        var removeEvt = false, addEvt = false;
+        _jsPlumb.bind("group:removeMember", function() {
+            removeEvt = true;
+        });
+
+        _jsPlumb.bind("group:addMember", function() {
+            addEvt = true;
+        });
+
+        support.dragNodeBy(d2, -300,-300);
+
+        ok(removeEvt, "the remove group member event was fired");
+
+        removeEvt = false;
+
+        support.dragNodeBy(d2, 300,300);
+
+        ok(addEvt, "the add group member event was fired");
+
+    });
+
+    test("drag node out of one group and into another; move flag set in remove and add events", function() {
+        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+        var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+
+        _jsPlumb.draggable(d2);
+
+        var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
+
+        var g3 = _addGroup(_jsPlumb, "g3", d3, [], {orphan:true});
+
+        var removeEvt = false, addEvt = false, targetGroup, sourceGroup;
+        _jsPlumb.bind("group:removeMember", function(p) {
+            removeEvt = true;
+            targetGroup = p.targetGroup;
+        });
+
+        _jsPlumb.bind("group:addMember", function(p) {
+            addEvt = true;
+            sourceGroup = p.sourceGroup;
+        });
+
+        support.dragNodeBy(d2, 510,510);
+
+        ok(removeEvt, "the remove group member event was fired");
+        ok(addEvt, "the add group member event was fired");
+
+        equal(targetGroup, g3, "g3 reported as target group in remove from group event");
+        equal(sourceGroup, g1, "g1 reported as source group in add to group event");
 
     });
 
