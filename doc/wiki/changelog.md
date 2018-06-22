@@ -1,3 +1,11 @@
+## 2.7.8
+
+June 22nd 2018
+
+- additions to Typescript typings file
+- group:addMember and group:removeMember events optionally include the other group involved when the event was fired as the result of
+  a member changing groups.
+
 ## 2.7.7
 
 June 21st 2018
