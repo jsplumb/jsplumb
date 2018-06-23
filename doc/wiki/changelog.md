@@ -1,3 +1,10 @@
+## 2.7.9
+
+June 24th 2018
+
+- moved Defaults off the jsPlumbInstance prototype and into the class itself. Prevents global variable effect.
+- update the internals of creating Connectors to make it easier to add a custom connector.
+
 ## 2.7.8
 
 June 22nd 2018

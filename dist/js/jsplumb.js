@@ -3638,7 +3638,35 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.8";
+        this.version = "2.7.9";
+
+        this.Defaults = {
+            Anchor: "Bottom",
+            Anchors: [ null, null ],
+            ConnectionsDetachable: true,
+            ConnectionOverlays: [ ],
+            Connector: "Bezier",
+            Container: null,
+            DoNotThrowErrors: false,
+            DragOptions: { },
+            DropOptions: { },
+            Endpoint: "Dot",
+            EndpointOverlays: [ ],
+            Endpoints: [ null, null ],
+            EndpointStyle: { fill: "#456" },
+            EndpointStyles: [ null, null ],
+            EndpointHoverStyle: null,
+            EndpointHoverStyles: [ null, null ],
+            HoverPaintStyle: null,
+            LabelStyle: { color: "black" },
+            LogEnabled: false,
+            Overlays: [ ],
+            MaxConnections: 1,
+            PaintStyle: { "stroke-width": 4, stroke: "#456" },
+            ReattachConnections: false,
+            RenderMode: "svg",
+            Scope: "jsPlumb_DefaultScope"
+        };
 
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
@@ -6439,34 +6467,6 @@
         }
     });
 
-    jsPlumbInstance.prototype.Defaults = {
-        Anchor: "Bottom",
-        Anchors: [ null, null ],
-        ConnectionsDetachable: true,
-        ConnectionOverlays: [ ],
-        Connector: "Bezier",
-        Container: null,
-        DoNotThrowErrors: false,
-        DragOptions: { },
-        DropOptions: { },
-        Endpoint: "Dot",
-        EndpointOverlays: [ ],
-        Endpoints: [ null, null ],
-        EndpointStyle: { fill: "#456" },
-        EndpointStyles: [ null, null ],
-        EndpointHoverStyle: null,
-        EndpointHoverStyles: [ null, null ],
-        HoverPaintStyle: null,
-        LabelStyle: { color: "black" },
-        LogEnabled: false,
-        Overlays: [ ],
-        MaxConnections: 1,
-        PaintStyle: { "stroke-width": 4, stroke: "#456" },
-        ReattachConnections: false,
-        RenderMode: "svg",
-        Scope: "jsPlumb_DefaultScope"
-    };
-
 // --------------------- static instance + module registration -------------------------------------------
 
 // create static instance and assign to window if window exists.	
@@ -8683,8 +8683,27 @@
         _ju = root.jsPlumbUtil;
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
-            if (!_jsPlumb.Defaults.DoNotThrowErrors && _jp.Connectors[renderMode][connectorName] == null) {
-                throw { msg: "jsPlumb: unknown connector type '" + connectorName + "'" };
+            // first make sure we have a cache for the specified renderer
+            _jp.Connectors[renderMode] = _jp.Connectors[renderMode] || {};
+
+            // now see if the one we want exists; if not we will try to make it
+            if (_jp.Connectors[renderMode][connectorName] == null) {
+
+                if (_jp.Connectors[connectorName] == null) {
+                    if (!_jsPlumb.Defaults.DoNotThrowErrors) {
+                        throw new TypeError("jsPlumb: unknown connector type '" + connectorName + "'");
+                    } else {
+                        return null;
+                    }
+                }
+
+                _jp.Connectors[renderMode][connectorName] = function() {
+                    _jp.Connectors[connectorName].apply(this, arguments);
+                    _jp.ConnectorRenderers[renderMode].apply(this, arguments);
+                };
+
+                _ju.extend(_jp.Connectors[renderMode][connectorName], [ _jp.Connectors[connectorName], _jp.ConnectorRenderers[renderMode]]);
+
             }
 
             return new _jp.Connectors[renderMode][connectorName](connectorArgs, forComponent);
@@ -14230,43 +14249,6 @@
         };
     };
     _ju.extend(_jp.Endpoints.svg.Rectangle, [_jp.Endpoints.Rectangle, SvgEndpoint]);
-
-// ---------------------------------- Connectors ------------------------------------------------------------
-
-
-    _jp.Connectors.svg.Flowchart = function() {
-        _jp.Connectors.Flowchart.apply(this, arguments);
-        _jp.ConnectorRenderers.svg.apply(this, arguments);
-    };
-
-    _ju.extend(_jp.Connectors.svg.Flowchart, [ _jp.Connectors.Flowchart, _jp.ConnectorRenderers.svg]);
-
-
-
-    _jp.Connectors.svg.Bezier = function() {
-        _jp.Connectors.Bezier.apply(this, arguments);
-        _jp.ConnectorRenderers.svg.apply(this, arguments);
-    };
-
-    _ju.extend(_jp.Connectors.svg.Bezier, [ _jp.Connectors.Bezier, _jp.ConnectorRenderers.svg]);
-
-    _jp.Connectors.svg.Straight = function() {
-        _jp.Connectors.Straight.apply(this, arguments);
-        _jp.ConnectorRenderers.svg.apply(this, arguments);
-    };
-
-    _ju.extend(_jp.Connectors.svg.Straight, [ _jp.Connectors.Straight, _jp.ConnectorRenderers.svg]);
-
-
-    _jp.Connectors.svg.StateMachine = function() {
-        _jp.Connectors.StateMachine.apply(this, arguments);
-        _jp.ConnectorRenderers.svg.apply(this, arguments);
-    };
-
-    _ju.extend(_jp.Connectors.svg.StateMachine, [ _jp.Connectors.StateMachine, _jp.ConnectorRenderers.svg]);
-
-
-// ------------------------------------------ / Connectors -----------------------------------------
 
     /*
      * SVG Image Endpoint is the default image endpoint.
