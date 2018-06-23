@@ -466,6 +466,34 @@
 
         this.version = "<% pkg.version %>";
 
+        this.Defaults = {
+            Anchor: "Bottom",
+            Anchors: [ null, null ],
+            ConnectionsDetachable: true,
+            ConnectionOverlays: [ ],
+            Connector: "Bezier",
+            Container: null,
+            DoNotThrowErrors: false,
+            DragOptions: { },
+            DropOptions: { },
+            Endpoint: "Dot",
+            EndpointOverlays: [ ],
+            Endpoints: [ null, null ],
+            EndpointStyle: { fill: "#456" },
+            EndpointStyles: [ null, null ],
+            EndpointHoverStyle: null,
+            EndpointHoverStyles: [ null, null ],
+            HoverPaintStyle: null,
+            LabelStyle: { color: "black" },
+            LogEnabled: false,
+            Overlays: [ ],
+            MaxConnections: 1,
+            PaintStyle: { "stroke-width": 4, stroke: "#456" },
+            ReattachConnections: false,
+            RenderMode: "svg",
+            Scope: "jsPlumb_DefaultScope"
+        };
+
         if (_defaults) {
             jsPlumb.extend(this.Defaults, _defaults);
         }
@@ -3264,34 +3292,6 @@
             return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1;
         }
     });
-
-    jsPlumbInstance.prototype.Defaults = {
-        Anchor: "Bottom",
-        Anchors: [ null, null ],
-        ConnectionsDetachable: true,
-        ConnectionOverlays: [ ],
-        Connector: "Bezier",
-        Container: null,
-        DoNotThrowErrors: false,
-        DragOptions: { },
-        DropOptions: { },
-        Endpoint: "Dot",
-        EndpointOverlays: [ ],
-        Endpoints: [ null, null ],
-        EndpointStyle: { fill: "#456" },
-        EndpointStyles: [ null, null ],
-        EndpointHoverStyle: null,
-        EndpointHoverStyles: [ null, null ],
-        HoverPaintStyle: null,
-        LabelStyle: { color: "black" },
-        LogEnabled: false,
-        Overlays: [ ],
-        MaxConnections: 1,
-        PaintStyle: { "stroke-width": 4, stroke: "#456" },
-        ReattachConnections: false,
-        RenderMode: "svg",
-        Scope: "jsPlumb_DefaultScope"
-    };
 
 // --------------------- static instance + module registration -------------------------------------------
 
