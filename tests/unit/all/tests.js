@@ -514,7 +514,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         }
         catch (e) {
             // ok	
-            ok(e.msg == "jsPlumb: unknown connector type 'FOO'", "useful error message");
+            ok(e.message == "jsPlumb: unknown connector type 'FOO'", "useful error message");
         }
     });
 
@@ -527,7 +527,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         }
         catch (e) {
             // ok	
-            ok(e.msg != "jsPlumb: unknown connector type 'FOO'", "no error message");
+            ok(e.message != "jsPlumb: unknown connector type 'FOO'", "no error message");
         }
     });
 
