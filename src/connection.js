@@ -17,8 +17,27 @@
         _ju = root.jsPlumbUtil;
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
-            if (!_jsPlumb.Defaults.DoNotThrowErrors && _jp.Connectors[renderMode][connectorName] == null) {
-                throw { msg: "jsPlumb: unknown connector type '" + connectorName + "'" };
+            // first make sure we have a cache for the specified renderer
+            _jp.Connectors[renderMode] = _jp.Connectors[renderMode] || {};
+
+            // now see if the one we want exists; if not we will try to make it
+            if (_jp.Connectors[renderMode][connectorName] == null) {
+
+                if (_jp.Connectors[connectorName] == null) {
+                    if (!_jsPlumb.Defaults.DoNotThrowErrors) {
+                        throw new TypeError("jsPlumb: unknown connector type '" + connectorName + "'");
+                    } else {
+                        return null;
+                    }
+                }
+
+                _jp.Connectors[renderMode][connectorName] = function() {
+                    _jp.Connectors[connectorName].apply(this, arguments);
+                    _jp.ConnectorRenderers[renderMode].apply(this, arguments);
+                };
+
+                _ju.extend(_jp.Connectors[renderMode][connectorName], [ _jp.Connectors[connectorName], _jp.ConnectorRenderers[renderMode]]);
+
             }
 
             return new _jp.Connectors[renderMode][connectorName](connectorArgs, forComponent);
