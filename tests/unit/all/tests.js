@@ -4353,6 +4353,18 @@ test("drag multiple elements and ensure their connections are painted correctly 
     });
 
 
+    test("defaults are isolated", function() {
+
+        ok(jsPlumb.Defaults.Anchors[0] == null, "no anchors set (to take one example, one's enough)");
+        var j = jsPlumb.getInstance({
+            Anchors:["Left", "Right"]
+        });
+
+        ok(jsPlumb.Defaults.Anchors[0] == null, "still no anchors set after providing Anchors to an instance");
+
+    });
+
+
 
 // setId function
 
