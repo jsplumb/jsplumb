@@ -3638,7 +3638,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.9";
+        this.version = "2.7.10";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -6798,18 +6798,20 @@
             // of an svg element's className. in the long run we'd like to move to just using classList anyway
             try {
                 var cl = el.classList;
-                while (cl.length > 0) {
-                    cl.remove(cl.item(0));
-                }
-                for (var i = 0; i < classList.length; i++) {
-                    if (classList[i]) {
-                        cl.add(classList[i]);
+                if (cl != null) {
+                    while (cl.length > 0) {
+                        cl.remove(cl.item(0));
+                    }
+                    for (var i = 0; i < classList.length; i++) {
+                        if (classList[i]) {
+                            cl.add(classList[i]);
+                        }
                     }
                 }
             }
             catch(e) {
                 // not fatal
-                console.log("JSPLUMB: cannot set class list", e);
+                jsPlumbUtil.log("JSPLUMB: cannot set class list", e);
             }
         },
         _getClassName = function (el) {
