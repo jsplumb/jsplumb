@@ -3638,7 +3638,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.10";
+        this.version = "2.7.11";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -12342,10 +12342,6 @@
                     self.updateConnectionsForGroup(group);
 
                     _jsPlumb.revalidate(elId);
-
-                    setTimeout(function () {
-                        _jsPlumb.fire(EVT_CHILD_ADDED, {group: group, el: el});
-                    }, 0);
                 }
             }
         };
