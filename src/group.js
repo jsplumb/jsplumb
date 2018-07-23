@@ -103,7 +103,6 @@
         this.addToGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
-                //group.add(el, doNotFireEvent);
                 var groupEl = group.getEl();
 
                 if (el._isJsPlumbGroup) {
@@ -120,7 +119,7 @@
                         currentGroup.remove(el, false, doNotFireEvent, false, group);
                         self.updateConnectionsForGroup(currentGroup);
                     }
-                    group.add(el, doNotFireEvent, currentGroup);
+                    group.add(el, doNotFireEvent/*, currentGroup*/);
 
                     var handleDroppedConnections = function (list, index) {
                         var oidx = index === 0 ? 1 : 0;
@@ -154,6 +153,14 @@
                     self.updateConnectionsForGroup(group);
 
                     _jsPlumb.revalidate(elId);
+
+                    if (!doNotFireEvent) {
+                        var p = {group: group, el: el};
+                        if (currentGroup) {
+                            p.sourceGroup = currentGroup;
+                        }
+                        _jsPlumb.fire(EVT_CHILD_ADDED, p);
+                    }
                 }
             }
         };
@@ -494,7 +501,7 @@
             return dropOverride && (revert || prune || orphan);
         };
 
-        this.add = function(_el, doNotFireEvent, sourceGroup) {
+        this.add = function(_el, doNotFireEvent/*, sourceGroup*/) {
             var dragArea = getDragArea();
             _each(_el, function(__el) {
 
@@ -517,13 +524,13 @@
                     dragArea.appendChild(__el);
                 }
 
-                if (!doNotFireEvent) {
-                    var p = {group: self, el: __el};
-                    if (sourceGroup) {
-                        p.sourceGroup = sourceGroup;
-                    }
-                    _jsPlumb.fire(EVT_CHILD_ADDED, p);
-                }
+                // if (!doNotFireEvent) {
+                //     var p = {group: self, el: __el};
+                //     if (sourceGroup) {
+                //         p.sourceGroup = sourceGroup;
+                //     }
+                //     //_jsPlumb.fire(EVT_CHILD_ADDED, p);
+                // }
             });
 
             _jsPlumb.getGroupManager().updateConnectionsForGroup(self);
