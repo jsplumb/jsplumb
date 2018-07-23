@@ -154,10 +154,6 @@
                     self.updateConnectionsForGroup(group);
 
                     _jsPlumb.revalidate(elId);
-
-                    setTimeout(function () {
-                        _jsPlumb.fire(EVT_CHILD_ADDED, {group: group, el: el});
-                    }, 0);
                 }
             }
         };
