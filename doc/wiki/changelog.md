@@ -1,6 +1,10 @@
+## 2.7.11
+
+- remove unnecessary double firing of the group:addMember event.
+
 ## 2.7.10
 
-July 21st 2018
+July 22nd 2018
 
 - fix for setting class name of SVG element in IE11 - it doesnt expose `classList`. The reported error was not fatal but now
 we test if `classList` is null before accessing it.
