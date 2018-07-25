@@ -2071,8 +2071,9 @@
          * values. if 'offset' is not null we use that (it would have been
          * passed in from a drag call) because it's faster; but if it is null,
          * or if 'recalc' is true in order to force a recalculation, we get the current values.
+         * @method updateOffset
          */
-        var _updateOffset = this.updateOffset = function (params) {
+        var _updateOffset = function (params) {
 
             var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
             if (_suspendDrawing && !timestamp) {
@@ -2115,7 +2116,9 @@
             return {o: offsets[elId], s: sizes[elId]};
         };
 
-        /**
+        this.updateOffset = _updateOffset;
+
+            /**
          * callback from the current library to tell us to prepare ourselves (attach
          * mouse listeners etc; can't do that until the library has provided a bind method)
          */
