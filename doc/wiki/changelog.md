@@ -1,4 +1,12 @@
+## 2.7.12
+
+July 25th 2018
+
+- changed a method declaration whose format caused Angular's optimizer to fail (when running an Angular production build)
+
 ## 2.7.11
+
+July 23rd 2018
 
 - remove unnecessary double firing of the group:addMember event.
 
