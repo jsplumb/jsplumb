@@ -3638,7 +3638,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.12";
+        this.version = "2.7.13";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -6570,7 +6570,7 @@
          */
         this.register = function (el) {
             var id = _currentInstance.getId(el),
-                parentOffset = _currentInstance.getOffset(el);
+                parentOffset;
 
             if (!_draggables[id]) {
                 _draggables[id] = el;
@@ -6586,6 +6586,9 @@
                             var cEl = jsPlumb.getElement(p.childNodes[i]),
                                 cid = _currentInstance.getId(p.childNodes[i], null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+                                if (!parentOffset) {
+                                    parentOffset = _currentInstance.getOffset(el);
+                                }
                                 var cOff = _currentInstance.getOffset(cEl);
                                 _delements[id][cid] = {
                                     id: cid,
@@ -6612,7 +6615,7 @@
                 var domEl = jsPlumb.getElement(elId),
                     id = _currentInstance.getId(domEl),
                     children = _delements[id],
-                    parentOffset = _currentInstance.getOffset(domEl);
+                    parentOffset;
 
                 if (children) {
                     for (var i in children) {
@@ -6623,6 +6626,10 @@
                             // do not update if we have a value already and we'd just be writing 0,0
                             if (cel.offsetParent == null && _delements[id][i] != null) {
                                 continue;
+                            }
+
+                            if (!parentOffset) {
+                                parentOffset = _currentInstance.getOffset(domEl);
                             }
 
                             _delements[id][i] = {

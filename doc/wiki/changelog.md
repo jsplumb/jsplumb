@@ -1,3 +1,9 @@
+## 2.7.13
+
+July 27th 2018
+
+- PR #769: refactor DragManager's `register` method to avoid computing parent offsets when unnecessary.
+
 ## 2.7.12
 
 July 25th 2018
