@@ -508,7 +508,14 @@
                     // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
                     // is set to false...
                     if (jpc != null && !jpc.isDetachable(this)) {
-                        _continue = false;
+                        // .. and the endpoint is full
+                        if (this.isFull()) {
+                            _continue = false;
+                        } else {
+                            // otherwise, if not full, set the connection to null, and we will now proceed
+                            // to drag a new connection.
+                            jpc = null;
+                        }
                     }
 
                     var beforeDrag = _jsPlumb.checkCondition(jpc == null ? "beforeDrag" : "beforeStartDetach", {
