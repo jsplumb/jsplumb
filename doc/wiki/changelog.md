@@ -1,3 +1,16 @@
+## 2.7.15
+
+August 11th 2018
+
+- Issue 582: ConnectionsDetachable does not allow dragging multiple connections from endpoints when false
+
+## 2.7.14
+
+August 10th 2018
+
+- Group's orphanAll method now returns a map of element positions for the previous child elements.
+- Group's removeAll method works without throwing an error now.
+
 ## 2.7.13
 
 July 27th 2018
