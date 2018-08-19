@@ -1347,6 +1347,21 @@
         return false;
     };
 
+    var findDelegateElement = function(parentElement, childElement, selector) {
+        if (matchesSelector(childElement, selector, parentElement)) {
+            return childElement;
+        } else {
+            var currentParent = childElement.parentNode;
+            while (currentParent != null && currentParent !== parentElement) {
+                if (matchesSelector(currentParent, selector, parentElement)) {
+                    return currentParent;
+                } else {
+                    currentParent = currentParent.parentNode;
+                }
+            }
+        }
+    };
+
     var iev = (function() {
             var rv = -1;
             if (navigator.appName === 'Microsoft Internet Explorer') {
@@ -1486,7 +1501,9 @@
             _multipleDrop = params.multipleDrop !== false,
             isConstrained = false,
             useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
-            ghostProxy = function(el) { return el.cloneNode(true); };
+            ghostProxy = function(el) { return el.cloneNode(true); },
+            selector = params.selector,
+            elementToDrag = null;
 
         var snapThreshold = params.snapThreshold,
             _snap = function(pos, gridX, gridY, thresholdX, thresholdY) {
@@ -1626,12 +1643,22 @@
         this.downListener = function(e) {
             var isNotRightClick = this.rightButtonCanDrag || (e.which !== 3 && e.button !== 2);
             if (isNotRightClick && this.isEnabled() && this.canDrag()) {
+
                 var _f =  _testFilter(e) && _inputFilter(e, this.el, this.k);
                 if (_f) {
-                    if (!clone)
-                        dragEl = this.el;
+
+                    if (selector) {
+                        elementToDrag = findDelegateElement(this.el, e.target || e.srcElement, selector);
+                        if(elementToDrag == null) {
+                            return;
+                        }
+                    }
                     else {
-                        dragEl = this.el.cloneNode(true);
+                        elementToDrag = this.el;
+                    }
+
+                    if (clone) {
+                        dragEl = elementToDrag.cloneNode(true);
                         this.params.addClass(dragEl, _classes.clonedDrag);
 
                         dragEl.setAttribute("id", null);
@@ -1645,14 +1672,17 @@
                         } else {
                             // the clone node is added to the body; getOffsetRect gives us a value
                             // relative to the body.
-                            var b = getOffsetRect(this.el);
+                            var b = getOffsetRect(elementToDrag);
                             dragEl.style.left = b.left + "px";
                             dragEl.style.top = b.top + "px";
 
                             document.body.appendChild(dragEl);
                         }
 
+                    } else {
+                        dragEl = elementToDrag;
                     }
+
                     consumeStartEvent && _consume(e);
                     downAt = _pl(e);
                     //
@@ -1729,12 +1759,21 @@
         this.getFilters = function() { return _filters; };
 
         this.abort = function() {
-            if (downAt != null)
+            if (downAt != null) {
                 this.upListener();
+            }
         };
 
-        this.getDragElement = function() {
-            return dragEl || this.el;
+        /**
+         * Returns the element that was last dragged. This may be some original element from the DOM, or if `clone` is
+         * set, then its actually a copy of some original DOM element. In some client calls to this method, it is the
+         * actual element that was dragged that is desired. In others, it is the original DOM element that the user
+         * wishes to get - in which case, pass true for `retrieveOriginalElement`.
+         *
+         * @returns {*}
+         */
+        this.getDragElement = function(retrieveOriginalElement) {
+            return retrieveOriginalElement ? elementToDrag || this.el : dragEl || this.el;
         };
 
         var listeners = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] };
@@ -1830,10 +1869,10 @@
         this.unmark = function(e, doNotCheckDroppables) {
             _setDroppablesActive(matchingDroppables, false, true, this);
 
-            if (isConstrained && useGhostProxy(this.el)) {
+            if (isConstrained && useGhostProxy(elementToDrag)) {
                 ghostProxyOffsets = [dragEl.offsetLeft, dragEl.offsetTop];
-                this.el.parentNode.removeChild(dragEl);
-                dragEl = this.el;
+                elementToDrag.parentNode.removeChild(dragEl);
+                dragEl = elementToDrag;
             }
             else {
                 ghostProxyOffsets = null;
@@ -1844,7 +1883,7 @@
             isConstrained = false;
             if (!doNotCheckDroppables) {
                 if (intersectingDroppables.length > 0 && ghostProxyOffsets) {
-                    params.setPosition(this.el, ghostProxyOffsets);
+                    params.setPosition(elementToDrag, ghostProxyOffsets);
                 }
                 intersectingDroppables.sort(_rankSort);
                 for (var i = 0; i < intersectingDroppables.length; i++) {
@@ -1861,9 +1900,9 @@
             if (useGhostProxy(this.el)) {
                 if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
                     if (!isConstrained) {
-                        var gp = ghostProxy(this.el);
+                        var gp = ghostProxy(elementToDrag);
                         params.addClass(gp, _classes.ghostProxy);
-                        this.el.parentNode.appendChild(gp);
+                        elementToDrag.parentNode.appendChild(gp);
                         dragEl = gp;
                         isConstrained = true;
                     }
@@ -1871,8 +1910,8 @@
                 }
                 else {
                     if (isConstrained) {
-                        this.el.parentNode.removeChild(dragEl);
-                        dragEl = this.el;
+                        elementToDrag.parentNode.removeChild(dragEl);
+                        dragEl = elementToDrag;
                         isConstrained = false;
                     }
                 }
@@ -1954,14 +1993,21 @@
             // if turning off hover but this was not the drag that caused the hover, ignore.
             if (val || this.el._katavorioDragHover == null || this.el._katavorioDragHover === drag.el._katavorio) {
                 this.params[val ? "addClass" : "removeClass"](this.el, this._hoverClass);
-                //this.el._katavorioDragHover = val ? drag.el._katavorio : null;
                 this.el._katavorioDragHover = val ? drag.el._katavorio : null;
-                if (hover !== val)
-                    this.params.events[val ? "over" : "out"]({el:this.el, e:e, drag:drag, drop:this});
+                if (hover !== val) {
+                    this.params.events[val ? "over" : "out"]({el: this.el, e: e, drag: drag, drop: this});
+                }
                 hover = val;
             }
         };
 
+        /**
+         * A drop event. `drag` is the corresponding Drag object, which may be a Drag for some specific element, or it
+         * may be a Drag on some element acting as a delegate for elements contained within it.
+         * @param drag
+         * @param event
+         * @returns {*}
+         */
         this.drop = function(drag, event) {
             return this.params.events["drop"]({ drag:drag, e:event, drop:this });
         };
@@ -1970,9 +2016,7 @@
             this._class = null;
             this._activeClass = null;
             this._hoverClass = null;
-            //this.params = null;
             hover = null;
-            //this.el = null;
         };
     };
 
@@ -2092,9 +2136,16 @@
             return this;
         };
 
+        /**
+         * Either makes the given element draggable, or identifies it as an element inside which some identified list
+         * of elements may be draggable.
+         * @param el
+         * @param params
+         * @returns {Array}
+         */
         this.draggable = function(el, params) {
             var o = [];
-            _each(el, function(_el) {
+            _each(el, function (_el) {
                 _el = _gel(_el);
                 if (_el != null) {
                     if (_el._katavorioDrag == null) {
@@ -2110,7 +2161,6 @@
                 }
             }.bind(this));
             return o;
-
         };
 
         this.droppable = function(el, params) {
@@ -2492,7 +2542,7 @@
 
     };
 
-    root.Katavorio.version = "0.27.0";
+    root.Katavorio.version = "1.0.0";
 
     if (typeof exports !== "undefined") {
         exports.Katavorio = root.Katavorio;
@@ -3638,7 +3688,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.15";
+        this.version = "2.7.16";
 
         this.Defaults = {
             Anchor: "Bottom",
