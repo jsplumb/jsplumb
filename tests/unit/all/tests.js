@@ -4216,7 +4216,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         // affecting the user's perception)
         ep3.anchor.lockCurrentAxis();
         d3.style.top = "1050px";
-        d3.style.left = "50px";
+        d3.style.left = "0px";
         _jsPlumb.revalidate(d3);
         equal(ep3.anchor.getCurrentFace(), "right", "ep3's anchor is 'right' after d3 moved below d4, because ep3's current axis is locked");
         equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
