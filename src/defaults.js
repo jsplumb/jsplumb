@@ -1156,6 +1156,11 @@
             this.width = d.width|| this.width;
             this.direction = d.direction != null ? d.direction : this.direction;
             this.foldback = d.foldback|| this.foldback;
+        },
+        cleanup:function() {
+            if (this.path && this.canvas) {
+                this.canvas.removeChild(this.path);
+            }
         }
     });
 
