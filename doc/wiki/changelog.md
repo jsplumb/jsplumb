@@ -1,3 +1,9 @@
+## 2.7.18
+
+August 28th 2018
+
+- Fixed an issue with overlays not being removed from every cache during removeOverlay call on overlay component.
+
 ## 2.7.17
 
 August 28th 2018
