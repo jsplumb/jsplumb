@@ -188,6 +188,10 @@
                 if (this._jsPlumb.overlayPositions) {
                     delete this._jsPlumb.overlayPositions[overlayId];
                 }
+
+                if (this._jsPlumb.overlayPlacements) {
+                    delete this._jsPlumb.overlayPlacements[overlayId];
+                }
             }
         },
         removeOverlays: function () {
