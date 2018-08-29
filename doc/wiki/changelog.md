@@ -1,3 +1,9 @@
+## 2.7.17
+
+August 28th 2018
+
+- Minor change to the segment paint code, to allow for animation effects to be used.
+
 ## 2.7.16
 
 August 20th 2018
