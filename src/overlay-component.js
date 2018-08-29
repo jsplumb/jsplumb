@@ -173,6 +173,7 @@
 
             this._jsPlumb.overlays = {};
             this._jsPlumb.overlayPositions = null;
+            this._jsPlumb.overlayPlacements= {};
             if (!doNotRepaint) {
                 this.repaint();
             }
