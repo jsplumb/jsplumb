@@ -3688,7 +3688,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.16";
+        this.version = "2.7.17";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -11107,25 +11107,25 @@
     };
 
     _jp.SegmentRenderer = {
-        getPath: function (segment) {
+        getPath: function (segment, isFirstSegment) {
             return ({
-                "Straight": function () {
+                "Straight": function (isFirstSegment) {
                     var d = segment.getCoordinates();
-                    return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
+                    return (isFirstSegment ? "M " + d.x1 + " " + d.y1 + " " : "") + "L " + d.x2 + " " + d.y2;
                 },
-                "Bezier": function () {
+                "Bezier": function (isFirstSegment) {
                     var d = segment.params;
-                    return "M " + d.x1 + " " + d.y1 +
-                        " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
+                    return (isFirstSegment ? "M " + d.x2 + " " + d.y2 + " " : "") +
+                        "C " + d.cp2x + " " + d.cp2y + " " + d.cp1x + " " + d.cp1y + " " + d.x1 + " " + d.y1;
                 },
-                "Arc": function () {
+                "Arc": function (isFirstSegment) {
                     var d = segment.params,
                         laf = segment.sweep > Math.PI ? 1 : 0,
                         sf = segment.anticlockwise ? 0 : 1;
 
-                    return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
+                    return  (isFirstSegment ? "M" + segment.x1 + " " + segment.y1  + " " : "")  + "A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
                 }
-            })[segment.type]();
+            })[segment.type](isFirstSegment);
         }
     };
 
@@ -11170,7 +11170,7 @@
         this.getPathData = function() {
             var p = "";
             for (var i = 0; i < segments.length; i++) {
-                p += _jp.SegmentRenderer.getPath(segments[i]);
+                p += _jp.SegmentRenderer.getPath(segments[i], i === 0);
                 p += " ";
             }
             return p;
