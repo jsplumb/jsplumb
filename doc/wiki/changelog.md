@@ -1,3 +1,9 @@
+## 2.7.19
+
+August 28th 2019
+
+- proper cleanup for arrow overlay
+
 ## 2.7.18
 
 August 28th 2018
