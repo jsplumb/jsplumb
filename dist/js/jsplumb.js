@@ -3688,7 +3688,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.17";
+        this.version = "2.7.18";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -7336,6 +7336,7 @@
 
             this._jsPlumb.overlays = {};
             this._jsPlumb.overlayPositions = null;
+            this._jsPlumb.overlayPlacements= {};
             if (!doNotRepaint) {
                 this.repaint();
             }
@@ -7350,6 +7351,10 @@
                 delete this._jsPlumb.overlays[overlayId];
                 if (this._jsPlumb.overlayPositions) {
                     delete this._jsPlumb.overlayPositions[overlayId];
+                }
+
+                if (this._jsPlumb.overlayPlacements) {
+                    delete this._jsPlumb.overlayPlacements[overlayId];
                 }
             }
         },
