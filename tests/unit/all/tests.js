@@ -3206,6 +3206,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(2, _length(connection1._jsPlumb.overlays));
 
         var labelOverlay = connection1.getOverlay("aLabel");
+        var arrowOverlay = connection1.getOverlay("anArrow");
 
         connection1.removeOverlay("aLabel");
 
@@ -3216,7 +3217,20 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(1, _length(connection1._jsPlumb.overlays), "only one overlay remaining on the connection");
         equal("anArrow", connection1._jsPlumb.overlays["anArrow"].id, "the id of this overlay is what we expected");
 
-        equal(labelOverlay.canvas.parentNode, null, "the label overlay was actually removed from the DOM")
+        equal(labelOverlay.canvas.parentNode, null, "the label overlay was actually removed from the DOM");
+
+        // remove the arrow
+        connection1.removeOverlay("anArrow");
+
+        equal(null, connection1._jsPlumb.overlays["anArrow"], "anArrow not registered in overlays map");
+        equal(null, connection1._jsPlumb.overlayPositions["anArrow"], "anArrow not registered in overlay positions map");
+        equal(null, connection1._jsPlumb.overlayPlacements["anArrow"], "anArrow not registered in overlay positions map");
+
+        equal(0, _length(connection1._jsPlumb.overlays), "no overlays remaining on the connection");
+
+        equal(arrowOverlay.path.parentNode, null, "the arrow overlay was actually removed from the DOM");
+
+
     });
 
     test(": _jsPlumb.connect (remove multiple overlays by id)", function () {
