@@ -1,6 +1,14 @@
+## 2.8.0
+
+August 29th 2018
+
+- Upgrade to Mottle 1.0.0, which doesn't use document.createTouch/document.createTouchList, as these methods are not supported
+in latest Chrome and are becoming obsolete in all browsers. If you cannot upgrade to this version of jsPlumb and you're finding problems
+in Chrome on touch devices, there are shims available in the Mottle project on Github.
+
 ## 2.7.19
 
-August 28th 2019
+August 28th 2018
 
 - proper cleanup for arrow overlay
 

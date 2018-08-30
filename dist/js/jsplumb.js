@@ -636,10 +636,63 @@
 
     "use strict";
 
+    /**
+     * Creates a Touch object.
+     * @param view
+     * @param target
+     * @param pageX
+     * @param pageY
+     * @param screenX
+     * @param screenY
+     * @param clientX
+     * @param clientY
+     * @returns {Touch}
+     * @private
+     */
+    function _touch(view, target, pageX, pageY, screenX, screenY, clientX, clientY) {
+
+            return new Touch({
+                target:target,
+                identifier:_uuid(),
+                pageX: pageX,
+                pageY: pageY,
+                screenX: screenX,
+                screenY: screenY,
+                clientX: clientX || screenX,
+                clientY: clientY || screenY
+            });
+    }
+
+    /**
+     * Create a synthetic touch list from the given list of Touch objects.
+     * @returns {Array}
+     * @private
+     */
+    function _touchList() {
+        var list = [];
+        Array.prototype.push.apply(list, arguments);
+        list.item =  function(index) { return this[index]; };
+        return list;
+    }
+
+    /**
+     * Create a Touch object and then insert it into a synthetic touch list, returning the list.s
+     * @param view
+     * @param target
+     * @param pageX
+     * @param pageY
+     * @param screenX
+     * @param screenY
+     * @param clientX
+     * @param clientY
+     * @returns {Array}
+     * @private
+     */
+    function _touchAndList(view, target, pageX, pageY, screenX, screenY, clientX, clientY) {
+        return _touchList(_touch.apply(null, arguments));
+    }
+
     var root = this,
-        Sniff = {
-            android: navigator.userAgent.toLowerCase().indexOf("android") > -1
-        },
         matchesSelector = function (el, selector, ctx) {
             ctx = ctx || el.parentNode;
             var possibles = ctx.querySelectorAll(selector);
@@ -1019,6 +1072,12 @@
 
             for (var i = 0; i < obj.length; i++)
                 fn.apply(obj[i]);
+        },
+        _uuid = function () {
+            return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            }));
         };
 
     /**
@@ -1151,40 +1210,25 @@
 
                 var eventGenerators = {
                     "TouchEvent": function (evt) {
-                        var touch = document.createTouch(window, _el, 0, pl[0], pl[1],
-                            sl[0], sl[1],
-                            cl[0], cl[1],
-                            0, 0, 0, 0);
 
-                        // https://gist.github.com/sstephenson/448808
-                        var touches = document.createTouchList(touch);
-                        var targetTouches = document.createTouchList(touch);
-                        var changedTouches = document.createTouchList(touch);
-                        evt.initTouchEvent(eventToBind, true, true, window, null, sl[0], sl[1],
+                        var touchList = _touchAndList(window, _el, 0, pl[0], pl[1], sl[0], sl[1], cl[0], cl[1]),
+                            init = evt.initTouchEvent || evt.initEvent;
+
+                        init(eventToBind, true, true, window, null, sl[0], sl[1],
                             cl[0], cl[1], false, false, false, false,
-                            touches, targetTouches, changedTouches, 1, 0);
+                            touchList, touchList, touchList, 1, 0);
                     },
                     "MouseEvents": function (evt) {
                         evt.initMouseEvent(eventToBind, true, true, window, 0,
                             sl[0], sl[1],
                             cl[0], cl[1],
                             false, false, false, false, 1, _el);
-
-                        if (Sniff.android) {
-                            // Android's touch events are not standard.
-                            var t = document.createTouch(window, _el, 0, pl[0], pl[1],
-                                sl[0], sl[1],
-                                cl[0], cl[1],
-                                0, 0, 0, 0);
-
-                            evt.touches = evt.targetTouches = evt.changedTouches = document.createTouchList(t);
-                        }
                     }
                 };
 
                 if (document.createEvent) {
 
-                    var ite = !bindingAMouseEvent && !originalIsMouse && (isTouchDevice && touchMap[event] && !Sniff.android),
+                    var ite = !bindingAMouseEvent && !originalIsMouse && (isTouchDevice && touchMap[event]),
                         evtName = ite ? "TouchEvent" : "MouseEvents";
 
                     evt = document.createEvent(evtName);
@@ -3688,7 +3732,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.7.19";
+        this.version = "2.8.0";
 
         this.Defaults = {
             Anchor: "Bottom",

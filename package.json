@@ -1,6 +1,6 @@
 {
   "name": "jsplumb",
-  "version": "2.7.19",
+  "version": "2.8.0",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
@@ -46,6 +46,6 @@
     "jsbezier": "^0.9.1",
     "katavorio": "1.0.0",
     "morgan": "1.8.0",
-    "mottle": "^0.8.0"
+    "mottle": "1.0.0"
   }
 }
