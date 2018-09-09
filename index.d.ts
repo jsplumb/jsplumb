@@ -151,7 +151,7 @@ declare module jsPlumb {
 
         repaintEverything(clearEdits?: boolean/* =false */): jsPlumbInstance;
 
-        reset(): void;
+        reset(doNotUnbindInstanceEventListeners?: boolean): void;
 
         restoreDefaults(): jsPlumbInstance;
 
