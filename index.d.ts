@@ -268,6 +268,9 @@ declare module jsPlumb {
         source?: ElementRef | Endpoint;
         target?: ElementRef | Endpoint;
         detachable?: boolean;
+        connector?: any;
+        endpointStyle?: any;
+        paintStyle?: any;
         deleteEndpointsOnDetach?: boolean;
         endpoint?: EndpointSpec;
         anchor?: AnchorSpec;
@@ -427,7 +430,7 @@ declare module jsPlumb {
         "TopRight";
 
 
-    type AnchorSpec = AnchorId | [AnchorId, AnchorOptions]
+    type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | [AnchorId, AnchorId]
 
 
     /* --------------------------------------- OVERLAYS ------------------------------------------------------------- */
