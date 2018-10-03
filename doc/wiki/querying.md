@@ -207,19 +207,23 @@ jsPlumb.getConnections({
 The following examples show the various ways you can get connection information:
 
 - Get all connections:	
-```
+
+```javascript
 jsPlumb.getAllConnections();
 ```
 - Get all connections for the default scope only(return value is a list):
+
 ```javascript
 jsPlumb.getConnections();
 ```
 - Get all connections for the given scope (return value is a list):	
+
 ```javascript
 jsPlumb.getConnections({scope:"myTestScope"});
 ```
 
 - Get all connections for the given scopes (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):	
+
 ```javascript
 jsPlumb.getConnections({
     scope:["myTestScope", "yourTestScope"]
@@ -227,6 +231,7 @@ jsPlumb.getConnections({
 ```
 
 - Get all connections for the given source (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
+
 ```javascript
 jsPlumb.getConnections({
     source:"mySourceElement"
@@ -234,6 +239,7 @@ jsPlumb.getConnections({
 ```
 
 - Get all connections for the given sources (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):	
+
 ```javascript
 jsPlumb.getConnections({
     source:["mySourceElement", "yourSourceElement"]
@@ -241,6 +247,7 @@ jsPlumb.getConnections({
 ```
 
 - Get all connections for the given target (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
+
 ```javascript
 jsPlumb.getConnections({
     target:"myTargetElement"
@@ -248,6 +255,7 @@ jsPlumb.getConnections({
 ```
 
 - Get all connections for the given source and targets (return value is a list if only connections for the default scope exist, otherwise its a map of scope names to connection lists):
+
 ```javascript
 jsPlumb.getConnections({
         source:"mySourceElement", 
@@ -256,6 +264,7 @@ jsPlumb.getConnections({
 ```
 
 - Get all connections for the given scope, with the given source and target (return value is a list of connections):
+
 ```javascript
 jsPlumb.getConnections({
         scope:'myScope", 
@@ -335,21 +344,25 @@ Each of these operations returns an array whose entries are `[ value, Endpoint ]
 #### Examples
 
 - Select all Endpoints and set their hover state to be false:
+
 ```javascript
 jsPlumb.selectEndpoints().setHover(false);
 ```
 
 - Select all source Endpoints on "d1" and remove all Overlays:
+
 ```javascript
 jsPlumb.selectEndpoints({source:"d1"}).removeAllOverlays();
 ```
 
 - Select all source Endpoints on "d1" and add the classes "foo" and "bar" to them :
+
 ```javascript
 jsPlumb.selectEndpoints({source:"d1"}).addClass("foo bar");
 ```
 
 - Select all source Endpoints on "d1" and remove the class "foo" from them :
+
 ```javascript
 jsPlumb.selectEndpoints({source:"d1"}).removeClass("foo");
 ```
@@ -360,12 +373,14 @@ jsPlumb.selectEndpoints({ scope:"foo" }).setPaintStyle({ fill:"blue" });
 ```
 
 - Select all Endpoints from "d1" and detach their Connections:
+
 ```javascript
 jsPlumb.selectEndpoints({source:"d1"}).detachAll();
 ```
 
 ##### `.each` iterator
 The return value of jsPlumb.selectEndpoints also has a `.each` function that allows you to iterate through the list, performing an operation on each one:
+
 ```javascript
 jsPlumb.selectEndpoints({scope:"foo"}).each(function(endpoint) {
 	
