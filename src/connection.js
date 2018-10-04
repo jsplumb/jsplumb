@@ -520,6 +520,15 @@
                         targetInfo: targetInfo
                     });
 
+                    // If any of the bound coordinates is (still) infinite, the connection should not be drawn
+                    if (this.connector.bounds.minX ===  Infinity ||
+                        this.connector.bounds.maxX === -Infinity ||
+                        this.connector.bounds.minY ===  Infinity ||
+                        this.connector.bounds.maxY === -Infinity)
+                    {
+                        return;
+                    }
+
                     var overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
 
                     // compute overlays. we do this first so we can get their placements, and adjust the
