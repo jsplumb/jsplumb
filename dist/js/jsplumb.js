@@ -1537,7 +1537,7 @@
         this._class = css.draggable;
         var k = Super.apply(this, arguments);
         this.rightButtonCanDrag = this.params.rightButtonCanDrag;
-        var downAt = [0,0], posAtDown = null, pagePosAtDown = null, pageDelta = [0,0], moving = false,
+        var downAt = [0,0], posAtDown = null, pagePosAtDown = null, pageDelta = [0,0], moving = false, initialScroll = [0,0],
             consumeStartEvent = this.params.consumeStartEvent !== false,
             dragEl = this.el,
             clone = this.params.clone,
@@ -1729,6 +1729,10 @@
 
                     consumeStartEvent && _consume(e);
                     downAt = _pl(e);
+                    if (dragEl && dragEl.parentNode)
+                    {
+                        initialScroll = [dragEl.parentNode.scrollLeft, dragEl.parentNode.scrollTop];
+                    }
                     //
                     this.params.bind(document, "mousemove", this.moveListener);
                     this.params.bind(document, "mouseup", this.upListener);
@@ -1764,6 +1768,11 @@
                     intersectingDroppables.length = 0;
                     var pos = _pl(e), dx = pos[0] - downAt[0], dy = pos[1] - downAt[1],
                         z = this.params.ignoreZoom ? 1 : k.getZoom();
+                    if (dragEl && dragEl.parentNode)
+                    {
+                        dx += dragEl.parentNode.scrollLeft - initialScroll[0];
+                        dy += dragEl.parentNode.scrollTop - initialScroll[1];
+                    }
                     dx /= z;
                     dy /= z;
                     this.moveBy(dx, dy, e);
@@ -1783,7 +1792,11 @@
                 k.unmarkSelection(this, e);
                 k.unmarkPosses(this, e);
                 this.stop(e);
-                k.notifySelectionDragStop(this, e);
+
+                //k.notifySelectionDragStop(this, e);  removed in 1.1.0 under the "leave it for one release in case it breaks" rule.
+                // it isnt necessary to fire this as the normal stop event now includes a `selection` member that has every dragged element.
+                // firing this event causes consumers who use the `selection` array to process a lot more drag stop events than is necessary
+
                 k.notifyPosseDragStop(this, e);
                 moving = false;
                 if (clone) {
@@ -3732,7 +3745,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.8.0";
+        this.version = "2.8.1";
 
         this.Defaults = {
             Anchor: "Bottom",
