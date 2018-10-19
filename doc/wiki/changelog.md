@@ -1,3 +1,9 @@
+## 2.8.2
+
+October 18th 2018
+
+- remove animated paths from Flowchart demo, as IE does not support that CSS.
+
 ## 2.8.1
 
 October 18th 2018
