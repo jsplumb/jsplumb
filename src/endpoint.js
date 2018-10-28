@@ -1229,6 +1229,9 @@
                     _jsPlumb.finaliseConnection(jpc, null, originalEvent, false);
                     jpc.setHover(false);
 
+                    // SP continuous anchor flush
+                    _jsPlumb.revalidate(jpc.endpoints[0].element);
+
                 }.bind(this);
 
                 var dontContinueFunction = function () {

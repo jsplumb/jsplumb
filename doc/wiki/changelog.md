@@ -1,3 +1,9 @@
+## 2.8.3
+
+October 28th 2018
+
+- fixed a repaint issue with Continuous anchors
+
 ## 2.8.2
 
 October 18th 2018

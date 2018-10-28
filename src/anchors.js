@@ -23,7 +23,6 @@
     _jp.AnchorManager = function (params) {
         var _amEndpoints = {},
             continuousAnchorLocations = {},
-            userDefinedContinuousAnchorLocations = {},
             continuousAnchorOrientations = {},
             connectionsByElementId = {},
             self = this,
@@ -529,8 +528,6 @@
                 }
 
                 // now that continuous anchors have been placed, paint all the endpoints for this element
-                // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
-                // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
                 for (i = 0; i < ep.length; i++) {
                     ep[i].paint({ timestamp: timestamp, offset: myOffset, dimensions: myOffset.s, recalc: doNotRecalcEndpoint !== true });
                 }
@@ -538,7 +535,8 @@
                 // ... and any other endpoints we came across as a result of the continuous anchors.
                 for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
-                    endpointsToPaint[i].paint({ timestamp: timestamp, offset: cd, dimensions: cd.s });
+                    //endpointsToPaint[i].paint({ timestamp: timestamp, offset: cd, dimensions: cd.s });
+                    endpointsToPaint[i].paint({ timestamp: null, offset: cd, dimensions: cd.s });
                 }
 
                 // paint all the standard and "dynamic connections", which are connections whose other anchor is
@@ -575,7 +573,7 @@
 
                 // paint all the connections
                 for (i = 0; i < connectionsToPaint.length; i++) {
-                    connectionsToPaint[i].paint({elId: elementId, timestamp: timestamp, recalc: false, clearEdits: clearEdits});
+                    connectionsToPaint[i].paint({elId: elementId, timestamp: null, recalc: false, clearEdits: clearEdits});
                 }
             }
         };
@@ -674,19 +672,13 @@
             };
 
             this.compute = function (params) {
-                return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0, 0];
+                return continuousAnchorLocations[params.element.id] || [0, 0];
             };
             this.getCurrentLocation = function (params) {
-                return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0, 0];
+                return continuousAnchorLocations[params.element.id] || [0, 0];
             };
             this.getOrientation = function (endpoint) {
                 return continuousAnchorOrientations[endpoint.id] || [0, 0];
-            };
-            this.clearUserDefinedLocation = function () {
-                delete userDefinedContinuousAnchorLocations[anchorParams.elementId];
-            };
-            this.setUserDefinedLocation = function (loc) {
-                userDefinedContinuousAnchorLocations[anchorParams.elementId] = loc;
             };
             this.getCssClass = function () {
                 return cssClass;
@@ -699,7 +691,6 @@
                 return new ContinuousAnchor(params);
             },
             clear: function (elementId) {
-                delete userDefinedContinuousAnchorLocations[elementId];
                 delete continuousAnchorLocations[elementId];
             }
         };
