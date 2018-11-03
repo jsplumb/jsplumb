@@ -1241,9 +1241,9 @@
             if (this._jsPlumb.div == null) {
                 var div = this._jsPlumb.div = _jp.getElement(this._jsPlumb.create(this._jsPlumb.component));
                 div.style.position = "absolute";
-                div.className = this._jsPlumb.instance.overlayClass + " " +
+                jsPlumb.addClass(div, this._jsPlumb.instance.overlayClass + " " +
                     (this.cssClass ? this.cssClass :
-                        params.cssClass ? params.cssClass : "");
+                        params.cssClass ? params.cssClass : ""));
                 this._jsPlumb.instance.appendElement(div);
                 this._jsPlumb.instance.getId(div);
                 this.canvas = div;
