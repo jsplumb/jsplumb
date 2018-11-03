@@ -1,3 +1,10 @@
+## 2.8.4
+
+November 2nd 2018
+
+- do not merge `connector` declarations when merging connection types. The child value overwrites the parent now.
+- issue #794 - use `jsPlumb.addClass(div,...)`` instead of `div.className=` - this was causing an error when the custom overlay was an SVG element
+
 ## 2.8.3
 
 October 28th 2018
