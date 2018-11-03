@@ -81,7 +81,7 @@
                     if (tid !== "__default") {
                         var _t = component._jsPlumb.instance.getType(tid, td);
                         if (_t != null) {
-                            o = _ju.merge(o, _t, [ "cssClass" ]);
+                            o = _ju.merge(o, _t, [ "cssClass" ], [ "connector" ]);
                             _mapType(map, _t, tid);
                         }
                     }
