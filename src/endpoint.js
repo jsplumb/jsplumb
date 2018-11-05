@@ -845,6 +845,7 @@
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || _jp.Defaults.DropOptions;
                 dropOptions = _jp.extend({}, dropOptions);
                 dropOptions.scope = dropOptions.scope || this.scope;
+                dropOptions.rank = params.rank || 0;
                 var dropEvent = _jp.dragEvents.drop,
                     overEvent = _jp.dragEvents.over,
                     outEvent = _jp.dragEvents.out,
