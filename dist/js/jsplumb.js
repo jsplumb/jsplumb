@@ -147,7 +147,7 @@
             var lb = Math.max(0, k - m),
                 ub = Math.min(k, n);
             for (i = lb; i <= ub; i++) {
-                j = k - i;
+                var j = k - i;
                 w[i+j].y += cdTable[j][i] * z[j][i];
             }
         }
@@ -202,7 +202,8 @@
         b = curve[degree].x - curve[0].x;
         c = curve[0].x * curve[degree].y - curve[degree].x * curve[0].y;
 
-        var max_distance_above = max_distance_below = 0.0;
+        var max_distance_above, max_distance_below;
+        max_distance_above = max_distance_below = 0.0;
 
         for (var i = 1; i < degree; i++) {
             var value = a * curve[i].x + b * curve[i].y + c;
@@ -308,7 +309,7 @@
     };
 
     var _isPoint = function(curve) {
-        return curve[0].x == curve[1].x && curve[0].y == curve[1].y;
+        return curve[0].x === curve[1].x && curve[0].y === curve[1].y;
     };
 
     /**
@@ -381,7 +382,7 @@
         var p1 = _pointOnPath(curve, location),
             p2 = _pointOnPath(curve.slice(0, curve.length - 1), location),
             dy = p2.y - p1.y, dx = p2.x - p1.x;
-        return dy == 0 ? Infinity : Math.atan(dy / dx);
+        return dy === 0 ? Infinity : Math.atan(dy / dx);
     };
 
     /**
@@ -410,6 +411,157 @@
         return [{x:p.point.x + x, y:p.point.y + y}, {x:p.point.x - x, y:p.point.y - y}];
     };
 
+    /**
+     * Calculates all intersections of the given line with the given curve.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param curve
+     * @returns {Array}
+     */
+    var _lineIntersection = function(x1, y1, x2, y2, curve) {
+        var a = y2 - y1,
+            b = x1 - x2,
+            c = (x1 * (y1 - y2)) + (y1 * (x2-x1)),
+            coeffs = _computeCoefficients(curve),
+            p = [
+                (a*coeffs[0][0]) + (b * coeffs[1][0]),
+                (a*coeffs[0][1])+(b*coeffs[1][1]),
+                (a*coeffs[0][2])+(b*coeffs[1][2]),
+                (a*coeffs[0][3])+(b*coeffs[1][3]) + c
+            ],
+            r = _cubicRoots.apply(null, p),
+            intersections = [];
+
+        if (r != null) {
+
+            for (var i = 0; i < 3; i++) {
+                var t = r[i],
+                    t2 = Math.pow(t, 2),
+                    t3 = Math.pow(t, 3),
+                    x = [
+                        (coeffs[0][0] * t3) + (coeffs[0][1] * t2) + (coeffs[0][2] * t) + coeffs[0][3],
+                        (coeffs[1][0] * t3) + (coeffs[1][1] * t2) + (coeffs[1][2] * t) + coeffs[1][3]
+                    ];
+
+                // check bounds of the line
+                var s;
+                if ((x2 - x1) !== 0) {
+                    s = (x[0] - x1) / (x2 - x1);
+                }
+                else {
+                    s = (x[1] - y1) / (y2 - y1);
+                }
+
+                if (t >= 0 && t <= 1.0 && s >= 0 && s <= 1.0) {
+                    intersections.push(x);
+                }
+            }
+        }
+
+        return intersections;
+    };
+
+    /**
+     * Calculates all intersections of the given box with the given curve.
+     * @param x X position of top left corner of box
+     * @param y Y position of top left corner of box
+     * @param w width of box
+     * @param h height of box
+     * @param curve
+     * @returns {Array}
+     */
+    var _boxIntersection = function(x, y, w, h, curve) {
+        var i = [];
+        i.push.apply(i, _lineIntersection(x, y, x + w, y, curve));
+        i.push.apply(i, _lineIntersection(x + w, y, x + w, y + h, curve));
+        i.push.apply(i, _lineIntersection(x + w, y + h, x, y + h, curve));
+        i.push.apply(i, _lineIntersection(x, y + h, x, y, curve));
+        return i;
+    };
+
+    /**
+     * Calculates all intersections of the given bounding box with the given curve.
+     * @param boundingBox Bounding box, in { x:.., y:..., w:..., h:... } format.
+     * @param curve
+     * @returns {Array}
+     */
+    var _boundingBoxIntersection = function(boundingBox, curve) {
+        var i = [];
+        i.push.apply(i, _lineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve));
+        i.push.apply(i, _lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve));
+        i.push.apply(i, _lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve));
+        i.push.apply(i, _lineIntersection(boundingBox.x, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y, curve));
+        return i;
+    };
+
+
+    function _computeCoefficientsForAxis(curve, axis) {
+        return [
+            -(curve[0][axis]) + (3*curve[1][axis]) + (-3 * curve[2][axis]) + curve[3][axis],
+            (3*(curve[0][axis])) - (6*(curve[1][axis])) + (3*(curve[2][axis])),
+            -3*curve[0][axis] + 3*curve[1][axis],
+            curve[0][axis]
+        ];
+    }
+
+    function _computeCoefficients(curve)
+    {
+        return [
+            _computeCoefficientsForAxis(curve, "x"),
+            _computeCoefficientsForAxis(curve, "y")
+        ];
+    }
+
+    function sgn(x) {
+        return x < 0 ? -1 : x > 0 ? 1 : 0;
+    }
+
+    function _cubicRoots(a, b, c, d) {
+        var A = b / a,
+            B = c / a,
+            C = d / a,
+            Q = (3*B - Math.pow(A, 2))/9,
+            R = (9*A*B - 27*C - 2*Math.pow(A, 3))/54,
+            D = Math.pow(Q, 3) + Math.pow(R, 2),
+            S,
+            T,
+            t = [];
+
+        if (D >= 0)                                 // complex or duplicate roots
+        {
+            S = sgn(R + Math.sqrt(D))*Math.pow(Math.abs(R + Math.sqrt(D)),(1/3));
+            T = sgn(R - Math.sqrt(D))*Math.pow(Math.abs(R - Math.sqrt(D)),(1/3));
+
+            t[0] = -A/3 + (S + T);
+            t[1] = -A/3 - (S + T)/2;
+            t[2] = -A/3 - (S + T)/2;
+
+            /*discard complex roots*/
+            if (Math.abs(Math.sqrt(3)*(S - T)/2) !== 0) {
+                t[1] = -1;
+                t[2] = -1;
+            }
+        }
+        else                                          // distinct real roots
+        {
+            var th = Math.acos(R/Math.sqrt(-Math.pow(Q, 3)));
+            t[0] = 2*Math.sqrt(-Q)*Math.cos(th/3) - A/3;
+            t[1] = 2*Math.sqrt(-Q)*Math.cos((th + 2*Math.PI)/3) - A/3;
+            t[2] = 2*Math.sqrt(-Q)*Math.cos((th + 4*Math.PI)/3) - A/3;
+        }
+
+        // discard out of spec roots
+        for (var i = 0; i < 3; i++) {
+            if (t[i] < 0 || t[i] > 1.0) {
+                t[i] = -1;
+            }
+        }
+
+        return t;
+    }
+
     var jsBezier = this.jsBezier = {
         distanceFromCurve : _distanceFromCurve,
         gradientAtPoint : _gradientAtPoint,
@@ -420,6 +572,9 @@
         perpendicularToCurveAt : _perpendicularToPathAt,
         locationAlongCurveFrom:_locationAlongPathFrom,
         getLength:_length,
+        lineIntersection:_lineIntersection,
+        boxIntersection:_boxIntersection,
+        boundingBoxIntersection:_boundingBoxIntersection,
         version:"0.9.0"
     };
 
@@ -3749,7 +3904,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.8.4";
+        this.version = "2.8.5";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -10804,6 +10959,47 @@
                     maxY: Math.max(params.y1, params.y2)
                 };
             };
+
+            /**
+             * Computes the list of points on the segment that intersect the given line.
+             * @method lineIntersection
+             * @param {number} x1
+             * @param {number} y1
+             * @param {number} x2
+             * @param {number} y2
+             * @returns {Array<[number, number]>}
+             */
+            this.lineIntersection = function(x1, y1, x2, y2) {
+                return [];
+            };
+
+            /**
+             * Computes the list of points on the segment that intersect the box with the given origin and size.
+             * @method boxIntersection
+             * @param {number} x1
+             * @param {number} y1
+             * @param {number} w
+             * @param {number} h
+             * @returns {Array<[number, number]>}
+             */
+            this.boxIntersection = function(x, y, w, h) {
+                var a = [];
+                a.push.apply(a, this.lineIntersection(x, y, x + w, y));
+                a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
+                a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
+                a.push.apply(a, this.lineIntersection(x, y + h, x, y));
+                return a;
+            };
+
+            /**
+             * Computes the list of points on the segment that intersect the given bounding box, which is an object of the form { x:.., y:.., w:.., h:.. }.
+             * @method lineIntersection
+             * @param {BoundingRectangle} box
+             * @returns {Array<[number, number]>}
+             */
+            this.boundingBoxIntersection = function(box) {
+                return this.boxIntersection(box.x, box.y, box.w, box.y);
+            };
         },
         Straight: function (params) {
             var _super = _jp.Segments.AbstractSegment.apply(this, arguments),
@@ -10944,6 +11140,86 @@
                 out.d = _jg.lineLength([x, y], [out.x, out.y]);
                 out.l = fractionInSegment / length;
                 return out;
+            };
+
+            var _pointLiesBetween = function(q, p1, p2) {
+                return (p2 > p1) ? (p1 <= q && q <= p2) : (p1 >= q && q >= p2);
+            }, _plb = _pointLiesBetween;
+
+            /**
+             * Calculates all intersections of the given line with this segment.
+             * @param _x1
+             * @param _y1
+             * @param _x2
+             * @param _y2
+             * @returns {Array}
+             */
+            this.lineIntersection = function(_x1, _y1, _x2, _y2) {
+                var m2 = Math.abs(_jg.gradient({x: _x1, y: _y1}, {x: _x2, y: _y2})),
+                    m1 = Math.abs(m),
+                    b = m1 === Infinity ? x1 : y1 - (m1 * x1),
+                    out = [],
+                    b2 = m2 === Infinity ? _x1 : _y1 - (m2 * _x1);
+
+                // if lines parallel, no intersection
+                if  (m2 !== m1) {
+                    // perpendicular, segment horizontal
+                    if(m2 === Infinity  && m1 === 0) {
+                        if (_plb(_x1, x1, x2) && _plb(y1, _y1, _y2)) {
+                            out = [ _x1, y1 ];  // we return X on the incident line and Y from the segment
+                        }
+                    } else if(m2 === 0 && m1 === Infinity) {
+                        // perpendicular, segment vertical
+                        if(_plb(_y1, y1, y2) && _plb(x1, _x1, _x2)) {
+                            out = [x1, _y1];  // we return X on the segment and Y from the incident line
+                        }
+                    } else {
+
+                        // not perpendicular or parallel. the lines will intersect. compute:
+                        // mX + b = m2X + b2
+                        // mX - m2X = b2 - b
+                        // X(m - m2) = b2 - b
+                        // X = (b2 - b) / (m - m2)
+                        // Y = mX + b
+
+                        var X = (b2 - b) / (m1 - m2), Y = (m1 * X) + b;
+
+                        // then test that the computed X,Y is within the bounds of the current segment.
+                        if (x1 <= X && x2 >= X && y1 <= Y && y2 >= Y) {
+                            out = [ X,  Y];
+                        }
+                    }
+                }
+
+                return out;
+            };
+
+            /**
+             * Calculates all intersections of the given box with this segment. By default this method simply calls `lineIntersection` with each of the four
+             * faces of the box; subclasses can override this if they think there's a faster way to compute the entire box at once.
+             * @param x X position of top left corner of box
+             * @param y Y position of top left corner of box
+             * @param w width of box
+             * @param h height of box
+             * @returns {Array}
+             */
+            this.boxIntersection = function(x, y, w, h) {
+                var a = [];
+                a.push.apply(a, this.lineIntersection(x, y, x + w, y));
+                a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
+                a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
+                a.push.apply(a, this.lineIntersection(x, y + h, x, y));
+                return a;
+            };
+
+            /**
+             * Calculates all intersections of the given bounding box with this segment. By default this method simply calls `lineIntersection` with each of the four
+             * faces of the box; subclasses can override this if they think there's a faster way to compute the entire box at once.
+             * @param box Bounding box, in { x:.., y:..., w:..., h:... } format.
+             * @returns {Array}
+             */
+            this.boundingBoxIntersection = function(box) {
+                return this.boxIntersection(box.x, box.y, box.w, box.h);
             };
         },
 
@@ -11103,6 +11379,8 @@
 
                 return {x: startX, y: startY};
             };
+
+            // TODO: lineIntersection
         },
 
         Bezier: function (params) {
@@ -11162,6 +11440,21 @@
 
             this.getBounds = function () {
                 return this.bounds;
+            };
+
+            this.findClosestPointOnPath = function (x, y) {
+                var p = root.jsBezier.nearestPointOnCurve({x:x,y:y}, this.curve);
+                return {
+                    d:Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
+                    x:p.point.x,
+                    y:p.point.y,
+                    l:p.location,
+                    s:this
+                };
+            };
+
+            this.lineIntersection = function(x1, y1, x2, y2) {
+                return root.jsBezier.lineIntersection(x1, y1, x2, y2, this.curve);
             };
         }
     };
@@ -11266,6 +11559,30 @@
                 }
             }
 
+            return out;
+        };
+
+        this.lineIntersection = function(x1, y1, x2, y2) {
+            var out = [];
+            for (var i = 0; i < segments.length; i++) {
+                out.push.apply(out, segments[i].lineIntersection(x1, y1, x2, y2));
+            }
+            return out;
+        };
+
+        this.boxIntersection = function(x, y, w, h) {
+            var out = [];
+            for (var i = 0; i < segments.length; i++) {
+                out.push.apply(out, segments[i].boxIntersection(x, y, w, h));
+            }
+            return out;
+        };
+
+        this.boundingBoxIntersection = function(box) {
+            var out = [];
+            for (var i = 0; i < segments.length; i++) {
+                out.push.apply(out, segments[i].boundingBoxIntersection(box));
+            }
             return out;
         };
 

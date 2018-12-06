@@ -1,3 +1,10 @@
+## 2.8.5
+
+December 7th 2018
+
+- added missing `findClosestPointOnPath` method to Bezier segment.
+- added support for finding the intersection of a line and a segment.
+
 ## 2.8.4
 
 November 2nd 2018
