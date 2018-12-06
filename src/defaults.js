@@ -55,6 +55,47 @@
                     maxY: Math.max(params.y1, params.y2)
                 };
             };
+
+            /**
+             * Computes the list of points on the segment that intersect the given line.
+             * @method lineIntersection
+             * @param {number} x1
+             * @param {number} y1
+             * @param {number} x2
+             * @param {number} y2
+             * @returns {Array<[number, number]>}
+             */
+            this.lineIntersection = function(x1, y1, x2, y2) {
+                return [];
+            };
+
+            /**
+             * Computes the list of points on the segment that intersect the box with the given origin and size.
+             * @method boxIntersection
+             * @param {number} x1
+             * @param {number} y1
+             * @param {number} w
+             * @param {number} h
+             * @returns {Array<[number, number]>}
+             */
+            this.boxIntersection = function(x, y, w, h) {
+                var a = [];
+                a.push.apply(a, this.lineIntersection(x, y, x + w, y));
+                a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
+                a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
+                a.push.apply(a, this.lineIntersection(x, y + h, x, y));
+                return a;
+            };
+
+            /**
+             * Computes the list of points on the segment that intersect the given bounding box, which is an object of the form { x:.., y:.., w:.., h:.. }.
+             * @method lineIntersection
+             * @param {BoundingRectangle} box
+             * @returns {Array<[number, number]>}
+             */
+            this.boundingBoxIntersection = function(box) {
+                return this.boxIntersection(box.x, box.y, box.w, box.y);
+            };
         },
         Straight: function (params) {
             var _super = _jp.Segments.AbstractSegment.apply(this, arguments),
@@ -195,6 +236,82 @@
                 out.d = _jg.lineLength([x, y], [out.x, out.y]);
                 out.l = fractionInSegment / length;
                 return out;
+            };
+
+            /**
+             * Calculates all intersections of the given line with this segment.
+             * @param _x1
+             * @param _y1
+             * @param _x2
+             * @param _y2
+             * @returns {Array}
+             */
+            this.lineIntersection = function(_x1, _y1, _x2, _y2) {
+                var m2 = Math.abs(_jg.gradient({x: _x1, y: _y1}, {x: _x2, y: _y2})),
+                    m1 = Math.abs(m),
+                    b = m1 === Infinity ? x1 : y1 - (m1 * x1),
+                    out = [],
+                    b2 = m2 === Infinity ? _x1 : _y1 - (m2 * _x1);
+
+                // if lines parallel, no intersection
+                if  (m2 !== m1) {
+                    // perpendicular, segment horizontal
+                    if(m2 === Infinity  && m1 === 0) {
+                        if (x1 <= _x1 && x2 >= _x1) {
+                            out = [ _x1, y1 ];  // we return X on the incident line and Y from the segment
+                        }
+                    } else if(m2 === 0 && m1 === Infinity) {
+                        // perpendicular, segment vertical
+                        if (y1 <= _y1 && y2 >= _y1) {
+                            out = [x1, _y1];  // we return X on the segment and Y from the incident line
+                        }
+                    } else {
+
+                        // not perpendicular or parallel. the lines will intersect. compute:
+                        // mX + b = m2X + b2
+                        // mX - m2X = b2 - b
+                        // X(m - m2) = b2 - b
+                        // X = (b2 - b) / (m - m2)
+                        // Y = mX + b
+
+                        var X = (b2 - b) / (m1 - m2), Y = (m1 * X) + b;
+
+                        // then test that the computed X,Y is within the bounds of the current segment.
+                        if (x1 <= X && x2 >= X && y1 <= Y && y2 >= Y) {
+                            out = [ X,  Y];
+                        }
+                    }
+                }
+
+                return out;
+            };
+
+            /**
+             * Calculates all intersections of the given box with this segment. By default this method simply calls `lineIntersection` with each of the four
+             * faces of the box; subclasses can override this if they think there's a faster way to compute the entire box at once.
+             * @param x X position of top left corner of box
+             * @param y Y position of top left corner of box
+             * @param w width of box
+             * @param h height of box
+             * @returns {Array}
+             */
+            this.boxIntersection = function(x, y, w, h) {
+                var a = [];
+                a.push.apply(a, this.lineIntersection(x, y, x + w, y));
+                a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
+                a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
+                a.push.apply(a, this.lineIntersection(x, y + h, x, y));
+                return a;
+            };
+
+            /**
+             * Calculates all intersections of the given bounding box with this segment. By default this method simply calls `lineIntersection` with each of the four
+             * faces of the box; subclasses can override this if they think there's a faster way to compute the entire box at once.
+             * @param box Bounding box, in { x:.., y:..., w:..., h:... } format.
+             * @returns {Array}
+             */
+            this.boundingBoxIntersection = function(box) {
+                return this.boxIntersection(box.x, box.y, box.w, box.h);
             };
         },
 
@@ -354,6 +471,8 @@
 
                 return {x: startX, y: startY};
             };
+
+            // TODO: lineIntersection
         },
 
         Bezier: function (params) {
@@ -413,6 +532,21 @@
 
             this.getBounds = function () {
                 return this.bounds;
+            };
+
+            this.findClosestPointOnPath = function (x, y) {
+                var p = root.jsBezier.nearestPointOnCurve({x:x,y:y}, this.curve);
+                return {
+                    d:Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
+                    x:p.point.x,
+                    y:p.point.y,
+                    l:p.location,
+                    s:this
+                };
+            };
+
+            this.lineIntersection = function(x1, y1, x2, y2) {
+                return root.jsBezier.lineIntersection(x1, y1, x2, y2, this.curve);
             };
         }
     };
@@ -517,6 +651,30 @@
                 }
             }
 
+            return out;
+        };
+
+        this.lineIntersection = function(x1, y1, x2, y2) {
+            var out = [];
+            for (var i = 0; i < segments.length; i++) {
+                out.push.apply(out, segments[i].lineIntersection(x1, y1, x2, y2));
+            }
+            return out;
+        };
+
+        this.boxIntersection = function(x, y, w, h) {
+            var out = [];
+            for (var i = 0; i < segments.length; i++) {
+                out.push.apply(out, segments[i].boxIntersection(x, y, w, h));
+            }
+            return out;
+        };
+
+        this.boundingBoxIntersection = function(box) {
+            var out = [];
+            for (var i = 0; i < segments.length; i++) {
+                out.push.apply(out, segments[i].boundingBoxIntersection(box));
+            }
             return out;
         };
 
