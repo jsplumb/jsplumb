@@ -238,6 +238,10 @@
                 return out;
             };
 
+            var _pointLiesBetween = function(q, p1, p2) {
+                return (p2 > p1) ? (p1 <= q && q <= p2) : (p1 >= q && q >= p2)
+            }, _plb = _pointLiesBetween;
+
             /**
              * Calculates all intersections of the given line with this segment.
              * @param _x1
@@ -257,12 +261,12 @@
                 if  (m2 !== m1) {
                     // perpendicular, segment horizontal
                     if(m2 === Infinity  && m1 === 0) {
-                        if (x1 <= _x1 && x2 >= _x1) {
+                        if (_plb(_x1, x1, x2) && _plb(y1, _y1, _y2)) {
                             out = [ _x1, y1 ];  // we return X on the incident line and Y from the segment
                         }
                     } else if(m2 === 0 && m1 === Infinity) {
                         // perpendicular, segment vertical
-                        if (y1 <= _y1 && y2 >= _y1) {
+                        if(_plb(_y1, y1, y2) && _plb(x1, _x1, _x2)) {
                             out = [x1, _y1];  // we return X on the segment and Y from the incident line
                         }
                     } else {
