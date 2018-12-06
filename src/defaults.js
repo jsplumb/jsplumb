@@ -239,7 +239,7 @@
             };
 
             var _pointLiesBetween = function(q, p1, p2) {
-                return (p2 > p1) ? (p1 <= q && q <= p2) : (p1 >= q && q >= p2)
+                return (p2 > p1) ? (p1 <= q && q <= p2) : (p1 >= q && q >= p2);
             }, _plb = _pointLiesBetween;
 
             /**
