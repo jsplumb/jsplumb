@@ -11174,19 +11174,36 @@
                             out = [x1, _y1];  // we return X on the segment and Y from the incident line
                         }
                     } else {
-
-                        // not perpendicular or parallel. the lines will intersect. compute:
-                        // mX + b = m2X + b2
-                        // mX - m2X = b2 - b
-                        // X(m - m2) = b2 - b
-                        // X = (b2 - b) / (m - m2)
-                        // Y = mX + b
-
-                        var X = (b2 - b) / (m1 - m2), Y = (m1 * X) + b;
-
-                        // then test that the computed X,Y is within the bounds of the current segment.
-                        if (x1 <= X && x2 >= X && y1 <= Y && y2 >= Y) {
-                            out = [ X,  Y];
+                        var X, Y;
+                        if (m2 === Infinity) {
+                            // test line is a vertical line. where does it cross the segment?
+                            X = _x1;
+                            if (_plb(X, x1, x2)) {
+                                Y = (m1 * _x1) + b;
+                                if (_plb(Y, _y1, _y2)) {
+                                    out = [ X, Y ];
+                                }
+                            }
+                        } else if (m2 === 0) {
+                            Y = _y1;
+                            // test line is a horizontal line. where does it cross the segment?
+                            if (_plb(Y, y1, y2)) {
+                                X = (_y1 - b) / m1;
+                                if (_plb(X, _x1, _x2)) {
+                                    out = [ X, Y ];
+                                }
+                            }
+                        } else {
+                            // mX + b = m2X + b2
+                            // mX - m2X = b2 - b
+                            // X(m - m2) = b2 - b
+                            // X = (b2 - b) / (m - m2)
+                            // Y = mX + b
+                            X = (b2 - b) / (m1 - m2);
+                            Y = (m1 * X) + b;
+                            if(_plb(X, x1, x2) && _plb(Y, y1, y2)) {
+                                out = [ X,  Y];
+                            }
                         }
                     }
                 }
