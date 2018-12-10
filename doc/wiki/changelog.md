@@ -1,3 +1,9 @@
+## 2.8.6
+
+December 11th 2018
+
+- better decision making when determining if a connection is detachable or not.
+ 
 ## 2.8.5
 
 December 7th 2018

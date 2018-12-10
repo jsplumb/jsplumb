@@ -3904,7 +3904,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.8.5";
+        this.version = "2.8.6";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -8483,7 +8483,7 @@
                 dragOptions.multipleDrop = false;
 
                 dragOptions.canDrag = function () {
-                    return this.isSource || this.isTemporarySource || /*(this.isTarget && */this.connections.length > 0/*)*/;
+                    return this.isSource || this.isTemporarySource || (this.connections.length > 0 && this.connectionsDetachable !== false);
                 }.bind(this);
 
                 _jsPlumb.initDraggable(this.canvas, dragOptions, "internal");
@@ -9179,8 +9179,8 @@
             return this.endpoints;
         };
 
-        this.isDetachable = function () {
-            return this._jsPlumb.detachable === true;
+        this.isDetachable = function (ep) {
+            return ep != null ? ep.connectionsDetachable === true : this._jsPlumb.detachable === true;
         };
         this.setDetachable = function (detachable) {
             this._jsPlumb.detachable = detachable === true;
