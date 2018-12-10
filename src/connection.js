@@ -220,8 +220,8 @@
             return this.endpoints;
         };
 
-        this.isDetachable = function () {
-            return this._jsPlumb.detachable === true;
+        this.isDetachable = function (ep) {
+            return ep != null ? ep.connectionsDetachable === true : this._jsPlumb.detachable === true;
         };
         this.setDetachable = function (detachable) {
             this._jsPlumb.detachable = detachable === true;
