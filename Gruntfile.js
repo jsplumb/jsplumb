@@ -11,7 +11,7 @@ var package = require('./package.json'),
     },
     objects = {
         common:[
-            'util.js', 'browser-util.js', 'jsPlumb.js', 'dom-adapter.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js', 'group.js'
+            'util.js', 'browser-util.js', 'jsPlumb.js', 'overlay-component.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js', 'base-library-adapter.js', 'group.js'
         ]
     },
     optionList = function(grunt, type) {
