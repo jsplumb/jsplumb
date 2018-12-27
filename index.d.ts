@@ -273,6 +273,7 @@ declare module jsPlumb {
         anchor?: AnchorSpec;
         anchors?: [AnchorSpec, AnchorSpec];
         label?: string;
+        overlays?:Array<OverlaySpec>;
     }
 
     interface DragEventCallbackOptions {
