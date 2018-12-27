@@ -759,89 +759,7 @@
              * TODO: somehow abstract this to the adapter, because the concept of "draggable" has no
              * place on the server.
              */
-            _initDraggableIfNecessary = function (element, isDraggable, dragOptions, id, fireEvent) {
-                // move to DragManager?
-                if (!jsPlumb.headless) {
-                    var _draggable = isDraggable == null ? false : isDraggable;
-                    if (_draggable) {
-                        if (jsPlumb.isDragSupported(element, _currentInstance)) {
-                            var options = dragOptions || _currentInstance.Defaults.DragOptions;
-                            options = jsPlumb.extend({}, options); // make a copy.
-                            if (!jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
-                                var dragEvent = jsPlumb.dragEvents.drag,
-                                    stopEvent = jsPlumb.dragEvents.stop,
-                                    startEvent = jsPlumb.dragEvents.start,
-                                    _started = false;
 
-                                _manage(id, element);
-
-                                options[startEvent] = _ju.wrap(options[startEvent], function () {
-                                    _currentInstance.setHoverSuspended(true);
-                                    _currentInstance.select({source: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
-                                    _currentInstance.select({target: element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
-                                    _currentInstance.setConnectionBeingDragged(true);
-                                    if (options.canDrag) {
-                                        return dragOptions.canDrag();
-                                    }
-                                }, false);
-
-                                options[dragEvent] = _ju.wrap(options[dragEvent], function () {
-                                    var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
-                                    if (ui != null) {
-                                        _draw(element, ui, null, true);
-                                        if (_started) {
-                                            _currentInstance.addClass(element, "jtk-dragged");
-                                        }
-                                        _started = true;
-                                    }
-                                });
-                                options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                    var elements = arguments[0].selection, uip;
-
-                                    var _one = function (_e) {
-                                        if (_e[1] != null) {
-                                            // run the reported offset through the code that takes parent containers
-                                            // into account, to adjust if necessary (issue 554)
-                                            uip = _currentInstance.getUIPosition([{
-                                                el:_e[2].el,
-                                                pos:[_e[1].left, _e[1].top]
-                                            }]);
-                                            _draw(_e[2].el, uip);
-                                        }
-                                        _currentInstance.removeClass(_e[0], "jtk-dragged");
-                                        _currentInstance.select({source: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
-                                        _currentInstance.select({target: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
-                                        _currentInstance.getDragManager().dragEnded(_e[2].el);
-                                    };
-
-                                    for (var i = 0; i < elements.length; i++) {
-                                        _one(elements[i]);
-                                    }
-
-                                    _started = false;
-                                    _currentInstance.setHoverSuspended(false);
-                                    _currentInstance.setConnectionBeingDragged(false);
-                                });
-                                var elId = _getId(element); // need ID
-                                draggableStates[elId] = true;
-                                var draggable = draggableStates[elId];
-                                options.disabled = draggable == null ? false : !draggable;
-                                _currentInstance.initDraggable(element, options);
-                                _currentInstance.getDragManager().register(element);
-                                if (fireEvent) {
-                                    _currentInstance.fire("elementDraggable", {el:element, options:options});
-                                }
-                            }
-                            else {
-                                // already draggable. attach any start, drag or stop listeners to the current Drag.
-                                if (dragOptions.force) {
-                                    _currentInstance.initDraggable(element, options);
-                                }
-                            }
-                        }
-                    }
-                }
-            },
 
             _scopeMatch = function (e1, e2) {
                 var s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
@@ -1718,16 +1636,7 @@
             return result;
         };
 
-        this.draggable = function (el, options) {
-            var info;
-            _each(function(_el) {
-                 info = _info(_el);
-                if (info.el) {
-                    _initDraggableIfNecessary(info.el, true, options, info.id, true);
-                }
-            }, el);
-            return _currentInstance;
-        };
+
 
         this.droppable = function(el, options) {
             var info;
@@ -1994,6 +1903,8 @@
          * a static call. i just don't want to expose it to the public API).
          */
         this.getId = _getId;
+        this.draw = _draw;
+        this.info = _info;
 
         this.appendElement = _appendElement;
 
