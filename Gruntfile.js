@@ -41,7 +41,7 @@ var package = require('./package.json'),
         sources.push.apply(sources, getList(grunt, "connectors"));
         //sources.push.apply(sources, ["svg"]);
         sources.push.apply(sources, getList(grunt, "renderers"));
-        sources.push("src/dom.jsPlumb.js");
+        sources.push("src/dom.jsplumb.js");
         return sources;
     },
     help = "\nBuilding jsPlumb\n" +
