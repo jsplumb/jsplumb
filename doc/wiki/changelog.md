@@ -1,3 +1,9 @@
+## 2.8.7
+
+December 28th 2018
+
+- update types file to add overlays to ConnectParams
+
 ## 2.8.6
 
 December 11th 2018
