@@ -3904,7 +3904,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.8.7";
+        this.version = "2.8.8";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -7136,11 +7136,6 @@
             }
 
             return this.dragManager;
-        },
-
-        // NEVER CALLED IN THE CURRENT JS
-        recalculateOffsets:function(elId) {
-            this.getDragManager().updateOffsets(elId);
         },
 
         // CONVERTED

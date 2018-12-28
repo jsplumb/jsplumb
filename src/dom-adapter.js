@@ -357,11 +357,6 @@
             return this.dragManager;
         },
 
-        // NEVER CALLED IN THE CURRENT JS
-        recalculateOffsets:function(elId) {
-            this.getDragManager().updateOffsets(elId);
-        },
-
         // CONVERTED
         createElement:function(tag, style, clazz, atts) {
             return this.createElementNS(null, tag, style, clazz, atts);
