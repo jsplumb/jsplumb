@@ -1865,7 +1865,6 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.remove("d2");
 
         _jsPlumb.repaint("d1"); // shouldn't complain
-    //    _jsPlumb.recalculateOffsets("d1");
 
         equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the main div");
         equal(_jsPlumb.getEndpoints("d2").length, 0, "no endpoints for the nested div");
