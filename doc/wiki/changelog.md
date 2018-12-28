@@ -1,3 +1,9 @@
+## 2.8.8
+
+December 28th 2018
+
+- removed unused method, and its usage from tests
+
 ## 2.8.7
 
 December 28th 2018

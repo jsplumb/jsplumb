@@ -1865,7 +1865,6 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.remove("d2");
 
         _jsPlumb.repaint("d1"); // shouldn't complain
-        _jsPlumb.recalculateOffsets("d1");
 
         equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the main div");
         equal(_jsPlumb.getEndpoints("d2").length, 0, "no endpoints for the nested div");
@@ -6785,7 +6784,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(250, o.offset.left, "d2 is at left=250");
 
         d2.style.left = "1250px";
-        _jsPlumb.recalculateOffsets(d1);
+        _jsPlumb.getDragManager().updateOffsets("d1");
         var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")["d2"];
         equal(1250, o.offset.left, "d2 is at left=1250");
 
