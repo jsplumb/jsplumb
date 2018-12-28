@@ -461,7 +461,7 @@ declare module jsPlumb {
 
     type OverlayId = "Label" | "Arrow" | "PlainArrow" | "Custom";
 
-    type OverlaySpec = OverlayId | [OverlayId, OverlayOptions];
+    type OverlaySpec = OverlayId | [OverlayId, ArrowOverlayOptions] | [OverlayId, LabelOverlayOptions];
 
     interface Overlay { }
 }
