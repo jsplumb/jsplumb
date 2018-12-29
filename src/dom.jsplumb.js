@@ -24,20 +24,6 @@
         return e;
     };
 
-    /*
-     var _getDragStartFunction = function(instance, element) {
-     return function () {
-     this.setHoverSuspended(true);
-     this.select({source: element}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
-     this.select({target: element}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-     this.setConnectionBeingDragged(true);
-     if (options.canDrag) {
-     return dragOptions.canDrag();
-     }
-     }.bind(instance);
-     };
-     */
-
     var _getDragManager = function (instance, category) {
 
         category = category || "main";
@@ -369,11 +355,8 @@
 
     };
 
-    var trim = function (str) {
-            return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
-        },
-        _setClassName = function (el, cn, classList) {
-            cn = trim(cn);
+    var _setClassName = function (el, cn, classList) {
+            cn = _ju.fastTrim(cn);
             if (typeof el.className.baseVal !== "undefined") {
                 el.className.baseVal = cn;
             }
@@ -449,12 +432,10 @@
             return this.dragManager;
         },
 
-        // CONVERTED
         createElement:function(tag, style, clazz, atts) {
             return this.createElementNS(null, tag, style, clazz, atts);
         },
 
-        // CONVERTED
         createElementNS:function(ns, tag, style, clazz, atts) {
             var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
             var i;
@@ -475,19 +456,16 @@
             return e;
         },
 
-        // CONVERTED
         getAttribute: function (el, attName) {
             return el.getAttribute != null ? el.getAttribute(attName) : null;
         },
 
-        // CONVERTED
         setAttribute: function (el, a, v) {
             if (el.setAttribute != null) {
                 el.setAttribute(a, v);
             }
         },
 
-        // CONVERTED
         setAttributes: function (el, atts) {
             for (var i in atts) {
                 if (atts.hasOwnProperty(i)) {
