@@ -14199,6 +14199,20 @@
         return e;
     };
 
+    /*
+     var _getDragStartFunction = function(instance, element) {
+     return function () {
+     this.setHoverSuspended(true);
+     this.select({source: element}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+     this.select({target: element}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+     this.setConnectionBeingDragged(true);
+     if (options.canDrag) {
+     return dragOptions.canDrag();
+     }
+     }.bind(instance);
+     };
+     */
+
     var _getDragManager = function (instance, category) {
 
         category = category || "main";
@@ -14853,12 +14867,68 @@
         },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
+            el._jsPlumbDragOptions = options;
         },
         destroyDraggable: function (el, category) {
             _getDragManager(this, category).destroyDraggable(el);
+            delete el._jsPlumbDragOptions;
         },
         unbindDraggable: function (el, evt, fn, category) {
             _getDragManager(this, category).destroyDraggable(el, evt, fn);
+        },
+        _dragStart:function(params) {
+            var options = params.el._jsPlumbDragOptions;
+            var cont = true;
+            if (options.canDrag) {
+                cont = options.canDrag();
+            }
+            if (cont) {
+                this.setHoverSuspended(true);
+                this.select({source: params.el}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+                this.select({target: params.el}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+                this.setConnectionBeingDragged(true);
+            }
+            return cont;
+        },
+        _dragMove:function(params) {
+            var ui = this.getUIPosition(arguments, this.getZoom());
+            if (ui != null) {
+                var o = params.el._jsPlumbDragOptions;
+                this.draw(params.el, ui, null, true);
+                if (o._dragging) {
+                    this.addClass(params.el, "jtk-dragged");
+                }
+                o._dragging = true;
+            }
+        },
+        _dragStop:function(params) {
+            var elements = params.selection, uip;
+
+            var _one = function (_e) {
+                if (_e[1] != null) {
+                    // run the reported offset through the code that takes parent containers
+                    // into account, to adjust if necessary (issue 554)
+                    uip = this.getUIPosition([{
+                        el:_e[2].el,
+                        pos:[_e[1].left, _e[1].top]
+                    }]);
+                    this.draw(_e[2].el, uip);
+                }
+
+                delete _e[0]._jsPlumbDragOptions._dragging;
+
+                this.removeClass(_e[0], "jtk-dragged");
+                this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+                this.select({target: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+                this.getDragManager().dragEnded(_e[2].el);
+            }.bind(this);
+
+            for (var i = 0; i < elements.length; i++) {
+                _one(elements[i]);
+            }
+
+            this.setHoverSuspended(false);
+            this.setConnectionBeingDragged(false);
         },
         _initDraggableIfNecessary : function (element, isDraggable, dragOptions, id, fireEvent) {
             // TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
@@ -14871,58 +14941,16 @@
                         if (!jsPlumb.isAlreadyDraggable(element, this)) {
                             var dragEvent = jsPlumb.dragEvents.drag,
                                 stopEvent = jsPlumb.dragEvents.stop,
-                                startEvent = jsPlumb.dragEvents.start,
-                                _started = false;
+                                startEvent = jsPlumb.dragEvents.start;
 
                             this.manage(id, element);
 
-                            options[startEvent] = _ju.wrap(options[startEvent], function () {
-                                this.setHoverSuspended(true);
-                                this.select({source: element}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
-                                this.select({target: element}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-                                //this.setConnectionBeingDragged(true);
-                                if (options.canDrag) {
-                                    return dragOptions.canDrag();
-                                }
-                            }.bind(this), false);
+                            options[startEvent] = _ju.wrap(options[startEvent], this._dragStart.bind(this));
 
-                            options[dragEvent] = _ju.wrap(options[dragEvent], function () {
-                                var ui = this.getUIPosition(arguments, this.getZoom());
-                                if (ui != null) {
-                                    this.draw(element, ui, null, true);
-                                    if (_started) {
-                                        this.addClass(element, "jtk-dragged");
-                                    }
-                                    _started = true;
-                                }
-                            }.bind(this));
-                            options[stopEvent] = _ju.wrap(options[stopEvent], function () {
-                                var elements = arguments[0].selection, uip;
+                            options[dragEvent] = _ju.wrap(options[dragEvent], this._dragMove.bind(this));
 
-                                var _one = function (_e) {
-                                    if (_e[1] != null) {
-                                        // run the reported offset through the code that takes parent containers
-                                        // into account, to adjust if necessary (issue 554)
-                                        uip = this.getUIPosition([{
-                                            el:_e[2].el,
-                                            pos:[_e[1].left, _e[1].top]
-                                        }]);
-                                        this.draw(_e[2].el, uip);
-                                    }
-                                    this.removeClass(_e[0], "jtk-dragged");
-                                    this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
-                                    this.select({target: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-                                    this.getDragManager().dragEnded(_e[2].el);
-                                }.bind(this);
+                            options[stopEvent] = _ju.wrap(options[stopEvent], this._dragStop.bind(this));
 
-                                for (var i = 0; i < elements.length; i++) {
-                                    _one(elements[i]);
-                                }
-
-                                _started = false;
-                                this.setHoverSuspended(false);
-                                this.setConnectionBeingDragged(false);
-                            }.bind(this));
                             var elId = this.getId(element); // need ID
 
                             draggableStates[elId] = true;
