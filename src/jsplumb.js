@@ -1962,6 +1962,7 @@
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
+                _currentInstance.addClass(element, "jtk-node");
                 if (!_transient) {
                     _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
                 }
@@ -1970,8 +1971,9 @@
             return managedElements[id];
         };
 
-        var _unmanage = function(id) {
+        var _unmanage = _currentInstance.unmanage = function(id) {
             if (managedElements[id]) {
+                _currentInstance.removeClass(managedElements[id].el, "jtk-node");
                 delete managedElements[id];
                 _currentInstance.fire("unmanageElement", id);
             }
