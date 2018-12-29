@@ -6334,8 +6334,8 @@ test("drag multiple elements and ensure their connections are painted correctly 
         });
 
         support.dragANodeAround(d1, function() {
-            return _jsPlumb.isConnectionBeingDragged();
-        }, "isConnectionBeingDragged returns true while node is being dragged");
+            return _jsPlumb.isConnectionBeingDragged()  && _jsPlumb.isHoverSuspended();
+        }, "isConnectionBeingDragged and isHoverSuspended return true while node is being dragged");
 
         ok(started, "start event fired");
         ok(dragged, "drag event fired");
@@ -6359,6 +6359,29 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ok(started2, "2nd start event fired");
         ok(dragged2, "2nd drag event fired");
         ok(stopped2, "2nd stop event fired");
+    });
+
+    test("node drag events, drag disabled", function() {
+
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var started = false, dragged = false, stopped = false;
+
+        _jsPlumb.draggable(d1, {
+            start:function() { started = true; },
+            drag:function() { dragged = true; },
+            stop:function() { stopped = true; },
+            canDrag:function() { return false; }
+        });
+
+        support.dragANodeAround(d1, function() {
+            return !_jsPlumb.isConnectionBeingDragged() && !_jsPlumb.isHoverSuspended();
+        }, "isConnectionBeingDragged returns false because node cannot be dragged");
+
+        ok(!started, "start event fired");
+        ok(!dragged, "drag event fired");
+        ok(!stopped, "stop event fired");
+
+        
     });
 
 // ------------- utility functions - math stuff, mostly --------------------------
