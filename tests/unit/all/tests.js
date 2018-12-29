@@ -6333,7 +6333,9 @@ test("drag multiple elements and ensure their connections are painted correctly 
             stop:function() { stopped = true; }
         });
 
-        support.dragANodeAround(d1);
+        support.dragANodeAround(d1, function() {
+            return _jsPlumb.isConnectionBeingDragged();
+        }, "isConnectionBeingDragged returns true while node is being dragged");
 
         ok(started, "start event fired");
         ok(dragged, "drag event fired");
