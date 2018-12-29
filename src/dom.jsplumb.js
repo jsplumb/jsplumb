@@ -668,7 +668,7 @@
         draggable : function (el, options) {
             var info;
             el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
-            el.forEach(function(_el) {
+            Array.prototype.slice.call(el).forEach(function(_el) {
                 info = this.info(_el);
                 if (info.el) {
                     this._initDraggableIfNecessary(info.el, true, options, info.id, true);
