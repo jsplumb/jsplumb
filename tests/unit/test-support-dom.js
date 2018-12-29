@@ -38,7 +38,7 @@
             pageY: t
         };
     };
-    var _dragANodeAround = function(_jsPlumb, el) {
+    var _dragANodeAround = function(_jsPlumb, el, functionToAssertWhileDragging, assertMessage) {
         _jsPlumb.trigger(el, "mousedown", _makeEvt(_jsPlumb, el));
         var steps = Math.random() * 50;
         for (var i = 0; i < steps; i++) {
@@ -47,6 +47,11 @@
             el.style.top= evt.screenY + "px";
             _jsPlumb.trigger(document, "mousemove", evt);
         }
+
+        if (functionToAssertWhileDragging) {
+            ok(functionToAssertWhileDragging(), assertMessage || "while dragging assert");
+        }
+
         _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
     };
 
