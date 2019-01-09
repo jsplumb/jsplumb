@@ -1079,22 +1079,6 @@
                     }
                 }, endpointFunc);
             },
-            /*
-             * toggles the draggable state of the given element(s).
-             * el is either an id, or an element object, or a list of ids/element objects.
-             */
-            _toggleDraggable = function (el) {
-                var state;
-                jsPlumb.each(el, function (el) {
-                    var elId = _currentInstance.getAttribute(el, "id");
-                    state = draggableStates[elId] == null ? false : draggableStates[elId];
-                    state = !state;
-                    draggableStates[elId] = state;
-                    _currentInstance.setDraggable(el, state);
-                    return state;
-                }.bind(this));
-                return state;
-            },
             /**
              * private method to do the business of toggling hiding/showing.
              */
@@ -1637,20 +1621,6 @@
         };
 
 
-
-        this.droppable = function(el, options) {
-            var info;
-            options = options || {};
-            options.allowLoopback = false;
-            _each(function(_el) {
-                info = _info(_el);
-                if (info.el) {
-                    _currentInstance.initDroppable(info.el, options);
-                }
-            }, el);
-            return _currentInstance;
-        };
-
         // helpers for select/selectEndpoints
         var _setOperation = function (list, func, args, selector) {
                 for (var i = 0, j = list.length; i < j; i++) {
@@ -1925,11 +1895,6 @@
         // exposed for other objects to use to get a unique id.
         this.idstamp = _idstamp;
 
-        // this.connectorsInitialized = false;
-        // this.registerConnectorType = function (connector, name) {
-        //     connectorTypes.push([connector, name]);
-        // };
-
         // ensure that, if the current container exists, it is a DOM element and not a selector.
         // if it does not exist and `candidate` is supplied, the offset parent of that element will be set as the Container.
         // this is used to do a better default behaviour for the case that the user has not set a container:
@@ -1962,7 +1927,7 @@
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
-                _currentInstance.addClass(element, "jtk-node");
+                _currentInstance.addClass(element, "jtk-managed");
                 if (!_transient) {
                     _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
                 }
@@ -1973,7 +1938,7 @@
 
         var _unmanage = _currentInstance.unmanage = function(id) {
             if (managedElements[id]) {
-                _currentInstance.removeClass(managedElements[id].el, "jtk-node");
+               _currentInstance.removeClass(managedElements[id].el, "jtk-managed");
                 delete managedElements[id];
                 _currentInstance.fire("unmanageElement", id);
             }
@@ -2963,9 +2928,6 @@
             return _currentInstance;
         };
 
-        // sets whether or not some element should be currently draggable.
-        this.setDraggable = _setDraggable;
-
         this.deriveEndpointAndAnchorSpec = function(type, dontPrependDefault) {
             var bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/), eps = null, ep = null, a = null, as = null;
             for (var i = 0; i < bits.length; i++) {
@@ -3103,7 +3065,6 @@
 
         // TODO: update this method to return the current state.
         this.toggleVisible = _toggleVisible;
-        this.toggleDraggable = _toggleDraggable;
         this.addListener = this.bind;
 
         var floatingConnections = [];
