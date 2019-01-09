@@ -221,7 +221,7 @@
         };
 
         this.isDetachable = function (ep) {
-            return ep != null ? ep.connectionsDetachable === true : this._jsPlumb.detachable === true;
+            return this._jsPlumb.detachable === false ? false : ep != null ? ep.connectionsDetachable === true : this._jsPlumb.detachable === true;
         };
         this.setDetachable = function (detachable) {
             this._jsPlumb.detachable = detachable === true;
