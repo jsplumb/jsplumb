@@ -1,7 +1,7 @@
 /*
- * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
+ * This file contains code used when jsPlumb is being rendered in a DOM.
  *
- * Copyright (c) 2010 - 2018 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2019 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
@@ -14,7 +14,7 @@
     "use strict";
 
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
-        _jk = root.Katavorio, _jg = root.Biltong, draggableStates = {};
+        _jk = root.Katavorio, _jg = root.Biltong;
 
     var _getEventManager = function(instance) {
         var e = instance._mottle;
@@ -70,6 +70,61 @@
             instance.bind("zoom", k.setZoom);
         }
         return k;
+    };
+
+    var _dragStart=function(params) {
+        var options = params.el._jsPlumbDragOptions;
+        var cont = true;
+        if (options.canDrag) {
+            cont = options.canDrag();
+        }
+        if (cont) {
+            this.setHoverSuspended(true);
+            this.select({source: params.el}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+            this.select({target: params.el}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+            this.setConnectionBeingDragged(true);
+        }
+        return cont;
+    };
+    var _dragMove=function(params) {
+        var ui = this.getUIPosition(arguments, this.getZoom());
+        if (ui != null) {
+            var o = params.el._jsPlumbDragOptions;
+            this.draw(params.el, ui, null, true);
+            if (o._dragging) {
+                this.addClass(params.el, "jtk-dragged");
+            }
+            o._dragging = true;
+        }
+    };
+    var _dragStop=function(params) {
+        var elements = params.selection, uip;
+
+        var _one = function (_e) {
+            if (_e[1] != null) {
+                // run the reported offset through the code that takes parent containers
+                // into account, to adjust if necessary (issue 554)
+                uip = this.getUIPosition([{
+                    el:_e[2].el,
+                    pos:[_e[1].left, _e[1].top]
+                }]);
+                this.draw(_e[2].el, uip);
+            }
+
+            delete _e[0]._jsPlumbDragOptions._dragging;
+
+            this.removeClass(_e[0], "jtk-dragged");
+            this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+            this.select({target: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+            this.getDragManager().dragEnded(_e[2].el);
+        }.bind(this);
+
+        for (var i = 0; i < elements.length; i++) {
+            _one(elements[i]);
+        }
+
+        this.setHoverSuspended(false);
+        this.setConnectionBeingDragged(false);
     };
 
     var _animProps = function (o, p) {
@@ -432,6 +487,10 @@
             return this.dragManager;
         },
 
+        recalculateOffsets:function(elId) {
+            this.getDragManager().updateOffsets(elId);
+        },
+
         createElement:function(tag, style, clazz, atts) {
             return this.createElementNS(null, tag, style, clazz, atts);
         },
@@ -679,59 +738,30 @@
         unbindDraggable: function (el, evt, fn, category) {
             _getDragManager(this, category).destroyDraggable(el, evt, fn);
         },
-        _dragStart:function(params) {
-            var options = params.el._jsPlumbDragOptions;
-            var cont = true;
-            if (options.canDrag) {
-                cont = options.canDrag();
-            }
-            if (cont) {
-                this.setHoverSuspended(true);
-                this.select({source: params.el}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
-                this.select({target: params.el}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-                this.setConnectionBeingDragged(true);
-            }
-            return cont;
-        },
-        _dragMove:function(params) {
-            var ui = this.getUIPosition(arguments, this.getZoom());
-            if (ui != null) {
-                var o = params.el._jsPlumbDragOptions;
-                this.draw(params.el, ui, null, true);
-                if (o._dragging) {
-                    this.addClass(params.el, "jtk-dragged");
+        setDraggable : function (element, draggable) {
+            return jsPlumb.each(element, function (el) {
+                if (this.isDragSupported(el)) {
+                    this._draggableStates[this.getAttribute(el, "id")] = draggable;
+                    this.setElementDraggable(el, draggable);
                 }
-                o._dragging = true;
-            }
+            }.bind(this));
         },
-        _dragStop:function(params) {
-            var elements = params.selection, uip;
-
-            var _one = function (_e) {
-                if (_e[1] != null) {
-                    // run the reported offset through the code that takes parent containers
-                    // into account, to adjust if necessary (issue 554)
-                    uip = this.getUIPosition([{
-                        el:_e[2].el,
-                        pos:[_e[1].left, _e[1].top]
-                    }]);
-                    this.draw(_e[2].el, uip);
-                }
-
-                delete _e[0]._jsPlumbDragOptions._dragging;
-
-                this.removeClass(_e[0], "jtk-dragged");
-                this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
-                this.select({target: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-                this.getDragManager().dragEnded(_e[2].el);
-            }.bind(this);
-
-            for (var i = 0; i < elements.length; i++) {
-                _one(elements[i]);
-            }
-
-            this.setHoverSuspended(false);
-            this.setConnectionBeingDragged(false);
+        _draggableStates : {},
+        /*
+         * toggles the draggable state of the given element(s).
+         * el is either an id, or an element object, or a list of ids/element objects.
+         */
+        toggleDraggable : function (el) {
+            var state;
+            jsPlumb.each(el, function (el) {
+                var elId = this.getAttribute(el, "id");
+                state = this._draggableStates[elId] == null ? false : this._draggableStates[elId];
+                state = !state;
+                this._draggableStates[elId] = state;
+                this.setDraggable(el, state);
+                return state;
+            }.bind(this));
+            return state;
         },
         _initDraggableIfNecessary : function (element, isDraggable, dragOptions, id, fireEvent) {
             // TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
@@ -748,16 +778,16 @@
 
                             this.manage(id, element);
 
-                            options[startEvent] = _ju.wrap(options[startEvent], this._dragStart.bind(this));
+                            options[startEvent] = _ju.wrap(options[startEvent], _dragStart.bind(this));
 
-                            options[dragEvent] = _ju.wrap(options[dragEvent], this._dragMove.bind(this));
+                            options[dragEvent] = _ju.wrap(options[dragEvent], _dragMove.bind(this));
 
-                            options[stopEvent] = _ju.wrap(options[stopEvent], this._dragStop.bind(this));
+                            options[stopEvent] = _ju.wrap(options[stopEvent], _dragStop.bind(this));
 
                             var elId = this.getId(element); // need ID
 
-                            draggableStates[elId] = true;
-                            var draggable = draggableStates[elId];
+                            this._draggableStates[elId] = true;
+                            var draggable = this._draggableStates[elId];
 
                             options.disabled = draggable == null ? false : !draggable;
                             this.initDraggable(element, options);
@@ -838,6 +868,20 @@
         },
         unbindDroppable: function (el, evt, fn, category) {
             _getDragManager(this, category).destroyDroppable(el, evt, fn);
+        },
+
+        droppable :function(el, options) {
+            el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
+            var info;
+            options = options || {};
+            options.allowLoopback = false;
+            Array.prototype.slice.call(el).forEach(function(_el) {
+                info = this.info(_el);
+                if (info.el) {
+                    this.initDroppable(info.el, options);
+                }
+            }.bind(this));
+            return this;
         },
 
         initDroppable: function (el, options, category) {
