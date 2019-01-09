@@ -95,13 +95,15 @@ declare module jsPlumb {
 
         getEndpoint(uuid: string): Endpoint;
 
+        getEndpoints(element:string|Element):Array<Endpoint>;
+
         getScope(Element: Element | string): string;
 
         getSelector(context?: Element | Selector, spec?: string): void;
 
-        getSourceScope(Element: Element | string): string;
+        getSourceScope(element: Element | string): string;
 
-        getTargetScope(Element: Element | string): string;
+        getTargetScope(element: Element | string): string;
 
         getType(id: string, typeDescriptor: string): Object;
 
