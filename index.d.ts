@@ -273,7 +273,7 @@ declare module jsPlumb {
         anchor?: AnchorSpec;
         anchors?: [AnchorSpec, AnchorSpec];
         label?: string;
-        connector?: string;
+        connector?: ConnectorSpec;
         overlays?:Array<OverlaySpec>;
     }
 
