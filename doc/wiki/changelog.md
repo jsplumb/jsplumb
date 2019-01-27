@@ -1,3 +1,9 @@
+## 2.9.0
+
+January 28th 2019
+
+- update `ConnectParams` to include `connector?:ConnectorSpec` in typings file.
+
 ## 2.8.8
 
 December 28th 2018
