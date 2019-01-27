@@ -5199,15 +5199,15 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ok(!f1, "manageElement event not fired for transient element");
     });
 
-    test("Manage adds jtk-node class", function() {
+    test("Manage adds jtk-managed class", function() {
         var d1 = support.addDiv("d1"), f1 = false;
 
         _jsPlumb.manage("d1", d1);
-        ok(_jsPlumb.hasClass(d1, "jtk-node"), "d1 has jtk-node class");
+        ok(_jsPlumb.hasClass(d1, "jtk-managed"), "d1 has jtk-managed class");
 
 
         _jsPlumb.unmanage("d1");
-        ok(!_jsPlumb.hasClass(d1, "jtk-node"), "d1 no longer has jtk-node class");
+        ok(!_jsPlumb.hasClass(d1, "jtk-managed"), "d1 no longer has jtk-managed class");
     });
 
 
