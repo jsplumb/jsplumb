@@ -1,3 +1,10 @@
+## 3.0.0
+
+This release includes a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
+individually, we now use a single event listener on the container. This has resulted in a several breaking changes:
+
+- by default, every node is draggable. `.draggable(someElement)` no longer needs to be ca
+
 ## 2.9.0
 
 January 28th 2019
