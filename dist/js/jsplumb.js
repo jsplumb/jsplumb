@@ -3904,7 +3904,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.9.0";
+        this.version = "3.0.0";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -7409,7 +7409,7 @@
 
             // is this a connection source? we make it draggable and have the
             // drag listener maintain a connection with a floating endpoint.
-            if (!draggingInitialised && _jp.isDragSupported(this.element)) {
+            if (!draggingInitialised /*&& _jp.isDragSupported(this.element)*/) {
                 var placeholderInfo = { id: null, element: null },
                     jpc = null,
                     existingJpc = false,
@@ -14170,39 +14170,82 @@
             e = instance.getEventManager();
 
         if (!k) {
-            k = new _jk({
-                bind: e.on,
-                unbind: e.off,
-                getSize: _jp.getSize,
-                getConstrainingRectangle:function(el) {
-                    return [ el.parentNode.scrollWidth, el.parentNode.scrollHeight ];
-                },
-                getPosition: function (el, relativeToRoot) {
-                    // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
-                    // compute against the Container's origin. see also the getUIPosition method below.
-                    var o = instance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
-                    return [o.left, o.top];
-                },
-                setPosition: function (el, xy) {
-                    el.style.left = xy[0] + "px";
-                    el.style.top = xy[1] + "px";
-                },
-                addClass: _jp.addClass,
-                removeClass: _jp.removeClass,
-                intersects: _jg.intersects,
-                indexOf: function(l, i) { return l.indexOf(i); },
-                scope:instance.getDefaultScope(),
-                css: {
-                    noSelect: instance.dragSelectClass,
-                    droppable: "jtk-droppable",
-                    draggable: "jtk-draggable",
-                    drag: "jtk-drag",
-                    selected: "jtk-drag-selected",
-                    active: "jtk-drag-active",
-                    hover: "jtk-drag-hover",
-                    ghostProxy:"jtk-ghost-proxy"
-                }
-            });
+
+            if (category !== "main") {
+            //     k = new _jk({
+            //         source:instance.getContainer(),
+            //         selector:".jtk-managed",
+            //         bind: e.on,
+            //         unbind: e.off,
+            //         getSize: _jp.getSize,
+            //         getConstrainingRectangle:function(el) {
+            //             return [ el.parentNode.scrollWidth, el.parentNode.scrollHeight ];
+            //         },
+            //         getPosition: function (el, relativeToRoot) {
+            //             // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
+            //             // compute against the Container's origin. see also the getUIPosition method below.
+            //             var o = instance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
+            //             return [o.left, o.top];
+            //         },
+            //         setPosition: function (el, xy) {
+            //             el.style.left = xy[0] + "px";
+            //             el.style.top = xy[1] + "px";
+            //         },
+            //         addClass: _jp.addClass,
+            //         removeClass: _jp.removeClass,
+            //         intersects: _jg.intersects,
+            //         indexOf: function(l, i) { return l.indexOf(i); },
+            //         scope:instance.getDefaultScope(),
+            //         css: {
+            //             noSelect: instance.dragSelectClass,
+            //             droppable: "jtk-droppable",
+            //             draggable: "jtk-draggable",
+            //             drag: "jtk-drag",
+            //             selected: "jtk-drag-selected",
+            //             active: "jtk-drag-active",
+            //             hover: "jtk-drag-hover",
+            //             ghostProxy:"jtk-ghost-proxy"
+            //         }
+            //     });
+            // } else {
+
+                k = new _jk({
+                    bind: e.on,
+                    unbind: e.off,
+                    getSize: _jp.getSize,
+                    getConstrainingRectangle: function (el) {
+                        return [el.parentNode.scrollWidth, el.parentNode.scrollHeight];
+                    },
+                    getPosition: function (el, relativeToRoot) {
+                        // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
+                        // compute against the Container's origin. see also the getUIPosition method below.
+                        var o = instance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
+                        return [o.left, o.top];
+                    },
+                    setPosition: function (el, xy) {
+                        el.style.left = xy[0] + "px";
+                        el.style.top = xy[1] + "px";
+                    },
+                    addClass: _jp.addClass,
+                    removeClass: _jp.removeClass,
+                    intersects: _jg.intersects,
+                    indexOf: function (l, i) {
+                        return l.indexOf(i);
+                    },
+                    scope: instance.getDefaultScope(),
+                    css: {
+                        noSelect: instance.dragSelectClass,
+                        droppable: "jtk-droppable",
+                        draggable: "jtk-draggable",
+                        drag: "jtk-drag",
+                        selected: "jtk-drag-selected",
+                        active: "jtk-drag-active",
+                        hover: "jtk-drag-hover",
+                        ghostProxy: "jtk-ghost-proxy"
+                    }
+                });
+            }
+
             k.setZoom(instance.getZoom());
             instance[key] = k;
             instance.bind("zoom", k.setZoom);
@@ -14210,32 +14253,40 @@
         return k;
     };
 
-    var _dragStart=function(params) {
-        var options = params.el._jsPlumbDragOptions;
+    var _dragStart=function(instance, params) {
+        var el = params.drag.getDragElement();
+        var options = el._jsPlumbDragOptions;
         var cont = true;
         if (options.canDrag) {
             cont = options.canDrag();
         }
         if (cont) {
-            this.setHoverSuspended(true);
-            this.select({source: params.el}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
-            this.select({target: params.el}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-            this.setConnectionBeingDragged(true);
+            instance.setHoverSuspended(true);
+            instance.select({source: el}).addClass(instance.elementDraggingClass + " " + instance.sourceElementDraggingClass, true);
+            instance.select({target: el}).addClass(instance.elementDraggingClass + " " + instance.targetElementDraggingClass, true);
+            instance.setConnectionBeingDragged(true);
         }
         return cont;
     };
-    var _dragMove=function(params) {
-        var ui = this.getUIPosition(arguments, this.getZoom());
+    var _dragMove=function(instance, params) {
+        var el = params.drag.getDragElement();
+        console.log("hey");
+
+        var finalPos = params.finalPos || params.pos;
+        var ui = { left:finalPos[0], top:finalPos[1] };
+
+        //var ui = null;//instance.getUIPosition([params], instance.getZoom());
         if (ui != null) {
-            var o = params.el._jsPlumbDragOptions;
-            this.draw(params.el, ui, null, true);
+            var o = el._jsPlumbDragOptions;
+            instance.draw(el, ui, null, true);
             if (o._dragging) {
-                this.addClass(params.el, "jtk-dragged");
+                instance.addClass(el, "jtk-dragged");
             }
             o._dragging = true;
         }
     };
-    var _dragStop=function(params) {
+    var _dragStop=function(instance, params) {
+
         var elements = params.selection, uip;
 
         var _one = function (_e) {
@@ -14255,14 +14306,14 @@
             this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
             this.select({target: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
             this.getDragManager().dragEnded(_e[2].el);
-        }.bind(this);
+        }.bind(instance);
 
         for (var i = 0; i < elements.length; i++) {
             _one(elements[i]);
         }
 
-        this.setHoverSuspended(false);
-        this.setConnectionBeingDragged(false);
+        instance.setHoverSuspended(false);
+        instance.setConnectionBeingDragged(false);
     };
 
     var _animProps = function (o, p) {
@@ -14318,7 +14369,51 @@
     var DragManager = function (_currentInstance) {
         var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},
             // elementids mapped to the draggable to which they belong.
-            _draggablesForElements = {};
+            _draggablesForElements = {},
+            e = _currentInstance.getEventManager();
+
+        // create a delegated drag handler
+        var katavorio = new _jk({
+            bind: e.on,
+            unbind: e.off,
+            getSize: _jp.getSize,
+            getConstrainingRectangle:function(el) {
+                return [ el.parentNode.scrollWidth, el.parentNode.scrollHeight ];
+            },
+            getPosition: function (el, relativeToRoot) {
+                // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
+                // compute against the Container's origin. see also the getUIPosition method below.
+                var o = _currentInstance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
+                return [o.left, o.top];
+            },
+            setPosition: function (el, xy) {
+                el.style.left = xy[0] + "px";
+                el.style.top = xy[1] + "px";
+            },
+            addClass: _jp.addClass,
+            removeClass: _jp.removeClass,
+            intersects: _jg.intersects,
+            indexOf: function(l, i) { return l.indexOf(i); },
+            scope:_currentInstance.getDefaultScope(),
+            css: {
+                noSelect: _currentInstance.dragSelectClass,
+                droppable: "jtk-droppable",
+                draggable: "jtk-draggable",
+                drag: "jtk-drag",
+                selected: "jtk-drag-selected",
+                active: "jtk-drag-active",
+                hover: "jtk-drag-hover",
+                ghostProxy:"jtk-ghost-proxy"
+            }
+        });
+
+        katavorio.draggable(_currentInstance.getContainer(), {
+            selector:".jtk-managed, .jtk-managed *",
+            start:function(p) { console.log("delegated drag start"); _dragStart(_currentInstance, p); },
+            drag:function(p) { console.log("delegated drag move"); _dragMove(_currentInstance, p); },
+            stop:function(p) { console.log("delegated drag stop"); _dragStop(_currentInstance, p); },
+            grid: [20, 20] 
+        });
 
         /**
          register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
@@ -14878,10 +14973,10 @@
         },
         setDraggable : function (element, draggable) {
             return jsPlumb.each(element, function (el) {
-                if (this.isDragSupported(el)) {
+                //if (this.isDragSupported(el)) {
                     this._draggableStates[this.getAttribute(el, "id")] = draggable;
                     this.setElementDraggable(el, draggable);
-                }
+                //}
             }.bind(this));
         },
         _draggableStates : {},
@@ -14902,11 +14997,19 @@
             return state;
         },
         _initDraggableIfNecessary : function (element, isDraggable, dragOptions, id, fireEvent) {
-            // TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
+
+
+            this.manage(id, element);
+            var options = dragOptions || this.Defaults.DragOptions;
+            options = jsPlumb.extend({}, options); // make a copy.
+            this.initDraggable(element, options);
+            this.getDragManager().register(element);
+
+            /* TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
             if (!jsPlumb.headless) {
                 var _draggable = isDraggable == null ? false : isDraggable;
                 if (_draggable) {
-                    if (jsPlumb.isDragSupported(element, this)) {
+
                         var options = dragOptions || this.Defaults.DragOptions;
                         options = jsPlumb.extend({}, options); // make a copy.
                         if (!jsPlumb.isAlreadyDraggable(element, this)) {
@@ -14940,9 +15043,9 @@
                                 this.initDraggable(element, options);
                             }
                         }
-                    }
+
                 }
-            }
+            }*/
         },
         animationSupported:true,
         getElement: function (el) {
@@ -15028,9 +15131,9 @@
         isAlreadyDraggable: function (el) {
             return el._katavorioDrag != null;
         },
-        isDragSupported: function (el, options) {
-            return true;
-        },
+        // isDragSupported: function (el, options) {
+        //     return true;
+        // },
         isDropSupported: function (el, options) {
             return true;
         },
