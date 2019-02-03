@@ -241,6 +241,8 @@
             //grid: [20, 20]
         });
 
+        _currentInstance["_katavorio_main"] = katavorio;
+
         /**
          register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
          possible that will continue to be the case.
