@@ -13,6 +13,28 @@
 
     "use strict";
 
+    var _time = { };
+    var _counts = { };
+    var _timers = {};
+
+    window.jtime = function(topic) {
+        _time[topic] = _time[topic] || 0;
+        _timers[topic] = new Date().getTime();
+        _counts[topic] = _counts[topic] || 0;
+        _counts[topic]++;
+    };
+
+    window.jtimeEnd = function(topic) {
+        var d = new Date().getTime();
+        _time[topic] = _time[topic] + (d - _timers[topic]);
+    };
+
+    window.dumpTime = function() {
+        for (var t in _time) {
+            console.log(t + " : count [" +  _counts[t] + "] avg [" + (_time[t] / _counts[t]) + "] total [" + _time[t] + "]");
+        }
+    };
+
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
         _jk = root.Katavorio, _jg = root.Biltong;
 
