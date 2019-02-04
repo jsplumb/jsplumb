@@ -1919,6 +1919,13 @@
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
         var _manage = _currentInstance.manage = function (id, element, _transient) {
+
+            if (!jsPlumbUtil.isString(arguments[0])) {
+                id = _currentInstance.getId(arguments[0]);
+                element = arguments[0];
+                _transient = arguments[1] === true;
+            }
+
             if (!managedElements[id]) {
                 managedElements[id] = {
                     el: element,
