@@ -671,6 +671,7 @@
             return sel;
         },
         getOffset:function(el, relativeToRoot, container) {
+            window.jtime("get offset");
             el = jsPlumb.getElement(el);
             container = container || this.getContainer();
             var out = {
@@ -702,6 +703,7 @@
                     out.top -= container.scrollTop;
                 }
             }
+            window.jtimeEnd("get offset");
             return out;
         },
         //
@@ -768,7 +770,11 @@
          * gets the size for the element, in an array : [ width, height ].
          */
         getSize: function (el) {
-            return [ el.offsetWidth, el.offsetHeight ];
+            window.jtime("get size");
+            var s =[ el.offsetWidth, el.offsetHeight ];
+            window.jtimeEnd("get size");
+            return s;
+            //return [ el.offsetWidth, el.offsetHeight ];
         },
         getWidth: function (el) {
             return el.offsetWidth;
