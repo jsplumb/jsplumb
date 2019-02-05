@@ -256,10 +256,10 @@
         });
 
         katavorio.draggable(_currentInstance.getContainer(), {
-            selector:".jtk-managed, .jtk-managed *",
-            start:function(p) { console.log("delegated drag start"); _dragStart(_currentInstance, p); },
-            drag:function(p) { console.log("delegated drag move"); _dragMove(_currentInstance, p); },
-            stop:function(p) { console.log("delegated drag stop"); _dragStop(_currentInstance, p); }//,
+            selector:"[jtk-managed], [jtk-managed] *",
+            start:function(p) { _dragStart(_currentInstance, p); },
+            drag:function(p) { _dragMove(_currentInstance, p); },
+            stop:function(p) { _dragStop(_currentInstance, p); }//,
             //grid: [20, 20]
         });
 
@@ -614,6 +614,9 @@
                     el.setAttribute(i, atts[i]);
                 }
             }
+        },
+        removeAttribute:function(el, attName) {
+            el.removeAttribute && el.removeAttribute(attName);
         },
         appendToRoot: function (node) {
             document.body.appendChild(node);
