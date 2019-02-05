@@ -3,7 +3,16 @@
 This release includes a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
 individually, we now use a single event listener on the container. This has resulted in a several breaking changes:
 
-- by default, every node is draggable. `.draggable(someElement)` no longer needs to be ca
+- by default, every node is draggable. `.draggable(someElement)` no longer needs to be called for each element.
+
+
+Other breaking changes:
+
+- `manageElement` and `unmanageElement` events no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
+ in case you have code that used them.
+ 
+- managed elements do not have the `jtk-managed` class applied. they now have a `jtk-managed` attribute set on them.
+
 
 ## 2.9.0
 
