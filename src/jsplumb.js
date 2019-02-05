@@ -1933,11 +1933,16 @@
                     connections: []
                 };
 
-                managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
-                _currentInstance.addClass(element, "jtk-managed");
-                if (!_transient) {
-                    _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
+                // dont compute size now if drawing suspend (to avoid any reflows)
+                if (_currentInstance.isSuspendDrawing()) {
+                    sizes[id] = [0,0];
+                    offsets[id] = {left:0,top:0};
+                    managedElements[id].info = {o:offsets[id], s:sizes[id]};
+                } else {
+                    managedElements[id].info = _updateOffset({elId: id, timestamp: _suspendedAt});
                 }
+
+                _currentInstance.setAttribute(element, "jtk-managed", "");
             }
 
             return managedElements[id];
@@ -1945,9 +1950,8 @@
 
         var _unmanage = _currentInstance.unmanage = function(id) {
             if (managedElements[id]) {
-               _currentInstance.removeClass(managedElements[id].el, "jtk-managed");
+               _currentInstance.removeAttribute(managedElements[id].el, "jtk-managed");
                 delete managedElements[id];
-                _currentInstance.fire("unmanageElement", id);
             }
         };
 
