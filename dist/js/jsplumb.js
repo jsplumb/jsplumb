@@ -5359,6 +5359,13 @@
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
         var _manage = _currentInstance.manage = function (id, element, _transient) {
+
+            if (!jsPlumbUtil.isString(arguments[0])) {
+                id = _currentInstance.getId(arguments[0]);
+                element = arguments[0];
+                _transient = arguments[1] === true;
+            }
+
             if (!managedElements[id]) {
                 managedElements[id] = {
                     el: element,
@@ -5366,11 +5373,16 @@
                     connections: []
                 };
 
-                managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
-                _currentInstance.addClass(element, "jtk-managed");
-                if (!_transient) {
-                    _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
+                // dont compute size now if drawing suspend (to avoid any reflows)
+                if (_currentInstance.isSuspendDrawing()) {
+                    sizes[id] = [0,0];
+                    offsets[id] = {left:0,top:0};
+                    managedElements[id].info = {o:offsets[id], s:sizes[id]};
+                } else {
+                    managedElements[id].info = _updateOffset({elId: id, timestamp: _suspendedAt});
                 }
+
+                _currentInstance.setAttribute(element, "jtk-managed", "");
             }
 
             return managedElements[id];
@@ -5378,9 +5390,8 @@
 
         var _unmanage = _currentInstance.unmanage = function(id) {
             if (managedElements[id]) {
-               _currentInstance.removeClass(managedElements[id].el, "jtk-managed");
+               _currentInstance.removeAttribute(managedElements[id].el, "jtk-managed");
                 delete managedElements[id];
-                _currentInstance.fire("unmanageElement", id);
             }
         };
 
@@ -14151,6 +14162,28 @@
 
     "use strict";
 
+    var _time = { };
+    var _counts = { };
+    var _timers = {};
+
+    window.jtime = function(topic) {
+        _time[topic] = _time[topic] || 0;
+        _timers[topic] = new Date().getTime();
+        _counts[topic] = _counts[topic] || 0;
+        _counts[topic]++;
+    };
+
+    window.jtimeEnd = function(topic) {
+        var d = new Date().getTime();
+        _time[topic] = _time[topic] + (d - _timers[topic]);
+    };
+
+    window.dumpTime = function() {
+        for (var t in _time) {
+            console.log(t + " : count [" +  _counts[t] + "] avg [" + (_time[t] / _counts[t]) + "] total [" + _time[t] + "]");
+        }
+    };
+
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
         _jk = root.Katavorio, _jg = root.Biltong;
 
@@ -14172,42 +14205,6 @@
         if (!k) {
 
             if (category !== "main") {
-            //     k = new _jk({
-            //         source:instance.getContainer(),
-            //         selector:".jtk-managed",
-            //         bind: e.on,
-            //         unbind: e.off,
-            //         getSize: _jp.getSize,
-            //         getConstrainingRectangle:function(el) {
-            //             return [ el.parentNode.scrollWidth, el.parentNode.scrollHeight ];
-            //         },
-            //         getPosition: function (el, relativeToRoot) {
-            //             // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
-            //             // compute against the Container's origin. see also the getUIPosition method below.
-            //             var o = instance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
-            //             return [o.left, o.top];
-            //         },
-            //         setPosition: function (el, xy) {
-            //             el.style.left = xy[0] + "px";
-            //             el.style.top = xy[1] + "px";
-            //         },
-            //         addClass: _jp.addClass,
-            //         removeClass: _jp.removeClass,
-            //         intersects: _jg.intersects,
-            //         indexOf: function(l, i) { return l.indexOf(i); },
-            //         scope:instance.getDefaultScope(),
-            //         css: {
-            //             noSelect: instance.dragSelectClass,
-            //             droppable: "jtk-droppable",
-            //             draggable: "jtk-draggable",
-            //             drag: "jtk-drag",
-            //             selected: "jtk-drag-selected",
-            //             active: "jtk-drag-active",
-            //             hover: "jtk-drag-hover",
-            //             ghostProxy:"jtk-ghost-proxy"
-            //         }
-            //     });
-            // } else {
 
                 k = new _jk({
                     bind: e.on,
@@ -14408,12 +14405,14 @@
         });
 
         katavorio.draggable(_currentInstance.getContainer(), {
-            selector:".jtk-managed, .jtk-managed *",
-            start:function(p) { console.log("delegated drag start"); _dragStart(_currentInstance, p); },
-            drag:function(p) { console.log("delegated drag move"); _dragMove(_currentInstance, p); },
-            stop:function(p) { console.log("delegated drag stop"); _dragStop(_currentInstance, p); },
-            grid: [20, 20] 
+            selector:"[jtk-managed], [jtk-managed] *",
+            start:function(p) { _dragStart(_currentInstance, p); },
+            drag:function(p) { _dragMove(_currentInstance, p); },
+            stop:function(p) { _dragStop(_currentInstance, p); }//,
+            //grid: [20, 20]
         });
+
+        _currentInstance["_katavorio_main"] = katavorio;
 
         /**
          register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
@@ -14765,6 +14764,9 @@
                 }
             }
         },
+        removeAttribute:function(el, attName) {
+            el.removeAttribute && el.removeAttribute(attName);
+        },
         appendToRoot: function (node) {
             document.body.appendChild(node);
         },
@@ -14843,6 +14845,7 @@
             return sel;
         },
         getOffset:function(el, relativeToRoot, container) {
+            window.jtime("get offset");
             el = jsPlumb.getElement(el);
             container = container || this.getContainer();
             var out = {
@@ -14874,6 +14877,7 @@
                     out.top -= container.scrollTop;
                 }
             }
+            window.jtimeEnd("get offset");
             return out;
         },
         //
@@ -14940,7 +14944,11 @@
          * gets the size for the element, in an array : [ width, height ].
          */
         getSize: function (el) {
-            return [ el.offsetWidth, el.offsetHeight ];
+            window.jtime("get size");
+            var s =[ el.offsetWidth, el.offsetHeight ];
+            window.jtimeEnd("get size");
+            return s;
+            //return [ el.offsetWidth, el.offsetHeight ];
         },
         getWidth: function (el) {
             return el.offsetWidth;
