@@ -2263,6 +2263,8 @@
         // see API docs
         this.makeTarget = function (el, params, referenceParams) {
 
+            this.manage(el);
+
             // put jsplumb ref into params without altering the params passed in
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
@@ -2335,6 +2337,7 @@
 
         // see api docs
         this.makeSource = function (el, params, referenceParams) {
+            this.manage(el);
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
             var type = p.connectionType || "default";
