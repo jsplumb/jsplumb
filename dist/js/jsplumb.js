@@ -4637,15 +4637,15 @@
 
             for (var i = 0, j = inputs.length; i < j; i++) {
                 p.source = _currentInstance.getElement(inputs[i]);
+                _currentInstance.manage(p.source);
                 _ensureContainer(p.source);
 
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
-                // ensure element is managed.
-                var myOffset = _manage(id, p.source).info.o;
                 _ju.addToList(endpointsByElement, id, e);
 
                 if (!_suspendDrawing) {
+                    var myOffset = managedElements[id].info.o;
                     e.paint({
                         anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: sizes[id], element: e, timestamp: _suspendedAt }),
                         timestamp: _suspendedAt
@@ -5358,34 +5358,47 @@
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
-        var _manage = _currentInstance.manage = function (id, element, _transient) {
+        var _manage = _currentInstance.manage = function (id, element) {
 
-            if (!jsPlumbUtil.isString(arguments[0])) {
-                id = _currentInstance.getId(arguments[0]);
-                element = arguments[0];
-                _transient = arguments[1] === true;
-            }
-
-            if (!managedElements[id]) {
-                managedElements[id] = {
-                    el: element,
-                    endpoints: [],
-                    connections: []
-                };
-
-                // dont compute size now if drawing suspend (to avoid any reflows)
-                if (_currentInstance.isSuspendDrawing()) {
-                    sizes[id] = [0,0];
-                    offsets[id] = {left:0,top:0};
-                    managedElements[id].info = {o:offsets[id], s:sizes[id]};
+            var _one = function(_id, _element) {
+                if (!jsPlumbUtil.isString(arguments[0])) {
+                    _id = _currentInstance.getId(arguments[0]);
+                    _element = arguments[0];
                 } else {
-                    managedElements[id].info = _updateOffset({elId: id, timestamp: _suspendedAt});
+                    if (_element == null) {
+                        _element = _currentInstance.getElement(arguments[0]);
+                    }
                 }
 
-                _currentInstance.setAttribute(element, "jtk-managed", "");
+                if (!managedElements[_id]) {
+                    managedElements[_id] = {
+                        el: _element,
+                        endpoints: [],
+                        connections: []
+                    };
+
+                    // dont compute size now if drawing suspend (to avoid any reflows)
+                    if (_currentInstance.isSuspendDrawing()) {
+                        sizes[_id] = [0,0];
+                        offsets[_id] = {left:0,top:0};
+                        managedElements[_id].info = {o:offsets[_id], s:sizes[_id]};
+                    } else {
+                        managedElements[_id].info = _updateOffset({elId: _id, timestamp: _suspendedAt});
+                    }
+
+                    _currentInstance.setAttribute(_element, "jtk-managed", "");
+                }
+
+                return managedElements[_id];
+            };
+
+            if (typeof arguments[0] !== "string" && arguments[0].length) {
+                jsPlumb.each(arguments[0], _one);
+            } else {
+                _one(id, element);
             }
 
-            return managedElements[id];
+
         };
 
         var _unmanage = _currentInstance.unmanage = function(id) {
@@ -5703,6 +5716,8 @@
         // see API docs
         this.makeTarget = function (el, params, referenceParams) {
 
+            this.manage(el);
+
             // put jsplumb ref into params without altering the params passed in
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
@@ -5775,6 +5790,7 @@
 
         // see api docs
         this.makeSource = function (el, params, referenceParams) {
+            this.manage(el);
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
             var type = p.connectionType || "default";
@@ -12330,6 +12346,8 @@
         this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
 
+        _jsPlumb.manage(el);
+
         var getDragArea = this.getDragArea = function() {
             var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
             return da && da.length > 0 ? da[0] : el;
@@ -12357,21 +12375,25 @@
 
         this.collapsed = false;
         if (params.draggable !== false) {
-            var opts = {
-                stop:function(params) {
-                    _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
-                },
-                scope:GROUP_DRAG_SCOPE
-            };
-            if (params.dragOptions) {
-                root.jsPlumb.extend(opts, params.dragOptions);
-            }
-            _jsPlumb.draggable(params.el, opts);
+
+            // var opts = {
+            //     stop:function(params) {
+            //         _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
+            //     },
+            //     scope:GROUP_DRAG_SCOPE
+            // };
+            // if (params.dragOptions) {
+            //     root.jsPlumb.extend(opts, params.dragOptions);
+            // }
+            // _jsPlumb.draggable(params.el, opts);
+
+            // TODO: bind to stop event for this element.
         }
+
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
-                    var el = p.drag.el;
+                    var el = p.drag.getDragElement();
                     if (el._isJsPlumbGroup) {
                         return;
                     }
@@ -14404,8 +14426,9 @@
             }
         });
 
+        var elementDragOptions = _currentInstance.Defaults.dragOptions || {};
         katavorio.draggable(_currentInstance.getContainer(), {
-            selector:"[jtk-managed], [jtk-managed] *",
+            selector:"[jtk-managed]",
             start:function(p) { _dragStart(_currentInstance, p); },
             drag:function(p) { _dragMove(_currentInstance, p); },
             stop:function(p) { _dragStop(_currentInstance, p); }//,
@@ -14957,17 +14980,17 @@
             return el.offsetHeight;
         },
         getRenderMode : function() { return "svg"; },
-        draggable : function (el, options) {
-            var info;
-            el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
-            Array.prototype.slice.call(el).forEach(function(_el) {
-                info = this.info(_el);
-                if (info.el) {
-                    this._initDraggableIfNecessary(info.el, true, options, info.id, true);
-                }
-            }.bind(this));
-            return this;
-        },
+        // draggable : function (el, options) {
+        //     var info;
+        //     el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
+        //     Array.prototype.slice.call(el).forEach(function(_el) {
+        //         info = this.info(_el);
+        //         if (info.el) {
+        //             this._initDraggableIfNecessary(info.el, true, options, info.id, true);
+        //         }
+        //     }.bind(this));
+        //     return this;
+        // },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
             el._jsPlumbDragOptions = options;
@@ -15011,6 +15034,8 @@
             var options = dragOptions || this.Defaults.DragOptions;
             options = jsPlumb.extend({}, options); // make a copy.
             this.initDraggable(element, options);
+
+            // TODO this bit i think is important, due to it figuring out nested elements.
             this.getDragManager().register(element);
 
             /* TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
