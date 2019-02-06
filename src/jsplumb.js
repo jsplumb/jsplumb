@@ -1197,15 +1197,15 @@
 
             for (var i = 0, j = inputs.length; i < j; i++) {
                 p.source = _currentInstance.getElement(inputs[i]);
+                _currentInstance.manage(p.source);
                 _ensureContainer(p.source);
 
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
-                // ensure element is managed.
-                var myOffset = _manage(id, p.source).info.o;
                 _ju.addToList(endpointsByElement, id, e);
 
                 if (!_suspendDrawing) {
+                    var myOffset = managedElements[id].info.o;
                     e.paint({
                         anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: sizes[id], element: e, timestamp: _suspendedAt }),
                         timestamp: _suspendedAt
@@ -1918,34 +1918,47 @@
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
-        var _manage = _currentInstance.manage = function (id, element, _transient) {
+        var _manage = _currentInstance.manage = function (id, element) {
 
-            if (!jsPlumbUtil.isString(arguments[0])) {
-                id = _currentInstance.getId(arguments[0]);
-                element = arguments[0];
-                _transient = arguments[1] === true;
-            }
-
-            if (!managedElements[id]) {
-                managedElements[id] = {
-                    el: element,
-                    endpoints: [],
-                    connections: []
-                };
-
-                // dont compute size now if drawing suspend (to avoid any reflows)
-                if (_currentInstance.isSuspendDrawing()) {
-                    sizes[id] = [0,0];
-                    offsets[id] = {left:0,top:0};
-                    managedElements[id].info = {o:offsets[id], s:sizes[id]};
+            var _one = function(_id, _element) {
+                if (!jsPlumbUtil.isString(arguments[0])) {
+                    _id = _currentInstance.getId(arguments[0]);
+                    _element = arguments[0];
                 } else {
-                    managedElements[id].info = _updateOffset({elId: id, timestamp: _suspendedAt});
+                    if (_element == null) {
+                        _element = _currentInstance.getElement(arguments[0]);
+                    }
                 }
 
-                _currentInstance.setAttribute(element, "jtk-managed", "");
+                if (!managedElements[_id]) {
+                    managedElements[_id] = {
+                        el: _element,
+                        endpoints: [],
+                        connections: []
+                    };
+
+                    // dont compute size now if drawing suspend (to avoid any reflows)
+                    if (_currentInstance.isSuspendDrawing()) {
+                        sizes[_id] = [0,0];
+                        offsets[_id] = {left:0,top:0};
+                        managedElements[_id].info = {o:offsets[_id], s:sizes[_id]};
+                    } else {
+                        managedElements[_id].info = _updateOffset({elId: _id, timestamp: _suspendedAt});
+                    }
+
+                    _currentInstance.setAttribute(_element, "jtk-managed", "");
+                }
+
+                return managedElements[_id];
+            };
+
+            if (typeof arguments[0] !== "string" && arguments[0].length) {
+                jsPlumb.each(arguments[0], _one);
+            } else {
+                _one(id, element);
             }
 
-            return managedElements[id];
+
         };
 
         var _unmanage = _currentInstance.unmanage = function(id) {
