@@ -192,9 +192,6 @@
             e4.bind("maxConnections", maxConnectionsCallback);
             instance.addEndpoint("dragDropWindow4", { anchor: [0.25, 0, 0, -1] }, exampleEndpoint2);
 
-            // make .window divs draggable
-            instance.draggable(jsPlumb.getSelector(".drag-drop-demo .window"));
-
             // add endpoint of type 3 using a selector.
             instance.addEndpoint(jsPlumb.getSelector(".drag-drop-demo .window"), exampleEndpoint3);
 

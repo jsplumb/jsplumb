@@ -2,7 +2,7 @@ jsPlumb.ready(function () {
 
     var instance = window.jsp = jsPlumb.getInstance({
         // default drag options
-        DragOptions: { cursor: 'pointer', zIndex: 2000 },
+        dragOptions: { cursor: 'pointer', zIndex: 2000, grid:[20,20] },
         // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
         // case it returns the 'labelText' member that we set on each connection in the 'init' method below.
         ConnectionOverlays: [
@@ -122,12 +122,6 @@ jsPlumb.ready(function () {
         instance.bind("connection", function (connInfo, originalEvent) {
             init(connInfo.connection);
         });
-
-        // make all the window divs draggable
-       // instance.draggable(jsPlumb.getSelector(".flowchart-demo .window"), { grid: [20, 20] });
-        // THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector
-        // method, or document.querySelectorAll:
-        //jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
 
         // connect a few up
         instance.connect({uuids: ["Window2BottomCenter", "Window3TopCenter"]});

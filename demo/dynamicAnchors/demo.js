@@ -104,16 +104,6 @@ jsPlumb.ready(function () {
             return confirm("Delete connection?");
         });
 
-        //
-        // configure ".window" to be draggable. 'getSelector' is a jsPlumb convenience method that allows you to
-        // write library-agnostic selectors; you could use your library's selector instead, eg.
-        //
-        // $(".window")  		jquery
-        // $$(".window") 		mootools
-        // Y.all(".window")		yui3
-        //
-        instance.draggable(divsWithWindowClass);
-
         jsPlumb.fire("jsPlumbDemoLoaded", instance);
     });
 });

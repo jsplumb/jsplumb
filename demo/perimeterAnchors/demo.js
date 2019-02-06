@@ -10,7 +10,7 @@ jsPlumb.ready(function () {
 
     var shapes = jsPlumb.getSelector(".shape");
     // make everything draggable
-    instance.draggable(shapes);
+   // instance.draggable(shapes);
 
     // suspend drawing and initialise.
     instance.batch(function () {
