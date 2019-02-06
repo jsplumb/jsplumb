@@ -433,6 +433,8 @@
         this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
 
+        _jsPlumb.manage(el);
+
         var getDragArea = this.getDragArea = function() {
             var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
             return da && da.length > 0 ? da[0] : el;
@@ -460,21 +462,25 @@
 
         this.collapsed = false;
         if (params.draggable !== false) {
-            var opts = {
-                stop:function(params) {
-                    _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
-                },
-                scope:GROUP_DRAG_SCOPE
-            };
-            if (params.dragOptions) {
-                root.jsPlumb.extend(opts, params.dragOptions);
-            }
-            _jsPlumb.draggable(params.el, opts);
+
+            // var opts = {
+            //     stop:function(params) {
+            //         _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
+            //     },
+            //     scope:GROUP_DRAG_SCOPE
+            // };
+            // if (params.dragOptions) {
+            //     root.jsPlumb.extend(opts, params.dragOptions);
+            // }
+            // _jsPlumb.draggable(params.el, opts);
+
+            // TODO: bind to stop event for this element.
         }
+
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
-                    var el = p.drag.el;
+                    var el = p.drag.getDragElement();
                     if (el._isJsPlumbGroup) {
                         return;
                     }
