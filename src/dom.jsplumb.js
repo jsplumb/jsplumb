@@ -255,8 +255,9 @@
             }
         });
 
+        var elementDragOptions = _currentInstance.Defaults.dragOptions || {};
         katavorio.draggable(_currentInstance.getContainer(), {
-            selector:"[jtk-managed], [jtk-managed] *",
+            selector:"[jtk-managed]",
             start:function(p) { _dragStart(_currentInstance, p); },
             drag:function(p) { _dragMove(_currentInstance, p); },
             stop:function(p) { _dragStop(_currentInstance, p); }//,
@@ -808,17 +809,17 @@
             return el.offsetHeight;
         },
         getRenderMode : function() { return "svg"; },
-        draggable : function (el, options) {
-            var info;
-            el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
-            Array.prototype.slice.call(el).forEach(function(_el) {
-                info = this.info(_el);
-                if (info.el) {
-                    this._initDraggableIfNecessary(info.el, true, options, info.id, true);
-                }
-            }.bind(this));
-            return this;
-        },
+        // draggable : function (el, options) {
+        //     var info;
+        //     el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
+        //     Array.prototype.slice.call(el).forEach(function(_el) {
+        //         info = this.info(_el);
+        //         if (info.el) {
+        //             this._initDraggableIfNecessary(info.el, true, options, info.id, true);
+        //         }
+        //     }.bind(this));
+        //     return this;
+        // },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
             el._jsPlumbDragOptions = options;
@@ -862,6 +863,8 @@
             var options = dragOptions || this.Defaults.DragOptions;
             options = jsPlumb.extend({}, options); // make a copy.
             this.initDraggable(element, options);
+
+            // TODO this bit i think is important, due to it figuring out nested elements.
             this.getDragManager().register(element);
 
             /* TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
