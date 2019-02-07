@@ -116,10 +116,10 @@
         }
         return cont;
     };
-    var _dragMove=function(instance, params) {
-        var el = params.drag.getDragElement();
-        console.log("hey");
 
+    var _dragMove = function(instance, params) {
+
+        var el = params.drag.getDragElement();
         var finalPos = params.finalPos || params.pos;
         var ui = { left:finalPos[0], top:finalPos[1] };
 
@@ -133,7 +133,8 @@
             o._dragging = true;
         }
     };
-    var _dragStop=function(instance, params) {
+
+    var _dragStop = function(instance, params) {
 
         var elements = params.selection, uip;
 
