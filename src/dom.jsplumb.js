@@ -255,14 +255,12 @@
             }
         });
 
-        var elementDragOptions = _currentInstance.Defaults.dragOptions || {};
-        katavorio.draggable(_currentInstance.getContainer(), {
-            selector:"[jtk-managed]",
-            start:function(p) { _dragStart(_currentInstance, p); },
-            drag:function(p) { _dragMove(_currentInstance, p); },
-            stop:function(p) { _dragStop(_currentInstance, p); }//,
-            //grid: [20, 20]
-        });
+        var elementDragOptions = jsPlumb.extend({selector:"[jtk-managed]"}, _currentInstance.Defaults.dragOptions || {});
+        elementDragOptions.start = _ju.wrap(elementDragOptions.start, function(p) { _dragStart(_currentInstance, p); });
+        elementDragOptions.drag = _ju.wrap(elementDragOptions.drag, function(p) { _dragMove(_currentInstance, p); });
+        elementDragOptions.stop = _ju.wrap(elementDragOptions.stop, function(p) { _dragStop(_currentInstance, p); });
+
+        katavorio.draggable(_currentInstance.getContainer(), elementDragOptions);
 
         _currentInstance["_katavorio_main"] = katavorio;
 
