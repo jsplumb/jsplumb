@@ -7814,7 +7814,7 @@
         // back onto the endpoint you detached it from.
         var _initDropTarget = function (canvas, isTransient, endpoint, referenceEndpoint) {
 
-            if (_jp.isDropSupported(this.element)) {
+            //if (_jp.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || _jp.Defaults.DropOptions;
                 dropOptions = _jp.extend({}, dropOptions);
                 dropOptions.scope = dropOptions.scope || this.scope;
@@ -7893,7 +7893,7 @@
                 }.bind(this));
 
                 _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
-            }
+            //}
         }.bind(this);
 
         // Initialise the endpoint's canvas as a drop target. The drop handler will take care of the logic of whether
@@ -14274,7 +14274,14 @@
 
     var _dragStart=function(instance, params) {
         var el = params.drag.getDragElement();
-        var options = el._jsPlumbDragOptions;
+
+        //var options = el._jsPlumbDragOptions;
+
+        // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
+        // have been supplied to the instance's dragOptions.
+
+        var options = el._jsPlumbDragOptions || {};
+
         var cont = true;
         if (options.canDrag) {
             cont = options.canDrag();
@@ -14287,16 +14294,21 @@
         }
         return cont;
     };
-    var _dragMove=function(instance, params) {
-        var el = params.drag.getDragElement();
-        console.log("hey");
 
+    var _dragMove = function(instance, params) {
+
+        var el = params.drag.getDragElement();
         var finalPos = params.finalPos || params.pos;
         var ui = { left:finalPos[0], top:finalPos[1] };
 
         //var ui = null;//instance.getUIPosition([params], instance.getZoom());
         if (ui != null) {
-            var o = el._jsPlumbDragOptions;
+            //var o = el._jsPlumbDragOptions;
+
+            // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
+            // have been supplied to the instance's dragOptions.
+            var o = el._jsPlumbDragOptions || {};
+
             instance.draw(el, ui, null, true);
             if (o._dragging) {
                 instance.addClass(el, "jtk-dragged");
@@ -14304,27 +14316,30 @@
             o._dragging = true;
         }
     };
-    var _dragStop=function(instance, params) {
+
+    var _dragStop = function(instance, params) {
 
         var elements = params.selection, uip;
 
         var _one = function (_e) {
+            var dragElement = _e[2].getDragElement();
             if (_e[1] != null) {
                 // run the reported offset through the code that takes parent containers
                 // into account, to adjust if necessary (issue 554)
                 uip = this.getUIPosition([{
-                    el:_e[2].el,
+                    el:dragElement,
                     pos:[_e[1].left, _e[1].top]
                 }]);
-                this.draw(_e[2].el, uip);
+                this.draw(dragElement, uip);
             }
 
-            delete _e[0]._jsPlumbDragOptions._dragging;
+            // TODO refactor, see above: these drag options dont exist now
+            //delete _e[0]._jsPlumbDragOptions._dragging;
 
             this.removeClass(_e[0], "jtk-dragged");
-            this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
-            this.select({target: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-            this.getDragManager().dragEnded(_e[2].el);
+            this.select({source: dragElement}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+            this.select({target: dragElement}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+            this.getDragManager().dragEnded(dragElement);
         }.bind(instance);
 
         for (var i = 0; i < elements.length; i++) {
@@ -14402,7 +14417,8 @@
             getPosition: function (el, relativeToRoot) {
                 // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                 // compute against the Container's origin. see also the getUIPosition method below.
-                var o = _currentInstance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
+                //var o = _currentInstance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
+                var o = _currentInstance.getOffset(el, relativeToRoot, el.offsetParent._jsPlumbGroup ? el.offsetParent : null);
                 return [o.left, o.top];
             },
             setPosition: function (el, xy) {
@@ -14791,9 +14807,9 @@
         appendToRoot: function (node) {
             document.body.appendChild(node);
         },
-        getRenderModes: function () {
-            return [ "svg"  ];
-        },
+        // getRenderModes: function () {
+        //     return [ "svg"  ];
+        // },
         getClass:_getClassName,
         addClass: function (el, clazz) {
             jsPlumb.each(el, function (e) {
@@ -14900,6 +14916,10 @@
             }
             window.jtimeEnd("get offset");
             return out;
+            // return {
+            //     left:Math.random() * 600,
+            //     top:Math.random() * 600
+            // };
         },
         //
         // return x+y proportion of the given element's size corresponding to the location of the given event.
@@ -14965,18 +14985,20 @@
          * gets the size for the element, in an array : [ width, height ].
          */
         getSize: function (el) {
+
+            //return [100,100];
             window.jtime("get size");
             var s =[ el.offsetWidth, el.offsetHeight ];
             window.jtimeEnd("get size");
             return s;
-            //return [ el.offsetWidth, el.offsetHeight ];
+           //return [ el.offsetWidth, el.offsetHeight ];
         },
-        getWidth: function (el) {
-            return el.offsetWidth;
-        },
-        getHeight: function (el) {
-            return el.offsetHeight;
-        },
+        // getWidth: function (el) {
+        //     return el.offsetWidth;
+        // },
+        // getHeight: function (el) {
+        //     return el.offsetHeight;
+        // },
         getRenderMode : function() { return "svg"; },
         // draggable : function (el, options) {
         //     var info;
@@ -15165,9 +15187,9 @@
         // isDragSupported: function (el, options) {
         //     return true;
         // },
-        isDropSupported: function (el, options) {
-            return true;
-        },
+        // isDropSupported: function (el, options) {
+        //     return true;
+        // },
         isElementDraggable: function (el) {
             el = _jp.getElement(el);
             return el._katavorioDrag && el._katavorioDrag.isEnabled();

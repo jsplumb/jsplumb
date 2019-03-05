@@ -5184,30 +5184,30 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
 // ------------------------------- manage -----------------------------------------
 
-    test("Manage fires events", function() {
+    // test("Manage fires events", function() {
+    //     var d1 = support.addDiv("d1"), f1 = false;
+    //     _jsPlumb.bind("manageElement", function() {
+    //         f1 = true;
+    //     });
+    //
+    //     _jsPlumb.manage("d1", d1);
+    //     ok(f1, "manageElement event fired");
+    //
+    //     delete _jsPlumb.getManagedElements()["d1"];
+    //     f1 = false;
+    //     _jsPlumb.manage("d1", d1, true);
+    //     ok(!f1, "manageElement event not fired for transient element");
+    // });
+
+    test("Manage adds jtk-managed attribute", function() {
         var d1 = support.addDiv("d1"), f1 = false;
-        _jsPlumb.bind("manageElement", function() {
-            f1 = true;
-        });
 
         _jsPlumb.manage("d1", d1);
-        ok(f1, "manageElement event fired");
-
-        delete _jsPlumb.getManagedElements()["d1"];
-        f1 = false;
-        _jsPlumb.manage("d1", d1, true);
-        ok(!f1, "manageElement event not fired for transient element");
-    });
-
-    test("Manage adds jtk-managed class", function() {
-        var d1 = support.addDiv("d1"), f1 = false;
-
-        _jsPlumb.manage("d1", d1);
-        ok(_jsPlumb.hasClass(d1, "jtk-managed"), "d1 has jtk-managed class");
+        ok(d1.getAttribute("jtk-managed") != null, "d1 is marked jtk-managed");
 
 
         _jsPlumb.unmanage("d1");
-        ok(!_jsPlumb.hasClass(d1, "jtk-managed"), "d1 no longer has jtk-managed class");
+        ok(d1.getAttribute("jtk-managed") == null, "d1 is no longer marked jtk-managed");
     });
 
 
