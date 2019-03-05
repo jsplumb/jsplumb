@@ -841,7 +841,7 @@
         // back onto the endpoint you detached it from.
         var _initDropTarget = function (canvas, isTransient, endpoint, referenceEndpoint) {
 
-            if (_jp.isDropSupported(this.element)) {
+            //if (_jp.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || _jp.Defaults.DropOptions;
                 dropOptions = _jp.extend({}, dropOptions);
                 dropOptions.scope = dropOptions.scope || this.scope;
@@ -920,7 +920,7 @@
                 }.bind(this));
 
                 _jsPlumb.initDroppable(canvas, dropOptions, "internal", isTransient);
-            }
+            //}
         }.bind(this);
 
         // Initialise the endpoint's canvas as a drop target. The drop handler will take care of the logic of whether
