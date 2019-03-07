@@ -2,7 +2,7 @@
 layout: doc
 docId: MISCELLANEOUS-EXAMPLES
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ### Utility Functions
 - Hide all window5's connections

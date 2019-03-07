@@ -2,7 +2,7 @@
 layout: doc
 docId: REMOVING
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 - [Removing Nodes](#nodes)
 - [Removing Connections](#connections)

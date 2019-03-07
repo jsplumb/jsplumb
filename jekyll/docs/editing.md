@@ -2,7 +2,7 @@
 layout: doc
 docId: EDITING
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 jsPlumb 2.1.0 includes support for editing StateMachine and Bezier connectors.
  

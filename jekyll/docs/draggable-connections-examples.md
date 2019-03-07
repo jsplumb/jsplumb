@@ -2,7 +2,7 @@
 layout: doc
 docId: DRAGGABLE-CONNECTIONS-EXAMPLES
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ### Draggable Connections Examples
 

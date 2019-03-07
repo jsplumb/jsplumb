@@ -2,7 +2,7 @@
 layout: doc
 docId: ZOOMING
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ## Zooming
 

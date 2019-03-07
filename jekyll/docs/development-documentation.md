@@ -2,7 +2,7 @@
 layout: doc
 docId: DEVELOPMENT-DOCUMENTATION
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ## Documentation
 jsPlumb's documentation is maintained in the associated wiki on GitHub, which is at [git@github.com:sporritt/jsPlumb.wiki.git](git@github.com:sporritt/jsPlumb.wiki.git). A branch that matches the current dev branch is used; at release time this branch is merged into master and then you see it on GitHub.

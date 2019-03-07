@@ -2,7 +2,7 @@
 layout: doc
 docId: TYPES
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ## Connection and Endpoint Types
 

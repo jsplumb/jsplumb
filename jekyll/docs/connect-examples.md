@@ -2,7 +2,7 @@
 layout: doc
 docId: CONNECT-EXAMPLES
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ### jsPlumb.connect Examples
 This section provides various examples of how to use the programmatic API to establish Connections. 

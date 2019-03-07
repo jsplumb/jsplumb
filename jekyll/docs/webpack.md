@@ -2,7 +2,7 @@
 layout: doc
 docId: WEBPACK
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ### Webpack
 

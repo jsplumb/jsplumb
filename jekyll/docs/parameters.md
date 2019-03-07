@@ -2,7 +2,7 @@
 layout: doc
 docId: PARAMETERS
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ### Connection &amp; Endpoint Parameters
 jsPlumb has a mechanism that allows you to set/get parameters on a per-connection basis.  These are not parameters that affect the appearance of operation of the object on which they are set; they are a means for you to associate information with jsPlumb objects.  This can be achieved in a few different ways:

@@ -2,8 +2,14 @@
 layout: doc
 docId: CHANGELOG
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
+## 2.9.1
+
+March 7th 2019
+
+- reinstate the ability to build a local copy of the docs
+
 ## 2.9.0
 
 January 28th 2019

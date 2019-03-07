@@ -2,7 +2,7 @@
 layout: doc
 docId: CONNECTORS
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ## Connectors
 Connectors are the lines that actually join elements of the UI.  jsPlumb has four connector implementations - a straight 

@@ -2,7 +2,7 @@
 layout: doc
 docId: INTERCEPTORS
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ### Interceptors
 Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are four interceptors supported - `beforeDrop`, which is called when the user has dropped a Connection onto some target, `beforeDetach`, which is called when the user is attempting to detach a Connection (by dragging it off one of its Endpoints and dropping in whitespace), `beforeDrag`, which is called when the user begins to drag a Connection, and `beforeStartDetach`, which is when the user has just begun to drag an existing Connection off of one of its Endpoints (compared with `beforeDetach`, in which the user is allowed to drag the Connection off).

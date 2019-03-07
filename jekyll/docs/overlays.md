@@ -2,7 +2,7 @@
 layout: doc
 docId: OVERLAYS
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ## Overlays
 Overlays are UI elements that are painted onto Connections, such as Labels or Arrows.

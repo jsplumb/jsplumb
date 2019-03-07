@@ -2,7 +2,7 @@
 layout: doc
 docId: STYLING-VIA-CSS
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ## Styling via CSS
 

@@ -2,7 +2,7 @@
 layout: doc
 docId: EVENTS
 category: community
-communityVersion: 2.9.0
+communityVersion: 2.9.1
 ---
 ## Events
 jsPlumb supports binding to several different events on Connections, Endpoints and Overlays, and also on the jsPlumb object itself.  
