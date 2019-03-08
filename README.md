@@ -13,6 +13,13 @@ This project is the 'Community Edition' of jsPlumb. The 'Toolkit Edition' is a c
 **This project is not the correct place to report issues for the Toolkit edition**. The Toolkit is not a public project.
 Issues reported for the Toolkit edition in this issue tracker will be cleared.
 
+## Documentation
+
+For the Community edition the documentation can now be found here:
+
+http://jsplumb.github.io/jsplumb/
+
+
 ## Installation
 
 ```
