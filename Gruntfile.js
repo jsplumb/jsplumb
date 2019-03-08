@@ -105,7 +105,8 @@ module.exports = function(grunt) {
                 "jekyll/doc",
                 "jekyll/docs",
                 "jekyll/_site"
-            ]
+            ],
+            docs:["docs"]
         },
         jshint: {
             options: {
@@ -161,23 +162,35 @@ module.exports = function(grunt) {
                 }
             }
         },
-        yuidoc: {
-            compile: {
-                name: '<%= pkg.name %>',
-                description: '<%= pkg.description %>',
-                version: '<%= pkg.version %>',
-                url: '<%= pkg.homepage %>',
-                options: {
-                    paths: 'doc/api/',
-                    themedir: 'doc/yuitheme/',
-                    outdir: 'dist/apidocs/',
-                    helpers:['doc/yuitheme/helpers.js']
-                }
-            }
-        },
         exec:{
             "npmpack":{
                 command:"npm pack;mv jsplumb-<%= pkg.version%>.tgz jsplumb.tgz"
+            }
+        },
+        copy:{
+            docs:{
+                cwd: 'jekyll/_site/docs',  // set working folder / root to copy
+                src: '**/*',           // copy all files and subfolders
+                dest: 'docs',    // destination folder
+                expand: true
+            },
+            docs_js:{
+                cwd: 'jekyll/_site/js',  // set working folder / root to copy
+                src: '**/*',           // copy all files and subfolders
+                dest: 'docs/js',    // destination folder
+                expand: true
+            },
+            docs_css:{
+                cwd: 'jekyll/_site/css',  // set working folder / root to copy
+                src: '**/*',           // copy all files and subfolders
+                dest: 'docs/css',    // destination folder
+                expand: true
+            },
+            docs_img:{
+                cwd: 'jekyll/_site',  // set working folder / root to copy
+                src: 'logo-medium-jsplumb.png',           // copy all files and subfolders
+                dest: 'docs',    // destination folder
+                expand: true
             }
         }
     });
@@ -192,6 +205,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-jekyll');
 
@@ -207,7 +221,7 @@ module.exports = function(grunt) {
     grunt.registerTask("build", [ 'build-src', 'yuidoc', 'exec:npmpack' ]);
     grunt.registerTask('build-src', ['clean', 'jshint', 'concat', 'uglify', 'insertVersion' ]);
     grunt.registerTask('default', ['help']);
-    grunt.registerTask('build-docs', ['docs', 'jekyll', 'finaliseDocs']);
+    grunt.registerTask('build-docs', ['clean:docs', 'docs', 'jekyll', 'finaliseDocs', 'copy:docs', 'copy:docs_js','copy:docs_css','copy:docs_img']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 
     var _replace = function(cwd, pattern, oldV, newV, exclusions) {
@@ -306,6 +320,7 @@ module.exports = function(grunt) {
     grunt.registerTask("finaliseDocs", function() {
         _insertHTMLSuffixIntoDocLinks("jekyll/_site/docs");
         _replaceContents("jekyll/_site/docs");
+        grunt.file.write("docs/index.html", "<!doctype html><html><head><meta http-equiv=\"refresh\" content=\"0; URL='home.html'\" /></head></html>");
     });
 
 
