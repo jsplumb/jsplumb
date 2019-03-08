@@ -40,7 +40,7 @@
     "grunt-contrib-qunit": "^0.7.0",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-yuidoc": "0.5.2",
+    "grunt-contrib-copy": "~0.5.0",
     "grunt-exec": "^1.0.1",
     "grunt-jekyll": "~0.4.2",
     "grunt-qunit-junit": "^0.3.1",
