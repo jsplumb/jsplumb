@@ -49,9 +49,6 @@ jsPlumb.ready(function () {
     //
     var initNode = function(el) {
 
-        // initialise draggable elements.
-        instance.draggable(el);
-
         instance.makeSource(el, {
             filter: ".ep",
             anchor: "Continuous",
