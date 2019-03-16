@@ -1,29 +1,9 @@
-## 3.0.0
-
-This release includes a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
-individually, we now use a single event listener on the container. This has resulted in several breaking changes:
-
-- by default, every node is draggable. `.draggable(someElement)` no longer exists. If you want to 
-
-
-Other breaking changes:
-
-- `manageElement` and `unmanageElement` events no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
- in case you have code that used them.
- 
-- managed elements do not have the `jtk-managed` class applied. they now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
-class but we include it here for completeness
-
-- the `DragOptions` default is now `dragOptions`
-
-- `getWidth` and `getHeight` methods removed from jsPlumb instance.
-
-
-New Functionality:
-
-- `elementsDraggable` added to Defaults, with a default value of true.
-
-
+---
+layout: doc
+docId: CHANGELOG
+category: community
+communityVersion: 2.9.1
+---
 ## 2.9.1
 
 March 7th 2019

@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../favicon.ico">
+        <script src="js/jquery.min.js"></script>
+        <title>jsPlumb Community Edition Documentation</title>
+        {% include css.html %}
+        <link rel="stylesheet" href="css/docs.css">
+        <script src="js/docs.js"></script>
+    </head>
+
+    <body class="jtk-bootstrap-wide">
+
+        {% include navigation_bar.html %}
+
+        <div class="padding-top" style="margin-top:20px;display:flex;">
+
+                <div id="docs-nav" tabindex="0">
+                    <!-- contents -->
+                    <!-- /contents -->
+                </div>
+
+            <div id="docs">
+                
+                <div class="markdown-body">
+                    {{ content }}
+                </div>
+            </div>
+        </div>
+
+        {% include track.html %}
+
+    </body>
+
+</html>

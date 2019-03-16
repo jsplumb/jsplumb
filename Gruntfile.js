@@ -1,5 +1,6 @@
 
 var package = require('./package.json'),
+    support = require("./build-support.js"),
     BUILD = require("./build.json"),
     get = function(name) {
         if (BUILD.includes[name].p) {
@@ -99,7 +100,13 @@ module.exports = function(grunt) {
             options:{
                 force:true
             },
-            dist:["dist"]
+            dist:["dist"],
+            jekyll:[
+                "jekyll/doc",
+                "jekyll/docs",
+                "jekyll/_site"
+            ],
+            docs:["docs"]
         },
         jshint: {
             options: {
@@ -144,23 +151,46 @@ module.exports = function(grunt) {
                 tasks: ['build-src']
             }
         },
-        yuidoc: {
-            compile: {
-                name: '<%= pkg.name %>',
-                description: '<%= pkg.description %>',
-                version: '<%= pkg.version %>',
-                url: '<%= pkg.homepage %>',
-                options: {
-                    paths: 'doc/api/',
-                    themedir: 'doc/yuitheme/',
-                    outdir: 'dist/apidocs/',
-                    helpers:['doc/yuitheme/helpers.js']
+        jekyll: {
+            options: {
+                src:'jekyll'
+            },
+            dist:{
+                options:{
+                    dest:"jekyll/_site",
+                    config:'jekyll/_config.yml'
                 }
             }
         },
         exec:{
             "npmpack":{
                 command:"npm pack;mv jsplumb-<%= pkg.version%>.tgz jsplumb.tgz"
+            }
+        },
+        copy:{
+            docs:{
+                cwd: 'jekyll/_site/docs',  // set working folder / root to copy
+                src: '**/*',           // copy all files and subfolders
+                dest: 'docs',    // destination folder
+                expand: true
+            },
+            docs_js:{
+                cwd: 'jekyll/_site/js',  // set working folder / root to copy
+                src: '**/*',           // copy all files and subfolders
+                dest: 'docs/js',    // destination folder
+                expand: true
+            },
+            docs_css:{
+                cwd: 'jekyll/_site/css',  // set working folder / root to copy
+                src: '**/*',           // copy all files and subfolders
+                dest: 'docs/css',    // destination folder
+                expand: true
+            },
+            docs_img:{
+                cwd: 'jekyll/_site',  // set working folder / root to copy
+                src: 'logo-medium-jsplumb.png',           // copy all files and subfolders
+                dest: 'docs',    // destination folder
+                expand: true
             }
         }
     });
@@ -175,10 +205,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-exec');
-
-
-
+    grunt.loadNpmTasks('grunt-jekyll');
 
 
     grunt.registerTask('insertVersion', function() {
@@ -192,6 +221,7 @@ module.exports = function(grunt) {
     grunt.registerTask("build", [ 'build-src', 'yuidoc', 'exec:npmpack' ]);
     grunt.registerTask('build-src', ['clean', 'jshint', 'concat', 'uglify', 'insertVersion' ]);
     grunt.registerTask('default', ['help']);
+    grunt.registerTask('build-docs', ['clean:docs', 'docs', 'jekyll', 'finaliseDocs', 'copy:docs', 'copy:docs_js','copy:docs_css','copy:docs_img']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 
     var _replace = function(cwd, pattern, oldV, newV, exclusions) {
@@ -208,6 +238,91 @@ module.exports = function(grunt) {
         for (var i = 0; i < sources.length; i++)
             _one(sources[i]);
     };
+
+    var _prepareDocs = function(inDir, outDir, category, layoutId) {
+        console.log("PREPARE DOCS ", inDir, outDir, category, layoutId);
+
+        // exclusions from input doc dir
+        var exclusions = ["node_modules", "ff.htl", "dev-", "future-"];
+        var communityPackage = require('./package.json');
+
+        // 1. create directories for docs.
+        grunt.file.mkdir(outDir);
+
+        // 2. copy files from markdown directory into 'doc', and then give each one some front matter.
+        var sources = grunt.file.expand({ cwd:inDir }, "*");
+        for (var i = 0; i < sources.length; i++) {
+            if (exclusions.indexOf(sources[i]) == -1 ) {
+                if (sources[i].indexOf(".png") == -1) {
+                    support.createMarkdownFile(grunt, inDir, sources[i], {
+                        layout: sources[i] == "contents.md" ? "plain" : layoutId,
+                        docId: sources[i].toUpperCase().replace(".MD", "").replace(/-_/g, " "),
+                        category: category,
+                        communityVersion:communityPackage.version
+                    }, outDir);
+                }
+                else {
+                    grunt.file.copy(inDir + "/" + sources[i], outDir + "/" + sources[i],  { noProcess:"*.*" });
+                }
+            }
+        }
+
+        /*
+         ,
+         permalink:"/docs/" + category + "/" + sources[i].split(".")[0] + ".html"
+         */
+    };
+
+    var _replaceContents = function (dir) {
+        var c = grunt.file.read(dir + "/contents.html");
+        grunt.file.recurse(dir, function callback(abspath, rootdir, subdir, filename) {
+            if (filename !== "contents.html") {
+                var d = grunt.file.read(abspath);
+                grunt.file.write(abspath, d.replace(/(<!-- contents.*>.*\n)(.*\n)*(.*\/contents -->)/, c));
+            }
+        });
+    };
+
+    var _insertHTMLSuffixIntoDocLinks = function(inDir) {
+
+        // for all matches like these in every file inside /public/docs:
+
+        // href="anchors"
+        //href="anchors#something"
+
+        // which is to say, an internal link, we need to insert ".html" either at the end of the string or
+        // before the hash.
+        //var inDir = "public/docs";
+        var docs = grunt.file.expand({ cwd:inDir }, "*");
+        for (var i = 0; i < docs.length; i++) {
+            var f = grunt.file.read(inDir + "/" + docs[i]);
+
+            grunt.file.write(inDir +"/" + docs[i], f.replace(/href=\"([^\"]+)\"/g, function() {
+                // arguments[1] is the content of the link.
+                var out;
+                if (arguments[1] == "#" || arguments[1].indexOf("http") == 0 || arguments[1].indexOf("//") == 0 || arguments[1].indexOf(".") != -1 || arguments[1] === "/")
+                    out = arguments[0];
+                else {
+                    var a = arguments[1].split("#");
+                    //out =  "href=\"" + a[0] + ".html" + (a.length == 2 ? "#" + a[1] : "") + "\"";
+                    out = "href=\"" + (a[0] != null && a[0].length > 0  && a[0] !== "/" ? a[0] + ".html" : "") + (a.length == 2 ? "#" + a[1] : "") + "\"";
+                }
+
+                return out;
+            }));
+        }
+    };
+
+    grunt.registerTask("docs", function() {
+        _prepareDocs("doc/wiki", "jekyll/docs", "community", "doc");
+    });
+
+    grunt.registerTask("finaliseDocs", function() {
+        _insertHTMLSuffixIntoDocLinks("jekyll/_site/docs");
+        _replaceContents("jekyll/_site/docs");
+        grunt.file.write("docs/index.html", "<!doctype html><html><head><meta http-equiv=\"refresh\" content=\"0; URL='home.html'\" /></head></html>");
+    });
+
 
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");

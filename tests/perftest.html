@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>Performance Test</title>
+        <link rel="stylesheet" href="../css/jsplumbtoolkit-defaults.css">
+
+        <style>
+            .w {
+                position:absolute;
+                width:80px;
+                height:80px;
+                border:1px solid blue;
+            }
+        </style>
+
+    </head>
+
+    <body>
+
+
+        <div id="canvas"></div>
+
+        <script src="../dist/js/jsplumb.js"></script>
+
+    <script>
+        jsPlumb.ready(function () {
+
+            console.time("load");
+
+            // setup some defaults for jsPlumb.
+            var instance = jsPlumb.getInstance({
+                Endpoint: ["Dot", {radius: 2}],
+                Connector:"StateMachine",
+                HoverPaintStyle: {stroke: "#1e8151", strokeWidth: 2 },
+                ConnectionOverlays: [
+                    [ "Arrow", {
+                        location: 1,
+                        id: "arrow",
+                        length: 14,
+                        foldback: 0.8
+                    } ],
+                    [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
+                ],
+                Container: "canvas"
+            });
+
+
+            window.jsp = instance;
+
+            var canvas = document.getElementById("canvas");
+
+            //
+            // initialise element as connection targets and source.
+            //
+            var initNode = function(el) {
+
+                // initialise draggable elements.
+                instance.draggable(el);
+
+                instance.makeSource(el, {
+                    filter: ".ep",
+                    anchor: "Continuous",
+                    connectorStyle: { stroke: "#5c96bc", strokeWidth: 2, outlineStroke: "transparent", outlineWidth: 4 },
+                    connectionType:"basic",
+                    extract:{
+                        "action":"the-action"
+                    },
+                    maxConnections: 2,
+                    onMaxConnections: function (info, e) {
+                        alert("Maximum connections (" + info.maxConnections + ") reached");
+                    }
+                });
+
+                instance.makeTarget(el, {
+                    dropOptions: { hoverClass: "dragHover" },
+                    anchor: "Continuous",
+                    allowLoopback: true
+                });
+            };
+
+            var newNode = function(x, y) {
+                var d = document.createElement("div");
+                var id = jsPlumbUtil.uuid();
+                d.className = "w";
+                d.id = id;
+                d.innerHTML = id.substring(0, 7) + "<div class=\"ep\"></div>";
+                d.style.left = x + "px";
+                d.style.top = y + "px";
+                instance.getContainer().appendChild(d);
+                initNode(d);
+                return d;
+            };
+
+            // suspend drawing and initialise.
+            instance.batch(function () {
+
+                var prev, current;
+                for (var i = 0; i < 1500; i++) {
+                    current = newNode(i * 10, i * 10);
+
+                    if (prev && current) {
+                        instance.connect({source:prev, target:current});
+                    }
+
+                    prev = current;
+                }
+            });
+
+            console.timeEnd("load");
+
+        });
+
+    </script>
+
+    </body>
+
+</html>
