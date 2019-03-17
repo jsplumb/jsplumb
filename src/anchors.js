@@ -401,7 +401,12 @@
 
         this.redraw = function (elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 
+
             if (!jsPlumbInstance.isSuspendDrawing()) {
+
+                window.jtime("anchor redraw");
+                window.jtime("anchor redraw " + elementId);
+
                 // get all the endpoints for this element
                 var ep = _amEndpoints[elementId] || [],
                     endpointConnections = connectionsByElementId[elementId] || [],
@@ -575,6 +580,9 @@
                 for (i = 0; i < connectionsToPaint.length; i++) {
                     connectionsToPaint[i].paint({elId: elementId, timestamp: null, recalc: false, clearEdits: clearEdits});
                 }
+
+                window.jtimeEnd("anchor redraw");
+                window.jtimeEnd("anchor redraw " + elementId);
             }
         };
 
