@@ -1,12 +1,19 @@
 ## 3.0.0
 
-This release includes a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
-individually, we now use a single event listener on the container. This has resulted in several breaking changes:
+This release focuses on performance enhancements, and contains several breaking changes.
 
-- by default, every node is draggable. `.draggable(someElement)` no longer exists. If you want to 
+The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
+individually, we now use a single event listener on the container. Breaking changes related to this are:
+
+- by default, every node is draggable. `.draggable(someElement)` no longer exists. 
+- 
+- 
 
 
 Other breaking changes:
+
+- it is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the offsetParent of the
+first element to which an endpoint is added.
 
 - `manageElement` and `unmanageElement` events no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
  in case you have code that used them.
@@ -15,8 +22,16 @@ Other breaking changes:
 class but we include it here for completeness
 
 - the `DragOptions` default is now `dragOptions`
+- the `Container` default is now `container`
 
 - `getWidth` and `getHeight` methods removed from jsPlumb instance.
+
+- `addClass`, `removeClass` and `toggleClass` only accept a DOM element as their first argument now, where previously they would accept a DOM element, an
+array of DOM elements, an element ID, or an array of element IDs. 
+
+- `updateClasses` method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.
+- `setClass` method removed from jsPlumb.
+- it is not possible to subclass Connection or Endpoint to provide your own implementations now.  
 
 
 New Functionality:

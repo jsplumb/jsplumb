@@ -205,116 +205,116 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.selectEndpoints({element: "output"}).length, 0, "no endpoints registered for in1");
     });
 
-    test(': draggable in nested element does not cause extra ids to be created', function () {
-        var d = support.addDiv("d1");
-        var d2 = document.createElement("div");
-        d2.setAttribute("foo", "ff");
-        d.appendChild(d2);
-        var d3 = document.createElement("div");
-        d2.appendChild(d3);
-        ok(d2.getAttribute("id") == null, "no id on d2");
-        _jsPlumb.draggable(d);
-        _jsPlumb.addEndpoint(d3);
-        ok(d2.getAttribute("id") == null, "no id on d2");
-        ok(d3.getAttribute("id") != null, "id on d3");
-    });
+    // test(': draggable in nested element does not cause extra ids to be created', function () {
+    //     var d = support.addDiv("d1");
+    //     var d2 = document.createElement("div");
+    //     d2.setAttribute("foo", "ff");
+    //     d.appendChild(d2);
+    //     var d3 = document.createElement("div");
+    //     d2.appendChild(d3);
+    //     ok(d2.getAttribute("id") == null, "no id on d2");
+    //     _jsPlumb.draggable(d);
+    //     _jsPlumb.addEndpoint(d3);
+    //     ok(d2.getAttribute("id") == null, "no id on d2");
+    //     ok(d3.getAttribute("id") != null, "id on d3");
+    // });
+    //
+    // test(" : draggable, reference elements returned correctly", function () {
+    //     var d = support.addDiv("d1");
+    //     var d2 = document.createElement("div");
+    //     d2.setAttribute("foo", "ff");
+    //     d.appendChild(d2);
+    //     var d3 = document.createElement("div");
+    //     d3.setAttribute("id", "d3");
+    //     d2.appendChild(d3);
+    //     _jsPlumb.draggable(d);
+    //     _jsPlumb.addEndpoint(d3);
+    //     _jsPlumb.draggable(d3);
+    //     // now check ref ids for element d1
+    //     var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
+    //     ok(!jsPlumbUtil.isEmpty(els), "there is one sub-element for d1");
+    //     ok(els["d3"] != null, "d3 registered");
+    // });
+    //
+    //
+    // test(" : draggable + setParent, reference elements returned correctly", function () {
+    //     var d = support.addDiv("d1");
+    //     var d2 = document.createElement("div");
+    //     d2.setAttribute("foo", "ff");
+    //     d.appendChild(d2);
+    //     var d3 = document.createElement("div");
+    //     d3.setAttribute("id", "d3");
+    //     d2.appendChild(d3);
+    //     _jsPlumb.draggable(d);
+    //     _jsPlumb.addEndpoint(d3);
+    //     _jsPlumb.draggable(d3);
+    //     // create some other new parent
+    //     var d12 = support.addDiv("d12");
+    //     // and move d3
+    //     _jsPlumb.setParent(d3, d12);
+    //
+    //     // now check ref ids for element d1
+    //     var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
+    //     ok(jsPlumbUtil.isEmpty(els), "there are no sub-elements for d1");
+    //     var els12 = _jsPlumb.dragManager.getElementsForDraggable("d12");
+    //     ok(!jsPlumbUtil.isEmpty(els12), "there is one sub-element for d12");
+    //     ok(els12["d3"] != null, "d3 registered");
+    // });
 
-    test(" : draggable, reference elements returned correctly", function () {
-        var d = support.addDiv("d1");
-        var d2 = document.createElement("div");
-        d2.setAttribute("foo", "ff");
-        d.appendChild(d2);
-        var d3 = document.createElement("div");
-        d3.setAttribute("id", "d3");
-        d2.appendChild(d3);
-        _jsPlumb.draggable(d);
-        _jsPlumb.addEndpoint(d3);
-        _jsPlumb.draggable(d3);
-        // now check ref ids for element d1
-        var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
-        ok(!jsPlumbUtil.isEmpty(els), "there is one sub-element for d1");
-        ok(els["d3"] != null, "d3 registered");
-    });
-
-
-    test(" : draggable + setParent, reference elements returned correctly", function () {
-        var d = support.addDiv("d1");
-        var d2 = document.createElement("div");
-        d2.setAttribute("foo", "ff");
-        d.appendChild(d2);
-        var d3 = document.createElement("div");
-        d3.setAttribute("id", "d3");
-        d2.appendChild(d3);
-        _jsPlumb.draggable(d);
-        _jsPlumb.addEndpoint(d3);
-        _jsPlumb.draggable(d3);
-        // create some other new parent
-        var d12 = support.addDiv("d12");
-        // and move d3
-        _jsPlumb.setParent(d3, d12);
-
-        // now check ref ids for element d1
-        var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
-        ok(jsPlumbUtil.isEmpty(els), "there are no sub-elements for d1");
-        var els12 = _jsPlumb.dragManager.getElementsForDraggable("d12");
-        ok(!jsPlumbUtil.isEmpty(els12), "there is one sub-element for d12");
-        ok(els12["d3"] != null, "d3 registered");
-    });
-
-test("drag multiple elements and ensure their connections are painted correctly at the end", function() {
-
-        var d1 = support.addDraggableDiv ('d1', null, null,50, 50, 100, 100);
-        var d2 = support.addDraggableDiv ('d2', null, null,250, 250, 100, 100);
-        var d3 = support.addDraggableDiv ('d3', null, null,500, 500, 100, 100);
-
-        var e1 = _jsPlumb.addEndpoint(d1, {
-            anchor:"TopLeft"
-        });
-        var e2 = _jsPlumb.addEndpoint(d2, {
-            anchor:"TopLeft",
-            maxConnections:-1
-        });
-        var e3 = _jsPlumb.addEndpoint(d3, {
-            anchor:"TopLeft"
-        });
-
-        _jsPlumb.connect({source:e1, target:e2});
-        _jsPlumb.connect({source:e2, target:e3});
-
-        equal(e1.canvas.offsetLeft, 50 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
-        equal(e1.canvas.offsetTop, 50 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
-        equal(e2.canvas.offsetLeft, 250 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2.canvas.offsetTop, 250 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
-        equal(e3.canvas.offsetLeft, 500 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
-        equal(e3.canvas.offsetTop, 500 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
-
-        _jsPlumb.addToDragSelection("d1");
-        _jsPlumb.addToDragSelection("d3");
-
-        // drag node 2 by 750,750. we expect its endpoint to have moved too
-
-        support.dragNodeTo(d2, 1000, 1000);
-
-        equal(d2.offsetLeft, 950, "div 2 is at the right left position");
-        equal(d2.offsetTop, 950, "div 2 is at the right top position");
-
-        // divs 1 and 3 have moved too, make sure they are in the right place
-        equal(d1.offsetLeft, 750, "div 1 is at the right left position");
-        equal(d1.offsetTop, 750, "div 1 is at the right top position");
-        equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
-        equal(d3.offsetTop, 1200, "div 3 is at the right top position");
-
-        // check the endpoints
-        equal(e2.canvas.offsetLeft, 950 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2.canvas.offsetTop, 950 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
-
-        equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
-        equal(e1.canvas.offsetTop, 750 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
-
-        equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
-        equal(e3.canvas.offsetTop, 1200 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
-
-    });
+    // test("drag multiple elements and ensure their connections are painted correctly at the end", function() {
+    //
+    //     var d1 = support.addDraggableDiv ('d1', null, null,50, 50, 100, 100);
+    //     var d2 = support.addDraggableDiv ('d2', null, null,250, 250, 100, 100);
+    //     var d3 = support.addDraggableDiv ('d3', null, null,500, 500, 100, 100);
+    //
+    //     var e1 = _jsPlumb.addEndpoint(d1, {
+    //         anchor:"TopLeft"
+    //     });
+    //     var e2 = _jsPlumb.addEndpoint(d2, {
+    //         anchor:"TopLeft",
+    //         maxConnections:-1
+    //     });
+    //     var e3 = _jsPlumb.addEndpoint(d3, {
+    //         anchor:"TopLeft"
+    //     });
+    //
+    //     _jsPlumb.connect({source:e1, target:e2});
+    //     _jsPlumb.connect({source:e2, target:e3});
+    //
+    //     equal(e1.canvas.offsetLeft, 50 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+    //     equal(e1.canvas.offsetTop, 50 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+    //     equal(e2.canvas.offsetLeft, 250 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+    //     equal(e2.canvas.offsetTop, 250 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+    //     equal(e3.canvas.offsetLeft, 500 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+    //     equal(e3.canvas.offsetTop, 500 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+    //
+    //     _jsPlumb.addToDragSelection("d1");
+    //     _jsPlumb.addToDragSelection("d3");
+    //
+    //     // drag node 2 by 750,750. we expect its endpoint to have moved too
+    //
+    //     support.dragNodeTo(d2, 1000, 1000);
+    //
+    //     equal(d2.offsetLeft, 950, "div 2 is at the right left position");
+    //     equal(d2.offsetTop, 950, "div 2 is at the right top position");
+    //
+    //     // divs 1 and 3 have moved too, make sure they are in the right place
+    //     equal(d1.offsetLeft, 750, "div 1 is at the right left position");
+    //     equal(d1.offsetTop, 750, "div 1 is at the right top position");
+    //     equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
+    //     equal(d3.offsetTop, 1200, "div 3 is at the right top position");
+    //
+    //     // check the endpoints
+    //     equal(e2.canvas.offsetLeft, 950 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+    //     equal(e2.canvas.offsetTop, 950 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+    //
+    //     equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+    //     equal(e1.canvas.offsetTop, 750 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+    //
+    //     equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+    //     equal(e3.canvas.offsetTop, 1200 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+    //
+    // });
 
     test(": lineWidth specified as string (eew)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
@@ -6325,7 +6325,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         var defs = c.canvas.querySelectorAll("defs");
         equal(defs.length, 1, "1 defs element");
 
-        _jsPlumb.draggable(d1);
+        _jsPlumb.manage(d1);
 
         support.dragANodeAround(d1);
 
@@ -6333,67 +6333,71 @@ test("drag multiple elements and ensure their connections are painted correctly 
         equal(defs.length, 1, "1 defs element");
     });
 
-    test("node drag events", function() {
-
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        var started = false, dragged = false, stopped = false;
-
-        _jsPlumb.draggable(d1, {
-            start:function() { started = true; },
-            drag:function() { dragged = true; },
-            stop:function() { stopped = true; }
-        });
-
-        support.dragANodeAround(d1, function() {
-            return _jsPlumb.isConnectionBeingDragged()  && _jsPlumb.isHoverSuspended();
-        }, "isConnectionBeingDragged and isHoverSuspended return true while node is being dragged");
-
-        ok(started, "start event fired");
-        ok(dragged, "drag event fired");
-        ok(stopped, "stop event fired");
-
-        started = false; dragged = false; stopped = false;
-        var started2 = false, dragged2 = false, stopped2 = false;
-
-        _jsPlumb.draggable(d1, {
-            start:function() { started2 = true; },
-            drag:function() { dragged2 = true; },
-            stop:function() { stopped2 = true; },
-            force:true
-        });
-
-        support.dragANodeAround(d1);
-
-        ok(started, "start event fired");
-        ok(dragged, "drag event fired");
-        ok(stopped, "stop event fired");
-        ok(started2, "2nd start event fired");
-        ok(dragged2, "2nd drag event fired");
-        ok(stopped2, "2nd stop event fired");
-    });
-
-    test("node drag events, drag disabled", function() {
-
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        var started = false, dragged = false, stopped = false;
-
-        _jsPlumb.draggable(d1, {
-            start:function() { started = true; },
-            drag:function() { dragged = true; },
-            stop:function() { stopped = true; },
-            canDrag:function() { return false; }
-        });
-
-        support.dragANodeAround(d1, function() {
-            return !_jsPlumb.isConnectionBeingDragged() && !_jsPlumb.isHoverSuspended();
-        }, "isConnectionBeingDragged returns false because node cannot be dragged");
-
-        ok(!started, "start event fired");
-        ok(!dragged, "drag event fired");
-        ok(!stopped, "stop event fired");
-
-        
-    });
+    //
+    // 3.0.0 has stopped supporting individual node drag events. We could re-introduce a form of this, but for now it
+    // is not supported. This test, and the one below, commented pending some long term decision.
+    //
+    // test("node drag events", function() {
+    //
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     var started = false, dragged = false, stopped = false;
+    //
+    //     _jsPlumb.draggable(d1, {
+    //         start:function() { started = true; },
+    //         drag:function() { dragged = true; },
+    //         stop:function() { stopped = true; }
+    //     });
+    //
+    //     support.dragANodeAround(d1, function() {
+    //         return _jsPlumb.isConnectionBeingDragged()  && _jsPlumb.isHoverSuspended();
+    //     }, "isConnectionBeingDragged and isHoverSuspended return true while node is being dragged");
+    //
+    //     ok(started, "start event fired");
+    //     ok(dragged, "drag event fired");
+    //     ok(stopped, "stop event fired");
+    //
+    //     started = false; dragged = false; stopped = false;
+    //     var started2 = false, dragged2 = false, stopped2 = false;
+    //
+    //     _jsPlumb.draggable(d1, {
+    //         start:function() { started2 = true; },
+    //         drag:function() { dragged2 = true; },
+    //         stop:function() { stopped2 = true; },
+    //         force:true
+    //     });
+    //
+    //     support.dragANodeAround(d1);
+    //
+    //     ok(started, "start event fired");
+    //     ok(dragged, "drag event fired");
+    //     ok(stopped, "stop event fired");
+    //     ok(started2, "2nd start event fired");
+    //     ok(dragged2, "2nd drag event fired");
+    //     ok(stopped2, "2nd stop event fired");
+    // });
+    //
+    // test("node drag events, drag disabled", function() {
+    //
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     var started = false, dragged = false, stopped = false;
+    //
+    //     _jsPlumb.draggable(d1, {
+    //         start:function() { started = true; },
+    //         drag:function() { dragged = true; },
+    //         stop:function() { stopped = true; },
+    //         canDrag:function() { return false; }
+    //     });
+    //
+    //     support.dragANodeAround(d1, function() {
+    //         return !_jsPlumb.isConnectionBeingDragged() && !_jsPlumb.isHoverSuspended();
+    //     }, "isConnectionBeingDragged returns false because node cannot be dragged");
+    //
+    //     ok(!started, "start event fired");
+    //     ok(!dragged, "drag event fired");
+    //     ok(!stopped, "stop event fired");
+    //
+    //
+    // });
 
 // ------------- utility functions - math stuff, mostly --------------------------
 
@@ -6703,93 +6707,61 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ok(jsPlumb.hasClass(d1, "BAR"), "another class toggled on");
     });
 
-    test(" : DOM adapter addClass/removeClass, multiple elements, with selector", function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        jsPlumb.addClass(d1, "BAZ");
-        jsPlumb.addClass(d2, "BAZ");
+    // test(" : DOM adapter addClass/removeClass, multiple elements, with selector", function () {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     jsPlumb.addClass(d1, "BAZ");
+    //     jsPlumb.addClass(d2, "BAZ");
+    //
+    //     var els = jsPlumb.getSelector(".BAZ");
+    //
+    //     // add a single class and test for its existence
+    //     jsPlumb.addClass(els, "FOO");
+    //     ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+    //     ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
+    //
+    //     // remove a single class and test for its non-existence.
+    //     jsPlumb.removeClass(els, "FOO");
+    //     ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+    //     ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+    //
+    // });
 
-        var els = jsPlumb.getSelector(".BAZ");
+    // test("DOM adapter addClass/removeClass, multiple elements, with array of DOM elements", function () {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     jsPlumb.addClass(d1, "BAZ");
+    //     jsPlumb.addClass(d2, "BAZ");
+    //
+    //     var els = [ d1, d2 ];
+    //
+    //     // add a single class and test for its existence
+    //     jsPlumb.addClass(els, "FOO");
+    //     ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+    //     ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
+    //
+    //     // remove a single class and test for its non-existence.
+    //     jsPlumb.removeClass(els, "FOO");
+    //     ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+    //     ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+    // });
 
-        // add a single class and test for its existence	
-        jsPlumb.addClass(els, "FOO");
-        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
+    // test("DOM adapter addClass/removeClass, multiple elements, with array of IDs", function () {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     jsPlumb.addClass(d1, "BAZ");
+    //     jsPlumb.addClass(d2, "BAZ");
+    //
+    //     var els = [ "d1", "d2" ];
+    //
+    //     // add a single class and test for its existence
+    //     jsPlumb.addClass(els, "FOO");
+    //     ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
+    //     ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
+    //
+    //     // remove a single class and test for its non-existence.
+    //     jsPlumb.removeClass(els, "FOO");
+    //     ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+    //     ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+    // });
 
-        // remove a single class and test for its non-existence.
-        jsPlumb.removeClass(els, "FOO");
-        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
-        ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
-
-    });
-
-    test("DOM adapter addClass/removeClass, multiple elements, with array of DOM elements", function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        jsPlumb.addClass(d1, "BAZ");
-        jsPlumb.addClass(d2, "BAZ");
-
-        var els = [ d1, d2 ];
-
-        // add a single class and test for its existence	
-        jsPlumb.addClass(els, "FOO");
-        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
-
-        // remove a single class and test for its non-existence.
-        jsPlumb.removeClass(els, "FOO");
-        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
-        ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
-    });
-
-    test("DOM adapter addClass/removeClass, multiple elements, with array of IDs", function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        jsPlumb.addClass(d1, "BAZ");
-        jsPlumb.addClass(d2, "BAZ");
-
-        var els = [ "d1", "d2" ];
-
-        // add a single class and test for its existence	
-        jsPlumb.addClass(els, "FOO");
-        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumb.hasClass(d2, "FOO"), "d1 has class FOO");
-
-        // remove a single class and test for its non-existence.
-        jsPlumb.removeClass(els, "FOO");
-        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
-        ok(!jsPlumb.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
-    });
-
-
-    test(" : DOM adapter addClass and removeClass at the same time, pass as arrays", function () {
-        var d1 = support.addDiv("d1");
-        jsPlumb.addClass(d1, "BAZ FOO BAR");
-        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumb.hasClass(d1, "BAR"), "d1 has class BAR");
-
-        // add qux, remove foo and bar.
-        jsPlumb.updateClasses(d1, ["QUX", "BOZ"], ["FOO", "BAR"]);
-        ok(jsPlumb.hasClass(d1, "QUX"), "d1 has class QUX");
-        ok(jsPlumb.hasClass(d1, "BOZ"), "d1 has class BOZ");
-        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 has not class FOO");
-        ok(!jsPlumb.hasClass(d1, "BAR"), "d1 has not class BAR");
-    });
-
-    test(" : DOM adapter addClass and removeClass at the same time, pass as strings", function () {
-        var d1 = support.addDiv("d1");
-        jsPlumb.addClass(d1, "BAZ FOO BAR");
-        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(jsPlumb.hasClass(d1, "FOO"), "d1 has class FOO");
-        ok(jsPlumb.hasClass(d1, "BAR"), "d1 has class BAR");
-
-        // add qux, remove foo and bar.
-        jsPlumb.updateClasses(d1, "QUX BOZ", "FOO BAR");
-        ok(jsPlumb.hasClass(d1, "QUX"), "d1 has class QUX");
-        ok(jsPlumb.hasClass(d1, "BOZ"), "d1 has class BOZ");
-        ok(jsPlumb.hasClass(d1, "BAZ"), "d1 has class BAZ");
-        ok(!jsPlumb.hasClass(d1, "FOO"), "d1 has not class FOO");
-        ok(!jsPlumb.hasClass(d1, "BAR"), "d1 has not class BAR");
-    });
 
     test("endpointStyle on connect method", function () {
         support.addDivs(["d1", "d2"]);
@@ -6814,7 +6786,7 @@ test("drag multiple elements and ensure their connections are painted correctly 
         d3.style.top = "220px";
 
         _jsPlumb.connect({source:d2, target:d3});
-        _jsPlumb.draggable(d1);
+        _jsPlumb.manage(d1);
 
         var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")["d2"];
         equal(250, o.offset.left, "d2 is at left=250");
@@ -6947,35 +6919,35 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
 // -----------------issue 383, setDraggable doesnt work with list-like arguments
 
-    test("setDraggable with array", function() {
-        var d1 = support.addDiv("d1", null, "aTest");
-        var d2 = support.addDiv("d2", null, "aTest");
-
-        ok(!_jsPlumb.isAlreadyDraggable(d1), "d1 is not draggable");
-        ok(!_jsPlumb.isAlreadyDraggable(d2), "d2 is not draggable");
-        var d = document.getElementsByClassName("aTest");
-
-        // first make them draggable
-        if(typeof d === "function") {
-            expect(2);
-        }
-        else
-        {
-            _jsPlumb.draggable(d);
-            ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
-            ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
-
-            // now disable
-            _jsPlumb.setDraggable(d, false);
-            ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
-            ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
-
-            // and enable
-            _jsPlumb.toggleDraggable(d);
-            ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
-            ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
-        }
-    });
+    // test("setDraggable with array", function() {
+    //     var d1 = support.addDiv("d1", null, "aTest");
+    //     var d2 = support.addDiv("d2", null, "aTest");
+    //
+    //     ok(!_jsPlumb.isAlreadyDraggable(d1), "d1 is not draggable");
+    //     ok(!_jsPlumb.isAlreadyDraggable(d2), "d2 is not draggable");
+    //     var d = document.getElementsByClassName("aTest");
+    //
+    //     // first make them draggable
+    //     if(typeof d === "function") {
+    //         expect(2);
+    //     }
+    //     else
+    //     {
+    //         _jsPlumb.draggable(d);
+    //         ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
+    //         ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
+    //
+    //         // now disable
+    //         _jsPlumb.setDraggable(d, false);
+    //         ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
+    //         ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
+    //
+    //         // and enable
+    //         _jsPlumb.toggleDraggable(d);
+    //         ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
+    //         ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
+    //     }
+    // });
 
 // ------------------ issue 402...offset cache not cleared always --------------------
     test("offset cache cleared", function() {
@@ -7057,8 +7029,11 @@ test("drag multiple elements and ensure their connections are painted correctly 
         d.style.position = "absolute";
         d.style.left = "50px";
         d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
 
-        _jsPlumb.draggable(d);
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
@@ -7085,7 +7060,10 @@ test("drag multiple elements and ensure their connections are painted correctly 
         d2.style.left = "450px";
         d2.style.top = "450px";
 
-        _jsPlumb.draggable([d,d2]);
+      _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+        _jsPlumb.manage(d2);
+
         _jsPlumb.addToPosse([d,d2], "posse");
 
         support.dragNodeBy(d, 100, 100, {
@@ -7169,18 +7147,18 @@ test("drag multiple elements and ensure their connections are painted correctly 
     });
 
 
-    test("draggable function, the various ways in which it can be called", function() {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
-
-        _jsPlumb.draggable(d1); // by element
-        _jsPlumb.draggable(["d2", d3]);
-        _jsPlumb.draggable(document.querySelectorAll("#d4"));
-
-        ok(jsPlumb.hasClass(d1, "jtk-draggable"), "element registered as Element ok");
-        ok(jsPlumb.hasClass(d2, "jtk-draggable", "elements registered as id in array ok"));
-        ok(jsPlumb.hasClass(d3, "jtk-draggable", "elements registered as Element in array ok"));
-        ok(jsPlumb.hasClass(d4, "jtk-draggable", "querySelectorAll output ok as input"));
-    });
+    // test("draggable function, the various ways in which it can be called", function() {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+    //
+    //     _jsPlumb.draggable(d1); // by element
+    //     _jsPlumb.draggable(["d2", d3]);
+    //     _jsPlumb.draggable(document.querySelectorAll("#d4"));
+    //
+    //     ok(jsPlumb.hasClass(d1, "jtk-draggable"), "element registered as Element ok");
+    //     ok(jsPlumb.hasClass(d2, "jtk-draggable", "elements registered as id in array ok"));
+    //     ok(jsPlumb.hasClass(d3, "jtk-draggable", "elements registered as Element in array ok"));
+    //     ok(jsPlumb.hasClass(d4, "jtk-draggable", "querySelectorAll output ok as input"));
+    // });
 
 
     test("droppable function, the various ways in which it can be called", function() {

@@ -1594,6 +1594,7 @@
                 [ e ];
         },
         _classes = {
+            delegatedDraggable:"katavorio-delegated-draggable",  // elements that are the delegated drag handler for a bunch of other elements
             draggable:"katavorio-draggable",    // draggable elements
             droppable:"katavorio-droppable",    // droppable elements
             drag : "katavorio-drag",            // elements currently being dragged
@@ -2365,7 +2366,7 @@
                         _el._katavorioDrag = new Drag(_el, p, _css, _scope);
                         _reg(_el._katavorioDrag, this._dragsByScope);
                         o.push(_el._katavorioDrag);
-                        katavorioParams.addClass(_el, _css.draggable);
+                        katavorioParams.addClass(_el, params.selector ? _css.delegatedDraggable : _css.draggable);
                     }
                     else {
                         _mistletoe(_el._katavorioDrag, params);
@@ -3542,6 +3543,8 @@
 
         jsPlumbUIComponent = root.jsPlumbUIComponent = function (params) {
 
+           // window.jtime("component constructor");
+
             _ju.EventGenerator.apply(this, arguments);
 
             var self = this,
@@ -3684,6 +3687,8 @@
                 }
             };
 
+           // window.jtimeEnd("component constructor");
+
 
         };
 
@@ -3728,10 +3733,6 @@
 
         removeClass: function (clazz) {
             jsPlumb.removeClass(this.canvas, clazz);
-        },
-
-        updateClasses: function (classesToAdd, classesToRemove) {
-            jsPlumb.updateClasses(this.canvas, classesToAdd, classesToRemove);
         },
 
         setType: function (typeId, params, doNotRepaint) {
@@ -4062,6 +4063,8 @@
                     _container.appendChild(el);
                 }
             }
+            
+            _currentInstance.fire("container:change", _container);
 
         };
         this.getContainer = function () {
@@ -4081,8 +4084,8 @@
             for (var i in d) {
                 _currentInstance.Defaults[i] = d[i];
             }
-            if (d.Container) {
-                _currentInstance.setContainer(d.Container);
+            if (d.container) {
+                _currentInstance.setContainer(d.container);
             }
 
             return _currentInstance;
@@ -4091,6 +4094,16 @@
         _currentInstance.restoreDefaults = function () {
             _currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
             return _currentInstance;
+        };
+
+        this._mergeOverrides = function (def, values) {
+            var m = jsPlumb.extend({}, def);
+            for (var i in values) {
+                if (values[i]) {
+                    m[i] = values[i];
+                }
+            }
+            return m;
         };
 
         var log = null,
@@ -4149,11 +4162,12 @@
 
                 if (!_suspendDrawing) {
                     var id = _getId(element),
-                        repaintEls,
+                        repaintEls = [],
+                        repaintOffsets = [],
                         dm = _currentInstance.getDragManager();
 
                     if (dm) {
-                        repaintEls = dm.getElementsForDraggable(id);
+                        repaintEls = dm.getElementsForDraggable(element);
                     }
 
                     if (timestamp == null) {
@@ -4161,27 +4175,16 @@
                     }
 
                     // update the offset of everything _before_ we try to draw anything.
-                    var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
-
-                    if (repaintEls && o && o.o) {
-                        for (var i in repaintEls) {
-                            _updateOffset({
-                                elId: repaintEls[i].id,
-                                offset: {
-                                    left: o.o.left + repaintEls[i].offset.left,
-                                    top: o.o.top + repaintEls[i].offset.top
-                                },
-                                recalc: false,
-                                timestamp: timestamp
-                            });
-                        }
+                    _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
+                    for (var i = 0; i < repaintEls.length; i++) {
+                         repaintOffsets.push(_updateOffset({ elId: _currentInstance.getId(repaintEls[i]), recalc: true, timestamp: timestamp }).o);
                     }
 
                     _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
 
-                    if (repaintEls) {
-                        for (var j in repaintEls) {
-                            _currentInstance.anchorManager.redraw(repaintEls[j].id, ui, timestamp, repaintEls[j].offset, clearEdits, true);
+                    if (repaintEls.length > 0) {
+                        for (var j = 0; j < repaintEls.length; j++) {
+                            _currentInstance.anchorManager.redraw(_currentInstance.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, clearEdits, true);
                         }
                     }
                 }
@@ -4214,20 +4217,23 @@
                 return false;
             },
 
-            _mergeOverrides = function (def, values) {
-                var m = jsPlumb.extend({}, def);
-                for (var i in values) {
-                    if (values[i]) {
-                        m[i] = values[i];
-                    }
-                }
-                return m;
-            },
+            // _mergeOverrides = function (def, values) {
+            //     var m = jsPlumb.extend({}, def);
+            //     for (var i in values) {
+            //         if (values[i]) {
+            //             m[i] = values[i];
+            //         }
+            //     }
+            //     return m;
+            // },
 
             /*
              * prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
              */
             _prepareConnectionParams = function (params, referenceParams) {
+
+                window.jtime("prepare connection params");
+
                 var _p = jsPlumb.extend({ }, params);
                 if (referenceParams) {
                     jsPlumb.extend(_p, referenceParams);
@@ -4294,9 +4300,8 @@
                     _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
                 }
 
-
                 var _addEndpoint = function (el, def, idx) {
-                    return _currentInstance.addEndpoint(el, _mergeOverrides(def, {
+                    return _currentInstance.addEndpoint(el, _currentInstance._mergeOverrides(def, {
                         anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                         endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
                         paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
@@ -4362,11 +4367,16 @@
                     }
                 }
 
+                window.jtimeEnd("prepare connection params");
+
                 return _p;
             }.bind(_currentInstance),
 
             _newConnection = function (params) {
-                var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType();
+
+                window.jtime("newConnection");
+
+                //var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType();
 
                 params._jsPlumb = _currentInstance;
                 params.newConnection = _newConnection;
@@ -4375,14 +4385,16 @@
                 params.endpointsByElement = endpointsByElement;
                 params.finaliseConnection = _finaliseConnection;
                 params.id = "con_" + _idstamp();
-                var con = new connectionFunc(params);
+                var con = new jsPlumb.Connection(params);
 
                 // if the connection is draggable, then maybe we need to tell the target endpoint to init the
                 // dragging code. it won't run again if it already configured to be draggable.
                 if (con.isDetachable()) {
-                    con.endpoints[0].initDraggable("_jsPlumbSource");
-                    con.endpoints[1].initDraggable("_jsPlumbTarget");
+                    // con.endpoints[0].initDraggable("_jsPlumbSource");
+                    // con.endpoints[1].initDraggable("_jsPlumbTarget");
                 }
+
+                window.jtimeEnd("newConnection");
 
                 return con;
             },
@@ -4391,6 +4403,7 @@
             // adds the connection to the backing model, fires an event if necessary and then redraws
             //
             _finaliseConnection = _currentInstance.finaliseConnection = function (jpc, params, originalEvent, doInformAnchorManager) {
+
                 params = params || {};
                 // add to list of connections (by scope).
                 if (!jpc.suspendedEndpoint) {
@@ -4444,10 +4457,6 @@
                 var ep = new endpointFunc(_p);
                 ep.id = "ep_" + _idstamp();
                 _manage(_p.elementId, _p.source);
-
-                if (!jsPlumb.headless) {
-                    _currentInstance.getDragManager().endpointAdded(_p.source, id);
-                }
 
                 return ep;
             },
@@ -4721,8 +4730,12 @@
         };
 
         this.connect = function (params, referenceParams) {
+
+            window.jtime("connect");
+
             // prepare a final set of parameters to create connection with
             var _p = _prepareConnectionParams(params, referenceParams), jpc;
+
             // TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
             // will return null (and log something) if either endpoint was full.  what would be nicer is to
             // create a dedicated 'error' object.
@@ -4735,12 +4748,17 @@
                     _ju.log("Cannot establish connection - target does not exist");
                     return;
                 }
-                _ensureContainer(_p.source);
+                //_ensureContainer(_p.source);
+
                 // create the connection.  it is not yet registered
                 jpc = _newConnection(_p);
+
                 // now add it the model, fire an event, and redraw
                 _finaliseConnection(jpc, _p);
             }
+
+            window.jtimeEnd("connect");
+
             return jpc;
         };
 
@@ -4855,8 +4873,8 @@
 
         var fireDetachEvent = function (jpc, doFireEvent, originalEvent) {
             // may have been given a connection, or in special cases, an object
-            var connType = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
-                argIsConnection = jpc.constructor === connType,
+            var //connType = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
+                argIsConnection = jpc.constructor === jsPlumb.Connection,
                 params = argIsConnection ? {
                     connection: jpc,
                     source: jpc.source, target: jpc.target,
@@ -5299,13 +5317,13 @@
             return endpointsByElement[_info(el).id] || [];
         };
         // gets the default endpoint type. used when subclassing. see wiki.
-        this.getDefaultEndpointType = function () {
-            return jsPlumb.Endpoint;
-        };
+        // this.getDefaultEndpointType = function () {
+        //     return jsPlumb.Endpoint;
+        // };
         // gets the default connection type. used when subclassing.  see wiki.
-        this.getDefaultConnectionType = function () {
-            return jsPlumb.Connection;
-        };
+        // this.getDefaultConnectionType = function () {
+        //     return jsPlumb.Connection;
+        // };
         /*
          * Gets an element's id, creating one if necessary. really only exposed
          * for the lib-specific functionality to access; would be better to pass
@@ -5351,8 +5369,8 @@
         };
 
         var _getContainerFromDefaults = function () {
-            if (_currentInstance.Defaults.Container) {
-                _currentInstance.setContainer(_currentInstance.Defaults.Container);
+            if (_currentInstance.Defaults.container) {
+                _currentInstance.setContainer(_currentInstance.Defaults.container);
             }
         };
 
@@ -5716,6 +5734,8 @@
         // see API docs
         this.makeTarget = function (el, params, referenceParams) {
 
+          //  window.jtime("make target");
+
             this.manage(el);
 
             // put jsplumb ref into params without altering the params passed in
@@ -5774,6 +5794,8 @@
                 _doOne(inputs[i]);
             }
 
+          //  window.jtimeEnd("make target");
+
             return this;
         };
 
@@ -5790,6 +5812,7 @@
 
         // see api docs
         this.makeSource = function (el, params, referenceParams) {
+           // window.jtime("make source");
             this.manage(el);
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
@@ -6008,6 +6031,8 @@
                 _doOne(_info(inputs[i]));
             }
 
+          //  window.jtimeEnd("make source");
+
             return this;
         };
 
@@ -6222,10 +6247,6 @@
             return _elEach(el, function(_el) {
                 var elId = isIdAlready ? _el : _currentInstance.getId(_el);
                 _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
-                var dm = _currentInstance.getDragManager();
-                if (dm) {
-                    dm.updateOffsets(elId);
-                }
                 _currentInstance.repaint(_el);
             });
         };
@@ -6455,11 +6476,8 @@
             this.targetEndpointDefinitions[newId] = this.targetEndpointDefinitions[id];
             delete this.targetEndpointDefinitions[id];
 
-            this.anchorManager.changeId(id, newId);
-            var dm = this.getDragManager();
-            if (dm) {
-                dm.changeId(id, newId);
-            }
+
+
             managedElements[newId] = managedElements[id];
             delete managedElements[id];
 
@@ -6551,7 +6569,8 @@
             this.setAttribute(el, a, v);
         },
         getAttribute: function (el, a) {
-            return this.getAttribute(root.jsPlumb.getElement(el), a);
+            //return this.getAttribute(root.jsPlumb.getElement(el), a);
+            return this.getAttribute(el, a);
         },
         convertToFullOverlaySpec: function(spec) {
             if (_ju.isString(spec)) {
@@ -6617,6 +6636,7 @@
             }
         },
         extend: function (o1, o2, names) {
+
             var i;
             if (names) {
                 for (i = 0; i < names.length; i++) {
@@ -7119,8 +7139,8 @@
 
             this.removeClass(oldAnchorClass);
             this.addClass(anchorClass);
-            // add and remove at the same time to reduce the number of reflows.
-            _jp.updateClasses(this.element, anchorClass, oldAnchorClass);
+            _jp.removeClass(this.element, oldAnchorClass);
+            _jp.addClass(this.element, anchorClass);
         }.bind(this);
 
         this.prepareAnchor = function(anchorParams) {
@@ -7374,9 +7394,12 @@
         this.setStyle = this.setPaintStyle;
 
         this.paint = function (params) {
+
             params = params || {};
             var timestamp = params.timestamp, recalc = !(params.recalc === false);
             if (!timestamp || this.timestamp !== timestamp) {
+
+                window.jtime("endpoint paint");
 
                 var info = _jsPlumb.updateOffset({ elId: this.elementId, timestamp: timestamp });
 
@@ -7419,6 +7442,8 @@
                         }
                     }
                 }
+
+                window.jtimeEnd("endpoint paint");
             }
         };
 
@@ -7808,7 +7833,7 @@
         this.canvas = this.endpoint.canvas;
         this.canvas._jsPlumb = this;
 
-        this.initDraggable();
+        //this.initDraggable();
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
@@ -8327,6 +8352,9 @@
         };
 
     _jp.Connection = function (params) {
+
+        //window.jtime("connection constructor");
+
         var _newEndpoint = params.newEndpoint;
 
         this.id = params.id;
@@ -8340,7 +8368,6 @@
         this.previousConnection = params.previousConnection;
         this.source = _jp.getElement(params.source);
         this.target = _jp.getElement(params.target);
-
 
         _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
@@ -8534,11 +8561,15 @@
 
         this.updateConnectedClass();
 
+        //window.jtimeEnd("connection constructor");
+
 // END PAINTING    
     };
 
     _ju.extend(_jp.Connection, _jp.OverlayCapableJsPlumbUIComponent, {
         applyType: function (t, doNotRepaint, typeMap) {
+
+            window.jtime("apply connection type");
 
             var _connector = null;
             if (t.connector != null) {
@@ -8594,6 +8625,8 @@
             }
 
             _jp.OverlayCapableJsPlumbUIComponent.applyType(this, t);
+
+            window.jtimeEnd("apply connection type");
         },
         addClass: function (c, informEndpoints) {
             if (informEndpoints) {
@@ -8753,6 +8786,9 @@
         paint: function (params) {
 
             if (!this._jsPlumb.instance.isSuspendDrawing() && this._jsPlumb.visible) {
+
+                window.jtime("connection paint");
+
                 params = params || {};
                 var timestamp = params.timestamp,
                 // if the moving object is not the source we must transpose the two references.
@@ -8782,6 +8818,9 @@
                         targetInfo: targetInfo
                     });
 
+
+                    window.jtime("connection overlays");
+
                     var overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
 
                     // compute overlays. we do this first so we can get their placements, and adjust the
@@ -8807,8 +8846,14 @@
                             xmax: Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
                             ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                         };
+
+                    window.jtimeEnd("connection overlays");
+
                     // paint the connector.
+                    window.jtime("connector paint");
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
+                    window.jtimeEnd("connector paint");
+
                     // and then the overlays
                     for (var j in this._jsPlumb.overlays) {
                         if (this._jsPlumb.overlays.hasOwnProperty(j)) {
@@ -8820,6 +8865,8 @@
                     }
                 }
                 this._jsPlumb.lastPaintedAt = timestamp;
+
+                window.jtimeEnd("connection paint");
             }
         },
         repaint: function (params) {
@@ -8828,6 +8875,9 @@
             this.paint(p);
         },
         prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
+
+            window.jtime("prepare endpoint");
+
             var e;
             if (existing) {
                 conn.endpoints[index] = existing;
@@ -8890,6 +8940,8 @@
                 }
 
             }
+
+            window.jtimeEnd("prepare endpoint");
             return e;
         }
 
@@ -8914,6 +8966,24 @@
     var root = this,
         _ju = root.jsPlumbUtil,
         _jp = root.jsPlumb;
+
+    var HashSet = function(keyGenerator) {
+        keyGenerator = keyGenerator || function(obj) { return obj.id; };
+       // this.keys = {};
+        this.values = [];
+        this.add = function(obj) {
+            var key = keyGenerator(obj);
+
+            if (_ju.findWithFunction(this.values, function(o) { return o.id === key; }) === -1) {
+                this.values.push(obj);
+            }
+
+            // if (this.keys[key] == null) {
+            //     this.values.push(obj);
+            //     this.keys[key] = true;
+            // }
+        };
+    };
 
     //
     // manages anchors for all elements.
@@ -9147,9 +9217,13 @@
                     // get all connections from this list
                     for (i = 0; i < listToRemoveFrom.length; i++) {
                         candidate = listToRemoveFrom[i][1];
-                        _ju.addWithFunction(connsToPaint, candidate, function (c) {
-                            return c.id === candidate.id;
-                        });
+
+                        // _ju.addWithFunction(connsToPaint, candidate, function (c) {
+                        //     return c.id === candidate.id;
+                        // });
+                        //connsToPaint.add(candidate);
+                        hashAdd(connsToPaint, candidate);
+
                         _ju.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function (e) {
                             return e.id === candidate.endpoints[idx].id;
                         });
@@ -9165,9 +9239,12 @@
                 if (params.idx === 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx === -1) {
                     firstMatchingElIdx = i;
                 }
-                _ju.addWithFunction(connsToPaint, candidate, function (c) {
-                    return c.id === candidate.id;
-                });
+                // _ju.addWithFunction(connsToPaint, candidate, function (c) {
+                //     return c.id === candidate.id;
+                // });
+                //connsToPaint.add(candidate);
+                hashAdd(connsToPaint, candidate);
+
                 _ju.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function (e) {
                     return e.id === candidate.endpoints[idx].id;
                 });
@@ -9297,15 +9374,35 @@
             }
         };
 
+        function hashAdd(list, item) {
+            if (_ju.findWithFunction(list, function(o) { return o.id === item.id; }) === -1) {
+                list.push(item);
+            }
+        }
+
+        function directAdd(list, item) {
+            if (_ju.findWithFunction(list, function(o) { return o === item; }) === -1) {
+                list.push(item);
+            }
+        }
+
+
+        var connectionsToPaint = [], endpointsToPaint = [], anchorsToUpdate = [];
+
         this.redraw = function (elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 
+
             if (!jsPlumbInstance.isSuspendDrawing()) {
+
+                window.jtime("anchor redraw");
+
                 // get all the endpoints for this element
                 var ep = _amEndpoints[elementId] || [],
-                    endpointConnections = connectionsByElementId[elementId] || [],
-                    connectionsToPaint = [],
-                    endpointsToPaint = [],
-                    anchorsToUpdate = [];
+                    endpointConnections = connectionsByElementId[elementId] || [];
+
+                anchorsToUpdate.length = 0;
+                connectionsToPaint.length = 0;
+                endpointsToPaint.length = 0;
 
                 timestamp = timestamp || jsPlumbInstance.timestamp();
                 // offsetToUI are values that would have been calculated in the dragManager when registering
@@ -9386,22 +9483,16 @@
                         }
 
                         if (sourceContinuous) {
-                            _ju.addWithFunction(anchorsToUpdate, sourceId, function (a) {
-                                return a === sourceId;
-                            });
+                            directAdd(anchorsToUpdate, sourceId);
                         }
                         if (targetContinuous) {
-                            _ju.addWithFunction(anchorsToUpdate, targetId, function (a) {
-                                return a === targetId;
-                            });
+                            directAdd(anchorsToUpdate, targetId);
                         }
-                        _ju.addWithFunction(connectionsToPaint, conn, function (c) {
-                            return c.id === conn.id;
-                        });
+
+                        hashAdd(connectionsToPaint, conn);
+
                         if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1)) {
-                            _ju.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function (e) {
-                                return e.id === conn.endpoints[oIdx].id;
-                            });
+                            hashAdd(endpointsToPaint, conn.endpoints[oIdx]);
                         }
                     }
                 }
@@ -9414,9 +9505,11 @@
                         }
                         _updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [ep[i], ep[i]], paint: function () {
                         }}, false, elementId, 0, false, ep[i].anchor.getDefaultFace(), elementId, connectionsToPaint, endpointsToPaint);
-                        _ju.addWithFunction(anchorsToUpdate, elementId, function (a) {
-                            return a === elementId;
-                        });
+
+                        // _ju.addWithFunction(anchorsToUpdate, elementId, function (a) {
+                        //     return a === elementId;
+                        // });
+                        directAdd(anchorsToUpdate, elementId);
                     }
                 }
 
@@ -9433,8 +9526,8 @@
                 // ... and any other endpoints we came across as a result of the continuous anchors.
                 for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
-                    //endpointsToPaint[i].paint({ timestamp: timestamp, offset: cd, dimensions: cd.s });
-                    endpointsToPaint[i].paint({ timestamp: null, offset: cd, dimensions: cd.s });
+                    endpointsToPaint[i].paint({ timestamp: timestamp, offset: cd, dimensions: cd.s });
+                    //endpointsToPaint[i].paint({ timestamp: null, offset: cd, dimensions: cd.s });
                 }
 
                 // paint all the standard and "dynamic connections", which are connections whose other anchor is
@@ -9444,22 +9537,19 @@
                 for (i = 0; i < endpointConnections.length; i++) {
                     var otherEndpoint = endpointConnections[i][1];
                     if (otherEndpoint.anchor.constructor === _jp.DynamicAnchor) {
+
                         otherEndpoint.paint({ elementWithPrecedence: elementId, timestamp: timestamp });
-                        _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
-                            return c.id === endpointConnections[i][0].id;
-                        });
+
+                        hashAdd(connectionsToPaint, endpointConnections[i][0]);
+
                         // all the connections for the other endpoint now need to be repainted
                         for (var k = 0; k < otherEndpoint.connections.length; k++) {
                             if (otherEndpoint.connections[k] !== endpointConnections[i][0]) {
-                                _ju.addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function (c) {
-                                    return c.id === otherEndpoint.connections[k].id;
-                                });
+                                hashAdd(connectionsToPaint, otherEndpoint.connections[k]);
                             }
                         }
                     } else {
-                        _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
-                            return c.id === endpointConnections[i][0].id;
-                        });
+                        hashAdd(connectionsToPaint, endpointConnections[i][0]);
                     }
                 }
 
@@ -9470,9 +9560,15 @@
                 }
 
                 // paint all the connections
+                //console.log("there are " + connectionsToPaint.length  + " connections to paint");
                 for (i = 0; i < connectionsToPaint.length; i++) {
-                    connectionsToPaint[i].paint({elId: elementId, timestamp: null, recalc: false, clearEdits: clearEdits});
+                    //connectionsToPaint[i].paint({elId: elementId, timestamp: null, recalc: false, clearEdits: clearEdits});
+                    //window.jtime("conn paint " + connectionsToPaint[i].id);
+                    connectionsToPaint[i].paint({elId: elementId, timestamp: timestamp, recalc: false, clearEdits: clearEdits});
+                    //window.jtimeEnd("conn paint " + connectionsToPaint[i].id);
                 }
+
+                window.jtimeEnd("anchor redraw");
             }
         };
 
@@ -10837,7 +10933,7 @@
             gap = params.gap || 0,
             sourceGap = _ju.isArray(gap) ? gap[0] : gap,
             targetGap = _ju.isArray(gap) ? gap[1] : gap,
-            userProvidedSegments = null,
+            userProvidedSegments = [],
             paintInfo = null;
 
         this.getPathData = function() {
@@ -10953,7 +11049,7 @@
             };
 
         this.setSegments = function (_segs) {
-            userProvidedSegments = [];
+            userProvidedSegments.length = 0;
             totalLength = 0;
             for (var i = 0; i < _segs.length; i++) {
                 userProvidedSegments.push(_segs[i]);
@@ -11058,10 +11154,16 @@
         };
 
         this.compute = function (params) {
+            window.jtime("connection prepare compute");
             paintInfo = _prepareCompute.call(this, params);
+            window.jtimeEnd("connection prepare compute");
 
             _clearSegments();
+
+            window.jtime("connection compute");
             this._compute(paintInfo, params);
+            window.jtimeEnd("connection compute");
+
             this.x = paintInfo.points[0];
             this.y = paintInfo.points[1];
             this.w = paintInfo.points[2];
@@ -11625,7 +11727,7 @@
 
         this.getElement = function () {
             if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = _jp.getElement(this._jsPlumb.create(this._jsPlumb.component));
+                var div = this._jsPlumb.div = this._jsPlumb.create(this._jsPlumb.component);
                 div.style.position = "absolute";
                 jsPlumb.addClass(div, this._jsPlumb.instance.overlayClass + " " +
                     (this.cssClass ? this.cssClass :
@@ -13732,7 +13834,11 @@
 
         if (params.useDivWrapper) {
             this.canvas = _jp.createElement("div", { position : "absolute" });
-            _ju.sizeElement(this.canvas, 0, 0, 1, 1);
+
+           // if (!params._jsPlumb.isSuspendDrawing()) {
+                _ju.sizeElement(this.canvas, 0, 0, 1, 1);
+            //}
+
             this.canvas.className = clazz;
         }
         else {
@@ -14187,23 +14293,59 @@
     var _time = { };
     var _counts = { };
     var _timers = {};
+    var _onlyProfile = null;
+    var _enabled = false;
+
+    window.jtimeEnable = function() {
+        _enabled = true;
+    };
 
     window.jtime = function(topic) {
-        _time[topic] = _time[topic] || 0;
-        _timers[topic] = new Date().getTime();
-        _counts[topic] = _counts[topic] || 0;
-        _counts[topic]++;
+        if (_enabled && (_onlyProfile == null || _onlyProfile === topic)) {
+            _time[topic] = _time[topic] || 0;
+            _timers[topic] = new Date().getTime();
+            _counts[topic] = _counts[topic] || 0;
+            _counts[topic]++;
+        }
     };
 
     window.jtimeEnd = function(topic) {
-        var d = new Date().getTime();
-        _time[topic] = _time[topic] + (d - _timers[topic]);
+        if (_enabled && (_onlyProfile == null || _onlyProfile === topic)) {
+            var d = new Date().getTime();
+            _time[topic] = _time[topic] + (d - _timers[topic]);
+        }
     };
 
     window.dumpTime = function() {
-        for (var t in _time) {
-            console.log(t + " : count [" +  _counts[t] + "] avg [" + (_time[t] / _counts[t]) + "] total [" + _time[t] + "]");
+
+        function pc(a, b) {
+            return Math.trunc( a / b * 100) + "%";
         }
+
+        if (_enabled) {
+            var list = [], grandTotal = 0;
+            for (var t in _time) {
+                list.push({topic:t, count:_counts[t], total:_time[t], avg:_time[t] /  _counts[t]});
+                grandTotal += _time[t];
+            }
+            list.sort(function(a, b) {
+                if (a.total > b.total) {
+                    return -1;
+                }
+                else {
+                    return 1;
+                }
+
+            });
+
+            list.forEach(function(entry) {
+                console.log(entry.topic + " : count [" + entry.count + "] avg [" + entry.avg + "] total [" + entry.total + "]  + percent [" + pc(entry.total, grandTotal) + "]");
+            });
+        }
+    };
+
+    window.jtimeProfileOnly = function(category) {
+        _onlyProfile = category;
     };
 
     var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
@@ -14255,6 +14397,7 @@
                     css: {
                         noSelect: instance.dragSelectClass,
                         droppable: "jtk-droppable",
+                        delegatedDraggable:"jtk-delegated-draggable",
                         draggable: "jtk-draggable",
                         drag: "jtk-drag",
                         selected: "jtk-drag-selected",
@@ -14272,27 +14415,49 @@
         return k;
     };
 
-    var _dragStart=function(instance, params) {
+    function hasManagedParent(container, el) {
+        var pn = el.parentNode;
+        while (pn != null && pn !== container) {
+            if (pn.getAttribute("jtk-managed") != null) {
+                return true;
+            } else {
+                pn = pn.parentNode;
+            }
+        }
+    }
+
+
+    var _dragOffset = null;
+    var _dragStart = function(instance, params) {
         var el = params.drag.getDragElement();
 
-        //var options = el._jsPlumbDragOptions;
+        if(hasManagedParent(instance.getContainer(), el) && el.offsetParent._jsPlumbGroup == null) {
+            return false;
+        } else {
+            //var options = el._jsPlumbDragOptions;
+            //_dragChildren = el.querySelectorAll("[jtk-managed]");
 
-        // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
-        // have been supplied to the instance's dragOptions.
+            // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
+            // have been supplied to the instance's dragOptions.
 
-        var options = el._jsPlumbDragOptions || {};
+            var options = el._jsPlumbDragOptions || {};
+            if (el._jsPlumbGroup) {
+                _dragOffset = instance.getOffset(el.offsetParent);
+            }
 
-        var cont = true;
-        if (options.canDrag) {
-            cont = options.canDrag();
+            var cont = true;
+            if (options.canDrag) {
+                cont = options.canDrag();
+            }
+            if (cont) {
+                instance.setHoverSuspended(true);
+                instance.select({source: el}).addClass(instance.elementDraggingClass + " " + instance.sourceElementDraggingClass, true);
+                instance.select({target: el}).addClass(instance.elementDraggingClass + " " + instance.targetElementDraggingClass, true);
+                instance.setConnectionBeingDragged(true);
+            }
+            return cont;
         }
-        if (cont) {
-            instance.setHoverSuspended(true);
-            instance.select({source: el}).addClass(instance.elementDraggingClass + " " + instance.sourceElementDraggingClass, true);
-            instance.select({target: el}).addClass(instance.elementDraggingClass + " " + instance.targetElementDraggingClass, true);
-            instance.setConnectionBeingDragged(true);
-        }
-        return cont;
+
     };
 
     var _dragMove = function(instance, params) {
@@ -14309,11 +14474,20 @@
             // have been supplied to the instance's dragOptions.
             var o = el._jsPlumbDragOptions || {};
 
+            if (_dragOffset != null) {
+                ui.left += _dragOffset.left;
+                ui.top += _dragOffset.top;
+            }
+
             instance.draw(el, ui, null, true);
             if (o._dragging) {
                 instance.addClass(el, "jtk-dragged");
             }
             o._dragging = true;
+
+            // for (var i = 0; i < _dragChildren.length; i++) {
+            //     instance.draw(_dragChildren[i]);
+            // }
         }
     };
 
@@ -14330,6 +14504,10 @@
                     el:dragElement,
                     pos:[_e[1].left, _e[1].top]
                 }]);
+                if (_dragOffset) {
+                    uip.left += _dragOffset.left;
+                    uip.top += _dragOffset.top;
+                }
                 this.draw(dragElement, uip);
             }
 
@@ -14348,6 +14526,7 @@
 
         instance.setHoverSuspended(false);
         instance.setConnectionBeingDragged(false);
+        _dragOffset = null;
     };
 
     var _animProps = function (o, p) {
@@ -14401,7 +14580,7 @@
 
      */
     var DragManager = function (_currentInstance) {
-        var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},
+        var _draggables = {}, _dlist = [], _elementsWithEndpoints = {},
             // elementids mapped to the draggable to which they belong.
             _draggablesForElements = {},
             e = _currentInstance.getEventManager();
@@ -14418,7 +14597,9 @@
                 // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                 // compute against the Container's origin. see also the getUIPosition method below.
                 //var o = _currentInstance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
-                var o = _currentInstance.getOffset(el, relativeToRoot, el.offsetParent._jsPlumbGroup ? el.offsetParent : null);
+                //var o = _currentInstance.getOffset(el, relativeToRoot, el._jsPlumbGroup ? el.offsetParent : null);
+                var o = _currentInstance.getOffset(el, relativeToRoot, el.offsetParent);
+                console.log("get position ", el.id, o.left, o.top);
                 return [o.left, o.top];
             },
             setPosition: function (el, xy) {
@@ -14432,6 +14613,7 @@
             scope:_currentInstance.getDefaultScope(),
             css: {
                 noSelect: _currentInstance.dragSelectClass,
+                delegatedDraggable:"jtk-delegated-draggable",
                 droppable: "jtk-droppable",
                 draggable: "jtk-draggable",
                 drag: "jtk-drag",
@@ -14443,161 +14625,75 @@
         });
 
         var elementDragOptions = jsPlumb.extend({selector:"[jtk-managed]"}, _currentInstance.Defaults.dragOptions || {});
-        elementDragOptions.start = _ju.wrap(elementDragOptions.start, function(p) { _dragStart(_currentInstance, p); });
-        elementDragOptions.drag = _ju.wrap(elementDragOptions.drag, function(p) { _dragMove(_currentInstance, p); });
-        elementDragOptions.stop = _ju.wrap(elementDragOptions.stop, function(p) { _dragStop(_currentInstance, p); });
+        elementDragOptions.start = _ju.wrap(elementDragOptions.start, function(p) {
+            return _dragStart(_currentInstance, p);
+        });
+        elementDragOptions.drag = _ju.wrap(elementDragOptions.drag, function(p) { return _dragMove(_currentInstance, p); });
+        elementDragOptions.stop = _ju.wrap(elementDragOptions.stop, function(p) { return _dragStop(_currentInstance, p); });
 
-        katavorio.draggable(_currentInstance.getContainer(), elementDragOptions);
+        var elementDragHandler = katavorio.draggable(_currentInstance.getContainer(), elementDragOptions)[0];
+        _currentInstance.bind("container:change", function(newContainer) {
+            elementDragHandler.destroy();
+            elementDragHandler = katavorio.draggable(newContainer, elementDragOptions);
+        });
 
         _currentInstance["_katavorio_main"] = katavorio;
 
-        /**
-         register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
-         possible that will continue to be the case.
-         */
-        this.register = function (el) {
-            var id = _currentInstance.getId(el),
-                parentOffset;
-
-            if (!_draggables[id]) {
-                _draggables[id] = el;
-                _dlist.push(el);
-                _delements[id] = {};
-            }
-
-            // look for child elements that have endpoints and register them against this draggable.
-            var _oneLevel = function (p) {
-                if (p) {
-                    for (var i = 0; i < p.childNodes.length; i++) {
-                        if (p.childNodes[i].nodeType !== 3 && p.childNodes[i].nodeType !== 8) {
-                            var cEl = jsPlumb.getElement(p.childNodes[i]),
-                                cid = _currentInstance.getId(p.childNodes[i], null, true);
-                            if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-                                if (!parentOffset) {
-                                    parentOffset = _currentInstance.getOffset(el);
-                                }
-                                var cOff = _currentInstance.getOffset(cEl);
-                                _delements[id][cid] = {
-                                    id: cid,
-                                    offset: {
-                                        left: cOff.left - parentOffset.left,
-                                        top: cOff.top - parentOffset.top
-                                    }
-                                };
-                                _draggablesForElements[cid] = id;
-                            }
-                            _oneLevel(p.childNodes[i]);
-                        }
-                    }
-                }
-            };
-
-            _oneLevel(el);
-        };
 
         // refresh the offsets for child elements of this element.
         this.updateOffsets = function (elId, childOffsetOverrides) {
-            if (elId != null) {
-                childOffsetOverrides = childOffsetOverrides || {};
-                var domEl = jsPlumb.getElement(elId),
-                    id = _currentInstance.getId(domEl),
-                    children = _delements[id],
-                    parentOffset;
-
-                if (children) {
-                    for (var i in children) {
-                        if (children.hasOwnProperty(i)) {
-                            var cel = jsPlumb.getElement(i),
-                                cOff = childOffsetOverrides[i] || _currentInstance.getOffset(cel);
-
-                            // do not update if we have a value already and we'd just be writing 0,0
-                            if (cel.offsetParent == null && _delements[id][i] != null) {
-                                continue;
-                            }
-
-                            if (!parentOffset) {
-                                parentOffset = _currentInstance.getOffset(domEl);
-                            }
-
-                            _delements[id][i] = {
-                                id: i,
-                                offset: {
-                                    left: cOff.left - parentOffset.left,
-                                    top: cOff.top - parentOffset.top
-                                }
-                            };
-                            _draggablesForElements[i] = id;
-                        }
-                    }
-                }
-            }
-        };
-
-        /**
-         notification that an endpoint was added to the given el.  we go up from that el's parent
-         node, looking for a parent that has been registered as a draggable. if we find one, we add this
-         el to that parent's list of elements to update on drag (if it is not there already)
-         */
-        this.endpointAdded = function (el, id) {
-
-            id = id || _currentInstance.getId(el);
-
-            var b = document.body,
-                p = el.parentNode;
-
-            _elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
-
-            while (p != null && p !== b) {
-                var pid = _currentInstance.getId(p, null, true);
-                if (pid && _draggables[pid]) {
-                    var pLoc = _currentInstance.getOffset(p);
-
-                    if (_delements[pid][id] == null) {
-                        var cLoc = _currentInstance.getOffset(el);
-                        _delements[pid][id] = {
-                            id: id,
-                            offset: {
-                                left: cLoc.left - pLoc.left,
-                                top: cLoc.top - pLoc.top
-                            }
-                        };
-                        _draggablesForElements[id] = pid;
-                    }
-                    break;
-                }
-                p = p.parentNode;
-            }
+            // if (elId != null) {
+            //     childOffsetOverrides = childOffsetOverrides || {};
+            //     var domEl = jsPlumb.getElement(elId),
+            //         id = _currentInstance.getId(domEl),
+            //         children = _delements[id],
+            //         parentOffset;
+            //
+            //     if (children) {
+            //         for (var i in children) {
+            //             if (children.hasOwnProperty(i)) {
+            //                 var cel = jsPlumb.getElement(i),
+            //                     cOff = childOffsetOverrides[i] || _currentInstance.getOffset(cel);
+            //
+            //                 // do not update if we have a value already and we'd just be writing 0,0
+            //                 if (cel.offsetParent == null && _delements[id][i] != null) {
+            //                     continue;
+            //                 }
+            //
+            //                 if (!parentOffset) {
+            //                     parentOffset = _currentInstance.getOffset(domEl);
+            //                 }
+            //
+            //                 _delements[id][i] = {
+            //                     id: i,
+            //                     offset: {
+            //                         left: cOff.left - parentOffset.left,
+            //                         top: cOff.top - parentOffset.top
+            //                     }
+            //                 };
+            //                 _draggablesForElements[i] = id;
+            //             }
+            //         }
+            //     }
+            // }
         };
 
         this.endpointDeleted = function (endpoint) {
             if (_elementsWithEndpoints[endpoint.elementId]) {
                 _elementsWithEndpoints[endpoint.elementId]--;
-                if (_elementsWithEndpoints[endpoint.elementId] <= 0) {
-                    for (var i in _delements) {
-                        if (_delements.hasOwnProperty(i) && _delements[i]) {
-                            delete _delements[i][endpoint.elementId];
-                            delete _draggablesForElements[endpoint.elementId];
-                        }
-                    }
-                }
             }
         };
 
-        this.changeId = function (oldId, newId) {
-            _delements[newId] = _delements[oldId];
-            _delements[oldId] = {};
-            _draggablesForElements[newId] = _draggablesForElements[oldId];
-            _draggablesForElements[oldId] = null;
-        };
-
-        this.getElementsForDraggable = function (id) {
-            return _delements[id];
+        this.getElementsForDraggable = function (el) {
+            if (typeof el === "string") {
+                el = _currentInstance.getElement(el);
+            }
+            return el.querySelectorAll("[jtk-managed]");
         };
 
         this.elementRemoved = function (elementId) {
             var elId = _draggablesForElements[elementId];
             if (elId) {
-                delete _delements[elId][elementId];
                 delete _draggablesForElements[elementId];
             }
         };
@@ -14605,7 +14701,6 @@
         this.reset = function () {
             _draggables = {};
             _dlist = [];
-            _delements = {};
             _elementsWithEndpoints = {};
         };
 
@@ -14614,42 +14709,24 @@
         // ancestor's offsets.
         //
         this.dragEnded = function (el) {
-            if (el.offsetParent != null) {
-                var id = _currentInstance.getId(el),
-                    ancestor = _draggablesForElements[id];
-
-                if (ancestor) {
-                    this.updateOffsets(ancestor);
-                }
-            }
+            // if (el.offsetParent != null) {
+            //     var id = _currentInstance.getId(el),
+            //         ancestor = _draggablesForElements[id];
+            //
+            //     if (ancestor) {
+            //         this.updateOffsets(ancestor);
+            //     }
+            // }
         };
 
         this.setParent = function (el, elId, p, pId, currentChildLocation) {
-            var current = _draggablesForElements[elId];
-            if (!_delements[pId]) {
-                _delements[pId] = {};
-            }
-            var pLoc = _currentInstance.getOffset(p),
-                cLoc = currentChildLocation || _currentInstance.getOffset(el);
 
-            if (current && _delements[current]) {
-                delete _delements[current][elId];
-            }
-
-            _delements[pId][elId] = {
-                id:elId,
-                offset : {
-                    left: cLoc.left - pLoc.left,
-                    top: cLoc.top - pLoc.top
-                }
-            };
             _draggablesForElements[elId] = pId;
         };
 
         this.clearParent = function(el, elId) {
             var current = _draggablesForElements[elId];
             if (current) {
-                delete _delements[current][elId];
                 delete _draggablesForElements[elId];
             }
         };
@@ -14661,19 +14738,6 @@
                 co[elId] = childOffset;
                 this.updateOffsets(current, co);
                 _currentInstance.revalidate(current);
-            }
-        };
-
-        this.getDragAncestor = function (el) {
-            var de = jsPlumb.getElement(el),
-                id = _currentInstance.getId(de),
-                aid = _draggablesForElements[id];
-
-            if (aid) {
-                return jsPlumb.getElement(aid);
-            }
-            else {
-                return null;
             }
         };
 
@@ -14807,17 +14871,23 @@
         appendToRoot: function (node) {
             document.body.appendChild(node);
         },
-        // getRenderModes: function () {
-        //     return [ "svg"  ];
-        // },
         getClass:_getClassName,
         addClass: function (el, clazz) {
-            jsPlumb.each(el, function (e) {
-                _classManip(e, clazz);
-            });
+
+            if (el != null && clazz != null && clazz.length > 0) {
+                window.jtime("addClass");
+                if (el.classList) {
+                    window.DOMTokenList.prototype.add.apply(el.classList, _ju.fastTrim(clazz).split(/\s+/));
+
+                } else {
+                    _classManip(el, clazz);
+                }
+
+                window.jtimeEnd("addClass");
+
+            }
         },
         hasClass: function (el, clazz) {
-            el = jsPlumb.getElement(el);
             if (el.classList) {
                 return el.classList.contains(clazz);
             }
@@ -14826,28 +14896,28 @@
             }
         },
         removeClass: function (el, clazz) {
-            jsPlumb.each(el, function (e) {
-                _classManip(e, null, clazz);
-            });
+            if (el != null && clazz != null && clazz.length > 0) {
+                if (el.classList) {
+                    window.DOMTokenList.prototype.remove.apply(el.classList, clazz.split(/\s+/));
+                } else {
+                    _classManip(el, null, clazz);
+                }
+            }
         },
         toggleClass:function(el, clazz) {
-            if (jsPlumb.hasClass(el, clazz)) {
-                jsPlumb.removeClass(el, clazz);
-            } else {
-                jsPlumb.addClass(el, clazz);
+            if (el != null && clazz != null && clazz.length > 0) {
+                if (el.classList) {
+                    el.classList.toggle(clazz);
+                }
+                else {
+                    if (jsPlumb.hasClass(el, clazz)) {
+                        jsPlumb.removeClass(el, clazz);
+                    } else {
+                        jsPlumb.addClass(el, clazz);
+                    }
+                }
             }
-        },
-        updateClasses: function (el, toAdd, toRemove) {
-            jsPlumb.each(el, function (e) {
-                _classManip(e, toAdd, toRemove);
-            });
-        },
-        setClass: function (el, clazz) {
-            if (clazz != null) {
-                jsPlumb.each(el, function (e) {
-                    _setClassName(e, clazz, clazz.split(/\s+/));
-                });
-            }
+
         },
         setPosition: function (el, p) {
             el.style.left = p.left + "px";
@@ -14883,7 +14953,8 @@
         },
         getOffset:function(el, relativeToRoot, container) {
             window.jtime("get offset");
-            el = jsPlumb.getElement(el);
+            //console.log("get offset arg was " + el);
+            //el = jsPlumb.getElement(el);
             container = container || this.getContainer();
             var out = {
                     left: el.offsetLeft,
@@ -14915,6 +14986,7 @@
                 }
             }
             window.jtimeEnd("get offset");
+
             return out;
             // return {
             //     left:Math.random() * 600,
@@ -14987,18 +15059,12 @@
         getSize: function (el) {
 
             //return [100,100];
-            window.jtime("get size");
+            //window.jtime("get size");
             var s =[ el.offsetWidth, el.offsetHeight ];
-            window.jtimeEnd("get size");
+            //window.jtimeEnd("get size");
             return s;
            //return [ el.offsetWidth, el.offsetHeight ];
         },
-        // getWidth: function (el) {
-        //     return el.offsetWidth;
-        // },
-        // getHeight: function (el) {
-        //     return el.offsetHeight;
-        // },
         getRenderMode : function() { return "svg"; },
         // draggable : function (el, options) {
         //     var info;
@@ -15047,59 +15113,59 @@
             }.bind(this));
             return state;
         },
-        _initDraggableIfNecessary : function (element, isDraggable, dragOptions, id, fireEvent) {
-
-
-            this.manage(id, element);
-            var options = dragOptions || this.Defaults.DragOptions;
-            options = jsPlumb.extend({}, options); // make a copy.
-            this.initDraggable(element, options);
-
-            // TODO this bit i think is important, due to it figuring out nested elements.
-            this.getDragManager().register(element);
-
-            /* TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
-            if (!jsPlumb.headless) {
-                var _draggable = isDraggable == null ? false : isDraggable;
-                if (_draggable) {
-
-                        var options = dragOptions || this.Defaults.DragOptions;
-                        options = jsPlumb.extend({}, options); // make a copy.
-                        if (!jsPlumb.isAlreadyDraggable(element, this)) {
-                            var dragEvent = jsPlumb.dragEvents.drag,
-                                stopEvent = jsPlumb.dragEvents.stop,
-                                startEvent = jsPlumb.dragEvents.start;
-
-                            this.manage(id, element);
-
-                            options[startEvent] = _ju.wrap(options[startEvent], _dragStart.bind(this));
-
-                            options[dragEvent] = _ju.wrap(options[dragEvent], _dragMove.bind(this));
-
-                            options[stopEvent] = _ju.wrap(options[stopEvent], _dragStop.bind(this));
-
-                            var elId = this.getId(element); // need ID
-
-                            this._draggableStates[elId] = true;
-                            var draggable = this._draggableStates[elId];
-
-                            options.disabled = draggable == null ? false : !draggable;
-                            this.initDraggable(element, options);
-                            this.getDragManager().register(element);
-                            if (fireEvent) {
-                                this.fire("elementDraggable", {el:element, options:options});
-                            }
-                        }
-                        else {
-                            // already draggable. attach any start, drag or stop listeners to the current Drag.
-                            if (dragOptions.force) {
-                                this.initDraggable(element, options);
-                            }
-                        }
-
-                }
-            }*/
-        },
+        // _initDraggableIfNecessary : function (element, isDraggable, dragOptions, id, fireEvent) {
+        //
+        //
+        //     this.manage(id, element);
+        //     var options = dragOptions || this.Defaults.DragOptions;
+        //     options = jsPlumb.extend({}, options); // make a copy.
+        //     this.initDraggable(element, options);
+        //
+        //     // TODO this bit i think is important, due to it figuring out nested elements.
+        //     this.getDragManager().register(element);
+        //
+        //     /* TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
+        //     if (!jsPlumb.headless) {
+        //         var _draggable = isDraggable == null ? false : isDraggable;
+        //         if (_draggable) {
+        //
+        //                 var options = dragOptions || this.Defaults.DragOptions;
+        //                 options = jsPlumb.extend({}, options); // make a copy.
+        //                 if (!jsPlumb.isAlreadyDraggable(element, this)) {
+        //                     var dragEvent = jsPlumb.dragEvents.drag,
+        //                         stopEvent = jsPlumb.dragEvents.stop,
+        //                         startEvent = jsPlumb.dragEvents.start;
+        //
+        //                     this.manage(id, element);
+        //
+        //                     options[startEvent] = _ju.wrap(options[startEvent], _dragStart.bind(this));
+        //
+        //                     options[dragEvent] = _ju.wrap(options[dragEvent], _dragMove.bind(this));
+        //
+        //                     options[stopEvent] = _ju.wrap(options[stopEvent], _dragStop.bind(this));
+        //
+        //                     var elId = this.getId(element); // need ID
+        //
+        //                     this._draggableStates[elId] = true;
+        //                     var draggable = this._draggableStates[elId];
+        //
+        //                     options.disabled = draggable == null ? false : !draggable;
+        //                     this.initDraggable(element, options);
+        //                     this.getDragManager().register(element);
+        //                     if (fireEvent) {
+        //                         this.fire("elementDraggable", {el:element, options:options});
+        //                     }
+        //                 }
+        //                 else {
+        //                     // already draggable. attach any start, drag or stop listeners to the current Drag.
+        //                     if (dragOptions.force) {
+        //                         this.initDraggable(element, options);
+        //                     }
+        //                 }
+        //
+        //         }
+        //     }*/
+        // },
         animationSupported:true,
         getElement: function (el) {
             if (el == null) {

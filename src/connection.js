@@ -65,6 +65,9 @@
         };
 
     _jp.Connection = function (params) {
+
+        //window.jtime("connection constructor");
+
         var _newEndpoint = params.newEndpoint;
 
         this.id = params.id;
@@ -78,7 +81,6 @@
         this.previousConnection = params.previousConnection;
         this.source = _jp.getElement(params.source);
         this.target = _jp.getElement(params.target);
-
 
         _jp.OverlayCapableJsPlumbUIComponent.apply(this, arguments);
 
@@ -272,11 +274,15 @@
 
         this.updateConnectedClass();
 
+        //window.jtimeEnd("connection constructor");
+
 // END PAINTING    
     };
 
     _ju.extend(_jp.Connection, _jp.OverlayCapableJsPlumbUIComponent, {
         applyType: function (t, doNotRepaint, typeMap) {
+
+            window.jtime("apply connection type");
 
             var _connector = null;
             if (t.connector != null) {
@@ -332,6 +338,8 @@
             }
 
             _jp.OverlayCapableJsPlumbUIComponent.applyType(this, t);
+
+            window.jtimeEnd("apply connection type");
         },
         addClass: function (c, informEndpoints) {
             if (informEndpoints) {
@@ -491,6 +499,9 @@
         paint: function (params) {
 
             if (!this._jsPlumb.instance.isSuspendDrawing() && this._jsPlumb.visible) {
+
+                window.jtime("connection paint");
+
                 params = params || {};
                 var timestamp = params.timestamp,
                 // if the moving object is not the source we must transpose the two references.
@@ -520,6 +531,9 @@
                         targetInfo: targetInfo
                     });
 
+
+                    window.jtime("connection overlays");
+
                     var overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
 
                     // compute overlays. we do this first so we can get their placements, and adjust the
@@ -545,8 +559,14 @@
                             xmax: Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
                             ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                         };
+
+                    window.jtimeEnd("connection overlays");
+
                     // paint the connector.
+                    window.jtime("connector paint");
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
+                    window.jtimeEnd("connector paint");
+
                     // and then the overlays
                     for (var j in this._jsPlumb.overlays) {
                         if (this._jsPlumb.overlays.hasOwnProperty(j)) {
@@ -558,6 +578,8 @@
                     }
                 }
                 this._jsPlumb.lastPaintedAt = timestamp;
+
+                window.jtimeEnd("connection paint");
             }
         },
         repaint: function (params) {
@@ -566,6 +588,9 @@
             this.paint(p);
         },
         prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
+
+            window.jtime("prepare endpoint");
+
             var e;
             if (existing) {
                 conn.endpoints[index] = existing;
@@ -628,6 +653,8 @@
                 }
 
             }
+
+            window.jtimeEnd("prepare endpoint");
             return e;
         }
 

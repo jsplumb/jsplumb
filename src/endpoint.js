@@ -146,8 +146,8 @@
 
             this.removeClass(oldAnchorClass);
             this.addClass(anchorClass);
-            // add and remove at the same time to reduce the number of reflows.
-            _jp.updateClasses(this.element, anchorClass, oldAnchorClass);
+            _jp.removeClass(this.element, oldAnchorClass);
+            _jp.addClass(this.element, anchorClass);
         }.bind(this);
 
         this.prepareAnchor = function(anchorParams) {
@@ -401,9 +401,12 @@
         this.setStyle = this.setPaintStyle;
 
         this.paint = function (params) {
+
             params = params || {};
             var timestamp = params.timestamp, recalc = !(params.recalc === false);
             if (!timestamp || this.timestamp !== timestamp) {
+
+                window.jtime("endpoint paint");
 
                 var info = _jsPlumb.updateOffset({ elId: this.elementId, timestamp: timestamp });
 
@@ -446,6 +449,8 @@
                         }
                     }
                 }
+
+                window.jtimeEnd("endpoint paint");
             }
         };
 
@@ -835,7 +840,7 @@
         this.canvas = this.endpoint.canvas;
         this.canvas._jsPlumb = this;
 
-        this.initDraggable();
+        //this.initDraggable();
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.

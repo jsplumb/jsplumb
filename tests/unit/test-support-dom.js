@@ -38,8 +38,21 @@
             pageY: t
         };
     };
+
+    var _makeDragStartEvt = function(_jsPlumb, el) {
+        var e = _makeEvt(_jsPlumb, el), c = _jsPlumb.getContainer();
+        e.clientX += c.offsetLeft;
+        e.screenX += c.offsetLeft;
+        e.pageX += c.offsetLeft;
+        e.clientY += c.offsetTop;
+        e.screenY += c.offsetTop;
+        e.pageY += c.offsetTop;
+        return e;
+    };
+
     var _dragANodeAround = function(_jsPlumb, el, functionToAssertWhileDragging, assertMessage) {
         _jsPlumb.trigger(el, "mousedown", _makeEvt(_jsPlumb, el));
+        //_jsPlumb.trigger(_jsPlumb.getContainer(), "mousedown", _makeEvt(_jsPlumb, el));
         var steps = Math.random() * 50;
         for (var i = 0; i < steps; i++) {
             var evt = _randomEvent();
@@ -59,6 +72,7 @@
         events = events || {};
         if (events.before) events.before();
         _jsPlumb.trigger(el, "mousedown", _makeEvt(_jsPlumb, el));
+        //_jsPlumb.trigger(_jsPlumb.getContainer(), "mousedown", _makeEvt(_jsPlumb, el));
         if (events.beforeMouseMove) {
             events.beforeMouseMove();
         }

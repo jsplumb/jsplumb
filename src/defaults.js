@@ -630,7 +630,7 @@
             gap = params.gap || 0,
             sourceGap = _ju.isArray(gap) ? gap[0] : gap,
             targetGap = _ju.isArray(gap) ? gap[1] : gap,
-            userProvidedSegments = null,
+            userProvidedSegments = [],
             paintInfo = null;
 
         this.getPathData = function() {
@@ -746,7 +746,7 @@
             };
 
         this.setSegments = function (_segs) {
-            userProvidedSegments = [];
+            userProvidedSegments.length = 0;
             totalLength = 0;
             for (var i = 0; i < _segs.length; i++) {
                 userProvidedSegments.push(_segs[i]);
@@ -851,10 +851,16 @@
         };
 
         this.compute = function (params) {
+            window.jtime("connection prepare compute");
             paintInfo = _prepareCompute.call(this, params);
+            window.jtimeEnd("connection prepare compute");
 
             _clearSegments();
+
+            window.jtime("connection compute");
             this._compute(paintInfo, params);
+            window.jtimeEnd("connection compute");
+
             this.x = paintInfo.points[0];
             this.y = paintInfo.points[1];
             this.w = paintInfo.points[2];
@@ -1418,7 +1424,7 @@
 
         this.getElement = function () {
             if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = _jp.getElement(this._jsPlumb.create(this._jsPlumb.component));
+                var div = this._jsPlumb.div = this._jsPlumb.create(this._jsPlumb.component);
                 div.style.position = "absolute";
                 jsPlumb.addClass(div, this._jsPlumb.instance.overlayClass + " " +
                     (this.cssClass ? this.cssClass :

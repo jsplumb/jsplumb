@@ -17,6 +17,24 @@
         _ju = root.jsPlumbUtil,
         _jp = root.jsPlumb;
 
+    var HashSet = function(keyGenerator) {
+        keyGenerator = keyGenerator || function(obj) { return obj.id; };
+       // this.keys = {};
+        this.values = [];
+        this.add = function(obj) {
+            var key = keyGenerator(obj);
+
+            if (_ju.findWithFunction(this.values, function(o) { return o.id === key; }) === -1) {
+                this.values.push(obj);
+            }
+
+            // if (this.keys[key] == null) {
+            //     this.values.push(obj);
+            //     this.keys[key] = true;
+            // }
+        };
+    };
+
     //
     // manages anchors for all elements.
     //
@@ -249,9 +267,13 @@
                     // get all connections from this list
                     for (i = 0; i < listToRemoveFrom.length; i++) {
                         candidate = listToRemoveFrom[i][1];
-                        _ju.addWithFunction(connsToPaint, candidate, function (c) {
-                            return c.id === candidate.id;
-                        });
+
+                        // _ju.addWithFunction(connsToPaint, candidate, function (c) {
+                        //     return c.id === candidate.id;
+                        // });
+                        //connsToPaint.add(candidate);
+                        hashAdd(connsToPaint, candidate);
+
                         _ju.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function (e) {
                             return e.id === candidate.endpoints[idx].id;
                         });
@@ -267,9 +289,12 @@
                 if (params.idx === 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx === -1) {
                     firstMatchingElIdx = i;
                 }
-                _ju.addWithFunction(connsToPaint, candidate, function (c) {
-                    return c.id === candidate.id;
-                });
+                // _ju.addWithFunction(connsToPaint, candidate, function (c) {
+                //     return c.id === candidate.id;
+                // });
+                //connsToPaint.add(candidate);
+                hashAdd(connsToPaint, candidate);
+
                 _ju.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function (e) {
                     return e.id === candidate.endpoints[idx].id;
                 });
@@ -399,20 +424,35 @@
             }
         };
 
+        function hashAdd(list, item) {
+            if (_ju.findWithFunction(list, function(o) { return o.id === item.id; }) === -1) {
+                list.push(item);
+            }
+        }
+
+        function directAdd(list, item) {
+            if (_ju.findWithFunction(list, function(o) { return o === item; }) === -1) {
+                list.push(item);
+            }
+        }
+
+
+        var connectionsToPaint = [], endpointsToPaint = [], anchorsToUpdate = [];
+
         this.redraw = function (elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 
 
             if (!jsPlumbInstance.isSuspendDrawing()) {
 
                 window.jtime("anchor redraw");
-                window.jtime("anchor redraw " + elementId);
 
                 // get all the endpoints for this element
                 var ep = _amEndpoints[elementId] || [],
-                    endpointConnections = connectionsByElementId[elementId] || [],
-                    connectionsToPaint = [],
-                    endpointsToPaint = [],
-                    anchorsToUpdate = [];
+                    endpointConnections = connectionsByElementId[elementId] || [];
+
+                anchorsToUpdate.length = 0;
+                connectionsToPaint.length = 0;
+                endpointsToPaint.length = 0;
 
                 timestamp = timestamp || jsPlumbInstance.timestamp();
                 // offsetToUI are values that would have been calculated in the dragManager when registering
@@ -493,22 +533,16 @@
                         }
 
                         if (sourceContinuous) {
-                            _ju.addWithFunction(anchorsToUpdate, sourceId, function (a) {
-                                return a === sourceId;
-                            });
+                            directAdd(anchorsToUpdate, sourceId);
                         }
                         if (targetContinuous) {
-                            _ju.addWithFunction(anchorsToUpdate, targetId, function (a) {
-                                return a === targetId;
-                            });
+                            directAdd(anchorsToUpdate, targetId);
                         }
-                        _ju.addWithFunction(connectionsToPaint, conn, function (c) {
-                            return c.id === conn.id;
-                        });
+
+                        hashAdd(connectionsToPaint, conn);
+
                         if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1)) {
-                            _ju.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function (e) {
-                                return e.id === conn.endpoints[oIdx].id;
-                            });
+                            hashAdd(endpointsToPaint, conn.endpoints[oIdx]);
                         }
                     }
                 }
@@ -521,9 +555,11 @@
                         }
                         _updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [ep[i], ep[i]], paint: function () {
                         }}, false, elementId, 0, false, ep[i].anchor.getDefaultFace(), elementId, connectionsToPaint, endpointsToPaint);
-                        _ju.addWithFunction(anchorsToUpdate, elementId, function (a) {
-                            return a === elementId;
-                        });
+
+                        // _ju.addWithFunction(anchorsToUpdate, elementId, function (a) {
+                        //     return a === elementId;
+                        // });
+                        directAdd(anchorsToUpdate, elementId);
                     }
                 }
 
@@ -540,8 +576,8 @@
                 // ... and any other endpoints we came across as a result of the continuous anchors.
                 for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
-                    //endpointsToPaint[i].paint({ timestamp: timestamp, offset: cd, dimensions: cd.s });
-                    endpointsToPaint[i].paint({ timestamp: null, offset: cd, dimensions: cd.s });
+                    endpointsToPaint[i].paint({ timestamp: timestamp, offset: cd, dimensions: cd.s });
+                    //endpointsToPaint[i].paint({ timestamp: null, offset: cd, dimensions: cd.s });
                 }
 
                 // paint all the standard and "dynamic connections", which are connections whose other anchor is
@@ -551,22 +587,19 @@
                 for (i = 0; i < endpointConnections.length; i++) {
                     var otherEndpoint = endpointConnections[i][1];
                     if (otherEndpoint.anchor.constructor === _jp.DynamicAnchor) {
+
                         otherEndpoint.paint({ elementWithPrecedence: elementId, timestamp: timestamp });
-                        _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
-                            return c.id === endpointConnections[i][0].id;
-                        });
+
+                        hashAdd(connectionsToPaint, endpointConnections[i][0]);
+
                         // all the connections for the other endpoint now need to be repainted
                         for (var k = 0; k < otherEndpoint.connections.length; k++) {
                             if (otherEndpoint.connections[k] !== endpointConnections[i][0]) {
-                                _ju.addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function (c) {
-                                    return c.id === otherEndpoint.connections[k].id;
-                                });
+                                hashAdd(connectionsToPaint, otherEndpoint.connections[k]);
                             }
                         }
                     } else {
-                        _ju.addWithFunction(connectionsToPaint, endpointConnections[i][0], function (c) {
-                            return c.id === endpointConnections[i][0].id;
-                        });
+                        hashAdd(connectionsToPaint, endpointConnections[i][0]);
                     }
                 }
 
@@ -577,12 +610,15 @@
                 }
 
                 // paint all the connections
+                //console.log("there are " + connectionsToPaint.length  + " connections to paint");
                 for (i = 0; i < connectionsToPaint.length; i++) {
-                    connectionsToPaint[i].paint({elId: elementId, timestamp: null, recalc: false, clearEdits: clearEdits});
+                    //connectionsToPaint[i].paint({elId: elementId, timestamp: null, recalc: false, clearEdits: clearEdits});
+                    //window.jtime("conn paint " + connectionsToPaint[i].id);
+                    connectionsToPaint[i].paint({elId: elementId, timestamp: timestamp, recalc: false, clearEdits: clearEdits});
+                    //window.jtimeEnd("conn paint " + connectionsToPaint[i].id);
                 }
 
                 window.jtimeEnd("anchor redraw");
-                window.jtimeEnd("anchor redraw " + elementId);
             }
         };
 
