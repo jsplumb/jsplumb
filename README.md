@@ -5,7 +5,7 @@ from IE9 and later.
 
 The final version of jsPlumb to support IE8 was 1.7.10. You can still get 1.7.10 from a tag, if you need it. 
 
-If you're new to jsPlumb, please do take the time to read the [documentation](https://jsplumbtoolkit.com/docs.html). 
+If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.github.io/jsplumb/). 
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 This project is the 'Community Edition' of jsPlumb. The 'Toolkit Edition' is a commercially-licensed wrapper around this. 
