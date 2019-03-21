@@ -19,6 +19,10 @@ For the Community edition the documentation can now be found here:
 
 http://jsplumb.github.io/jsplumb/
 
+## Changelog
+
+Can be found at [http://jsplumb.github.io/jsplumb/changelog.html](http://jsplumb.github.io/jsplumb/changelog.html)
+
 
 ## Installation
 
