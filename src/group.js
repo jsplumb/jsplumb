@@ -142,7 +142,6 @@
                     }
 
                     var elId = _jsPlumb.getId(el);
-                    _jsPlumb.dragManager.setParent(el, elId, groupEl, _jsPlumb.getId(groupEl), elpos);
 
                     var newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top };
 
@@ -628,7 +627,6 @@
             _jsPlumb.setPosition(_el, pos);
             delete _el._jsPlumbGroup;
             _unbindDragHandlers(_el);
-            _jsPlumb.dragManager.clearParent(_el, id);
             return [id, pos];
         }
 
