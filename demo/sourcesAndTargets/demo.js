@@ -21,7 +21,7 @@ jsPlumb.ready(function () {
             stroke: "#558822",
             strokeWidth: 10
         },
-        Container: "canvas"
+        container: "canvas"
     });
 
     // click listener for the enable/disable link in the source box (the blue one).

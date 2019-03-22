@@ -1,6 +1,6 @@
 jsPlumb.ready(function () {
 
-    var j = window.j = jsPlumb.getInstance({Container:canvas, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
+    var j = window.j = jsPlumb.getInstance({container:canvas, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
 
     j.bind("connection", function(p) {
         p.connection.bind("click", function() {

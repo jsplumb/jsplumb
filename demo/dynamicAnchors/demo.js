@@ -52,7 +52,7 @@ jsPlumb.ready(function () {
 
     var instance = jsPlumb.getInstance({
         DragOptions: { cursor: 'pointer', zIndex: 2000 },
-        Container: "canvas"
+        container: "canvas"
     });
 
     // suspend drawing and initialise.

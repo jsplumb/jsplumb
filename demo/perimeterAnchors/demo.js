@@ -5,7 +5,7 @@ jsPlumb.ready(function () {
         PaintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
         Endpoint: [ "Dot", { radius: 5 } ],
         EndpointStyle: { fill: "#ffa500" },
-        Container: "canvas"
+        container: "canvas"
     });
 
     var shapes = jsPlumb.getSelector(".shape");

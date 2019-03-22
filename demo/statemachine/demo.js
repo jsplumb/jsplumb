@@ -14,7 +14,7 @@ jsPlumb.ready(function () {
             } ],
             [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
         ],
-        Container: "canvas"
+        container: "canvas"
     });
 
     instance.registerConnectionType("basic", { anchor:"Continuous", connector:"StateMachine" });

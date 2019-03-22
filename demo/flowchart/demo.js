@@ -25,7 +25,7 @@ jsPlumb.ready(function () {
                 }
             }]
         ],
-        Container: "canvas"
+        container: "canvas"
     });
 
     var basicType = {
