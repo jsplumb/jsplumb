@@ -71,31 +71,31 @@
         _onlyProfile = category;
     };
 
-    var _makeConnectionDragHandler = function (endpoint, placeholder, _jsPlumb) {
-        var stopped = false;
-        return {
-            drag: function () {
-                if (stopped) {
-                    stopped = false;
-                    return true;
-                }
-
-                if (placeholder.element) {
-                    var _ui = _jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
-                    if (_ui != null) {
-                        _jsPlumb.setPosition(placeholder.element, _ui);
-                    }
-                    _jsPlumb.repaint(placeholder.element, _ui);
-                    // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
-                    // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
-                    endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation({element:endpoint})});
-                }
-            },
-            stopDrag: function () {
-                stopped = true;
-            }
-        };
-    };
+    // var _makeConnectionDragHandler = function (endpoint, placeholder, _jsPlumb) {
+    //     var stopped = false;
+    //     return {
+    //         drag: function () {
+    //             if (stopped) {
+    //                 stopped = false;
+    //                 return true;
+    //             }
+    //
+    //             if (placeholder.element) {
+    //                 var _ui = _jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
+    //                 if (_ui != null) {
+    //                     _jsPlumb.setPosition(placeholder.element, _ui);
+    //                 }
+    //                 _jsPlumb.repaint(placeholder.element, _ui);
+    //                 // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
+    //                 // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
+    //                 endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation({element:endpoint})});
+    //             }
+    //         },
+    //         stopDrag: function () {
+    //             stopped = true;
+    //         }
+    //     };
+    // };
 
     var selectorFilter = function (evt, _el, selector, _instance, negate) {
         var t = evt.target || evt.srcElement, ok = false,
@@ -574,7 +574,6 @@
             _currentInstance.floatingEndpoint = _makeFloatingEndpoint(ep.getPaintStyle(), centerAnchor, endpointToFloat, ep.canvas, placeholderInfo.element, _currentInstance, ep.scope);
             var _savedAnchor = _currentInstance.floatingEndpoint.anchor;
             floatingElement = _currentInstance.floatingEndpoint.canvas;
-            //floatingElementSize = _currentInstance.getSize(_currentInstance.floatingEndpoint.canvas);
 
             if (jpc == null) {
 
@@ -588,7 +587,15 @@
                         _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                     }
                 });
-                //endpointDropTargets = endpointDropTargets.filter(function(candidate) { return candidate !== ep.canvas; });
+                _currentInstance.getSelector(_currentInstance.getContainer(), "[jtk-target][jtk-scope-" + ep.scope + "]").forEach(function(candidate) {
+
+                    var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
+                    boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
+                    endpointDropTargets.push({el:candidate, r:boundingRect});
+                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+
+                });
+
                 console.log(endpointDropTargets);
 
                 ep.setHover(false, false);
@@ -1022,15 +1029,6 @@
             }
         };
 
-        var endpointSourceDragHandler = katavorio.draggable(_currentInstance.getContainer(), endpointDragOptions)[0];
-        _currentInstance.bind("container:change", function(newContainer) {
-            endpointSourceDragHandler.destroy();
-            endpointSourceDragHandler = katavorio.draggable(newContainer, endpointDragOptions);
-            endpointSourceDragHandler.addSelector(elementDragOptions);
-        });
-
-
-        endpointSourceDragHandler.addSelector(elementDragOptions);
 
 
         // refresh the offsets for child elements of this element.
@@ -1099,115 +1097,128 @@
                 _currentInstance.revalidate(current);
             }
         };
-        
-        _currentInstance.on(_currentInstance.getContainer(), "mousedown", "[jtk-source]", function(e) {
-            if (e.which === 3 || e.button === 2) {
-                return;
-            }
-           
-            var targetEl = e.target || e.srcElement, sourceDef = this._jsPlumbSourceDefinition, sourceElement = this, def;
-            console.log("mousedown on source " + targetEl + " with definition " + def);
-            if (sourceDef) {
-                // if disabled, return.
-                if (!sourceDef.enabled) {
-                    return;
-                }
 
-                def = sourceDef.def;
+         var mousedownHandler = function(e) {
+             if (e.which === 3 || e.button === 2) {
+                 return;
+             }
 
-                var elid = _currentInstance.getId(this); // elid might have changed since this method was called to configure the element.
+             var targetEl = e.target || e.srcElement, sourceDef = this._jsPlumbSourceDefinition, sourceElement = this, def;
+             console.log("mousedown on source " + targetEl + " with definition " + def);
+             if (sourceDef) {
+                 // if disabled, return.
+                 if (!sourceDef.enabled) {
+                     return;
+                 }
 
-                // if a filter was given, run it, and return if it says no.
-                if (def.filter) {
-                    var r = _ju.isString(def.filter) ? selectorFilter(e, sourceElement, def.filter, _currentInstance, def.filterExclude) : def.filter(e, sourceElement);
-                    if (r === false) {
-                        return;
-                    }
-                }
+                 def = sourceDef.def;
 
-                // if maxConnections reached
-                var sourceCount = _currentInstance.select({source: elid}).length;
-                if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
-                    _ju.consume(e);
-                    if (def.onMaxConnections) {
-                        def.onMaxConnections({
-                            element: this,
-                            maxConnections: sourceDef.maxConnections
-                        }, e);
-                    }
-                    return false;
-                }
+                 var elid = _currentInstance.getId(this); // elid might have changed since this method was called to configure the element.
 
-                // find the position on the element at which the mouse was pressed; this is where the endpoint
-                // will be located.
-                var elxy = _currentInstance.getPositionOnElement(e, sourceElement, _currentInstance.getZoom());
+                 // if a filter was given, run it, and return if it says no.
+                 if (def.filter) {
+                     var r = _ju.isString(def.filter) ? selectorFilter(e, sourceElement, def.filter, _currentInstance, def.filterExclude) : def.filter(e, sourceElement);
+                     if (r === false) {
+                         return;
+                     }
+                 }
 
-                // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
-                // the params passed in, because after a connection is established we're going to reset the endpoint
-                // to have the anchor we were given.
-                var tempEndpointParams = {};
-                root.jsPlumb.extend(tempEndpointParams, def);
-                tempEndpointParams.isTemporarySource = true;
-                tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
-                tempEndpointParams.dragOptions = def.dragOptions || {};
+                 // if maxConnections reached
+                 var sourceCount = _currentInstance.select({source: elid}).length;
+                 if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
+                     _ju.consume(e);
+                     if (def.onMaxConnections) {
+                         def.onMaxConnections({
+                             element: this,
+                             maxConnections: sourceDef.maxConnections
+                         }, e);
+                     }
+                     e.stopImmediatePropagation && e.stopImmediatePropagation();
+                     return false;
+                 }
 
-                if (def.scope) {
-                    tempEndpointParams.scope = def.scope;
-                }
+                 // find the position on the element at which the mouse was pressed; this is where the endpoint
+                 // will be located.
+                 var elxy = _currentInstance.getPositionOnElement(e, sourceElement, _currentInstance.getZoom());
 
-                ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
-                //endpointAddedButNoDragYet = true;
-                ep.setDeleteOnEmpty(true);
+                 // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+                 // the params passed in, because after a connection is established we're going to reset the endpoint
+                 // to have the anchor we were given.
+                 var tempEndpointParams = {};
+                 root.jsPlumb.extend(tempEndpointParams, def);
+                 tempEndpointParams.isTemporarySource = true;
+                 tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
+                 tempEndpointParams.dragOptions = def.dragOptions || {};
 
-                // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
-                // of a successful connection we'll switch to that endpoint.
-                // TODO this is the same code as the programmatic endpoints create on line 1050 ish
-                if (def.uniqueEndpoint) {
-                    if (!def.endpoint) {
-                        def.endpoint = ep;
-                        ep.setDeleteOnEmpty(false);
-                    }
-                    else {
-                        ep.finalEndpoint = def.endpoint;
-                    }
-                }
+                 if (def.scope) {
+                     tempEndpointParams.scope = def.scope;
+                 }
 
-                var _delTempEndpoint = function () {
-                    // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
-                    // it is fired even if dragging has occurred, in which case we would blow away a perfectly
-                    // legitimate endpoint, were it not for this check.  the flag is set after adding an
-                    // endpoint and cleared in a drag listener we set in the dragOptions above.
-                    _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
-                    _currentInstance.off(sourceElement, "mouseup", _delTempEndpoint);
-                    //if (endpointAddedButNoDragYet) {
-                      //  endpointAddedButNoDragYet = false;
-                        _currentInstance.deleteEndpoint(ep);
-                    //}
-                };
+                 ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
+                 //endpointAddedButNoDragYet = true;
+                 ep.setDeleteOnEmpty(true);
 
-                _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
-                _currentInstance.on(sourceElement, "mouseup", _delTempEndpoint);
+                 // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
+                 // of a successful connection we'll switch to that endpoint.
+                 // TODO this is the same code as the programmatic endpoints create on line 1050 ish
+                 if (def.uniqueEndpoint) {
+                     if (!def.endpoint) {
+                         def.endpoint = ep;
+                         ep.setDeleteOnEmpty(false);
+                     }
+                     else {
+                         ep.finalEndpoint = def.endpoint;
+                     }
+                 }
 
-                // optionally check for attributes to extract from the source element
-                var payload = {};
-                if (def.extract) {
-                    for (var att in def.extract) {
-                        var v = targetEl.getAttribute(att);
-                        if (v) {
-                            payload[def.extract[att]] = v;
-                        }
-                    }
-                }
+                 var _delTempEndpoint = function () {
+                     // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
+                     // it is fired even if dragging has occurred, in which case we would blow away a perfectly
+                     // legitimate endpoint, were it not for this check.  the flag is set after adding an
+                     // endpoint and cleared in a drag listener we set in the dragOptions above.
+                     _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
+                     _currentInstance.off(sourceElement, "mouseup", _delTempEndpoint);
+                     //if (endpointAddedButNoDragYet) {
+                     //  endpointAddedButNoDragYet = false;
+                     _currentInstance.deleteEndpoint(ep);
+                     //}
+                 };
 
-                // and then trigger its mousedown event, which will kick off a drag, which will start dragging
-                // a new connection from this endpoint.
-                _currentInstance.trigger(ep.canvas, "mousedown", e, payload);
+                 _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
+                 _currentInstance.on(sourceElement, "mouseup", _delTempEndpoint);
 
-                _ju.consume(e);
-            }
-            
+                 // optionally check for attributes to extract from the source element
+                 var payload = {};
+                 if (def.extract) {
+                     for (var att in def.extract) {
+                         var v = targetEl.getAttribute(att);
+                         if (v) {
+                             payload[def.extract[att]] = v;
+                         }
+                     }
+                 }
+
+                 // and then trigger its mousedown event, which will kick off a drag, which will start dragging
+                 // a new connection from this endpoint.
+                 _currentInstance.trigger(ep.canvas, "mousedown", e, payload);
+
+                 _ju.consume(e);
+             }
+
+         };
+
+        _currentInstance.on(_currentInstance.getContainer(), "mousedown", "[jtk-source]", mousedownHandler);
+
+        var endpointSourceDragHandler = katavorio.draggable(_currentInstance.getContainer(), endpointDragOptions)[0];
+        _currentInstance.bind("container:change", function(newContainer) {
+            endpointSourceDragHandler.destroy();
+            endpointSourceDragHandler = katavorio.draggable(newContainer, endpointDragOptions);
+            endpointSourceDragHandler.addSelector(elementDragOptions);
+            _currentInstance.on(_currentInstance.getContainer(), "mousedown", "[jtk-source]", mousedownHandler);
         });
 
+
+        endpointSourceDragHandler.addSelector(elementDragOptions);
     };
 
     var _setClassName = function (el, cn, classList) {
