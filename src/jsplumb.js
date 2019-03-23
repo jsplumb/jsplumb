@@ -2360,6 +2360,9 @@
                     type = p.connectionType || "default";
 
                 this.manage(elInfo.el);
+                this.setAttribute(elInfo.el, "jtk-target", "");
+                this.setAttribute(elInfo.el, "jtk-scope-" + (p.scope || _currentInstance.Defaults.Scope), "");
+                this.setAttribute(elInfo.el, "jtk-target-" + type, "");
 
                 this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
 
@@ -2418,23 +2421,23 @@
             var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
             p.endpoint = p.endpoint || aae.endpoints[0];
             p.anchor = p.anchor || aae.anchors[0];
-            var maxConnections = p.maxConnections || -1,
-                onMaxConnections = p.onMaxConnections;
+            var maxConnections = p.maxConnections || -1;
+                //onMaxConnections = p.onMaxConnections;
 
             var inputs = el.length && el.constructor !== String ? el : [ el ];
             for (var i = 0, ii = inputs.length; i < ii; i++) {
                 var elInfo = _info(inputs[i]);
-                //_doOne(_info(inputs[i]));
                 // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
                 // and use the endpoint definition if found.
                 var elid = elInfo.id,
                     _del = elInfo.el;//this.getElement(elInfo.el);
 
                 this.manage(_del);
-                this.setAttribute(_del, "jtk-source", true);
+                this.setAttribute(_del, "jtk-source", "");
+                this.setAttribute(_del, "jtk-scope-" + (p.scope || _currentInstance.Defaults.Scope), "");
+                this.setAttribute(_del, "jtk-source-" + type, "");
 
                 this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};
-                //_ensureContainer(elid);
 
                 var _def = {
                     def:root.jsPlumb.extend({}, p),
@@ -2510,117 +2513,6 @@
                     }
                 }.bind(this);
 
-                // TODO move to DOM handler, as a delegated listener
-
-                // when the user presses the mouse, add an Endpoint, if we are enabled.
-                // var mouseDownListener = function (e) {
-                //     // on right mouse button, abort.
-                //     if (e.which === 3 || e.button === 2) {
-                //         return;
-                //     }
-                //
-                //     // TODO store def on element.
-                //     var def = this.sourceEndpointDefinitions[elid][type];
-                //
-                //     // if disabled, return.
-                //     if (!def.enabled) {
-                //         return;
-                //     }
-                //
-                //     elid = this.getId(this.getElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
-                //
-                //     // if a filter was given, run it, and return if it says no.
-                //     if (p.filter) {
-                //         var r = _ju.isString(p.filter) ? selectorFilter(e, elInfo.el, p.filter, this, p.filterExclude) : p.filter(e, elInfo.el);
-                //         if (r === false) {
-                //             return;
-                //         }
-                //     }
-                //
-                //     // if maxConnections reached
-                //     var sourceCount = this.select({source: elid}).length;
-                //     if (def.maxConnections >= 0 && (sourceCount >= def.maxConnections)) {
-                //         if (onMaxConnections) {
-                //             onMaxConnections({
-                //                 element: elInfo.el,
-                //                 maxConnections: maxConnections
-                //             }, e);
-                //         }
-                //         return false;
-                //     }
-                //
-                //     // find the position on the element at which the mouse was pressed; this is where the endpoint
-                //     // will be located.
-                //     var elxy = root.jsPlumb.getPositionOnElement(e, _del, _zoom);
-                //
-                //     // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
-                //     // the params passed in, because after a connection is established we're going to reset the endpoint
-                //     // to have the anchor we were given.
-                //     var tempEndpointParams = {};
-                //     root.jsPlumb.extend(tempEndpointParams, p);
-                //     tempEndpointParams.isTemporarySource = true;
-                //     tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
-                //     tempEndpointParams.dragOptions = dragOptions;
-                //
-                //     if (def.def.scope) {
-                //         tempEndpointParams.scope = def.def.scope;
-                //     }
-                //
-                //     ep = this.addEndpoint(elid, tempEndpointParams);
-                //     endpointAddedButNoDragYet = true;
-                //     ep.setDeleteOnEmpty(true);
-                //
-                //     // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
-                //     // of a successful connection we'll switch to that endpoint.
-                //     // TODO this is the same code as the programmatic endpoints create on line 1050 ish
-                //     if (def.uniqueEndpoint) {
-                //         if (!def.endpoint) {
-                //             def.endpoint = ep;
-                //             ep.setDeleteOnEmpty(false);
-                //         }
-                //         else {
-                //             ep.finalEndpoint = def.endpoint;
-                //         }
-                //     }
-                //
-                //     var _delTempEndpoint = function () {
-                //         // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
-                //         // it is fired even if dragging has occurred, in which case we would blow away a perfectly
-                //         // legitimate endpoint, were it not for this check.  the flag is set after adding an
-                //         // endpoint and cleared in a drag listener we set in the dragOptions above.
-                //         _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
-                //         _currentInstance.off(elInfo.el, "mouseup", _delTempEndpoint);
-                //         if (endpointAddedButNoDragYet) {
-                //             endpointAddedButNoDragYet = false;
-                //             _currentInstance.deleteEndpoint(ep);
-                //         }
-                //     };
-                //
-                //     _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
-                //     _currentInstance.on(elInfo.el, "mouseup", _delTempEndpoint);
-                //
-                //     // optionally check for attributes to extract from the source element
-                //     var payload = {};
-                //     if (def.def.extract) {
-                //         for (var att in def.def.extract) {
-                //             var v = (e.srcElement || e.target).getAttribute(att);
-                //             if (v) {
-                //                 payload[def.def.extract[att]] = v;
-                //             }
-                //         }
-                //     }
-                //
-                //     // and then trigger its mousedown event, which will kick off a drag, which will start dragging
-                //     // a new connection from this endpoint.
-                //     _currentInstance.trigger(ep.canvas, "mousedown", e, payload);
-                //
-                //     _ju.consume(e);
-                //
-                // }.bind(this);
-
-             //   this.on(elInfo.el, "mousedown", mouseDownListener);
-                //_def.trigger = mouseDownListener;
-
                 // if a filter was provided, set it as a dragFilter on the element,
                 // to prevent the element drag function from kicking in when we want to
                 // drag a new connection
@@ -2641,7 +2533,7 @@
         // see api docs
         this.unmakeSource = function (el, connectionType, doNotClearArrays) {
             var info = _info(el);
-            _currentInstance.destroyDroppable(info.el, "internal");
+            //_currentInstance.destroyDroppable(info.el, "internal");
             var eldefs = this.sourceEndpointDefinitions[info.id];
             if (eldefs) {
                 for (var def in eldefs) {
