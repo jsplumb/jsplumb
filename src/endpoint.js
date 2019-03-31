@@ -142,6 +142,7 @@
         this.setDeleteOnEmpty = function(d) {
             deleteOnEmpty = d;
         };
+        this.isDeleteOnEmpty = function() { return deleteOnEmpty; };
 
         var _updateAnchorClass = function () {
             // stash old, get new
@@ -271,7 +272,10 @@
             this.endpoint = ep;
             this.type = this.endpoint.type;
             this.canvas = this.endpoint.canvas;
-            _jsPlumb.setAttribute(this.canvas, "jtk-scope-" + this.scope, true);
+            var scopes = this.scope.split(/\s/);
+            for (var i = 0; i < scopes.length; i++) {
+                _jsPlumb.setAttribute(this.canvas, "jtk-scope-" + scopes[i], true);
+            }
         };
 
         _jp.extend(this, params, typeParameters);
