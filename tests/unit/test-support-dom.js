@@ -197,13 +197,16 @@
                 var ep = _jsPlumb.getEndpoints(elId),
                     epl = ep ? ep.length : 0;
                 equal(epl, count, elId + " has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint"));
-                equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
+                //equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
             };
 
             return {
                 getAttribute:function(el, att) {
                     return el.getAttribute(att);
                 },
+
+                isTargetAttribute: "jtk-target",
+                isSourceAttribute: "jtk-source",
 
                 droppableClass:"jtk-droppable",
 
