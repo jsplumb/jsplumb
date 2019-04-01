@@ -109,7 +109,7 @@ declare module jsPlumb {
 
         getScope(Element: Element | string): string;
 
-        getSelector(context?: Element | Selector, spec?: string): void;
+        getSelector(context?: Element | Selector, spec?: string): Array<Element>;
 
         getSourceScope(element: Element | string): string;
 
