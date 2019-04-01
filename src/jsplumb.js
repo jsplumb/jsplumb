@@ -2258,7 +2258,7 @@
                     } else {
                         var t = [];
                         _el[key].forEach(function (def) {
-                            if (connectionType != def.def.connectionType) {
+                            if (connectionType !== def.def.connectionType) {
                                 t.push(def);
                             }
                         });
@@ -2481,7 +2481,7 @@
                             def.enabled = newState;
                             _currentInstance[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
                         }
-                    })
+                    });
                 }
             });
 
@@ -2500,11 +2500,11 @@
         };
 
         function findFirstSourceDefinition(el, connectionType) {
-            return findFirstDefinition("_jsPlumbSourceDefinitions", el, connectionType)
+            return findFirstDefinition("_jsPlumbSourceDefinitions", el, connectionType);
         }
 
         function findFirstTargetDefinition(el, connectionType) {
-            return findFirstDefinition("_jsPlumbTargetDefinitions", el, connectionType)
+            return findFirstDefinition("_jsPlumbTargetDefinitions", el, connectionType);
         }
 
         function findFirstDefinition(key, el, connectionType) {
