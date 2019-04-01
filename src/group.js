@@ -147,7 +147,7 @@
 
                     _jsPlumb.setPosition(el, newPosition);
 
-                    _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
+                    _jsPlumb.getDragManager().revalidateParent(el, elId, elpos);
 
                     self.updateConnectionsForGroup(group);
 
@@ -440,13 +440,14 @@
         };
 
         var ghost = params.ghost === true;
-        var constrain = ghost || (params.constrain === true);
-        var revert = params.revert !== false;
-        var orphan = params.orphan === true;
-        var prune = params.prune === true;
+        var constrain = this.constrain = ghost || (params.constrain === true);
+        var revert = this.revert = params.revert !== false;
+        var orphan = this.orphan = params.orphan === true;
+        var prune = this.prune = params.prune === true;
         var dropOverride = params.dropOverride === true;
         var proxied = params.proxied !== false;
         var elements = [];
+        var droppable = params.droppable !== false;
         this.connections = { source:[], target:[], internal:[] };
 
         // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
@@ -476,26 +477,26 @@
             // TODO: bind to stop event for this element.
         }
 
-        if (params.droppable !== false) {
-            _jsPlumb.droppable(params.el, {
-                drop:function(p) {
-                    var el = p.drag.getDragElement();
-                    if (el._isJsPlumbGroup) {
-                        return;
-                    }
-                    var currentGroup = el._jsPlumbGroup;
-                    if (currentGroup !== self) {
-                        if (currentGroup != null) {
-                            if (currentGroup.overrideDrop(el, self)) {
-                                return;
-                            }
-                        }
-                        _jsPlumb.getGroupManager().addToGroup(self, el, false);
-                    }
-
-                }
-            });
-        }
+        // if (params.droppable !== false) {
+        //     _jsPlumb.droppable(params.el, {
+        //         drop:function(p) {
+        //             var el = p.drag.getDragElement();
+        //             if (el._isJsPlumbGroup) {
+        //                 return;
+        //             }
+        //             var currentGroup = el._jsPlumbGroup;
+        //             if (currentGroup !== self) {
+        //                 if (currentGroup != null) {
+        //                     if (currentGroup.overrideDrop(el, self)) {
+        //                         return;
+        //                     }
+        //                 }
+        //                 _jsPlumb.getGroupManager().addToGroup(self, el, false);
+        //             }
+        //
+        //         }
+        //     });
+        // }
         var _each = function(_el, fn) {
             var els = _el.nodeType == null ?  _el : [ _el ];
             for (var i = 0; i < els.length; i++) {
@@ -655,7 +656,7 @@
         function _revalidate(_el) {
             var id = _jsPlumb.getId(_el);
             _jsPlumb.revalidate(_el);
-            _jsPlumb.dragManager.revalidateParent(_el, id);
+            _jsPlumb.getDragManager().revalidateParent(_el, id);
         }
 
         //
