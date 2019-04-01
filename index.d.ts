@@ -10,9 +10,19 @@ declare module jsPlumb {
     module jsPlumb {
         function extend(target: Object, source: Object): any;
 
-        function addClass(el: NodeListOf<Element>, clazz: string): void;
+        /**
+         * Adds one or more classes to some element.
+         * @param el DOM element to add class(es) to
+         * @param clazz Either a space delimited string representing one or more classes, or an array of class names.
+         */
+        function addClass(el: Element, clazz: string|Array<string>): void;
 
-        function removeClass(el: NodeListOf<Element>, clazz: string): void;
+        /**
+         *
+         * @param el
+         * @param clazz
+         */
+        function removeClass(el: Element, clazz: string): void;
 
         function on(el: any, event: string, delegateSelector: string, handler: Function): void;
         function on(el: any, event: string, handler: Function): void;
@@ -211,9 +221,21 @@ declare module jsPlumb {
 
         unmakeEveryTarget(): jsPlumbInstance;
 
-        unmakeSource(el: string | Element | Selector): jsPlumbInstance;
+        /**
+         * Cancel the connection source registration for the given element.
+         * @param el The element to cancel the connection source registration for.
+         * @param [connectionType] Optional type to cancel. If you do not provide this and you have source registrations that have an associated connectionType, they will not
+         * be removed. Provide '*' as a value for this to remove every source registration for the element.
+         */
+        unmakeSource(el: string | Element | Selector, connectionType?:string): jsPlumbInstance;
 
-        unmakeTarget(el: string | Element | Selector): jsPlumbInstance;
+        /**
+         * Cancel the connection target registration for the given element.
+         * @param el The element to cancel the connection target registration for.
+         * @param [connectionType] Optional type to cancel. If you do not provide this and you have target registrations that have an associated connectionType, they will not
+         * be removed. Provide '*' as a value for this to remove every target registration for the element.
+         */
+        unmakeTarget(el: string | Element | Selector, connectionType?:string): jsPlumbInstance;
     }
 
     interface ConnectionMadeEventInfo {
