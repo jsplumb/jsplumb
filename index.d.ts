@@ -348,11 +348,12 @@ declare module jsPlumb {
 
     type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
     type UserDefinedEndpointId = string;
-    type EndpointSpec = EndpointId | [EndpointId, EndpointOptions];
+    type EndpointParams = any;
+    type EndpointSpec = EndpointId | [EndpointId, EndpointParams];
 
     interface EndpointOptions {
         anchor?: AnchorSpec;
-        endpoint?: Endpoint;
+        endpoint?: EndpointSpec;
         enabled?: boolean;//= true
         paintStyle?: PaintStyle;
         hoverPaintStyle?: PaintStyle;
