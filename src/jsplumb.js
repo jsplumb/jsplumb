@@ -871,44 +871,55 @@
                 // check for makeSource/makeTarget specs.
 
                 var _oneElementDef = function (type, idx, defs, matchType) {
+                    // `type` is "source" or "target". Check that it exists, and is not already an Endpoint.
                     if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
-                        var tid = _getId(_p[type]), tep = defs[tid];
 
-                        tep = tep ? tep[matchType] : null;
+                        var elDefs = _p[type][type === "source" ? "_jsPlumbSourceDefinitions" : "_jsPlumbTargetDefinitions"];
+                        if (elDefs) {
+                            var defIdx = _ju.findWithFunction(elDefs, function(d) {
+                                return d.def.connectionType == null || d.def.connectionType === matchType;
+                            });
+                            if (defIdx >= 0) {
 
-                        if (tep) {
-                            // if not enabled, return.
-                            if (!tep.enabled) {
-                                return false;
-                            }
-                            var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
-                            if (newEndpoint.isFull()) {
-                                return false;
-                            }
-                            _p[type + "Endpoint"] = newEndpoint;
-                            if (!_p.scope && tep.def.scope) {
-                                _p.scope = tep.def.scope;
-                            } // provide scope if not already provided and endpoint def has one.
-                            if (tep.uniqueEndpoint) {
-                                if (!tep.endpoint) {
-                                    tep.endpoint = newEndpoint;
-                                    newEndpoint.setDeleteOnEmpty(false);
+                                var tep = elDefs[defIdx];
+
+                                if (tep) {
+                                    // if not enabled, return.
+                                    if (!tep.enabled) {
+                                        return false;
+                                    }
+                                    var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
+                                    if (newEndpoint.isFull()) {
+                                        return false;
+                                    }
+                                    _p[type + "Endpoint"] = newEndpoint;
+                                    if (!_p.scope && tep.def.scope) {
+                                        _p.scope = tep.def.scope;
+                                    } // provide scope if not already provided and endpoint def has one.
+                                    if (tep.uniqueEndpoint) {
+                                        if (!tep.endpoint) {
+                                            tep.endpoint = newEndpoint;
+                                            newEndpoint.setDeleteOnEmpty(false);
+                                        }
+                                        else {
+                                            newEndpoint.finalEndpoint = tep.endpoint;
+                                        }
+                                    } else {
+                                        newEndpoint.setDeleteOnEmpty(true);
+                                    }
+
+                                    //
+                                    // copy in connector overlays if present on the source definition.
+                                    //
+                                    if (idx === 0 && tep.def.connectorOverlays) {
+                                        _p.overlays = _p.overlays || [];
+                                        Array.prototype.push.apply(_p.overlays, tep.def.connectorOverlays);
+                                    }
                                 }
-                                else {
-                                    newEndpoint.finalEndpoint = tep.endpoint;
-                                }
-                            } else {
-                                newEndpoint.setDeleteOnEmpty(true);
-                            }
-
-                            //
-                            // copy in connector overlays if present on the source definition.
-                            //
-                            if (idx === 0 && tep.def.connectorOverlays) {
-                                _p.overlays = _p.overlays || [];
-                                Array.prototype.push.apply(_p.overlays, tep.def.connectorOverlays);
                             }
                         }
+
+
                     }
                 };
 
@@ -1322,8 +1333,8 @@
         };
 
         var stTypes = [
-            { el: "source", elId: "sourceId", epDefs: "sourceEndpointDefinitions" },
-            { el: "target", elId: "targetId", epDefs: "targetEndpointDefinitions" }
+            { el: "source", elId: "sourceId", epDefs: "_jsPlumbSourceDefinitions" },
+            { el: "target", elId: "targetId", epDefs: "_jsPlumbTargetDefinitions" }
         ];
 
         var _set = function (c, el, idx, doNotRepaint) {
@@ -1346,22 +1357,34 @@
             }
             else {
                 sid = _getId(el);
-                sep = this[_st.epDefs][sid];
+                sep = idx === 0 ? findFirstSourceDefinition(el) : findFirstTargetDefinition(el);                   //el[_st.epDefs];//this[_st.epDefs][sid];
 
                 if (sid === c[_st.elId]) {
                     ep = null; // dont change source/target if the element is already the one given.
                 }
                 else if (sep) {
-                    for (var t in sep) {
-                        if (!sep[t].enabled) {
-                            return;
-                        }
-                        ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
-                        if (sep[t].uniqueEndpoint) {
-                            sep[t].endpoint = ep;
-                        }
-                        ep.addConnection(c);
+                    if (!sep.enabled) {
+                        return;
                     }
+                    ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
+                    if (sep.uniqueEndpoint) {
+                        sep.endpoint = ep;
+                    }
+                    ep.addConnection(c);
+
+                    //for (var t in sep) {
+
+
+
+                        // if (!sep[t].enabled) {
+                        //     return;
+                        // }
+                        // ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
+                        // if (sep[t].uniqueEndpoint) {
+                        //     sep[t].endpoint = ep;
+                        // }
+                        // ep.addConnection(c);
+                    //}
                 }
                 else {
                     ep = c.makeEndpoint(idx === 0, el, sid);
@@ -2159,143 +2182,15 @@
         this.targetEndpointDefinitions = {};
         this.sourceEndpointDefinitions = {};
 
-        var selectorFilter = function (evt, _el, selector, _instance, negate) {
-            var t = evt.target || evt.srcElement, ok = false,
-                sel = _instance.getSelector(_el, selector);
-            for (var j = 0; j < sel.length; j++) {
-                if (sel[j] === t) {
-                    ok = true;
-                    break;
-                }
+        this._writeScopeAttribute = function(el, scope) {
+            var scopes = scope.split(/\s/);
+            for (var i = 0; i < scopes.length; i++) {
+                this.setAttribute(el, "jtk-scope-" + scopes[i], "");
             }
-            return negate ? !ok : ok;
-        };
-
-        var _makeElementDropHandler = function (elInfo, p, dropOptions, isSource, isTarget) {
-            var proxyComponent = new jsPlumbUIComponent(p);
-            var _drop = p._jsPlumb.EndpointDropHandler({
-                jsPlumb: _currentInstance,
-                enabled: function () {
-                    return elInfo.def.enabled;
-                },
-                isFull: function () {
-                    var targetCount = _currentInstance.select({target: elInfo.id}).length;
-                    return elInfo.def.maxConnections > 0 && targetCount >= elInfo.def.maxConnections;
-                },
-                element: elInfo.el,
-                elementId: elInfo.id,
-                isSource: isSource,
-                isTarget: isTarget,
-                addClass: function (clazz) {
-                    _currentInstance.addClass(elInfo.el, clazz);
-                },
-                removeClass: function (clazz) {
-                    _currentInstance.removeClass(elInfo.el, clazz);
-                },
-                onDrop: function (jpc) {
-                    var source = jpc.endpoints[0];
-                    source.anchor.unlock();
-                },
-                isDropAllowed: function () {
-                    return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
-                },
-                isRedrop:function(jpc) {
-                    return (jpc.suspendedElement != null && jpc.suspendedEndpoint != null && jpc.suspendedEndpoint.element === elInfo.el);
-                },
-                getEndpoint: function (jpc) {
-
-                    // make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
-                    // is set. if its a redrop the new endpoint will be immediately cleaned up.
-
-                    var newEndpoint = elInfo.def.endpoint;
-
-                    // if no cached endpoint, or there was one but it has been cleaned up
-                    // (ie. detached), create a new one
-                    if (newEndpoint == null || newEndpoint._jsPlumb == null) {
-                        var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-                        var pp = eps.endpoints ? root.jsPlumb.extend(p, {
-                            endpoint:elInfo.def.def.endpoint || eps.endpoints[1]
-                        }) :p;
-                        if (eps.anchors) {
-                            pp = root.jsPlumb.extend(pp, {
-                                anchor:elInfo.def.def.anchor || eps.anchors[1]
-                            });
-                        }
-                        newEndpoint = _currentInstance.addEndpoint(elInfo.el, pp);
-                        newEndpoint._mtNew = true;
-                    }
-
-                    if (p.uniqueEndpoint) {
-                        elInfo.def.endpoint = newEndpoint;
-                    }
-
-                    newEndpoint.setDeleteOnEmpty(true);
-
-                    // if connection is detachable, init the new endpoint to be draggable, to support that happening.
-                    if (jpc.isDetachable()) {
-                        newEndpoint.initDraggable();
-                    }
-
-                    // if the anchor has a 'positionFinder' set, then delegate to that function to find
-                    // out where to locate the anchor.
-                    if (newEndpoint.anchor.positionFinder != null) {
-                        var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
-                            elPosition = _currentInstance.getOffset(elInfo.el),
-                            elSize = _currentInstance.getSize(elInfo.el),
-                            ap = dropPosition == null ? [0,0] : newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
-
-                        newEndpoint.anchor.x = ap[0];
-                        newEndpoint.anchor.y = ap[1];
-                        // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
-                        // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
-                        // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
-                        // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
-                        // the target is furthest away from the source.
-                    }
-
-                    return newEndpoint;
-                },
-                maybeCleanup: function (ep) {
-                    if (ep._mtNew && ep.connections.length === 0) {
-                        _currentInstance.deleteObject({endpoint: ep});
-                    }
-                    else {
-                        delete ep._mtNew;
-                    }
-                }
-            });
-
-            // wrap drop events as needed and initialise droppable
-            var dropEvent = root.jsPlumb.dragEvents.drop;
-            dropOptions.scope = dropOptions.scope || (p.scope || _currentInstance.Defaults.Scope);
-            dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop, true);
-            dropOptions.rank = p.rank || 0;
-
-            // if target, return true from the over event. this will cause katavorio to stop setting drops to hover
-            // if multipleDrop is set to false.
-            if (isTarget) {
-                dropOptions[root.jsPlumb.dragEvents.over] = function () { return true; };
-            }
-
-            // vanilla jsplumb only
-            if (p.allowLoopback === false) {
-                dropOptions.canDrop = function (_drag) {
-                    var de = _drag.getDragElement()._jsPlumbRelatedElement;
-                    return de !== elInfo.el;
-                };
-            }
-            _currentInstance.initDroppable(elInfo.el, dropOptions, "internal");
-
-            return _drop;
-
-        };
+        }.bind(this);
 
         // see API docs
         this.makeTarget = function (el, params, referenceParams) {
-
-          //  window.jtime("make target");
-
-            //this.manage(el);
 
             // make an array if only given one element
             var inputs = el.length && el.constructor !== String ? el : [ el ];
@@ -2303,70 +2198,25 @@
             // put jsplumb ref into params without altering the params passed in
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
+            p.connectionType  = p.connectionType || "default";
 
             var maxConnections = p.maxConnections || -1;//,
 
-                // _doOne = function (el) {
-                //
-                //     // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-                //     // and use the endpoint definition if found.
-                //     // decode the info for this element (id and element)
-                //     var elInfo = _info(el),
-                //         elid = elInfo.id,
-                //         dropOptions = root.jsPlumb.extend({}, p.dropOptions || {}),
-                //         type = p.connectionType || "default";
-                //
-                //     this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
-                //
-                //     // _ensureContainer(elid);
-                //
-                //     // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
-                //     // precedence.
-                //     if (elInfo.el._isJsPlumbGroup && dropOptions.rank == null) {
-                //         dropOptions.rank = -1;
-                //     }
-                //
-                //     // store the definition
-                //     var _def = {
-                //         def: root.jsPlumb.extend({}, p),
-                //         uniqueEndpoint: p.uniqueEndpoint,
-                //         maxConnections: maxConnections,
-                //         enabled: true
-                //     };
-                //
-                //     if (p.createEndpoint) {
-                //         _def.uniqueEndpoint = true;
-                //         _def.endpoint = _currentInstance.addEndpoint(el, _def.def);
-                //         _def.endpoint.setDeleteOnEmpty(false);
-                //     }
-                //
-                //     elInfo.def = _def;
-                //     this.targetEndpointDefinitions[elid][type] = _def;
-                //     _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true);
-                //     // stash the definition on the drop
-                //     elInfo.el._katavorioDrop[elInfo.el._katavorioDrop.length - 1].targetDef = _def;
-                //
-                // }.bind(this);
-
             // register each one in the list.
             for (var i = 0, ii = inputs.length; i < ii; i++) {
-                //_doOne(inputs[i]);
+
                 // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
                 // and use the endpoint definition if found.
                 // decode the info for this element (id and element)
                 var elInfo = _info(inputs[i]),
-                    elid = elInfo.id,
-                    dropOptions = root.jsPlumb.extend({}, p.dropOptions || {}),
-                    type = p.connectionType || "default";
+                    dropOptions = root.jsPlumb.extend({}, p.dropOptions || {});
 
                 this.manage(elInfo.el);
                 this.setAttribute(elInfo.el, "jtk-target", "");
-                this.setAttribute(elInfo.el, "jtk-scope-" + (p.scope || _currentInstance.Defaults.Scope), "");
-                this.setAttribute(elInfo.el, "jtk-target-" + type, "");
+                this._writeScopeAttribute(elInfo.el, (p.scope || _currentInstance.Defaults.Scope));
+                this.setAttribute(elInfo.el, "jtk-target-" + p.connectionType, "");
 
-                this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
-
-                // _ensureContainer(elid);
+                elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || [];
 
                 // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
                 // precedence.
@@ -2389,40 +2239,76 @@
                 }
 
                 elInfo.def = _def;
-                this.targetEndpointDefinitions[elid][type] = _def;
-                _makeElementDropHandler(elInfo, p, dropOptions, p.isSource === true, true);
-                // stash the definition on the drop
-                elInfo.el._katavorioDrop[elInfo.el._katavorioDrop.length - 1].targetDef = _def;
+                elInfo.el._jsPlumbTargetDefinitions.push(_def);
             }
-
-          //  window.jtimeEnd("make target");
 
             return this;
         };
 
-        // see api docs
-        this.unmakeTarget = function (el, doNotClearArrays) {
-            var info = _info(el);
-            _currentInstance.destroyDroppable(info.el, "internal");
-            if (!doNotClearArrays) {
-                delete this.targetEndpointDefinitions[info.id];
-            }
 
-            return this;
+        this._unmake = function (type, key, el, connectionType) {
+
+            connectionType = connectionType || "default";
+
+            jsPlumb.each(el, function(_el) {
+                if (_el[key]) {
+                    if (connectionType === "*") {
+                        delete _el[key];
+                        _currentInstance.removeAttribute(_el, "jtk-" + type);
+                    } else {
+                        var t = [];
+                        _el[key].forEach(function (def) {
+                            if (connectionType != def.def.connectionType) {
+                                t.push(def);
+                            }
+                        });
+
+                        if (t.length > 0) {
+                            _el[key] = t;
+                        } else {
+                            delete _el[key];
+                            _currentInstance.removeAttribute(_el, "jtk-" + type);
+                        }
+                    }
+                }
+            });
+        };
+
+        this._unmakeEvery = function(type, key, connectionType) {
+            var els = this.getSelector("[jtk-" + type + "]");
+            for (var i = 0; i < els.length; i++) {
+                this._unmake(type, key, els[i], connectionType);
+            }
+        };
+
+        // see api docs
+        this.unmakeTarget = function (el, connectionType) {
+            return this._unmake("target", "_jsPlumbTargetDefinitions", el, connectionType);
+        };
+
+        // see api docs
+        this.unmakeSource = function (el, connectionType) {
+            return this._unmake("source", "_jsPlumbSourceDefinitions", el, connectionType);
+        };
+
+        // see api docs
+        this.unmakeEverySource = function (connectionType) {
+            this._unmakeEvery("source", "_jsPlumbSourceDefinitions", connectionType || "*");
+        };
+        // see api docs
+        this.unmakeEveryTarget = function (connectionType) {
+            this._unmakeEvery("target", "_jsPlumbTargetDefinitions", connectionType || "*");
         };
 
         // see api docs
         this.makeSource = function (el, params, referenceParams) {
-           // window.jtime("make source");
-            //this.manage(el);
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
-            var type = p.connectionType || "default";
-            var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
+            p.connectionType = p.connectionType || "default";
+            var aae = _currentInstance.deriveEndpointAndAnchorSpec(p.connectionType);
             p.endpoint = p.endpoint || aae.endpoints[0];
             p.anchor = p.anchor || aae.anchors[0];
             var maxConnections = p.maxConnections || -1;
-                //onMaxConnections = p.onMaxConnections;
 
             var inputs = el.length && el.constructor !== String ? el : [ el ];
             for (var i = 0, ii = inputs.length; i < ii; i++) {
@@ -2430,14 +2316,15 @@
                 // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
                 // and use the endpoint definition if found.
                 var elid = elInfo.id,
-                    _del = elInfo.el;//this.getElement(elInfo.el);
+                    _del = elInfo.el;
 
                 this.manage(_del);
                 this.setAttribute(_del, "jtk-source", "");
-                this.setAttribute(_del, "jtk-scope-" + (p.scope || _currentInstance.Defaults.Scope), "");
-                this.setAttribute(_del, "jtk-source-" + type, "");
+                this._writeScopeAttribute(elInfo.el, (p.scope || _currentInstance.Defaults.Scope));
+                this.setAttribute(_del, "jtk-source-" + p.connectionType, "");
 
                 this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};
+                elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || [];
 
                 var _def = {
                     def:root.jsPlumb.extend({}, p),
@@ -2452,9 +2339,8 @@
                     _def.endpoint.setDeleteOnEmpty(false);
                 }
 
-                this.sourceEndpointDefinitions[elid][type] = _def;
                 elInfo.def = _def;
-                elInfo.el._jsPlumbSourceDefinition = _def;
+                elInfo.el._jsPlumbSourceDefinitions.push(_def);
 
                 var stopEvent = root.jsPlumb.dragEvents.stop,
                     dragEvent = root.jsPlumb.dragEvents.drag,
@@ -2520,149 +2406,89 @@
                     _currentInstance.setDragFilter(elInfo.el, p.filter);
                 }
 
-                var dropOptions = root.jsPlumb.extend({}, p.dropOptions || {});
-
-                _makeElementDropHandler(elInfo, p, dropOptions, true, p.isTarget === true);
-            }
-
-          //  window.jtimeEnd("make source");
-
-            return this;
-        };
-
-        // see api docs
-        this.unmakeSource = function (el, connectionType, doNotClearArrays) {
-            var info = _info(el);
-            //_currentInstance.destroyDroppable(info.el, "internal");
-            var eldefs = this.sourceEndpointDefinitions[info.id];
-            if (eldefs) {
-                for (var def in eldefs) {
-                    if (connectionType == null || connectionType === def) {
-                        var mouseDownListener = eldefs[def].trigger;
-                        if (mouseDownListener) {
-                            _currentInstance.off(info.el, "mousedown", mouseDownListener);
-                        }
-                        if (!doNotClearArrays) {
-                            delete this.sourceEndpointDefinitions[info.id][def];
-                        }
-                    }
-                }
             }
 
             return this;
         };
 
-        // see api docs
-        this.unmakeEverySource = function () {
-            for (var i in this.sourceEndpointDefinitions) {
-                _currentInstance.unmakeSource(i, null, true);
-            }
-
-            this.sourceEndpointDefinitions = {};
-            return this;
-        };
 
         var _getScope = function (el, types, connectionType) {
             types = _ju.isArray(types) ? types : [ types ];
-            var id = _getId(el);
             connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
-                var eldefs = this[types[i]][id];
-                if (eldefs && eldefs[connectionType]) {
-                    return eldefs[connectionType].def.scope || this.Defaults.Scope;
+                var eldefs = el[types[i]];
+                if (eldefs) {
+                    var idx = _ju.findWithFunction(eldefs, function(d) { return d.def.connectionType === connectionType; });
+                    if (idx > -1) {
+                        return eldefs[idx].def.scope || this.Defaults.Scope;
+                    }
                 }
             }
         }.bind(this);
 
         var _setScope = function (el, scope, types, connectionType) {
             types = _ju.isArray(types) ? types : [ types ];
-            var id = _getId(el);
             connectionType = connectionType || "default";
             for (var i = 0; i < types.length; i++) {
-                var eldefs = this[types[i]][id];
-                if (eldefs && eldefs[connectionType]) {
-                    eldefs[connectionType].def.scope = scope;
+                var eldefs = el[types[i]];
+                if (eldefs) {
+                    var idx = _ju.findWithFunction(eldefs, function(d) { return d.def.connectionType === connectionType; });
+                    if (idx > -1) {
+                        eldefs[idx].def.scope = scope;
+                    }
                 }
             }
 
         }.bind(this);
 
-        this.getScope = function (el, scope) {
-            return _getScope(el, [ "sourceEndpointDefinitions", "targetEndpointDefinitions" ]);
+        this.getScope = function (el) {
+            return _getScope(el, [ "_jsPlumbSourceDefinitions", "_jsPlumbTargetDefinitions" ]);
         };
         this.getSourceScope = function (el) {
-            return _getScope(el, "sourceEndpointDefinitions");
+            return _getScope(el, "_jsPlumbSourceDefinitions");
         };
         this.getTargetScope = function (el) {
-            return _getScope(el, "targetEndpointDefinitions");
+            return _getScope(el, "_jsPlumbTargetDefinitions");
         };
         this.setScope = function (el, scope, connectionType) {
             this.setSourceScope(el, scope, connectionType);
             this.setTargetScope(el, scope, connectionType);
         };
         this.setSourceScope = function (el, scope, connectionType) {
-            _setScope(el, scope, "sourceEndpointDefinitions", connectionType);
+            _setScope(el, scope, "_jsPlumbSourceDefinitions", connectionType);
             // we get the source scope during the mousedown event, but we also want to set this.
             this.setDragScope(el, scope);
         };
         this.setTargetScope = function (el, scope, connectionType) {
-            _setScope(el, scope, "targetEndpointDefinitions", connectionType);
+            _setScope(el, scope, "_jsPlumbTargetDefinitions", connectionType);
             this.setDropScope(el, scope);
-        };
-
-        // see api docs
-        this.unmakeEveryTarget = function () {
-            for (var i in this.targetEndpointDefinitions) {
-                _currentInstance.unmakeTarget(i, true);
-            }
-
-            this.targetEndpointDefinitions = {};
-            return this;
         };
 
         // does the work of setting a source enabled or disabled.
         var _setEnabled = function (type, el, state, toggle, connectionType) {
-            var a = type === "source" ? this.sourceEndpointDefinitions : this.targetEndpointDefinitions,
-                originalState, info, newState;
+            var originalState = [], newState, os;
 
             connectionType = connectionType || "default";
 
-            // a selector or an array
-            if (el.length && !_ju.isString(el)) {
-                originalState = [];
-                for (var i = 0, ii = el.length; i < ii; i++) {
-                    info = _info(el[i]);
-                    if (a[info.id] && a[info.id][connectionType]) {
-                        originalState[i] = a[info.id][connectionType].enabled;
-                        newState = toggle ? !originalState[i] : state;
-                        a[info.id][connectionType].enabled = newState;
-                        _currentInstance[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled");
-                    }
+            jsPlumb.each(el, function(_el) {
+                var defs = _el[type === "source" ? "_jsPlumbSourceDefinitions" : "_jsPlumbTargetDefinitions"];
+                if (defs) {
+                    jsPlumb.each(defs, function(def) {
+                        if (def.def.connectionType == null || def.def.connectionType === connectionType) {
+                            os = def.enabled;
+                            originalState.push(os);
+                            newState = toggle ? !os : state;
+                            def.enabled = newState;
+                            _currentInstance[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
+                        }
+                    })
                 }
-            }
-            // otherwise a DOM element or a String ID.
-            else {
-                info = _info(el);
-                var id = info.id;
-                if (a[id] && a[id][connectionType]) {
-                    originalState = a[id][connectionType].enabled;
-                    newState = toggle ? !originalState : state;
-                    a[id][connectionType].enabled = newState;
-                    _currentInstance[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled");
-                }
-            }
-            return originalState;
-        }.bind(this);
+            });
 
-        var _first = function (el, fn) {
-            if (_ju.isString(el) || !el.length) {
-                return fn.apply(this, [ el ]);
-            }
-            else if (el.length) {
-                return fn.apply(this, [ el[0] ]);
-            }
+            return originalState.length > 1 ? originalState : originalState[0];
 
         }.bind(this);
+
 
         this.toggleSourceEnabled = function (el, connectionType) {
             _setEnabled("source", el, null, true, connectionType);
@@ -2672,19 +2498,32 @@
         this.setSourceEnabled = function (el, state, connectionType) {
             return _setEnabled("source", el, state, null, connectionType);
         };
+
+        function findFirstSourceDefinition(el, connectionType) {
+            return findFirstDefinition("_jsPlumbSourceDefinitions", el, connectionType)
+        }
+
+        function findFirstTargetDefinition(el, connectionType) {
+            return findFirstDefinition("_jsPlumbTargetDefinitions", el, connectionType)
+        }
+
+        function findFirstDefinition(key, el, connectionType) {
+            var eldefs = el[key];
+            if (eldefs && eldefs.length > 0) {
+                var idx = connectionType == null ? 0 : _ju.findWithFunction(eldefs, function(d) { return d.def.connectionType === connectionType; });
+                if (idx >= 0) {
+                    return eldefs[0];
+                }
+            }
+        }
+
         this.isSource = function (el, connectionType) {
-            connectionType = connectionType || "default";
-            return _first(el, function (_el) {
-                var eldefs = this.sourceEndpointDefinitions[_info(_el).id];
-                return eldefs != null && eldefs[connectionType] != null;
-            }.bind(this));
+            return findFirstSourceDefinition(el, connectionType) != null;
         };
+
         this.isSourceEnabled = function (el, connectionType) {
-            connectionType = connectionType || "default";
-            return _first(el, function (_el) {
-                var sep = this.sourceEndpointDefinitions[_info(_el).id];
-                return sep && sep[connectionType] && sep[connectionType].enabled === true;
-            }.bind(this));
+            var def = findFirstSourceDefinition(el, connectionType);
+            return def != null && def.enabled !== false;
         };
 
         this.toggleTargetEnabled = function (el, connectionType) {
@@ -2693,18 +2532,11 @@
         };
 
         this.isTarget = function (el, connectionType) {
-            connectionType = connectionType || "default";
-            return _first(el, function (_el) {
-                var eldefs = this.targetEndpointDefinitions[_info(_el).id];
-                return eldefs != null && eldefs[connectionType] != null;
-            }.bind(this));
+            return findFirstTargetDefinition(el, connectionType) != null;
         };
         this.isTargetEnabled = function (el, connectionType) {
-            connectionType = connectionType || "default";
-            return _first(el, function (_el) {
-                var tep = this.targetEndpointDefinitions[_info(_el).id];
-                return tep && tep[connectionType] && tep[connectionType].enabled === true;
-            }.bind(this));
+            var def = findFirstTargetDefinition(el, connectionType);
+            return def != null && def.enabled !== false;
         };
         this.setTargetEnabled = function (el, state, connectionType) {
             return _setEnabled("target", el, state, null, connectionType);
@@ -2877,8 +2709,9 @@
                 if (!doNotUnbindInstanceEventListeners) {
                     _currentInstance.unbind();
                 }
-                this.targetEndpointDefinitions = {};
-                this.sourceEndpointDefinitions = {};
+                delete _container._katavorioDrag;
+                //this.targetEndpointDefinitions = {};
+                //this.sourceEndpointDefinitions = {};
                 connections.length = 0;
                 if (this.doReset) {
                     this.doReset();
@@ -2962,10 +2795,10 @@
             }
             delete endpointsByElement[id];
 
-            this.sourceEndpointDefinitions[newId] = this.sourceEndpointDefinitions[id];
-            delete this.sourceEndpointDefinitions[id];
-            this.targetEndpointDefinitions[newId] = this.targetEndpointDefinitions[id];
-            delete this.targetEndpointDefinitions[id];
+            // this.sourceEndpointDefinitions[newId] = this.sourceEndpointDefinitions[id];
+            // delete this.sourceEndpointDefinitions[id];
+            // this.targetEndpointDefinitions[newId] = this.targetEndpointDefinitions[id];
+            // delete this.targetEndpointDefinitions[id];
 
 
 
