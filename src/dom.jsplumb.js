@@ -258,10 +258,9 @@
         var finalPos = params.finalPos || params.pos;
         var ui = { left:finalPos[0], top:finalPos[1] };
 
-        //var ui = null;//instance.getUIPosition([params], instance.getZoom());
+        
         if (ui != null) {
-            //var o = el._jsPlumbDragOptions;
-
+            
             // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
             // have been supplied to the instance's dragOptions.
             var o = el._jsPlumbDragOptions || {};
@@ -276,10 +275,6 @@
                 instance.addClass(el, "jtk-dragged");
             }
             o._dragging = true;
-
-            // for (var i = 0; i < _dragChildren.length; i++) {
-            //     instance.draw(_dragChildren[i]);
-            // }
         }
     };
 
@@ -412,8 +407,26 @@
                 active: "jtk-drag-active",
                 hover: "jtk-drag-hover",
                 ghostProxy:"jtk-ghost-proxy"
+            },
+            zoom:_currentInstance.getZoom(),
+            constrain:function(desiredLoc, dragEl, constrainRect, size) {
+                var x = desiredLoc[0], y = desiredLoc[1];
+
+                if (dragEl._jsPlumbGroup && dragEl._jsPlumbGroup.constrain) {
+                    x = Math.max(desiredLoc[0], 0);
+                    y = Math.max(desiredLoc[1], 0);
+                    x = Math.min(x, constrainRect.w - size[0]);
+                    y = Math.min(y, constrainRect.h - size[1]);
+
+                }
+
+                return [x,y];
             }
         });
+
+        _currentInstance._katavorio_main = katavorio;
+
+        _currentInstance.bind("zoom", function(z) { katavorio.setZoom(z); });
 
         //
         // ------------ drag handler for elements (and elements inside groups). this is added as a selector on the endpoint drag handler below ------------------
@@ -583,7 +596,7 @@
                     if (candidate !== ep.canvas && candidate !== _currentInstance.floatingEndpoint.canvas) {
                         var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
                         boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                        endpointDropTargets.push({el:candidate, r:boundingRect});
+                        endpointDropTargets.push({el:candidate, r:boundingRect, endpoint:candidate._jsPlumb});
                         _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                     }
                 });
@@ -591,8 +604,18 @@
 
                     var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
                     boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                    endpointDropTargets.push({el:candidate, r:boundingRect});
-                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                    var d = {el:candidate, r:boundingRect};
+
+                    // look for at least one target definition that is not disabled on the given element.
+                    var targetDefinition = _ju.findWithFunction(candidate._jsPlumbTargetDefinitions, function(tdef) {
+                        return tdef.enabled !== false;
+                    });
+
+                    // if there is at least one enabled target definition, add this element to the drop targets
+                    if (targetDefinition !== -1) {
+                        endpointDropTargets.push(d);
+                        _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                    }
 
                 });
 
@@ -690,6 +713,7 @@
             _currentInstance.currentlyDragging = true;
 
         };
+
         endpointDragOptions.drag = function (params) {
             if (_stopped) {
                 _stopped = false;
@@ -705,7 +729,7 @@
                 _currentInstance.repaint(placeholderInfo.element, _ui);
 
                 var boundingRect = { x:params.pos[0], y:params.pos[1], w:floatingElementSize[0], h:floatingElementSize[1]},
-                    newDropTarget, idx, _cont, candidateTarget;
+                    newDropTarget, idx, _cont;
 
                 for (var i = 0; i < endpointDropTargets.length; i++) {
 
@@ -717,10 +741,14 @@
 
                 if (newDropTarget !== currentDropTarget && currentDropTarget != null) {
                     idx = _currentInstance.getFloatingAnchorIndex(jpc);
-                    candidateTarget = currentDropTarget.el._jsPlumb;
+
                     _currentInstance.removeClass(currentDropTarget.el, hoverClass);
-                    candidateTarget.removeClass(_currentInstance.endpointDropAllowedClass);
-                    candidateTarget.removeClass(_currentInstance.endpointDropForbiddenClass);
+
+                    if (currentDropTarget.endpoint) {
+                        currentDropTarget.endpoint.removeClass(_currentInstance.endpointDropAllowedClass);
+                        currentDropTarget.endpoint.removeClass(_currentInstance.endpointDropForbiddenClass);
+                    }
+
                     jpc.endpoints[idx].anchor.out();
                 }
 
@@ -728,17 +756,20 @@
                     _currentInstance.addClass(newDropTarget.el, hoverClass);
 
                     idx = _currentInstance.getFloatingAnchorIndex(jpc);
-                    candidateTarget = newDropTarget.el._jsPlumb;
-                    _cont = (candidateTarget.isTarget && idx !== 0) || (jpc.suspendedEndpoint && candidateTarget.referenceEndpoint && candidateTarget.referenceEndpoint.id === jpc.suspendedEndpoint.id);
-                    if (_cont) {
-                        var bb = _currentInstance.checkCondition("checkDropAllowed", {
-                            sourceEndpoint: jpc.endpoints[idx],
-                            targetEndpoint: candidateTarget,
-                            connection: jpc
-                        });
-                        candidateTarget[(bb ? "add" : "remove") + "Class"](_currentInstance.endpointDropAllowedClass);
-                        candidateTarget[(bb ? "remove" : "add") + "Class"](_currentInstance.endpointDropForbiddenClass);
-                        jpc.endpoints[idx].anchor.over(candidateTarget.anchor, candidateTarget);
+
+                    if (newDropTarget.endpoint != null) {
+
+                        _cont = (newDropTarget.endpoint.isTarget && idx !== 0) || (jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === jpc.suspendedEndpoint.id);
+                        if (_cont) {
+                            var bb = _currentInstance.checkCondition("checkDropAllowed", {
+                                sourceEndpoint: jpc.endpoints[idx],
+                                targetEndpoint: newDropTarget.endpoint,
+                                connection: jpc
+                            });
+                            newDropTarget.endpoint[(bb ? "add" : "remove") + "Class"](_currentInstance.endpointDropAllowedClass);
+                            newDropTarget.endpoint[(bb ? "remove" : "add") + "Class"](_currentInstance.endpointDropForbiddenClass);
+                            jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
+                        }
                     }
                 }
 
@@ -769,11 +800,53 @@
             if (jpc && jpc.endpoints != null) {
 
                 if (currentDropTarget != null) {
-                    console.log("dropped on an endpoint " + currentDropTarget.el._jsPlumb);
+                    console.log("dropped on a target" + currentDropTarget.el);
 
-                    var idx = _currentInstance.getFloatingAnchorIndex(jpc);
+                    var idx = _currentInstance.getFloatingAnchorIndex(jpc), dropEndpoint;
 
-                    var dropEndpoint = currentDropTarget.el._jsPlumb;
+                    if (currentDropTarget.endpoint == null) {
+                        // need to add one per the target spec.
+
+                        // find a suitable target definition, by matching the source of the drop element with the targets registered on the
+                        // drop target
+                        var targetDefinition = getTargetDefinition(currentDropTarget.el, p.e);
+
+                        // if no cached endpoint, or there was one but it has been cleaned up
+                        // (ie. detached), create a new one
+                        var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
+
+
+
+                        var pp = eps.endpoints ? root.jsPlumb.extend(p, {
+                            endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
+                        }) :p;
+                        if (eps.anchors) {
+                            pp = root.jsPlumb.extend(pp, {
+                                anchor:targetDefinition.def.anchor || eps.anchors[1]
+                            });
+                        }
+                        dropEndpoint = _currentInstance.addEndpoint(currentDropTarget.el, pp);
+                        dropEndpoint._mtNew = true;
+                        dropEndpoint.setDeleteOnEmpty(true);
+
+                        if (dropEndpoint.anchor.positionFinder != null) {
+                            var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
+                                elPosition = _currentInstance.getOffset(currentDropTarget.el),
+                                elSize = _currentInstance.getSize(currentDropTarget.el),
+                                ap = dropPosition == null ? [0,0] : dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
+
+                            dropEndpoint.anchor.x = ap[0];
+                            dropEndpoint.anchor.y = ap[1];
+                            // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
+                            // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
+                            // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
+                            // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
+                            // the target is furthest away from the source.
+                        }
+                    } else {
+                        dropEndpoint = currentDropTarget.endpoint;
+                    }
+
                     dropEndpoint.removeClass(_currentInstance.endpointDropAllowedClass);
                     dropEndpoint.removeClass(_currentInstance.endpointDropForbiddenClass);
 
@@ -800,13 +873,13 @@
 
                     // ensure we dont bother trying to drop sources on non-source eps, and same for target.
 
-                    if ((idx === 0 && !ep.isSource) || (idx === 1 && !ep.isTarget)) {
-                        // if (dhParams.maybeCleanup) {
-                        //     dhParams.maybeCleanup(_ep);
-                        // }
-                        maybeCleanup(dropEndpoint);
-                        return;
-                    }
+                    // if ((idx === 0 && !ep.isSource) || (idx === 1 && !ep.isTarget)) {
+                    //     // if (dhParams.maybeCleanup) {
+                    //     //     dhParams.maybeCleanup(_ep);
+                    //     // }
+                    //     maybeCleanup(dropEndpoint);
+                    //     return;
+                    // }
 
 
                     // if (dhParams.onDrop) {
@@ -919,6 +992,13 @@
                             if (_ju.isObject(optionalData)) {
                                 jpc.mergeData(optionalData);
                             }
+
+                            if (jpc.endpoints[0]._originalAnchor) {
+                                var newSourceAnchor = _currentInstance.makeAnchor(jpc.endpoints[0]._originalAnchor, jpc.endpoints[0].elementId);
+                                jpc.endpoints[0].setAnchor(newSourceAnchor, true);
+                                delete jpc.endpoints[0]._originalAnchor;
+                            }
+
                             // finalise will inform the anchor manager and also add to
                             // connectionsByScope if necessary.
                             _currentInstance.finaliseConnection(jpc, null, originalEvent, false);
@@ -1098,31 +1178,63 @@
             }
         };
 
+        //
+        // find a source definition that is enabled and matches the given event (by running its filter if there is one, or just
+        // assuming it matches if there is not).
+        //
+        // Source definitions on the given element are tested in the order they appear in the array. There is currently no way to
+        // rank these.
+        //
+        function getSourceDefinition(fromElement, evt) {
+            var sourceDef;
+            if (fromElement._jsPlumbSourceDefinitions) {
+                for (var i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
+                    sourceDef = fromElement._jsPlumbSourceDefinitions[i];
+                    if (sourceDef.enabled !== false) {
+                        if (sourceDef.def.filter) {
+                            var r = _ju.isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter, _currentInstance, sourceDef.def.filterExclude) : sourceDef.def.filter(evt, fromElement);
+                            if (r !== false) {
+                                return sourceDef;
+                            }
+                        } else {
+                            return sourceDef;
+                        }
+                    }
+                }
+            }
+        }
+
+        function getTargetDefinition(fromElement, evt) {
+            var targetDef;
+            if (fromElement._jsPlumbTargetDefinitions) {
+                for (var i = 0; i < fromElement._jsPlumbTargetDefinitions.length; i++) {
+                    targetDef = fromElement._jsPlumbTargetDefinitions[i];
+                    if (targetDef.enabled !== false) {
+                        if (targetDef.def.filter) {
+                            var r = _ju.isString(targetDef.def.filter) ? selectorFilter(evt, fromElement, targetDef.def.filter, _currentInstance, targetDef.def.filterExclude) : targetDef.def.filter(evt, fromElement);
+                            if (r !== false) {
+                                return targetDef;
+                            }
+                        } else {
+                            return targetDef;
+                        }
+                    }
+                }
+            }
+        }
+
          var mousedownHandler = function(e) {
              if (e.which === 3 || e.button === 2) {
                  return;
              }
 
-             var targetEl = e.target || e.srcElement, sourceDef = this._jsPlumbSourceDefinition, sourceElement = this, def;
+             var elid = _currentInstance.getId(this);
+
+             var targetEl = e.target || e.srcElement, sourceDef = getSourceDefinition(this, e, elid), sourceElement = this, def;
              console.log("mousedown on source " + targetEl + " with definition " + def);
+
              if (sourceDef) {
-                 // if disabled, return.
-                 if (!sourceDef.enabled) {
-                     return;
-                 }
-
                  def = sourceDef.def;
-
-                 var elid = _currentInstance.getId(this); // elid might have changed since this method was called to configure the element.
-
-                 // if a filter was given, run it, and return if it says no.
-                 if (def.filter) {
-                     var r = _ju.isString(def.filter) ? selectorFilter(e, sourceElement, def.filter, _currentInstance, def.filterExclude) : def.filter(e, sourceElement);
-                     if (r === false) {
-                         return;
-                     }
-                 }
-
                  // if maxConnections reached
                  var sourceCount = _currentInstance.select({source: elid}).length;
                  if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
@@ -1148,15 +1260,16 @@
                  root.jsPlumb.extend(tempEndpointParams, def);
                  tempEndpointParams.isTemporarySource = true;
                  tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
-                 tempEndpointParams.dragOptions = def.dragOptions || {};
+                 // tempEndpointParams.dragOptions = def.dragOptions || {};
 
                  if (def.scope) {
                      tempEndpointParams.scope = def.scope;
                  }
 
                  ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
-                 //endpointAddedButNoDragYet = true;
                  ep.setDeleteOnEmpty(true);
+                 // keep a reference to the anchor we want to use if the connection is finalised.
+                 ep._originalAnchor = def.anchor || _currentInstance.Defaults.Anchor;
 
                  // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
                  // of a successful connection we'll switch to that endpoint.
@@ -1171,21 +1284,23 @@
                      }
                  }
 
-                 var _delTempEndpoint = function () {
-                     // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
-                     // it is fired even if dragging has occurred, in which case we would blow away a perfectly
-                     // legitimate endpoint, were it not for this check.  the flag is set after adding an
-                     // endpoint and cleared in a drag listener we set in the dragOptions above.
-                     _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
-                     _currentInstance.off(sourceElement, "mouseup", _delTempEndpoint);
-                     //if (endpointAddedButNoDragYet) {
-                     //  endpointAddedButNoDragYet = false;
-                     _currentInstance.deleteEndpoint(ep);
-                     //}
-                 };
+                 // var _delTempEndpoint = function () {
+                 //     // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
+                 //     // it is fired even if dragging has occurred, in which case we would blow away a perfectly
+                 //     // legitimate endpoint, were it not for this check.  the flag is set after adding an
+                 //     // endpoint and cleared in a drag listener we set in the dragOptions above.
+                 //     // _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
+                 //     // _currentInstance.off(sourceElement, "mouseup", _delTempEndpoint);
+                 //     // _currentInstance.deleteEndpoint(ep);
+                 //     console.log("clear endpoints");
+                 // };
+                 //
+                 // _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
+                 // _currentInstance.on(sourceElement, "mouseup", _delTempEndpoint);
 
-                 _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
-                 _currentInstance.on(sourceElement, "mouseup", _delTempEndpoint);
+                 // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
+                 sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
+                 sourceElement._jsPlumbOrphanedEndpoints.push(ep);
 
                  // optionally check for attributes to extract from the source element
                  var payload = {};
@@ -1208,6 +1323,24 @@
          };
 
         _currentInstance.on(_currentInstance.getContainer(), "mousedown", "[jtk-source]", mousedownHandler);
+
+        //
+        // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
+        // replaces what in previous versions was a mousedown/mouseup handler per element.
+        //
+        _currentInstance.on(_currentInstance.getContainer(), "mouseup", "[jtk-source]", function(e) {
+            console.log("a mouse up event occurred on a source element");
+            console.dir(e);
+            if (this._jsPlumbOrphanedEndpoints) {
+                _jp.each(this._jsPlumbOrphanedEndpoints, function(ep) {
+                    if (!ep.isDeleteOnEmpty() && ep.connections.length === 0) {
+                        _currentInstance.deleteEndpoint(ep);
+                    }
+                });
+
+                this._jsPlumbOrphanedEndpoints.length = 0;
+            }
+        });
 
         var endpointSourceDragHandler = katavorio.draggable(_currentInstance.getContainer(), endpointDragOptions)[0];
         _currentInstance.bind("container:change", function(newContainer) {
@@ -1353,16 +1486,17 @@
         addClass: function (el, clazz) {
 
             if (el != null && clazz != null && clazz.length > 0) {
-                window.jtime("addClass");
-                if (el.classList) {
-                    var classes = Array.isArray(clazz) ? clazz : _ju.fastTrim(clazz).split(/\s+/);
-                    window.DOMTokenList.prototype.add.apply(el.classList, classes);
 
-                } else {
-                    _classManip(el, clazz);
-                }
+                _jp.each(el, function(_el) {
+                    if (_el.classList) {
+                        var classes = Array.isArray(clazz) ? clazz : _ju.fastTrim(clazz).split(/\s+/);
+                        window.DOMTokenList.prototype.add.apply(_el.classList, classes);
 
-                window.jtimeEnd("addClass");
+                    } else {
+                        _classManip(_el, clazz);
+                    }
+
+                });
 
             }
         },
@@ -1376,25 +1510,29 @@
         },
         removeClass: function (el, clazz) {
             if (el != null && clazz != null && clazz.length > 0) {
-                if (el.classList) {
-                    window.DOMTokenList.prototype.remove.apply(el.classList, clazz.split(/\s+/));
-                } else {
-                    _classManip(el, null, clazz);
-                }
+                _jp.each(el, function(_el) {
+                    if (_el.classList) {
+                        window.DOMTokenList.prototype.remove.apply(_el.classList, clazz.split(/\s+/));
+                    } else {
+                        _classManip(_el, null, clazz);
+                    }
+                });
             }
         },
         toggleClass:function(el, clazz) {
             if (el != null && clazz != null && clazz.length > 0) {
-                if (el.classList) {
-                    el.classList.toggle(clazz);
-                }
-                else {
-                    if (jsPlumb.hasClass(el, clazz)) {
-                        jsPlumb.removeClass(el, clazz);
-                    } else {
-                        jsPlumb.addClass(el, clazz);
+                _jp.each(el, function(_el) {
+                    if (_el.classList) {
+                        _el.classList.toggle(clazz);
                     }
-                }
+                    else {
+                        if (jsPlumb.hasClass(_el, clazz)) {
+                            jsPlumb.removeClass(_el, clazz);
+                        } else {
+                            jsPlumb.addClass(_el, clazz);
+                        }
+                    }
+                });
             }
 
         },
@@ -1837,13 +1975,25 @@
             }
         },
         addToDragSelection: function (spec) {
-            _getDragManager(this).select(spec);
+            this._dragSelection = this._dragSelection || [];
+            this._dragSelectionMap = this._dragSelectionMap || {};
+
+            _jp.each(spec, function(el) {
+                this._dragSelectionMap[this.getId(el)] = el;
+                this._dragSelection.push(el);
+            }.bind(this));
         },
         removeFromDragSelection: function (spec) {
-            _getDragManager(this).deselect(spec);
+            //_getDragManager(this).deselect(spec);
+            _jp.each(spec, function(el) {
+                this._dragSelectionMap && delete this._dragSelectionMap[this.getId(el)];
+                _ju.removeWithFunction(this._dragSelection || [], function(e) { return e === el; });
+            }.bind(this));
         },
         clearDragSelection: function () {
-            _getDragManager(this).deselectAll();
+            //_getDragManager(this).deselectAll();
+            this._dragSelection = [];
+            this._dragSelectionMap = {};
         },
         trigger: function (el, event, originalEvent, payload) {
             this.getEventManager().trigger(el, event, originalEvent, payload);
