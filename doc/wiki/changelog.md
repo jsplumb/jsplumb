@@ -26,12 +26,15 @@ class but we include it here for completeness
 
 - `getWidth` and `getHeight` methods removed from jsPlumb instance.
 
-- `addClass`, `removeClass` and `toggleClass` only accept a DOM element as their first argument now, where previously they would accept a DOM element, an
-array of DOM elements, an element ID, or an array of element IDs. 
 
 - `updateClasses` method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.
+
 - `setClass` method removed from jsPlumb.
-- it is not possible to subclass Connection or Endpoint to provide your own implementations now.  
+
+- it is not possible to subclass Connection or Endpoint to provide your own implementations now.
+  
+- elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
+for every scope that is assigned.
 
 
 New Functionality:
