@@ -97,7 +97,7 @@ var testSuite = function (_jsPlumb) {
 
         c_noparent = support.addDiv("c_noparent", null, "w", 1000, 1000);
 
-        _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
+        //_jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
 
         _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
         _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
@@ -130,6 +130,9 @@ var testSuite = function (_jsPlumb) {
     test("groups, simple access", function() {
 
         _setupGroups();
+        
+        // check the `jtk-group` attribute was written
+        ok(c4.getAttribute("jtk-group") != null, "`jtk-group` attribute written");
 
         // check a group has members
         equal(_jsPlumb.getGroup("four").getMembers().length, 2, "2 members in group four");
@@ -962,7 +965,7 @@ var testSuite = function (_jsPlumb) {
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
 
-        _jsPlumb.draggable(d2);
+        //_jsPlumb.draggable(d2);
 
         _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
 
@@ -992,7 +995,7 @@ var testSuite = function (_jsPlumb) {
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
 
-        _jsPlumb.draggable(d2);
+      //  _jsPlumb.draggable(d2);
 
         var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
 
