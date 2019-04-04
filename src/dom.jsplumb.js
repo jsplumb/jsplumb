@@ -219,15 +219,18 @@
     }
 
 
-    var _dragOffset = null;
+    var _dragOffset = null, _groupLocations = [];
+
     var _dragStart = function(instance, params) {
         var el = params.drag.getDragElement();
+
 
         if(hasManagedParent(instance.getContainer(), el) && el.offsetParent._jsPlumbGroup == null) {
             return false;
         } else {
-            //var options = el._jsPlumbDragOptions;
-            //_dragChildren = el.querySelectorAll("[jtk-managed]");
+
+
+
 
             // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
             // have been supplied to the instance's dragOptions.
@@ -242,6 +245,24 @@
                 cont = options.canDrag();
             }
             if (cont) {
+
+                _groupLocations.length = 0;
+
+                instance.getSelector(instance.getContainer(), "[jtk-group]").forEach(function(candidate) {
+                    if (candidate._jsPlumbGroup && candidate._jsPlumbGroup.droppable !== false && candidate._jsPlumbGroup.enabled !== false) {
+                        var o = instance.getOffset(candidate), s = instance.getSize(candidate);
+                        var boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
+                        _groupLocations.push({el:candidate, r:boundingRect, group:el._jsPlumbGroup});
+
+                        // _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                    }
+
+
+
+
+
+                });
+
                 instance.setHoverSuspended(true);
                 instance.select({source: el}).addClass(instance.elementDraggingClass + " " + instance.sourceElementDraggingClass, true);
                 instance.select({target: el}).addClass(instance.elementDraggingClass + " " + instance.targetElementDraggingClass, true);
@@ -270,6 +291,10 @@
                 ui.top += _dragOffset.top;
             }
 
+            
+            // TODO  calculate if there is a target group 
+            
+            
             instance.draw(el, ui, null, true);
             if (o._dragging) {
                 instance.addClass(el, "jtk-dragged");
@@ -301,9 +326,17 @@
             // TODO refactor, see above: these drag options dont exist now
             //delete _e[0]._jsPlumbDragOptions._dragging;
 
+            // TODO  if there is a target group, we're dropping on it. what to do?
+
             this.removeClass(_e[0], "jtk-dragged");
             this.select({source: dragElement}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
             this.select({target: dragElement}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+
+            // if the element was in a group, perhaps take action.
+            if (dragElement._jsPlumbGroup) {
+                console.log("");
+            }
+
         }.bind(instance);
 
         for (var i = 0; i < elements.length; i++) {
@@ -438,15 +471,6 @@
         elementDragOptions.drag = _ju.wrap(elementDragOptions.drag, function(p) { return _dragMove(_currentInstance, p); });
         elementDragOptions.stop = _ju.wrap(elementDragOptions.stop, function(p) { return _dragStop(_currentInstance, p); });
 
-        // var elementDragHandler = katavorio.draggable(_currentInstance.getContainer(), elementDragOptions)[0];
-        // _currentInstance.bind("container:change", function(newContainer) {
-        //     elementDragHandler.destroy();
-        //     elementDragHandler = katavorio.draggable(newContainer, elementDragOptions);
-        // });
-
-        //_currentInstance["_katavorio_main"] = katavorio;
-
-
         //
         // ------------ drag handler for endpoints (source and target) ------------------
         //
@@ -465,7 +489,7 @@
             currentDropTarget = null;
 
         endpointDragOptions.start = function(p) {
-            console.log("drag started on endpoint");
+            //console.log("drag started on endpoint");
 
             currentDropTarget = null;
 
