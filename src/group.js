@@ -429,6 +429,7 @@
         var self = this;
         var el = params.el;
         this.getEl = function() { return el; };
+        _jsPlumb.setAttribute(el, "jtk-group", "");
         this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
 
