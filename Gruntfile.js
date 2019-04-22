@@ -195,14 +195,13 @@ module.exports = function(grunt) {
         }
     });
 
-    // Load the plugin that provides the "docular" tasks.
+
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-qunit-junit');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
@@ -218,7 +217,7 @@ module.exports = function(grunt) {
     });
 
 
-    grunt.registerTask("build", [ 'build-src', 'yuidoc', 'exec:npmpack' ]);
+    grunt.registerTask("build", [ 'build-src', 'exec:npmpack' ]);
     grunt.registerTask('build-src', ['clean', 'jshint', 'concat', 'uglify', 'insertVersion' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-docs', ['clean:docs', 'docs', 'jekyll', 'finaliseDocs', 'copy:docs', 'copy:docs_js','copy:docs_css','copy:docs_img']);
