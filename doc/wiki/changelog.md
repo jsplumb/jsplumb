@@ -1,3 +1,9 @@
+## 2.9.2
+
+April 22nd 2019
+
+- upgrade Katavorio to 1.4.2
+
 ## 2.9.1
 
 March 7th 2019
