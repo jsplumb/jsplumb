@@ -42,6 +42,12 @@ New Functionality:
 - `elementsDraggable` added to Defaults, with a default value of true.
 
 
+## 2.9.2
+
+April 22nd 2019
+
+- upgrade Katavorio to 1.4.2
+
 ## 2.9.1
 
 March 7th 2019

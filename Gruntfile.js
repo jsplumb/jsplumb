@@ -195,7 +195,7 @@ module.exports = function(grunt) {
         }
     });
 
-    // Load the plugin that provides the "docular" tasks.
+
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
