@@ -58,6 +58,8 @@ var testSuite = function (_jsPlumb) {
             e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true}),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
 
+        _jsPlumb.repaintEverything();
+
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
