@@ -1254,7 +1254,7 @@
                     if (jpc.suspendedEndpoint) {
                         jpc.endpoints[idx] = jpc.suspendedEndpoint;
                         jpc.setHover(false);
-                        jpc._forceDetach = true;
+                        //jpc._forceDetach = true;
                         if (idx === 0) {
                             jpc.source = jpc.suspendedEndpoint.element;
                             jpc.sourceId = jpc.suspendedEndpoint.elementId;
@@ -1273,7 +1273,7 @@
                         }
 
                         _jsPlumb.repaint(jpc.sourceId);
-                        jpc._forceDetach = false;
+                        //jpc._forceDetach = false;
                     }
                 };
 
