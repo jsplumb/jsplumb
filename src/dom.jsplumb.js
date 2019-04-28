@@ -612,40 +612,45 @@
             var _savedAnchor = _currentInstance.floatingEndpoint.anchor;
             floatingElement = _currentInstance.floatingEndpoint.canvas;
 
-            if (jpc == null) {
+            var scope = ep._jsPlumb.scope;
 
-                var boundingRect;
-                // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
-                _currentInstance.getSelector(_currentInstance.getContainer(), ".jtk-endpoint[jtk-scope-" + ep.scope + "]").forEach(function(candidate) {
-                    if (candidate !== ep.canvas && candidate !== _currentInstance.floatingEndpoint.canvas) {
-                        var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
-                        boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                        endpointDropTargets.push({el:candidate, r:boundingRect, endpoint:candidate._jsPlumb});
-                        _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
-                    }
-                });
-                _currentInstance.getSelector(_currentInstance.getContainer(), "[jtk-target][jtk-scope-" + ep.scope + "]").forEach(function(candidate) {
-
+            var boundingRect;
+            // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
+            _currentInstance.getSelector(_currentInstance.getContainer(), ".jtk-endpoint[jtk-scope-" + ep.scope + "]").forEach(function(candidate) {
+                //if (candidate !== ep.canvas && candidate !== _currentInstance.floatingEndpoint.canvas) {
+                if ((jpc != null || candidate !== ep.canvas) && candidate !== _currentInstance.floatingEndpoint.canvas) {
                     var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
                     boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                    var d = {el:candidate, r:boundingRect};
+                    endpointDropTargets.push({el:candidate, r:boundingRect, endpoint:candidate._jsPlumb});
+                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                }
+            });
+            _currentInstance.getSelector(_currentInstance.getContainer(), "[jtk-target][jtk-scope-" + ep.scope + "]").forEach(function(candidate) {
 
-                    // look for at least one target definition that is not disabled on the given element.
-                    var targetDefinition = _ju.findWithFunction(candidate._jsPlumbTargetDefinitions, function(tdef) {
-                        return tdef.enabled !== false;
-                    });
+                var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
+                boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
+                var d = {el:candidate, r:boundingRect};
 
-                    // if there is at least one enabled target definition, add this element to the drop targets
-                    if (targetDefinition !== -1) {
-                        endpointDropTargets.push(d);
-                        _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
-                    }
-
+                // look for at least one target definition that is not disabled on the given element.
+                var targetDefinition = _ju.findWithFunction(candidate._jsPlumbTargetDefinitions, function(tdef) {
+                    return tdef.enabled !== false;
                 });
 
-                console.log(endpointDropTargets);
+                // if there is at least one enabled target definition, add this element to the drop targets
+                if (targetDefinition !== -1) {
+                    endpointDropTargets.push(d);
+                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                }
 
-                ep.setHover(false, false);
+            });
+
+            console.log(endpointDropTargets);
+
+            ep.setHover(false, false);
+
+            if (jpc == null) {
+
+
                 // create a connection. one end is this endpoint, the other is a floating endpoint.
                 // TODO - get
                 jpc = _currentInstance._newConnection({
@@ -661,7 +666,7 @@
                     type: ep.connectionType,
                     cssClass: ep.connectorClass,
                     hoverClass: ep.connectorHoverClass,
-                    scope:ep._jsPlumb.scope,
+                    scope:scope,
                     data:beforeDrag
                 });
                 jpc.pending = true;
@@ -814,265 +819,298 @@
             }
         }
 
+        //
+        // reattaches the current connection
+        //
+        function _reattach(idx, originalEvent) {
+            if (jpc.suspendedEndpoint) {
+
+                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !_currentInstance.deleteConnection(jpc, {originalEvent: originalEvent})) {
+
+                    var floatingId;
+                    jpc.endpoints[idx] = jpc.suspendedEndpoint;
+                    jpc.setHover(false);
+                    jpc._forceDetach = true;
+                    if (idx === 0) {
+                        floatingId = jpc.sourceId;
+                        jpc.source = jpc.suspendedEndpoint.element;
+                        jpc.sourceId = jpc.suspendedEndpoint.elementId;
+                    } else {
+                        floatingId = jpc.targetId;
+                        jpc.target = jpc.suspendedEndpoint.element;
+                        jpc.targetId = jpc.suspendedEndpoint.elementId;
+                    }
+                    jpc.suspendedEndpoint.addConnection(jpc);
+
+                    // TODO checkSanity
+                    if (idx === 1) {
+                        _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, floatingId, jpc.targetId, jpc);
+                    }
+                    else {
+                        _currentInstance.anchorManager.sourceChanged(floatingId, jpc.sourceId, jpc, jpc.source);
+                    }
+
+                    _currentInstance.repaint(jpc.sourceId);
+                    jpc._forceDetach = false;
+                }
+            }
+        }
+
+        //
+        // discards the current connection
+        //
+        function _discard() {
+            //console.log("placeholder..we're discarding the connection here");
+        }
+
+        //
+        // drops the current connection on the given endpoint
+        //
+        function _drop(dropEndpoint, idx, originalEvent, optionalData) {
+            // remove this jpc from the current endpoint, which is a floating endpoint that we will
+            // subsequently discard.
+            jpc.endpoints[idx].detachFromConnection(jpc);
+
+            // if there's a suspended endpoint, detach it from the connection.
+            if (jpc.suspendedEndpoint) {
+                jpc.suspendedEndpoint.detachFromConnection(jpc);
+            }
+
+            jpc.endpoints[idx] = dropEndpoint;
+            dropEndpoint.addConnection(jpc);
+
+            // copy our parameters in to the connection:
+            var params = dropEndpoint.getParameters();
+            for (var aParam in params) {
+                jpc.setParameter(aParam, params[aParam]);
+            }
+
+            if (jpc.suspendedEndpoint) {
+                var suspendedElementId = jpc.suspendedEndpoint.elementId;
+                _currentInstance.fireMoveEvent({
+                    index: idx,
+                    originalSourceId: idx === 0 ? suspendedElementId : jpc.sourceId,
+                    newSourceId: idx === 0 ? dropEndpoint.elementId : jpc.sourceId,
+                    originalTargetId: idx === 1 ? suspendedElementId : jpc.targetId,
+                    newTargetId: idx === 1 ? dropEndpoint.elementId : jpc.targetId,
+                    originalSourceEndpoint: idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
+                    newSourceEndpoint: idx === 0 ? dropEndpoint : jpc.endpoints[0],
+                    originalTargetEndpoint: idx === 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
+                    newTargetEndpoint: idx === 1 ? dropEndpoint : jpc.endpoints[1],
+                    connection: jpc
+                }, originalEvent);
+            }
+
+            if (idx === 1) {
+                _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
+            }
+            else {
+                _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
+            }
+
+            // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
+            // that are subsequently deleted. So makeSource sets `finalEndpoint`, which is the Endpoint to
+            // which the connection should be attached. The `detachFromConnection` call below results in the
+            // temporary endpoint being cleaned up.
+            if (jpc.endpoints[0].finalEndpoint) {
+                var _toDelete = jpc.endpoints[0];
+                _toDelete.detachFromConnection(jpc);
+                jpc.endpoints[0] = jpc.endpoints[0].finalEndpoint;
+                jpc.endpoints[0].addConnection(jpc);
+            }
+
+            // if optionalData was given, merge it onto the connection's data.
+            if (_ju.isObject(optionalData)) {
+                jpc.mergeData(optionalData);
+            }
+
+            if (jpc.endpoints[0]._originalAnchor) {
+                var newSourceAnchor = _currentInstance.makeAnchor(jpc.endpoints[0]._originalAnchor, jpc.endpoints[0].elementId);
+                jpc.endpoints[0].setAnchor(newSourceAnchor, true);
+                delete jpc.endpoints[0]._originalAnchor;
+            }
+
+            // finalise will inform the anchor manager and also add to
+            // connectionsByScope if necessary.
+            _currentInstance.finaliseConnection(jpc, null, originalEvent, false);
+            jpc.setHover(false);
+
+            // SP continuous anchor flush
+            _currentInstance.revalidate(jpc.endpoints[0].element);
+        }
+
+        //
+        // runs the abort process, either running _reattach() or _discard(), depending on the
+        // connection.
+        //
+        function _abort(idx, originalEvent) {
+            if(jpc.suspendedEndpoint) {
+                _reattach(idx, originalEvent);
+            } else {
+                _discard();
+            }
+        }
+
+        //
+        // compute the appropriate dropEndpoint. this may be an existing Endpoint, or it may be one created from an element
+        // configured via makeTarget
+        //
+        function _getDropEndpoint(p) {
+            var dropEndpoint;
+
+            if (currentDropTarget.endpoint == null) {
+                // need to add one per the target spec.
+
+                // find a suitable target definition, by matching the source of the drop element with the targets registered on the
+                // drop target
+                var targetDefinition = getTargetDefinition(currentDropTarget.el, p.e);
+
+                // if no cached endpoint, or there was one but it has been cleaned up
+                // (ie. detached), create a new one
+                var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
+
+
+                var pp = eps.endpoints ? root.jsPlumb.extend(p, {
+                    endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
+                }) :p;
+                if (eps.anchors) {
+                    pp = root.jsPlumb.extend(pp, {
+                        anchor:targetDefinition.def.anchor || eps.anchors[1]
+                    });
+                }
+                dropEndpoint = _currentInstance.addEndpoint(currentDropTarget.el, pp);
+                dropEndpoint._mtNew = true;
+                dropEndpoint.setDeleteOnEmpty(true);
+
+                if (dropEndpoint.anchor.positionFinder != null) {
+                    var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
+                        elPosition = _currentInstance.getOffset(currentDropTarget.el),
+                        elSize = _currentInstance.getSize(currentDropTarget.el),
+                        ap = dropPosition == null ? [0,0] : dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
+
+                    dropEndpoint.anchor.x = ap[0];
+                    dropEndpoint.anchor.y = ap[1];
+                    // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
+                    // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
+                    // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
+                    // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
+                    // the target is furthest away from the source.
+                }
+            } else {
+                dropEndpoint = currentDropTarget.endpoint;
+            }
+
+            if (dropEndpoint) {
+                dropEndpoint.removeClass(_currentInstance.endpointDropAllowedClass);
+                dropEndpoint.removeClass(_currentInstance.endpointDropForbiddenClass);
+            }
+
+            return dropEndpoint;
+        }
+
         endpointDragOptions.stop = function(p) {
 
             var originalEvent = _currentInstance.getDropEvent(arguments);
+            var reattached = false;
 
             console.log("drag ended on endpoint");
             _currentInstance.setConnectionBeingDragged(false);
 
             if (jpc && jpc.endpoints != null) {
 
+                // calculate if this is an existing connection.
+                var existingConnection = jpc.suspendedEndpoint != null;
+                var idx = _currentInstance.getFloatingAnchorIndex(jpc);
+
+                // if suspended endpoint exists but has been cleaned up, bail. This means it's an existing connection
+                // that has been detached and will shortly be discarded.
+                if (existingConnection && jpc.suspendedEndpoint._jsPlumb == null) {
+                    return;
+                }
+
                 if (currentDropTarget != null) {
                     console.log("dropped on a target" + currentDropTarget.el);
 
-                    var idx = _currentInstance.getFloatingAnchorIndex(jpc), dropEndpoint;
-
-                    if (currentDropTarget.endpoint == null) {
-                        // need to add one per the target spec.
-
-                        // find a suitable target definition, by matching the source of the drop element with the targets registered on the
-                        // drop target
-                        var targetDefinition = getTargetDefinition(currentDropTarget.el, p.e);
-
-                        // if no cached endpoint, or there was one but it has been cleaned up
-                        // (ie. detached), create a new one
-                        var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-
-
-
-                        var pp = eps.endpoints ? root.jsPlumb.extend(p, {
-                            endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
-                        }) :p;
-                        if (eps.anchors) {
-                            pp = root.jsPlumb.extend(pp, {
-                                anchor:targetDefinition.def.anchor || eps.anchors[1]
-                            });
-                        }
-                        dropEndpoint = _currentInstance.addEndpoint(currentDropTarget.el, pp);
-                        dropEndpoint._mtNew = true;
-                        dropEndpoint.setDeleteOnEmpty(true);
-
-                        if (dropEndpoint.anchor.positionFinder != null) {
-                            var dropPosition = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom()),
-                                elPosition = _currentInstance.getOffset(currentDropTarget.el),
-                                elSize = _currentInstance.getSize(currentDropTarget.el),
-                                ap = dropPosition == null ? [0,0] : dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
-
-                            dropEndpoint.anchor.x = ap[0];
-                            dropEndpoint.anchor.y = ap[1];
-                            // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
-                            // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
-                            // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
-                            // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
-                            // the target is furthest away from the source.
-                        }
-                    } else {
-                        dropEndpoint = currentDropTarget.endpoint;
-                    }
-
-                    dropEndpoint.removeClass(_currentInstance.endpointDropAllowedClass);
-                    dropEndpoint.removeClass(_currentInstance.endpointDropForbiddenClass);
-
-                    // calculate if this is an existing connection.
-                    var existingConnection = jpc.suspendedEndpoint != null;
-
-                    // if suspended endpoint exists but has been cleaned up, bail. This means it's an existing connection
-                    // that has been detached and will shortly be discarded.
-                    if (existingConnection && jpc.suspendedEndpoint._jsPlumb == null) {
-                        return;
-                    }
+                    var dropEndpoint = _getDropEndpoint(p);
 
                     // if this is a drop back where the connection came from, mark it force reattach and
                     // return; the stop handler will reattach. without firing an event.
-                    if (jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id === ep.id)) {
+                    if (jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id === dropEndpoint.id)) {
                         jpc._forceReattach = true;
                         jpc.setHover(false);
 
                         // TODO what about the old `maybeCleanup` thing
-                        maybeCleanup(dropEndpoint);
+                        //maybeCleanup(dropEndpoint);
 
-                        return;
+                        _reattach(idx, originalEvent);
+                        reattached = true;
                     }
 
-                    // ensure we dont bother trying to drop sources on non-source eps, and same for target.
 
-                    // if ((idx === 0 && !ep.isSource) || (idx === 1 && !ep.isTarget)) {
-                    //     // if (dhParams.maybeCleanup) {
-                    //     //     dhParams.maybeCleanup(_ep);
-                    //     // }
-                    //     maybeCleanup(dropEndpoint);
-                    //     return;
-                    // }
+                    if (!reattached) {
+                        if (dropEndpoint.isEnabled()) {
 
-
-                    // if (dhParams.onDrop) {
-                    //     dhParams.onDrop(jpc);
-                    // }
-
-                    // restore the original scope if necessary (issue 57)
-                    // if (scope) {
-                    //     _currentInstance.setDragScope(draggable, scope);
-                    // }
-
-                    // if the target of the drop is full, fire an event (we abort below)
-                    // makeTarget: keep.
-                    var isFull = dropEndpoint.isFull();
-                    if (isFull) {
-                        dropEndpoint.fire("maxConnections", {
-                            endpoint: this,
-                            connection: jpc,
-                            maxConnections: _currentInstance.maxConnections
-                        }, originalEvent);
-                    }
-                    //
-                    // if endpoint enabled, not full, and matches the index of the floating endpoint...
-                    if (!isFull && dropEndpoint.isEnabled()) {
-                        var _doContinue = true;
-
-                        // before testing for beforeDrop, reset the connection's source/target to be the actual DOM elements
-                        // involved (that is, stash any temporary stuff used for dragging. but we need to keep it around in
-                        // order that the anchor manager can clean things up properly).
-                        if (idx === 0) {
-                            jpc.floatingElement = jpc.source;
-                            jpc.floatingId = jpc.sourceId;
-                            jpc.floatingEndpoint = jpc.endpoints[0];
-                            jpc.floatingIndex = 0;
-                            jpc.source = ep.element;
-                            jpc.sourceId = ep.elementId;
-                        } else {
-                            jpc.floatingElement = jpc.target;
-                            jpc.floatingId = jpc.targetId;
-                            jpc.floatingEndpoint = jpc.endpoints[1];
-                            jpc.floatingIndex = 1;
-                            jpc.target = dropEndpoint.element;
-                            jpc.targetId = dropEndpoint.elementId;
-                        }
-
-                        // if this is an existing connection and detach is not allowed we won't continue. The connection's
-                        // endpoints have been reinstated; everything is back to how it was.
-                        if (existingConnection && jpc.suspendedEndpoint.id !== dropEndpoint.id) {
-                            if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc)) {
-                                _doContinue = false;
-                            }
-                        }
-
-                        // ------------ wrap the execution path in a function so we can support asynchronous beforeDrop
-
-                        var continueFunction = function (optionalData) {
-                            // remove this jpc from the current endpoint, which is a floating endpoint that we will
-                            // subsequently discard.
-                            jpc.endpoints[idx].detachFromConnection(jpc);
-
-                            // if there's a suspended endpoint, detach it from the connection.
-                            if (jpc.suspendedEndpoint) {
-                                jpc.suspendedEndpoint.detachFromConnection(jpc);
-                            }
-
-                            jpc.endpoints[idx] = dropEndpoint;
-                            dropEndpoint.addConnection(jpc);
-
-                            // copy our parameters in to the connection:
-                            var params = dropEndpoint.getParameters();
-                            for (var aParam in params) {
-                                jpc.setParameter(aParam, params[aParam]);
-                            }
-
-                            if (existingConnection) {
-                                var suspendedElementId = jpc.suspendedEndpoint.elementId;
-                                _currentInstance.fireMoveEvent({
-                                    index: idx,
-                                    originalSourceId: idx === 0 ? suspendedElementId : jpc.sourceId,
-                                    newSourceId: idx === 0 ? dropEndpoint.elementId : jpc.sourceId,
-                                    originalTargetId: idx === 1 ? suspendedElementId : jpc.targetId,
-                                    newTargetId: idx === 1 ? dropEndpoint.elementId : jpc.targetId,
-                                    originalSourceEndpoint: idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
-                                    newSourceEndpoint: idx === 0 ? dropEndpoint : jpc.endpoints[0],
-                                    originalTargetEndpoint: idx === 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-                                    newTargetEndpoint: idx === 1 ? dropEndpoint : jpc.endpoints[1],
-                                    connection: jpc
+                            // if the target of the drop is full, fire an event (we abort below)
+                            // makeTarget: keep.
+                            var isFull = dropEndpoint.isFull();
+                            if (isFull) {
+                                dropEndpoint.fire("maxConnections", {
+                                    endpoint: this,
+                                    connection: jpc,
+                                    maxConnections: _currentInstance.maxConnections
                                 }, originalEvent);
+
+                                //return _abort(idx);
                             }
+                            //
+                            // if endpoint enabled, not full, and matches the index of the floating endpoint...
+                            if (!isFull) {
+                                var _doContinue = true;
 
-                            if (idx === 1) {
-                                _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
-                            }
-                            else {
-                                _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
-                            }
-
-                            // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
-                            // that are subsequently deleted. So makeSource sets `finalEndpoint`, which is the Endpoint to
-                            // which the connection should be attached. The `detachFromConnection` call below results in the
-                            // temporary endpoint being cleaned up.
-                            if (jpc.endpoints[0].finalEndpoint) {
-                                var _toDelete = jpc.endpoints[0];
-                                _toDelete.detachFromConnection(jpc);
-                                jpc.endpoints[0] = jpc.endpoints[0].finalEndpoint;
-                                jpc.endpoints[0].addConnection(jpc);
-                            }
-
-                            // if optionalData was given, merge it onto the connection's data.
-                            if (_ju.isObject(optionalData)) {
-                                jpc.mergeData(optionalData);
-                            }
-
-                            if (jpc.endpoints[0]._originalAnchor) {
-                                var newSourceAnchor = _currentInstance.makeAnchor(jpc.endpoints[0]._originalAnchor, jpc.endpoints[0].elementId);
-                                jpc.endpoints[0].setAnchor(newSourceAnchor, true);
-                                delete jpc.endpoints[0]._originalAnchor;
-                            }
-
-                            // finalise will inform the anchor manager and also add to
-                            // connectionsByScope if necessary.
-                            _currentInstance.finaliseConnection(jpc, null, originalEvent, false);
-                            jpc.setHover(false);
-
-                            // SP continuous anchor flush
-                            _currentInstance.revalidate(jpc.endpoints[0].element);
-
-                        }.bind(this);
-
-                        var dontContinueFunction = function () {
-                            // otherwise just put it back on the endpoint it was on before the drag.
-                            if (jpc.suspendedEndpoint) {
-                                jpc.endpoints[idx] = jpc.suspendedEndpoint;
-                                jpc.setHover(false);
-                                jpc._forceDetach = true;
+                                // before testing for beforeDrop, reset the connection's source/target to be the actual DOM elements
+                                // involved (that is, stash any temporary stuff used for dragging. but we need to keep it around in
+                                // order that the anchor manager can clean things up properly).
                                 if (idx === 0) {
-                                    jpc.source = jpc.suspendedEndpoint.element;
-                                    jpc.sourceId = jpc.suspendedEndpoint.elementId;
+                                    jpc.floatingElement = jpc.source;
+                                    jpc.floatingId = jpc.sourceId;
+                                    jpc.floatingEndpoint = jpc.endpoints[0];
+                                    jpc.floatingIndex = 0;
+                                    jpc.source = ep.element;
+                                    jpc.sourceId = ep.elementId;
                                 } else {
-                                    jpc.target = jpc.suspendedEndpoint.element;
-                                    jpc.targetId = jpc.suspendedEndpoint.elementId;
+                                    jpc.floatingElement = jpc.target;
+                                    jpc.floatingId = jpc.targetId;
+                                    jpc.floatingEndpoint = jpc.endpoints[1];
+                                    jpc.floatingIndex = 1;
+                                    jpc.target = dropEndpoint.element;
+                                    jpc.targetId = dropEndpoint.elementId;
                                 }
-                                jpc.suspendedEndpoint.addConnection(jpc);
 
-                                // TODO checkSanity
-                                if (idx === 1) {
-                                    _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
+                                // if this is an existing connection and detach is not allowed we won't continue. The connection's
+                                // endpoints have been reinstated; everything is back to how it was.
+                                if (existingConnection && jpc.suspendedEndpoint.id !== dropEndpoint.id) {
+                                    if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc)) {
+                                        _doContinue = false;
+                                    }
+                                }
+
+                                // --------------------------------------
+                                // now check beforeDrop.  this will be available only on Endpoints that are setup to
+                                // have a beforeDrop condition (although, secretly, under the hood all Endpoints and
+                                // the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
+                                // it only makes sense to have it on a target endpoint.
+                                _doContinue = _doContinue && dropEndpoint.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, dropEndpoint);
+
+                                if (_doContinue) {
+                                    _drop(dropEndpoint, idx, originalEvent, _doContinue);
                                 }
                                 else {
-                                    _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
+                                    _abort(idx);
                                 }
-
-                                _currentInstance.repaint(jpc.sourceId);
-                                jpc._forceDetach = false;
                             }
-                        };
 
-                        // --------------------------------------
-                        // now check beforeDrop.  this will be available only on Endpoints that are setup to
-                        // have a beforeDrop condition (although, secretly, under the hood all Endpoints and
-                        // the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
-                        // it only makes sense to have it on a target endpoint.
-                        _doContinue = _doContinue && dropEndpoint.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, dropEndpoint);// && jpc.pending;
-
-                        if (_doContinue) {
-                            continueFunction(_doContinue);
-                        }
-                        else {
-                            dontContinueFunction();
+                        } else {
+                            _abort(idx);
                         }
                     }
 
@@ -1096,11 +1134,13 @@
                     }
                     // tell jsplumb that dragging is finished.
                     _currentInstance.currentlyDragging = false;
+
                     jpc.suspendedElement = null;
                     jpc.suspendedEndpoint = null;
 
                 } else {
                     //alert("drag stopped with no target - discard the connection");
+                    _abort(idx);
                 }
 
                 // deactivate the drop targets
@@ -1124,7 +1164,7 @@
             }
 
             if (ep._jsPlumb) {
-                // make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                // make ep canvas visible (TODO: hand off to library; we should not know about DOM)
                 ep.canvas.style.visibility = "visible";
                 // unlock our anchor
                 ep.anchor.unlock();
@@ -1136,42 +1176,9 @@
 
 
         // refresh the offsets for child elements of this element.
-        this.updateOffsets = function (elId, childOffsetOverrides) {
-            // if (elId != null) {
-            //     childOffsetOverrides = childOffsetOverrides || {};
-            //     var domEl = jsPlumb.getElement(elId),
-            //         id = _currentInstance.getId(domEl),
-            //         children = _delements[id],
-            //         parentOffset;
-            //
-            //     if (children) {
-            //         for (var i in children) {
-            //             if (children.hasOwnProperty(i)) {
-            //                 var cel = jsPlumb.getElement(i),
-            //                     cOff = childOffsetOverrides[i] || _currentInstance.getOffset(cel);
-            //
-            //                 // do not update if we have a value already and we'd just be writing 0,0
-            //                 if (cel.offsetParent == null && _delements[id][i] != null) {
-            //                     continue;
-            //                 }
-            //
-            //                 if (!parentOffset) {
-            //                     parentOffset = _currentInstance.getOffset(domEl);
-            //                 }
-            //
-            //                 _delements[id][i] = {
-            //                     id: i,
-            //                     offset: {
-            //                         left: cOff.left - parentOffset.left,
-            //                         top: cOff.top - parentOffset.top
-            //                     }
-            //                 };
-            //                 _draggablesForElements[i] = id;
-            //             }
-            //         }
-            //     }
-            // }
-        };
+        // this.updateOffsets = function (elId, childOffsetOverrides) {
+        //
+        // };
 
         this.endpointDeleted = function (endpoint) {
             if (_elementsWithEndpoints[endpoint.elementId]) {
