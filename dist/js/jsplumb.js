@@ -14945,34 +14945,6 @@
 
             if (jpc && jpc.endpoints != null) {
 
-                var dontContinueFunction = function () {
-                    // otherwise just put it back on the endpoint it was on before the drag.
-                    if (jpc.suspendedEndpoint) {
-                        jpc.endpoints[idx] = jpc.suspendedEndpoint;
-                        jpc.setHover(false);
-                        //jpc._forceDetach = true;
-                        if (idx === 0) {
-                            jpc.source = jpc.suspendedEndpoint.element;
-                            jpc.sourceId = jpc.suspendedEndpoint.elementId;
-                        } else {
-                            jpc.target = jpc.suspendedEndpoint.element;
-                            jpc.targetId = jpc.suspendedEndpoint.elementId;
-                        }
-                        jpc.suspendedEndpoint.addConnection(jpc);
-
-                        // TODO checkSanity
-                        if (idx === 1) {
-                            _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
-                        }
-                        else {
-                            _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
-                        }
-
-                        _currentInstance.repaint(jpc.sourceId);
-                        //jpc._forceDetach = false;
-                    }
-                };
-
                 if (currentDropTarget != null) {
                     console.log("dropped on a target" + currentDropTarget.el);
 
@@ -15183,33 +15155,33 @@
 
                         }.bind(this);
 
-                        // var dontContinueFunction = function () {
-                        //     // otherwise just put it back on the endpoint it was on before the drag.
-                        //     if (jpc.suspendedEndpoint) {
-                        //         jpc.endpoints[idx] = jpc.suspendedEndpoint;
-                        //         jpc.setHover(false);
-                        //         jpc._forceDetach = true;
-                        //         if (idx === 0) {
-                        //             jpc.source = jpc.suspendedEndpoint.element;
-                        //             jpc.sourceId = jpc.suspendedEndpoint.elementId;
-                        //         } else {
-                        //             jpc.target = jpc.suspendedEndpoint.element;
-                        //             jpc.targetId = jpc.suspendedEndpoint.elementId;
-                        //         }
-                        //         jpc.suspendedEndpoint.addConnection(jpc);
-                        //
-                        //         // TODO checkSanity
-                        //         if (idx === 1) {
-                        //             _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
-                        //         }
-                        //         else {
-                        //             _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
-                        //         }
-                        //
-                        //         _currentInstance.repaint(jpc.sourceId);
-                        //         jpc._forceDetach = false;
-                        //     }
-                        // };
+                        var dontContinueFunction = function () {
+                            // otherwise just put it back on the endpoint it was on before the drag.
+                            if (jpc.suspendedEndpoint) {
+                                jpc.endpoints[idx] = jpc.suspendedEndpoint;
+                                jpc.setHover(false);
+                                jpc._forceDetach = true;
+                                if (idx === 0) {
+                                    jpc.source = jpc.suspendedEndpoint.element;
+                                    jpc.sourceId = jpc.suspendedEndpoint.elementId;
+                                } else {
+                                    jpc.target = jpc.suspendedEndpoint.element;
+                                    jpc.targetId = jpc.suspendedEndpoint.elementId;
+                                }
+                                jpc.suspendedEndpoint.addConnection(jpc);
+
+                                // TODO checkSanity
+                                if (idx === 1) {
+                                    _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
+                                }
+                                else {
+                                    _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
+                                }
+
+                                _currentInstance.repaint(jpc.sourceId);
+                                jpc._forceDetach = false;
+                            }
+                        };
 
                         // --------------------------------------
                         // now check beforeDrop.  this will be available only on Endpoints that are setup to
@@ -15251,9 +15223,6 @@
 
                 } else {
                     //alert("drag stopped with no target - discard the connection");
-                    dontContinueFunction();
-
-
                 }
 
                 // deactivate the drop targets
