@@ -100,7 +100,7 @@
 
         _jsPlumb.trigger(el1, "mousedown", e1);
         _jsPlumb.trigger(document, "mousemove", e2);
-        _jsPlumb.trigger(el2, "mouseup", e2);
+        _jsPlumb.trigger(document, "mouseup", e2);
 
         return _jsPlumb.select().get(conns);
     };
