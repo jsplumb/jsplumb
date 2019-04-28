@@ -1561,6 +1561,17 @@
         }
     };
 
+    var findMatchingSelector = function(availableSelectors, parentElement, childElement) {
+        var el = null;
+        for (var i = 0; i < availableSelectors.length; i++) {
+            el = findDelegateElement(parentElement, childElement, availableSelectors[i].selector);
+            if (el != null) {
+                return [ availableSelectors[i], el ];
+            }
+        }
+        return null;
+    };
+
     var iev = (function() {
             var rv = -1;
             if (navigator.appName === 'Microsoft Internet Explorer') {
@@ -1594,6 +1605,7 @@
                 [ e ];
         },
         _classes = {
+            delegatedDraggable:"katavorio-delegated-draggable",  // elements that are the delegated drag handler for a bunch of other elements
             draggable:"katavorio-draggable",    // draggable elements
             droppable:"katavorio-droppable",    // droppable elements
             drag : "katavorio-drag",            // elements currently being dragged
@@ -1701,8 +1713,19 @@
             isConstrained = false,
             useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
             ghostProxy = function(el) { return el.cloneNode(true); },
-            selector = params.selector,
-            elementToDrag = null;
+            elementToDrag = null,
+            availableSelectors = [],
+            activeSelectorParams = null, // which, if any, selector config is currently active.
+            ghostProxyParent = params.ghostProxyParent,
+            currentParentPosition,
+            ghostParentPosition,
+            ghostDx,
+            ghostDy;
+
+        // if an initial selector was provided, push the entire set of params as a selector config.
+        if (params.selector) {
+            availableSelectors.push(params);
+        }
 
         var snapThreshold = params.snapThreshold,
             _snap = function(pos, gridX, gridY, thresholdX, thresholdY) {
@@ -1839,15 +1862,36 @@
             matchingDroppables = [],
             intersectingDroppables = [];
 
+        this.addSelector = function(params) {
+            if (params.selector) {
+                availableSelectors.push(params);
+            }
+        };
+
         this.downListener = function(e) {
+            if (e.defaultPrevented) { return; }
             var isNotRightClick = this.rightButtonCanDrag || (e.which !== 3 && e.button !== 2);
             if (isNotRightClick && this.isEnabled() && this.canDrag()) {
 
                 var _f =  _testFilter(e) && _inputFilter(e, this.el, this.k);
                 if (_f) {
 
-                    if (selector) {
-                        elementToDrag = findDelegateElement(this.el, e.target || e.srcElement, selector);
+                    activeSelectorParams = null;
+                    elementToDrag = null;
+
+                    // if (selector) {
+                    //     elementToDrag = findDelegateElement(this.el, e.target || e.srcElement, selector);
+                    //     if(elementToDrag == null) {
+                    //         return;
+                    //     }
+                    // }
+                    if (availableSelectors.length > 0) {
+                        var match = findMatchingSelector(availableSelectors, this.el, e.target || e.srcElement);
+                        if (match != null) {
+                            activeSelectorParams = match[0];
+                            elementToDrag = match[1];
+                        }
+                        // elementToDrag = findDelegateElement(this.el, e.target || e.srcElement, selector);
                         if(elementToDrag == null) {
                             return;
                         }
@@ -2011,7 +2055,9 @@
 
         var _dispatch = function(evt, value) {
             var result = null;
-            if (listeners[evt]) {
+            if (activeSelectorParams && activeSelectorParams[evt]) {
+                activeSelectorParams[evt](value);
+            } else if (listeners[evt]) {
                 for (var i = 0; i < listeners[evt].length; i++) {
                     try {
                         var v = listeners[evt][i](value);
@@ -2035,14 +2081,9 @@
                     sel = k.getSelection(),
                     dPos = this.params.getPosition(dragEl);
 
-                if (sel.length > 1) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var p = this.params.getPosition(sel[i].el);
-                        positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
-                    }
-                }
-                else {
-                    positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
+                for (var i = 0; i < sel.length; i++) {
+                    var p = this.params.getPosition(sel[i].el);
+                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
                 }
 
                 _dispatch("stop", {
@@ -2073,6 +2114,9 @@
             }
             constrainRect = {w: cs[0], h: cs[1]};
 
+            ghostDx = 0;
+            ghostDy = 0;
+
             if (andNotify) {
                 k.notifySelectionDragStart(this);
             }
@@ -2082,8 +2126,8 @@
             _setDroppablesActive(matchingDroppables, false, true, this);
 
             if (isConstrained && useGhostProxy(elementToDrag)) {
-                ghostProxyOffsets = [dragEl.offsetLeft, dragEl.offsetTop];
-                elementToDrag.parentNode.removeChild(dragEl);
+                ghostProxyOffsets = [dragEl.offsetLeft - ghostDx, dragEl.offsetTop - ghostDy];
+                dragEl.parentNode.removeChild(dragEl);
                 dragEl = elementToDrag;
             }
             else {
@@ -2106,25 +2150,54 @@
         };
         this.moveBy = function(dx, dy, e) {
             intersectingDroppables.length = 0;
+
             var desiredLoc = this.toGrid([posAtDown[0] + dx, posAtDown[1] + dy]),
                 cPos = constrain(desiredLoc, dragEl, constrainRect, this.size);
 
+            // if we should use a ghost proxy...
             if (useGhostProxy(this.el)) {
+                // and the element has been dragged outside of its parent bounds
                 if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
+
+                    // ...if ghost proxy not yet created
                     if (!isConstrained) {
+                        // create it
                         var gp = ghostProxy(elementToDrag);
                         params.addClass(gp, _classes.ghostProxy);
-                        elementToDrag.parentNode.appendChild(gp);
+
+                        if (ghostProxyParent) {
+                            ghostProxyParent.appendChild(gp);
+                            // find offset between drag el's parent the ghost parent
+                           currentParentPosition = params.getPosition(elementToDrag.parentNode, true);
+                           ghostParentPosition = params.getPosition(params.ghostProxyParent, true);
+                           ghostDx = currentParentPosition[0] - ghostParentPosition[0];
+                           ghostDy = currentParentPosition[1] - ghostParentPosition[1];
+
+                        } else {
+                            elementToDrag.parentNode.appendChild(gp);
+                        }
+
+                        // the ghost proxy is the drag element
                         dragEl = gp;
+                        // set this flag so we dont recreate the ghost proxy
                         isConstrained = true;
                     }
+                    // now the drag position can be the desired position, as the ghost proxy can support it.
                     cPos = desiredLoc;
                 }
                 else {
+                    // if the element is not outside of its parent bounds, and ghost proxy is in place,
                     if (isConstrained) {
-                        elementToDrag.parentNode.removeChild(dragEl);
+                        // remove the ghost proxy from the dom
+                        dragEl.parentNode.removeChild(dragEl);
+                        // reset the drag element to the original element
                         dragEl = elementToDrag;
+                        // clear this flag.
                         isConstrained = false;
+                        currentParentPosition = null;
+                        ghostParentPosition = null;
+                        ghostDx = 0;
+                        ghostDy = 0;
                     }
                 }
             }
@@ -2133,7 +2206,8 @@
                 pageRect = { x:rect.x + pageDelta[0], y:rect.y + pageDelta[1], w:rect.w, h:rect.h},
                 focusDropElement = null;
 
-            this.params.setPosition(dragEl, cPos);
+            this.params.setPosition(dragEl, [cPos[0] + ghostDx, cPos[1] + ghostDy]);
+
             for (var i = 0; i < matchingDroppables.length; i++) {
                 var r2 = { x:matchingDroppables[i].pagePosition[0], y:matchingDroppables[i].pagePosition[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
                 if (this.params.intersects(pageRect, r2) && (_multipleDrop || focusDropElement == null || focusDropElement === matchingDroppables[i].el) && matchingDroppables[i].canDrop(this)) {
@@ -2166,7 +2240,7 @@
         // init:register mousedown, and perhaps set a filter
         this.params.bind(this.el, "mousedown", this.downListener);
 
-        // if handle provded, use that.  otherwise, try to set a filter.
+        // if handle provided, use that.  otherwise, try to set a filter.
         // note that a `handle` selector always results in filterExclude being set to false, ie.
         // the selector defines the handle element(s).
         if (this.params.handle)
@@ -2365,7 +2439,7 @@
                         _el._katavorioDrag = new Drag(_el, p, _css, _scope);
                         _reg(_el._katavorioDrag, this._dragsByScope);
                         o.push(_el._katavorioDrag);
-                        katavorioParams.addClass(_el, _css.draggable);
+                        katavorioParams.addClass(_el, p.selector ? _css.delegatedDraggable : _css.draggable);
                     }
                     else {
                         _mistletoe(_el._katavorioDrag, params);
@@ -3904,7 +3978,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.9.1";
+        this.version = "2.9.2";
 
         this.Defaults = {
             Anchor: "Bottom",
