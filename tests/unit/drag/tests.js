@@ -58,7 +58,7 @@ var testSuite = function (_jsPlumb) {
             e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true}),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
 
-        _jsPlumb.repaintEverything();
+        _jsPlumb.getDragManager();
 
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(e1, e2);
@@ -96,6 +96,8 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeTarget("d2");
         _jsPlumb.makeTarget("d3");
 
+        _jsPlumb.getDragManager();
+
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
@@ -127,6 +129,9 @@ var testSuite = function (_jsPlumb) {
 
     // https://github.com/jsplumb/jsPlumb/issues/415
     test("issue 415: spurious endpoints after dragging", function() {
+
+        _jsPlumb.getDragManager();
+
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], {
             maxConnections:-1
@@ -165,6 +170,8 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], { maxConnections: -1 });
         _jsPlumb.makeTarget([ "d1", "d2", "d3", "d4" ], { maxConnections: -1 });
 
+        _jsPlumb.getDragManager();
+
         ok(_jsPlumb.isSource(d1), "d1 is a connection source");
         ok(_jsPlumb.isTarget(d2), "d2 is a connection target");
 
@@ -189,6 +196,8 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], { maxConnections: -1, anchor:"Continuous" });
         _jsPlumb.makeTarget([ "d1", "d2", "d3", "d4" ], { maxConnections: -1, anchor:"Continuous" });
 
+        _jsPlumb.getDragManager();
+
         var d2d1 = support.dragConnection(d2, d1);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
 
@@ -212,6 +221,8 @@ var testSuite = function (_jsPlumb) {
             }),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
 
+        _jsPlumb.getDragManager();
+
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
@@ -225,6 +236,8 @@ var testSuite = function (_jsPlumb) {
             e1 = _jsPlumb.addEndpoint(d1),
             e2 = _jsPlumb.addEndpoint(d2);
 
+        _jsPlumb.getDragManager();
+
         equal(_jsPlumb.select().length, 0, "zero connections before connect");
         _jsPlumb.connect({source:e1, target:e2, detachable:false});
         equal(_jsPlumb.select().length, 1, "one connection after connect");
@@ -236,6 +249,8 @@ var testSuite = function (_jsPlumb) {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1),
             e2 = _jsPlumb.addEndpoint(d2);
+
+        _jsPlumb.getDragManager();
 
         equal(_jsPlumb.select().length, 0, "zero connections before connect");
         _jsPlumb.connect({source:e1, target:e2});
@@ -255,6 +270,9 @@ var testSuite = function (_jsPlumb) {
             evt = true;
             originalEvent = oevt;
         });
+
+        _jsPlumb.getDragManager();
+
         support.dragConnection(e2, e1);
         equal(e1.connections.length, 1, "one connection");
 
@@ -281,6 +299,9 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.bind('connectionAborted', function (info) {
             abortEvent = true;
         });
+
+        _jsPlumb.getDragManager();
+
         support.dragConnection(e2, e1);
         ok(evt == false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
@@ -298,6 +319,9 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.bind('connectionAborted', function (info) {
             abortEvent = true;
         });
+
+        _jsPlumb.getDragManager();
+
         support.dragAndAbortConnection(e2);
         ok(evt == false, "connectionDetached event was not fired");
         equal(e2.connections.length, 0, "no connections");
@@ -313,6 +337,8 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         var c = support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        _jsPlumb.getDragManager();
 
         support.relocateTarget(c, e3, {
             beforeMouseUp:function() {
@@ -358,6 +384,8 @@ var testSuite = function (_jsPlumb) {
         var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1 });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1 });
 
+        _jsPlumb.getDragManager();
+
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one conn now");
 
@@ -368,6 +396,9 @@ var testSuite = function (_jsPlumb) {
     test("drag connection between two endpoints but endpoints are full", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             d3 = support.addDiv("d3");
+
+        _jsPlumb.getDragManager();
+
         var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true });
         var e2 = _jsPlumb.addEndpoint(d2, { isSource:true });
         var e3 = _jsPlumb.addEndpoint(d3, { isSource:true });
@@ -406,6 +437,8 @@ var testSuite = function (_jsPlumb) {
             }),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
 
+        _jsPlumb.getDragManager();
+
         _jsPlumb.bind("beforeDetach", function() {
             r = true;
             return true;
@@ -437,6 +470,7 @@ var testSuite = function (_jsPlumb) {
 
     test("connection dragging, simple drag and detach case", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        _jsPlumb.getDragManager();
         _jsPlumb.makeSource([d1, d2, d3], { });
         _jsPlumb.makeTarget([d1, d2, d3], { });
 
@@ -462,6 +496,7 @@ var testSuite = function (_jsPlumb) {
      */
     test("connection dragging, extractor atts defined on source", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        _jsPlumb.getDragManager();
         d1.setAttribute("foo", "the value of foo");
         _jsPlumb.makeSource([d1, d2, d3], {
             extract:{
@@ -477,6 +512,7 @@ var testSuite = function (_jsPlumb) {
 
     test("connection dragging, simple drag and detach case, beforeDetach interceptor says no.", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        _jsPlumb.getDragManager();
         _jsPlumb.bind("beforeDetach", function() { return false; });
         _jsPlumb.makeSource([d1, d2, d3], { });
         _jsPlumb.makeTarget([d1, d2, d3], { });
@@ -1004,7 +1040,7 @@ var testSuite = function (_jsPlumb) {
         equal(d2.offsetLeft, 950, "div 2 is at the right left position");
         equal(d2.offsetTop, 950, "div 2 is at the right top position");
 
-        // divs 1 and 3 have moved too, make sure they are in the right place
+        // divs 1 and 3 have moved too, because they are in the drag selection make sure they are in the right place
         equal(d1.offsetLeft, 750, "div 1 is at the right left position");
         equal(d1.offsetTop, 750, "div 1 is at the right top position");
         equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
@@ -1127,13 +1163,12 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.connect({source:d2, target:d3});
         _jsPlumb.manage(d1);
 
-        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")["d2"];
-        equal(250, o.offset.left, "d2 is at left=250");
+        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
+        equal(250, o.offsetLeft, "d2 is at left=250");
 
         d2.style.left = "1250px";
-        _jsPlumb.getDragManager().updateOffsets("d1");
-        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")["d2"];
-        equal(1250, o.offset.left, "d2 is at left=1250");
+        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
+        equal(1250, o.offsetLeft, "d2 is at left=1250");
 
     });
 
