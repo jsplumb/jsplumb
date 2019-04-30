@@ -147,7 +147,7 @@
         events.beforeMouseMove && events.beforeMouseMove();
         _jsPlumb.trigger(document, "mousemove", e2);
         events.beforeMouseUp && events.beforeMouseUp();
-        _jsPlumb.trigger(newEl, "mouseup", e2);
+        _jsPlumb.trigger(document, "mouseup", e2);
 
         events.after && events.after();
     };
@@ -184,7 +184,7 @@
 
             var _addDraggableDiv = function (_jsPlumb, id, parent, className, x, y, w, h) {
                 var d = _addDiv.apply(null, [id, parent, className, x, y, w, h]);
-                _jsPlumb.draggable(d);
+                //_jsPlumb.draggable(d);
                 return d;
             };
 
