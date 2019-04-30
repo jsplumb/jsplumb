@@ -14981,7 +14981,11 @@
         //
         // discards the current connection
         //
-        function _discard() {
+        function _discard(originalEvent) {
+            if (jpc.pending) {
+                _currentInstance.fire("connectionAborted", jpc, originalEvent);
+            }
+
             //console.log("placeholder..we're discarding the connection here");
         }
 
@@ -15069,7 +15073,7 @@
             if(jpc.suspendedEndpoint) {
                 _reattach(idx, originalEvent);
             } else {
-                _discard();
+                _discard(originalEvent);
             }
         }
 
@@ -15262,7 +15266,7 @@
 
                 } else {
                     //alert("drag stopped with no target - discard the connection");
-                    _abort(idx);
+                    _abort(idx, originalEvent);
                 }
 
                 // deactivate the drop targets
