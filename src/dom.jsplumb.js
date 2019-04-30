@@ -71,32 +71,6 @@
         _onlyProfile = category;
     };
 
-    // var _makeConnectionDragHandler = function (endpoint, placeholder, _jsPlumb) {
-    //     var stopped = false;
-    //     return {
-    //         drag: function () {
-    //             if (stopped) {
-    //                 stopped = false;
-    //                 return true;
-    //             }
-    //
-    //             if (placeholder.element) {
-    //                 var _ui = _jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
-    //                 if (_ui != null) {
-    //                     _jsPlumb.setPosition(placeholder.element, _ui);
-    //                 }
-    //                 _jsPlumb.repaint(placeholder.element, _ui);
-    //                 // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
-    //                 // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
-    //                 endpoint.paint({anchorPoint:endpoint.anchor.getCurrentLocation({element:endpoint})});
-    //             }
-    //         },
-    //         stopDrag: function () {
-    //             stopped = true;
-    //         }
-    //     };
-    // };
-
     var selectorFilter = function (evt, _el, selector, _instance, negate) {
         var t = evt.target || evt.srcElement, ok = false,
             sel = _instance.getSelector(_el, selector);
@@ -859,7 +833,11 @@
         //
         // discards the current connection
         //
-        function _discard() {
+        function _discard(originalEvent) {
+            if (jpc.pending) {
+                _currentInstance.fire("connectionAborted", jpc, originalEvent);
+            }
+
             //console.log("placeholder..we're discarding the connection here");
         }
 
@@ -947,7 +925,7 @@
             if(jpc.suspendedEndpoint) {
                 _reattach(idx, originalEvent);
             } else {
-                _discard();
+                _discard(originalEvent);
             }
         }
 
@@ -1140,7 +1118,7 @@
 
                 } else {
                     //alert("drag stopped with no target - discard the connection");
-                    _abort(idx);
+                    _abort(idx, originalEvent);
                 }
 
                 // deactivate the drop targets
@@ -1314,20 +1292,6 @@
                          ep.finalEndpoint = def.endpoint;
                      }
                  }
-
-                 // var _delTempEndpoint = function () {
-                 //     // this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
-                 //     // it is fired even if dragging has occurred, in which case we would blow away a perfectly
-                 //     // legitimate endpoint, were it not for this check.  the flag is set after adding an
-                 //     // endpoint and cleared in a drag listener we set in the dragOptions above.
-                 //     // _currentInstance.off(ep.canvas, "mouseup", _delTempEndpoint);
-                 //     // _currentInstance.off(sourceElement, "mouseup", _delTempEndpoint);
-                 //     // _currentInstance.deleteEndpoint(ep);
-                 //     console.log("clear endpoints");
-                 // };
-                 //
-                 // _currentInstance.on(ep.canvas, "mouseup", _delTempEndpoint);
-                 // _currentInstance.on(sourceElement, "mouseup", _delTempEndpoint);
 
                  // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
                  sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
@@ -1714,25 +1678,10 @@
            //return [ el.offsetWidth, el.offsetHeight ];
         },
         getRenderMode : function() { return "svg"; },
-        // draggable : function (el, options) {
-        //     var info;
-        //     el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
-        //     Array.prototype.slice.call(el).forEach(function(_el) {
-        //         info = this.info(_el);
-        //         if (info.el) {
-        //             this._initDraggableIfNecessary(info.el, true, options, info.id, true);
-        //         }
-        //     }.bind(this));
-        //     return this;
-        // },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
             el._jsPlumbDragOptions = options;
         },
-        // destroyDraggable: function (el, category) {
-        //     _getDragManager(this, category).destroyDraggable(el);
-        //     delete el._jsPlumbDragOptions;
-        // },
         unbindDraggable: function (el, evt, fn, category) {
             _getDragManager(this, category).destroyDraggable(el, evt, fn);
         },
@@ -1761,59 +1710,6 @@
             }.bind(this));
             return state;
         },
-        // _initDraggableIfNecessary : function (element, isDraggable, dragOptions, id, fireEvent) {
-        //
-        //
-        //     this.manage(id, element);
-        //     var options = dragOptions || this.Defaults.DragOptions;
-        //     options = jsPlumb.extend({}, options); // make a copy.
-        //     this.initDraggable(element, options);
-        //
-        //     // TODO this bit i think is important, due to it figuring out nested elements.
-        //     this.getDragManager().register(element);
-        //
-        //     /* TODO FIRST: move to DragManager. including as much of the decision to init dragging as possible.
-        //     if (!jsPlumb.headless) {
-        //         var _draggable = isDraggable == null ? false : isDraggable;
-        //         if (_draggable) {
-        //
-        //                 var options = dragOptions || this.Defaults.DragOptions;
-        //                 options = jsPlumb.extend({}, options); // make a copy.
-        //                 if (!jsPlumb.isAlreadyDraggable(element, this)) {
-        //                     var dragEvent = jsPlumb.dragEvents.drag,
-        //                         stopEvent = jsPlumb.dragEvents.stop,
-        //                         startEvent = jsPlumb.dragEvents.start;
-        //
-        //                     this.manage(id, element);
-        //
-        //                     options[startEvent] = _ju.wrap(options[startEvent], _dragStart.bind(this));
-        //
-        //                     options[dragEvent] = _ju.wrap(options[dragEvent], _dragMove.bind(this));
-        //
-        //                     options[stopEvent] = _ju.wrap(options[stopEvent], _dragStop.bind(this));
-        //
-        //                     var elId = this.getId(element); // need ID
-        //
-        //                     this._draggableStates[elId] = true;
-        //                     var draggable = this._draggableStates[elId];
-        //
-        //                     options.disabled = draggable == null ? false : !draggable;
-        //                     this.initDraggable(element, options);
-        //                     this.getDragManager().register(element);
-        //                     if (fireEvent) {
-        //                         this.fire("elementDraggable", {el:element, options:options});
-        //                     }
-        //                 }
-        //                 else {
-        //                     // already draggable. attach any start, drag or stop listeners to the current Drag.
-        //                     if (dragOptions.force) {
-        //                         this.initDraggable(element, options);
-        //                     }
-        //                 }
-        //
-        //         }
-        //     }*/
-        // },
         animationSupported:true,
         getElement: function (el) {
             if (el == null) {
