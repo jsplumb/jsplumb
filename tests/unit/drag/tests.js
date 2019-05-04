@@ -96,6 +96,7 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeTarget("d2");
         _jsPlumb.makeTarget("d3");
 
+        _jsPlumb.Defaults.MaxConnections = -1;
         _jsPlumb.getDragManager();
 
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
@@ -117,7 +118,14 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 2, "two connections after relocate");
 
         support.dragConnection(d3, d1);
-        equal(_jsPlumb.select().length, 2, "two connections after failed drag from target to source");
+        equal(_jsPlumb.select().length, 2, "two connections after failed drag from target to source (d3 is a target and not a source)");
+        
+        // move d3 off of d1, it's overlapping right now and that's messing up the test
+        
+        support.dragANodeAround(d3);
+
+        // remove the other connection; it interferes with the mouse
+        _jsPlumb.deleteConnection(cd1d3);
 
         // now drag the source of d1-d2 to be d4.
         support.relocateSource(cd1d2, d4);

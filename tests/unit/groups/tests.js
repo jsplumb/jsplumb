@@ -166,6 +166,8 @@ var testSuite = function (_jsPlumb) {
             ok(true, "removed group subsequent retrieve threw exception");
         }
         ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+        ok(c4_2.parentNode != null, "c4_2 not removed from DOM even though group was removed");
+
         // check positions of child nodes; they should have been adjusted.
         equal(parseInt(c4_1.style.left), 1030, "c4_1 at 1030 left");
         equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
