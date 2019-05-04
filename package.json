@@ -45,7 +45,7 @@
     "grunt-jekyll": "~0.4.2",
     "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "0.9.4",
-    "katavorio": "1.4.2",
+    "katavorio": "1.4.4",
     "morgan": "1.8.0",
     "mottle": "1.0.0"
   }
