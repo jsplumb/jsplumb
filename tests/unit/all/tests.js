@@ -83,6 +83,22 @@ var testSuite = function (_jsPlumb) {
         ok(_jsPlumb, "loaded");
     });
 
+    test(" container has jtk-container attribute set", function() {
+        var c1 = _jsPlumb.getContainer().getAttribute("jtk-container");
+        ok(c1 != null);
+
+        // change container and check again
+        var container2 = document.createElement("div");
+        container2.id = "container2";
+        document.body.appendChild(container2);
+        _jsPlumb.setContainer(container2);
+
+        var c2 = _jsPlumb.getContainer().getAttribute("jtk-container");
+        ok(c2 != null);
+
+        ok(c2 !== c1, "container attributes have different values");
+    });
+
     test(': getId', function () {
         var d10 = support.addDiv('d10');
         equal(_jsPlumb.getId(jsPlumb.getElement(d10)), "d10");
