@@ -622,6 +622,8 @@
                     _container.appendChild(el);
                 }
             }
+
+            _currentInstance.setAttribute(_container, "jtk-container", jsPlumbUtil.uuid().replace("-", ""));
             
             _currentInstance.fire("container:change", _container);
 
@@ -1057,14 +1059,14 @@
                 }
             },
 
-            _setDraggable = function (element, draggable) {
-                return jsPlumb.each(element, function (el) {
-                    if (_currentInstance.isDragSupported(el)) {
-                        draggableStates[_currentInstance.getAttribute(el, "id")] = draggable;
-                        _currentInstance.setElementDraggable(el, draggable);
-                    }
-                });
-            },
+            // _setDraggable = function (element, draggable) {
+            //     return jsPlumb.each(element, function (el) {
+            //         if (_currentInstance.isDragSupported(el)) {
+            //             draggableStates[_currentInstance.getAttribute(el, "id")] = draggable;
+            //             _currentInstance.setElementDraggable(el, draggable);
+            //         }
+            //     });
+            // },
             /*
              * private method to do the business of hiding/showing.
              *
@@ -1259,8 +1261,8 @@
             options = options || {};
             var del = _currentInstance.getElement(el),
                 id = _getId(del),
-                stepFunction = jsPlumb.animEvents.step,
-                completeFunction = jsPlumb.animEvents.complete;
+                stepFunction = "step",
+                completeFunction = "complete";
 
             options[stepFunction] = _ju.wrap(options[stepFunction], function () {
                 _currentInstance.revalidate(id);
@@ -2342,8 +2344,8 @@
                 elInfo.def = _def;
                 elInfo.el._jsPlumbSourceDefinitions.push(_def);
 
-                var stopEvent = root.jsPlumb.dragEvents.stop,
-                    dragEvent = root.jsPlumb.dragEvents.drag,
+                var stopEvent = "stop",
+                    dragEvent = "drag",
                     dragOptions = root.jsPlumb.extend({ }, p.dragOptions || {}),
                     existingDrag = dragOptions.drag,
                     existingStop = dragOptions.stop,
@@ -2440,29 +2442,6 @@
             }
 
         }.bind(this);
-
-        this.getScope = function (el) {
-            return _getScope(el, [ "_jsPlumbSourceDefinitions", "_jsPlumbTargetDefinitions" ]);
-        };
-        this.getSourceScope = function (el) {
-            return _getScope(el, "_jsPlumbSourceDefinitions");
-        };
-        this.getTargetScope = function (el) {
-            return _getScope(el, "_jsPlumbTargetDefinitions");
-        };
-        this.setScope = function (el, scope, connectionType) {
-            this.setSourceScope(el, scope, connectionType);
-            this.setTargetScope(el, scope, connectionType);
-        };
-        this.setSourceScope = function (el, scope, connectionType) {
-            _setScope(el, scope, "_jsPlumbSourceDefinitions", connectionType);
-            // we get the source scope during the mousedown event, but we also want to set this.
-            this.setDragScope(el, scope);
-        };
-        this.setTargetScope = function (el, scope, connectionType) {
-            _setScope(el, scope, "_jsPlumbTargetDefinitions", connectionType);
-            this.setDropScope(el, scope);
-        };
 
         // does the work of setting a source enabled or disabled.
         var _setEnabled = function (type, el, state, toggle, connectionType) {
@@ -2637,9 +2616,6 @@
                 if (_currentInstance.isTarget(_info.el)) {
                     _currentInstance.unmakeTarget(_info.el);
                 }
-                // _currentInstance.destroyDraggable(_info.el);
-                // _currentInstance.destroyDroppable(_info.el);
-
 
                 delete _currentInstance.floatingConnections[_info.id];
                 delete managedElements[_info.id];
@@ -2710,8 +2686,6 @@
                     _currentInstance.unbind();
                 }
                 delete _container._katavorioDrag;
-                //this.targetEndpointDefinitions = {};
-                //this.sourceEndpointDefinitions = {};
                 connections.length = 0;
                 if (this.doReset) {
                     this.doReset();
@@ -2794,14 +2768,6 @@
                 endpointsByElement[newId][i].setReferenceElement(el);
             }
             delete endpointsByElement[id];
-
-            // this.sourceEndpointDefinitions[newId] = this.sourceEndpointDefinitions[id];
-            // delete this.sourceEndpointDefinitions[id];
-            // this.targetEndpointDefinitions[newId] = this.targetEndpointDefinitions[id];
-            // delete this.targetEndpointDefinitions[id];
-
-
-
             managedElements[newId] = managedElements[id];
             delete managedElements[id];
 
