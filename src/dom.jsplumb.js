@@ -125,62 +125,6 @@
         return e;
     };
 
-    var _getDragManager = function (instance, category) {
-
-        category = category || "main";
-        var key = "_katavorio_" + category;
-        var k = instance[key],
-            e = instance.getEventManager();
-
-        if (!k) {
-
-            if (category !== "main") {
-
-                k = new _jk({
-                    bind: e.on,
-                    unbind: e.off,
-                    getSize: _jp.getSize,
-                    getConstrainingRectangle: function (el) {
-                        return [el.parentNode.scrollWidth, el.parentNode.scrollHeight];
-                    },
-                    getPosition: function (el, relativeToRoot) {
-                        // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
-                        // compute against the Container's origin. see also the getUIPosition method below.
-                        var o = instance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
-                        return [o.left, o.top];
-                    },
-                    setPosition: function (el, xy) {
-                        el.style.left = xy[0] + "px";
-                        el.style.top = xy[1] + "px";
-                    },
-                    addClass: _jp.addClass,
-                    removeClass: _jp.removeClass,
-                    intersects: _jg.intersects,
-                    indexOf: function (l, i) {
-                        return l.indexOf(i);
-                    },
-                    scope: instance.getDefaultScope(),
-                    css: {
-                        noSelect: instance.dragSelectClass,
-                        droppable: "jtk-droppable",
-                        delegatedDraggable:"jtk-delegated-draggable",
-                        draggable: "jtk-draggable",
-                        drag: "jtk-drag",
-                        selected: "jtk-drag-selected",
-                        active: "jtk-drag-active",
-                        hover: "jtk-drag-hover",
-                        ghostProxy: "jtk-ghost-proxy"
-                    }
-                });
-            }
-
-            k.setZoom(instance.getZoom());
-            instance[key] = k;
-            instance.bind("zoom", k.setZoom);
-        }
-        return k;
-    };
-
     function hasManagedParent(container, el) {
         var pn = el.parentNode;
         while (pn != null && pn !== container) {
@@ -192,8 +136,7 @@
         }
     }
 
-
-    var _dragOffset = null, _groupLocations = [];
+    var _dragOffset = null, _groupLocations = [], _intersectingGroups = [];
 
     var _dragStart = function(instance, params) {
         var el = params.drag.getDragElement();
@@ -202,9 +145,6 @@
         if(hasManagedParent(instance.getContainer(), el) && el.offsetParent._jsPlumbGroup == null) {
             return false;
         } else {
-
-
-
 
             // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
             // have been supplied to the instance's dragOptions.
@@ -221,21 +161,37 @@
             if (cont) {
 
                 _groupLocations.length = 0;
+                _intersectingGroups.length = 0;
 
-                instance.getSelector(instance.getContainer(), "[jtk-group]").forEach(function(candidate) {
-                    if (candidate._jsPlumbGroup && candidate._jsPlumbGroup.droppable !== false && candidate._jsPlumbGroup.enabled !== false) {
-                        var o = instance.getOffset(candidate), s = instance.getSize(candidate);
-                        var boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                        _groupLocations.push({el:candidate, r:boundingRect, group:el._jsPlumbGroup});
+                //
+                // is it the best way to do it via the dom? the group manager can give all the groups, and also whether they are
+                // collapsed etc
+                //
 
-                        // _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
-                    }
+                if (!el._isJsPlumbGroup && (!el._jsPlumbGroup || el._jsPlumbGroup.constrain !== true)) {
+                    instance.getGroupManager().getGroups().forEach(function (group) {
+                        if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
+                            var groupEl = group.getEl(),
+                                s = instance.getSize(groupEl),
+                                o = instance.getOffset(groupEl),
+                                boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
 
+                            _groupLocations.push({el: groupEl, r: boundingRect, group: group});
+                            instance.addClass(groupEl, "jtk-drag-active");
+                        }
+                    });
+               }
 
-
-
-
-                });
+                // instance.getSelector(instance.getContainer(), "[jtk-group]").forEach(function(candidate) {
+                //     if (candidate._jsPlumbGroup && candidate._jsPlumbGroup.droppable !== false && candidate._jsPlumbGroup.enabled !== false) {
+                //         var o = instance.getOffset(candidate), s = instance.getSize(candidate);
+                //         var boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
+                //         _groupLocations.push({el:candidate, r:boundingRect, group:el._jsPlumbGroup});
+                //
+                //         // _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                //     }
+                //
+                // });
 
                 instance.setHoverSuspended(true);
                 instance.select({source: el}).addClass(instance.elementDraggingClass + " " + instance.sourceElementDraggingClass, true);
@@ -251,29 +207,44 @@
 
         var el = params.drag.getDragElement();
         var finalPos = params.finalPos || params.pos;
+        var elSize = instance.getSize(el);
+
         var ui = { left:finalPos[0], top:finalPos[1] };
+
 
         
         if (ui != null) {
+
+            _intersectingGroups.length = 0;
             
             // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
             // have been supplied to the instance's dragOptions.
-            var o = el._jsPlumbDragOptions || {};
+            //var o = el._jsPlumbDragOptions || {};
 
             if (_dragOffset != null) {
                 ui.left += _dragOffset.left;
                 ui.top += _dragOffset.top;
             }
 
+            var bounds = { x:ui.left, y:ui.top, w:elSize[0], h:elSize[1] };
             
-            // TODO  calculate if there is a target group 
+            // TODO  calculate if there is a target group
+            _groupLocations.forEach(function(groupLoc) {
+                if (Biltong.intersects(bounds, groupLoc.r)) {
+                    instance.addClass(groupLoc.el, "jtk-drag-hover");
+                    _intersectingGroups.push(groupLoc);
+                } else {
+                    instance.removeClass(groupLoc.el, "jtk-drag-hover");
+                }
+            });
             
             
             instance.draw(el, ui, null, true);
-            if (o._dragging) {
-                instance.addClass(el, "jtk-dragged");
-            }
-            o._dragging = true;
+
+            // if (o._dragging) {
+            //     instance.addClass(el, "jtk-dragged");
+            // }
+            // o._dragging = true;
         }
     };
 
@@ -307,9 +278,10 @@
             this.select({target: dragElement}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
 
             // if the element was in a group, perhaps take action.
-            if (dragElement._jsPlumbGroup) {
-                console.log("");
-            }
+            // if (dragElement._jsPlumbGroup) {
+            //     console.log("");
+            // }
+
 
         }.bind(instance);
 
@@ -317,6 +289,27 @@
             _one(elements[i]);
         }
 
+        if (_intersectingGroups.length > 0) {
+            // we only support one for the time being
+            var targetGroup = _intersectingGroups[0].group;
+            var currentGroup = params.el._jsPlumbGroup;
+            if (currentGroup !== targetGroup) {
+                if (currentGroup != null) {
+                    if (currentGroup.overrideDrop(params.el, targetGroup)) {
+                        return;
+                    }
+                }
+                instance.getGroupManager().addToGroup(targetGroup, params.el, false);
+            }
+        }
+
+
+        _groupLocations.forEach(function(groupLoc) {
+            instance.removeClass(groupLoc.el, "jtk-drag-active");
+            instance.removeClass(groupLoc.el, "jtk-drag-hover");
+        });
+
+        _groupLocations.length = 0;
         instance.setHoverSuspended(false);
         instance.setConnectionBeingDragged(false);
         _dragOffset = null;
@@ -428,6 +421,10 @@
                 }
 
                 return [x,y];
+            },
+            revert:function(dragEl, pos) {
+                // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
+                return dragEl.parentNode != null && dragEl._jsPlumbGroup && dragEl._jsPlumbGroup.revert ? !_isInsideParent(dragEl, pos) : false;
             }
         });
 
@@ -438,12 +435,76 @@
         //
         // ------------ drag handler for elements (and elements inside groups). this is added as a selector on the endpoint drag handler below ------------------
         //
-        var elementDragOptions = jsPlumb.extend({selector:"[jtk-managed]"}, _currentInstance.Defaults.dragOptions || {});
-        elementDragOptions.start = _ju.wrap(elementDragOptions.start, function(p) {
-            return _dragStart(_currentInstance, p);
-        });
+        var elementDragOptions = jsPlumb.extend({selector:"> [jtk-managed]"}, _currentInstance.Defaults.dragOptions || {});
+        elementDragOptions.start = _ju.wrap(elementDragOptions.start, function(p) { return _dragStart(_currentInstance, p); });
         elementDragOptions.drag = _ju.wrap(elementDragOptions.drag, function(p) { return _dragMove(_currentInstance, p); });
         elementDragOptions.stop = _ju.wrap(elementDragOptions.stop, function(p) { return _dragStop(_currentInstance, p); });
+
+        function _isInsideParent(_el, pos) {
+            var p = _el.parentNode,
+                s = _currentInstance.getSize(p),
+                ss = _currentInstance.getSize(_el),
+                leftEdge = pos[0],
+                rightEdge = leftEdge + ss[0],
+                topEdge = pos[1],
+                bottomEdge = topEdge + ss[1];
+
+            return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
+        }
+
+        function _pruneOrOrphan(p) {
+            var orphanedPosition = null;
+            if (!_isInsideParent(p.el, p.pos)) {
+                var group = p.el._jsPlumbGroup;
+                if (group.prune) {
+                    group.remove(p.el);
+                    _currentInstance.remove(p.el);
+                } else if (group.orphan) {
+                    orphanedPosition = _currentInstance.getGroupManager().orphan(p.el);
+                    group.remove(p.el);
+                }
+
+            }
+
+            return orphanedPosition;
+        }
+
+        //var targetDroppableGroups = [];
+        var groupDragOptions = jsPlumb.extend({selector:"> [jtk-group] [jtk-managed]"}, _currentInstance.Defaults.dragOptions || {});
+        groupDragOptions.start = _ju.wrap(groupDragOptions.start, function(p) {
+
+            return _dragStart(_currentInstance, p);
+
+            // targetDroppableGroups.length = 0;
+            // var out = _dragStart(_currentInstance, p);
+            // if (out === false) {
+            //     return out;
+            // } else {
+            //
+            //     // get a list of target groups
+            //     _currentInstance.getGroupManager().getGroups().forEach(function(group) {
+            //         console.log(group);
+            //     });
+            //
+            //
+            //     return out;
+            // }
+        });
+        groupDragOptions.drag = _ju.wrap(groupDragOptions.drag, function(p) { return _dragMove(_currentInstance, p); });
+        groupDragOptions.stop = _ju.wrap(groupDragOptions.stop, function(p) {
+            var out = _dragStop(_currentInstance, p);
+            _pruneOrOrphan(p);
+            return out;
+        });
+
+        groupDragOptions.ghostProxy = function(el) {
+            console.log("should use ghost proxy? " + el);
+            return false;
+        };
+
+        groupDragOptions.revert = function(el) {
+            _currentInstance.revalidate(el);
+        };
 
         //
         // ------------ drag handler for endpoints (source and target) ------------------
@@ -523,13 +584,6 @@
             }
 
             if (_continue === false) {
-                // this is for mootools and yui. returning false from this causes jquery to stop drag.
-                // the events are wrapped in both mootools and yui anyway, but i don't think returning
-                // false from the start callback would stop a drag.
-                // if (_currentInstance.stopDrag) {
-                //     _currentInstance.stopDrag(ep.canvas);
-                // }
-                //_dragHandler.stopDrag();
                 _stopped = true;
                 return false;
             }
@@ -599,19 +653,50 @@
                     _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
             });
-            _currentInstance.getSelector(_currentInstance.getContainer(), "[jtk-target][jtk-scope-" + ep.scope + "]").forEach(function(candidate) {
+
+            // at this point we are in fact uncertain about whether or not the given endpoint is a source/target. it may not have been
+            // specifically configured as one
+            var selectors = [ ];//,
+                // epIsSource = ep.isSource || (existingJpc && jpc.endpoints[0] === ep),
+                // epIsTarget = ep.isTarget || (existingJpc && jpc.endpoints[1] === ep);
+
+           // if (epIsSource) {
+                selectors.push("[jtk-target][jtk-scope-" + ep.scope + "]");
+            //}
+            //if (epIsTarget) {
+                selectors.push("[jtk-source][jtk-scope-" + ep.scope + "]");
+            //}
+
+            _currentInstance.getSelector(_currentInstance.getContainer(), selectors.join(",")).forEach(function(candidate) {
 
                 var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
                 boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                var d = {el:candidate, r:boundingRect};
+                var d = {el:candidate, r:boundingRect},
+                    targetDefinitionIdx = -1,
+                    sourceDefinitionIdx = -1;
 
-                // look for at least one target definition that is not disabled on the given element.
-                var targetDefinition = _ju.findWithFunction(candidate._jsPlumbTargetDefinitions, function(tdef) {
-                    return tdef.enabled !== false;
-                });
+              //  if (epIsSource) {
+                    // look for at least one target definition that is not disabled on the given element.
+                    targetDefinitionIdx = _ju.findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
+                        return tdef.enabled !== false;
+                    });
+                //}
 
-                // if there is at least one enabled target definition, add this element to the drop targets
-                if (targetDefinition !== -1) {
+                //if (epIsTarget) {
+                    // look for at least one target definition that is not disabled on the given element.
+                    sourceDefinitionIdx = _ju.findWithFunction(candidate._jsPlumbSourceDefinitions, function (tdef) {
+                        return tdef.enabled !== false;
+                    });
+                //}
+
+                // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
+                if (targetDefinitionIdx !== -1) {
+                    endpointDropTargets.push(d);
+                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                }
+
+                // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
+                if (sourceDefinitionIdx !== -1) {
                     endpointDropTargets.push(d);
                     _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
@@ -827,6 +912,18 @@
                     _currentInstance.repaint(jpc.sourceId);
                     jpc._forceDetach = false;
                 }
+                else {
+                    _currentInstance.deleteObject({endpoint: jpc.suspendedEndpoint});
+                    // if (jpc.pending) {
+                        // connection discardded?
+                    //     _currentInstance.fire("connectionAborted", jpc, originalEvent);
+                    // }
+                }
+
+            } else {
+                if (jpc.pending) {
+                    _currentInstance.fire("connectionAborted", jpc, originalEvent);
+                }
             }
         }
 
@@ -922,18 +1019,20 @@
         // connection.
         //
         function _abort(idx, originalEvent) {
-            if(jpc.suspendedEndpoint) {
+            //if(jpc.suspendedEndpoint && jpc.isReattach()) {
                 _reattach(idx, originalEvent);
-            } else {
-                _discard(originalEvent);
-            }
+            // } else {
+            //     _discard(originalEvent);
+            // }
+
+           
         }
 
         //
         // compute the appropriate dropEndpoint. this may be an existing Endpoint, or it may be one created from an element
         // configured via makeTarget
         //
-        function _getDropEndpoint(p) {
+        function _getDropEndpoint(p, jpc) {
             var dropEndpoint;
 
             if (currentDropTarget.endpoint == null) {
@@ -942,6 +1041,14 @@
                 // find a suitable target definition, by matching the source of the drop element with the targets registered on the
                 // drop target
                 var targetDefinition = getTargetDefinition(currentDropTarget.el, p.e);
+                // need to figure the conditions under which each of these should be tested
+                if (targetDefinition == null) {
+                    targetDefinition = getSourceDefinition((currentDropTarget.el, p.e));
+                }
+                
+                if (targetDefinition == null) {
+                    return null;
+                }
 
                 // if no cached endpoint, or there was one but it has been cleaned up
                 // (ie. detached), create a new one
@@ -988,8 +1095,9 @@
 
         endpointDragOptions.stop = function(p) {
 
-            var originalEvent = _currentInstance.getDropEvent(arguments);
+            var originalEvent = p.e;
             var reattached = false;
+            var aborted = false;
 
             console.log("drag ended on endpoint");
             _currentInstance.setConnectionBeingDragged(false);
@@ -1009,11 +1117,15 @@
                 if (currentDropTarget != null) {
                     console.log("dropped on a target" + currentDropTarget.el);
 
-                    var dropEndpoint = _getDropEndpoint(p);
+                    var dropEndpoint = _getDropEndpoint(p, jpc);
+
+                    if (dropEndpoint == null) {
+                        aborted = true;
+                    }
 
                     // if this is a drop back where the connection came from, mark it force reattach and
                     // return; the stop handler will reattach. without firing an event.
-                    if (jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id === dropEndpoint.id)) {
+                    if (!aborted && jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id === dropEndpoint.id)) {
                         jpc._forceReattach = true;
                         jpc.setHover(false);
 
@@ -1026,7 +1138,7 @@
 
 
                     if (!reattached) {
-                        if (dropEndpoint.isEnabled()) {
+                        if (!aborted && dropEndpoint.isEnabled()) {
 
                             // if the target of the drop is full, fire an event (we abort below)
                             // makeTarget: keep.
@@ -1053,8 +1165,8 @@
                                     jpc.floatingId = jpc.sourceId;
                                     jpc.floatingEndpoint = jpc.endpoints[0];
                                     jpc.floatingIndex = 0;
-                                    jpc.source = ep.element;
-                                    jpc.sourceId = ep.elementId;
+                                    jpc.source = dropEndpoint.element;
+                                    jpc.sourceId = dropEndpoint.elementId;
                                 } else {
                                     jpc.floatingElement = jpc.target;
                                     jpc.floatingId = jpc.targetId;
@@ -1092,15 +1204,18 @@
                         }
                     }
 
-                    maybeCleanup(dropEndpoint);
+                    if (dropEndpoint != null) {
 
-                    // makeTarget sets this flag, to tell us we have been replaced and should delete this object.
-                    if (dropEndpoint.deleteAfterDragStop) {
-                        _currentInstance.deleteObject({endpoint: dropEndpoint});
-                    }
-                    else {
-                        if (dropEndpoint._jsPlumb) {
-                            dropEndpoint.paint({recalc: false});
+                        maybeCleanup(dropEndpoint);
+
+                        // makeTarget sets this flag, to tell us we have been replaced and should delete this object.
+                        if (dropEndpoint.deleteAfterDragStop) {
+                            _currentInstance.deleteObject({endpoint: dropEndpoint});
+                        }
+                        else {
+                            if (dropEndpoint._jsPlumb) {
+                                dropEndpoint.paint({recalc: false});
+                            }
                         }
                     }
 
@@ -1151,13 +1266,6 @@
             }
         };
 
-
-
-        // refresh the offsets for child elements of this element.
-        // this.updateOffsets = function (elId, childOffsetOverrides) {
-        //
-        // };
-
         this.endpointDeleted = function (endpoint) {
             if (_elementsWithEndpoints[endpoint.elementId]) {
                 _elementsWithEndpoints[endpoint.elementId]--;
@@ -1182,7 +1290,7 @@
             if (current) {
                 var co = {};
                 co[elId] = childOffset;
-                this.updateOffsets(current, co);
+                //this.updateOffsets(current, co);
                 _currentInstance.revalidate(current);
             }
         };
@@ -1341,12 +1449,15 @@
         _currentInstance.bind("container:change", function(newContainer) {
             endpointSourceDragHandler.destroy();
             endpointSourceDragHandler = katavorio.draggable(newContainer, endpointDragOptions);
+            endpointSourceDragHandler.addSelector(groupDragOptions);
             endpointSourceDragHandler.addSelector(elementDragOptions);
+
             _currentInstance.on(_currentInstance.getContainer(), "mousedown", "[jtk-source]", mousedownHandler);
         });
 
-
+        endpointSourceDragHandler.addSelector(groupDragOptions);
         endpointSourceDragHandler.addSelector(elementDragOptions);
+
     };
 
     var _setClassName = function (el, cn, classList) {
@@ -1412,8 +1523,6 @@
 
     root.jsPlumb.extend(root.jsPlumbInstance.prototype, {
 
-        headless: false,
-
         pageLocation: _pageLocation,
         screenLocation: _screenLocation,
         clientLocation: _clientLocation,
@@ -1424,10 +1533,6 @@
             }
 
             return this.dragManager;
-        },
-
-        recalculateOffsets:function(elId) {
-            this.getDragManager().updateOffsets(elId);
         },
 
         createElement:function(tag, style, clazz, atts) {
@@ -1635,15 +1740,15 @@
          * @param {Element} el The element to retrieve the absolute coordinates from. **Note** this is a DOM element, not a selector from the underlying library.
          * @return {Number[]} [left, top] pixel values.
          */
-        getAbsolutePosition: function (el) {
-            var _one = function (s) {
-                var ss = el.style[s];
-                if (ss) {
-                    return parseFloat(ss.substring(0, ss.length - 2));
-                }
-            };
-            return [ _one("left"), _one("top") ];
-        },
+        // getAbsolutePosition: function (el) {
+        //     var _one = function (s) {
+        //         var ss = el.style[s];
+        //         if (ss) {
+        //             return parseFloat(ss.substring(0, ss.length - 2));
+        //         }
+        //     };
+        //     return [ _one("left"), _one("top") ];
+        // },
 
         /**
          * Sets the absolute position of some element by setting the left/top properties in its style.
@@ -1653,18 +1758,18 @@
          * @param {Number[]} [animateFrom] Optional previous xy to animate from.
          * @param {Object} [animateOptions] Options for the animation.
          */
-        setAbsolutePosition: function (el, xy, animateFrom, animateOptions) {
-            if (animateFrom) {
-                this.animate(el, {
-                    left: "+=" + (xy[0] - animateFrom[0]),
-                    top: "+=" + (xy[1] - animateFrom[1])
-                }, animateOptions);
-            }
-            else {
-                el.style.left = xy[0] + "px";
-                el.style.top = xy[1] + "px";
-            }
-        },
+        // setAbsolutePosition: function (el, xy, animateFrom, animateOptions) {
+        //     if (animateFrom) {
+        //         this.animate(el, {
+        //             left: "+=" + (xy[0] - animateFrom[0]),
+        //             top: "+=" + (xy[1] - animateFrom[1])
+        //         }, animateOptions);
+        //     }
+        //     else {
+        //         el.style.left = xy[0] + "px";
+        //         el.style.top = xy[1] + "px";
+        //     }
+        // },
         /**
          * gets the size for the element, in an array : [ width, height ].
          */
@@ -1678,13 +1783,13 @@
            //return [ el.offsetWidth, el.offsetHeight ];
         },
         getRenderMode : function() { return "svg"; },
-        initDraggable: function (el, options, category) {
-            _getDragManager(this, category).draggable(el, options);
-            el._jsPlumbDragOptions = options;
-        },
-        unbindDraggable: function (el, evt, fn, category) {
-            _getDragManager(this, category).destroyDraggable(el, evt, fn);
-        },
+        // initDraggable: function (el, options, category) {
+        //     _getDragManager(this, category).draggable(el, options);
+        //     el._jsPlumbDragOptions = options;
+        // },
+        // unbindDraggable: function (el, evt, fn, category) {
+        //     _getDragManager(this, category).destroyDraggable(el, evt, fn);
+        // },
         setDraggable : function (element, draggable) {
             return jsPlumb.each(element, function (el) {
                 //if (this.isDragSupported(el)) {
@@ -1765,54 +1870,12 @@
                 }, step);
         },
         // DRAG/DROP
-
-
-        destroyDroppable: function (el, category) {
-            _getDragManager(this, category).destroyDroppable(el);
-        },
-        unbindDroppable: function (el, evt, fn, category) {
-            _getDragManager(this, category).destroyDroppable(el, evt, fn);
-        },
-
-        droppable :function(el, options) {
-            el = _ju.isArray(el) || (el.length != null && !_ju.isString(el)) ? el: [ el ];
-            var info;
-            options = options || {};
-            options.allowLoopback = false;
-            Array.prototype.slice.call(el).forEach(function(_el) {
-                info = this.info(_el);
-                if (info.el) {
-                    this.initDroppable(info.el, options);
-                }
-            }.bind(this));
-            return this;
-        },
-
-        initDroppable: function (el, options, category) {
-            _getDragManager(this, category).droppable(el, options);
-        },
-        isAlreadyDraggable: function (el) {
-            return el._katavorioDrag != null;
-        },
-        // isDragSupported: function (el, options) {
-        //     return true;
-        // },
-        // isDropSupported: function (el, options) {
-        //     return true;
-        // },
-        isElementDraggable: function (el) {
-            el = _jp.getElement(el);
-            return el._katavorioDrag && el._katavorioDrag.isEnabled();
-        },
-        getDragObject: function (eventArgs) {
-            return eventArgs[0].drag.getDragElement();
-        },
         getDragScope: function (el) {
             return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
         },
-        getDropEvent: function (args) {
-            return args[0].e;
-        },
+        // getDropEvent: function (args) {
+        //     return args[0].e;
+        // },
         getUIPosition: function (eventArgs, zoom) {
             // here the position reported to us by Katavorio is relative to the element's offsetParent. For top
             // level nodes that is fine, but if we have a nested draggable then its offsetParent is actually
@@ -1833,94 +1896,69 @@
             return p;
         },
         setDragFilter: function (el, filter, _exclude) {
-            if (el._katavorioDrag) {
-                el._katavorioDrag.setFilter(filter, _exclude);
-            }
+            console.log("WARN: setFilter not implemented yet in 3.x");
         },
-        setElementDraggable: function (el, draggable) {
-            el = _jp.getElement(el);
-            if (el._katavorioDrag) {
-                el._katavorioDrag.setEnabled(draggable);
-            }
-        },
-        setDragScope: function (el, scope) {
-            if (el._katavorioDrag) {
-                el._katavorioDrag.k.setDragScope(el, scope);
-            }
-        },
-        setDropScope:function(el, scope) {
-            if (el._katavorioDrop && el._katavorioDrop.length > 0) {
-                el._katavorioDrop[0].k.setDropScope(el, scope);
-            }
-        },
-        addToPosse:function(el, spec) {
-            var specs = Array.prototype.slice.call(arguments, 1);
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) {
-                _el = [ _jp.getElement(_el) ];
-                _el.push.apply(_el, specs );
-                dm.addToPosse.apply(dm, _el);
-            });
-        },
-        setPosse:function(el, spec) {
-            var specs = Array.prototype.slice.call(arguments, 1);
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) {
-                _el = [ _jp.getElement(_el) ];
-                _el.push.apply(_el, specs );
-                dm.setPosse.apply(dm, _el);
-            });
-        },
-        removeFromPosse:function(el, posseId) {
-            var specs = Array.prototype.slice.call(arguments, 1);
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) {
-                _el = [ _jp.getElement(_el) ];
-                _el.push.apply(_el, specs );
-                dm.removeFromPosse.apply(dm, _el);
-            });
-        },
-        removeFromAllPosses:function(el) {
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
-        },
-        setPosseState:function(el, posseId, state) {
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
-        },
-        dragEvents: {
-            'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
-            'over': 'over', 'out': 'out', 'drop': 'drop', 'complete': 'complete',
-            'beforeStart':'beforeStart'
-        },
-        animEvents: {
-            'step': "step", 'complete': 'complete'
-        },
+        // setDragScope: function (el, scope) {
+        //     if (el._katavorioDrag) {
+        //         el._katavorioDrag.k.setDragScope(el, scope);
+        //     }
+        // },
+        // setDropScope:function(el, scope) {
+        //     if (el._katavorioDrop && el._katavorioDrop.length > 0) {
+        //         el._katavorioDrop[0].k.setDropScope(el, scope);
+        //     }
+        // },
+        // addToPosse:function(el, spec) {
+        //     var specs = Array.prototype.slice.call(arguments, 1);
+        //     var dm = _getDragManager(this);
+        //     _jp.each(el, function(_el) {
+        //         _el = [ _jp.getElement(_el) ];
+        //         _el.push.apply(_el, specs );
+        //         dm.addToPosse.apply(dm, _el);
+        //     });
+        // },
+        // setPosse:function(el, spec) {
+        //     var specs = Array.prototype.slice.call(arguments, 1);
+        //     var dm = _getDragManager(this);
+        //     _jp.each(el, function(_el) {
+        //         _el = [ _jp.getElement(_el) ];
+        //         _el.push.apply(_el, specs );
+        //         dm.setPosse.apply(dm, _el);
+        //     });
+        // },
+        // removeFromPosse:function(el, posseId) {
+        //     var specs = Array.prototype.slice.call(arguments, 1);
+        //     var dm = _getDragManager(this);
+        //     _jp.each(el, function(_el) {
+        //         _el = [ _jp.getElement(_el) ];
+        //         _el.push.apply(_el, specs );
+        //         dm.removeFromPosse.apply(dm, _el);
+        //     });
+        // },
+        // removeFromAllPosses:function(el) {
+        //     var dm = _getDragManager(this);
+        //     _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
+        // },
+        // setPosseState:function(el, posseId, state) {
+        //     var dm = _getDragManager(this);
+        //     _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
+        // },
+        // dragEvents: {
+        //     'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
+        //     'over': 'over', 'out': 'out', 'drop': 'drop', 'complete': 'complete',
+        //     'beforeStart':'beforeStart'
+        // },
         stopDrag: function (el) {
-            if (el._katavorioDrag) {
-                el._katavorioDrag.abort();
-            }
+            console.log("WARN: stopDrag not implemented yet in 3.x");
         },
         addToDragSelection: function (spec) {
-            this._dragSelection = this._dragSelection || [];
-            this._dragSelectionMap = this._dragSelectionMap || {};
-
-            _jp.each(spec, function(el) {
-                this._dragSelectionMap[this.getId(el)] = el;
-                this._dragSelection.push(el);
-            }.bind(this));
+            console.log("WARN: addToDragSelection not implemented yet in 3.x");
         },
         removeFromDragSelection: function (spec) {
-            //_getDragManager(this).deselect(spec);
-            _jp.each(spec, function(el) {
-                this._dragSelectionMap && delete this._dragSelectionMap[this.getId(el)];
-                _ju.removeWithFunction(this._dragSelection || [], function(e) { return e === el; });
-            }.bind(this));
+            console.log("WARN: removeFromDragSelection not implemented yet in 3.x");
         },
         clearDragSelection: function () {
-            //_getDragManager(this).deselectAll();
-            this._dragSelection = [];
-            this._dragSelectionMap = {};
+            console.log("WARN: clearDragSelection not implemented yet in 3.x");
         },
         trigger: function (el, event, originalEvent, payload) {
             this.getEventManager().trigger(el, event, originalEvent, payload);
