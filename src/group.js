@@ -108,6 +108,9 @@
                 if (el._isJsPlumbGroup) {
                     return;
                 }
+
+                _jsPlumb.manage(el);
+
                 var currentGroup = el._jsPlumbGroup;
                 // if already a member of this group, do nothing
                 if (currentGroup !== group) {
@@ -410,6 +413,22 @@
                 _jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].getEl()));
             }
         };
+
+        //
+        // orphaning an element means taking it out of the group and adding it to the main jsplumb container.
+        // we return the new calculated position from this method and the element's id.
+        //
+        this.orphan = function(_el) {
+            if (_el._jsPlumbGroup) {
+                var id = _jsPlumb.getId(_el);
+                var pos = _jsPlumb.getOffset(_el);
+                _el.parentNode.removeChild(_el);
+                _jsPlumb.getContainer().appendChild(_el);
+                _jsPlumb.setPosition(_el, pos);
+                delete _el._jsPlumbGroup;
+                return [id, pos];
+            }
+        };
     };
 
     /**
@@ -448,7 +467,7 @@
         var dropOverride = params.dropOverride === true;
         var proxied = params.proxied !== false;
         var elements = [];
-        var droppable = params.droppable !== false;
+        var droppable = this.droppable = params.droppable !== false;
         this.connections = { source:[], target:[], internal:[] };
 
         // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
@@ -462,21 +481,6 @@
         };
 
         this.collapsed = false;
-        if (params.draggable !== false) {
-
-            // var opts = {
-            //     stop:function(params) {
-            //         _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
-            //     },
-            //     scope:GROUP_DRAG_SCOPE
-            // };
-            // if (params.dragOptions) {
-            //     root.jsPlumb.extend(opts, params.dragOptions);
-            // }
-            // _jsPlumb.draggable(params.el, opts);
-
-            // TODO: bind to stop event for this element.
-        }
 
         // if (params.droppable !== false) {
         //     _jsPlumb.droppable(params.el, {
@@ -524,9 +528,9 @@
                 __el._jsPlumbGroup = self;
                 elements.push(__el);
                 // test if draggable and add handlers if so.
-                if (_jsPlumb.isAlreadyDraggable(__el)) {
-                    _bindDragHandlers(__el);
-                }
+                // if (_jsPlumb.isAlreadyDraggable(__el)) {
+                //     _bindDragHandlers(__el);
+                // }
 
                 if (__el.parentNode !== dragArea) {
                     dragArea.appendChild(__el);
@@ -558,7 +562,7 @@
                         jsPlumbUtil.log("Could not remove element from Group " + e);
                     }
                 }
-                _unbindDragHandlers(__el);
+               // _unbindDragHandlers(__el);
                 if (!doNotFireEvent) {
                     var p = {group: self, el: __el};
                     if (targetGroup) {
@@ -583,7 +587,7 @@
         this.orphanAll = function() {
             var orphanedPositions = {};
             for (var i = 0; i < elements.length; i++) {
-                var newPosition = _orphan(elements[i]);
+                var newPosition = _jsPlumb.getGroupManager().orphan(elements[i]);
                 orphanedPositions[newPosition[0]] = newPosition[1];
             }
             elements.length = 0;
@@ -594,62 +598,6 @@
 
         el[GROUP] = this;
 
-        _jsPlumb.bind(ELEMENT_DRAGGABLE_EVENT, function(dragParams) {
-            // if its for the current group,
-            if (dragParams.el._jsPlumbGroup === this) {
-                _bindDragHandlers(dragParams.el);
-            }
-        }.bind(this));
-
-        function _findParent(_el) {
-            return _el.offsetParent;
-        }
-
-        function _isInsideParent(_el, pos) {
-            var p = _findParent(_el),
-                s = _jsPlumb.getSize(p),
-                ss = _jsPlumb.getSize(_el),
-                leftEdge = pos[0],
-                rightEdge = leftEdge + ss[0],
-                topEdge = pos[1],
-                bottomEdge = topEdge + ss[1];
-
-            return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
-        }
-
-        //
-        // orphaning an element means taking it out of the group and adding it to the main jsplumb container.
-        // we return the new calculated position from this method and the element's id.
-        //
-        function _orphan(_el) {
-            var id = _jsPlumb.getId(_el);
-            var pos = _jsPlumb.getOffset(_el);
-            _el.parentNode.removeChild(_el);
-            _jsPlumb.getContainer().appendChild(_el);
-            _jsPlumb.setPosition(_el, pos);
-            delete _el._jsPlumbGroup;
-            _unbindDragHandlers(_el);
-            return [id, pos];
-        }
-
-        //
-        // remove an element from the group, then either prune it from the jsplumb instance, or just orphan it.
-        //
-        function _pruneOrOrphan(p) {
-            var orphanedPosition = null;
-            if (!_isInsideParent(p.el, p.pos)) {
-                var group = p.el._jsPlumbGroup;
-                if (prune) {
-                    _jsPlumb.remove(p.el);
-                } else {
-                    orphanedPosition = _orphan(p.el);
-                }
-
-                group.remove(p.el);
-            }
-
-            return orphanedPosition;
-        }
 
         //
         // redraws the element
@@ -658,46 +606,6 @@
             var id = _jsPlumb.getId(_el);
             _jsPlumb.revalidate(_el);
             _jsPlumb.getDragManager().revalidateParent(_el, id);
-        }
-
-        //
-        // unbind the group specific drag/revert handlers.
-        //
-        function _unbindDragHandlers(_el) {
-            if (!_el._katavorioDrag) {
-                return;
-            }
-            if (prune || orphan) {
-                _el._katavorioDrag.off(STOP, _pruneOrOrphan);
-            }
-            if (!prune && !orphan && revert) {
-                _el._katavorioDrag.off(REVERT, _revalidate);
-                _el._katavorioDrag.setRevert(null);
-            }
-        }
-
-        function _bindDragHandlers(_el) {
-            if (!_el._katavorioDrag) {
-                return;
-            }
-            if (prune || orphan) {
-                _el._katavorioDrag.on(STOP, _pruneOrOrphan);
-            }
-
-            if (constrain) {
-                _el._katavorioDrag.setConstrain(true);
-            }
-
-            if (ghost) {
-                _el._katavorioDrag.setUseGhostProxy(true);
-            }
-
-            if (!prune && !orphan && revert) {
-                _el._katavorioDrag.on(REVERT, _revalidate);
-                _el._katavorioDrag.setRevert(function(__el, pos) {
-                    return !_isInsideParent(__el, pos);
-                });
-            }
         }
 
         this.shouldProxy = function() {
