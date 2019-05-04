@@ -171,6 +171,7 @@
             var _addDiv = function (id, parent, className, x, y, w, h) {
                 var d1 = document.createElement("div");
                 d1.style.position = "absolute";
+                d1.innerHTML = id;
                 if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
                 d1.setAttribute("id", id);
                 d1.style.left = (x != null ? x : (Math.floor(Math.random() * 1000))) + "px";
