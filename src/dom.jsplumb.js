@@ -1045,7 +1045,7 @@
                 var targetDefinition = getTargetDefinition(currentDropTarget.el, p.e);
                 // need to figure the conditions under which each of these should be tested
                 if (targetDefinition == null) {
-                    targetDefinition = getSourceDefinition((currentDropTarget.el, p.e));
+                    targetDefinition = getSourceDefinition(currentDropTarget.el, p.e);
                 }
                 
                 if (targetDefinition == null) {
