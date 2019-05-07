@@ -469,31 +469,19 @@
             return orphanedPosition;
         }
 
-        //var targetDroppableGroups = [];
         var groupDragOptions = jsPlumb.extend({selector:"> [jtk-group] [jtk-managed]"}, _currentInstance.Defaults.dragOptions || {});
         groupDragOptions.start = _ju.wrap(groupDragOptions.start, function(p) {
-
             return _dragStart(_currentInstance, p);
-
-            // targetDroppableGroups.length = 0;
-            // var out = _dragStart(_currentInstance, p);
-            // if (out === false) {
-            //     return out;
-            // } else {
-            //
-            //     // get a list of target groups
-            //     _currentInstance.getGroupManager().getGroups().forEach(function(group) {
-            //         console.log(group);
-            //     });
-            //
-            //
-            //     return out;
-            // }
         });
         groupDragOptions.drag = _ju.wrap(groupDragOptions.drag, function(p) { return _dragMove(_currentInstance, p); });
         groupDragOptions.stop = _ju.wrap(groupDragOptions.stop, function(p) {
-            var out = _dragStop(_currentInstance, p);
-            _pruneOrOrphan(p);
+            var originalGroup = p.el._jsPlumbGroup,
+                out = _dragStop(_currentInstance, p),
+                currentGroup = p.el._jsPlumbGroup;
+
+            if (currentGroup === originalGroup) {
+                _pruneOrOrphan(p);
+            }
             return out;
         });
 
