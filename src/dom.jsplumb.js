@@ -691,18 +691,32 @@
 
                 // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
                 if (targetDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+                    }
                     endpointDropTargets.push(d);
                     _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
 
                 // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
                 if (sourceDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+                    }
                     endpointDropTargets.push(d);
                     _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
 
             });
 
+            console.log(endpointDropTargets);
+            endpointDropTargets.sort(function(a, b) {
+                if (a.rank != null && b.rank != null) {
+                    return a.rank > b.rank ? -1 : a.rank < b.rank ? 1 : 0;
+                } else {
+                    return 0;
+                }
+            });
             console.log(endpointDropTargets);
 
             ep.setHover(false, false);
