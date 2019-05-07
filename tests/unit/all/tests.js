@@ -3408,7 +3408,7 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.setContainer("c2");
         equal(d1.parentNode, c2, "managed node with no connections was moved");
         equal(c.childNodes.length, 0, "container has no nodes");
-        equal(c2.childNodes.length, 1, "container 2 has one node");
+        equal(c2.childNodes.length, 2, "container 2 has two nodes (one is a text node)");
     });
 
 
