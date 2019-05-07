@@ -124,9 +124,6 @@ var testSuite = function (_jsPlumb) {
         
         support.dragANodeAround(d3);
 
-        // remove the other connection; it interferes with the mouse
-        _jsPlumb.deleteConnection(cd1d3);
-
         // now drag the source of d1-d2 to be d4.
         support.relocateSource(cd1d2, d4);
         equal(cd1d2.source.id, "d4", "source of first connection has changed to d4");
