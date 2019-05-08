@@ -3577,7 +3577,7 @@
             }
         },
         events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
-        eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
+        //eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
         _updateAttachedElements = function (component, state, timestamp, sourceElement) {
             var affectedElements = component.getAttachedElements();
             if (affectedElements) {
@@ -3594,17 +3594,6 @@
         _mapType = function(map, obj, typeId) {
             for (var i in obj) {
                 map[i] = typeId;
-            }
-        },
-        _each = function(fn, obj) {
-            obj = _ju.isArray(obj) || (obj.length != null && !_ju.isString(obj)) ? obj : [ obj ];
-            for (var i = 0; i < obj.length; i++) {
-                try {
-                    fn.apply(obj[i], [ obj[i] ]);
-                }
-                catch (e) {
-                    _ju.log(".each iteration failed : " + e);
-                }
             }
         },
         _applyTypes = function (component, params, doNotRepaint) {
@@ -4010,7 +3999,6 @@
             ConnectionOverlays: [ ],
             Connector: "Bezier",
             Container: null,
-            DoNotThrowErrors: false,
             dragOptions: { },
             dropOptions: { },
             Endpoint: "Dot",
@@ -4022,7 +4010,6 @@
             EndpointHoverStyles: [ null, null ],
             HoverPaintStyle: null,
             LabelStyle: { color: "black" },
-            LogEnabled: false,
             Overlays: [ ],
             MaxConnections: 1,
             PaintStyle: { "stroke-width": 4, stroke: "#456" },
@@ -4035,7 +4022,6 @@
             jsPlumb.extend(this.Defaults, _defaults);
         }
 
-        this.logEnabled = this.Defaults.LogEnabled;
         this._connectionTypes = {};
         this._endpointTypes = {};
 
@@ -4204,8 +4190,7 @@
             return m;
         };
 
-        var log = null,
-            initialized = false,
+        var initialized = false,
             // TODO remove from window scope
             connections = [],
             // map of element id -> endpoint lists. an element can have an arbitrary
@@ -4216,7 +4201,6 @@
             managedElements = {},
             offsets = {},
             offsetTimestamps = {},
-            draggableStates = {},
             connectionBeingDragged = false,
             sizes = [],
             _suspendDrawing = false,
@@ -4314,16 +4298,6 @@
 
                 return false;
             },
-
-            // _mergeOverrides = function (def, values) {
-            //     var m = jsPlumb.extend({}, def);
-            //     for (var i in values) {
-            //         if (values[i]) {
-            //             m[i] = values[i];
-            //         }
-            //     }
-            //     return m;
-            // },
 
             /*
              * prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
@@ -4496,13 +4470,6 @@
                 params.id = "con_" + _idstamp();
                 var con = new jsPlumb.Connection(params);
 
-                // if the connection is draggable, then maybe we need to tell the target endpoint to init the
-                // dragging code. it won't run again if it already configured to be draggable.
-                if (con.isDetachable()) {
-                    // con.endpoints[0].initDraggable("_jsPlumbSource");
-                    // con.endpoints[1].initDraggable("_jsPlumbTarget");
-                }
-
                 window.jtimeEnd("newConnection");
 
                 return con;
@@ -4595,15 +4562,6 @@
                     }
                 }
             },
-
-            // _setDraggable = function (element, draggable) {
-            //     return jsPlumb.each(element, function (el) {
-            //         if (_currentInstance.isDragSupported(el)) {
-            //             draggableStates[_currentInstance.getAttribute(el, "id")] = draggable;
-            //             _currentInstance.setElementDraggable(el, draggable);
-            //         }
-            //     });
-            // },
             /*
              * private method to do the business of hiding/showing.
              *
@@ -4724,11 +4682,11 @@
         this.endpointDropAllowedClass = "jtk-endpoint-drop-allowed";
         this.endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden";
         this.overlayClass = "jtk-overlay";
-        this.draggingClass = "jtk-dragging";// CONVERTED
-        this.elementDraggingClass = "jtk-element-dragging";// CONVERTED
-        this.sourceElementDraggingClass = "jtk-source-element-dragging"; // CONVERTED
-        this.targetElementDraggingClass = "jtk-target-element-dragging";// CONVERTED
+        this.draggingClass = "jtk-dragging";
+        this.elementDraggingClass = "jtk-element-dragging";
+        this.sourceElementDraggingClass = "jtk-source-element-dragging";
         this.endpointAnchorClassPrefix = "jtk-endpoint-anchor";
+        this.targetElementDraggingClass = "jtk-target-element-dragging";
         this.hoverSourceClass = "jtk-source-hover";
         this.hoverTargetClass = "jtk-target-hover";
         this.dragSelectClass = "jtk-drag-select";
@@ -4756,8 +4714,6 @@
             for (var i = 0, j = inputs.length; i < j; i++) {
                 p.source = _currentInstance.getElement(inputs[i]);
                 _currentInstance.manage(p.source);
-                //_ensureContainer(p.source);
-
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
                 _ju.addToList(endpointsByElement, id, e);
@@ -5612,7 +5568,7 @@
             }
         }.bind(this);
 
-        this.log = log;
+        //this.log = log;
         this.jsPlumbUIComponent = jsPlumbUIComponent;
 
         /*
@@ -5627,9 +5583,7 @@
                 if (root.jsPlumb.Anchors[t]) {
                     return new root.jsPlumb.Anchors[t](p);
                 }
-                if (!_currentInstance.Defaults.DoNotThrowErrors) {
-                    throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
-                }
+                throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
             };
             if (arguments.length === 0) {
                 return null;
@@ -6322,9 +6276,9 @@
             this.repaint(newId);
         };
 
-        this.setDebugLog = function (debugLog) {
-            log = debugLog;
-        };
+        // this.setDebugLog = function (debugLog) {
+        //     log = debugLog;
+        // };
 
         this.setSuspendDrawing = function (val, repaintAfterwards) {
             var curVal = _suspendDrawing;
@@ -6972,9 +6926,7 @@
                 if (_jp.Endpoints[rm][t]) {
                     return new _jp.Endpoints[rm][t](p);
                 }
-                if (!_jsPlumb.Defaults.DoNotThrowErrors) {
-                    throw { msg: "jsPlumb: unknown endpoint type '" + t + "'" };
-                }
+                throw { msg: "jsPlumb: unknown endpoint type '" + t + "'" };
             };
 
             var endpointArgs = {
@@ -7387,11 +7339,7 @@
             if (_jp.Connectors[renderMode][connectorName] == null) {
 
                 if (_jp.Connectors[connectorName] == null) {
-                    if (!_jsPlumb.Defaults.DoNotThrowErrors) {
-                        throw new TypeError("jsPlumb: unknown connector type '" + connectorName + "'");
-                    } else {
-                        return null;
-                    }
+                    throw new TypeError("jsPlumb: unknown connector type '" + connectorName + "'");
                 }
 
                 _jp.Connectors[renderMode][connectorName] = function() {
@@ -13397,7 +13345,11 @@
         }
     }
 
-    var _dragOffset = null, _groupLocations = [], _intersectingGroups = [];
+    var _dragOffset = null, _groupLocations = [], _intersectingGroups = [], payload;
+
+    var _beforeDragStart = function(beforeStartParams) {
+        payload = beforeStartParams.e.payload || {};
+    };
 
     var _dragStart = function(instance, params) {
         var el = params.drag.getDragElement();
@@ -13730,31 +13682,19 @@
             return orphanedPosition;
         }
 
-        //var targetDroppableGroups = [];
         var groupDragOptions = jsPlumb.extend({selector:"> [jtk-group] [jtk-managed]"}, _currentInstance.Defaults.dragOptions || {});
         groupDragOptions.start = _ju.wrap(groupDragOptions.start, function(p) {
-
             return _dragStart(_currentInstance, p);
-
-            // targetDroppableGroups.length = 0;
-            // var out = _dragStart(_currentInstance, p);
-            // if (out === false) {
-            //     return out;
-            // } else {
-            //
-            //     // get a list of target groups
-            //     _currentInstance.getGroupManager().getGroups().forEach(function(group) {
-            //         console.log(group);
-            //     });
-            //
-            //
-            //     return out;
-            // }
         });
         groupDragOptions.drag = _ju.wrap(groupDragOptions.drag, function(p) { return _dragMove(_currentInstance, p); });
         groupDragOptions.stop = _ju.wrap(groupDragOptions.stop, function(p) {
-            var out = _dragStop(_currentInstance, p);
-            _pruneOrOrphan(p);
+            var originalGroup = p.el._jsPlumbGroup,
+                out = _dragStop(_currentInstance, p),
+                currentGroup = p.el._jsPlumbGroup;
+
+            if (currentGroup === originalGroup) {
+                _pruneOrOrphan(p);
+            }
             return out;
         });
 
@@ -13770,22 +13710,21 @@
         //
         // ------------ drag handler for endpoints (source and target) ------------------
         //
-        var endpointDragOptions = {selector:".jtk-endpoint"};
-        var jpc,
+        var endpointDragOptions = {selector:".jtk-endpoint"},
+            jpc,
             existingJpc,
             ep,
             existingJpcParams,
             placeholderInfo = { id: null, element: null },
             floatingElement = null,
-            //floatingElementSize = null,
-            payload,
             _stopped,
             inPlaceCopy,
             endpointDropTargets = [],
             currentDropTarget = null;
 
+        endpointDragOptions.beforeStart = _beforeDragStart;
+
         endpointDragOptions.start = function(p) {
-            //console.log("drag started on endpoint");
 
             currentDropTarget = null;
 
@@ -13952,18 +13891,32 @@
 
                 // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
                 if (targetDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+                    }
                     endpointDropTargets.push(d);
                     _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
 
                 // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
                 if (sourceDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+                    }
                     endpointDropTargets.push(d);
                     _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
 
             });
 
+            console.log(endpointDropTargets);
+            endpointDropTargets.sort(function(a, b) {
+                if (a.rank != null && b.rank != null) {
+                    return a.rank > b.rank ? -1 : a.rank < b.rank ? 1 : 0;
+                } else {
+                    return 0;
+                }
+            });
             console.log(endpointDropTargets);
 
             ep.setHover(false, false);
@@ -14053,7 +14006,11 @@
                 jpc.endpoints[anchorIdx] = _currentInstance.floatingEndpoint;
 
                 jpc.addClass(_currentInstance.draggingClass);
-                _currentInstance.floatingEndpoint.addClass(_currentInstance.draggingClass);
+
+                jpc.floatingIndex = anchorIdx;
+                jpc.floatingEndpoint = _currentInstance.floatingEndpoint;
+                jpc.floatingId = placeholderInfo.id;
+                jpc.floatingEndpoint.addClass(_currentInstance.draggingClass);
             }
 
             _currentInstance.registerFloatingConnection(placeholderInfo, jpc, _currentInstance.floatingEndpoint);
@@ -14164,10 +14121,10 @@
 
                     // TODO checkSanity
                     if (idx === 1) {
-                        _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, floatingId, jpc.targetId, jpc);
+                        _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                     }
                     else {
-                        _currentInstance.anchorManager.sourceChanged(floatingId, jpc.sourceId, jpc, jpc.source);
+                        _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                     }
 
                     _currentInstance.repaint(jpc.sourceId);
@@ -14297,14 +14254,15 @@
             var dropEndpoint;
 
             if (currentDropTarget.endpoint == null) {
-                // need to add one per the target spec.
 
                 // find a suitable target definition, by matching the source of the drop element with the targets registered on the
-                // drop target
-                var targetDefinition = getTargetDefinition(currentDropTarget.el, p.e);
+                // drop target, and also the floating index (if set) of the connection
+
+                var targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 1) ? getTargetDefinition(currentDropTarget.el, p.e) : null;
+
                 // need to figure the conditions under which each of these should be tested
                 if (targetDefinition == null) {
-                    targetDefinition = getSourceDefinition((currentDropTarget.el, p.e));
+                    targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 0) ? getSourceDefinition(currentDropTarget.el, p.e) : null;
                 }
                 
                 if (targetDefinition == null) {
@@ -14314,7 +14272,6 @@
                 // if no cached endpoint, or there was one but it has been cleaned up
                 // (ie. detached), create a new one
                 var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-
 
                 var pp = eps.endpoints ? root.jsPlumb.extend(p, {
                     endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
