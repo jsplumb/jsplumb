@@ -136,7 +136,11 @@
         }
     }
 
-    var _dragOffset = null, _groupLocations = [], _intersectingGroups = [];
+    var _dragOffset = null, _groupLocations = [], _intersectingGroups = [], payload;
+
+    var _beforeDragStart = function(beforeStartParams) {
+        payload = beforeStartParams.e.payload || {};
+    };
 
     var _dragStart = function(instance, params) {
         var el = params.drag.getDragElement();
@@ -497,22 +501,21 @@
         //
         // ------------ drag handler for endpoints (source and target) ------------------
         //
-        var endpointDragOptions = {selector:".jtk-endpoint"};
-        var jpc,
+        var endpointDragOptions = {selector:".jtk-endpoint"},
+            jpc,
             existingJpc,
             ep,
             existingJpcParams,
             placeholderInfo = { id: null, element: null },
             floatingElement = null,
-            //floatingElementSize = null,
-            payload,
             _stopped,
             inPlaceCopy,
             endpointDropTargets = [],
             currentDropTarget = null;
 
+        endpointDragOptions.beforeStart = _beforeDragStart;
+
         endpointDragOptions.start = function(p) {
-            //console.log("drag started on endpoint");
 
             currentDropTarget = null;
 
@@ -794,7 +797,11 @@
                 jpc.endpoints[anchorIdx] = _currentInstance.floatingEndpoint;
 
                 jpc.addClass(_currentInstance.draggingClass);
-                _currentInstance.floatingEndpoint.addClass(_currentInstance.draggingClass);
+
+                jpc.floatingIndex = anchorIdx;
+                jpc.floatingEndpoint = _currentInstance.floatingEndpoint;
+                jpc.floatingId = placeholderInfo.id;
+                jpc.floatingEndpoint.addClass(_currentInstance.draggingClass);
             }
 
             _currentInstance.registerFloatingConnection(placeholderInfo, jpc, _currentInstance.floatingEndpoint);
@@ -905,10 +912,10 @@
 
                     // TODO checkSanity
                     if (idx === 1) {
-                        _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, floatingId, jpc.targetId, jpc);
+                        _currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.floatingId, jpc.targetId, jpc);
                     }
                     else {
-                        _currentInstance.anchorManager.sourceChanged(floatingId, jpc.sourceId, jpc, jpc.source);
+                        _currentInstance.anchorManager.sourceChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source);
                     }
 
                     _currentInstance.repaint(jpc.sourceId);
@@ -1038,14 +1045,15 @@
             var dropEndpoint;
 
             if (currentDropTarget.endpoint == null) {
-                // need to add one per the target spec.
 
                 // find a suitable target definition, by matching the source of the drop element with the targets registered on the
-                // drop target
-                var targetDefinition = getTargetDefinition(currentDropTarget.el, p.e);
+                // drop target, and also the floating index (if set) of the connection
+
+                var targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 1) ? getTargetDefinition(currentDropTarget.el, p.e) : null;
+
                 // need to figure the conditions under which each of these should be tested
                 if (targetDefinition == null) {
-                    targetDefinition = getSourceDefinition(currentDropTarget.el, p.e);
+                    targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 0) ? getSourceDefinition(currentDropTarget.el, p.e) : null;
                 }
                 
                 if (targetDefinition == null) {
@@ -1055,7 +1063,6 @@
                 // if no cached endpoint, or there was one but it has been cleaned up
                 // (ie. detached), create a new one
                 var eps = _currentInstance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-
 
                 var pp = eps.endpoints ? root.jsPlumb.extend(p, {
                     endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
