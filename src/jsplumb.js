@@ -512,7 +512,6 @@
             return _instanceIndex;
         };
 
-        // CONVERTED
         this.setZoom = function (z, repaintEverything) {
             _zoom = z;
             _currentInstance.fire("zoom", _zoom);
@@ -2355,47 +2354,10 @@
                     }
                 }.bind(this);
 
-                // if a filter was provided, set it as a dragFilter on the element,
-                // to prevent the element drag function from kicking in when we want to
-                // drag a new connection
-                if (p.filter && (_ju.isString(p.filter) || _ju.isFunction(p.filter))) {
-                    _currentInstance.setDragFilter(elInfo.el, p.filter);
-                }
-
             }
 
             return this;
         };
-
-
-        var _getScope = function (el, types, connectionType) {
-            types = _ju.isArray(types) ? types : [ types ];
-            connectionType = connectionType || "default";
-            for (var i = 0; i < types.length; i++) {
-                var eldefs = el[types[i]];
-                if (eldefs) {
-                    var idx = _ju.findWithFunction(eldefs, function(d) { return d.def.connectionType === connectionType; });
-                    if (idx > -1) {
-                        return eldefs[idx].def.scope || this.Defaults.Scope;
-                    }
-                }
-            }
-        }.bind(this);
-
-        var _setScope = function (el, scope, types, connectionType) {
-            types = _ju.isArray(types) ? types : [ types ];
-            connectionType = connectionType || "default";
-            for (var i = 0; i < types.length; i++) {
-                var eldefs = el[types[i]];
-                if (eldefs) {
-                    var idx = _ju.findWithFunction(eldefs, function(d) { return d.def.connectionType === connectionType; });
-                    if (idx > -1) {
-                        eldefs[idx].def.scope = scope;
-                    }
-                }
-            }
-
-        }.bind(this);
 
         // does the work of setting a source enabled or disabled.
         var _setEnabled = function (type, el, state, toggle, connectionType) {
