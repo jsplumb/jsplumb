@@ -23,9 +23,10 @@ class but we include it here for completeness
 
 - the `DragOptions` default is now `dragOptions`
 - the `Container` default is now `container`
+- the `LogEnabled` default has been removed.
+- the `DoNotThrowErrors` default has been removed.
 
 - `getWidth` and `getHeight` methods removed from jsPlumb instance.
-
 
 - `updateClasses` method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.
 
