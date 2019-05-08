@@ -85,8 +85,19 @@
     };
 
     var _dragNodeBy = function(_jsPlumb, el, x, y, events) {
-        var xy = _jsPlumb.getOffset(el);
-        _dragNodeTo(_jsPlumb, el, xy.left+x, xy.top+y, events);
+        events = events || {};
+        if (events.before) events.before();
+        var downEvent = _makeEvt(_jsPlumb, el);
+        _jsPlumb.trigger(el, "mousedown", downEvent);
+        if (events.beforeMouseMove) {
+            events.beforeMouseMove();
+        }
+        _t(document, "mousemove", downEvent.pageX + x, downEvent.pageY + y);
+        if (events.beforeMouseUp) {
+            events.beforeMouseUp();
+        }
+        mottle.trigger(document, "mouseup");
+        if (events.after) events.after();
     };
 
     //
