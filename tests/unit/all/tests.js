@@ -338,19 +338,6 @@ var testSuite = function (_jsPlumb) {
         }
     });
 
-    test(": unknown anchor type should not throw Error because it is suppressed in Defaults", function () {
-        try {
-            support.addDiv("d1");
-            support.addDiv("d2");
-            _jsPlumb.Defaults.DoNotThrowErrors = true;
-            _jsPlumb.connect({source: "d1", target: "d2", anchor: "FOO"});
-        }
-        catch (e) {
-            // ok	
-            ok(e.msg != "jsPlumb: unknown anchor type 'FOO'", "no error message");
-        }
-    });
-
     test(": unknown endpoint type should throw Error", function () {
         try {
             support.addDiv("d1");
@@ -361,19 +348,6 @@ var testSuite = function (_jsPlumb) {
         catch (e) {
             // ok	
             ok(e.msg == "jsPlumb: unknown endpoint type 'FOO'", "useful error message");
-        }
-    });
-
-    test(": unknown endpoint type should not throw Error because it is suppressed in Defaults", function () {
-        try {
-            support.addDiv("d1");
-            support.addDiv("d2");
-            _jsPlumb.Defaults.DoNotThrowErrors = true;
-            _jsPlumb.connect({source: "d1", target: "d2", endpoint: "FOO"});
-        }
-        catch (e) {
-            // ok	
-            ok(e.msg != "jsPlumb: unknown endpoint type 'FOO'", "no error message");
         }
     });
 
@@ -389,19 +363,7 @@ var testSuite = function (_jsPlumb) {
             ok(e.message == "jsPlumb: unknown connector type 'FOO'", "useful error message");
         }
     });
-
-    test(": unknown connector type should not throw Error because it is suppressed in Defaults", function () {
-        try {
-            support.addDiv("d1");
-            support.addDiv("d2");
-            _jsPlumb.Defaults.DoNotThrowErrors = true;
-            _jsPlumb.connect({source: "d1", target: "d2", connector: "FOO"});
-        }
-        catch (e) {
-            // ok	
-            ok(e.message != "jsPlumb: unknown connector type 'FOO'", "no error message");
-        }
-    });
+    
 
 // ************** / ANCHORS ********************************************
 
