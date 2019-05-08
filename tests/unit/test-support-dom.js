@@ -70,13 +70,15 @@
 
     var _dragNodeTo = function(_jsPlumb, el, x, y, events) {
         events = events || {};
+        var size = _jsPlumb.getSize(el);
         if (events.before) events.before();
-        _jsPlumb.trigger(el, "mousedown", _makeEvt(_jsPlumb, el));
+        var downEvent = _makeEvt(_jsPlumb, el);
+        _jsPlumb.trigger(el, "mousedown", downEvent);
         //_jsPlumb.trigger(_jsPlumb.getContainer(), "mousedown", _makeEvt(_jsPlumb, el));
         if (events.beforeMouseMove) {
             events.beforeMouseMove();
         }
-        _t(document, "mousemove", x, y);
+        _t(document, "mousemove", x + (size[0] / 2), y + (size[1] / 2));
         if (events.beforeMouseUp) {
             events.beforeMouseUp();
         }
