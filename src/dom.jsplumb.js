@@ -1395,7 +1395,7 @@
                  ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
                  ep.setDeleteOnEmpty(true);
                  // keep a reference to the anchor we want to use if the connection is finalised.
-                 ep._originalAnchor = def.anchor || _currentInstance.Defaults.Anchor;
+                 ep._originalAnchor = def.anchor || _currentInstance.Defaults.anchor;
 
                  // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
                  // of a successful connection we'll switch to that endpoint.

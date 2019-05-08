@@ -627,10 +627,10 @@
                 }
                 var a = params.anchors ? params.anchors[index] :
                         params.anchor ? params.anchor :
-                            _makeAnchor(_jsPlumb.Defaults.Anchors[index], elementId, _jsPlumb) ||
-                            _makeAnchor(_jp.Defaults.Anchors[index], elementId, _jsPlumb) ||
-                            _makeAnchor(_jsPlumb.Defaults.Anchor, elementId, _jsPlumb) ||
-                            _makeAnchor(_jp.Defaults.Anchor, elementId, _jsPlumb),
+                            _makeAnchor(_jsPlumb.Defaults.anchors[index], elementId, _jsPlumb) ||
+                            _makeAnchor(_jp.Defaults.anchors[index], elementId, _jsPlumb) ||
+                            _makeAnchor(_jsPlumb.Defaults.anchor, elementId, _jsPlumb) ||
+                            _makeAnchor(_jp.Defaults.anchor, elementId, _jsPlumb),
                     u = params.uuids ? params.uuids[index] : null;
 
                 e = _newEndpoint({

@@ -23,6 +23,8 @@ class but we include it here for completeness
 
 - the `DragOptions` default is now `dragOptions`
 - the `Container` default is now `container`
+- the `Anchor` default is now `anchor`
+- the `Anchors` default is now `anchors`
 - the `LogEnabled` default has been removed.
 - the `DoNotThrowErrors` default has been removed.
 

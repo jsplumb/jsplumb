@@ -363,7 +363,7 @@ var testSuite = function (_jsPlumb) {
             ok(e.message == "jsPlumb: unknown connector type 'FOO'", "useful error message");
         }
     });
-    
+
 
 // ************** / ANCHORS ********************************************
 
@@ -4064,7 +4064,7 @@ var testSuite = function (_jsPlumb) {
 
 
     test(" importDefaults", function () {
-        _jsPlumb.Defaults.Anchors = ["LeftMiddle", "RightMiddle"];
+        _jsPlumb.Defaults.anchors = ["LeftMiddle", "RightMiddle"];
         var d1 = support.addDiv("d1"),
             d2 = support.addDiv(d2),
             c = _jsPlumb.connect({source: d1, target: d2}),
@@ -4074,7 +4074,7 @@ var testSuite = function (_jsPlumb) {
         equal(e.anchor.y, 0.5, "left middle anchor");
 
         _jsPlumb.importDefaults({
-            Anchors: ["TopLeft", "TopRight"]
+            anchors: ["TopLeft", "TopRight"]
         });
 
         var conn = _jsPlumb.connect({source: d1, target: d2}),
@@ -4090,7 +4090,7 @@ var testSuite = function (_jsPlumb) {
 
     test(" restoreDefaults", function () {
         _jsPlumb.importDefaults({
-            Anchors: ["TopLeft", "TopRight"]
+            anchors: ["TopLeft", "TopRight"]
         });
 
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), conn = _jsPlumb.connect({source: d1, target: d2}),
@@ -4115,12 +4115,12 @@ var testSuite = function (_jsPlumb) {
 
     test("defaults are isolated", function() {
 
-        ok(jsPlumb.Defaults.Anchors[0] == null, "no anchors set (to take one example, one's enough)");
+        ok(jsPlumb.Defaults.anchors[0] == null, "no anchors set (to take one example, one's enough)");
         var j = jsPlumb.getInstance({
-            Anchors:["Left", "Right"]
+            anchors:["Left", "Right"]
         });
 
-        ok(jsPlumb.Defaults.Anchors[0] == null, "still no anchors set after providing Anchors to an instance");
+        ok(jsPlumb.Defaults.anchors[0] == null, "still no anchors set after providing Anchors to an instance");
 
     });
 

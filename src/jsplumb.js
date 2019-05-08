@@ -456,8 +456,8 @@
         this.version = "<% pkg.version %>";
 
         this.Defaults = {
-            Anchor: "Bottom",
-            Anchors: [ null, null ],
+            anchor: "Bottom",
+            anchors: [ null, null ],
             ConnectionsDetachable: true,
             ConnectionOverlays: [ ],
             Connector: "Bezier",
@@ -2326,7 +2326,7 @@
                         // reset the anchor to the anchor that was initially provided. the one we were using to drag
                         // the connection was just a placeholder that was located at the place the user pressed the
                         // mouse button to initiate the drag.
-                        var anchorDef = p.anchor || this.Defaults.Anchor,
+                        var anchorDef = p.anchor || this.Defaults.anchor,
                             oldAnchor = ep.anchor,
                             oldConnection = ep.connections[0];
 

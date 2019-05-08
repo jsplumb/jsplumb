@@ -595,7 +595,7 @@ var testSuite = function (_jsPlumb) {
 
     test("connection dragging, simple move source case, continuous anchors", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
-        _jsPlumb.importDefaults({Anchor:"Continuous"});
+        _jsPlumb.importDefaults({anchor:"Continuous"});
         _jsPlumb.makeSource([d1, d2, d3], { });
         _jsPlumb.makeTarget([d1, d2, d3], { });
 
