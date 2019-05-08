@@ -24,11 +24,7 @@
             if (_jp.Connectors[renderMode][connectorName] == null) {
 
                 if (_jp.Connectors[connectorName] == null) {
-                    if (!_jsPlumb.Defaults.DoNotThrowErrors) {
-                        throw new TypeError("jsPlumb: unknown connector type '" + connectorName + "'");
-                    } else {
-                        return null;
-                    }
+                    throw new TypeError("jsPlumb: unknown connector type '" + connectorName + "'");
                 }
 
                 _jp.Connectors[renderMode][connectorName] = function() {

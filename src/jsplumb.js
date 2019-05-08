@@ -40,7 +40,7 @@
             }
         },
         events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
-        eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
+        //eventFilters = { "mouseout": "mouseleave", "mouseexit": "mouseleave" },
         _updateAttachedElements = function (component, state, timestamp, sourceElement) {
             var affectedElements = component.getAttachedElements();
             if (affectedElements) {
@@ -57,17 +57,6 @@
         _mapType = function(map, obj, typeId) {
             for (var i in obj) {
                 map[i] = typeId;
-            }
-        },
-        _each = function(fn, obj) {
-            obj = _ju.isArray(obj) || (obj.length != null && !_ju.isString(obj)) ? obj : [ obj ];
-            for (var i = 0; i < obj.length; i++) {
-                try {
-                    fn.apply(obj[i], [ obj[i] ]);
-                }
-                catch (e) {
-                    _ju.log(".each iteration failed : " + e);
-                }
             }
         },
         _applyTypes = function (component, params, doNotRepaint) {
@@ -473,7 +462,6 @@
             ConnectionOverlays: [ ],
             Connector: "Bezier",
             Container: null,
-            DoNotThrowErrors: false,
             dragOptions: { },
             dropOptions: { },
             Endpoint: "Dot",
@@ -485,7 +473,6 @@
             EndpointHoverStyles: [ null, null ],
             HoverPaintStyle: null,
             LabelStyle: { color: "black" },
-            LogEnabled: false,
             Overlays: [ ],
             MaxConnections: 1,
             PaintStyle: { "stroke-width": 4, stroke: "#456" },
@@ -498,7 +485,6 @@
             jsPlumb.extend(this.Defaults, _defaults);
         }
 
-        this.logEnabled = this.Defaults.LogEnabled;
         this._connectionTypes = {};
         this._endpointTypes = {};
 
@@ -2075,7 +2061,7 @@
             }
         }.bind(this);
 
-        this.log = log;
+        //this.log = log;
         this.jsPlumbUIComponent = jsPlumbUIComponent;
 
         /*
@@ -2090,9 +2076,7 @@
                 if (root.jsPlumb.Anchors[t]) {
                     return new root.jsPlumb.Anchors[t](p);
                 }
-                if (!_currentInstance.Defaults.DoNotThrowErrors) {
-                    throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
-                }
+                throw { msg: "jsPlumb: unknown anchor type '" + t + "'" };
             };
             if (arguments.length === 0) {
                 return null;
@@ -2785,9 +2769,9 @@
             this.repaint(newId);
         };
 
-        this.setDebugLog = function (debugLog) {
-            log = debugLog;
-        };
+        // this.setDebugLog = function (debugLog) {
+        //     log = debugLog;
+        // };
 
         this.setSuspendDrawing = function (val, repaintAfterwards) {
             var curVal = _suspendDrawing;

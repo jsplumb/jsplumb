@@ -155,9 +155,7 @@
                 if (_jp.Endpoints[rm][t]) {
                     return new _jp.Endpoints[rm][t](p);
                 }
-                if (!_jsPlumb.Defaults.DoNotThrowErrors) {
-                    throw { msg: "jsPlumb: unknown endpoint type '" + t + "'" };
-                }
+                throw { msg: "jsPlumb: unknown endpoint type '" + t + "'" };
             };
 
             var endpointArgs = {
