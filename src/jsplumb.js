@@ -653,8 +653,7 @@
             return m;
         };
 
-        var log = null,
-            initialized = false,
+        var initialized = false,
             // TODO remove from window scope
             connections = [],
             // map of element id -> endpoint lists. an element can have an arbitrary
@@ -665,7 +664,6 @@
             managedElements = {},
             offsets = {},
             offsetTimestamps = {},
-            draggableStates = {},
             connectionBeingDragged = false,
             sizes = [],
             _suspendDrawing = false,
@@ -763,16 +761,6 @@
 
                 return false;
             },
-
-            // _mergeOverrides = function (def, values) {
-            //     var m = jsPlumb.extend({}, def);
-            //     for (var i in values) {
-            //         if (values[i]) {
-            //             m[i] = values[i];
-            //         }
-            //     }
-            //     return m;
-            // },
 
             /*
              * prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
@@ -945,13 +933,6 @@
                 params.id = "con_" + _idstamp();
                 var con = new jsPlumb.Connection(params);
 
-                // if the connection is draggable, then maybe we need to tell the target endpoint to init the
-                // dragging code. it won't run again if it already configured to be draggable.
-                if (con.isDetachable()) {
-                    // con.endpoints[0].initDraggable("_jsPlumbSource");
-                    // con.endpoints[1].initDraggable("_jsPlumbTarget");
-                }
-
                 window.jtimeEnd("newConnection");
 
                 return con;
@@ -1044,15 +1025,6 @@
                     }
                 }
             },
-
-            // _setDraggable = function (element, draggable) {
-            //     return jsPlumb.each(element, function (el) {
-            //         if (_currentInstance.isDragSupported(el)) {
-            //             draggableStates[_currentInstance.getAttribute(el, "id")] = draggable;
-            //             _currentInstance.setElementDraggable(el, draggable);
-            //         }
-            //     });
-            // },
             /*
              * private method to do the business of hiding/showing.
              *
@@ -1173,11 +1145,11 @@
         this.endpointDropAllowedClass = "jtk-endpoint-drop-allowed";
         this.endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden";
         this.overlayClass = "jtk-overlay";
-        this.draggingClass = "jtk-dragging";// CONVERTED
-        this.elementDraggingClass = "jtk-element-dragging";// CONVERTED
-        this.sourceElementDraggingClass = "jtk-source-element-dragging"; // CONVERTED
-        this.targetElementDraggingClass = "jtk-target-element-dragging";// CONVERTED
+        this.draggingClass = "jtk-dragging";
+        this.elementDraggingClass = "jtk-element-dragging";
+        this.sourceElementDraggingClass = "jtk-source-element-dragging";
         this.endpointAnchorClassPrefix = "jtk-endpoint-anchor";
+        this.targetElementDraggingClass = "jtk-target-element-dragging";
         this.hoverSourceClass = "jtk-source-hover";
         this.hoverTargetClass = "jtk-target-hover";
         this.dragSelectClass = "jtk-drag-select";
@@ -1205,8 +1177,6 @@
             for (var i = 0, j = inputs.length; i < j; i++) {
                 p.source = _currentInstance.getElement(inputs[i]);
                 _currentInstance.manage(p.source);
-                //_ensureContainer(p.source);
-
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
                 _ju.addToList(endpointsByElement, id, e);
