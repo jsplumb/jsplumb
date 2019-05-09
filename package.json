@@ -1,6 +1,6 @@
 {
   "name": "jsplumb",
-  "version": "2.9.2",
+  "version": "2.9.3",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
@@ -45,7 +45,7 @@
     "grunt-jekyll": "~0.4.2",
     "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "0.9.4",
-    "katavorio": "1.4.2",
+    "katavorio": "1.4.5",
     "morgan": "1.8.0",
     "mottle": "1.0.0"
   }

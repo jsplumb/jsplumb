@@ -1561,10 +1561,26 @@
         }
     };
 
+    /**
+     * Finds all elements matching the given selector, for the given parent. In order to support "scoped root" selectors,
+     * ie. things like "> .someClass", that is .someClass elements that are direct children of `parentElement`, we have to
+     * jump through a small hoop here: when a delegate draggable is registered, we write a `katavorio-draggable` attribute
+     * on the element on which the draggable is registered. Then when this method runs, we grab the value of that attribute and
+     * prepend it as part of the selector we're looking for.  So "> .someClass" ends up being written as
+     * "[katavorio-draggable='...' > .someClass]", which works with querySelectorAll.
+     *
+     * @param availableSelectors
+     * @param parentElement
+     * @param childElement
+     * @returns {*}
+     */
     var findMatchingSelector = function(availableSelectors, parentElement, childElement) {
         var el = null;
+        var draggableId = parentElement.getAttribute("katavorio-draggable"),
+            prefix = draggableId != null ? "[katavorio-draggable='" + draggableId + "'] " : "";
+
         for (var i = 0; i < availableSelectors.length; i++) {
-            el = findDelegateElement(parentElement, childElement, availableSelectors[i].selector);
+            el = findDelegateElement(parentElement, childElement, prefix + availableSelectors[i].selector);
             if (el != null) {
                 return [ availableSelectors[i], el ];
             }
@@ -1724,6 +1740,12 @@
 
         // if an initial selector was provided, push the entire set of params as a selector config.
         if (params.selector) {
+            var draggableId = el.getAttribute("katavorio-draggable");
+            if (draggableId == null) {
+                draggableId = "" + new Date().getTime();
+                el.setAttribute("katavorio-draggable", draggableId);
+            }
+
             availableSelectors.push(params);
         }
 
@@ -1807,6 +1829,10 @@
         this.setRevert = function(fn) {
             revertFunction = fn;
         };
+
+        if (this.params.revert) {
+            revertFunction = this.params.revert;
+        }
 
         var _assignId = function(obj) {
                 if (typeof obj === "function") {
@@ -1992,23 +2018,20 @@
                 k.unmarkPosses(this, e);
                 this.stop(e);
 
-                //k.notifySelectionDragStop(this, e);  removed in 1.1.0 under the "leave it for one release in case it breaks" rule.
-                // it isnt necessary to fire this as the normal stop event now includes a `selection` member that has every dragged element.
-                // firing this event causes consumers who use the `selection` array to process a lot more drag stop events than is necessary
-
                 k.notifyPosseDragStop(this, e);
                 moving = false;
+                intersectingDroppables.length = 0;
+
                 if (clone) {
                     dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
                     dragEl = null;
+                } else {
+                    if (revertFunction && revertFunction(dragEl, this.params.getPosition(dragEl)) === true) {
+                        this.params.setPosition(dragEl, posAtDown);
+                        _dispatch("revert", dragEl);
+                    }
                 }
 
-                intersectingDroppables.length = 0;
-
-                if (revertFunction && revertFunction(this.el, this.params.getPosition(this.el)) === true) {
-                    this.params.setPosition(this.el, posAtDown);
-                    _dispatch("revert", this.el);
-                }
             }
         }.bind(this);
 
@@ -2081,9 +2104,14 @@
                     sel = k.getSelection(),
                     dPos = this.params.getPosition(dragEl);
 
-                for (var i = 0; i < sel.length; i++) {
-                    var p = this.params.getPosition(sel[i].el);
-                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        var p = this.params.getPosition(sel[i].el);
+                        positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                    }
+                }
+                else {
+                    positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
                 }
 
                 _dispatch("stop", {
@@ -3978,7 +4006,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.9.2";
+        this.version = "2.9.3";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -12115,7 +12143,7 @@
                     _jsPlumb.revalidate(elId);
 
                     if (!doNotFireEvent) {
-                        var p = {group: group, el: el};
+                        var p = {group: group, el: el, pos:newPosition};
                         if (currentGroup) {
                             p.sourceGroup = currentGroup;
                         }
