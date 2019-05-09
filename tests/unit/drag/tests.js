@@ -1433,4 +1433,47 @@ var testSuite = function (_jsPlumb) {
         equal(c.scope, "blue", "connection scope is blue.");
     });
 
+    /* ------------------ node/group drag events --------------------------------------------------*/
+
+    test("drag events", function() {
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+
+        var nodeDragged = null, pos = null, evt = null, dragStarted = false, dragStopped = false;
+        _jsPlumb.bind("drag:move", function(p) {
+            nodeDragged = p.el;
+            pos = p.pos;
+            evt = p.e;
+        });
+        _jsPlumb.bind("drag:start", function() { dragStarted = true; });
+        _jsPlumb.bind("drag:stop", function() { dragStopped = true; });
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 150);
+        equal(parseInt(d.style.top, 10), 150);
+
+        // test event fired
+        equal(150, pos.left, "event x position correct");
+        equal(150, pos.top, "event y position correct");
+        equal(d, nodeDragged, "event el correct");
+        ok(evt != null, "event original event was supplied");
+        ok(dragStarted, "drag start event was fired");
+        ok(dragStopped, "drag stop event was fired");
+    });
+
 };
