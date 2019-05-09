@@ -201,6 +201,11 @@
                 instance.select({source: el}).addClass(instance.elementDraggingClass + " " + instance.sourceElementDraggingClass, true);
                 instance.select({target: el}).addClass(instance.elementDraggingClass + " " + instance.targetElementDraggingClass, true);
                 instance.setConnectionBeingDragged(true);
+
+                instance.fire("drag:start", {
+                    el:el,
+                    e:params.e
+                });
             }
             return cont;
         }
@@ -245,6 +250,12 @@
             
             instance.draw(el, ui, null, true);
 
+            instance.fire("drag:move", {
+                el:el,
+                e:params.e,
+                pos:ui
+            });
+
             // if (o._dragging) {
             //     instance.addClass(el, "jtk-dragged");
             // }
@@ -270,22 +281,17 @@
                     uip.top += _dragOffset.top;
                 }
                 this.draw(dragElement, uip);
+
+                instance.fire("drag:stop", {
+                    el:dragElement,
+                    e:params.e,
+                    pos:uip
+                });
             }
-
-            // TODO refactor, see above: these drag options dont exist now
-            //delete _e[0]._jsPlumbDragOptions._dragging;
-
-            // TODO  if there is a target group, we're dropping on it. what to do?
 
             this.removeClass(_e[0], "jtk-dragged");
             this.select({source: dragElement}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
             this.select({target: dragElement}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-
-            // if the element was in a group, perhaps take action.
-            // if (dragElement._jsPlumbGroup) {
-            //     console.log("");
-            // }
-
 
         }.bind(instance);
 
