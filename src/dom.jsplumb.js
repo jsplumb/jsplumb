@@ -890,7 +890,7 @@
         //
         // reattaches the current connection
         //
-        function _reattach(idx, originalEvent) {
+        function _maybeReattach(idx, originalEvent) {
             if (jpc.suspendedEndpoint) {
 
                 if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !_currentInstance.deleteConnection(jpc, {originalEvent: originalEvent})) {
@@ -1024,20 +1024,6 @@
         }
 
         //
-        // runs the abort process, either running _reattach() or _discard(), depending on the
-        // connection.
-        //
-        function _abort(idx, originalEvent) {
-            //if(jpc.suspendedEndpoint && jpc.isReattach()) {
-                _reattach(idx, originalEvent);
-            // } else {
-            //     _discard(originalEvent);
-            // }
-
-           
-        }
-
-        //
         // compute the appropriate dropEndpoint. this may be an existing Endpoint, or it may be one created from an element
         // configured via makeTarget
         //
@@ -1137,11 +1123,7 @@
                     if (!aborted && jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id === dropEndpoint.id)) {
                         jpc._forceReattach = true;
                         jpc.setHover(false);
-
-                        // TODO what about the old `maybeCleanup` thing
-                        //maybeCleanup(dropEndpoint);
-
-                        _reattach(idx, originalEvent);
+                        _maybeReattach(idx, originalEvent);
                         reattached = true;
                     }
 
@@ -1150,7 +1132,6 @@
                         if (!aborted && dropEndpoint.isEnabled()) {
 
                             // if the target of the drop is full, fire an event (we abort below)
-                            // makeTarget: keep.
                             var isFull = dropEndpoint.isFull();
                             if (isFull) {
                                 dropEndpoint.fire("maxConnections", {
@@ -1158,8 +1139,6 @@
                                     connection: jpc,
                                     maxConnections: _currentInstance.maxConnections
                                 }, originalEvent);
-
-                                //return _abort(idx);
                             }
                             //
                             // if endpoint enabled, not full, and matches the index of the floating endpoint...
@@ -1204,12 +1183,12 @@
                                     _drop(dropEndpoint, idx, originalEvent, _doContinue);
                                 }
                                 else {
-                                    _abort(idx);
+                                    _maybeReattach(idx);
                                 }
                             }
 
                         } else {
-                            _abort(idx);
+                            _maybeReattach(idx);
                         }
                     }
 
@@ -1241,8 +1220,7 @@
                     jpc.suspendedEndpoint = null;
 
                 } else {
-                    //alert("drag stopped with no target - discard the connection");
-                    _abort(idx, originalEvent);
+                    _maybeReattach(idx, originalEvent);
                 }
 
                 // deactivate the drop targets
@@ -1350,14 +1328,13 @@
         }
 
          var mousedownHandler = function(e) {
+
              if (e.which === 3 || e.button === 2) {
                  return;
              }
 
-             var elid = _currentInstance.getId(this);
-
-             var targetEl = e.target || e.srcElement, sourceDef = getSourceDefinition(this, e, elid), sourceElement = this, def;
-             console.log("mousedown on source " + targetEl + " with definition " + def);
+             var elid = _currentInstance.getId(this),
+                 targetEl = e.target || e.srcElement, sourceDef = getSourceDefinition(this, e, elid), sourceElement = this, def;
 
              if (sourceDef) {
                  def = sourceDef.def;
@@ -1386,7 +1363,6 @@
                  root.jsPlumb.extend(tempEndpointParams, def);
                  tempEndpointParams.isTemporarySource = true;
                  tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
-                 // tempEndpointParams.dragOptions = def.dragOptions || {};
 
                  if (def.scope) {
                      tempEndpointParams.scope = def.scope;
@@ -1714,10 +1690,6 @@
             window.jtimeEnd("get offset");
 
             return out;
-            // return {
-            //     left:Math.random() * 600,
-            //     top:Math.random() * 600
-            // };
         },
         //
         // return x+y proportion of the given element's size corresponding to the location of the given event.
@@ -1743,62 +1715,14 @@
             return [ x, y ];
         },
 
-        /**
-         * Gets the absolute position of some element as read from the left/top properties in its style.
-         * @method getAbsolutePosition
-         * @param {Element} el The element to retrieve the absolute coordinates from. **Note** this is a DOM element, not a selector from the underlying library.
-         * @return {Number[]} [left, top] pixel values.
-         */
-        // getAbsolutePosition: function (el) {
-        //     var _one = function (s) {
-        //         var ss = el.style[s];
-        //         if (ss) {
-        //             return parseFloat(ss.substring(0, ss.length - 2));
-        //         }
-        //     };
-        //     return [ _one("left"), _one("top") ];
-        // },
 
-        /**
-         * Sets the absolute position of some element by setting the left/top properties in its style.
-         * @method setAbsolutePosition
-         * @param {Element} el The element to set the absolute coordinates on. **Note** this is a DOM element, not a selector from the underlying library.
-         * @param {Number[]} xy x and y coordinates
-         * @param {Number[]} [animateFrom] Optional previous xy to animate from.
-         * @param {Object} [animateOptions] Options for the animation.
-         */
-        // setAbsolutePosition: function (el, xy, animateFrom, animateOptions) {
-        //     if (animateFrom) {
-        //         this.animate(el, {
-        //             left: "+=" + (xy[0] - animateFrom[0]),
-        //             top: "+=" + (xy[1] - animateFrom[1])
-        //         }, animateOptions);
-        //     }
-        //     else {
-        //         el.style.left = xy[0] + "px";
-        //         el.style.top = xy[1] + "px";
-        //     }
-        // },
         /**
          * gets the size for the element, in an array : [ width, height ].
          */
         getSize: function (el) {
-
-            //return [100,100];
-            //window.jtime("get size");
-            var s =[ el.offsetWidth, el.offsetHeight ];
-            //window.jtimeEnd("get size");
-            return s;
-           //return [ el.offsetWidth, el.offsetHeight ];
+            return [ el.offsetWidth, el.offsetHeight ];
         },
         getRenderMode : function() { return "svg"; },
-        // initDraggable: function (el, options, category) {
-        //     _getDragManager(this, category).draggable(el, options);
-        //     el._jsPlumbDragOptions = options;
-        // },
-        // unbindDraggable: function (el, evt, fn, category) {
-        //     _getDragManager(this, category).destroyDraggable(el, evt, fn);
-        // },
         setDraggable : function (element, draggable) {
             return jsPlumb.each(element, function (el) {
                 //if (this.isDragSupported(el)) {
@@ -1837,7 +1761,6 @@
             return typeof el === "string" ? document.getElementById(el) : el;
         },
         removeElement: function (element) {
-           // _getDragManager(this).elementRemoved(element);
             this.getEventManager().remove(element);
         },
         //
@@ -1882,9 +1805,6 @@
         getDragScope: function (el) {
             return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
         },
-        // getDropEvent: function (args) {
-        //     return args[0].e;
-        // },
         getUIPosition: function (eventArgs, zoom) {
             // here the position reported to us by Katavorio is relative to the element's offsetParent. For top
             // level nodes that is fine, but if we have a nested draggable then its offsetParent is actually
@@ -1907,56 +1827,6 @@
         setDragFilter: function (el, filter, _exclude) {
             console.log("WARN: setFilter not implemented yet in 3.x");
         },
-        // setDragScope: function (el, scope) {
-        //     if (el._katavorioDrag) {
-        //         el._katavorioDrag.k.setDragScope(el, scope);
-        //     }
-        // },
-        // setDropScope:function(el, scope) {
-        //     if (el._katavorioDrop && el._katavorioDrop.length > 0) {
-        //         el._katavorioDrop[0].k.setDropScope(el, scope);
-        //     }
-        // },
-        // addToPosse:function(el, spec) {
-        //     var specs = Array.prototype.slice.call(arguments, 1);
-        //     var dm = _getDragManager(this);
-        //     _jp.each(el, function(_el) {
-        //         _el = [ _jp.getElement(_el) ];
-        //         _el.push.apply(_el, specs );
-        //         dm.addToPosse.apply(dm, _el);
-        //     });
-        // },
-        // setPosse:function(el, spec) {
-        //     var specs = Array.prototype.slice.call(arguments, 1);
-        //     var dm = _getDragManager(this);
-        //     _jp.each(el, function(_el) {
-        //         _el = [ _jp.getElement(_el) ];
-        //         _el.push.apply(_el, specs );
-        //         dm.setPosse.apply(dm, _el);
-        //     });
-        // },
-        // removeFromPosse:function(el, posseId) {
-        //     var specs = Array.prototype.slice.call(arguments, 1);
-        //     var dm = _getDragManager(this);
-        //     _jp.each(el, function(_el) {
-        //         _el = [ _jp.getElement(_el) ];
-        //         _el.push.apply(_el, specs );
-        //         dm.removeFromPosse.apply(dm, _el);
-        //     });
-        // },
-        // removeFromAllPosses:function(el) {
-        //     var dm = _getDragManager(this);
-        //     _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
-        // },
-        // setPosseState:function(el, posseId, state) {
-        //     var dm = _getDragManager(this);
-        //     _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
-        // },
-        // dragEvents: {
-        //     'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
-        //     'over': 'over', 'out': 'out', 'drop': 'drop', 'complete': 'complete',
-        //     'beforeStart':'beforeStart'
-        // },
         stopDrag: function (el) {
             console.log("WARN: stopDrag not implemented yet in 3.x");
         },
