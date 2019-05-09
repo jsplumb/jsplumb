@@ -16,19 +16,14 @@
     var GROUP_COLLAPSED_CLASS = "jtk-group-collapsed";
     var GROUP_EXPANDED_CLASS = "jtk-group-expanded";
     var GROUP_CONTAINER_SELECTOR = "[jtk-group-content]";
-    var ELEMENT_DRAGGABLE_EVENT = "elementDraggable";
-    var STOP = "stop";
-    var REVERT = "revert";
     var GROUP_MANAGER = "_groupManager";
     var GROUP = "_jsPlumbGroup";
-    var GROUP_DRAG_SCOPE = "_jsPlumbGroupDrag";
     var EVT_CHILD_ADDED = "group:addMember";
     var EVT_CHILD_REMOVED = "group:removeMember";
     var EVT_GROUP_ADDED = "group:add";
     var EVT_GROUP_REMOVED = "group:remove";
     var EVT_EXPAND = "group:expand";
     var EVT_COLLAPSE = "group:collapse";
-    var EVT_GROUP_DRAG_STOP = "groupDragStop";
     var EVT_CONNECTION_MOVED = "connectionMoved";
     var EVT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
 
@@ -410,7 +405,7 @@
         this.refreshAllGroups = function() {
             for (var g in _managedGroups) {
                 _updateConnectionsForGroup(_managedGroups[g]);
-                _jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].getEl()));
+                //_jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].getEl()));
             }
         };
 
