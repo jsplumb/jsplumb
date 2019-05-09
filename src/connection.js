@@ -519,6 +519,14 @@
                         sourceInfo: sourceInfo,
                         targetInfo: targetInfo
                     });
+                    
+                    if (this.connector.bounds.minX ===  Infinity ||
+                        this.connector.bounds.maxX === -Infinity ||
+                        this.connector.bounds.minY ===  Infinity ||
+                        this.connector.bounds.maxY === -Infinity)
+                    {
+                        return;
+                    }
 
                     var overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
 

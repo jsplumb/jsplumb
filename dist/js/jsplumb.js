@@ -8856,6 +8856,14 @@
                         sourceInfo: sourceInfo,
                         targetInfo: targetInfo
                     });
+                    
+                    if (this.connector.bounds.minX ===  Infinity ||
+                        this.connector.bounds.maxX === -Infinity ||
+                        this.connector.bounds.minY ===  Infinity ||
+                        this.connector.bounds.maxY === -Infinity)
+                    {
+                        return;
+                    }
 
                     var overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
 
@@ -13656,7 +13664,9 @@
         },
         _attr = function (node, attributes) {
             for (var i in attributes) {
-                node.setAttribute(i, "" + attributes[i]);
+                if (attributes[i] !==  Infinity && attributes[i] !== -Infinity) {
+                    node.setAttribute(i, "" + attributes[i]);
+                }
             }
         },
         _node = function (name, attributes) {

@@ -39,7 +39,9 @@
         },
         _attr = function (node, attributes) {
             for (var i in attributes) {
-                node.setAttribute(i, "" + attributes[i]);
+                if (attributes[i] !==  Infinity && attributes[i] !== -Infinity) {
+                    node.setAttribute(i, "" + attributes[i]);
+                }
             }
         },
         _node = function (name, attributes) {
