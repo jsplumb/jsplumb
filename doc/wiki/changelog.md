@@ -43,6 +43,8 @@ for every scope that is assigned.
 New Functionality:
 
 - `elementsDraggable` added to Defaults, with a default value of true.
+- added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
+be supported on individual `draggable(..)` method calls.
 
 
 ## 2.9.2
