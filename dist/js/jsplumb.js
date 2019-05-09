@@ -2104,9 +2104,14 @@
                     sel = k.getSelection(),
                     dPos = this.params.getPosition(dragEl);
 
-                for (var i = 0; i < sel.length; i++) {
-                    var p = this.params.getPosition(sel[i].el);
-                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        var p = this.params.getPosition(sel[i].el);
+                        positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                    }
+                }
+                else {
+                    positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
                 }
 
                 _dispatch("stop", {
@@ -11016,19 +11021,14 @@
     var GROUP_COLLAPSED_CLASS = "jtk-group-collapsed";
     var GROUP_EXPANDED_CLASS = "jtk-group-expanded";
     var GROUP_CONTAINER_SELECTOR = "[jtk-group-content]";
-    var ELEMENT_DRAGGABLE_EVENT = "elementDraggable";
-    var STOP = "stop";
-    var REVERT = "revert";
     var GROUP_MANAGER = "_groupManager";
     var GROUP = "_jsPlumbGroup";
-    var GROUP_DRAG_SCOPE = "_jsPlumbGroupDrag";
     var EVT_CHILD_ADDED = "group:addMember";
     var EVT_CHILD_REMOVED = "group:removeMember";
     var EVT_GROUP_ADDED = "group:add";
     var EVT_GROUP_REMOVED = "group:remove";
     var EVT_EXPAND = "group:expand";
     var EVT_COLLAPSE = "group:collapse";
-    var EVT_GROUP_DRAG_STOP = "groupDragStop";
     var EVT_CONNECTION_MOVED = "connectionMoved";
     var EVT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
 
@@ -11410,7 +11410,7 @@
         this.refreshAllGroups = function() {
             for (var g in _managedGroups) {
                 _updateConnectionsForGroup(_managedGroups[g]);
-                _jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].getEl()));
+                //_jsPlumb.dragManager.updateOffsets(_jsPlumb.getId(_managedGroups[g].getEl()));
             }
         };
 
@@ -13371,6 +13371,11 @@
                 instance.select({source: el}).addClass(instance.elementDraggingClass + " " + instance.sourceElementDraggingClass, true);
                 instance.select({target: el}).addClass(instance.elementDraggingClass + " " + instance.targetElementDraggingClass, true);
                 instance.setConnectionBeingDragged(true);
+
+                instance.fire("drag:start", {
+                    el:el,
+                    e:params.e
+                });
             }
             return cont;
         }
@@ -13415,6 +13420,12 @@
             
             instance.draw(el, ui, null, true);
 
+            instance.fire("drag:move", {
+                el:el,
+                e:params.e,
+                pos:ui
+            });
+
             // if (o._dragging) {
             //     instance.addClass(el, "jtk-dragged");
             // }
@@ -13440,22 +13451,17 @@
                     uip.top += _dragOffset.top;
                 }
                 this.draw(dragElement, uip);
+
+                instance.fire("drag:stop", {
+                    el:dragElement,
+                    e:params.e,
+                    pos:uip
+                });
             }
-
-            // TODO refactor, see above: these drag options dont exist now
-            //delete _e[0]._jsPlumbDragOptions._dragging;
-
-            // TODO  if there is a target group, we're dropping on it. what to do?
 
             this.removeClass(_e[0], "jtk-dragged");
             this.select({source: dragElement}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
             this.select({target: dragElement}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
-
-            // if the element was in a group, perhaps take action.
-            // if (dragElement._jsPlumbGroup) {
-            //     console.log("");
-            // }
-
 
         }.bind(instance);
 
