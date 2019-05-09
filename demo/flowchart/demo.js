@@ -5,7 +5,7 @@ jsPlumb.ready(function () {
         dragOptions: { cursor: 'pointer', zIndex: 2000, grid:[20,20] },
         // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
         // case it returns the 'labelText' member that we set on each connection in the 'init' method below.
-        ConnectionOverlays: [
+        connectionOverlays: [
             [ "Arrow", {
                 location: 1,
                 visible:true,

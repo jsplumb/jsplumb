@@ -102,10 +102,10 @@ module.exports = {
             jsPlumb.ready(function () {
 
                 var jsp = jsPlumb.getInstance({
-                    Connector: "StateMachine",
+                    connector: "StateMachine",
                     anchor: ["Perimeter", { shape: "Circle" }],
                     Endpoint: [ "Dot", { radius: 2 }],
-                    ConnectionOverlays: [
+                    connectionOverlays: [
                         [ "Arrow", { location: 1, width: 10, length: 7, foldbackPoint: 0.62 }]
                     ]
                 });

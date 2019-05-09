@@ -70,7 +70,7 @@
         this.connector = null;
         this.idPrefix = "_jsplumb_c_";
         this.defaultLabelLocation = 0.5;
-        this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
+        this.defaultOverlayKeys = ["Overlays", "connectionOverlays"];
         // if a new connection is the result of moving some existing connection, params.previousConnection
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
@@ -164,7 +164,7 @@
 // -------------------------- DEFAULT TYPE ---------------------------------------------
 
         // DETACHABLE
-        var _detachable = _jsPlumb.Defaults.ConnectionsDetachable;
+        var _detachable = _jsPlumb.Defaults.connectionsDetachable;
         if (params.detachable === false) {
             _detachable = false;
         }
@@ -175,13 +175,13 @@
             _detachable = false;
         }
         // REATTACH
-        var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
+        var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.reattachConnections;
 
         this.appendToDefaultType({
             detachable: _detachable,
             reattach: _reattach,
-            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || _jp.Defaults.PaintStyle,
-            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || _jp.Defaults.HoverPaintStyle
+            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.paintStyle || _jp.Defaults.paintStyle,
+            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.hoverPaintStyle || _jp.Defaults.hoverPaintStyle
         });
 
         var _suspendedAt = _jsPlumb.getSuspendedAt();
@@ -256,7 +256,7 @@
 
 // PAINTING
 
-        this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.Connector || _jp.Defaults.Connector, true);
+        this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _jsPlumb.Defaults.connector || _jp.Defaults.connector, true);
         var data = params.data == null || !_ju.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
@@ -595,14 +595,14 @@
                 if (!params.endpoints) {
                     params.endpoints = [ null, null ];
                 }
-                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
+                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.endpoints[index] || _jp.Defaults.endpoints[index] || _jsPlumb.Defaults.endpoint || _jp.Defaults.endpoint;
                 if (!params.endpointStyles) {
                     params.endpointStyles = [ null, null ];
                 }
                 if (!params.endpointHoverStyles) {
                     params.endpointHoverStyles = [ null, null ];
                 }
-                var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || _jp.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle;
+                var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.endpointStyles[index] || _jp.Defaults.endpointStyles[index] || _jsPlumb.Defaults.endpointStyle || _jp.Defaults.endpointStyle;
                 // Endpoints derive their fill from the connector's stroke, if no fill was specified.
                 if (es.fill == null && params.paintStyle != null) {
                     es.fill = params.paintStyle.stroke;
@@ -615,7 +615,7 @@
                     es.outlineWidth = params.paintStyle.outlineWidth;
                 }
 
-                var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.EndpointHoverStyles[index] || _jp.Defaults.EndpointHoverStyles[index] || _jsPlumb.Defaults.EndpointHoverStyle || _jp.Defaults.EndpointHoverStyle;
+                var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.endpointHoverStyles[index] || _jp.Defaults.endpointHoverStyles[index] || _jsPlumb.Defaults.endpointHoverStyle || _jp.Defaults.endpointHoverStyle;
                 // endpoint hover fill style is derived from connector's hover stroke style
                 if (params.hoverPaintStyle != null) {
                     if (ehs == null) {
@@ -636,8 +636,8 @@
                 e = _newEndpoint({
                     paintStyle: es, hoverPaintStyle: ehs, endpoint: ep, connections: [ conn ],
                     uuid: u, anchor: a, source: element, scope: params.scope,
-                    reattach: params.reattach || _jsPlumb.Defaults.ReattachConnections,
-                    detachable: params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
+                    reattach: params.reattach || _jsPlumb.Defaults.reattachConnections,
+                    detachable: params.detachable || _jsPlumb.Defaults.connectionsDetachable
                 });
                 if (existing == null) {
                     e.setDeleteOnEmpty(true);

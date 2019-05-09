@@ -46,9 +46,9 @@
 
         this.appendToDefaultType({
             connectionType:params.connectionType,
-            maxConnections: params.maxConnections == null ? this._jsPlumb.instance.Defaults.MaxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
-            paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle,
-            hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.EndpointHoverStyle || _jp.Defaults.EndpointHoverStyle,
+            maxConnections: params.maxConnections == null ? this._jsPlumb.instance.Defaults.maxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
+            paintStyle: params.endpointStyle || params.paintStyle || params.style || this._jsPlumb.instance.Defaults.endpointStyle || _jp.Defaults.endpointStyle,
+            hoverPaintStyle: params.endpointHoverStyle || params.hoverPaintStyle || this._jsPlumb.instance.Defaults.endpointHoverStyle || _jp.Defaults.endpointHoverStyle,
             connectorStyle: params.connectorStyle,
             connectorHoverStyle: params.connectorHoverStyle,
             connectorClass: params.connectorClass,
@@ -230,8 +230,8 @@
 
         this.scope = params.scope || _jsPlumb.getDefaultScope();
         this.timestamp = null;
-        this.reattachConnections = params.reattach || _jsPlumb.Defaults.ReattachConnections;
-        this.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
+        this.reattachConnections = params.reattach || _jsPlumb.Defaults.reattachConnections;
+        this.connectionsDetachable = _jsPlumb.Defaults.connectionsDetachable;
         if (params.connectionsDetachable === false || params.detachable === false) {
             this.connectionsDetachable = false;
         }
@@ -414,7 +414,7 @@
 
         this.repaint = this.paint;
 
-        var ep = params.endpoint || this._jsPlumb.instance.Defaults.Endpoint || _jp.Defaults.Endpoint;
+        var ep = params.endpoint || this._jsPlumb.instance.Defaults.endpoint || _jp.Defaults.endpoint;
         this.setEndpoint(ep, true);
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.anchor || "Top");
         this.setAnchor(anchorParamsToUse, true);

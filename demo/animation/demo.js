@@ -83,7 +83,7 @@ jsPlumb.ready(function () {
     instance = jsPlumb.getInstance({
         DragOptions: { cursor: 'wait', zIndex: 20 },
         Endpoint: [ "Image", { url: "littledot.png" } ],
-        Connector: [ "Bezier", { curviness: 90 } ],
+        connector: [ "Bezier", { curviness: 90 } ],
         container: "canvas"
     });
 

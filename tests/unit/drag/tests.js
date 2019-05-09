@@ -96,7 +96,7 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeTarget("d2");
         _jsPlumb.makeTarget("d3");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         _jsPlumb.getDragManager();
 
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
@@ -821,7 +821,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.endpoints[0].type, "Rectangle", "source endpoint is Rectangle");
         equal(c.endpoints[0].anchor.x, 0, "x=0 in anchor");
         equal(c.endpoints[0].anchor.y, 0.5, "y=0.5 in anchor");
-        equal(c.endpoints[1].type, _jsPlumb.Defaults.Endpoint, "target endpoint is the default");
+        equal(c.endpoints[1].type, _jsPlumb.Defaults.endpoint, "target endpoint is the default");
     });
 
     /**
@@ -900,7 +900,7 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         var c = _jsPlumb.select().get(0);
 
-        equal(c.endpoints[0].type, _jsPlumb.Defaults.Endpoint, "source endpoint is the default");
+        equal(c.endpoints[0].type, _jsPlumb.Defaults.endpoint, "source endpoint is the default");
         equal(c.endpoints[1].anchor.x, 0.5, "x=0.5 in anchor");
         equal(c.endpoints[1].anchor.y, 0, "y=0 in anchor");
         equal(c.endpoints[1].type, "Rectangle", "target endpoint is Rectangle");
@@ -1386,7 +1386,7 @@ var testSuite = function (_jsPlumb) {
     test(" makeSource connection type is honoured, mouse connect", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
 
-        _jsPlumb.Defaults.PaintStyle = {stroke: "blue", strokeWidth: 34};
+        _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
             "basic": {

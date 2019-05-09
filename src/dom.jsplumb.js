@@ -542,7 +542,7 @@
                 _continue = false;
             }
             // if the connection was setup as not detachable or one of its endpoints
-            // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
+            // was setup as connectionsDetachable = false, or Defaults.connectionsDetachable
             // is set to false...
             if (jpc != null && !jpc.isDetachable(ep)) {
                 // .. and the endpoint is full

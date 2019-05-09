@@ -458,27 +458,26 @@
         this.Defaults = {
             anchor: "Bottom",
             anchors: [ null, null ],
-            ConnectionsDetachable: true,
-            ConnectionOverlays: [ ],
-            Connector: "Bezier",
-            Container: null,
+            connectionsDetachable: true,
+            connectionOverlays: [ ],
+            connector: "Bezier",
+            container: null,
             dragOptions: { },
             dropOptions: { },
-            Endpoint: "Dot",
-            EndpointOverlays: [ ],
-            Endpoints: [ null, null ],
-            EndpointStyle: { fill: "#456" },
-            EndpointStyles: [ null, null ],
-            EndpointHoverStyle: null,
-            EndpointHoverStyles: [ null, null ],
-            HoverPaintStyle: null,
-            LabelStyle: { color: "black" },
-            Overlays: [ ],
-            MaxConnections: 1,
-            PaintStyle: { "stroke-width": 4, stroke: "#456" },
-            ReattachConnections: false,
-            RenderMode: "svg",
-            Scope: "jsPlumb_DefaultScope"
+            endpoint: "Dot",
+            endpointOverlays: [ ],
+            endpoints: [ null, null ],
+            endpointStyle: { fill: "#456" },
+            endpointStyles: [ null, null ],
+            endpointHoverStyle: null,
+            endpointHoverStyles: [ null, null ],
+            hoverPaintStyle: null,
+            labelStyle: { color: "black" },
+            overlays: [ ],
+            maxConnections: 1,
+            paintStyle: { "stroke-width": 4, stroke: "#456" },
+            reattachConnections: false,
+            scope: "jsPlumb_DefaultScope"
         };
 
         if (_defaults) {
@@ -667,7 +666,7 @@
             sizes = [],
             _suspendDrawing = false,
             _suspendedAt = null,
-            DEFAULT_SCOPE = this.Defaults.Scope,
+            DEFAULT_SCOPE = this.Defaults.scope,
             _curIdStamp = 1,
             _idstamp = function () {
                 return "" + _curIdStamp++;
@@ -983,7 +982,7 @@
              manually, since this method attaches event listeners and an id.
              */
             _newEndpoint = _currentInstance._newEndpoint = function (params, id) {
-                var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
+                var endpointFunc = _currentInstance.Defaults.endpointType || jsPlumb.Endpoint;
                 var _p = jsPlumb.extend({}, params);
                 _p._jsPlumb = _currentInstance;
                 _p.newConnection = _newConnection;
@@ -1167,8 +1166,8 @@
             referenceParams = referenceParams || {};
             var p = jsPlumb.extend({}, referenceParams);
             jsPlumb.extend(p, params);
-            p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint;
-            p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle;
+            p.endpoint = p.endpoint || _currentInstance.Defaults.endpoint;
+            p.paintStyle = p.paintStyle || _currentInstance.Defaults.endpointStyle;
 
             var results = [],
                 inputs = (_ju.isArray(el) || (el.length != null && !_ju.isString(el))) ? el : [ el ];
@@ -2168,7 +2167,7 @@
 
                 this.manage(elInfo.el);
                 this.setAttribute(elInfo.el, "jtk-target", "");
-                this._writeScopeAttribute(elInfo.el, (p.scope || _currentInstance.Defaults.Scope));
+                this._writeScopeAttribute(elInfo.el, (p.scope || _currentInstance.Defaults.scope));
                 this.setAttribute(elInfo.el, "jtk-target-" + p.connectionType, "");
 
                 elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || [];
@@ -2275,7 +2274,7 @@
 
                 this.manage(_del);
                 this.setAttribute(_del, "jtk-source", "");
-                this._writeScopeAttribute(elInfo.el, (p.scope || _currentInstance.Defaults.Scope));
+                this._writeScopeAttribute(elInfo.el, (p.scope || _currentInstance.Defaults.scope));
                 this.setAttribute(_del, "jtk-source-" + p.connectionType, "");
 
                 this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};

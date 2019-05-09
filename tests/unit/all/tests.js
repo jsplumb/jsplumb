@@ -2604,11 +2604,11 @@ var testSuite = function (_jsPlumb) {
     });
 
     test(" _jsPlumb.Defaults.ConnectionsDetachable", function () {
-        _jsPlumb.Defaults.ConnectionsDetachable = false;
+        _jsPlumb.Defaults.connectionsDetachable = false;
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
         equal(c.isDetachable(), false, "connections not detachable by default (overrode the defaults)");
-        _jsPlumb.Defaults.ConnectionsDetachable = true;
+        _jsPlumb.Defaults.connectionsDetachable = true;
     });
 
 
@@ -2763,7 +2763,7 @@ var testSuite = function (_jsPlumb) {
     });
 
     test(": _jsPlumb.connect (default connection overlays)", function () {
-        _jsPlumb.Defaults.ConnectionOverlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Arrow", { location: 0.1, id: "arrow" }]
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -2773,7 +2773,7 @@ var testSuite = function (_jsPlumb) {
     });
 
     test(": _jsPlumb.connect (default connection overlays + overlays specified in connect call)", function () {
-        _jsPlumb.Defaults.ConnectionOverlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Arrow", { location: 0.1, id: "arrow" }]
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -2786,7 +2786,7 @@ var testSuite = function (_jsPlumb) {
     });
 
     test(": _jsPlumb.connect (default overlays + default connection overlays)", function () {
-        _jsPlumb.Defaults.ConnectionOverlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Arrow", { location: 0.1, id: "arrow" }]
         ];
         _jsPlumb.Defaults.Overlays = [
@@ -2801,7 +2801,7 @@ var testSuite = function (_jsPlumb) {
 
 
     test(": _jsPlumb.connect (default overlays + default connection overlays)", function () {
-        _jsPlumb.Defaults.ConnectionOverlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Arrow", { location: 0.1, id: "arrow" }]
         ];
         _jsPlumb.Defaults.Overlays = [
@@ -3086,7 +3086,7 @@ var testSuite = function (_jsPlumb) {
     });
 
     test(": _jsPlumb.connect (custom label overlay, set on Defaults, return plain DOM element)", function () {
-        _jsPlumb.Defaults.ConnectionOverlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Custom", { id: "custom", create: function (connection) {
                 ok(connection != null, "we were passed in a connection");
                 var d = document.createElement("div");
@@ -3104,7 +3104,7 @@ var testSuite = function (_jsPlumb) {
     });
 
     test(": _jsPlumb.connect (custom label overlay, set on Defaults, return selector)", function () {
-        _jsPlumb.Defaults.ConnectionOverlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Custom", { id: "custom", create: function (connection) {
                 ok(connection != null, "we were passed in a connection");
                 return support.makeContent("<div custom='true'>" + connection.id + "</div>");
@@ -4132,7 +4132,7 @@ var testSuite = function (_jsPlumb) {
         support.addDiv("d1");
         support.addDiv("d2");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         var e1 = _jsPlumb.addEndpoint("d1"),
             e2 = _jsPlumb.addEndpoint("d2"),
             e3 = _jsPlumb.addEndpoint("d1");
@@ -4165,7 +4165,7 @@ var testSuite = function (_jsPlumb) {
         support.addDiv("d1");
         support.addDiv("d2");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         var e1 = _jsPlumb.addEndpoint("d1"),
             e2 = _jsPlumb.addEndpoint("d2"),
             e3 = _jsPlumb.addEndpoint("d1");
@@ -4205,7 +4205,7 @@ var testSuite = function (_jsPlumb) {
         support.addDiv("d1");
         support.addDiv("d2");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         var e1 = _jsPlumb.addEndpoint("d1"),
             e2 = _jsPlumb.addEndpoint("d2"),
             e3 = _jsPlumb.addEndpoint("d1");
@@ -4238,7 +4238,7 @@ var testSuite = function (_jsPlumb) {
         support.addDiv("d1");
         support.addDiv("d2");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         var e1 = _jsPlumb.addEndpoint("d1"),
             e2 = _jsPlumb.addEndpoint("d2"),
             e3 = _jsPlumb.addEndpoint("d1");
@@ -4271,7 +4271,7 @@ var testSuite = function (_jsPlumb) {
         support.addDiv("d1");
         support.addDiv("d2");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         var e1 = _jsPlumb.addEndpoint("d1"),
             e2 = _jsPlumb.addEndpoint("d2"),
             e3 = _jsPlumb.addEndpoint("d1");
@@ -4304,7 +4304,7 @@ var testSuite = function (_jsPlumb) {
         support.addDiv("d1");
         support.addDiv("d2");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         var e1 = _jsPlumb.addEndpoint("d1"),
             e2 = _jsPlumb.addEndpoint("d2"),
             e3 = _jsPlumb.addEndpoint("d1");
@@ -4337,7 +4337,7 @@ var testSuite = function (_jsPlumb) {
         support.addDiv("d1");
         support.addDiv("d2");
 
-        _jsPlumb.Defaults.MaxConnections = -1;
+        _jsPlumb.Defaults.maxConnections = -1;
         var e1 = _jsPlumb.addEndpoint("d1"),
             e2 = _jsPlumb.addEndpoint("d2"),
             e3 = _jsPlumb.addEndpoint("d1");
@@ -5095,7 +5095,7 @@ var testSuite = function (_jsPlumb) {
 
         c.setType("other");
         equal(_length(c.getOverlays()), 0, "no overlays after setting type to `other`, which has no overlays");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "paintStyle strokeWidth is default");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "paintStyle strokeWidth is default");
 
         c.addType("basic");
         equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
@@ -5165,7 +5165,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         c.toggleType("basic");
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
         c.toggleType("basic");
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
@@ -5224,7 +5224,7 @@ var testSuite = function (_jsPlumb) {
         c.removeType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
         equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
         equal(_length(c.getOverlays()), 2, "two overlays after removing 'basic' type");
         ok(!_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was removed from canvas");
@@ -5233,8 +5233,8 @@ var testSuite = function (_jsPlumb) {
 
         c.toggleType("other");
         equal(c.hasType("other"), false, "connection does not have 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "connection has default strokeWidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "connection has default strokeWidth");
         equal(_length(c.getOverlays()), 1, "one overlay after toggling 'other' type. this is the original overlay now.");
         ok(!_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was removed from canvas");
 
@@ -5385,8 +5385,8 @@ var testSuite = function (_jsPlumb) {
         c.toggleType("other basic");
         equal(c.hasType("basic"), false, "after toggle, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after toggle, connection does not have 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "after toggle, connection has default stroke style");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "after toggle, connection has default strokeWidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "after toggle, connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "after toggle, connection has default strokeWidth");
         equal(_length(c.getOverlays()), 0, "after toggle, no overlays");
 
         c.toggleType("basic other");
@@ -5399,8 +5399,8 @@ var testSuite = function (_jsPlumb) {
         c.removeType("other basic");
         equal(c.hasType("basic"), false, "after remove, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after remove, connection does not have 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "after remove, connection has default stroke style");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "after remove, connection has default strokeWidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "after remove, connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "after remove, connection has default strokeWidth");
         equal(_length(c.getOverlays()), 0, "after remove, no overlays");
 
         c.addType("other basic");
@@ -5444,16 +5444,16 @@ var testSuite = function (_jsPlumb) {
         equal(c2.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
 
         _jsPlumb.select().toggleType("basic");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
-        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
 
         _jsPlumb.select().addType("basic");
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
         equal(c2.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
 
         _jsPlumb.select().removeType("basic").addType("other");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
-        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
 
 
     });
@@ -5490,7 +5490,7 @@ var testSuite = function (_jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType(null);
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
 
     });
 
@@ -5499,7 +5499,7 @@ var testSuite = function (_jsPlumb) {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("foo");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
 
     });
 
@@ -5523,7 +5523,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
 
         c.removeType("basic baz");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
 
         c.addType("basic foo bar baz");
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
@@ -5533,7 +5533,7 @@ var testSuite = function (_jsPlumb) {
     test(" create connection using type parameter", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
 
-        _jsPlumb.Defaults.PaintStyle = {stroke: "blue", strokeWidth: 34};
+        _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
@@ -5550,10 +5550,10 @@ var testSuite = function (_jsPlumb) {
             }
         });
 
-        equal(_jsPlumb.Defaults.PaintStyle.stroke, "blue", "default value has not been messed up");
+        equal(_jsPlumb.Defaults.paintStyle.stroke, "blue", "default value has not been messed up");
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.PaintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
 
         c = _jsPlumb.connect({source: d1, target: d2, type: "basic other"});
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
@@ -5565,7 +5565,7 @@ var testSuite = function (_jsPlumb) {
     test(" makeSource connection type is honoured, programmatic connect", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
 
-        _jsPlumb.Defaults.PaintStyle = {stroke: "blue", strokeWidth: 34};
+        _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
@@ -5985,7 +5985,7 @@ var testSuite = function (_jsPlumb) {
 
     test(" multiple makeSource registrations, switched by connectionType", function () {
         _jsPlumb.importDefaults({
-            PaintStyle:{strokeWidth:10, stroke:"red"}
+            paintStyle:{strokeWidth:10, stroke:"red"}
         });
         var basicType = {
             connector: "Flowchart",
@@ -6453,7 +6453,7 @@ var testSuite = function (_jsPlumb) {
         support.addDivs(["box1", "box2", "canvas"]);
 
          _jsPlumb.importDefaults({
-         Container: 'canvas'
+         container: 'canvas'
          });
 
         _jsPlumb.setContainer('canvas');
