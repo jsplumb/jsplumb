@@ -3,30 +3,25 @@
 This release focuses on performance enhancements, and contains several breaking changes.
 
 The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
-individually, we now use a single event listener on the container. Breaking changes related to this are:
+individually, we now use a single event listener on the container. 
 
-- by default, every node is draggable. `.draggable(someElement)` no longer exists. 
-- 
-- 
+### Breaking changes
 
+- By default, every node is draggable. `.draggable(someElement)` no longer exists.
 
-Other breaking changes:
-
-- it is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the offsetParent of the
+- It is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
 first element to which an endpoint is added.
 
 - `manageElement` and `unmanageElement` events no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
  in case you have code that used them.
  
-- managed elements do not have the `jtk-managed` class applied. they now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
+- Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
 class but we include it here for completeness
 
-- the `DragOptions` default is now `dragOptions`
-- the `Container` default is now `container`
-- the `Anchor` default is now `anchor`
-- the `Anchors` default is now `anchors`
-- the `LogEnabled` default has been removed.
-- the `DoNotThrowErrors` default has been removed.
+- All defaults converted to camelCase instead of having a leading capital, eg. "Anchors" -> "anchors", "ConnectionsDetachable" -> "connectionsDetachable". This brings
+the defaults into line with the parameters used in method calls like `connect` and `addEndpoint` etc.
+
+- The `LogEnabled` and `DoNotThrowErrors` defaults have been removed.
 
 - `getWidth` and `getHeight` methods removed from jsPlumb instance.
 
@@ -34,16 +29,17 @@ class but we include it here for completeness
 
 - `setClass` method removed from jsPlumb.
 
-- it is not possible to subclass Connection or Endpoint to provide your own implementations now.
+- It is not possible to subclass Connection or Endpoint to provide your own implementations now.
   
-- elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
+- Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
 for every scope that is assigned.
 
 
-New Functionality:
+### New Functionality
 
-- `elementsDraggable` added to Defaults, with a default value of true.
-- added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
+- `elementsDraggable` added to `Defaults`, with a default value of true.
+
+- Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
 be supported on individual `draggable(..)` method calls.
 
 
