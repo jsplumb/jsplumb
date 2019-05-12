@@ -267,6 +267,10 @@
 
         var elements = params.selection, uip;
 
+        if (elements.length === 0) {
+            elements = [ [ params.el, {left:params.finalPos[0], top:params.finalPos[1] }, params.drag ] ];
+        }
+
         var _one = function (_e) {
             var dragElement = _e[2].getDragElement();
             if (_e[1] != null) {
