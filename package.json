@@ -16,7 +16,13 @@
   "types": "index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init": "node ./install.js"
+    "init": "node ./install.js",
+    "build": "tsc",
+    "babel": "./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
+    "transpile": "npm run build;npm run babel",
+    "package": "npm run transpile;./node_modules/.bin/webpack;",
+    "rollup": "rollup -c",
+    "rollup-dev":"rollup -c -w"
   },
   "repository": {
     "type": "git",
@@ -31,22 +37,38 @@
   "author": "jsPlumb",
   "license": "(MIT OR GPL-2.0)",
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "babel-loader": "^8.0.6",
     "biltong": "^0.4.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-connect": "^0.11.2",
+    "grunt-contrib-copy": "~0.5.0",
     "grunt-contrib-jshint": "~0.6.2",
     "grunt-contrib-qunit": "^0.7.0",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-copy": "~0.5.0",
     "grunt-exec": "^1.0.1",
     "grunt-jekyll": "~0.4.2",
     "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "0.9.4",
     "katavorio": "1.4.4",
     "morgan": "1.8.0",
-    "mottle": "1.0.0"
-  }
+    "mottle": "^1.0.0",
+    "rollup": "^1.12.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-node-resolve": "^5.0.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "typescript": "3.3.4000",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.1",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "dependencies": {}
 }
