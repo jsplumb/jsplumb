@@ -17,7 +17,7 @@ export class StraightSegment extends AbstractSegment {
 
     constructor(instance:jsPlumbInstance<any>, params:any) {
         super(params);
-        //this.setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2});
+        this._setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2});
     }
 
 
@@ -41,13 +41,13 @@ export class StraightSegment extends AbstractSegment {
     //     return { x1: this.x1, y1: y1, x2: x2, y2: y2 };
     // }
 
-    // setCoordinates (coords:StraightSegmentCoordinates):void {
-    //     this.x1 = coords.x1;
-    //     this.y1 = coords.y1;
-    //     this.x2 = coords.x2;
-    //     this.y2 = coords.y2;
-    //     this._recalc();
-    // }
+    private _setCoordinates (coords:StraightSegmentCoordinates):void {
+        this.x1 = coords.x1;
+        this.y1 = coords.y1;
+        this.x2 = coords.x2;
+        this.y2 = coords.y2;
+        this._recalc();
+    }
 
 
     getBounds():SegmentBounds {
