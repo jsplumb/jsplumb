@@ -4,7 +4,6 @@ import {PaintStyle} from "../styles";
 import {SvgComponent} from "../svg/svg-component";
 import {AbstractConnector} from "../connector/abstract-connector";
 import {_appendAtIndex, _applyStyles, _attr, _node} from "../svg/svg-util";
-import * as jsPlumb from "../../index";
 
 export class SvgElementConnector extends SvgComponent implements ConnectorRenderer<HTMLElement> {
 
@@ -13,22 +12,13 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
 
     constructor(public instance:jsPlumbInstance<HTMLElement>, public connector:AbstractConnector<HTMLElement>) {
         super(instance, connector, null);
-
-        // this.path = _node(this.instance, "path", {
-        //     "d": ""
-        // });
-
-        // this.svg.appendChild(this.path);
     }
-
 
     paint(paintStyle: PaintStyle, extents?:any): void {
 
         super.paint(paintStyle, extents);
 
         let segments = this.connector.segments;
-
-        console.log("PAINTING", this.connector, paintStyle, extents);
 
         let p = "", offset = [0, 0];
         if (extents.xmin < 0) {
