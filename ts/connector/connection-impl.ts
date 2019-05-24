@@ -10,7 +10,7 @@ import {OverlayCapableComponent} from "../component/overlay-capable-component";
 import {addToList, isArray, isEmpty, IS, isString, merge} from "../util";
 import {Overlay, OverlaySpec} from "../overlay";
 import {Connectors} from "./connectors";
-import {AnchorSpec, makeAnchorFromSpec} from "../anchor/anchors";
+import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
 import {ProxyConnection} from "../connection";
 import {EventGenerator} from "../event-generator";

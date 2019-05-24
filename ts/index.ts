@@ -29,7 +29,7 @@ export * from "./overlay/label-overlay";
 
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
-export * from "./anchor/anchors";
+export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
 export * from "./browser-util";
 export * from "./connection";

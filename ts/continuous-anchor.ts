@@ -1,4 +1,4 @@
-import {AnchorId, Axis, Face, Orientation, X_AXIS_FACES, Y_AXIS_FACES, AnchorOptions} from "./anchor/anchors";
+import {AnchorId, Axis, Face, Orientation, X_AXIS_FACES, Y_AXIS_FACES, AnchorOptions} from "./factory/anchor-factory";
 import {Anchor} from "./anchor/anchor";
 import {Dictionary, jsPlumbInstance} from "./core";
 import {Endpoint} from "./endpoint/endpoint-impl";

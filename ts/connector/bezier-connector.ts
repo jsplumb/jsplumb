@@ -3,7 +3,7 @@ import {PaintParams, PaintGeometry, ConnectorComputeParams} from "./abstract-con
 import {jsPlumbInstance, PointArray} from "../core";
 import {BezierSegment} from "./bezier-segment";
 import {Connectors} from "./connectors";
-import {ComputedAnchorPosition} from "../anchor/anchors";
+import {ComputedAnchorPosition} from "../factory/anchor-factory";
 
 export class Bezier<E> extends AbstractBezierConnector<E> {
 

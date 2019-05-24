@@ -22,7 +22,7 @@ import {
 import { EventGenerator } from "./event-generator";
 import * as Constants from "./constants";
 import {Renderer} from "./renderer";
-import {AnchorSpec, makeAnchorFromSpec} from "./anchor/anchors";
+import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory";
 import { Anchor } from "./anchor/anchor";
 import {DynamicAnchor} from "./anchor/dynamic-anchor";
 import {EndpointOptions, EndpointSpec} from "./endpoint";

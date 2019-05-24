@@ -2,8 +2,8 @@ import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {Dictionary, jsPlumbInstance, PointArray} from "../core";
 
-import {Anchor} from "./anchor";
-import {DynamicAnchor} from "./dynamic-anchor";
+import {Anchor} from "../anchor/anchor";
+import {DynamicAnchor} from "../anchor/dynamic-anchor";
 import {IS, isArray, isNumber, isString} from "../util";
 import {ContinuousAnchor} from "../continuous-anchor";
 
@@ -154,7 +154,7 @@ export function makeAnchorFromSpec<E>(instance:jsPlumbInstance<E>, spec:AnchorSp
 }
 
 function _curryAnchor (x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint, type:AnchorId, fnInit?:Function) {
-    let con = function<E>(instance:jsPlumbInstance<E>, params:any):Anchor<E> {
+    anchorMap[type] = function<E>(instance:jsPlumbInstance<E>, params:any):Anchor<E> {
         let a = _makeAnchor(instance, x, y, ox, oy, 0, 0);
         a.type = type;
         if (fnInit) {
@@ -162,8 +162,6 @@ function _curryAnchor (x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOr
         }
         return a;
     };
-
-    anchorMap[type] = con;
 }
 
 _curryAnchor(0.5, 0, 0, -1, "TopCenter");

@@ -2,7 +2,7 @@ import {isArray, log} from "../util";
 import {BoundingBox, jsPlumbInstance, PointArray, PointXY} from "../core";
 import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment";
 import {Endpoint} from "../endpoint/endpoint-impl";
-import {ComputedAnchorPosition, Orientation} from "../anchor/anchors";
+import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {PaintStyle} from "../styles";
 import {Component, ComponentOptions} from "../component/component";
 import {ConnectorRenderer} from "./connector-renderer";

@@ -1,5 +1,5 @@
 import {jsPlumbInstance} from "../core";
-import {ComputedAnchorPosition, Orientation} from "../anchor/anchors";
+import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {PaintStyle} from "../styles";
 import {EndpointRenderer} from "./endpoint-renderer";
 import {EMPTY_BOUNDS, SegmentBounds} from "../connector/abstract-segment";

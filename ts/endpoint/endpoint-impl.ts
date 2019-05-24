@@ -1,11 +1,11 @@
 import {EndpointOptions, EndpointSpec} from "../endpoint";
 import {Component} from "../component/component";
 import {extend, jsPlumbInstance, OffsetAndSize, Size, Timestamp} from "../core";
-import {ComputedAnchorPosition, makeAnchorFromSpec} from "../anchor/anchors";
+import {ComputedAnchorPosition, makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
 import {OverlayCapableComponent} from "../component/overlay-capable-component";
 import {addToList, isArray, isString, merge, removeWithFunction} from "../util";
-import {AnchorComputeParams} from "../anchor/anchors";
+import {AnchorComputeParams} from "../factory/anchor-factory";
 import {Connection} from "../connector/connection-impl";
 import {PaintStyle} from "../styles";
 import {ConnectorSpec} from "../connector";

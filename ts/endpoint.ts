@@ -1,4 +1,4 @@
-import {AnchorSpec} from "./anchor/anchors";
+import {AnchorSpec} from "./factory/anchor-factory";
 import {PaintStyle} from "./styles";
 import {OverlaySpec} from "./overlay";
 import {Dictionary, OffsetAndSize, Size} from "./core";

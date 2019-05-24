@@ -5,7 +5,7 @@ import {jsPlumbInstance, PointArray} from "../core";
 import {BezierSegment} from "./bezier-segment";
 import {Connectors} from "./connectors";
 import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector";
-import {ComputedAnchorPosition} from "../anchor/anchors";
+import {ComputedAnchorPosition} from "../factory/anchor-factory";
 
 function _segment (x1:number, y1:number, x2:number, y2:number):number {
     if (x1 <= x2 && y2 <= y1) {

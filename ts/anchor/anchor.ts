@@ -1,16 +1,7 @@
-import {Dictionary, jsPlumbInstance, PointArray} from "../core";
-import {isArray, isString, IS, isNumber} from "../util";
+import {jsPlumbInstance} from "../core";
 import {EventGenerator} from "../event-generator";
 import {Endpoint} from "../endpoint/endpoint-impl";
-import {Connection} from "../connector/connection-impl";
-
-
-import {
-    AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, ComputedAnchorPosition,
-    Orientation
-} from "./anchors";
-
-
+import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, ComputedAnchorPosition,  Orientation } from "../factory/anchor-factory";
 
 export class Anchor<E> extends EventGenerator {
 

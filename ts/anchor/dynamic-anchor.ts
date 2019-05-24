@@ -5,7 +5,7 @@ import {
 import {
     AnchorComputeParams, AnchorOptions, AnchorSpec, ComputedAnchorPosition, makeAnchorFromSpec,
     Orientation
-} from "./anchors";
+} from "../factory/anchor-factory";
 
 import {jsPlumbInstance, PointArray} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";

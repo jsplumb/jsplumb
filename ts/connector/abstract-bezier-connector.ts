@@ -1,6 +1,6 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry, PaintParams} from "./abstract-connector";
 import {jsPlumbInstance, PointArray} from "../core";
-import {ComputedAnchorPosition} from "../anchor/anchors";
+import {ComputedAnchorPosition} from "../factory/anchor-factory";
 
 export interface AbstractBezierOptions {
     showLoopback?:boolean;

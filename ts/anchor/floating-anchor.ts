@@ -1,4 +1,4 @@
-import {AnchorOrientationHint, AnchorComputeParams, AnchorOptions, ComputedAnchorPosition, Orientation} from "./anchors";
+import {AnchorOrientationHint, AnchorComputeParams, AnchorOptions, ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import { Anchor } from "./anchor";
 import {jsPlumbInstance, Size} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
