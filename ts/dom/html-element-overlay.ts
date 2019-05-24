@@ -1,23 +1,20 @@
 
-import {OverlayRenderer} from "../overlay/overlay-renderer";
+import {LabelOverlayRenderer, OverlayRenderer} from "../overlay/overlay-renderer";
 import {Overlay} from "../overlay/overlay";
 import {jsPlumbInstance, PointArray, PointXY} from "../core";
 import {Component} from "../component/component";
 import {IS, isFunction} from "../util";
 import {PaintStyle} from "../styles";
 import {Connection} from "../connector/connection-impl";
+import {LabelOverlay} from "../overlay/label-overlay";
 
 export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
 
     canvas:HTMLElement;
 
-    endpointLoc:any;
-
     cachedDimensions:PointArray;
 
-    constructor(private instance:jsPlumbInstance<HTMLElement>, public overlay: Overlay<HTMLElement>) {
-
-    }
+    constructor(public instance:jsPlumbInstance<HTMLElement>, public overlay: Overlay<HTMLElement>) { }
 
     getElement ():HTMLElement {
         if (this.canvas == null) {
@@ -69,10 +66,10 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
                     loc = parseInt("" + this.overlay.location, 10);
                     absolute = true;
                 }
-                cxy = (<Connection<HTMLElement>>component).getConnector().pointOnPath(loc, absolute);  // a connection
+                cxy = (<Connection<HTMLElement>>component).getConnector().pointOnPath(loc as number, absolute);  // a connection
             }
             else {
-                let locToUse = this.overlay.location.constructor === Array ? this.overlay.location : this.endpointLoc;
+                let locToUse:[number, number] = this.overlay.location.constructor === Array ? (this.overlay.location as [number, number]) : this.overlay.endpointLoc;
                 cxy = { x: locToUse[0] * component.w,
                     y: locToUse[1] * component.h };
             }
@@ -92,10 +89,6 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
         else {
             return {minX: 0, maxX: 0, minY: 0, maxY: 0};
         }
-    }
-
-    setText(t: string): void {
-        this.getElement().innerHTML = t;
     }
 
     setVisible(v: boolean): void {
@@ -119,4 +112,39 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
     getDimensions():[number, number] {
         return [ 1, 1 ];
     }
+
+    paint(params: any, extents?: any): void {
+        console.log("PAINT on label overlay called")
+
+        let el = this.getElement();
+        //params.component.appendDisplayElement(this.canvas);   probably need this - it helps to know which elements should be hiddne/shown on visibility change
+
+        // if (this.detached) {
+        //     this._jsPlumb.div.parentNode.removeChild(this._jsPlumb.div);
+        // }
+
+        // this.canvas.style.left = (params.component.x + params.d.minx) + "px";
+        // this.canvas.style.top = (params.component.y + params.d.miny) + "px";
+
+        this.canvas.style.left = (<any>this.overlay.component).connector.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
+        this.canvas.style.top = (<any>this.overlay.component).connector.y + params.d.miny + "px";
+    }
+}
+
+
+export class HTMLLabelElementOverlay extends HTMLElementOverlay implements LabelOverlayRenderer<HTMLElement> {
+
+    constructor(public instance:jsPlumbInstance<HTMLElement>, public overlay: LabelOverlay<HTMLElement>) {
+
+        super(instance, overlay);
+
+        this.setText(overlay.getLabel());
+
+    }
+
+    setText(t: string): void {
+        this.getElement().innerHTML = t;
+    }
+
+
 }

@@ -3,6 +3,8 @@ import {Constructable, Dictionary, jsPlumbInstance} from "../core";
 
 import {PaintStyle} from "../styles";
 import {Component} from "../component/component";
+import {SegmentBounds} from "../connector/abstract-segment";
+import {OverlayRenderer} from "./overlay-renderer";
 
 
 export interface OverlayOptions {
@@ -49,7 +51,9 @@ export interface Overlay<E> {
     show():void;
     setLabel(l:string|Function):void;
     setLocation(l:any):void;
-    location?: number ;
+
+    location?: number | [number, number] ;
+    endpointLoc?:[number, number];
 
     type:string;
 
@@ -69,8 +73,10 @@ export interface Overlay<E> {
 
     transfer (target:any):void; // not sure what to do with this, it probably needs to know about the dom.
 
-    draw(component:any, paintStyle:PaintStyle, absolutePosition?:any):any;
+    draw(component:any, paintStyle:PaintStyle, absolutePosition?:any):SegmentBounds;
     paint(params:any, extents?:any):void;
+
+    renderer:OverlayRenderer<E>;
 }
 
 

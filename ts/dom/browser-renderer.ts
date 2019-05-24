@@ -13,11 +13,12 @@ import {OverlayRenderer} from "../overlay/overlay-renderer";
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {Constructable, Dictionary, jsPlumbInstance} from "../core";
 import {Overlay} from "../overlay/overlay";
-import {HTMLElementOverlay} from "./html-element-overlay";
+import {HTMLElementOverlay, HTMLLabelElementOverlay} from "./html-element-overlay";
 import {SVGElementOverlay} from "./svg-element-overlay";
 import {ConnectorRenderer} from "../connector/connector-renderer";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
+import {LabelOverlay} from "../overlay/label-overlay";
 
 const endpointMap:Dictionary<Constructable<SvgEndpoint<any>>> = {};
 export function registerEndpointRenderer<C>(name:string, ep:Constructable<SvgEndpoint<C>>) {
@@ -26,7 +27,6 @@ export function registerEndpointRenderer<C>(name:string, ep:Constructable<SvgEnd
 
 
 export class BrowserRenderer implements Renderer<HTMLElement> {
-
 
     getPath(segment:Segment, isFirstSegment:boolean):string {
         return ({
@@ -69,7 +69,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
 
     assignOverlayRenderer(instance: jsPlumbInstance<HTMLElement>, o: Overlay<HTMLElement>): OverlayRenderer<HTMLElement> {
-        return o.type === "Label" ? new HTMLElementOverlay(instance, o) : new SVGElementOverlay(instance, o);
+        return o.type === "Label" ? new HTMLLabelElementOverlay(instance, o as LabelOverlay<HTMLElement>) : new SVGElementOverlay(instance, o);
     }
 
 

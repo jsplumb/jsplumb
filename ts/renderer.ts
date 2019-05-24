@@ -13,7 +13,7 @@ export interface Renderer<E> {
     getPath(segment:Segment, isFirstSegment:boolean):string;
 
     assignRenderer<C>(instance:jsPlumbInstance<E>, ep: EndpointRepresentation<E, C>): EndpointRenderer<E>;
-    assignOverlayRenderer(instance:jsPlumbInstance<E>, o: Overlay<E>): OverlayRenderer<E>;
+    assignOverlayRenderer(instance: jsPlumbInstance<E>, o: Overlay<E>): OverlayRenderer<E>;
     assignConnectorRenderer(instance:jsPlumbInstance<E>, c:AbstractConnector<E>):ConnectorRenderer<E>;
 
     repaint(component:Component<E>, typeDescriptor:string, options?:RepaintOptions):void;

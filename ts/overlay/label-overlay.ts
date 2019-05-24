@@ -3,8 +3,8 @@ import {Overlay} from "./overlay";
 import {isFunction, uuid} from "../util";
 import {Component} from "../component/component";
 import {PaintStyle} from "../styles";
-import {jsPlumbInstance} from "../core";
-import {OverlayRenderer} from "./overlay-renderer";
+import {jsPlumbInstance, PointArray} from "../core";
+import {LabelOverlayRenderer, OverlayRenderer} from "./overlay-renderer";
 import {OverlayFactory} from "../factory/overlay-factory";
 
 export class LabelOverlay<E> implements Overlay<E> {
@@ -16,19 +16,30 @@ export class LabelOverlay<E> implements Overlay<E> {
     type:string = "Label";
 
     isAppendedAtTopLevel: boolean = true;
-    location: number = 0.5;
+    location: number | [ number, number ];
+    endpointLoc:[number, number];
+
     id:string;
 
-    renderer:OverlayRenderer<E>;
+    cachedDimensions:PointArray;
+
+    visible:boolean = true;
+
+    renderer:LabelOverlayRenderer<E>;
 
     constructor(protected instance:jsPlumbInstance<E>, public component:Component<E>, p:any) {
         p = p || {};
         this.id = p.id  || uuid();
-        this.renderer = instance.renderer.assignOverlayRenderer(this.instance, this);
+        this.renderer = this.instance.renderer.assignOverlayRenderer(this.instance, this) as LabelOverlayRenderer<E>;
+        this.location = p.location || 0.5;
+        this.endpointLoc = p.endpointLocation == null ? [ 0.5, 0.5] : p.endpointLocation;
+        this.setLabel(p.label);
     }
 
 
     setVisible(v: boolean): void {
+        this.visible = v;
+        this.renderer.setVisible(v);
     }
 
     cleanup(force?: boolean): void {
@@ -44,11 +55,11 @@ export class LabelOverlay<E> implements Overlay<E> {
     }
 
     hide(): void {
-        this.renderer.setVisible(false);
+        this.setVisible(false);
     }
 
     show(): void {
-        this.renderer.setVisible(true);
+        this.setVisible(true);
     }
 
     setLabel(l: string | Function): void {
@@ -70,17 +81,32 @@ export class LabelOverlay<E> implements Overlay<E> {
 
 
     isVisible(): boolean {
-        return null;
+        return this.visible;
     }
 
     transfer(target: any): void {
     }
 
-    draw(component: Component<E>, paintStyle: PaintStyle, absolutePosition?: any): any {
-        return null;
+    private _getDimensions(forceRefresh?:boolean):PointArray {
+        if (this.cachedDimensions == null || forceRefresh) {
+            this.cachedDimensions = this.getDimensions();
+        }
+        return this.cachedDimensions;
+    }
+
+    getDimensions():PointArray { return [1,1];}
+
+    draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
+        console.log("DRAW on label overlay called", component)
+
+        return this.renderer.draw(component, currentConnectionPaintStyle, absolutePosition);
     }
 
     paint(params: any, extents?: any): void {
+        console.log("PAINT on label overlay called")
+
+        return this.renderer.paint(params, extents);
+
     }
 
 
