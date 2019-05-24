@@ -1,7 +1,7 @@
 import {EndpointSpec} from "./endpoint";
 import {AnchorSpec} from "./factory/anchor-factory";
 import {PaintStyle} from "./styles";
-import {OverlaySpec} from "./overlay";
+import {OverlaySpec} from "./overlay/overlay";
 import {LabelStyle} from "./label";
 import {ConnectorSpec} from "./connector";
 

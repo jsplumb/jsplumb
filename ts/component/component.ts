@@ -4,7 +4,7 @@ import {log, merge, populate} from "../util";
 import {EventGenerator} from "../event-generator";
 import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
-import {Overlay, OverlaySpec} from "../overlay";
+import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {EndpointSpec} from "../endpoint";
 import {ConnectorSpec} from "../connector";
 

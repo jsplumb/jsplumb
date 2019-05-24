@@ -1,9 +1,7 @@
 import {AnchorSpec} from "./factory/anchor-factory";
 import {PaintStyle} from "./styles";
-import {OverlaySpec} from "./overlay";
-import {Dictionary, OffsetAndSize, Size} from "./core";
+import {OverlaySpec} from "./overlay/overlay";
 import {ComponentOptions} from "./component/component";
-import {Endpoint} from "./endpoint/endpoint-impl";
 import {ConnectorSpec} from "./connector";
 import {Connection} from "./connector/connection-impl";
 

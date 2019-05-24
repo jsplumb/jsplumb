@@ -12,7 +12,7 @@ import {OverlayRenderer} from "../overlay/overlay-renderer";
 
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {Constructable, Dictionary, jsPlumbInstance} from "../core";
-import {Overlay} from "../overlay";
+import {Overlay} from "../overlay/overlay";
 import {HTMLElementOverlay} from "./html-element-overlay";
 import {SVGElementOverlay} from "./svg-element-overlay";
 import {ConnectorRenderer} from "../connector/connector-renderer";

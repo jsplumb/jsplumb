@@ -1,8 +1,8 @@
 
-import {Constructable, Dictionary, jsPlumbInstance} from "./core";
+import {Constructable, Dictionary, jsPlumbInstance} from "../core";
 
-import {PaintStyle} from "./styles";
-import {Component} from "./component/component";
+import {PaintStyle} from "../styles";
+import {Component} from "../component/component";
 
 
 export interface OverlayOptions {
@@ -73,23 +73,6 @@ export interface Overlay<E> {
     paint(params:any, extents?:any):void;
 }
 
-const overlayMap:Dictionary<Constructable<Overlay<any>>> = {};
-
-export const Overlays = {
-    get:(instance:jsPlumbInstance<any>, name:string, component:Component<any>, params:any):Overlay<any> => {
-
-        let c:Constructable<Overlay<any>> = overlayMap[name];
-        if (!c) {
-            throw {message:"jsPlumb: unknown overlay type '" + name + "'"};
-        } else {
-            return new c(instance, component, params) as Overlay<any>;
-        }
-    },
-
-    register:(name:string, overlay:Constructable<Overlay<any>>) => {
-        overlayMap[name] = overlay;
-    }
-};
 
 
 

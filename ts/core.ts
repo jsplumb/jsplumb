@@ -5,7 +5,7 @@ import {ComponentParameters} from "./component/component";
 import {PaintStyle} from "./styles";
 import {Connection} from "./connector/connection-impl";
 import {Endpoint} from "./endpoint/endpoint-impl";
-import {FullOverlaySpec, Overlay, OverlayId, OverlaySpec} from "./overlay";
+import {FullOverlaySpec, Overlay, OverlayId, OverlaySpec} from "./overlay/overlay";
 import {AnchorManager} from "./anchor-manager";
 import {
     _mergeOverrides,

@@ -1,9 +1,10 @@
-import {Component, ComponentOptions} from "../component/component";
-import {Overlay, OverlaySpec, Overlays} from "../overlay";
+import {Component, ComponentOptions} from "./component";
+import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {Dictionary, extend, jsPlumbInstance, PointArray} from "../core";
 import {LabelOverlay} from "../overlay/label-overlay";
 import {LabelStyle} from "../label";
 import {isArray, isFunction, isString, uuid} from "../util";
+import {OverlayFactory} from "../factory/overlay-factory";
 
 const _internalLabelOverlayId = "__label";
 
@@ -40,9 +41,9 @@ function _processOverlay<E>(component:OverlayCapableComponent<E>, o:OverlaySpec|
         if (oa.length === 3) {
             extend(p, oa[2]);
         }
-        _newOverlay = Overlays.get(component.instance, type, component, p);
+        _newOverlay = OverlayFactory.get(component.instance, type, component, p);
     } else if (isString(o)) {
-        _newOverlay = Overlays.get(component.instance, o as string, component, {});
+        _newOverlay = OverlayFactory.get(component.instance, o as string, component, {});
     } else {
         _newOverlay = o as Overlay<E>;
     }

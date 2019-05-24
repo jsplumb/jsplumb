@@ -1,7 +1,10 @@
 import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./dom/drag";
 import {extend} from "./core";
 
-export * from "./anchor/floating-anchor";
+export * from "./constants";
+export * from "./core";
+export * from "./defaults";
+export * from "./event-generator";
 
 export * from "./component/component";
 export * from "./component/overlay-capable-component";
@@ -25,28 +28,23 @@ export * from "./endpoint/dot-endpoint";
 export * from "./endpoint/rectangle-endpoint";
 export * from "./endpoint/blank-endpoint";
 
+export * from "./overlay/overlay";
 export * from "./overlay/label-overlay";
+export * from "./factory/overlay-factory";
 
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
+export * from "./anchor/floating-anchor";
+export * from "./continuous-anchor";
 export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
-export * from "./browser-util";
+
 export * from "./connection";
 export * from  "./connector";
-export * from "./constants";
-export * from "./continuous-anchor";
-export * from "./core";
-export * from "./defaults";
 
 export * from "./endpoint";
 export * from "./endpoint/endpoint-renderer";
 export * from "./factory/endpoint-factory";
-
-export * from "./event-generator";
-
-
-export * from "./overlay"
 
 
 export * from "./renderer";
@@ -55,6 +53,7 @@ export * from "./util";
 
 // -------------------- DOM includes ----------------------
 
+export * from "./browser-util";
 export * from "./dom/browser-renderer";
 export * from "./dom/drag";
 export * from "./svg/svg-component";

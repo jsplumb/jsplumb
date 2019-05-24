@@ -1,6 +1,4 @@
 
-
-//import {Connection} from "../connection";
 import {_timestamp, Dictionary, extend, jsPlumbInstance, TypeDescriptor} from "../core";
 import {AbstractConnector} from "./abstract-connector";
 import {Endpoint} from "../endpoint/endpoint-impl";
@@ -8,12 +6,11 @@ import {PaintStyle} from "../styles";
 import {Component} from "../component/component";
 import {OverlayCapableComponent} from "../component/overlay-capable-component";
 import {addToList, isArray, isEmpty, IS, isString, merge} from "../util";
-import {Overlay, OverlaySpec} from "../overlay";
+import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {Connectors} from "./connectors";
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
 import {ProxyConnection} from "../connection";
-import {EventGenerator} from "../event-generator";
 import {ConnectorSpec} from "../connector";
 import {EndpointSpec} from "../endpoint";
 

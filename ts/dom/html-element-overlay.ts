@@ -1,6 +1,6 @@
 
 import {OverlayRenderer} from "../overlay/overlay-renderer";
-import {Overlay} from "../overlay";
+import {Overlay} from "../overlay/overlay";
 import {jsPlumbInstance, PointArray, PointXY} from "../core";
 import {Component} from "../component/component";
 import {IS, isFunction} from "../util";

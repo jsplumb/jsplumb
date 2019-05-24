@@ -1,10 +1,11 @@
 
-import {Overlay, Overlays} from "../overlay";
+import {Overlay} from "./overlay";
 import {isFunction, uuid} from "../util";
 import {Component} from "../component/component";
 import {PaintStyle} from "../styles";
 import {jsPlumbInstance} from "../core";
 import {OverlayRenderer} from "./overlay-renderer";
+import {OverlayFactory} from "../factory/overlay-factory";
 
 export class LabelOverlay<E> implements Overlay<E> {
 
@@ -111,4 +112,4 @@ export class LabelOverlay<E> implements Overlay<E> {
 }
 
 
-Overlays.register("Label", LabelOverlay);
+OverlayFactory.register("Label", LabelOverlay);
