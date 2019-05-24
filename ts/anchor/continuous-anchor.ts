@@ -1,8 +1,7 @@
-import {AnchorId, Axis, Face, Orientation, X_AXIS_FACES, Y_AXIS_FACES, AnchorOptions} from "./factory/anchor-factory";
-import {Anchor} from "./anchor/anchor";
-import {Dictionary, jsPlumbInstance} from "./core";
-import {Endpoint} from "./endpoint/endpoint-impl";
-import {EventGenerator} from "./event-generator";
+import {AnchorId, Axis, Face, Orientation, X_AXIS_FACES, Y_AXIS_FACES, AnchorOptions} from "../factory/anchor-factory";
+import {Anchor} from "./anchor";
+import {Dictionary, jsPlumbInstance} from "../core";
+import {Endpoint} from "../endpoint/endpoint-impl";
 
 export interface ContinuousAnchorOptions extends AnchorOptions {
     faces?:Array<Face>;

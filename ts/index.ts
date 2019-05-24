@@ -35,7 +35,7 @@ export * from "./factory/overlay-factory";
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
 export * from "./anchor/floating-anchor";
-export * from "./continuous-anchor";
+export * from "./anchor/continuous-anchor";
 export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
 

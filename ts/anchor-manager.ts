@@ -5,7 +5,7 @@ import {ComputedAnchorPosition, Face} from "./factory/anchor-factory";
 import {Anchor} from "./anchor/anchor";
 import { DynamicAnchor } from "./anchor/dynamic-anchor";
 import {addToList, addWithFunction, findWithFunction, removeWithFunction, sortHelper} from "./util";
-import {ContinuousAnchor} from "./continuous-anchor";
+import {ContinuousAnchor} from "./anchor/continuous-anchor";
 
 declare const Biltong:any;
 
