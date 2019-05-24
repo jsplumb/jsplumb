@@ -1,6 +1,6 @@
 import {isArray, log} from "../util";
 import {BoundingBox, jsPlumbInstance, PointArray, PointXY} from "../core";
-import {Segment, SegmentBounds} from "./abstract-segment";
+import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {ComputedAnchorPosition, Orientation} from "../anchor/anchors";
 import {PaintStyle} from "../styles";
@@ -69,8 +69,6 @@ export interface AbstractConnectorOptions <E> extends ComponentOptions<E> {
     stub?:number;
     gap?:number;
 }
-
-const EMPTY_BOUNDS:SegmentBounds = { minX:0, maxX:0, minY:0, maxY:0 };
 
 export abstract class AbstractConnector<E> extends Component<E> {
 

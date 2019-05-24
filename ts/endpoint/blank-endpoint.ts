@@ -1,24 +1,31 @@
-import {EndpointRepresentation, Endpoints} from "./endpoints";
+import {EndpointRepresentation} from "./endpoints";
 import {ComputedAnchorPosition, Orientation} from "../anchor/anchors";
-import {PaintStyle} from "../styles";
 import {jsPlumbInstance} from "../core";
+import {EndpointFactory} from "../factory/endpoint-factory";
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ];
 
 export class BlankEndpoint<E> extends EndpointRepresentation<E, ComputedBlankEndpoint> {
 
-    type = "Blank";
-
     constructor(instance:jsPlumbInstance<E>, params?:any) {
-
         super(instance);
     }
 
     _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):ComputedBlankEndpoint {
+
+        this.x = anchorPoint[0];
+        this.y = anchorPoint[1];
+        this.w = 10;
+        this.h = 0;
+
         return [anchorPoint[0], anchorPoint[1], 10, 0];
+    }
+
+    getType(): string {
+        return "Blank";
     }
 }
 
-Endpoints.register("Blank", BlankEndpoint);
+EndpointFactory.register("Blank", BlankEndpoint);
 
 

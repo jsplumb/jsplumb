@@ -20,7 +20,7 @@ export const NONE = "none";
 export const JSPLUMB_GRADIENT = "jsplumb_gradient_";
 export const LINE_WIDTH = "strokeWidth";
 
-export type Attributes = Dictionary<string>;
+export type Attributes = Dictionary<string | number>;
 
 const ns = {
     svg: "http://www.w3.org/2000/svg"

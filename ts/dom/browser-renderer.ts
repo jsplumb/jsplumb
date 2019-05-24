@@ -10,14 +10,21 @@ import {EndpointRepresentation} from "../endpoint/endpoints";
 
 import {OverlayRenderer} from "../overlay/overlay-renderer";
 
-import {SvgEndpoint} from "../svg/svg-endpoint";
-import {jsPlumbInstance} from "../core";
+import {SvgEndpoint} from "./svg-element-endpoint";
+import {Constructable, Dictionary, jsPlumbInstance} from "../core";
 import {Overlay} from "../overlay";
 import {HTMLElementOverlay} from "./html-element-overlay";
 import {SVGElementOverlay} from "./svg-element-overlay";
 import {ConnectorRenderer} from "../connector/connector-renderer";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
+
+const endpointMap:Dictionary<Constructable<SvgEndpoint<any>>> = {};
+export function registerEndpointRenderer<C>(name:string, ep:Constructable<SvgEndpoint<C>>) {
+    endpointMap[name] = ep;
+}
+
+
 export class BrowserRenderer implements Renderer<HTMLElement> {
 
 
@@ -47,8 +54,17 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
 
-    assignRenderer(instance:jsPlumbInstance<HTMLElement>, ep: EndpointRepresentation<HTMLElement, any>): EndpointRenderer<HTMLElement> {
-        return new SvgEndpoint(instance, ep);
+    assignRenderer<C>(instance:jsPlumbInstance<HTMLElement>,
+                      ep: EndpointRepresentation<HTMLElement, C>,
+                     options?:any): EndpointRenderer<HTMLElement> {
+
+        let t = ep.getType();
+        let c:Constructable<SvgEndpoint<C>> = endpointMap[t];
+        if (!c) {
+            throw {message:"jsPlumb: no render for endpoint of type '" + t + "'"};
+        } else {
+            return new c(instance, ep, options) as SvgEndpoint<C>;
+        }
     }
 
 

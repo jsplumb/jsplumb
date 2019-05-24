@@ -1,13 +1,11 @@
-import {EndpointRepresentation, Endpoints} from "./endpoints";
+import {EndpointRepresentation} from "./endpoints";
 import {ComputedAnchorPosition, Orientation} from "../anchor/anchors";
-import {PaintStyle} from "../styles";
 import {jsPlumbInstance} from "../core";
+import {EndpointFactory} from "../factory/endpoint-factory";
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ];
 
 export class RectangleEndpoint<E> extends EndpointRepresentation<E, ComputedRectangleEndpoint> {
-
-    type = "Rectangle";
 
     width:number;
     height:number;
@@ -27,9 +25,18 @@ export class RectangleEndpoint<E> extends EndpointRepresentation<E, ComputedRect
             x = anchorPoint[0] - (width / 2),
             y = anchorPoint[1] - (height / 2);
 
+        this.x = x;
+        this.y = y;
+        this.w = width;
+        this.h = height;
+
         return [ x, y, width, height];
+    }
+
+    getType(): string {
+        return "Rectangle";
     }
 }
 
-Endpoints.register("Rectangle", RectangleEndpoint);
+EndpointFactory.register("Rectangle", RectangleEndpoint);
 

@@ -39,6 +39,8 @@ export type SegmentBounds = {
     maxY: number;
 }
 
+export const EMPTY_BOUNDS:SegmentBounds = { minX:0, maxX:0, minY:0, maxY:0 };
+
 export interface Segment {
 
     x1:number;

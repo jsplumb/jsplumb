@@ -19,9 +19,6 @@ export * from "./connector/statemachine-connector";
 export * from "./connector/straight-connector";
 export * from "./connector/straight-segment";
 
-export * from "./dom/browser-renderer";
-export * from "./dom/drag";
-
 export * from "./endpoint/endpoint-impl";
 export * from "./endpoint/endpoints";
 export * from "./endpoint/dot-endpoint";
@@ -29,10 +26,6 @@ export * from "./endpoint/rectangle-endpoint";
 export * from "./endpoint/blank-endpoint";
 
 export * from "./overlay/label-overlay";
-
-export * from "./svg/svg-component";
-export * from "./svg/svg-util";
-export * from "./svg/svg-endpoint";
 
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
@@ -48,7 +41,10 @@ export * from "./defaults";
 
 export * from "./endpoint";
 export * from "./endpoint/endpoint-renderer";
+export * from "./factory/endpoint-factory";
+
 export * from "./event-generator";
+
 
 export * from "./overlay"
 
@@ -56,6 +52,17 @@ export * from "./overlay"
 export * from "./renderer";
 export * from "./styles";
 export * from "./util";
+
+// -------------------- DOM includes ----------------------
+
+export * from "./dom/browser-renderer";
+export * from "./dom/drag";
+export * from "./svg/svg-component";
+export * from "./svg/svg-util";
+export * from "./dom/svg-element-endpoint";
+export * from "./dom/dot-endpoint-renderer";
+export * from "./dom/rectangle-endpoint-renderer";
+export * from "./dom/blank-endpoint-renderer";
 
 
 

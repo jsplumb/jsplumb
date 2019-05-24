@@ -1,17 +1,16 @@
 import {EndpointOptions, EndpointSpec} from "../endpoint";
 import {Component} from "../component/component";
 import {extend, jsPlumbInstance, OffsetAndSize, Size, Timestamp} from "../core";
-//import {Connection} from "../connection";
 import {ComputedAnchorPosition, makeAnchorFromSpec} from "../anchor/anchors";
 import {Anchor} from "../anchor/anchor";
-import {EndpointRenderer} from "../endpoint/endpoint-renderer";
 import {OverlayCapableComponent} from "../component/overlay-capable-component";
 import {addToList, isArray, isString, merge, removeWithFunction} from "../util";
 import {AnchorComputeParams} from "../anchor/anchors";
 import {Connection} from "../connector/connection-impl";
 import {PaintStyle} from "../styles";
 import {ConnectorSpec} from "../connector";
-import {EndpointRepresentation, Endpoints} from "./endpoints";
+import {EndpointRepresentation} from "./endpoints";
+import {EndpointFactory} from "../factory/endpoint-factory";
 
 function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint<E>, elementWithPrecedence?:string):Connection<E> {
     let idx = 0;
@@ -446,8 +445,8 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
                     ap = this.anchor.compute(anchorParams);
                 }
 
-                this.endpoint._compute(ap, this.anchor.getOrientation(this), this._jsPlumb.paintStyleInUse);
-                this.endpoint.paint(this._jsPlumb.paintStyleInUse, this.anchor);
+                this.endpoint.compute(ap, this.anchor.getOrientation(this), this._jsPlumb.paintStyleInUse);
+                this.endpoint.paint(this._jsPlumb.paintStyleInUse);
                 this.timestamp = timestamp;
 
                 // paint overlays
@@ -480,11 +479,11 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         let endpoint:EndpointRepresentation<E, C>;
 
         if (isString(ep)) {
-            endpoint = Endpoints.get(this.instance, ep as string, endpointArgs);
+            endpoint = EndpointFactory.get(this.instance, ep as string, endpointArgs);
         }
         else if (isArray(ep)) {
             endpointArgs = merge(ep[1], endpointArgs);
-            endpoint = Endpoints.get(this.instance, ep[0] as string, endpointArgs);
+            endpoint = EndpointFactory.get(this.instance, ep[0] as string, endpointArgs);
         }
 
         // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
@@ -495,11 +494,11 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         endpoint.clone = () => {
             // TODO this, and the code above, can be refactored to be more dry.
             if (isString(ep)) {
-                return Endpoints.get(this.instance, ep as string, endpointArgs);
+                return EndpointFactory.get(this.instance, ep as string, endpointArgs);
             }
             else if (isArray(ep)) {
                 endpointArgs = merge(ep[1], endpointArgs);
-                return Endpoints.get(this.instance, ep[0] as string, endpointArgs);
+                return EndpointFactory.get(this.instance, ep[0] as string, endpointArgs);
             }
         };
 

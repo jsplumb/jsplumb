@@ -1,13 +1,12 @@
-import {EndpointRepresentation, Endpoints} from "./endpoints";
+import {EndpointRepresentation} from "./endpoints";
 import {ComputedAnchorPosition, Orientation} from "../anchor/anchors";
 import {PaintStyle} from "../styles";
 import {jsPlumbInstance} from "../core";
+import {EndpointFactory} from "../factory/endpoint-factory";
 
 export type ComputedDotEndpoint = [ number, number, number, number, number ];
 
 export class DotEndpoint<E> extends EndpointRepresentation<E, ComputedDotEndpoint> {
-
-    type = "Dot";
 
     radius:number;
     defaultOffset:number;
@@ -37,8 +36,19 @@ export class DotEndpoint<E> extends EndpointRepresentation<E, ComputedDotEndpoin
             w += (lw * 2);
             h += (lw * 2);
         }
+
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+
         return [ x, y, w, h, this.radius ];
+    }
+
+
+    getType(): string {
+        return "Dot";
     }
 }
 
-Endpoints.register("Dot", DotEndpoint);
+EndpointFactory.register("Dot", DotEndpoint);
