@@ -6,6 +6,9 @@ export * from "./core";
 export * from "./defaults";
 export * from "./event-generator";
 
+export * from "./group/group";
+export * from "./group/group-manager";
+
 export * from "./component/component";
 export * from "./component/overlay-capable-component";
 
@@ -56,6 +59,7 @@ export * from "./util";
 export * from "./browser-util";
 export * from "./dom/browser-renderer";
 export * from "./dom/drag";
+export * from "./dom/drag-manager";
 export * from "./svg/svg-component";
 export * from "./svg/svg-util";
 export * from "./dom/svg-element-endpoint";
