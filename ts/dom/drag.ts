@@ -1,9 +1,18 @@
 import {jsPlumbDefaults} from "../defaults";
-import {Dictionary, jsPlumbInstance, Offset, Size} from "../core";
+import {BoundingBox, Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
 import {fastTrim, isArray, isString, log} from "../util";
+import {PaintStyle} from "../styles";
+import {Anchor} from "../anchor/anchor";
+import {Endpoint} from "../endpoint/endpoint-impl";
+import {Group} from "../group/group";
+import {FloatingAnchor} from "../anchor/floating-anchor";
+import {DragManager} from "./drag-manager";
 
 declare const Mottle:any;
+declare const Biltong:any;
+declare const Katavorio:any;
+
 
 export interface DragEventCallbackOptions {
     drag: object; // The associated Drag instance
@@ -95,13 +104,151 @@ function _classManip(el:HTMLElement, classesToAdd:string | Array<string>, classe
     _setClassName(el, curClasses.join(" "), curClasses);
 }
 
+function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:jsPlumbInstance<HTMLElement>, negate?:boolean):boolean {
+    let t = evt.target || evt.srcElement, 
+        ok = false,
+        sel = _instance.getSelector(_el, selector);
+    
+    for (let j = 0; j < sel.length; j++) {
+        if (sel[j] === t) {
+            ok = true;
+            break;
+        }
+    }
+    return negate ? !ok : ok;
+}
+
+// creates a placeholder div for dragging purposes, adds it, and pre-computes its offset.
+function _makeDraggablePlaceholder(placeholder:any, instance:jsPlumbInstance<HTMLElement>, ipco:any, ips:any):HTMLElement {
+    let n = instance.createElement("div", { position : "absolute" });
+    instance.appendElement(n);
+    let id = instance.getId(n);
+    instance.setPosition(n, ipco);
+    n.style.width = ips[0] + "px";
+    n.style.height = ips[1] + "px";
+    instance.manage(id, n); // TRANSIENT MANAGE
+    // create and assign an id, and initialize the offset.
+    placeholder.id = id;
+    placeholder.element = n;
+    return n;
+}
+
+// create a floating endpoint (for drag connections)
+function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor<HTMLElement>, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:jsPlumbInstance<HTMLElement>, scope?:string) {
+    let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas });
+    //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
+    // adding the floating endpoint as a droppable.  that makes more sense anyway!
+    // TRANSIENT MANAGE
+    return instance.newEndpoint({
+        paintStyle: paintStyle,
+        endpoint: endpoint,
+        anchor: floatingAnchor,
+        source: sourceElement,
+        scope: scope
+    });
+}
+
+
+
+
+// var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
+//     _jk = root.Katavorio, _jg = root.Biltong;
+
+// var _getEventManager = function(instance) {
+//     var e = instance._mottle;
+//     if (!e) {
+//         e = instance._mottle = new root.Mottle();
+//     }
+//     return e;
+// };
+
+function hasManagedParent(container:HTMLElement, el:HTMLElement):boolean {
+    let _el = <any>el;
+    let pn:any = _el.parentNode;
+    while (pn != null && pn !== container) {
+        if (pn.getAttribute("jtk-managed") != null) {
+            return true;
+        } else {
+            pn = pn.parentNode;
+        }
+    }
+}
+
+// var _dragOffset = null, _groupLocations = [], _intersectingGroups = [], payload;
+
+function _animProps (o:any, p:any):[any, any] {
+    const _one = (pName:any) => {
+        if (p[pName] != null) {
+            if (isString(p[pName])) {
+                let m = p[pName].match(/-=/) ? -1 : 1,
+                    v = p[pName].substring(2);
+                return o[pName] + (m * v);
+            }
+            else {
+                return p[pName];
+            }
+        }
+        else {
+            return o[pName];
+        }
+    };
+    return [ _one("left"), _one("top") ];
+}
+
+function _genLoc (prefix:string, e?:Event):PointArray {
+    if (e == null) {
+        return [ 0, 0 ];
+    }
+    let ts = _touches(e), t = _getTouch(ts, 0);
+    return [t[prefix + "X"], t[prefix + "Y"]];
+}
+
+const _pageLocation = _genLoc.bind(null, "page");
+
+const _screenLocation = _genLoc.bind(null, "screen");
+
+const _clientLocation = _genLoc.bind(null, "client");
+
+function _getTouch (touches:any, idx:number):Touch {
+    return touches.item ? touches.item(idx) : touches[idx];
+}
+function _touches (e:Event):Array<Touch> {
+    let _e = <any>e;
+    return _e.touches && _e.touches.length > 0 ? _e.touches :
+        _e.changedTouches && _e.changedTouches.length > 0 ? _e.changedTouches :
+            _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches :
+                [ _e ];
+}
+
+
+type IntersectingGroup<E> = {
+    group:Group<E>;
+    d:number;
+}
+
+type GroupLocation<E> = {
+    el:E;
+    r: BoundingBox;
+    group: Group<E>;
+}
+
+// ------------------------------------------------------------------------------------------------------------
+
 export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
-    eventManager:any;
+
+
+    dragManager:DragManager;
+
+    _dragOffset:Offset = null;
+    _groupLocations:Array<GroupLocation<HTMLElement>> = [];
+    _intersectingGroups:Array<IntersectingGroup<HTMLElement>> = [];
+    payload:any;
 
     constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, new BrowserRenderer(), defaults);
-        this.eventManager = new Mottle();
+        //this.eventManager = new Mottle();
+        this.dragManager = new DragManager(this);
     }
 
     getElement(el:HTMLElement|string):HTMLElement {
@@ -333,4 +480,218 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         return sel;
     }
+
+    setPosition(el:HTMLElement, p:Offset):void {
+        el.style.left = p.left + "px";
+        el.style.top = p.top + "px";
+    }
+
+    //
+    // TODO investigate if this is still entirely necessary, since its only used by the drag stuff yet is declared as abstract on the jsPlumbInstance class.
+    //
+    getUIPosition(eventArgs:any):Offset {
+        // here the position reported to us by Katavorio is relative to the element's offsetParent. For top
+        // level nodes that is fine, but if we have a nested draggable then its offsetParent is actually
+        // not going to be the jsplumb container; it's going to be some child of that element. In that case
+        // we want to adjust the UI position to account for the offsetParent's position relative to the Container
+        // origin.
+        let el = eventArgs[0].el;
+        if (el.offsetParent == null) {
+            return null;
+        }
+        let finalPos = eventArgs[0].finalPos || eventArgs[0].pos;
+        let p = { left:finalPos[0], top:finalPos[1] };
+        if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
+            let oc = this.getOffset(el.offsetParent);
+            p.left += oc.left;
+            p.top += oc.top;
+        }
+        return p;
+    }
+
+    _dragStop (params:any):void {
+
+        let elements = params.selection, uip;
+
+        if (elements.length === 0) {
+            elements = [ [ params.el, {left:params.finalPos[0], top:params.finalPos[1] }, params.drag ] ];
+        }
+
+        const _one = (_e:any) => {
+            const dragElement = _e[2].getDragElement();
+            if (_e[1] != null) {
+                // run the reported offset through the code that takes parent containers
+                // into account, to adjust if necessary (issue 554)
+                uip = this.getUIPosition([{
+                    el:dragElement,
+                    pos:[_e[1].left, _e[1].top]
+                }]);
+                if (this._dragOffset) {
+                    uip.left += this._dragOffset.left;
+                    uip.top += this._dragOffset.top;
+                }
+                this._draw(dragElement, uip);
+
+                this.fire("drag:stop", {
+                    el:dragElement,
+                    e:params.e,
+                    pos:uip
+                });
+            }
+
+            this.removeClass(_e[0], "jtk-dragged");
+            this.select({source: dragElement}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+            this.select({target: dragElement}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+
+        };
+
+        for (let i = 0; i < elements.length; i++) {
+            _one(elements[i]);
+        }
+
+        if (this._intersectingGroups.length > 0) {
+            // we only support one for the time being
+            let targetGroup = this._intersectingGroups[0].group;
+            let currentGroup = params.el._jsPlumbGroup;
+            if (currentGroup !== targetGroup) {
+                if (currentGroup != null) {
+                    if (currentGroup.overrideDrop(params.el, targetGroup)) {
+                        return;
+                    }
+                }
+                this.groupManager.addToGroup(targetGroup, params.el, false);
+            }
+        }
+
+
+        this._groupLocations.forEach((groupLoc:any) => {
+            this.removeClass(groupLoc.el, "jtk-drag-active");
+            this.removeClass(groupLoc.el, "jtk-drag-hover");
+        });
+
+        this._groupLocations.length = 0;
+        this.hoverSuspended = false;
+        this.isConnectionBeingDragged = false;
+        this._dragOffset = null;
+    }
+
+    _beforeDragStart (beforeStartParams:any):void {
+        this.payload = beforeStartParams.e.payload || {};
+    }
+
+    _dragMove (params:any):void {
+
+        const el = params.drag.getDragElement();
+        const finalPos = params.finalPos || params.pos;
+        const elSize = this.getSize(el);
+        const ui = { left:finalPos[0], top:finalPos[1] };
+
+        if (ui != null) {
+
+            this._intersectingGroups.length = 0;
+
+            // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
+            // have been supplied to the instance's dragOptions.
+            //var o = el._jsPlumbDragOptions || {};
+
+            if (this._dragOffset != null) {
+                ui.left += this._dragOffset.left;
+                ui.top += this._dragOffset.top;
+            }
+
+            const bounds = { x:ui.left, y:ui.top, w:elSize[0], h:elSize[1] };
+
+            // TODO  calculate if there is a target group
+            this._groupLocations.forEach((groupLoc:any) => {
+                if (Biltong.intersects(bounds, groupLoc.r)) {
+                    this.addClass(groupLoc.el, "jtk-drag-hover");
+                    this._intersectingGroups.push(groupLoc);
+                } else {
+                    this.removeClass(groupLoc.el, "jtk-drag-hover");
+                }
+            });
+
+            this._draw(el, ui, null);
+
+            this.fire("drag:move", {
+                el:el,
+                e:params.e,
+                pos:ui
+            });
+
+            // if (o._dragging) {
+            //     instance.addClass(el, "jtk-dragged");
+            // }
+            // o._dragging = true;
+        }
+    }
+
+    _dragStart (params:any):boolean {
+        const el = params.drag.getDragElement();
+
+        if(hasManagedParent(this.getContainer(), el) && el.offsetParent._jsPlumbGroup == null) {
+            return false;
+        } else {
+
+            // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
+            // have been supplied to the instance's dragOptions.
+
+            let options = el._jsPlumbDragOptions || {};
+            if (el._jsPlumbGroup) {
+                this._dragOffset = this.getOffset(el.offsetParent);
+            }
+
+            let cont = true;
+            if (options.canDrag) {
+                cont = options.canDrag();
+            }
+            if (cont) {
+
+                this._groupLocations.length = 0;
+                this._intersectingGroups.length = 0;
+
+                //
+                // is it the best way to do it via the dom? the group manager can give all the groups, and also whether they are
+                // collapsed etc
+                //
+
+                if (!el._isJsPlumbGroup && (!el._jsPlumbGroup || el._jsPlumbGroup.constrain !== true)) {
+                    this.groupManager.groups.forEach((group:Group<HTMLElement>) => {
+                        if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
+                            let groupEl = group.el,
+                                s = this.getSize(groupEl),
+                                o = this.getOffset(groupEl),
+                                boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
+
+                            this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
+                            this.addClass(groupEl, "jtk-drag-active");
+                        }
+                    });
+                }
+
+                // instance.getSelector(instance.getContainer(), "[jtk-group]").forEach(function(candidate) {
+                //     if (candidate._jsPlumbGroup && candidate._jsPlumbGroup.droppable !== false && candidate._jsPlumbGroup.enabled !== false) {
+                //         var o = instance.getOffset(candidate), s = instance.getSize(candidate);
+                //         var boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
+                //         _groupLocations.push({el:candidate, r:boundingRect, group:el._jsPlumbGroup});
+                //
+                //         // _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
+                //     }
+                //
+                // });
+
+                this.hoverSuspended = true;
+                this.select({source: el}).addClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
+                this.select({target: el}).addClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+                this.isConnectionBeingDragged = true;
+
+                this.fire("drag:start", {
+                    el:el,
+                    e:params.e
+                });
+            }
+            return cont;
+        }
+    }
+
 }
