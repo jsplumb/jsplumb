@@ -27,6 +27,7 @@ import { Anchor } from "./anchor/anchor";
 import {DynamicAnchor} from "./anchor/dynamic-anchor";
 import {EndpointOptions, EndpointSpec} from "./endpoint";
 import {ConnectorSpec} from "./connector";
+import {GroupManager} from "./group/group-manager";
 
 declare const jsPlumb:any;
 
@@ -125,6 +126,9 @@ interface AbstractSelection<T, E> {
     isSuspendEvents:() => boolean;
 
     "delete": () => void;
+
+    addClass:(clazz:string, updateAttachedElements?:boolean) => void;
+    removeClass:(clazz:string, updateAttachedElements?:boolean) => void;
 }
 
 export interface AbstractSelectOptions<E> {
@@ -273,10 +277,16 @@ type ManagedElement<E> = {
     connections?:Array<Connection<E>>
 };
 
+declare const Mottle:any;
+
 export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     Defaults:jsPlumbDefaults;
     private _initialDefaults:jsPlumbDefaults = {};
+
+    _containerDelegations:ContainerDelegation[] = [];
+
+    eventManager:any;
 
     isConnectionBeingDragged:boolean = false;
     currentlyDragging:boolean = false;
@@ -322,10 +332,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     private _sizes:Dictionary<Size> = {};
 
     anchorManager:AnchorManager<E>;
+    groupManager:GroupManager<E>;
     _connectionTypes:Dictionary<TypeDescriptor> = {};
     _endpointTypes:Dictionary<TypeDescriptor> = {};
     _container:E;
-    _containerDelegations:ContainerDelegation[] = [];
+
     _managedElements:Dictionary<ManagedElement<E>> = {};
     _floatingConnections:Dictionary<Connection<E>> = {};
 
@@ -354,6 +365,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     abstract getSize(el:E|string):Size;
     abstract getOffset(el:E|string, relativeToRoot?:boolean, container?:E):Offset;
+    abstract setPosition(el:E, p:Offset):void;
+    abstract getUIPosition(eventArgs:any):Offset;
 
     abstract on (el:E, event:string, selector:Function | string, callback?:Function):void;
     abstract off (el:E, event:string, callback:Function):void;
@@ -397,7 +410,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         extend(this._initialDefaults, this.Defaults);
         this.DEFAULT_SCOPE = this.Defaults.scope;
 
+        this.eventManager = new Mottle();  // TODO move this. it's dom specific. but unwinding the setContainer method is more work than i want to attempt right now.
+
         this.anchorManager = new AnchorManager(this);
+        this.groupManager = new GroupManager(this);
+
+        this.setContainer(this._initialDefaults.container);
     }
 
     getContainer():E { return this._container; }
@@ -547,13 +565,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    unbindContainer ():void  {
-        if (this._container != null && this._containerDelegations.length > 0) {
-            for (let i = 0; i < this._containerDelegations.length; i++) {
-                this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
-            }
-        }
-    }
+
 
 // ------------------  element selection ------------------------
 
@@ -713,6 +725,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         //return null//this._makeEndpointSelectHandler(params.connections || this.getConnections(params, true));
     }
 
+    private unbindContainer ():void  {
+        if (this._container != null && this._containerDelegations.length > 0) {
+            for (let i = 0; i < this._containerDelegations.length; i++) {
+                this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
+            }
+        }
+    }
 
 
     setContainer(c:E|string):void {
