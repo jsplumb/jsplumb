@@ -126,12 +126,22 @@ export class LabelOverlay<E> implements Overlay<E> {
     update():void {
         if (isFunction(this.label)) {
             let lt = (this.label as Function)(this);
-            this.renderer.setText(lt.replace(/\r\n/g, "<br/>"));
+            if (lt != null) {
+                this.renderer.setText(lt.replace(/\r\n/g, "<br/>"));
+            } else {
+                this.renderer.setText("");
+            }
+
         }
         else {
             if (this.labelText == null) {
                 this.labelText = this.label as string;
-                this.renderer.setText(this.labelText.replace(/\r\n/g, "<br/>"));
+                if (this.labelText != null) {
+                    this.renderer.setText(this.labelText.replace(/\r\n/g, "<br/>"));
+                } else {
+                    this.renderer.setText("");
+                }
+
             }
         }
     }
