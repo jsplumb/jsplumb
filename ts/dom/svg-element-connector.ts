@@ -35,7 +35,7 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
             let a = {
                     d: p,
                     transform: "translate(" + offset[0] + "," + offset[1] + ")",
-                    "pointer-events": /*params["pointer-events"] ||*/ "visibleStroke"
+                    "pointer-events": "visibleStroke"
                 },
                 outlineStyle:PaintStyle = null,
                 d = [this.connector.x, this.connector.y, this.connector.w, this.connector.h];
