@@ -47,7 +47,7 @@ export abstract class SvgComponent {
             "style": "",
             "width": "0",
             "height": "0",
-            "pointer-events": this.pointerEventsSpec,
+            "pointer-events": "none",
             "position": "absolute"
         });
 
