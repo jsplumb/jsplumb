@@ -1,4 +1,5 @@
 import {PaintStyle} from "../styles";
+import {TypeDescriptor} from "../core";
 
 /**
  * Models a renderer for Endpoints. We currently have one implementation of this, using SVG elements
@@ -11,6 +12,12 @@ export interface EndpointRenderer<E> {
     cleanup(force?:boolean):void;
     destroy(force?:boolean):void;
 
+    setVisible(v:boolean):void;
+
     paint(paintStyle:PaintStyle):void;
+
+    applyType(t:TypeDescriptor):void;
+
+    getElement():E;
 
 }

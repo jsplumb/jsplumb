@@ -734,6 +734,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
 
+    //
+    // TODO this knows about the DOM. refactor
+    //
     setContainer(c:E|string):void {
 
         this.unbindContainer();
@@ -761,7 +764,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             let t:any = e.srcElement || e.target,
                 jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
             if (jp) {
-                jp.fire(id, jp, e);
+                (jp.endpoint || jp.connection).fire(id, jp.endpoint || jp.connection, e);
                 let alias = componentType ? eventAliases[componentType + id] || id : id;
                 // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
                 this.fire(alias, jp.component || jp, e);
@@ -1028,7 +1031,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.anchorManager.connectionDetached(params);
     };
 
-    private fireMoveEvent (params?:any, evt?:Event):void {
+    fireMoveEvent (params?:any, evt?:Event):void {
         this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
     }
 

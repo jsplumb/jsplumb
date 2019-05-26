@@ -7,12 +7,13 @@ import {jsPlumbInstance} from "./core";
 import {Overlay} from "./overlay/overlay";
 import {ConnectorRenderer} from "./connector/connector-renderer";
 import {AbstractConnector} from "./connector/abstract-connector";
+import {Endpoint} from "./endpoint/endpoint-impl";
 
 export interface Renderer<E> {
 
     getPath(segment:Segment, isFirstSegment:boolean):string;
 
-    assignRenderer<C>(instance:jsPlumbInstance<E>, ep: EndpointRepresentation<E, C>): EndpointRenderer<E>;
+    assignRenderer<C>(endpoint:Endpoint<E>, ep: EndpointRepresentation<E, C>): EndpointRenderer<E>;
     assignOverlayRenderer(instance: jsPlumbInstance<E>, o: Overlay<E>): OverlayRenderer<E>;
     assignConnectorRenderer(instance:jsPlumbInstance<E>, c:AbstractConnector<E>):ConnectorRenderer<E>;
 

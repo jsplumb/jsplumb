@@ -5,6 +5,7 @@ import {SvgComponentOptions} from "../svg/svg-component";
 import {jsPlumbInstance} from "../core";
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {BlankEndpoint, ComputedBlankEndpoint} from "../endpoint/blank-endpoint";
+import {Endpoint} from "../endpoint/endpoint-impl";
 
 const BLANK_ATTRIBUTES:Attributes = {
     "width": 10,
@@ -18,8 +19,8 @@ const BLANK_ATTRIBUTES:Attributes = {
  */
 class SvgElementBlankEndpointRenderer extends SvgEndpoint<ComputedBlankEndpoint> {
 
-    constructor(protected instance:jsPlumbInstance<HTMLElement>, public endpoint:BlankEndpoint<HTMLElement>, options?:SvgComponentOptions) {
-        super(instance, endpoint, options);
+    constructor(protected endpoint:Endpoint<HTMLElement>, public ep:BlankEndpoint<HTMLElement>, options?:SvgComponentOptions) {
+        super(endpoint, ep, options);
     }
 
     makeNode (style:PaintStyle) {

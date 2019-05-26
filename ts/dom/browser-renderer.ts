@@ -19,6 +19,7 @@ import {ConnectorRenderer} from "../connector/connector-renderer";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
 import {LabelOverlay} from "../overlay/label-overlay";
+import {Endpoint} from "../endpoint/endpoint-impl";
 
 const endpointMap:Dictionary<Constructable<SvgEndpoint<any>>> = {};
 export function registerEndpointRenderer<C>(name:string, ep:Constructable<SvgEndpoint<C>>) {
@@ -54,7 +55,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
 
-    assignRenderer<C>(instance:jsPlumbInstance<HTMLElement>,
+    assignRenderer<C>(endpoint:Endpoint<HTMLElement>,
                       ep: EndpointRepresentation<HTMLElement, C>,
                      options?:any): EndpointRenderer<HTMLElement> {
 
@@ -63,7 +64,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         if (!c) {
             throw {message:"jsPlumb: no render for endpoint of type '" + t + "'"};
         } else {
-            return new c(instance, ep, options) as SvgEndpoint<C>;
+            return new c(endpoint, ep, options) as SvgEndpoint<C>;
         }
     }
 

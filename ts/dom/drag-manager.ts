@@ -17,7 +17,19 @@ function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:P
     return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
 }
 
+export interface DragHandler {
+    selector:string;
+    onStart:(params:any) => boolean;
+    onDrag:(params:any) => void;
+    onStop:(params:any) => void;
+
+    onBeforeStart?:(beforeStartParams:any) => void;
+}
+
 export class DragManager {
+
+    private katavorio:any;
+    private katavorioDraggable:any;
 
     _draggables:Dictionary<any> = {};
     _dlist:Array<any> = [];
@@ -25,12 +37,14 @@ export class DragManager {
     // elementids mapped to the draggable to which they belong.
     _draggablesForElements:Dictionary<any> = {};
 
+    handlers:Array<DragHandler> = [];
+
     constructor(protected instance:BrowserJsPlumbInstance) {
 
         const e = instance.eventManager;
 
         // create a delegated drag handler
-        const katavorio = new Katavorio({
+        this.katavorio = new Katavorio({
             bind: e.on,
             unbind: e.off,
             getSize: this.instance.getSize.bind(instance),
@@ -92,7 +106,7 @@ export class DragManager {
         //(<any>this._katavorio_main = katavorio;
 
         this.instance.bind("zoom", (z:number) => {
-            katavorio.setZoom(z);
+            this.katavorio.setZoom(z);
         });
 
         //
@@ -100,13 +114,27 @@ export class DragManager {
         //
 
         //const elementDragOptions = extend({selector:"> [jtk-managed]"}, this.instance.Defaults.dragOptions || {});
-        const elementDragOptions:any = extend({selector:"> [jtk-managed]"}, {});  // we dont have dragOptions in the defaults for the time being
+        // const elementDragOptions:any = extend({selector:"> [jtk-managed]"}, {});  // we dont have dragOptions in the defaults for the time being
+        //
+        // elementDragOptions.start = wrap(elementDragOptions.start, (p:any) => { return this.instance._dragStart(p); });
+        // elementDragOptions.drag = wrap(elementDragOptions.drag, (p:any) => { return this.instance._dragMove(p); });
+        // elementDragOptions.stop = wrap(elementDragOptions.stop, (p:any) => { return this.instance._dragStop(p); });
+        //
+        // this.katavorio.draggable(this.instance.getContainer(), elementDragOptions);
+    }
 
-        elementDragOptions.start = wrap(elementDragOptions.start, (p:any) => { return this.instance._dragStart(p); });
-        elementDragOptions.drag = wrap(elementDragOptions.drag, (p:any) => { return this.instance._dragMove(p); });
-        elementDragOptions.stop = wrap(elementDragOptions.stop, (p:any) => { return this.instance._dragStop(p); });
+    addHandler(handler:DragHandler, dragOptions?:any):void {
+        const o = extend({selector:handler.selector}, dragOptions || {});
 
-        katavorio.draggable(this.instance.getContainer(), elementDragOptions);
+        o.start = wrap(o.start, (p:any) => { return handler.onStart(p); });
+        o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); });
+        o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); });
+
+        if (this.katavorioDraggable == null) {
+            this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
+        } else {
+            this.katavorioDraggable.addSelector(o);
+        }
     }
 
 }

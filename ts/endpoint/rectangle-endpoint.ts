@@ -2,6 +2,7 @@ import {EndpointRepresentation} from "./endpoints";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {jsPlumbInstance} from "../core";
 import {EndpointFactory} from "../factory/endpoint-factory";
+import {Endpoint} from "./endpoint-impl";
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ];
 
@@ -10,9 +11,9 @@ export class RectangleEndpoint<E> extends EndpointRepresentation<E, ComputedRect
     width:number;
     height:number;
 
-    constructor(instance:jsPlumbInstance<E>, params?:any) {
+    constructor(endpoint:Endpoint<E>, params?:any) {
 
-        super(instance);
+        super(endpoint);
 
         params = params || {};
         this.width = params.width || 20;

@@ -36,4 +36,12 @@ export class SVGElementOverlay implements OverlayRenderer<HTMLElement> {
     paint(params: any, extents?: any): void {
         return this.renderer.paint(params, extents);
     }
+
+    addClass(clazz: string):void {
+
+    }
+
+    removeClass(clazz: string):void {
+
+    }
 }

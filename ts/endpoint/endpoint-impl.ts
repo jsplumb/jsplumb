@@ -46,12 +46,21 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     scope:string;
     timestamp:string;
 
+    connectorClass:string;
+    connectorHoverClass:string;
+
+    _originalAnchor:any;
+    deleteAfterDragStop:boolean;
+    finalEndpoint:Endpoint<E>;
+
     isSource:boolean;
     isTarget:boolean;
     isTemporarySource:boolean;
 
     connectionsDetachable:boolean;
     reattachConnections:boolean;
+
+    referenceEndpoint:Endpoint<E>;
 
     connectionType:string;
     connector:ConnectorSpec;
@@ -110,6 +119,8 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.connectorHoverStyle = params.connectorHoverStyle;
         this.connector = params.connector;
         this.connectionType = params.connectionType;
+        this.connectorClass = params.connectorClass;
+        this.connectorHoverClass = params.connectorHoverClass;
 
         this.deleteOnEmpty = params.deleteOnEmpty === true;
 
@@ -257,10 +268,8 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
         super.setVisible(v);
 
-        if (this.canvas) {
-            // TODO DOM
-            (<any>this.canvas).style.display = v ? "block" : "none";
-        }
+        this.endpoint.setVisible(v);
+
         this[v ? "showOverlays" : "hideOverlays"]();
         if (!doNotChangeConnections) {
             for (let i = 0; i < this.connections.length; i++) {
@@ -293,9 +302,9 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
             this.scope = t.scope;
         }
         extend(t, typeParameters);
-        if (t.cssClass != null && this.canvas) {
-            this.instance.addClass(this.canvas, t.cssClass);
-        }
+
+        this.endpoint.applyType(t);
+
     }
 
     isEnabled():boolean {
@@ -329,7 +338,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return this._jsPlumb.maxConnections === 0 ? true : !(this.isFloating() || this._jsPlumb.maxConnections < 0 || this.connections.length < this._jsPlumb.maxConnections);
     }
 
-    private isFloating():boolean {
+    isFloating():boolean {
         return this.anchor != null && this.anchor.isFloating;
     }
 
@@ -479,11 +488,13 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         let endpoint:EndpointRepresentation<E, C>;
 
         if (isString(ep)) {
-            endpoint = EndpointFactory.get(this.instance, ep as string, endpointArgs);
+            endpoint = EndpointFactory.get(this, ep as string, endpointArgs);
         }
         else if (isArray(ep)) {
             endpointArgs = merge(ep[1], endpointArgs);
-            endpoint = EndpointFactory.get(this.instance, ep[0] as string, endpointArgs);
+            endpoint = EndpointFactory.get(this, ep[0] as string, endpointArgs);
+        } else if (ep instanceof EndpointRepresentation) {
+            endpoint = (ep as EndpointRepresentation<E, any>).clone()
         }
 
         // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
@@ -494,11 +505,13 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         endpoint.clone = () => {
             // TODO this, and the code above, can be refactored to be more dry.
             if (isString(ep)) {
-                return EndpointFactory.get(this.instance, ep as string, endpointArgs);
+                return EndpointFactory.get(this, ep as string, endpointArgs);
             }
             else if (isArray(ep)) {
                 endpointArgs = merge(ep[1], endpointArgs);
-                return EndpointFactory.get(this.instance, ep[0] as string, endpointArgs);
+                return EndpointFactory.get(this, ep[0] as string, endpointArgs);
+            } else if (ep instanceof EndpointRepresentation) {
+                return (ep as EndpointRepresentation<E, any>).clone()
             }
         };
 

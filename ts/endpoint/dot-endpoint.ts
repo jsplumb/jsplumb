@@ -3,6 +3,7 @@ import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {PaintStyle} from "../styles";
 import {jsPlumbInstance} from "../core";
 import {EndpointFactory} from "../factory/endpoint-factory";
+import {Endpoint} from "./endpoint-impl";
 
 export type ComputedDotEndpoint = [ number, number, number, number, number ];
 
@@ -12,9 +13,9 @@ export class DotEndpoint<E> extends EndpointRepresentation<E, ComputedDotEndpoin
     defaultOffset:number;
     defaultInnerRadius:number;
 
-    constructor(instance:jsPlumbInstance<E>, params?:any) {
+    constructor(endpoint:Endpoint<E>, params?:any) {
         
-        super(instance);
+        super(endpoint);
         
         params = params || {};
         this.radius = params.radius || 10;

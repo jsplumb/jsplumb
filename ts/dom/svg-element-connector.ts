@@ -1,4 +1,4 @@
-import {extend, jsPlumbInstance} from "../core";
+import {extend, jsPlumbInstance, TypeDescriptor} from "../core";
 import {ConnectorRenderer} from "../connector/connector-renderer";
 import {PaintStyle} from "../styles";
 import {SvgComponent} from "../svg/svg-component";
@@ -74,8 +74,16 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
     }
 
 
-    destroy(force?: boolean): any {
-        super.destroy(force);
-        this.instance.removeElement(this.path as any);
+    // shouldnt need to override, the path element was a child of the svg element.
+    // destroy(force?: boolean): any {
+    //     super.destroy(force);
+    //     this.instance.removeElement(this.path as any);
+    // }
+
+
+    applyType(t: TypeDescriptor): void {
+        if (t.cssClass != null && this.svg) {
+            this.instance.addClass(<any>this.svg, t.cssClass);
+        }
     }
 }

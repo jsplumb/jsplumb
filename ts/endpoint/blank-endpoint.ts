@@ -2,13 +2,14 @@ import {EndpointRepresentation} from "./endpoints";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {jsPlumbInstance} from "../core";
 import {EndpointFactory} from "../factory/endpoint-factory";
+import {Endpoint} from "./endpoint-impl";
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ];
 
 export class BlankEndpoint<E> extends EndpointRepresentation<E, ComputedBlankEndpoint> {
 
-    constructor(instance:jsPlumbInstance<E>, params?:any) {
-        super(instance);
+    constructor(endpoint:Endpoint<E>, params?:any) {
+        super(endpoint);
     }
 
     _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):ComputedBlankEndpoint {

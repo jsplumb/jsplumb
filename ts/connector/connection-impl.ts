@@ -106,6 +106,11 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     suspendedEndpoint:Endpoint<E>;
     suspendedIndex:number;
     suspendedElement:E;
+    suspendedElementId:string;
+    suspendedElementType:string;
+
+    _forceReattach:boolean;
+    _forceDetach:boolean;
 
     proxies:Array<ProxyConnection<E>> = [];
     
@@ -113,6 +118,11 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
     anchors:[AnchorSpec, AnchorSpec] = [ null, null ];
     anchor:AnchorSpec = null;
+
+    floatingIndex:number;
+    floatingEndpoint:Endpoint<E>;
+    floatingId:string;
+    floatingElement:E;
 
     constructor(public instance:jsPlumbInstance<E>, params:ConnectionParams<E>) {
 
@@ -332,9 +342,9 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             this.scope = t.scope;
         }
 
-        if (t.cssClass != null && this.canvas) {
-            this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
-        }
+        // if (t.cssClass != null && this.canvas) {
+        //     this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
+        // }
 
         let _anchors = null;
         // this also results in the creation of objects.
@@ -364,6 +374,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
         }
 
+        this.connector.applyType(t);
 
      //   window.jtimeEnd("apply connection type");
     }
@@ -504,8 +515,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                 this.cacheTypeItem("connector", connector, typeId);
             }
 
-            this.canvas = this.connector.canvas;
-            this.bgCanvas = this.connector.bgCanvas;
+            // this.canvas = this.connector.canvas;
+            // this.bgCanvas = this.connector.bgCanvas;
 
             // put classes from prior connector onto the canvas
             this.addClass(previousClasses);
@@ -513,12 +524,12 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             // new: instead of binding listeners per connector, we now just have one delegate on the container.
             // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
             // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
-            if (this.canvas) {
-                (<any>this.canvas)._jsPlumb = this;
-            }
-            if (this.bgCanvas) {
-                (<any>this.bgCanvas)._jsPlumb = this;
-            }
+            // if (this.canvas) {
+            //     (<any>this.canvas)._jsPlumb = this;
+            // }
+            // if (this.bgCanvas) {
+            //     (<any>this.bgCanvas)._jsPlumb = this;
+            // }
 
             if (previous != null) {
                 let o:Dictionary<Overlay<E>> = this.getOverlays();

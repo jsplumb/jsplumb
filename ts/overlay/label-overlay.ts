@@ -36,6 +36,13 @@ export class LabelOverlay<E> implements Overlay<E> {
         this.setLabel(p.label);
     }
 
+    addClass(clazz:string) {
+        this.renderer.addClass(clazz);
+    }
+
+    removeClass(clazz:string) {
+        this.renderer.removeClass(clazz);
+    }
 
     setVisible(v: boolean): void {
         this.visible = v;
@@ -97,13 +104,13 @@ export class LabelOverlay<E> implements Overlay<E> {
     getDimensions():PointArray { return [1,1];}
 
     draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
-        console.log("DRAW on label overlay called", component)
+        //console.log("DRAW on label overlay called", component)
 
         return this.renderer.draw(component, currentConnectionPaintStyle, absolutePosition);
     }
 
     paint(params: any, extents?: any): void {
-        console.log("PAINT on label overlay called")
+        //console.log("PAINT on label overlay called")
 
         return this.renderer.paint(params, extents);
 

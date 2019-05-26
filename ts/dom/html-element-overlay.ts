@@ -114,7 +114,7 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
     }
 
     paint(params: any, extents?: any): void {
-        console.log("PAINT on label overlay called")
+        //console.log("PAINT on HTML overlay called")
 
         let el = this.getElement();
         //params.component.appendDisplayElement(this.canvas);   probably need this - it helps to know which elements should be hiddne/shown on visibility change
@@ -128,6 +128,15 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
 
         this.canvas.style.left = (<any>this.overlay.component).connector.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
         this.canvas.style.top = (<any>this.overlay.component).connector.y + params.d.miny + "px";
+    }
+
+
+    addClass(clazz: string) {
+        this.instance.addClass(this.canvas, clazz);
+    }
+
+    removeClass(clazz: string) {
+        this.instance.removeClass(this.canvas, clazz);
     }
 }
 

@@ -9,6 +9,10 @@ export interface OverlayRenderer<E> {
     destroy(force?:boolean):void;
     setVisible(v:boolean):void;
 
+    addClass(clazz:string):void;
+
+    removeClass(clazz:string):void;
+
 
 
     draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray):any;

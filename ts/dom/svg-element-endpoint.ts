@@ -34,7 +34,8 @@ import {PaintStyle} from "../styles";
 import {_applyStyles, _attr, _node} from "../svg/svg-util";
 import {ComputedDotEndpoint, DotEndpoint} from "../endpoint/dot-endpoint";
 import {registerEndpointRenderer} from "./browser-renderer";
-import {extend, jsPlumbInstance} from "../core";
+import {extend, jsPlumbInstance, TypeDescriptor} from "../core";
+import {Endpoint} from "../endpoint/endpoint-impl";
 
 /**
  * Superclass for endpoint renderers that use an SVG element in the DOM.
@@ -48,8 +49,19 @@ export abstract class SvgEndpoint<C> extends SvgComponent implements EndpointRen
     abstract makeNode(s:PaintStyle):SVGElement;
     abstract updateNode(s:SVGElement):void;
 
-    constructor(protected instance:jsPlumbInstance<HTMLElement>, protected ep:EndpointRepresentation<HTMLElement, C>, options?:SvgComponentOptions) {
-        super(instance, ep, options);
+    instance:jsPlumbInstance<HTMLElement>;
+
+    constructor(protected endpoint:Endpoint<HTMLElement>, protected ep:EndpointRepresentation<HTMLElement, C>, options?:SvgComponentOptions) {
+        super(endpoint.instance, ep, extend(options || {}, { useDivWrapper:true }));
+        this.instance = endpoint.instance;
+        this.instance.addClass(<any>this.canvas, "jtk-endpoint");
+        this.instance.setAttribute(<any>this.svg, "pointer-events", "all");
+        (<any>this.canvas)._jsPlumb = {endpoint:endpoint, ep:ep};
+    }
+
+
+    getElement(): HTMLElement {
+        return <any>this.canvas;
     }
 
     paint(paintStyle: PaintStyle): void {
@@ -69,9 +81,17 @@ export abstract class SvgEndpoint<C> extends SvgComponent implements EndpointRen
             this.updateNode(this.node);
         }
 
-        _applyStyles(this.svg, this.node, s, [ this.ep.x, this.ep.y, this.ep.w, this.ep.h], null);
+        _applyStyles(this.canvas, this.node, s, [ this.ep.x, this.ep.y, this.ep.w, this.ep.h], null);
         //_pos(this.node, [ this.ep.x, this.ep.y ]);
 
     }
+
+    applyType(t: TypeDescriptor): void {
+        if (t.cssClass != null && this.svg) {
+            this.instance.addClass(<any>this.canvas, t.cssClass);
+        }
+    }
+
+
 }
 

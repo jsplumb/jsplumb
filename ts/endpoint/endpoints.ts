@@ -1,8 +1,9 @@
-import {jsPlumbInstance} from "../core";
+import {jsPlumbInstance, TypeDescriptor} from "../core";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {PaintStyle} from "../styles";
 import {EndpointRenderer} from "./endpoint-renderer";
 import {EMPTY_BOUNDS, SegmentBounds} from "../connector/abstract-segment";
+import {Endpoint} from "./endpoint-impl";
 
 /**
  * Superclass for all types of Endpoint. This class is renderer
@@ -23,11 +24,14 @@ export abstract class EndpointRepresentation<E, C> {
 
     bounds:SegmentBounds = EMPTY_BOUNDS;
 
+    instance:jsPlumbInstance<E>;
+
     abstract getType():string;
     abstract _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):C;
 
-    constructor(protected instance:jsPlumbInstance<E>) {
-        this.renderer = instance.renderer.assignRenderer(instance, this);
+    constructor(protected endpoint:Endpoint<E>) {
+        this.instance = endpoint.instance;
+        this.renderer = this.instance.renderer.assignRenderer(endpoint, this);
     }
 
     paint(paintStyle:PaintStyle) {
@@ -56,6 +60,14 @@ export abstract class EndpointRepresentation<E, C> {
         this.bounds.minY = this.y;
         this.bounds.maxX = this.x + this.w;
         this.bounds.maxY = this.y + this.h;
+    }
+
+    applyType(t:TypeDescriptor) {
+        this.renderer.applyType(t);
+    }
+
+    setVisible(v:boolean){
+        this.renderer.setVisible(v);
     }
 }
 

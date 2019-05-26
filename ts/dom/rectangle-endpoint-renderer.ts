@@ -5,14 +5,15 @@ import {SvgComponentOptions} from "../svg/svg-component";
 import {ComputedRectangleEndpoint, RectangleEndpoint} from "../endpoint/rectangle-endpoint";
 import {jsPlumbInstance} from "../core";
 import {SvgEndpoint} from "./svg-element-endpoint";
+import {Endpoint} from "../endpoint/endpoint-impl";
 
 /**
  * SVG DOM element Dot endpoint renderer.
  */
 class SvgElementRectangleEndpointRenderer extends SvgEndpoint<ComputedRectangleEndpoint> {
 
-    constructor(protected instance:jsPlumbInstance<HTMLElement>, public endpoint:RectangleEndpoint<HTMLElement>, options?:SvgComponentOptions) {
-        super(instance, endpoint, options);
+    constructor(protected endpoint:Endpoint<HTMLElement>, public ep:RectangleEndpoint<HTMLElement>, options?:SvgComponentOptions) {
+        super(endpoint, ep, options);
     }
 
     makeNode (style:PaintStyle) {

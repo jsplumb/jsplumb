@@ -126,9 +126,9 @@ export function _removeTypeCssHelper<E>(component:Component<E>, typeIndex:number
     let typeId = component._jsPlumb.types[typeIndex],
         type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
 
-    if (type != null && type.cssClass && component.canvas) {
-        component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
-    }
+    // if (type != null && type.cssClass && component.canvas) {
+    //     component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
+    // }
 }
 
 // helper method to update the hover style whenever it, or paintStyle, changes.
@@ -167,19 +167,12 @@ export interface ComponentOptions<E> {
 export abstract class Component<E> extends EventGenerator {
 
     abstract getTypeDescriptor():string;
-    // abstract repaint(options?:RepaintOptions):void;
-
     abstract getDefaultOverlayKeys():Array<string>;
+    abstract getAttachedElements():Array<Component<E>>;
+    abstract getIdPrefix():string;
 
     clone: ()=>Component<E>;
 
-    //abstract typeId:string;
-    abstract getIdPrefix():string;
-
-
-
-    canvas?:E;
-    bgCanvas?:E;
     segment?:number;
     x:number;
     y:number;
@@ -196,11 +189,9 @@ export abstract class Component<E> extends EventGenerator {
     domListeners:Array<any> = [];
     paintStyleInUse:PaintStyle;
 
-
     _defaultType:any;
 
     _jsPlumb:ComponentConfig<E>;
-    abstract getAttachedElements():Array<Component<E>>;
 
     constructor(protected instance:jsPlumbInstance<E>, params?:ComponentOptions<E>) {
 
@@ -280,7 +271,7 @@ export abstract class Component<E> extends EventGenerator {
         return r;
     }
 
-    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection<E>, dropEndpoint:Endpoint<E>, source:E, target:E):any {
+    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection<E>, dropEndpoint:Endpoint<E>, source?:E, target?:E):any {
         let r = this._jsPlumb.instance.checkCondition("beforeDrop", {
             sourceId: sourceId,
             targetId: targetId,
@@ -485,14 +476,15 @@ export abstract class Component<E> extends EventGenerator {
             this._jsPlumb.hover = hover;
             let method = hover ? "addClass" : "removeClass";
 
-            if (this.canvas != null) {
-                if (this._jsPlumb.instance.hoverClass != null) {
-                    this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
-                }
-                if (this._jsPlumb.hoverClass != null) {
-                    this._jsPlumb.instance[method](this.canvas, this._jsPlumb.hoverClass);
-                }
-            }
+            // if (this.canvas != null) {
+            //     if (this._jsPlumb.instance.hoverClass != null) {
+            //         this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
+            //     }
+            //     if (this._jsPlumb.hoverClass != null) {
+            //         this._jsPlumb.instance[method](this.canvas, this._jsPlumb.hoverClass);
+            //     }
+            // }
+
             if (this._jsPlumb.hoverPaintStyle != null) {
                 this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
                 if (!this._jsPlumb.instance.isSuspendDrawing()) {

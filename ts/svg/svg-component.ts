@@ -18,17 +18,10 @@ export abstract class SvgComponent {
     typeId:string;
     pointerEventsSpec:string;
     svg:SVGElement;
-    //path:SVGElement;
+
     renderer:any = {};
     clazz:string;
     useDivWrapper:boolean;
-
-    //refComponent:Positionable;
-
-    // x:number;
-    // y:number;
-    // w:number;
-    // h:number;
 
     canvas:HTMLElement;
     bgCanvas:HTMLElement;
@@ -155,7 +148,6 @@ export abstract class SvgComponent {
     }
 
     reattach<E>(instance:jsPlumbInstance<E>) {
-        //super.reattach(instance);
         let c = (<unknown>instance.getContainer()) as HTMLElement;
         if (this.canvas && this.canvas.parentNode == null) {
             c.appendChild(this.canvas);
@@ -166,7 +158,6 @@ export abstract class SvgComponent {
     }
 
     setVisible(v:boolean) {
-        //super.setVisible(v);
         if (this.canvas) {
             this.canvas.style.display = v ? "block" : "none";
         }
@@ -177,11 +168,30 @@ export abstract class SvgComponent {
     }
 
     setHover(b:boolean) {
-        console.log("SVG COMPONENT HOVER");
+        this.instance[b ? "addClass" : "removeClass"](this.canvas, this.instance.hoverClass);
     }
 
     destroy(force?:boolean) {
         console.log("destroy svg component");
+        if (this.canvas != null) {
+            this.instance.removeElement(this.canvas as any);
+        }
+
+        if (this.bgCanvas != null) {
+            this.instance.removeElement(this.bgCanvas as any);
+        }
+    }
+
+    addClass(clazz:string) {
+        this.instance.addClass(this.canvas as any, clazz);
+    }
+
+    removeClass(clazz:string) {
+        this.instance.removeClass(this.canvas as any, clazz);
+    }
+
+    getClass():string {
+        return this.instance.getClass(this.canvas);
     }
 
 }

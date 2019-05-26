@@ -188,23 +188,25 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
     // and wont actually work in a headless environment yet.
     //
     moveParent(newParent:E):void {
-        if (this.bgCanvas) {
-            this.instance.removeElement(this.bgCanvas);
-            this.instance.appendElement(newParent, this.bgCanvas);
-        }
-
-        if (this.canvas && (<any>this.canvas).parentNode) {
-            this.instance.removeElement(this.canvas);
-            this.instance.appendElement(newParent, this.canvas);
-
-            for (let i in this._jsPlumb.overlays) {
-                if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    let el = this._jsPlumb.overlays[i].getElement();
-                    this.instance.removeElement(el);
-                    this.instance.appendElement(newParent, el);
-                }
-            }
-        }
+        // if (this.bgCanvas) {
+        //     this.instance.removeElement(this.bgCanvas);
+        //     this.instance.appendElement(newParent, this.bgCanvas);
+        // }
+        //
+        // if (this.canvas && (<any>this.canvas).parentNode) {
+        //     this.instance.removeElement(this.canvas);
+        //     this.instance.appendElement(newParent, this.canvas);
+        //
+        //
+        // }
+        //
+        // for (let i in this._jsPlumb.overlays) {
+        //     if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
+        //         let el = this._jsPlumb.overlays[i].getElement();
+        //         this.instance.removeElement(el);
+        //         this.instance.appendElement(newParent, el);
+        //     }
+        // }
     }
 
     getLabel():string {
