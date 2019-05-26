@@ -5,6 +5,9 @@ import {SvgComponent} from "../svg/svg-component";
 import {AbstractConnector} from "../connector/abstract-connector";
 import {_appendAtIndex, _applyStyles, _attr, _node} from "../svg/svg-util";
 
+/**
+ * Renderer for a connector that uses an `svg` element in the DOM.
+ */
 export class SvgElementConnector extends SvgComponent implements ConnectorRenderer<HTMLElement> {
 
     bgPath:SVGElement;
@@ -72,14 +75,6 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
             _applyStyles(this.svg, this.path, paintStyle, d, null);
         }
     }
-
-
-    // shouldnt need to override, the path element was a child of the svg element.
-    // destroy(force?: boolean): any {
-    //     super.destroy(force);
-    //     this.instance.removeElement(this.path as any);
-    // }
-
 
     applyType(t: TypeDescriptor): void {
         if (t.cssClass != null && this.svg) {

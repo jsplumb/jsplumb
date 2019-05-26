@@ -1,5 +1,5 @@
 import {DragHandler} from "./drag-manager";
-import {BrowserJsPlumbInstance} from "./drag";
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import {Group} from "../group/group";
 import {BoundingBox, Offset} from "../core";
 

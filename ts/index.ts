@@ -1,4 +1,4 @@
-import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./dom/drag";
+import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./dom/browser-jsplumb-instance";
 import {extend} from "./core";
 
 export * from "./constants";
@@ -58,7 +58,7 @@ export * from "./util";
 
 export * from "./browser-util";
 export * from "./dom/browser-renderer";
-export * from "./dom/drag";
+export * from "./dom/browser-jsplumb-instance";
 export * from "./dom/drag-manager";
 export * from "./svg/svg-component";
 export * from "./svg/svg-util";

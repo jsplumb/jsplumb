@@ -1,12 +1,7 @@
 import {jsPlumbDefaults} from "../defaults";
-import {BoundingBox, Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
+import {Dictionary, jsPlumbInstance, Offset,Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
 import {fastTrim, isArray, isString, log} from "../util";
-import {PaintStyle} from "../styles";
-import {Anchor} from "../anchor/anchor";
-import {Endpoint} from "../endpoint/endpoint-impl";
-import {Group} from "../group/group";
-import {FloatingAnchor} from "../anchor/floating-anchor";
 import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
@@ -106,110 +101,38 @@ function _classManip(el:HTMLElement, classesToAdd:string | Array<string>, classe
     _setClassName(el, curClasses.join(" "), curClasses);
 }
 
-function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:jsPlumbInstance<HTMLElement>, negate?:boolean):boolean {
-    let t = evt.target || evt.srcElement, 
-        ok = false,
-        sel = _instance.getSelector(_el, selector);
-    
-    for (let j = 0; j < sel.length; j++) {
-        if (sel[j] === t) {
-            ok = true;
-            break;
-        }
-    }
-    return negate ? !ok : ok;
-}
-
-// creates a placeholder div for dragging purposes, adds it, and pre-computes its offset.
-// function _makeDraggablePlaceholder(placeholder:any, instance:jsPlumbInstance<HTMLElement>, ipco:any, ips:any):HTMLElement {
-//     let n = instance.createElement("div", { position : "absolute" });
-//     instance.appendElement(n);
-//     let id = instance.getId(n);
-//     instance.setPosition(n, ipco);
-//     n.style.width = ips[0] + "px";
-//     n.style.height = ips[1] + "px";
-//     instance.manage(id, n); // TRANSIENT MANAGE
-//     // create and assign an id, and initialize the offset.
-//     placeholder.id = id;
-//     placeholder.element = n;
-//     return n;
-// }
-
-// create a floating endpoint (for drag connections)
-// function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor<HTMLElement>, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:jsPlumbInstance<HTMLElement>, scope?:string) {
-//     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas });
-//     //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
-//     // adding the floating endpoint as a droppable.  that makes more sense anyway!
-//     // TRANSIENT MANAGE
-//     return instance.newEndpoint({
-//         paintStyle: paintStyle,
-//         endpoint: endpoint,
-//         anchor: floatingAnchor,
-//         source: sourceElement,
-//         scope: scope
-//     });
-// }
-
-
-
-
-// var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil,
-//     _jk = root.Katavorio, _jg = root.Biltong;
-
-// var _getEventManager = function(instance) {
-//     var e = instance._mottle;
-//     if (!e) {
-//         e = instance._mottle = new root.Mottle();
-//     }
-//     return e;
-// };
-
-// function hasManagedParent(container:HTMLElement, el:HTMLElement):boolean {
-//     let _el = <any>el;
-//     let pn:any = _el.parentNode;
-//     while (pn != null && pn !== container) {
-//         if (pn.getAttribute("jtk-managed") != null) {
-//             return true;
-//         } else {
-//             pn = pn.parentNode;
+// function _animProps (o:any, p:any):[any, any] {
+//     const _one = (pName:any) => {
+//         if (p[pName] != null) {
+//             if (isString(p[pName])) {
+//                 let m = p[pName].match(/-=/) ? -1 : 1,
+//                     v = p[pName].substring(2);
+//                 return o[pName] + (m * v);
+//             }
+//             else {
+//                 return p[pName];
+//             }
 //         }
-//     }
+//         else {
+//             return o[pName];
+//         }
+//     };
+//     return [ _one("left"), _one("top") ];
 // }
+// //
+// // function _genLoc (prefix:string, e?:Event):PointArray {
+// //     if (e == null) {
+// //         return [ 0, 0 ];
+// //     }
+// //     let ts = _touches(e), t = _getTouch(ts, 0);
+// //     return [t[prefix + "X"], t[prefix + "Y"]];
+// // }
 
-// var _dragOffset = null, _groupLocations = [], _intersectingGroups = [], payload;
-
-function _animProps (o:any, p:any):[any, any] {
-    const _one = (pName:any) => {
-        if (p[pName] != null) {
-            if (isString(p[pName])) {
-                let m = p[pName].match(/-=/) ? -1 : 1,
-                    v = p[pName].substring(2);
-                return o[pName] + (m * v);
-            }
-            else {
-                return p[pName];
-            }
-        }
-        else {
-            return o[pName];
-        }
-    };
-    return [ _one("left"), _one("top") ];
-}
-
-function _genLoc (prefix:string, e?:Event):PointArray {
-    if (e == null) {
-        return [ 0, 0 ];
-    }
-    let ts = _touches(e), t = _getTouch(ts, 0);
-    return [t[prefix + "X"], t[prefix + "Y"]];
-}
-
-const _pageLocation = _genLoc.bind(null, "page");
-
-const _screenLocation = _genLoc.bind(null, "screen");
-
-const _clientLocation = _genLoc.bind(null, "client");
+// const _pageLocation = _genLoc.bind(null, "page");
+//
+// const _screenLocation = _genLoc.bind(null, "screen");
+//
+// const _clientLocation = _genLoc.bind(null, "client");
 
 function _getTouch (touches:any, idx:number):Touch {
     return touches.item ? touches.item(idx) : touches[idx];
@@ -221,31 +144,25 @@ function _touches (e:Event):Array<Touch> {
             _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches :
                 [ _e ];
 }
-
-
-type IntersectingGroup<E> = {
-    group:Group<E>;
-    d:number;
-}
-
-type GroupLocation<E> = {
-    el:E;
-    r: BoundingBox;
-    group: Group<E>;
-}
+//
+//
+// type IntersectingGroup<E> = {
+//     group:Group<E>;
+//     d:number;
+// }
+//
+// type GroupLocation<E> = {
+//     el:E;
+//     r: BoundingBox;
+//     group: Group<E>;
+// }
 
 // ------------------------------------------------------------------------------------------------------------
 
 export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
 
-
     dragManager:DragManager;
-
-    _dragOffset:Offset = null;
-    // _groupLocations:Array<GroupLocation<HTMLElement>> = [];
-    // _intersectingGroups:Array<IntersectingGroup<HTMLElement>> = [];
-    //payload:any;
 
     constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, new BrowserRenderer(), defaults);
@@ -466,7 +383,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     getSelector(ctx:string | HTMLElement, spec:string):NodeListOf<any> {
 
-
         let sel:NodeListOf<any> = null;
         if (arguments.length === 1) {
             if (!isString(ctx)) {
@@ -518,13 +434,4 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     getDragScope(el:any):string {
         return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
     }
-
-
-
-
-    // _beforeDragStart (beforeStartParams:any):void {
-    //     this.payload = beforeStartParams.e.payload || {};
-    // }
-
-
 }

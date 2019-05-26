@@ -1,5 +1,5 @@
 import {DragHandler} from "./drag-manager";
-import {BrowserJsPlumbInstance} from "./drag";
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {addToList, findWithFunction, IS, isString} from "../util";
@@ -720,11 +720,11 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         if (dropEndpoint) {
-            dropEndpoint.removeClass(this.instance.endpointDropAllowedClass);
-            dropEndpoint.removeClass(this.instance.endpointDropForbiddenClass);
+            dropEndpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
+            dropEndpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
         }
 
-        return dropEndpoint;
+        return dropEndpoint.endpoint;
     }
 
      _maybeReattach(idx:number, originalEvent?:Event):void {

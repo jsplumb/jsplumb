@@ -1,4 +1,4 @@
-import {BrowserJsPlumbInstance} from "./drag";
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import {BoundingBox, Dictionary, extend, PointArray} from "../core";
 import {wrap} from "../util";
 
