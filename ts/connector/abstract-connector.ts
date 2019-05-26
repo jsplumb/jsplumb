@@ -1,5 +1,5 @@
 import {isArray, log} from "../util";
-import {BoundingBox, jsPlumbInstance, PointArray, PointXY} from "../core";
+import {jsPlumbInstance, PointArray, PointXY, Timestamp, TypeDescriptor} from "../core";
 import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
@@ -70,18 +70,9 @@ export interface AbstractConnectorOptions <E> extends ComponentOptions<E> {
     gap?:number;
 }
 
-export abstract class AbstractConnector<E> extends Component<E> {
+export abstract class AbstractConnector<E> {
 
     abstract type:string;
-
-
-    // TODO this shouldnt be necessary here. it's caused by AbstractConnector extending the same
-    // thing - Component - that Endpoint and Connection do, which is a continuation of the confusion
-    // between model and view that was present in jsPlumb from early on. It needs to be factored out,
-    // but not before the rewrite to Typescript is complete
-    getDefaultOverlayKeys(): Array<string> {
-        return [];
-    }
 
     renderer:ConnectorRenderer<E>;
 
@@ -96,7 +87,6 @@ export abstract class AbstractConnector<E> extends Component<E> {
     sourceGap:number;
     targetGap:number;
     segments:Array<Segment> = [];
-    userProvidedSegments:Array<Segment> = [];  // it's doubtful we need to keep this. the toolkit does path editing without needing this.
     totalLength:number = 0;
     segmentProportions:Array<[number,number]> = [];
     segmentProportionalLengths:Array<number> = [];
@@ -111,17 +101,13 @@ export abstract class AbstractConnector<E> extends Component<E> {
 
     constructor(protected instance:jsPlumbInstance<E>, params:AbstractConnectorOptions<E>) {
 
-        super(instance, params);
-
         this.stub = params.stub || 0;
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
         this.gap = params.gap || 0;
         this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
         this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
-
         this.maxStub = Math.max(this.sourceStub, this.targetStub);
-
         this.renderer = instance.renderer.assignConnectorRenderer(instance, this);
     }
 
@@ -257,15 +243,6 @@ export abstract class AbstractConnector<E> extends Component<E> {
         this.segmentProportionalLengths.length = 0;
     }
 
-    setSegments (_segs:Array<Segment>) {
-        this.userProvidedSegments.length = 0;
-        this.totalLength = 0;
-        for (let i = 0; i < _segs.length; i++) {
-            this.userProvidedSegments.push(_segs[i]);
-            this.totalLength += _segs[i].getLength();
-        }
-    };
-
     getLength ():number {
         return this.totalLength;
     }
@@ -375,11 +352,42 @@ export abstract class AbstractConnector<E> extends Component<E> {
     }
 
     paint(paintStyle:PaintStyle, extents?:any) {
-
         this.renderer.paint(paintStyle, extents);
     }
 
     getAttachedElements(): Array<Component<E>> {
         return [];
+    }
+
+    setHover(hover: boolean, ignoreAttachedElements?: boolean, timestamp?: Timestamp): void {
+        this.renderer.setHover(hover);
+    }
+
+    setVisible(v: boolean): any {
+        return this.renderer.setVisible(v);
+    }
+
+    applyType(t:TypeDescriptor) {
+        this.renderer.applyType(t);
+    }
+
+    addClass(clazz:string) {
+        this.renderer.addClass(clazz);
+    }
+
+    removeClass(clazz:string) {
+        this.renderer.removeClass(clazz);
+    }
+
+    getClass():string {
+        return this.renderer.getClass();
+    }
+
+    cleanup(force?:boolean) {
+        this.renderer.cleanup(force);
+    }
+
+    destroy(force?:boolean) {
+        this.renderer.destroy(force);
     }
 }
