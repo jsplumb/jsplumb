@@ -2,13 +2,14 @@ import {DragHandler} from "./drag-manager";
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
-import {addToList, findWithFunction, IS, isString} from "../util";
+import {addToList, each, findWithFunction, IS, isString} from "../util";
 import {Dictionary, extend, jsPlumbInstance} from "../core";
 import {Anchor} from "../anchor/anchor";
 import {PaintStyle} from "../styles";
 import { FloatingAnchor } from "../anchor/floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
 import {SvgEndpoint} from "./svg-element-endpoint";
+import {consume} from "../browser-util";
 
 type PlaceholderIfno = { id:string, element:any };
 
@@ -80,7 +81,119 @@ export class EndpointDragHandler implements DragHandler {
     _forceReattach:boolean;
     _forceDetach:boolean;
 
-    constructor(protected instance:BrowserJsPlumbInstance) { }
+    constructor(protected instance:BrowserJsPlumbInstance) {
+
+        const container = instance.getContainer();
+        let self = this;
+
+        const mousedownHandler = function(e:any) {
+
+            if (e.which === 3 || e.button === 2) {
+                return;
+            }
+
+            let targetEl:any = e.target || e.srcElement,
+                elid = instance.getId(targetEl),
+                sourceDef = self._getSourceDefinition(elid, e),
+                sourceElement = e.currentTarget,
+                def;
+
+            if (sourceDef) {
+                def = sourceDef.def;
+                // if maxConnections reached
+                let sourceCount = instance.select({source: elid}).length;
+                if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
+                    consume(e);
+                    if (def.onMaxConnections) {
+                        def.onMaxConnections({
+                            element: self,
+                            maxConnections: sourceDef.maxConnections
+                        }, e);
+                    }
+                    e.stopImmediatePropagation && e.stopImmediatePropagation();
+                    return false;
+                }
+
+                // find the position on the element at which the mouse was pressed; this is where the endpoint
+                // will be located.
+                let elxy = instance.getPositionOnElement(e, sourceElement, instance.getZoom());
+
+                // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+                // the params passed in, because after a connection is established we're going to reset the endpoint
+                // to have the anchor we were given.
+                let tempEndpointParams:any = {};
+                extend(tempEndpointParams, def);
+                tempEndpointParams.isTemporarySource = true;
+                tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
+
+                if (def.scope) {
+                    tempEndpointParams.scope = def.scope;
+                }
+
+                this.ep = instance.addEndpoint(elid, tempEndpointParams)[0];
+                this.ep.deleteOnEmpty = true;
+                // keep a reference to the anchor we want to use if the connection is finalised.
+                this.ep._originalAnchor = def.anchor || instance.Defaults.anchor;
+
+                // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
+                // of a successful connection we'll switch to that endpoint.
+                // TODO this is the same code as the programmatic endpoints create on line 1050 ish
+                if (def.uniqueEndpoint) {
+                    if (!def.endpoint) {
+                        def.endpoint = this.ep;
+                        this.ep.deleteOnEmpty = false;
+                    }
+                    else {
+                        this.ep.finalEndpoint = def.endpoint;
+                    }
+                }
+
+                // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
+                sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
+                sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
+
+                // optionally check for attributes to extract from the source element
+                let payload = {};
+                if (def.extract) {
+                    for (let att in def.extract) {
+                        let v = targetEl.getAttribute(att);
+                        if (v) {
+                            payload[def.extract[att]] = v;
+                        }
+                    }
+                }
+
+                // and then trigger its mousedown event, which will kick off a drag, which will start dragging
+                // a new connection from this endpoint.
+                instance.trigger(this.ep.endpoint.renderer.getElement(), "mousedown", e, payload);
+
+                consume(e);
+            }
+
+        };
+
+        instance.on(container , "mousedown", "[jtk-source]", mousedownHandler);
+
+        //
+        // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
+        // replaces what in previous versions was a mousedown/mouseup handler per element.
+        //
+        instance.on(container, "mouseup", "[jtk-source]", (e:Event) => {
+            console.log("a mouse up event occurred on a source element");
+            console.dir(e);
+            let el:any = e.currentTarget || e.srcElement;
+            if (el._jsPlumbOrphanedEndpoints) {
+                each(el._jsPlumbOrphanedEndpoints, (ep:any) => {
+                    if (!ep.isDeleteOnEmpty() && ep.connections.length === 0) {
+                        instance.deleteEndpoint(ep);
+                    }
+                });
+
+                el._jsPlumbOrphanedEndpoints.length = 0;
+            }
+        });
+
+    }
 
     selector: string = ".jtk-endpoint";
 
