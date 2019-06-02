@@ -2104,14 +2104,9 @@
                     sel = k.getSelection(),
                     dPos = this.params.getPosition(dragEl);
 
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var p = this.params.getPosition(sel[i].el);
-                        positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
-                    }
-                }
-                else {
-                    positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
+                for (var i = 0; i < sel.length; i++) {
+                    var p = this.params.getPosition(sel[i].el);
+                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
                 }
 
                 _dispatch("stop", {
@@ -4053,6 +4048,7 @@
             return _instanceIndex;
         };
 
+        // D
         this.setZoom = function (z, repaintEverything) {
             _zoom = z;
             _currentInstance.fire("zoom", _zoom);
@@ -4061,11 +4057,12 @@
             }
             return true;
         };
-        // CONVERTED
+        // D
         this.getZoom = function () {
             return _zoom;
         };
 
+        // D
         for (var i in this.Defaults) {
             _initialDefaults[i] = this.Defaults[i];
         }
@@ -4869,20 +4866,6 @@
                         sep.endpoint = ep;
                     }
                     ep.addConnection(c);
-
-                    //for (var t in sep) {
-
-
-
-                        // if (!sep[t].enabled) {
-                        //     return;
-                        // }
-                        // ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
-                        // if (sep[t].uniqueEndpoint) {
-                        //     sep[t].endpoint = ep;
-                        // }
-                        // ep.addConnection(c);
-                    //}
                 }
                 else {
                     ep = c.makeEndpoint(idx === 0, el, sid);
@@ -5838,63 +5821,6 @@
                 elInfo.def = _def;
                 elInfo.el._jsPlumbSourceDefinitions.push(_def);
 
-                var stopEvent = "stop",
-                    dragEvent = "drag",
-                    dragOptions = root.jsPlumb.extend({ }, p.dragOptions || {}),
-                    existingDrag = dragOptions.drag,
-                    existingStop = dragOptions.stop,
-                    ep = null,
-                    endpointAddedButNoDragYet = false;
-
-                // set scope if its not set in dragOptions but was passed in in params
-                dragOptions.scope = dragOptions.scope || p.scope;
-
-                dragOptions[dragEvent] = function () {
-                    if (existingDrag) {
-                        existingDrag.apply(this, arguments);
-                    }
-                    endpointAddedButNoDragYet = false;
-                };
-
-                dragOptions[stopEvent] = function () {
-
-                    if (existingStop) {
-                        existingStop.apply(this, arguments);
-                    }
-                    this.currentlyDragging = false;
-                    if (ep._jsPlumb != null) { // if not cleaned up...
-
-                        // reset the anchor to the anchor that was initially provided. the one we were using to drag
-                        // the connection was just a placeholder that was located at the place the user pressed the
-                        // mouse button to initiate the drag.
-                        var anchorDef = p.anchor || this.Defaults.anchor,
-                            oldAnchor = ep.anchor,
-                            oldConnection = ep.connections[0];
-
-                        var    newAnchor = this.makeAnchor(anchorDef, elid, this),
-                            _el = ep.element;
-
-                        // if the anchor has a 'positionFinder' set, then delegate to that function to find
-                        // out where to locate the anchor. issue 117.
-                        if (newAnchor.positionFinder != null) {
-                            var elPosition = _currentInstance.getOffset(_el),
-                                elSize = this.getSize(_el),
-                                dropPosition = { left: elPosition.left + (oldAnchor.x * elSize[0]), top: elPosition.top + (oldAnchor.y * elSize[1]) },
-                                ap = newAnchor.positionFinder(dropPosition, elPosition, elSize, newAnchor.constructorParams);
-
-                            newAnchor.x = ap[0];
-                            newAnchor.y = ap[1];
-                        }
-
-                        ep.setAnchor(newAnchor, true);
-                        ep.repaint();
-                        this.repaint(ep.elementId);
-                        if (oldConnection != null) {
-                            this.repaint(oldConnection.targetId);
-                        }
-                    }
-                }.bind(this);
-
             }
 
             return this;
@@ -6246,6 +6172,7 @@
         //     log = debugLog;
         // };
 
+        // D
         this.setSuspendDrawing = function (val, repaintAfterwards) {
             var curVal = _suspendDrawing;
             _suspendDrawing = val;
@@ -6260,11 +6187,13 @@
             return curVal;
         };
 
+        // D
         // returns whether or not drawing is currently suspended.
         this.isSuspendDrawing = function () {
             return _suspendDrawing;
         };
 
+        // D
         // return timestamp for when drawing was suspended.
         this.getSuspendedAt = function () {
             return _suspendedAt;
@@ -9194,15 +9123,15 @@
             },
             _path = function (segments) {
                 var anchorsPerFace = anchorCount / segments.length, a = [],
-                    _computeFace = function (x1, y1, x2, y2, fractionalLength) {
+                    _computeFace = function (x1, y1, x2, y2, fractionalLength, ox, oy) {
                         anchorsPerFace = anchorCount * fractionalLength;
                         var dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
                         for (var i = 0; i < anchorsPerFace; i++) {
                             a.push([
                                 x1 + (dx * i),
                                 y1 + (dy * i),
-                                0,
-                                0
+                                ox == null ? 0 : ox,
+                                oy == null ? 0 : oy
                             ]);
                         }
                     };
@@ -9216,16 +9145,16 @@
             _shape = function (faces) {
                 var s = [];
                 for (var i = 0; i < faces.length; i++) {
-                    s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length]);
+                    s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length, faces[i][4], faces[i][5]]);
                 }
                 return _path(s);
             },
             _rectangle = function () {
                 return _shape([
-                    [ 0, 0, 1, 0 ],
-                    [ 1, 0, 1, 1 ],
-                    [ 1, 1, 0, 1 ],
-                    [ 0, 1, 0, 0 ]
+                    [ 0, 0, 1, 0, 0, -1 ],
+                    [ 1, 0, 1, 1, 1, 0 ],
+                    [ 1, 1, 0, 1, 0, 1 ],
+                    [ 0, 1, 0, 0, -1, 0 ]
                 ]);
             };
 
@@ -13437,6 +13366,10 @@
 
         var elements = params.selection, uip;
 
+        if (elements.length === 0) {
+            elements = [ [ params.el, {left:params.finalPos[0], top:params.finalPos[1] }, params.drag ] ];
+        }
+
         var _one = function (_e) {
             var dragElement = _e[2].getDragElement();
             if (_e[1] != null) {
@@ -14899,31 +14832,31 @@
             return [ el.offsetWidth, el.offsetHeight ];
         },
         getRenderMode : function() { return "svg"; },
-        setDraggable : function (element, draggable) {
-            return jsPlumb.each(element, function (el) {
-                //if (this.isDragSupported(el)) {
-                    this._draggableStates[this.getAttribute(el, "id")] = draggable;
-                    this.setElementDraggable(el, draggable);
-                //}
-            }.bind(this));
-        },
-        _draggableStates : {},
-        /*
-         * toggles the draggable state of the given element(s).
-         * el is either an id, or an element object, or a list of ids/element objects.
-         */
-        toggleDraggable : function (el) {
-            var state;
-            jsPlumb.each(el, function (el) {
-                var elId = this.getAttribute(el, "id");
-                state = this._draggableStates[elId] == null ? false : this._draggableStates[elId];
-                state = !state;
-                this._draggableStates[elId] = state;
-                this.setDraggable(el, state);
-                return state;
-            }.bind(this));
-            return state;
-        },
+        // setDraggable : function (element, draggable) {
+        //     return jsPlumb.each(element, function (el) {
+        //         //if (this.isDragSupported(el)) {
+        //             this._draggableStates[this.getAttribute(el, "id")] = draggable;
+        //             this.setElementDraggable(el, draggable);
+        //         //}
+        //     }.bind(this));
+        // },
+        // _draggableStates : {},
+        // /*
+        //  * toggles the draggable state of the given element(s).
+        //  * el is either an id, or an element object, or a list of ids/element objects.
+        //  */
+        // toggleDraggable : function (el) {
+        //     var state;
+        //     jsPlumb.each(el, function (el) {
+        //         var elId = this.getAttribute(el, "id");
+        //         state = this._draggableStates[elId] == null ? false : this._draggableStates[elId];
+        //         state = !state;
+        //         this._draggableStates[elId] = state;
+        //         this.setDraggable(el, state);
+        //         return state;
+        //     }.bind(this));
+        //     return state;
+        // },
         animationSupported:true,
         getElement: function (el) {
             if (el == null) {
