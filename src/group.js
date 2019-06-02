@@ -152,7 +152,7 @@
                     _jsPlumb.revalidate(elId);
 
                     if (!doNotFireEvent) {
-                        var p = {group: group, el: el};
+                        var p = {group: group, el: el, pos:newPosition};
                         if (currentGroup) {
                             p.sourceGroup = currentGroup;
                         }

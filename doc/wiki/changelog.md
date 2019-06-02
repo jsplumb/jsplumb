@@ -43,6 +43,19 @@ for every scope that is assigned.
 be supported on individual `draggable(..)` method calls.
 
 
+## 2.9.4
+
+June 2nd 2019
+
+- fix `rectangle` and `square` Perimeter anchors so that their orientation is correct for each face.
+
+## 2.9.3
+
+May 9th 2019
+
+- Upgrade to Katavorio 1.4.5
+- support "scoped root" selectors in delegated draggables
+
 ## 2.9.2
 
 April 22nd 2019
