@@ -368,8 +368,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     abstract setPosition(el:E, p:Offset):void;
     abstract getUIPosition(eventArgs:any):Offset;
 
-    abstract on (el:E, event:string, selector:Function | string, callback?:Function):void;
+    abstract on (el:E, event:string, callbackOrSelector:Function | string, callback?:Function):void;
     abstract off (el:E, event:string, callback:Function):void;
+    abstract trigger(el:E, event:string, originalEvent?:Event, payload?:any):void;
 
     abstract createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):E;
     abstract createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):E;
