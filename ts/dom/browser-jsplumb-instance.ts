@@ -1,5 +1,5 @@
 import {jsPlumbDefaults} from "../defaults";
-import {Dictionary, jsPlumbInstance, Offset,Size} from "../core";
+import {Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
 import {fastTrim, isArray, isString, log} from "../util";
 import {DragManager} from "./drag-manager";
@@ -120,15 +120,15 @@ function _classManip(el:HTMLElement, classesToAdd:string | Array<string>, classe
 //     return [ _one("left"), _one("top") ];
 // }
 // //
-// // function _genLoc (prefix:string, e?:Event):PointArray {
-// //     if (e == null) {
-// //         return [ 0, 0 ];
-// //     }
-// //     let ts = _touches(e), t = _getTouch(ts, 0);
-// //     return [t[prefix + "X"], t[prefix + "Y"]];
-// // }
+function _genLoc (prefix:string, e?:Event):PointArray {
+    if (e == null) {
+        return [ 0, 0 ];
+    }
+    let ts = _touches(e), t = _getTouch(ts, 0);
+    return [t[prefix + "X"], t[prefix + "Y"]];
+}
 
-// const _pageLocation = _genLoc.bind(null, "page");
+const _pageLocation = _genLoc.bind(null, "page");
 //
 // const _screenLocation = _genLoc.bind(null, "screen");
 //
@@ -291,7 +291,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         el.removeAttribute && el.removeAttribute(attName);
     }
 
-    on (el:HTMLElement, event:string, callback:Function) {
+    on (el:HTMLElement, event:string, callbackOrSelector:Function|string, callback?:Function) {
         // TODO: here we would like to map the tap event if we know its
         // an internal bind to a click. we have to know its internal because only
         // then can we be sure that the UP event wont be consumed (tap is a synthesized
@@ -304,6 +304,10 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     off (el:HTMLElement, event:string, callback:Function) {
         this.eventManager.off.apply(this, arguments);
         return this;
+    }
+
+    trigger(el:HTMLElement, event:string, originalEvent?:Event, payload?:any) {
+        this.eventManager.trigger(el, event, originalEvent, payload);
     }
 
     getOffset(el:HTMLElement, relativeToRoot?:boolean, container?:HTMLElement):Offset {
@@ -433,5 +437,26 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     getDragScope(el:any):string {
         return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
+    }
+
+    getPositionOnElement(evt:Event, el:HTMLElement, zoom:number) {
+        let box:any = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
+            body = document.body,
+            docElem = document.documentElement,
+            scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+            scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+            clientTop = docElem.clientTop || body.clientTop || 0,
+            clientLeft = docElem.clientLeft || body.clientLeft || 0,
+            pst = 0,
+            psl = 0,
+            top = box.top + scrollTop - clientTop + (pst * zoom),
+            left = box.left + scrollLeft - clientLeft + (psl * zoom),
+            cl = _pageLocation(evt),
+            w = box.width || (el.offsetWidth * zoom),
+            h = box.height || (el.offsetHeight * zoom),
+            x = (cl[0] - left) / w,
+            y = (cl[1] - top) / h;
+
+        return [ x, y ];
     }
 }
