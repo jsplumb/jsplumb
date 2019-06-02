@@ -2104,14 +2104,9 @@
                     sel = k.getSelection(),
                     dPos = this.params.getPosition(dragEl);
 
-                if (sel.length > 0) {
-                    for (var i = 0; i < sel.length; i++) {
-                        var p = this.params.getPosition(sel[i].el);
-                        positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
-                    }
-                }
-                else {
-                    positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
+                for (var i = 0; i < sel.length; i++) {
+                    var p = this.params.getPosition(sel[i].el);
+                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
                 }
 
                 _dispatch("stop", {
@@ -4006,7 +4001,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.9.3";
+        this.version = "2.9.4";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -10183,15 +10178,15 @@
             },
             _path = function (segments) {
                 var anchorsPerFace = anchorCount / segments.length, a = [],
-                    _computeFace = function (x1, y1, x2, y2, fractionalLength) {
+                    _computeFace = function (x1, y1, x2, y2, fractionalLength, ox, oy) {
                         anchorsPerFace = anchorCount * fractionalLength;
                         var dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
                         for (var i = 0; i < anchorsPerFace; i++) {
                             a.push([
                                 x1 + (dx * i),
                                 y1 + (dy * i),
-                                0,
-                                0
+                                ox == null ? 0 : ox,
+                                oy == null ? 0 : oy
                             ]);
                         }
                     };
@@ -10205,16 +10200,16 @@
             _shape = function (faces) {
                 var s = [];
                 for (var i = 0; i < faces.length; i++) {
-                    s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length]);
+                    s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length, faces[i][4], faces[i][5]]);
                 }
                 return _path(s);
             },
             _rectangle = function () {
                 return _shape([
-                    [ 0, 0, 1, 0 ],
-                    [ 1, 0, 1, 1 ],
-                    [ 1, 1, 0, 1 ],
-                    [ 0, 1, 0, 0 ]
+                    [ 0, 0, 1, 0, 0, -1 ],
+                    [ 1, 0, 1, 1, 1, 0 ],
+                    [ 1, 1, 0, 1, 0, 1 ],
+                    [ 0, 1, 0, 0, -1, 0 ]
                 ]);
             };
 
