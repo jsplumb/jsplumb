@@ -511,6 +511,7 @@
             return _instanceIndex;
         };
 
+        // D
         this.setZoom = function (z, repaintEverything) {
             _zoom = z;
             _currentInstance.fire("zoom", _zoom);
@@ -519,11 +520,12 @@
             }
             return true;
         };
-        // CONVERTED
+        // D
         this.getZoom = function () {
             return _zoom;
         };
 
+        // D
         for (var i in this.Defaults) {
             _initialDefaults[i] = this.Defaults[i];
         }
@@ -1327,20 +1329,6 @@
                         sep.endpoint = ep;
                     }
                     ep.addConnection(c);
-
-                    //for (var t in sep) {
-
-
-
-                        // if (!sep[t].enabled) {
-                        //     return;
-                        // }
-                        // ep = sep[t].endpoint != null && sep[t].endpoint._jsPlumb ? sep[t].endpoint : this.addEndpoint(el, sep[t].def);
-                        // if (sep[t].uniqueEndpoint) {
-                        //     sep[t].endpoint = ep;
-                        // }
-                        // ep.addConnection(c);
-                    //}
                 }
                 else {
                     ep = c.makeEndpoint(idx === 0, el, sid);
@@ -2296,63 +2284,6 @@
                 elInfo.def = _def;
                 elInfo.el._jsPlumbSourceDefinitions.push(_def);
 
-                var stopEvent = "stop",
-                    dragEvent = "drag",
-                    dragOptions = root.jsPlumb.extend({ }, p.dragOptions || {}),
-                    existingDrag = dragOptions.drag,
-                    existingStop = dragOptions.stop,
-                    ep = null,
-                    endpointAddedButNoDragYet = false;
-
-                // set scope if its not set in dragOptions but was passed in in params
-                dragOptions.scope = dragOptions.scope || p.scope;
-
-                dragOptions[dragEvent] = function () {
-                    if (existingDrag) {
-                        existingDrag.apply(this, arguments);
-                    }
-                    endpointAddedButNoDragYet = false;
-                };
-
-                dragOptions[stopEvent] = function () {
-
-                    if (existingStop) {
-                        existingStop.apply(this, arguments);
-                    }
-                    this.currentlyDragging = false;
-                    if (ep._jsPlumb != null) { // if not cleaned up...
-
-                        // reset the anchor to the anchor that was initially provided. the one we were using to drag
-                        // the connection was just a placeholder that was located at the place the user pressed the
-                        // mouse button to initiate the drag.
-                        var anchorDef = p.anchor || this.Defaults.anchor,
-                            oldAnchor = ep.anchor,
-                            oldConnection = ep.connections[0];
-
-                        var    newAnchor = this.makeAnchor(anchorDef, elid, this),
-                            _el = ep.element;
-
-                        // if the anchor has a 'positionFinder' set, then delegate to that function to find
-                        // out where to locate the anchor. issue 117.
-                        if (newAnchor.positionFinder != null) {
-                            var elPosition = _currentInstance.getOffset(_el),
-                                elSize = this.getSize(_el),
-                                dropPosition = { left: elPosition.left + (oldAnchor.x * elSize[0]), top: elPosition.top + (oldAnchor.y * elSize[1]) },
-                                ap = newAnchor.positionFinder(dropPosition, elPosition, elSize, newAnchor.constructorParams);
-
-                            newAnchor.x = ap[0];
-                            newAnchor.y = ap[1];
-                        }
-
-                        ep.setAnchor(newAnchor, true);
-                        ep.repaint();
-                        this.repaint(ep.elementId);
-                        if (oldConnection != null) {
-                            this.repaint(oldConnection.targetId);
-                        }
-                    }
-                }.bind(this);
-
             }
 
             return this;
@@ -2704,6 +2635,7 @@
         //     log = debugLog;
         // };
 
+        // D
         this.setSuspendDrawing = function (val, repaintAfterwards) {
             var curVal = _suspendDrawing;
             _suspendDrawing = val;
@@ -2718,11 +2650,13 @@
             return curVal;
         };
 
+        // D
         // returns whether or not drawing is currently suspended.
         this.isSuspendDrawing = function () {
             return _suspendDrawing;
         };
 
+        // D
         // return timestamp for when drawing was suspended.
         this.getSuspendedAt = function () {
             return _suspendedAt;
