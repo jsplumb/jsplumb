@@ -107,7 +107,14 @@
             <div class="explanation">
                 <i class="fa fa-info-circle"></i>
                 <h4>List items</h4>
-                <p>Demonstrates how to connect items in two lists</p>
+                <p>Demonstrates how to connect items in lists. One list is configured with a <strong>jtk-scrollable-list</strong> attribute set, meaning jsPlumb finds it
+                automatically. The other list is configured programmatically via an <strong>addList(..)</strong> call on the jsPlumb instance.
+                </p>
+                <p>
+                    When you scroll a list and a connected item inside of it leaves the list's viewport, any connections to that item are stacked on the list element. When you use
+                    the `jtk-scrollable-list` attribute you cannot control the placement of the anchor or the appearance of the endpoint, but using `addList(..)` you can control both
+                    of these things.
+                </p>
                 <p>
 
                 </p>
