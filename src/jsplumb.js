@@ -3245,7 +3245,9 @@
             connection.proxies[index].ep.detachFromConnection(connection, null);
 
             connection.proxies[index].originalEp.addConnection(connection);
-            connection.proxies[index].originalEp.setVisible(true);
+            if(connection.isVisible()) {
+                connection.proxies[index].originalEp.setVisible(true);
+            }
 
             // cleanup
             delete connection.proxies[index];
