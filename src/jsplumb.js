@@ -3216,10 +3216,12 @@
             originalEndpoint.setVisible(false);
 
             connection.setVisible(true);
+
+            this.revalidate(proxyEl);
         },
         unproxyConnection : function(connection, index, proxyElId) {
-            // if no proxies or none for this end of the connection, abort.
-            if (connection.proxies == null || connection.proxies[index] == null) {
+            // if connection cleaned up, no proxies, or none for this end of the connection, abort.
+            if (connection._jsPlumb == null || connection.proxies == null || connection.proxies[index] == null) {
                 return;
             }
 
