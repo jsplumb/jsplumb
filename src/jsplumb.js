@@ -1923,7 +1923,6 @@
                 console.log("viewport height is ", el.offsetHeight);
 
                 var children = _currentInstance.getSelector(el, ".jtk-managed");
-                var gm = _currentInstance.getGroupManager();
                 for (var i = 0; i < children.length; i++) {
 
                     console.log(children[i].id, children[i].offsetTop);
@@ -1932,7 +1931,7 @@
                         if (!children[i]._jsPlumbProxies) {
                             children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
                             _currentInstance.select({source: children[i]}).each(function (c) {
-                                gm.proxyConnection(c, 0, el, _currentInstance.getId(el), function () {
+                                _currentInstance.proxyConnection(c, 0, el, _currentInstance.getId(el), function () {
                                     return "Dot";
                                 }, function () {
                                     return "TopRight";
@@ -1941,7 +1940,7 @@
                             });
 
                             _currentInstance.select({target: children[i]}).each(function (c) {
-                                gm.proxyConnection(c, 1, el, _currentInstance.getId(el), function () {
+                                _currentInstance.proxyConnection(c, 1, el, _currentInstance.getId(el), function () {
                                     return "Dot";
                                 }, function () {
                                     return "TopLeft";
@@ -1956,7 +1955,7 @@
                             children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
 
                             _currentInstance.select({source: children[i]}).each(function (c) {
-                                gm.proxyConnection(c, 0, el, _currentInstance.getId(el), function () {
+                                _currentInstance.proxyConnection(c, 0, el, _currentInstance.getId(el), function () {
                                     return "Dot";
                                 }, function () {
                                     return "BottomRight";
@@ -1965,7 +1964,7 @@
                             });
 
                             _currentInstance.select({target: children[i]}).each(function (c) {
-                                gm.proxyConnection(c, 1, el, _currentInstance.getId(el), function () {
+                                _currentInstance.proxyConnection(c, 1, el, _currentInstance.getId(el), function () {
                                     return "Dot";
                                 }, function () {
                                     return "BottomLeft";
@@ -1975,7 +1974,7 @@
                         }
                     } else if (children[i]._jsPlumbProxies) {
                         for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-                            gm.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], _currentInstance.getId(el));
+                            _currentInstance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], _currentInstance.getId(el));
                         }
 
                         delete children[i]._jsPlumbProxies;
@@ -3256,6 +3255,82 @@
         floatingConnections: {},
         getFloatingAnchorIndex: function (jpc) {
             return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1;
+        },
+        proxyConnection :function(connection, index, proxyEl, proxyElId, endpointGenerator, anchorGenerator) {
+            var proxyEp,
+                originalElementId = connection.endpoints[index].elementId,
+                originalEndpoint = connection.endpoints[index];
+
+            connection.proxies = connection.proxies || [];
+            if(connection.proxies[index]) {
+                proxyEp = connection.proxies[index].ep;
+            }else {
+                proxyEp = this.addEndpoint(proxyEl, {
+                    endpoint:endpointGenerator(connection, index),
+                    anchor:anchorGenerator(connection, index),
+                    parameters:{
+                        isProxyEndpoint:true
+                    }
+                });
+            }
+            proxyEp.setDeleteOnEmpty(true);
+
+            // for this index, stash proxy info: the new EP, the original EP.
+            connection.proxies[index] = { ep:proxyEp, originalEp: originalEndpoint };
+
+            // and advise the anchor manager
+            if (index === 0) {
+                // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+                // connection changed (you give the index), and here's the new element and element id."
+                this.anchorManager.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
+            }
+            else {
+                this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, originalElementId, proxyElId, connection);
+                connection.target = proxyEl;
+                connection.targetId = proxyElId;
+            }
+
+            // detach the original EP from the connection.
+            originalEndpoint.detachFromConnection(connection, null, true);
+
+            // set the proxy as the new ep
+            proxyEp.connections = [ connection ];
+            connection.endpoints[index] = proxyEp;
+
+            originalEndpoint.setVisible(false);
+
+            connection.setVisible(true);
+        },
+        unproxyConnection : function(connection, index, proxyElId) {
+            // if no proxies or none for this end of the connection, abort.
+            if (connection.proxies == null || connection.proxies[index] == null) {
+                return;
+            }
+
+            var originalElement = connection.proxies[index].originalEp.element,
+                originalElementId = connection.proxies[index].originalEp.elementId;
+
+            connection.endpoints[index] = connection.proxies[index].originalEp;
+            // and advise the anchor manager
+            if (index === 0) {
+                // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+                // connection changed (you give the index), and here's the new element and element id."
+                this.anchorManager.sourceChanged(proxyElId, originalElementId, connection, originalElement);
+            }
+            else {
+                this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, proxyElId, originalElementId, connection);
+                connection.target = originalElement;
+                connection.targetId = originalElementId;
+            }
+
+            // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
+            connection.proxies[index].ep.detachFromConnection(connection, null);
+
+            connection.proxies[index].originalEp.addConnection(connection);
+            connection.proxies[index].originalEp.setVisible(true);
+
+            // cleanup
+            delete connection.proxies[index];
         }
     });
 
