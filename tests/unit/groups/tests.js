@@ -82,6 +82,13 @@ var testSuite = function (_jsPlumb) {
         c5 = support.addDiv("container5", null, "container", 300, 400);
         c6 = support.addDiv("container6", null, "container", 800, 1000);
 
+        c1.style.outline = "1px solid black";
+        c2.style.outline = "1px solid black";
+        c3.style.outline = "1px solid black";
+        c4.style.outline = "1px solid black";
+        c5.style.outline = "1px solid black";
+        c6.style.outline = "1px solid black";
+
         c1_1 = support.addDiv("c1_1", c1, "w", 30, 30);
         c1_2 = support.addDiv("c1_2", c1, "w", 180, 130);
         c5_1 = support.addDiv("c5_1", c5, "w", 30, 30);
