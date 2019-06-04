@@ -1916,75 +1916,6 @@
             }
         };
 
-        var _prepareScrollHandler = function(el, parent) {
-            return function(e) {
-                console.log("scrolling a list");
-                console.log("scroll top is ", el.scrollTop);
-                console.log("viewport height is ", el.offsetHeight);
-
-                var children = _currentInstance.getSelector(el, ".jtk-managed");
-                for (var i = 0; i < children.length; i++) {
-
-                    console.log(children[i].id, children[i].offsetTop);
-
-                    if (children[i].offsetTop < el.scrollTop) {
-                        if (!children[i]._jsPlumbProxies) {
-                            children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
-                            _currentInstance.select({source: children[i]}).each(function (c) {
-                                _currentInstance.proxyConnection(c, 0, el, _currentInstance.getId(el), function () {
-                                    return "Dot";
-                                }, function () {
-                                    return "TopRight";
-                                });
-                                children[i]._jsPlumbProxies.push([c, 0]);
-                            });
-
-                            _currentInstance.select({target: children[i]}).each(function (c) {
-                                _currentInstance.proxyConnection(c, 1, el, _currentInstance.getId(el), function () {
-                                    return "Dot";
-                                }, function () {
-                                    return "TopLeft";
-                                });
-                                children[i]._jsPlumbProxies.push([c, 1]);
-                            });
-                        }
-                    }
-                    //
-                    else if (children[i].offsetTop > el.scrollTop + el.offsetHeight) {
-                        if (!children[i]._jsPlumbProxies) {
-                            children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
-
-                            _currentInstance.select({source: children[i]}).each(function (c) {
-                                _currentInstance.proxyConnection(c, 0, el, _currentInstance.getId(el), function () {
-                                    return "Dot";
-                                }, function () {
-                                    return "BottomRight";
-                                });
-                                children[i]._jsPlumbProxies.push([c, 0]);
-                            });
-
-                            _currentInstance.select({target: children[i]}).each(function (c) {
-                                _currentInstance.proxyConnection(c, 1, el, _currentInstance.getId(el), function () {
-                                    return "Dot";
-                                }, function () {
-                                    return "BottomLeft";
-                                });
-                                children[i]._jsPlumbProxies.push([c, 1]);
-                            });
-                        }
-                    } else if (children[i]._jsPlumbProxies) {
-                        for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-                            _currentInstance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], _currentInstance.getId(el));
-                        }
-
-                        delete children[i]._jsPlumbProxies;
-                    }
-
-                    _currentInstance.revalidate(children[i]);
-                }
-            };
-        };
-
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
         var _manage = _currentInstance.manage = function (id, element, _transient) {
@@ -1998,17 +1929,6 @@
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
                 _currentInstance.addClass(element, "jtk-managed");
 
-                // look for [jtk-scrollable-list] elements and attach scroll listeners if necessary
-                var scrollableLists = _currentInstance.getSelector(element, "[jtk-scrollable-list]");
-                console.log(scrollableLists);
-                for (var i = 0; i < scrollableLists.length; i++) {
-                    var sh = _prepareScrollHandler(scrollableLists[i], element);
-                    _currentInstance.on(scrollableLists[i], "scroll", sh);
-                    scrollableLists[i]._jsPlumbScrollHandler = sh;
-
-                }
-
-
                 if (!_transient) {
                     _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
                 }
@@ -2021,14 +1941,8 @@
             if (managedElements[id]) {
                 var el = managedElements[id].el;
                _currentInstance.removeClass(el, "jtk-managed");
-
-               if (el._jsPlumbScrollHandler) {
-                   _currentInstance.off(el, "scroll", el._jsPlumbScrollHandler);
-                   delete el._jsPlumbScrollHandler;
-               }
-
                 delete managedElements[id];
-                _currentInstance.fire("unmanageElement", id);
+                _currentInstance.fire("unmanageElement", {id:id, el:el});
             }
         };
 
@@ -3165,6 +3079,8 @@
         this.getFloatingConnectionFor = function(id) {
             return floatingConnections[id];
         };
+
+        this.listManager = new root.jsPlumbListManager(this);
     };
 
     _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {
