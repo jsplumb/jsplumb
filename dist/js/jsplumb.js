@@ -4213,7 +4213,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.9.4";
+        this.version = "2.10.0";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -12404,11 +12404,11 @@
                             c.setVisible(false);
                             if (c.endpoints[oidx].element._jsPlumbGroup === group) {
                                 c.endpoints[oidx].setVisible(false);
-                                self.expandConnection(c, oidx, group);
+                                _expandConnection(c, oidx, group);
                             }
                             else {
                                 c.endpoints[index].setVisible(false);
-                                self.collapseConnection(c, index, group);
+                                _collapseConnection(c, index, group);
                             }
                         });
                     };
