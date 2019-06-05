@@ -17,6 +17,7 @@
   - [Endpoints](endpoints)
   - [Overlays](overlays)
   - [Groups](groups)
+  - [Scrollable Lists](lists)
 - Nodes
   - [Element Dragging](dragging)
 - Connections

@@ -91,8 +91,6 @@
 
         jsPlumbUIComponent = root.jsPlumbUIComponent = function (params) {
 
-           // window.jtime("component constructor");
-
             _ju.EventGenerator.apply(this, arguments);
 
             var self = this,
@@ -234,8 +232,6 @@
                     domListeners[i][3] = c;
                 }
             };
-
-           // window.jtimeEnd("component constructor");
 
 
         };
@@ -610,7 +606,7 @@
             }
 
             _currentInstance.setAttribute(_container, "jtk-container", jsPlumbUtil.uuid().replace("-", ""));
-            
+
             _currentInstance.fire("container:change", _container);
 
         };
@@ -1947,8 +1943,10 @@
 
         var _unmanage = _currentInstance.unmanage = function(id) {
             if (managedElements[id]) {
-               _currentInstance.removeAttribute(managedElements[id].el, "jtk-managed");
+                var el = managedElements[id].el;
+                _currentInstance.removeAttribute(el, "jtk-managed");
                 delete managedElements[id];
+                _currentInstance.fire("unmanageElement", {id:id, el:el});
             }
         };
 
@@ -2701,6 +2699,8 @@
         this.getFloatingConnectionFor = function(id) {
             return floatingConnections[id];
         };
+
+        this.listManager = new root.jsPlumbListManager(this);
     };
 
     _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {
@@ -2790,6 +2790,86 @@
         floatingConnections: {},
         getFloatingAnchorIndex: function (jpc) {
             return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1;
+        },
+        proxyConnection :function(connection, index, proxyEl, proxyElId, endpointGenerator, anchorGenerator) {
+            var proxyEp,
+                originalElementId = connection.endpoints[index].elementId,
+                originalEndpoint = connection.endpoints[index];
+
+            connection.proxies = connection.proxies || [];
+            if(connection.proxies[index]) {
+                proxyEp = connection.proxies[index].ep;
+            }else {
+                proxyEp = this.addEndpoint(proxyEl, {
+                    endpoint:endpointGenerator(connection, index),
+                    anchor:anchorGenerator(connection, index),
+                    parameters:{
+                        isProxyEndpoint:true
+                    }
+                });
+            }
+            proxyEp.setDeleteOnEmpty(true);
+
+            // for this index, stash proxy info: the new EP, the original EP.
+            connection.proxies[index] = { ep:proxyEp, originalEp: originalEndpoint };
+
+            // and advise the anchor manager
+            if (index === 0) {
+                // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+                // connection changed (you give the index), and here's the new element and element id."
+                this.anchorManager.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
+            }
+            else {
+                this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, originalElementId, proxyElId, connection);
+                connection.target = proxyEl;
+                connection.targetId = proxyElId;
+            }
+
+            // detach the original EP from the connection.
+            originalEndpoint.detachFromConnection(connection, null, true);
+
+            // set the proxy as the new ep
+            proxyEp.connections = [ connection ];
+            connection.endpoints[index] = proxyEp;
+
+            originalEndpoint.setVisible(false);
+
+            connection.setVisible(true);
+
+            this.revalidate(proxyEl);
+        },
+        unproxyConnection : function(connection, index, proxyElId) {
+            // if connection cleaned up, no proxies, or none for this end of the connection, abort.
+            if (connection._jsPlumb == null || connection.proxies == null || connection.proxies[index] == null) {
+                return;
+            }
+
+            var originalElement = connection.proxies[index].originalEp.element,
+                originalElementId = connection.proxies[index].originalEp.elementId;
+
+            connection.endpoints[index] = connection.proxies[index].originalEp;
+            // and advise the anchor manager
+            if (index === 0) {
+                // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+                // connection changed (you give the index), and here's the new element and element id."
+                this.anchorManager.sourceChanged(proxyElId, originalElementId, connection, originalElement);
+            }
+            else {
+                this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, proxyElId, originalElementId, connection);
+                connection.target = originalElement;
+                connection.targetId = originalElementId;
+            }
+
+            // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
+            connection.proxies[index].ep.detachFromConnection(connection, null);
+
+            connection.proxies[index].originalEp.addConnection(connection);
+            if(connection.isVisible()) {
+                connection.proxies[index].originalEp.setVisible(true);
+            }
+
+            // cleanup
+            delete connection.proxies[index];
         }
     });
 

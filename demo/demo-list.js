@@ -7,6 +7,7 @@
     var list = [
         [ "flowchart", "Flowchart" ],
         [ "statemachine", "State Machine" ],
+        [ "lists", "Scrollable Lists"],
         [ "draggableConnectors", "Drag and Drop"],
         [ "perimeterAnchors", "Perimeter Anchors"],
         [ "chart", "Hierarchical Chart" ],

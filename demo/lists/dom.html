@@ -1,47 +1,32 @@
 <!doctype html>
 <html>
-    <head>
+<head>
 
-        <title>jsPlumb 1.7.4 demo - jQuery</title>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="../../css/jsplumb.css">
-        <link rel="stylesheet" href="demo.css">
-    </head>
-    <body data-demo-id="perimeterAnchors" data-library="dom">
-        <div id="headerWrapper">
-            <div id="header">
-                <div class="logo"><img src="../../logo-bw.png"></div>
-                <div class="menu">
-                    <a href="http://localhost:4567">DOCS</a>
-                    <a href="../../apidocs">API</a>
-                    <a href="../../tests/index.html">TESTS</a>
-                    <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
-                    <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
-                    <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
-                    <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
-                </div>
-            </div>
-        </div>
+    <title>jsPlumb - scrollable lists demonstration</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
 
-        <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=button_count"></iframe>
+    <link rel="stylesheet" href="../../css/jsplumbtoolkit-defaults.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/jsplumbtoolkit-demo.css">
+    <link rel="stylesheet" href="demo.css">
 
-        <div id="retweet_button">
-            <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
-            <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-        </div>
+</head>
 
-        <div id="main">
+    <body data-demo-id="lists">
+
+    <a style="margin:10px 0 0 10px;display:inline-block" href="https://jsplumbtoolkit.com"><img src="../../img/logo-jsplumb-green.png"></a>
+
+        <div class="jtk-demo-main">
+
             <!-- demo -->
-            <div class="demo perimeter-demo" id="perimeter-demo">
-                <div class="explanation">
-                    <i class="fa fa-info-circle"></i>
-                    <h4>List items</h4>
-                    <p>Demonstrates how to connect items in two lists</p>
-                    <p>This demonstration uses jsPlumb 1.7.4.  No external dependencies are required.</p>
-                </div>
-                <div class="list list-lhs">
-                    <ul>
+            <div class="jtk-demo-canvas" id="canvas">
+
+                <div class="list list-lhs" id="list-one">
+                    <h3>LIST ONE</h3>
+                    <ul source>
                         <li>item one</li>
                         <li>item two</li>
                         <li>item three</li>
@@ -78,8 +63,10 @@
                         <li>item thirty four</li>
                     </ul>
                 </div>
-                <div class="list list-rhs">
-                    <ul>
+
+                <div class="list list-rhs" id="list-two">
+                    <h3>LIST TWO</h3>
+                    <ul jtk-scrollable-list target>
                         <li>item one</li>
                         <li>item two</li>
                         <li>item three</li>
@@ -118,52 +105,39 @@
                 </div>
 
             </div>
+
+
+            <div class="explanation">
+                <i class="fa fa-info-circle"></i>
+                <h4>List items</h4>
+                <p>Demonstrates how to connect items in lists configured via an <strong>addList(..)</strong> call on the jsPlumb instance.
+                </p>
+                <p>
+                    When you scroll a list and a connected item inside of it leaves the list's viewport, any connections to that item are stacked on the list element. You can control
+                    the location of the anchor used, and the appearance of the endpoint, in the options to the <strong>addList</strong> method call.
+                </p>
+                <div id="controls">
+                    <p>Uncheck/check these to see the difference between a configured list and the default setup.</p>
+                <label>
+                    <input type="checkbox" checked value="list1">Toggle List 1
+                </label>
+                <label>
+                    <input type="checkbox" checked value="list2">Toggle List 2
+                </label>
+            </div>
+            </div>
+
             <!-- /demo -->
         </div>
 
         <!-- JS -->
-        <!-- support lib for bezier stuff -->
-        <script src="../../node_modules/jsbezier/js/jsbezier.js"></script>
-        <!-- event adapter -->
-		<script src="../../node_modules/mottle/js/mottle.js"></script>
-		<!-- geometry functions -->
-        <script src="../../node_modules/biltong/src/biltong.js"></script>
-		<!-- drag -->
-        <script src="../../lib/katavorio-0.8.js"></script>
-        <!-- jsplumb util -->
-        <script src="../../src/util.js"></script>
-        <script src="../../src/browser-util.js"></script>
-        <!-- base DOM adapter -->
-        <script src="../../src/dom-adapter.js"></script>
-        <!-- main jsplumb engine -->
-        <script src="../../src/jsPlumb.js"></script>
-        <!-- endpoint -->
-        <script src="../../src/endpoint.js"></script>
-        <!-- connection -->
-        <script src="../../src/connection.js"></script>
-        <!-- anchors -->
-        <script src="../../src/anchors.js"></script>
-        <!-- connectors, endpoint and overlays  -->
-        <script src="../../src/defaults.js"></script>
-        <!-- bezier connectors -->
-        <script src="../../src/connectors-bezier.js"></script>
-        <!-- state machine connectors -->
-        <script src="../../src/connectors-statemachine.js"></script>
-        <!-- flowchart connectors -->
-        <script src="../../src/connectors-flowchart.js"></script>\n<script src="../../src/connectors-straight.js"></script>
-        <script src="../../src/connector-editors.js"></script>
-        <!-- SVG renderer -->
-        <script src="../../src/renderers-svg.js"></script>
-
-        <!-- common adapter -->
-        <script src="../../src/base-library-adapter.js"></script>
-        <!-- no library jsPlumb adapter -->
-        <script src="../../src/dom.jsPlumb.js"></script>
+        <script src="../../dist/js/jsplumb.js"></script>
         <!-- /JS -->
 
-		<!--  demo code -->
-		<script src="demo.js"></script>
+        <!--  demo code -->
+        <script src="demo.js"></script>
 
+        <!-- demo list -->
         <script src="../demo-list.js"></script>
 
     </body>
