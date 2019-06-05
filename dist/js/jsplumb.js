@@ -3742,6 +3742,19 @@
         this.destroy = function() {
             instance.off(el, "scroll", scrollHandler);
             delete el._jsPlumbScrollHandler;
+
+            var children = instance.getSelector(el, ".jtk-managed");
+            var elId = instance.getId(el);
+
+            for (var i = 0; i < children.length; i++) {
+                if (children[i]._jsPlumbProxies) {
+                    for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
+                        instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], elId);
+                    }
+
+                    delete children[i]._jsPlumbProxies;
+                }
+            }
         };
     };
 
@@ -6994,7 +7007,9 @@
             connection.proxies[index].ep.detachFromConnection(connection, null);
 
             connection.proxies[index].originalEp.addConnection(connection);
-            connection.proxies[index].originalEp.setVisible(true);
+            if(connection.isVisible()) {
+                connection.proxies[index].originalEp.setVisible(true);
+            }
 
             // cleanup
             delete connection.proxies[index];
