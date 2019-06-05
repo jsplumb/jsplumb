@@ -20,6 +20,7 @@
     <a style="margin:10px 0 0 10px;display:inline-block" href="https://jsplumbtoolkit.com"><img src="../../img/logo-jsplumb-green.png"></a>
 
         <div class="jtk-demo-main">
+
             <!-- demo -->
             <div class="jtk-demo-canvas" id="canvas">
 
@@ -104,20 +105,26 @@
                 </div>
 
             </div>
+
+
             <div class="explanation">
                 <i class="fa fa-info-circle"></i>
                 <h4>List items</h4>
-                <p>Demonstrates how to connect items in lists. One list is configured with a <strong>jtk-scrollable-list</strong> attribute set, meaning jsPlumb finds it
-                automatically. The other list is configured programmatically via an <strong>addList(..)</strong> call on the jsPlumb instance.
+                <p>Demonstrates how to connect items in lists configured via an <strong>addList(..)</strong> call on the jsPlumb instance.
                 </p>
                 <p>
-                    When you scroll a list and a connected item inside of it leaves the list's viewport, any connections to that item are stacked on the list element. When you use
-                    the `jtk-scrollable-list` attribute you cannot control the placement of the anchor or the appearance of the endpoint, but using `addList(..)` you can control both
-                    of these things.
+                    When you scroll a list and a connected item inside of it leaves the list's viewport, any connections to that item are stacked on the list element. You can control
+                    the location of the anchor used, and the appearance of the endpoint, in the options to the <strong>addList</strong> method call.
                 </p>
-                <p>
-
-                </p>
+                <div id="controls">
+                    <p>Uncheck/check these to see the difference between a configured list and the default setup.</p>
+                <label>
+                    <input type="checkbox" checked value="list1">Toggle List 1
+                </label>
+                <label>
+                    <input type="checkbox" checked value="list2">Toggle List 2
+                </label>
+            </div>
             </div>
 
             <!-- /demo -->

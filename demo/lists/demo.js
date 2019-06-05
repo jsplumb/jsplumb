@@ -11,24 +11,13 @@ jsPlumb.ready(function () {
     window.jsp = instance;
 
     // get the two elements that contain a list inside them
-    var list1 = document.querySelector("#list-one"),
-        list2 = document.querySelector("#list-two");
+    var list1El = document.querySelector("#list-one"),
+        list2El = document.querySelector("#list-two"),
+        list1Ul = list1El.querySelector("ul"),
+        list2Ul = list2El.querySelector("ul");
 
-
-    /*
-
-    There are two ways of registering a list.
-
-    1. by including a `jtk-scrollable-list` attribute on some element, and then calling `draggable` or `manage` on either that element
-    or, as is the case here, on an ancestor of it.
-
-    2. Add a list via the `addList(el, options)` method on a jsPlumb instance. The advantage of this approach is that you can provide endpoint and anchor specifications.
-
-     */
-
-    // approach #1: make draggable the ancestor of some element that has a `jtk-scrollable-group` attribute.
-    instance.draggable(list1);
-    instance.draggable(list2);
+    instance.draggable(list1El);
+    instance.draggable(list2El);
 
     // get uls
     var lists = jsPlumb.getSelector("ul");
@@ -75,14 +64,18 @@ jsPlumb.ready(function () {
         }
     });
 
-    // approach #2: directly add a list, with options.
-    instance.addList(list1.querySelector("ul"), {
+    var list1 = instance.addList(list2Ul);
+
+    var list2 = instance.addList(list1Ul, {
         endpoint:["Rectangle", {width:20, height:20}]
     });
 
 
-
     instance.bind("click", function(c) { instance.deleteConnection(c); });
+
+    jsPlumb.on(document, "change", "[type='checkbox']", function(e) {
+        instance[e.srcElement.checked ? "addList" : "removeList"](e.srcElement.value === "list1" ? list1Ul : list2Ul);
+    });
 
     jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });
