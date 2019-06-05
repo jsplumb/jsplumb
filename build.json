@@ -42,6 +42,11 @@
             "desc":"Example of how to use the 'StateMachine' connectors, with elements as drag sources and targets"
         },
         {
+            "id":"lists",
+            "name":"Scrollable Lists",
+            "desc":"Example of how to configure scrollable lists"
+        },
+        {
             "id":"draggableConnectors",
             "name":"Drag and Drop",
             "desc":"The original jsPlumb drag and drop example"
