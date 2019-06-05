@@ -1,8 +1,9 @@
-## 2.9.4
+## 2.10.0
 
-June 2nd 2019
+June 5th 2019
 
 - fix `rectangle` and `square` Perimeter anchors so that their orientation is correct for each face.
+- add support for scrollable lists, plus a demonstration page
 
 ## 2.9.3
 
