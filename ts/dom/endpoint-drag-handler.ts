@@ -92,7 +92,7 @@ export class EndpointDragHandler implements DragHandler {
                 return;
             }
 
-            let targetEl:any = findParent(e.target || e.srcElement, "[jtk-managed]");
+            let targetEl:any = findParent(e.target || e.srcElement, "[jtk-managed]", container);
 
             if (targetEl == null) {
                 return;
@@ -353,43 +353,45 @@ export class EndpointDragHandler implements DragHandler {
         //}
 
         this.instance.getSelector(this.instance.getContainer(), selectors.join(",")).forEach((candidate:any) => {
-        
-            const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
-            boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-            let d:any = {el:candidate, r:boundingRect};
+
+            if (candidate !== this.ep.element) {
+                const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
+                boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
+                let d: any = {el: candidate, r: boundingRect};
                 // targetDefinitionIdx = -1,
                 // sourceDefinitionIdx = -1;
-        
-            //  if (this.epIsSource) {
-            // look for at least one target definition that is not disabled on the given element.
-            let targetDefinitionIdx = findWithFunction(candidate._jsPlumbTargetDefinitions,  (tdef:any) => {
-                return tdef.enabled !== false;
-            });
-            //}
-        
-            //if (this.epIsTarget) {
-            // look for at least one target definition that is not disabled on the given element.
-            let sourceDefinitionIdx = findWithFunction(candidate._jsPlumbSourceDefinitions, (tdef:any) => {
-                return tdef.enabled !== false;
-            });
-            //}
-        
-            // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
-            if (targetDefinitionIdx !== -1) {
-                if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-                    d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+
+                //  if (this.epIsSource) {
+                // look for at least one target definition that is not disabled on the given element.
+                let targetDefinitionIdx = findWithFunction(candidate._jsPlumbTargetDefinitions, (tdef: any) => {
+                    return tdef.enabled !== false;
+                });
+                //}
+
+                //if (this.epIsTarget) {
+                // look for at least one target definition that is not disabled on the given element.
+                let sourceDefinitionIdx = findWithFunction(candidate._jsPlumbSourceDefinitions, (tdef: any) => {
+                    return tdef.enabled !== false;
+                });
+                //}
+
+                // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
+                if (targetDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+                    }
+                    this.endpointDropTargets.push(d);
+                    this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass || */"jtk-drag-active"); // TODO get from defaults.
                 }
-                this.endpointDropTargets.push(d);
-                this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass || */"jtk-drag-active"); // TODO get from defaults.
-            }
-        
-            // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
-            if (sourceDefinitionIdx !== -1) {
-                if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-                    d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+
+                // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
+                if (sourceDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+                    }
+                    this.endpointDropTargets.push(d);
+                    this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass ||*/ "jtk-drag-active"); // TODO get from defaults.
                 }
-                this.endpointDropTargets.push(d);
-                this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass ||*/ "jtk-drag-active"); // TODO get from defaults.
             }
         
         });
@@ -788,7 +790,7 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     _getDropEndpoint(p:any, jpc:Connection<HTMLElement>):Endpoint<HTMLElement> {
-        let dropEndpoint;
+        let dropEndpoint:Endpoint<HTMLElement>;
 
         if (this.currentDropTarget.endpoint == null) {
 
@@ -818,15 +820,15 @@ export class EndpointDragHandler implements DragHandler {
                     anchor:targetDefinition.def.anchor || eps.anchors[1]
                 });
             }
-            dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
-            dropEndpoint._mtNew = true;
+            dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp) as Endpoint<HTMLElement>;
+            (<any>dropEndpoint)._mtNew = true;
             dropEndpoint.deleteOnEmpty = true;
 
             if (dropEndpoint.anchor.positionFinder != null) {
                 let dropPosition = this.instance.getUIPosition(arguments),
                     elPosition = this.instance.getOffset(this.currentDropTarget.el),
                     elSize = this.instance.getSize(this.currentDropTarget.el),
-                    ap = dropPosition == null ? [0,0] : dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
+                    ap = dropPosition == null ? [0,0] : dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, (<any>dropEndpoint.anchor).constructorParams);
 
                 dropEndpoint.anchor.x = ap[0];
                 dropEndpoint.anchor.y = ap[1];
