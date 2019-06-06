@@ -9,7 +9,7 @@ import {PaintStyle} from "../styles";
 import { FloatingAnchor } from "../anchor/floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
 import {SvgEndpoint} from "./svg-element-endpoint";
-import {consume} from "../browser-util";
+import {consume, findParent} from "../browser-util";
 
 type PlaceholderIfno = { id:string, element:any };
 
@@ -92,13 +92,21 @@ export class EndpointDragHandler implements DragHandler {
                 return;
             }
 
-            let targetEl:any = e.target || e.srcElement,
-                elid = instance.getId(targetEl),
-                sourceDef = self._getSourceDefinition(elid, e),
+            let targetEl:any = findParent(e.target || e.srcElement, "[jtk-managed]");
+
+            if (targetEl == null) {
+                return;
+            }
+
+            let elid = instance.getId(targetEl),
+                sourceDef = self._getSourceDefinition(targetEl, e),
                 sourceElement = e.currentTarget,
                 def;
 
             if (sourceDef) {
+
+                consume(e);
+
                 def = sourceDef.def;
                 // if maxConnections reached
                 let sourceCount = instance.select({source: elid}).length;
@@ -116,7 +124,7 @@ export class EndpointDragHandler implements DragHandler {
 
                 // find the position on the element at which the mouse was pressed; this is where the endpoint
                 // will be located.
-                let elxy = instance.getPositionOnElement(e, sourceElement, instance.getZoom());
+                let elxy = instance.getPositionOnElement(e, targetEl, instance.getZoom());
 
                 // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
                 // the params passed in, because after a connection is established we're going to reset the endpoint
@@ -130,7 +138,7 @@ export class EndpointDragHandler implements DragHandler {
                     tempEndpointParams.scope = def.scope;
                 }
 
-                this.ep = instance.addEndpoint(elid, tempEndpointParams)[0];
+                this.ep = instance.addEndpoint(elid, tempEndpointParams);
                 this.ep.deleteOnEmpty = true;
                 // keep a reference to the anchor we want to use if the connection is finalised.
                 this.ep._originalAnchor = def.anchor || instance.Defaults.anchor;
@@ -531,8 +539,8 @@ export class EndpointDragHandler implements DragHandler {
                 this.instance.removeClass(this.currentDropTarget.el, hoverClass);
 
                 if (this.currentDropTarget.endpoint) {
-                    this.currentDropTarget.endpoint.removeClass(this.instance.endpointDropAllowedClass);
-                    this.currentDropTarget.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
+                    this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
+                    this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
                 }
 
                 this.jpc.endpoints[idx].anchor.out();
@@ -545,16 +553,16 @@ export class EndpointDragHandler implements DragHandler {
 
                 if (newDropTarget.endpoint != null) {
 
-                    _cont = (newDropTarget.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id);
+                    _cont = (newDropTarget.endpoint.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id);
                     if (_cont) {
                         let bb = this.instance.checkCondition("checkDropAllowed", {
                             sourceEndpoint: this.jpc.endpoints[idx],
-                            targetEndpoint: newDropTarget.endpoint,
+                            targetEndpoint: newDropTarget.endpoint.endpoint,
                             connection: this.jpc
                         });
-                        newDropTarget.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
-                        newDropTarget.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
-                        this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
+                        newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
+                        newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
+                        this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.endpoint.anchor, newDropTarget.endpoint.endpoint);
                     }
                 }
             }
@@ -810,9 +818,9 @@ export class EndpointDragHandler implements DragHandler {
                     anchor:targetDefinition.def.anchor || eps.anchors[1]
                 });
             }
-            dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp)[0];
+            dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
             dropEndpoint._mtNew = true;
-            dropEndpoint.setDeleteOnEmpty(true);
+            dropEndpoint.deleteOnEmpty = true;
 
             if (dropEndpoint.anchor.positionFinder != null) {
                 let dropPosition = this.instance.getUIPosition(arguments),
@@ -829,15 +837,15 @@ export class EndpointDragHandler implements DragHandler {
                 // the target is furthest away from the source.
             }
         } else {
-            dropEndpoint = this.currentDropTarget.endpoint;
+            dropEndpoint = this.currentDropTarget.endpoint.endpoint;
         }
 
         if (dropEndpoint) {
-            dropEndpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
-            dropEndpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
+            dropEndpoint.removeClass(this.instance.endpointDropAllowedClass);
+            dropEndpoint.removeClass(this.instance.endpointDropForbiddenClass);
         }
 
-        return dropEndpoint.endpoint;
+        return dropEndpoint;
     }
 
      _maybeReattach(idx:number, originalEvent?:Event):void {
