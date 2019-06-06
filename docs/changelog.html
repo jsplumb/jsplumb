@@ -135,7 +135,44 @@
             <div id="docs">
                 
                 <div class="markdown-body">
-                    <h2>2.10.0</h2>
+                    <h2>3.0.0</h2>
+
+<p>This release focuses on performance enhancements, and contains several breaking changes.</p>
+
+<p>The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
+individually, we now use a single event listener on the container. </p>
+
+<h3>Breaking changes</h3>
+
+<ul>
+<li><p>By default, every node is draggable. <code>.draggable(someElement)</code> no longer exists.</p></li>
+<li><p>It is imperative that you provide the <code>container</code> for an instance of jsPlumb.  We no longer infer the container from the <code>offsetParent</code> of the
+first element to which an endpoint is added.</p></li>
+<li><p><code>manageElement</code> and <code>unmanageElement</code> events no longer fired by jsPlumb class. These were undocumented anyway, but we&#39;re calling it out
+in case you have code that used them.</p></li>
+<li><p>Managed elements do not have the <code>jtk-managed</code> class applied. They now have a <code>jtk-managed</code> attribute set on them. It is unlikely anyone was using this
+class but we include it here for completeness</p></li>
+<li><p>All defaults converted to camelCase instead of having a leading capital, eg. &quot;Anchors&quot; -&gt; &quot;anchors&quot;, &quot;ConnectionsDetachable&quot; -&gt; &quot;connectionsDetachable&quot;. This brings
+the defaults into line with the parameters used in method calls like <code>connect</code> and <code>addEndpoint</code> etc.</p></li>
+<li><p>The <code>LogEnabled</code> and <code>DoNotThrowErrors</code> defaults have been removed.</p></li>
+<li><p><code>getWidth</code> and <code>getHeight</code> methods removed from jsPlumb instance.</p></li>
+<li><p><code>updateClasses</code> method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.</p></li>
+<li><p><code>setClass</code> method removed from jsPlumb.</p></li>
+<li><p>It is not possible to subclass Connection or Endpoint to provide your own implementations now.</p></li>
+<li><p>Elements configured via <code>makeTarget</code> do not get assigned a <code>jtk-droppable</code> css class now. Instead, they are given a <code>jtk-target</code> attribute, as well as a <code>jtk-scope-**</code> attribute
+for every scope that is assigned.</p></li>
+</ul>
+
+<h3>New Functionality</h3>
+
+<ul>
+<li><p><code>elementsDraggable</code> added to <code>Defaults</code>, with a default value of true.</p></li>
+<li><p>Added <code>drag:start</code>, <code>drag:move</code> and <code>drag:stop</code> events to jsPlumb class. These replace the <code>start</code>, <code>drag</code> and <code>stop</code> event handlers that used to
+be supported on individual <code>draggable(..)</code> method calls.</p></li>
+<li><p>Upgraded to Katavorio 1.4.6</p></li>
+</ul>
+
+<h2>2.10.0</h2>
 
 <p>June 5th 2019</p>
 

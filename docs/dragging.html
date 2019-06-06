@@ -137,221 +137,29 @@
                 <div class="markdown-body">
                     <h2>Element Dragging</h2>
 
-<p>A common feature of interfaces using jsPlumb is that the elements are draggable. You should use the <code>draggable</code> method 
-on a <code>jsPlumbInstance</code> to configure this:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">myInstanceOfJsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;elementId&quot;</span><span class="p">);</span>
-</code></pre></div>
-<p>...because if you don&#39;t, jsPlumb won&#39;t know that an element has been dragged, and it won&#39;t repaint the element.</p>
+<p>The major change in version 3.0.0 is that all drag operations are now handled by delegated event handlers, instead of registering event handlers
+ on each element you wish to make draggable. This also applies to the drag operations used when creating connections via the mouse.</p>
 
-<ul>
-<li><a href="#allowed-args">Allowed Argument Types</a></li>
-<li><a href="#css">Required CSS</a></li>
-<li><a href="#containment">Drag Containment</a></li>
-<li><a href="#grid">Dragging on a Grid</a></li>
-<li><a href="#nested">Dragging Nested Elements</a></li>
-<li><a href="#multiple">Dragging Multiple Elements</a></li>
-<li><a href="#selection">Text Selection while dragging</a> </li>
-</ul>
+<p>Previously, you would have used the <code>draggable</code> method on a <code>jsPlumbInstance</code> to configure this, but from version 3.0.0 onwards this is not necessary - all elements are draggable by default.</p>
 
-<p><a name="allowed-args"></a></p>
+<p>Using delegated drag handlers has an enormous benefit in terms of memory usage and the time taken to initialise elements. The drag handler, for
+ instance, used to take 3 - 4 ms to initialise each element. If you&#39;ve got hundred or thousands of elements this converts to a matter of seconds,
+ which is a big deal.</p>
 
-<h4>Allowed argument types</h4>
+<p><a name="disable"></a></p>
 
-<p><code>draggable</code> supports several types as argument:</p>
+<h4>Disabling dragging for an element</h4>
 
-<ul>
-<li>a String representing an element ID</li>
-<li>an Element</li>
-<li>any &quot;list-like&quot; object whose contents are Strings or Elements. </li>
-</ul>
-
-<p>A &quot;list-like&quot; element is one that exposes a <code>length</code> property and which can be indexed with brackets (<code>[ ]</code>). Some examples are:</p>
-
-<ul>
-<li>arrays</li>
-</ul>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbInstance</span><span class="p">.</span><span class="nx">draggable</span><span class="p">([</span><span class="s2">&quot;elementOne&quot;</span><span class="p">,</span> <span class="s2">&quot;elementTwo&quot;</span><span class="p">]);</span>
-</code></pre></div>
-<ul>
-<li>jQuery selectors</li>
-</ul>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbInstance</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.someClass&quot;</span><span class="p">));</span>
-</code></pre></div>
-<ul>
-<li>NodeLists</li>
-</ul>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">els</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s2">&quot;.someClass&quot;</span><span class="p">);</span>
-<span class="nx">jsPlumbInstance</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">els</span><span class="p">);</span>
-</code></pre></div>
-<h4>Options</h4>
-
-<p>If you absolutely cannot use <code>jsPlumb.draggable</code>, you will have to arrange to repaint the drag element manually, via 
-<code>jsPlumb.repaint</code>.</p>
-
-<p>Note <code>jsPlumb</code> is an instance of the <code>jsPlumbInstance</code> class. If you are working with your own instances of jsPlumb, be 
-sure to call the draggable method on those instances, not the global instance.</p>
-
-<h5>Vanilla jsPlumb</h5>
-
-<p>In vanilla jsPlumb, drag support is provided by a bundled library called Katavorio. Katavorio supports drag containment 
-and constraining elements to a grid, as well as drag/drop of multiple elements.</p>
-
-<p><a name="css"></a></p>
-
-<h4>Required CSS</h4>
-
-<p>You <em>must</em> set <code>position:absolute</code> on elements that you intend to be draggable. The reasoning for this is that all 
-libraries implement dragging by manipulating the left and top properties of an element&#39;s style attribute.</p>
-
-<p>When you position an element absolute, these <code>left</code>/<code>top</code> values are taken to mean with respect to the origin of this 
-element&#39;s <code>offsetParent</code>, and the <code>offsetParent</code> is the first ancestor of the element that has <code>position:relative</code> set 
-on it, or the body if no such ancestor is found.</p>
-
-<p>When you position an element relative, the <code>left</code>/<code>top</code> values are taken to mean <em>move the element from its normal 
-position by these amounts</em>, where &quot;normal position&quot; is dependent on document flow. You might have a test case or two 
-in which relative positioning appears to work; for each of these you could create several others where it does not.</p>
-
-<p>You cannot trust relative positioning with dragging.</p>
-
-<p><a name="containment"></a></p>
-
-<h4>Drag Containment</h4>
-
-<p>A common request is for the ability to contain the area within which an element may be dragged. Vanilla jsPlumb offers 
-support for containing a dragged element within the bounds of its parent:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="p">{</span>
-   <span class="nx">containment</span><span class="o">:</span><span class="kc">true</span>
-<span class="p">});</span>
-</code></pre></div>
-<p><a name="grid"></a></p>
-
-<h4>Dragging on a Grid</h4>
-
-<p>To constrain elements to a grid, supply the size of the grid in the <code>draggable</code> call:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">grid</span><span class="o">:</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">]</span>
-<span class="p">});</span>
-</code></pre></div>
-<p><a name="nested"></a></p>
-
-<h4>Dragging nested elements</h4>
-
-<p>jsPlumb takes nesting into account when handling draggable elements. For example, say you have this markup:</p>
-<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;childType1&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;childType2&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-</code></pre></div>
-<p>...and then you connect one of those child divs to something, and make container draggable:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
-  <span class="nx">source</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#container .childType1&quot;</span><span class="p">),</span>
-  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;somewhere else&quot;</span>
-<span class="p">});</span>
-
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">);</span>
-</code></pre></div>
-<p>Now when you drag <code>container</code>, jsPlumb will have noticed that there are nested elements that have Connections, and they 
-will be updated. Note that the order of operations is not important here: if container was already draggable when you 
-connected one of its children to something, you would get the same result.</p>
-
-<h5>Nested Element offsets</h5>
-
-<p>For performance reasons, jsPlumb caches the offset of each nested element relative to its draggable ancestor. If you 
-make changes to the draggable ancestor that will have resulted in the offset of one or more nested elements changing, 
-<em>you need to tell jsPlumb about it</em>, using the <code>revalidate</code> function.</p>
-
-<p>Consider the example from before, but with a change to the markup after initializing everything:</p>
-<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;header&quot;</span> <span class="na">style=</span><span class="s">&quot;height:20px;background-color:blue;&quot;</span><span class="nt">&gt;</span>header<span class="nt">&lt;/div&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;childType1&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;childType2&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
-<span class="nt">&lt;div&gt;</span>
-</code></pre></div>
-<p>Connect a child div to some element and make it draggable:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
-  <span class="nx">source</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#container .childType1&quot;</span><span class="p">),</span>
-  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;somewhere else&quot;</span>
-<span class="p">});</span>
-
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.childType1&quot;</span><span class="p">));</span>
-</code></pre></div>
-<p>Now if you manipulate the DOM in such a way that the internal layout of the container node is changed, you need to 
-tell jsPlumb:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#container .header&quot;</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>    <span class="c1">// hide the header bar. this will alter the offset of the other child elements...</span>
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">revalidate</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">);</span>   <span class="c1">// tell jsPlumb that the internal dimensions have changed.</span>
-<span class="c1">// you can also use a selector, eg $(&quot;#container&quot;)</span>
-</code></pre></div>
-<p>Note in this example, one of the child divs was made draggable. jsPlumb automatically recalculates internal offsets 
-after dragging stops in that case - you do not need to call it yourself.</p>
-
-<p><a name="multiple"></a></p>
-
-<h4>Dragging Multiple Elements</h4>
-
-<p>Vanilla jsPlumb, because it uses Katavorio as its drag library, supports dragging multiple elements at once. There are two
-ways to do this.</p>
-
-<h5>The drag selection</h5>
-
-<p>Every jsPlumb instance has an associated <code>dragSelection</code> - a set of elements that are considered to be &quot;selected&quot; (and
- which have a CSS class assigned to them to indicate this fact). Any drag event occurring in the instance will cause the 
- currently selected elements to be dragged too.  </p>
-
-<p>There are three methods provided to work with the drag selection:</p>
-
-<ul>
-<li><strong>addToDragSelection: function (elements)</strong> Add the specified elements to the drag selection.</li>
-<li><strong>removeFromDragSelection: function (elements)</strong> Remove the specified elements from the drag selection</li>
-<li><strong>clearDragSelection</strong> Clear the drag selection.</li>
-</ul>
-
-<p>As previously mentioned, these methods are all provided by <a href="https://github.com/jsplumb/katavorio">Katavorio</a>.</p>
-
-<p>Here, <code>elements</code> can be a single element Id or element, or an array of either of these (or, in fact, a jQuery selector,
-since jsPlumb knows that selectors are &quot;list-like&quot;).</p>
-
-<h5>Posses</h5>
-
-<p>Since jsPlumb 2.0.0 there is another way of configuring multiple element drag - the concept of a <code>posse</code>. This is a
-group of elements that should all move whenever one of them is dragged. This mechanism is intended to be used for more
-&quot;permanent&quot; multiple drag arrangements - you may have a set of nodes that should always move together and they do
-not need to be considered to be &quot;selected&quot;. </p>
-
-<p>You can define multiple posses in an instance but each element can belong to one posse only. Three methods are provided
-for working wth Posses:</p>
-
-<ul>
-<li><strong>addToPosse(elements, posse...)</strong></li>
-</ul>
-
-<p>Here, <code>elements</code> can be a single element Id or element, or an array of either of these (or, in fact, a jQuery selector,
-since jsPlumb knows that selectors are &quot;list-like&quot;). <code>posse</code> is required, and is a varargs parameter: you can provide
- more than one.  Each <code>posse</code> parameter can either be a String, indicating a Posse to which the element should be added
- as an active drag participant, or an object containing the Posse&#39;s ID and also whether or not the element should be an
- active drag participant. </p>
-
-<p>For example, in the Flowchart demo, we could make these couple of calls:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addToPosse</span><span class="p">([</span><span class="s2">&quot;flowchartWindow1&quot;</span><span class="p">,</span> <span class="s2">&quot;flowchartWindow2&quot;</span><span class="p">],</span> <span class="s2">&quot;posse&quot;</span><span class="p">);</span>
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addToPosse</span><span class="p">(</span><span class="s2">&quot;flowchartWindow3&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span><span class="s2">&quot;posse&quot;</span><span class="p">,</span><span class="nx">active</span><span class="o">:</span><span class="kc">false</span><span class="p">})</span>
-</code></pre></div>
-<p>And the result would be that whenever window 1 or 2 was dragged, all of windows 1, 2 and 3 would be dragged. But if 
- window 3 was dragged, it would be dragged alone; windows 1 and 2 would not move.</p>
-
-<ul>
-<li><strong>removeFromPosse(elements, posseId)</strong></li>
-</ul>
-
-<p>Remove the given element(s) from Posse(s). As with <code>addToPosse</code>, the second parameter is a varargs parameter: you can
-supply a number of posse IDs at once:</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeFromPosse</span><span class="p">(</span><span class="s2">&quot;flowchartWindow1&quot;</span><span class="p">,</span> <span class="s2">&quot;posse1&quot;</span><span class="p">,</span> <span class="s2">&quot;posse2&quot;</span><span class="p">);</span>
-</code></pre></div>
-<ul>
-<li><strong>removeFromAllPosses</strong></li>
-</ul>
-
-<p>Remove the given element(s) from all of the Posses to which it/they belong.</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeFromAllPosses</span><span class="p">(</span><span class="s2">&quot;flowchartWindow1&quot;</span><span class="p">);</span>
- <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeFromAllPosses</span><span class="p">([</span><span class="s2">&quot;flowchartWindow2&quot;</span><span class="p">,</span> <span class="s2">&quot;flowchartWindow3&quot;</span><span class="p">]);</span>
+<p>You can disable dragging for a specific element by setting a <code>jtk-not-draggable</code> attribute on it. </p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;div jtk-not-draggable&gt;
+This div is not draggable
+&lt;/div&gt;
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">&lt;div jtk-not-draggable=&quot;true&quot;&gt;
+Neither is this
+&lt;/div&gt;
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">&lt;div jtk-not-draggable=&quot;false&quot;&gt;
+This is draggable. But you could just omit/delete the attribute.
+&lt;/div&gt;
 </code></pre></div>
 <p><a name="selection"></a></p>
 
