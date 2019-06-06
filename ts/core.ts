@@ -1363,7 +1363,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         });
 
 
-        return ep.length > 1 ? ep : ep[0];
+        return ep[0] || ep;
     }
 
     addEndpoints(el:ElementSpec<E>, endpoints:Array<EndpointOptions<E>>, referenceParams?:any):Array<Endpoint<E>> {
