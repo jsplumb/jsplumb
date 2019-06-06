@@ -1257,6 +1257,62 @@ var testSuite = function (_jsPlumb) {
         equal(parseInt(d.style.top, 10), 150);
     });
 
+    test("dragging does not happen with `jtk-not-draggable` attribute set", function() {
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+        d.setAttribute("jtk-not-draggable", true);
+
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class not set on element during drag attempt");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class not set on element after drag attempt");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+    });
+
+    test("dragging does happen with `jtk-not-draggable='false'` attribute set", function() {
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+        d.setAttribute("jtk-not-draggable", "false");
+
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element during drag");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class not set on element after drag");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 150);
+        equal(parseInt(d.style.top, 10), 150);
+    });
+
     // test("dragging a posse works, elements as argument", function() {
     //
     //     var d = support.addDiv("d1");
