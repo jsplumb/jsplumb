@@ -45,3 +45,14 @@ export function sizeElement (el:HTMLElement, x:number, y:number, w:number, h:num
     }
 }
 
+export function findParent(el:HTMLElement, selector:string, container:HTMLElement):HTMLElement {
+    let pn:any = el;
+    while (pn != null && pn !== container) {
+        if (matchesSelector(pn, selector)) {
+            return pn;
+        } else {
+            pn = pn.parentNode;
+        }
+    }
+}
+
