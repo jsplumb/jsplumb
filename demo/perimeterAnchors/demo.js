@@ -2,15 +2,13 @@ jsPlumb.ready(function () {
 
     var instance = jsPlumb.getInstance({
         connector: "StateMachine",
-        PaintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
-        Endpoint: [ "Dot", { radius: 5 } ],
-        EndpointStyle: { fill: "#ffa500" },
+        paintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
+        endpoint: [ "Dot", { radius: 5 } ],
+        endpointStyle: { fill: "#ffa500" },
         container: "canvas"
     });
 
     var shapes = jsPlumb.getSelector(".shape");
-    // make everything draggable
-   // instance.draggable(shapes);
 
     // suspend drawing and initialise.
     instance.batch(function () {
