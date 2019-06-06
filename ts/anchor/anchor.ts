@@ -1,4 +1,4 @@
-import {jsPlumbInstance} from "../core";
+import {jsPlumbInstance, Offset, PointArray} from "../core";
 import {EventGenerator} from "../event-generator";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, ComputedAnchorPosition,  Orientation } from "../factory/anchor-factory";
@@ -19,6 +19,8 @@ export class Anchor<E> extends EventGenerator {
     y: number;
     timestamp:string;
     lastReturnValue: ComputedAnchorPosition;
+
+    positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:PointArray, constructorParams:any) => any;
 
     clone:() => Anchor<E>;
 
