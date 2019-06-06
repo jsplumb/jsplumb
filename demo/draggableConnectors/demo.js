@@ -204,7 +204,7 @@
 
             var dragLinks = jsPlumb.getSelector(".drag-drop-demo .drag");
             instance.on(dragLinks, "click", function (e) {
-                var s = instance.toggleDraggable(this.getAttribute("rel"));
+                var s = instance.toggleDraggable(instance.getElement(this.getAttribute("rel")));
                 this.innerHTML = (s ? 'disable dragging' : 'enable dragging');
                 jsPlumbUtil.consume(e);
             });
