@@ -1742,31 +1742,27 @@
             return [ el.offsetWidth, el.offsetHeight ];
         },
         getRenderMode : function() { return "svg"; },
-        // setDraggable : function (element, draggable) {
-        //     return jsPlumb.each(element, function (el) {
-        //         //if (this.isDragSupported(el)) {
-        //             this._draggableStates[this.getAttribute(el, "id")] = draggable;
-        //             this.setElementDraggable(el, draggable);
-        //         //}
-        //     }.bind(this));
-        // },
-        // _draggableStates : {},
-        // /*
-        //  * toggles the draggable state of the given element(s).
-        //  * el is either an id, or an element object, or a list of ids/element objects.
-        //  */
-        // toggleDraggable : function (el) {
-        //     var state;
-        //     jsPlumb.each(el, function (el) {
-        //         var elId = this.getAttribute(el, "id");
-        //         state = this._draggableStates[elId] == null ? false : this._draggableStates[elId];
-        //         state = !state;
-        //         this._draggableStates[elId] = state;
-        //         this.setDraggable(el, state);
-        //         return state;
-        //     }.bind(this));
-        //     return state;
-        // },
+        setDraggable : function (element, draggable) {
+            if (draggable) {
+                this.removeAttribute(element, "jtk-not-draggable");
+            } else {
+                this.setAttribute(element, "jtk-not-draggable", "true");
+            }
+        },
+        isDraggable:function(el) {
+            var d = this.getAttribute(el, "jtk-not-draggable");
+            return d == null || d === "false";
+        },
+        /*
+         * toggles the draggable state of the given element(s).
+         * el is either an id, or an element object, or a list of ids/element objects.
+         */
+        toggleDraggable : function (el) {
+            var state = this.isDraggable(el);
+            this.setDraggable(el, !state);
+            return !state;
+        },
+
         animationSupported:true,
         getElement: function (el) {
             if (el == null) {
