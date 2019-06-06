@@ -83,3 +83,7 @@
 #list table th, #list strong { color:black; font-size:12px; text-align: center; }
 
 path, .jtk-endpoint { cursor:pointer; }
+
+[jtk-not-draggable] {
+    border:2px solid darkorange !important;
+}
