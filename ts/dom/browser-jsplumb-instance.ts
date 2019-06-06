@@ -459,4 +459,27 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         return [ x, y ];
     }
+
+    setDraggable(element:HTMLElement, draggable:boolean) {
+        if (draggable) {
+            this.removeAttribute(element, "jtk-not-draggable");
+        } else {
+            this.setAttribute(element, "jtk-not-draggable", "true");
+        }
+    }
+
+    isDraggable(el:HTMLElement):boolean {
+        let d = this.getAttribute(el, "jtk-not-draggable");
+        return d == null || d === "false";
+    }
+
+    /*
+     * toggles the draggable state of the given element(s).
+     * el is either an id, or an element object, or a list of ids/element objects.
+     */
+    toggleDraggable (el:HTMLElement):boolean {
+        let state = this.isDraggable(el);
+        this.setDraggable(el, !state);
+        return !state;
+    }
 }
