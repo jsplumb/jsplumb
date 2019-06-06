@@ -2079,7 +2079,7 @@
         var _dispatch = function(evt, value) {
             var result = null;
             if (activeSelectorParams && activeSelectorParams[evt]) {
-                activeSelectorParams[evt](value);
+                result = activeSelectorParams[evt](value);
             } else if (listeners[evt]) {
                 for (var i = 0; i < listeners[evt].length; i++) {
                     try {
@@ -2104,9 +2104,14 @@
                     sel = k.getSelection(),
                     dPos = this.params.getPosition(dragEl);
 
-                for (var i = 0; i < sel.length; i++) {
-                    var p = this.params.getPosition(sel[i].el);
-                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        var p = this.params.getPosition(sel[i].el);
+                        positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                    }
+                }
+                else {
+                    positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
                 }
 
                 _dispatch("stop", {
@@ -13499,6 +13504,12 @@
             if (options.canDrag) {
                 cont = options.canDrag();
             }
+
+            var nd = el.getAttribute("jtk-not-draggable");
+            if (nd != null && nd !== "false" ) {
+                cont = false;
+            }
+
             if (cont) {
 
                 _groupLocations.length = 0;
@@ -14007,42 +14018,45 @@
 
             _currentInstance.getSelector(_currentInstance.getContainer(), selectors.join(",")).forEach(function(candidate) {
 
-                var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
-                boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                var d = {el:candidate, r:boundingRect},
-                    targetDefinitionIdx = -1,
-                    sourceDefinitionIdx = -1;
+                if (candidate !== ep.element) {
 
-              //  if (epIsSource) {
+                    var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
+                    boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
+                    var d = {el: candidate, r: boundingRect},
+                        targetDefinitionIdx = -1,
+                        sourceDefinitionIdx = -1;
+
+                    //  if (epIsSource) {
                     // look for at least one target definition that is not disabled on the given element.
                     targetDefinitionIdx = _ju.findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
                         return tdef.enabled !== false;
                     });
-                //}
+                    //}
 
-                //if (epIsTarget) {
+                    //if (epIsTarget) {
                     // look for at least one target definition that is not disabled on the given element.
                     sourceDefinitionIdx = _ju.findWithFunction(candidate._jsPlumbSourceDefinitions, function (tdef) {
                         return tdef.enabled !== false;
                     });
-                //}
+                    //}
 
-                // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
-                if (targetDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+                    // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
+                    if (targetDefinitionIdx !== -1) {
+                        if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                            d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+                        }
+                        endpointDropTargets.push(d);
+                        _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                     }
-                    endpointDropTargets.push(d);
-                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
-                }
 
-                // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
-                if (sourceDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+                    // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
+                    if (sourceDefinitionIdx !== -1) {
+                        if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                            d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+                        }
+                        endpointDropTargets.push(d);
+                        _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                     }
-                    endpointDropTargets.push(d);
-                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
 
             });
@@ -14269,29 +14283,13 @@
                     jpc._forceDetach = false;
                 }
                 else {
-                    _currentInstance.deleteObject({endpoint: jpc.suspendedEndpoint});
-                    // if (jpc.pending) {
-                        // connection discardded?
-                    //     _currentInstance.fire("connectionAborted", jpc, originalEvent);
-                    // }
+                    // it seems nothing needs to happen here now, after the refactor?
                 }
-
             } else {
                 if (jpc.pending) {
                     _currentInstance.fire("connectionAborted", jpc, originalEvent);
                 }
             }
-        }
-
-        //
-        // discards the current connection
-        //
-        function _discard(originalEvent) {
-            if (jpc.pending) {
-                _currentInstance.fire("connectionAborted", jpc, originalEvent);
-            }
-
-            //console.log("placeholder..we're discarding the connection here");
         }
 
         //
@@ -14441,7 +14439,6 @@
             var reattached = false;
             var aborted = false;
 
-            console.log("drag ended on endpoint");
             _currentInstance.setConnectionBeingDragged(false);
 
             if (jpc && jpc.endpoints != null) {
@@ -14457,7 +14454,6 @@
                 }
 
                 if (currentDropTarget != null) {
-                    console.log("dropped on a target" + currentDropTarget.el);
 
                     var dropEndpoint = _getDropEndpoint(p, jpc);
 
@@ -14764,8 +14760,7 @@
         // replaces what in previous versions was a mousedown/mouseup handler per element.
         //
         _currentInstance.on(_currentInstance.getContainer(), "mouseup", "[jtk-source]", function(e) {
-            console.log("a mouse up event occurred on a source element");
-            console.dir(e);
+
             if (this._jsPlumbOrphanedEndpoints) {
                 _jp.each(this._jsPlumbOrphanedEndpoints, function(ep) {
                     if (!ep.isDeleteOnEmpty() && ep.connections.length === 0) {
@@ -15001,9 +14996,7 @@
             return sel;
         },
         getOffset:function(el, relativeToRoot, container) {
-            window.jtime("get offset");
-            //console.log("get offset arg was " + el);
-            //el = jsPlumb.getElement(el);
+
             container = container || this.getContainer();
             var out = {
                     left: el.offsetLeft,
@@ -15034,7 +15027,6 @@
                     out.top -= container.scrollTop;
                 }
             }
-            window.jtimeEnd("get offset");
 
             return out;
         },
@@ -15070,31 +15062,27 @@
             return [ el.offsetWidth, el.offsetHeight ];
         },
         getRenderMode : function() { return "svg"; },
-        // setDraggable : function (element, draggable) {
-        //     return jsPlumb.each(element, function (el) {
-        //         //if (this.isDragSupported(el)) {
-        //             this._draggableStates[this.getAttribute(el, "id")] = draggable;
-        //             this.setElementDraggable(el, draggable);
-        //         //}
-        //     }.bind(this));
-        // },
-        // _draggableStates : {},
-        // /*
-        //  * toggles the draggable state of the given element(s).
-        //  * el is either an id, or an element object, or a list of ids/element objects.
-        //  */
-        // toggleDraggable : function (el) {
-        //     var state;
-        //     jsPlumb.each(el, function (el) {
-        //         var elId = this.getAttribute(el, "id");
-        //         state = this._draggableStates[elId] == null ? false : this._draggableStates[elId];
-        //         state = !state;
-        //         this._draggableStates[elId] = state;
-        //         this.setDraggable(el, state);
-        //         return state;
-        //     }.bind(this));
-        //     return state;
-        // },
+        setDraggable : function (element, draggable) {
+            if (draggable) {
+                this.removeAttribute(element, "jtk-not-draggable");
+            } else {
+                this.setAttribute(element, "jtk-not-draggable", "true");
+            }
+        },
+        isDraggable:function(el) {
+            var d = this.getAttribute(el, "jtk-not-draggable");
+            return d == null || d === "false";
+        },
+        /*
+         * toggles the draggable state of the given element(s).
+         * el is either an id, or an element object, or a list of ids/element objects.
+         */
+        toggleDraggable : function (el) {
+            var state = this.isDraggable(el);
+            this.setDraggable(el, !state);
+            return !state;
+        },
+
         animationSupported:true,
         getElement: function (el) {
             if (el == null) {
