@@ -162,6 +162,12 @@
             if (options.canDrag) {
                 cont = options.canDrag();
             }
+
+            var nd = el.getAttribute("jtk-not-draggable");
+            if (nd != null && nd !== "false" ) {
+                cont = false;
+            }
+
             if (cont) {
 
                 _groupLocations.length = 0;
@@ -670,42 +676,45 @@
 
             _currentInstance.getSelector(_currentInstance.getContainer(), selectors.join(",")).forEach(function(candidate) {
 
-                var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
-                boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                var d = {el:candidate, r:boundingRect},
-                    targetDefinitionIdx = -1,
-                    sourceDefinitionIdx = -1;
+                if (candidate !== ep.element) {
 
-              //  if (epIsSource) {
+                    var o = _currentInstance.getOffset(candidate), s = _currentInstance.getSize(candidate);
+                    boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
+                    var d = {el: candidate, r: boundingRect},
+                        targetDefinitionIdx = -1,
+                        sourceDefinitionIdx = -1;
+
+                    //  if (epIsSource) {
                     // look for at least one target definition that is not disabled on the given element.
                     targetDefinitionIdx = _ju.findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
                         return tdef.enabled !== false;
                     });
-                //}
+                    //}
 
-                //if (epIsTarget) {
+                    //if (epIsTarget) {
                     // look for at least one target definition that is not disabled on the given element.
                     sourceDefinitionIdx = _ju.findWithFunction(candidate._jsPlumbSourceDefinitions, function (tdef) {
                         return tdef.enabled !== false;
                     });
-                //}
+                    //}
 
-                // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
-                if (targetDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+                    // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
+                    if (targetDefinitionIdx !== -1) {
+                        if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                            d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+                        }
+                        endpointDropTargets.push(d);
+                        _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                     }
-                    endpointDropTargets.push(d);
-                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
-                }
 
-                // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
-                if (sourceDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+                    // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
+                    if (sourceDefinitionIdx !== -1) {
+                        if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                            d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+                        }
+                        endpointDropTargets.push(d);
+                        _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                     }
-                    endpointDropTargets.push(d);
-                    _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
                 }
 
             });

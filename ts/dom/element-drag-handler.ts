@@ -169,6 +169,12 @@ export class ElementDragHandler implements DragHandler {
             if (options.canDrag) {
                 cont = options.canDrag();
             }
+
+            let nd = el.getAttribute("jtk-not-draggable");
+            if (nd != null && nd !== "false" ) {
+                cont = false;
+            }
+
             if (cont) {
 
                 this._groupLocations.length = 0;
