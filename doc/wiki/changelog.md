@@ -35,12 +35,15 @@ the defaults into line with the parameters used in method calls like `connect` a
 for every scope that is assigned.
 
 
+
 ### New Functionality
 
 - `elementsDraggable` added to `Defaults`, with a default value of true.
 
 - Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
 be supported on individual `draggable(..)` method calls.
+
+- Upgraded to Katavorio 1.4.6
 
 ## 2.10.0
 
