@@ -941,29 +941,13 @@
                     jpc._forceDetach = false;
                 }
                 else {
-                    _currentInstance.deleteObject({endpoint: jpc.suspendedEndpoint});
-                    // if (jpc.pending) {
-                        // connection discardded?
-                    //     _currentInstance.fire("connectionAborted", jpc, originalEvent);
-                    // }
+                    // it seems nothing needs to happen here now, after the refactor?
                 }
-
             } else {
                 if (jpc.pending) {
                     _currentInstance.fire("connectionAborted", jpc, originalEvent);
                 }
             }
-        }
-
-        //
-        // discards the current connection
-        //
-        function _discard(originalEvent) {
-            if (jpc.pending) {
-                _currentInstance.fire("connectionAborted", jpc, originalEvent);
-            }
-
-            //console.log("placeholder..we're discarding the connection here");
         }
 
         //
@@ -1113,7 +1097,6 @@
             var reattached = false;
             var aborted = false;
 
-            console.log("drag ended on endpoint");
             _currentInstance.setConnectionBeingDragged(false);
 
             if (jpc && jpc.endpoints != null) {
@@ -1129,7 +1112,6 @@
                 }
 
                 if (currentDropTarget != null) {
-                    console.log("dropped on a target" + currentDropTarget.el);
 
                     var dropEndpoint = _getDropEndpoint(p, jpc);
 
@@ -1436,8 +1418,7 @@
         // replaces what in previous versions was a mousedown/mouseup handler per element.
         //
         _currentInstance.on(_currentInstance.getContainer(), "mouseup", "[jtk-source]", function(e) {
-            console.log("a mouse up event occurred on a source element");
-            console.dir(e);
+
             if (this._jsPlumbOrphanedEndpoints) {
                 _jp.each(this._jsPlumbOrphanedEndpoints, function(ep) {
                     if (!ep.isDeleteOnEmpty() && ep.connections.length === 0) {
@@ -1673,9 +1654,7 @@
             return sel;
         },
         getOffset:function(el, relativeToRoot, container) {
-            window.jtime("get offset");
-            //console.log("get offset arg was " + el);
-            //el = jsPlumb.getElement(el);
+
             container = container || this.getContainer();
             var out = {
                     left: el.offsetLeft,
@@ -1706,7 +1685,6 @@
                     out.top -= container.scrollTop;
                 }
             }
-            window.jtimeEnd("get offset");
 
             return out;
         },
