@@ -218,7 +218,7 @@ module.exports = function(grunt) {
     });
 
 
-    grunt.registerTask("build", [ 'build-src', 'exec:npmpack' ]);
+    grunt.registerTask("build", [ 'build-src', 'exec:npmpack', 'build-docs' ]);
     grunt.registerTask('build-src', ['clean', 'jshint', 'concat', 'uglify', 'insertVersion' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-docs', ['clean:docs', 'docs', 'jekyll', 'finaliseDocs', 'copy:docs', 'copy:docs_js','copy:docs_css','copy:docs_img']);

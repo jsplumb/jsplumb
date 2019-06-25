@@ -1253,8 +1253,8 @@
         this.length = params.length || 20;
         this.width = params.width || 20;
         this.id = params.id;
-        var direction = (params.direction || 1) < 0 ? -1 : 1,
-            paintStyle = params.paintStyle || { "stroke-width": 1 },
+        this.direction = (params.direction || 1) < 0 ? -1 : 1;
+        var paintStyle = params.paintStyle || { "stroke-width": 1 },
         // how far along the arrow the lines folding back in come to. default is 62.3%.
             foldback = params.foldback || 0.623;
 
@@ -1280,7 +1280,7 @@
                     var l = parseInt(this.loc, 10),
                         fromLoc = this.loc < 0 ? 1 : 0;
                     hxy = component.pointAlongPathFrom(fromLoc, l, false);
-                    mid = component.pointAlongPathFrom(fromLoc, l - (direction * this.length / 2), false);
+                    mid = component.pointAlongPathFrom(fromLoc, l - (this.direction * this.length / 2), false);
                     txy = _jg.pointOnLine(hxy, mid, this.length);
                 }
                 else if (this.loc === 1) {
@@ -1288,7 +1288,7 @@
                     mid = component.pointAlongPathFrom(this.loc, -(this.length));
                     txy = _jg.pointOnLine(hxy, mid, this.length);
 
-                    if (direction === -1) {
+                    if (this.direction === -1) {
                         var _ = txy;
                         txy = hxy;
                         hxy = _;
@@ -1298,14 +1298,14 @@
                     txy = component.pointOnPath(this.loc);
                     mid = component.pointAlongPathFrom(this.loc, this.length);
                     hxy = _jg.pointOnLine(txy, mid, this.length);
-                    if (direction === -1) {
+                    if (this.direction === -1) {
                         var __ = txy;
                         txy = hxy;
                         hxy = __;
                     }
                 }
                 else {
-                    hxy = component.pointAlongPathFrom(this.loc, direction * this.length / 2);
+                    hxy = component.pointAlongPathFrom(this.loc, this.direction * this.length / 2);
                     mid = component.pointOnPath(this.loc);
                     txy = _jg.pointOnLine(hxy, mid, this.length);
                 }

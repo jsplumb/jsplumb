@@ -458,6 +458,8 @@
                 this.canvas = this.connector.canvas;
                 this.bgCanvas = this.connector.bgCanvas;
 
+                this.connector.reattach(this._jsPlumb.instance);
+
                 // put classes from prior connector onto the canvas
                 this.addClass(previousClasses);
 
