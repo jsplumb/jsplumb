@@ -1582,6 +1582,15 @@
         for (var i = 0; i < availableSelectors.length; i++) {
             el = findDelegateElement(parentElement, childElement, prefix + availableSelectors[i].selector);
             if (el != null) {
+                if (availableSelectors[i].filter) {
+                    var matches = matchesSelector(childElement, availableSelectors[i].filter, el),
+                        exclude = availableSelectors[i].filterExclude === true;
+
+                    if ( (exclude && !matches) || matches) {
+                        return null;
+                    }
+
+                }
                 return [ availableSelectors[i], el ];
             }
         }
@@ -2079,7 +2088,7 @@
         var _dispatch = function(evt, value) {
             var result = null;
             if (activeSelectorParams && activeSelectorParams[evt]) {
-                activeSelectorParams[evt](value);
+                result = activeSelectorParams[evt](value);
             } else if (listeners[evt]) {
                 for (var i = 0; i < listeners[evt].length; i++) {
                     try {
@@ -2104,9 +2113,14 @@
                     sel = k.getSelection(),
                     dPos = this.params.getPosition(dragEl);
 
-                for (var i = 0; i < sel.length; i++) {
-                    var p = this.params.getPosition(sel[i].el);
-                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                if (sel.length > 0) {
+                    for (var i = 0; i < sel.length; i++) {
+                        var p = this.params.getPosition(sel[i].el);
+                        positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ]);
+                    }
+                }
+                else {
+                    positions.push([ dragEl, {left:dPos[0], top:dPos[1]}, this ]);
                 }
 
                 _dispatch("stop", {
@@ -2148,7 +2162,7 @@
         this.unmark = function(e, doNotCheckDroppables) {
             _setDroppablesActive(matchingDroppables, false, true, this);
 
-            if (isConstrained && useGhostProxy(elementToDrag)) {
+            if (isConstrained && useGhostProxy(elementToDrag, dragEl)) {
                 ghostProxyOffsets = [dragEl.offsetLeft - ghostDx, dragEl.offsetTop - ghostDy];
                 dragEl.parentNode.removeChild(dragEl);
                 dragEl = elementToDrag;
@@ -2178,7 +2192,7 @@
                 cPos = constrain(desiredLoc, dragEl, constrainRect, this.size);
 
             // if we should use a ghost proxy...
-            if (useGhostProxy(this.el)) {
+            if (useGhostProxy(this.el, dragEl)) {
                 // and the element has been dragged outside of its parent bounds
                 if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
 
@@ -4226,7 +4240,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.10.0";
+        this.version = "2.10.1";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -6223,7 +6237,8 @@
                         // the params passed in, because after a connection is established we're going to reset the endpoint
                         // to have the anchor we were given.
                         var tempEndpointParams = {};
-                        root.jsPlumb.extend(tempEndpointParams, p);
+                        //root.jsPlumb.extend(tempEndpointParams, p);
+                        root.jsPlumb.extend(tempEndpointParams, def.def);
                         tempEndpointParams.isTemporarySource = true;
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
