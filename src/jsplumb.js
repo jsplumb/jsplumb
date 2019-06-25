@@ -2461,7 +2461,7 @@
                         // the params passed in, because after a connection is established we're going to reset the endpoint
                         // to have the anchor we were given.
                         var tempEndpointParams = {};
-                        root.jsPlumb.extend(tempEndpointParams, p);
+                        root.jsPlumb.extend(tempEndpointParams, def.def);
                         tempEndpointParams.isTemporarySource = true;
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
