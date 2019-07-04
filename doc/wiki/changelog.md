@@ -47,6 +47,12 @@ be supported on individual `draggable(..)` method calls.
 
 ## 2.10.1
 
+July 4th 2019
+
+- Upgraded to Katavorio 1.4.8
+
+## 2.10.1
+
 June 25th 2019
 
 - refactored how makeSource gets its source parameters, so that call sites can manipulate the parameters after the makeSource call.
