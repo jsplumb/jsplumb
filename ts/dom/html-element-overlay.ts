@@ -126,8 +126,10 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
         // this.canvas.style.left = (params.component.x + params.d.minx) + "px";
         // this.canvas.style.top = (params.component.y + params.d.miny) + "px";
 
-        this.canvas.style.left = (<any>this.overlay.component).connector.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
-        this.canvas.style.top = (<any>this.overlay.component).connector.y + params.d.miny + "px";
+        let XY = this.overlay.component.getXY();
+
+        this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
+        this.canvas.style.top = XY.y + params.d.miny + "px";
     }
 
 
