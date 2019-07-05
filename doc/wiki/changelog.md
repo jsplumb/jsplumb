@@ -1,3 +1,8 @@
+## 4.x alpha
+
+- Rewrote in Typescript
+- Major refactoring of the rendering pipeline
+
 ## 3.x alpha
 
 This release focuses on performance enhancements, and contains several breaking changes.

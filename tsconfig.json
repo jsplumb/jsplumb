@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "es2015",
+    "outDir": "_build_es6",
+    "moduleResolution": "node",
+    "sourceMap": false,
+    "declaration":true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+    "lib": [ "es2015", "dom" ],
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowJs":false
+
+  },
+  "include": ["ts/**/*.ts"],
+  "exclude":["node_modules", "**/*.d.ts"]
+}

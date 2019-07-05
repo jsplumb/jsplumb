@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <title>All qUnit tests</title>
+        <link rel="stylesheet" href="../qunit-1.11.0.css" type="text/css" media="screen">
+        <script src="../qunit-1.11.0.js"></script>
+
+
+
+        <script src="../../../node_modules/mottle/js/mottle.js"></script>
+        <script src="../../../node_modules/katavorio/src/katavorio.js"></script>
+        <script src="../../../node_modules/biltong/src/biltong.js"></script>
+        <script src="../../../node_modules/jsbezier/js/jsbezier.js"></script>
+        <script src="../../../dist/jsplumb-rollup.js"></script>
+
+        <!-- TEST -->
+        <script src="tests.js"></script>
+        <script src="../test-support-dom.js"></script>
+        <!-- /TEST -->
+
+    </head>
+    <body>
+        <h1 id="qunit-header">All qUnit tests</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+
+        <script type="text/javascript">
+            jsPlumb.ready(testSuite.bind(testSuite, jsPlumb.newInstance()));
+        </script>
+    </body>
+</html>
