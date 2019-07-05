@@ -1,6 +1,7 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry, PaintParams} from "./abstract-connector";
 import {jsPlumbInstance, PointArray} from "../core";
 import {ComputedAnchorPosition} from "../factory/anchor-factory";
+import {ArcSegment} from "./arc-segment";
 
 export interface AbstractBezierOptions {
     showLoopback?:boolean;
@@ -64,7 +65,7 @@ export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
             paintInfo.points[3] = _h;
 
             // ADD AN ARC SEGMENT.
-            this._addSegment("Arc", {
+            this._addSegment(ArcSegment, {
                 loopback: true,
                 x1: (x1 - _x) + 4,
                 y1: y1 - _y,
