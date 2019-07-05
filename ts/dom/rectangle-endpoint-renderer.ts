@@ -18,15 +18,15 @@ class SvgElementRectangleEndpointRenderer extends SvgEndpoint<ComputedRectangleE
 
     makeNode (style:PaintStyle) {
         return _node(this.instance, "rect", {
-            "width": this.endpoint.w,
-            "height": this.endpoint.h
+            "width": this.ep.w,
+            "height": this.ep.h
         });
     }
 
     updateNode (node:SVGElement) {
         _attr(node, {
-            "width": this.endpoint.w,
-            "height": this.endpoint.h
+            "width": this.ep.w,
+            "height": this.ep.h
         });
     }
 }
