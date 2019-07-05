@@ -1,6 +1,6 @@
 jsPlumb.ready(function () {
 
-    var j = window.j = jsPlumb.getInstance({Container:canvas, Connector:"StateMachine", Endpoint:["Dot", {radius:3}], Anchor:"Center"});
+    var j = window.j = jsPlumb.getInstance({container:canvas, connector:"StateMachine", endpoint:["Dot", {radius:3}], anchor:"Center"});
 
     j.bind("connection", function(p) {
         p.connection.bind("click", function() {
@@ -42,7 +42,6 @@ jsPlumb.ready(function () {
 
     // NOTE ordering here. we make one draggable before adding it to the group, and we add the other to the group
     //before making it draggable. they should both be constrained to the group extents.
-    j.draggable(c1_1);
     j.addGroup({
         el:container1,
         id:"one",
@@ -53,10 +52,7 @@ jsPlumb.ready(function () {
     });
     j.addToGroup("one", c1_1);
     j.addToGroup("one", c1_2);
-    j.draggable(c1_2);
 
-
-    j.draggable(c2_1);
     j.addGroup({
         el:container2,
         id:"two",
@@ -65,9 +61,7 @@ jsPlumb.ready(function () {
     });  //(the default is to revert)
     j.addToGroup("two", c2_1);
     j.addToGroup("two", c2_2);
-    j.draggable(c2_2);
 
-    j.draggable(c3_1);
     j.addGroup({
         el:container3,
         id:"three",
@@ -76,9 +70,7 @@ jsPlumb.ready(function () {
     });
     j.addToGroup("three", c3_1);
     j.addToGroup("three", c3_2);
-    j.draggable(c3_2);
 
-    j.draggable(c4_1);
     j.addGroup({
         el:container4,
         id:"four",
@@ -87,9 +79,7 @@ jsPlumb.ready(function () {
     });
     j.addToGroup("four", c4_1);
     j.addToGroup("four", c4_2);
-    j.draggable(c4_2);
 
-    j.draggable(c5_1);
     j.addGroup({
         el:container5,
         id:"five",
@@ -98,9 +88,7 @@ jsPlumb.ready(function () {
         endpoint:["Dot", { radius:3 }]
     });
     j.addToGroup("five", [c5_1, c5_2]);
-    j.draggable(c5_2);
 
-    j.draggable(c6_1);
     j.addGroup({
         el:container6,
         id:"six",
@@ -108,9 +96,7 @@ jsPlumb.ready(function () {
         endpoint:["Dot", { radius:3 }]
     });
     j.addToGroup("six", [c6_1, c6_2]);
-    j.draggable(c6_2);
 
-    j.draggable(c7_1);
     j.addGroup({
         el:container7,
         id:"seven",
@@ -118,10 +104,9 @@ jsPlumb.ready(function () {
         endpoint:["Dot", { radius:3 }]
     });
     j.addToGroup("seven", [c7_1, c7_2]);
-    j.draggable(c7_2);
 
     // the independent element that demonstrates the fact that it can be dropped onto a group
-    j.draggable("standalone");
+    j.manage("standalone");
 
     //... and connect others afterwards.
     j.connect({source:c3_1,target:c3_2});

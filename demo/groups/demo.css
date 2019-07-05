@@ -105,6 +105,10 @@
     display:none;
 }
 
+.jtk-drag-active {
+    outline:4px solid darkseagreen;
+}
+
 .jtk-drag-hover {
     outline:4px solid cornflowerblue;
 }

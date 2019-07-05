@@ -1,3 +1,47 @@
+## 3.x alpha
+
+This release focuses on performance enhancements, and contains several breaking changes.
+
+The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
+individually, we now use a single event listener on the container. 
+
+### Breaking changes
+
+- By default, every node is draggable. `.draggable(someElement)` no longer exists.
+
+- It is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
+first element to which an endpoint is added.
+
+- `manageElement` and `unmanageElement` events no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
+ in case you have code that used them.
+ 
+- Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
+class but we include it here for completeness
+
+- All defaults converted to camelCase instead of having a leading capital, eg. "Anchors" -> "anchors", "ConnectionsDetachable" -> "connectionsDetachable". This brings
+the defaults into line with the parameters used in method calls like `connect` and `addEndpoint` etc.
+
+- The `LogEnabled` and `DoNotThrowErrors` defaults have been removed.
+
+- `getWidth` and `getHeight` methods removed from jsPlumb instance.
+
+- `updateClasses` method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.
+
+- `setClass` method removed from jsPlumb.
+
+- It is not possible to subclass Connection or Endpoint to provide your own implementations now.
+  
+- Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
+for every scope that is assigned.
+
+
+### New Functionality
+
+- `elementsDraggable` added to `Defaults`, with a default value of true.
+
+- Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
+be supported on individual `draggable(..)` method calls.
+ 
 ## 2.10.1
 
 July 4th 2019

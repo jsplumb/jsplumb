@@ -7154,7 +7154,7 @@ jsPlumb.ready(function() {
 
         this.scope = params.scope || _jsPlumb.getDefaultScope();
         this.timestamp = null;
-        this.reattachConnections = params.reattach || _jsPlumb.Defaults.ReattachConnections;
+        this.reattachConnections = params.reattach || _jsPlumb.Defaults.reattachConnections;
         this.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
         if (params.connectionsDetachable === false || params.detachable === false)
             this.connectionsDetachable = false;
@@ -8298,7 +8298,7 @@ jsPlumb.ready(function() {
         if (this.endpoints[0].connectionsDetachable === false) _detachable = false;
         if (this.endpoints[1].connectionsDetachable === false) _detachable = false;
         // REATTACH
-        var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.ReattachConnections;
+        var _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || _jsPlumb.Defaults.reattachConnections;
 
         this.appendToDefaultType({
             detachable: _detachable,
@@ -8683,8 +8683,8 @@ jsPlumb.ready(function() {
                 e = _newEndpoint({
                     paintStyle: es, hoverPaintStyle: ehs, endpoint: ep, connections: [ conn ],
                     uuid: u, anchor: a, source: element, scope: params.scope,
-                    reattach: params.reattach || _jsPlumb.Defaults.ReattachConnections,
-                    detachable: params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
+                    reattach: params.reattach || _jsPlumb.Defaults.reattachConnections,
+                    detachable: params.detachable || _jsPlumb.Defaults.connectionsDetachable
                 });
                 conn.endpoints[index] = e;
 

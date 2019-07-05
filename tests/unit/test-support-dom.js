@@ -38,8 +38,21 @@
             pageY: t
         };
     };
+
+    var _makeDragStartEvt = function(_jsPlumb, el) {
+        var e = _makeEvt(_jsPlumb, el), c = _jsPlumb.getContainer();
+        e.clientX += c.offsetLeft;
+        e.screenX += c.offsetLeft;
+        e.pageX += c.offsetLeft;
+        e.clientY += c.offsetTop;
+        e.screenY += c.offsetTop;
+        e.pageY += c.offsetTop;
+        return e;
+    };
+
     var _dragANodeAround = function(_jsPlumb, el, functionToAssertWhileDragging, assertMessage) {
         _jsPlumb.trigger(el, "mousedown", _makeEvt(_jsPlumb, el));
+        //_jsPlumb.trigger(_jsPlumb.getContainer(), "mousedown", _makeEvt(_jsPlumb, el));
         var steps = Math.random() * 50;
         for (var i = 0; i < steps; i++) {
             var evt = _randomEvent();
@@ -57,12 +70,15 @@
 
     var _dragNodeTo = function(_jsPlumb, el, x, y, events) {
         events = events || {};
+        var size = _jsPlumb.getSize(el);
         if (events.before) events.before();
-        _jsPlumb.trigger(el, "mousedown", _makeEvt(_jsPlumb, el));
+        var downEvent = _makeEvt(_jsPlumb, el);
+        _jsPlumb.trigger(el, "mousedown", downEvent);
+        //_jsPlumb.trigger(_jsPlumb.getContainer(), "mousedown", _makeEvt(_jsPlumb, el));
         if (events.beforeMouseMove) {
             events.beforeMouseMove();
         }
-        _t(document, "mousemove", x, y);
+        _t(document, "mousemove", x + (size[0] / 2), y + (size[1] / 2));
         if (events.beforeMouseUp) {
             events.beforeMouseUp();
         }
@@ -71,8 +87,19 @@
     };
 
     var _dragNodeBy = function(_jsPlumb, el, x, y, events) {
-        var xy = _jsPlumb.getOffset(el);
-        _dragNodeTo(_jsPlumb, el, xy.left+x, xy.top+y, events);
+        events = events || {};
+        if (events.before) events.before();
+        var downEvent = _makeEvt(_jsPlumb, el);
+        _jsPlumb.trigger(el, "mousedown", downEvent);
+        if (events.beforeMouseMove) {
+            events.beforeMouseMove();
+        }
+        _t(document, "mousemove", downEvent.pageX + x, downEvent.pageY + y);
+        if (events.beforeMouseUp) {
+            events.beforeMouseUp();
+        }
+        mottle.trigger(document, "mouseup");
+        if (events.after) events.after();
     };
 
     //
@@ -86,7 +113,7 @@
 
         _jsPlumb.trigger(el1, "mousedown", e1);
         _jsPlumb.trigger(document, "mousemove", e2);
-        _jsPlumb.trigger(el2, "mouseup", e2);
+        _jsPlumb.trigger(document, "mouseup", e2);
 
         return _jsPlumb.select().get(conns);
     };
@@ -133,7 +160,7 @@
         events.beforeMouseMove && events.beforeMouseMove();
         _jsPlumb.trigger(document, "mousemove", e2);
         events.beforeMouseUp && events.beforeMouseUp();
-        _jsPlumb.trigger(newEl, "mouseup", e2);
+        _jsPlumb.trigger(document, "mouseup", e2);
 
         events.after && events.after();
     };
@@ -157,6 +184,7 @@
             var _addDiv = function (id, parent, className, x, y, w, h) {
                 var d1 = document.createElement("div");
                 d1.style.position = "absolute";
+                d1.innerHTML = id;
                 if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
                 d1.setAttribute("id", id);
                 d1.style.left = (x != null ? x : (Math.floor(Math.random() * 1000))) + "px";
@@ -170,7 +198,7 @@
 
             var _addDraggableDiv = function (_jsPlumb, id, parent, className, x, y, w, h) {
                 var d = _addDiv.apply(null, [id, parent, className, x, y, w, h]);
-                _jsPlumb.draggable(d);
+                //_jsPlumb.draggable(d);
                 return d;
             };
 
@@ -183,13 +211,16 @@
                 var ep = _jsPlumb.getEndpoints(elId),
                     epl = ep ? ep.length : 0;
                 equal(epl, count, elId + " has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint"));
-                equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
+                //equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
             };
 
             return {
                 getAttribute:function(el, att) {
                     return el.getAttribute(att);
                 },
+
+                isTargetAttribute: "jtk-target",
+                isSourceAttribute: "jtk-source",
 
                 droppableClass:"jtk-droppable",
 

@@ -14,6 +14,11 @@ var defaults = null, _divs = [], support,
         document.getElementById("container").innerHTML = "";
     };
 
+/**
+ * Tests for dragging
+ * @param _jsPlumb
+ */
+
 var testSuite = function (_jsPlumb) {
 
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
@@ -53,12 +58,15 @@ var testSuite = function (_jsPlumb) {
             e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true}),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
 
+        _jsPlumb.getDragManager();
+
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
 
         _jsPlumb.select().delete();
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
+        equal(e2.connections.length, 0, "zero connections on endpoint 2 after connection removed");
 
         // now disable e1 and try to drag a new connection: it should fail
         e1.setEnabled(false);
@@ -69,14 +77,18 @@ var testSuite = function (_jsPlumb) {
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag from enabled endpoint");
 
+         ok(e1.isFull(), "endpoint 1 is full");
+
         /*
 
-         why does this fail? i get 0 instead of 1. it's detaching existing connections?
+        // why does this fail spectacularly? in the draggable connections demo it doesnt fail at all - connections are detached,
+        // no problem. in this test we see all sorts of js errors.
 
-         ok(e1.isFull(), "endpoint 1 is full");
          support.dragConnection(e1, e2);
          equal(_jsPlumb.select().length, 1, "one connection after drag from endpoint that is full");
+
          */
+
 
         support.detachConnection(e1, 0);
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
@@ -88,6 +100,9 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeSource("d4");
         _jsPlumb.makeTarget("d2");
         _jsPlumb.makeTarget("d3");
+
+        _jsPlumb.Defaults.maxConnections = -1;
+        _jsPlumb.getDragManager();
 
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(d1, d2);
@@ -108,7 +123,11 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 2, "two connections after relocate");
 
         support.dragConnection(d3, d1);
-        equal(_jsPlumb.select().length, 2, "two connections after failed drag from target to source");
+        equal(_jsPlumb.select().length, 2, "two connections after failed drag from target to source (d3 is a target and not a source)");
+        
+        // move d3 off of d1, it's overlapping right now and that's messing up the test
+        
+        support.dragANodeAround(d3);
 
         // now drag the source of d1-d2 to be d4.
         support.relocateSource(cd1d2, d4);
@@ -120,6 +139,9 @@ var testSuite = function (_jsPlumb) {
 
     // https://github.com/jsplumb/jsPlumb/issues/415
     test("issue 415: spurious endpoints after dragging", function() {
+
+        _jsPlumb.getDragManager();
+
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], {
             maxConnections:-1
@@ -158,6 +180,8 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], { maxConnections: -1 });
         _jsPlumb.makeTarget([ "d1", "d2", "d3", "d4" ], { maxConnections: -1 });
 
+        _jsPlumb.getDragManager();
+
         ok(_jsPlumb.isSource(d1), "d1 is a connection source");
         ok(_jsPlumb.isTarget(d2), "d2 is a connection target");
 
@@ -182,6 +206,8 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.makeSource([ "d1", "d2", "d3", "d4" ], { maxConnections: -1, anchor:"Continuous" });
         _jsPlumb.makeTarget([ "d1", "d2", "d3", "d4" ], { maxConnections: -1, anchor:"Continuous" });
 
+        _jsPlumb.getDragManager();
+
         var d2d1 = support.dragConnection(d2, d1);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
 
@@ -205,6 +231,8 @@ var testSuite = function (_jsPlumb) {
             }),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
 
+        _jsPlumb.getDragManager();
+
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
@@ -218,6 +246,8 @@ var testSuite = function (_jsPlumb) {
             e1 = _jsPlumb.addEndpoint(d1),
             e2 = _jsPlumb.addEndpoint(d2);
 
+        _jsPlumb.getDragManager();
+
         equal(_jsPlumb.select().length, 0, "zero connections before connect");
         _jsPlumb.connect({source:e1, target:e2, detachable:false});
         equal(_jsPlumb.select().length, 1, "one connection after connect");
@@ -229,6 +259,8 @@ var testSuite = function (_jsPlumb) {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1),
             e2 = _jsPlumb.addEndpoint(d2);
+
+        _jsPlumb.getDragManager();
 
         equal(_jsPlumb.select().length, 0, "zero connections before connect");
         _jsPlumb.connect({source:e1, target:e2});
@@ -248,6 +280,9 @@ var testSuite = function (_jsPlumb) {
             evt = true;
             originalEvent = oevt;
         });
+
+        _jsPlumb.getDragManager();
+
         support.dragConnection(e2, e1);
         equal(e1.connections.length, 1, "one connection");
 
@@ -274,6 +309,9 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.bind('connectionAborted', function (info) {
             abortEvent = true;
         });
+
+        _jsPlumb.getDragManager();
+
         support.dragConnection(e2, e1);
         ok(evt == false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
@@ -291,6 +329,9 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.bind('connectionAborted', function (info) {
             abortEvent = true;
         });
+
+        _jsPlumb.getDragManager();
+
         support.dragAndAbortConnection(e2);
         ok(evt == false, "connectionDetached event was not fired");
         equal(e2.connections.length, 0, "no connections");
@@ -306,6 +347,8 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         var c = support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        _jsPlumb.getDragManager();
 
         support.relocateTarget(c, e3, {
             beforeMouseUp:function() {
@@ -351,6 +394,8 @@ var testSuite = function (_jsPlumb) {
         var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1 });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1 });
 
+        _jsPlumb.getDragManager();
+
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one conn now");
 
@@ -361,6 +406,9 @@ var testSuite = function (_jsPlumb) {
     test("drag connection between two endpoints but endpoints are full", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             d3 = support.addDiv("d3");
+
+        _jsPlumb.getDragManager();
+
         var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true });
         var e2 = _jsPlumb.addEndpoint(d2, { isSource:true });
         var e3 = _jsPlumb.addEndpoint(d3, { isSource:true });
@@ -399,6 +447,8 @@ var testSuite = function (_jsPlumb) {
             }),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
 
+        _jsPlumb.getDragManager();
+
         _jsPlumb.bind("beforeDetach", function() {
             r = true;
             return true;
@@ -430,6 +480,7 @@ var testSuite = function (_jsPlumb) {
 
     test("connection dragging, simple drag and detach case", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        _jsPlumb.getDragManager();
         _jsPlumb.makeSource([d1, d2, d3], { });
         _jsPlumb.makeTarget([d1, d2, d3], { });
 
@@ -455,6 +506,7 @@ var testSuite = function (_jsPlumb) {
      */
     test("connection dragging, extractor atts defined on source", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        _jsPlumb.getDragManager();
         d1.setAttribute("foo", "the value of foo");
         _jsPlumb.makeSource([d1, d2, d3], {
             extract:{
@@ -470,6 +522,7 @@ var testSuite = function (_jsPlumb) {
 
     test("connection dragging, simple drag and detach case, beforeDetach interceptor says no.", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        _jsPlumb.getDragManager();
         _jsPlumb.bind("beforeDetach", function() { return false; });
         _jsPlumb.makeSource([d1, d2, d3], { });
         _jsPlumb.makeTarget([d1, d2, d3], { });
@@ -547,7 +600,7 @@ var testSuite = function (_jsPlumb) {
 
     test("connection dragging, simple move source case, continuous anchors", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
-        _jsPlumb.importDefaults({Anchor:"Continuous"});
+        _jsPlumb.importDefaults({anchor:"Continuous"});
         _jsPlumb.makeSource([d1, d2, d3], { });
         _jsPlumb.makeTarget([d1, d2, d3], { });
 
@@ -564,7 +617,7 @@ var testSuite = function (_jsPlumb) {
 
     });
 
-    test("connection dragging, simple move target case, beforeDetach aborts the move", function() {
+    test("connection dragging, simple move target case, beforeDetach aborts the move (and causes the connection to be reattached)", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         _jsPlumb.bind("beforeDetach", function() { return false; });
         _jsPlumb.makeSource([d1, d2, d3], { });
@@ -575,11 +628,28 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateTarget(c, d3);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after aborted mouse move");
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after aborted mouse move");
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connections registered for d1 after aborted mouse move");
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connections registered for d2 after aborted mouse move");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0, "0 connections registered for d3 after aborted mouse move");
         equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
+
+    // test("connection dragging, simple move target case, beforeDetach aborts the move, yes reattach", function() {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+    //     _jsPlumb.bind("beforeDetach", function() { return false; });
+    //     _jsPlumb.makeSource([d1, d2, d3], { reattachConnections:false });
+    //     _jsPlumb.makeTarget([d1, d2, d3], { });
+    //
+    //     var c = _jsPlumb.connect({source: d1, target: d2});
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
+    //
+    //     support.relocateTarget(c, d3);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connections registered for d1 after aborted mouse move");
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connections registered for d2 after aborted mouse move");
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0, "0 connections registered for d3 after aborted mouse move");
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
+    // });
 
     test("connection dragging, simple move source case, beforeDetach aborts the move", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
@@ -756,7 +826,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.endpoints[0].type, "Rectangle", "source endpoint is Rectangle");
         equal(c.endpoints[0].anchor.x, 0, "x=0 in anchor");
         equal(c.endpoints[0].anchor.y, 0.5, "y=0.5 in anchor");
-        equal(c.endpoints[1].type, _jsPlumb.Defaults.Endpoint, "target endpoint is the default");
+        equal(c.endpoints[1].type, _jsPlumb.Defaults.endpoint, "target endpoint is the default");
     });
 
     /**
@@ -766,7 +836,7 @@ var testSuite = function (_jsPlumb) {
     test("connection dragging, makeSource overrides source endpoint and anchor", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         _jsPlumb.registerConnectionType("basic", {
-            endpoint:"Blank",
+            endpoint:"Dot",
             anchor:"Right"
         });
         _jsPlumb.makeSource(d1, { connectionType:"basic", endpoint:"Rectangle", anchor:"Left"});
@@ -785,7 +855,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.endpoints[0].anchor.x, 0, "x=0 in overridden anchor");
         equal(c.endpoints[0].anchor.y, 0.5, "y=0.5 in overridden anchor");
 
-        equal(c2.endpoints[0].type, "Blank", "source endpoint is Blank in endpoint derived from type");
+        equal(c2.endpoints[0].type, "Dot", "source endpoint is Blank in endpoint derived from type");
         equal(c2.endpoints[0].anchor.x, 1, "x=1 in anchor derived from type");
         equal(c2.endpoints[0].anchor.y, 0.5, "y=0.5 in anchor derived from type");
 
@@ -795,10 +865,13 @@ var testSuite = function (_jsPlumb) {
      * Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived
      * from an applied type.
      */
-    test("connection dragging, makeSource overrides source endpoint and anchor", function() {
+    test("connection dragging, makeTarget overrides source endpoint and anchor", function() {
+
+        equal(_jsPlumb.select().length, 0, "0 connections in jsplumb instance.");
+
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         _jsPlumb.registerConnectionType("basic", {
-            endpoint:"Blank",
+            endpoint:"Dot",
             anchor:"Right"
         });
         _jsPlumb.makeSource(d1, { connectionType:"basic"});
@@ -817,7 +890,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.endpoints[1].anchor.x, 0, "x=0 in overridden anchor");
         equal(c.endpoints[1].anchor.y, 0.5, "y=0.5 in overridden anchor");
 
-        equal(c2.endpoints[1].type, "Blank", "target endpoint is Blank in endpoint derived from type");
+        equal(c2.endpoints[1].type, "Dot", "target endpoint is Dot in endpoint derived from type");
         equal(c2.endpoints[1].anchor.x, 1, "x=1 in anchor derived from type");
         equal(c2.endpoints[1].anchor.y, 0.5, "y=0.5 in anchor derived from type");
 
@@ -832,7 +905,7 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         var c = _jsPlumb.select().get(0);
 
-        equal(c.endpoints[0].type, _jsPlumb.Defaults.Endpoint, "source endpoint is the default");
+        equal(c.endpoints[0].type, _jsPlumb.Defaults.endpoint, "source endpoint is the default");
         equal(c.endpoints[1].anchor.x, 0.5, "x=0.5 in anchor");
         equal(c.endpoints[1].anchor.y, 0, "y=0 in anchor");
         equal(c.endpoints[1].type, "Rectangle", "target endpoint is Rectangle");
@@ -904,6 +977,564 @@ var testSuite = function (_jsPlumb) {
         //equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
+    // test(': draggable in nested element does not cause extra ids to be created', function () {
+    //     var d = support.addDiv("d1");
+    //     var d2 = document.createElement("div");
+    //     d2.setAttribute("foo", "ff");
+    //     d.appendChild(d2);
+    //     var d3 = document.createElement("div");
+    //     d2.appendChild(d3);
+    //     ok(d2.getAttribute("id") == null, "no id on d2");
+    //     _jsPlumb.draggable(d);
+    //     _jsPlumb.addEndpoint(d3);
+    //     ok(d2.getAttribute("id") == null, "no id on d2");
+    //     ok(d3.getAttribute("id") != null, "id on d3");
+    // });
+    //
+    // test(" : draggable, reference elements returned correctly", function () {
+    //     var d = support.addDiv("d1");
+    //     var d2 = document.createElement("div");
+    //     d2.setAttribute("foo", "ff");
+    //     d.appendChild(d2);
+    //     var d3 = document.createElement("div");
+    //     d3.setAttribute("id", "d3");
+    //     d2.appendChild(d3);
+    //     _jsPlumb.draggable(d);
+    //     _jsPlumb.addEndpoint(d3);
+    //     _jsPlumb.draggable(d3);
+    //     // now check ref ids for element d1
+    //     var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
+    //     ok(!jsPlumbUtil.isEmpty(els), "there is one sub-element for d1");
+    //     ok(els["d3"] != null, "d3 registered");
+    // });
+    //
+    //
+    // test(" : draggable + setParent, reference elements returned correctly", function () {
+    //     var d = support.addDiv("d1");
+    //     var d2 = document.createElement("div");
+    //     d2.setAttribute("foo", "ff");
+    //     d.appendChild(d2);
+    //     var d3 = document.createElement("div");
+    //     d3.setAttribute("id", "d3");
+    //     d2.appendChild(d3);
+    //     _jsPlumb.draggable(d);
+    //     _jsPlumb.addEndpoint(d3);
+    //     _jsPlumb.draggable(d3);
+    //     // create some other new parent
+    //     var d12 = support.addDiv("d12");
+    //     // and move d3
+    //     _jsPlumb.setParent(d3, d12);
+    //
+    //     // now check ref ids for element d1
+    //     var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
+    //     ok(jsPlumbUtil.isEmpty(els), "there are no sub-elements for d1");
+    //     var els12 = _jsPlumb.dragManager.getElementsForDraggable("d12");
+    //     ok(!jsPlumbUtil.isEmpty(els12), "there is one sub-element for d12");
+    //     ok(els12["d3"] != null, "d3 registered");
+    // });
 
+    test("drag multiple elements and ensure their connections are painted correctly at the end", function() {
+
+        var d1 = support.addDraggableDiv ('d1', null, null,50, 50, 100, 100);
+        var d2 = support.addDraggableDiv ('d2', null, null,250, 250, 100, 100);
+        var d3 = support.addDraggableDiv ('d3', null, null,500, 500, 100, 100);
+
+        var e1 = _jsPlumb.addEndpoint(d1, {
+            anchor:"TopLeft"
+        });
+        var e2 = _jsPlumb.addEndpoint(d2, {
+            anchor:"TopLeft",
+            maxConnections:-1
+        });
+        var e3 = _jsPlumb.addEndpoint(d3, {
+            anchor:"TopLeft"
+        });
+
+        _jsPlumb.connect({source:e1, target:e2});
+        _jsPlumb.connect({source:e2, target:e3});
+
+        equal(e1.canvas.offsetLeft, 50 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        equal(e1.canvas.offsetTop, 50 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        equal(e2.canvas.offsetLeft, 250 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 250 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        equal(e3.canvas.offsetLeft, 500 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        equal(e3.canvas.offsetTop, 500 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+
+        _jsPlumb.addToDragSelection("d1");
+        _jsPlumb.addToDragSelection("d3");
+
+        // drag node 2 by 750,750. we expect its endpoint to have moved too
+
+        support.dragNodeTo(d2, 1000, 1000);
+
+        equal(d2.offsetLeft, 1000, "div 2 is at the right left position");
+        equal(d2.offsetTop, 1000, "div 2 is at the right top position");
+
+        // TODO - drag selection
+        // divs 1 and 3 have moved too, because they are in the drag selection make sure they are in the right place
+        // equal(d1.offsetLeft, 750, "div 1 is at the right left position");
+        // equal(d1.offsetTop, 750, "div 1 is at the right top position");
+        // equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
+        // equal(d3.offsetTop, 1200, "div 3 is at the right top position");
+
+        // check the endpoints
+        equal(e2.canvas.offsetLeft, 1000 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 1000 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+
+        // TODO - drag selection
+        // equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        // equal(e1.canvas.offsetTop, 750 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        //
+        // equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        // equal(e3.canvas.offsetTop, 1200 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+
+    });
+
+    test("svg gradients cleaned up correctly", function() {
+
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var c = _jsPlumb.connect({source:d1, target:d2, paintStyle:{
+            gradient: {stops: [
+                [0, "#678678"],
+                [0.5, "#09098e"],
+                [1, "#678678"]
+            ]},
+            strokeWidth: 5,
+            stroke: "#678678",
+            dashstyle: "2 2"
+        }});
+
+        var defs = c.canvas.querySelectorAll("defs");
+        equal(defs.length, 1, "1 defs element");
+
+        _jsPlumb.manage(d1);
+
+        support.dragANodeAround(d1);
+
+        defs = c.canvas.querySelectorAll("defs");
+        equal(defs.length, 1, "1 defs element");
+    });
+
+    //
+    // 3.0.0 has stopped supporting individual node drag events. We could re-introduce a form of this, but for now it
+    // is not supported. This test, and the one below, commented pending some long term decision.
+    //
+    // test("node drag events", function() {
+    //
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     var started = false, dragged = false, stopped = false;
+    //
+    //     _jsPlumb.draggable(d1, {
+    //         start:function() { started = true; },
+    //         drag:function() { dragged = true; },
+    //         stop:function() { stopped = true; }
+    //     });
+    //
+    //     support.dragANodeAround(d1, function() {
+    //         return _jsPlumb.isConnectionBeingDragged()  && _jsPlumb.isHoverSuspended();
+    //     }, "isConnectionBeingDragged and isHoverSuspended return true while node is being dragged");
+    //
+    //     ok(started, "start event fired");
+    //     ok(dragged, "drag event fired");
+    //     ok(stopped, "stop event fired");
+    //
+    //     started = false; dragged = false; stopped = false;
+    //     var started2 = false, dragged2 = false, stopped2 = false;
+    //
+    //     _jsPlumb.draggable(d1, {
+    //         start:function() { started2 = true; },
+    //         drag:function() { dragged2 = true; },
+    //         stop:function() { stopped2 = true; },
+    //         force:true
+    //     });
+    //
+    //     support.dragANodeAround(d1);
+    //
+    //     ok(started, "start event fired");
+    //     ok(dragged, "drag event fired");
+    //     ok(stopped, "stop event fired");
+    //     ok(started2, "2nd start event fired");
+    //     ok(dragged2, "2nd drag event fired");
+    //     ok(stopped2, "2nd stop event fired");
+    // });
+    //
+    // test("node drag events, drag disabled", function() {
+    //
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     var started = false, dragged = false, stopped = false;
+    //
+    //     _jsPlumb.draggable(d1, {
+    //         start:function() { started = true; },
+    //         drag:function() { dragged = true; },
+    //         stop:function() { stopped = true; },
+    //         canDrag:function() { return false; }
+    //     });
+    //
+    //     support.dragANodeAround(d1, function() {
+    //         return !_jsPlumb.isConnectionBeingDragged() && !_jsPlumb.isHoverSuspended();
+    //     }, "isConnectionBeingDragged returns false because node cannot be dragged");
+    //
+    //     ok(!started, "start event fired");
+    //     ok(!dragged, "drag event fired");
+    //     ok(!stopped, "stop event fired");
+    //
+    //
+    // });
+
+    test("recalculateOffsets", function() {
+        var d1 = support.addDiv("d1");
+
+        var d2 = support.addDiv("d2", d1);
+        d2.style.left = "250px";
+        d2.style.top = "120px";
+
+        var d3 = support.addDiv("d3", d1);
+        d3.style.left = "150px";
+        d3.style.top = "220px";
+
+        _jsPlumb.connect({source:d2, target:d3});
+        _jsPlumb.manage(d1);
+
+        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
+        equal(250, o.offsetLeft, "d2 is at left=250");
+
+        d2.style.left = "1250px";
+        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
+        equal(1250, o.offsetLeft, "d2 is at left=1250");
+
+    });
+
+    // -----------------issue 383, setDraggable doesnt work with list-like arguments
+
+    // test("setDraggable with array", function() {
+    //     var d1 = support.addDiv("d1", null, "aTest");
+    //     var d2 = support.addDiv("d2", null, "aTest");
+    //
+    //     ok(!_jsPlumb.isAlreadyDraggable(d1), "d1 is not draggable");
+    //     ok(!_jsPlumb.isAlreadyDraggable(d2), "d2 is not draggable");
+    //     var d = document.getElementsByClassName("aTest");
+    //
+    //     // first make them draggable
+    //     if(typeof d === "function") {
+    //         expect(2);
+    //     }
+    //     else
+    //     {
+    //         _jsPlumb.draggable(d);
+    //         ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
+    //         ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
+    //
+    //         // now disable
+    //         _jsPlumb.setDraggable(d, false);
+    //         ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
+    //         ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
+    //
+    //         // and enable
+    //         _jsPlumb.toggleDraggable(d);
+    //         ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
+    //         ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
+    //     }
+    // });
+
+    // ----------------------- draggables and posses ----------------------------------------------------
+
+    test("dragging works", function() {
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 150);
+        equal(parseInt(d.style.top, 10), 150);
+    });
+
+    test("dragging does not happen with `jtk-not-draggable` attribute set", function() {
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+        d.setAttribute("jtk-not-draggable", true);
+
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class not set on element during drag attempt");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class not set on element after drag attempt");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+    });
+
+    test("dragging does happen with `jtk-not-draggable='false'` attribute set", function() {
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+        d.setAttribute("jtk-not-draggable", "false");
+
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element during drag");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class not set on element after drag");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 150);
+        equal(parseInt(d.style.top, 10), 150);
+    });
+
+    // test("dragging a posse works, elements as argument", function() {
+    //
+    //     var d = support.addDiv("d1");
+    //     d.style.position = "absolute";
+    //     d.style.left = "50px";
+    //     d.style.top = "50px";
+    //
+    //     var d2 = support.addDiv("d2");
+    //     d2.style.position = "absolute";
+    //     d2.style.left = "450px";
+    //     d2.style.top = "450px";
+    //
+    //     _jsPlumb.getDragManager(); // should not be necessary
+    //     _jsPlumb.manage(d);
+    //     _jsPlumb.manage(d2);
+    //
+    //     _jsPlumb.addToPosse([d,d2], "posse");
+    //
+    //     support.dragNodeBy(d, 100, 100, {
+    //         beforeMouseUp:function() {
+    //             ok(d.classList.contains("jtk-drag"), "drag class set on element");
+    //         },
+    //         after:function() {
+    //             ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
+    //         }
+    //     });
+    //
+    //     equal(150, parseInt(d.style.left, 10));
+    //     equal(150, parseInt(d.style.top, 10));
+    //
+    //     equal(550, parseInt(d2.style.left, 10));
+    //     equal(550, parseInt(d2.style.top, 10));
+    //
+    //     _jsPlumb.removeFromPosse(d2, "posse");
+    //     support.dragNodeBy(d, -100, -100);
+    //
+    //     equal(50, parseInt(d.style.left, 10));
+    //     equal(50, parseInt(d.style.top, 10));
+    //
+    //     equal(550, parseInt(d2.style.left, 10));
+    //     equal(550, parseInt(d2.style.top, 10));
+    // });
+    //
+    // test("dragging a posse works, element ids as argument", function() {
+    //     var d = support.addDiv("d1");
+    //     d.style.position = "absolute";
+    //     d.style.left = "50px";
+    //     d.style.top = "50px";
+    //
+    //     var d2 = support.addDiv("d2");
+    //     d2.style.position = "absolute";
+    //     d2.style.left = "450px";
+    //     d2.style.top = "450px";
+    //
+    //     _jsPlumb.draggable([d,d2]);
+    //     _jsPlumb.addToPosse(["d1","d2"], "posse");
+    //
+    //     support.dragNodeBy(d, 100, 100, {
+    //         beforeMouseUp:function() {
+    //             ok(d.classList.contains("jtk-drag"), "drag class set on element");
+    //         },
+    //         after:function() {
+    //             ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
+    //         }
+    //     });
+    //
+    //     equal(150, parseInt(d.style.left, 10));
+    //     equal(150, parseInt(d.style.top, 10));
+    //
+    //     equal(550, parseInt(d2.style.left, 10));
+    //     equal(550, parseInt(d2.style.top, 10));
+    //
+    //
+    //     _jsPlumb.removeFromPosse(d2, "posse");
+    //     support.dragNodeBy(d, -100, -100);
+    //
+    //     equal(50, parseInt(d.style.left, 10));
+    //     equal(50, parseInt(d.style.top, 10));
+    //
+    //     equal(550, parseInt(d2.style.left, 10));
+    //     equal(550, parseInt(d2.style.top, 10));
+    // });
+
+    test("connection dragging, redrop on original target endpoint", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        var e1 = _jsPlumb.addEndpoint(d1, { isSource:true });
+        var e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
+
+        var c = _jsPlumb.connect({source: e1, target: e2});
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateTarget(c, e2.canvas);
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
+
+    });
+
+
+    // test("draggable function, the various ways in which it can be called", function() {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+    //
+    //     _jsPlumb.draggable(d1); // by element
+    //     _jsPlumb.draggable(["d2", d3]);
+    //     _jsPlumb.draggable(document.querySelectorAll("#d4"));
+    //
+    //     ok(jsPlumb.hasClass(d1, "jtk-draggable"), "element registered as Element ok");
+    //     ok(jsPlumb.hasClass(d2, "jtk-draggable", "elements registered as id in array ok"));
+    //     ok(jsPlumb.hasClass(d3, "jtk-draggable", "elements registered as Element in array ok"));
+    //     ok(jsPlumb.hasClass(d4, "jtk-draggable", "querySelectorAll output ok as input"));
+    // });
+
+
+    // test("droppable function, the various ways in which it can be called", function() {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+    //
+    //     _jsPlumb.droppable(d1); // by element
+    //     _jsPlumb.droppable(["d2", d3]);
+    //     _jsPlumb.droppable(document.querySelectorAll("#d4"));
+    //
+    //     ok(jsPlumb.hasClass(d1, "jtk-droppable"), "element registered as Element ok");
+    //     ok(jsPlumb.hasClass(d2, "jtk-droppable", "elements registered as id in array ok"));
+    //     ok(jsPlumb.hasClass(d3, "jtk-droppable", "elements registered as Element in array ok"));
+    //     ok(jsPlumb.hasClass(d4, "jtk-droppable", "querySelectorAll output ok as input"));
+    // });
+
+    test(" makeSource connection type is honoured, mouse connect", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+
+        _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
+
+        _jsPlumb.registerConnectionTypes({
+            "basic": {
+                connector: "Flowchart",
+                paintStyle: { stroke: "yellow", strokeWidth: 4 },
+                hoverPaintStyle: { stroke: "blue" },
+                overlays: [
+                    "Arrow"
+                ],
+                endpoint:"Rectangle"
+            }
+        });
+
+        _jsPlumb.makeSource(d1, {
+            connectionType:"basic"
+        });
+
+        _jsPlumb.makeTarget(d2, {
+            endpoint:"Blank"
+        });
+
+        var c = support.dragConnection(d1, d2);
+        c = _jsPlumb.select().get(0);
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
+        equal(c.endpoints[0].type, "Rectangle", "source endpoint is of type rectangle");
+        equal(c.endpoints[1].type, "Blank", "target endpoint is of type Blank - it was overriden from the type's endpoint.");
+    });
+
+    test("endpoint passes scope to connection, connection via mouse", function() {
+        var sourceEndpoint = {
+                isSource: true,
+                scope: "blue"
+            }, targetEndpoint = {
+                isTarget:true,
+                scope:"blue"
+            },
+            d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, sourceEndpoint),
+            e2 = _jsPlumb.addEndpoint(d2, targetEndpoint);
+
+        var c = support.dragConnection(e1, e2);
+
+        equal(c.scope, "blue", "connection scope is blue.");
+    });
+
+    /* ------------------ node/group drag events --------------------------------------------------*/
+
+    test("drag events", function() {
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        _jsPlumb.getDragManager(); // should not be necessary
+        _jsPlumb.manage(d);
+
+        var nodeDragged = null, pos = null, evt = null, dragStarted = false, dragStopped = false;
+        _jsPlumb.bind("drag:move", function(p) {
+            nodeDragged = p.el;
+            pos = p.pos;
+            evt = p.e;
+        });
+        _jsPlumb.bind("drag:start", function() { dragStarted = true; });
+        _jsPlumb.bind("drag:stop", function() { dragStopped = true; });
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 150);
+        equal(parseInt(d.style.top, 10), 150);
+
+        // test event fired
+        equal(150, pos.left, "event x position correct");
+        equal(150, pos.top, "event y position correct");
+        equal(d, nodeDragged, "event el correct");
+        ok(evt != null, "event original event was supplied");
+        ok(dragStarted, "drag start event was fired");
+        ok(dragStopped, "drag stop event was fired");
+    });
 
 };

@@ -35,15 +35,16 @@
 
     jsPlumb.ready(function () {
 
-        var instance = jsPlumb.getInstance({
-            DragOptions: { cursor: 'pointer', zIndex: 2000 },
-            PaintStyle: { stroke: '#666' },
-            EndpointHoverStyle: { fill: "orange" },
-            HoverPaintStyle: { stroke: "orange" },
-            EndpointStyle: { width: 20, height: 16, stroke: '#666' },
-            Endpoint: "Rectangle",
-            Anchors: ["TopCenter", "TopCenter"],
-            Container: "canvas"
+        var instance = window.j = jsPlumb.getInstance({
+            dragOptions: { cursor: 'pointer', zIndex: 2000 },
+            paintStyle: { stroke: '#666' },
+            endpointHoverStyle: { fill: "orange" },
+            hoverPaintStyle: { stroke: "orange" },
+            endpointStyle: { width: 20, height: 16, stroke: '#666' },
+            endpoint: "Rectangle",
+            anchors: ["TopCenter", "TopCenter"],
+            container: "canvas",
+            dropOptions:{activeClass:"dragActive", hoverClass:"dropHover"}
         });
 
         // suspend drawing and initialise.
@@ -192,9 +193,6 @@
             e4.bind("maxConnections", maxConnectionsCallback);
             instance.addEndpoint("dragDropWindow4", { anchor: [0.25, 0, 0, -1] }, exampleEndpoint2);
 
-            // make .window divs draggable
-            instance.draggable(jsPlumb.getSelector(".drag-drop-demo .window"));
-
             // add endpoint of type 3 using a selector.
             instance.addEndpoint(jsPlumb.getSelector(".drag-drop-demo .window"), exampleEndpoint3);
 
@@ -206,7 +204,7 @@
 
             var dragLinks = jsPlumb.getSelector(".drag-drop-demo .drag");
             instance.on(dragLinks, "click", function (e) {
-                var s = instance.toggleDraggable(this.getAttribute("rel"));
+                var s = instance.toggleDraggable(instance.getElement(this.getAttribute("rel")));
                 this.innerHTML = (s ? 'disable dragging' : 'enable dragging');
                 jsPlumbUtil.consume(e);
             });

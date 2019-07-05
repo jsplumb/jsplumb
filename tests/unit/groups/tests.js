@@ -104,7 +104,7 @@ var testSuite = function (_jsPlumb) {
 
         c_noparent = support.addDiv("c_noparent", null, "w", 1000, 1000);
 
-        _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
+        //_jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
 
         _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
         _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
@@ -137,6 +137,9 @@ var testSuite = function (_jsPlumb) {
     test("groups, simple access", function() {
 
         _setupGroups();
+        
+        // check the `jtk-group` attribute was written
+        ok(c4.getAttribute("jtk-group") != null, "`jtk-group` attribute written");
 
         // check a group has members
         equal(_jsPlumb.getGroup("four").getMembers().length, 2, "2 members in group four");
@@ -170,6 +173,8 @@ var testSuite = function (_jsPlumb) {
             ok(true, "removed group subsequent retrieve threw exception");
         }
         ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+        ok(c4_2.parentNode != null, "c4_2 not removed from DOM even though group was removed");
+
         // check positions of child nodes; they should have been adjusted.
         equal(parseInt(c4_1.style.left), 1030, "c4_1 at 1030 left");
         equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
@@ -869,36 +874,36 @@ var testSuite = function (_jsPlumb) {
 
     });
 
-    test("drop precedence, default ranks (order of droppable is ignored), group last", function() {
-        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
-        var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
-        var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+    // test("drop precedence, default ranks (order of droppable is ignored), group last", function() {
+    //     var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+    //     var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
+    //     var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+    //
+    //     _addGroup(_jsPlumb, "g1", d1, [d2]);
+    //
+    //     _jsPlumb.makeTarget(d2);
+    //     _jsPlumb.makeTarget(d1);
+    //
+    //     _jsPlumb.makeSource(d3);
+    //
+    //     var sourceEvent = support.makeEvent(d3);
+    //     var d2TargetEvent = support.makeEvent(d2);
+    //
+    //     _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+    //     _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+    //
+    //
+    //     ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
+    //     ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
+    //
+    //     _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+    //
+    //     equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+    //     equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
+    //
+    // });
 
-        _addGroup(_jsPlumb, "g1", d1, [d2]);
-
-        _jsPlumb.makeTarget(d2);
-        _jsPlumb.makeTarget(d1);
-
-        _jsPlumb.makeSource(d3);
-
-        var sourceEvent = support.makeEvent(d3);
-        var d2TargetEvent = support.makeEvent(d2);
-
-        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
-        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
-
-
-        ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
-        ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
-
-        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
-
-        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
-        equal(d2, _jsPlumb.select().get(0).target, "connection target is d2");
-
-    });
-
-    test("drop precedence, equal ranks, order of droppable is used, group first", function() {
+    test("drop precedence, equal ranks, rank of droppable is used, group first", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
@@ -912,7 +917,7 @@ var testSuite = function (_jsPlumb) {
         });
         _jsPlumb.makeTarget(d2, {
             dropOptions: {
-                rank: 5
+                rank: 6
             }
         });
 
@@ -935,14 +940,14 @@ var testSuite = function (_jsPlumb) {
 
     });
 
-    test("drop precedence, equal ranks, order of droppable is used, group last", function() {
+    test("drop precedence, equal ranks, rank of droppable is used, group last", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d2, { rank:5 });
+        _jsPlumb.makeTarget(d2, { rank:6 });
         _jsPlumb.makeTarget(d1, { rank:5 });
 
         _jsPlumb.makeSource(d3);
@@ -969,7 +974,7 @@ var testSuite = function (_jsPlumb) {
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
 
-        _jsPlumb.draggable(d2);
+        //_jsPlumb.draggable(d2);
 
         _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
 
@@ -999,7 +1004,7 @@ var testSuite = function (_jsPlumb) {
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
 
-        _jsPlumb.draggable(d2);
+      //  _jsPlumb.draggable(d2);
 
         var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
 

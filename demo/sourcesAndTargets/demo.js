@@ -11,9 +11,9 @@ jsPlumb.ready(function () {
 
     var instance = window.instance = jsPlumb.getInstance({
         // drag options
-        DragOptions: { cursor: "pointer", zIndex: 2000 },
+        dragOptions: { cursor: "pointer", zIndex: 2000 },
         // default to a gradient stroke from blue to green.
-        PaintStyle: {
+        paintStyle: {
             gradient: { stops: [
                 [ 0, "#0d78bc" ],
                 [ 1, "#558822" ]
@@ -21,7 +21,7 @@ jsPlumb.ready(function () {
             stroke: "#558822",
             strokeWidth: 10
         },
-        Container: "canvas"
+        container: "canvas"
     });
 
     // click listener for the enable/disable link in the source box (the blue one).
@@ -50,10 +50,8 @@ jsPlumb.ready(function () {
 
     // get the list of ".smallWindow" elements.            
     var smallWindows = jsPlumb.getSelector(".smallWindow");
-    // make them draggable
-    instance.draggable(smallWindows, {
-        filter:".enableDisableTarget"
-    });
+
+    instance.manage(smallWindows);
 
     // suspend drawing and initialise.
     instance.batch(function () {

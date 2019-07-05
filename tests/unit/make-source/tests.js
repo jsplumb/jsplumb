@@ -38,6 +38,19 @@ var testSuite = function (_jsPlumb) {
         equal(1,1);
     });
 
+    test(": makeSource (test basic structures created)", function () {
+        var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
+
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d16, { isSource: true, anchor: "LeftMiddle", connectionType:"someType"  }); // give it a non-default anchor, we will check this below.
+
+        equal(d17._jsPlumbSourceDefinitions.length, 1, "1 source definition on d17");
+        equal(d16._jsPlumbSourceDefinitions.length, 1, "1 source definition on d16");
+
+        equal(d17._jsPlumbSourceDefinitions[0].def.connectionType, "default", "d17's source def connectionType is 'default'");
+        equal(d16._jsPlumbSourceDefinitions[0].def.connectionType, "someType", "d16's source def connectionType is 'someType'");
+    });
+
     test(": _jsPlumb.connect after makeSource (simple case)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: false, isTarget: true}, {anchors: [
@@ -80,42 +93,6 @@ var testSuite = function (_jsPlumb) {
         c = _jsPlumb.connect({source: d17, target: d18});
         ok(c == null, "connection with non-matching scope not established");
     });
-
-    test(": makeSource, manipulate scope programmatically", function () {
-        var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
-        _jsPlumb.makeSource(d16, {scope: "foo", isSource: true, maxConnections: -1});
-        _jsPlumb.makeTarget(d17, {scope: "bar", maxConnections: -1});
-        _jsPlumb.makeTarget(d18, {scope: "qux", maxConnections: -1});
-
-        equal(_jsPlumb.getSourceScope(d16), "foo", "scope of makeSource element retrieved");
-        equal(_jsPlumb.getTargetScope(d17), "bar", "scope of makeTarget element retrieved");
-
-        var c = _jsPlumb.connect({source: d16, target: d17});
-        ok(c == null, "connection was established");
-
-        // change scope of source, then try to connect, and it should fail.
-        _jsPlumb.setSourceScope(d16, "qux");
-        c = _jsPlumb.connect({source: d16, target: d17});
-        ok(c == null, "connection was not established due to unmatched scopes");
-
-        _jsPlumb.setTargetScope(d17, "foo qux");
-        equal(_jsPlumb.getTargetScope(d17), "foo qux", "scope of makeTarget element retrieved");
-        c = _jsPlumb.connect({source: d16, target: d17});
-        ok(c != null, "connection was established now that scopes match");
-
-        _jsPlumb.makeSource(d17);
-        _jsPlumb.setScope(d17, "BAZ");
-        // use setScope method to set source _and_ target scope
-        equal(_jsPlumb.getTargetScope(d17), "BAZ", "scope of target element retrieved");
-        equal(_jsPlumb.getSourceScope(d17), "BAZ", "scope of source element retrieved");
-
-        // getScope will give us what it can, defaulting to source scope.
-        equal(_jsPlumb.getScope(d16), "qux", "source scope retrieved for d16");
-        equal(_jsPlumb.getScope(d18), "qux", "target scope retrieved for d18");
-        equal(_jsPlumb.getScope(d17), "BAZ", "source scope retrieved for d17, although target scope is set too");
-
-    });
-
 
     test(": _jsPlumb.connect after makeSource (parameters)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
@@ -410,27 +387,7 @@ var testSuite = function (_jsPlumb) {
         support.assertEndpointCount("d17", 1, _jsPlumb);
     });
 
-    test(": jsPlumb.isTarget and jsPlumb.isTargetEnabled", function () {
-        var d17 = support.addDiv("d17");
-        _jsPlumb.makeTarget(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        ok(_jsPlumb.isTarget(d17) == true, "d17 is recognised as connection target");
-        ok(_jsPlumb.isTargetEnabled(d17) == true, "d17 is recognised as enabled");
-        _jsPlumb.setTargetEnabled(d17, false);
-        ok(_jsPlumb.isTargetEnabled(d17) == false, "d17 is recognised as disabled");
-    });
 
-    test(": _jsPlumb.makeTarget - endpoints deleted by default.", function () {
-        var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
-        _jsPlumb.makeSource(d16);
-        _jsPlumb.makeTarget(d17);
-
-        var c = _jsPlumb.connect({source: "d16", target: "d17"});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
-        _jsPlumb.deleteConnection(c);
-        support.assertEndpointCount("d16", 0, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
-    });
 
 // setSource/setTarget methods.
 
@@ -622,25 +579,6 @@ var testSuite = function (_jsPlumb) {
         support.assertEndpointCount("d17", 1);
     });
 
-    // maketarget, then unmake it. should not be able to make a connection to it.
-    test(": jsPlumb.unmakeTarget (string id as argument)", function () {
-        var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
-            [0, 0.5, 0, -1],
-            [1, 0.5, 0, 1]
-        ]});
-        _jsPlumb.makeTarget(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        ok(_jsPlumb.isTarget(d17) == true, "d17 is currently a target");
-        // unmake target
-        _jsPlumb.unmakeTarget(d17);
-        ok(_jsPlumb.isTarget(d17) == false, "d17 is no longer a target");
-
-        // this should succeed, because d17 is no longer a target and so jsPlumb will just create and add a new endpoint to d17.
-        _jsPlumb.connect({source: e16, target: "d17"});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 1);
-    });
-
 
     test(": jsPlumb.removeEverySource and removeEveryTarget (string id as argument)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
@@ -671,5 +609,48 @@ var testSuite = function (_jsPlumb) {
         ok(c.getOverlay("overlay") != null);
     });
 
+    // maketarget, then unmake it. should not be able to make a connection to it.
+    test(": jsPlumb.unmakeSource(string id as argument)", function () {
+        var d17 = support.addDiv("d17");
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        ok(_jsPlumb.isSource(d17) === true, "d17 is currently a source");
+        ok(d17.getAttribute("jtk-source") != null, "the jtk-source attribute is set");
+        // unmake target
+        _jsPlumb.unmakeSource(d17);
+        ok(_jsPlumb.isSource(d17) === false, "d17 is no longer a source");
+        ok(d17.getAttribute("jtk-source") == null, "the jtk-source attribute is no longer set");
+
+    });
+
+    test(": jsPlumb.unmakeSource, multiple sources, removing one does not strip attributes from element.", function () {
+        var d17 = support.addDiv("d17");
+
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  });
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", connectionType:"someConnection" });
+
+        ok(_jsPlumb.isSource(d17) == true, "d17 is currently a source");
+        ok(d17.getAttribute("jtk-source") != null, "the jtk-source attribute is set");
+        // unmake source
+        _jsPlumb.unmakeSource(d17, "someConnection");
+        ok(_jsPlumb.isSource(d17) == true, "d17 is still currently a source");
+        ok(d17.getAttribute("jtk-source") != null, "the jtk-source attribute is still set");
+
+    });
+
+    test(": jsPlumb.unmakeSource, multiple sources, remove all via type='*'.", function () {
+        var d17 = support.addDiv("d17");
+
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  });
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", connectionType:"someConnection" });
+
+        ok(_jsPlumb.isSource(d17) == true, "d17 is currently a source");
+        ok(d17.getAttribute("jtk-source") != null, "the jtk-source attribute is set");
+
+        // unmake target
+        _jsPlumb.unmakeSource(d17, "*");
+        ok(d17.getAttribute("jtk-source") == null, "the jtk-source attribute is not set");
+        ok(_jsPlumb.isSource(d17) == false, "d17 is no longer a source");
+
+    });
 
 };

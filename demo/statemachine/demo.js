@@ -2,10 +2,10 @@ jsPlumb.ready(function () {
 
     // setup some defaults for jsPlumb.
     var instance = jsPlumb.getInstance({
-        Endpoint: ["Dot", {radius: 2}],
-        Connector:"StateMachine",
-        HoverPaintStyle: {stroke: "#1e8151", strokeWidth: 2 },
-        ConnectionOverlays: [
+        endpoint: ["Dot", {radius: 2}],
+        connector:"StateMachine",
+        hoverPaintStyle: {stroke: "#1e8151", strokeWidth: 2 },
+        connectionOverlays: [
             [ "Arrow", {
                 location: 1,
                 id: "arrow",
@@ -14,7 +14,7 @@ jsPlumb.ready(function () {
             } ],
             [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
         ],
-        Container: "canvas"
+        container: "canvas"
     });
 
     instance.registerConnectionType("basic", { anchor:"Continuous", connector:"StateMachine" });
@@ -48,9 +48,6 @@ jsPlumb.ready(function () {
     // initialise element as connection targets and source.
     //
     var initNode = function(el) {
-
-        // initialise draggable elements.
-        instance.draggable(el);
 
         instance.makeSource(el, {
             filter: ".ep",

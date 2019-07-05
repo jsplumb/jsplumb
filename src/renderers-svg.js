@@ -184,7 +184,11 @@
 
         if (params.useDivWrapper) {
             this.canvas = _jp.createElement("div", { position : "absolute" });
-            _ju.sizeElement(this.canvas, 0, 0, 1, 1);
+
+           // if (!params._jsPlumb.isSuspendDrawing()) {
+                _ju.sizeElement(this.canvas, 0, 0, 1, 1);
+            //}
+
             this.canvas.className = clazz;
         }
         else {

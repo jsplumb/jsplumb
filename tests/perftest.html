@@ -26,6 +26,8 @@
     <script>
         jsPlumb.ready(function () {
 
+           //window.jtimeEnable();
+
             console.time("load");
 
             // setup some defaults for jsPlumb.
@@ -42,7 +44,7 @@
                     } ],
                     [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
                 ],
-                Container: "canvas"
+                container: "canvas"
             });
 
 
@@ -56,7 +58,7 @@
             var initNode = function(el) {
 
                 // initialise draggable elements.
-                instance.draggable(el);
+                instance.manage(el);
 
                 instance.makeSource(el, {
                     filter: ".ep",
@@ -80,6 +82,7 @@
             };
 
             var newNode = function(x, y) {
+             //   jtime("new node");
                 var d = document.createElement("div");
                 var id = jsPlumbUtil.uuid();
                 d.className = "w";
@@ -89,6 +92,7 @@
                 d.style.top = y + "px";
                 instance.getContainer().appendChild(d);
                 initNode(d);
+             //   jtimeEnd("new node");
                 return d;
             };
 
@@ -108,6 +112,27 @@
             });
 
             console.timeEnd("load");
+
+            dumpTime();
+
+
+//            var count = 1500;
+//            var ref = {
+//                foo:"foo",
+//                bar:"bar",
+//                num:23
+//            };
+//            console.time("jsplumb extend");
+//            for (var i = 0; i < count; i++) {
+//                var t = jsPlumb.extend({}, ref);
+//            }
+//            console.timeEnd("jsplumb extend");
+//
+//            console.time("object assign");
+//            for (var i = 0; i < count; i++) {
+//                var t = Object.assign({}, ref);
+//            }
+//            console.timeEnd("object assign");
 
         });
 

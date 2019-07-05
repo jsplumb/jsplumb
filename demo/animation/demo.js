@@ -81,10 +81,10 @@ jsPlumb.ready(function () {
 
     // get a jsPlumb instance, setting some appropriate defaults and a Container.
     instance = jsPlumb.getInstance({
-        DragOptions: { cursor: 'wait', zIndex: 20 },
-        Endpoint: [ "Image", { url: "littledot.png" } ],
-        Connector: [ "Bezier", { curviness: 90 } ],
-        Container: "canvas"
+        dragOptions: { cursor: 'wait', zIndex: 20 },
+        endpoint: [ "Image", { url: "littledot.png" } ],
+        connector: [ "Bezier", { curviness: 90 } ],
+        container: "canvas"
     });
 
     // suspend drawing and initialise.

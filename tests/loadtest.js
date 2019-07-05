@@ -101,7 +101,7 @@ console.cTimeSummary = function() {
                 actuallyPaint = val("input[name='chkPaint']:checked") === "yes";
 
             jsPlumb.importDefaults({
-                Container: "demo",
+                container: "demo",
                 Overlays:[ "Arrow" ]
             });
                     

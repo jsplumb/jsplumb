@@ -65,7 +65,7 @@
             this.getDefaultType().overlays[_internalLabelOverlayId] = ["Label", {
                 label: params.label,
                 location: params.labelLocation || this.defaultLabelLocation || 0.5,
-                labelStyle: params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle,
+                labelStyle: params.labelStyle || this._jsPlumb.instance.Defaults.labelStyle,
                 id:_internalLabelOverlayId
             }];
         }
