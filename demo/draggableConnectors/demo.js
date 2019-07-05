@@ -35,7 +35,7 @@
 
     jsPlumb.ready(function () {
 
-        var instance = window.j = jsPlumb.getInstance({
+        var instance = window.j = jsPlumb.newInstance({
             dragOptions: { cursor: 'pointer', zIndex: 2000 },
             paintStyle: { stroke: '#666' },
             endpointHoverStyle: { fill: "orange" },
@@ -162,7 +162,7 @@
 
             // setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
             // of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
-            var e1 = instance.addEndpoint('dragDropWindow1', { anchor: [0.5, 1, 0, 1] }, exampleEndpoint2);
+            instance.addEndpoint('dragDropWindow1', { anchor: [0.5, 1, 0, 1] }, exampleEndpoint2);
 
             // setup some DynamicAnchors for use with the blue endpoints
             // and a function to set as the maxConnections callback.
@@ -194,22 +194,22 @@
             instance.addEndpoint("dragDropWindow4", { anchor: [0.25, 0, 0, -1] }, exampleEndpoint2);
 
             // add endpoint of type 3 using a selector.
-            instance.addEndpoint(jsPlumb.getSelector(".drag-drop-demo .window"), exampleEndpoint3);
+            instance.addEndpoint(document.querySelectorAll(".drag-drop-demo .window"), exampleEndpoint3);
 
-            var hideLinks = jsPlumb.getSelector(".drag-drop-demo .hide");
+            var hideLinks = document.querySelectorAll(".drag-drop-demo .hide");
             instance.on(hideLinks, "click", function (e) {
                 instance.toggleVisible(this.getAttribute("rel"));
                 jsPlumbUtil.consume(e);
             });
 
-            var dragLinks = jsPlumb.getSelector(".drag-drop-demo .drag");
+            var dragLinks = document.querySelectorAll(".drag-drop-demo .drag");
             instance.on(dragLinks, "click", function (e) {
                 var s = instance.toggleDraggable(instance.getElement(this.getAttribute("rel")));
                 this.innerHTML = (s ? 'disable dragging' : 'enable dragging');
                 jsPlumbUtil.consume(e);
             });
 
-            var detachLinks = jsPlumb.getSelector(".drag-drop-demo .detach");
+            var detachLinks = document.querySelectorAll(".drag-drop-demo .detach");
             instance.on(detachLinks, "click", function (e) {
                 instance.deleteConnectionsForElement(this.getAttribute("rel"));
                 jsPlumbUtil.consume(e);
@@ -222,7 +222,7 @@
             });
         });
 
-        jsPlumb.fire("jsPlumbDemoLoaded", instance);
+      //  jsPlumb.fire("jsPlumbDemoLoaded", instance);
 
     });
 })();

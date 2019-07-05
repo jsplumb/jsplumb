@@ -2,7 +2,7 @@ jsPlumb.ready(function () {
 
     var color = "gray";
 
-    var instance = jsPlumb.getInstance({
+    var instance = jsPlumb.newInstance({
         // notice the 'curviness' argument to this Bezier curve.  the curves on this page are far smoother
         // than the curves on the first demo, which use the default curviness value.
         connector: [ "Bezier", { curviness: 50 } ],
@@ -20,14 +20,14 @@ jsPlumb.ready(function () {
         var arrowCommon = { foldback: 0.7, fill: color, width: 14 },
         // use three-arg spec to create two different arrows with the common values:
             overlays = [
-                [ "Arrow", { location: 0.7 }, arrowCommon ],
-                [ "Arrow", { location: 0.3, direction: -1 }, arrowCommon ]
+                // [ "Arrow", { location: 0.7 }, arrowCommon ],
+                // [ "Arrow", { location: 0.3, direction: -1 }, arrowCommon ]
             ];
 
         // add endpoints, giving them a UUID.
         // you DO NOT NEED to use this method. You can use your library's selector method.
         // the jsPlumb demos use it so that the code can be shared between all three libraries.
-        var windows = jsPlumb.getSelector(".chart-demo .window");
+        var windows = document.querySelectorAll(".chart-demo .window");
         for (var i = 0; i < windows.length; i++) {
             instance.addEndpoint(windows[i], {
                 uuid: windows[i].getAttribute("id") + "-bottom",
@@ -49,5 +49,5 @@ jsPlumb.ready(function () {
 
     });
 
-    jsPlumb.fire("jsPlumbDemoLoaded", instance);
+   // jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });

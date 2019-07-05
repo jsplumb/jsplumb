@@ -80,7 +80,7 @@ jsPlumb.ready(function () {
         };
 
     // get a jsPlumb instance, setting some appropriate defaults and a Container.
-    instance = jsPlumb.getInstance({
+    instance = jsPlumb.newInstance({
         dragOptions: { cursor: 'wait', zIndex: 20 },
         endpoint: [ "Image", { url: "littledot.png" } ],
         connector: [ "Bezier", { curviness: 90 } ],
@@ -109,5 +109,5 @@ jsPlumb.ready(function () {
         instance.on(addBtn, 'click', addDisc);
     });
 
-    jsPlumb.fire("jsPlumbDemoLoaded", instance);
+    //jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });
