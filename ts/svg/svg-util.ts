@@ -51,7 +51,7 @@ export function _clearGradient (parent:any) {
 }
 
 export function _updateGradient<E>(parent:any, node:any, style:any, dimensions:any, uiComponent:Component<E>) {
-    let id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance._idstamp();
+    let id = JSPLUMB_GRADIENT + (<any>uiComponent).instance._idstamp();
     // first clear out any existing gradient
     _clearGradient(parent);
     // this checks for an 'offset' property in the gradient, and in the absence of it, assumes
@@ -63,13 +63,13 @@ export function _updateGradient<E>(parent:any, node:any, style:any, dimensions:a
     // not show gradients when the line was perfectly horizontal or vertical.
     let g;
     if (!style.gradient.offset) {
-        g = _node(uiComponent._jsPlumb.instance, LINEAR_GRADIENT, {id: id, gradientUnits: "userSpaceOnUse"});
+        g = _node((<any>uiComponent).instance, LINEAR_GRADIENT, {id: id, gradientUnits: "userSpaceOnUse"});
     }
     else {
-        g = _node(uiComponent._jsPlumb.instance, RADIAL_GRADIENT, { id: id });
+        g = _node((<any>uiComponent).instance, RADIAL_GRADIENT, { id: id });
     }
 
-    let defs = _node(uiComponent._jsPlumb.instance, DEFS);
+    let defs = _node((<any>uiComponent).instance, DEFS);
     parent.appendChild(defs);
     defs.appendChild(g);
 
@@ -79,7 +79,7 @@ export function _updateGradient<E>(parent:any, node:any, style:any, dimensions:a
     for (let i = 0; i < style.gradient.stops.length; i++) {
         let styleToUse = uiComponent.segment === 1 || uiComponent.segment === 2 ? i : style.gradient.stops.length - 1 - i,
             stopColor = style.gradient.stops[styleToUse][1],
-            s = _node(uiComponent._jsPlumb.instance, STOP, {"offset": Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color": stopColor});
+            s = _node((<any>uiComponent).instance, STOP, {"offset": Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color": stopColor});
 
         g.appendChild(s);
     }
