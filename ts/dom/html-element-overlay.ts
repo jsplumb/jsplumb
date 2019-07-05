@@ -60,13 +60,13 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
             if (absolutePosition) {
                 cxy = { x: absolutePosition[0], y: absolutePosition[1] };
             }
-            else if (component instanceof Connection) {
+            else if ((<any>component).pointOnPath != null) {
                 let loc = this.overlay.location, absolute = false;
                 if (IS.aString(this.overlay.location) || this.overlay.location < 0 || this.overlay.location > 1) {
                     loc = parseInt("" + this.overlay.location, 10);
                     absolute = true;
                 }
-                cxy = (<Connection<HTMLElement>>component).getConnector().pointOnPath(loc as number, absolute);  // a connection
+                cxy = (<any>component).pointOnPath(loc as number, absolute);  // a connection
             }
             else {
                 let locToUse:[number, number] = this.overlay.location.constructor === Array ? (this.overlay.location as [number, number]) : this.overlay.endpointLoc;
