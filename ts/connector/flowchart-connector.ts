@@ -152,6 +152,7 @@ export class FlowchartConnector<E> extends AbstractConnector<E> {
 
     _compute (paintInfo:PaintGeometry, params:ConnectorComputeParams<E>):void {
 
+        this.internalSegments.length = 0;
         this.segments.length = 0;
         this.lastx = null;
         this.lasty = null;
