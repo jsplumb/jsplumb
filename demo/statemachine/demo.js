@@ -1,18 +1,18 @@
 jsPlumb.ready(function () {
 
     // setup some defaults for jsPlumb.
-    var instance = jsPlumb.getInstance({
+    var instance = jsPlumb.newInstance({
         endpoint: ["Dot", {radius: 2}],
         connector:"StateMachine",
         hoverPaintStyle: {stroke: "#1e8151", strokeWidth: 2 },
         connectionOverlays: [
-            [ "Arrow", {
-                location: 1,
-                id: "arrow",
-                length: 14,
-                foldback: 0.8
-            } ],
-            [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
+        //     [ "Arrow", {
+        //         location: 1,
+        //         id: "arrow",
+        //         length: 14,
+        //         foldback: 0.8
+        //     } ],
+             [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
         ],
         container: "canvas"
     });
@@ -22,7 +22,7 @@ jsPlumb.ready(function () {
     window.jsp = instance;
 
     var canvas = document.getElementById("canvas");
-    var windows = jsPlumb.getSelector(".statemachine-demo .w");
+    var windows = document.querySelectorAll(".statemachine-demo .w");
 
     // bind a click listener to each connection; the connection is deleted. you could of course
     // just do this: instance.bind("click", instance.deleteConnection), but I wanted to make it clear what was
@@ -40,7 +40,7 @@ jsPlumb.ready(function () {
     });
 
     // bind a double click listener to "canvas"; add new node when this occurs.
-    jsPlumb.on(canvas, "dblclick", function(e) {
+    instance.on(canvas, "dblclick", function(e) {
         newNode(e.offsetX, e.offsetY);
     });
 
@@ -105,6 +105,6 @@ jsPlumb.ready(function () {
         });
     });
 
-    jsPlumb.fire("jsPlumbDemoLoaded", instance);
+    //jsPlumb.fire("jsPlumbDemoLoaded", instance);
 
 });
