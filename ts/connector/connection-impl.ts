@@ -1,5 +1,5 @@
 
-import {_timestamp, Dictionary, extend, jsPlumbInstance, TypeDescriptor} from "../core";
+import {_timestamp, Dictionary, extend, jsPlumbInstance, PointXY, TypeDescriptor} from "../core";
 import {AbstractConnector} from "./abstract-connector";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {PaintStyle} from "../styles";
@@ -90,6 +90,10 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     typeId = "_jsplumb_connection";
     getIdPrefix () { return  "_jsPlumb_c"; }
     getDefaultOverlayKeys():Array<string> { return ["overlays", "connectionOverlays"] };
+
+    getXY() {
+        return { x:this.connector.x, y:this.connector.y };
+    }
 
     previousConnection:Connection<E>;
 

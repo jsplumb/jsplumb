@@ -36,6 +36,10 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return "endpoint";
     }
 
+    getXY() {
+        return { x:this.endpoint.x, y:this.endpoint.y }
+    }
+
     connections:Array<Connection<E>> = [];
     connectorPointerEvents:string;
     anchor:Anchor<E>;

@@ -170,6 +170,7 @@ export abstract class Component<E> extends EventGenerator {
     abstract getDefaultOverlayKeys():Array<string>;
     abstract getAttachedElements():Array<Component<E>>;
     abstract getIdPrefix():string;
+    abstract getXY():PointXY;
 
     clone: ()=>Component<E>;
 
