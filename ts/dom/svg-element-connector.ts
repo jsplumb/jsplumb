@@ -72,7 +72,7 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
                 _attr(this.path, a);
             }
 
-            _applyStyles(this.svg, this.path, paintStyle, d, null);
+            _applyStyles(this.svg, this.path, paintStyle, d, <any>this);
         }
     }
 
