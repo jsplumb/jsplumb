@@ -24,7 +24,6 @@ import * as Constants from "./constants";
 import {Renderer} from "./renderer";
 import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory";
 import { Anchor } from "./anchor/anchor";
-import {DynamicAnchor} from "./anchor/dynamic-anchor";
 import {EndpointOptions, EndpointSpec} from "./endpoint";
 import {ConnectorSpec} from "./connector";
 import {GroupManager} from "./group/group-manager";
@@ -1900,7 +1899,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         p.anchor = p.anchor || aae.anchors[0];
         let maxConnections = p.maxConnections || -1;
 
-        let inputs:Array<any> = !isString(el) ? el as Array<any> : [ el ];
+        let inputs:Array<any> = !isArray(el) ? [ el] : el as Array<any>;
+
+
         for (let i = 0, ii = inputs.length; i < ii; i++) {
             let elInfo = this._info(inputs[i]);
             // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
