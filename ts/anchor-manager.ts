@@ -384,16 +384,19 @@ export class AnchorManager<E> {
             // TODO SP not final on this yet. when a user drags an existing connection and it turns into a self
             // loop, then this code hides the target endpoint (by removing it from the DOM) But I think this should
             // occur only if the anchor is Continuous
-            if (connection.endpoints[1].anchor.isContinuous) {
-                if (connection.source === connection.target) {
-                    this.instance.removeElement(connection.endpoints[1].canvas);
-                }
-                else {
-                    if (connection.endpoints[1].canvas.parentNode == null) {
-                        this.instance.appendElement(connection.endpoints[1].canvas);
-                    }
-                }
-            }
+
+            // TODO 4.x - anchor manager should not be meddling with the render here. need some other means of doing this.
+            // it doesnt even need to be done in a headless environment, only in the DOM.
+            // if (connection.endpoints[1].anchor.isContinuous) {
+            //     if (connection.source === connection.target) {
+            //         this.instance.removeElement(connection.endpoints[1].canvas);
+            //     }
+            //     else {
+            //         if (connection.endpoints[1].canvas.parentNode == null) {
+            //             this.instance.appendElement(connection.endpoints[1].canvas);
+            //         }
+            //     }
+            // }
 
             connection.updateConnectedClass();
         }
