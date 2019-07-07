@@ -11,8 +11,6 @@ import {EndpointRepresentation} from "../endpoint/endpoints";
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {consume, findParent} from "../browser-util";
 
-type PlaceholderIfno = { id:string, element:any };
-
 declare const Biltong:any;
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor<HTMLElement>, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
@@ -192,7 +190,7 @@ export class EndpointDragHandler implements DragHandler {
             let el:any = e.currentTarget || e.srcElement;
             if (el._jsPlumbOrphanedEndpoints) {
                 each(el._jsPlumbOrphanedEndpoints, (ep:any) => {
-                    if (!ep.isDeleteOnEmpty() && ep.connections.length === 0) {
+                    if (!ep.deleteOnEmpty && ep.connections.length === 0) {
                         instance.deleteEndpoint(ep);
                     }
                 });
