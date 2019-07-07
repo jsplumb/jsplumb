@@ -199,26 +199,26 @@
             var hideLinks = document.querySelectorAll(".drag-drop-demo .hide");
             instance.on(hideLinks, "click", function (e) {
                 instance.toggleVisible(this.getAttribute("rel"));
-                jsPlumbUtil.consume(e);
+                instance.consume(e);
             });
 
             var dragLinks = document.querySelectorAll(".drag-drop-demo .drag");
             instance.on(dragLinks, "click", function (e) {
                 var s = instance.toggleDraggable(instance.getElement(this.getAttribute("rel")));
                 this.innerHTML = (s ? 'disable dragging' : 'enable dragging');
-                jsPlumbUtil.consume(e);
+                instance.consume(e);
             });
 
             var detachLinks = document.querySelectorAll(".drag-drop-demo .detach");
             instance.on(detachLinks, "click", function (e) {
                 instance.deleteConnectionsForElement(this.getAttribute("rel"));
-                jsPlumbUtil.consume(e);
+                instance.consume(e);
             });
 
             instance.on(document.getElementById("clear"), "click", function (e) {
                 instance.detachEveryConnection();
                 showConnectionInfo("");
-                jsPlumbUtil.consume(e);
+                instance.consume(e);
             });
         });
 
