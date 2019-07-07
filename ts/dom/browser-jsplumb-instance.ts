@@ -482,4 +482,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.setDraggable(el, !state);
         return !state;
     }
+
+    consume(e:Event):void {
+        Mottle.consume(e);
+    }
 }
