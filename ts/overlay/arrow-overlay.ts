@@ -1,110 +1,48 @@
 import {ArrowOverlayOptions, Overlay} from "./overlay";
 import {jsPlumbInstance, PointArray} from "../core";
-import {AbstractConnector, Component, Connection, IS, LabelOverlay, OverlayFactory, PaintStyle, uuid} from "..";
-import {ArrowOverlayRenderer, LabelOverlayRenderer} from "./overlay-renderer";
+import {AbstractConnector, Component, OverlayFactory, PaintStyle} from "..";
 
 const DEFAULT_WIDTH = 20;
 const DEFAULT_LENGTH = 20;
 
 declare const Biltong:any;
 
-export class ArrowOverlay<E> implements Overlay<E> {
+export class ArrowOverlay<E> extends Overlay<E> {
 
     width:number;
     length:number;
     foldback:number;
     direction:number;
 
-    cssClass:string;
-
     paintStyle:PaintStyle;
 
     type:string = "Arrow";
 
-    location: number;
-
-    id:string;
-
     cachedDimensions:PointArray;
 
-    visible:boolean = true;
+    constructor(protected instance:jsPlumbInstance<E>, public component:Component<E>,
+                p:ArrowOverlayOptions) {
 
-    renderer:ArrowOverlayRenderer<E>;
-
-    constructor(protected instance:jsPlumbInstance<E>, public component:Component<E>, p:ArrowOverlayOptions) {
+        super(instance, component, p);
         p = p || {};
-        this.id = p.id  || uuid();
 
-        this.location = p.location || 0.5;
         this.width = p.width || DEFAULT_WIDTH;
         this.length = p.length || DEFAULT_LENGTH;
         this.direction = (p.direction || 1) < 0 ? -1 : 1;
         this.foldback = p.foldback || 0.623;
         this.paintStyle = p.paintStyle || { "strokeWidth": 1 };
 
-        this.cssClass = p.cssClass || "";
-
-        this.renderer = this.instance.renderer.assignOverlayRenderer(this.instance, this) as LabelOverlayRenderer<E>;
+        this.renderer = this.instance.renderer.assignOverlayRenderer(this.instance, this);
     }
 
-    addClass(clazz:string) {
-        this.renderer.addClass(clazz);
-    }
-
-    removeClass(clazz:string) {
-        this.renderer.removeClass(clazz);
-    }
-
-    setVisible(v: boolean): void {
-        this.visible = v;
-        this.renderer.setVisible(v);
-    }
-
-    cleanup(force?: boolean): void {
-        this.renderer.cleanup(force);
-    }
-
-    destroy(force?: boolean): void {
-        this.renderer.destroy(force);
-    }
-
-    hide(): void {
-        this.setVisible(false);
-    }
-
-    show(): void {
-        this.setVisible(true);
-    }
-
-    setLocation(l: any): void {
-    }
-
-    setListenerComponent(c: any): void {
-    }
-
-
-    getElement(): any {
-        return null;
-    }
-
-
-    isVisible(): boolean {
-        return this.visible;
-    }
-
-    transfer(target: any): void {
-    }
 
     draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
 
         if (component instanceof AbstractConnector) {
-            //console.log("DRAW on label overlay called", component)
 
             let connector = component as AbstractConnector<E>;
 
-            //return this.renderer.draw(component, currentConnectionPaintStyle, absolutePosition);
             var hxy, mid, txy, tail, cxy;
-            //if (component.pointAlongPathFrom) {
 
                 if (this.location > 1 || this.location < 0) {
                     var fromLoc = this.location < 0 ? 1 : 0;
@@ -161,24 +99,7 @@ export class ArrowOverlay<E> implements Overlay<E> {
         }
     }
 
-    paint(params: any, extents?: any): void {
-        //console.log("PAINT on label overlay called")
-
-        return this.renderer.paint(params, extents);
-
-    }
-
-
-    updateFrom(d: any): void {
-        // resize i guess
-    }
-
-    reattach(component:Component<E>) {
-        // if (this._jsPlumb.div != null) {
-        //     instance.getContainer().appendChild(this._jsPlumb.div);
-        // }
-        // this.detached = false;
-    }
+    updateFrom(d: any): void { }
 
 }
 

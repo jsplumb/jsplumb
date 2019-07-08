@@ -69,7 +69,7 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
                 cxy = (<any>component).pointOnPath(loc as number, absolute);  // a connection
             }
             else {
-                let locToUse:[number, number] = this.overlay.location.constructor === Array ? (this.overlay.location as [number, number]) : this.overlay.endpointLoc;
+                let locToUse:[number, number] = this.overlay.location.constructor === Array ? ((<unknown>this.overlay.location) as [number, number]) : this.overlay.endpointLocation;
                 cxy = { x: locToUse[0] * component.w,
                     y: locToUse[1] * component.h };
             }
