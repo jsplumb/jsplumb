@@ -33,6 +33,7 @@ export * from "./endpoint/blank-endpoint";
 
 export * from "./overlay/overlay";
 export * from "./overlay/label-overlay";
+export * from "./overlay/arrow-overlay";
 export * from "./factory/overlay-factory";
 
 export * from "./anchor/anchor";

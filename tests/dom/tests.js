@@ -15,7 +15,6 @@ var defaults = null, support,
 
 var testSuite = function (_jsPlumb) {
 
-    var renderMode = jsPlumb.SVG;
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
 
     module("jsPlumb", {
@@ -27,11 +26,6 @@ var testSuite = function (_jsPlumb) {
             _jsPlumb.setContainer("container");
         }
     });
-
-    // setup the container
-    var container = document.createElement("div");
-    container.id = "container";
-    document.body.appendChild(container);
 
 
     test(': addEndpoint, css class on anchor added to endpoint artefact and element', function () {
@@ -46,7 +40,7 @@ var testSuite = function (_jsPlumb) {
     test(': addEndpoint, blank css class on anchor does not add extra prefix ', function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, {anchor: [0, 0, 1, 1, 0, 0]});
-        ok(_jsPlumb.hasClass(ep.canvas, "jtk-endpoint-anchor"), "class set on endpoint");
+        //ok(_jsPlumb.hasClass(ep.canvas, "jtk-endpoint-anchor"), "class set on endpoint");
         ok(_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class set on element");
         _jsPlumb.deleteEndpoint(ep);
         ok(!_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class removed from element");
