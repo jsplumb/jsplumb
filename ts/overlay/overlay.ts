@@ -18,12 +18,14 @@ export interface ArrowOverlayOptions extends OverlayOptions {
     direction?: number; // 1
     foldback?: number; // 0.623
     paintStyle?: PaintStyle;
+    cssClass?: string;
 }
 
 export interface LabelOverlayOptions extends OverlayOptions {
     label: string;
     cssClass?: string;
     location?: number; // 0.5
+    endpointLocation?:[ number, number ];
     labelStyle?: {
         font?: string;
         color?: string;
@@ -45,11 +47,11 @@ export interface Overlay<E> {
     setVisible(v:boolean):void;
     cleanup(force?:boolean):void;
     destroy(force?:boolean):void;
-    isAppendedAtTopLevel?:boolean;
-    getLabel():string;
+    //isAppendedAtTopLevel?:boolean;
+    //getLabel():string;
     hide():void;
     show():void;
-    setLabel(l:string|Function):void;
+    //setLabel(l:string|Function):void;
     setLocation(l:any):void;
 
     location?: number | [number, number] ;
@@ -67,7 +69,7 @@ export interface Overlay<E> {
 
     reattach(component:Component<E>):void;
 
-    getElement():any;
+    //getElement():any;
 
     isVisible():boolean;
 
