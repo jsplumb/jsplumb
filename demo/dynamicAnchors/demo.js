@@ -50,7 +50,7 @@ jsPlumb.ready(function () {
             connectorOverlays: overlays
         };
 
-    var instance = jsPlumb.getInstance({
+    var instance = jsPlumb.newInstance({
         dragOptions: { cursor: 'pointer', zIndex: 2000 },
         container: "canvas"
     });
@@ -69,7 +69,7 @@ jsPlumb.ready(function () {
             },
             endpoints = {},
         // ask jsPlumb for a selector for the window class
-            divsWithWindowClass = jsPlumb.getSelector(".dynamic-demo .window");
+            divsWithWindowClass = document.querySelectorAll(".dynamic-demo .window");
 
         // add endpoints to all of these - one for source, and one for target, configured so they don't sit
         // on top of each other.
@@ -104,6 +104,6 @@ jsPlumb.ready(function () {
             return confirm("Delete connection?");
         });
 
-        jsPlumb.fire("jsPlumbDemoLoaded", instance);
+       // jsPlumb.fire("jsPlumbDemoLoaded", instance);
     });
 });

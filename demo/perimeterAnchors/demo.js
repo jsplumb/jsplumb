@@ -1,6 +1,6 @@
 jsPlumb.ready(function () {
 
-    var instance = jsPlumb.getInstance({
+    var instance = jsPlumb.newInstance({
         connector: "StateMachine",
         paintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
         endpoint: [ "Dot", { radius: 5 } ],
@@ -8,7 +8,7 @@ jsPlumb.ready(function () {
         container: "canvas"
     });
 
-    var shapes = jsPlumb.getSelector(".shape");
+    var shapes = document.querySelectorAll(".shape");
 
     // suspend drawing and initialise.
     instance.batch(function () {
@@ -30,5 +30,5 @@ jsPlumb.ready(function () {
         }
     });
 
-    jsPlumb.fire("jsPlumbDemoLoaded", instance);
+    //jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });
