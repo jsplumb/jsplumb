@@ -1,5 +1,5 @@
 
-import {Overlay} from "./overlay";
+import {LabelOverlayOptions, Overlay} from "./overlay";
 import {isFunction, uuid} from "../util";
 import {Component} from "../component/component";
 import {PaintStyle} from "../styles";
@@ -11,11 +11,12 @@ export class LabelOverlay<E> implements Overlay<E> {
 
     label:string | Function;
     labelText:string;
+
     cssClass:string;
 
     type:string = "Label";
 
-    isAppendedAtTopLevel: boolean = true;
+   // isAppendedAtTopLevel: boolean = true;
     location: number | [ number, number ];
     endpointLoc:[number, number];
 
@@ -27,12 +28,14 @@ export class LabelOverlay<E> implements Overlay<E> {
 
     renderer:LabelOverlayRenderer<E>;
 
-    constructor(protected instance:jsPlumbInstance<E>, public component:Component<E>, p:any) {
-        p = p || {};
+    constructor(protected instance:jsPlumbInstance<E>, public component:Component<E>, p:LabelOverlayOptions) {
+        p = p || { label:""};
         this.id = p.id  || uuid();
-        this.renderer = this.instance.renderer.assignOverlayRenderer(this.instance, this) as LabelOverlayRenderer<E>;
         this.location = p.location || 0.5;
         this.endpointLoc = p.endpointLocation == null ? [ 0.5, 0.5] : p.endpointLocation;
+        this.cssClass = p.cssClass || "";
+
+        this.renderer = this.instance.renderer.assignOverlayRenderer(this.instance, this) as LabelOverlayRenderer<E>;
         this.setLabel(p.label);
     }
 
@@ -82,9 +85,9 @@ export class LabelOverlay<E> implements Overlay<E> {
     }
 
 
-    getElement(): any {
-        return null;
-    }
+    // getElement(): any {
+    //     return null;
+    // }
 
 
     isVisible(): boolean {
