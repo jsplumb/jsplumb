@@ -210,16 +210,16 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
     }
 
     getLabel():string {
-        let lo = this.getOverlay(_internalLabelOverlayId);
+        let lo:LabelOverlay<E> = this.getLabelOverlay();
         return lo != null ? lo.getLabel() : null;
     }
 
-    getLabelOverlay():Overlay<E> {
-        return this.getOverlay(_internalLabelOverlayId);
+    getLabelOverlay():LabelOverlay<E> {
+        return this.getOverlay(_internalLabelOverlayId) as LabelOverlay<E>;
     }
 
     setLabel(l:string|Function|LabelOverlay<E>):void {
-        let lo = this.getOverlay(_internalLabelOverlayId);
+        let lo = this.getLabelOverlay();
         if (!lo) {
             let params = l.constructor === String || l.constructor === Function ? { label: l } : l;
             lo = _makeLabelOverlay(this, params);
