@@ -1,5 +1,3 @@
-
-
 import {jsPlumbDefaults} from "./defaults";
 import {ComponentParameters} from "./component/component";
 import {PaintStyle} from "./styles";
@@ -28,8 +26,6 @@ import {EndpointOptions, EndpointSpec} from "./endpoint";
 import {ConnectorSpec} from "./connector";
 import {GroupManager} from "./group/group-manager";
 import {Group} from "./group/group";
-
-declare const jsPlumb:any;
 
 export interface TypeDescriptor {
     cssClass?:string;
@@ -71,6 +67,15 @@ export interface OffsetAndSize { o:Offset, s:Size }
 export type PointArray = [ number, number ]
 export type PointXY = { x:number, y:number, theta?:number }
 export type BoundingBox = { x:number, y:number, w:number, h:number }
+
+export interface UpdateOffsetOptions {
+    timestamp?:string;
+    recalc?:boolean;
+    offset?:Offset;
+    elId?:string;
+}
+
+export type UpdateOffsetResult = {o:ExtendedOffset, s:Size}
 
 export interface ExtendedOffset {
     left:number;
@@ -161,7 +166,12 @@ export interface EndpointSelection<E> extends AbstractSelection<Endpoint<E>, E> 
     setAnchor:(a:AnchorSpec) => void;
     isEnabled:() => any[];
     deleteEveryConnection:() => void;
+}
 
+export type DeleteConnectionOptions = {
+    force?:boolean;
+    fireEvent?:boolean;
+    originalEvent?:Event;
 }
 
 function _setOperation (list:Array<any>, func:string, args?:any, selector?:any):any {
@@ -386,8 +396,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             connectionOverlays: [ ],
             connector: "Bezier",
             container: null,
-            //dragOptions: { },
-            //dropOptions: { },
             endpoint: "Dot",
             endpointOverlays: [ ],
             endpoints: [ null, null ],
@@ -650,9 +658,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             isReattach: getter(list, "isReattach")
         };
 
-        let merge = extend(common, connectionFunctions);
-
-        return merge;
+        return extend(common, connectionFunctions);
     }
 
     private _makeEndpointSelectHandler (list:Array<Endpoint<E>>):EndpointSelection<E> {
@@ -672,8 +678,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 }
             }
         };
-        let merge = extend(common, endpointFunctions);
-        return merge;
+        return extend(common, endpointFunctions);
     }
 
     select (params?:SelectOptions<E>):ConnectionSelection<E> {
@@ -722,8 +727,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
 
         return this._makeEndpointSelectHandler(ep);
-
-        //return null//this._makeEndpointSelectHandler(params.connections || this.getConnections(params, true));
     }
 
     private unbindContainer ():void  {
@@ -861,7 +864,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this.DEFAULT_SCOPE;
     }
 
-    each(spec:ElementSpec<E>, fn:(e:E) => any) {
+    /**
+     * Execute the given function for each of the given elements.
+     * @param spec An Element, or an element id, or an array of elements/element ids.
+     * @param fn
+     */
+    each(spec:ElementSpec<E>, fn:(e:E) => any):jsPlumbInstance<E> {
         if (spec == null) {
             return;
         }
@@ -876,16 +884,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         else {
             fn(spec as E);
         } // assume it's an element.
+
+        return this;
     }
 
 
 
-    updateOffset(params?:{
-        timestamp?:string,
-        recalc?:boolean,
-        offset?:Offset,
-        elId?:string
-    }):{o:ExtendedOffset, s:Size} {
+    updateOffset(params?:UpdateOffsetOptions):UpdateOffsetResult {
 
         let timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
         if (this._suspendDrawing && !timestamp) {
@@ -928,39 +933,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return {o: this._offsets[elId], s: this._sizes[elId]};
     }
 
-    // _draw(element:string | E, ui?:any, timestamp?:Timestamp) {
-    //
-    //     if (!this._suspendDrawing) {
-    //         let id = this.getId(element),
-    //             repaintEls:Array<E> = [],
-    //             repaintOffsets:Array<Offset> = [];//,
-    //             //dm = _currentInstance.getDragManager();
-    //
-    //         // if (dm) {
-    //         //     repaintEls = dm.getElementsForDraggable(element);
-    //         // }
-    //
-    //         if (timestamp == null) {
-    //             timestamp = _timestamp();
-    //         }
-    //
-    //         // update the offset of everything _before_ we try to draw anything.
-    //         this.updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
-    //         for (let i = 0; i < repaintEls.length; i++) {
-    //             repaintOffsets.push(this.updateOffset({ elId: this.getId(repaintEls[i]), recalc: true, timestamp: timestamp }).o);
-    //         }
-    //
-    //         this.anchorManager.redraw(id, ui, timestamp, null);
-    //
-    //         // if (repaintEls.length > 0) {
-    //         //     for (var j = 0; j < repaintEls.length; j++) {
-    //         //         _currentInstance.anchorManager.redraw(_currentInstance.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, clearEdits, true);
-    //         //     }
-    //         // }
-    //     }
-    // }
 
-    deleteConnection (connection:Connection<E>, params?:any):boolean {
+    deleteConnection (connection:Connection<E>, params?:DeleteConnectionOptions):boolean {
 
         if (connection != null) {
             params = params || {};
@@ -989,7 +963,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return false;
     }
 
-    deleteEveryConnection (params?:any):number {
+    deleteEveryConnection (params?:DeleteConnectionOptions):number {
         params = params || {};
         let count = this.connections.length, deletedCount = 0;
         this.batch(() => {
@@ -1000,7 +974,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return deletedCount;
     }
 
-    deleteConnectionsForElement(el:E|string, params?:any):jsPlumbInstance<E> {
+    deleteConnectionsForElement(el:E|string, params?:DeleteConnectionOptions):jsPlumbInstance<E> {
         params = params || {};
         let _el = this.getElement(el);
         let id = this.getId(_el), endpoints = this.endpointsByElement[id];
@@ -1130,30 +1104,15 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this.connections;
     }
 
-    private _elEach (el:E | string | Array<E | string>, fn:Function):jsPlumbInstance<E> {
-    // support both lists...
-        if (typeof el === 'object' && (<any>el).length) {
-            let ela = el as Array<any>;
-            for (let i = 0, ii = ela.length; i < ii; i++) {
-                fn(ela[i]);
-            }
-        }
-        else {// ...and single strings or elements.
-            fn(el);
-        }
-
-        return this;
-    }
-
     // repaint some element's endpoints and connections
     repaint (el:string | E | Array<string | E>, ui?:any, timestamp?:string):jsPlumbInstance<E> {
-        return this._elEach(el, (_el:E | string) => {
+        return this.each(el, (_el:E | string) => {
             this._draw(_el, ui, timestamp);
         });
     }
 
     revalidate (el:string | E | Array<string | E>, timestamp?:string, isIdAlready?:boolean):jsPlumbInstance<E> {
-        return this._elEach(el, (_el:E | string) => {
+        return this.each(el, (_el:E | string) => {
             let elId = isIdAlready ? _el as string : this.getId(_el);
             this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
             this.repaint(_el);
@@ -1192,12 +1151,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             let id = this.getId(element),
                 el = this.getElement(element),
                 repaintEls = this._getAssociatedElements(el),
-                repaintOffsets = [];//,
-            //     dm = _currentInstance.getDragManager();
-            //
-            // if (dm) {
-            //     repaintEls = dm.getElementsForDraggable(element);
-            // }
+                repaintOffsets = [];
 
             if (timestamp == null) {
                 timestamp = _timestamp();
@@ -1343,10 +1297,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this._offsets = {};
         this._offsetTimestamps = {};
         this.anchorManager.reset();
-        // var dm = _currentInstance.getDragManager();
-        // if (dm) {
-        //     dm.reset();
-        // }
         if (!_is) {
             this.setSuspendDrawing(false);
         }
