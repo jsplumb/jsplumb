@@ -22,7 +22,7 @@ export abstract class EndpointRepresentation<E, C> {
 
     computedValue:C;
 
-    bounds:SegmentBounds = EMPTY_BOUNDS;
+    bounds:SegmentBounds = EMPTY_BOUNDS();
 
     instance:jsPlumbInstance<E>;
 
