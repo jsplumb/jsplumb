@@ -1010,7 +1010,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
     }
 
-    manage (id:string | E | Array<string | E>, element?:E):void {
+    manage (id:ElementSpec<E>, element?:E):void {
 
         let _one = (id:string | E, element?:E) => {
             let _id:string, _element:E;
@@ -1039,7 +1039,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                     this._managedElements[_id].info = this.updateOffset({elId: _id, timestamp: this._suspendedAt});
                 }
 
-                this.setAttribute(_element, "jtk-managed", "");
+                this.setAttribute(_element, Constants.ATTRIBUTE_MANAGED, "");
             }
         };
 
@@ -1051,14 +1051,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             _one(<any>id, element);
         }
 
-
-       // return this._managedElements[_id];
-
     }
 
     unmanage (id:string):void {
         if (this._managedElements[id]) {
-            this.removeAttribute(this._managedElements[id].el, "jtk-managed");
+            this.removeAttribute(this._managedElements[id].el, Constants.ATTRIBUTE_MANAGED);
             delete this._managedElements[id];
         }
     }
@@ -1066,9 +1063,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     newEndpoint(params:any, id?:string):Endpoint<E> {
         let _p = extend({}, params);
         _p._jsPlumb = this;
-        // _p.endpointsByUUID = this.endpointsByUUID;
-        // _p.endpointsByElement = this.endpointsByElement;
-        // _p.fireDetachEvent = this.fireDetachEvent;
         _p.elementId = id || this.getId(_p.source);
 
         let ep = new Endpoint(this, _p);
