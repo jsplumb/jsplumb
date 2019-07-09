@@ -6,12 +6,12 @@ jsPlumb.ready(function () {
         connector:"StateMachine",
         hoverPaintStyle: {stroke: "#1e8151", strokeWidth: 2 },
         connectionOverlays: [
-        //     [ "Arrow", {
-        //         location: 1,
-        //         id: "arrow",
-        //         length: 14,
-        //         foldback: 0.8
-        //     } ],
+            [ "Arrow", {
+                location: 1,
+                id: "arrow",
+                length: 14,
+                foldback: 0.8
+            } ],
              [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]
         ],
         container: "canvas"
