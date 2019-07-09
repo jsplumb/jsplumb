@@ -97,7 +97,7 @@ export abstract class AbstractConnector<E> {
     w:number;
     h:number;
     segment:number;
-    bounds:SegmentBounds = EMPTY_BOUNDS;
+    bounds:SegmentBounds = EMPTY_BOUNDS();
 
     constructor(protected instance:jsPlumbInstance<E>, params:AbstractConnectorOptions<E>) {
 
@@ -120,7 +120,7 @@ export abstract class AbstractConnector<E> {
     abstract _compute(geometry:PaintGeometry, params:ConnectorComputeParams<E>):void;
 
     resetBounds():void {
-        this.bounds = EMPTY_BOUNDS;
+        this.bounds = EMPTY_BOUNDS();
     }
 
     getPathData ():any {
