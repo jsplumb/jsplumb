@@ -27,6 +27,7 @@ import { Anchor } from "./anchor/anchor";
 import {EndpointOptions, EndpointSpec} from "./endpoint";
 import {ConnectorSpec} from "./connector";
 import {GroupManager} from "./group/group-manager";
+import {Group} from "./group/group";
 
 declare const jsPlumb:any;
 
@@ -398,7 +399,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             labelStyle: { color: "black" },
             overlays: [ ],
             maxConnections: 1,
-            paintStyle: { strokeWidth: 4, stroke: "#456" },
+            paintStyle: { strokeWidth: 2, stroke: "#456" },
             reattachConnections: false,
             scope: "jsPlumb_DefaultScope"
         };
@@ -1035,38 +1036,49 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
     }
 
-    manage (id:string | E, element?:E):ManagedElement<E> {
+    manage (id:string | E | Array<string | E>, element?:E):void {
 
-        let _id:string, _element:E;
+        let _one = (id:string | E, element?:E) => {
+            let _id:string, _element:E;
 
-        if (!isString(id)) {
-            _id = this.getId(id as E);
-            _element = id as E;
-        } else {
-            _id = id as string;
-            _element = element;
-        }
-
-        if (!this._managedElements[_id]) {
-            this._managedElements[_id] = {
-                el: _element,
-                endpoints: [],
-                connections: []
-            };
-
-            // dont compute size now if drawing suspend (to avoid any reflows)
-            if (this.isSuspendDrawing()) {
-                this._sizes[_id] = [0,0];
-                this._offsets[_id] = {left:0,top:0};
-                this._managedElements[_id].info = {o:this._offsets[_id], s:this._sizes[_id]};
+            if (!isString(id)) {
+                _id = this.getId(id as E);
+                _element = id as E;
             } else {
-                this._managedElements[_id].info = this.updateOffset({elId: _id, timestamp: this._suspendedAt});
+                _id = id as string;
+                _element = element;
             }
 
-            this.setAttribute(_element, "jtk-managed", "");
+            if (!this._managedElements[_id]) {
+                this._managedElements[_id] = {
+                    el: _element,
+                    endpoints: [],
+                    connections: []
+                };
+
+                // dont compute size now if drawing suspend (to avoid any reflows)
+                if (this.isSuspendDrawing()) {
+                    this._sizes[_id] = [0,0];
+                    this._offsets[_id] = {left:0,top:0};
+                    this._managedElements[_id].info = {o:this._offsets[_id], s:this._sizes[_id]};
+                } else {
+                    this._managedElements[_id].info = this.updateOffset({elId: _id, timestamp: this._suspendedAt});
+                }
+
+                this.setAttribute(_element, "jtk-managed", "");
+            }
+        };
+
+        if ((<any>id).length != null && !IS.aString(id)) {
+            for (let i = 0; i < (<any>id).length; i++) {
+                _one((<any>id)[i]);
+            }
+        } else {
+            _one(<any>id, element);
         }
 
-        return this._managedElements[_id];
+
+       // return this._managedElements[_id];
 
     }
 
@@ -1166,11 +1178,20 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
+    /**
+     * for some given element, find any other elements we want to draw whenever that element
+     * is being drawn. for groups, for example, this means any child elements of the group.
+     * @param el
+     * @private
+     */
+    abstract _getAssociatedElements(el:E):Array<E>;
+
     _draw(element:string | E, ui?:any, timestamp?:string) {
 
         if (!this._suspendDrawing) {
             let id = this.getId(element),
-                repaintEls = [],
+                el = this.getElement(element),
+                repaintEls = this._getAssociatedElements(el),
                 repaintOffsets = [];//,
             //     dm = _currentInstance.getDragManager();
             //
@@ -1184,17 +1205,17 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
             // update the offset of everything _before_ we try to draw anything.
             this.updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
-            // for (let i = 0; i < repaintEls.length; i++) {
-            //     repaintOffsets.push(this._updateOffset({ elId: this.getId(repaintEls[i]), recalc: true, timestamp: timestamp }).o);
-            // }
+            for (let i = 0; i < repaintEls.length; i++) {
+                repaintOffsets.push(this.updateOffset({ elId: this.getId(repaintEls[i]), recalc: true, timestamp: timestamp }).o);
+            }
 
             this.anchorManager.redraw(id, ui, timestamp, null);
 
-            // if (repaintEls.length > 0) {
-            //     for (let j = 0; j < repaintEls.length; j++) {
-            //         this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, true);
-            //     }
-            // }
+            if (repaintEls.length > 0) {
+                for (let j = 0; j < repaintEls.length; j++) {
+                    this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, true);
+                }
+            }
         }
     }
 
@@ -1332,7 +1353,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    addEndpoint(el:ElementSpec<E>, params?:EndpointOptions<E>, referenceParams?:EndpointOptions<E>):Endpoint<E> | Array<Endpoint<E>> {
+    addEndpoint(el:ElementSpec<E>, params?:EndpointOptions<E>, referenceParams?:EndpointOptions<E>):Endpoint<E>{
         referenceParams = referenceParams || {} as EndpointOptions<E>;
         let p:EndpointOptions<E> = extend({}, referenceParams);
         extend(p, params);
@@ -1362,19 +1383,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         });
 
 
-        return ep[0] || ep;
+        return ep[0];
     }
 
     addEndpoints(el:ElementSpec<E>, endpoints:Array<EndpointOptions<E>>, referenceParams?:any):Array<Endpoint<E>> {
         let results:Array<Endpoint<E>> = [];
         for (let i = 0, j = endpoints.length; i < j; i++) {
-            let e = this.addEndpoint(el, endpoints[i], referenceParams);
-            if (isArray(e)) {
-                Array.prototype.push.apply(results, e as Array<Endpoint<E>>);
-            }
-            else {
-                results.push(e as Endpoint<E>);
-            }
+            results.push(this.addEndpoint(el, endpoints[i], referenceParams));
         }
         return results;
     }
@@ -1388,7 +1403,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             if (!doNotUnbindInstanceEventListeners) {
                 this.unbind();
             }
-            //delete _container._katavorioDrag;
             this.connections.length = 0;
             // if (this.doReset) {
             //     this.doReset();
@@ -2033,7 +2047,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     /**
      * private method to do the business of toggling hiding/showing.
      */
-    private _toggleVisible (elId:string, changeEndpoints?:boolean) {
+    toggleVisible (elId:string, changeEndpoints?:boolean) {
         let endpointFunc = null;
         if (changeEndpoints) {
             endpointFunc = (ep:Endpoint<E>) => {
@@ -2129,4 +2143,99 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     getManagedElements():Dictionary<ManagedElement<E>> {
         return this._managedElements;
     }
+
+// ----------------------------- proxy connections -----------------------
+
+    proxyConnection(connection:Connection<E>, index:number, proxyEl:E, proxyElId:string,
+                    endpointGenerator:any, anchorGenerator:any) {
+
+        let proxyEp,
+            originalElementId = connection.endpoints[index].elementId,
+            originalEndpoint = connection.endpoints[index];
+
+        connection.proxies = connection.proxies || [];
+        if(connection.proxies[index]) {
+            proxyEp = connection.proxies[index].ep;
+        }else {
+            proxyEp = this.addEndpoint(proxyEl, {
+                endpoint:endpointGenerator(connection, index),
+                anchor:anchorGenerator(connection, index),
+                parameters:{
+                    isProxyEndpoint:true
+                }
+            });
+        }
+        proxyEp.deleteOnEmpty = true;
+
+        // for this index, stash proxy info: the new EP, the original EP.
+        connection.proxies[index] = { ep:proxyEp, originalEp: originalEndpoint };
+
+        // and advise the anchor manager
+        if (index === 0) {
+            // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+            // connection changed (you give the index), and here's the new element and element id."
+            this.anchorManager.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
+        }
+        else {
+            this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, originalElementId, proxyElId, connection);
+            connection.target = proxyEl;
+            connection.targetId = proxyElId;
+        }
+
+        // detach the original EP from the connection.
+        originalEndpoint.detachFromConnection(connection, null, true);
+
+        // set the proxy as the new ep
+        proxyEp.connections = [ connection ];
+        connection.endpoints[index] = proxyEp;
+
+        originalEndpoint.setVisible(false);
+
+        connection.setVisible(true);
+
+        this.revalidate(proxyEl);
+    }
+
+    unproxyConnection(connection:Connection<E>, index:number, proxyElId:string) {
+        // if connection cleaned up, no proxies, or none for this end of the connection, abort.
+        if (connection.proxies == null || connection.proxies[index] == null) {
+            return;
+        }
+
+        let originalElement = connection.proxies[index].originalEp.element,
+            originalElementId = connection.proxies[index].originalEp.elementId;
+
+        connection.endpoints[index] = connection.proxies[index].originalEp;
+        // and advise the anchor manager
+        if (index === 0) {
+            // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+            // connection changed (you give the index), and here's the new element and element id."
+            this.anchorManager.sourceChanged(proxyElId, originalElementId, connection, originalElement);
+        }
+        else {
+            this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, proxyElId, originalElementId, connection);
+            connection.target = originalElement;
+            connection.targetId = originalElementId;
+        }
+
+        // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
+        connection.proxies[index].ep.detachFromConnection(connection, null);
+
+        connection.proxies[index].originalEp.addConnection(connection);
+        if(connection.isVisible()) {
+            connection.proxies[index].originalEp.setVisible(true);
+        }
+
+        // cleanup
+        delete connection.proxies[index];
+    }
+
+// ------------------------ GROUPS --------------
+
+    addGroup(params:any) { return this.groupManager.addGroup(params); }
+    addToGroup(group:string | Group<E>, el:E | Array<E>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
+
+    collapseGroup (group:string | Group<E>) { this.groupManager.collapseGroup(group); }
+    expandGroup (group:string | Group<E>) { this.groupManager.expandGroup(group); }
+
 }
