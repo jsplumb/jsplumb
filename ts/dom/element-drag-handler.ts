@@ -153,9 +153,9 @@ export class ElementDragHandler implements DragHandler {
     onStart(params:any):boolean {
         const el = params.drag.getDragElement();
 
-        if(hasManagedParent(this.instance.getContainer(), el) && el.offsetParent._jsPlumbGroup == null) {
-            return false;
-        } else {
+        // if(hasManagedParent(this.instance.getContainer(), el) && el.offsetParent._jsPlumbGroup == null) {
+        //     return false;
+        // } else {
 
             // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
             // have been supplied to the instance's dragOptions.
@@ -221,6 +221,6 @@ export class ElementDragHandler implements DragHandler {
                 });
             }
             return cont;
-        }
+        //}
     }
 }
