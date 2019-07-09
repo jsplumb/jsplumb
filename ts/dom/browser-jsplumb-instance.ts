@@ -171,8 +171,9 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.dragManager = new DragManager(this);
 
         this.dragManager.addHandler(new EndpointDragHandler(this));
-        this.dragManager.addHandler(new ElementDragHandler(this));
         this.dragManager.addHandler(new GroupDragHandler(this));
+        this.dragManager.addHandler(new ElementDragHandler(this));
+
 
     }
 
