@@ -1,12 +1,15 @@
 jsPlumb.ready(function () {
 
-    var j = window.j = jsPlumb.getInstance({container:canvas, connector:"StateMachine", endpoint:["Dot", {radius:3}], anchor:"Center"});
+    var j = window.j = jsPlumb.newInstance({container:canvas, connector:"StateMachine", endpoint:["Dot", {radius:3}], anchor:"Center"});
 
     j.bind("connection", function(p) {
         p.connection.bind("click", function() {
             j.detach(this);
         });
     });
+
+    var managedElements = document.querySelectorAll("[group], .w");
+    j.manage(managedElements);
 
     var evts = document.querySelector("#events");
     var _appendEvent = function(name, detail) {
@@ -131,6 +134,6 @@ jsPlumb.ready(function () {
         j[collapsed ? "expandGroup" : "collapseGroup"](g);
     });
 
-    jsPlumb.fire("jsPlumbDemoLoaded", j);
+  //  jsPlumb.fire("jsPlumbDemoLoaded", j);
 
 });

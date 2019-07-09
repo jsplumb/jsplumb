@@ -27,12 +27,12 @@ jsPlumb.ready(function () {
 
             instance.on(el, 'click', function (e, ui) {
                 if (el.className.indexOf("jsPlumb_dragged") > -1) {
-                    jsPlumb.removeClass(elId, "jsPlumb_dragged");
+                    instance.removeClass(elId, "jsPlumb_dragged");
                     return;
                 }
                 var o = instance.getOffset(el, true),
                     o2 = instance.getOffset(el),
-                    s = jsPlumb.getSize(el),
+                    s = instance.getSize(el),
                     pxy = [e.pageX || e.clientX, e.pageY || e.clientY],
                     c = [pxy[0] - (o.left + (s[0] / 2)), pxy[1] - (o.top + (s[1] / 2))],
                     oo = [c[0] / s[0], c[1] / s[1]],
@@ -59,7 +59,7 @@ jsPlumb.ready(function () {
         },
 
         prepare = function (elId) {
-            initAnimation(elId);
+            //initAnimation(elId);
 
             return instance.addEndpoint(elId, endpoint);
         },
@@ -83,6 +83,7 @@ jsPlumb.ready(function () {
     instance = jsPlumb.newInstance({
         dragOptions: { cursor: 'wait', zIndex: 20 },
         endpoint: [ "Image", { url: "littledot.png" } ],
+        wendpoint:"Blank",
         connector: [ "Bezier", { curviness: 90 } ],
         container: "canvas"
     });
@@ -93,8 +94,8 @@ jsPlumb.ready(function () {
             e2 = prepare("bd2"),
             e3 = prepare("bd3"),
             e4 = prepare("bd4"),
-            clearBtn = jsPlumb.getSelector("#anim-clear"),
-            addBtn = jsPlumb.getSelector("#add");
+            clearBtn = document.querySelector("#anim-clear"),
+            addBtn = document.querySelector("#add");
 
         instance.on(clearBtn, "click", function (e) {
             e.preventDefault();

@@ -9,7 +9,7 @@ jsPlumb.ready(function () {
         [ 1, 1, 0, 1 ]
     ];
 
-    var instance = window.instance = jsPlumb.getInstance({
+    var instance = window.instance = jsPlumb.newInstance({
         // drag options
         dragOptions: { cursor: "pointer", zIndex: 2000 },
         // default to a gradient stroke from blue to green.
@@ -25,21 +25,21 @@ jsPlumb.ready(function () {
     });
 
     // click listener for the enable/disable link in the source box (the blue one).
-    jsPlumb.on(document.getElementById("enableDisableSource"), "click", function (e) {
+    instance.on(document.getElementById("enableDisableSource"), "click", function (e) {
         var sourceDiv = (e.target|| e.srcElement).parentNode;
         var state = instance.toggleSourceEnabled(sourceDiv);
         this.innerHTML = (state ? "disable" : "enable");
-        jsPlumb[state ? "removeClass" : "addClass"](sourceDiv, "element-disabled");
-        jsPlumbUtil.consume(e);
+        instance[state ? "removeClass" : "addClass"](sourceDiv, "element-disabled");
+        instance.consume(e);
     });
 
     // click listener for enable/disable in the small green boxes
-    jsPlumb.on(document.getElementById("canvas"), "click", ".enableDisableTarget", function (e) {
+    instance.on(document.getElementById("canvas"), "click", ".enableDisableTarget", function (e) {
         var targetDiv = (e.target || e.srcElement).parentNode;
         var state = instance.toggleTargetEnabled(targetDiv);
         this.innerHTML = (state ? "disable" : "enable");
-        jsPlumb[state ? "removeClass" : "addClass"](targetDiv, "element-disabled");
-        jsPlumbUtil.consume(e);
+        instance[state ? "removeClass" : "addClass"](targetDiv, "element-disabled");
+        instance.consume(e);
     });
 
     // bind to a connection event, just for the purposes of pointing out that it can be done.
@@ -49,9 +49,9 @@ jsPlumb.ready(function () {
     });
 
     // get the list of ".smallWindow" elements.            
-    var smallWindows = jsPlumb.getSelector(".smallWindow");
+    var smallWindows = document.querySelectorAll(".smallWindow");
 
-    instance.manage(smallWindows);
+    smallWindows.forEach(function(el) { instance.manage(el.getAttribute("id"), el); });
 
     // suspend drawing and initialise.
     instance.batch(function () {
@@ -78,5 +78,5 @@ jsPlumb.ready(function () {
         instance.connect({ source: "sourceWindow1", target: "targetWindow2" });
     });
 
-    jsPlumb.fire("jsPlumbDemoLoaded", instance);
+   // jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });	
