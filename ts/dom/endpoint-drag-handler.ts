@@ -207,6 +207,8 @@ export class EndpointDragHandler implements DragHandler {
     
         this.currentDropTarget = null;
 
+        this._stopped = false;
+
         let dragEl = p.drag.getDragElement();
 
         this.ep = dragEl._jsPlumb.endpoint;
@@ -510,7 +512,6 @@ export class EndpointDragHandler implements DragHandler {
     
     onDrag (params:any) {
         if (this._stopped) {
-            this._stopped = false;
             return true;
         }
 
