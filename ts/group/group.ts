@@ -60,6 +60,8 @@ export class Group<E> {
         this.anchor = options.anchor;
         this.endpoint = options.endpoint;
         this.anchor = options.anchor;
+
+        instance.setAttribute(el, Constants.ATTRIBUTE_GROUP, "");
     }
 
     overrideDrop(el:E, targetGroup:Group<E>):boolean {
