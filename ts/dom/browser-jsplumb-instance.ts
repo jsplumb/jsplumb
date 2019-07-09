@@ -5,6 +5,7 @@ import {fastTrim, isArray, isString, log} from "../util";
 import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
+import {GroupDragHandler} from "./group-drag-handler";
 
 declare const Mottle:any;
 declare const Biltong:any;
@@ -171,6 +172,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         this.dragManager.addHandler(new EndpointDragHandler(this));
         this.dragManager.addHandler(new ElementDragHandler(this));
+        this.dragManager.addHandler(new GroupDragHandler(this));
 
     }
 
@@ -193,17 +195,27 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     }
 
     appendElement(el:HTMLElement, parent?:HTMLElement):void {
-        let _container = this.getContainer();
-        if (_container) {
-            _container.appendChild(el);
-        }
-        else if (!parent) {
-            this.appendToRoot(el);
-        }
-        else {
-            this.getElement(parent).appendChild(el);
+        if (parent) {
+            parent.appendChild(el);
+        } else {
+            let _container = this.getContainer();
+            if (_container) {
+                _container.appendChild(el);
+            }
+            else if (!parent) {
+                this.appendToRoot(el);
+            }
         }
     }
+
+    _getAssociatedElements(el: HTMLElement): Array<HTMLElement> {
+        let els = el.querySelectorAll("[jtk-managed]");
+        let a:Array<HTMLElement> = [];
+        Array.prototype.push.apply(a, els);
+        return a;
+    }
+
+
 
     appendToRoot(node:HTMLElement):void {
         document.body.appendChild(node);
