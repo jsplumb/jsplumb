@@ -186,7 +186,7 @@ export class ElementDragHandler implements DragHandler {
                 //
 
                 if (!el._isJsPlumbGroup && (!el._jsPlumbGroup || el._jsPlumbGroup.constrain !== true)) {
-                    this.instance.groupManager.groups.forEach((group:Group<HTMLElement>) => {
+                    this.instance.groupManager.forEach((group:Group<HTMLElement>) => {
                         if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
                             let groupEl = group.el,
                                 s = this.instance.getSize(groupEl),
