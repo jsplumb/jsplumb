@@ -39,6 +39,18 @@
         };
     };
 
+    var getEndpointCanvas = function(ep) {
+        return ep.endpoint.renderer.canvas;
+    };
+
+    var getCanvas = function(epOrEl) {
+        if (epOrEl.endpoint) {
+            return getEndpointCanvas(epOrEl);
+        } else {
+            return epOrEl;
+        }
+    };
+
     var _makeDragStartEvt = function(_jsPlumb, el) {
         var e = _makeEvt(_jsPlumb, el), c = _jsPlumb.getContainer();
         e.clientX += c.offsetLeft;
@@ -106,7 +118,7 @@
     // helper method to cause a connection to be dragged via the mouse, but programmatically.
     //
     var _dragConnection = function (_jsPlumb, d1, d2) {
-        var el1 = d1.canvas || d1, el2 = d2.canvas || d2;
+        var el1 = getCanvas(d1), el2 = getCanvas(d2);
         var e1 = _makeEvt(_jsPlumb, el1), e2 = _makeEvt(_jsPlumb, el2);
 
         var conns = _jsPlumb.select().length;
@@ -119,7 +131,7 @@
     };
 
     var _dragAndAbort = function (_jsPlumb, d1) {
-        var el1 = d1.canvas || d1;
+        var el1 = getCanvas(d1);
         var e1 = _makeEvt(_jsPlumb, el1);
 
         _jsPlumb.trigger(el1, "mousedown", e1);
@@ -130,7 +142,7 @@
     //
     // helper method to cause a connection to be detached via the mouse, but programmatically.
     var _detachConnection = function (_jsPlumb, e, connIndex) {
-        var el1 = e.canvas,
+        var el1 = getEndpointCanvas(e),
             c = e.connections[connIndex];
 
         var e1 = _makeEvt(_jsPlumb, el1);
@@ -148,9 +160,9 @@
         events = events || {};
 
         // allow Endpoints to be passed in
-        newEl = newEl.canvas || newEl;
+        newEl = getCanvas(newEl);
 
-        var el1 = conn.endpoints[idx].canvas;
+        var el1 = getEndpointCanvas(conn.endpoints[idx]);
         var e1 = _makeEvt(_jsPlumb, el1);
         var e2 = _makeEvt(_jsPlumb, newEl);
 
