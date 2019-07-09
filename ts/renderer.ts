@@ -6,7 +6,7 @@ import {OverlayRenderer} from "./overlay/overlay-renderer";
 import {jsPlumbInstance} from "./core";
 import {Overlay} from "./overlay/overlay";
 import {ConnectorRenderer} from "./connector/connector-renderer";
-import {AbstractConnector} from "./connector/abstract-connector";
+import {AbstractConnector, AbstractConnectorOptions} from "./connector/abstract-connector";
 import {Endpoint} from "./endpoint/endpoint-impl";
 
 export interface Renderer<E> {
@@ -15,7 +15,7 @@ export interface Renderer<E> {
 
     assignRenderer<C>(endpoint:Endpoint<E>, ep: EndpointRepresentation<E, C>): EndpointRenderer<E>;
     assignOverlayRenderer(instance: jsPlumbInstance<E>, o: Overlay<E>): OverlayRenderer<E>;
-    assignConnectorRenderer(instance:jsPlumbInstance<E>, c:AbstractConnector<E>):ConnectorRenderer<E>;
+    assignConnectorRenderer(instance:jsPlumbInstance<E>, c:AbstractConnector<E>, params:AbstractConnectorOptions<E>):ConnectorRenderer<E>;
 
     repaint(component:Component<E>, typeDescriptor:string, options?:RepaintOptions):void;
 }
