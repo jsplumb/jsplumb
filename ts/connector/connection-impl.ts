@@ -116,7 +116,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     _forceReattach:boolean;
     _forceDetach:boolean;
 
-    proxies:Array<ProxyConnection<E>> = [];
+    proxies:Array<{ ep:Endpoint<E>, originalEp: Endpoint<E> }> = [];
     
     pending:boolean = false;
 
