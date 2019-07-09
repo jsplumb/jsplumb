@@ -99,6 +99,22 @@ export class GroupManager<E> {
         return group as Group<E>;
     }
 
+    removeGroup(group:string | Group<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+        let actualGroup = this.getGroup(group);
+        this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
+        let newPositions = actualGroup[deleteMembers ? Constants.CMD_REMOVE_ALL : Constants.CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
+        this.instance.remove(actualGroup.el);
+        delete this.groupMap[actualGroup.id];
+        this.instance.fire(Constants.EVENT_GROUP_REMOVED, { group:actualGroup });
+        return newPositions; // this will be null in the case or remove, but be a map of {id->[x,y]} in the case of orphan
+    };
+
+    removeAllGroups (deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+        for (let g in this.groupMap) {
+            this.removeGroup(this.groupMap[g], deleteMembers, manipulateDOM, doNotFireEvent);
+        }
+    }
+
     forEach(f:(g:Group<E>) => any) {
         for (let key in this.groupMap) {
             f(this.groupMap[key]);

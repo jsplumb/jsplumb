@@ -1833,11 +1833,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         p.anchor = p.anchor || aae.anchors[0];
         let maxConnections = p.maxConnections || -1;
 
-        let inputs:Array<any> = !isArray(el) ? [ el] : el as Array<any>;
+        const _one = (_el:E) => {
 
 
-        for (let i = 0, ii = inputs.length; i < ii; i++) {
-            let elInfo = this._info(inputs[i]);
+            let elInfo = this._info(_el);
             // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
             // and use the endpoint definition if found.
             let elid = elInfo.id,
@@ -1869,15 +1868,14 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             (<any>elInfo).def = _def;
             (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST].push(_def);
 
-        }
+        };
+
+        this.each(el, _one);
 
         return this;
     }
 
     makeTarget (el:ElementSpec<E>, params:any, referenceParams?:any):jsPlumbInstance<E> {
-
-        // make an array if only given one element
-        let inputs:Array<any> = !isString ? el as Array<any> : [ el ];
 
         // put jsplumb ref into params without altering the params passed in
         let p = extend({_jsPlumb: this}, referenceParams);
@@ -1886,13 +1884,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         let maxConnections = p.maxConnections || -1;//,
 
-        // register each one in the list.
-        for (let i = 0, ii = inputs.length; i < ii; i++) {
+        const _one = (_el:E) => {
 
             // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
             // and use the endpoint definition if found.
             // decode the info for this element (id and element)
-            let elInfo = this._info(inputs[i]),
+            let elInfo = this._info(_el),
                 dropOptions = extend({}, p.dropOptions || {});
 
             this.manage(elInfo.el);
@@ -1923,9 +1920,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 _def.endpoint.deleteOnEmpty = false;
             }
 
-            //(<any>elInfo).def = _def;
             (<any>elInfo.el)[Constants.TARGET_DEFINITION_LIST].push(_def);
-        }
+        };
+
+        this.each(el, _one);
 
         return this;
     }
@@ -2157,5 +2155,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     collapseGroup (group:string | Group<E>) { this.groupManager.collapseGroup(group); }
     expandGroup (group:string | Group<E>) { this.groupManager.expandGroup(group); }
+
+    removeGroup(group:string | Group<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+        this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
+    }
+
+    removeAllGroups(deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+        this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
+    }
 
 }
