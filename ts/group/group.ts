@@ -126,7 +126,6 @@ export class Group<E> {
                     log("Could not remove element from Group " + e);
                 }
             }
-            //this._unbindDragHandlers(__el);
             if (!doNotFireEvent) {
                 var p = {group: this, el: __el};
                 if (targetGroup) {
@@ -172,41 +171,5 @@ export class Group<E> {
 
         return orphanedPositions;
     }
-
-    private _isInsideParent(_el:E, pos:PointXY):boolean {
-        // TODO this knows about the DOM.
-        var p = (<any>_el).offsetParent,
-            s = this.instance.getSize(p),
-            ss = this.instance.getSize(_el),
-            leftEdge = pos[0],
-            rightEdge = leftEdge + ss[0],
-            topEdge = pos[1],
-            bottomEdge = topEdge + ss[1];
-
-        return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
-    }
-
-    private _pruneOrOrphan(p:any) {
-        let orphanedPosition = null;
-        if (!this._isInsideParent(p.el, p.pos)) {
-            let group = p.el[Constants.GROUP_KEY];
-            if (this.prune) {
-                this.instance.remove(p.el);
-            } else {
-                orphanedPosition = this._orphan(p.el);
-            }
-
-            group.remove(p.el);
-        }
-
-        return orphanedPosition;
-    }
-
-
-
-    // private _revalidate(_el:E) {
-    //     let id = this.instance.getId(_el);
-    //     this.instance.revalidate(_el);
-    // }
 
 }
