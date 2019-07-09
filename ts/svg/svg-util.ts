@@ -1,5 +1,6 @@
 import {Dictionary, jsPlumbInstance} from "../core";
 import {Component} from "../component/component";
+import * as Constants from "../constants";
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",
         "stroke-dashoffset": "stroke-dashoffset",
@@ -16,7 +17,6 @@ export const STOP = "stop";
 export const STROKE = "stroke";
 export const STROKE_WIDTH = "stroke-width";
 export const STYLE = "style";
-export const NONE = "none";
 export const JSPLUMB_GRADIENT = "jsplumb_gradient_";
 export const LINE_WIDTH = "strokeWidth";
 
@@ -89,8 +89,8 @@ export function _updateGradient<E>(parent:any, node:any, style:any, dimensions:a
 
 export function _applyStyles<E>(parent:any, node:SVGElement, style:any, dimensions:any, uiComponent:Component<E>) {
 
-    node.setAttribute(FILL, style.fill ? style.fill : NONE);
-    node.setAttribute(STROKE, style.stroke ? style.stroke : NONE);
+    node.setAttribute(FILL, style.fill ? style.fill : Constants.NONE);
+    node.setAttribute(STROKE, style.stroke ? style.stroke : Constants.NONE);
 
     if (style.gradient) {
         _updateGradient(parent, node, style, dimensions, uiComponent);

@@ -6,6 +6,8 @@ export const DEFAULT = "default";
 export const WILDCARD = "*";
 export const SOURCE = "source";
 export const TARGET = "target";
+export const BLOCK = "block";
+export const NONE = "none";
 export const SOURCE_INDEX = 0;
 export const TARGET_INDEX = 1;
 export const GROUP_KEY = "_jsPlumbGroup";
@@ -21,6 +23,7 @@ export const IS_DETACH_ALLOWED = "isDetachAllowed";
 export const BEFORE_DETACH = "beforeDetach";
 export const CHECK_CONDITION = "checkCondition";
 
+export const EVENT_CONNECTION = "connection";
 export const EVENT_CONNECTION_DETACHED = "connectionDetached";
 export const EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
 export const EVENT_CONNECTION_MOVED = "connectionMoved";
