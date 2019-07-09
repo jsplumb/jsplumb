@@ -30,6 +30,7 @@ export * from "./endpoint/endpoints";
 export * from "./endpoint/dot-endpoint";
 export * from "./endpoint/rectangle-endpoint";
 export * from "./endpoint/blank-endpoint";
+export * from "./endpoint/image-endpoint";
 
 export * from "./overlay/overlay";
 export * from "./overlay/label-overlay";
@@ -67,6 +68,7 @@ export * from "./dom/svg-element-endpoint";
 export * from "./dom/dot-endpoint-renderer";
 export * from "./dom/rectangle-endpoint-renderer";
 export * from "./dom/blank-endpoint-renderer";
+export * from "./dom/image-endpoint-renderer";
 
 
 
