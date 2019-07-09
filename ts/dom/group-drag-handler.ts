@@ -1,29 +1,27 @@
-import {DragHandler} from "./drag-manager";
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
+import {ElementDragHandler} from "./element-drag-handler";
 
-export class GroupDragHandler implements DragHandler {
+export class GroupDragHandler extends ElementDragHandler {
 
     selector: string = "> [jtk-group] [jtk-managed]";
 
-    constructor(protected instance:BrowserJsPlumbInstance) {
 
-    }
-
-    onBeforeStart(beforeStartParams: any):void {
-        console.log("on before start");
-    }
-
+    // onBeforeStart(beforeStartParams: any):void {
+    //     console.log("on before start, inside group");
+    // }
+    //
     onDrag(params: any) {
-        console.log("on drag");
+        console.log("on drag, inside a group");
+        super.onDrag(params);
     }
-
-    onStart(params: any) {
-        console.log("on start");
-        return true;
-    }
-
+    //
+    // onStart(params: any) {
+    //     console.log("on start, inside group. could have a group lock function and return false from here");
+    //     return true;
+    // }
+    //
     onStop(params: any) {
-        console.log("on stop");
+        console.log("on stop, inside a group. here we should test for orphan, prune etc");
+        super.onStop(params);
     }
 
 }
