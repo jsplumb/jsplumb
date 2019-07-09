@@ -1,4 +1,6 @@
 import {ElementDragHandler} from "./element-drag-handler";
+import * as Constants from "../constants";
+import {PointXY} from "../core";
 
 export class GroupDragHandler extends ElementDragHandler {
 
@@ -21,7 +23,46 @@ export class GroupDragHandler extends ElementDragHandler {
     //
     onStop(params: any) {
         console.log("on stop, inside a group. here we should test for orphan, prune etc");
-        super.onStop(params);
+
+        let originalGroup = params.el[Constants.GROUP_KEY],
+            out = super.onStop(params),
+            currentGroup = params.el[Constants.GROUP_KEY];
+
+        if (currentGroup === originalGroup) {
+            this._pruneOrOrphan(params);
+        }
+        return out;
+
+    }
+
+    private _isInsideParent(_el:HTMLElement, pos:PointXY):boolean {
+        let p = (<any>_el).offsetParent,
+            s = this.instance.getSize(p),
+            ss = this.instance.getSize(_el),
+            leftEdge = pos[0],
+            rightEdge = leftEdge + ss[0],
+            topEdge = pos[1],
+            bottomEdge = topEdge + ss[1];
+
+        return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
+    }
+
+    private _pruneOrOrphan(params:any) {
+
+        let orphanedPosition = null;
+        if (!this._isInsideParent(params.el, params.pos)) {
+            let group = params.el[Constants.GROUP_KEY];
+            if (group.prune) {
+                group.remove(params.el);
+                this.instance.remove(params.el);
+            } else if (group.orphan) {
+                orphanedPosition = this.instance.groupManager.orphan(params.el);
+                group.remove(params.el);
+            }
+
+        }
+
+        return orphanedPosition;
     }
 
 }
