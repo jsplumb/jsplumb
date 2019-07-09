@@ -3,17 +3,16 @@ import {Group} from "./group";
 import * as Constants from "../constants";
 import {IS, removeWithFunction, suggest} from "../util";
 import {Connection} from "..";
-export class GroupManager<E> {
 
+export class GroupManager<E> {
 
     groupMap:Dictionary<Group<E>> = {};
     _connectionSourceMap:Dictionary<Group<E>> = {};
     _connectionTargetMap:Dictionary<Group<E>> = {};
 
-
     constructor(public instance:jsPlumbInstance<E>) {
 
-        instance.bind("connection", (p:any) => {
+        instance.bind(Constants.EVENT_CONNECTION, (p:any) => {
             if (p.source[Constants.GROUP_KEY] != null && p.target[Constants.GROUP_KEY] != null && p.source[Constants.GROUP_KEY] === p.target[Constants.GROUP_KEY]) {
                 this._connectionSourceMap[p.connection.id] = p.source[Constants.GROUP_KEY];
                 this._connectionTargetMap[p.connection.id] = p.source[Constants.GROUP_KEY];
@@ -38,7 +37,7 @@ export class GroupManager<E> {
             let connMap = p.index === 0 ? this._connectionSourceMap : this._connectionTargetMap;
             let group = connMap[p.connection.id];
             if (group) {
-                let list = group.connections[p.index === 0 ? "source" : "target"];
+                let list = group.connections[p.index === 0 ? Constants.SOURCE : Constants.TARGET ];
                 let idx = list.indexOf(p.connection);
                 if (idx !== -1) {
                     list.splice(idx, 1);
@@ -49,7 +48,7 @@ export class GroupManager<E> {
 
     private _cleanupDetachedConnection(conn:Connection<E>) {
         delete conn.proxies;
-        var group = this._connectionSourceMap[conn.id], f;
+        let group = this._connectionSourceMap[conn.id], f;
         if (group != null) {
             f = (c:Connection<E>) => { return c.id === conn.id; };
             removeWithFunction(group.connections.source, f);
@@ -66,7 +65,6 @@ export class GroupManager<E> {
         }
     }
 
-
     addGroup(params:any) {
 
         if (this.groupMap[params.id] != null) {
@@ -82,7 +80,6 @@ export class GroupManager<E> {
         }
 
         this.instance.addClass(group.el, Constants.GROUP_EXPANDED_CLASS);
-        //_managedGroups[group.id] = group;
         group.manager = this;
         this._updateConnectionsForGroup(group);
 
@@ -108,6 +105,18 @@ export class GroupManager<E> {
         }
     }
 
+    orphan(_el:E) {
+        if (_el[Constants.GROUP_KEY]) {
+            let id = this.instance.getId(_el);
+            let pos = this.instance.getOffset(_el);
+            (<any>_el).parentNode.removeChild(_el);
+            this.instance.appendElement(_el);
+            this.instance.setPosition(_el, pos);
+            delete _el[Constants.GROUP_KEY];
+            return [id, pos];
+        }
+    }
+
     private _setGroupVisible(group:Group<E>, state:boolean) {
         let m = group.children;
         for (let i = 0; i < m.length; i++) {
@@ -117,8 +126,8 @@ export class GroupManager<E> {
 
     _updateConnectionsForGroup(group:Group<E>) {
         let members = group.children;
-        const c1 = this.instance.getConnections({source:members, scope:"*"}, true) as Array<Connection<E>>;
-        const c2 = this.instance.getConnections({target:members, scope:"*"}, true) as Array<Connection<E>>;
+        const c1 = this.instance.getConnections({source:members, scope:Constants.WILDCARD}, true) as Array<Connection<E>>;
+        const c2 = this.instance.getConnections({target:members, scope:Constants.WILDCARD}, true) as Array<Connection<E>>;
         const processed = {};
         group.connections.source.length = 0;
         group.connections.target.length = 0;
@@ -162,10 +171,8 @@ export class GroupManager<E> {
         if (actualGroup == null || actualGroup.collapsed) {
             return;
         }
-        var groupEl = actualGroup.el;
 
-        // todo remove old proxy endpoints first, just in case?
-        //group.proxies.length = 0;
+        let groupEl = actualGroup.el;
 
         // hide all connections
         this._setGroupVisible(actualGroup, false);
@@ -277,14 +284,10 @@ export class GroupManager<E> {
                         handleDroppedConnections(this.instance.select({target: el}), 1);
                     }
 
-                    var elId = this.instance.getId(el);
-                    //this.instance.dragManager.setParent(el, elId, groupEl, this.instance.getId(groupEl), elpos);
-
-                    var newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top };
+                    let elId = this.instance.getId(el);
+                    let newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top };
 
                     this.instance.setPosition(el, newPosition);
-
-                    //this.instance.dragManager.revalidateParent(el, elId, elpos);
 
                     this._updateConnectionsForGroup(actualGroup);
 
@@ -298,8 +301,7 @@ export class GroupManager<E> {
                         this.instance.fire(Constants.EVENT_CHILD_ADDED, p);
                     }
                 }
-            }
-
+            };
 
             this.instance.each(el, _one);
 
