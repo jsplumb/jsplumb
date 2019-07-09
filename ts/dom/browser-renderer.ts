@@ -21,6 +21,8 @@ import {AbstractConnector} from "../connector/abstract-connector";
 import {LabelOverlay} from "../overlay/label-overlay";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {ArrowOverlay} from "..";
+import {ImageEndpoint} from "../endpoint/image-endpoint";
+import {DOMImageEndpointRenderer} from "./image-endpoint-renderer";
 
 const endpointMap:Dictionary<Constructable<SvgEndpoint<any>>> = {};
 export function registerEndpointRenderer<C>(name:string, ep:Constructable<SvgEndpoint<C>>) {
@@ -61,6 +63,11 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
                      options?:any): EndpointRenderer<HTMLElement> {
 
         let t = ep.getType();
+
+        if (t === "Image") {
+            return new DOMImageEndpointRenderer(endpoint, (<unknown>ep) as ImageEndpoint<HTMLElement>, options);
+        }
+
         let c:Constructable<SvgEndpoint<C>> = endpointMap[t];
         if (!c) {
             throw {message:"jsPlumb: no render for endpoint of type '" + t + "'"};
