@@ -101,14 +101,25 @@ function getNamedAnchor<E>(instance:jsPlumbInstance<E>, name:string, args?:any, 
     return a
 }
 
-function getAnchorWithValues<E>(instance:jsPlumbInstance<E>, x:number, y:number, orientation:Orientation, offsets:[number, number], elementId?:string):Anchor<E> {
+function getAnchorWithValues<E>(instance:jsPlumbInstance<E>,
+                                x:number, y:number,
+                                orientation:Orientation,
+                                offsets:[number, number],
+                                elementId?:string,
+                                cssClass?:string):Anchor<E> {
     let a = new Anchor<E>(instance);
     a.x = x;
     a.y = y;
     a.orientation = orientation;
     a.offsets = offsets;
     a.elementId = elementId;
+    a.cssClass = cssClass || "";
     return a;
+}
+
+function isPrimitiveAnchorSpec(sa:Array<any>):boolean {
+    return sa.length < 7 && sa.every(isNumber) ||
+           sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
 }
 
 export function makeAnchorFromSpec<E>(instance:jsPlumbInstance<E>, spec:AnchorSpec, elementId?:string):Anchor<E> {
@@ -132,17 +143,18 @@ export function makeAnchorFromSpec<E>(instance:jsPlumbInstance<E>, spec:AnchorSp
         let sa:Array<any> = (spec as Array<any>);
 
         // second arg is object, its a named anchor with constructor args
-        if (IS.anObject(sa[1])) {
+        if (IS.anObject(sa[1]) && sa[1].compute == null) {
             return getNamedAnchor(instance, sa[0] as string, sa[1], elementId);
         } else {
-            // if all values are numbers its a low level create
-            if(sa.every(isNumber)) {
+            // if all values are numbers (or all numbers and an optional css class as the 7th arg) its a low level create
+            if(isPrimitiveAnchorSpec(sa)) {
                 return getAnchorWithValues(instance,
                     sa[0],
                     sa[1],
                     [ sa[2] as AnchorOrientationHint, sa[3] as AnchorOrientationHint ],
                     [ sa[4] || 0, sa[5] || 0],
-                    elementId
+                    elementId,
+                    sa[6]
                 );
             } else {
                 return new DynamicAnchor(instance, {anchors:sa, elementId:elementId});
