@@ -1347,31 +1347,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         });
     }
 
-    empty(el:E, doNotRepaint?:boolean):jsPlumbInstance<E> {
-        let affectedElements:Array<{el:E, text?:boolean, id?:string}> = [];
-        let _one = (el:E, dontRemoveFocus?:boolean) => {
-            let info = this._info(el);
-            if (info.text) {
-                this.removeElement(info.el)
-            }
-            // TODO DOM specific:
-            else if (info.el) {
-                while((<any>info.el).childNodes.length > 0) {
-                    _one((<any>info.el).childNodes[0]);
-                }
-                if (!dontRemoveFocus) {
-                    this._doRemove(info, affectedElements);
-                }
-            }
-        };
-
-        this.batch(() => {
-            _one(el, true);
-        }, doNotRepaint === false);
-
-        return this;
-    }
-
     getEndpoints(el:string|E):Array<Endpoint<E>> {
         return this.endpointsByElement[this._info(el).id] || [];
     }
