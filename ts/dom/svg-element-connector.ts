@@ -13,8 +13,14 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
     bgPath:SVGElement;
     path:SVGElement;
 
-    constructor(public instance:jsPlumbInstance<HTMLElement>, public connector:AbstractConnector<HTMLElement>) {
+    constructor(public instance:jsPlumbInstance<HTMLElement>,
+                public connector:AbstractConnector<HTMLElement>) {
+
         super(instance, connector, null);
+        if (connector.cssClass != null) {
+            instance.addClass(this.canvas, connector.cssClass);
+        }
+        instance.addClass(this.canvas, instance.connectorClass);
     }
 
     paint(paintStyle: PaintStyle, extents?:any): void {
