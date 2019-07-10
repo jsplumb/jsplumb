@@ -43,6 +43,10 @@
         return ep.endpoint.renderer.canvas;
     };
 
+    var getConnectionCanvas = function(c) {
+        return c.getConnector().renderer.canvas;
+    };
+
     var getCanvas = function(epOrEl) {
         if (epOrEl.endpoint) {
             return getEndpointCanvas(epOrEl);
@@ -257,6 +261,9 @@
                 relocateTarget:_relocateTarget.bind(null, _jsPlumb),
 
                 makeEvent:_makeEvt.bind(null, _jsPlumb),
+
+                getEndpointCanvas:getEndpointCanvas,
+                getConnectionCanvas:getConnectionCanvas,
 
                 addDiv:_addDiv,
                 addDivs:_addDivs,
