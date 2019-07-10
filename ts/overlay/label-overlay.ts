@@ -21,12 +21,16 @@ export class LabelOverlay<E> extends Overlay<E> {
 
         super(instance, component, p);
         p = p || { label:""};
-        this.renderer = this.instance.renderer.assignOverlayRenderer(this.instance, this);
+        this.setRenderer(this.instance.renderer.assignOverlayRenderer(this.instance, this));
         this.setLabel(p.label);
     }
 
     getLabel(): string {
-        return this.labelText;
+        if (isFunction(this.label)) {
+            return (this.label as Function)(this);
+        } else {
+            return this.labelText;
+        }
     }
 
     setLabel(l: string | Function): void {
@@ -45,7 +49,7 @@ export class LabelOverlay<E> extends Overlay<E> {
     getDimensions():PointArray { return [1,1];}
 
     draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
-        return this.renderer.draw(component, currentConnectionPaintStyle, absolutePosition);
+        return this.getRenderer().draw(component, currentConnectionPaintStyle, absolutePosition);
     }
 
     updateFrom(d: any): void {
@@ -58,9 +62,9 @@ export class LabelOverlay<E> extends Overlay<E> {
         if (isFunction(this.label)) {
             let lt = (this.label as Function)(this);
             if (lt != null) {
-                (this.renderer as LabelOverlayRenderer<E>).setText(lt.replace(/\r\n/g, "<br/>"));
+                (this.getRenderer() as LabelOverlayRenderer<E>).setText(lt.replace(/\r\n/g, "<br/>"));
             } else {
-                (this.renderer as LabelOverlayRenderer<E>).setText("");
+                (this.getRenderer() as LabelOverlayRenderer<E>).setText("");
             }
 
         }
@@ -68,9 +72,9 @@ export class LabelOverlay<E> extends Overlay<E> {
             if (this.labelText == null) {
                 this.labelText = this.label as string;
                 if (this.labelText != null) {
-                    (this.renderer as LabelOverlayRenderer<E>).setText(this.labelText.replace(/\r\n/g, "<br/>"));
+                    (this.getRenderer() as LabelOverlayRenderer<E>).setText(this.labelText.replace(/\r\n/g, "<br/>"));
                 } else {
-                    (this.renderer as LabelOverlayRenderer<E>).setText("");
+                    (this.getRenderer() as LabelOverlayRenderer<E>).setText("");
                 }
 
             }
