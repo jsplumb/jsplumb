@@ -3,14 +3,14 @@
 - Rewrote in Typescript
 - Major refactoring of the rendering pipeline
 
-## 3.x alpha
-
 This release focuses on performance enhancements, and contains several breaking changes.
 
 The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
 individually, we now use a single event listener on the container. 
 
 ### Breaking changes
+
+- The `empty` method was removed.
 
 - By default, every node is draggable. `.draggable(someElement)` no longer exists.
 
