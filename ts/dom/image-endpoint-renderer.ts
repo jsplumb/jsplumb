@@ -32,7 +32,6 @@ export class DOMImageEndpointRenderer implements EndpointRenderer<HTMLElement> {
         this.img = new Image();
 
         this.img.onload = function () {
-            //this._jsPlumb.ready = true;
             this.ep._imageLoaded = true;
             this.ep._imageWidth = this.ep._imageWidth || this.img.width;
             this.ep._imageHeight = this.ep._imageHeight || this.img.height;
@@ -41,9 +40,8 @@ export class DOMImageEndpointRenderer implements EndpointRenderer<HTMLElement> {
             }
         }.bind(this);
 
-        (<any>this.endpoint).setImage = (_img:any, onload?:Function) => {
-            var s = _img.constructor === String ? _img : _img.src;
-            this.ep.onload = onload;
+        (<any>this.endpoint).setImage = (_img:any) => {
+            let s = _img.constructor === String ? _img : _img.src;
             this.img.src = s;
 
             if (this.canvas != null) {
@@ -52,10 +50,20 @@ export class DOMImageEndpointRenderer implements EndpointRenderer<HTMLElement> {
         };
 
         setTimeout(function() {
-            (<any>this.endpoint).setImage(this.ep.src, onload);
+            (<any>this.endpoint).setImage(this.ep.src);
         }.bind(this), 0)
 
     }
+
+    addClass(c: string): void {
+        this.instance.addClass(this.canvas, c);
+    }
+
+    removeClass(c: string): void {
+        this.instance.removeClass(this.canvas, c);
+    }
+
+
 
     applyType(t: TypeDescriptor): void { }
 
