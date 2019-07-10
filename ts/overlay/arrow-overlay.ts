@@ -32,7 +32,7 @@ export class ArrowOverlay<E> extends Overlay<E> {
         this.foldback = p.foldback || 0.623;
         this.paintStyle = p.paintStyle || { "strokeWidth": 1 };
 
-        this.renderer = this.instance.renderer.assignOverlayRenderer(this.instance, this);
+        this.setRenderer(this.instance.renderer.assignOverlayRenderer(this.instance, this));
     }
 
 
