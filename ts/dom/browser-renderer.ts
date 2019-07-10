@@ -1,20 +1,16 @@
 import {Renderer} from "../renderer";
 import {Segment} from "../connector/abstract-segment";
-import {StraightSegment} from "../connector/straight-segment";
 import {BezierSegment} from "../connector/bezier-segment";
 import {ArcSegment} from "../connector/arc-segment";
 import {Component, RepaintOptions} from "../component/component";
-
 import {EndpointRenderer} from "../endpoint/endpoint-renderer";
 import {EndpointRepresentation} from "../endpoint/endpoints";
-
 import {OverlayRenderer} from "../overlay/overlay-renderer";
-
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {Constructable, Dictionary, jsPlumbInstance} from "../core";
 import {Overlay} from "../overlay/overlay";
-import {HTMLElementOverlay, HTMLLabelElementOverlay} from "./html-element-overlay";
-import {ArrowSVGElementOverlay, SVGElementOverlay} from "./svg-element-overlay";
+import {HTMLLabelElementOverlay} from "./html-element-overlay";
+import {ArrowSVGElementOverlay} from "./svg-element-overlay";
 import {ConnectorRenderer} from "../connector/connector-renderer";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
