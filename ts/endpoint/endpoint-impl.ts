@@ -465,11 +465,11 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
                 // paint overlays
                 for (let i in this._jsPlumb.overlays) {
                     if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                        let o = this._jsPlumb.overlays[i];
-                        if (o.isVisible()) {
-                            this._jsPlumb.overlayPlacements[i] = o.draw(this.endpoint, this._jsPlumb.paintStyleInUse);
-                            o.paint(this._jsPlumb.overlayPlacements[i]);
-                        }
+                        // let o = this._jsPlumb.overlays[i];
+                        // if (o.isVisible()) {
+                        //     this._jsPlumb.overlayPlacements[i] = o.draw(this.endpoint, this._jsPlumb.paintStyleInUse);
+                        //     o.paint(this._jsPlumb.overlayPlacements[i]);
+                        // }
                     }
                 }
             }
@@ -541,5 +541,16 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         // for (let i = 0; i < scopes.length; i++) {
         //     this.instance.setAttribute(this.canvas, "jtk-scope-" + scopes[i], "true");
         // }
+    }
+
+
+    addClass(clazz: string, dontUpdateOverlays?: boolean): void {
+        super.addClass(clazz, dontUpdateOverlays);
+        this.endpoint.addClass(clazz);
+    }
+
+    removeClass(clazz: string, dontUpdateOverlays?: boolean): void {
+        super.removeClass(clazz, dontUpdateOverlays);
+        this.endpoint.removeClass(clazz);
     }
 }
