@@ -34,6 +34,14 @@ export abstract class EndpointRepresentation<E, C> {
         this.renderer = this.instance.renderer.assignRenderer(endpoint, this);
     }
 
+    addClass(c:string) {
+        this.renderer.addClass(c);
+    }
+
+    removeClass(c:string) {
+        this.renderer.removeClass(c);
+    }
+
     paint(paintStyle:PaintStyle) {
         this.renderer.paint(paintStyle);
     }
