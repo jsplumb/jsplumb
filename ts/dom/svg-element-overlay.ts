@@ -3,7 +3,7 @@ import {Overlay} from "../overlay/overlay";
 import {jsPlumbInstance, PointArray} from "../core";
 import {PaintStyle} from "../styles";
 import {Component} from "../component/component";
-import {_appendAtIndex, _attr, _node, Connection} from "..";
+import {_appendAtIndex, _attr, _node, Connection, Endpoint, SvgEndpoint} from "..";
 import {SvgElementConnector} from "./svg-element-connector";
 
 export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> {
@@ -13,16 +13,39 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
 
     constructor(public instance:jsPlumbInstance<HTMLElement>, public overlay: Overlay<HTMLElement>) {
 
+        this.path = _node(this.instance, "path", {});
+        let parent:SVGElement = null;
+
+        if (this.overlay.component instanceof Connection) {
+            let connector = (this.overlay.component as Connection<HTMLElement>).getConnector().renderer as SvgElementConnector;
+            parent = connector.svg;
+        } else if (this.overlay.component instanceof Endpoint) {
+            let endpoint = (this.overlay.component as Endpoint<HTMLElement>).endpoint.renderer as SvgEndpoint<HTMLElement>;
+            parent = endpoint.svg;
+        }
+
+        if (parent != null) {
+            _appendAtIndex(parent, this.path, 1);//params.paintStyle.outlineStroke ? 1 : 0);
+        }
+
     }
 
 
     setHover(h: boolean): void {
     }
 
-    cleanup(force?: boolean): void {
-    }
-
     destroy(force?: boolean): void {
+
+        if (this.path != null) {
+            this.instance.remove(<any>this.path);
+        }
+
+        if (this.bgPath != null) {
+            this.instance.remove(<any>this.bgPath);
+        }
+
+        this.path = null;
+        this.bgPath = null;
     }
 
     setVisible(v: boolean): void {
@@ -46,7 +69,7 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
         //     "pointer-events": "visibleStroke"
         // };
 
-        var clazz = "",//originalArgs && (originalArgs.length === 1) ? (originalArgs[0].cssClass || "") : "",
+        let clazz = "",//originalArgs && (originalArgs.length === 1) ? (originalArgs[0].cssClass || "") : "",
             offset = [0, 0];
 
         if (extents.xmin < 0) {
@@ -65,15 +88,15 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
             "pointer-events": "visibleStroke"
         };
 
-        if (this.path == null) {
-            this.path = _node(this.instance, "path", a);
-            // here we're going to assume the overlay's component is a connection, rendered by this renderer.
-            let connector = (this.overlay.component as Connection<HTMLElement>).getConnector().renderer as SvgElementConnector;
-            _appendAtIndex(connector.svg, this.path, 1);//params.paintStyle.outlineStroke ? 1 : 0);
-        }
-        else {
+        // if (this.path == null) {
+        //     this.path = _node(this.instance, "path", a);
+        //     // here we're going to assume the overlay's component is a connection, rendered by this renderer.
+        //     let connector = (this.overlay.component as Connection<HTMLElement>).getConnector().renderer as SvgElementConnector;
+        //     _appendAtIndex(connector.svg, this.path, 1);//params.paintStyle.outlineStroke ? 1 : 0);
+        // }
+        // else {
             _attr(this.path, a);
-        }
+        //}
     }
 
     addClass(clazz: string):void {
@@ -83,6 +106,12 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
     removeClass(clazz: string):void {
 
     }
+
+    getElement(): HTMLElement {
+        return <any>this.path;
+    }
+
+
 
     abstract makePath(d:any):string;
 }
