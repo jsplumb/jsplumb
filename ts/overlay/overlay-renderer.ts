@@ -5,7 +5,6 @@ import {Component} from "../component/component";
 export interface OverlayRenderer<E> {
 
     setHover(h:boolean):void;
-    cleanup(force?:boolean):void;
     destroy(force?:boolean):void;
     setVisible(v:boolean):void;
 
@@ -15,6 +14,8 @@ export interface OverlayRenderer<E> {
     draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray):any;
 
     paint(params: any, extents?: any): void;
+
+    getElement():E;
 
 }
 
