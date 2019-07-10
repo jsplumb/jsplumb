@@ -29,6 +29,10 @@ export abstract class SvgEndpoint<C> extends SvgComponent implements EndpointRen
         this.instance.setAttribute(<any>this.svg, "pointer-events", "all");
         (<any>this.canvas)._jsPlumb = {endpoint:endpoint, ep:ep};
 
+        if (endpoint.cssClass != null) {
+            this.instance.addClass(this.canvas, endpoint.cssClass);
+        }
+
         const scopes = endpoint.scope.split(/\s/);
         for (let i = 0; i < scopes.length; i++) {
             this.instance.setAttribute(<any>this.canvas, "jtk-scope-" + scopes[i], "true");
