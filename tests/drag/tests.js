@@ -217,7 +217,7 @@ var testSuite = function (_jsPlumb) {
 
         support.relocateSource(d2d1, d2);
         equal(d2d1.endpoints[0].elementId, "d2", "source endpoint is on d2 now");
-        ok(d2d1.endpoints[1].canvas.parentNode != null, "target canvas put back into DOM");
+        ok(support.getEndpointCanvas(d2d1.endpoints[1]).parentNode != null, "target canvas put back into DOM");
     });
 
 
@@ -821,10 +821,10 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         var c = _jsPlumb.select().get(0);
 
-        equal(c.endpoints[0].type, "Rectangle", "source endpoint is Rectangle");
+        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is Rectangle");
         equal(c.endpoints[0].anchor.x, 0, "x=0 in anchor");
         equal(c.endpoints[0].anchor.y, 0.5, "y=0.5 in anchor");
-        equal(c.endpoints[1].type, _jsPlumb.Defaults.endpoint, "target endpoint is the default");
+        equal(c.endpoints[1].endpoint.getType(), _jsPlumb.Defaults.endpoint, "target endpoint is the default");
     });
 
     /**
@@ -849,11 +849,11 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 2, "2 connections in jsplumb instance.");
         var c2 = _jsPlumb.select().get(1);
 
-        equal(c.endpoints[0].type, "Rectangle", "source endpoint was overridden to be Rectangle");
+        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint was overridden to be Rectangle");
         equal(c.endpoints[0].anchor.x, 0, "x=0 in overridden anchor");
         equal(c.endpoints[0].anchor.y, 0.5, "y=0.5 in overridden anchor");
 
-        equal(c2.endpoints[0].type, "Dot", "source endpoint is Blank in endpoint derived from type");
+        equal(c2.endpoints[0].endpoint.getType(), "Dot", "source endpoint is Blank in endpoint derived from type");
         equal(c2.endpoints[0].anchor.x, 1, "x=1 in anchor derived from type");
         equal(c2.endpoints[0].anchor.y, 0.5, "y=0.5 in anchor derived from type");
 
@@ -884,11 +884,11 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 2, "2 connections in jsplumb instance.");
         var c2 = _jsPlumb.select().get(1);
 
-        equal(c.endpoints[1].type, "Rectangle", "target endpoint was overridden to be Rectangle");
+        equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint was overridden to be Rectangle");
         equal(c.endpoints[1].anchor.x, 0, "x=0 in overridden anchor");
         equal(c.endpoints[1].anchor.y, 0.5, "y=0.5 in overridden anchor");
 
-        equal(c2.endpoints[1].type, "Dot", "target endpoint is Dot in endpoint derived from type");
+        equal(c2.endpoints[1].endpoint.getType(), "Dot", "target endpoint is Dot in endpoint derived from type");
         equal(c2.endpoints[1].anchor.x, 1, "x=1 in anchor derived from type");
         equal(c2.endpoints[1].anchor.y, 0.5, "y=0.5 in anchor derived from type");
 
@@ -903,10 +903,10 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         var c = _jsPlumb.select().get(0);
 
-        equal(c.endpoints[0].type, _jsPlumb.Defaults.endpoint, "source endpoint is the default");
+        equal(c.endpoints[0].endpoint.getType(), _jsPlumb.Defaults.endpoint, "source endpoint is the default");
         equal(c.endpoints[1].anchor.x, 0.5, "x=0.5 in anchor");
         equal(c.endpoints[1].anchor.y, 0, "y=0 in anchor");
-        equal(c.endpoints[1].type, "Rectangle", "target endpoint is Rectangle");
+        equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint is Rectangle");
 
     });
 
@@ -1051,12 +1051,16 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.connect({source:e1, target:e2});
         _jsPlumb.connect({source:e2, target:e3});
 
-        equal(e1.canvas.offsetLeft, 50 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
-        equal(e1.canvas.offsetTop, 50 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
-        equal(e2.canvas.offsetLeft, 250 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2.canvas.offsetTop, 250 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
-        equal(e3.canvas.offsetLeft, 500 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
-        equal(e3.canvas.offsetTop, 500 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+        var e1canvas = support.getEndpointCanvas(e1),
+            e2canvas = support.getEndpointCanvas(e2),
+            e3canvas = support.getEndpointCanvas(e3);
+
+        equal(e1canvas.offsetLeft, 50 - (e1canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        equal(e1canvas.offsetTop, 50 - (e1canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        equal(e2canvas.offsetLeft, 250 - (e2canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2canvas.offsetTop, 250 - (e2canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        equal(e3canvas.offsetLeft, 500 - (e3canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        equal(e3canvas.offsetTop, 500 - (e3canvas.offsetHeight/2), "endpoint 3 is at the right place");
 
         _jsPlumb.addToDragSelection("d1");
         _jsPlumb.addToDragSelection("d3");
@@ -1076,8 +1080,8 @@ var testSuite = function (_jsPlumb) {
         // equal(d3.offsetTop, 1200, "div 3 is at the right top position");
 
         // check the endpoints
-        equal(e2.canvas.offsetLeft, 1000 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2.canvas.offsetTop, 1000 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        equal(e2canvas.offsetLeft, 1000 - (e2canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2canvas.offsetTop, 1000 - (e2canvas.offsetHeight/2), "endpoint 2 is at the right place");
 
         // TODO - drag selection
         // equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
@@ -1102,14 +1106,15 @@ var testSuite = function (_jsPlumb) {
             dashstyle: "2 2"
         }});
 
-        var defs = c.canvas.querySelectorAll("defs");
+        var canvas = support.getConnectionCanvas(c);
+        var defs = canvas.querySelectorAll("defs");
         equal(defs.length, 1, "1 defs element");
 
         _jsPlumb.manage(d1);
 
         support.dragANodeAround(d1);
 
-        defs = c.canvas.querySelectorAll("defs");
+        defs = canvas.querySelectorAll("defs");
         equal(defs.length, 1, "1 defs element");
     });
 
@@ -1179,28 +1184,28 @@ var testSuite = function (_jsPlumb) {
     //
     // });
 
-    test("recalculateOffsets", function() {
-        var d1 = support.addDiv("d1");
-
-        var d2 = support.addDiv("d2", d1);
-        d2.style.left = "250px";
-        d2.style.top = "120px";
-
-        var d3 = support.addDiv("d3", d1);
-        d3.style.left = "150px";
-        d3.style.top = "220px";
-
-        _jsPlumb.connect({source:d2, target:d3});
-        _jsPlumb.manage(d1);
-
-        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
-        equal(250, o.offsetLeft, "d2 is at left=250");
-
-        d2.style.left = "1250px";
-        var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
-        equal(1250, o.offsetLeft, "d2 is at left=1250");
-
-    });
+    // test("recalculateOffsets", function() {
+    //     var d1 = support.addDiv("d1");
+    //
+    //     var d2 = support.addDiv("d2", d1);
+    //     d2.style.left = "250px";
+    //     d2.style.top = "120px";
+    //
+    //     var d3 = support.addDiv("d3", d1);
+    //     d3.style.left = "150px";
+    //     d3.style.top = "220px";
+    //
+    //     _jsPlumb.connect({source:d2, target:d3});
+    //     _jsPlumb.manage(d1);
+    //
+    //     var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
+    //     equal(250, o.offsetLeft, "d2 is at left=250");
+    //
+    //     d2.style.left = "1250px";
+    //     var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
+    //     equal(1250, o.offsetLeft, "d2 is at left=1250");
+    //
+    // });
 
     // -----------------issue 383, setDraggable doesnt work with list-like arguments
 
@@ -1408,7 +1413,7 @@ var testSuite = function (_jsPlumb) {
         equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
 
-        support.relocateTarget(c, e2.canvas);
+        support.relocateTarget(c, e2);
         equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
 
@@ -1471,8 +1476,8 @@ var testSuite = function (_jsPlumb) {
         c = _jsPlumb.select().get(0);
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
         equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
-        equal(c.endpoints[0].type, "Rectangle", "source endpoint is of type rectangle");
-        equal(c.endpoints[1].type, "Blank", "target endpoint is of type Blank - it was overriden from the type's endpoint.");
+        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is of type rectangle");
+        equal(c.endpoints[1].endpoint.getType(), "Blank", "target endpoint is of type Blank - it was overriden from the type's endpoint.");
     });
 
     test("endpoint passes scope to connection, connection via mouse", function() {
