@@ -126,9 +126,9 @@ export function _removeTypeCssHelper<E>(component:Component<E>, typeIndex:number
     let typeId = component._jsPlumb.types[typeIndex],
         type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
 
-    // if (type != null && type.cssClass && component.canvas) {
-    //     component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
-    // }
+     if (type != null && type.cssClass) {
+        component.removeClass(type.cssClass);
+    }
 }
 
 // helper method to update the hover style whenever it, or paintStyle, changes.
@@ -162,6 +162,7 @@ export interface ComponentOptions<E> {
     overlays?:Array<OverlaySpec>;
     events?:Dictionary<Function>;
     scope?:string;
+    cssClass?:string;
 }
 
 export abstract class Component<E> extends EventGenerator {
@@ -194,11 +195,15 @@ export abstract class Component<E> extends EventGenerator {
 
     _jsPlumb:ComponentConfig<E>;
 
+    cssClass:string;
+
     constructor(protected instance:jsPlumbInstance<E>, params?:ComponentOptions<E>) {
 
         super();
 
         params = params || ({} as ComponentOptions<E>);
+
+        this.cssClass = params.cssClass || "";
 
         this._jsPlumb = {
             instance: instance,
