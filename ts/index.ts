@@ -35,6 +35,8 @@ export * from "./endpoint/image-endpoint";
 export * from "./overlay/overlay";
 export * from "./overlay/label-overlay";
 export * from "./overlay/arrow-overlay";
+export * from "./overlay/plain-arrow-overlay";
+export * from "./overlay/diamond-overlay";
 export * from "./factory/overlay-factory";
 
 export * from "./anchor/anchor";
