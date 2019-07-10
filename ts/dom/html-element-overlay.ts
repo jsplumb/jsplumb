@@ -95,8 +95,6 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
         this.getElement().style.display = v ? "block" : "none";
     }
 
-    cleanup(force?: boolean): void { }
-
     destroy(force?: boolean): void {
         let el = this.getElement();
         if (el) {
