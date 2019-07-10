@@ -25,7 +25,7 @@ function _makeLabelOverlay<E>(component:OverlayCapableComponent<E>, params:any):
         },
         mergedParams = extend(_params, params);
 
-    return null;//new LabelOverlay(mergedParams);
+    return new LabelOverlay(component.instance, component, mergedParams);
 }
 
 function _processOverlay<E>(component:OverlayCapableComponent<E>, o:OverlaySpec|Overlay<E>) {
@@ -145,9 +145,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
 
     removeAllOverlays(doNotRepaint?:boolean):void {
         for (let i in this._jsPlumb.overlays) {
-            if (this._jsPlumb.overlays[i].cleanup) {
-                this._jsPlumb.overlays[i].cleanup();
-            }
+            this._jsPlumb.overlays[i].destroy(true);
         }
 
         this._jsPlumb.overlays = {};
@@ -162,8 +160,8 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         let o = this._jsPlumb.overlays[overlayId];
         if (o) {
             o.setVisible(false);
-            if (!dontCleanup && o.cleanup) {
-                o.cleanup();
+            if (!dontCleanup) {
+                o.destroy(true);
             }
             delete this._jsPlumb.overlays[overlayId];
             if (this._jsPlumb.overlayPositions) {
@@ -235,7 +233,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
                     lo.setLabel(ll.label);
                 }
                 if (ll.location) {
-                    lo.setLocation(ll.location);
+                    lo.location = ll.location;
                 }
             }
         }
@@ -248,7 +246,6 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
     cleanup(force?:boolean) {
         super.cleanup(force);
         for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].cleanup(force);
             this._jsPlumb.overlays[i].destroy(force);
         }
         if (force) {
