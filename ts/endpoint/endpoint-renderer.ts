@@ -20,4 +20,8 @@ export interface EndpointRenderer<E> {
 
     getElement():E;
 
+    addClass(c:string):void;
+
+    removeClass(c:string):void;
+
 }
