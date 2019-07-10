@@ -15,7 +15,7 @@ export interface Renderer<E> {
 
     assignRenderer<C>(endpoint:Endpoint<E>, ep: EndpointRepresentation<E, C>): EndpointRenderer<E>;
     assignOverlayRenderer(instance: jsPlumbInstance<E>, o: Overlay<E>): OverlayRenderer<E>;
-    assignConnectorRenderer(instance:jsPlumbInstance<E>, c:AbstractConnector<E>, params:AbstractConnectorOptions<E>):ConnectorRenderer<E>;
+    assignConnectorRenderer(instance:jsPlumbInstance<E>, c:AbstractConnector<E>):ConnectorRenderer<E>;
 
     repaint(component:Component<E>, typeDescriptor:string, options?:RepaintOptions):void;
 }
