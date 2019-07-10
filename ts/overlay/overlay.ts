@@ -6,6 +6,7 @@ import {Component} from "../component/component";
 import {SegmentBounds} from "../connector/abstract-segment";
 import {OverlayRenderer} from "./overlay-renderer";
 import {uuid} from "../util";
+import {EventGenerator} from "../event-generator";
 
 
 export interface OverlayOptions {
@@ -13,6 +14,7 @@ export interface OverlayOptions {
     cssClass?: string;
     location?: number; // 0.5
     endpointLoc?:[number, number];
+    events?:Dictionary<Function>;
 }
 
 export interface ArrowOverlayOptions extends OverlayOptions {
@@ -42,23 +44,44 @@ export type OverlayId = "Label" | "Arrow" | "PlainArrow" | "Custom";
 export type FullOverlaySpec = [OverlayId, OverlayOptions]
 export type OverlaySpec = OverlayId | FullOverlaySpec;
 
-export abstract class Overlay<E> {
+export abstract class Overlay<E> extends EventGenerator {
 
     id:string;
     abstract type:string;
 
     cssClass:string;
 
-    renderer:OverlayRenderer<E>;
+    private renderer:OverlayRenderer<E>;
     visible:boolean = true;
     location: number;
     endpointLocation:[number, number];
 
+    events?:Dictionary<Function>;
+
     constructor(protected instance:jsPlumbInstance<E>, public component:Component<E>, p:OverlayOptions) {
+        super();
         p = p || {};
         this.id = p.id  || uuid();
         this.cssClass = p.cssClass || "";
         this.location = p.location || 0.5;
+        this.events = p.events || {};
+    }
+
+    protected setRenderer(r:OverlayRenderer<E>) {
+        this.renderer = r;
+        let e = r.getElement();
+        for (let event in this.events) {
+            this.instance.on(e, event, this.events[event]);
+        }
+    }
+
+    public getRenderer() {
+        return this.renderer;
+    }
+
+
+    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
+        return true;
     }
 
     setVisible(v: boolean): void {
@@ -78,11 +101,12 @@ export abstract class Overlay<E> {
         return this.visible;
     }
 
-    cleanup(force?: boolean): void {
-        this.renderer.cleanup(force);
-    }
-
     destroy(force?: boolean): void {
+        let e = this.renderer.getElement();
+        for (let event in this.events) {
+            this.instance.off(e, event, this.events[event]);
+        }
+
         this.renderer.destroy(force);
     }
 
@@ -96,11 +120,6 @@ export abstract class Overlay<E> {
 
     abstract updateFrom(d:any):void;
     abstract draw(component:any, paintStyle:PaintStyle, absolutePosition?:any):SegmentBounds;
-
-
-    setLocation(l: any): void {
-
-    }
 
     setListenerComponent(c: any): void {
     }
