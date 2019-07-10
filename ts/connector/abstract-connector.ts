@@ -98,6 +98,7 @@ export abstract class AbstractConnector<E> {
     h:number;
     segment:number;
     bounds:SegmentBounds = EMPTY_BOUNDS();
+    cssClass:string;
 
     constructor(protected instance:jsPlumbInstance<E>, params:AbstractConnectorOptions<E>) {
 
@@ -108,6 +109,7 @@ export abstract class AbstractConnector<E> {
         this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
         this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
         this.maxStub = Math.max(this.sourceStub, this.targetStub);
+        this.cssClass = params.cssClass || "";
         this.renderer = instance.renderer.assignConnectorRenderer(instance, this);
     }
 
