@@ -2,7 +2,6 @@ import {Component, ComponentOptions} from "./component";
 import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {Dictionary, extend, jsPlumbInstance, PointArray} from "../core";
 import {LabelOverlay} from "../overlay/label-overlay";
-import {LabelStyle} from "../label";
 import {isArray, isFunction, isString, uuid} from "../util";
 import {OverlayFactory} from "../factory/overlay-factory";
 
@@ -11,14 +10,12 @@ const _internalLabelOverlayId = "__label";
 export interface OverlayComponentOptions<E> extends ComponentOptions<E> {
     label?:string;
     labelLocation?:number;
-    labelStyle?:LabelStyle;
 }
 
 function _makeLabelOverlay<E>(component:OverlayCapableComponent<E>, params:any):LabelOverlay<E> {
 
     let _params:any = {
             cssClass: params.cssClass,
-            labelStyle: component.labelStyle,
             id: _internalLabelOverlayId,
             component: component,
             _jsPlumb: component.instance  // TODO not necessary, since the instance can be accessed through the component.
@@ -58,7 +55,6 @@ function _processOverlay<E>(component:OverlayCapableComponent<E>, o:OverlaySpec|
 export abstract class OverlayCapableComponent<E> extends Component<E> {
 
     defaultLabelLocation:number | [number, number] = 0.5;
-    labelStyle:LabelStyle;
 
     overlays:Dictionary<Overlay<E>> = {};
     overlayPositions:Dictionary<PointArray> = {};
@@ -75,7 +71,6 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
             this.getDefaultType().overlays[_internalLabelOverlayId] = ["Label", {
                 label: params.label,
                 location: params.labelLocation || this.defaultLabelLocation,
-                labelStyle: params.labelStyle || instance.Defaults.labelStyle,
                 id:_internalLabelOverlayId
             }];
         }
@@ -180,33 +175,6 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         }
     }
 
-
-    //
-    // TODO this component knows about the dom. it shouldnt. of course the label overlay knows all about the dom,
-    // and wont actually work in a headless environment yet.
-    //
-    moveParent(newParent:E):void {
-        // if (this.bgCanvas) {
-        //     this.instance.removeElement(this.bgCanvas);
-        //     this.instance.appendElement(newParent, this.bgCanvas);
-        // }
-        //
-        // if (this.canvas && (<any>this.canvas).parentNode) {
-        //     this.instance.removeElement(this.canvas);
-        //     this.instance.appendElement(newParent, this.canvas);
-        //
-        //
-        // }
-        //
-        // for (let i in this._jsPlumb.overlays) {
-        //     if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-        //         let el = this._jsPlumb.overlays[i].getElement();
-        //         this.instance.removeElement(el);
-        //         this.instance.appendElement(newParent, el);
-        //     }
-        // }
-    }
-
     getLabel():string {
         let lo:LabelOverlay<E> = this.getLabelOverlay();
         return lo != null ? lo.getLabel() : null;
@@ -288,6 +256,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
     applyType(t:any, doNotRepaint:boolean, typeMap:any):void {
         super.applyType(t, doNotRepaint, typeMap);
 
+        // overlays?  not overlayMap?
         if (t.overlays) {
             // loop through the ones in the type. if already present on the component,
             // dont remove or re-add.
@@ -325,6 +294,12 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
                     // just detached/reattached.
                 }
             }
+        }
+    }
+
+    moveParent(newParent:E):void {
+        for (let i in this._jsPlumb.overlays) {
+            this._jsPlumb.overlays[i].getRenderer().moveParent(newParent);
         }
     }
 
