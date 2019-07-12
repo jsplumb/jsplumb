@@ -287,8 +287,6 @@ type ManagedElement<E> = {
     connections?:Array<Connection<E>>
 };
 
-declare const Mottle:any;
-
 export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     Defaults:jsPlumbDefaults;
@@ -404,7 +402,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             endpointHoverStyle: null,
             endpointHoverStyles: [ null, null ],
             hoverPaintStyle: null,
-            labelStyle: { color: "black" },
             overlays: [ ],
             maxConnections: 1,
             paintStyle: { strokeWidth: 2, stroke: "#456" },
@@ -418,8 +415,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         extend(this._initialDefaults, this.Defaults);
         this.DEFAULT_SCOPE = this.Defaults.scope;
-
-        this.eventManager = new Mottle();  // TODO move this. it's dom specific. but unwinding the setContainer method is more work than i want to attempt right now.
 
         this.anchorManager = new AnchorManager(this);
         this.groupManager = new GroupManager(this);
@@ -747,6 +742,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         // get container as dom element.
         let _c = this.getElement(c);
+
+
+        // set container.
+        let previousContainer = this._container;
+        this._container = _c;
+
         // move existing connections and endpoints, if any.
         this.select().each((conn:Connection<E>) => {
             conn.moveParent(_c);
@@ -755,53 +756,50 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             ep.moveParent(_c);
         });
 
-        // set container.
-        let previousContainer = this._container;
-        this._container = _c;
-        this._containerDelegations.length = 0;
-        const eventAliases = {
-            "endpointclick":"endpointClick",
-            "endpointdblclick":"endpointDblClick"
-        };
-
-        const _oneDelegateHandler = (id:string, e:Event, componentType?:string) => {
-            let t:any = e.srcElement || e.target,
-                jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
-            if (jp) {
-                (jp.endpoint || jp.connection).fire(id, jp.endpoint || jp.connection, e);
-                let alias = componentType ? eventAliases[componentType + id] || id : id;
-                // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
-                this.fire(alias, jp.component || jp, e);
-            }
-        };
-
-        const _addOneDelegate = (eventId:string, selector:string, fn:Function) => {
-            this._containerDelegations.push([eventId, fn]);
-            this.on(this._container, eventId, selector, fn);
-        };
-
-        // delegate one event on the container to jsplumb elements. it might be possible to
-        // abstract this out: each of endpoint, connection and overlay could register themselves with
-        // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
-        // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
-        const _oneDelegate = (id:string) => {
-            // connections.
-            _addOneDelegate(id, Constants.SELECTOR_CONNECTOR, (e:Event) => {
-                _oneDelegateHandler(id, e);
-            });
-            // endpoints. note they can have an enclosing div, or not.
-            _addOneDelegate(id, Constants.SELECTOR_ENDPOINT, (e:Event) => {
-                _oneDelegateHandler(id, e, "endpoint");
-            });
-            // overlays
-            _addOneDelegate(id, Constants.SELECTOR_OVERLAY, (e:Event) => {
-                _oneDelegateHandler(id, e);
-            });
-        };
-
-        for (let i = 0; i < events.length; i++) {
-            _oneDelegate(events[i]);
-        }
+        // this._containerDelegations.length = 0;
+        // const eventAliases = {
+        //     "endpointclick":"endpointClick",
+        //     "endpointdblclick":"endpointDblClick"
+        // };
+        //
+        // const _oneDelegateHandler = (id:string, e:Event, componentType?:string) => {
+        //     let t:any = e.srcElement || e.target,
+        //         jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
+        //     if (jp) {
+        //         (jp.endpoint || jp.connection).fire(id, jp.endpoint || jp.connection, e);
+        //         let alias = componentType ? eventAliases[componentType + id] || id : id;
+        //         // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
+        //         this.fire(alias, jp.component || jp, e);
+        //     }
+        // };
+        //
+        // const _addOneDelegate = (eventId:string, selector:string, fn:Function) => {
+        //     this._containerDelegations.push([eventId, fn]);
+        //     this.on(this._container, eventId, selector, fn);
+        // };
+        //
+        // // delegate one event on the container to jsplumb elements. it might be possible to
+        // // abstract this out: each of endpoint, connection and overlay could register themselves with
+        // // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
+        // // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
+        // const _oneDelegate = (id:string) => {
+        //     // connections.
+        //     _addOneDelegate(id, Constants.SELECTOR_CONNECTOR, (e:Event) => {
+        //         _oneDelegateHandler(id, e);
+        //     });
+        //     // endpoints. note they can have an enclosing div, or not.
+        //     _addOneDelegate(id, Constants.SELECTOR_ENDPOINT, (e:Event) => {
+        //         _oneDelegateHandler(id, e, "endpoint");
+        //     });
+        //     // overlays
+        //     _addOneDelegate(id, Constants.SELECTOR_OVERLAY, (e:Event) => {
+        //         _oneDelegateHandler(id, e);
+        //     });
+        // };
+        //
+        // for (let i = 0; i < events.length; i++) {
+        //     _oneDelegate(events[i]);
+        // }
 
         // managed elements
         for (let elId in this._managedElements) {
