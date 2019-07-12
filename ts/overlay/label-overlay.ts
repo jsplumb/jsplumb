@@ -48,8 +48,8 @@ export class LabelOverlay<E> extends Overlay<E> {
 
     getDimensions():PointArray { return [1,1];}
 
-    draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
-        return this.getRenderer().draw(component, currentConnectionPaintStyle, absolutePosition);
+    draw(component:Component<HTMLElement>, paintStyle:PaintStyle, absolutePosition?:PointArray): any {
+        return this.getRenderer().draw(component, paintStyle, absolutePosition);
     }
 
     updateFrom(d: any): void {
