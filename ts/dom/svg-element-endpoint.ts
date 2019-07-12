@@ -37,6 +37,9 @@ export abstract class SvgEndpoint<C> extends SvgComponent implements EndpointRen
         for (let i = 0; i < scopes.length; i++) {
             this.instance.setAttribute(<any>this.canvas, "jtk-scope-" + scopes[i], "true");
         }
+
+        (<any>this.canvas).jtk = (<any>this.canvas).jtk || { };
+        (<any>this.canvas).jtk.endpoint = ep;
     }
 
     getElement(): HTMLElement {
@@ -69,6 +72,7 @@ export abstract class SvgEndpoint<C> extends SvgComponent implements EndpointRen
             this.instance.addClass(<any>this.canvas, t.cssClass);
         }
     }
+
 
 }
 
