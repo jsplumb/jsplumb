@@ -1,6 +1,8 @@
 import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./dom/browser-jsplumb-instance";
 import {extend} from "./core";
 
+import {_node, _attr, _pos} from "./svg/svg-util";
+
 export * from "./constants";
 export * from "./core";
 export * from "./defaults";
@@ -37,6 +39,7 @@ export * from "./overlay/label-overlay";
 export * from "./overlay/arrow-overlay";
 export * from "./overlay/plain-arrow-overlay";
 export * from "./overlay/diamond-overlay";
+export * from "./overlay/custom-overlay";
 export * from "./factory/overlay-factory";
 
 export * from "./anchor/anchor";
@@ -73,7 +76,6 @@ export * from "./dom/blank-endpoint-renderer";
 export * from "./dom/image-endpoint-renderer";
 
 
-
 let _jsPlumbInstanceIndex = 0;
 
 function getInstanceIndex ():number {
@@ -108,7 +110,12 @@ if(typeof window !== "undefined") {
 
             _do();
         },
-        extend:extend
+        extend:extend,
+        svg:{
+            node:_node,
+            attr:_attr,
+            pos:_pos
+        }
     };
 
 
