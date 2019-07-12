@@ -6,6 +6,8 @@ import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
 import {GroupDragHandler} from "./group-drag-handler";
+import {findParent} from "../browser-util";
+import * as Constants from "../constants";
 
 declare const Mottle:any;
 declare const Biltong:any;
@@ -164,17 +166,49 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
 
     dragManager:DragManager;
+    _connectorClick:Function;
+    _connectorDblClick:Function;
+    _endpointClick:Function;
+    _endpointDblClick:Function;
 
     constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, new BrowserRenderer(), defaults);
-        //this.eventManager = new Mottle();
+        this.eventManager = new Mottle();
         this.dragManager = new DragManager(this);
 
         this.dragManager.addHandler(new EndpointDragHandler(this));
         this.dragManager.addHandler(new GroupDragHandler(this));
         this.dragManager.addHandler(new ElementDragHandler(this));
 
+        this._connectorClick = function(e:any) {
+            console.log("connector click " + e);
+            let connectorElement = findParent(e.srcElement || e.target, ".jtk-connector", this.getContainer());
+            console.log(connectorElement);
+            this.fire(Constants.EVENT_CLICK, (<any>connectorElement).jtk.connector.connection, e);
+        }.bind(this);
 
+        this._connectorDblClick = function(e:any) {
+            console.log("connector dbl click " + e);
+            let connectorElement = findParent(e.srcElement || e.target, ".jtk-connector", this.getContainer());
+            console.log(connectorElement);
+            this.fire(Constants.EVENT_DBL_CLICK, (<any>connectorElement).jtk.connector.connection, e);
+        }.bind(this);
+
+        this._endpointClick = function(e:any) {
+            console.log("endpoint click " + e);
+            let endpointElement = findParent(e.srcElement || e.target, ".jtk-endpoint", this.getContainer());
+            console.log(endpointElement);
+            this.fire(Constants.EVENT_ENDPOINT_CLICK, (<any>endpointElement).jtk.endpoint, e);
+        }.bind(this);
+
+        this._endpointDblClick = function(e:any) {
+            console.log("endpoint dbl click " + e);
+            let endpointElement = findParent(e.srcElement || e.target, ".jtk-endpoint", this.getContainer());
+            console.log(endpointElement);
+            this.fire(Constants.EVENT_ENDPOINT_DBL_CLICK, (<any>endpointElement).jtk.endpoint, e);
+        }.bind(this);
+
+        this._attachEventDelegates();
     }
 
     getElement(el:HTMLElement|string):HTMLElement {
@@ -498,5 +532,29 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     consume(e:Event):void {
         Mottle.consume(e);
+    }
+
+
+    private _attachEventDelegates() {
+        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, ".jtk-connector, .jtk-connector *", this._connectorClick);
+        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, ".jtk-connector, .jtk-connector *", this._connectorDblClick);
+        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, ".jtk-endpoint, .jtk-endpoint *", this._endpointClick);
+        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, ".jtk-endpoint, .jtk-endpoint *", this._endpointDblClick);
+    }
+
+    private _detachEventDelegates() {
+        let currentContainer = this.getContainer();
+        if (currentContainer) {
+            this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._connectorClick);
+            this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._connectorDblClick);
+        }
+    }
+
+    setContainer(c: string | HTMLElement): void {
+        this._detachEventDelegates();
+        super.setContainer(c);
+        if (this.eventManager != null) {
+            this._attachEventDelegates();
+        }
     }
 }
