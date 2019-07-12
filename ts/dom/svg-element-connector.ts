@@ -21,6 +21,9 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
             instance.addClass(this.canvas, connector.cssClass);
         }
         instance.addClass(this.canvas, instance.connectorClass);
+
+        (<any>this.canvas).jtk = (<any>this.canvas).jtk || { };
+        (<any>this.canvas).jtk.connector = connector;
     }
 
     paint(paintStyle: PaintStyle, extents?:any): void {
@@ -87,4 +90,6 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
             this.instance.addClass(<any>this.svg, t.cssClass);
         }
     }
+
+
 }
