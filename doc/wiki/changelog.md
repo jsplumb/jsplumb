@@ -12,6 +12,8 @@ individually, we now use a single event listener on the container.
 
 - The `empty` method was removed.
 
+- `connector-pointer-events` not supported on Endpoint definitions.
+
 - `labelStyle` is no longer supported. Use `cssClass` and CSS tricks.
 
 - By default, every node is draggable. `.draggable(someElement)` no longer exists.
