@@ -3,10 +3,10 @@ import {LabelOverlayRenderer, OverlayRenderer} from "../overlay/overlay-renderer
 import {Overlay} from "../overlay/overlay";
 import {jsPlumbInstance, PointArray, PointXY} from "../core";
 import {Component} from "../component/component";
-import {IS, isFunction} from "../util";
+import {IS} from "../util";
 import {PaintStyle} from "../styles";
-import {Connection} from "../connector/connection-impl";
 import {LabelOverlay} from "../overlay/label-overlay";
+import {CustomOverlay} from "../overlay/custom-overlay";
 
 export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
 
@@ -16,10 +16,14 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
 
     constructor(public instance:jsPlumbInstance<HTMLElement>, public overlay: Overlay<HTMLElement>) { }
 
-    getElement ():HTMLElement {
+    protected _createElement(component:Component<HTMLElement>): HTMLElement {
+        return this.instance.createElement("div", {}, this.instance.overlayClass + " " +
+            (this.overlay.cssClass ? this.overlay.cssClass : ""));
+    }
+
+    getElement (component:Component<HTMLElement>):HTMLElement {
         if (this.canvas == null) {
-            this.canvas = this.instance.createElement("div", {}, this.instance.overlayClass + " " +
-                (this.overlay.cssClass ? this.overlay.cssClass : ""));
+            this.canvas = this._createElement(component);
             this.canvas.style.position = "absolute";
             this.instance.appendElement(this.canvas);
             this.instance.getId(this.canvas);
@@ -40,7 +44,11 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
             if (!this.overlay.isVisible()) {
                 this.canvas.style.display = "none";
             }
+
+            (<any>this.canvas).jtk = { overlay:this.overlay };
+
         }
+
         return this.canvas;
     }
 
@@ -92,18 +100,18 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
     }
 
     setVisible(v: boolean): void {
-        this.getElement().style.display = v ? "block" : "none";
+        this.getElement(this.overlay.component).style.display = v ? "block" : "none";
     }
 
     destroy(force?: boolean): void {
-        let el = this.getElement();
+        let el = this.getElement(this.overlay.component);
         if (el) {
             this.instance.remove(el);
         }
     }
 
     setHover(h: boolean): void {
-        let el = this.getElement();
+        let el = this.getElement(this.overlay.component);
         this.instance[h ? "addClass" : "removeClass"](el, this.instance.hoverClass);
     }
 
@@ -114,7 +122,7 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
     paint(params: any, extents?: any): void {
         //console.log("PAINT on HTML overlay called")
 
-        let el = this.getElement();
+        let el = this.getElement(this.overlay.component);
         //params.component.appendDisplayElement(this.canvas);   probably need this - it helps to know which elements should be hiddne/shown on visibility change
 
         // if (this.detached) {
@@ -138,6 +146,12 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
     removeClass(clazz: string) {
         this.instance.removeClass(this.canvas, clazz);
     }
+
+    moveParent(newParent: HTMLElement): void {
+        this.instance.appendElement(this.canvas);
+    }
+
+
 }
 
 
@@ -152,8 +166,20 @@ export class HTMLLabelElementOverlay extends HTMLElementOverlay implements Label
     }
 
     setText(t: string): void {
-        this.getElement().innerHTML = t;
+        this.getElement(this.overlay.component).innerHTML = t;
+    }
+
+}
+
+export class HTMLCustomElementOverlay extends HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
+
+    constructor(public instance:jsPlumbInstance<HTMLElement>, public overlay: CustomOverlay<HTMLElement>) {
+
+        super(instance, overlay);
     }
 
 
+    _createElement(component:Component<HTMLElement>): HTMLElement {
+        return this.overlay.create(component);
+    }
 }
