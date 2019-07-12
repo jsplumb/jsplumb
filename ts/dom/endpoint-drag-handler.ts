@@ -418,10 +418,10 @@ export class EndpointDragHandler implements DragHandler {
                 source: this.ep.element,  // for makeSource with parent option.  ensure source element is rthis.epresented correctly.
                 target: this.placeholderInfo.element,
                 anchors: [ this.ep.anchor, this.floatingEndpoint.anchor ],
-                paintStyle: this.ep._jsPlumb.connectorStyle, // this can be null. Connection will use the default.
-                hoverPaintStyle: this.ep._jsPlumb.connectorHoverStyle,
-                connector: this.ep._jsPlumb.connector, // this can also be null. Connection will use the default.
-                overlays: this.ep._jsPlumb.connectorOverlays,
+                paintStyle: this.ep.connectorStyle, // this can be null. Connection will use the default.
+                hoverPaintStyle: this.ep.connectorHoverStyle,
+                connector: this.ep.connector, // this can also be null. Connection will use the default.
+                overlays: this.ep.connectorOverlays,
                 type: this.ep.connectionType,
                 cssClass: this.ep.connectorClass,
                 hoverClass: this.ep.connectorHoverClass,
