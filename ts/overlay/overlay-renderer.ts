@@ -15,7 +15,9 @@ export interface OverlayRenderer<E> {
 
     paint(params: any, extents?: any): void;
 
-    getElement():E;
+    getElement(component:Component<E>):E;
+
+    moveParent(newParent:E):void;
 
 }
 
