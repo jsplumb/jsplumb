@@ -16,4 +16,6 @@ export interface ConnectorRenderer<E> {
     setVisible(v:boolean):void;
 
     applyType(t:TypeDescriptor):void;
+
+    moveParent(newParent:E):void;
 }
