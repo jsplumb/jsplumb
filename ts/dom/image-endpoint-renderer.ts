@@ -63,6 +63,11 @@ export class DOMImageEndpointRenderer implements EndpointRenderer<HTMLElement> {
         this.instance.removeClass(this.canvas, c);
     }
 
+    moveParent(newParent: HTMLElement): void {
+        this.instance.appendElement(this.canvas);
+    }
+
+
 
 
     applyType(t: TypeDescriptor): void { }
