@@ -7,6 +7,7 @@ import {SegmentBounds} from "../connector/abstract-segment";
 import {OverlayRenderer} from "./overlay-renderer";
 import {uuid} from "../util";
 import {EventGenerator} from "../event-generator";
+import {Connection} from "..";
 
 
 export interface OverlayOptions {
@@ -29,14 +30,12 @@ export interface ArrowOverlayOptions extends OverlayOptions {
 export interface LabelOverlayOptions extends OverlayOptions {
     label: string;
     endpointLocation?:[ number, number ];
-    labelStyle?: {
-        font?: string;
-        color?: string;
-        fill?: string;
-        borderStyle?: string;
-        borderWidth?: number;// integer
-        padding?: number; //integer
-    };
+}
+
+export interface CustomOverlayOptions<E> extends OverlayOptions {
+
+    create:(c:Component<E>) => E;
+
 }
 
 export type OverlayId = "Label" | "Arrow" | "PlainArrow" | "Custom";
@@ -69,13 +68,13 @@ export abstract class Overlay<E> extends EventGenerator {
 
     protected setRenderer(r:OverlayRenderer<E>) {
         this.renderer = r;
-        let e = r.getElement();
+        let e = r.getElement(this.component);
         for (let event in this.events) {
-            this.instance.on(e, event, this.events[event]);
+            this.bind(event, this.events[event]);
         }
     }
 
-    public getRenderer() {
+    public getRenderer():OverlayRenderer<E> {
         return this.renderer;
     }
 
@@ -102,7 +101,7 @@ export abstract class Overlay<E> extends EventGenerator {
     }
 
     destroy(force?: boolean): void {
-        let e = this.renderer.getElement();
+        let e = this.renderer.getElement(this.component);
         for (let event in this.events) {
             this.instance.off(e, event, this.events[event]);
         }
