@@ -49,7 +49,6 @@ var defaults = null, support,
 
 var testSuite = function (_jsPlumb) {
 
-    var renderMode = jsPlumb.SVG;
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
 
     module("jsPlumb", {
@@ -3363,8 +3362,8 @@ var testSuite = function (_jsPlumb) {
 
     var _ensureContainer = function(component, container) {
         return _overlayTest(component, function(o) {
-
-            return o.canvas ? o.canvas.parentNode == container :  o.renderer.canvas.parentNode == container;
+            return (o.renderer.canvas && o.renderer.canvas.parentNode == container) ||
+                (o.renderer.path && o.renderer.path.parentNode.parentNode == container);
         });
     };
 
@@ -3408,19 +3407,17 @@ var testSuite = function (_jsPlumb) {
         });
 
         equal(support.getEndpointCanvas(e1).parentNode, container, "e1 canvas parent is container");
-
         equal(support.getConnectionCanvas(c).parentNode, container, "connector parent is container");
 
-        ok(_ensureContainer(e1, container));
-        ok(_ensureContainer(c, container));
-
+        ok(_ensureContainer(e1, container), "all overlays for endpoint in container");
+        ok(_ensureContainer(c, container), "all overlays for connection in container");
 
         _jsPlumb.setContainer(newContainer);
 
         equal(support.getEndpointCanvas(e1).parentNode, newContainer, "e1 canvas parent is newContainer");
         equal(support.getConnectionCanvas(c).parentNode, newContainer, "connector parent is newContainer");
-        ok(_ensureContainer(e1, newContainer));
-        ok(_ensureContainer(c, newContainer));
+        ok(_ensureContainer(e1, newContainer), "all overlays for endpoint in newContainer");
+        ok(_ensureContainer(c, newContainer), "all overlays for connection in newContainer");
     });
 
 
@@ -3676,7 +3673,7 @@ var testSuite = function (_jsPlumb) {
         };
         o.setLabel(aFunction);
         equal(e.innerHTML, "aFunction", "label text is set to new value from Function");
-        equal(o.getLabel(), aFunction, "getLabel function works correctly with Function");
+        equal(o.getLabel(), "aFunction", "getLabel function works correctly with Function");
     });
 
     test(" label overlay custom css class", function () {
@@ -3689,43 +3686,6 @@ var testSuite = function (_jsPlumb) {
         ]});
         var o = c.getOverlay("label");
         ok(_jsPlumb.hasClass(o.renderer.canvas, "foo"), "label overlay has custom css class");
-    });
-
-    test(" label overlay custom css class in labelStyle", function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
-            [ "Label", {
-                id: "label",
-                labelStyle: {
-                    cssClass: "foo"
-                }
-            }]
-        ]});
-        var o = c.getOverlay("label");
-        ok(_jsPlumb.hasClass(o.renderer.canvas, "foo"), "label overlay has custom css class");
-    });
-
-
-    test(" label overlay - labelStyle", function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
-            [ "Label", {
-                id: "label",
-                labelStyle: {
-                    borderWidth: 2,
-                    borderStyle: "red",
-                    fill: "blue",
-                    color: "green",
-                    padding: 10
-                }
-            }]
-        ]});
-        var o = c.getOverlay("label"), el = o.renderer.canvas;
-        equal(el.style.borderWidth, "2px", "border width 2");
-        equal(el.style.borderColor, "red", "border color red");
-        equal(el.style.backgroundColor, "blue", "bg color blue");
-        equal(el.style.color, "green", "color green");
-
     });
 
     test(" parameters object works for Endpoint", function () {
@@ -4518,10 +4478,10 @@ var testSuite = function (_jsPlumb) {
             c4 = _jsPlumb.connect({source: "d2", target: "d1", scope: "BOZ"}),
             s = _jsPlumb.select({source: "d1", scope: ["FOO", "BAR", "BOZ"]});
 
-        _jsPlumb.setHoverSuspended(true);
+        _jsPlumb.hoverSuspended = true;
         s.setHover(true);
         ok(s.get(0).isHover() == false, "connection did not set hover as jsplumb overrides it");
-        _jsPlumb.setHoverSuspended(false);
+        _jsPlumb.hoverSuspended = false ;
         s.setHover(true);
         ok(s.get(0).isHover(), "connection did set hover as jsplumb override removed");
     });
@@ -5121,7 +5081,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.endpoints[0].anchor.testFlag, "source", "test flag still set on source anchor: anchor was reused");
         equal(c.endpoints[1].anchor.testFlag, "target", "test flag still set on target anchor: anchor was reused");
         ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
-        ok(_head(c.getOverlays()).path.parentNode != null, "overlay was reattached to the DOM correctly");
+        ok(_head(c.getOverlays()).renderer.path.parentNode != null, "overlay was reattached to the DOM correctly");
     });
 
     test(" set connection type on existing connection, hasType + toggleType", function () {
@@ -5856,35 +5816,6 @@ var testSuite = function (_jsPlumb) {
         ok(!_jsPlumb.hasClass(support.getEndpointCanvas(e), "FOO"), "FOO css class was removed");
     });
 
-    test(" new Endpoint, prefer endpointStyle to paintStyle.", function () {
-
-        var d = support.addDiv('d1'),
-            e = _jsPlumb.addEndpoint(d, {
-                paintStyle: {fill: "blue"},
-                endpointStyle: {fill: "green"},
-                hoverPaintStyle: {fill: "red"},
-                endpointHoverStyle: {fill: "yellow"}
-            });
-
-        equal(e.getPaintStyle().fill, "green", "fill style is correct");
-        e.setHover(true);
-        equal(e.getHoverPaintStyle().fill, "yellow", "fill style is correct");
-    });
-
-    test(" Endpoint type, prefer endpointStyle to paintStyle.", function () {
-        _jsPlumb.registerEndpointType("basic", {
-            paintStyle: {fill: "blue"},
-            endpointStyle: {fill: "green"},
-            hoverPaintStyle: {fill: "red"},
-            endpointHoverStyle: {fill: "yellow"}
-        });
-
-        var d = support.addDiv('d1'), e = _jsPlumb.addEndpoint(d);
-        e.setType("basic");
-        equal(e.getPaintStyle().fill, "green", "fill style is correct");
-        e.setHover(true);
-        equal(e.getHoverPaintStyle().fill, "yellow", "fill style is correct");
-    });
 
     test(" create connection from Endpoints - with connector settings in Endpoint type.", function () {
 
@@ -5915,7 +5846,7 @@ var testSuite = function (_jsPlumb) {
 
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(e1.getPaintStyle().fill, "blue", "endpoint has fill style specified in Endpoint type");
-        equal(c.getPaintStyle().stroke, "green", "connection has stroke style specified in Endpoint type");
+        equal(c.getPaintStyle().stroke, "green", "connection has stroke style specified in Endpoint type's `connectorStyle` property");
         equal(c.getHoverPaintStyle().strokeWidth, 534, "connection has hover style specified in Endpoint type");
         equal(c.getConnector().type, "Flowchart", "connector is Flowchart");
         equal(_length(c._jsPlumb.overlays), 1, "connector has one overlay");
@@ -6048,20 +5979,20 @@ var testSuite = function (_jsPlumb) {
         }, t: "Function" }
     ];
 
-    test("jsPlumbUtil typeof functions", function () {
-        for (var i = 0; i < types.length; i++) {
-            var v = types[i].v, f = jsPlumbUtil["is" + types[i].t];
-            // first, test that the object type is identified correctly
-            equal(f(v), true, types[i].t + " is recognised as " + types[i].t);
-            // now test that everything else is recognised as not being of this type
-            for (var j = 0; j < types.length; j++) {
-                if (i != j) {
-                    var v2 = types[j].v;
-                    equal(f(v2), false, types[j].t + " is not recognised as " + types[i].t);
-                }
-            }
-        }
-    });
+    // test("jsPlumbUtil typeof functions", function () {
+    //     for (var i = 0; i < types.length; i++) {
+    //         var v = types[i].v, f = jsPlumbUtil["is" + types[i].t];
+    //         // first, test that the object type is identified correctly
+    //         equal(f(v), true, types[i].t + " is recognised as " + types[i].t);
+    //         // now test that everything else is recognised as not being of this type
+    //         for (var j = 0; j < types.length; j++) {
+    //             if (i != j) {
+    //                 var v2 = types[j].v;
+    //                 equal(f(v2), false, types[j].t + " is not recognised as " + types[i].t);
+    //             }
+    //         }
+    //     }
+    // });
 
     test("jsPlumb.extend, filter values", function () {
         var n = ["foo", "bar", "baz"],
@@ -6077,132 +6008,132 @@ var testSuite = function (_jsPlumb) {
     // -- geometry tests have been moved into the jtk-geom project (because that's where the code is now) ---
 
 
-    test(" arc segment tests", function () {
-        var r = 10, circ = 2 * Math.PI * r;
-        // first, an arc up and to the right (clockwise)
-        var params = { r: r, x1: 0, y1: 0, x2: 10, y2: -10, cx: 10, cy: 0 };
-        var s = new jsPlumb.Segments["Arc"](params);
-        // segment should be one quarter of the circumference
-        equal(s.getLength(), 0.25 * circ, "length of segment is correct");
-        // point 0 is (0,0)
-        var p1 = s.pointOnPath(0);
-        within(p1.x, 0, ok, "start x is correct");
-        within(p1.y, 0, ok, "start y is correct");
-        // point 1 is (10, -10)
-        var p2 = s.pointOnPath(1);
-        within(p2.x, 10, ok, "end x is correct");
-        within(p2.y, -10, ok, "end y is correct");
-        // point at loc 0.5 is (2.92, -7.07))
-        var p3 = s.pointOnPath(0.5);
-        within(p3.x, 10 - (Math.sqrt(2) / 2 * 10), ok, "end x is correct");
-        within(p3.y, -(Math.sqrt(2) / 2 * 10), ok, "end y is correct");
-        // gradients
-        equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
-        equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
-        within(s.gradientAtPoint(0.5), -1, ok, "gradient at location 0.5 is -1");
-
-        // an arc up and to the left (anticlockwise)
-        params = { r: r, x1: 0, y1: 0, x2: -10, y2: -10, cx: -10, cy: 0, ac: true };
-        s = new jsPlumb.Segments["Arc"](params);
-        equal(s.getLength(), 0.25 * circ, "length of segment is correct");
-        // point 0 is (0,0)
-        p1 = s.pointOnPath(0);
-        within(p1.x, 0, ok, "start x is correct");
-        within(p1.y, 0, ok, "start y is correct");
-        // point 1 is (-10, -10)
-        p2 = s.pointOnPath(1);
-        within(p2.x, -10, ok, "end x is correct");
-        within(p2.y, -10, ok, "end y is correct");
-        // point at loc 0.5 is (-2.92, -7.07))
-        p3 = s.pointOnPath(0.5);
-        within(p3.x, -2.9289321881345245, ok, "end x is correct");
-        within(p3.y, -7.071067811865477, ok, "end y is correct");
-        // gradients
-        equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
-        equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
-        within(s.gradientAtPoint(0.5), 1, ok, "gradient at location 0.5 is 1");
-
-
-        // clockwise, 180 degrees
-        params = { r: r, x1: 0, y1: 0, x2: 0, y2: 20, cx: 0, cy: 10 };
-        s = new jsPlumb.Segments["Arc"](params);
-        equal(s.getLength(), 0.5 * circ, "length of segment is correct");
-        p1 = s.pointOnPath(0);
-        within(p1.x, 0, ok, "start x is correct");
-        within(p1.y, 0, ok, "start y is correct");
-        p2 = s.pointOnPath(1);
-        within(p2.x, 0, ok, "end x is correct");
-        within(p2.y, 20, ok, "end y is correct");
-        var p3 = s.pointOnPath(0.5);
-        within(p3.x, 10, ok, "end x is correct");
-        within(p3.y, 10, ok, "end y is correct");
-        // gradients
-        equal(s.gradientAtPoint(0), 0, "gradient at location 0 is 0");
-        equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
-        equal(s.gradientAtPoint(0.5), Infinity, "gradient at location 0.5 is Infinity");
-
-
-        // anticlockwise, 180 degrees
-        params = { r: r, x1: 0, y1: 0, x2: 0, y2: -20, cx: 0, cy: -10, ac: true };
-        s = new jsPlumb.Segments["Arc"](params);
-        equal(s.getLength(), 0.5 * circ, "length of segment is correct");
-        p1 = s.pointOnPath(0);
-        within(p1.x, 0, ok, "start x is correct");
-        within(p1.y, 0, ok, "start y is correct");
-        p2 = s.pointOnPath(1);
-        within(p2.x, 0, ok, "end x is correct");
-        within(p2.y, -20, ok, "end y is correct");
-        var p3 = s.pointOnPath(0.5);
-        within(p3.x, 10, ok, "end x is correct");
-        within(p3.y, -10, ok, "end y is correct");
-
-
-        // clockwise, 270 degrees
-        params = { r: r, x1: 0, y1: 0, x2: -10, y2: 10, cx: 0, cy: 10 };
-        s = new jsPlumb.Segments["Arc"](params);
-        equal(s.getLength(), 0.75 * circ, "length of segment is correct");
-        p1 = s.pointOnPath(0);
-        within(p1.x, 0, ok, "start x is correct");
-        within(p1.y, 0, ok, "start y is correct");
-        p2 = s.pointOnPath(1);
-        within(p2.x, -10, ok, "end x is correct");
-        within(p2.y, 10, ok, "end y is correct");
-        var p3 = s.pointOnPath(0.5);
-        within(p3.x, 7.071067811865477, ok, "end x is correct");
-        within(p3.y, 17.071067811865477, ok, "end y is correct");
-
-
-        // anticlockwise, 90 degrees
-        params = { r: r, x1: 0, y1: 0, x2: -10, y2: 10, cx: 0, cy: 10, ac: true };
-        s = new jsPlumb.Segments["Arc"](params);
-        equal(s.getLength(), 0.25 * circ, "length of segment is correct");
-        p1 = s.pointOnPath(0);
-        within(p1.x, 0, ok, "start x is correct");
-        within(p1.y, 0, ok, "start y is correct");
-        p2 = s.pointOnPath(1);
-        within(p2.x, -10, ok, "end x is correct");
-        within(p2.y, 10, ok, "end y is correct");
-        var p3 = s.pointOnPath(0.5);
-        within(p3.x, -7.071067811865477, ok, "end x is correct");
-        within(p3.y, 2.9289321881345245, ok, "end y is correct");
-
-
-        // anticlockwise, 270 degrees
-        params = { r: r, x1: 0, y1: 0, x2: 10, y2: 10, cx: 0, cy: 10, ac: true };
-        s = new jsPlumb.Segments["Arc"](params);
-        equal(s.getLength(), 0.75 * circ, "length of segment is correct");
-        p1 = s.pointOnPath(0);
-        within(p1.x, 0, ok, "start x is correct");
-        within(p1.y, 0, ok, "start y is correct");
-        p2 = s.pointOnPath(1);
-        within(p2.x, 10, ok, "end x is correct");
-        within(p2.y, 10, ok, "end y is correct");
-        var p3 = s.pointOnPath(0.5);
-        within(p3.x, -7.071067811865477, ok, "end x is correct");
-        within(p3.y, 17.071067811865477, ok, "end y is correct");
-
-
-    });
+    // test(" arc segment tests", function () {
+    //     var r = 10, circ = 2 * Math.PI * r;
+    //     // first, an arc up and to the right (clockwise)
+    //     var params = { r: r, x1: 0, y1: 0, x2: 10, y2: -10, cx: 10, cy: 0 };
+    //     var s = new jsPlumb.Segments["Arc"](params);
+    //     // segment should be one quarter of the circumference
+    //     equal(s.getLength(), 0.25 * circ, "length of segment is correct");
+    //     // point 0 is (0,0)
+    //     var p1 = s.pointOnPath(0);
+    //     within(p1.x, 0, ok, "start x is correct");
+    //     within(p1.y, 0, ok, "start y is correct");
+    //     // point 1 is (10, -10)
+    //     var p2 = s.pointOnPath(1);
+    //     within(p2.x, 10, ok, "end x is correct");
+    //     within(p2.y, -10, ok, "end y is correct");
+    //     // point at loc 0.5 is (2.92, -7.07))
+    //     var p3 = s.pointOnPath(0.5);
+    //     within(p3.x, 10 - (Math.sqrt(2) / 2 * 10), ok, "end x is correct");
+    //     within(p3.y, -(Math.sqrt(2) / 2 * 10), ok, "end y is correct");
+    //     // gradients
+    //     equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
+    //     equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
+    //     within(s.gradientAtPoint(0.5), -1, ok, "gradient at location 0.5 is -1");
+    //
+    //     // an arc up and to the left (anticlockwise)
+    //     params = { r: r, x1: 0, y1: 0, x2: -10, y2: -10, cx: -10, cy: 0, ac: true };
+    //     s = new jsPlumb.Segments["Arc"](params);
+    //     equal(s.getLength(), 0.25 * circ, "length of segment is correct");
+    //     // point 0 is (0,0)
+    //     p1 = s.pointOnPath(0);
+    //     within(p1.x, 0, ok, "start x is correct");
+    //     within(p1.y, 0, ok, "start y is correct");
+    //     // point 1 is (-10, -10)
+    //     p2 = s.pointOnPath(1);
+    //     within(p2.x, -10, ok, "end x is correct");
+    //     within(p2.y, -10, ok, "end y is correct");
+    //     // point at loc 0.5 is (-2.92, -7.07))
+    //     p3 = s.pointOnPath(0.5);
+    //     within(p3.x, -2.9289321881345245, ok, "end x is correct");
+    //     within(p3.y, -7.071067811865477, ok, "end y is correct");
+    //     // gradients
+    //     equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
+    //     equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
+    //     within(s.gradientAtPoint(0.5), 1, ok, "gradient at location 0.5 is 1");
+    //
+    //
+    //     // clockwise, 180 degrees
+    //     params = { r: r, x1: 0, y1: 0, x2: 0, y2: 20, cx: 0, cy: 10 };
+    //     s = new jsPlumb.Segments["Arc"](params);
+    //     equal(s.getLength(), 0.5 * circ, "length of segment is correct");
+    //     p1 = s.pointOnPath(0);
+    //     within(p1.x, 0, ok, "start x is correct");
+    //     within(p1.y, 0, ok, "start y is correct");
+    //     p2 = s.pointOnPath(1);
+    //     within(p2.x, 0, ok, "end x is correct");
+    //     within(p2.y, 20, ok, "end y is correct");
+    //     var p3 = s.pointOnPath(0.5);
+    //     within(p3.x, 10, ok, "end x is correct");
+    //     within(p3.y, 10, ok, "end y is correct");
+    //     // gradients
+    //     equal(s.gradientAtPoint(0), 0, "gradient at location 0 is 0");
+    //     equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
+    //     equal(s.gradientAtPoint(0.5), Infinity, "gradient at location 0.5 is Infinity");
+    //
+    //
+    //     // anticlockwise, 180 degrees
+    //     params = { r: r, x1: 0, y1: 0, x2: 0, y2: -20, cx: 0, cy: -10, ac: true };
+    //     s = new jsPlumb.Segments["Arc"](params);
+    //     equal(s.getLength(), 0.5 * circ, "length of segment is correct");
+    //     p1 = s.pointOnPath(0);
+    //     within(p1.x, 0, ok, "start x is correct");
+    //     within(p1.y, 0, ok, "start y is correct");
+    //     p2 = s.pointOnPath(1);
+    //     within(p2.x, 0, ok, "end x is correct");
+    //     within(p2.y, -20, ok, "end y is correct");
+    //     var p3 = s.pointOnPath(0.5);
+    //     within(p3.x, 10, ok, "end x is correct");
+    //     within(p3.y, -10, ok, "end y is correct");
+    //
+    //
+    //     // clockwise, 270 degrees
+    //     params = { r: r, x1: 0, y1: 0, x2: -10, y2: 10, cx: 0, cy: 10 };
+    //     s = new jsPlumb.Segments["Arc"](params);
+    //     equal(s.getLength(), 0.75 * circ, "length of segment is correct");
+    //     p1 = s.pointOnPath(0);
+    //     within(p1.x, 0, ok, "start x is correct");
+    //     within(p1.y, 0, ok, "start y is correct");
+    //     p2 = s.pointOnPath(1);
+    //     within(p2.x, -10, ok, "end x is correct");
+    //     within(p2.y, 10, ok, "end y is correct");
+    //     var p3 = s.pointOnPath(0.5);
+    //     within(p3.x, 7.071067811865477, ok, "end x is correct");
+    //     within(p3.y, 17.071067811865477, ok, "end y is correct");
+    //
+    //
+    //     // anticlockwise, 90 degrees
+    //     params = { r: r, x1: 0, y1: 0, x2: -10, y2: 10, cx: 0, cy: 10, ac: true };
+    //     s = new jsPlumb.Segments["Arc"](params);
+    //     equal(s.getLength(), 0.25 * circ, "length of segment is correct");
+    //     p1 = s.pointOnPath(0);
+    //     within(p1.x, 0, ok, "start x is correct");
+    //     within(p1.y, 0, ok, "start y is correct");
+    //     p2 = s.pointOnPath(1);
+    //     within(p2.x, -10, ok, "end x is correct");
+    //     within(p2.y, 10, ok, "end y is correct");
+    //     var p3 = s.pointOnPath(0.5);
+    //     within(p3.x, -7.071067811865477, ok, "end x is correct");
+    //     within(p3.y, 2.9289321881345245, ok, "end y is correct");
+    //
+    //
+    //     // anticlockwise, 270 degrees
+    //     params = { r: r, x1: 0, y1: 0, x2: 10, y2: 10, cx: 0, cy: 10, ac: true };
+    //     s = new jsPlumb.Segments["Arc"](params);
+    //     equal(s.getLength(), 0.75 * circ, "length of segment is correct");
+    //     p1 = s.pointOnPath(0);
+    //     within(p1.x, 0, ok, "start x is correct");
+    //     within(p1.y, 0, ok, "start y is correct");
+    //     p2 = s.pointOnPath(1);
+    //     within(p2.x, 10, ok, "end x is correct");
+    //     within(p2.y, 10, ok, "end y is correct");
+    //     var p3 = s.pointOnPath(0.5);
+    //     within(p3.x, -7.071067811865477, ok, "end x is correct");
+    //     within(p3.y, 17.071067811865477, ok, "end y is correct");
+    //
+    //
+    // });
 
 // *********************************** jsPlumbUtil.extend tests *****************************************************
 
@@ -6215,27 +6146,27 @@ var testSuite = function (_jsPlumb) {
                 [ "Label", { id:"label", label:'hey'}]
             ]}), o = c.getOverlay("label");
             c.addClass("foo");
-            ok(!(_jsPlumb.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
-            ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'foo'");
+            ok(!(_jsPlumb.hasClass(support.getEndpointCanvas(c.endpoints[0]), "foo")), "endpoint does not have class 'foo'");
+            ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo") != -1, "connection has class 'foo'");
             c.addClass("bar", true);
-            ok(_jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint has class 'bar'");
+            ok(_jsPlumb.hasClass(support.getEndpointCanvas(c.endpoints[0]), "bar"), "endpoint has class 'bar'");
             c.removeClass("bar", true);
-            ok(c.canvas.className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");
-            ok(!_jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint doesnt have class 'bar'");
+            ok(support.getConnectionCanvas(c).className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");
+            ok(!_jsPlumb.hasClass(support.getEndpointCanvas(c.endpoints[0]), "bar"), "endpoint doesnt have class 'bar'");
 
-            ok(_jsPlumb.hasClass(o.canvas, "foo"), "overlay has class foo");
+            ok(_jsPlumb.hasClass(o.renderer.canvas, "foo"), "overlay has class foo");
 
             c.addClass("foo2");
-            ok(_jsPlumb.hasClass(o.canvas, "foo2"), "overlay has class foo2");
-            ok(c.canvas.className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
+            ok(_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay has class foo2");
+            ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
 
             c.removeClass("foo2");
-            ok(!_jsPlumb.hasClass(o.canvas, "foo2"), "overlay no longer has class foo2");
-            ok(c.canvas.className.baseVal.indexOf("foo2") == -1, "connection no longer has class 'foo2'");
+            ok(!_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay no longer has class foo2");
+            ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") == -1, "connection no longer has class 'foo2'");
 
             c.addClass("foo2", true);
-            ok(!_jsPlumb.hasClass(o.canvas, "foo2"), "overlay doesnt have class foo2");
-            ok(c.canvas.className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
+            ok(!_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay doesnt have class foo2");
+            ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
     });
 
     test(" addClass via jsPlumb.select", function () {
@@ -6245,78 +6176,55 @@ var testSuite = function (_jsPlumb) {
         var c = _jsPlumb.connect({source: "d1", target: "d2"});
         equal(_jsPlumb.select().length, 1, "there is one connection");
         _jsPlumb.select().addClass("foo");
-        ok(!(_jsPlumb.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
+        ok(!(_jsPlumb.hasClass(support.getEndpointCanvas(c.endpoints[0]), "foo")), "endpoint does not have class 'foo'");
         _jsPlumb.select().addClass("bar", true);
-        ok(_jsPlumb.hasClass(c.endpoints[0].canvas, "bar"), "endpoint hasclass 'bar'");
+        ok(_jsPlumb.hasClass(support.getEndpointCanvas(c.endpoints[0]), "bar"), "endpoint hasclass 'bar'");
         _jsPlumb.select().removeClass("bar", true);
-        ok(!(_jsPlumb.hasClass(c.endpoints[0].canvas, "bar")), "endpoint doesn't have class 'bar'");
+        ok(!(_jsPlumb.hasClass(support.getEndpointCanvas(c.endpoints[0]), "bar")), "endpoint doesn't have class 'bar'");
     });
 
-// ******************* override pointer events ********************
-    test("pointer-events, jsPlumb.connect", function () {
-        if (_jsPlumb.getRenderMode() == jsPlumb.SVG) {
-            support.addDivs(["d1", "d2"]);
-            var c = _jsPlumb.connect({source: "d1", target: "d2", "pointer-events": "BANANA"});
-            equal(_jsPlumb.getSelector(c.getConnector().canvas, "path")[0].getAttribute("pointer-events"), "BANANA", "pointer events passed through to svg elements");
-        }
-        else
-            expect(0);
-    });
-
-    test("connector-pointer-events, jsPlumb.addEndpoint", function () {
-        if (_jsPlumb.getRenderMode() == jsPlumb.SVG) {
-            support.addDivs(["d1", "d2"]);
-            var e1 = _jsPlumb.addEndpoint("d1", { "connector-pointer-events": "BANANA" });
-            var c = _jsPlumb.connect({source: e1, target: "d2"});
-            equal(_jsPlumb.getSelector(c.getConnector().canvas, "path")[0].getAttribute("pointer-events"), "BANANA", "pointer events passed through to svg elements");
-        }
-        else
-            expect(0);
-    });
     
 
     test(" : DOM adapter addClass/hasClass/removeClass/toggleClass", function () {
-        var d1 = support.addDiv(d1), // d1 is a DOM element
-            _d1 = jsPlumb.getSelector(d1);  // _d1 is a selector. we will test using each one.
+        var d1 = support.addDiv(d1), _d1 = [ d1 ];
 
         // add a single class and test for its existence	
-        jsPlumb.addClass(d1, "FOO");
+        _jsPlumb.addClass(d1, "FOO");
         equal(d1.className, "FOO", "element has class FOO, using selector");
-        ok(_jsPlumb.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
-        ok(_jsPlumb.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method, selector");
+        ok(_jsPlumb.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method");
 
         // add multiple classes and test for their existence
-        jsPlumb.addClass(_d1, "BAZ BAR SHAZ");
-        ok(_jsPlumb.hasClass(_d1, "BAZ"), "element has class BAZ, according to hasClass method, DOM element");
-        ok(_jsPlumb.hasClass(_d1, "BAR"), "element has class BAR, according to hasClass method, DOM element");
-        ok(_jsPlumb.hasClass(_d1, "SHAZ"), "element has class SHAZ, according to hasClass method, DOM element");
+        _jsPlumb.addClass(_d1, "BAZ BAR SHAZ");
+        ok(_jsPlumb.hasClass(d1, "BAZ"), "element has class BAZ, according to hasClass method, DOM element");
+        ok(_jsPlumb.hasClass(d1, "BAR"), "element has class BAR, according to hasClass method, DOM element");
+        ok(_jsPlumb.hasClass(d1, "SHAZ"), "element has class SHAZ, according to hasClass method, DOM element");
 
         // remove one class
-        jsPlumb.removeClass(d1, "BAR");
-        ok(!_jsPlumb.hasClass(_d1, "BAR"), "element doesn't have class BAR, according to hasClass method, DOM element");
+        _jsPlumb.removeClass(d1, "BAR");
+        ok(!_jsPlumb.hasClass(d1, "BAR"), "element doesn't have class BAR, according to hasClass method, DOM element");
 
         // remove two more classes
-        jsPlumb.removeClass(d1, "BAZ SHAZ");
-        ok(!_jsPlumb.hasClass(_d1, "BAZ"), "element doesn't have class BAZ, according to hasClass method, DOM element");
-        ok(!_jsPlumb.hasClass(_d1, "SHAZ"), "element doesn't have class SHAZ, according to hasClass method, DOM element");
+        _jsPlumb.removeClass(d1, "BAZ SHAZ");
+        ok(!_jsPlumb.hasClass(d1, "BAZ"), "element doesn't have class BAZ, according to hasClass method, DOM element");
+        ok(!_jsPlumb.hasClass(d1, "SHAZ"), "element doesn't have class SHAZ, according to hasClass method, DOM element");
 
         // check FOO is still there
-        ok(_jsPlumb.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
+        ok(_jsPlumb.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
 
         // now for an SVG element.
-        var s1 = jsPlumbUtil.svg.node("svg");
+        var s1 = jsPlumb.svg.node(_jsPlumb, "svg");
         document.body.appendChild(s1);
-        jsPlumb.addClass(s1, "SFOO");
+        _jsPlumb.addClass(s1, "SFOO");
         ok(_jsPlumb.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
 
-        jsPlumb.addClass(s1, "BAZ BAR SHAZ");
+        _jsPlumb.addClass(s1, "BAZ BAR SHAZ");
 
         // remove one class
-        jsPlumb.removeClass(s1, "BAR");
+        _jsPlumb.removeClass(s1, "BAR");
         ok(!_jsPlumb.hasClass(s1, "BAR"), "SVG element doesn't have class BAR, according to hasClass method, DOM element");
 
         // remove two more classes
-        jsPlumb.removeClass(s1, "BAZ SHAZ");
+        _jsPlumb.removeClass(s1, "BAZ SHAZ");
         ok(!_jsPlumb.hasClass(s1, "BAZ"), "SVG element doesn't have class BAZ, according to hasClass method, DOM element");
         ok(!_jsPlumb.hasClass(s1, "SHAZ"), "SVG element doesn't have class SHAZ, according to hasClass method, DOM element");
 
@@ -6324,14 +6232,13 @@ var testSuite = function (_jsPlumb) {
         ok(_jsPlumb.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
 
 
-
-        jsPlumb.toggleClass(d1, "BAZ");
+        _jsPlumb.toggleClass(d1, "BAZ");
         ok(_jsPlumb.hasClass(d1, "BAZ"), "class toggled on");
-        jsPlumb.toggleClass(d1, "BAZ");
+        _jsPlumb.toggleClass(d1, "BAZ");
         ok(!_jsPlumb.hasClass(d1, "BAZ"), "class toggled off");
-        jsPlumb.toggleClass(d1, "BAZ");
+        _jsPlumb.toggleClass(d1, "BAZ");
         ok(_jsPlumb.hasClass(d1, "BAZ"), "class toggled back on");
-        jsPlumb.toggleClass(d1, "BAR");
+        _jsPlumb.toggleClass(d1, "BAR");
         ok(_jsPlumb.hasClass(d1, "BAR"), "another class toggled on");
     });
 
@@ -6399,7 +6306,7 @@ var testSuite = function (_jsPlumb) {
             endpointStyle: { fill: "blue" }
         });
 
-        equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+        equal(support.getEndpointCanvas(c.endpoints[0]).childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
     });
 
 
@@ -6424,7 +6331,7 @@ var testSuite = function (_jsPlumb) {
             endpointStyle: { fill: "blue" }
         });
 
-        equal(c.endpoints[0].canvas.childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+        equal(support.getEndpointCanvas(c.endpoints[0]).childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
     });
 
 
@@ -6604,10 +6511,10 @@ var testSuite = function (_jsPlumb) {
                     }]
             ]}), o = c.getOverlay("label"), o2 = c.getOverlay("arrow");
 
-        _jsPlumb.trigger(o.renderer.canvas, "click");
+        o.fire("click");
         ok(count == 1, "click event was triggered on label overlay");
 
-        _jsPlumb.trigger(o2.renderer.path, "click");
+        o2.fire("click");
         ok(count == 2, "click event was triggered on arrow overlay");
     });
 
@@ -6667,17 +6574,17 @@ var testSuite = function (_jsPlumb) {
         });
 
         // the SVG element
-        _jsPlumb.trigger(e.canvas.childNodes[0], "click");
+        _jsPlumb.trigger(support.getEndpointCanvas(e), "click");
 
         // the path element
-        _jsPlumb.trigger(e.canvas.childNodes[0].childNodes[0], "click");
+        _jsPlumb.trigger(support.getEndpointCanvas(e).childNodes[0], "click");
 
         // the main endpiint
-        _jsPlumb.trigger(e.canvas, "click");
+        //_jsPlumb.trigger(e.canvas, "click");
 
         // each of those should have triggered a single click
 
-        equal(ec, 3, "3 endpoint clicks");
+        equal(ec, 2, "2 endpoint clicks");
         equal(c, 0, "no other clicks");
     });
 
@@ -6696,13 +6603,13 @@ var testSuite = function (_jsPlumb) {
         });
 
         // the SVG element
-        _jsPlumb.trigger(e.canvas.childNodes[0], "dblclick");
+        _jsPlumb.trigger(support.getEndpointCanvas(e).childNodes[0], "dblclick");
 
         // the path element
-        _jsPlumb.trigger(e.canvas.childNodes[0].childNodes[0], "dblclick");
+        _jsPlumb.trigger(support.getEndpointCanvas(e).childNodes[0].childNodes[0], "dblclick");
 
-        // the main endpiint
-        _jsPlumb.trigger(e.canvas, "dblclick");
+        // the main endpoint element
+        _jsPlumb.trigger(support.getEndpointCanvas(e), "dblclick");
 
         // each of those should have triggered a single click
 
@@ -6720,10 +6627,10 @@ var testSuite = function (_jsPlumb) {
         });
 
         // the path element
-        _jsPlumb.trigger(conn.canvas.childNodes[0], "click");
+        _jsPlumb.trigger(support.getConnectionCanvas(conn).childNodes[0], "click");
 
         // the SVG element
-        _jsPlumb.trigger(conn.canvas, "click");
+        _jsPlumb.trigger(support.getConnectionCanvas(conn), "click");
 
         // each of those should have triggered a single click
 
@@ -6740,17 +6647,17 @@ var testSuite = function (_jsPlumb) {
         });
 
         // the path element
-        _jsPlumb.trigger(conn.canvas.childNodes[0], "dblclick");
+        _jsPlumb.trigger(support.getConnectionCanvas(conn).childNodes[0], "dblclick");
 
         // the SVG element
-        _jsPlumb.trigger(conn.canvas, "dblclick");
+        _jsPlumb.trigger(support.getConnectionCanvas(conn), "dblclick");
 
         // each of those should have triggered a single click
 
         equal(c, 2, "2 dblclicks in total");
     });
 
-    test("overlay click", function() {
+    test("arrow overlay click", function() {
         var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
             conn = _jsPlumb.connect({source:d, target:d2, overlays:[
                 [ "Arrow", { id:"lbl" }]
@@ -6763,18 +6670,13 @@ var testSuite = function (_jsPlumb) {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.canvas.childNodes[0], "click");
-        _jsPlumb.trigger(lbl.canvas.childNodes[1], "click");
+        _jsPlumb.trigger(lbl.renderer.path, "click");
 
-        // the SVG element
-        _jsPlumb.trigger(lbl.canvas, "click");
-
-        // each of those should have triggered a single click
-
-        equal(c, 3, "3 clicks in total");
+        equal(c, 1, "1 click in total");
     });
 
-    test("overlay dblclick", function() {
+    // this tests that clicking on an overlay causes its Connection to report a click.
+    test("arrow overlay dblclick", function() {
         var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
             conn = _jsPlumb.connect({source:d, target:d2, overlays:[
                 [ "Arrow", { id:"lbl" }]
@@ -6787,11 +6689,54 @@ var testSuite = function (_jsPlumb) {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.canvas.childNodes[0], "dblclick");
-        _jsPlumb.trigger(lbl.canvas.childNodes[1], "dblclick");
+        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
+        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
 
         // the SVG element
-        _jsPlumb.trigger(lbl.canvas, "dblclick");
+        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
+
+        // each of those should have triggered a single click
+
+        equal(c, 3, "3 dblclicks in total");
+    });
+
+    test("label overlay click", function() {
+        var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2, overlays:[
+                    [ "Label", { id:"lbl" }]
+                ]}),
+            lbl = conn.getOverlay("lbl"),
+            c = 0;
+
+        _jsPlumb.bind("click", function() {
+            c++;
+        });
+
+        // the path element
+        _jsPlumb.trigger(lbl.renderer.canvas, "click");
+
+        equal(c, 1, "1 click in total");
+    });
+
+    // this tests that clicking on an overlay causes its Connection to report a click.
+    test("label overlay dblclick", function() {
+        var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2, overlays:[
+                    [ "Label", { id:"lbl" }]
+                ]}),
+            lbl = conn.getOverlay("lbl"),
+            c = 0;
+
+        _jsPlumb.bind("dblclick", function() {
+            c++;
+        });
+
+        // the path element
+        _jsPlumb.trigger(lbl.renderer.canvas, "dblclick");
+        _jsPlumb.trigger(lbl.renderer.canvas, "dblclick");
+
+        // the SVG element
+        _jsPlumb.trigger(lbl.renderer.canvas, "dblclick");
 
         // each of those should have triggered a single click
 
@@ -6827,7 +6772,7 @@ var testSuite = function (_jsPlumb) {
 
 
     test("pluggable getSize", function() {
-        var j = jsPlumb.getInstance(null, {
+        var j = jsPlumb.newInstance({container:container}, {
             getSize:function() { return [100,100]; }
         });
 
@@ -6877,39 +6822,40 @@ var testSuite = function (_jsPlumb) {
      });
      */
 
-    test("events fired on discrete ticks of the event loop", function() {
-        var a = {}, count = 0, flip = false;
-        jsPlumbUtil.EventGenerator.apply(a, []);
-
-        a.bind("event", function() {
-
-            if (flip)
-                equal(count, 1, "an event was already fired when the second event is processed");
-            else
-                equal(count, 0, "an event was not yet fired");
-
-            // if this is the first event, we want to set a flag and fire a new event.
-
-            if (!flip) {
-                flip = true;
-                a.fire("event");
-            }
-
-            count++
-
-        });
-
-        a.fire("event");
-
-        equal(count, 2, "an event was fired");
-    });
+    // TODO cant test jsPlumbUtil. not global now.
+    // test("events fired on discrete ticks of the event loop", function() {
+    //     var a = {}, count = 0, flip = false;
+    //     jsPlumbUtil.EventGenerator.apply(a, []);
+    //
+    //     a.bind("event", function() {
+    //
+    //         if (flip)
+    //             equal(count, 1, "an event was already fired when the second event is processed");
+    //         else
+    //             equal(count, 0, "an event was not yet fired");
+    //
+    //         // if this is the first event, we want to set a flag and fire a new event.
+    //
+    //         if (!flip) {
+    //             flip = true;
+    //             a.fire("event");
+    //         }
+    //
+    //         count++
+    //
+    //     });
+    //
+    //     a.fire("event");
+    //
+    //     equal(count, 2, "an event was fired");
+    // });
 
     test("connectorClass specified in addEndpoint params", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
-        var e1 = jsPlumb.addEndpoint(d1, { anchor: "Top", connector:["Flowchart", {cssClass: "connector"}], endpoint: "Rectangle"} );
+        var e1 = _jsPlumb.addEndpoint(d1, { anchor: "Top", connector:["Flowchart", {cssClass: "connector"}], endpoint: "Rectangle"} );
         _jsPlumb.connect({source:e1, target:d2});
-        ok(_jsPlumb.hasClass(e1.connections[0].getConnector().canvas, "connector", "connector class set"));
+        ok(_jsPlumb.hasClass(support.getConnectionCanvas(e1.connections[0]), "connector", "connector class set"));
 
     })
 
