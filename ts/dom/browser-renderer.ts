@@ -9,7 +9,7 @@ import {OverlayRenderer} from "../overlay/overlay-renderer";
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {Constructable, Dictionary, jsPlumbInstance} from "../core";
 import {Overlay} from "../overlay/overlay";
-import {HTMLLabelElementOverlay} from "./html-element-overlay";
+import {HTMLCustomElementOverlay, HTMLLabelElementOverlay} from "./html-element-overlay";
 import {ArrowSVGElementOverlay} from "./svg-element-overlay";
 import {ConnectorRenderer} from "../connector/connector-renderer";
 import {SvgElementConnector} from "./svg-element-connector";
@@ -19,6 +19,7 @@ import {Endpoint} from "../endpoint/endpoint-impl";
 import {ArrowOverlay} from "..";
 import {ImageEndpoint} from "../endpoint/image-endpoint";
 import {DOMImageEndpointRenderer} from "./image-endpoint-renderer";
+import {CustomOverlay} from "../overlay/custom-overlay";
 
 const endpointMap:Dictionary<Constructable<SvgEndpoint<any>>> = {};
 export function registerEndpointRenderer<C>(name:string, ep:Constructable<SvgEndpoint<C>>) {
@@ -77,6 +78,8 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             return new HTMLLabelElementOverlay(instance, o as LabelOverlay<HTMLElement>);
         } else if (o.type === "Arrow") {
             return new ArrowSVGElementOverlay(instance, o as ArrowOverlay<HTMLElement>);
+        } else if (o.type === "Custom") {
+            return new HTMLCustomElementOverlay(instance, o as CustomOverlay<HTMLElement>);
         } else {
             throw "Could not assign renderer for overlay of type [" + o.type + "]";
         }
