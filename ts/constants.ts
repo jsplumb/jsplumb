@@ -1,4 +1,4 @@
-function cls(className:string):string { return  "." + className; }
+export function cls(className:string):string { return  "." + className; }
 
 export const SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions";
 export const TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions";
@@ -18,6 +18,7 @@ export const ATTRIBUTE_GROUP = "jtk-group";
 export const ATTRIBUTE_SOURCE = "jtk-source";
 export const ATTRIBUTE_TARGET = "jtk-target";
 export const ATTRIBUTE_CONTAINER = "jtk-container";
+export const ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
 
 export const IS_DETACH_ALLOWED = "isDetachAllowed";
 export const BEFORE_DETACH = "beforeDetach";
