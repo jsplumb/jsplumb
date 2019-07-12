@@ -434,6 +434,11 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.connector = null;
     }
 
+    moveParent(newParent:E):void {
+        this.connector.renderer.moveParent(newParent);
+        super.moveParent(newParent);
+    }
+
     updateConnectedClass(remove?:boolean) {
         if (this._jsPlumb) {
             _updateConnectedClass(this, this.source, remove);
@@ -471,7 +476,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     }
 
     makeConnector(name:string, args:any):AbstractConnector<E> {
-        return Connectors.get(this.instance, name, args);
+        return Connectors.get(this.instance, this, name, args);
     }
 
     prepareConnector(connectorSpec:ConnectorSpec, typeId?:string):AbstractConnector<E> {
