@@ -24,4 +24,6 @@ export interface EndpointRenderer<E> {
 
     removeClass(c:string):void;
 
+    moveParent(newParent:E):void;
+
 }
