@@ -5,6 +5,7 @@ import {PaintStyle} from "../styles";
 import {Component} from "../component/component";
 import {_appendAtIndex, _attr, _node, Connection, Endpoint, SvgEndpoint} from "..";
 import {SvgElementConnector} from "./svg-element-connector";
+import * as Constants from "../constants";
 
 export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> {
 
@@ -27,6 +28,10 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
         if (parent != null) {
             _appendAtIndex(parent, this.path, 1);//params.paintStyle.outlineStroke ? 1 : 0);
         }
+
+        this.instance.addClass(<any>this.path, Constants.CLASS_OVERLAY);
+
+        (<any>this.path).jtk = { overlay:overlay };
 
     }
 
@@ -107,11 +112,13 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
 
     }
 
-    getElement(): HTMLElement {
+    getElement(component:Component<HTMLElement>): HTMLElement {
         return <any>this.path;
     }
 
-
+    moveParent(newParent: HTMLElement): void {
+        // does nothing, as the DOM elements for this overlay type are children of the connector's dom element.
+    }
 
     abstract makePath(d:any):string;
 }
