@@ -10,9 +10,6 @@ import {findParent} from "../browser-util";
 import * as Constants from "../constants";
 
 declare const Mottle:any;
-declare const Biltong:any;
-declare const Katavorio:any;
-
 
 export interface DragEventCallbackOptions {
     drag: object; // The associated Drag instance
@@ -104,25 +101,6 @@ function _classManip(el:HTMLElement, classesToAdd:string | Array<string>, classe
     _setClassName(el, curClasses.join(" "), curClasses);
 }
 
-// function _animProps (o:any, p:any):[any, any] {
-//     const _one = (pName:any) => {
-//         if (p[pName] != null) {
-//             if (isString(p[pName])) {
-//                 let m = p[pName].match(/-=/) ? -1 : 1,
-//                     v = p[pName].substring(2);
-//                 return o[pName] + (m * v);
-//             }
-//             else {
-//                 return p[pName];
-//             }
-//         }
-//         else {
-//             return o[pName];
-//         }
-//     };
-//     return [ _one("left"), _one("top") ];
-// }
-// //
 function _genLoc (prefix:string, e?:Event):PointArray {
     if (e == null) {
         return [ 0, 0 ];
@@ -132,10 +110,6 @@ function _genLoc (prefix:string, e?:Event):PointArray {
 }
 
 const _pageLocation = _genLoc.bind(null, "page");
-//
-// const _screenLocation = _genLoc.bind(null, "screen");
-//
-// const _clientLocation = _genLoc.bind(null, "client");
 
 function _getTouch (touches:any, idx:number):Touch {
     return touches.item ? touches.item(idx) : touches[idx];
@@ -147,20 +121,12 @@ function _touches (e:Event):Array<Touch> {
             _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches :
                 [ _e ];
 }
-//
-//
-// type IntersectingGroup<E> = {
-//     group:Group<E>;
-//     d:number;
-// }
-//
-// type GroupLocation<E> = {
-//     el:E;
-//     r: BoundingBox;
-//     group: Group<E>;
-// }
 
 // ------------------------------------------------------------------------------------------------------------
+
+const connectorSelector = Constants.cls(Constants.CLASS_CONNECTOR);
+const endpointSelector = Constants.cls(Constants.CLASS_ENDPOINT);
+const overlaySelector = Constants.cls(Constants.CLASS_OVERLAY);
 
 export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
@@ -170,6 +136,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     _connectorDblClick:Function;
     _endpointClick:Function;
     _endpointDblClick:Function;
+    _overlayClick:Function;
+    _overlayDblClick:Function;
 
     constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, new BrowserRenderer(), defaults);
@@ -182,30 +150,48 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         this._connectorClick = function(e:any) {
             console.log("connector click " + e);
-            let connectorElement = findParent(e.srcElement || e.target, ".jtk-connector", this.getContainer());
+            let connectorElement = findParent(e.srcElement || e.target, connectorSelector, this.getContainer());
             console.log(connectorElement);
             this.fire(Constants.EVENT_CLICK, (<any>connectorElement).jtk.connector.connection, e);
         }.bind(this);
 
         this._connectorDblClick = function(e:any) {
             console.log("connector dbl click " + e);
-            let connectorElement = findParent(e.srcElement || e.target, ".jtk-connector", this.getContainer());
+            let connectorElement = findParent(e.srcElement || e.target, connectorSelector, this.getContainer());
             console.log(connectorElement);
             this.fire(Constants.EVENT_DBL_CLICK, (<any>connectorElement).jtk.connector.connection, e);
         }.bind(this);
 
         this._endpointClick = function(e:any) {
             console.log("endpoint click " + e);
-            let endpointElement = findParent(e.srcElement || e.target, ".jtk-endpoint", this.getContainer());
+            let endpointElement = findParent(e.srcElement || e.target, endpointSelector, this.getContainer());
             console.log(endpointElement);
             this.fire(Constants.EVENT_ENDPOINT_CLICK, (<any>endpointElement).jtk.endpoint, e);
         }.bind(this);
 
         this._endpointDblClick = function(e:any) {
             console.log("endpoint dbl click " + e);
-            let endpointElement = findParent(e.srcElement || e.target, ".jtk-endpoint", this.getContainer());
+            let endpointElement = findParent(e.srcElement || e.target, endpointSelector, this.getContainer());
             console.log(endpointElement);
             this.fire(Constants.EVENT_ENDPOINT_DBL_CLICK, (<any>endpointElement).jtk.endpoint, e);
+        }.bind(this);
+
+        this._overlayClick = function(e:any) {
+            console.log("overlay click " + e);
+            let overlayElement = findParent(e.srcElement || e.target, overlaySelector, this.getContainer());
+            console.log(overlayElement);
+            let overlay = (<any>overlayElement).jtk.overlay;
+            this.fire(Constants.EVENT_CLICK, overlay.component, e);
+            overlay.fire("click", e);
+        }.bind(this);
+
+        this._overlayDblClick = function(e:any) {
+            console.log("overlay dbl click " + e);
+            let overlayElement = findParent(e.srcElement || e.target, overlaySelector, this.getContainer());
+            console.log(overlayElement);
+            let overlay = (<any>overlayElement).jtk.overlay;
+            this.fire(Constants.EVENT_DBL_CLICK, overlay.component, e);
+            overlay.fire("dblclick", e);
         }.bind(this);
 
         this._attachEventDelegates();
@@ -509,14 +495,14 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     setDraggable(element:HTMLElement, draggable:boolean) {
         if (draggable) {
-            this.removeAttribute(element, "jtk-not-draggable");
+            this.removeAttribute(element, Constants.ATTRIBUTE_NOT_DRAGGABLE);
         } else {
-            this.setAttribute(element, "jtk-not-draggable", "true");
+            this.setAttribute(element, Constants.ATTRIBUTE_NOT_DRAGGABLE, "true");
         }
     }
 
     isDraggable(el:HTMLElement):boolean {
-        let d = this.getAttribute(el, "jtk-not-draggable");
+        let d = this.getAttribute(el, Constants.ATTRIBUTE_NOT_DRAGGABLE);
         return d == null || d === "false";
     }
 
@@ -536,10 +522,16 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
 
     private _attachEventDelegates() {
-        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, ".jtk-connector, .jtk-connector *", this._connectorClick);
-        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, ".jtk-connector, .jtk-connector *", this._connectorDblClick);
-        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, ".jtk-endpoint, .jtk-endpoint *", this._endpointClick);
-        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, ".jtk-endpoint, .jtk-endpoint *", this._endpointDblClick);
+
+        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, overlaySelector, this._overlayClick);
+        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, overlaySelector, this._overlayDblClick);
+
+        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, connectorSelector, this._connectorClick);
+        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, connectorSelector, this._connectorDblClick);
+        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, endpointSelector, this._endpointClick);
+        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, endpointSelector, this._endpointDblClick);
+
+
     }
 
     private _detachEventDelegates() {
