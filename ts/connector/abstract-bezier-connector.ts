@@ -2,6 +2,7 @@ import {AbstractConnector, ConnectorComputeParams, PaintGeometry, PaintParams} f
 import {jsPlumbInstance, PointArray} from "../core";
 import {ComputedAnchorPosition} from "../factory/anchor-factory";
 import {ArcSegment} from "./arc-segment";
+import {Connection} from "./connection-impl";
 
 export interface AbstractBezierOptions {
     showLoopback?:boolean;
@@ -23,9 +24,9 @@ export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
     clockwise:boolean;
     isLoopbackCurrently:boolean;
 
-    constructor(instance:jsPlumbInstance<E>, params:any) {
+    constructor(instance:jsPlumbInstance<E>, public connection:Connection<E>, params:any) {
 
-        super(instance, params);
+        super(instance, connection, params);
 
         params = params || {};
         this.showLoopback = params.showLoopback !== false;

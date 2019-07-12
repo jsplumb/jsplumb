@@ -4,6 +4,7 @@ import {jsPlumbInstance, PointArray} from "../core";
 import {BezierSegment} from "./bezier-segment";
 import {Connectors} from "./connectors";
 import {ComputedAnchorPosition} from "../factory/anchor-factory";
+import {Connection} from "./connection-impl";
 
 export class Bezier<E> extends AbstractBezierConnector<E> {
 
@@ -12,8 +13,8 @@ export class Bezier<E> extends AbstractBezierConnector<E> {
     majorAnchor:number;
     minorAnchor:number;
 
-    constructor(instance:jsPlumbInstance<E>, params:AbstractBezierOptions) {
-        super(instance, params);
+    constructor(instance:jsPlumbInstance<E>, public connection:Connection<E>, params:AbstractBezierOptions) {
+        super(instance, connection, params);
         this.majorAnchor = params.curviness || 150;
         this.minorAnchor = 10;
     }
