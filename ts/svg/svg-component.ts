@@ -15,7 +15,7 @@ export type Positionable = { x:number, y: number, w:number, h:number }
 
 export abstract class SvgComponent {
 
-    typeId:string;
+    //typeId:string;
     pointerEventsSpec:string;
     svg:SVGElement;
 
@@ -112,7 +112,7 @@ export abstract class SvgComponent {
 
         //super.cleanup(force);
 
-        if (force || this.typeId == null) {
+        if (force) {
             if (this.canvas) {
                 (<any>this.canvas)._jsPlumb = null;
             }
@@ -194,4 +194,7 @@ export abstract class SvgComponent {
         return this.instance.getClass(this.canvas);
     }
 
+    moveParent(newParent: HTMLElement): void {
+        this.instance.appendElement(<any>this.canvas);
+    }
 }
