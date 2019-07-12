@@ -6,6 +6,7 @@ import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {PaintStyle} from "../styles";
 import {Component, ComponentOptions} from "../component/component";
 import {ConnectorRenderer} from "./connector-renderer";
+import {Connection} from "./connection-impl";
 
 declare const Biltong:any;
 
@@ -100,7 +101,7 @@ export abstract class AbstractConnector<E> {
     bounds:SegmentBounds = EMPTY_BOUNDS();
     cssClass:string;
 
-    constructor(protected instance:jsPlumbInstance<E>, params:AbstractConnectorOptions<E>) {
+    constructor(protected instance:jsPlumbInstance<E>, public connection:Connection<E>, params:AbstractConnectorOptions<E>) {
 
         this.stub = params.stub || 0;
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
@@ -386,10 +387,14 @@ export abstract class AbstractConnector<E> {
     }
 
     cleanup(force?:boolean) {
-        this.renderer.cleanup(force);
+        if (force || this.typeId == null) {
+            this.renderer.cleanup(force);
+        }
     }
 
     destroy(force?:boolean) {
-        this.renderer.destroy(force);
+        if (force || this.typeId == null) {
+            this.renderer.destroy(force);
+        }
     }
 }
