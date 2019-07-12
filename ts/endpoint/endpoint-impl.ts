@@ -11,6 +11,7 @@ import {PaintStyle} from "../styles";
 import {ConnectorSpec} from "../connector";
 import {EndpointRepresentation} from "./endpoints";
 import {EndpointFactory} from "../factory/endpoint-factory";
+import {OverlaySpec} from "..";
 
 function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint<E>, elementWithPrecedence?:string):Connection<E> {
     let idx = 0;
@@ -68,6 +69,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
     connectionType:string;
     connector:ConnectorSpec;
+    connectorOverlays:Array<OverlaySpec>;
 
     connectorStyle:PaintStyle;
     connectorHoverStyle:PaintStyle;
@@ -84,7 +86,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
         this.appendToDefaultType({
             connectionType:params.connectionType,
-            maxConnections: params.maxConnections == null ? this._jsPlumb.instance.Defaults.maxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
+            maxConnections: params.maxConnections == null ? this.instance.Defaults.maxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
             paintStyle: params.paintStyle || this.instance.Defaults.endpointStyle,
             hoverPaintStyle: params.hoverPaintStyle || this.instance.Defaults.endpointHoverStyle,
             connectorStyle: params.connectorStyle,
@@ -111,10 +113,9 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this._jsPlumb.connectionsDirected = params.connectionsDirected;
         this._jsPlumb.currentAnchorClass = "";
         this._jsPlumb.events = {};
-        this._jsPlumb.connectorStyle = params.connectorStyle;
-        this._jsPlumb.connectorHoverStyle = params.connectorHoverStyle;
-        this._jsPlumb.connector = params.connector;
-        this._jsPlumb.connectorOverlays = params.connectorOverlays;
+
+
+        this.connectorOverlays = params.connectorOverlays;
         this._jsPlumb.scope = params.scope;
 
         this.connectionsDetachable = params.connectionsDetachable;
@@ -299,6 +300,12 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
         this.setPaintStyle(t.endpointStyle || t.paintStyle, doNotRepaint);
         this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle, doNotRepaint);
+
+        this.connectorStyle = t.connectorStyle;
+        this.connectorHoverStyle = t.connectorHoverStyle;
+        this.connector = t.connector;
+        this.connectorOverlays = t.connectorOverlays;
+
         if (t.maxConnections != null) {
             this._jsPlumb.maxConnections = t.maxConnections;
         }
@@ -552,5 +559,10 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void {
         super.removeClass(clazz, dontUpdateOverlays);
         this.endpoint.removeClass(clazz);
+    }
+
+    moveParent(newParent:E):void {
+        this.endpoint.renderer.moveParent(newParent);
+        super.moveParent(newParent);
     }
 }
