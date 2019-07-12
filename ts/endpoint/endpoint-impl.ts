@@ -305,6 +305,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.connectorHoverStyle = t.connectorHoverStyle;
         this.connector = t.connector;
         this.connectorOverlays = t.connectorOverlays;
+        this.connectionType = t.connectionType;
 
         if (t.maxConnections != null) {
             this._jsPlumb.maxConnections = t.maxConnections;
