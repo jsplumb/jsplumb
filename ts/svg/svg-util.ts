@@ -5,7 +5,7 @@ const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",
         "stroke-dashoffset": "stroke-dashoffset",
         "stroke-linecap": "stroke-linecap"
-    }
+    };
 
 export const STROKE_DASHARRAY = "stroke-dasharray";
 export const DASHSTYLE = "dashstyle";
