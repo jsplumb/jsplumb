@@ -12,6 +12,8 @@ individually, we now use a single event listener on the container.
 
 - The `empty` method was removed.
 
+- `labelStyle` is no longer supported. Use `cssClass` and CSS tricks.
+
 - By default, every node is draggable. `.draggable(someElement)` no longer exists.
 
 - It is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
