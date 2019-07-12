@@ -7,6 +7,7 @@ import {Dictionary, jsPlumbInstance} from "../core";
 import {StraightSegment} from "./straight-segment";
 import {ArcSegment} from "./arc-segment";
 import {Connectors} from "./connectors";
+import {Connection} from "./connection-impl";
 
 export interface FlowchartConnectorOptions<E> extends AbstractConnectorOptions<E> {
     alwaysRespectStubs?:boolean;
@@ -56,8 +57,8 @@ export class FlowchartConnector<E> extends AbstractConnector<E> {
     loopbackRadius:number;
     isLoopbackCurrently:boolean;
 
-    constructor(protected instance:jsPlumbInstance<E>, params:FlowchartConnectorOptions<E>) {
-        super(instance, params);
+    constructor(protected instance:jsPlumbInstance<E>, public connection:Connection<E>, params:FlowchartConnectorOptions<E>) {
+        super(instance, connection, params);
 
         this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;
         this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0;
