@@ -5366,6 +5366,44 @@ test("drag multiple elements and ensure their connections are painted correctly 
         ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
     });
 
+    test(" set connection type on existing connection, overlays should be overridden by setType and merged by addType", function () {
+        var basicType = {
+            connector: "Flowchart",
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
+            overlays: [
+                [ "Arrow", { id:"arrow" } ]
+            ]
+        };
+        var otherType = {
+            connector: "Bezier",
+            overlays:[
+                [ "Label", { id:"label"} ]
+            ]
+        };
+        _jsPlumb.registerConnectionType("basic", basicType);
+        _jsPlumb.registerConnectionType("other", otherType);
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({source: d1, target: d2});
+
+        c.setType("basic");
+        c.getConnector().testFlag = true;
+        equal(_length(c.getOverlays()), 1, "one overlay after setting `basic` type");
+        // set a flag on the overlay; we will test later that re-adding the basic type will not cause a whole new overlay
+        // to be created
+        _head(c.getOverlays()).testFlag = true;
+
+        c.setType("other");
+        equal(_length(c.getOverlays()), 1, "one overlay after setting type to `other`, overlay is a label");
+        equal(c.getOverlays()["label"].type, "Label", "type of overlay is correct");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.PaintStyle.strokeWidth, "paintStyle strokeWidth is default");
+
+        c.addType("basic");
+        equal(_length(c.getOverlays()), 2, "one overlays after re-adding `basic` type");
+        ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
+        //ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
+    });
+
 
     test(" set connection type on existing connection, anchors and connectors created only once", function () {
         var basicType = {
