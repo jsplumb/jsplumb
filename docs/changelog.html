@@ -142,8 +142,6 @@
 <li>Major refactoring of the rendering pipeline</li>
 </ul>
 
-<h2>3.x alpha</h2>
-
 <p>This release focuses on performance enhancements, and contains several breaking changes.</p>
 
 <p>The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
@@ -152,6 +150,9 @@ individually, we now use a single event listener on the container. </p>
 <h3>Breaking changes</h3>
 
 <ul>
+<li><p>The <code>empty</code> method was removed.</p></li>
+<li><p><code>connector-pointer-events</code> not supported on Endpoint definitions.</p></li>
+<li><p><code>labelStyle</code> is no longer supported. Use <code>cssClass</code> and CSS tricks.</p></li>
 <li><p>By default, every node is draggable. <code>.draggable(someElement)</code> no longer exists.</p></li>
 <li><p>It is imperative that you provide the <code>container</code> for an instance of jsPlumb.  We no longer infer the container from the <code>offsetParent</code> of the
 first element to which an endpoint is added.</p></li>
