@@ -424,7 +424,11 @@ export function mergeWithParents(type: string, map: any, parentAttribute?: strin
             return def;
         }
         else {
-            let d = merge(parent, def);
+            let overrides = [ "anchor", "anchors", "cssClass", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints"];
+            if (def.mergeStrategy === "override") {
+                Array.prototype.push.apply(overrides, [ "events", "overlays"]);
+            }
+            let d = merge(parent, def, [], overrides);
             return _one(_parent(parent), d);
         }
     };
