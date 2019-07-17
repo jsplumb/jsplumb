@@ -49,15 +49,14 @@ var defaults = null, support,
 
 var testSuite = function (_jsPlumb) {
 
-    support = jsPlumbTestSupport.getInstance(_jsPlumb);
-
     module("jsPlumb", {
         teardown: function () {
             _cleanup(_jsPlumb);
         },
         setup: function () {
+            _jsPlumb = jsPlumb.newInstance({container:container});
+            support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
-            _jsPlumb.setContainer("container");
         }
     });
 
@@ -5141,7 +5140,7 @@ var testSuite = function (_jsPlumb) {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2, overlays:[  [ "Label", {id:"LBL", label:"${lbl}" } ] ]});
 
-        equal(_length(c.getOverlays()), 1, "connectoin has one overlay to begin with");
+        equal(_length(c.getOverlays()), 1, "connection has one overlay to begin with");
 
         c.setType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
@@ -6165,7 +6164,7 @@ var testSuite = function (_jsPlumb) {
             ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") == -1, "connection no longer has class 'foo2'");
 
             c.addClass("foo2", true);
-            ok(!_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay doesnt have class foo2");
+            ok(_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay has class foo2");
             ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
     });
 
@@ -6339,12 +6338,6 @@ var testSuite = function (_jsPlumb) {
     test("setContainer does not cause multiple event registrations (issue 307)", function () {
         support.addDivs(["box1", "box2", "canvas"]);
 
-         _jsPlumb.importDefaults({
-         container: 'canvas'
-         });
-
-        _jsPlumb.setContainer('canvas');
-
         var connection = _jsPlumb.connect({
             source: 'box1',
             id: 'connector1',
@@ -6365,7 +6358,27 @@ var testSuite = function (_jsPlumb) {
         };
         var o = connection.addOverlay(['Label', labelDef]);
 
-        _jsPlumb.trigger(connection.getOverlay("label-1").canvas, "click");
+        _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
+
+        equal(clickCount, 1, "1 click on overlay registered");
+
+        clickCount = 0;
+
+         _jsPlumb.importDefaults({
+         container: 'canvas'
+         });
+
+
+
+
+
+        _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
+
+        equal(clickCount, 1, "1 click on overlay registered");
+
+        _jsPlumb.setContainer('canvas');
+        clickCount = 0;
+        _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
 
         equal(clickCount, 1, "1 click on overlay registered");
 
