@@ -82,7 +82,7 @@
                         var _t = component._jsPlumb.instance.getType(tid, td);
                         if (_t != null) {
 
-                            var overrides = ["anchor", "anchors", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints", "connectorOverlays", "connectorStyle", "connectorHoverStyle"];
+                            var overrides = ["anchor", "anchors", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints", "connectorOverlays", "connectorStyle", "connectorHoverStyle", "endpointStyle", "endpointHoverStyle"];
                             var collations = [ ];
 
                             if (_t.mergeStrategy === "override") {
