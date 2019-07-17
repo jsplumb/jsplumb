@@ -1338,6 +1338,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     reset (doNotUnbindInstanceEventListeners?:boolean):void {
         this.silently(() => {
             this.deleteEveryEndpoint();
+
+            this._connectionTypes = {};
+            this._endpointTypes = {};
+
             if (!doNotUnbindInstanceEventListeners) {
                 this.unbind();
             }
