@@ -4302,7 +4302,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.10.0";
+        this.version = "2.10.2";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -6299,7 +6299,7 @@
                         // the params passed in, because after a connection is established we're going to reset the endpoint
                         // to have the anchor we were given.
                         var tempEndpointParams = {};
-                        root.jsPlumb.extend(tempEndpointParams, p);
+                        root.jsPlumb.extend(tempEndpointParams, def.def);
                         tempEndpointParams.isTemporarySource = true;
                         tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
                         tempEndpointParams.dragOptions = dragOptions;
@@ -9170,6 +9170,8 @@
 
                 this.canvas = this.connector.canvas;
                 this.bgCanvas = this.connector.bgCanvas;
+
+                this.connector.reattach(this._jsPlumb.instance);
 
                 // put classes from prior connector onto the canvas
                 this.addClass(previousClasses);

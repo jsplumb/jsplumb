@@ -1,6 +1,6 @@
 {
   "name": "jsplumb",
-  "version": "2.10.0",
+  "version": "2.10.3",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
@@ -38,14 +38,12 @@
     "grunt-contrib-connect": "^0.11.2",
     "grunt-contrib-copy": "~0.5.0",
     "grunt-contrib-jshint": "~0.6.2",
-    "grunt-contrib-qunit": "^0.7.0",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-exec": "^1.0.1",
     "grunt-jekyll": "~0.4.2",
-    "grunt-qunit-junit": "^0.3.1",
     "jsbezier": "0.9.4",
-    "katavorio": "1.4.5",
+    "katavorio": "1.4.8",
     "morgan": "1.8.0",
     "mottle": "1.0.0"
   }

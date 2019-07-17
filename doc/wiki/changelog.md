@@ -1,3 +1,18 @@
+## 2.10.1
+
+July 4th 2019
+
+- Upgraded to Katavorio 1.4.8
+
+## 2.10.1
+
+June 25th 2019
+
+- refactored how makeSource gets its source parameters, so that call sites can manipulate the parameters after the makeSource call.
+- PR 843: reapplyTypes() for Arrow overlays ignores 'direction' parameter
+- fixed an issue causing connectors to disappear when a type is applied multiple times.
+
+
 ## 2.10.0
 
 June 5th 2019
