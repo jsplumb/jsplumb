@@ -8,10 +8,18 @@
     if (typeof exports !=='undefined') { exports.jsPlumbUtil = jsPlumbUtil;}
 
 
+    /**
+     * Tests if the given object is an Array.
+     * @param a
+     */
     function isArray(a) {
         return Object.prototype.toString.call(a) === "[object Array]";
     }
     jsPlumbUtil.isArray = isArray;
+    /**
+     * Tests if the given object is a Number.
+     * @param n
+     */
     function isNumber(n) {
         return Object.prototype.toString.call(n) === "[object Number]";
     }
@@ -145,9 +153,9 @@
         path.replace(/([^\.])+/g, function (term, lc, pos, str) {
             var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/), last = pos + term.length >= str.length, _getArray = function () {
                 return t[array[1]] || (function () {
-                        t[array[1]] = [];
-                        return t[array[1]];
-                    })();
+                    t[array[1]] = [];
+                    return t[array[1]];
+                })();
             };
             if (last) {
                 // set term = value on current t, creating term as array if necessary.
@@ -163,15 +171,15 @@
                 if (array) {
                     var a_1 = _getArray();
                     t = a_1[array[3]] || (function () {
-                            a_1[array[3]] = {};
-                            return a_1[array[3]];
-                        })();
+                        a_1[array[3]] = {};
+                        return a_1[array[3]];
+                    })();
                 }
                 else {
                     t = t[term] || (function () {
-                            t[term] = {};
-                            return t[term];
-                        })();
+                        t[term] = {};
+                        return t[term];
+                    })();
                 }
             }
             return "";
@@ -251,6 +259,12 @@
         return _one(model);
     }
     jsPlumbUtil.populate = populate;
+    /**
+     * Find the index of a given object in an array.
+     * @param a The array to search
+     * @param f The function to run on each element. Return true if the element matches.
+     * @returns {number} -1 if not found, otherwise the index in the array.
+     */
     function findWithFunction(a, f) {
         if (a) {
             for (var i = 0; i < a.length; i++) {
@@ -262,6 +276,13 @@
         return -1;
     }
     jsPlumbUtil.findWithFunction = findWithFunction;
+    /**
+     * Remove some element from an array by matching each element in the array against some predicate function. Note that this
+     * is an in-place removal; the array is altered.
+     * @param a The array to search
+     * @param f The function to run on each element. Return true if the element matches.
+     * @returns {boolean} true if removed, false otherwise.
+     */
     function removeWithFunction(a, f) {
         var idx = findWithFunction(a, f);
         if (idx > -1) {
@@ -270,6 +291,13 @@
         return idx !== -1;
     }
     jsPlumbUtil.removeWithFunction = removeWithFunction;
+    /**
+     * Remove some element from an array by simple lookup in the array for the given element. Note that this
+     * is an in-place removal; the array is altered.
+     * @param l The array to search
+     * @param v The value to remove.
+     * @returns {boolean} true if removed, false otherwise.
+     */
     function remove(l, v) {
         var idx = l.indexOf(v);
         if (idx > -1) {
@@ -278,12 +306,25 @@
         return idx !== -1;
     }
     jsPlumbUtil.remove = remove;
+    /**
+     * Add some element to the given array, unless it is determined that it is already in the array.
+     * @param list The array to add the element to.
+     * @param item The item to add.
+     * @param hashFunction A function to use to determine if the given item already exists in the array.
+     */
     function addWithFunction(list, item, hashFunction) {
         if (findWithFunction(list, hashFunction) === -1) {
             list.push(item);
         }
     }
     jsPlumbUtil.addWithFunction = addWithFunction;
+    /**
+     * Add some element to a list that is contained in a map of lists.
+     * @param map The map of [ key -> list ] entries
+     * @param key The name of the list to insert into
+     * @param value The value to insert
+     * @param insertAtStart Whether or not to insert at the start; defaults to false.
+     */
     function addToList(map, key, value, insertAtStart) {
         var l = map[key];
         if (l == null) {
@@ -294,6 +335,13 @@
         return l;
     }
     jsPlumbUtil.addToList = addToList;
+    /**
+     * Add an item to a list, unless it is already in the list. The test for pre-existence is a simple list lookup.
+     * If you want to do something more complex, perhaps #addWithFunction might help.
+     * @param list List to add the item to
+     * @param item Item to add
+     * @param insertAtHead Whether or not to insert at the start; defaults to false.
+     */
     function suggest(list, item, insertAtHead) {
         if (list.indexOf(item) === -1) {
             if (insertAtHead) {
@@ -307,10 +355,12 @@
         return false;
     }
     jsPlumbUtil.suggest = suggest;
-    //
-    // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
-    // class members, any of which may be null.
-    //
+    /**
+     * Extends the given obj (which can be an array) with the given constructor function, prototype functions, and class members, any of which may be null.
+     * @param child
+     * @param parent
+     * @param _protoFn
+     */
     function extend(child, parent, _protoFn) {
         var i;
         parent = isArray(parent) ? parent : [parent];
@@ -361,6 +411,9 @@
         return child;
     }
     jsPlumbUtil.extend = extend;
+    /**
+     * Generate a UUID.
+     */
     function uuid() {
         return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -368,6 +421,11 @@
         }));
     }
     jsPlumbUtil.uuid = uuid;
+    /**
+     * Trim a string.
+     * @param s String to trim
+     * @returns the String with leading and trailing whitespace removed.
+     */
     function fastTrim(s) {
         if (s == null) {
             return null;
@@ -406,7 +464,11 @@
                 return def;
             }
             else {
-                var d_1 = merge(parent, def);
+                var overrides = ["anchor", "anchors", "cssClass", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints"];
+                if (def.mergeStrategy === "override") {
+                    Array.prototype.push.apply(overrides, ["events", "overlays"]);
+                }
+                var d_1 = merge(parent, def, [], overrides);
                 return _one(_parent(parent), d_1);
             }
         };
