@@ -3920,7 +3920,7 @@
                         var _t = component._jsPlumb.instance.getType(tid, td);
                         if (_t != null) {
 
-                            var overrides = ["anchor", "anchors", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints", "connectorOverlays", "connectorStyle", "connectorHoverStyle"];
+                            var overrides = ["anchor", "anchors", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints", "connectorOverlays", "connectorStyle", "connectorHoverStyle", "endpointStyle", "endpointHoverStyle"];
                             var collations = [ ];
 
                             if (_t.mergeStrategy === "override") {
@@ -4312,7 +4312,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.10.3";
+        this.version = "2.11.0";
 
         this.Defaults = {
             Anchor: "Bottom",
