@@ -135,7 +135,25 @@
             <div id="docs">
                 
                 <div class="markdown-body">
-                    <h2>2.10.1</h2>
+                    <h2>2.11.0</h2>
+
+<ul>
+<li><p>updated util from Toolkit edition</p></li>
+<li><p>Changes to the way types are overridden/merged (not all backwards compatible):</p>
+
+<ul>
+<li>By default, every key in a type overrides previous types, with the exception of <code>cssClass</code>, <code>events</code> and <code>overlays</code>. Previously, only
+<code>connector</code> would override other types.  This meant that if you used any of the array variants to specify <code>anchor</code>,  the arrays 
+would be merged and the result would be nonsense.  It also meant that <code>paintStyle</code> and its variants would be merged at a 
+fine-grained level: you could specify <code>strokeWidth</code> in a parent and then <code>stroke</code> in a child. That is no longer possible.</li>
+<li>You can set <code>mergeStrategy:&quot;override&quot;</code> in a type now to indicate to jsPlumb that it should overwrite parent definitions of
+<code>events</code> and <code>overlays</code> rather than merge them with the child&#39;s values for them.</li>
+<li><code>cssClass</code> is still &quot;collated&quot; by default, ie. in a normal merge both child <code>cssClass</code> and parent <code>cssClass</code> values are
+retained. If you specify <code>mergeStrategy:&quot;override&quot;</code> then <code>cssClass</code> is strictly overridden and is not collated.</li>
+</ul></li>
+</ul>
+
+<h2>2.10.2</h2>
 
 <p>July 4th 2019</p>
 
