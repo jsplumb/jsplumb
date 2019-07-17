@@ -12,7 +12,7 @@
 
 A Type is a collection of attributes such as paint style, hover paint style, overlays etc - it is a subset, including most but not all, of the parameters you can set in an Endpoint or Connection definition. It also covers behavioural attributes such as `isSource` or `maxConnections` on Endpoints.
 
-An Endpoint or Connection can have zero or more Types assigned; they are merged as granularly as possible, in the order in which they were assigned. There is a supporting API with these methods:
+An Endpoint or Connection can have zero or more Types assigned; they are merged in the order in which they were assigned. There is a supporting API with these methods:
 
 - **hasType**
 - **addType**
@@ -57,7 +57,7 @@ jsPlumb.registerConnectionTypes({
   },
   "selected":{
     paintStyle:{ stroke:"red", strokeWidth:5 },
-    hoverPaintStyle:{ strokeWidth: 7 },
+    hoverPaintStyle:{ strokeWidth: 17, stroke:"red" },
     cssClass:"connector-selected"
   }	
 });
@@ -71,9 +71,8 @@ c.bind("click", function() {
 
 Notice here how we used a different method -`registerConnectionTypes` - to register a few Types at once.
 
-Notice also the `hoverPaintStyle` for the `selected` Type: it declares only a `strokeWidth`.  As mentioned above, Types 
-are merged with as much granularity as possible, so that means that in this case the `strokeWidth` value from `selected` 
-will be merged into the `hoverPaintStyle` from `basic`, and voila, red, 7 pixels.
+**Note** from version 2.11.0 onwards, paint styles are no longer merged. `paintStyle`, `hoverPaintStyle`, `endpointStyle`, `endpointHoverStyle` `connectorStyle` and `connectorHoverStyle` now
+override any corresponding values from types that have previously been applied. 
 
 These examples, of course, use the `jsPlumb.connect` method, but in many UIs Connections are created via drag and drop.  
 How would you assign that `basic` Type to a Connection created with drag and drop?  You provide it as the Endpoint's 
@@ -121,11 +120,14 @@ from the last Type that defines one.
 multiple types assign a CSS class, the UI artefact gets all of them written to it.
 - **parameters** - when you add/set a Type that has parameters, any existing parameters with the same keys will be 
 overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.
-- **overlays** - when you have multiple types applied to a Connection, you get the union of all the Overlays defined 
-across the various Types. **Note** when you create a Connection using jsPlumb.connect and you provide a 'type', that 
+- **overlays** - when you have multiple types applied to a Connection, by default you will get the union of all the Overlays defined 
+across the various Types. If you wish to override `overlays` you can set `mergeStrategy:"override"` on your type.  **Note** when you create a Connection 
+using jsPlumb.connect and you provide a 'type', that 
 is equivalent to calling 'addType': you will get the Overlays defined by the Type(s) you set as well as any others you 
 have provided to the constructor.
 - **endpoint** Only works with a type applied to a new Connection.  But very useful for that particular use case.
+- **mergeStrategy** Defaults to null, meaning `overlays` are merged with any overlays defined by previously applied types. If you set this to "override" then 
+you will get only the overlays defined by the most recently applied type.
 
 <a name="parameterized-connection-type"></a>
 ##### Parameterized Connection Types
@@ -244,8 +246,10 @@ from the last Type that defines one.
 to the UI artefact.
 - **parameters** - when you add/set a Type that has parameters, any existing parameters with the same keys will be 
 overwritten. When you remove a Type that has parameters, its parameters are NOT removed from the Connection.
-- **overlays** - when you have multiple Types applied to an Endpoint, you get the union of all the Overlays defined 
-across the various types.
+- **overlays** - when you have multiple Types applied to an Endpoint, by default you get the union of all the Overlays defined 
+across the various types. See `mergeStrategy` below.
+- **mergeStrategy** Defaults to null, meaning `overlays` are merged with any overlays defined by previously applied types. If you set this to "override" then 
+you will get only the overlays defined by the most recently applied type.
 
 **Note** There are two sets of parameters you can use to set paint styles for Endpoints - `endpointStyle`/`endpointHoverStyle` and `paintStyle`/`hoverPaintStyle`.  The idea behind this is that when you use the `endpoint..` versions, you can use a single object to define a Type that is shared between Endpoints and Connectors.
 	

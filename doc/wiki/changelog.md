@@ -51,7 +51,25 @@ for every scope that is assigned.
 - Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
 be supported on individual `draggable(..)` method calls.
  
-## 2.10.1
+## 2.11.0
+
+- updated util from Toolkit edition
+
+- Changes to the way types are overridden/merged (not all backwards compatible):
+
+    - By default, every key in a type overrides previous types, with the exception of `cssClass`, `events` and `overlays`. Previously, only
+    `connector` would override other types.  This meant that if you used any of the array variants to specify `anchor`,  the arrays 
+    would be merged and the result would be nonsense.  It also meant that `paintStyle` and its variants would be merged at a 
+    fine-grained level: you could specify `strokeWidth` in a parent and then `stroke` in a child. That is no longer possible.
+    
+    - You can set `mergeStrategy:"override"` in a type now to indicate to jsPlumb that it should overwrite parent definitions of
+    `events` and `overlays` rather than merge them with the child's values for them.
+    
+    - `cssClass` is still "collated" by default, ie. in a normal merge both child `cssClass` and parent `cssClass` values are
+    retained. If you specify `mergeStrategy:"override"` then `cssClass` is strictly overridden and is not collated.
+
+
+## 2.10.2
 
 July 4th 2019
 

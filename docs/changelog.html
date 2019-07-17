@@ -135,51 +135,25 @@
             <div id="docs">
                 
                 <div class="markdown-body">
-                    <h2>4.x alpha</h2>
+                    <h2>2.11.0</h2>
 
 <ul>
-<li>Rewrote in Typescript</li>
-<li>Major refactoring of the rendering pipeline</li>
-</ul>
-
-<p>This release focuses on performance enhancements, and contains several breaking changes.</p>
-
-<p>The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
-individually, we now use a single event listener on the container. </p>
-
-<h3>Breaking changes</h3>
+<li><p>updated util from Toolkit edition</p></li>
+<li><p>Changes to the way types are overridden/merged (not all backwards compatible):</p>
 
 <ul>
-<li><p>The <code>empty</code> method was removed.</p></li>
-<li><p><code>connector-pointer-events</code> not supported on Endpoint definitions.</p></li>
-<li><p><code>labelStyle</code> is no longer supported. Use <code>cssClass</code> and CSS tricks.</p></li>
-<li><p>By default, every node is draggable. <code>.draggable(someElement)</code> no longer exists.</p></li>
-<li><p>It is imperative that you provide the <code>container</code> for an instance of jsPlumb.  We no longer infer the container from the <code>offsetParent</code> of the
-first element to which an endpoint is added.</p></li>
-<li><p><code>manageElement</code> and <code>unmanageElement</code> events no longer fired by jsPlumb class. These were undocumented anyway, but we&#39;re calling it out
-in case you have code that used them.</p></li>
-<li><p>Managed elements do not have the <code>jtk-managed</code> class applied. They now have a <code>jtk-managed</code> attribute set on them. It is unlikely anyone was using this
-class but we include it here for completeness</p></li>
-<li><p>All defaults converted to camelCase instead of having a leading capital, eg. &quot;Anchors&quot; -&gt; &quot;anchors&quot;, &quot;ConnectionsDetachable&quot; -&gt; &quot;connectionsDetachable&quot;. This brings
-the defaults into line with the parameters used in method calls like <code>connect</code> and <code>addEndpoint</code> etc.</p></li>
-<li><p>The <code>LogEnabled</code> and <code>DoNotThrowErrors</code> defaults have been removed.</p></li>
-<li><p><code>getWidth</code> and <code>getHeight</code> methods removed from jsPlumb instance.</p></li>
-<li><p><code>updateClasses</code> method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.</p></li>
-<li><p><code>setClass</code> method removed from jsPlumb.</p></li>
-<li><p>It is not possible to subclass Connection or Endpoint to provide your own implementations now.</p></li>
-<li><p>Elements configured via <code>makeTarget</code> do not get assigned a <code>jtk-droppable</code> css class now. Instead, they are given a <code>jtk-target</code> attribute, as well as a <code>jtk-scope-**</code> attribute
-for every scope that is assigned.</p></li>
+<li>By default, every key in a type overrides previous types, with the exception of <code>cssClass</code>, <code>events</code> and <code>overlays</code>. Previously, only
+<code>connector</code> would override other types.  This meant that if you used any of the array variants to specify <code>anchor</code>,  the arrays 
+would be merged and the result would be nonsense.  It also meant that <code>paintStyle</code> and its variants would be merged at a 
+fine-grained level: you could specify <code>strokeWidth</code> in a parent and then <code>stroke</code> in a child. That is no longer possible.</li>
+<li>You can set <code>mergeStrategy:&quot;override&quot;</code> in a type now to indicate to jsPlumb that it should overwrite parent definitions of
+<code>events</code> and <code>overlays</code> rather than merge them with the child&#39;s values for them.</li>
+<li><code>cssClass</code> is still &quot;collated&quot; by default, ie. in a normal merge both child <code>cssClass</code> and parent <code>cssClass</code> values are
+retained. If you specify <code>mergeStrategy:&quot;override&quot;</code> then <code>cssClass</code> is strictly overridden and is not collated.</li>
+</ul></li>
 </ul>
 
-<h3>New Functionality</h3>
-
-<ul>
-<li><p><code>elementsDraggable</code> added to <code>Defaults</code>, with a default value of true.</p></li>
-<li><p>Added <code>drag:start</code>, <code>drag:move</code> and <code>drag:stop</code> events to jsPlumb class. These replace the <code>start</code>, <code>drag</code> and <code>stop</code> event handlers that used to
-be supported on individual <code>draggable(..)</code> method calls.</p></li>
-</ul>
-
-<h2>2.10.1</h2>
+<h2>2.10.2</h2>
 
 <p>July 4th 2019</p>
 
