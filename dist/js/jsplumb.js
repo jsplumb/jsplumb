@@ -3919,7 +3919,17 @@
                     if (tid !== "__default") {
                         var _t = component._jsPlumb.instance.getType(tid, td);
                         if (_t != null) {
-                            o = _ju.merge(o, _t, [ "cssClass" ], [ "connector" ]);
+
+                            var overrides = ["anchor", "anchors", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints", "connectorOverlays", "connectorStyle", "connectorHoverStyle"];
+                            var collations = [ ];
+
+                            if (_t.mergeStrategy === "override") {
+                                Array.prototype.push.apply(overrides, ["events", "overlays", "cssClass"]);
+                            } else {
+                                collations.push("cssClass");
+                            }
+
+                            o = _ju.merge(o, _t, collations, overrides);
                             _mapType(map, _t, tid);
                         }
                     }
@@ -4302,7 +4312,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.10.2";
+        this.version = "2.10.3";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -6740,6 +6750,8 @@
                 }
                 this.targetEndpointDefinitions = {};
                 this.sourceEndpointDefinitions = {};
+                this._connectionTypes = {};
+                this._endpointTypes = {};
                 connections.length = 0;
                 if (this.doReset) {
                     this.doReset();
