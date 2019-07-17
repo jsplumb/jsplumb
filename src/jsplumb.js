@@ -81,7 +81,17 @@
                     if (tid !== "__default") {
                         var _t = component._jsPlumb.instance.getType(tid, td);
                         if (_t != null) {
-                            o = _ju.merge(o, _t, [ "cssClass" ], [ "connector" ]);
+
+                            var overrides = ["anchor", "anchors", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints", "connectorOverlays", "connectorStyle", "connectorHoverStyle"];
+                            var collations = [ ];
+
+                            if (_t.mergeStrategy === "override") {
+                                Array.prototype.push.apply(overrides, ["events", "overlays", "cssClass"]);
+                            } else {
+                                collations.push("cssClass");
+                            }
+
+                            o = _ju.merge(o, _t, collations, overrides);
                             _mapType(map, _t, tid);
                         }
                     }
@@ -2902,6 +2912,8 @@
                 }
                 this.targetEndpointDefinitions = {};
                 this.sourceEndpointDefinitions = {};
+                this._connectionTypes = {};
+                this._endpointTypes = {};
                 connections.length = 0;
                 if (this.doReset) {
                     this.doReset();
