@@ -539,6 +539,10 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         if (currentContainer) {
             this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._connectorClick);
             this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._connectorDblClick);
+            this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._endpointClick);
+            this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._endpointDblClick);
+            this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._overlayClick);
+            this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._overlayDblClick);
         }
     }
 
@@ -548,5 +552,15 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         if (this.eventManager != null) {
             this._attachEventDelegates();
         }
+    }
+
+
+    reset(doNotUnbindInstanceEventListeners?: boolean): void {
+
+        if (!doNotUnbindInstanceEventListeners) {
+            this._detachEventDelegates();
+        }
+
+        super.reset(doNotUnbindInstanceEventListeners);
     }
 }
