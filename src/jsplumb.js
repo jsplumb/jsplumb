@@ -2912,8 +2912,6 @@
                 }
                 this.targetEndpointDefinitions = {};
                 this.sourceEndpointDefinitions = {};
-                this._connectionTypes = {};
-                this._endpointTypes = {};
                 connections.length = 0;
                 if (this.doReset) {
                     this.doReset();
