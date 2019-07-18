@@ -4312,7 +4312,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.11.0";
+        this.version = "2.11.1";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -6750,8 +6750,6 @@
                 }
                 this.targetEndpointDefinitions = {};
                 this.sourceEndpointDefinitions = {};
-                this._connectionTypes = {};
-                this._endpointTypes = {};
                 connections.length = 0;
                 if (this.doReset) {
                     this.doReset();

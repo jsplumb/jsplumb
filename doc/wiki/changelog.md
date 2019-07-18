@@ -1,4 +1,12 @@
+## 2.11.1
+
+July 18th 2019
+
+- fixed issue in reset method introduced in 2.11.0
+
 ## 2.11.0
+
+July 17th 2019
 
 - updated util from Toolkit edition
 
