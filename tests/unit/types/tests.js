@@ -1,5 +1,7 @@
 QUnit.config.reorder = false;
 
+var _jsPlumb, support;
+
 var defaults = null, _divs = [], support,
     _cleanup = function (_jsPlumb) {
         _jsPlumb.reset();
@@ -14,17 +16,17 @@ var defaults = null, _divs = [], support,
         document.getElementById("container").innerHTML = "";
     };
 
-var testSuite = function (_jsPlumb) {
+var testSuite = function () {
 
-    support = jsPlumbTestSupport.getInstance(_jsPlumb);
 
     module("Types", {
         teardown: function () {
             _cleanup(_jsPlumb);
         },
         setup: function () {
+            _jsPlumb = jsPlumb.getInstance({container:container});
+            support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
-            _jsPlumb.setContainer("container");
         }
     });
 
