@@ -51,7 +51,15 @@ for every scope that is assigned.
 - Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
 be supported on individual `draggable(..)` method calls.
  
+## 2.11.1
+
+July 18th 2019
+
+- fixed issue in reset method introduced in 2.11.0
+
 ## 2.11.0
+
+July 17th 2019
 
 - updated util from Toolkit edition
 
