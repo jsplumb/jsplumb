@@ -1,9 +1,69 @@
 # jsPlumb
 
-jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG and runs on all browsers
-from IE9 and later. 
+<strong>This is version 4.x alpha. It is a rewrite of the original jsPlumb in Typescript, and is currently a work in progress. Use this version in production at your own risk.</strong>
 
-The final version of jsPlumb to support IE8 was 1.7.10. You can still get 1.7.10 from a tag, if you need it. 
+It would be very helpful if existing users of jsPlumb could test this alpha version. There are a number of breaking backwards
+changes to be mindful of, though:
+
+```
+
+- The `empty` method was removed.
+
+- `connector-pointer-events` not supported on Endpoint definitions.
+
+- `labelStyle` is no longer supported. Use `cssClass` and CSS tricks.
+
+- By default, every node is draggable. The `.draggable(someElement)` method no longer exists.
+
+- It is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
+first element to which an endpoint is added.
+
+- `manageElement` and `unmanageElement` events no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
+ in case you have code that used them.
+ 
+- Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
+class but we include it here for completeness
+
+- All defaults converted to camelCase instead of having a leading capital, eg. "Anchors" -> "anchors", "ConnectionsDetachable" -> "connectionsDetachable". This brings
+the defaults into line with the parameters used in method calls like `connect` and `addEndpoint` etc.
+
+- The `LogEnabled` and `DoNotThrowErrors` defaults have been removed.
+
+- `getWidth` and `getHeight` methods removed from jsPlumb instance.
+
+- `updateClasses` method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.
+
+- `setClass` method removed from jsPlumb.
+
+- It is not possible to subclass Connection or Endpoint to provide your own implementations now.
+  
+- Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
+for every scope that is assigned.
+
+- jsPlumbUtil is no longer a static member on the window.
+``` 
+
+##### Imports
+
+Note that currently we are not bundling jsPlumb with its dependencies. You need to include these yourself (this is a temporary
+situation).  These are the imports for the demonstration pages:
+
+```html
+<script src="../../node_modules/biltong/src/biltong.js"></script>
+<script src="../../node_modules/mottle/js/mottle.js"></script>
+<script src="../../node_modules/katavorio/src/katavorio.js"></script>
+<script src="../../node_modules/jsbezier/js/jsbezier.js"></script>
+<script src="../../dist/js/jsplumb.js"></script>
+```
+
+
+##### Reporting issues
+
+If you find any issues, please report them using the `4.x-alpha` tag on Github.
+
+
+#### Introduction
+ 
 
 If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.github.io/jsplumb/). 
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.

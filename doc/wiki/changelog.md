@@ -43,6 +43,8 @@ the defaults into line with the parameters used in method calls like `connect` a
 - Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
 for every scope that is assigned.
 
+- jsPlumbUtil is no longer a static member on the window.
+
 
 ### New Functionality
 
