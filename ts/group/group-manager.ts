@@ -99,6 +99,10 @@ export class GroupManager<E> {
         return group as Group<E>;
     }
 
+    getGroupFor(el:E):Group<E> {
+        return el[Constants.GROUP_KEY];
+    }
+
     removeGroup(group:string | Group<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         let actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
@@ -221,7 +225,7 @@ export class GroupManager<E> {
         if (actualGroup == null || !actualGroup.collapsed) {
             return;
         }
-        var groupEl = actualGroup.el;
+        const groupEl = actualGroup.el;
 
         this._setGroupVisible(actualGroup, true);
 
@@ -329,6 +333,12 @@ export class GroupManager<E> {
         if (actualGroup) {
             actualGroup.remove(el, null, doNotFireEvent);
         }
+    }
+
+    reset() {
+        this._connectionSourceMap = {};
+        this._connectionTargetMap = {};
+        this.groupMap = {};
     }
 
 }
