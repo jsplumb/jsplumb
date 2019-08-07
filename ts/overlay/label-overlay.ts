@@ -6,6 +6,7 @@ import {PaintStyle} from "../styles";
 import {jsPlumbInstance, PointArray} from "../core";
 import {LabelOverlayRenderer} from "./overlay-renderer";
 import {OverlayFactory} from "../factory/overlay-factory";
+import * as Constants from "../constants";
 
 export class LabelOverlay<E> extends Overlay<E> {
 
