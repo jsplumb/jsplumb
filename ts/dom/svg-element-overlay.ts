@@ -29,7 +29,7 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
             _appendAtIndex(parent, this.path, 1);//params.paintStyle.outlineStroke ? 1 : 0);
         }
 
-        this.instance.addClass(<any>this.path, Constants.CLASS_OVERLAY);
+        this.instance.addClass(<any>this.path, this.instance.overlayClass);
 
         (<any>this.path).jtk = { overlay:overlay };
 
@@ -42,11 +42,11 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
     destroy(force?: boolean): void {
 
         if (this.path != null) {
-            this.instance.remove(<any>this.path);
+            this.path.parentNode.removeChild(this.path);
         }
 
         if (this.bgPath != null) {
-            this.instance.remove(<any>this.bgPath);
+            this.bgPath.parentNode.removeChild(this.bgPath);
         }
 
         this.path = null;
@@ -74,8 +74,7 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
         //     "pointer-events": "visibleStroke"
         // };
 
-        let clazz = "",//originalArgs && (originalArgs.length === 1) ? (originalArgs[0].cssClass || "") : "",
-            offset = [0, 0];
+        let offset = [0, 0];
 
         if (extents.xmin < 0) {
             offset[0] = -extents.xmin;
@@ -86,7 +85,6 @@ export abstract class SVGElementOverlay implements OverlayRenderer<HTMLElement> 
 
         let a = {
             "d": this.makePath(params.d),
-            "class": clazz,
             stroke: params.stroke ? params.stroke : null,
             fill: params.fill ? params.fill : null,
             transform: "translate(" + offset[0] + "," + offset[1] + ")",
