@@ -733,7 +733,7 @@ export class EndpointDragHandler implements DragHandler {
         // remove the element associated with the floating endpoint
         // (and its associated floating endpoint and visual artefacts)
         if (this.placeholderInfo && this.placeholderInfo.element) {
-            this.instance.remove(this.placeholderInfo.element);
+            this.placeholderInfo.element.parentNode.removeChild(this.placeholderInfo.element);
         }
         // remove the inplace copy
         if (this.inPlaceCopy) {
