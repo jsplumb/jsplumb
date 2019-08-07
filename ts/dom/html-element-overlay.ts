@@ -106,7 +106,7 @@ export class HTMLElementOverlay implements OverlayRenderer<HTMLElement> {
     destroy(force?: boolean): void {
         let el = this.getElement(this.overlay.component);
         if (el) {
-            this.instance.remove(el);
+            el.parentNode.removeChild(el);
         }
     }
 
