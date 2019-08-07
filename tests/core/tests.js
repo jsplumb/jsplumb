@@ -54,16 +54,11 @@ var testSuite = function (_jsPlumb) {
             _cleanup(_jsPlumb);
         },
         setup: function () {
-            _jsPlumb = jsPlumb.newInstance({container:container});
+            _jsPlumb = jsPlumb.newInstance({container:document.getElementById("container")});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
         }
     });
-
-    // setup the container
-    var container = document.createElement("div");
-    container.id = "container";
-    document.body.appendChild(container);
 
 
     test(" : getElement", function () {
@@ -1943,7 +1938,7 @@ var testSuite = function (_jsPlumb) {
         equal(c.getConnector().type, "Bezier", "connector is the default");
         c.setConnector(["Bezier", { curviness: 789 }]);
         equal(def.connector[1].curviness, 45, "curviness unchanged by setConnector call");
-        j.unbindContainer();
+        j.reset();
     });
 
     test(": setConnector, overlays are retained", function () {
@@ -1966,7 +1961,7 @@ var testSuite = function (_jsPlumb) {
         c.setConnector(["StateMachine", { curviness: 789 }]);
         equal(def.connector[1].curviness, 45, "curviness unchanged by setConnector call");
         equal(_length(c.getOverlays()), 1, "one overlay on the connector");
-        j.unbindContainer();
+        j.reset();
     });
 
 
@@ -3977,7 +3972,7 @@ var testSuite = function (_jsPlumb) {
 
         ok(v1 != v2, "instance versions are different : " + v1 + " : " + v2);
 
-        _jsp2.unbindContainer();
+        _jsp2.reset();
     });
 
     test(" id clashes between instances", function () {
@@ -4060,6 +4055,8 @@ var testSuite = function (_jsPlumb) {
         });
 
         ok(_jsPlumb.Defaults.anchors[0] == null, "still no anchors set after providing Anchors to an instance");
+
+        j.reset();
 
     });
 
@@ -5118,7 +5115,7 @@ var testSuite = function (_jsPlumb) {
             paintStyle: { stroke: "yellow", strokeWidth: 4 },
             hoverPaintStyle: { stroke: "blue" },
             overlays: [
-                "Arrow"
+                [ "Label", {id:"LBL", label:"${lbl}" } ]
             ],
             cssClass: "FOO"
         };
@@ -5138,47 +5135,51 @@ var testSuite = function (_jsPlumb) {
         });
 
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
-            c = _jsPlumb.connect({source: d1, target: d2, overlays:[  [ "Label", {id:"LBL", label:"${lbl}" } ] ]});
+            c = _jsPlumb.connect({source: d1, target: d2, overlays:[  "Arrow" ]});
 
         equal(_length(c.getOverlays()), 1, "connection has one overlay to begin with");
 
-        c.setType("basic", {lbl:"FOO"});
+        c.addType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
+        equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label set via setType parameter");
+        equal(_length(c.getOverlays()), 1, "one overlay after adding 'basic' type");
+
+        c.addType("basic", {lbl:"FOO"});
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().strokeWidth, 4, "connection has strokeWidth 4");
-        equal(_length(c.getOverlays()), 2, "two overlays after setting type to 'basic'");
-        equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label set via setType parameter");
-        ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was set on canvas");
+        equal(_length(c.getOverlays()), 1, "one overlay1 after setting type to 'basic'");
+
+        ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class was set on canvas");
 
         c.addType("other", {lbl:"BAZ"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
-        equal(_length(c.getOverlays()), 3, "three overlays after adding 'other' type");
-        ok(_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class is still set on canvas");
-        ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was set on canvas");
-        equal(c.getOverlay("LBL").getLabel(), "BAZ", "overlay's label updated via addType parameter is correct");
+        equal(_length(c.getOverlays()), 2, "two overlays after adding 'other' type");
+        ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class is still set on canvas");
+        ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "BAR"), "BAR class was set on canvas");
+        //equal(c.getOverlay("LBL").getLabel(), "BAZ", "overlay's label updated via addType parameter is correct");
 
         c.removeType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
         equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
-        equal(_length(c.getOverlays()), 2, "two overlays after removing 'basic' type");
-        ok(!_jsPlumb.hasClass(c.canvas, "FOO"), "FOO class was removed from canvas");
-        ok(_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class is still set on canvas");
-        equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label updated via removeType parameter is correct");
+        equal(_length(c.getOverlays()), 1, "one overlay after removing 'basic' type");
+        ok(!_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class was removed from canvas");
+        ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "BAR"), "BAR class is still set on canvas");
+        //equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label updated via removeType parameter is correct");
 
         c.toggleType("other");
         equal(c.hasType("other"), false, "connection does not have 'other' type");
         equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
         equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "connection has default strokeWidth");
         equal(_length(c.getOverlays()), 1, "one overlay after toggling 'other' type. this is the original overlay now.");
-        ok(!_jsPlumb.hasClass(c.canvas, "BAR"), "BAR class was removed from canvas");
+        ok(!_jsPlumb.hasClass(support.getConnectionCanvas(c), "BAR"), "BAR class was removed from canvas");
 
-        c.removeOverlay("LBL");
-        equal(_length(c.getOverlays()), 0, "zero overlays after removing the original overlay.");
+        // c.removeOverlay("LBL");
+        // equal(_length(c.getOverlays()), 0, "zero overlays after removing the original overlay.");
     });
 
     test("connection type tests, check overlays do not disappear", function () {
@@ -6338,13 +6339,6 @@ var testSuite = function (_jsPlumb) {
     test("setContainer does not cause multiple event registrations (issue 307)", function () {
         support.addDivs(["box1", "box2", "canvas"]);
 
-        var connection = _jsPlumb.connect({
-            source: 'box1',
-            id: 'connector1',
-            target: 'box2',
-            anchors: ['Bottom', 'Left']
-        });
-
         var clickCount = 0;
         var labelDef = {
             id: 'label-1',
@@ -6356,7 +6350,19 @@ var testSuite = function (_jsPlumb) {
                 }
             }
         };
-        var o = connection.addOverlay(['Label', labelDef]);
+
+        var connection = _jsPlumb.connect({
+            source: 'box1',
+            id: 'connector1',
+            target: 'box2',
+            anchors: ['Bottom', 'Left'],
+            overlays:[
+                [ 'Label', labelDef ]
+            ]
+        });
+
+
+        //var o = connection.addOverlay(['Label', labelDef]);
 
         _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
 
@@ -6367,9 +6373,6 @@ var testSuite = function (_jsPlumb) {
          _jsPlumb.importDefaults({
          container: 'canvas'
          });
-
-
-
 
 
         _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
@@ -6785,19 +6788,32 @@ var testSuite = function (_jsPlumb) {
 
 
     test("pluggable getSize", function() {
-        var j = jsPlumb.newInstance({container:container}, {
+        var j = jsPlumb.newInstance({
+            container:container
+        }, {
             getSize:function() { return [100,100]; }
         });
 
         var d = support.addDiv("d");
         equal(j.getSize(d)[0], 100, "width is set by pluggable function");
         equal(j.getSize(d)[1], 100, "height is set by pluggable function");
+
+        j.reset();
     });
 
+    test("pluggable getOffset", function() {
+        var j = jsPlumb.newInstance({
+            container:container
+        }, {
+            getOffset:function() { return {left:100, top:100}; }
+        });
 
+        var d = support.addDiv("d");
+        equal(j.getOffset(d).left, 100, "offset left is set by pluggable function");
+        equal(j.getOffset(d).top, 100, "offset top is set by pluggable function");
 
-
-
+        j.reset();
+    });
 
     test("endpoint deletion: no deletion by default", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);

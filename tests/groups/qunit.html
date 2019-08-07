@@ -11,14 +11,14 @@
         }
     </style>
 
-    <!-- JS -->
-    <script src="../../../dist/js/jsplumb.js"></script>
-    <!-- /JS -->
+    <script src="../../node_modules/mottle/js/mottle.js"></script>
+    <script src="../../node_modules/katavorio/src/katavorio.js"></script>
+    <script src="../../node_modules/biltong/src/biltong.js"></script>
+    <script src="../../node_modules/jsbezier/js/jsbezier.js"></script>
+    <script src="../../dist/jsplumb-rollup.js"></script>
 
-    <!-- TEST -->
     <script src="tests.js"></script>
     <script src="../test-support-dom.js"></script>
-    <!-- /TEST -->
 
 </head>
 <body>
@@ -27,6 +27,8 @@
 <div id="qunit-testrunner-toolbar"></div>
 <h2 id="qunit-userAgent"></h2>
 <ol id="qunit-tests"></ol>
+
+<div id="container"></div>
 
 <script type="text/javascript">
     jsPlumb.ready(testSuite);
