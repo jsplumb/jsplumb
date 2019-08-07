@@ -39,7 +39,7 @@ export interface ConnectionParams<E> {
     outlineStroke?:number;
     outlineWidth?:number;
     uuids?:[string, string];
-    drawEndpoints?:boolean;
+   // drawEndpoints?:boolean;
 
     deleteEndpointsOnEmpty?:boolean;
     detachable?:boolean;
@@ -185,13 +185,18 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             params.endpoints = params.endpoints || this.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
         }
 
-        let makeEndpoint = (isSource:boolean, el:E, elId:string, ep?:Endpoint<E>):Endpoint<E> => {
-            elId = elId || this._jsPlumb.instance.getId(el);
-            return this.prepareEndpoint(ep, isSource ? 0 : 1, el, elId, params);
-        };
+        this._jsPlumb.endpoint = params.endpoint;
+        this._jsPlumb.endpoints = params.endpoints;
+        this._jsPlumb.endpointStyle = params.endpointStyle;
+        this._jsPlumb.endpointHoverStyle = params.endpointHoverStyle;
+        this._jsPlumb.endpointStyles = params.endpointStyles;
+        this._jsPlumb.endpointHoverStyles = params.endpointHoverStyles;
+        this._jsPlumb.paintStyle = params.paintStyle;
+        this._jsPlumb.hoverPaintStyle = params.hoverPaintStyle;
+        this._jsPlumb.uuids = params.uuids;
 
-        let eS = makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
-            eT = makeEndpoint(false, this.target, this.targetId, params.targetEndpoint);
+        let eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
+            eT = this.makeEndpoint(false, this.target, this.targetId, params.targetEndpoint);
 
         if (eS) {
             addToList(instance.endpointsByElement, this.sourceId, eS);
@@ -290,6 +295,11 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.updateConnectedClass();
 
     }
+
+    makeEndpoint (isSource:boolean, el:E, elId:string, ep?:Endpoint<E>):Endpoint<E> {
+        elId = elId || this._jsPlumb.instance.getId(el);
+        return this.prepareEndpoint(ep, isSource ? 0 : 1, el, elId);
+    };
 
     getData () { return this.data; };
     setData (d:any) { this.data = d || {}; };
@@ -662,7 +672,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     //window.jtime("prepare endpoint");
 
         let e;
-        params = params || {};
+        params = <any>(params || this._jsPlumb);
 
         if (existing) {
             this.endpoints[index] = existing;
@@ -719,9 +729,9 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
             this.endpoints[index] = e;
 
-            if (params.drawEndpoints === false) {
-                e.setVisible(false, true, true);
-            }
+            // if (params.drawEndpoints === false) {
+            //     e.setVisible(false, true, true);
+            // }
 
         }
 
