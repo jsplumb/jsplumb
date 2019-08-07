@@ -3,6 +3,7 @@ import {AnchorSpec} from "./factory/anchor-factory";
 import {PaintStyle} from "./styles";
 import {OverlaySpec} from "./overlay/overlay";
 import {ConnectorSpec} from "./connector";
+import {Offset, Size} from "./core";
 
 export interface jsPlumbDefaults {
     endpoint?: EndpointSpec;
@@ -31,4 +32,9 @@ export interface jsPlumbDefaults {
     maxConnections?:number;
 
     hoverClass?:string;
+}
+
+export interface jsPlumbHelperFunctions<E> {
+    getSize?:(el:E) => Size;
+    getOffset?:(el:E|string, relativeToRoot?:boolean, container?:E) => Offset;
 }
