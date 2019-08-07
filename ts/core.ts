@@ -1,4 +1,4 @@
-import {jsPlumbDefaults} from "./defaults";
+import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults";
 import {ComponentParameters} from "./component/component";
 import {PaintStyle} from "./styles";
 import {Connection} from "./connector/connection-impl";
@@ -302,9 +302,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     _suspendDrawing:boolean = false;
     _suspendedAt:string = null;
 
-    targetEndpointDefinitions:Dictionary<any>= {};
-    sourceEndpointDefinitions:Dictionary<any> = {};
-
     connectorClass = "jtk-connector";
     connectorOutlineClass = "jtk-connector-outline";
     connectedClass = "jtk-connected";
@@ -350,6 +347,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     DEFAULT_SCOPE:string;
 
+    _helpers?:jsPlumbHelperFunctions<E>;
+
     _zoom:number = 1;
 
     abstract getElement(el:E|string):E;
@@ -371,8 +370,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     abstract getSelector(ctx:string | E, spec?:string):NodeListOf<any>;
     abstract getStyle(el:E, prop:string):any;
 
-    abstract getSize(el:E|string):Size;
-    abstract getOffset(el:E|string, relativeToRoot?:boolean, container?:E):Offset;
+    abstract _getSize(el:E):Size;
+    abstract _getOffset(el:E|string, relativeToRoot?:boolean, container?:E):Offset;
     abstract setPosition(el:E, p:Offset):void;
     abstract getUIPosition(eventArgs:any):Offset;
 
@@ -383,9 +382,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     abstract createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):E;
     abstract createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):E;
 
-    constructor(protected _instanceIndex:number, public renderer:Renderer<E>, defaults?:jsPlumbDefaults) {
+    constructor(protected _instanceIndex:number, public renderer:Renderer<E>, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions<E>) {
 
         super();
+
+        this._helpers = helpers || {};
 
         this.Defaults = {
             anchor: "Bottom",
@@ -420,6 +421,14 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.groupManager = new GroupManager(this);
 
         this.setContainer(this._initialDefaults.container);
+    }
+
+    getSize(el:E) {
+        return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el);
+    }
+
+    getOffset(el:E|string, relativeToRoot?:boolean, container?:E) {
+        return this._helpers.getOffset ? this._helpers.getOffset(el, relativeToRoot, container) : this._getOffset(el, relativeToRoot, container);
     }
 
     getContainer():E { return this._container; }
@@ -815,6 +824,83 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
 
     }
+
+
+    private _set (c:Connection<E>, el:E|Endpoint<E>, idx:number, doNotRepaint?:boolean):any {
+
+        const stTypes = [
+            { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
+            { el: "target", elId: "targetId", epDefs: Constants.TARGET_DEFINITION_LIST }
+        ];
+
+        let ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep,
+            oldEndpoint = c.endpoints[idx];
+
+        let evtParams = {
+            index: idx,
+            originalSourceId: idx === 0 ? cId : c.sourceId,
+            newSourceId: c.sourceId,
+            originalTargetId: idx === 1 ? cId : c.targetId,
+            newTargetId: c.targetId,
+            connection: c
+        };
+
+        if (el instanceof Endpoint) {
+            ep = el;
+            (<Endpoint<E>>ep).addConnection(c);
+            el = (<Endpoint<E>>ep).element;
+        }
+        else {
+            sid = this.getId(el);
+            sep = el[_st.epDefs] ? el[_st.epDefs][0] : null;
+
+            if (sid === c[_st.elId]) {
+                ep = null; // dont change source/target if the element is already the one given.
+            }
+            else if (sep) {
+
+                if (!sep.enabled) {
+                    return;
+                }
+                ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
+                if (sep.uniqueEndpoint) {
+                    sep.endpoint = ep;
+                }
+                ep.addConnection(c);
+            }
+            else {
+                ep = c.makeEndpoint(idx === 0, el, sid);
+            }
+        }
+
+        if (ep != null) {
+            oldEndpoint.detachFromConnection(c);
+            c.endpoints[idx] = ep;
+            c[_st.el] = ep.element;
+            c[_st.elId] = ep.elementId;
+            evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+
+            this.fireMoveEvent(evtParams);
+
+            if (!doNotRepaint) {
+                c.repaint();
+            }
+        }
+
+        (<any>evtParams).element = el;
+        return evtParams;
+
+    }
+
+    setSource (connection:Connection<E>, el:E|Endpoint<E>, doNotRepaint?:boolean):void {
+        let p = this._set(connection, el, 0, doNotRepaint);
+        this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
+    }
+
+    setTarget (connection:Connection<E>, el:E|Endpoint<E>, doNotRepaint?:boolean):void {
+        let p = this._set(connection, el, 1, doNotRepaint);
+        this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
+    };
 
     isHoverSuspended() { return this.hoverSuspended; }
 
@@ -1337,6 +1423,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     reset (doNotUnbindInstanceEventListeners?:boolean):void {
         this.silently(() => {
+            this.groupManager.reset();
             this.deleteEveryEndpoint();
 
             this._connectionTypes = {};
@@ -1466,7 +1553,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         // check for makeSource/makeTarget specs.
 
-        let _oneElementDef = (type:string, idx:number, defs?:any, matchType?:string) => {
+        let _oneElementDef = (type:string, idx:number, matchType?:string) => {
             // `type` is "source" or "target". Check that it exists, and is not already an Endpoint.
             if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
 
@@ -1519,10 +1606,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             }
         };
 
-        if (_oneElementDef(Constants.SOURCE, 0, this.sourceEndpointDefinitions, _p.type || Constants.DEFAULT) === false) {
+        if (_oneElementDef(Constants.SOURCE, 0, _p.type || Constants.DEFAULT) === false) {
             return;
         }
-        if (_oneElementDef(Constants.TARGET, 1, this.targetEndpointDefinitions, _p.type || Constants.DEFAULT) === false) {
+        if (_oneElementDef(Constants.TARGET, 1, _p.type || Constants.DEFAULT) === false) {
             return;
         }
 
@@ -1536,7 +1623,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     _newConnection (params:any):Connection<E> {
-        params._jsPlumb = this;
         params.id = "con_" + this._idstamp();
         return new Connection(this, params);
     }
@@ -1824,7 +1910,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope));
             this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
 
-            this.sourceEndpointDefinitions[elid] = this.sourceEndpointDefinitions[elid] || {};
             (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST] = (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST] || [];
 
             // TODO find the interface that pertains to this
@@ -1838,7 +1923,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
             if (p.createEndpoint) {
                 _def.uniqueEndpoint = true;
-                _def.endpoint = this.addEndpoint(_del, _def.def)[0];
+                _def.endpoint = this.addEndpoint(_del, _def.def);
                 _def.endpoint.deleteOnEmpty = false;
             }
 
@@ -1850,6 +1935,47 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.each(el, _one);
 
         return this;
+    }
+
+    private _getScope(el:E|string, defKey:string):string {
+        let elInfo = this._info(el);
+        if (elInfo.el && elInfo.el[defKey] && elInfo.el[defKey].length > 0) {
+            return elInfo.el[defKey][0].def.scope;
+        } else {
+            return null;
+        }
+    }
+
+    getSourceScope(el:E|string):string {
+        return this._getScope(el, Constants.SOURCE_DEFINITION_LIST);
+    }
+
+    getTargetScope(el:E|string):string {
+        return this._getScope(el, Constants.TARGET_DEFINITION_LIST);
+    }
+
+    getScope(el:E|string):string {
+        return this.getSourceScope(el) || this.getTargetScope(el);
+    }
+
+    private _setScope(el:E|string, scope:string, defKey:string):void {
+        let elInfo = this._info(el);
+        if (elInfo.el && elInfo.el[defKey]) {
+            elInfo.el[defKey].forEach((def:any) => def.def.scope = scope);
+        }
+    }
+
+    setSourceScope(el:E|string, scope:string):void {
+        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST);
+    }
+
+    setTargetScope(el:E|string, scope:string):void {
+        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST);
+    }
+
+    setScope(el:E|string, scope:string):void {
+        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST);
+        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST);
     }
 
     makeTarget (el:ElementSpec<E>, params:any, referenceParams?:any):jsPlumbInstance<E> {
@@ -1893,7 +2019,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
             if (p.createEndpoint) {
                 _def.uniqueEndpoint = true;
-                _def.endpoint = this.addEndpoint(elInfo.el, _def.def)[0];
+                _def.endpoint = this.addEndpoint(elInfo.el, _def.def);
                 _def.endpoint.deleteOnEmpty = false;
             }
 
@@ -2127,6 +2253,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
 // ------------------------ GROUPS --------------
 
+    getGroup(id:string) { return this.groupManager.getGroup(id); }
+    getGroupFor(el:E) { return this.groupManager.getGroupFor(el); }
     addGroup(params:any) { return this.groupManager.addGroup(params); }
     addToGroup(group:string | Group<E>, el:E | Array<E>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
 
