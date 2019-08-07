@@ -101,11 +101,6 @@ export abstract class Overlay<E> extends EventGenerator {
     }
 
     destroy(force?: boolean): void {
-        let e = this.renderer.getElement(this.component);
-        for (let event in this.events) {
-            this.instance.off(e, event, this.events[event]);
-        }
-
         this.renderer.destroy(force);
     }
 
@@ -139,6 +134,22 @@ export abstract class Overlay<E> extends EventGenerator {
 
         return this.renderer.paint(params, extents);
 
+    }
+
+    private _postComponentEvent(eventName:string, originalEvent:Event) {
+        this.instance.fire(eventName, this.component, originalEvent);
+    }
+
+    click(e:Event) {
+        this.fire("click", e);
+        let eventName = this.component instanceof Connection ? "click" : "endpointClick";
+        this._postComponentEvent(eventName, e);
+    }
+
+    dblClick(e:Event) {
+        this.fire("click", e);
+        let eventName = this.component instanceof Connection ? "dblclick" : "endpointDblClick";
+        this._postComponentEvent(eventName, e);
     }
 
 }
