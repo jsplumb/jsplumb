@@ -14,8 +14,8 @@ export default [
     {
         input: './ts/index.ts',
         output: {
-            name: 'jsplumb-rollup',
-            file: 'dist/jsplumb-rollup.js',
+            name: 'jsplumb',
+            file: 'dist/js/jsplumb.js',
             format: 'umd'
         },
         plugins: [
