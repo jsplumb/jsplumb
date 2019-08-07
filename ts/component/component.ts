@@ -45,8 +45,12 @@ export type ComponentConfig<E> = {
     reattach?:boolean;
     maxConnections?:number;
 
+    uuids?:[string, string];
+
     endpoint?:EndpointSpec;
     endpoints?:[EndpointSpec, EndpointSpec];
+    endpointStyle?:PaintStyle;
+    endpointHoverStyle?:PaintStyle;
     endpointStyles?:[PaintStyle, PaintStyle];
     endpointHoverStyles?:[PaintStyle, PaintStyle];
 
