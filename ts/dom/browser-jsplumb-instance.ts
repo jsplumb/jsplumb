@@ -1,4 +1,4 @@
-import {jsPlumbDefaults} from "../defaults";
+import {jsPlumbDefaults, jsPlumbHelperFunctions} from "../defaults";
 import {Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
 import {fastTrim, isArray, isString, log} from "../util";
@@ -6,7 +6,7 @@ import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
 import {GroupDragHandler} from "./group-drag-handler";
-import {findParent} from "../browser-util";
+import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
 
 declare const Mottle:any;
@@ -124,12 +124,7 @@ function _touches (e:Event):Array<Touch> {
 
 // ------------------------------------------------------------------------------------------------------------
 
-const connectorSelector = Constants.cls(Constants.CLASS_CONNECTOR);
-const endpointSelector = Constants.cls(Constants.CLASS_ENDPOINT);
-const overlaySelector = Constants.cls(Constants.CLASS_OVERLAY);
-
 export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
-
 
     dragManager:DragManager;
     _connectorClick:Function;
@@ -139,8 +134,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     _overlayClick:Function;
     _overlayDblClick:Function;
 
-    constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
-        super(_instanceIndex, new BrowserRenderer(), defaults);
+    constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>) {
+        super(_instanceIndex, new BrowserRenderer(), defaults, helpers);
         this.eventManager = new Mottle();
         this.dragManager = new DragManager(this);
 
@@ -149,49 +144,62 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.dragManager.addHandler(new ElementDragHandler(this));
 
         this._connectorClick = function(e:any) {
-            console.log("connector click " + e);
-            let connectorElement = findParent(e.srcElement || e.target, connectorSelector, this.getContainer());
-            console.log(connectorElement);
-            this.fire(Constants.EVENT_CLICK, (<any>connectorElement).jtk.connector.connection, e);
+            if (!e.defaultPrevented) {
+                console.log("connector click " + e + " " + this._instanceIndex);
+                let connectorElement = findParent(e.srcElement || e.target, Constants.SELECTOR_CONNECTOR, this.getContainer());
+                console.log(connectorElement);
+                this.fire(Constants.EVENT_CLICK, (<any>connectorElement).jtk.connector.connection, e);
+            }
         }.bind(this);
 
         this._connectorDblClick = function(e:any) {
-            console.log("connector dbl click " + e);
-            let connectorElement = findParent(e.srcElement || e.target, connectorSelector, this.getContainer());
-            console.log(connectorElement);
-            this.fire(Constants.EVENT_DBL_CLICK, (<any>connectorElement).jtk.connector.connection, e);
+            if (!e.defaultPrevented) {
+                console.log("connector dbl click " + e + " " + this._instanceIndex);
+                let connectorElement = findParent(e.srcElement || e.target, Constants.SELECTOR_CONNECTOR, this.getContainer());
+                console.log(connectorElement);
+                this.fire(Constants.EVENT_DBL_CLICK, (<any>connectorElement).jtk.connector.connection, e);
+            }
         }.bind(this);
 
         this._endpointClick = function(e:any) {
-            console.log("endpoint click " + e);
-            let endpointElement = findParent(e.srcElement || e.target, endpointSelector, this.getContainer());
-            console.log(endpointElement);
-            this.fire(Constants.EVENT_ENDPOINT_CLICK, (<any>endpointElement).jtk.endpoint, e);
+            if (!e.defaultPrevented) {
+                console.log("endpoint click " + e + " " + this._instanceIndex);
+                let endpointElement = findParent(e.srcElement || e.target, Constants.SELECTOR_ENDPOINT, this.getContainer());
+                console.log(endpointElement);
+                this.fire(Constants.EVENT_ENDPOINT_CLICK, (<any>endpointElement).jtk.endpoint, e);
+            }
         }.bind(this);
 
         this._endpointDblClick = function(e:any) {
-            console.log("endpoint dbl click " + e);
-            let endpointElement = findParent(e.srcElement || e.target, endpointSelector, this.getContainer());
-            console.log(endpointElement);
-            this.fire(Constants.EVENT_ENDPOINT_DBL_CLICK, (<any>endpointElement).jtk.endpoint, e);
+            if (!e.defaultPrevented) {
+                console.log("endpoint dbl click " + e + " " + this._instanceIndex);
+                let endpointElement = findParent(e.srcElement || e.target, Constants.SELECTOR_ENDPOINT, this.getContainer());
+                console.log(endpointElement);
+                this.fire(Constants.EVENT_ENDPOINT_DBL_CLICK, (<any>endpointElement).jtk.endpoint, e);
+            }
         }.bind(this);
 
         this._overlayClick = function(e:any) {
-            console.log("overlay click " + e);
-            let overlayElement = findParent(e.srcElement || e.target, overlaySelector, this.getContainer());
+            consume(e);
+            console.log("overlay click " + e + " " + this._instanceIndex);
+            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
             console.log(overlayElement);
             let overlay = (<any>overlayElement).jtk.overlay;
-            this.fire(Constants.EVENT_CLICK, overlay.component, e);
-            overlay.fire("click", e);
+            //this.fire(Constants.EVENT_CLICK, overlay.component, e);
+            //overlay.fire("click", e);
+            overlay.click(e);
+
         }.bind(this);
 
         this._overlayDblClick = function(e:any) {
-            console.log("overlay dbl click " + e);
-            let overlayElement = findParent(e.srcElement || e.target, overlaySelector, this.getContainer());
+            consume(e);
+            console.log("overlay dbl click " + e + " " + this._instanceIndex);
+            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
             console.log(overlayElement);
             let overlay = (<any>overlayElement).jtk.overlay;
-            this.fire(Constants.EVENT_DBL_CLICK, overlay.component, e);
-            overlay.fire("dblclick", e);
+            //this.fire(Constants.EVENT_DBL_CLICK, overlay.component, e);
+            //overlay.fire("dblclick", e);
+            overlay.dblClick(e);
         }.bind(this);
 
         this._attachEventDelegates();
@@ -343,7 +351,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.eventManager.trigger(el, event, originalEvent, payload);
     }
 
-    getOffset(el:HTMLElement, relativeToRoot?:boolean, container?:HTMLElement):Offset {
+    _getOffset(el:HTMLElement, relativeToRoot?:boolean, container?:HTMLElement):Offset {
      //   window.jtime("get offset");
         //console.log("get offset arg was " + el);
         //el = jsPlumb.getElement(el);
@@ -382,7 +390,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         return out;
     }
 
-    getSize(el:HTMLElement):Size {
+    _getSize(el:HTMLElement):Size {
         return [ el.offsetWidth, el.offsetHeight ];
     }
 
@@ -520,18 +528,14 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         Mottle.consume(e);
     }
 
-
     private _attachEventDelegates() {
-
-        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, overlaySelector, this._overlayClick);
-        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, overlaySelector, this._overlayDblClick);
-
-        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, connectorSelector, this._connectorClick);
-        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, connectorSelector, this._connectorDblClick);
-        this.eventManager.on(this.getContainer(), Constants.EVENT_CLICK, endpointSelector, this._endpointClick);
-        this.eventManager.on(this.getContainer(), Constants.EVENT_DBL_CLICK, endpointSelector, this._endpointDblClick);
-
-
+        let currentContainer = this.getContainer();
+        this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_OVERLAY, this._overlayClick);
+        this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_OVERLAY, this._overlayDblClick);
+        this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_CONNECTOR, this._connectorClick);
+        this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_CONNECTOR, this._connectorDblClick);
+        this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_ENDPOINT, this._endpointClick);
+        this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_ENDPOINT, this._endpointDblClick);
     }
 
     private _detachEventDelegates() {
