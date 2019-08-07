@@ -2,6 +2,7 @@ import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./dom/browser-jspl
 import {extend} from "./core";
 
 import {_node, _attr, _pos} from "./svg/svg-util";
+import {jsPlumbHelperFunctions} from "./defaults";
 
 export * from "./constants";
 export * from "./core";
@@ -92,11 +93,9 @@ function getInstanceIndex ():number {
  */
 if(typeof window !== "undefined") {
 
-    //let c:Connection<any> = new Connection(null, null);
-
     (<any>window).jsPlumb = {
-        newInstance:(defaults?:BrowserJsPlumbDefaults):BrowserJsPlumbInstance => {
-            return new BrowserJsPlumbInstance(getInstanceIndex(), defaults);
+        newInstance:(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>):BrowserJsPlumbInstance => {
+            return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers);
         },
         ready:(f:Function) => {
             const _do = function () {
