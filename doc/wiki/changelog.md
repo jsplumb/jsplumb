@@ -1,3 +1,9 @@
+## 2.11.2
+
+August 7th 2019
+
+- added `snapToGrid()` method to jsPlumb instance.
+
 ## 2.11.1
 
 July 18th 2019
