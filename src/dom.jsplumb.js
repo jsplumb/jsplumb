@@ -728,10 +728,13 @@
             return this;
         },
         snapToGrid : function(el, x, y) {
+            var out = [];
             var _oneEl = function(_el) {
                 var info = this.info(_el);
                 if (info.el != null && info.el._katavorioDrag) {
-                    info.el._katavorioDrag.snap(x, y);
+                    var snapped = info.el._katavorioDrag.snap(x, y);
+                    this.revalidate(info.el);
+                    out.push([info.el, snapped]);
                 }
             }.bind(this);
 
@@ -745,6 +748,8 @@
                     _oneEl(mel, arguments[0], arguments[1]);
                 }
             }
+
+            return out;
         },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
