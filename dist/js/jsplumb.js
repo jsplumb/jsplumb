@@ -4312,7 +4312,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.11.1";
+        this.version = "2.11.2";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -15291,6 +15291,12 @@
                 }
             }.bind(this));
             return this;
+        },
+        snapToGrid : function(el, x, y) {
+            var info = this.info(el);
+            if (info.el != null && info.el._katavorioDrag) {
+                info.el._katavorioDrag.snap(x, y);
+            }
         },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
