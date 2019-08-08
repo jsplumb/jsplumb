@@ -1794,9 +1794,11 @@
             y = y || (this.params.grid ? this.params.grid[1] : DEFAULT_GRID_Y);
             var p = this.params.getPosition(dragEl),
                 tx = this.params.grid ? this.params.grid[0] / 2 : snapThreshold,
-                ty = this.params.grid ? this.params.grid[1] / 2 : snapThreshold;
+                ty = this.params.grid ? this.params.grid[1] / 2 : snapThreshold,
+                snapped = _snap(p, x, y, tx, ty);
 
-            this.params.setPosition(dragEl, _snap(p, x, y, tx, ty));
+            this.params.setPosition(dragEl, snapped);
+            return snapped;
         };
 
         this.setUseGhostProxy = function(val) {
@@ -8858,9 +8860,9 @@
 
 // INITIALISATION CODE
 
-        this.makeEndpoint = function (isSource, el, elId, ep) {
+        this.makeEndpoint = function (isSource, el, elId, ep, definition) {
             elId = elId || this._jsPlumb.instance.getId(el);
-            return this.prepareEndpoint(_jsPlumb, _newEndpoint, this, ep, isSource ? 0 : 1, params, el, elId);
+            return this.prepareEndpoint(_jsPlumb, _newEndpoint, this, ep, isSource ? 0 : 1, params, el, elId, definition);
         };
 
         // if type given, get the endpoint definitions mapping to that type from the jsplumb instance, and use those.
@@ -9294,7 +9296,7 @@
             p.elId = this.sourceId;
             this.paint(p);
         },
-        prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
+        prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId, definition) {
             var e;
             if (existing) {
                 conn.endpoints[index] = existing;
@@ -9303,7 +9305,7 @@
                 if (!params.endpoints) {
                     params.endpoints = [ null, null ];
                 }
-                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
+                var ep = definition || params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
                 if (!params.endpointStyles) {
                     params.endpointStyles = [ null, null ];
                 }
@@ -9358,6 +9360,23 @@
 
             }
             return e;
+        },
+        replaceEndpoint:function(idx, endpointDef) {
+
+            var current = this.endpoints[idx],
+                elId = current.elementId,
+                ebe = this._jsPlumb.instance.getEndpoints(elId),
+                _idx = ebe.indexOf(current),
+                _new = this.makeEndpoint(idx === 0, current.element, elId, null, endpointDef);
+
+            this.endpoints[idx] = _new;
+
+            ebe.splice(_idx, 1, _new);
+            this._jsPlumb.instance.deleteObject({endpoint:current, deleteAttachedObjects:false});
+            this._jsPlumb.instance.fire("endpointReplaced", {previous:current, current:_new});
+
+            this._jsPlumb.instance.anchorManager.updateOtherEndpoint(this.endpoints[0].elementId, this.endpoints[1].elementId, this.endpoints[1].elementId, this);
+
         }
 
     }); // END Connection class            
@@ -15293,10 +15312,28 @@
             return this;
         },
         snapToGrid : function(el, x, y) {
-            var info = this.info(el);
-            if (info.el != null && info.el._katavorioDrag) {
-                info.el._katavorioDrag.snap(x, y);
+            var out = [];
+            var _oneEl = function(_el) {
+                var info = this.info(_el);
+                if (info.el != null && info.el._katavorioDrag) {
+                    var snapped = info.el._katavorioDrag.snap(x, y);
+                    this.revalidate(info.el);
+                    out.push([info.el, snapped]);
+                }
+            }.bind(this);
+
+            // if you call this method with 0 arguments or 2 arguments it is assumed you want to snap all managed elements to
+            // a grid. if you supply one argument or 3, then you are assumed to be specifying one element.
+            if(arguments.length === 1 || arguments.length === 3) {
+                _oneEl(el, x, y);
+            } else {
+                var _me = this.getManagedElements();
+                for (var mel in _me) {
+                    _oneEl(mel, arguments[0], arguments[1]);
+                }
             }
+
+            return out;
         },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);

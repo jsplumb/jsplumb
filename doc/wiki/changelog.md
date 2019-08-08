@@ -3,6 +3,7 @@
 August 7th 2019
 
 - added `snapToGrid()` method to jsPlumb instance.
+- added `replaceEndpoint()` method to Connection.
 
 ## 2.11.1
 
