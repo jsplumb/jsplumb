@@ -728,9 +728,22 @@
             return this;
         },
         snapToGrid : function(el, x, y) {
-            var info = this.info(el);
-            if (info.el != null && info.el._katavorioDrag) {
-                info.el._katavorioDrag.snap(x, y);
+            var _oneEl = function(_el) {
+                var info = this.info(_el);
+                if (info.el != null && info.el._katavorioDrag) {
+                    info.el._katavorioDrag.snap(x, y);
+                }
+            }.bind(this);
+
+            // if you call this method with 0 arguments or 2 arguments it is assumed you want to snap all managed elements to
+            // a grid. if you supply one argument or 3, then you are assumed to be specifying one element.
+            if(arguments.length === 1 || arguments.length === 3) {
+                _oneEl(el, x, y);
+            } else {
+                var _me = this.getManagedElements();
+                for (var mel in _me) {
+                    _oneEl(mel, arguments[0], arguments[1]);
+                }
             }
         },
         initDraggable: function (el, options, category) {
