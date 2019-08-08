@@ -53,6 +53,13 @@ for every scope that is assigned.
 - Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
 be supported on individual `draggable(..)` method calls.
  
+## 2.11.2
+
+August 7th 2019
+
+- added `snapToGrid()` method to jsPlumb instance.
+- added `replaceEndpoint()` method to Connection.
+
 ## 2.11.1
 
 July 18th 2019
