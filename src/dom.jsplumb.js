@@ -727,6 +727,12 @@
             }.bind(this));
             return this;
         },
+        snapToGrid : function(el, x, y) {
+            var info = this.info(el);
+            if (info.el != null && info.el._katavorioDrag) {
+                info.el._katavorioDrag.snap(x, y);
+            }
+        },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
             el._jsPlumbDragOptions = options;
