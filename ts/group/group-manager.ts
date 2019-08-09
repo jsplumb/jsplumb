@@ -267,11 +267,11 @@ export class GroupManager<E> {
             let groupEl = actualGroup.el;
 
             const _one = (el:E) => {
-                if (el[Constants.GROUP_KEY] != null) {
+                if (el[Constants.IS_GROUP_KEY] != null) {
                     console.log("the thing being added is a group! is it possible to support nested groups")
                 }
 
-                let currentGroup = el[Constants.IS_GROUP_KEY];
+                let currentGroup = el[Constants.GROUP_KEY];
                 // if already a member of this group, do nothing
                 if (currentGroup !== actualGroup) {
                     let elpos = this.instance.getOffset(el, true);
@@ -282,7 +282,7 @@ export class GroupManager<E> {
                         currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
                         this._updateConnectionsForGroup(currentGroup);
                     }
-                    actualGroup.add(el, doNotFireEvent/*, currentGroup*/);
+                    actualGroup.add(el, doNotFireEvent);
 
                     const handleDroppedConnections = (list:ConnectionSelection<E>, index:number) => {
                         let oidx = index === 0 ? 1 : 0;
