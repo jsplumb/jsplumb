@@ -47,6 +47,7 @@ export class Group<E> {
     constructor(public instance:jsPlumbInstance<E>, el:E, options:GroupOptions) {
         this.el = el;
         this.el[Constants.IS_GROUP_KEY] = true;
+        this.el[Constants.GROUP_KEY] = this;
         this.revert = options.revert !== false;
         this.droppable = options.droppable !== false;
         this.ghost = options.ghost === true;
@@ -127,7 +128,7 @@ export class Group<E> {
                 }
             }
             if (!doNotFireEvent) {
-                var p = {group: this, el: __el};
+                const p = {group: this, el: __el};
                 if (targetGroup) {
                     (<any>p).targetGroup = targetGroup;
                 }
