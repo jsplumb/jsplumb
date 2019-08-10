@@ -10,6 +10,7 @@ import { FloatingAnchor } from "../anchor/floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {consume, findParent} from "../browser-util";
+import * as Constants from "../constants";
 
 declare const Biltong:any;
 
@@ -395,16 +396,28 @@ export class EndpointDragHandler implements DragHandler {
             }
         
         });
-        
-        console.log(this.endpointDropTargets);
+
         this.endpointDropTargets.sort((a:any, b:any) =>{
-            if (a.rank != null && b.rank != null) {
-                return a.rank > b.rank ? -1 : a.rank < b.rank ? 1 : 0;
+
+            if (a.el[Constants.IS_GROUP_KEY] && !b.el[Constants.IS_GROUP_KEY]) {
+                return 1;
+            } else if (!a.el[Constants.IS_GROUP_KEY] && b.el[Constants.IS_GROUP_KEY]) {
+                return -1;
             } else {
-                return 0;
+                if (a.rank != null && b.rank != null) {
+                    if(a.rank > b.rank) {
+                        return -1;
+                    } else if (a.rank < b.rank) {
+                        return 1;
+                    } else {
+
+                    }
+                } else {
+                    return 0;
+                }
             }
+
         });
-        console.log(this.endpointDropTargets);
         
         this.ep.setHover(false, false);
         
