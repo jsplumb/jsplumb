@@ -131,109 +131,111 @@ var testSuite = function (_jsPlumb) {
         }
     };
 
-    test("groups, simple access", function() {
+    // test("groups, simple access", function() {
+    //
+    //     _setupGroups();
+    //
+    //     // check a group has members
+    //     equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four");
+    //     equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
+    //     // check an unknown group throws an error
+    //     try {
+    //         _jsPlumb.getGroup("unknown");
+    //         ok(false, "should not have been able to retrieve unknown group");
+    //     }
+    //     catch (e) {
+    //         ok(true, "unknown group retrieve threw exception");
+    //     }
+    //
+    //     // group4 is at [1000, 400]
+    //     // its children are
+    //
+    //     equal(parseInt(c4.style.left), 1000, "c4 at 1000 left");
+    //     equal(parseInt(c4.style.top), 400, "c4 at 400 top");
+    //     equal(parseInt(c4_1.style.left), 30, "c4_1 at 30 left");
+    //     equal(parseInt(c4_1.style.top), 30, "c4_1 at 30 top");
+    //     equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
+    //     equal(parseInt(c4_2.style.top), 130, "c4_2 at 130 top");
+    //
+    //
+    //     _jsPlumb.removeGroup("four", false);
+    //     try {
+    //         _jsPlumb.getGroup("four");
+    //         ok(false, "should not have been able to retrieve removed group");
+    //     }
+    //     catch (e) {
+    //         ok(true, "removed group subsequent retrieve threw exception");
+    //     }
+    //     ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+    //     // check positions of child nodes; they should have been adjusted.
+    //     equal(parseInt(c4_1.style.left), 1030, "c4_1 at 1030 left");
+    //     equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
+    //     equal(parseInt(c4_2.style.left), 1180, "c4_2 at 1180 left");
+    //     equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
+    //
+    //
+    //     _jsPlumb.removeGroup("five", true);
+    //     try {
+    //         _jsPlumb.getGroup("five");
+    //         ok(false, "should not have been able to retrieve removed group");
+    //     }
+    //     catch (e) {
+    //         ok(true, "removed group subsequent retrieve threw exception");
+    //     }
+    //     ok(c5_1.parentNode == null, "c5_1 removed from DOM because group 5 also removes its children on group removal");
+    //
+    //     // reset: all groups should be removed
+    //     _jsPlumb.reset();
+    //     try {
+    //         _jsPlumb.getGroup("three");
+    //         ok(false, "should not have been able to retrieve group after reset");
+    //     }
+    //     catch (e) {
+    //         ok(true, "retrieve group after reset threw exception");
+    //     }
+    //
+    // });
 
-        _setupGroups();
-
-        // check a group has members
-        equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four");
-        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
-        // check an unknown group throws an error
-        try {
-            _jsPlumb.getGroup("unknown");
-            ok(false, "should not have been able to retrieve unknown group");
-        }
-        catch (e) {
-            ok(true, "unknown group retrieve threw exception");
-        }
-
-        // group4 is at [1000, 400]
-        // its children are
-
-        equal(parseInt(c4.style.left), 1000, "c4 at 1000 left");
-        equal(parseInt(c4.style.top), 400, "c4 at 400 top");
-        equal(parseInt(c4_1.style.left), 30, "c4_1 at 30 left");
-        equal(parseInt(c4_1.style.top), 30, "c4_1 at 30 top");
-        equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
-        equal(parseInt(c4_2.style.top), 130, "c4_2 at 130 top");
-
-
-        _jsPlumb.removeGroup("four", false);
-        try {
-            _jsPlumb.getGroup("four");
-            ok(false, "should not have been able to retrieve removed group");
-        }
-        catch (e) {
-            ok(true, "removed group subsequent retrieve threw exception");
-        }
-        ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
-        // check positions of child nodes; they should have been adjusted.
-        equal(parseInt(c4_1.style.left), 1030, "c4_1 at 1030 left");
-        equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
-        equal(parseInt(c4_2.style.left), 1180, "c4_2 at 1180 left");
-        equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
-
-
-        _jsPlumb.removeGroup("five", true);
-        try {
-            _jsPlumb.getGroup("five");
-            ok(false, "should not have been able to retrieve removed group");
-        }
-        catch (e) {
-            ok(true, "removed group subsequent retrieve threw exception");
-        }
-        ok(c5_1.parentNode == null, "c5_1 removed from DOM because group 5 also removes its children on group removal");
-
-        // reset: all groups should be removed
-        _jsPlumb.reset();
-        try {
-            _jsPlumb.getGroup("three");
-            ok(false, "should not have been able to retrieve group after reset");
-        }
-        catch (e) {
-            ok(true, "retrieve group after reset threw exception");
-        }
-
-    });
-
-    test("simple adding to group", function() {
-        var g = _addGroupAndDomElement(_jsPlumb, "g1");
-        var d1 = support.addDiv("d1");
-
-        equal(g.children.length, 0, "0 members in group");
-
-        _jsPlumb.addToGroup(g, d1);
-        equal(g.children.length, 1, "1 member in group");
-
-        // var els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
-        // equal(support.countKeys(els), 1, "1 element for group g1 to repaint");
-
-        // add again; should ignore.
-        _jsPlumb.addToGroup(g, d1);
-        equal(g.children.length, 1, "1 member in group");
-
-        var g2 = _addGroupAndDomElement(_jsPlumb, "g2");
-        _jsPlumb.addToGroup(g2, d1);
-        equal(g.children.length, 0, "0 members in group g1 after node removal");
-        equal(g2.children.length, 1, "1 member in group g2 after node addition");
-
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
-        // equal(support.countKeys(els), 0, "0 elements for group g1 to repaint");
-
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
-        // equal(support.countKeys(els), 1, "1 element for group g2 to repaint");
-
-        var d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
-        _jsPlumb.addToGroup(g2, [ d2, d3 ]);
-        equal(g2.children.length, 3, "3 members in group g2 after node additions");
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
-        // equal(support.countKeys(els), 3, "3 elements for group g2 to repaint");
-
-    });
+    // test("simple adding to group", function() {
+    //     var g = _addGroupAndDomElement(_jsPlumb, "g1");
+    //     var d1 = support.addDiv("d1");
+    //
+    //     equal(g.children.length, 0, "0 members in group");
+    //
+    //     _jsPlumb.addToGroup(g, d1);
+    //     equal(g.children.length, 1, "1 member in group");
+    //
+    //     // var els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
+    //     // equal(support.countKeys(els), 1, "1 element for group g1 to repaint");
+    //
+    //     // add again; should ignore.
+    //     _jsPlumb.addToGroup(g, d1);
+    //     equal(g.children.length, 1, "1 member in group");
+    //
+    //     var g2 = _addGroupAndDomElement(_jsPlumb, "g2");
+    //     _jsPlumb.addToGroup(g2, d1);
+    //     equal(g.children.length, 0, "0 members in group g1 after node removal");
+    //     equal(g2.children.length, 1, "1 member in group g2 after node addition");
+    //
+    //     // els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
+    //     // equal(support.countKeys(els), 0, "0 elements for group g1 to repaint");
+    //
+    //     // els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
+    //     // equal(support.countKeys(els), 1, "1 element for group g2 to repaint");
+    //
+    //     var d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+    //     _jsPlumb.addToGroup(g2, [ d2, d3 ]);
+    //     equal(g2.children.length, 3, "3 members in group g2 after node additions");
+    //     // els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
+    //     // equal(support.countKeys(els), 3, "3 elements for group g2 to repaint");
+    //
+    // });
 
     test("groups, dragging between groups, take one", function() {
         _setupGroups();
         var els;
+
+        equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four at start");
 
         // els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
         // equal(support.countKeys(els), 2, "2 elements for group 3 to repaint");
@@ -443,7 +445,7 @@ var testSuite = function (_jsPlumb) {
         var c3_1_source = _jsPlumb.select({source:"c3_1"});
         equal(c3_1_source.length, 2, "still 2 source connections for c3_1");
         equal(c3_1_source.get(0).proxies[0].originalEp.elementId, "c3_1", "proxy configured correctly");
-        ok(c3_1_source.get(1).proxies == null, "second source connection from c3_1 not proxied as it goes to c3_2");
+        equal(c3_1_source.get(1).proxies.length, 0, "second source connection from c3_1 not proxied as it goes to c3_2");
         ok(!c3_1_source.get(1).isVisible(), "second source connection from c3_1 not visible as it goes to c3_2");
 
         _jsPlumb.collapseGroup("five");
@@ -482,12 +484,16 @@ var testSuite = function (_jsPlumb) {
         ok(c2.proxies[1] == null, "target connection has been correctly proxied");
 
         _dragToGroup(_jsPlumb, c4_2, "three");
-        equal(_jsPlumb.getGroup("three").children.length, 3, "there are 3 members in group 3 after node moved dropped ");
-        equal(_jsPlumb.getGroup("four").children.length, 1, "there is 1 member in group 4 after node moved out");
 
-        ok(!c.isVisible(), "original connection now between two members of collapsed group and is invisible.");
-        ok(c.proxies[0] == null, "source connection proxy removed now that the connection is internal");
-        ok(c.proxies[1] == null, "target connection proxy removed now that the connection is internal");
+        equal(_jsPlumb.getGroup("three").children.length, 3, "there are 3 members in group 3 after node c4_1 dropped in it");
+        equal(_jsPlumb.getGroup("four").children.length, 1, "there is 1 member in group 4 after node c4_1 moved out");
+
+        // dragging c4_2 to group 3 means that its connection to c3_1 is now internal to the group,
+        // and since the group is collapsed, it should not be visible.
+        equal(false, c.isVisible(), "original connection now between two members of collapsed group and is invisible.");
+        equal(c.proxies.length, 0, "source and target connection proxy removed now that the connection is internal");
+        //ok(c.proxies[1] == null, "target connection proxy removed now that the connection is internal");
+
         equal(c.endpoints[0].elementId, "c4_2", "source endpoint reset to original");
         equal(c.endpoints[1].elementId, "c3_1", "target endpoint reset to original");
 
@@ -667,7 +673,7 @@ var testSuite = function (_jsPlumb) {
         // test for proxied
         equal("d1", c2.endpoints[0].elementId, "endpoint to internal element was not proxied after collapse");
         equal("d3", c2.endpoints[1].elementId, "endpoint to internal element was not proxied after collapse");
-        equal(null, c2.proxies, "connection 2 did not get proxies added");
+        equal(0, c2.proxies.length, "connection 2 did not get proxies added");
 
         // expand and test proxy was cleared
         _jsPlumb.expandGroup(group);
@@ -803,41 +809,42 @@ var testSuite = function (_jsPlumb) {
 
     });
 
-    test("drop precedence, set negative rank on element to downgrade", function() {
-        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
-        var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
-        var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+    // there are no dropOptions on a per-element basis after the rewrite.  is that a bad thing?
+    // test("drop precedence, set negative rank on element to downgrade", function() {
+    //     var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+    //     var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
+    //     var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+    //
+    //     _addGroup(_jsPlumb, "g1", d1, [d2]);
+    //
+    //     _jsPlumb.makeTarget(d1/*, {
+    //      dropOptions:{
+    //      rank:-10
+    //      }
+    //      }*/);
+    //
+    //     _jsPlumb.makeTarget(d2, {rank:-10});
+    //
+    //     _jsPlumb.makeSource(d3);
+    //
+    //     var sourceEvent = support.makeEvent(d3);
+    //     var d2TargetEvent = support.makeEvent(d2);
+    //
+    //     _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+    //     _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+    //
+    //
+    //     ok(d1.classList.contains("jtk-drag-hover"), "d1 has hover class");
+    //     ok(!d2.classList.contains("jtk-drag-hover"), "d2 does not have hover class; only d1 has.");
+    //
+    //     _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+    //
+    //     equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+    //     equal(d1, _jsPlumb.select().get(0).target, "connection target is d2");
+    //
+    // });
 
-        _addGroup(_jsPlumb, "g1", d1, [d2]);
-
-        _jsPlumb.makeTarget(d1/*, {
-         dropOptions:{
-         rank:-10
-         }
-         }*/);
-
-        _jsPlumb.makeTarget(d2, {rank:-10});
-
-        _jsPlumb.makeSource(d3);
-
-        var sourceEvent = support.makeEvent(d3);
-        var d2TargetEvent = support.makeEvent(d2);
-
-        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
-        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
-
-
-        ok(d1.classList.contains("jtk-drag-hover"), "d1 has hover class");
-        ok(!d2.classList.contains("jtk-drag-hover"), "d2 does not have hover class; only d1 has.");
-
-        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
-
-        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
-        equal(d1, _jsPlumb.select().get(0).target, "connection target is d2");
-
-    });
-
-    test("drop precedence, default ranks (order of droppable is ignored), group first", function() {
+    test("drop on node inside group, group configured first", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
@@ -856,19 +863,19 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
 
 
-        ok(d1.classList.contains("jtk-drag-hover"), "d1 has hover class");
-        ok(!d2.classList.contains("jtk-drag-hover"), "d2 does not have hover class; only d1 has, even though it was second.");
+        ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
+        ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, even though it was second.");
 
         _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
 
         equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
-        equal(d1, _jsPlumb.select().get(0).target, "connection target is d1 (the group)");
+        equal(d2, _jsPlumb.select().get(0).target, "connection target is d2 (the node)");
 
     });
 
-    test("drop precedence, default ranks (order of droppable is ignored), group last", function() {
+    test("drop on node inside group, group configured last", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
-        var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
+        var d2 = support.addDiv("d2", d1, null, 20, 20, 20, 20);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
@@ -895,42 +902,42 @@ var testSuite = function (_jsPlumb) {
 
     });
 
-    test("drop precedence, equal ranks, order of droppable is used, group first", function() {
-        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
-        var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
-        var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
-
-        _addGroup(_jsPlumb, "g1", d1, [d2]);
-
-        _jsPlumb.makeTarget(d1, {
-            dropOptions: {
-                rank: 5
-            }
-        });
-        _jsPlumb.makeTarget(d2, {
-            dropOptions: {
-                rank: 5
-            }
-        });
-
-        _jsPlumb.makeSource(d3);
-
-        var sourceEvent = support.makeEvent(d3);
-        var d2TargetEvent = support.makeEvent(d2);
-
-        _jsPlumb.trigger(d3, "mousedown", sourceEvent);
-        _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
-
-
-        ok(d1.classList.contains("jtk-drag-hover"), "d1 has hover class");
-        ok(!d2.classList.contains("jtk-drag-hover"), "d2 does not have hover class; only d1 has, and it was first.");
-
-        _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
-
-        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
-        equal(d1, _jsPlumb.select().get(0).target, "connection target is d1");
-
-    });
+    // test("drop precedence, equal ranks, order of droppable is used, group first", function() {
+    //     var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+    //     var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
+    //     var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+    //
+    //     _addGroup(_jsPlumb, "g1", d1, [d2]);
+    //
+    //     _jsPlumb.makeTarget(d1, {
+    //         dropOptions: {
+    //             rank: 5
+    //         }
+    //     });
+    //     _jsPlumb.makeTarget(d2, {
+    //         dropOptions: {
+    //             rank: 5
+    //         }
+    //     });
+    //
+    //     _jsPlumb.makeSource(d3);
+    //
+    //     var sourceEvent = support.makeEvent(d3);
+    //     var d2TargetEvent = support.makeEvent(d2);
+    //
+    //     _jsPlumb.trigger(d3, "mousedown", sourceEvent);
+    //     _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
+    //
+    //
+    //     ok(d1.classList.contains("jtk-drag-hover"), "d1 has hover class");
+    //     ok(!d2.classList.contains("jtk-drag-hover"), "d2 does not have hover class; only d1 has, and it was first.");
+    //
+    //     _jsPlumb.trigger(d2, "mouseup", d2TargetEvent);
+    //
+    //     equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+    //     equal(d1, _jsPlumb.select().get(0).target, "connection target is d1");
+    //
+    // });
 
     test("drop precedence, equal ranks, order of droppable is used, group last", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
@@ -962,13 +969,18 @@ var testSuite = function (_jsPlumb) {
     });
 
     test("drag node out of group and then back in", function() {
-        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+        var d1 = support.addDiv("d1", container, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
-        var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+        var d3 = support.addDiv("d3", container, null, 700, 700, 50, 50);
+
+        _jsPlumb.manage(d1);
+        _jsPlumb.manage(d2);
+        _jsPlumb.manage(d3);
 
        // _jsPlumb.draggable(d2);
 
-        _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
+        var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
+        equal(g1.children.length, 1, "group 1 has one member");
 
         var removeEvt = false, addEvt = false;
         _jsPlumb.bind("group:removeMember", function() {
@@ -979,7 +991,9 @@ var testSuite = function (_jsPlumb) {
             addEvt = true;
         });
 
-        support.dragNodeBy(d2, -300,-300);
+        support.dragNodeBy(d2, -500,-500);
+
+        equal(g1.children.length, 0, "group 1 has zero members");
 
         ok(removeEvt, "the remove group member event was fired");
 
@@ -992,15 +1006,22 @@ var testSuite = function (_jsPlumb) {
     });
 
     test("drag node out of one group and into another; move flag set in remove and add events", function() {
-        var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
+        var d1 = support.addDiv("d1", container, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
-        var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
+        d2.style.zIndex = 5000;
+        var d3 = support.addDiv("d3", container, null, 700, 700, 50, 50);
 
        // _jsPlumb.draggable(d2);
 
         var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
 
         var g3 = _addGroup(_jsPlumb, "g3", d3, [], {orphan:true});
+
+        _jsPlumb.manage(d1);
+        _jsPlumb.manage(d2);
+        _jsPlumb.manage(d3);
+
+        equal(g1.children.length, 1, "group 1 has one child");
 
         var removeEvt = false, addEvt = false, targetGroup, sourceGroup;
         _jsPlumb.bind("group:removeMember", function(p) {
@@ -1014,6 +1035,8 @@ var testSuite = function (_jsPlumb) {
         });
 
         support.dragNodeBy(d2, 510,510);
+
+        equal(g1.children.length, 0, "group 1 has zero children");
 
         ok(removeEvt, "the remove group member event was fired");
         ok(addEvt, "the add group member event was fired");
