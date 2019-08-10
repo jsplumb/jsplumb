@@ -556,6 +556,12 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         if (this.eventManager != null) {
             this._attachEventDelegates();
         }
+        if (this.dragManager != null) {
+            this.dragManager.reset();
+            this.dragManager.addHandler(new EndpointDragHandler(this));
+            this.dragManager.addHandler(new GroupDragHandler(this));
+            this.dragManager.addHandler(new ElementDragHandler(this));
+        }
     }
 
 
@@ -563,6 +569,13 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         if (!doNotUnbindInstanceEventListeners) {
             this._detachEventDelegates();
+        }
+
+        if (this.dragManager != null) {
+            this.dragManager.reset();
+            this.dragManager.addHandler(new EndpointDragHandler(this));
+            this.dragManager.addHandler(new GroupDragHandler(this));
+            this.dragManager.addHandler(new ElementDragHandler(this));
         }
 
         super.reset(doNotUnbindInstanceEventListeners);
