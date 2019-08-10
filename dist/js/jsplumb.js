@@ -5381,6 +5381,7 @@
 
       this.el = el;
       this.el[IS_GROUP_KEY] = true;
+      this.el[GROUP_KEY] = this;
       this.revert = options.revert !== false;
       this.droppable = options.droppable !== false;
       this.ghost = options.ghost === true;
@@ -5622,7 +5623,7 @@
           throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists");
         }
 
-        if (params.el[GROUP_KEY] != null) {
+        if (params.el[IS_GROUP_KEY] != null) {
           throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group");
         }
 
@@ -5661,7 +5662,9 @@
     }, {
       key: "getGroupFor",
       value: function getGroupFor(el) {
-        return el[GROUP_KEY];
+        var _el = this.instance.getElement(el);
+
+        return _el != null ? _el[GROUP_KEY] : null;
       }
     }, {
       key: "removeGroup",
@@ -5882,11 +5885,11 @@
           var groupEl = actualGroup.el;
 
           var _one = function _one(el) {
-            if (el[GROUP_KEY] != null) {
+            if (el[IS_GROUP_KEY] != null) {
               console.log("the thing being added is a group! is it possible to support nested groups");
             }
 
-            var currentGroup = el[IS_GROUP_KEY]; // if already a member of this group, do nothing
+            var currentGroup = el[GROUP_KEY]; // if already a member of this group, do nothing
 
             if (currentGroup !== actualGroup) {
               var elpos = _this5.instance.getOffset(el, true);
@@ -5899,9 +5902,7 @@
                 _this5._updateConnectionsForGroup(currentGroup);
               }
 
-              actualGroup.add(el, doNotFireEvent
-              /*, currentGroup*/
-              );
+              actualGroup.add(el, doNotFireEvent);
 
               var handleDroppedConnections = function handleDroppedConnections(list, index) {
                 var oidx = index === 0 ? 1 : 0;
@@ -8376,7 +8377,7 @@
         } // cleanup
 
 
-        delete connection.proxies[index];
+        connection.proxies.length = 0;
       } // ------------------------ GROUPS --------------
 
     }, {
@@ -9637,6 +9638,13 @@
           this.katavorioDraggable.addSelector(o);
         }
       }
+    }, {
+      key: "reset",
+      value: function reset() {
+        if (this.katavorioDraggable != null) {
+          this.katavorio.destroyDraggable(this.instance.getContainer());
+        }
+      }
     }]);
 
     return DragManager;
@@ -10421,11 +10429,40 @@
         });
         console.log(this.endpointDropTargets);
         this.endpointDropTargets.sort(function (a, b) {
-          if (a.rank != null && b.rank != null) {
-            return a.rank > b.rank ? -1 : a.rank < b.rank ? 1 : 0;
+          // else {
+          // if (a.rank != null && b.rank != null) {
+          //     if(a.rank > b.rank) {
+          //         return -1;
+          //     } else if (a.rank < b.rank) {
+          //         return 1;
+          //     } else {
+          //         if (a.el[Constants.IS_GROUP_KEY] && !b.el[Constants.IS_GROUP_KEY]) {
+          //             return 1;
+          //         } else if (!a.el[Constants.IS_GROUP_KEY] && b.el[Constants.IS_GROUP_KEY]) {
+          //             return -1;
+          //         } else {
+          //             return 0;
+          //         }
+          //     }
+          // } else {
+          //     return 0;
+          // }
+          if (a.el[IS_GROUP_KEY] && !b.el[IS_GROUP_KEY]) {
+            return 1;
+          } else if (!a.el[IS_GROUP_KEY] && b.el[IS_GROUP_KEY]) {
+            return -1;
           } else {
-            return 0;
-          }
+            if (a.rank != null && b.rank != null) {
+              if (a.rank > b.rank) {
+                return -1;
+              } else if (a.rank < b.rank) {
+                return 1;
+              }
+            } else {
+              return 0;
+            }
+          } //}
+
         });
         console.log(this.endpointDropTargets);
         this.ep.setHover(false, false);
@@ -11714,12 +11751,23 @@
         if (this.eventManager != null) {
           this._attachEventDelegates();
         }
+
+        if (this.dragManager != null) {
+          this.dragManager.reset();
+        }
       }
     }, {
       key: "reset",
       value: function reset(doNotUnbindInstanceEventListeners) {
         if (!doNotUnbindInstanceEventListeners) {
           this._detachEventDelegates();
+        }
+
+        if (this.dragManager != null) {
+          this.dragManager.reset();
+          this.dragManager.addHandler(new EndpointDragHandler(this));
+          this.dragManager.addHandler(new GroupDragHandler(this));
+          this.dragManager.addHandler(new ElementDragHandler(this));
         }
 
         _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this, doNotUnbindInstanceEventListeners);
