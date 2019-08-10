@@ -70,7 +70,7 @@ export class GroupManager<E> {
         if (this.groupMap[params.id] != null) {
             throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists");
         }
-        if (params.el[Constants.GROUP_KEY] != null) {
+        if (params.el[Constants.IS_GROUP_KEY] != null) {
             throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group");
         }
         let group = new Group<E>(this.instance, params.el, params);
@@ -99,8 +99,9 @@ export class GroupManager<E> {
         return group as Group<E>;
     }
 
-    getGroupFor(el:E):Group<E> {
-        return el[Constants.GROUP_KEY];
+    getGroupFor(el:E|string):Group<E> {
+        const _el = this.instance.getElement(el);
+        return _el != null ? _el[Constants.GROUP_KEY] : null;
     }
 
     removeGroup(group:string | Group<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
