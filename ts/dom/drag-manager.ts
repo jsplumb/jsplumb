@@ -137,4 +137,10 @@ export class DragManager {
         }
     }
 
+    reset():void {
+        if (this.katavorioDraggable != null) {
+            this.katavorio.destroyDraggable(this.instance.getContainer());
+        }
+    }
+
 }
