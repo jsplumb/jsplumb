@@ -2248,13 +2248,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
 
         // cleanup
-        delete connection.proxies[index];
+        connection.proxies.length = 0;
     }
 
 // ------------------------ GROUPS --------------
 
     getGroup(id:string) { return this.groupManager.getGroup(id); }
-    getGroupFor(el:E) { return this.groupManager.getGroupFor(el); }
+    getGroupFor(el:E|string) { return this.groupManager.getGroupFor(el); }
     addGroup(params:any) { return this.groupManager.addGroup(params); }
     addToGroup(group:string | Group<E>, el:E | Array<E>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
 
