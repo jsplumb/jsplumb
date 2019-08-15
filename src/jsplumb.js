@@ -2200,7 +2200,11 @@
                         elInfo.def.endpoint = newEndpoint;
                     }
 
-                    newEndpoint.setDeleteOnEmpty(true);
+                    if (elInfo.def.def.deleteEndpointsOnEmpty != null) {
+                        newEndpoint.setDeleteOnEmpty(elInfo.def.def.deleteEndpointsOnEmpty);
+                    } else {
+                        newEndpoint.setDeleteOnEmpty(true);
+                    }
 
                     // if connection is detachable, init the new endpoint to be draggable, to support that happening.
                     if (jpc.isDetachable()) {
