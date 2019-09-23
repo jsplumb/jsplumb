@@ -1,3 +1,10 @@
+## 2.12.0
+
+September 23rd 2019
+
+- added support for label location being specified in the `data` for some Connection, via key `labelLocation`
+- added support for overridding `labelLocation` key name with user-specified key, via `labelLocationAttribute` in Label overlay options.
+
 ## 2.11.2
 
 August 7th 2019

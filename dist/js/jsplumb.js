@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.11.2";
+        this.version = "2.12.0";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -7280,6 +7280,21 @@
         },
         addOverlay: function (overlay, doNotRepaint) {
             var o = _processOverlay(this, overlay);
+
+            if (this.getData && o.type === "Label" && _ju.isArray(overlay)) {
+                //
+                // component data might contain label location - look for it here.
+                var d = this.getData(), p = overlay[1];
+                if (d) {
+                    var locationAttribute = p.labelLocationAttribute || "labelLocation";
+                    var loc = d ? d[locationAttribute] : null;
+
+                    if (loc) {
+                        o.loc = loc;
+                    }
+                }
+            }
+
             if (!doNotRepaint) {
                 this.repaint();
             }
