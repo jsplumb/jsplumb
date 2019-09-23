@@ -1,6 +1,6 @@
 {
   "name": "jsplumb",
-  "version": "2.11.2",
+  "version": "2.12.0",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
