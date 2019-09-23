@@ -132,7 +132,7 @@
         addOverlay: function (overlay, doNotRepaint) {
             var o = _processOverlay(this, overlay);
 
-            if (o.type === "Label" && _ju.isArray(overlay)) {
+            if (this.getData && o.type === "Label" && _ju.isArray(overlay)) {
                 //
                 // component data might contain label location - look for it here.
                 var d = this.getData(), p = overlay[1];
