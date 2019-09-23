@@ -221,7 +221,6 @@ module.exports = function(grunt) {
     grunt.registerTask('build-src', ['clean', 'jshint', 'concat', 'uglify', 'insertVersion' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-docs', ['clean:docs', 'docs', 'jekyll', 'finaliseDocs', 'copy:docs', 'copy:docs_js','copy:docs_css','copy:docs_img']);
-    grunt.registerTask('build-all', ['qunit', 'build', 'build-docs']);
 
     var _replace = function(cwd, pattern, oldV, newV, exclusions) {
         exclusions = exclusions || [];
