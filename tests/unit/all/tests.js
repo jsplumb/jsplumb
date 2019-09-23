@@ -6461,7 +6461,32 @@ test("drag multiple elements and ensure their connections are painted correctly 
         _jsPlumb.connect({source:e1, target:d2});
         ok(_jsPlumb.hasClass(e1.connections[0].getConnector().canvas, "connector", "connector class set"));
 
-    })
+    });
+
+    test("overlay location", function () {
+        support.addDivs(["box1", "box2", "canvas"]);
+
+        _jsPlumb.importDefaults({
+            Container: 'canvas'
+        });
+
+        _jsPlumb.setContainer('canvas');
+
+        var connection = _jsPlumb.connect({ source: 'box1', target: 'box2' });
+        var o = connection.addOverlay(['Label', {label:"first label"}]);
+        equal(0.5, o.loc, "label is at default location of 0.5");
+
+        var connection2 = _jsPlumb.connect({ source: 'box1', target: 'box2' });
+        connection2.mergeData({labelLocation:0.2});
+        var o2 = connection2.addOverlay(['Label', {label:"second label"}]);
+        equal(0.2, o2.loc, "label is at location of 0.2, which is the value of the `labelLocation` value in the connection's data");
+
+        var connection3 = _jsPlumb.connect({ source: 'box1', target: 'box2' });
+        connection3.mergeData({theattribute:0.1});
+        var o3 = connection3.addOverlay(['Label', {label:"second label", labelLocationAttribute:"theattribute"}]);
+        equal(0.1, o3.loc, "label is at location of 0.1, which is the value of an attribute whose name was specified in the addOverlay call, and whose value is in the connection data");
+
+    });
 
 };
 
