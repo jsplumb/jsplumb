@@ -941,6 +941,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "paintStyleInUse", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "data", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "_defaultType", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "_jsPlumb", void 0);
@@ -1372,6 +1374,21 @@
       value: function repaint(options) {
         this.instance.renderer.repaint(this, this.getTypeDescriptor(), options);
       }
+    }, {
+      key: "getData",
+      value: function getData() {
+        return this.data;
+      }
+    }, {
+      key: "setData",
+      value: function setData(d) {
+        this.data = d || {};
+      }
+    }, {
+      key: "mergeData",
+      value: function mergeData(d) {
+        this.data = extend(this.data, d);
+      }
     }]);
 
     return Component;
@@ -1742,6 +1759,22 @@
       key: "addOverlay",
       value: function addOverlay(overlay, doNotRepaint) {
         var o = _processOverlay(this, overlay);
+
+        if (this.getData && o.type === "Label" && isArray(overlay)) {
+          //
+          // component data might contain label location - look for it here.
+          var d = this.getData(),
+              p = overlay[1];
+
+          if (d) {
+            var locationAttribute = p.labelLocationAttribute || "labelLocation";
+            var loc = d[locationAttribute];
+
+            if (loc) {
+              o.location = loc;
+            }
+          }
+        }
 
         if (!doNotRepaint) {
           this.repaint();
@@ -2830,8 +2863,6 @@
 
       _defineProperty(_assertThisInitialized(_this), "target", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "data", void 0);
-
       _defineProperty(_assertThisInitialized(_this), "endpoints", [null, null]);
 
       _defineProperty(_assertThisInitialized(_this), "endpointStyles", [null, null]);
@@ -3057,21 +3088,6 @@
       value: function makeEndpoint(isSource, el, elId, ep) {
         elId = elId || this._jsPlumb.instance.getId(el);
         return this.prepareEndpoint(ep, isSource ? 0 : 1, el, elId);
-      }
-    }, {
-      key: "getData",
-      value: function getData() {
-        return this.data;
-      }
-    }, {
-      key: "setData",
-      value: function setData(d) {
-        this.data = d || {};
-      }
-    }, {
-      key: "mergeData",
-      value: function mergeData(d) {
-        this.data = extend(this.data, d);
       }
     }, {
       key: "getTypeDescriptor",
@@ -10427,26 +10443,7 @@
             }
           }
         });
-        console.log(this.endpointDropTargets);
         this.endpointDropTargets.sort(function (a, b) {
-          // else {
-          // if (a.rank != null && b.rank != null) {
-          //     if(a.rank > b.rank) {
-          //         return -1;
-          //     } else if (a.rank < b.rank) {
-          //         return 1;
-          //     } else {
-          //         if (a.el[Constants.IS_GROUP_KEY] && !b.el[Constants.IS_GROUP_KEY]) {
-          //             return 1;
-          //         } else if (!a.el[Constants.IS_GROUP_KEY] && b.el[Constants.IS_GROUP_KEY]) {
-          //             return -1;
-          //         } else {
-          //             return 0;
-          //         }
-          //     }
-          // } else {
-          //     return 0;
-          // }
           if (a.el[IS_GROUP_KEY] && !b.el[IS_GROUP_KEY]) {
             return 1;
           } else if (!a.el[IS_GROUP_KEY] && b.el[IS_GROUP_KEY]) {
@@ -10461,10 +10458,8 @@
             } else {
               return 0;
             }
-          } //}
-
+          }
         });
-        console.log(this.endpointDropTargets);
         this.ep.setHover(false, false);
 
         if (this.jpc == null) {
@@ -11754,6 +11749,9 @@
 
         if (this.dragManager != null) {
           this.dragManager.reset();
+          this.dragManager.addHandler(new EndpointDragHandler(this));
+          this.dragManager.addHandler(new GroupDragHandler(this));
+          this.dragManager.addHandler(new ElementDragHandler(this));
         }
       }
     }, {
