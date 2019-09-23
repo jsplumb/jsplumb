@@ -101,8 +101,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     targetId:string;
     source:E;
     target:E;
-    
-    data:any;
 
     endpoints:[Endpoint<E>, Endpoint<E>] = [null, null];
     endpointStyles:[PaintStyle, PaintStyle] = [null, null];
@@ -300,10 +298,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         elId = elId || this._jsPlumb.instance.getId(el);
         return this.prepareEndpoint(ep, isSource ? 0 : 1, el, elId);
     };
-
-    getData () { return this.data; };
-    setData (d:any) { this.data = d || {}; };
-    mergeData (d:any) { this.data = extend(this.data, d); };
 
     getTypeDescriptor ():string {
         return "connection";

@@ -1,5 +1,5 @@
 import {Component, ComponentOptions} from "./component";
-import {Overlay, OverlaySpec} from "../overlay/overlay";
+import {LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay";
 import {Dictionary, extend, jsPlumbInstance, PointArray} from "../core";
 import {LabelOverlay} from "../overlay/label-overlay";
 import {isArray, isFunction, isString, uuid} from "../util";
@@ -98,6 +98,21 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
 
     addOverlay(overlay:OverlaySpec, doNotRepaint?:boolean):Overlay<E> {
         let o = _processOverlay(this, overlay);
+
+        if (this.getData && o.type === "Label" && isArray(overlay)) {
+            //
+            // component data might contain label location - look for it here.
+            const d = this.getData(), p = overlay[1];
+            if (d) {
+                const locationAttribute = (<LabelOverlayOptions>p).labelLocationAttribute || "labelLocation";
+                const loc = d[locationAttribute];
+
+                if (loc) {
+                    o.location = loc;
+                }
+            }
+        }
+
         if (!doNotRepaint) {
             this.repaint();
         }
