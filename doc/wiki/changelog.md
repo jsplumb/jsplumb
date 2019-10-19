@@ -1,3 +1,9 @@
+## 2.12.1
+
+October 19th 2019
+
+- minor update to the return value of the internal method used to find the point on a connector closest to some point in the viewport.
+
 ## 2.12.0
 
 September 23rd 2019
