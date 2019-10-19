@@ -653,6 +653,7 @@
          *   x   -   x point on the segment
          *   y   -   y point on the segment
          *   s   -   the segment itself.
+         *   connectorLocation - the location on the connector of the point, expressed as a decimal between 0 and 1 inclusive.
          */
         this.findSegmentForPoint = function (x, y) {
             var out = { d: Infinity, s: null, x: null, y: null, l: null };
@@ -669,6 +670,7 @@
                     out.y1 = _s.y1;
                     out.y2 = _s.y2;
                     out.index = i;
+                    out.connectorLocation = segmentProportions[i][0] + (_s.l * (segmentProportions[i][1] - segmentProportions[i][0]));
                 }
             }
 
