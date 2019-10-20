@@ -548,6 +548,7 @@
                             ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                         };
                     // paint the connector.
+                    this.connector.paintExtents = extents;
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
                     // and then the overlays
                     for (var j in this._jsPlumb.overlays) {
