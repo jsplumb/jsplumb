@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.1";
+        this.version = "2.12.2";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -11269,7 +11269,7 @@
                     d:Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
                     x:p.point.x,
                     y:p.point.y,
-                    l:p.location,
+                    l:1 - p.location,
                     s:this
                 };
             };
