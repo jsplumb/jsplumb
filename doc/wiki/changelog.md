@@ -1,3 +1,9 @@
+## 2.12.3
+
+October 20th 2019
+
+- ensure `label` from connection type is not presented to endpoint.
+
 ## 2.12.2
 
 October 20th 2019

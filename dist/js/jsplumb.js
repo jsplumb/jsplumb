@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.2";
+        this.version = "2.12.3";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -4706,12 +4706,14 @@
 
 
                 var _addEndpoint = function (el, def, idx) {
-                    return _currentInstance.addEndpoint(el, _mergeOverrides(def, {
+                    var params = _mergeOverrides(def, {
                         anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                         endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
                         paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
                         hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
-                    }));
+                    });
+                    delete params.label; // not supported on endpoint
+                    return _currentInstance.addEndpoint(el, params);
                 };
 
                 // check for makeSource/makeTarget specs.
