@@ -635,6 +635,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
                 // paint the connector.
                 //window.jtime("connector paint");
+                (this.connector as any).paintExtents = extents;
                 this.connector.paint(this._jsPlumb.paintStyleInUse, extents);
                 //window.jtimeEnd("connector paint");
 
