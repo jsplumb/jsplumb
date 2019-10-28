@@ -96,7 +96,7 @@ export class BezierSegment extends AbstractSegment {
             d:Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
             x:p.point.x,
             y:p.point.y,
-            l:p.location,
+            l:1 - p.location,
             s:this,
             x1:null,
             y1:null,
