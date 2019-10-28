@@ -1387,6 +1387,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         extend(p, params);
         p.endpoint = p.endpoint || this.Defaults.endpoint;
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
+        //delete p.label; // not supported on endpoint
 
         let ep:Array<Endpoint<E>> = [];
 
@@ -1543,12 +1544,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
 
         let _addEndpoint = (el:E, def?:any, idx?:number):Endpoint<E> | Array<Endpoint<E>> => {
-            return this.addEndpoint(el, _mergeOverrides(def, {
+            const params = _mergeOverrides(def, {
                 anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                 endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
                 paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
                 hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
-            }));
+            });
+            return this.addEndpoint(el, params);
         };
 
         // check for makeSource/makeTarget specs.
@@ -1571,13 +1573,17 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                             if (!tep.enabled) {
                                 return false;
                             }
-                            let newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
+
+                            const epDef = extend({}, tep.def);
+                            delete epDef.label;
+
+                            let newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], epDef, idx);
                             if (newEndpoint.isFull()) {
                                 return false;
                             }
                             _p[type + "Endpoint"] = newEndpoint;
-                            if (!_p.scope && tep.def.scope) {
-                                _p.scope = tep.def.scope;
+                            if (!_p.scope && epDef.scope) {
+                                _p.scope = epDef.scope;
                             } // provide scope if not already provided and endpoint def has one.
                             if (tep.uniqueEndpoint) {
                                 if (!tep.endpoint) {
@@ -1594,9 +1600,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                             //
                             // copy in connector overlays if present on the source definition.
                             //
-                            if (idx === 0 && tep.def.connectorOverlays) {
+                            if (idx === 0 && epDef.connectorOverlays) {
                                 _p.overlays = _p.overlays || [];
-                                Array.prototype.push.apply(_p.overlays, tep.def.connectorOverlays);
+                                Array.prototype.push.apply(_p.overlays, epDef.connectorOverlays);
                             }
                         }
                     }
@@ -1700,8 +1706,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     remove(el:string|E, doNotRepaint?:boolean):jsPlumbInstance<E> {
         let info = this._info(el), affectedElements:Array<any> = [];
-        if (info.text) {
-            this.remove(info.el);
+        if (info.text && (info.el as any).parentNode) {
+            (info.el as any).parentNode.removeChild(info.el);
         }
         else if (info.id) {
             this.batch(() => {
