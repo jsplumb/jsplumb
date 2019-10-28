@@ -868,6 +868,8 @@ var testSuite = function () {
         equal(o2.getLabel(), "label", "parameterised label with provided value set correctly");
         var o3 = c.getOverlay("three");
         equal(o3.getLabel(), "", "parameterised label with missing value set correctly");
+
+        ok(c.endpoints[0].getLabel() == null, "endpoint did not get a label assigned from the connector's type");
     });
 
     test(" create connection with parameterised type, label", function () {

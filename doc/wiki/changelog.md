@@ -1,3 +1,10 @@
+## 2.12.4
+
+October 27th 2019
+
+- minor updates to endpoint label handling
+- update `remove` method to test for parent node existence before attempting removal.
+
 ## 2.12.3
 
 October 20th 2019
