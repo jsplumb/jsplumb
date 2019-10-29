@@ -111,7 +111,9 @@
                 this.draw(_e[2].el, uip);
             }
 
-            delete _e[0]._jsPlumbDragOptions._dragging;
+            if (_e[0]._jsPlumbDragOptions != null) {
+                delete _e[0]._jsPlumbDragOptions._dragging;
+            }
 
             this.removeClass(_e[0], "jtk-dragged");
             this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
