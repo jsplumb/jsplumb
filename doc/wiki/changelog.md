@@ -1,3 +1,9 @@
+## 2.12.5
+
+October 29th 2019
+
+- fix issue #861, error on droppable.
+
 ## 2.12.4
 
 October 27th 2019
