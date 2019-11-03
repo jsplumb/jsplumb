@@ -23,6 +23,8 @@ export interface DragHandler {
     onDrag:(params:any) => void;
     onStop:(params:any) => void;
 
+    reset:() => void;
+
     onBeforeStart?:(beforeStartParams:any) => void;
 }
 
@@ -126,9 +128,12 @@ export class DragManager {
     addHandler(handler:DragHandler, dragOptions?:any):void {
         const o = extend({selector:handler.selector}, dragOptions || {});
 
+        this.handlers.push(handler);
+
         o.start = wrap(o.start, (p:any) => { return handler.onStart(p); });
         o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); });
         o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); });
+        o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler);
 
         if (this.katavorioDraggable == null) {
             this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
@@ -138,6 +143,9 @@ export class DragManager {
     }
 
     reset():void {
+
+        this.handlers.forEach((handler:DragHandler) => { handler.reset(); });
+
         if (this.katavorioDraggable != null) {
             this.katavorio.destroyDraggable(this.instance.getContainer());
         }
