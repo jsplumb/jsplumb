@@ -552,12 +552,14 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     setContainer(c: string | HTMLElement): void {
         this._detachEventDelegates();
+        if (this.dragManager != null) {
+            this.dragManager.reset();
+        }
         super.setContainer(c);
         if (this.eventManager != null) {
             this._attachEventDelegates();
         }
         if (this.dragManager != null) {
-            this.dragManager.reset();
             this.dragManager.addHandler(new EndpointDragHandler(this));
             this.dragManager.addHandler(new GroupDragHandler(this));
             this.dragManager.addHandler(new ElementDragHandler(this));
@@ -565,19 +567,18 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     }
 
 
-    reset(doNotUnbindInstanceEventListeners?: boolean): void {
+    destroy(): void {
 
-        if (!doNotUnbindInstanceEventListeners) {
+        //if (unbindInstanceEventListeners) {
             this._detachEventDelegates();
-        }
+        //}
 
         if (this.dragManager != null) {
             this.dragManager.reset();
-            this.dragManager.addHandler(new EndpointDragHandler(this));
-            this.dragManager.addHandler(new GroupDragHandler(this));
-            this.dragManager.addHandler(new ElementDragHandler(this));
         }
 
-        super.reset(doNotUnbindInstanceEventListeners);
+        super.destroy();
+
+        //this.getContainer().innerHTML = "";
     }
 }
