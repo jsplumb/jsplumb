@@ -6,6 +6,8 @@ export class GroupDragHandler extends ElementDragHandler {
 
     selector: string = "> [jtk-group] [jtk-managed]";
 
+    reset() { }
+
 
     // onBeforeStart(beforeStartParams: any):void {
     //     console.log("on before start, inside group");

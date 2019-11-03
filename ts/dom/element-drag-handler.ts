@@ -103,6 +103,8 @@ export class ElementDragHandler implements DragHandler {
         this._dragOffset = null;
     }
 
+    reset() { }
+
     onDrag(params:any):void {
 
         const el = params.drag.getDragElement();
