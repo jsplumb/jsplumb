@@ -734,11 +734,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     private unbindContainer ():void  {
-        if (this._container != null && this._containerDelegations.length > 0) {
-            for (let i = 0; i < this._containerDelegations.length; i++) {
-                this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
-            }
-        }
+        // if (this._container != null && this._containerDelegations.length > 0) {
+        //     for (let i = 0; i < this._containerDelegations.length; i++) {
+        //         this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
+        //     }
+        // }
     }
 
 
@@ -747,7 +747,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     //
     setContainer(c:E|string):void {
 
-        this.unbindContainer();
+        //this.unbindContainer();
 
         // get container as dom element.
         let _c = this.getElement(c);
@@ -1393,9 +1393,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         this.each(el, (_el:E) => {
             let _p = extend({source:_el}, p);
-            this.manage(_p.source);
-            let id = this.getId(_p.source),
-                e = this.newEndpoint(_p, id);
+            let id = this.getId(_p.source);
+            this.manage(id, _el);
+            let e = this.newEndpoint(_p, id);
 
             addToList(this.endpointsByElement, id, e);
 
@@ -1422,7 +1422,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return results;
     }
 
-    reset (doNotUnbindInstanceEventListeners?:boolean):void {
+    reset (unbindInstanceEventListeners?:boolean):void {
         this.silently(() => {
             this.groupManager.reset();
             this.deleteEveryEndpoint();
@@ -1430,11 +1430,16 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             this._connectionTypes = {};
             this._endpointTypes = {};
 
-            if (!doNotUnbindInstanceEventListeners) {
+            if (unbindInstanceEventListeners) {
                 this.unbind();
             }
             this.connections.length = 0;
         });
+    }
+
+    destroy():void {
+        this.reset(true);
+        this.unbindContainer();
     }
 
     getEndpoints(el:string|E):Array<Endpoint<E>> {
@@ -1678,21 +1683,23 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.removeAllEndpoints(info.id, true, affectedElements);
         let _one = (_info:{el:E, text?:boolean, id?:string}) => {
 
-            this.anchorManager.clearFor(_info.id);
-            this.anchorManager.removeFloatingConnection(_info.id);
+            if (info.el != null) {
+                this.anchorManager.clearFor(_info.id);
+                this.anchorManager.removeFloatingConnection(_info.id);
 
-            if (this.isSource(_info.el)) {
-                this.unmakeSource(_info.el);
-            }
-            if (this.isTarget(_info.el)) {
-                this.unmakeTarget(_info.el);
-            }
+                if (this.isSource(_info.el)) {
+                    this.unmakeSource(_info.el);
+                }
+                if (this.isTarget(_info.el)) {
+                    this.unmakeTarget(_info.el);
+                }
 
-            delete this._floatingConnections[_info.id];
-            delete this._managedElements[_info.id];
-            delete this._offsets[_info.id];
-            if (_info.el) {
-                this.removeElement(_info.el);
+                delete this._floatingConnections[_info.id];
+                delete this._managedElements[_info.id];
+                delete this._offsets[_info.id];
+                if (_info.el) {
+                    this.removeElement(_info.el);
+                }
             }
         };
 
@@ -2274,5 +2281,47 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     removeAllGroups(deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
     }
+
+// ------------ posses (not ported yet, may not be...)
+
+    /*
+
+    addToPosse:function(el, spec) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.addToPosse.apply(dm, _el);
+            });
+        },
+        setPosse:function(el, spec) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.setPosse.apply(dm, _el);
+            });
+        },
+        removeFromPosse:function(el, posseId) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.removeFromPosse.apply(dm, _el);
+            });
+        },
+        removeFromAllPosses:function(el) {
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
+        },
+        setPosseState:function(el, posseId, state) {
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
+        },
+
+     */
 
 }
