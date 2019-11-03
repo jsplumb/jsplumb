@@ -182,9 +182,6 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         // finally, set type if it was provided
         let type = [ "default", (params.type || "")].join(" ");
         this.addType(type, params.data, true);
-
-        //this.canvas = this.endpoint.canvas;
-        //this.canvas._jsPlumb = this;
     }
 
     private _updateAnchorClass ():void {
