@@ -80,12 +80,15 @@ export class EndpointDragHandler implements DragHandler {
     _forceReattach:boolean;
     _forceDetach:boolean;
 
+    _mousedownHandler:(e:any) => void;
+    _mouseupHandler:(e:any) => void;
+
     constructor(protected instance:BrowserJsPlumbInstance) {
 
         const container = instance.getContainer();
         let self = this;
 
-        const mousedownHandler = function(e:any) {
+        this._mousedownHandler = function(e:any) {
 
             if (e.which === 3 || e.button === 2) {
                 return;
@@ -179,13 +182,13 @@ export class EndpointDragHandler implements DragHandler {
 
         };
 
-        instance.on(container , "mousedown", "[jtk-source]", mousedownHandler);
+        instance.on(container , "mousedown", "[jtk-source]", this._mousedownHandler);
 
         //
         // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
         // replaces what in previous versions was a mousedown/mouseup handler per element.
         //
-        instance.on(container, "mouseup", "[jtk-source]", (e:Event) => {
+        this._mouseupHandler = (e:Event) => {
             console.log("a mouse up event occurred on a source element");
             console.dir(e);
             let el:any = e.currentTarget || e.srcElement;
@@ -198,8 +201,14 @@ export class EndpointDragHandler implements DragHandler {
 
                 el._jsPlumbOrphanedEndpoints.length = 0;
             }
-        });
+        };
+        instance.on(container, "mouseup", "[jtk-source]", this._mouseupHandler);
 
+    }
+
+    reset() {
+        this.instance.off(this.instance.getContainer(), "mouseup", this._mouseupHandler);
+        this.instance.off(this.instance.getContainer(), "mousedown", this._mousedownHandler);
     }
 
     selector: string = ".jtk-endpoint";
@@ -695,6 +704,8 @@ export class EndpointDragHandler implements DragHandler {
                             else {
                                 this._maybeReattach(idx);
                             }
+
+                            this.instance.deleteObject({endpoint: this.jpc.floatingEndpoint});
                         }
 
                     } else {
@@ -902,7 +913,15 @@ export class EndpointDragHandler implements DragHandler {
             }
 
         } else {
+
+            this.instance.deleteObject({endpoint: this.jpc.endpoints[idx]});
+
             if (this.jpc.pending) {
+
+
+                // this.jpc.endpoints[idx === 1 ? 0 : 1].detachFromConnection(this.jpc);
+                // this.instance.deleteObject({connection: this.jpc});
+
                 this.instance.fire("connectionAborted", this.jpc, originalEvent);
             }
         }
