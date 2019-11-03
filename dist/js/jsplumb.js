@@ -3473,6 +3473,7 @@
             // paint the connector.
             //window.jtime("connector paint");
 
+            this.connector.paintExtents = extents;
             this.connector.paint(this._jsPlumb.paintStyleInUse, extents); //window.jtimeEnd("connector paint");
             // and then the overlays
 
@@ -4033,9 +4034,7 @@
 
       var type = ["default", params.type || ""].join(" ");
 
-      _this.addType(type, params.data, true); //this.canvas = this.endpoint.canvas;
-      //this.canvas._jsPlumb = this;
-
+      _this.addType(type, params.data, true);
 
       return _this;
     }
@@ -6640,21 +6639,20 @@
       }
     }, {
       key: "unbindContainer",
-      value: function unbindContainer() {
-        if (this._container != null && this._containerDelegations.length > 0) {
-          for (var i = 0; i < this._containerDelegations.length; i++) {
-            this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
-          }
-        }
-      } //
+      value: function unbindContainer() {} // if (this._container != null && this._containerDelegations.length > 0) {
+      //     for (let i = 0; i < this._containerDelegations.length; i++) {
+      //         this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
+      //     }
+      // }
+      //
       // TODO this knows about the DOM. refactor
       //
 
     }, {
       key: "setContainer",
       value: function setContainer(c) {
-        this.unbindContainer(); // get container as dom element.
-
+        //this.unbindContainer();
+        // get container as dom element.
         var _c = this.getElement(c); // set container.
 
 
@@ -7414,17 +7412,19 @@
         var p = extend({}, referenceParams);
         extend(p, params);
         p.endpoint = p.endpoint || this.Defaults.endpoint;
-        p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
+        p.paintStyle = p.paintStyle || this.Defaults.endpointStyle; //delete p.label; // not supported on endpoint
+
         var ep = [];
         this.each(el, function (_el) {
           var _p = extend({
             source: _el
           }, p);
 
-          _this9.manage(_p.source);
+          var id = _this9.getId(_p.source);
 
-          var id = _this9.getId(_p.source),
-              e = _this9.newEndpoint(_p, id);
+          _this9.manage(id, _el);
+
+          var e = _this9.newEndpoint(_p, id);
 
           addToList(_this9.endpointsByElement, id, e);
 
@@ -7458,7 +7458,7 @@
       }
     }, {
       key: "reset",
-      value: function reset(doNotUnbindInstanceEventListeners) {
+      value: function reset(unbindInstanceEventListeners) {
         var _this10 = this;
 
         this.silently(function () {
@@ -7469,12 +7469,18 @@
           _this10._connectionTypes = {};
           _this10._endpointTypes = {};
 
-          if (!doNotUnbindInstanceEventListeners) {
+          if (unbindInstanceEventListeners) {
             _this10.unbind();
           }
 
           _this10.connections.length = 0;
         });
+      }
+    }, {
+      key: "destroy",
+      value: function destroy() {
+        this.reset(true);
+        this.unbindContainer();
       }
     }, {
       key: "getEndpoints",
@@ -7588,12 +7594,14 @@
         }
 
         var _addEndpoint = function _addEndpoint(el, def, idx) {
-          return _this11.addEndpoint(el, _mergeOverrides(def, {
+          var params = _mergeOverrides(def, {
             anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
             endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
             paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
             hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
-          }));
+          });
+
+          return _this11.addEndpoint(el, params);
         }; // check for makeSource/makeTarget specs.
 
 
@@ -7616,7 +7624,9 @@
                     return false;
                   }
 
-                  var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
+                  var epDef = extend({}, tep.def);
+                  delete epDef.label;
+                  var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], epDef, idx);
 
                   if (newEndpoint.isFull()) {
                     return false;
@@ -7624,8 +7634,8 @@
 
                   _p[type + "Endpoint"] = newEndpoint;
 
-                  if (!_p.scope && tep.def.scope) {
-                    _p.scope = tep.def.scope;
+                  if (!_p.scope && epDef.scope) {
+                    _p.scope = epDef.scope;
                   } // provide scope if not already provided and endpoint def has one.
 
 
@@ -7643,9 +7653,9 @@
                   //
 
 
-                  if (idx === 0 && tep.def.connectorOverlays) {
+                  if (idx === 0 && epDef.connectorOverlays) {
                     _p.overlays = _p.overlays || [];
-                    Array.prototype.push.apply(_p.overlays, tep.def.connectorOverlays);
+                    Array.prototype.push.apply(_p.overlays, epDef.connectorOverlays);
                   }
                 }
               }
@@ -7724,24 +7734,26 @@
         this.removeAllEndpoints(info.id, true, affectedElements);
 
         var _one = function _one(_info) {
-          _this12.anchorManager.clearFor(_info.id);
+          if (info.el != null) {
+            _this12.anchorManager.clearFor(_info.id);
 
-          _this12.anchorManager.removeFloatingConnection(_info.id);
+            _this12.anchorManager.removeFloatingConnection(_info.id);
 
-          if (_this12.isSource(_info.el)) {
-            _this12.unmakeSource(_info.el);
-          }
+            if (_this12.isSource(_info.el)) {
+              _this12.unmakeSource(_info.el);
+            }
 
-          if (_this12.isTarget(_info.el)) {
-            _this12.unmakeTarget(_info.el);
-          }
+            if (_this12.isTarget(_info.el)) {
+              _this12.unmakeTarget(_info.el);
+            }
 
-          delete _this12._floatingConnections[_info.id];
-          delete _this12._managedElements[_info.id];
-          delete _this12._offsets[_info.id];
+            delete _this12._floatingConnections[_info.id];
+            delete _this12._managedElements[_info.id];
+            delete _this12._offsets[_info.id];
 
-          if (_info.el) {
-            _this12.removeElement(_info.el);
+            if (_info.el) {
+              _this12.removeElement(_info.el);
+            }
           }
         }; // remove all affected child elements
 
@@ -7761,8 +7773,8 @@
         var info = this._info(el),
             affectedElements = [];
 
-        if (info.text) {
-          this.remove(info.el);
+        if (info.text && info.el.parentNode) {
+          info.el.parentNode.removeChild(info.el);
         } else if (info.id) {
           this.batch(function () {
             _this13._doRemove(info, affectedElements);
@@ -8435,7 +8447,46 @@
       key: "removeAllGroups",
       value: function removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent) {
         this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
-      }
+      } // ------------ posses (not ported yet, may not be...)
+
+      /*
+       addToPosse:function(el, spec) {
+              var specs = Array.prototype.slice.call(arguments, 1);
+              var dm = _getDragManager(this);
+              _jp.each(el, function(_el) {
+                  _el = [ _jp.getElement(_el) ];
+                  _el.push.apply(_el, specs );
+                  dm.addToPosse.apply(dm, _el);
+              });
+          },
+          setPosse:function(el, spec) {
+              var specs = Array.prototype.slice.call(arguments, 1);
+              var dm = _getDragManager(this);
+              _jp.each(el, function(_el) {
+                  _el = [ _jp.getElement(_el) ];
+                  _el.push.apply(_el, specs );
+                  dm.setPosse.apply(dm, _el);
+              });
+          },
+          removeFromPosse:function(el, posseId) {
+              var specs = Array.prototype.slice.call(arguments, 1);
+              var dm = _getDragManager(this);
+              _jp.each(el, function(_el) {
+                  _el = [ _jp.getElement(_el) ];
+                  _el.push.apply(_el, specs );
+                  dm.removeFromPosse.apply(dm, _el);
+              });
+          },
+          removeFromAllPosses:function(el) {
+              var dm = _getDragManager(this);
+              _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
+          },
+          setPosseState:function(el, posseId, state) {
+              var dm = _getDragManager(this);
+              _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
+          },
+        */
+
     }]);
 
     return jsPlumbInstance;
@@ -9638,6 +9689,7 @@
         var o = extend({
           selector: handler.selector
         }, dragOptions || {});
+        this.handlers.push(handler);
         o.start = wrap(o.start, function (p) {
           return handler.onStart(p);
         });
@@ -9648,6 +9700,8 @@
           return handler.onStop(p);
         });
 
+        o.beforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
+
         if (this.katavorioDraggable == null) {
           this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
         } else {
@@ -9657,6 +9711,10 @@
     }, {
       key: "reset",
       value: function reset() {
+        this.handlers.forEach(function (handler) {
+          handler.reset();
+        });
+
         if (this.katavorioDraggable != null) {
           this.katavorio.destroyDraggable(this.instance.getContainer());
         }
@@ -9765,6 +9823,9 @@
         this.instance.isConnectionBeingDragged = false;
         this._dragOffset = null;
       }
+    }, {
+      key: "reset",
+      value: function reset() {}
     }, {
       key: "onDrag",
       value: function onDrag(params) {
@@ -10108,12 +10169,16 @@
 
       _defineProperty(this, "_forceDetach", void 0);
 
+      _defineProperty(this, "_mousedownHandler", void 0);
+
+      _defineProperty(this, "_mouseupHandler", void 0);
+
       _defineProperty(this, "selector", ".jtk-endpoint");
 
       var container = instance.getContainer();
       var self = this;
 
-      var mousedownHandler = function mousedownHandler(e) {
+      this._mousedownHandler = function (e) {
         if (e.which === 3 || e.button === 2) {
           return;
         }
@@ -10207,12 +10272,12 @@
         }
       };
 
-      instance.on(container, "mousedown", "[jtk-source]", mousedownHandler); //
+      instance.on(container, "mousedown", "[jtk-source]", this._mousedownHandler); //
       // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
       // replaces what in previous versions was a mousedown/mouseup handler per element.
       //
 
-      instance.on(container, "mouseup", "[jtk-source]", function (e) {
+      this._mouseupHandler = function (e) {
         console.log("a mouse up event occurred on a source element");
         console.dir(e);
         var el = e.currentTarget || e.srcElement;
@@ -10225,10 +10290,18 @@
           });
           el._jsPlumbOrphanedEndpoints.length = 0;
         }
-      });
+      };
+
+      instance.on(container, "mouseup", "[jtk-source]", this._mouseupHandler);
     }
 
     _createClass(EndpointDragHandler, [{
+      key: "reset",
+      value: function reset() {
+        this.instance.off(this.instance.getContainer(), "mouseup", this._mouseupHandler);
+        this.instance.off(this.instance.getContainer(), "mousedown", this._mousedownHandler);
+      }
+    }, {
       key: "onStart",
       value: function onStart(p) {
         var _this = this;
@@ -10736,6 +10809,10 @@
                   } else {
                     this._maybeReattach(idx);
                   }
+
+                  this.instance.deleteObject({
+                    endpoint: this.jpc.floatingEndpoint
+                  });
                 }
               } else {
                 this._maybeReattach(idx);
@@ -10955,7 +11032,13 @@
             // }
           }
         } else {
+          this.instance.deleteObject({
+            endpoint: this.jpc.endpoints[idx]
+          });
+
           if (this.jpc.pending) {
+            // this.jpc.endpoints[idx === 1 ? 0 : 1].detachFromConnection(this.jpc);
+            // this.instance.deleteObject({connection: this.jpc});
             this.instance.fire("connectionAborted", this.jpc, originalEvent);
           }
         }
@@ -11089,11 +11172,14 @@
     }
 
     _createClass(GroupDragHandler, [{
-      key: "onDrag",
-      // onBeforeStart(beforeStartParams: any):void {
+      key: "reset",
+      value: function reset() {} // onBeforeStart(beforeStartParams: any):void {
       //     console.log("on before start, inside group");
       // }
       //
+
+    }, {
+      key: "onDrag",
       value: function onDrag(params) {
         console.log("on drag, inside a group");
 
@@ -11741,6 +11827,10 @@
       value: function setContainer(c) {
         this._detachEventDelegates();
 
+        if (this.dragManager != null) {
+          this.dragManager.reset();
+        }
+
         _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "setContainer", this).call(this, c);
 
         if (this.eventManager != null) {
@@ -11748,27 +11838,24 @@
         }
 
         if (this.dragManager != null) {
-          this.dragManager.reset();
           this.dragManager.addHandler(new EndpointDragHandler(this));
           this.dragManager.addHandler(new GroupDragHandler(this));
           this.dragManager.addHandler(new ElementDragHandler(this));
         }
       }
     }, {
-      key: "reset",
-      value: function reset(doNotUnbindInstanceEventListeners) {
-        if (!doNotUnbindInstanceEventListeners) {
-          this._detachEventDelegates();
-        }
+      key: "destroy",
+      value: function destroy() {
+        //if (unbindInstanceEventListeners) {
+        this._detachEventDelegates(); //}
+
 
         if (this.dragManager != null) {
           this.dragManager.reset();
-          this.dragManager.addHandler(new EndpointDragHandler(this));
-          this.dragManager.addHandler(new GroupDragHandler(this));
-          this.dragManager.addHandler(new ElementDragHandler(this));
         }
 
-        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this, doNotUnbindInstanceEventListeners);
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "destroy", this).call(this); //this.getContainer().innerHTML = "";
+
       }
     }]);
 
@@ -11894,7 +11981,8 @@
           y1: null,
           x2: null,
           y2: null,
-          index: null
+          index: null,
+          connectorLocation: null
         };
 
         for (var i = 0; i < this.segments.length; i++) {
@@ -11911,6 +11999,7 @@
             out.y1 = _s.y1;
             out.y2 = _s.y2;
             out.index = i;
+            out.connectorLocation = this.segmentProportions[i][0] + _s.l * (this.segmentProportions[i][1] - this.segmentProportions[i][0]);
           }
         }
 
@@ -12620,7 +12709,7 @@
           d: Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
           x: p.point.x,
           y: p.point.y,
-          l: p.location,
+          l: 1 - p.location,
           s: this,
           x1: null,
           y1: null,
