@@ -1,12 +1,12 @@
 QUnit.config.reorder = false;
 var defaults = null, support,
     _cleanup = function (_jsPlumb) {
-        _jsPlumb.reset();
-        _jsPlumb.unbindContainer();
+        _jsPlumb.destroy();
+        //_jsPlumb.unbindContainer();
         if (_jsPlumb.select().length != 0)
             throw "there are connections!";
 
-        _jsPlumb.Defaults = defaults;
+        //_jsPlumb.Defaults = defaults;
 
         support.cleanup();
 
@@ -22,8 +22,9 @@ var testSuite = function (_jsPlumb) {
             _cleanup(_jsPlumb);
         },
         setup: function () {
+            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
-            _jsPlumb.setContainer("container");
         }
     });
 
