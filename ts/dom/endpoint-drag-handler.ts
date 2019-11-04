@@ -224,6 +224,8 @@ export class EndpointDragHandler implements DragHandler {
         this.instance.off(this.instance.getContainer(), EVT_MOUSEDOWN, this._mousedownHandler);
     }
 
+    init(katavorioDraggable:any) {}
+
     selector: string = ".jtk-endpoint";
 
     onStart(p:any):boolean {

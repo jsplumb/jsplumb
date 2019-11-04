@@ -100,6 +100,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     reset() { }
+    init(katavorioDraggable:any) { }
 
     onDrag(params:any):void {
 

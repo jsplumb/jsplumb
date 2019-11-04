@@ -1,12 +1,34 @@
 import {ElementDragHandler} from "./element-drag-handler";
 import * as Constants from "../constants";
 import {PointXY} from "../core";
+import {EVT_REVERT} from "./drag-manager";
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 
 export class GroupDragHandler extends ElementDragHandler {
 
     selector: string = "> [jtk-group] [jtk-managed]";
 
-    reset() { }
+    katavorioDraggable:any;
+    doRevalidate:(el:any) => void;
+
+    constructor(protected instance:BrowserJsPlumbInstance) {
+        super(instance);
+
+        this.doRevalidate = this._revalidate.bind(this);
+    }
+
+    reset() {
+        this.katavorioDraggable.off(EVT_REVERT, this.doRevalidate);
+    }
+
+    private _revalidate(el:any) {
+        this.instance.revalidate(el);
+    }
+
+    init(katavorioDraggable:any) {
+        this.katavorioDraggable = katavorioDraggable;
+        katavorioDraggable.on(EVT_REVERT, this.doRevalidate);
+    }
 
 
     // onBeforeStart(beforeStartParams: any):void {

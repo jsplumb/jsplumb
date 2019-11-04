@@ -26,6 +26,7 @@ export const EVT_DRAG_STOP = "drag:stop";
 export const EVT_DRAG_START = "drag:start";
 export const EVT_MOUSEDOWN = "mousedown";
 export const EVT_MOUSEUP= "mouseup";
+export const EVT_REVERT = "revert";
 
 export interface DragHandler {
     selector:string;
@@ -34,6 +35,8 @@ export interface DragHandler {
     onStop:(params:any) => void;
 
     reset:() => void;
+
+    init:(katavorioDraggable:any) => void;
 
     onBeforeStart?:(beforeStartParams:any) => void;
 }
@@ -150,6 +153,8 @@ export class DragManager {
         } else {
             this.katavorioDraggable.addSelector(o);
         }
+
+        handler.init(this.katavorioDraggable);
     }
 
     reset():void {
