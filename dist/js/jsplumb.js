@@ -9871,22 +9871,15 @@
           y: ui.top,
           w: elSize[0],
           h: elSize[1]
-        };
-        console.log("bound is ");
-        console.dir(bounds);
-        console.log("group locations", this._groupLocations);
+        }; // TODO  calculate if there is a target group
 
         this._groupLocations.forEach(function (groupLoc) {
           if (Biltong.intersects(bounds, groupLoc.r)) {
             _this2.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
 
             _this2._intersectingGroups.push(groupLoc);
-
-            console.log("added intersecting group ", groupLoc);
           } else {
             _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
-
-            console.log("not intersecting, ", groupLoc);
           }
         });
 
@@ -9918,14 +9911,19 @@
 
         if (cont) {
           this._groupLocations.length = 0;
-          this._intersectingGroups.length = 0; //
-          // is it the best way to do it via the dom? the group manager can give all the groups, and also whether they are
-          // collapsed etc
-          //
+          this._intersectingGroups.length = 0; // if drag el not a group
 
           if (!el._isJsPlumbGroup) {
-            if (!el._jsPlumbGroup || el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true) {
+            var isNotInAGroup = !el._jsPlumbGroup;
+            var membersAreDroppable = isNotInAGroup || el._jsPlumbGroup.dropOverride !== true;
+            var isGhostOrNotConstrained = !isNotInAGroup && (el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true); // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
+            // it's not in a group, OR
+            // it hasnt mandated its element can't be dropped on other groups
+            // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
+
+            if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
               this.instance.groupManager.forEach(function (group) {
+                // prepare a list of potential droppable groups.
                 if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
                   var groupEl = group.el,
                       s = _this3.instance.getSize(groupEl),
