@@ -9589,6 +9589,9 @@
   var EVT_DRAG_MOVE = "drag:move";
   var EVT_DRAG_STOP = "drag:stop";
   var EVT_DRAG_START = "drag:start";
+  var EVT_MOUSEDOWN = "mousedown";
+  var EVT_MOUSEUP = "mouseup";
+  var EVT_REVERT = "revert";
   var DragManager =
   /*#__PURE__*/
   function () {
@@ -9710,11 +9713,18 @@
 
         o.beforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
 
+        if (handler.useGhostProxy) {
+          o.useGhostProxy = handler.useGhostProxy;
+          o.makeGhostProxy = handler.makeGhostProxy;
+        }
+
         if (this.katavorioDraggable == null) {
           this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
         } else {
           this.katavorioDraggable.addSelector(o);
         }
+
+        handler.init(this.katavorioDraggable);
       }
     }, {
       key: "reset",
@@ -9835,6 +9845,9 @@
       key: "reset",
       value: function reset() {}
     }, {
+      key: "init",
+      value: function init(katavorioDraggable) {}
+    }, {
       key: "onDrag",
       value: function onDrag(params) {
         var _this2 = this;
@@ -9846,9 +9859,7 @@
           left: finalPos[0],
           top: finalPos[1]
         };
-        this._intersectingGroups.length = 0; // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
-        // have been supplied to the instance's dragOptions.
-        //var o = el._jsPlumbDragOptions || {};
+        this._intersectingGroups.length = 0;
 
         if (this._dragOffset != null) {
           ui.left += this._dragOffset.left;
@@ -9860,15 +9871,22 @@
           y: ui.top,
           w: elSize[0],
           h: elSize[1]
-        }; // TODO  calculate if there is a target group
+        };
+        console.log("bound is ");
+        console.dir(bounds);
+        console.log("group locations", this._groupLocations);
 
         this._groupLocations.forEach(function (groupLoc) {
           if (Biltong.intersects(bounds, groupLoc.r)) {
             _this2.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
 
             _this2._intersectingGroups.push(groupLoc);
+
+            console.log("added intersecting group ", groupLoc);
           } else {
             _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
+
+            console.log("not intersecting, ", groupLoc);
           }
         });
 
@@ -9905,28 +9923,30 @@
           // collapsed etc
           //
 
-          if (!el._isJsPlumbGroup && (!el._jsPlumbGroup || el._jsPlumbGroup.constrain !== true)) {
-            this.instance.groupManager.forEach(function (group) {
-              if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
-                var groupEl = group.el,
-                    s = _this3.instance.getSize(groupEl),
-                    o = _this3.instance.getOffset(groupEl),
-                    boundingRect = {
-                  x: o.left,
-                  y: o.top,
-                  w: s[0],
-                  h: s[1]
-                };
+          if (!el._isJsPlumbGroup) {
+            if (!el._jsPlumbGroup || el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true) {
+              this.instance.groupManager.forEach(function (group) {
+                if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
+                  var groupEl = group.el,
+                      s = _this3.instance.getSize(groupEl),
+                      o = _this3.instance.getOffset(groupEl),
+                      boundingRect = {
+                    x: o.left,
+                    y: o.top,
+                    w: s[0],
+                    h: s[1]
+                  };
 
-                _this3._groupLocations.push({
-                  el: groupEl,
-                  r: boundingRect,
-                  group: group
-                });
+                  _this3._groupLocations.push({
+                    el: groupEl,
+                    r: boundingRect,
+                    group: group
+                  });
 
-                _this3.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
-              }
-            });
+                  _this3.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                }
+              });
+            }
           }
 
           this.instance.hoverSuspended = true;
@@ -10231,12 +10251,12 @@
           // a new connection from this endpoint.
 
 
-          instance.trigger(this.ep.endpoint.renderer.getElement(), "mousedown", e, payload);
+          instance.trigger(this.ep.endpoint.renderer.getElement(), EVT_MOUSEDOWN, e, payload);
           consume(e);
         }
       };
 
-      instance.on(container, "mousedown", "[jtk-source]", this._mousedownHandler); //
+      instance.on(container, EVT_MOUSEDOWN, "[jtk-source]", this._mousedownHandler); //
       // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
       // replaces what in previous versions was a mousedown/mouseup handler per element.
       //
@@ -10291,9 +10311,12 @@
     }, {
       key: "reset",
       value: function reset() {
-        this.instance.off(this.instance.getContainer(), "mouseup", this._mouseupHandler);
-        this.instance.off(this.instance.getContainer(), "mousedown", this._mousedownHandler);
+        this.instance.off(this.instance.getContainer(), EVT_MOUSEUP, this._mouseupHandler);
+        this.instance.off(this.instance.getContainer(), EVT_MOUSEDOWN, this._mousedownHandler);
       }
+    }, {
+      key: "init",
+      value: function init(katavorioDraggable) {}
     }, {
       key: "onStart",
       value: function onStart(p) {
@@ -11165,31 +11188,53 @@
   function (_ElementDragHandler) {
     _inherits(GroupDragHandler, _ElementDragHandler);
 
-    function GroupDragHandler() {
-      var _getPrototypeOf2;
-
+    function GroupDragHandler(instance) {
       var _this;
 
       _classCallCheck(this, GroupDragHandler);
 
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(GroupDragHandler)).call.apply(_getPrototypeOf2, [this].concat(args)));
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(GroupDragHandler).call(this, instance));
+      _this.instance = instance;
 
       _defineProperty(_assertThisInitialized(_this), "selector", "> [jtk-group] [jtk-managed]");
 
+      _defineProperty(_assertThisInitialized(_this), "katavorioDraggable", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
+
+      _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
       return _this;
     }
 
     _createClass(GroupDragHandler, [{
       key: "reset",
-      value: function reset() {} // onBeforeStart(beforeStartParams: any):void {
-      //     console.log("on before start, inside group");
-      // }
-      //
-
+      value: function reset() {
+        this.katavorioDraggable.off(EVT_REVERT, this.doRevalidate);
+      }
+    }, {
+      key: "_revalidate",
+      value: function _revalidate(el) {
+        this.instance.revalidate(el);
+      }
+    }, {
+      key: "init",
+      value: function init(katavorioDraggable) {
+        this.katavorioDraggable = katavorioDraggable;
+        katavorioDraggable.on(EVT_REVERT, this.doRevalidate);
+      }
+    }, {
+      key: "useGhostProxy",
+      value: function useGhostProxy(container, dragEl) {
+        var group = dragEl[GROUP_KEY];
+        return group == null ? false : group.ghost === true;
+      }
+    }, {
+      key: "makeGhostProxy",
+      value: function makeGhostProxy(el) {
+        var newEl = el.cloneNode(true);
+        newEl[GROUP_KEY] = el[GROUP_KEY];
+        return newEl;
+      }
     }, {
       key: "onDrag",
       value: function onDrag(params) {
@@ -11239,8 +11284,8 @@
           var group = params.el[GROUP_KEY];
 
           if (group.prune) {
+            this.instance.remove(params.el);
             group.remove(params.el);
-            params.el.parentNode.removeChild(params.el);
           } else if (group.orphan) {
             orphanedPosition = this.instance.groupManager.orphan(params.el);
             group.remove(params.el);
@@ -14443,6 +14488,9 @@
   exports.EVT_DRAG_MOVE = EVT_DRAG_MOVE;
   exports.EVT_DRAG_START = EVT_DRAG_START;
   exports.EVT_DRAG_STOP = EVT_DRAG_STOP;
+  exports.EVT_MOUSEDOWN = EVT_MOUSEDOWN;
+  exports.EVT_MOUSEUP = EVT_MOUSEUP;
+  exports.EVT_REVERT = EVT_REVERT;
   exports.Endpoint = Endpoint;
   exports.EndpointFactory = EndpointFactory;
   exports.EndpointRepresentation = EndpointRepresentation;
