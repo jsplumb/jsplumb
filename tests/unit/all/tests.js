@@ -6499,5 +6499,32 @@ test("drag multiple elements and ensure their connections are painted correctly 
 
     });
 
+    test("connection.replaceEndpoint", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {
+                endpoint:[ "Dot", { radius:15 } ]
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {
+                endpoint:[ "Dot", { radius:25 } ]
+            }),
+            c = _jsPlumb.connect({source:e1, target:e2});
+
+        equal(15, c.endpoints[0].endpoint.radius, "endpoint 1 has radius 15");
+        equal(25, c.endpoints[1].endpoint.radius, "endpoint 2 has radius 25");
+
+        equal("Dot", c.endpoints[0].endpoint.type, "endpoint 1 is a Dot");
+        equal("Dot", c.endpoints[1].endpoint.type, "endpoint 2 is a Dot");
+
+        c.replaceEndpoint(0, [ "Rectangle", {width:50,height:50}]);
+        c.replaceEndpoint(1, [ "Dot", {radius:100}]);
+
+        equal(50, c.endpoints[0].endpoint.width, "endpoint 1 now has width 50");
+        equal(50, c.endpoints[0].endpoint.height, "endpoint 1 now has height 50");
+        equal(100, c.endpoints[1].endpoint.radius, "endpoint 2 now has radius 100");
+
+        equal("Rectangle", c.endpoints[0].endpoint.type, "endpoint 1 is now a Rectangle");
+        equal("Dot", c.endpoints[1].endpoint.type, "endpoint 2 is now a Dot");
+    });
+
 };
 
