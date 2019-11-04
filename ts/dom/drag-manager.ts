@@ -29,16 +29,22 @@ export const EVT_MOUSEUP= "mouseup";
 export const EVT_REVERT = "revert";
 
 export interface DragHandler {
+
     selector:string;
+
     onStart:(params:any) => boolean;
     onDrag:(params:any) => void;
     onStop:(params:any) => void;
 
     reset:() => void;
-
     init:(katavorioDraggable:any) => void;
 
     onBeforeStart?:(beforeStartParams:any) => void;
+}
+
+export interface GhostProxyingDragHandler extends DragHandler {
+    makeGhostProxy:(el:any) => any;
+    useGhostProxy:(container:any, dragEl:any) => boolean;
 }
 
 export class DragManager {
@@ -147,6 +153,12 @@ export class DragManager {
         o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); });
         o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); });
         o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler);
+
+        if ((handler as GhostProxyingDragHandler).useGhostProxy) {
+            o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy;
+            o.makeGhostProxy  = (handler as GhostProxyingDragHandler).makeGhostProxy;
+        }
+
 
         if (this.katavorioDraggable == null) {
             this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
