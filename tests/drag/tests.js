@@ -1,15 +1,6 @@
 QUnit.config.reorder = false;
 
-var defaults = null, _divs = [], support, _jsPlumb,
-    _cleanup = function (_jsPlumb) {
-
-        try {
-            support.cleanup();
-        }
-        catch (e) {
-            throw "support failed to cleanup";
-        }
-    };
+var defaults = null, _divs = [], support, _jsPlumb;
 
 /**
  * Tests for dragging
@@ -25,7 +16,7 @@ var testSuite = function () {
 
     module("Drag", {
         teardown: function () {
-            _cleanup(_jsPlumb);
+            support.cleanup();
         },
         setup: function () {
             _jsPlumb = jsPlumb.newInstance(({container:container}));
@@ -207,7 +198,7 @@ var testSuite = function () {
 
         support.relocateSource(d2d1, d2);
         equal(d2d1.endpoints[0].elementId, "d2", "source endpoint is on d2 now");
-        ok(d2d1.endpoints[1].canvas.parentNode != null, "target canvas put back into DOM");
+        ok(support.getEndpointCanvas(d2d1.endpoints[1]).parentNode != null, "target canvas put back into DOM");
     });
 
     test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target is continuous anchor so is hidden. (issue 419)", function() {
@@ -284,13 +275,12 @@ var testSuite = function () {
             isTarget:true
         });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
-        var evt = false, originalEvent;
+        var evt = false, originalEvent, evtCount = 0;
         _jsPlumb.bind('connectionDetached', function (info, oevt) {
             evt = true;
             originalEvent = oevt;
+            evtCount++;
         });
-
-        
 
         support.dragConnection(e2, e1);
         equal(e1.connections.length, 1, "one connection");
@@ -299,6 +289,7 @@ var testSuite = function () {
 
         equal(e1.connections.length, 0, "no connections");
         ok(evt == true, "event was fired");
+        equal(evtCount, 1, "event was fired once only");
         ok(originalEvent != null, "original event was provided in event callback");
     });
 
@@ -693,6 +684,7 @@ var testSuite = function () {
         equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
+    // DRAG TARGET and redrop on original
     test("connection dragging, redrop on original target", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         _jsPlumb.makeSource([d1, d2, d3], { });
@@ -725,7 +717,7 @@ var testSuite = function () {
     });
 
 
-    // DRAG SOURCE TO AN ELEMENT NO CONFIGURED AS SOURCE (SHOULD DETACH)
+    // DRAG SOURCE TO AN ELEMENT NOT CONFIGURED AS SOURCE (SHOULD DETACH)
     test("connection dragging, move source to element not configured as drag source", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         _jsPlumb.makeSource([d1, d2, d3], { });
@@ -762,7 +754,7 @@ var testSuite = function () {
         equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
-    // DRAG SOURCE TO ANOTHER SOURCE BUT BEFORE DROP SAYS NO
+    // DRAG SOURCE TO ELEMENT NOT CONFIGURED AS SOURCE BUT BEFORE DROP SAYS NO SO ITS IRRELEVANT
     test("connection dragging, move source to element not configured as drag source, beforeDrop cancels connection", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         _jsPlumb.bind("beforedrop", function() { return false; });
@@ -782,7 +774,7 @@ var testSuite = function () {
     });
 
     // DRAG TARGET TO ANOTHER SOURCE (BUT NOT A TARGET); SHOULD DETACH
-    test("connection dragging, move source to element not configured as drag source", function() {
+    test("connection dragging, move target to element not configured as drag target", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         _jsPlumb.makeSource([d1, d2, d3, d4], { });
         _jsPlumb.makeTarget([d1, d2, d3], { });
@@ -791,9 +783,11 @@ var testSuite = function () {
         equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1, "1 connection registered for d1 after mouse connect");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1, "1 connection registered for d2 after mouse connect");
 
+        equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints found after connection established");
+
         support.relocateTarget(c, d4);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 0, "0 connections registered for d1 after mouse move");
-        equal(_jsPlumb.selectEndpoints().length, 0, "zero endpoints; there are no connections");
+        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 0, "0 connections registered for d1 in anchor manager after mouse move");
+        equal(_jsPlumb.selectEndpoints().length, 0, "zero endpoints found");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 0, "0 connections registered for d2 after mouse move");
         equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0, "0 connections registered for d3 after mouse move");
         equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");

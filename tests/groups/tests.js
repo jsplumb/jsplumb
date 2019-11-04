@@ -1,31 +1,13 @@
 QUnit.config.reorder = false;
 
-var defaults = null, _divs = [], support, _jsPlumb,
-    _cleanup = function (_jsPlumb) {
-        _jsPlumb.destroy();
-        //_jsPlumb.unbindContainer();
-        if (_jsPlumb.select().length != 0)
-            throw "there are connections!";
+var defaults = null, _divs = [], support, _jsPlumb;
 
-        //_jsPlumb.Defaults = defaults;
+var testSuite = function () {
 
-        support.cleanup();
-
-        document.getElementById("container").innerHTML = "";
-    };
-
-var testSuite = function (_jsPlumb) {
-
-
-
-    var _detachThisConnection = function(c) {
-        var idx = c.endpoints[1].connections.indexOf(c);
-        support.detachConnection(c.endpoints[1], idx);
-    };
 
     module("Drag", {
         teardown: function () {
-            _cleanup(_jsPlumb);
+            support.cleanup();
         },
         setup: function () {
             _jsPlumb = jsPlumb.newInstance(({container:container}));
@@ -38,12 +20,6 @@ var testSuite = function (_jsPlumb) {
     test("sanity", function() {
         equal(1,1);
     });
-
-
-    var _addGroupAndDomElement = function(j, name, params) {
-        var c = support.addDiv(name, null, "container");
-        return _addGroup(j, name, c, []);
-    };
 
     var _addGroup = function(j, name, container, members, params) {
         var g = j.addGroup(jsPlumb.extend({

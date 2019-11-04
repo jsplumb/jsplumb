@@ -1,27 +1,12 @@
 QUnit.config.reorder = false;
 
-var defaults = null, _divs = [], support, _jsPlumb,
-    _cleanup = function (_jsPlumb) {
-        _jsPlumb.destroy();
-        //_jsPlumb.unbindContainer();
-        if (_jsPlumb.select().length != 0)
-            throw "there are connections!";
+var defaults = null, support, _jsPlumb;
 
-        //_jsPlumb.Defaults = defaults;
-
-        support.cleanup();
-
-        document.getElementById("container").innerHTML = "";
-    };
-
-var testSuite = function (_jsPlumb) {
-
-    var renderMode = jsPlumb.SVG;
-
+var testSuite = function () {
 
     module("Make Source", {
         teardown: function () {
-            _cleanup(_jsPlumb);
+            support.cleanup();
         },
         setup: function () {
             _jsPlumb = jsPlumb.newInstance({container:container});
@@ -415,7 +400,7 @@ var testSuite = function (_jsPlumb) {
         ok(_jsPlumb.isTargetEnabled(d17) == false, "d17 is recognised as disabled");
     });
 
-    test(": _jsPlumb.makeTarget - endpoints deleted by default.", function () {
+    test(": _jsPlumb.makeTarget - endpoints deleted by default when they have no more connections", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         _jsPlumb.makeSource(d16);
         _jsPlumb.makeTarget(d17);
