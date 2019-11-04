@@ -77,8 +77,10 @@ export class GroupDragHandler extends ElementDragHandler {
         if (!this._isInsideParent(params.el, params.pos)) {
             let group = params.el[Constants.GROUP_KEY];
             if (group.prune) {
+
+                this.instance.remove(params.el);
                 group.remove(params.el);
-                params.el.parentNode.removeChild(params.el);
+
             } else if (group.orphan) {
                 orphanedPosition = this.instance.groupManager.orphan(params.el);
                 group.remove(params.el);
