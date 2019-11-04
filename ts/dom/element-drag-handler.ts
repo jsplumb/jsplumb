@@ -7,7 +7,7 @@ import {
     EVT_DRAG_MOVE, EVT_DRAG_START,
     EVT_DRAG_STOP
 } from "./drag-manager";
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
+import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 import {Group} from "../group/group";
 import {BoundingBox, Offset} from "../core";
 
@@ -139,7 +139,7 @@ export class ElementDragHandler implements DragHandler {
 
     onStart(params:any):boolean {
 
-        const el = params.drag.getDragElement();
+        const el = params.drag.getDragElement() as jsPlumbDOMElement;
 
         if (el._jsPlumbGroup) {
             this._dragOffset = this.instance.getOffset(el.offsetParent);
@@ -158,10 +158,19 @@ export class ElementDragHandler implements DragHandler {
 
             // if drag el not a group
             if (!el._isJsPlumbGroup) {
-                // if no current group, or current group is setup to ghost proxy, or it does not have `constrain` set...
-                if ((!el._jsPlumbGroup || el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true)) {
+
+                const isNotInAGroup = !el._jsPlumbGroup;
+                const membersAreDroppable = isNotInAGroup || el._jsPlumbGroup.dropOverride !== true;
+                const isGhostOrNotConstrained = !isNotInAGroup && (el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true);
+
+                // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
+                // it's not in a group, OR
+                // it hasnt mandated its element can't be dropped on other groups
+                // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
+
+                if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
                     this.instance.groupManager.forEach((group: Group<HTMLElement>) => {
-                        // prepare a list of potential droppabl groups.
+                        // prepare a list of potential droppable groups.
                         if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
                             let groupEl = group.el,
                                 s = this.instance.getSize(groupEl),
@@ -176,8 +185,8 @@ export class ElementDragHandler implements DragHandler {
             }
 
             this.instance.hoverSuspended = true;
-            this.instance.select({source: el}).addClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
-            this.instance.select({target: el}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
+            this.instance.select({source: el as any}).addClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
+            this.instance.select({target: el as any}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
             this.instance.isConnectionBeingDragged = true;
 
             this.instance.fire(EVT_DRAG_START, {
