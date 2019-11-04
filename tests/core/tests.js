@@ -3952,7 +3952,7 @@ var testSuite = function () {
 
         ok(v1 != v2, "instance versions are different : " + v1 + " : " + v2);
 
-        _cleanup(_jsp2);
+        jsPlumbTestSupport.getInstance(_jsp2).cleanup();
         foo.parentNode.removeChild(foo);
     });
 
@@ -4039,7 +4039,7 @@ var testSuite = function () {
 
         ok(_jsPlumb.Defaults.anchors[0] == null, "still no anchors set after providing Anchors to an instance");
 
-        _cleanup(j);
+        jsPlumbTestSupport.getInstance(j).cleanup();
         foo.parentNode.removeChild(foo);
 
     });
@@ -6786,7 +6786,7 @@ var testSuite = function () {
         equal(j.getSize(d)[0], 100, "width is set by pluggable function");
         equal(j.getSize(d)[1], 100, "height is set by pluggable function");
 
-        _cleanup(j);
+        jsPlumbTestSupport.getInstance(j).cleanup();
     });
 
     test("pluggable getOffset", function() {
@@ -6801,7 +6801,7 @@ var testSuite = function () {
         equal(j.getOffset(d).left, 100, "offset left is set by pluggable function");
         equal(j.getOffset(d).top, 100, "offset top is set by pluggable function");
 
-        _cleanup(j);
+        jsPlumbTestSupport.getInstance(j).cleanup();
     });
 
     test("endpoint deletion: no deletion by default", function() {
@@ -6902,5 +6902,31 @@ var testSuite = function () {
 
     });
 
+    test("connection.replaceEndpoint", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {
+                endpoint:[ "Dot", { radius:15 } ]
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {
+                endpoint:[ "Dot", { radius:25 } ]
+            }),
+            c = _jsPlumb.connect({source:e1, target:e2});
+
+        equal(15, c.endpoints[0].endpoint.radius, "endpoint 1 has radius 15");
+        equal(25, c.endpoints[1].endpoint.radius, "endpoint 2 has radius 25");
+
+        equal("Dot", c.endpoints[0].endpoint.getType(), "endpoint 1 is a Dot");
+        equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is a Dot");
+
+        c.replaceEndpoint(0, [ "Rectangle", {width:50,height:50}]);
+        c.replaceEndpoint(1, [ "Dot", {radius:100}]);
+
+        equal(50, c.endpoints[0].endpoint.width, "endpoint 1 now has width 50");
+        equal(50, c.endpoints[0].endpoint.height, "endpoint 1 now has height 50");
+        equal(100, c.endpoints[1].endpoint.radius, "endpoint 2 now has radius 100");
+
+        equal("Rectangle", c.endpoints[0].endpoint.getType(), "endpoint 1 is now a Rectangle");
+        equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is now a Dot");
+    });
 };
 
