@@ -11239,24 +11239,29 @@
         console.log("on drag, inside a group");
 
         _get(_getPrototypeOf(GroupDragHandler.prototype), "onDrag", this).call(this, params);
-      } //
-      // onStart(params: any) {
-      //     console.log("on start, inside group. could have a group lock function and return false from here");
-      //     return true;
-      // }
-      //
-
+      }
     }, {
       key: "onStop",
       value: function onStop(params) {
-        console.log("on stop, inside a group. here we should test for orphan, prune etc");
-
         var originalGroup = params.el[GROUP_KEY],
             out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params),
             currentGroup = params.el[GROUP_KEY];
 
         if (currentGroup === originalGroup) {
           this._pruneOrOrphan(params);
+        } else {
+          if (originalGroup.ghost) {
+            var o1 = this.instance.getOffset(currentGroup.getDragArea());
+            var o2 = this.instance.getOffset(originalGroup.getDragArea());
+            var o = {
+              left: o2.left + params.pos[0] - o1.left,
+              top: o2.top + params.pos[1] - o1.top
+            };
+            var originalElement = params.drag.getDragElement(true);
+            originalElement.style.left = o.left + "px";
+            originalElement.style.top = o.top + "px";
+            this.instance.revalidate(originalElement);
+          }
         }
 
         return out;
