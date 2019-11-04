@@ -8,6 +8,7 @@ import {EndpointDragHandler} from "./endpoint-drag-handler";
 import {GroupDragHandler} from "./group-drag-handler";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
+import { Group } from "../group/group";
 
 declare const Mottle:any;
 
@@ -33,6 +34,13 @@ export interface DropOptions {
 
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
     dragOptions?: DragOptions;
+}
+
+export interface jsPlumbDOMElement {
+    _jsPlumbGroup: Group<HTMLElement>;
+    _isJsPlumbGroup: boolean;
+    offsetParent: HTMLElement;
+    getAttribute:(name:string) => string;
 }
 
 function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void {
