@@ -111,10 +111,6 @@ export class ElementDragHandler implements DragHandler {
 
         this._intersectingGroups.length = 0;
 
-        // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
-        // have been supplied to the instance's dragOptions.
-        //var o = el._jsPlumbDragOptions || {};
-
         if (this._dragOffset != null) {
             ui.left += this._dragOffset.left;
             ui.top += this._dragOffset.top;
@@ -160,23 +156,23 @@ export class ElementDragHandler implements DragHandler {
             this._groupLocations.length = 0;
             this._intersectingGroups.length = 0;
 
-            //
-            // is it the best way to do it via the dom? the group manager can give all the groups, and also whether they are
-            // collapsed etc
-            //
+            // if drag el not a group
+            if (!el._isJsPlumbGroup) {
+                // if no current group, or current group is setup to ghost proxy, or it does not have `constrain` set...
+                if ((!el._jsPlumbGroup || el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true)) {
+                    this.instance.groupManager.forEach((group: Group<HTMLElement>) => {
+                        // prepare a list of potential droppabl groups.
+                        if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
+                            let groupEl = group.el,
+                                s = this.instance.getSize(groupEl),
+                                o = this.instance.getOffset(groupEl),
+                                boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
 
-            if (!el._isJsPlumbGroup && (!el._jsPlumbGroup || el._jsPlumbGroup.constrain !== true)) {
-                this.instance.groupManager.forEach((group:Group<HTMLElement>) => {
-                    if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
-                        let groupEl = group.el,
-                            s = this.instance.getSize(groupEl),
-                            o = this.instance.getOffset(groupEl),
-                            boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
-
-                        this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
-                        this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
-                    }
-                });
+                            this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
+                            this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                        }
+                    });
+                }
             }
 
             this.instance.hoverSuspended = true;
