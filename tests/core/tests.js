@@ -33,25 +33,13 @@ var within = function (val, target, _ok, msg) {
     _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
 };
 
-var defaults = null, support,
-    _cleanup = function (_jsPlumb) {
+var defaults = null, support, _jsPlumb;
 
-        //_jsPlumb.unbindContainer();
-        // if (_jsPlumb.select().length != 0)
-        //     throw "there are connections!";
-
-        //_jsPlumb.Defaults = defaults;
-
-        support.cleanup();
-
-        document.getElementById("container").innerHTML = "";
-    };
-
-var testSuite = function (_jsPlumb) {
+var testSuite = function () {
 
     module("jsPlumb", {
         teardown: function () {
-            _cleanup(_jsPlumb);
+            support.cleanup();
         },
         setup: function () {
             _jsPlumb = jsPlumb.newInstance({container:document.getElementById("container")});
