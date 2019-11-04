@@ -1,10 +1,10 @@
 import {ElementDragHandler} from "./element-drag-handler";
 import * as Constants from "../constants";
 import {PointXY} from "../core";
-import {EVT_REVERT} from "./drag-manager";
+import {EVT_REVERT, GhostProxyingDragHandler} from "./drag-manager";
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 
-export class GroupDragHandler extends ElementDragHandler {
+export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
 
     selector: string = "> [jtk-group] [jtk-managed]";
 
@@ -30,11 +30,17 @@ export class GroupDragHandler extends ElementDragHandler {
         katavorioDraggable.on(EVT_REVERT, this.doRevalidate);
     }
 
+    useGhostProxy(container:any, dragEl:any) {
+        let group = dragEl[Constants.GROUP_KEY];
+        return group == null ? false : group.ghost === true;
+    }
 
-    // onBeforeStart(beforeStartParams: any):void {
-    //     console.log("on before start, inside group");
-    // }
-    //
+    makeGhostProxy (el: any) {
+        const newEl = el.cloneNode(true);
+        newEl[Constants.GROUP_KEY] = el[Constants.GROUP_KEY];
+        return newEl;
+    }
+
     onDrag(params: any) {
         console.log("on drag, inside a group");
         super.onDrag(params);
