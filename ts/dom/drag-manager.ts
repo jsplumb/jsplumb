@@ -17,6 +17,16 @@ function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:P
     return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
 }
 
+export const CLASS_DRAG_ACTIVE = "jtk-drag-active";
+export const CLASS_DRAGGED = "jtk-dragged";
+export const CLASS_DRAG_HOVER = "jtk-drag-hover";
+export const ATTR_NOT_DRAGGABLE = "jtk-not-draggable";
+export const EVT_DRAG_MOVE = "drag:move";
+export const EVT_DRAG_STOP = "drag:stop";
+export const EVT_DRAG_START = "drag:start";
+export const EVT_MOUSEDOWN = "mousedown";
+export const EVT_MOUSEUP= "mouseup";
+
 export interface DragHandler {
     selector:string;
     onStart:(params:any) => boolean;
