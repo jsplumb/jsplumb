@@ -1,5 +1,7 @@
 ## 4.x alpha
 
+- updated to Katavorio 1.4.10
+
 - Rewrote in Typescript
 - Major refactoring of the rendering pipeline
 
