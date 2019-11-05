@@ -574,19 +574,23 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         }
     }
 
+    reset(silently?:boolean) {
+        super.reset(silently);
+        if (silently) {
+            const container = this.getContainer();
+            const els = container.querySelectorAll("[jtk-managed], .jtk-endpoint, .jtk-connector, .jtk-overlay");
+            els.forEach((el:any) => el.parentNode && el.parentNode.removeChild(el));
+        }
+    }
 
     destroy(): void {
 
-        //if (unbindInstanceEventListeners) {
-            this._detachEventDelegates();
-        //}
+        this._detachEventDelegates();
 
         if (this.dragManager != null) {
             this.dragManager.reset();
         }
 
         super.destroy();
-
-        //this.getContainer().innerHTML = "";
     }
 }
