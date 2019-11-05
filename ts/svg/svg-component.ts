@@ -172,7 +172,6 @@ export abstract class SvgComponent {
     }
 
     destroy(force?:boolean) {
-        console.log("destroy svg component");
         if (this.canvas != null) {
             this.instance.removeElement(this.canvas as any);
         }
