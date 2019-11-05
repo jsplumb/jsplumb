@@ -3497,8 +3497,7 @@
         var p = extend(params || {}, {});
         p.elId = this.sourceId;
         this.paint(p);
-      } //prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
-
+      }
     }, {
       key: "prepareEndpoint",
       value: function prepareEndpoint(existing, index, element, elementId, params) {
@@ -3581,6 +3580,29 @@
       key: "_makeAnchor",
       value: function _makeAnchor(spec, elementId) {
         return spec != null ? makeAnchorFromSpec(this.instance, spec, elementId) : null;
+      }
+    }, {
+      key: "replaceEndpoint",
+      value: function replaceEndpoint(idx, endpointDef) {
+        var current = this.endpoints[idx],
+            elId = current.elementId,
+            ebe = this.instance.getEndpoints(elId),
+            _idx = ebe.indexOf(current),
+            _new = this.prepareEndpoint(null, idx, current.element, elId, {
+          endpoint: endpointDef
+        });
+
+        this.endpoints[idx] = _new;
+        ebe.splice(_idx, 1, _new);
+        this.instance.deleteObject({
+          endpoint: current,
+          deleteAttachedObjects: false
+        });
+        this.instance.fire("endpointReplaced", {
+          previous: current,
+          current: _new
+        });
+        this.instance.anchorManager.updateOtherEndpoint(this.endpoints[0].elementId, this.endpoints[1].elementId, this.endpoints[1].elementId, this);
       }
     }]);
 
@@ -6637,22 +6659,13 @@
         }
 
         return this._makeEndpointSelectHandler(ep);
-      }
-    }, {
-      key: "unbindContainer",
-      value: function unbindContainer() {} // if (this._container != null && this._containerDelegations.length > 0) {
-      //     for (let i = 0; i < this._containerDelegations.length; i++) {
-      //         this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
-      //     }
-      // }
-      //
+      } //
       // TODO this knows about the DOM. refactor
       //
 
     }, {
       key: "setContainer",
       value: function setContainer(c) {
-        //this.unbindContainer();
         // get container as dom element.
         var _c = this.getElement(c); // set container.
 
@@ -6665,51 +6678,7 @@
         });
         this.selectEndpoints().each(function (ep) {
           ep.moveParent(_c);
-        }); // this._containerDelegations.length = 0;
-        // const eventAliases = {
-        //     "endpointclick":"endpointClick",
-        //     "endpointdblclick":"endpointDblClick"
-        // };
-        //
-        // const _oneDelegateHandler = (id:string, e:Event, componentType?:string) => {
-        //     let t:any = e.srcElement || e.target,
-        //         jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
-        //     if (jp) {
-        //         (jp.endpoint || jp.connection).fire(id, jp.endpoint || jp.connection, e);
-        //         let alias = componentType ? eventAliases[componentType + id] || id : id;
-        //         // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
-        //         this.fire(alias, jp.component || jp, e);
-        //     }
-        // };
-        //
-        // const _addOneDelegate = (eventId:string, selector:string, fn:Function) => {
-        //     this._containerDelegations.push([eventId, fn]);
-        //     this.on(this._container, eventId, selector, fn);
-        // };
-        //
-        // // delegate one event on the container to jsplumb elements. it might be possible to
-        // // abstract this out: each of endpoint, connection and overlay could register themselves with
-        // // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
-        // // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
-        // const _oneDelegate = (id:string) => {
-        //     // connections.
-        //     _addOneDelegate(id, Constants.SELECTOR_CONNECTOR, (e:Event) => {
-        //         _oneDelegateHandler(id, e);
-        //     });
-        //     // endpoints. note they can have an enclosing div, or not.
-        //     _addOneDelegate(id, Constants.SELECTOR_ENDPOINT, (e:Event) => {
-        //         _oneDelegateHandler(id, e, "endpoint");
-        //     });
-        //     // overlays
-        //     _addOneDelegate(id, Constants.SELECTOR_OVERLAY, (e:Event) => {
-        //         _oneDelegateHandler(id, e);
-        //     });
-        // };
-        //
-        // for (let i = 0; i < events.length; i++) {
-        //     _oneDelegate(events[i]);
-        // }
-        // managed elements
+        }); // managed elements
 
         for (var elId in this._managedElements) {
           var _el3 = this._managedElements[elId].el;
@@ -7456,32 +7425,40 @@
         }
 
         return results;
-      }
+      } // clears all endpoints and connections from the instance of jsplumb, optionally without firing any events
+      // subclasses should take care of cleaning up the rendering.
+
     }, {
       key: "reset",
-      value: function reset(unbindInstanceEventListeners) {
+      value: function reset(silently) {
         var _this10 = this;
 
         this.silently(function () {
-          _this10.groupManager.reset();
+          if (!silently) {
+            _this10.deleteEveryEndpoint();
+          }
 
-          _this10.deleteEveryEndpoint();
+          _this10.endpointsByElement = {};
+          _this10._managedElements = {};
+          _this10.endpointsByUUID = {};
+          _this10._offsets = {};
+          _this10._offsetTimestamps = {};
+
+          _this10.anchorManager.reset();
+
+          _this10.groupManager.reset();
 
           _this10._connectionTypes = {};
           _this10._endpointTypes = {};
-
-          if (unbindInstanceEventListeners) {
-            _this10.unbind();
-          }
-
           _this10.connections.length = 0;
         });
-      }
+      } // clears the instance (without firing any events) and unbinds any listeners on the instance.
+
     }, {
       key: "destroy",
       value: function destroy() {
         this.reset(true);
-        this.unbindContainer();
+        this.unbind();
       }
     }, {
       key: "getEndpoints",
@@ -8715,7 +8692,9 @@
     _createClass(HTMLCustomElementOverlay, [{
       key: "_createElement",
       value: function _createElement(component) {
-        return this.overlay.create(component);
+        var el = this.overlay.create(component);
+        el.classList.add("jtk-overlay");
+        return el;
       }
     }]);
 
@@ -9229,8 +9208,7 @@
     }, {
       key: "destroy",
       value: function destroy(force) {
-        console.log("destroy svg component");
-
+        //console.log("destroy svg component");
         if (this.canvas != null) {
           this.instance.removeElement(this.canvas);
         }
@@ -11904,17 +11882,28 @@
         }
       }
     }, {
+      key: "reset",
+      value: function reset(silently) {
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this, silently);
+
+        if (silently) {
+          var container = this.getContainer();
+          var els = container.querySelectorAll("[jtk-managed], .jtk-endpoint, .jtk-connector, .jtk-overlay");
+          els.forEach(function (el) {
+            return el.parentNode && el.parentNode.removeChild(el);
+          });
+        }
+      }
+    }, {
       key: "destroy",
       value: function destroy() {
-        //if (unbindInstanceEventListeners) {
-        this._detachEventDelegates(); //}
-
+        this._detachEventDelegates();
 
         if (this.dragManager != null) {
           this.dragManager.reset();
         }
 
-        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "destroy", this).call(this); //this.getContainer().innerHTML = "";
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "destroy", this).call(this); //this.getContainer().innerHTML = ""; <--
 
       }
     }]);
