@@ -297,8 +297,8 @@
 
                     var connCount = _jsPlumb.select().length,
                         epCount = _jsPlumb.selectEndpoints().length,
-                        epElCount = document.querySelectorAll(".jtk-endpoint").length,
-                        connElCount = document.querySelectorAll(".jtk-connector").length;
+                        epElCount = container.querySelectorAll(".jtk-endpoint").length,
+                        connElCount = container.querySelectorAll(".jtk-connector").length;
 
                     console.log(container.__ta);
                     for (var k in container.__ta) {
@@ -307,19 +307,19 @@
                         }
                     }
 
-                    // if (connCount > 0)
-                    //     throw "there are connections in the data model!";
+                    if (connCount > 0)
+                        throw "there are connections in the data model!";
+
+                    if (epCount > 0)
+                        throw "there are endpoints in the data model!";
+
+                    if (epElCount > 0) {
+                        throw "there are " + epElCount + " endpoints left in the dom!";
+                    }
                     //
-                    // if (epCount > 0)
-                    //     throw "there are endpoints in the data model!";
-                    //
-                    // if (epElCount > 0) {
-                    //     throw "there are " + epElCount + " endpoints left in the dom!";
-                    // }
-                    // //
-                    // if (connElCount > 0) {
-                    //     throw "there are " + connElCount + " connections left in the dom!";
-                    // }
+                    if (connElCount > 0) {
+                        throw "there are " + connElCount + " connections left in the dom!";
+                    }
 
                 },
                 makeContent : function (s) {
