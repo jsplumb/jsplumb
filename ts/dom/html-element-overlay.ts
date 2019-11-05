@@ -180,6 +180,8 @@ export class HTMLCustomElementOverlay extends HTMLElementOverlay implements Over
 
 
     _createElement(component:Component<HTMLElement>): HTMLElement {
-        return this.overlay.create(component);
+        const el = this.overlay.create(component);
+        el.classList.add("jtk-overlay");
+        return el;
     }
 }
