@@ -6458,7 +6458,7 @@ var testSuite = function () {
 
         _jsPlumb.reset(true);
         _jsPlumb.connect({source:d1, target:d2});
-        ok(!c, "connection event NOT fired after reset, because reset's default behaviour is to unbind event listeners.");
+        ok(c, "connection event is fired after reset, because reset's default behaviour is not to unbind event listeners.");
 
     });
 
