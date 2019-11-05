@@ -69,9 +69,8 @@ var testSuite = function () {
         ok(c1 != null);
 
         // change container and check again
-        var container2 = document.createElement("div");
-        container2.id = "container2";
-        document.body.appendChild(container2);
+        var container2 = support.addDiv("container2", document.body);
+
         _jsPlumb.setContainer(container2);
 
         var c2 = _jsPlumb.getContainer().getAttribute("jtk-container");
@@ -1255,7 +1254,6 @@ var testSuite = function () {
         _jsPlumb.reset(true);
         conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).delete();
-        ok(returnedParams == null, "connection listener was cleared by _jsPlumb.reset()");
         equal(_jsPlumb.select({source: d1}).length, 0, "no connections from d1 after detach with two connections as arguments");
     });
 
@@ -3934,12 +3932,13 @@ var testSuite = function () {
     test(" id clashes between instances", function () {
         var foo = document.createElement("div");
         document.body.appendChild(foo);
-        var d1 = document.createElement("div"),
-            d2 = document.createElement("div"),
-            _jsp2 = jsPlumb.newInstance({container:foo});
+        var d1 = support.addDiv("d1"),
+            _jsp2 = jsPlumb.newInstance({container:foo}),
+            support2 = jsPlumbTestSupport.getInstance(_jsp2),
+            d2 = support2.addDiv("d2");
 
-        document.body.appendChild(d1);
-        document.body.appendChild(d2);
+        d1.removeAttribute("id");
+        d2.removeAttribute("id");
 
         _jsPlumb.addEndpoint(d1);
         _jsp2.addEndpoint(d2);
@@ -3952,29 +3951,9 @@ var testSuite = function () {
 
         ok(v1 != v2, "instance versions are different : " + v1 + " : " + v2);
 
-        jsPlumbTestSupport.getInstance(_jsp2).cleanup();
+        support2.cleanup();
         foo.parentNode.removeChild(foo);
     });
-
-    test(" id clashes between instances", function () {
-        var d1 = document.createElement("div"),
-            d2 = document.createElement("div");
-
-        document.body.appendChild(d1);
-        document.body.appendChild(d2);
-
-        _jsPlumb.addEndpoint(d1);
-        _jsPlumb.addEndpoint(d2);
-
-        var id1 = d1.getAttribute("id"),
-            id2 = d2.getAttribute("id");
-
-        var idx = id1.indexOf("_"), idx2 = id1.lastIndexOf("_"), v1 = id1.substring(idx, idx2);
-        var idx3 = id2.indexOf("_"), idx4 = id2.lastIndexOf("_"), v2 = id2.substring(idx3, idx4);
-
-        ok(v1 == v2, "instance versions are the same : " + v1 + " : " + v2);
-    });
-
 
 
     test(" importDefaults", function () {
