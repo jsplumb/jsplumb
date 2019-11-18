@@ -1,3 +1,9 @@
+## 2.12.6
+
+November 18th 2019
+
+- update groups code to correctly orphan/prune multiple dragged elements
+
 ## 2.12.5
 
 October 29th 2019
