@@ -971,7 +971,7 @@ var testSuite = function (_jsPlumb) {
 
         _jsPlumb.draggable(d2);
 
-        _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
+        var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
 
         var removeEvt = false, addEvt = false;
         _jsPlumb.bind("group:removeMember", function() {
@@ -981,6 +981,8 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.bind("group:addMember", function() {
             addEvt = true;
         });
+
+        ok(d2._jsPlumbGroup != null, "d2 is in the group");
 
         support.dragNodeBy(d2, -300,-300);
 
