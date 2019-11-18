@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.5";
+        this.version = "2.12.6";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -12896,24 +12896,27 @@
         this.remove = function(el, manipulateDOM, doNotFireEvent, doNotUpdateConnections, targetGroup) {
 
             _each(el, function(__el) {
-                delete __el._jsPlumbGroup;
-                _ju.removeWithFunction(elements, function(e) {
-                    return e === __el;
-                });
+                if (__el._jsPlumbGroup === self) {
+                    delete __el._jsPlumbGroup;
+                    _ju.removeWithFunction(elements, function (e) {
+                        return e === __el;
+                    });
 
-                if (manipulateDOM) {
-                    try { self.getDragArea().removeChild(__el); }
-                    catch (e) {
-                        jsPlumbUtil.log("Could not remove element from Group " + e);
+                    if (manipulateDOM) {
+                        try {
+                            self.getDragArea().removeChild(__el);
+                        } catch (e) {
+                            jsPlumbUtil.log("Could not remove element from Group " + e);
+                        }
                     }
-                }
-                _unbindDragHandlers(__el);
-                if (!doNotFireEvent) {
-                    var p = {group: self, el: __el};
-                    if (targetGroup) {
-                        p.targetGroup = targetGroup;
+                    _unbindDragHandlers(__el);
+                    if (!doNotFireEvent) {
+                        var p = {group: self, el: __el};
+                        if (targetGroup) {
+                            p.targetGroup = targetGroup;
+                        }
+                        _jsPlumb.fire(EVT_CHILD_REMOVED, p);
                     }
-                    _jsPlumb.fire(EVT_CHILD_REMOVED, p);
                 }
             });
             if (!doNotUpdateConnections) {
@@ -12976,7 +12979,6 @@
             _el.parentNode.removeChild(_el);
             _jsPlumb.getContainer().appendChild(_el);
             _jsPlumb.setPosition(_el, pos);
-            delete _el._jsPlumbGroup;
             _unbindDragHandlers(_el);
             _jsPlumb.dragManager.clearParent(_el, id);
             return [id, pos];
@@ -12986,19 +12988,31 @@
         // remove an element from the group, then either prune it from the jsplumb instance, or just orphan it.
         //
         function _pruneOrOrphan(p) {
-            var orphanedPosition = null;
-            if (!_isInsideParent(p.el, p.pos)) {
-                var group = p.el._jsPlumbGroup;
-                if (prune) {
-                    _jsPlumb.remove(p.el);
-                } else {
-                    orphanedPosition = _orphan(p.el);
+
+            var out = [];
+
+            function _one(el, left, top) {
+                var orphanedPosition = null;
+                if (!_isInsideParent(el, [left, top])) {
+                    var group = el._jsPlumbGroup;
+                    if (prune) {
+                        _jsPlumb.remove(el);
+                    } else {
+                        orphanedPosition = _orphan(el);
+                    }
+
+                    group.remove(el);
                 }
 
-                group.remove(p.el);
+                return orphanedPosition;
             }
 
-            return orphanedPosition;
+            for (var i = 0; i < p.selection.length; i++) {
+                out.push(_one(p.selection[i][0], p.selection[i][1].left, p.selection[i][1].top));
+            }
+
+            return out.length === 1 ? out[0] : out;
+
         }
 
         //
