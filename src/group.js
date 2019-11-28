@@ -111,6 +111,9 @@
                 var currentGroup = el._jsPlumbGroup;
                 // if already a member of this group, do nothing
                 if (currentGroup !== group) {
+
+                    _jsPlumb.removeFromDragSelection(el);
+
                     var elpos = _jsPlumb.getOffset(el, true);
                     var cpos = group.collapsed ? _jsPlumb.getOffset(groupEl, true) : _jsPlumb.getOffset(group.getDragArea(), true);
 
