@@ -904,6 +904,173 @@ var testSuite = function (_jsPlumb) {
         //equal(_jsPlumb.anchorManager.getConnectionsFor(c.floatingId).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
+// ----------------------------------- element dragging ------------------------------
 
+
+    test(': draggable in nested element does not cause extra ids to be created', function () {
+        var d = support.addDiv("d1");
+        var d2 = document.createElement("div");
+        d2.setAttribute("foo", "ff");
+        d.appendChild(d2);
+        var d3 = document.createElement("div");
+        d2.appendChild(d3);
+        ok(d2.getAttribute("id") == null, "no id on d2");
+        _jsPlumb.draggable(d);
+        _jsPlumb.addEndpoint(d3);
+        ok(d2.getAttribute("id") == null, "no id on d2");
+        ok(d3.getAttribute("id") != null, "id on d3");
+    });
+
+    test(" : draggable, reference elements returned correctly", function () {
+        var d = support.addDiv("d1");
+        var d2 = document.createElement("div");
+        d2.setAttribute("foo", "ff");
+        d.appendChild(d2);
+        var d3 = document.createElement("div");
+        d3.setAttribute("id", "d3");
+        d2.appendChild(d3);
+        _jsPlumb.draggable(d);
+        _jsPlumb.addEndpoint(d3);
+        _jsPlumb.draggable(d3);
+        // now check ref ids for element d1
+        var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
+        ok(!jsPlumbUtil.isEmpty(els), "there is one sub-element for d1");
+        ok(els["d3"] != null, "d3 registered");
+    });
+
+
+    test(" : draggable + setParent, reference elements returned correctly", function () {
+        var d = support.addDiv("d1");
+        var d2 = document.createElement("div");
+        d2.setAttribute("foo", "ff");
+        d.appendChild(d2);
+        var d3 = document.createElement("div");
+        d3.setAttribute("id", "d3");
+        d2.appendChild(d3);
+        _jsPlumb.draggable(d);
+        _jsPlumb.addEndpoint(d3);
+        _jsPlumb.draggable(d3);
+        // create some other new parent
+        var d12 = support.addDiv("d12");
+        // and move d3
+        _jsPlumb.setParent(d3, d12);
+
+        // now check ref ids for element d1
+        var els = _jsPlumb.dragManager.getElementsForDraggable("d1");
+        ok(jsPlumbUtil.isEmpty(els), "there are no sub-elements for d1");
+        var els12 = _jsPlumb.dragManager.getElementsForDraggable("d12");
+        ok(!jsPlumbUtil.isEmpty(els12), "there is one sub-element for d12");
+        ok(els12["d3"] != null, "d3 registered");
+    });
+
+    test("drag multiple elements and ensure their connections are painted correctly at the end", function() {
+
+        var d1 = support.addDraggableDiv ('d1', null, null,50, 50, 100, 100);
+        var d2 = support.addDraggableDiv ('d2', null, null,250, 250, 100, 100);
+        var d3 = support.addDraggableDiv ('d3', null, null,500, 500, 100, 100);
+
+        var e1 = _jsPlumb.addEndpoint(d1, {
+            anchor:"TopLeft"
+        });
+        var e2 = _jsPlumb.addEndpoint(d2, {
+            anchor:"TopLeft",
+            maxConnections:-1
+        });
+        var e3 = _jsPlumb.addEndpoint(d3, {
+            anchor:"TopLeft"
+        });
+
+        _jsPlumb.connect({source:e1, target:e2});
+        _jsPlumb.connect({source:e2, target:e3});
+
+        equal(e1.canvas.offsetLeft, 50 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        equal(e1.canvas.offsetTop, 50 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        equal(e2.canvas.offsetLeft, 250 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 250 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        equal(e3.canvas.offsetLeft, 500 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        equal(e3.canvas.offsetTop, 500 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+
+        _jsPlumb.addToDragSelection("d1");
+        _jsPlumb.addToDragSelection("d3");
+
+        // drag node 2 by 750,750. we expect its endpoint to have moved too
+
+        support.dragNodeTo(d2, 1000, 1000);
+
+        equal(d2.offsetLeft, 950, "div 2 is at the right left position");
+        equal(d2.offsetTop, 950, "div 2 is at the right top position");
+
+        // divs 1 and 3 have moved too, make sure they are in the right place
+        equal(d1.offsetLeft, 750, "div 1 is at the right left position");
+        equal(d1.offsetTop, 750, "div 1 is at the right top position");
+        equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
+        equal(d3.offsetTop, 1200, "div 3 is at the right top position");
+
+        // check the endpoints
+        equal(e2.canvas.offsetLeft, 950 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        equal(e2.canvas.offsetTop, 950 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+
+        equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        equal(e1.canvas.offsetTop, 750 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+
+        equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        equal(e3.canvas.offsetTop, 1200 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+
+    });
+
+    //
+    // this is a test of how the drag selection works when something is selected but the thing being dragged does
+    // not have the same parent. Consider a node in a group, and its selected. When you drag the group, that node
+    // inside of it should not be dragged also, regardless of the fact that its in the drag selection. in fact in that
+    // case the only events that should cause that node to be dragged
+    test("multiple element drag (via addToDragSelection) works properly with groups", function() {
+
+        var d1 = support.addDraggableDiv ('d1', null, null,50, 50, 100, 100);
+        var d2 = support.addDraggableDiv ('d2', null, null,250, 250, 100, 100);
+        var d3 = support.addDraggableDiv ('d3', null, null,500, 500, 100, 100);
+        var d4 = support.addDraggableDiv ('d4', null, null,800, 800, 100, 100);
+
+        var g = _jsPlumb.addGroup({el:d1, id:"g1" });
+        _jsPlumb.addToGroup(g, d2);
+
+        _jsPlumb.addToDragSelection("d1");
+        equal(_jsPlumb.getDragSelection().length, 1, "the group was added to the drag selection");
+
+        _jsPlumb.addToDragSelection("d2");
+        equal(_jsPlumb.getDragSelection().length, 1, "the node was _NOT_ added to the drag selection, as it is in a group");
+
+        _jsPlumb.addToDragSelection("d3");
+        equal(_jsPlumb.getDragSelection().length, 2, "the second node was added to the drag selection as it is not in a group");
+
+        _jsPlumb.addToGroup(g, d3);
+        equal(_jsPlumb.getDragSelection().length, 1, "the second node removed from the drag selection when it was added to a group");
+
+
+
+
+        // drag node 2 by 750,750. we expect its endpoint to have moved too
+
+        // support.dragNodeTo(d2, 1000, 1000);
+        //
+        // equal(d2.offsetLeft, 950, "div 2 is at the right left position");
+        // equal(d2.offsetTop, 950, "div 2 is at the right top position");
+        //
+        // // divs 1 and 3 have moved too, make sure they are in the right place
+        // equal(d1.offsetLeft, 750, "div 1 is at the right left position");
+        // equal(d1.offsetTop, 750, "div 1 is at the right top position");
+        // equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
+        // equal(d3.offsetTop, 1200, "div 3 is at the right top position");
+        //
+        // // check the endpoints
+        // equal(e2.canvas.offsetLeft, 950 - (e2.canvas.offsetWidth/2), "endpoint 2 is at the right place");
+        // equal(e2.canvas.offsetTop, 950 - (e2.canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        //
+        // equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");
+        // equal(e1.canvas.offsetTop, 750 - (e1.canvas.offsetHeight/2), "endpoint 1 is at the right place");
+        //
+        // equal(e3.canvas.offsetLeft, 1200 - (e3.canvas.offsetWidth/2), "endpoint 3 is at the right place");
+        // equal(e3.canvas.offsetTop, 1200 - (e3.canvas.offsetHeight/2), "endpoint 3 is at the right place");
+
+    });
 
 };
