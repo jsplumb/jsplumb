@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.6";
+        this.version = "2.12.7";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -12534,6 +12534,9 @@
                 var currentGroup = el._jsPlumbGroup;
                 // if already a member of this group, do nothing
                 if (currentGroup !== group) {
+
+                    _jsPlumb.removeFromDragSelection(el);
+
                     var elpos = _jsPlumb.getOffset(el, true);
                     var cpos = group.collapsed ? _jsPlumb.getOffset(groupEl, true) : _jsPlumb.getOffset(group.getDragArea(), true);
 
@@ -15646,10 +15649,16 @@
             }
         },
         addToDragSelection: function (spec) {
-            _getDragManager(this).select(spec);
+            var el = this.getElement(spec);
+            if (el != null && (el._isJsPlumbGroup || el._jsPlumbGroup == null)) {
+                _getDragManager(this).select(spec);
+            }
         },
         removeFromDragSelection: function (spec) {
             _getDragManager(this).deselect(spec);
+        },
+        getDragSelection:function() {
+            return _getDragManager(this).getSelection();
         },
         clearDragSelection: function () {
             _getDragManager(this).deselectAll();

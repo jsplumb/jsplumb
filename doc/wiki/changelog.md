@@ -1,3 +1,10 @@
+## 2.12.7
+
+November 28th 2019
+
+- remove the ability to add nodes that are inside a group to the current drag selection.
+- when a node is added to a group, it is removed from the current drag selection.
+
 ## 2.12.6
 
 November 18th 2019
