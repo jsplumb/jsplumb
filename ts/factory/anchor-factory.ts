@@ -6,7 +6,6 @@ import {Anchor} from "../anchor/anchor";
 import {DynamicAnchor} from "../anchor/dynamic-anchor";
 import {IS, isArray, isNumber, isString} from "../util";
 import {ContinuousAnchor} from "../anchor/continuous-anchor";
-import {ShapeFunction} from "..";
 
 export type AnchorOrientationHint = -1 | 0 | 1;
 export type Orientation = [ AnchorOrientationHint, AnchorOrientationHint ];
