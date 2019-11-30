@@ -2,7 +2,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.jsplumb = {}));
-}(this, function (exports) { 'use strict';
+}(this, (function (exports) { 'use strict';
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -10427,26 +10427,7 @@
             }
           }
         });
-        console.log(this.endpointDropTargets);
         this.endpointDropTargets.sort(function (a, b) {
-          // else {
-          // if (a.rank != null && b.rank != null) {
-          //     if(a.rank > b.rank) {
-          //         return -1;
-          //     } else if (a.rank < b.rank) {
-          //         return 1;
-          //     } else {
-          //         if (a.el[Constants.IS_GROUP_KEY] && !b.el[Constants.IS_GROUP_KEY]) {
-          //             return 1;
-          //         } else if (!a.el[Constants.IS_GROUP_KEY] && b.el[Constants.IS_GROUP_KEY]) {
-          //             return -1;
-          //         } else {
-          //             return 0;
-          //         }
-          //     }
-          // } else {
-          //     return 0;
-          // }
           if (a.el[IS_GROUP_KEY] && !b.el[IS_GROUP_KEY]) {
             return 1;
           } else if (!a.el[IS_GROUP_KEY] && b.el[IS_GROUP_KEY]) {
@@ -10461,10 +10442,8 @@
             } else {
               return 0;
             }
-          } //}
-
+          }
         });
-        console.log(this.endpointDropTargets);
         this.ep.setHover(false, false);
 
         if (this.jpc == null) {
@@ -11754,6 +11733,9 @@
 
         if (this.dragManager != null) {
           this.dragManager.reset();
+          this.dragManager.addHandler(new EndpointDragHandler(this));
+          this.dragManager.addHandler(new GroupDragHandler(this));
+          this.dragManager.addHandler(new ElementDragHandler(this));
         }
       }
     }, {
@@ -14438,4 +14420,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
