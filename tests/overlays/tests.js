@@ -1,30 +1,16 @@
 QUnit.config.reorder = false;
-var defaults = null, support,
-    _cleanup = function (_jsPlumb) {
-        _jsPlumb.reset();
-        _jsPlumb.unbindContainer();
-        if (_jsPlumb.select().length != 0)
-            throw "there are connections!";
+var defaults = null, support,_jsPlumb;
 
-        _jsPlumb.Defaults = defaults;
+var testSuite = function () {
 
-        support.cleanup();
-
-        document.getElementById("container").innerHTML = "";
-    };
-
-var testSuite = function (_jsPlumb) {
-
-    var renderMode = jsPlumb.SVG;
-    support = jsPlumbTestSupport.getInstance(_jsPlumb);
 
     module("jsPlumb", {
         teardown: function () {
-            _cleanup(_jsPlumb);
+            support.cleanup();
         },
         setup: function () {
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
-            _jsPlumb.setContainer("container");
+            _jsPlumb = jsPlumb.newInstance({container:container});
+            support = jsPlumbTestSupport.getInstance(_jsPlumb);
         }
     });
 

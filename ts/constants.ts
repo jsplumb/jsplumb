@@ -42,6 +42,8 @@ export const EVENT_EXPAND = "group:expand";
 export const EVENT_COLLAPSE = "group:collapse";
 export const EVENT_GROUP_DRAG_STOP = "groupDragStop";
 
+export const EVENT_MAX_CONNECTIONS = "maxConnections";
+
 export const CLASS_CONNECTOR = "jtk-connector";
 export const CLASS_ENDPOINT = "jtk-endpoint";
 export const CLASS_OVERLAY = "jtk-overlay";

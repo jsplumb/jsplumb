@@ -1,5 +1,13 @@
-import {DragHandler} from "./drag-manager";
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
+import {
+    ATTR_NOT_DRAGGABLE,
+    CLASS_DRAG_ACTIVE,
+    CLASS_DRAG_HOVER,
+    CLASS_DRAGGED,
+    DragHandler,
+    EVT_DRAG_MOVE, EVT_DRAG_START,
+    EVT_DRAG_STOP
+} from "./drag-manager";
+import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 import {Group} from "../group/group";
 import {BoundingBox, Offset} from "../core";
 
@@ -14,18 +22,6 @@ type GroupLocation<E> = {
     el:E;
     r: BoundingBox;
     group: Group<E>;
-}
-
-function hasManagedParent(container:HTMLElement, el:HTMLElement):boolean {
-    let _el = <any>el;
-    let pn:any = _el.parentNode;
-    while (pn != null && pn !== container) {
-        if (pn.getAttribute("jtk-managed") != null) {
-            return true;
-        } else {
-            pn = pn.parentNode;
-        }
-    }
 }
 
 export class ElementDragHandler implements DragHandler {
@@ -60,14 +56,14 @@ export class ElementDragHandler implements DragHandler {
                 }
                 this.instance._draw(dragElement, uip);
 
-                this.instance.fire("drag:stop", {
+                this.instance.fire(EVT_DRAG_STOP, {
                     el:dragElement,
                     e:params.e,
                     pos:uip
                 });
             }
 
-            this.instance.removeClass(_e[0], "jtk-dragged");
+            this.instance.removeClass(_e[0], CLASS_DRAGGED);
             this.instance.select({source: dragElement}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
             this.instance.select({target: dragElement}).removeClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
 
@@ -93,8 +89,8 @@ export class ElementDragHandler implements DragHandler {
 
 
         this._groupLocations.forEach((groupLoc:any) => {
-            this.instance.removeClass(groupLoc.el, "jtk-drag-active");
-            this.instance.removeClass(groupLoc.el, "jtk-drag-hover");
+            this.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE);
+            this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
         });
 
         this._groupLocations.length = 0;
@@ -103,6 +99,9 @@ export class ElementDragHandler implements DragHandler {
         this._dragOffset = null;
     }
 
+    reset() { }
+    init(katavorioDraggable:any) { }
+
     onDrag(params:any):void {
 
         const el = params.drag.getDragElement();
@@ -110,83 +109,68 @@ export class ElementDragHandler implements DragHandler {
         const elSize = this.instance.getSize(el);
         const ui = { left:finalPos[0], top:finalPos[1] };
 
-        if (ui != null) {
+        this._intersectingGroups.length = 0;
 
-            this._intersectingGroups.length = 0;
-
-            // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
-            // have been supplied to the instance's dragOptions.
-            //var o = el._jsPlumbDragOptions || {};
-
-            if (this._dragOffset != null) {
-                ui.left += this._dragOffset.left;
-                ui.top += this._dragOffset.top;
-            }
-
-            const bounds = { x:ui.left, y:ui.top, w:elSize[0], h:elSize[1] };
-
-            // TODO  calculate if there is a target group
-            this._groupLocations.forEach((groupLoc:any) => {
-                if (Biltong.intersects(bounds, groupLoc.r)) {
-                    this.instance.addClass(groupLoc.el, "jtk-drag-hover");
-                    this._intersectingGroups.push(groupLoc);
-                } else {
-                    this.instance.removeClass(groupLoc.el, "jtk-drag-hover");
-                }
-            });
-
-            this.instance._draw(el, ui, null);
-
-            this.instance.fire("drag:move", {
-                el:el,
-                e:params.e,
-                pos:ui
-            });
-
-            // if (o._dragging) {
-            //     instance.addClass(el, "jtk-dragged");
-            // }
-            // o._dragging = true;
+        if (this._dragOffset != null) {
+            ui.left += this._dragOffset.left;
+            ui.top += this._dragOffset.top;
         }
+
+        const bounds = { x:ui.left, y:ui.top, w:elSize[0], h:elSize[1] };
+
+        // TODO  calculate if there is a target group
+        this._groupLocations.forEach((groupLoc:any) => {
+            if (Biltong.intersects(bounds, groupLoc.r)) {
+                this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+                this._intersectingGroups.push(groupLoc);
+            } else {
+                this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
+            }
+        });
+
+        this.instance._draw(el, ui, null);
+
+        this.instance.fire(EVT_DRAG_MOVE, {
+            el:el,
+            e:params.e,
+            pos:ui
+        });
     }
 
     onStart(params:any):boolean {
-        const el = params.drag.getDragElement();
 
-        // if(hasManagedParent(this.instance.getContainer(), el) && el.offsetParent._jsPlumbGroup == null) {
-        //     return false;
-        // } else {
+        const el = params.drag.getDragElement() as jsPlumbDOMElement;
 
-            // TODO refactor, now there are no drag options on each element as we dont call 'draggable' for each one. the canDrag method would
-            // have been supplied to the instance's dragOptions.
+        if (el._jsPlumbGroup) {
+            this._dragOffset = this.instance.getOffset(el.offsetParent);
+        }
 
-            let options = el._jsPlumbDragOptions || {};
-            if (el._jsPlumbGroup) {
-                this._dragOffset = this.instance.getOffset(el.offsetParent);
-            }
+        let cont = true;
+        let nd = el.getAttribute(ATTR_NOT_DRAGGABLE);
+        if (nd != null && nd !== "false" ) {
+            cont = false;
+        }
 
-            let cont = true;
-            if (options.canDrag) {
-                cont = options.canDrag();
-            }
+        if (cont) {
 
-            let nd = el.getAttribute("jtk-not-draggable");
-            if (nd != null && nd !== "false" ) {
-                cont = false;
-            }
+            this._groupLocations.length = 0;
+            this._intersectingGroups.length = 0;
 
-            if (cont) {
+            // if drag el not a group
+            if (!el._isJsPlumbGroup) {
 
-                this._groupLocations.length = 0;
-                this._intersectingGroups.length = 0;
+                const isNotInAGroup = !el._jsPlumbGroup;
+                const membersAreDroppable = isNotInAGroup || el._jsPlumbGroup.dropOverride !== true;
+                const isGhostOrNotConstrained = !isNotInAGroup && (el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true);
 
-                //
-                // is it the best way to do it via the dom? the group manager can give all the groups, and also whether they are
-                // collapsed etc
-                //
+                // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
+                // it's not in a group, OR
+                // it hasnt mandated its element can't be dropped on other groups
+                // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
 
-                if (!el._isJsPlumbGroup && (!el._jsPlumbGroup || el._jsPlumbGroup.constrain !== true)) {
-                    this.instance.groupManager.forEach((group:Group<HTMLElement>) => {
+                if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
+                    this.instance.groupManager.forEach((group: Group<HTMLElement>) => {
+                        // prepare a list of potential droppable groups.
                         if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
                             let groupEl = group.el,
                                 s = this.instance.getSize(groupEl),
@@ -194,33 +178,22 @@ export class ElementDragHandler implements DragHandler {
                                 boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
 
                             this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
-                            this.instance.addClass(groupEl, "jtk-drag-active");
+                            this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
                         }
                     });
                 }
-
-                // instance.getSelector(instance.getContainer(), "[jtk-group]").forEach(function(candidate) {
-                //     if (candidate._jsPlumbGroup && candidate._jsPlumbGroup.droppable !== false && candidate._jsPlumbGroup.enabled !== false) {
-                //         var o = instance.getOffset(candidate), s = instance.getSize(candidate);
-                //         var boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                //         _groupLocations.push({el:candidate, r:boundingRect, group:el._jsPlumbGroup});
-                //
-                //         // _currentInstance.addClass(candidate, _currentInstance.Defaults.dropOptions.activeClass || "jtk-drag-active"); // TODO get from defaults.
-                //     }
-                //
-                // });
-
-                this.instance.hoverSuspended = true;
-                this.instance.select({source: el}).addClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
-                this.instance.select({target: el}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
-                this.instance.isConnectionBeingDragged = true;
-
-                this.instance.fire("drag:start", {
-                    el:el,
-                    e:params.e
-                });
             }
-            return cont;
-        //}
+
+            this.instance.hoverSuspended = true;
+            this.instance.select({source: el as any}).addClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
+            this.instance.select({target: el as any}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
+            this.instance.isConnectionBeingDragged = true;
+
+            this.instance.fire(EVT_DRAG_START, {
+                el:el,
+                e:params.e
+            });
+        }
+        return cont;
     }
 }

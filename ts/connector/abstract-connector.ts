@@ -20,7 +20,7 @@ export interface PaintParams<E> {
 
 export type PaintAxis = "y" | "x"
 
-type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number };
+type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number, connectorLocation: number };
 
 export type ConnectorComputeParams<E> = {
     sourcePos: ComputedAnchorPosition,
@@ -149,7 +149,7 @@ export abstract class AbstractConnector<E> {
      */
     findSegmentForPoint (x:number, y:number):SegmentForPoint {
 
-        let out:SegmentForPoint = { d: Infinity, s: null, x: null, y: null, l: null, x1:null, y1:null, x2:null, y2:null, index:null };
+        let out:SegmentForPoint = { d: Infinity, s: null, x: null, y: null, l: null, x1:null, y1:null, x2:null, y2:null, index:null, connectorLocation:null };
         for (let i = 0; i < this.segments.length; i++) {
             let _s = this.segments[i].findClosestPointOnPath(x, y);
             if (_s.d < out.d) {
@@ -163,6 +163,7 @@ export abstract class AbstractConnector<E> {
                 out.y1 = _s.y1;
                 out.y2 = _s.y2;
                 out.index = i;
+                out.connectorLocation = this.segmentProportions[i][0] + (_s.l * (this.segmentProportions[i][1] - this.segmentProportions[i][0]));
             }
         }
 

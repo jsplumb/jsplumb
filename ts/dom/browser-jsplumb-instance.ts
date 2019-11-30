@@ -8,6 +8,7 @@ import {EndpointDragHandler} from "./endpoint-drag-handler";
 import {GroupDragHandler} from "./group-drag-handler";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
+import { Group } from "../group/group";
 
 declare const Mottle:any;
 
@@ -33,6 +34,13 @@ export interface DropOptions {
 
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
     dragOptions?: DragOptions;
+}
+
+export interface jsPlumbDOMElement {
+    _jsPlumbGroup: Group<HTMLElement>;
+    _isJsPlumbGroup: boolean;
+    offsetParent: HTMLElement;
+    getAttribute:(name:string) => string;
 }
 
 function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void {
@@ -552,32 +560,37 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     setContainer(c: string | HTMLElement): void {
         this._detachEventDelegates();
+        if (this.dragManager != null) {
+            this.dragManager.reset();
+        }
         super.setContainer(c);
         if (this.eventManager != null) {
             this._attachEventDelegates();
         }
         if (this.dragManager != null) {
-            this.dragManager.reset();
             this.dragManager.addHandler(new EndpointDragHandler(this));
             this.dragManager.addHandler(new GroupDragHandler(this));
             this.dragManager.addHandler(new ElementDragHandler(this));
         }
     }
 
-
-    reset(doNotUnbindInstanceEventListeners?: boolean): void {
-
-        if (!doNotUnbindInstanceEventListeners) {
-            this._detachEventDelegates();
+    reset(silently?:boolean) {
+        super.reset(silently);
+        if (silently) {
+            const container = this.getContainer();
+            const els = container.querySelectorAll("[jtk-managed], .jtk-endpoint, .jtk-connector, .jtk-overlay");
+            els.forEach((el:any) => el.parentNode && el.parentNode.removeChild(el));
         }
+    }
+
+    destroy(): void {
+
+        this._detachEventDelegates();
 
         if (this.dragManager != null) {
             this.dragManager.reset();
-            this.dragManager.addHandler(new EndpointDragHandler(this));
-            this.dragManager.addHandler(new GroupDragHandler(this));
-            this.dragManager.addHandler(new ElementDragHandler(this));
         }
 
-        super.reset(doNotUnbindInstanceEventListeners);
+        super.destroy();
     }
 }

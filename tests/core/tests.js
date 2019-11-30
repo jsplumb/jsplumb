@@ -33,25 +33,13 @@ var within = function (val, target, _ok, msg) {
     _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
 };
 
-var defaults = null, support,
-    _cleanup = function (_jsPlumb) {
-        _jsPlumb.reset();
-        _jsPlumb.unbindContainer();
-        if (_jsPlumb.select().length != 0)
-            throw "there are connections!";
+var defaults = null, support, _jsPlumb;
 
-        _jsPlumb.Defaults = defaults;
-
-        support.cleanup();
-
-        document.getElementById("container").innerHTML = "";
-    };
-
-var testSuite = function (_jsPlumb) {
+var testSuite = function () {
 
     module("jsPlumb", {
         teardown: function () {
-            _cleanup(_jsPlumb);
+            support.cleanup();
         },
         setup: function () {
             _jsPlumb = jsPlumb.newInstance({container:document.getElementById("container")});
@@ -81,9 +69,8 @@ var testSuite = function (_jsPlumb) {
         ok(c1 != null);
 
         // change container and check again
-        var container2 = document.createElement("div");
-        container2.id = "container2";
-        document.body.appendChild(container2);
+        var container2 = support.addDiv("container2", document.body);
+
         _jsPlumb.setContainer(container2);
 
         var c2 = _jsPlumb.getContainer().getAttribute("jtk-container");
@@ -1264,10 +1251,9 @@ var testSuite = function (_jsPlumb) {
         ok(returnedParams != null, "removed connection listener event was fired");
         returnedParams = null;
 
-        _jsPlumb.reset();
+        _jsPlumb.reset(true);
         conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).delete();
-        ok(returnedParams == null, "connection listener was cleared by _jsPlumb.reset()");
         equal(_jsPlumb.select({source: d1}).length, 0, "no connections from d1 after detach with two connections as arguments");
     });
 
@@ -1933,12 +1919,10 @@ var testSuite = function (_jsPlumb) {
             connector: [ "Bezier", { curviness: 45 } ],
             container:"container"
         };
-        var j = jsPlumb.newInstance(def);
-        var c = j.connect({source: "d1", target: "d2"});
+        var c = _jsPlumb.connect({source: "d1", target: "d2"});
         equal(c.getConnector().type, "Bezier", "connector is the default");
         c.setConnector(["Bezier", { curviness: 789 }]);
         equal(def.connector[1].curviness, 45, "curviness unchanged by setConnector call");
-        j.reset();
     });
 
     test(": setConnector, overlays are retained", function () {
@@ -1948,8 +1932,7 @@ var testSuite = function (_jsPlumb) {
             connector: [ "Bezier", { curviness: 45 } ],
             container:"container"
         };
-        var j = jsPlumb.newInstance(def);
-        var c = j.connect({
+        var c = _jsPlumb.connect({
             source: "d1", target: "d2",
             overlays:[
                 [ "Label", { label:"foo" } ]
@@ -1961,14 +1944,7 @@ var testSuite = function (_jsPlumb) {
         c.setConnector(["StateMachine", { curviness: 789 }]);
         equal(def.connector[1].curviness, 45, "curviness unchanged by setConnector call");
         equal(_length(c.getOverlays()), 1, "one overlay on the connector");
-        j.reset();
     });
-
-
-
-
-
-
 
 
 // jsPlumb.connect, after makeSource has been called on some element
@@ -3954,12 +3930,15 @@ var testSuite = function (_jsPlumb) {
 // instances.    
 
     test(" id clashes between instances", function () {
-        var d1 = document.createElement("div"),
-            d2 = document.createElement("div"),
-            _jsp2 = jsPlumb.newInstance({container:container});
+        var foo = document.createElement("div");
+        document.body.appendChild(foo);
+        var d1 = support.addDiv("d1"),
+            _jsp2 = jsPlumb.newInstance({container:foo}),
+            support2 = jsPlumbTestSupport.getInstance(_jsp2),
+            d2 = support2.addDiv("d2");
 
-        document.body.appendChild(d1);
-        document.body.appendChild(d2);
+        d1.removeAttribute("id");
+        d2.removeAttribute("id");
 
         _jsPlumb.addEndpoint(d1);
         _jsp2.addEndpoint(d2);
@@ -3972,28 +3951,9 @@ var testSuite = function (_jsPlumb) {
 
         ok(v1 != v2, "instance versions are different : " + v1 + " : " + v2);
 
-        _jsp2.reset();
+        support2.cleanup();
+        foo.parentNode.removeChild(foo);
     });
-
-    test(" id clashes between instances", function () {
-        var d1 = document.createElement("div"),
-            d2 = document.createElement("div");
-
-        document.body.appendChild(d1);
-        document.body.appendChild(d2);
-
-        _jsPlumb.addEndpoint(d1);
-        _jsPlumb.addEndpoint(d2);
-
-        var id1 = d1.getAttribute("id"),
-            id2 = d2.getAttribute("id");
-
-        var idx = id1.indexOf("_"), idx2 = id1.lastIndexOf("_"), v1 = id1.substring(idx, idx2);
-        var idx3 = id2.indexOf("_"), idx4 = id2.lastIndexOf("_"), v2 = id2.substring(idx3, idx4);
-
-        ok(v1 == v2, "instance versions are the same : " + v1 + " : " + v2);
-    });
-
 
 
     test(" importDefaults", function () {
@@ -4048,15 +4008,18 @@ var testSuite = function (_jsPlumb) {
 
     test("defaults are isolated", function() {
 
+        var foo = document.createElement("FOO");
+        document.body.appendChild(foo);
         ok(_jsPlumb.Defaults.anchors[0] == null, "no anchors set (to take one example, one's enough)");
         var j = jsPlumb.newInstance({
-            container:container,
+            container:foo,
             anchors:["Left", "Right"]
         });
 
         ok(_jsPlumb.Defaults.anchors[0] == null, "still no anchors set after providing Anchors to an instance");
 
-        j.reset();
+        jsPlumbTestSupport.getInstance(j).cleanup();
+        foo.parentNode.removeChild(foo);
 
     });
 
@@ -6337,6 +6300,8 @@ var testSuite = function (_jsPlumb) {
 
 
     test("setContainer does not cause multiple event registrations (issue 307)", function () {
+
+
         support.addDivs(["box1", "box2", "canvas"]);
 
         var clickCount = 0;
@@ -6366,7 +6331,7 @@ var testSuite = function (_jsPlumb) {
 
         _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
 
-        equal(clickCount, 1, "1 click on overlay registered");
+        equal(clickCount, 1, "1 click on overlay registered after first trigger");
 
         clickCount = 0;
 
@@ -6485,17 +6450,17 @@ var testSuite = function (_jsPlumb) {
 
         c = false;
 
-        _jsPlumb.reset(true);
+        _jsPlumb.reset();
         _jsPlumb.connect({source:d1, target:d2});
         ok(c, "connection event fired after reset that did not unbind event listeners");
 
         c = false;
 
-        _jsPlumb.reset();
+        _jsPlumb.reset(true);
         _jsPlumb.connect({source:d1, target:d2});
-        ok(!c, "connection event NOT fired after reset, because reset's default behaviour is to unbind event listeners.");
+        ok(c, "connection event is fired after reset, because reset's default behaviour is not to unbind event listeners.");
 
-    })
+    });
 
 
 // click events on overlays
@@ -6788,8 +6753,10 @@ var testSuite = function (_jsPlumb) {
 
 
     test("pluggable getSize", function() {
+        var foo = support.addDiv("foo", document.body);
+        document.body.appendChild(foo);
         var j = jsPlumb.newInstance({
-            container:container
+            container:foo
         }, {
             getSize:function() { return [100,100]; }
         });
@@ -6798,12 +6765,13 @@ var testSuite = function (_jsPlumb) {
         equal(j.getSize(d)[0], 100, "width is set by pluggable function");
         equal(j.getSize(d)[1], 100, "height is set by pluggable function");
 
-        j.reset();
+        jsPlumbTestSupport.getInstance(j).cleanup();
     });
 
     test("pluggable getOffset", function() {
+        var foo = support.addDiv("foo", document.body);
         var j = jsPlumb.newInstance({
-            container:container
+            container:foo
         }, {
             getOffset:function() { return {left:100, top:100}; }
         });
@@ -6812,7 +6780,7 @@ var testSuite = function (_jsPlumb) {
         equal(j.getOffset(d).left, 100, "offset left is set by pluggable function");
         equal(j.getOffset(d).top, 100, "offset top is set by pluggable function");
 
-        j.reset();
+        jsPlumbTestSupport.getInstance(j).cleanup();
     });
 
     test("endpoint deletion: no deletion by default", function() {
@@ -6886,7 +6854,58 @@ var testSuite = function (_jsPlumb) {
         _jsPlumb.connect({source:e1, target:d2});
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(e1.connections[0]), "connector", "connector class set"));
 
-    })
+    });
 
+    test("overlay location", function () {
+        support.addDivs(["box1", "box2", "canvas"]);
+
+        _jsPlumb.importDefaults({
+            Container: 'canvas'
+        });
+
+        _jsPlumb.setContainer('canvas');
+
+        var connection = _jsPlumb.connect({ source: 'box1', target: 'box2' });
+        var o = connection.addOverlay(['Label', {label:"first label"}]);
+        equal(0.5, o.location, "label is at default location of 0.5");
+
+        var connection2 = _jsPlumb.connect({ source: 'box1', target: 'box2' });
+        connection2.mergeData({labelLocation:0.2});
+        var o2 = connection2.addOverlay(['Label', {label:"second label"}]);
+        equal(0.2, o2.location, "label is at location of 0.2, which is the value of the `labelLocation` value in the connection's data");
+
+        var connection3 = _jsPlumb.connect({ source: 'box1', target: 'box2' });
+        connection3.mergeData({theattribute:0.1});
+        var o3 = connection3.addOverlay(['Label', {label:"second label", labelLocationAttribute:"theattribute"}]);
+        equal(0.1, o3.location, "label is at location of 0.1, which is the value of an attribute whose name was specified in the addOverlay call, and whose value is in the connection data");
+
+    });
+
+    test("connection.replaceEndpoint", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {
+                endpoint:[ "Dot", { radius:15 } ]
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {
+                endpoint:[ "Dot", { radius:25 } ]
+            }),
+            c = _jsPlumb.connect({source:e1, target:e2});
+
+        equal(15, c.endpoints[0].endpoint.radius, "endpoint 1 has radius 15");
+        equal(25, c.endpoints[1].endpoint.radius, "endpoint 2 has radius 25");
+
+        equal("Dot", c.endpoints[0].endpoint.getType(), "endpoint 1 is a Dot");
+        equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is a Dot");
+
+        c.replaceEndpoint(0, [ "Rectangle", {width:50,height:50}]);
+        c.replaceEndpoint(1, [ "Dot", {radius:100}]);
+
+        equal(50, c.endpoints[0].endpoint.width, "endpoint 1 now has width 50");
+        equal(50, c.endpoints[0].endpoint.height, "endpoint 1 now has height 50");
+        equal(100, c.endpoints[1].endpoint.radius, "endpoint 2 now has radius 100");
+
+        equal("Rectangle", c.endpoints[0].endpoint.getType(), "endpoint 1 is now a Rectangle");
+        equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is now a Dot");
+    });
 };
 

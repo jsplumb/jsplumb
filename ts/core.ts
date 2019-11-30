@@ -733,21 +733,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this._makeEndpointSelectHandler(ep);
     }
 
-    private unbindContainer ():void  {
-        if (this._container != null && this._containerDelegations.length > 0) {
-            for (let i = 0; i < this._containerDelegations.length; i++) {
-                this.off(this._container, this._containerDelegations[i][0], this._containerDelegations[i][1]);
-            }
-        }
-    }
-
-
     //
     // TODO this knows about the DOM. refactor
     //
     setContainer(c:E|string):void {
-
-        this.unbindContainer();
 
         // get container as dom element.
         let _c = this.getElement(c);
@@ -764,51 +753,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.selectEndpoints().each((ep:Endpoint<E>) => {
             ep.moveParent(_c);
         });
-
-        // this._containerDelegations.length = 0;
-        // const eventAliases = {
-        //     "endpointclick":"endpointClick",
-        //     "endpointdblclick":"endpointDblClick"
-        // };
-        //
-        // const _oneDelegateHandler = (id:string, e:Event, componentType?:string) => {
-        //     let t:any = e.srcElement || e.target,
-        //         jp = (t && t.parentNode ? t.parentNode._jsPlumb : null) || (t ? t._jsPlumb : null) || (t && t.parentNode && t.parentNode.parentNode ? t.parentNode.parentNode._jsPlumb : null);
-        //     if (jp) {
-        //         (jp.endpoint || jp.connection).fire(id, jp.endpoint || jp.connection, e);
-        //         let alias = componentType ? eventAliases[componentType + id] || id : id;
-        //         // jsplumb also fires every event coming from components/overlays. That's what the test for `jp.component` is for.
-        //         this.fire(alias, jp.component || jp, e);
-        //     }
-        // };
-        //
-        // const _addOneDelegate = (eventId:string, selector:string, fn:Function) => {
-        //     this._containerDelegations.push([eventId, fn]);
-        //     this.on(this._container, eventId, selector, fn);
-        // };
-        //
-        // // delegate one event on the container to jsplumb elements. it might be possible to
-        // // abstract this out: each of endpoint, connection and overlay could register themselves with
-        // // jsplumb as "component types" or whatever, and provide a suitable selector. this would be
-        // // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
-        // const _oneDelegate = (id:string) => {
-        //     // connections.
-        //     _addOneDelegate(id, Constants.SELECTOR_CONNECTOR, (e:Event) => {
-        //         _oneDelegateHandler(id, e);
-        //     });
-        //     // endpoints. note they can have an enclosing div, or not.
-        //     _addOneDelegate(id, Constants.SELECTOR_ENDPOINT, (e:Event) => {
-        //         _oneDelegateHandler(id, e, "endpoint");
-        //     });
-        //     // overlays
-        //     _addOneDelegate(id, Constants.SELECTOR_OVERLAY, (e:Event) => {
-        //         _oneDelegateHandler(id, e);
-        //     });
-        // };
-        //
-        // for (let i = 0; i < events.length; i++) {
-        //     _oneDelegate(events[i]);
-        // }
 
         // managed elements
         for (let elId in this._managedElements) {
@@ -1387,14 +1331,15 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         extend(p, params);
         p.endpoint = p.endpoint || this.Defaults.endpoint;
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
+        //delete p.label; // not supported on endpoint
 
         let ep:Array<Endpoint<E>> = [];
 
         this.each(el, (_el:E) => {
             let _p = extend({source:_el}, p);
-            this.manage(_p.source);
-            let id = this.getId(_p.source),
-                e = this.newEndpoint(_p, id);
+            let id = this.getId(_p.source);
+            this.manage(id, _el);
+            let e = this.newEndpoint(_p, id);
 
             addToList(this.endpointsByElement, id, e);
 
@@ -1421,19 +1366,32 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return results;
     }
 
-    reset (doNotUnbindInstanceEventListeners?:boolean):void {
+    // clears all endpoints and connections from the instance of jsplumb, optionally without firing any events
+    // subclasses should take care of cleaning up the rendering.
+    reset (silently?:boolean):void {
         this.silently(() => {
-            this.groupManager.reset();
-            this.deleteEveryEndpoint();
 
+            if (!silently) {
+                this.deleteEveryEndpoint();
+            }
+
+            this.endpointsByElement = {};
+            this._managedElements = {};
+            this.endpointsByUUID = {};
+            this._offsets = {};
+            this._offsetTimestamps = {};
+            this.anchorManager.reset();
+            this.groupManager.reset();
             this._connectionTypes = {};
             this._endpointTypes = {};
-
-            if (!doNotUnbindInstanceEventListeners) {
-                this.unbind();
-            }
             this.connections.length = 0;
         });
+    }
+
+    // clears the instance (without firing any events) and unbinds any listeners on the instance.
+    destroy():void {
+        this.reset(true);
+        this.unbind();
     }
 
     getEndpoints(el:string|E):Array<Endpoint<E>> {
@@ -1543,12 +1501,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
 
         let _addEndpoint = (el:E, def?:any, idx?:number):Endpoint<E> | Array<Endpoint<E>> => {
-            return this.addEndpoint(el, _mergeOverrides(def, {
+            const params = _mergeOverrides(def, {
                 anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                 endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
                 paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
                 hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
-            }));
+            });
+            return this.addEndpoint(el, params);
         };
 
         // check for makeSource/makeTarget specs.
@@ -1571,13 +1530,17 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                             if (!tep.enabled) {
                                 return false;
                             }
-                            let newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
+
+                            const epDef = extend({}, tep.def);
+                            delete epDef.label;
+
+                            let newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], epDef, idx);
                             if (newEndpoint.isFull()) {
                                 return false;
                             }
                             _p[type + "Endpoint"] = newEndpoint;
-                            if (!_p.scope && tep.def.scope) {
-                                _p.scope = tep.def.scope;
+                            if (!_p.scope && epDef.scope) {
+                                _p.scope = epDef.scope;
                             } // provide scope if not already provided and endpoint def has one.
                             if (tep.uniqueEndpoint) {
                                 if (!tep.endpoint) {
@@ -1594,9 +1557,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                             //
                             // copy in connector overlays if present on the source definition.
                             //
-                            if (idx === 0 && tep.def.connectorOverlays) {
+                            if (idx === 0 && epDef.connectorOverlays) {
                                 _p.overlays = _p.overlays || [];
-                                Array.prototype.push.apply(_p.overlays, tep.def.connectorOverlays);
+                                Array.prototype.push.apply(_p.overlays, epDef.connectorOverlays);
                             }
                         }
                     }
@@ -1672,21 +1635,23 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.removeAllEndpoints(info.id, true, affectedElements);
         let _one = (_info:{el:E, text?:boolean, id?:string}) => {
 
-            this.anchorManager.clearFor(_info.id);
-            this.anchorManager.removeFloatingConnection(_info.id);
+            if (info.el != null) {
+                this.anchorManager.clearFor(_info.id);
+                this.anchorManager.removeFloatingConnection(_info.id);
 
-            if (this.isSource(_info.el)) {
-                this.unmakeSource(_info.el);
-            }
-            if (this.isTarget(_info.el)) {
-                this.unmakeTarget(_info.el);
-            }
+                if (this.isSource(_info.el)) {
+                    this.unmakeSource(_info.el);
+                }
+                if (this.isTarget(_info.el)) {
+                    this.unmakeTarget(_info.el);
+                }
 
-            delete this._floatingConnections[_info.id];
-            delete this._managedElements[_info.id];
-            delete this._offsets[_info.id];
-            if (_info.el) {
-                this.removeElement(_info.el);
+                delete this._floatingConnections[_info.id];
+                delete this._managedElements[_info.id];
+                delete this._offsets[_info.id];
+                if (_info.el) {
+                    this.removeElement(_info.el);
+                }
             }
         };
 
@@ -1700,8 +1665,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     remove(el:string|E, doNotRepaint?:boolean):jsPlumbInstance<E> {
         let info = this._info(el), affectedElements:Array<any> = [];
-        if (info.text) {
-            this.remove(info.el);
+        if (info.text && (info.el as any).parentNode) {
+            (info.el as any).parentNode.removeChild(info.el);
         }
         else if (info.id) {
             this.batch(() => {
@@ -2268,5 +2233,47 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     removeAllGroups(deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
     }
+
+// ------------ posses (not ported yet, may not be...)
+
+    /*
+
+    addToPosse:function(el, spec) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.addToPosse.apply(dm, _el);
+            });
+        },
+        setPosse:function(el, spec) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.setPosse.apply(dm, _el);
+            });
+        },
+        removeFromPosse:function(el, posseId) {
+            var specs = Array.prototype.slice.call(arguments, 1);
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
+                _el.push.apply(_el, specs );
+                dm.removeFromPosse.apply(dm, _el);
+            });
+        },
+        removeFromAllPosses:function(el) {
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
+        },
+        setPosseState:function(el, posseId, state) {
+            var dm = _getDragManager(this);
+            _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
+        },
+
+     */
 
 }

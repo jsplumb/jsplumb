@@ -101,8 +101,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     targetId:string;
     source:E;
     target:E;
-    
-    data:any;
 
     endpoints:[Endpoint<E>, Endpoint<E>] = [null, null];
     endpointStyles:[PaintStyle, PaintStyle] = [null, null];
@@ -300,10 +298,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         elId = elId || this._jsPlumb.instance.getId(el);
         return this.prepareEndpoint(ep, isSource ? 0 : 1, el, elId);
     };
-
-    getData () { return this.data; };
-    setData (d:any) { this.data = d || {}; };
-    mergeData (d:any) { this.data = extend(this.data, d); };
 
     getTypeDescriptor ():string {
         return "connection";
@@ -641,6 +635,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
                 // paint the connector.
                 //window.jtime("connector paint");
+                (this.connector as any).paintExtents = extents;
                 this.connector.paint(this._jsPlumb.paintStyleInUse, extents);
                 //window.jtimeEnd("connector paint");
 
@@ -666,8 +661,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.paint(p);
     }
 
-    //prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
-    prepareEndpoint(existing:Endpoint<E>, index:number, element?:E, elementId?:string, params?:ConnectionParams<E>) {
+    prepareEndpoint(existing:Endpoint<E>, index:number, element?:E, elementId?:string, params?:ConnectionParams<E>):Endpoint<E> {
 
     //window.jtime("prepare endpoint");
 
@@ -741,6 +735,24 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
     private _makeAnchor(spec:AnchorSpec, elementId?:string):Anchor<E> {
         return spec != null ? makeAnchorFromSpec(this.instance, spec, elementId) : null;
+    }
+
+    replaceEndpoint(idx:number, endpointDef:EndpointSpec) {
+
+        let current = this.endpoints[idx],
+            elId = current.elementId,
+            ebe = this.instance.getEndpoints(elId),
+            _idx = ebe.indexOf(current),
+            _new = this.prepareEndpoint(null, idx, current.element, elId, {endpoint:endpointDef});
+
+        this.endpoints[idx] = _new;
+
+        ebe.splice(_idx, 1, _new);
+        this.instance.deleteObject({endpoint:current, deleteAttachedObjects:false});
+        this.instance.fire("endpointReplaced", {previous:current, current:_new});
+
+        this.instance.anchorManager.updateOtherEndpoint(this.endpoints[0].elementId, this.endpoints[1].elementId, this.endpoints[1].elementId, this);
+
     }
 
 

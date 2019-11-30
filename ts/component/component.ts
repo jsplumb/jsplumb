@@ -195,6 +195,8 @@ export abstract class Component<E> extends EventGenerator {
     domListeners:Array<any> = [];
     paintStyleInUse:PaintStyle;
 
+    data:any;
+
     _defaultType:any;
 
     _jsPlumb:ComponentConfig<E>;
@@ -560,4 +562,8 @@ export abstract class Component<E> extends EventGenerator {
     repaint(options?:RepaintOptions):void {
         this.instance.renderer.repaint(this, this.getTypeDescriptor(), options);
     }
+
+    getData () { return this.data; };
+    setData (d:any) { this.data = d || {}; };
+    mergeData (d:any) { this.data = extend(this.data, d); };
 }

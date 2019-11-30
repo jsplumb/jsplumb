@@ -17,13 +17,34 @@ function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:P
     return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
 }
 
+export const CLASS_DRAG_ACTIVE = "jtk-drag-active";
+export const CLASS_DRAGGED = "jtk-dragged";
+export const CLASS_DRAG_HOVER = "jtk-drag-hover";
+export const ATTR_NOT_DRAGGABLE = "jtk-not-draggable";
+export const EVT_DRAG_MOVE = "drag:move";
+export const EVT_DRAG_STOP = "drag:stop";
+export const EVT_DRAG_START = "drag:start";
+export const EVT_MOUSEDOWN = "mousedown";
+export const EVT_MOUSEUP= "mouseup";
+export const EVT_REVERT = "revert";
+
 export interface DragHandler {
+
     selector:string;
+
     onStart:(params:any) => boolean;
     onDrag:(params:any) => void;
     onStop:(params:any) => void;
 
+    reset:() => void;
+    init:(katavorioDraggable:any) => void;
+
     onBeforeStart?:(beforeStartParams:any) => void;
+}
+
+export interface GhostProxyingDragHandler extends DragHandler {
+    makeGhostProxy:(el:any) => any;
+    useGhostProxy:(container:any, dragEl:any) => boolean;
 }
 
 export class DragManager {
@@ -126,18 +147,32 @@ export class DragManager {
     addHandler(handler:DragHandler, dragOptions?:any):void {
         const o = extend({selector:handler.selector}, dragOptions || {});
 
+        this.handlers.push(handler);
+
         o.start = wrap(o.start, (p:any) => { return handler.onStart(p); });
         o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); });
         o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); });
+        o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler);
+
+        if ((handler as GhostProxyingDragHandler).useGhostProxy) {
+            o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy;
+            o.makeGhostProxy  = (handler as GhostProxyingDragHandler).makeGhostProxy;
+        }
+
 
         if (this.katavorioDraggable == null) {
             this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
         } else {
             this.katavorioDraggable.addSelector(o);
         }
+
+        handler.init(this.katavorioDraggable);
     }
 
     reset():void {
+
+        this.handlers.forEach((handler:DragHandler) => { handler.reset(); });
+
         if (this.katavorioDraggable != null) {
             this.katavorio.destroyDraggable(this.instance.getContainer());
         }

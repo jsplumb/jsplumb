@@ -39,6 +39,17 @@
         };
     };
 
+    var _makeEventAt = function(l, t) {
+        return {
+            clientX: l,
+            clientY: t,
+            screenX: l,
+            screenY: t,
+            pageX: l,
+            pageY: t
+        };
+    };
+
     var getEndpointCanvas = function(ep) {
         return ep.endpoint.renderer.canvas;
     };
@@ -198,6 +209,8 @@
 
             var _divs = [];
             var _addDiv = function (id, parent, className, x, y, w, h) {
+                w = w || 50;
+                h = h || 50;
                 var d1 = document.createElement("div");
                 d1.style.position = "absolute";
                 d1.innerHTML = id;
@@ -271,11 +284,43 @@
                 assertEndpointCount:_assertEndpointCount.bind(null, _jsPlumb),
 
                 cleanup:function() {
+
+                    var container = _jsPlumb.getContainer();
+
+                    _jsPlumb.destroy();
+
                     for (var i in _divs) {
                         var d = document.getElementById(_divs[i]);
                         d && d.parentNode.removeChild(d);
                     }
                     _divs.length = 0;
+
+                    var connCount = _jsPlumb.select().length,
+                        epCount = _jsPlumb.selectEndpoints().length,
+                        epElCount = container.querySelectorAll(".jtk-endpoint").length,
+                        connElCount = container.querySelectorAll(".jtk-connector").length;
+
+                    console.log(container.__ta);
+                    for (var k in container.__ta) {
+                        for (var kk in container.__ta[k]) {
+                            throw "Container event bindings not empty for key " + k;
+                        }
+                    }
+
+                    if (connCount > 0)
+                        throw "there are connections in the data model!";
+
+                    if (epCount > 0)
+                        throw "there are endpoints in the data model!";
+
+                    if (epElCount > 0) {
+                        throw "there are " + epElCount + " endpoints left in the dom!";
+                    }
+                    //
+                    if (connElCount > 0) {
+                        throw "there are " + connElCount + " connections left in the dom!";
+                    }
+
                 },
                 makeContent : function (s) {
                     var d = document.createElement("div");

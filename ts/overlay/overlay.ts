@@ -30,6 +30,7 @@ export interface ArrowOverlayOptions extends OverlayOptions {
 export interface LabelOverlayOptions extends OverlayOptions {
     label: string;
     endpointLocation?:[ number, number ];
+    labelLocationAttribute?:string;
 }
 
 export interface CustomOverlayOptions<E> extends OverlayOptions {
