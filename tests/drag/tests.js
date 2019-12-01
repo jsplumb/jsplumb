@@ -1079,10 +1079,10 @@ var testSuite = function () {
 
         // TODO - drag selection
         // divs 1 and 3 have moved too, because they are in the drag selection make sure they are in the right place
-        // equal(d1.offsetLeft, 750, "div 1 is at the right left position");
-        // equal(d1.offsetTop, 750, "div 1 is at the right top position");
-        // equal(d3.offsetLeft, 1200, "div 3 is at the right left position");
-        // equal(d3.offsetTop, 1200, "div 3 is at the right top position");
+        equal(d1.offsetLeft, 800, "div 1 is at the right left position");
+        equal(d1.offsetTop, 800, "div 1 is at the right top position");
+        equal(d3.offsetLeft, 1250, "div 3 is at the right left position");
+        equal(d3.offsetTop, 1250, "div 3 is at the right top position");
 
         // check the endpoints
         equal(e2canvas.offsetLeft, 1000 - (e2canvas.offsetWidth/2), "endpoint 2 is at the right place");
@@ -1121,6 +1121,90 @@ var testSuite = function () {
 
         defs = canvas.querySelectorAll("defs");
         equal(defs.length, 1, "1 defs element");
+    });
+
+    test("drag selection, add/remove", function() {
+
+        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+
+        equal(_jsPlumb.getDragSelection().length, 0, "drag selection is empty");
+
+        _jsPlumb.addToDragSelection(d1);
+        equal(_jsPlumb.getDragSelection().length, 1, "drag selection has one element");
+        _jsPlumb.addToDragSelection(d1);
+        equal(_jsPlumb.getDragSelection().length, 1, "drag selection still has one element");
+
+        _jsPlumb.removeFromDragSelection(d1);
+        equal(_jsPlumb.getDragSelection().length, 0, "drag selection is now empty");
+
+        _jsPlumb.addToDragSelection(d1, d2, d3);
+        equal(_jsPlumb.getDragSelection().length, 3, "drag selection has three elements");
+
+        _jsPlumb.removeFromDragSelection(d1, d2);
+        equal(_jsPlumb.getDragSelection().length, 1, "drag selection has one element");
+
+        _jsPlumb.removeFromDragSelection(d3);
+        equal(_jsPlumb.getDragSelection().length, 0, "drag selection has no elements");
+
+        _jsPlumb.addToDragSelection(d1, d2, d3);
+        equal(_jsPlumb.getDragSelection().length, 3, "drag selection has three elements");
+
+        _jsPlumb.clearDragSelection();
+        equal(_jsPlumb.getDragSelection().length, 0, "drag selection has no elements");
+    });
+
+    test("drag selection, css classes", function() {
+
+        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+
+        equal(_jsPlumb.getDragSelection().length, 0, "drag selection is empty");
+
+        _jsPlumb.addToDragSelection(d1);
+        equal(_jsPlumb.getDragSelection().length, 1, "drag selection has one element");
+
+        ok(_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class added to element");
+
+        _jsPlumb.clearDragSelection();
+        ok(!_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class removed from element");
+    });
+
+    test("drag selection, unmanage event removes from selection", function() {
+
+        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+
+        equal(_jsPlumb.getDragSelection().length, 0, "drag selection is empty");
+
+        _jsPlumb.addToDragSelection(d1);
+        equal(_jsPlumb.getDragSelection().length, 1, "drag selection has one element");
+        ok(_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class added to element");
+
+        _jsPlumb.unmanage(d1);
+        ok(_jsPlumb.getDragSelection().length === 0, "drag selection empty");
+        ok(!_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class removed from element");
+    });
+
+    test("drag selection, instance destroy clears selection", function() {
+
+        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+
+        equal(_jsPlumb.getDragSelection().length, 0, "drag selection is empty");
+
+        _jsPlumb.addToDragSelection(d1);
+        equal(_jsPlumb.getDragSelection().length, 1, "drag selection has one element");
+        ok(_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class added to element");
+
+        _jsPlumb.destroy();
+
+        ok(_jsPlumb.getDragSelection().length === 0, "drag selection empty");
+        ok(!_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class removed from element");
     });
 
     //
