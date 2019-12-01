@@ -9559,6 +9559,7 @@
     return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
   }
 
+  var CLASS_DRAG_SELECTED = "jtk-drag-selected";
   var CLASS_DRAG_ACTIVE = "jtk-drag-active";
   var CLASS_DRAGGED = "jtk-dragged";
   var CLASS_DRAG_HOVER = "jtk-drag-hover";
@@ -9734,6 +9735,12 @@
       _defineProperty(this, "_groupLocations", []);
 
       _defineProperty(this, "_intersectingGroups", []);
+
+      _defineProperty(this, "_dragSelection", []);
+
+      _defineProperty(this, "_dragSelectionOffsets", new Map());
+
+      _defineProperty(this, "_dragSizes", new Map());
     }
 
     _createClass(ElementDragHandler, [{
@@ -9789,21 +9796,26 @@
 
         for (var i = 0; i < elements.length; i++) {
           _one(elements[i]);
-        }
+        } // do the contents of the drag selection
+
 
         if (this._intersectingGroups.length > 0) {
           // we only support one for the time being
           var targetGroup = this._intersectingGroups[0].group;
-          var currentGroup = params.el._jsPlumbGroup;
+          var intersectingElement = this._intersectingGroups[0].intersectingElement; //let currentGroup = params.el._jsPlumbGroup;
+
+          var currentGroup = intersectingElement._jsPlumbGroup;
 
           if (currentGroup !== targetGroup) {
             if (currentGroup != null) {
-              if (currentGroup.overrideDrop(params.el, targetGroup)) {
+              //if (currentGroup.overrideDrop(params.el, targetGroup)) {
+              if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
                 return;
               }
-            }
+            } //this.instance.groupManager.addToGroup(targetGroup, params.el, false);
 
-            this.instance.groupManager.addToGroup(targetGroup, params.el, false);
+
+            this.instance.groupManager.addToGroup(targetGroup, intersectingElement, false);
           }
         }
 
@@ -9817,6 +9829,10 @@
         this.instance.hoverSuspended = false;
         this.instance.isConnectionBeingDragged = false;
         this._dragOffset = null;
+
+        this._dragSelectionOffsets.clear();
+
+        this._dragSizes.clear();
       }
     }, {
       key: "reset",
@@ -9843,29 +9859,59 @@
           ui.top += this._dragOffset.top;
         }
 
-        var bounds = {
+        var _one = function _one(el, bounds, e) {
+          // TODO  calculate if there is a target group
+          _this2._groupLocations.forEach(function (groupLoc) {
+            if (Biltong.intersects(bounds, groupLoc.r)) {
+              _this2.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+
+              _this2._intersectingGroups.push({
+                group: groupLoc.group,
+                intersectingElement: el,
+                d: 0
+              });
+            } else {
+              _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
+            }
+          });
+
+          _this2.instance._draw(el, {
+            left: bounds.x,
+            top: bounds.y
+          }, null);
+
+          _this2.instance.fire(EVT_DRAG_MOVE, {
+            el: el,
+            e: params.e,
+            pos: {
+              left: bounds.x,
+              top: bounds.y
+            }
+          });
+        };
+
+        var elBounds = {
           x: ui.left,
           y: ui.top,
           w: elSize[0],
           h: elSize[1]
-        }; // TODO  calculate if there is a target group
+        };
 
-        this._groupLocations.forEach(function (groupLoc) {
-          if (Biltong.intersects(bounds, groupLoc.r)) {
-            _this2.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+        _one(el, elBounds, params.e);
 
-            _this2._intersectingGroups.push(groupLoc);
-          } else {
-            _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
-          }
-        });
+        this._dragSelectionOffsets.forEach(function (v, k) {
+          var s = _this2._dragSizes.get(k);
 
-        this.instance._draw(el, ui, null);
+          var _b = {
+            x: elBounds.x + v[0].left,
+            y: elBounds.y + v[0].top,
+            w: s[0],
+            h: s[1]
+          };
+          v[1].style.left = _b.x + "px";
+          v[1].style.top = _b.y + "px";
 
-        this.instance.fire(EVT_DRAG_MOVE, {
-          el: el,
-          e: params.e,
-          pos: ui
+          _one(v[1], _b, params.e);
         });
       }
     }, {
@@ -9874,6 +9920,7 @@
         var _this3 = this;
 
         var el = params.drag.getDragElement();
+        var elOffset = this.instance.getOffset(el);
 
         if (el._jsPlumbGroup) {
           this._dragOffset = this.instance.getOffset(el.offsetParent);
@@ -9888,7 +9935,25 @@
 
         if (cont) {
           this._groupLocations.length = 0;
-          this._intersectingGroups.length = 0; // if drag el not a group
+          this._intersectingGroups.length = 0; // reset the drag selection offsets array
+
+          this._dragSelectionOffsets.clear();
+
+          this._dragSizes.clear();
+
+          this._dragSelection.forEach(function (jel) {
+            var id = _this3.instance.getId(jel);
+
+            var off = _this3.instance.getOffset(jel);
+
+            _this3._dragSelectionOffsets.set(id, [{
+              left: off.left - elOffset.left,
+              top: off.top - elOffset.top
+            }, jel]);
+
+            _this3._dragSizes.set(id, _this3.instance.getSize(jel));
+          }); // if drag el not a group
+
 
           if (!el._isJsPlumbGroup) {
             var isNotInAGroup = !el._jsPlumbGroup;
@@ -9939,6 +10004,61 @@
         }
 
         return cont;
+      }
+    }, {
+      key: "addToDragSelection",
+      value: function addToDragSelection(el) {
+        var candidate = this.instance.getElement(el);
+
+        if (this._dragSelection.indexOf(candidate) === -1) {
+          this.instance.addClass(candidate, CLASS_DRAG_SELECTED);
+
+          this._dragSelection.push(candidate);
+        }
+      }
+    }, {
+      key: "clearDragSelection",
+      value: function clearDragSelection() {
+        var _this4 = this;
+
+        this._dragSelection.forEach(function (el) {
+          return _this4.instance.removeClass(el, CLASS_DRAG_SELECTED);
+        });
+
+        this._dragSelection.length = 0;
+      }
+    }, {
+      key: "removeFromDragSelection",
+      value: function removeFromDragSelection(el) {
+        var _this5 = this;
+
+        var domElement = this.instance.getElement(el);
+        this._dragSelection = this._dragSelection.filter(function (e) {
+          var out = e !== domElement;
+
+          if (!out) {
+            _this5.instance.removeClass(e, CLASS_DRAG_SELECTED);
+          }
+
+          return out;
+        });
+      }
+    }, {
+      key: "toggleDragSelection",
+      value: function toggleDragSelection(el) {
+        var domElement = this.instance.getElement(el);
+        var isInSelection = this._dragSelection.indexOf(domElement) !== -1;
+
+        if (isInSelection) {
+          this.removeFromDragSelection(domElement);
+        } else {
+          this.addToDragSelection(domElement);
+        }
+      }
+    }, {
+      key: "getDragSelection",
+      value: function getDragSelection() {
+        return this._dragSelection;
       }
     }]);
 
@@ -11396,6 +11516,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "_overlayDblClick", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
+
       _this.eventManager = new Mottle();
       _this.dragManager = new DragManager(_assertThisInitialized(_this));
 
@@ -11403,7 +11525,9 @@
 
       _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)));
 
-      _this.dragManager.addHandler(new ElementDragHandler(_assertThisInitialized(_this)));
+      _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this));
+
+      _this.dragManager.addHandler(_this.elementDragHandler);
 
       _this._connectorClick = function (e) {
         if (!e.defaultPrevented) {
@@ -11902,7 +12026,65 @@
           this.dragManager.reset();
         }
 
+        this.clearDragSelection();
+
         _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "destroy", this).call(this);
+      }
+    }, {
+      key: "unmanage",
+      value: function unmanage(id) {
+        this.removeFromDragSelection(id);
+
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "unmanage", this).call(this, id);
+      }
+    }, {
+      key: "addToDragSelection",
+      value: function addToDragSelection() {
+        var _this3 = this;
+
+        for (var _len = arguments.length, el = new Array(_len), _key = 0; _key < _len; _key++) {
+          el[_key] = arguments[_key];
+        }
+
+        el.forEach(function (_el) {
+          return _this3.elementDragHandler.addToDragSelection(_el);
+        });
+      }
+    }, {
+      key: "clearDragSelection",
+      value: function clearDragSelection() {
+        this.elementDragHandler.clearDragSelection();
+      }
+    }, {
+      key: "removeFromDragSelection",
+      value: function removeFromDragSelection() {
+        var _this4 = this;
+
+        for (var _len2 = arguments.length, el = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          el[_key2] = arguments[_key2];
+        }
+
+        el.forEach(function (_el) {
+          return _this4.elementDragHandler.removeFromDragSelection(_el);
+        });
+      }
+    }, {
+      key: "toggleDragSelection",
+      value: function toggleDragSelection() {
+        var _this5 = this;
+
+        for (var _len3 = arguments.length, el = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+          el[_key3] = arguments[_key3];
+        }
+
+        el.forEach(function (_el) {
+          return _this5.elementDragHandler.toggleDragSelection(_el);
+        });
+      }
+    }, {
+      key: "getDragSelection",
+      value: function getDragSelection() {
+        return this.elementDragHandler.getDragSelection();
       }
     }]);
 
@@ -14437,6 +14619,7 @@
   exports.CLASS_DRAGGED = CLASS_DRAGGED;
   exports.CLASS_DRAG_ACTIVE = CLASS_DRAG_ACTIVE;
   exports.CLASS_DRAG_HOVER = CLASS_DRAG_HOVER;
+  exports.CLASS_DRAG_SELECTED = CLASS_DRAG_SELECTED;
   exports.CLASS_ENDPOINT = CLASS_ENDPOINT;
   exports.CLASS_OVERLAY = CLASS_OVERLAY;
   exports.CMD_HIDE = CMD_HIDE;
