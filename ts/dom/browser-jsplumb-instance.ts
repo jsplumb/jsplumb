@@ -36,7 +36,7 @@ export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
     dragOptions?: DragOptions;
 }
 
-export interface jsPlumbDOMElement {
+export interface jsPlumbDOMElement extends HTMLElement {
     _jsPlumbGroup: Group<HTMLElement>;
     _isJsPlumbGroup: boolean;
     offsetParent: HTMLElement;
@@ -142,6 +142,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     _overlayClick:Function;
     _overlayDblClick:Function;
 
+    private elementDragHandler :ElementDragHandler;
+
     constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>) {
         super(_instanceIndex, new BrowserRenderer(), defaults, helpers);
         this.eventManager = new Mottle();
@@ -149,7 +151,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         this.dragManager.addHandler(new EndpointDragHandler(this));
         this.dragManager.addHandler(new GroupDragHandler(this));
-        this.dragManager.addHandler(new ElementDragHandler(this));
+        this.elementDragHandler = new ElementDragHandler(this);
+        this.dragManager.addHandler(this.elementDragHandler);
 
         this._connectorClick = function(e:any) {
             if (!e.defaultPrevented) {
@@ -591,6 +594,33 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
             this.dragManager.reset();
         }
 
+        this.clearDragSelection();
+
         super.destroy();
+    }
+
+    unmanage (id:string):void {
+        this.removeFromDragSelection(id);
+        super.unmanage(id);
+    }
+
+    addToDragSelection(...el:Array<string|HTMLElement>) {
+        el.forEach((_el) => this.elementDragHandler.addToDragSelection(_el));
+    }
+
+    clearDragSelection() {
+        this.elementDragHandler.clearDragSelection();
+    }
+
+    removeFromDragSelection(...el:Array<string|HTMLElement>) {
+        el.forEach((_el) => this.elementDragHandler.removeFromDragSelection(_el));
+    }
+
+    toggleDragSelection(...el:Array<string|HTMLElement>) {
+        el.forEach((_el) => this.elementDragHandler.toggleDragSelection(_el));
+    }
+
+    getDragSelection():Array<HTMLElement> {
+        return this.elementDragHandler.getDragSelection();
     }
 }
