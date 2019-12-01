@@ -17,6 +17,7 @@ function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:P
     return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
 }
 
+export const CLASS_DRAG_SELECTED = "jtk-drag-selected";
 export const CLASS_DRAG_ACTIVE = "jtk-drag-active";
 export const CLASS_DRAGGED = "jtk-dragged";
 export const CLASS_DRAG_HOVER = "jtk-drag-hover";
@@ -158,7 +159,6 @@ export class DragManager {
             o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy;
             o.makeGhostProxy  = (handler as GhostProxyingDragHandler).makeGhostProxy;
         }
-
 
         if (this.katavorioDraggable == null) {
             this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
