@@ -16,6 +16,7 @@ declare const Biltong:any;
 type IntersectingGroup<E> = {
     group:Group<E>;
     d:number;
+    intersectingElement:E;
 }
 
 type GroupLocation<E> = {
@@ -77,17 +78,23 @@ export class ElementDragHandler implements DragHandler {
             _one(elements[i]);
         }
 
+        // do the contents of the drag selection
+
         if (this._intersectingGroups.length > 0) {
             // we only support one for the time being
             let targetGroup = this._intersectingGroups[0].group;
-            let currentGroup = params.el._jsPlumbGroup;
+            let intersectingElement = this._intersectingGroups[0].intersectingElement;
+            //let currentGroup = params.el._jsPlumbGroup;
+            let currentGroup = (<any>intersectingElement)._jsPlumbGroup;
             if (currentGroup !== targetGroup) {
                 if (currentGroup != null) {
-                    if (currentGroup.overrideDrop(params.el, targetGroup)) {
+                    //if (currentGroup.overrideDrop(params.el, targetGroup)) {
+                    if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
                         return;
                     }
                 }
-                this.instance.groupManager.addToGroup(targetGroup, params.el, false);
+                //this.instance.groupManager.addToGroup(targetGroup, params.el, false);
+                this.instance.groupManager.addToGroup(targetGroup, intersectingElement, false);
             }
         }
 
@@ -128,7 +135,7 @@ export class ElementDragHandler implements DragHandler {
             this._groupLocations.forEach((groupLoc:any) => {
                 if (Biltong.intersects(bounds, groupLoc.r)) {
                     this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
-                    this._intersectingGroups.push(groupLoc);
+                    this._intersectingGroups.push({group:groupLoc.group, intersectingElement:el, d:0});
                 } else {
                     this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
                 }
