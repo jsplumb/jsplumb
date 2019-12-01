@@ -1,7 +1,7 @@
 import {
     ATTR_NOT_DRAGGABLE,
     CLASS_DRAG_ACTIVE,
-    CLASS_DRAG_HOVER,
+    CLASS_DRAG_HOVER, CLASS_DRAG_SELECTED,
     CLASS_DRAGGED,
     DragHandler,
     EVT_DRAG_MOVE, EVT_DRAG_START,
@@ -30,6 +30,10 @@ export class ElementDragHandler implements DragHandler {
     _dragOffset:Offset = null;
     _groupLocations:Array<GroupLocation<HTMLElement>> = [];
     _intersectingGroups:Array<IntersectingGroup<HTMLElement>> = [];
+
+    private _dragSelection: Array<jsPlumbDOMElement> = [];
+    private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map();
+    private _dragSizes:Map<string, [number, number]> = new Map();
 
     constructor(protected instance:BrowserJsPlumbInstance) {}
 
@@ -97,6 +101,8 @@ export class ElementDragHandler implements DragHandler {
         this.instance.hoverSuspended = false;
         this.instance.isConnectionBeingDragged = false;
         this._dragOffset = null;
+        this._dragSelectionOffsets.clear();
+        this._dragSizes.clear();
     }
 
     reset() { }
@@ -116,30 +122,45 @@ export class ElementDragHandler implements DragHandler {
             ui.top += this._dragOffset.top;
         }
 
-        const bounds = { x:ui.left, y:ui.top, w:elSize[0], h:elSize[1] };
+        const _one = (el:any, bounds:BoundingBox, e:Event) => {
 
-        // TODO  calculate if there is a target group
-        this._groupLocations.forEach((groupLoc:any) => {
-            if (Biltong.intersects(bounds, groupLoc.r)) {
-                this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
-                this._intersectingGroups.push(groupLoc);
-            } else {
-                this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
-            }
+            // TODO  calculate if there is a target group
+            this._groupLocations.forEach((groupLoc:any) => {
+                if (Biltong.intersects(bounds, groupLoc.r)) {
+                    this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+                    this._intersectingGroups.push(groupLoc);
+                } else {
+                    this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
+                }
+            });
+
+            this.instance._draw(el, {left:bounds.x,top:bounds.y}, null);
+
+            this.instance.fire(EVT_DRAG_MOVE, {
+                el:el,
+                e:params.e,
+                pos:{left:bounds.x,top:bounds.y}
+            });
+        };
+
+        const elBounds = { x:ui.left, y:ui.top, w:elSize[0], h:elSize[1] };
+        _one(el, elBounds, params.e);
+
+        this._dragSelectionOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
+            const s = this._dragSizes.get(k);
+            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s[0], h:s[1]};
+            v[1].style.left = _b.x + "px";
+            v[1].style.top = _b.y + "px";
+            _one(v[1], _b, params.e);
+
         });
 
-        this.instance._draw(el, ui, null);
-
-        this.instance.fire(EVT_DRAG_MOVE, {
-            el:el,
-            e:params.e,
-            pos:ui
-        });
     }
 
     onStart(params:any):boolean {
 
         const el = params.drag.getDragElement() as jsPlumbDOMElement;
+        const elOffset = this.instance.getOffset(el);
 
         if (el._jsPlumbGroup) {
             this._dragOffset = this.instance.getOffset(el.offsetParent);
@@ -155,6 +176,16 @@ export class ElementDragHandler implements DragHandler {
 
             this._groupLocations.length = 0;
             this._intersectingGroups.length = 0;
+
+            // reset the drag selection offsets array
+            this._dragSelectionOffsets.clear();
+            this._dragSizes.clear();
+            this._dragSelection.forEach((jel) => {
+                let id = this.instance.getId(jel);
+                let off = this.instance.getOffset(jel);
+                this._dragSelectionOffsets.set(id, [ { left:off.left - elOffset.left, top:off.top - elOffset.top }, jel]);
+                this._dragSizes.set(id, this.instance.getSize(jel));
+            });
 
             // if drag el not a group
             if (!el._isJsPlumbGroup) {
@@ -195,5 +226,44 @@ export class ElementDragHandler implements DragHandler {
             });
         }
         return cont;
+    }
+
+    addToDragSelection(el:string|HTMLElement) {
+
+        const candidate = (<unknown>this.instance.getElement(el)) as jsPlumbDOMElement;
+        if (this._dragSelection.indexOf(candidate) === -1) {
+            this.instance.addClass(candidate, CLASS_DRAG_SELECTED);
+            this._dragSelection.push(candidate);
+        }
+    }
+
+    clearDragSelection() {
+        this._dragSelection.forEach((el) => this.instance.removeClass(el, CLASS_DRAG_SELECTED));
+        this._dragSelection.length = 0;
+    }
+
+    removeFromDragSelection(el:string|HTMLElement) {
+        const domElement = (<unknown>this.instance.getElement(el)) as jsPlumbDOMElement;
+        this._dragSelection = this._dragSelection.filter((e) => {
+            const out = e !== domElement;
+            if (!out) {
+                this.instance.removeClass(e, CLASS_DRAG_SELECTED)
+            }
+            return out;
+        });
+    }
+
+    toggleDragSelection(el:string|HTMLElement) {
+        const domElement = (<unknown>this.instance.getElement(el)) as jsPlumbDOMElement;
+        const isInSelection = this._dragSelection.indexOf(domElement) !== -1;
+        if (isInSelection) {
+            this.removeFromDragSelection(domElement);
+        } else {
+            this.addToDragSelection(domElement);
+        }
+    }
+
+    getDragSelection():Array<HTMLElement> {
+        return this._dragSelection;
     }
 }
