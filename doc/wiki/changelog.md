@@ -1,3 +1,9 @@
+## 2.12.8
+
+December 11th 2019
+
+- fixes for the sort functions used to sort edges by the continuous anchors (#893, #892, #891, #890).
+
 ## 2.12.7
 
 November 28th 2019
