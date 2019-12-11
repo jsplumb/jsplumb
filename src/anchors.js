@@ -47,39 +47,22 @@
 
                 return a;
             },
-            // used by edgeSortFunctions
-            currySort = function (reverseAngles) {
-                return function (a, b) {
-                    var r = true;
-                    if (reverseAngles) {
-                        r = a[0][0] < b[0][0];
-                    }
-                    else {
-                        r = a[0][0] > b[0][0];
-                    }
-                    return r === false ? -1 : 1;
-                };
+            rightAndBottomSort = function(a, b) {
+                return b[0][0] - a[0][0];
             },
             // used by edgeSortFunctions
-            leftSort = function (a, b) {
-                // first get adjusted values
+            leftAndTopSort = function (a, b) {
                 var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
                     p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-                if (p1 > p2) {
-                    return 1;
-                }
-                else {
-                    return -1;
-                }
+
+                return p1 - p2;
             },
             // used by placeAnchors
             edgeSortFunctions = {
-                "top": function (a, b) {
-                    return a[0] > b[0] ? 1 : -1;
-                },
-                "right": currySort(true),
-                "bottom": currySort(true),
-                "left": leftSort
+                "top":leftAndTopSort,
+                "right": rightAndBottomSort,
+                "bottom": rightAndBottomSort,
+                "left": leftAndTopSort
             },
             // used by placeAnchors
             _sortHelper = function (_array, _fn) {
