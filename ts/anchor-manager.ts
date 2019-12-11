@@ -12,16 +12,16 @@ declare const Biltong:any;
 export interface AnchorManagerOptions { }
 
 function placeAnchorsOnLine(desc:any, elementDimensions:any, elementPosition:any, connections:any, horizontal:any, otherMultiplier:any, reverse:any):any {
-    var a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+    let a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
 
-    for (var i = 0; i < connections.length; i++) {
-        var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
+    for (let i = 0; i < connections.length; i++) {
+        let val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
         if (reverse) {
             val = elementDimensions[horizontal ? 0 : 1] - val;
         }
 
-        var dx = (horizontal ? val : other), x = elementPosition[0] + dx, xp = dx / elementDimensions[0],
-            dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
+        const dx = (horizontal ? val : other), x = elementPosition[0] + dx, xp = dx / elementDimensions[0];
+        const dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
 
         a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ]);
     }
@@ -29,41 +29,24 @@ function placeAnchorsOnLine(desc:any, elementDimensions:any, elementPosition:any
     return a;
 }
 
-    // used by edgeSortFunctions
-function currySort (reverseAngles?:boolean):SortFunction {
-    return function (a:any, b:any):number {
-        let r = true;
-        if (reverseAngles) {
-            r = a[0][0] < b[0][0];
-        }
-        else {
-            r = a[0][0] > b[0][0];
-        }
-        return r === false ? -1 : 1;
-    };
+function rightAndBottomSort (a:any, b:any):number {
+    return b[0][0] - a[0][0];
 }
 
     // used by edgeSortFunctions
-function leftSort(a:any, b:any):number {
-    // first get adjusted values
+function leftAndTopSort (a:any, b:any):number {
     let p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
         p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-    if (p1 > p2) {
-        return 1;
-    }
-    else {
-        return -1;
-    }
+
+    return p1 - p2;
 }
 
-    // used by placeAnchors
+// used by placeAnchors
 const edgeSortFunctions:Dictionary<SortFunction> = {
-    "top": function (a:any, b:any):number {
-        return a[0] > b[0] ? 1 : -1;
-    },
-    "right": currySort(true),
-    "bottom": currySort(true),
-    "left": leftSort
+    "top": leftAndTopSort,
+    "right": rightAndBottomSort,
+    "bottom": rightAndBottomSort,
+    "left": leftAndTopSort
 };
 
 
