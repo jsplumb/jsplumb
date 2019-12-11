@@ -4508,52 +4508,33 @@
 
       var dx = horizontal ? val : other,
           x = elementPosition[0] + dx,
-          xp = dx / elementDimensions[0],
-          dy = horizontal ? other : val,
+          xp = dx / elementDimensions[0];
+      var dy = horizontal ? other : val,
           y = elementPosition[1] + dy,
           yp = dy / elementDimensions[1];
       a.push([x, y, xp, yp, connections[i][1], connections[i][2]]);
     }
 
     return a;
+  }
+
+  function rightAndBottomSort(a, b) {
+    return b[0][0] - a[0][0];
   } // used by edgeSortFunctions
 
 
-  function currySort(reverseAngles) {
-    return function (a, b) {
-      var r = true;
-
-      if (reverseAngles) {
-        r = a[0][0] < b[0][0];
-      } else {
-        r = a[0][0] > b[0][0];
-      }
-
-      return r === false ? -1 : 1;
-    };
-  } // used by edgeSortFunctions
-
-
-  function leftSort(a, b) {
-    // first get adjusted values
+  function leftAndTopSort(a, b) {
     var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
         p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-
-    if (p1 > p2) {
-      return 1;
-    } else {
-      return -1;
-    }
+    return p1 - p2;
   } // used by placeAnchors
 
 
   var edgeSortFunctions = {
-    "top": function top(a, b) {
-      return a[0] > b[0] ? 1 : -1;
-    },
-    "right": currySort(true),
-    "bottom": currySort(true),
-    "left": leftSort
+    "top": leftAndTopSort,
+    "right": rightAndBottomSort,
+    "bottom": rightAndBottomSort,
+    "left": leftAndTopSort
   };
   var ContinuousAnchorFactory =
   /*#__PURE__*/
