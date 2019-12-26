@@ -13,7 +13,7 @@ export abstract class EventGenerator {
 
     constructor() { }
 
-    fire (event: string, value: any, originalEvent?: Event): EventGenerator {
+    fire (event: string, value?: any, originalEvent?: Event): EventGenerator {
         if (!this.tick) {
             this.tick = true;
             if (!this.eventsSuspended && this._listeners[event]) {
