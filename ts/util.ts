@@ -20,7 +20,9 @@ export function isNull(s: any): boolean {
     return s == null;
 }
 
-
+export function isObject(o: any): boolean {
+    return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
+}
 
 export function isDate(o: any): boolean {
     return Object.prototype.toString.call(o) === "[object Date]";
