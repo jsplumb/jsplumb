@@ -349,14 +349,14 @@ declare module jsPlumb {
         isSource?: boolean;//= false
         isTarget?: boolean;//= false
         reattach?: boolean;//= false
-        parameters: object;
+        parameters?: object;
         "connector-pointer-events"?: string;
         connectionType?: string;
         dragProxy?: string | Array<string>;
-        id: string;
-        scope: string;
-        reattachConnections: boolean;
-        type: string; // "Dot", etc.
+        id?: string;
+        scope?: string;
+        reattachConnections?: boolean;
+        type?: string; // "Dot", etc.
     }
 
     class Endpoint {
