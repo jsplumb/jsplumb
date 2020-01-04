@@ -365,6 +365,7 @@ declare module jsPlumb {
         scope?: string;
         reattachConnections?: boolean;
         type?: string; // "Dot", etc.
+        overlays?:Array<OverlaySpec>;
     }
 
     class Endpoint {
