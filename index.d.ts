@@ -324,13 +324,21 @@ declare module jsPlumb {
 
     /* -------------------------------------------- ENDPOINTS ------------------------------------------------------ */
 
-    type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
-    type UserDefinedEndpointId = string;
-    type EndpointSpec = EndpointId | [EndpointId, EndpointOptions];
+    type EndpointId = EndpointRectangle | EndpointDot | EndpointBlank | EndpointUserDefined;
+    type EndpointRectangle = "Rectangle";
+    type EndpointDot = "Dot";
+    type EndpointBlank = "Blank";
+    type EndpointUserDefined = string;
+
+    type EndpointSpec = EndpointId |
+                        [ EndpointRectangle, EndpointRectangleOptions ] |
+                        [ EndpointDot, EndpointDotOptions ] |
+                        [ EndpointBlank, EndpointBlankOptions ] |
+                        [ EndpointUserDefined, EndpointUserDefinedOptions ];
 
     interface EndpointOptions {
         anchor?: AnchorSpec;
-        endpoint?: Endpoint;
+        endpoint?: EndpointSpec;
         enabled?: boolean;//= true
         paintStyle?: PaintStyle;
         hoverPaintStyle?: PaintStyle;
@@ -390,9 +398,6 @@ declare module jsPlumb {
 
     /* -------------------------------------------- ANCHORS -------------------------------------------------------- */
 
-    interface AnchorOptions {
-    }
-
     type AnchorOrientationHint = -1 | 0 | 1;
 
     interface Anchor {
@@ -431,7 +436,8 @@ declare module jsPlumb {
         "TopRight";
 
 
-    type AnchorSpec = AnchorId | [AnchorId, AnchorOptions]
+    type AnchorSpec = AnchorId | AnchorArraySpec
+    type AnchorArraySpec = [number, number, number, number, number?, number?];
 
 
     /* --------------------------------------- OVERLAYS ------------------------------------------------------------- */
