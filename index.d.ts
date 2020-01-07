@@ -413,12 +413,12 @@ declare module jsPlumb {
         y: number;
     }
 
-    type AnchorDynamicSpec =
+    type AnchorDynamicSpec = Array<
          AnchorStaticSpec |
          AnchorDynamicId |
          AnchorPerimeterSpec |
          AnchorContinuousSpec
-    ;
+    >;
 
     type AnchorDynamicId = "AutoDefault";
 
@@ -476,7 +476,7 @@ declare module jsPlumb {
     type ContinuousAnchorFace = "top" | "left" | "right" | "bottom";
 
     type AnchorSpec =
-         AnchorId |
+         AnchorStaticSpec |
          AnchorDynamicSpec |
          AnchorPerimeterSpec |
          AnchorContinuousSpec
