@@ -324,17 +324,22 @@ declare module jsPlumb {
 
     /* -------------------------------------------- ENDPOINTS ------------------------------------------------------ */
 
-    type EndpointId = EndpointRectangle | EndpointDot | EndpointBlank | EndpointUserDefined;
-    type EndpointRectangle = "Rectangle";
-    type EndpointDot = "Dot";
-    type EndpointBlank = "Blank";
-    type EndpointUserDefined = string;
-
     type EndpointSpec = EndpointId |
                         [ EndpointRectangle, EndpointRectangleOptions ] |
                         [ EndpointDot, EndpointDotOptions ] |
-                        [ EndpointBlank, EndpointBlankOptions ] |
-                        [ EndpointUserDefined, EndpointUserDefinedOptions ];
+                        [ EndpointBlank, EndpointBlankOptions ]
+    ;
+
+    type EndpointId = EndpointRectangle | EndpointDot | EndpointBlank;
+    type EndpointRectangle = "Rectangle";
+    type EndpointDot = "Dot";
+    type EndpointBlank = "Blank";
+
+    type EndpointDotOptions = { radius?: number, cssClass?: string, hoverClass?: string };
+    type EndpointRectangleOptions = { width?: number, height?: number, cssClass?: string, hoverClass?: string};
+    type EndpointImageOptions = { src: string, cssClass?: string, hoverClass?: string };
+    type EndpointBlankOptions = {};
+
 
     interface EndpointOptions {
         anchor?: AnchorSpec;
