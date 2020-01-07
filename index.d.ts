@@ -413,33 +413,74 @@ declare module jsPlumb {
         y: number;
     }
 
+    type AnchorDynamicSpec =
+         AnchorStaticSpec |
+         AnchorDynamicId |
+         AnchorPerimeterSpec |
+         AnchorContinuousSpec
+    ;
+
+    type AnchorDynamicId = "AutoDefault";
+
     type AnchorId =
+        AnchorStaticId |
+        AnchorDynamicId |
+        AnchorPerimeterId |
+        AnchorContinuousId
+    ;
+
+    type AnchorStaticSpec = AnchorStaticId | AnchorArraySpec;
+
+    type AnchorStaticId =
         "Assign" |
-        "AutoDefault" |
         "Bottom" |
         "BottomCenter" |
         "BottomLeft" |
         "BottomRight" |
         "Center" |
-        "Continuous" |
-        "ContinuousBottom" |
-        "ContinuousLeft" |
-        "ContinuousRight" |
-        "ContinuousTop" |
         "Left" |
         "LeftMiddle" |
-        "Perimeter" |
         "Right" |
         "RightMiddle" |
         "Top" |
         "TopCenter" |
         "TopLeft" |
-        "TopRight";
+        "TopRight"
+    ;
 
+    type AnchorArraySpec = [ number, number, number, number, number?, number?, string? ];
 
-    type AnchorSpec = AnchorId | AnchorArraySpec
-    type AnchorArraySpec = [number, number, number, number, number?, number?];
+    type AnchorPerimeterSpec = AnchorPerimeterId | [ AnchorPerimeterId, { shape?: PerimeterShape, anchorCount?: number, rotation?: number } ]
 
+    type AnchorPerimeterId = "Perimeter";
+
+    type PerimeterShape =
+        "Circle" |
+        "Ellipse" |
+        "Triangle" |
+        "Diamond" |
+        "Rectangle" |
+        "Square"
+    ;
+
+    type AnchorContinuousSpec = AnchorContinuousId | [ AnchorContinuousId, { faces?: [ ContinuousAnchorFace ] } ]
+
+    type AnchorContinuousId =
+        "Continuous" |
+        "ContinuousBottom" |
+        "ContinuousLeft" |
+        "ContinuousRight" |
+        "ContinuousTop"
+    ;
+
+    type ContinuousAnchorFace = "top" | "left" | "right" | "bottom";
+
+    type AnchorSpec =
+         AnchorId |
+         AnchorDynamicSpec |
+         AnchorPerimeterSpec |
+         AnchorContinuousSpec
+    ;
 
     /* --------------------------------------- OVERLAYS ------------------------------------------------------------- */
 
