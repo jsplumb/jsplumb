@@ -197,7 +197,7 @@ declare module jsPlumb {
 
         setTargetScope(el: Element | string, scope: string, connectionType?: string): void;
 
-        setZoom(val: number, repaintEverything: boolean): boolean;
+        setZoom(val: number, repaintEverything?: boolean/* =false */): boolean;
 
         show(el: string | Element | Selector, changeEndpoints?: boolean/* =false */): jsPlumbInstance;
 
