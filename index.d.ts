@@ -107,6 +107,8 @@ declare module jsPlumb {
 
         getType(id: string, typeDescriptor: string): Object;
 
+        getZoom(): number;
+
         hide(el: string | Element | Selector, changeEndpoints?: boolean/* =false */): jsPlumbInstance;
 
         importDefaults(defaults: Object): jsPlumbInstance;
@@ -194,6 +196,8 @@ declare module jsPlumb {
         setTargetEnabled(el: string | Element | Selector, state: boolean): jsPlumbInstance;
 
         setTargetScope(el: Element | string, scope: string, connectionType?: string): void;
+
+        setZoom(val: number, repaintEverything?: boolean/* =false */): boolean;
 
         show(el: string | Element | Selector, changeEndpoints?: boolean/* =false */): jsPlumbInstance;
 
