@@ -397,6 +397,11 @@
         this.collapsed = false;
         if (params.draggable !== false) {
             var opts = {
+                drag:function() {
+                    for (var i = 0; i < elements.length; i++) {
+                        _jsPlumb.draw(elements[i]);
+                    }
+                },
                 stop:function(params) {
                     _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
                 },
