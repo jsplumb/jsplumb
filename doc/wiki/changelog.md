@@ -1,3 +1,10 @@
+## 2.12.9
+
+January 30th 2020
+
+- redraw child elements on group drag (fixes issue with group members that have associated connections that are on descendants of the child element, not the child element itself)
+- add setZoom/getZoom to Typescript definitions file. 
+
 ## 2.12.8
 
 December 11th 2019
