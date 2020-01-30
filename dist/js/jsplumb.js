@@ -1736,9 +1736,8 @@
             scroll = this.params.scroll,
             _multipleDrop = params.multipleDrop !== false,
             isConstrained = false,
-            //useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
-            useGhostProxy,
-            ghostProxy,// = function(el) { return el.cloneNode(true); },
+            useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
+            ghostProxy = function(el) { return el.cloneNode(true); },
             elementToDrag = null,
             availableSelectors = [],
             activeSelectorParams = null, // which, if any, selector config is currently active.
@@ -1747,36 +1746,6 @@
             ghostParentPosition,
             ghostDx,
             ghostDy;
-
-        if (params.ghostProxy === true) {
-            useGhostProxy = TRUE;
-        } else {
-            if (params.ghostProxy && typeof params.ghostProxy === "function") {
-                useGhostProxy = params.ghostProxy;
-            } else {
-                useGhostProxy = function(container, dragEl) {
-                    if (activeSelectorParams && activeSelectorParams.useGhostProxy) {
-                        return activeSelectorParams.useGhostProxy(container, dragEl);
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if (params.makeGhostProxy) {
-            ghostProxy = params.makeGhostProxy;
-        } else {
-
-            ghostProxy = function(el) {
-                if (activeSelectorParams && activeSelectorParams.makeGhostProxy) {
-                    return activeSelectorParams.makeGhostProxy(el);
-                } else {
-                    return el.cloneNode(true);
-                }
-            };
-
-        }
 
         // if an initial selector was provided, push the entire set of params as a selector config.
         if (params.selector) {
@@ -4345,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.8";
+        this.version = "2.12.9";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -12835,6 +12804,11 @@
         this.collapsed = false;
         if (params.draggable !== false) {
             var opts = {
+                drag:function() {
+                    for (var i = 0; i < elements.length; i++) {
+                        _jsPlumb.draw(elements[i]);
+                    }
+                },
                 stop:function(params) {
                     _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
                 },
