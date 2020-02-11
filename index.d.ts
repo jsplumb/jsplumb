@@ -340,7 +340,7 @@ declare module jsPlumb {
         hoverPaintStyle?: PaintStyle;
         cssClass?: string;
         hoverClass?: string;
-        maxConnections: number;//= 1?
+        maxConnections?: number;//= 1?
         dragOptions?: DragOptions;
         dropOptions?: DropOptions;
         connectorStyle?: PaintStyle;
@@ -353,14 +353,14 @@ declare module jsPlumb {
         isSource?: boolean;//= false
         isTarget?: boolean;//= false
         reattach?: boolean;//= false
-        parameters: object;
+        parameters?: object;
         "connector-pointer-events"?: string;
         connectionType?: string;
         dragProxy?: string | Array<string>;
-        id: string;
-        scope: string;
-        reattachConnections: boolean;
-        type: string; // "Dot", etc.
+        id?: string;
+        scope?: string;
+        reattachConnections?: boolean;
+        type?: string; // "Dot", etc.
     }
 
     class Endpoint {
