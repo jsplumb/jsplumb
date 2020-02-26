@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.9";
+        this.version = "2.12.10";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -11203,6 +11203,92 @@
                 { x: params.x2, y: params.y2 }
             ];
 
+            var _isPoint = function(c) {
+                return c[0].x === c[1].x && c[0].y === c[1].y;
+            };
+
+            var _dist = function(p1, p2 ) {
+                return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+            };
+
+            var _compute = function(loc) {
+
+                var EMPTY_POINT  = {x:0, y:0};
+
+                if (loc === 0) {
+                    return this.curve[0];
+                }
+
+                var degree = this.curve.length - 1;
+
+                if (loc === 1) {
+                    return this.curve[degree];
+                }
+
+                var o = this.curve;
+                var s = 1 - loc;
+
+                if (degree === 0) {
+                    return this.curve[0];
+                }
+
+                if (degree === 1) {
+                    return {
+                        x: s * o[0].x + loc * o[1].x,
+                        y: s * o[0].y + loc * o[1].y
+                    };
+                }
+
+                if (degree < 4) {
+
+                    var l = s * s, h = loc * loc, u = 0, m, g, f;
+
+                    if (degree === 2) {
+                        o = [o[0], o[1], o[2], EMPTY_POINT];
+                        m = l;
+                        g = 2 * (s * loc);
+                        f = h;
+                    } else if (degree === 3) {
+                        m = l * s;
+                        g = 3 * (l * loc);
+                        f = 3 * (s * h);
+                        u = loc * h;
+                    }
+
+                    return {
+                        x: m * o[0].x + g * o[1].x + f * o[2].x + u * o[3].x,
+                        y: m * o[0].y + g * o[1].y + f * o[2].y + u * o[3].y
+                    };
+                } else {
+                    return EMPTY_POINT; // not supported.
+                }
+            }.bind(this);
+
+            var _getLUT = function(steps) {
+                var out = [];
+                steps--;
+                for (var n = 0; n <= steps; n++) {
+                    out.push(_compute(n / steps));
+                }
+                return out;
+            };
+
+            var _computeLength = function() {
+
+                if (_isPoint(this.curve)) {
+                    this.length = 0;
+                }
+
+                var steps = 16;
+                var  lut = _getLUT(steps);
+                this.length = 0;
+
+                for (var i = 0; i < steps - 1; i++) {
+                    var a = lut[i], b = lut[i + 1];
+                    this.length += _dist(a, b);
+                }
+            }.bind(this);
+
             var _super = _jp.Segments.AbstractSegment.apply(this, arguments);
             // although this is not a strictly rigorous determination of bounds
             // of a bezier curve, it works for the types of curves that this segment
@@ -11215,6 +11301,8 @@
             };
 
             this.type = "Bezier";
+
+            _computeLength();
 
             var _translateLocation = function (_curve, location, absolute) {
                 if (absolute) {
@@ -11247,7 +11335,7 @@
             };
 
             this.getLength = function () {
-                return root.jsBezier.getLength(this.curve);
+                return this.length;
             };
 
             this.getBounds = function () {
@@ -12447,19 +12535,45 @@
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
 
+
+        function findGroupFor(el) {
+            var c = _jsPlumb.getContainer();
+            var abort = false, g = null;
+            while (!abort) {
+                if (el == null || el === c) {
+                    abort = true;
+                } else {
+                    if (el[GROUP]) {
+                        g = el[GROUP];
+                        abort = true;
+                    } else {
+                        el = el.parentNode;
+                    }
+                }
+            }
+            return g;
+        }
+
         _jsPlumb.bind("connection", function(p) {
-            if (p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
-                _connectionSourceMap[p.connection.id] = p.source[GROUP];
-                _connectionTargetMap[p.connection.id] = p.source[GROUP];
+
+            var sourceGroup = findGroupFor(p.source);
+            var targetGroup = findGroupFor(p.target);
+
+            // sourceGroup = p.source[GROUP];
+            // targetGroup = p.target[GROUP];
+
+            if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
+                _connectionSourceMap[p.connection.id] = sourceGroup;
+                _connectionTargetMap[p.connection.id] = sourceGroup;
             }
             else {
-                if (p.source[GROUP] != null) {
-                    _ju.suggest(p.source[GROUP].connections.source, p.connection);
-                    _connectionSourceMap[p.connection.id] = p.source[GROUP];
+                if (sourceGroup != null) {
+                    _ju.suggest(sourceGroup.connections.source, p.connection);
+                    _connectionSourceMap[p.connection.id] = sourceGroup;
                 }
-                if (p.target[GROUP] != null) {
-                    _ju.suggest(p.target[GROUP].connections.target, p.connection);
-                    _connectionTargetMap[p.connection.id] = p.target[GROUP];
+                if (targetGroup != null) {
+                    _ju.suggest(targetGroup.connections.target, p.connection);
+                    _connectionTargetMap[p.connection.id] = targetGroup;
                 }
             }
         });
@@ -12619,7 +12733,8 @@
         };
 
         function _setVisible(group, state) {
-            var m = group.getMembers();
+
+            var m = group.getEl().querySelectorAll(".jtk-managed");
             for (var i = 0; i < m.length; i++) {
                 _jsPlumb[state ? CMD_SHOW : CMD_HIDE](m[i], true);
             }
