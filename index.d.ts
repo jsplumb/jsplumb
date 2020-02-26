@@ -85,7 +85,7 @@ declare module jsPlumb {
 
         fire(event: string, value: Object, originalEvent: Event): void;
 
-        getAllConnections(): Object;
+        getAllConnections(): Array<Connection>;
 
         getConnections(scope: string, options: Object, scope2?: string | string, source?: string | string | Selector, target?: string | string | Selector, flat?: boolean/* =false */): Array<any> | Map<any, any>;
 
@@ -306,9 +306,13 @@ declare module jsPlumb {
 
     interface Connection {
         id: ConnectionId;
+        sourceId: string;
+        targetId: string;
         setDetachable(detachable: boolean): void;
         setParameter(name: string, value: any): void;
         endpoints: [Endpoint, Endpoint];
+        getLabelOverlay(): Overlay;
+        getOverlays(): Object;
         getOverlay(s: string): Overlay;
         showOverlay(s: string): void;
         hideOverlay(s: string): void;
