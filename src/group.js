@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 - 2018 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
@@ -40,19 +40,41 @@
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
 
+        function findGroupFor(el) {
+            var c = _jsPlumb.getContainer();
+            var abort = false, g = null;
+            while (!abort) {
+                if (el == null || el === c) {
+                    abort = true;
+                } else {
+                    if (el[GROUP]) {
+                        g = el[GROUP];
+                        abort = true;
+                    } else {
+                        el = el.parentNode;
+                    }
+                }
+            }
+            return g;
+        }
+
         _jsPlumb.bind("connection", function(p) {
-            if (p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
-                _connectionSourceMap[p.connection.id] = p.source[GROUP];
-                _connectionTargetMap[p.connection.id] = p.source[GROUP];
+
+            var sourceGroup = findGroupFor(p.source);
+            var targetGroup = findGroupFor(p.target);
+
+            if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
+                _connectionSourceMap[p.connection.id] = sourceGroup;
+                _connectionTargetMap[p.connection.id] = sourceGroup;
             }
             else {
-                if (p.source[GROUP] != null) {
-                    _ju.suggest(p.source[GROUP].connections.source, p.connection);
-                    _connectionSourceMap[p.connection.id] = p.source[GROUP];
+                if (sourceGroup != null) {
+                    _ju.suggest(sourceGroup.connections.source, p.connection);
+                    _connectionSourceMap[p.connection.id] = sourceGroup;
                 }
-                if (p.target[GROUP] != null) {
-                    _ju.suggest(p.target[GROUP].connections.target, p.connection);
-                    _connectionTargetMap[p.connection.id] = p.target[GROUP];
+                if (targetGroup != null) {
+                    _ju.suggest(targetGroup.connections.target, p.connection);
+                    _connectionTargetMap[p.connection.id] = targetGroup;
                 }
             }
         });
@@ -212,7 +234,8 @@
         };
 
         function _setVisible(group, state) {
-            var m = group.getMembers();
+
+            var m = group.getEl().querySelectorAll(".jtk-managed");
             for (var i = 0; i < m.length; i++) {
                 _jsPlumb[state ? CMD_SHOW : CMD_HIDE](m[i], true);
             }
