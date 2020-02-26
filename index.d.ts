@@ -332,13 +332,26 @@ declare module jsPlumb {
 
     /* -------------------------------------------- ENDPOINTS ------------------------------------------------------ */
 
-    type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
-    type UserDefinedEndpointId = string;
-    type EndpointSpec = EndpointId | [EndpointId, EndpointOptions];
+    type EndpointSpec = EndpointId |
+                        [ EndpointRectangle, EndpointRectangleOptions ] |
+                        [ EndpointDot, EndpointDotOptions ] |
+                        [ EndpointBlank, EndpointBlankOptions ]
+    ;
+
+    type EndpointId = EndpointRectangle | EndpointDot | EndpointBlank;
+    type EndpointRectangle = "Rectangle";
+    type EndpointDot = "Dot";
+    type EndpointBlank = "Blank";
+
+    type EndpointDotOptions = { radius?: number, cssClass?: string, hoverClass?: string };
+    type EndpointRectangleOptions = { width?: number, height?: number, cssClass?: string, hoverClass?: string};
+    type EndpointImageOptions = { src: string, cssClass?: string, hoverClass?: string };
+    type EndpointBlankOptions = {};
+
 
     interface EndpointOptions {
         anchor?: AnchorSpec;
-        endpoint?: Endpoint;
+        endpoint?: EndpointSpec;
         enabled?: boolean;//= true
         paintStyle?: PaintStyle;
         hoverPaintStyle?: PaintStyle;
@@ -357,14 +370,15 @@ declare module jsPlumb {
         isSource?: boolean;//= false
         isTarget?: boolean;//= false
         reattach?: boolean;//= false
-        parameters: object;
+        parameters?: object;
         "connector-pointer-events"?: string;
         connectionType?: string;
         dragProxy?: string | Array<string>;
-        id: string;
-        scope: string;
-        reattachConnections: boolean;
-        type: string; // "Dot", etc.
+        id?: string;
+        scope?: string;
+        reattachConnections?: boolean;
+        type?: string; // "Dot", etc.
+        overlays?:Array<OverlaySpec>;
     }
 
     class Endpoint {
@@ -398,9 +412,6 @@ declare module jsPlumb {
 
     /* -------------------------------------------- ANCHORS -------------------------------------------------------- */
 
-    interface AnchorOptions {
-    }
-
     type AnchorOrientationHint = -1 | 0 | 1;
 
     interface Anchor {
@@ -415,32 +426,74 @@ declare module jsPlumb {
         y: number;
     }
 
+    type AnchorDynamicSpec = Array<
+         AnchorStaticSpec |
+         AnchorDynamicId |
+         AnchorPerimeterSpec |
+         AnchorContinuousSpec
+    >;
+
+    type AnchorDynamicId = "AutoDefault";
+
     type AnchorId =
+        AnchorStaticId |
+        AnchorDynamicId |
+        AnchorPerimeterId |
+        AnchorContinuousId
+    ;
+
+    type AnchorStaticSpec = AnchorStaticId | AnchorArraySpec;
+
+    type AnchorStaticId =
         "Assign" |
-        "AutoDefault" |
         "Bottom" |
         "BottomCenter" |
         "BottomLeft" |
         "BottomRight" |
         "Center" |
-        "Continuous" |
-        "ContinuousBottom" |
-        "ContinuousLeft" |
-        "ContinuousRight" |
-        "ContinuousTop" |
         "Left" |
         "LeftMiddle" |
-        "Perimeter" |
         "Right" |
         "RightMiddle" |
         "Top" |
         "TopCenter" |
         "TopLeft" |
-        "TopRight";
+        "TopRight"
+    ;
 
+    type AnchorArraySpec = [ number, number, number, number, number?, number?, string? ];
 
-    type AnchorSpec = AnchorId | [AnchorId, AnchorOptions]
+    type AnchorPerimeterSpec = AnchorPerimeterId | [ AnchorPerimeterId, { shape?: PerimeterShape, anchorCount?: number, rotation?: number } ]
 
+    type AnchorPerimeterId = "Perimeter";
+
+    type PerimeterShape =
+        "Circle" |
+        "Ellipse" |
+        "Triangle" |
+        "Diamond" |
+        "Rectangle" |
+        "Square"
+    ;
+
+    type AnchorContinuousSpec = AnchorContinuousId | [ AnchorContinuousId, { faces?: [ ContinuousAnchorFace ] } ]
+
+    type AnchorContinuousId =
+        "Continuous" |
+        "ContinuousBottom" |
+        "ContinuousLeft" |
+        "ContinuousRight" |
+        "ContinuousTop"
+    ;
+
+    type ContinuousAnchorFace = "top" | "left" | "right" | "bottom";
+
+    type AnchorSpec =
+         AnchorStaticSpec |
+         AnchorDynamicSpec |
+         AnchorPerimeterSpec |
+         AnchorContinuousSpec
+    ;
 
     /* --------------------------------------- OVERLAYS ------------------------------------------------------------- */
 
