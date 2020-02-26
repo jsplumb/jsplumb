@@ -281,6 +281,7 @@ declare module jsPlumb {
         label?: string;
         connector?: ConnectorSpec;
         overlays?:Array<OverlaySpec>;
+        cssClass?: string
     }
 
     interface DragEventCallbackOptions {
