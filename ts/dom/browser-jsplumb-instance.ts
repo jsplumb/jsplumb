@@ -1,14 +1,14 @@
 import {jsPlumbDefaults, jsPlumbHelperFunctions} from "../defaults";
 import {Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
-import {fastTrim, isArray, isString, log} from "../util";
+import {each, fastTrim, isArray, isString, log} from "../util";
 import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
 import {GroupDragHandler} from "./group-drag-handler";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
-import { Group } from "../group/group";
+import { UIGroup } from "../group/group";
 
 declare const Mottle:any;
 
@@ -37,7 +37,7 @@ export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
 }
 
 export interface jsPlumbDOMElement extends HTMLElement {
-    _jsPlumbGroup: Group<HTMLElement>;
+    _jsPlumbGroup: UIGroup<HTMLElement>;
     _isJsPlumbGroup: boolean;
     offsetParent: HTMLElement;
     getAttribute:(name:string) => string;
@@ -573,17 +573,16 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         if (this.dragManager != null) {
             this.dragManager.addHandler(new EndpointDragHandler(this));
             this.dragManager.addHandler(new GroupDragHandler(this));
-            this.dragManager.addHandler(new ElementDragHandler(this));
+            this.elementDragHandler = new ElementDragHandler(this);
+            this.dragManager.addHandler(this.elementDragHandler);
         }
     }
 
     reset(silently?:boolean) {
         super.reset(silently);
-        if (silently) {
-            const container = this.getContainer();
-            const els = container.querySelectorAll("[jtk-managed], .jtk-endpoint, .jtk-connector, .jtk-overlay");
-            els.forEach((el:any) => el.parentNode && el.parentNode.removeChild(el));
-        }
+        const container = this.getContainer();
+        const els = container.querySelectorAll("[jtk-managed], .jtk-endpoint, .jtk-connector, .jtk-overlay");
+        els.forEach((el:any) => el.parentNode && el.parentNode.removeChild(el));
     }
 
     destroy(): void {
@@ -623,4 +622,30 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     getDragSelection():Array<HTMLElement> {
         return this.elementDragHandler.getDragSelection();
     }
+
+    // ------------ posses (not ported yet, may not be...)
+
+    //*
+
+    addToPosse(el:HTMLElement, spec:any) {
+        this.elementDragHandler.addToPosse(el, spec);
+    }
+
+    setPosse(el:HTMLElement, spec:any) {
+        this.elementDragHandler.setPosse(el, spec);
+    }
+
+    removeFromPosse(el:HTMLElement, posseId:string) {
+        this.elementDragHandler.removeFromPosse(el, posseId);
+    }
+
+    removeFromAllPosses(el:HTMLElement):void {
+        this.elementDragHandler.removeFromAllPosses(el);
+    }
+
+    setPosseState (posseId:string, state:boolean, ...el:Array<HTMLElement>) {
+        this.elementDragHandler.setPosseState(posseId, state, el);
+    }
+
+    //*/
 }
