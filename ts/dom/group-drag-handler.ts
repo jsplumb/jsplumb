@@ -3,13 +3,12 @@ import * as Constants from "../constants";
 import {PointXY} from "../core";
 import {EVT_REVERT, GhostProxyingDragHandler} from "./drag-manager";
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
-import { Group } from "../group/group";
+import { UIGroup } from "../group/group";
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
 
     selector: string = "> [jtk-group] [jtk-managed]";
 
-    katavorioDraggable:any;
     doRevalidate:(el:any) => void;
 
     constructor(protected instance:BrowserJsPlumbInstance) {
@@ -49,9 +48,9 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     onStop(params: any) {
 
-        let originalGroup:Group<HTMLElement> = params.el[Constants.GROUP_KEY],
+        let originalGroup:UIGroup<HTMLElement> = params.el[Constants.GROUP_KEY],
             out = super.onStop(params),
-            currentGroup:Group<HTMLElement> = params.el[Constants.GROUP_KEY];
+            currentGroup:UIGroup<HTMLElement> = params.el[Constants.GROUP_KEY];
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params);
