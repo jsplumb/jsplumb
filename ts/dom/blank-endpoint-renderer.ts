@@ -1,13 +1,12 @@
 import {registerEndpointRenderer} from "./browser-renderer";
-import {_attr, _node, Attributes} from "../svg/svg-util";
+import {_attr, _node, ElementAttributes} from "../svg/svg-util";
 import {PaintStyle} from "../styles";
 import {SvgComponentOptions} from "../svg/svg-component";
-import {jsPlumbInstance} from "../core";
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {BlankEndpoint, ComputedBlankEndpoint} from "../endpoint/blank-endpoint";
 import {Endpoint} from "../endpoint/endpoint-impl";
 
-const BLANK_ATTRIBUTES:Attributes = {
+const BLANK_ATTRIBUTES:ElementAttributes = {
     "width": 10,
     "height": 0,
     "fill":"transparent",
