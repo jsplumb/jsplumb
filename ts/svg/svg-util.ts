@@ -20,19 +20,19 @@ export const STYLE = "style";
 export const JSPLUMB_GRADIENT = "jsplumb_gradient_";
 export const LINE_WIDTH = "strokeWidth";
 
-export type Attributes = Dictionary<string | number>;
+export type ElementAttributes = Dictionary<string | number>;
 
 const ns = {
     svg: "http://www.w3.org/2000/svg"
 };
 
-export function _attr (node:SVGElement, attributes:Attributes) {
+export function _attr (node:SVGElement, attributes:ElementAttributes) {
     for (let i in attributes) {
         node.setAttribute(i, "" + attributes[i]);
     }
 }
 
-export function _node<E>(instance:jsPlumbInstance<E>, name:string, attributes?:Attributes):SVGElement {
+export function _node<E>(instance:jsPlumbInstance<E>, name:string, attributes?:ElementAttributes):SVGElement {
     attributes = attributes || {};
     attributes.version = "1.1";
     attributes.xmlns = ns.svg;
