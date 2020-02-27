@@ -10,7 +10,6 @@ import {
     addToList,
     findWithFunction,
     functionChain,
-    isArray,
     IS,
     isString,
     log,
@@ -25,7 +24,7 @@ import { Anchor } from "./anchor/anchor";
 import {EndpointOptions, EndpointSpec} from "./endpoint";
 import {ConnectorSpec} from "./connector";
 import {GroupManager} from "./group/group-manager";
-import {Group} from "./group/group";
+import {UIGroup} from "./group/group";
 
 export interface TypeDescriptor {
     cssClass?:string;
@@ -276,9 +275,6 @@ function _curryGet<T>(list:Array<T>) {
     }
 }
 
-
-const events = ["tap", "dbltap", "click", "dblclick", "mouseover", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ];
-
 type ContainerDelegation = [ string, Function ];
 type ManagedElement<E> = {
     el:E,
@@ -321,12 +317,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     hoverTargetClass = "jtk-target-hover";
     dragSelectClass = "jtk-drag-select";
 
-    Anchors = {};
-    Connectors = {  "svg": {} };
-    Endpoints = { "svg": {} };
-    Overlays = { "svg": {} } ;
-    ConnectorRenderers = {};
-    SVG = "svg";
     connections:Array<Connection<E>> = [];
     endpointsByElement:Dictionary<Array<Endpoint<E>>> = {};
     endpointsByUUID:Dictionary<Endpoint<E>> = {};
@@ -741,7 +731,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         // get container as dom element.
         let _c = this.getElement(c);
 
-
         // set container.
         let previousContainer = this._container;
         this._container = _c;
@@ -777,7 +766,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             { el: "target", elId: "targetId", epDefs: Constants.TARGET_DEFINITION_LIST }
         ];
 
-        let ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep,
+        let ep, _st = stTypes[idx], cId = c[_st.elId], /*cEl = c[_st.el],*/ sid, sep,
             oldEndpoint = c.endpoints[idx];
 
         let evtParams = {
@@ -916,8 +905,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-
-
     updateOffset(params?:UpdateOffsetOptions):UpdateOffsetResult {
 
         let timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
@@ -960,7 +947,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         return {o: this._offsets[elId], s: this._sizes[elId]};
     }
-
 
     deleteConnection (connection:Connection<E>, params?:DeleteConnectionOptions):boolean {
 
@@ -1303,28 +1289,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    deleteEveryEndpoint ():jsPlumbInstance<E> {
-        let _is = this.setSuspendDrawing(true);
-        for (let id in this.endpointsByElement) {
-            let endpoints = this.endpointsByElement[id];
-            if (endpoints && endpoints.length) {
-                for (let i = 0, j = endpoints.length; i < j; i++) {
-                    this.deleteEndpoint(endpoints[i], true);
-                }
-            }
-        }
-        this.endpointsByElement = {};
-        this._managedElements = {};
-        this.endpointsByUUID = {};
-        this._offsets = {};
-        this._offsetTimestamps = {};
-        this.anchorManager.reset();
-        if (!_is) {
-            this.setSuspendDrawing(false);
-        }
-        return this;
-    }
-
     addEndpoint(el:ElementSpec<E>, params?:EndpointOptions<E>, referenceParams?:EndpointOptions<E>):Endpoint<E>{
         referenceParams = referenceParams || {} as EndpointOptions<E>;
         let p:EndpointOptions<E> = extend({}, referenceParams);
@@ -1354,7 +1318,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             ep.push(e);
         });
 
-
         return ep[0];
     }
 
@@ -1370,11 +1333,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     // subclasses should take care of cleaning up the rendering.
     reset (silently?:boolean):void {
         this.silently(() => {
-
-            if (!silently) {
-                this.deleteEveryEndpoint();
-            }
-
             this.endpointsByElement = {};
             this._managedElements = {};
             this.endpointsByUUID = {};
@@ -1405,7 +1363,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     connect (params:any, referenceParams?:any):Connection<E> {
 
         // prepare a final set of parameters to create connection with
+     //   (console as any).cTimeStart("prepare connection params");
+
         let _p = this._prepareConnectionParams(params, referenceParams), jpc:Connection<E>;
+
+     //   (console as any).cTimeEnd("prepare connection params");
 
         // TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
         // will return null (and log something) if either endpoint was full.  what would be nicer is to
@@ -1421,10 +1383,18 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             }
 
             // create the connection.  it is not yet registered
+        //    (console as any).cTimeStart("create connection");
+
             jpc = this._newConnection(_p);
 
+        //    (console as any).cTimeEnd("create connection");
+
             // now add it the model, fire an event, and redraw
+
+        //    (console as any).cTimeStart("finalise connection");
             this._finaliseConnection(jpc, _p);
+
+        //    (console as any).cTimeEnd("finalise connection");
         }
 
 
@@ -1439,7 +1409,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             extend(_p, referenceParams);
         }
 
-        // hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
+        // wire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
         if (_p.source) {
             if (_p.source.endpoint) {
                 _p.sourceEndpoint = _p.source;
@@ -2221,20 +2191,24 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     getGroup(id:string) { return this.groupManager.getGroup(id); }
     getGroupFor(el:E|string) { return this.groupManager.getGroupFor(el); }
     addGroup(params:any) { return this.groupManager.addGroup(params); }
-    addToGroup(group:string | Group<E>, el:E | Array<E>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
+    addToGroup(group:string | UIGroup<E>, el:E | Array<E>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
 
-    collapseGroup (group:string | Group<E>) { this.groupManager.collapseGroup(group); }
-    expandGroup (group:string | Group<E>) { this.groupManager.expandGroup(group); }
+    collapseGroup (group:string | UIGroup<E>) { this.groupManager.collapseGroup(group); }
+    expandGroup (group:string | UIGroup<E>) { this.groupManager.expandGroup(group); }
+    toggleGroup (group:string | UIGroup<E>) { this.groupManager.toggleGroup(group); }
 
-    removeGroup(group:string | Group<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
     }
 
     removeAllGroups(deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
     }
+    removeFromGroup (group:string | UIGroup<E>, el:E, doNotFireEvent?:boolean):void {
+        this.groupManager.removeFromGroup(group, el, doNotFireEvent);
+    }
 
-// ------------ posses (not ported yet, may not be...)
+    // ------------ posses (not ported yet, may not be...)
 
     /*
 
