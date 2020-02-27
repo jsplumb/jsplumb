@@ -17,7 +17,7 @@ export interface GroupOptions {
     endpoint?:EndpointSpec;
 }
 
-export class Group<E> {
+export class UIGroup<E> {
 
     children:Array<E> = [];
 
@@ -38,7 +38,7 @@ export class Group<E> {
     endpoint:EndpointSpec;
 
     connections:{source:Array<Connection<E>>, target:Array<Connection<E>>, internal:Array<Connection<E>>} = {source:[], target:[], internal:[]};
-    groups:Array<Group<E>> = [];
+    groups:Array<UIGroup<E>> = [];
 
     manager:GroupManager<E>;
 
@@ -65,7 +65,7 @@ export class Group<E> {
         instance.setAttribute(el, Constants.ATTRIBUTE_GROUP, "");
     }
 
-    overrideDrop(el:E, targetGroup:Group<E>):boolean {
+    overrideDrop(el:E, targetGroup:UIGroup<E>):boolean {
         return this.dropOverride && (this.revert || this.prune || this.orphan);
     }
 
@@ -113,7 +113,7 @@ export class Group<E> {
         this.manager._updateConnectionsForGroup(this);
     }
 
-    remove (el:E | Array<E>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:Group<E>) {
+    remove (el:E | Array<E>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup<E>) {
 
         this.instance.each(el, (__el:E) => {
             delete __el[Constants.GROUP_KEY];
