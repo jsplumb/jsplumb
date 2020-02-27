@@ -8,13 +8,13 @@ import {
     EVT_DRAG_STOP
 } from "./drag-manager";
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
-import {Group} from "../group/group";
+import {UIGroup} from "../group/group";
 import {BoundingBox, Offset} from "../core";
 
 declare const Biltong:any;
 
 type IntersectingGroup<E> = {
-    group:Group<E>;
+    group:UIGroup<E>;
     d:number;
     intersectingElement:E;
 }
@@ -22,7 +22,7 @@ type IntersectingGroup<E> = {
 type GroupLocation<E> = {
     el:E;
     r: BoundingBox;
-    group: Group<E>;
+    group: UIGroup<E>;
 }
 
 export class ElementDragHandler implements DragHandler {
@@ -35,6 +35,8 @@ export class ElementDragHandler implements DragHandler {
     private _dragSelection: Array<jsPlumbDOMElement> = [];
     private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map();
     private _dragSizes:Map<string, [number, number]> = new Map();
+
+    protected katavorioDraggable:any;
 
     constructor(protected instance:BrowserJsPlumbInstance) {}
 
@@ -113,7 +115,10 @@ export class ElementDragHandler implements DragHandler {
     }
 
     reset() { }
-    init(katavorioDraggable:any) { }
+
+    init(katavorioDraggable:any) {
+        this.katavorioDraggable = katavorioDraggable;
+    }
 
     onDrag(params:any):void {
 
@@ -207,7 +212,7 @@ export class ElementDragHandler implements DragHandler {
                 // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
 
                 if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
-                    this.instance.groupManager.forEach((group: Group<HTMLElement>) => {
+                    this.instance.groupManager.forEach((group: UIGroup<HTMLElement>) => {
                         // prepare a list of potential droppable groups.
                         if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
                             let groupEl = group.el,
@@ -272,5 +277,26 @@ export class ElementDragHandler implements DragHandler {
 
     getDragSelection():Array<HTMLElement> {
         return this._dragSelection;
+    }
+
+    addToPosse(el:HTMLElement, spec:any) {
+        //alert("add to posse");
+        //this._dragSelection.addToPosse(el, spec);
+    }
+
+    setPosse(el:HTMLElement, spec:any) {
+        // this._dragSelection.setPosse(el, spec);
+    }
+
+    removeFromPosse(el:HTMLElement, posseId:string) {
+        // this._dragSelection.removeFromPosse(el, posseId);
+    }
+
+    removeFromAllPosses(el:HTMLElement):void {
+        // this._dragSelection.removeFromAllPosses(el);
+    }
+
+    setPosseState (posseId:string, state:boolean, ...el:any) {
+        // this._dragSelection.setPosseState(posseId, state, el);
     }
 }
