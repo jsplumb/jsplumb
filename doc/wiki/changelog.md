@@ -14,6 +14,8 @@ individually, we now use a single event listener on the container.
 
 - The `empty` method was removed.
 
+- The `deleteEveryEndpoint` method was removed. Functionally, it was identical to `reset`. Use `reset`.
+
 - `connector-pointer-events` not supported on Endpoint definitions.
 
 - `labelStyle` is no longer supported. Use `cssClass` and CSS tricks.
@@ -27,7 +29,7 @@ first element to which an endpoint is added.
  in case you have code that used them.
  
 - Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
-class but we include it here for completeness
+class but we include it here for completeness.
 
 - All defaults converted to camelCase instead of having a leading capital, eg. "Anchors" -> "anchors", "ConnectionsDetachable" -> "connectionsDetachable". This brings
 the defaults into line with the parameters used in method calls like `connect` and `addEndpoint` etc.
