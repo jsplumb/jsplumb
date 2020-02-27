@@ -1,9 +1,14 @@
 import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment";
 import {jsPlumbInstance, PointArray, PointXY} from "../core";
-
-declare const jsBezier:any;
-
-export type Curve = Array<PointXY>;
+import {
+    computeBezierLength,
+    Curve,
+    gradientAtPoint, lineIntersection,
+    locationAlongCurveFrom,
+    nearestPointOnCurve,
+    pointAlongCurveFrom,
+    pointOnCurve
+} from "../bezier";
 
 export class BezierSegment extends AbstractSegment {
 
@@ -17,6 +22,8 @@ export class BezierSegment extends AbstractSegment {
     x2:number;
     y1:number;
     y2:number;
+
+    length:number = 0;
 
     constructor(instance:jsPlumbInstance<any>, params:any) {
         super(params);
@@ -49,13 +56,11 @@ export class BezierSegment extends AbstractSegment {
         };
     }
 
-
-
     type = "Bezier";
 
-    private _translateLocation (_curve:Curve, location:number, absolute?:boolean):number {
+    private static _translateLocation (_curve:Curve, location:number, absolute?:boolean):number {
         if (absolute) {
-            location = jsBezier.locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
+            location = locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
         }
         return location;
     }
@@ -65,25 +70,28 @@ export class BezierSegment extends AbstractSegment {
      * 0 to 1 inclusive.
      */
     pointOnPath(location:number, absolute?:boolean):PointXY {
-        location = this._translateLocation(this.curve, location, absolute);
-        return jsBezier.pointOnCurve(this.curve, location);
+        location = BezierSegment._translateLocation(this.curve, location, absolute);
+        return pointOnCurve(this.curve, location);
     }
 
     /**
      * returns the gradient of the segment at the given point.
      */
     gradientAtPoint (location:number, absolute?:boolean):number {
-        location = this._translateLocation(this.curve, location, absolute);
-        return jsBezier.gradientAtPoint(this.curve, location);
+        location = BezierSegment._translateLocation(this.curve, location, absolute);
+        return gradientAtPoint(this.curve, location);
     }
 
     pointAlongPathFrom (location:number, distance:number, absolute?:boolean):PointXY {
-        location = this._translateLocation(this.curve, location, absolute);
-        return jsBezier.pointAlongCurveFrom(this.curve, location, distance);
+        location = BezierSegment._translateLocation(this.curve, location, absolute);
+        return pointAlongCurveFrom(this.curve, location, distance);
     }
 
     getLength ():number {
-        return jsBezier.getLength(this.curve);
+        if (this.length == null) {
+            this.length = computeBezierLength(this.curve);
+        }
+        return this.length;
     }
 
     getBounds ():SegmentBounds {
@@ -91,7 +99,7 @@ export class BezierSegment extends AbstractSegment {
     }
 
     findClosestPointOnPath (x:number, y:number):PointNearPath {
-        let p = jsBezier.nearestPointOnCurve({x:x,y:y}, this.curve);
+        let p = nearestPointOnCurve({x:x,y:y}, this.curve);
         return {
             d:Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
             x:p.point.x,
@@ -106,6 +114,6 @@ export class BezierSegment extends AbstractSegment {
     };
 
     lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointArray> {
-        return jsBezier.lineIntersection(x1, y1, x2, y2, this.curve);
+        return lineIntersection(x1, y1, x2, y2, this.curve);
     }
 }
