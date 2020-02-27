@@ -40,6 +40,8 @@ export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
 
     _compute (paintInfo:PaintGeometry, p:ConnectorComputeParams<E>) {
 
+        //(console as any).cTimeStart("abstract bezier compute");
+
         let sp = p.sourcePos,
             tp = p.targetPos,
             _w = Math.abs(sp[0] - tp[0]),
@@ -80,10 +82,9 @@ export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
                 cy: cy - _y
             });
         }
+
+       // (console as any).cTimeEnd("abstract bezier compute");
     }
 
     abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams<E>, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, _w:number, _h:number):void;
-
-    // _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
-    // return _super;
 }
