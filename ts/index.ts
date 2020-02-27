@@ -15,6 +15,8 @@ export * from "./group/group-manager";
 export * from "./component/component";
 export * from "./component/overlay-capable-component";
 
+export * from "./bezier";
+
 export * from "./connector/abstract-bezier-connector";
 export * from "./connector/abstract-connector";
 export * from "./connector/abstract-segment";
