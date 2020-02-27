@@ -1410,7 +1410,7 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 150);
     });
 
-    /*
+    //*
     test("dragging a posse works, elements as argument", function() {
 
         var d = support.addDiv("d1");
@@ -1438,11 +1438,11 @@ var testSuite = function () {
             }
         });
 
-        equal(150, parseInt(d.style.left, 10));
-        equal(150, parseInt(d.style.top, 10));
+        equal(150, parseInt(d.style.left, 10), "d has moved left by 100");
+        equal(150, parseInt(d.style.top, 10), "d has moved top by 100");
 
-        equal(550, parseInt(d2.style.left, 10));
-        equal(550, parseInt(d2.style.top, 10));
+        equal(550, parseInt(d2.style.left, 10), "d2 has moved left by 100");
+        equal(550, parseInt(d2.style.top, 10), "d2 has moved top by 100");
 
         _jsPlumb.removeFromPosse(d2, "posse");
         support.dragNodeBy(d, -100, -100);

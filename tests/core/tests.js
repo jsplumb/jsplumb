@@ -1538,7 +1538,7 @@ var testSuite = function () {
         equal(e17.connections.length, 0, "e17 has no connections");
     });
 
-    test(": _jsPlumb.deleteEveryEndpoint", function () {
+    test(": _jsPlumb.reset", function () {
         var uuid = "14785937583175927504313";
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, maxConnections: -1, uuid: uuid});
@@ -1546,7 +1546,7 @@ var testSuite = function () {
         var e = _jsPlumb.getEndpoint(uuid);
         equal(e.getUuid(), uuid, "retrieved endpoint by uuid");
 
-        _jsPlumb.deleteEveryEndpoint();
+        _jsPlumb.reset();
 
         var f = _jsPlumb.getEndpoint(uuid);
         equal(f, null, "endpoint e16 has been deleted");
@@ -1554,7 +1554,7 @@ var testSuite = function () {
         equal(g, null, "endpoint e17 has been deleted");
     });
 
-    test(": _jsPlumb.deleteEveryEndpoint (connections too)", function () {
+    test(": _jsPlumb.reset (endpoints and connections both removed)", function () {
         var uuid = "14785937583175927504313";
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, maxConnections: -1, uuid: uuid});
@@ -1564,7 +1564,7 @@ var testSuite = function () {
         var e = _jsPlumb.getEndpoint(uuid);
         equal(e.getUuid(), uuid, "retrieved endpoint by uuid");
 
-        _jsPlumb.deleteEveryEndpoint();
+        _jsPlumb.reset();
 
         var f = _jsPlumb.getEndpoint(uuid);
         equal(f, null, "endpoint e16 has been deleted");
@@ -6430,15 +6430,19 @@ var testSuite = function () {
         var cd3 = _jsPlumb.getCachedData("d1");
         ok(cd3.o != null, "d1 is cached");
 
-        // delete every endpoint and then move d1. get cached data and offset should have been updated.
-        _jsPlumb.deleteEveryEndpoint();
-        d1.style.position = "absolute";
-        d1.style.left = "5000px";
-        var cd2 = _jsPlumb.getCachedData("d1");
-        ok(cd2.o == null, "cache data cleared");
+
+    });
+
+    test("reset, all endpoints removed", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+
         _jsPlumb.connect({source:d1, target:d2});
-        var cd3 = _jsPlumb.getCachedData("d1");
-        ok(cd3.o != null, "d1 is cached");
+        equal(2, _jsPlumb.selectEndpoints().length, "2 endpoints in the instance");
+        equal(2, _jsPlumb.getContainer().querySelectorAll(".jtk-endpoint").length, "2 endpoints in the DOM");
+
+        _jsPlumb.reset();
+        equal(0, _jsPlumb.selectEndpoints().length, "0 endpoints in the instance");
+        equal(0, _jsPlumb.getContainer().querySelectorAll(".jtk-endpoint").length, "0 endpoints in the DOM");
     });
 
     test("reset, and reset with optional retention of event bindings", function() {

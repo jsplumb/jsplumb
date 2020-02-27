@@ -16,13 +16,17 @@ console.cTimeEnd = function(handle) {
     //handle = handleMap[handle];
     times[handle].e = new Date().getTime();
     times[handle].time_ms += (times[handle].e - times[handle].s);
-    times[handle].time_sec = times[handle].time_ms / 1000;
-    times[handle].avg = times[handle].time_ms / times[handle].calls;
+    // times[handle].time_sec = times[handle].time_ms / 1000;
+    // times[handle].avg = times[handle].time_ms / times[handle].calls;
     indent -= 2;
 };
 
 console.cTimeSummary = function() {
     console.log("Cumulative");
+    for (var handle in times) {
+        times[handle].time_sec = times[handle].time_ms / 1000;
+        times[handle].avg = times[handle].time_ms / times[handle].calls;
+    }
     console.table(times, [ "time_ms", "time_sec", "calls", "avg" ]);
     //console.table(times);
 };
@@ -129,7 +133,10 @@ console.cTimeSummary = function() {
                 document.getElementById("demo").appendChild(div);
                 var _e = [];
                 for (var j = 0; j < jsPlumbLoadTest.anchors[anchors].length; j++) {
-                    _e.push(instance.addEndpoint( div, { anchor:jsPlumbLoadTest.anchors[anchors][j] }, jsPlumbLoadTest.endpoint ));
+                    console.cTimeStart("add endpoint");
+                    var ep = instance.addEndpoint( div, { anchor:jsPlumbLoadTest.anchors[anchors][j] }, jsPlumbLoadTest.endpoint );
+                    console.cTimeEnd("add endpoint");
+                    _e.push(ep);
                 }
                 endpoints["div-" + i] = _e;
             }
@@ -144,6 +151,7 @@ console.cTimeSummary = function() {
                         for (var k = 0; k < ep1.length; k++) {
                             for (var l = 0; l < ep2.length; l++) {
                                 var ct = (new Date()).getTime();
+                                console.cTimeStart("add connection");
                                 var c = instance.connect({
                                     source:ep1[k],
                                     target:ep2[l],
@@ -152,7 +160,13 @@ console.cTimeSummary = function() {
                                     },
                                     connector:"Bezier"
                                 });
+
+                                console.cTimeStart("  set label");
                                 if (setLabel) c.setLabel("FOO");
+                                console.cTimeEnd("  set label");
+
+                                console.cTimeEnd("add connection");
+
                                 var ctt = (new Date()).getTime();
                                 time += (ctt - ct);
                                 connCount ++;

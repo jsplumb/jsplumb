@@ -1022,4 +1022,74 @@ var testSuite = function () {
 
     });
 
+    /**
+     * create a group and give it two child nodes, each of which has a child node, and these grandchildren nodes are connected. test that the connection is visible.
+     * collapse the group and then test that the connection is not visible.  expand the group and test that it is
+     * once again.
+     */
+    test("groups, connections between children of nodes, both nodes child of the group", function() {
+
+        c1 = support.addDiv("container1", null, "container", 0, 50, 600, 600);
+        c1.style.position="relative";
+
+        c1_1 = support.addDiv("c1_1", c1, "w", 30, 30, 150, 150);
+        c1_2 = support.addDiv("c1_2", c1, "w", 480, 130, 150, 150);
+        var g1 = _addGroup(_jsPlumb, "one", c1, [c1_1, c1_2], { constrain:true, droppable:false});
+
+        var c1_1_1 = support.addDiv("c1_1_1", c1_1, "w", 30, 30, 50, 50);
+        var c1_1_2 = support.addDiv("c1_1_2", c1_2, "w", 30, 30, 50, 50);
+
+        var conn = _jsPlumb.connect({source:c1_1_1, target:c1_1_2});
+        //equal(g1.connections.source.length, 1, "1 connection in group source connections");
+
+        equal(true, conn.isVisible(), "connection is visible");
+
+        _jsPlumb.toggleGroup(g1);
+
+        equal(false, conn.isVisible(), "connection is not visible after group collapse");
+
+        _jsPlumb.toggleGroup(g1);
+
+        equal(true, conn.isVisible(), "connection is visible once more");
+
+
+
+    });
+
+    test("groups, connections between nodes (sanity test for next test), nodes child of different groups", function() {
+
+        c1 = support.addDiv("container1", null, "container", 0, 50);
+        c2 = support.addDiv("container2", null, "container", 300, 50);
+        c1_1 = support.addDiv("c1_1", c1, "w", 30, 30);
+        c2_1 = support.addDiv("c2_1", c2, "w", 180, 130);
+        g1 = _addGroup(_jsPlumb, "one", c1, [c1_1], { constrain:true, droppable:false});
+        g2 = _addGroup(_jsPlumb, "two", c2, [c2_1], { constrain:true, droppable:false});
+
+        _jsPlumb.connect({source:c1_1, target:c2_1});
+        equal(g1.connections.source.length, 1, "1 connection in group source connections");
+
+    });
+
+    test("groups, connections between children of nodes, nodes child of different groups", function() {
+
+        c1 = support.addDiv("container1", null, "container", 0, 50, 500, 500);
+        c2 = support.addDiv("container2", null, "container", 300, 50, 500, 500);
+        c1_1 = support.addDiv("c1_1", c1, "w", 30, 30, 150, 150);
+        c2_1 = support.addDiv("c2_1", c2, "w", 180, 130, 150, 150);
+        g1 = _addGroup(_jsPlumb, "one", c1, [c1_1], { constrain:true, droppable:false});
+        g2 = _addGroup(_jsPlumb, "two", c2, [c2_1], { constrain:true, droppable:false});
+
+        var c1_1_1 = support.addDiv("c1_1_1", c1_1, "w", 30, 30, 50, 50);
+        var c2_1_1 = support.addDiv("c2_1_1", c2_1, "w", 30, 30, 50, 50);
+
+        var conn = _jsPlumb.connect({source:c1_1_1, target:c2_1_1});
+        equal(g1.connections.source.length, 1, "1 connection in group source connections");
+
+        equal(true, conn.isVisible(), "connection is visible");
+
+        _jsPlumb.toggleGroup(g1);
+
+        equal(true, conn.isVisible(), "connection is visible after group collapse, because the group shows proxies.");
+
+    });
 };
