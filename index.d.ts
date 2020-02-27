@@ -306,8 +306,6 @@ declare module jsPlumb {
 
     interface Connection {
         id: ConnectionId;
-        sourceId: string;
-        targetId: string;
         setDetachable(detachable: boolean): void;
         setParameter(name: string, value: any): void;
         endpoints: [Endpoint, Endpoint];
