@@ -409,7 +409,7 @@ export function map(obj: any, fn: Function) {
     return o;
 }
 
-export function mergeWithParents(type: string, map: any, parentAttribute?: string): any {
+export function mergeWithParents(type: Array<string> | string, map: any, parentAttribute?: string): any {
 
     parentAttribute = parentAttribute || "parent";
 
