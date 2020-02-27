@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.10";
+        this.version = "2.12.11";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -12494,7 +12494,7 @@
 }).call(typeof window !== 'undefined' ? window : this);
 
 /*
- * Copyright (c) 2010 - 2018 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
@@ -12535,7 +12535,6 @@
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
 
-
         function findGroupFor(el) {
             var c = _jsPlumb.getContainer();
             var abort = false, g = null;
@@ -12558,9 +12557,6 @@
 
             var sourceGroup = findGroupFor(p.source);
             var targetGroup = findGroupFor(p.target);
-
-            // sourceGroup = p.source[GROUP];
-            // targetGroup = p.target[GROUP];
 
             if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
                 _connectionSourceMap[p.connection.id] = sourceGroup;

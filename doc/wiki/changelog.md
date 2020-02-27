@@ -1,3 +1,16 @@
+## 2.12.11
+
+February 28th 2020
+
+- fix duplicated types.
+
+## 2.12.10
+
+February 27th 2020
+
+- updates to groups code to handle correctly hiding connections between elements that are not direct children of the group
+- several typings changes, one of which was partly duplicated, causing this version to not be something you should install.
+
 ## 2.12.9
 
 January 30th 2020
