@@ -1208,4 +1208,84 @@ var testSuite = function () {
 
     });
 
+    test("changing type does not hide overlays", function() {
+
+        var canvas = support.addDiv("canvas"), d1 = support.addDiv("d1", canvas), d2 = support.addDiv("d2", canvas);
+
+        var jpInstance = jsPlumb.getInstance({
+            Container: canvas,
+            Anchor: 'Continuous',
+            Endpoint: [
+                'Dot',
+                {
+                    radius: 2
+                }
+            ],
+            ConnectionOverlays: [
+                ['Arrow', {
+                    location: 1,
+                    id: 'arrow',
+                    length: 8,
+                    width: 10,
+                    foldback: 1
+                }]
+            ],
+            PaintStyle: {
+                stroke: '#b6b6b6',
+                strokeWidth: 2,
+                outlineStroke: 'transparent',
+                outlineWidth: 4
+            },
+            HoverPaintStyle: {
+                stroke: '#545454',
+                zIndex: 6
+            }
+        });
+
+        jpInstance.registerConnectionType('default', {
+            connector: ['Flowchart', {
+                cornerRadius: 10,
+                gap: 10,
+                stub: 15
+            }],
+            cssClass: 'transition',
+            overlays: [
+                ['Arrow', {
+                    location: 1,
+                    id: 'arrow',
+                    length: 8,
+                    width: 10,
+                    foldback: 1
+                }]
+            ]
+        });
+
+        jpInstance.registerConnectionType('loopback', {
+            connector: ['StateMachine', {
+                loopbackRadius: 10
+            }],
+            cssClass: 'transition'
+        });
+
+        var con1 = jpInstance.connect({
+            source: 'd1',
+            target: 'd1',
+            type: 'loopback'
+        });
+
+        var con2 = jpInstance.connect({
+            source: 'd2',
+            target: 'd2',
+            type: 'default'
+        });
+
+        // con2 has an arrow overlay after creation
+        ok(con2.getOverlays()['arrow'] != null, "arrow overlay found");
+        ok(con2.getOverlays()['arrow'].canvas.parentNode != null, "arrow overlay is in the DOM");
+
+        con2.setType('loopback');
+        ok(con2.getOverlays()['arrow'].canvas.parentNode != null, "arrow overlay is in the DOM");
+
+    })
+
 };
