@@ -1210,7 +1210,9 @@ var testSuite = function () {
 
     test("changing type does not hide overlays", function() {
 
-        var canvas = support.addDiv("canvas"), d1 = support.addDiv("d1", canvas), d2 = support.addDiv("d2", canvas);
+        var canvas = support.addDiv("canvas", null, null, 0, 0, 500, 500 ),
+            d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150),
+            d2 = support.addDiv("d2", canvas, null, 300,300,150,150);
 
         var jpInstance = jsPlumb.getInstance({
             Container: canvas,
@@ -1228,6 +1230,11 @@ var testSuite = function () {
                     length: 8,
                     width: 10,
                     foldback: 1
+                }],
+                ['Label', {
+                    location: 0.5,
+                    id: 'label',
+                    label: "foo"
                 }]
             ],
             PaintStyle: {
@@ -1248,16 +1255,7 @@ var testSuite = function () {
                 gap: 10,
                 stub: 15
             }],
-            cssClass: 'transition',
-            overlays: [
-                ['Arrow', {
-                    location: 1,
-                    id: 'arrow',
-                    length: 8,
-                    width: 10,
-                    foldback: 1
-                }]
-            ]
+            cssClass: 'transition'
         });
 
         jpInstance.registerConnectionType('loopback', {
@@ -1281,11 +1279,22 @@ var testSuite = function () {
 
         // con2 has an arrow overlay after creation
         ok(con2.getOverlays()['arrow'] != null, "arrow overlay found");
-        ok(con2.getOverlays()['arrow'].canvas.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
+        ok(con2.getOverlays()['label'] != null, "label overlay found");
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
 
         con2.setType('loopback');
-        ok(con2.getOverlays()['arrow'].canvas.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
 
-    })
+        con2.setType('default');
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
+    });
 
 };
