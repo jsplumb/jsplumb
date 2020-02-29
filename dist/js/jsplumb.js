@@ -4314,7 +4314,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.12";
+        this.version = "2.12.13";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -7247,6 +7247,8 @@
                     // maybe update from data, if there were parameterised values for instance.
                     existing.updateFrom(t.overlays[i][1]);
                     keep[t.overlays[i][1].id] = true;
+
+                    existing.reattach(component._jsPlumb.instance, component);
                 }
                 else {
                     var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
@@ -14623,8 +14625,9 @@
             }
         };
     };
-    _ju.extend(AbstractSvgArrowOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay], {
-        cleanup: function (force) {
+
+    var svgProtoFunctions = {
+        cleanup : function (force) {
             if (this.path != null) {
                 if (force) {
                     this._jsPlumb.instance.removeElement(this.path);
@@ -14635,33 +14638,34 @@
                     }
                 }
             }
-        },
-        reattach:function(instance, component) {
+        }, reattach :function(instance, component) {
             if (this.path && component.canvas) {
                 component.canvas.appendChild(this.path);
             }
         },
-        setVisible: function (v) {
+        setVisible : function (v) {
             if (this.path != null) {
                 (this.path.style.display = (v ? "block" : "none"));
             }
         }
-    });
+    };
+
+    _ju.extend(AbstractSvgArrowOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay]);
 
     _jp.Overlays.svg.Arrow = function () {
         AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Arrow, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.Arrow, [ _jp.Overlays.Arrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Arrow, [ _jp.Overlays.Arrow, AbstractSvgArrowOverlay ], svgProtoFunctions);
 
     _jp.Overlays.svg.PlainArrow = function () {
         AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.PlainArrow, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.PlainArrow, [ _jp.Overlays.PlainArrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.PlainArrow, [ _jp.Overlays.PlainArrow, AbstractSvgArrowOverlay ], svgProtoFunctions);
 
     _jp.Overlays.svg.Diamond = function () {
         AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Diamond, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.Diamond, [ _jp.Overlays.Diamond, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Diamond, [ _jp.Overlays.Diamond, AbstractSvgArrowOverlay ], svgProtoFunctions);
 
     // a test
     _jp.Overlays.svg.GuideLines = function () {
