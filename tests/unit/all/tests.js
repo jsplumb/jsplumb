@@ -4554,6 +4554,114 @@ var testSuite = function (_jsPlumb) {
 
     });
 
+    test(" setId, taking two strings, testing makeSource/makeTarget with the mouse", function () {
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+
+        // setup d1 as a source
+        _jsPlumb.makeSource("d1", {
+            endpoint:"Rectangle",
+            parameters:{
+                foo:"foo"
+            }
+        });
+        // and d2 as a target
+        _jsPlumb.makeTarget("d2", {
+            endpoint:"Rectangle"
+        });
+
+        support.dragConnection(d1, d2);
+
+        equal(1, _jsPlumb.select().length, "1 connection in instance.");
+
+        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+        _jsPlumb.setId("d1", "foo");
+
+        support.dragConnection(d1, d2);
+
+        equal(2, _jsPlumb.select().length, "2 connections in instance.");
+
+        _jsPlumb.setId("d2", "bar");
+
+        support.dragConnection(d1, d2);
+
+        equal(3, _jsPlumb.select().length, "3 connections in instance.");
+
+    });
+
+    test(" setId, taking an element and a string, testing makeSource/makeTarget with the mouse", function () {
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+
+        // setup d1 as a source
+        _jsPlumb.makeSource("d1", {
+            endpoint:"Rectangle",
+            parameters:{
+                foo:"foo"
+            }
+        });
+        // and d2 as a target
+        _jsPlumb.makeTarget("d2", {
+            endpoint:"Rectangle"
+        });
+
+        support.dragConnection(d1, d2);
+
+        equal(1, _jsPlumb.select().length, "1 connection in instance.");
+
+        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+        _jsPlumb.setId(d1, "foo");
+
+        support.dragConnection(d1, d2);
+
+        equal(2, _jsPlumb.select().length, "2 connections in instance.");
+
+        _jsPlumb.setId(d2, "bar");
+
+        support.dragConnection(d1, d2);
+
+        equal(3, _jsPlumb.select().length, "3 connections in instance.");
+
+    });
+
+    test(" setIdChanged testing makeSource/makeTarget with the mouse", function () {
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+
+        // setup d1 as a source
+        _jsPlumb.makeSource("d1", {
+            endpoint:"Rectangle",
+            parameters:{
+                foo:"foo"
+            }
+        });
+        // and d2 as a target
+        _jsPlumb.makeTarget("d2", {
+            endpoint:"Rectangle"
+        });
+
+        support.dragConnection(d1, d2);
+
+        equal(1, _jsPlumb.select().length, "1 connection in instance.");
+
+        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+        d1.setAttribute("id", "foo");
+        _jsPlumb.setIdChanged("d1", "foo");
+
+        support.dragConnection(d1, d2);
+
+        equal(2, _jsPlumb.select().length, "2 connections in instance.");
+
+        d2.setAttribute("id", "bar");
+        _jsPlumb.setIdChanged("d2", "bar");
+
+        support.dragConnection(d1, d2);
+
+        equal(3, _jsPlumb.select().length, "3 connections in instance.");
+
+    });
+
+
     test(" endpoint hide/show should hide/show overlays", function () {
         support.addDiv("d1");
         var e1 = _jsPlumb.addEndpoint("d1", {
