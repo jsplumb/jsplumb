@@ -521,8 +521,9 @@
             }
         };
     };
-    _ju.extend(AbstractSvgArrowOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay], {
-        cleanup: function (force) {
+
+    var svgProtoFunctions = {
+        cleanup : function (force) {
             if (this.path != null) {
                 if (force) {
                     this._jsPlumb.instance.removeElement(this.path);
@@ -533,33 +534,34 @@
                     }
                 }
             }
-        },
-        reattach:function(instance, component) {
+        }, reattach :function(instance, component) {
             if (this.path && component.canvas) {
                 component.canvas.appendChild(this.path);
             }
         },
-        setVisible: function (v) {
+        setVisible : function (v) {
             if (this.path != null) {
                 (this.path.style.display = (v ? "block" : "none"));
             }
         }
-    });
+    };
+
+    _ju.extend(AbstractSvgArrowOverlay, [_jp.jsPlumbUIComponent, _jp.Overlays.AbstractOverlay]);
 
     _jp.Overlays.svg.Arrow = function () {
         AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Arrow, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.Arrow, [ _jp.Overlays.Arrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Arrow, [ _jp.Overlays.Arrow, AbstractSvgArrowOverlay ], svgProtoFunctions);
 
     _jp.Overlays.svg.PlainArrow = function () {
         AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.PlainArrow, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.PlainArrow, [ _jp.Overlays.PlainArrow, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.PlainArrow, [ _jp.Overlays.PlainArrow, AbstractSvgArrowOverlay ], svgProtoFunctions);
 
     _jp.Overlays.svg.Diamond = function () {
         AbstractSvgArrowOverlay.apply(this, [_jp.Overlays.Diamond, arguments]);
     };
-    _ju.extend(_jp.Overlays.svg.Diamond, [ _jp.Overlays.Diamond, AbstractSvgArrowOverlay ]);
+    _ju.extend(_jp.Overlays.svg.Diamond, [ _jp.Overlays.Diamond, AbstractSvgArrowOverlay ], svgProtoFunctions);
 
     // a test
     _jp.Overlays.svg.GuideLines = function () {
