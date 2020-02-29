@@ -1,3 +1,9 @@
+---
+category: Data Model
+title: Connections
+keywords: ui, connect, connection, edge
+---
+
 ### Connections
 
 1. [Programmatic Connections](#programmatic)

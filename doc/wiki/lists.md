@@ -1,3 +1,9 @@
+---
+category: Data Model
+title: Scrollable Lists
+keywords: lists, scroll, list item
+---
+
 ## Scrollable Lists
 
 jsPlumb supports the concept of scrollable lists - lists of items which can be connected, and when the list is scrolled, any connections

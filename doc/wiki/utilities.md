@@ -1,3 +1,9 @@
+---
+category: Miscellaneous
+title: Utility Functions
+keywords: change id, repaint, id
+---
+
 ### Utility Functions
 
 This page contains a summary of some common scenarios you may find when using jsPlumb, and what functions jsPlumb offers to help you.
@@ -12,7 +18,9 @@ However, there are times when you need to, for instance:
 
 To force a repaint, use:
 
-    jsPlumb.revalidate(el)
+```
+jsPlumb.revalidate(el)
+```
 
 The argument `el` can be a number of different datatypes:
 
@@ -27,15 +35,21 @@ The argument `el` can be a number of different datatypes:
 
 To repaint everything:
 
-    jsPlumb.repaintEverything();
+```
+jsPlumb.repaintEverything();
+```
 
 
 ### Element Ids
 jsPlumb uses element ids as keys for Connections and Endpoints, so if an element id changes, jsPlumb needs to know about it.  You can either have jsPlumb do it for you:
 
-    jsPlumb.setId(el, newId);
+```
+jsPlumb.setId(el, newId);
+```
 
 or tell jsPlumb about it afterwards:
 
-    jsPlumb.setIdChanged(oldId, newId);
+```
+jsPlumb.setIdChanged(oldId, newId);
+```
 

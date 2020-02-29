@@ -1,3 +1,9 @@
+---
+category: Miscellaneous
+title: Zooming
+keywords: zoom
+---
+
 ## Zooming
 
 A fairly common requirement with the sorts of applications that use jsPlumb is the ability to zoom in and out.  As of release 1.5.0 there is a way to do this for browsers that support CSS3 (meaning, essentially, everything except IE < 9).

@@ -1,3 +1,9 @@
+---
+category: Miscellaneous
+title: Animation
+keywords: ui, animation, animate
+---
+
 ## Animation
 
 jsPlumb offers a simple `animate` function, inserts a callback for jsPlumb to repaint whatever it needs to at each step. 

@@ -1,3 +1,9 @@
+---
+category: Data Model
+title: Connection and Endpoint Types
+keywords: type, types
+---
+
 ## Connection and Endpoint Types
 
 1. [Introduction](#intro)

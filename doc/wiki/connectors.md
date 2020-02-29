@@ -1,3 +1,9 @@
+---
+category: Data Model
+title: Connectors
+keywords: ui, connect, connection, edge, connector, flowchart, bezier
+---
+
 ## Connectors
 Connectors are the lines that actually join elements of the UI.  jsPlumb has four connector implementations - a straight 
 line, a Bezier curve, "flowchart", and "state machine".  The default connector is the Bezier curve.

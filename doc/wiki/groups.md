@@ -1,3 +1,9 @@
+---
+category: Data Model
+title: Groups
+keywords: groups, group, set
+---
+
 ## Groups
 
 jsPlumb supports the concept of 'Groups', which are elements that act as the parent for a set of child elements. When a

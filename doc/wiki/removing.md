@@ -1,3 +1,9 @@
+---
+category: Core
+title: Removing Nodes
+keywords: remove, node remove
+---
+
 - [Removing Nodes](#nodes)
 - [Removing Connections](#connections)
 - [Removing Endpoints](#endpoints)
