@@ -1,3 +1,9 @@
+## 2.12.12
+
+February 29th 2020
+
+- fix issue 912 - change of element ID not recognised by makeSource when user drags with mouse.
+
 ## 2.12.11
 
 February 28th 2020
