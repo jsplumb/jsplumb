@@ -6279,6 +6279,8 @@
                             return;
                         }
 
+                        elid = this.getId(this.getElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
+
                         // TODO store def on element.
                         var def = this.sourceEndpointDefinitions[elid][type];
 
@@ -6286,8 +6288,6 @@
                         if (!def.enabled) {
                             return;
                         }
-
-                        elid = this.getId(this.getElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
