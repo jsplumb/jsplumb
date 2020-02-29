@@ -1,3 +1,9 @@
+## 2.12.13
+
+February 29th 2020
+
+- fix issue 913 - arrow overlays disappearing when changing types
+
 ## 2.12.12
 
 February 29th 2020
