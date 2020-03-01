@@ -62,12 +62,11 @@
  *
  *
  */
-import {BoundingBox, PointArray, PointXY} from "./core";
+import {BoundingBox, LineXY, PointArray, PointXY} from "./core";
 
 export type Curve = Array<PointXY>;
 export type PointOnPath = { point:PointXY, location:number };
 export type DistanceFromCurve = { location:number, distance:number };
-export type LineXY = [ PointXY, PointXY ];
 export type AxisCoefficients = [ number, number, number, number ];
 type CubicRoots = [ number, number, number];
 
@@ -505,7 +504,7 @@ export function gradientAtPointAlongPathFrom (curve:Curve, location:number, dist
  */
 export function perpendicularToPathAt (curve:Curve, location:number, length:number, distance:number):LineXY {
     distance = distance == null ? 0 : distance;
-    var p = pointAlongPath(curve, location, distance),
+    const p = pointAlongPath(curve, location, distance),
         m = gradientAtPoint(curve, p.location),
         _theta2 = Math.atan(-1 / m),
         y =  length / 2 * Math.sin(_theta2),
