@@ -1,13 +1,12 @@
 import {Endpoint} from "./endpoint/endpoint-impl";
-import {_timestamp, Dictionary, ExtendedOffset, jsPlumbInstance, Offset, SortFunction} from "./core";
+import {_timestamp, Dictionary, ExtendedOffset, jsPlumbInstance, Offset, PointXY, SortFunction} from "./core";
 import {Connection} from "./connector/connection-impl";
 import {ComputedAnchorPosition, Face} from "./factory/anchor-factory";
 import {Anchor} from "./anchor/anchor";
 import { DynamicAnchor } from "./anchor/dynamic-anchor";
 import {addToList, addWithFunction, findWithFunction, removeWithFunction, sortHelper} from "./util";
 import {ContinuousAnchor} from "./anchor/continuous-anchor";
-
-declare const Biltong:any;
+import {lineLength} from "./geom";
 
 export interface AnchorManagerOptions { }
 
@@ -635,18 +634,18 @@ export class AnchorManager<E> {
         // source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can
         // go through the array one by one until we find an entry in which each requested face is supported.
         let candidates:Array<{source:Face, target:Face, dist:number}> = [], midpoints:Dictionary<{
-            top:[number, number],
-            left:[number, number],
-            right:[number, number],
-            bottom:[number, number]
+            top:PointXY,
+            left:PointXY,
+            right:PointXY,
+            bottom:PointXY
         }> = { };
         (function (types:Array<string>, dim:Array<ExtendedOffset>) {
             for (let i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
-                    "left": [ dim[i].left, dim[i].centery ],
-                    "right": [ dim[i].right, dim[i].centery ],
-                    "top": [ dim[i].centerx, dim[i].top ],
-                    "bottom": [ dim[i].centerx , dim[i].bottom]
+                    "left": {x:dim[i].left, y:dim[i].centery },
+                    "right": {x:dim[i].right, y:dim[i].centery },
+                    "top": {x:dim[i].centerx, y:dim[i].top },
+                    "bottom": {x:dim[i].centerx , y:dim[i].bottom}
                 };
             }
         })([ "source", "target" ], [ sd, td ]);
@@ -658,7 +657,7 @@ export class AnchorManager<E> {
                 candidates.push({
                     source: FACES[sf],
                     target: FACES[tf],
-                    dist: Biltong.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+                    dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
                 });
             }
         }

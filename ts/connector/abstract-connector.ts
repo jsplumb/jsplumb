@@ -7,8 +7,7 @@ import {PaintStyle} from "../styles";
 import {Component, ComponentOptions} from "../component/component";
 import {ConnectorRenderer} from "./connector-renderer";
 import {Connection} from "./connection-impl";
-
-declare const Biltong:any;
+import {pointXYFromArray, quadrant} from "../geom";
 
 export interface PaintParams<E> {
     sourcePos:PointArray;
@@ -263,7 +262,7 @@ export abstract class AbstractConnector<E> {
 
     private _prepareCompute (params:ConnectorComputeParams<E>):PaintGeometry {
         this.strokeWidth = params.strokeWidth;
-        let segment = Biltong.quadrant(params.sourcePos, params.targetPos),
+        let segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
             swapX = params.targetPos[0] < params.sourcePos[0],
             swapY = params.targetPos[1] < params.sourcePos[1],
             lw = params.strokeWidth || 1,

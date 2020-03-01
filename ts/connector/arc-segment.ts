@@ -1,9 +1,7 @@
-import {AbstractSegment, Segment, SegmentBounds} from "./abstract-segment";
+import {AbstractSegment} from "./abstract-segment";
 import {jsPlumbInstance, PointXY} from "../core";
+import {normal, theta, TWO_PI} from "../geom";
 
-declare const Biltong:any;
-
-const TWO_PI = 2 * Math.PI;
 const VERY_SMALL_VALUE = 0.0000000001;
 
 function gentleRound (n:number):number {
@@ -85,7 +83,7 @@ export class ArcSegment extends AbstractSegment {
 
 
     private _calcAngle (_x:number, _y:number):number {
-        return Biltong.theta([this.cx, this.cy], [_x, _y]);
+        return theta({x:this.cx, y:this.cy}, {x:_x, y:_y});
     }
 
     private _calcAngleForLocation (segment:ArcSegment, location:number):number {
@@ -152,7 +150,7 @@ export class ArcSegment extends AbstractSegment {
      */
     gradientAtPoint (location:number, absolute?:boolean):number {
         let p = this.pointOnPath(location, absolute);
-        let m = Biltong.normal([ this.cx, this.cy ], [p.x, p.y ]);
+        let m = normal({x:this.cx, y:this.cy }, p);
         if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
             m *= -1;
         }
