@@ -66,6 +66,8 @@ export interface OffsetAndSize { o:Offset, s:Size }
 export type PointArray = [ number, number ]
 export type PointXY = { x:number, y:number, theta?:number }
 export type BoundingBox = { x:number, y:number, w:number, h:number }
+export type RectangleXY = BoundingBox;
+export type LineXY = [ PointXY, PointXY ];
 
 export interface UpdateOffsetOptions {
     timestamp?:string;
