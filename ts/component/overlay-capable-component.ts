@@ -76,16 +76,16 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         }
     }
 
-    setListenerComponent (c:any) {
-        if (this._jsPlumb) {
-
-            super.setListenerComponent(c);
-
-            for (let i in this._jsPlumb.overlays) {
-                this._jsPlumb.overlays[i].setListenerComponent(c);
-            }
-        }
-    }
+    // setListenerComponent (c:any) {
+    //     // if (this._jsPlumb) {
+    //     //
+    //     //     super.setListenerComponent(c);
+    //     //
+    //     //     for (let i in this._jsPlumb.overlays) {
+    //     //         this._jsPlumb.overlays[i].setListenerComponent(c);
+    //     //     }
+    //     // }
+    // }
 
     setHover(hover:boolean, ignoreAttachedElements?:boolean):void {
         super.setHover(hover, ignoreAttachedElements);
@@ -221,7 +221,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
             }
         }
 
-        if (!this._jsPlumb.instance.isSuspendDrawing()) {
+        if (!this._jsPlumb.instance._suspendDrawing) {
             this.repaint();
         }
     }
@@ -279,11 +279,12 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
 
             for (i in t.overlays) {
 
-                let existing = this._jsPlumb.overlays[t.overlays[i][1].id];
+                let existing:Overlay<E> = this._jsPlumb.overlays[t.overlays[i][1].id];
                 if (existing) {
                     // maybe update from data, if there were parameterised values for instance.
                     existing.updateFrom(t.overlays[i][1]);
                     keep[t.overlays[i][1].id] = true;
+                    existing.reattach(this);
                 }
                 else {
                     let c:Overlay<E> = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
@@ -314,7 +315,8 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
 
     moveParent(newParent:E):void {
         for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].getRenderer().moveParent(newParent);
+            //this._jsPlumb.overlays[i].getRenderer().moveParent(newParent);
+            this.instance.renderer.moveOverlayParent(this._jsPlumb.overlays[i], newParent)
         }
     }
 
