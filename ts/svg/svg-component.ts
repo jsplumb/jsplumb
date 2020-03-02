@@ -1,6 +1,5 @@
 
 import {_attr, _pos, _node} from "./svg-util";
-import {Anchor} from "../anchor/anchor";
 import {PaintStyle} from "../styles";
 import {sizeElement} from "../browser-util";
 import {jsPlumbInstance} from "../core";
@@ -65,11 +64,7 @@ export abstract class SvgComponent {
         if (params.useDivWrapper) {
             this.canvas.appendChild(this.svg);
         }
-
-       // this.displayElements = [ this.canvas ];
     }
-
-//    _jp.jsPlumbUIComponent.apply(this, params.originalArgs);
 
     paint<E>(style:PaintStyle, extents?:any):void {
         if (style != null) {
@@ -98,8 +93,6 @@ export abstract class SvgComponent {
                 p = _pos([ xy[0], xy[1] ]);
             }
 
-            //renderer.paint.apply(this, arguments);
-
             _attr(this.svg, {
                 "style": p,
                 "width": "" + (wh[0] || 0),
@@ -109,8 +102,6 @@ export abstract class SvgComponent {
     }
 
     cleanup(force?:boolean) {
-
-        //super.cleanup(force);
 
         if (force) {
             if (this.canvas) {
@@ -133,8 +124,6 @@ export abstract class SvgComponent {
             this.svg = null;
             this.canvas = null;
             this.bgCanvas = null;
-            //this.path = null;
-            //this.group = null;
         }
         else {
             // if not a forced cleanup, just detach from DOM for now.
