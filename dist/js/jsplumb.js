@@ -3291,11 +3291,25 @@
     /**
      * Generate a UUID.
      */
+        // export function uuid(): string {
+        //     return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        //         let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        //         return v.toString(16);
+        //     }));
+        // }
+    var lut = [];
+    for (var i = 0; i < 256; i++) {
+        lut[i] = (i < 16 ? '0' : '') + (i).toString(16);
+    }
     function uuid() {
-        return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        }));
+        var d0 = Math.random() * 0xffffffff | 0;
+        var d1 = Math.random() * 0xffffffff | 0;
+        var d2 = Math.random() * 0xffffffff | 0;
+        var d3 = Math.random() * 0xffffffff | 0;
+        return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' +
+            lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' +
+            lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] +
+            lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
     }
     jsPlumbUtil.uuid = uuid;
     /**
@@ -3548,6 +3562,7 @@
     jsPlumbUtil.EventGenerator = EventGenerator;
 
 }).call(typeof window !== 'undefined' ? window : this);
+
 /*
  * This file contains utility functions that run in browsers only.
  *
@@ -4314,7 +4329,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.13";
+        this.version = "2.12.14";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -8604,14 +8619,14 @@
                     jpc.floatingEndpoint = jpc.endpoints[0];
                     jpc.floatingIndex = 0;
                     jpc.source = dhParams.element;
-                    jpc.sourceId = dhParams.elementId;
+                    jpc.sourceId = _jsPlumb.getId(dhParams.element);
                 } else {
                     jpc.floatingElement = jpc.target;
                     jpc.floatingId = jpc.targetId;
                     jpc.floatingEndpoint = jpc.endpoints[1];
                     jpc.floatingIndex = 1;
                     jpc.target = dhParams.element;
-                    jpc.targetId = dhParams.elementId;
+                    jpc.targetId = _jsPlumb.getId(dhParams.element);
                 }
 
                 // if this is an existing connection and detach is not allowed we won't continue. The connection's
@@ -12128,8 +12143,8 @@
             this.foldback = d.foldback|| this.foldback;
         },
         cleanup:function() {
-            if (this.path && this.canvas) {
-                this.canvas.removeChild(this.path);
+            if (this.path && this.path.parentNode) {
+                this.path.parentNode.removeChild(this.path);
             }
         }
     });

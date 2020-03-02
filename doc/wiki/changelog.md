@@ -1,3 +1,11 @@
+## 2.12.14
+
+March 2nd 2020
+
+- faster `uuid` method implementation
+- faster bezier curve length method
+- issue #914 and #913 part 2
+
 ## 2.12.13
 
 February 29th 2020
