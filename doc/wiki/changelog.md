@@ -49,6 +49,8 @@ for every scope that is assigned.
 
 - jsPlumbUtil is no longer a static member on the window.
 
+- setId no longer takes a "selector", that is an array-like argument. You must now pass in a single id, or element.
+
 
 ### New Functionality
 
