@@ -26,6 +26,32 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
         (<any>this.canvas).jtk.connector = connector;
     }
 
+    static getConnectorElement(c:AbstractConnector<HTMLElement>):HTMLElement {
+        if ((c as any).canvas != null) {
+            return (c as any).canvas;
+        } else {
+            const svg:any = _node(c.instance, "svg", {
+                "style": "",
+                "width": "0",
+                "height": "0",
+                "pointer-events": "none",
+                "position": "absolute"
+            });
+            (c as any).canvas = svg;
+            c.instance.appendElement((c as any).canvas, c.instance.getContainer());
+
+            if (c.cssClass != null) {
+                c.instance.addClass(svg, c.cssClass);
+            }
+            c.instance.addClass(svg, c.instance.connectorClass);
+
+            svg.jtk = svg.jtk || { };
+            svg.jtk.connector = c;
+
+            return svg as HTMLElement;
+        }
+    }
+
     paint(paintStyle: PaintStyle, extents?:any): void {
 
         super.paint(paintStyle, extents);
@@ -83,6 +109,7 @@ export class SvgElementConnector extends SvgComponent implements ConnectorRender
 
             _applyStyles(this.svg, this.path, paintStyle, d, <any>this);
         }
+
     }
 
     applyType(t: TypeDescriptor): void {
