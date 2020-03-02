@@ -43,6 +43,8 @@ export interface jsPlumbDOMElement extends HTMLElement {
     getAttribute:(name:string) => string;
 }
 
+export type PosseSpec = string | { id:string, active:boolean };
+
 function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void {
     cn = fastTrim(cn);
 
@@ -224,8 +226,11 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         // this is not my favourite thing to do, but previous versions of
         // jsplumb supported jquery selectors, and it is possible a selector
         // will be passed in here.
-        el = typeof el === "string" ? el : (<any>el).length != null && (<any>el).enctype == null ? el[0] : el;
         return (typeof el === "string" ? document.getElementById(el) : el) as HTMLElement;
+    }
+
+    getElementById(elId: string): HTMLElement {
+        return document.getElementById(elId);
     }
 
     removeElement(element:HTMLElement | string):void {
@@ -363,9 +368,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     }
 
     _getOffset(el:HTMLElement, relativeToRoot?:boolean, container?:HTMLElement):Offset {
-     //   window.jtime("get offset");
-        //console.log("get offset arg was " + el);
-        //el = jsPlumb.getElement(el);
         container = container || this.getContainer();
         let out:Offset = {
                 left: el.offsetLeft,
@@ -396,7 +398,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
                 out.top -= container.scrollTop;
             }
         }
-        //window.jtimeEnd("get offset");
 
         return out;
     }
@@ -627,24 +628,24 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     //*
 
-    addToPosse(el:HTMLElement, spec:any) {
-        this.elementDragHandler.addToPosse(el, spec);
+    addToPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
+        this.elementDragHandler.addToPosse(spec, ...els);
     }
 
-    setPosse(el:HTMLElement, spec:any) {
-        this.elementDragHandler.setPosse(el, spec);
+    setPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
+        this.elementDragHandler.setPosse(spec, ...els);
     }
 
     removeFromPosse(el:HTMLElement, posseId:string) {
         this.elementDragHandler.removeFromPosse(el, posseId);
     }
 
-    removeFromAllPosses(el:HTMLElement):void {
-        this.elementDragHandler.removeFromAllPosses(el);
+    removeFromAllPosses(...els:Array<HTMLElement>):void {
+        this.elementDragHandler.removeFromAllPosses(...els);
     }
 
-    setPosseState (posseId:string, state:boolean, ...el:Array<HTMLElement>) {
-        this.elementDragHandler.setPosseState(posseId, state, el);
+    setPosseState (posseId:string, state:boolean, ...els:Array<HTMLElement>) {
+        this.elementDragHandler.setPosseState(posseId, state, ...els);
     }
 
     //*/
