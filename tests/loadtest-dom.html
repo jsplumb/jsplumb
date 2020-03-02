@@ -49,12 +49,21 @@
             <tr>
                 <td colspan="2">Num Connections:</td>
                 <td colspan="2" id="numConnections"></td>
+                <td colspan="2">Num Endpoints:</td>
+                <td colspan="2" id="numEndpoints"></td>
             </tr>
             <tr>
                 <td>Reset time:</td>
                 <td id="resetTime"></td>
                 <td>Total time:</td>
                 <td id="totalCreateTime"></td>
+            </tr>
+
+            <tr>
+                <td>Endpoint Create time:</td>
+                <td id="epCreateTime"></td>
+                <td>Average endpoint create time:</td>
+                <td id="averageEpCreateTime"></td>
             </tr>
             <tr>
                 <td>Create time:</td>
@@ -80,7 +89,6 @@
 <script src="../node_modules/mottle/js/mottle.js"></script>
 <script src="../node_modules/katavorio/src/katavorio.js"></script>
 <script src="../node_modules/biltong/src/biltong.js"></script>
-<script src="../node_modules/jsbezier/js/jsbezier.js"></script>
 <script src="../dist/js/jsplumb.js"></script>
 <!-- /JS -->
 

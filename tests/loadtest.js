@@ -88,7 +88,7 @@ console.cTimeSummary = function() {
             instance.reset();
             var t2 = new Date().getTime();
 
-            empty(["numConnections", "createTime", "totalCreateTime", "averageCreateTime", "repaintTime", "averageRepaintTime", "demo" ]);
+            empty(["numConnections", "createTime", "totalCreateTime", "averageCreateTime", "repaintTime", "averageRepaintTime", "demo", 'epCreateTime', 'averageEpCreateTime' ]);
             html("resetTime", (t2 - t) + "ms");
 
             if (thenRun !== false) window.setTimeout(jsPlumbLoadTest.run, 250);
@@ -105,8 +105,8 @@ console.cTimeSummary = function() {
                 actuallyPaint = val("input[name='chkPaint']:checked") === "yes";
 
             instance.importDefaults({
-                Container: "demo",
-                Overlays:[ "Arrow" ]
+                cosontainer: "demo",
+                overlays:[ "Arrow" ]
             });
                     
 
@@ -116,7 +116,9 @@ console.cTimeSummary = function() {
             var st = (new Date()).getTime(),
                 ww = window.offsetWidth,
                 x = 0, y = 0;
-            
+
+        var et = 0, epCount = 0;
+
             for (var i = 0; i < numElements; i++) {
                 var div = document.createElement("div");
                 div.style.left = x + "px";
@@ -133,9 +135,11 @@ console.cTimeSummary = function() {
                 document.getElementById("demo").appendChild(div);
                 var _e = [];
                 for (var j = 0; j < jsPlumbLoadTest.anchors[anchors].length; j++) {
-                    console.cTimeStart("add endpoint");
+                    //console.cTimeStart("add endpoint");
+                    var edt = (new Date()).getTime();
                     var ep = instance.addEndpoint( div, { anchor:jsPlumbLoadTest.anchors[anchors][j] }, jsPlumbLoadTest.endpoint );
-                    console.cTimeEnd("add endpoint");
+                    et += ((new Date()).getTime() - edt);
+                    epCount++;
                     _e.push(ep);
                 }
                 endpoints["div-" + i] = _e;
@@ -151,7 +155,7 @@ console.cTimeSummary = function() {
                         for (var k = 0; k < ep1.length; k++) {
                             for (var l = 0; l < ep2.length; l++) {
                                 var ct = (new Date()).getTime();
-                                console.cTimeStart("add connection");
+                                //console.cTimeStart("add connection");
                                 var c = instance.connect({
                                     source:ep1[k],
                                     target:ep2[l],
@@ -161,11 +165,11 @@ console.cTimeSummary = function() {
                                     connector:"Bezier"
                                 });
 
-                                console.cTimeStart("  set label");
+                                //console.cTimeStart("  set label");
                                 if (setLabel) c.setLabel("FOO");
-                                console.cTimeEnd("  set label");
+                                //console.cTimeEnd("  set label");
 
-                                console.cTimeEnd("add connection");
+                                //console.cTimeEnd("add connection");
 
                                 var ctt = (new Date()).getTime();
                                 time += (ctt - ct);
@@ -190,6 +194,11 @@ console.cTimeSummary = function() {
 
             html("numConnections", connCount);
             html("totalCreateTime", (t-st) + (t2-st2) + "ms");
+
+            html("numEndpoints", epCount);
+            html("epCreateTime", (et) + "ms");
+            html("averageEpCreateTime", ((et)/epCount).toFixed(2) + "ms");
+
             html("createTime", (t-st) + "ms");
             html("averageCreateTime", ((t-st)/connCount).toFixed(2) + "ms");
             html("repaintTime", (t2-st2) + "ms");
