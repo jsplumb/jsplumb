@@ -100,10 +100,7 @@ export abstract class AbstractConnector<E> {
     bounds:SegmentBounds = EMPTY_BOUNDS();
     cssClass:string;
 
-    constructor(protected instance:jsPlumbInstance<E>, public connection:Connection<E>, params:AbstractConnectorOptions<E>) {
-
-      //  (console as any).cTimeStart("get connector the new way");
-
+    constructor(public instance:jsPlumbInstance<E>, public connection:Connection<E>, params:AbstractConnectorOptions<E>) {
         this.stub = params.stub || 0;
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
@@ -234,18 +231,12 @@ export abstract class AbstractConnector<E> {
             return;
         }
 
-        // (console as any).cTimeStart("get connector the new way");
-        // (clazz as any).create(params);
-        // (console as any).cTimeEnd("get connector the new way");
-
-     //   (console as any).cTimeStart("add segment");
         let s = (new clazz(this.instance, params)) as Segment;
-     //   (console as any).cTimeEnd("add segment");
 
         this.segments.push(s);
-     //   (console as any).cTimeStart("connector update length");
+
         this.totalLength += s.getLength();
-     //   (console as any).cTimeEnd("connector update length");
+
         this.updateBounds(s);
     }
 
@@ -322,13 +313,11 @@ export abstract class AbstractConnector<E> {
     }
 
     updateBounds (segment:Segment):void {
-     //   (console as any).cTimeStart("connector getBounds");
         let segBounds = segment.getBounds();
         this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
         this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
         this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
         this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
-     //   (console as any).cTimeEnd("connector getBounds");
     }
 
     private dumpSegmentsToConsole ():void {
