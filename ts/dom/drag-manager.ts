@@ -1,9 +1,9 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import {BoundingBox, Dictionary, extend, PointArray} from "../core";
 import {wrap} from "../util";
+import {intersects} from "../geom";
 
 declare const Katavorio:any;
-declare const Biltong:any;
 
 function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointArray):boolean {
     const p = <any>_el.parentNode,
@@ -88,7 +88,7 @@ export class DragManager {
             },
             addClass: this.instance.addClass.bind(instance),
             removeClass: this.instance.removeClass.bind(instance),
-            intersects: Biltong.intersects,
+            intersects: intersects,
             indexOf: (l:Array<any>, i:any):number => {
                 return l.indexOf(i);
             },
