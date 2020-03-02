@@ -1,5 +1,5 @@
 
-import {_timestamp, Dictionary, extend, jsPlumbInstance, PointXY, TypeDescriptor} from "../core";
+import {_timestamp, Dictionary, extend, jsPlumbInstance, TypeDescriptor} from "../core";
 import {AbstractConnector} from "./abstract-connector";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {PaintStyle} from "../styles";
@@ -10,11 +10,8 @@ import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {Connectors} from "./connectors";
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
-import {ProxyConnection} from "../connection";
 import {ConnectorSpec} from "../connector";
 import {EndpointSpec} from "../endpoint";
-
-declare const jsPlumbUtil:any;
 
 export interface ConnectionParams<E> {
     id?:string;
@@ -136,12 +133,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         // member and take action if they need to.
         this.previousConnection = params.previousConnection;
 
-      //  (console as any).cTimeStart("create connection: get elements");
-
         this.source = instance.getElement(params.source);
         this.target = instance.getElement(params.target);
-
-      //  (console as any).cTimeEnd("create connection: get elements");
 
         if (params.sourceEndpoint) {
             this.source = params.sourceEndpoint.element;
@@ -162,8 +155,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.anchors = params.anchors;
         this.anchor = params.anchor;
 
-        instance.manage(this.sourceId, this.source);
-        instance.manage(this.targetId, this.target);
+        instance.manage(this.source);
+        instance.manage(this.target);
 
         this._jsPlumb.visible = true;
 
@@ -176,8 +169,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         };
         this._jsPlumb.lastPaintedAt = null;
 
-      //  (console as any).cTimeStart("create connection: bind hover events");
-
         this.bind("mouseover", () =>{
             this.setHover(true);
         });
@@ -185,8 +176,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.bind("mouseout", () => {
             this.setHover(false);
         });
-
-      //  (console as any).cTimeEnd("create connection: bind hover events");
 
         if (params.type) {
             params.endpoints = params.endpoints || this.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
@@ -202,7 +191,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this._jsPlumb.hoverPaintStyle = params.hoverPaintStyle;
         this._jsPlumb.uuids = params.uuids;
 
-      //  (console as any).cTimeStart("create connection: make and register endpoints");
         let eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
             eT = this.makeEndpoint(false, this.target, this.targetId, params.targetEndpoint);
 
@@ -212,8 +200,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         if (eT) {
             addToList(instance.endpointsByElement, this.targetId, eT);
         }
-
-     //   (console as any).cTimeEnd("create connection: make and register endpoints");
 
         // if scope not set, set it to be the scope for the source endpoint.
         if (!this.scope) {
@@ -241,8 +227,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
         let _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || this.instance.Defaults.reattachConnections;
 
-      //  (console as any).cTimeStart("create connection: append to default type");
-
         this.appendToDefaultType({
             detachable: _detachable,
             reattach: _reattach,
@@ -250,9 +234,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || this.instance.Defaults.hoverPaintStyle
         });
 
-      //  (console as any).cTimeEnd("create connection: append to default type");
-
-        if (!this.instance.isSuspendDrawing()) {
+        if (!this.instance._suspendDrawing) {
             // paint the endpoints
             let myInfo = this.instance.getCachedData(this.sourceId),
                 myOffset = myInfo.o, myWH = myInfo.s,
@@ -297,25 +279,18 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
 // PAINTING
 
-    //    (console as any).cTimeStart("create connection: set connector");
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || this.instance.Defaults.connector, true);
-     //   (console as any).cTimeEnd("create connection: set connector");
 
         let data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
         this.setData(data);
 
-     //   (console as any).cTimeStart("create connection: apply types");
         // the very last thing we do is apply types, if there are any.
         let _types = [ "default", this.endpoints[0].connectionType, this.endpoints[1].connectionType,  params.type ].join(" ");
         if (/[^\s]/.test(_types)) {
             this.addType(_types, params.data, true);
         }
 
-     //   (console as any).cTimeEnd("create connection: apply types");
-
-     //   (console as any).cTimeStart("create connection: update class");
         this.updateConnectedClass();
-//        (console as any).cTimeEnd("create connection: update class");
 
     }
 
@@ -505,10 +480,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     }
 
     makeConnector(name:string, args:any):AbstractConnector<E> {
-       // (console as any).cTimeStart("makeConnector");
-        const c = Connectors.get(this.instance, this, name, args);
-       // (console as any).cTimeEnd("makeConnector");
-        return c;
+        return Connectors.get(this.instance, this, name, args);
     }
 
     prepareConnector(connectorSpec:ConnectorSpec, typeId?:string):AbstractConnector<E> {
@@ -562,16 +534,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             // put classes from prior connector onto the canvas
             this.addClass(previousClasses);
 
-            // new: instead of binding listeners per connector, we now just have one delegate on the container.
-            // so for that handler we set the connection as the '_jsPlumb' member of the canvas element, and
-            // bgCanvas, if it exists, which it does right now in the VML renderer, so it won't from v 2.0.0 onwards.
-            // if (this.canvas) {
-            //     (<any>this.canvas)._jsPlumb = this;
-            // }
-            // if (this.bgCanvas) {
-            //     (<any>this.bgCanvas)._jsPlumb = this;
-            // }
-
             if (previous != null) {
                 let o:Dictionary<Overlay<E>> = this.getOverlays();
                 for (let i in o) {
@@ -591,25 +553,22 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     }
 
     setConnector(connectorSpec:ConnectorSpec, doNotRepaint?:boolean, doNotChangeListenerComponent?:boolean, typeId?:string) {
-      //  (console as any).cTimeStart("create connection: prepare connector");
         let connector = this.prepareConnector(connectorSpec, typeId);
-      //  (console as any).cTimeEnd("create connection: prepare connector");
-
-     //   (console as any).cTimeStart("create connection: set prepared connector");
         this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId);
-     //   (console as any).cTimeEnd("create connection: set prepared connector");
     }
 
     paint(params:any) {
 
-        if (!this.instance.isSuspendDrawing() && this._jsPlumb.visible) {
-
-            //window.jtime("connection paint");
+        if (!this.instance._suspendDrawing && this._jsPlumb.visible) {
 
             params = params || {};
-            let timestamp = params.timestamp,
-                // if the moving object is not the source we must transpose the two references.
-                swap = false,
+            let timestamp = params.timestamp;
+            if (timestamp != null && timestamp === this._jsPlumb.lastPaintedAt) {
+                return;
+            }
+
+            // if the moving object is not the source we must transpose the two references.
+            let    swap = false,
                 tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
                 tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
@@ -635,18 +594,17 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                     targetInfo: targetInfo
                 });
 
-
-                //window.jtime("connection overlays");
-
                 let overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
 
                 // compute overlays. we do this first so we can get their placements, and adjust the
                 // container if needs be (if an overlay would be clipped)
                 for (let i in this._jsPlumb.overlays) {
                     if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                        let o = this._jsPlumb.overlays[i];
+                        let o:Overlay<E> = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
-                            this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+
+                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+
                             overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
                             overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
                             overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
@@ -664,27 +622,19 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                         ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                     };
 
-               // window.jtimeEnd("connection overlays");
-
-                // paint the connector.
-                //window.jtime("connector paint");
-                (this.connector as any).paintExtents = extents;
                 this.connector.paint(this._jsPlumb.paintStyleInUse, extents);
-                //window.jtimeEnd("connector paint");
 
                 // and then the overlays
                 for (let j in this._jsPlumb.overlays) {
                     if (this._jsPlumb.overlays.hasOwnProperty(j)) {
                         let p = this._jsPlumb.overlays[j];
                         if (p.isVisible()) {
-                            p.paint(this._jsPlumb.overlayPlacements[j], extents);
+                            this.instance.renderer.paintOverlay(p, this._jsPlumb.overlayPlacements[j], extents);
                         }
                     }
                 }
             }
             this._jsPlumb.lastPaintedAt = timestamp;
-
-            //window.jtimeEnd("connection paint");
         }
     }
 
@@ -695,8 +645,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     }
 
     prepareEndpoint(existing:Endpoint<E>, index:number, element?:E, elementId?:string, params?:ConnectionParams<E>):Endpoint<E> {
-
-    //window.jtime("prepare endpoint");
 
         let e;
         params = <any>(params || this._jsPlumb);
@@ -755,14 +703,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                 e.deleteOnEmpty = true;
             }
             this.endpoints[index] = e;
-
-            // if (params.drawEndpoints === false) {
-            //     e.setVisible(false, true, true);
-            // }
-
         }
 
-     //   window.jtimeEnd("prepare endpoint");
         return e;
     }
 
@@ -784,7 +726,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.instance.deleteObject({endpoint:current, deleteAttachedObjects:false});
         this.instance.fire("endpointReplaced", {previous:current, current:_new});
 
-        this.instance.anchorManager.updateOtherEndpoint(this.endpoints[0].elementId, this.endpoints[1].elementId, this.endpoints[1].elementId, this);
+        this.updateConnectedClass();
 
     }
 
