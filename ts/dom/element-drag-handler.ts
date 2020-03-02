@@ -7,11 +7,11 @@ import {
     EVT_DRAG_MOVE, EVT_DRAG_START,
     EVT_DRAG_STOP
 } from "./drag-manager";
-import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
+import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance";
 import {UIGroup} from "../group/group";
-import {BoundingBox, Offset} from "../core";
-
-declare const Biltong:any;
+import {BoundingBox, Dictionary, Offset} from "../core";
+import {isString, Optional} from "../util";
+import {intersects} from "../geom";
 
 type IntersectingGroup<E> = {
     group:UIGroup<E>;
@@ -25,12 +25,20 @@ type GroupLocation<E> = {
     group: UIGroup<E>;
 }
 
+type PosseMemberSpec = { el:HTMLElement, elId:string, active:boolean };
+type Posse = { id:string, members:Set<PosseMemberSpec>};
+
 export class ElementDragHandler implements DragHandler {
 
     selector: string = "> [jtk-managed]";
     _dragOffset:Offset = null;
     _groupLocations:Array<GroupLocation<HTMLElement>> = [];
     _intersectingGroups:Array<IntersectingGroup<HTMLElement>> = [];
+
+    _posseByElementIdMap:Dictionary<Posse> = {};
+    _posseMap:Dictionary<Posse> = {};
+
+    _currentPosse:Posse = null;
 
     private _dragSelection: Array<jsPlumbDOMElement> = [];
     private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map();
@@ -80,6 +88,12 @@ export class ElementDragHandler implements DragHandler {
             _one(elements[i]);
         }
 
+        // if (this._currentPosse != null) {
+        //     this._currentPosse.members.forEach(member => {
+        //         if (element)
+        //     })
+        // }
+
         // do the contents of the drag selection
 
         if (this._intersectingGroups.length > 0) {
@@ -112,6 +126,8 @@ export class ElementDragHandler implements DragHandler {
         this._dragOffset = null;
         this._dragSelectionOffsets.clear();
         this._dragSizes.clear();
+
+        this._currentPosse = null;
     }
 
     reset() { }
@@ -138,7 +154,7 @@ export class ElementDragHandler implements DragHandler {
 
             // TODO  calculate if there is a target group
             this._groupLocations.forEach((groupLoc:any) => {
-                if (Biltong.intersects(bounds, groupLoc.r)) {
+                if (intersects(bounds, groupLoc.r)) {
                     this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
                     this._intersectingGroups.push({group:groupLoc.group, intersectingElement:el, d:0});
                 } else {
@@ -232,10 +248,22 @@ export class ElementDragHandler implements DragHandler {
             this.instance.select({target: el as any}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
             this.instance.isConnectionBeingDragged = true;
 
+            const elId = this.instance.getId(el);
+            this._currentPosse = this._posseByElementIdMap[elId];
+
             this.instance.fire(EVT_DRAG_START, {
                 el:el,
                 e:params.e
             });
+
+            if (this._currentPosse != null) {
+                this._currentPosse.members.forEach(member => {
+                    this.instance.fire(EVT_DRAG_START, {
+                        el:member.el,
+                        e:params.e
+                    });
+                });
+            }
         }
         return cont;
     }
@@ -279,24 +307,73 @@ export class ElementDragHandler implements DragHandler {
         return this._dragSelection;
     }
 
-    addToPosse(el:HTMLElement, spec:any) {
-        //alert("add to posse");
-        //this._dragSelection.addToPosse(el, spec);
+    private decodePosseSpec(spec:PosseSpec):{id:string, active:boolean} {
+
+        if (isString(spec)) {
+            return { id:spec as string, active:true };
+        } else {
+            return {
+                id:(spec as any).id,
+                active:(spec as any).active
+            };
+        }
     }
 
-    setPosse(el:HTMLElement, spec:any) {
-        // this._dragSelection.setPosse(el, spec);
+    addToPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
+
+        const details = this.decodePosseSpec(spec);
+        let posse = this._posseMap[details.id];
+        if (posse == null) {
+            posse = { id: details.id, members: new Set<PosseMemberSpec>()};
+            this._posseMap[details.id] = posse;
+        }
+
+        els.forEach((el:HTMLElement) => {
+            const elId = el.getAttribute("id");
+            this.removeFromAllPosses(el);
+            posse.members.add({elId:elId, el:el, active:details.active});
+            this._posseByElementIdMap[elId] = posse;
+        });
+
     }
 
-    removeFromPosse(el:HTMLElement, posseId:string) {
-        // this._dragSelection.removeFromPosse(el, posseId);
+    setPosse(spec:PosseSpec, ...els:Array<HTMLElement>):void {
+        this.removeFromAllPosses(...els);
+        this.addToPosse(spec, ...els)
     }
 
-    removeFromAllPosses(el:HTMLElement):void {
-        // this._dragSelection.removeFromAllPosses(el);
+    removeFromPosse(el:HTMLElement, posseId:string, elId?:string) {
+        const posse = this._posseMap[posseId];
+        if (posse != null) {
+            const s = new Set<PosseMemberSpec>();
+            let p:IteratorResult<PosseMemberSpec>;
+            let e = posse.members.values();
+            while (!(p = e.next()).done) {
+                if (p.value.el !== el) {
+                    s.add(p.value);
+                }
+            }
+            posse.members = s;
+        }
     }
 
-    setPosseState (posseId:string, state:boolean, ...el:any) {
-        // this._dragSelection.setPosseState(posseId, state, el);
+    removeFromAllPosses(...els:Array<HTMLElement>):void {
+        els.forEach((el) => {
+            const elId = el.getAttribute("id");
+            Optional(this._posseByElementIdMap[elId]).ifPresent(posse => this.removeFromPosse(el, posse.id, elId))
+        });
+    }
+
+    setPosseState (posseId:string, state:boolean, ...els:Array<HTMLElement>) {
+
+        const elementIds = els.map(el => el.getAttribute("id"));
+
+        Optional<Posse, void>(this._posseMap[posseId]).map(posse => {
+            Array.from(posse.members.values()).forEach(member => {
+                if (elementIds.indexOf(member.elId)) {
+                    member.active = state;
+                }
+            });
+        });
     }
 }
