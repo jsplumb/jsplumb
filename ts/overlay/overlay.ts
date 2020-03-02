@@ -1,10 +1,8 @@
 
-import {Constructable, Dictionary, jsPlumbInstance} from "../core";
+import {Dictionary, jsPlumbInstance} from "../core";
 
 import {PaintStyle} from "../styles";
 import {Component} from "../component/component";
-import {SegmentBounds} from "../connector/abstract-segment";
-import {OverlayRenderer} from "./overlay-renderer";
 import {uuid} from "../util";
 import {EventGenerator} from "../event-generator";
 import {Connection} from "..";
@@ -51,34 +49,24 @@ export abstract class Overlay<E> extends EventGenerator {
 
     cssClass:string;
 
-    private renderer:OverlayRenderer<E>;
     visible:boolean = true;
     location: number;
     endpointLocation:[number, number];
 
     events?:Dictionary<Function>;
 
-    constructor(protected instance:jsPlumbInstance<E>, public component:Component<E>, p:OverlayOptions) {
+    constructor(public instance:jsPlumbInstance<E>, public component:Component<E>, p:OverlayOptions) {
         super();
         p = p || {};
         this.id = p.id  || uuid();
         this.cssClass = p.cssClass || "";
         this.location = p.location || 0.5;
         this.events = p.events || {};
-    }
 
-    protected setRenderer(r:OverlayRenderer<E>) {
-        this.renderer = r;
-        let e = r.getElement(this.component);
         for (let event in this.events) {
             this.bind(event, this.events[event]);
         }
     }
-
-    public getRenderer():OverlayRenderer<E> {
-        return this.renderer;
-    }
-
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
         return true;
@@ -86,7 +74,7 @@ export abstract class Overlay<E> extends EventGenerator {
 
     setVisible(v: boolean): void {
         this.visible = v;
-        this.renderer.setVisible(v);
+        this.instance.renderer.setOverlayVisible(this, v);
     }
 
     hide(): void {
@@ -102,24 +90,27 @@ export abstract class Overlay<E> extends EventGenerator {
     }
 
     destroy(force?: boolean): void {
-        this.renderer.destroy(force);
+        this.instance.renderer.destroyOverlay(this, force);
+
     }
 
     addClass(clazz:string) {
-        this.renderer.addClass(clazz);
+        this.instance.renderer.addOverlayClass(this, clazz);
     }
 
     removeClass(clazz:string) {
-        this.renderer.removeClass(clazz);
+        this.instance.renderer.removeOverlayClass(this, clazz);
     }
 
     abstract updateFrom(d:any):void;
-    abstract draw(component:any, paintStyle:PaintStyle, absolutePosition?:any):SegmentBounds;
-
-    setListenerComponent(c: any): void {
-    }
 
     reattach(component:Component<E>) {
+
+
+        console.log("reattach overlay");
+
+        debugger
+
         // if (this._jsPlumb.div != null) {
         //     instance.getContainer().appendChild(this._jsPlumb.div);
         // }
@@ -127,15 +118,6 @@ export abstract class Overlay<E> extends EventGenerator {
     }
 
     transfer(target: any): void { }
-
-
-
-    paint(params: any, extents?: any): void {
-        //console.log("PAINT on label overlay called")
-
-        return this.renderer.paint(params, extents);
-
-    }
 
     private _postComponentEvent(eventName:string, originalEvent:Event) {
         this.instance.fire(eventName, this.component, originalEvent);
