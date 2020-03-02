@@ -169,30 +169,41 @@ export class GroupManager<E> {
 
     _updateConnectionsForGroup(group:UIGroup<E>) {
         let members = group.children;
-        const c1 = this.instance.getConnections({source:members, scope:Constants.WILDCARD}, true) as Array<Connection<E>>;
-        const c2 = this.instance.getConnections({target:members, scope:Constants.WILDCARD}, true) as Array<Connection<E>>;
-        const processed = {};
         group.connections.source.length = 0;
         group.connections.target.length = 0;
-        const oneSet = (c:Array<Connection<E>>) => {
-            for (let i = 0; i < c.length; i++) {
-                if (processed[c[i].id]) {
-                    continue;
-                }
-                processed[c[i].id] = true;
-                if (c[i].source[Constants.GROUP_KEY] === group) {
-                    if (c[i].target[Constants.GROUP_KEY] !== group) {
-                        group.connections.source.push(c[i]);
+
+        if (members.length > 0) {
+
+            const c1 = this.instance.getConnections({
+                source: members,
+                scope: Constants.WILDCARD
+            }, true) as Array<Connection<E>>;
+            const c2 = this.instance.getConnections({
+                target: members,
+                scope: Constants.WILDCARD
+            }, true) as Array<Connection<E>>;
+            const processed = {};
+
+            const oneSet = (c: Array<Connection<E>>) => {
+                for (let i = 0; i < c.length; i++) {
+                    if (processed[c[i].id]) {
+                        continue;
                     }
-                    this._connectionSourceMap[c[i].id] = group;
+                    processed[c[i].id] = true;
+                    if (c[i].source[Constants.GROUP_KEY] === group) {
+                        if (c[i].target[Constants.GROUP_KEY] !== group) {
+                            group.connections.source.push(c[i]);
+                        }
+                        this._connectionSourceMap[c[i].id] = group;
+                    } else if (c[i].target[Constants.GROUP_KEY] === group) {
+                        group.connections.target.push(c[i]);
+                        this._connectionTargetMap[c[i].id] = group;
+                    }
                 }
-                else if (c[i].target[Constants.GROUP_KEY] === group) {
-                    group.connections.target.push(c[i]);
-                    this._connectionTargetMap[c[i].id] = group;
-                }
-            }
-        };
-        oneSet(c1); oneSet(c2);
+            };
+            oneSet(c1);
+            oneSet(c2);
+        }
     }
 
     private _collapseConnection(conn:Connection<E>, index:number, group:UIGroup<E>) {
