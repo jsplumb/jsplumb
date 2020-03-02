@@ -1427,8 +1427,8 @@
             this.foldback = d.foldback|| this.foldback;
         },
         cleanup:function() {
-            if (this.path && this.canvas) {
-                this.canvas.removeChild(this.path);
+            if (this.path && this.path.parentNode) {
+                this.path.parentNode.removeChild(this.path);
             }
         }
     });
