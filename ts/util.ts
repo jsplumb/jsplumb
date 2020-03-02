@@ -1,5 +1,5 @@
+import {extend, SortFunction} from "./core";
 
-import {Dictionary, extend, SortFunction} from "./core";
 export function isArray(a: any): boolean {
     return Object.prototype.toString.call(a) === "[object Array]";
 }
@@ -314,72 +314,19 @@ export function suggest(list: Array<any>, item: any, insertAtHead?: boolean): bo
     return false;
 }
 
-//
-// extends the given obj (which can be an array) with the given constructor function, prototype functions, and
-// class members, any of which may be null.
-/*
-export function extend(child: any, parent: any, _protoFn: any): any {
-    let i;
-    parent = isArray(parent) ? parent : [parent];
 
-    const _copyProtoChain = (focus: any): void => {
-        let proto = focus.__proto__;
-        while (proto != null) {
-            if (proto.prototype != null) {
-                for (let j in proto.prototype) {
-                    if (proto.prototype.hasOwnProperty(j) && !child.prototype.hasOwnProperty(j)) {
-                        child.prototype[j] = proto.prototype[j];
-                    }
-                }
-                proto = proto.prototype.__proto__;
-            } else {
-                proto = null;
-            }
-        }
-    };
+const lut:Array<string> = [];
+for (let i=0; i<256; i++) { lut[i] = (i<16?'0':'')+(i).toString(16); }
 
-    for (i = 0; i < parent.length; i++) {
-        for (let j in parent[i].prototype) {
-            if (parent[i].prototype.hasOwnProperty(j) && !child.prototype.hasOwnProperty(j)) {
-                child.prototype[j] = parent[i].prototype[j];
-            }
-        }
-
-        _copyProtoChain(parent[i]);
-    }
-
-
-    const _makeFn = (name: string, protoFn: Function): any => {
-        return function () {
-            for (i = 0; i < parent.length; i++) {
-                if (parent[i].prototype[name]) {
-                    parent[i].prototype[name].apply(this, arguments);
-                }
-            }
-            return protoFn.apply(this, arguments);
-        };
-    };
-
-    const _oneSet = (fns: any) => {
-        for (let k in fns) {
-            child.prototype[k] = _makeFn(k, fns[k]);
-        }
-    };
-
-    if (arguments.length > 2) {
-        for (i = 2; i < arguments.length; i++) {
-            _oneSet(arguments[i]);
-        }
-    }
-
-    return child;
-}*/
-
-export function uuid(): string {
-    return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    }));
+export function uuid():string {
+    const d0 = Math.random()*0xffffffff|0;
+    const d1 = Math.random()*0xffffffff|0;
+    const d2 = Math.random()*0xffffffff|0;
+    const d3 = Math.random()*0xffffffff|0;
+    return lut[d0&0xff]+lut[d0>>8&0xff]+lut[d0>>16&0xff]+lut[d0>>24&0xff]+'-'+
+        lut[d1&0xff]+lut[d1>>8&0xff]+'-'+lut[d1>>16&0x0f|0x40]+lut[d1>>24&0xff]+'-'+
+        lut[d2&0x3f|0x80]+lut[d2>>8&0xff]+'-'+lut[d2>>16&0xff]+lut[d2>>24&0xff]+
+        lut[d3&0xff]+lut[d3>>8&0xff]+lut[d3>>16&0xff]+lut[d3>>24&0xff];
 }
 
 export function fastTrim(s: string): string {
@@ -527,5 +474,23 @@ export function _mergeOverrides (def:any, values:any):any {
     return m;
 }
 
+
+export function Optional<T, Q>(obj:T) {
+    return {
+        isDefined:()=> obj != null,
+        ifPresent:(fn:(v:T) => any) => {
+            if (obj != null) {
+                fn(obj);
+            }
+        },
+        map:(fn:(v:T) => Q):Q => {
+            if(obj!= null) {
+                return fn(obj);
+            } else {
+                return null;
+            }
+        }
+    };
+}
 
 
