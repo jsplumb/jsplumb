@@ -12,8 +12,7 @@ import {SvgEndpoint} from "./svg-element-endpoint";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
 import {EVENT_MAX_CONNECTIONS} from "../constants";
-
-declare const Biltong:any;
+import {intersects} from "../geom";
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor<HTMLElement>, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas });
@@ -203,7 +202,7 @@ export class EndpointDragHandler implements DragHandler {
         this.instance.setPosition(n, ipco);
         n.style.width = ips[0] + "px";
         n.style.height = ips[1] + "px";
-        this.instance.manage(id, n); // TRANSIENT MANAGE
+        this.instance.manage(n); // TRANSIENT MANAGE
         // create and assign an id, and initialize the offset.
         this.placeholderInfo.id = id;
         this.placeholderInfo.element = n;
@@ -506,14 +505,14 @@ export class EndpointDragHandler implements DragHandler {
             // now we rthis.eplace ourselves with the temporary div we created above:
             if (anchorIdx === 0) {
                 this.existingJpcParams = [ this.jpc.source, this.jpc.sourceId, canvasElement, dragScope ];
-                this.instance.anchorManager.sourceChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element);
+                this.instance.sourceChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element);
         
             } else {
                 this.existingJpcParams = [ this.jpc.target, this.jpc.targetId, canvasElement, dragScope ];
                 this.jpc.target = this.placeholderInfo.element;
                 this.jpc.targetId = this.placeholderInfo.id;
 
-                this.instance.anchorManager.updateOtherEndpoint(this.jpc.sourceId, this.jpc.endpoints[anchorIdx].elementId, this.jpc.targetId, this.jpc);
+                this.jpc.updateConnectedClass();
             }
         
             // store the original endpoint and assign the new floating endpoint for the drag.
@@ -563,7 +562,7 @@ export class EndpointDragHandler implements DragHandler {
 
             for (let i = 0; i < this.endpointDropTargets.length; i++) {
 
-                if (Biltong.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+                if (intersects(boundingRect, this.endpointDropTargets[i].r)) {
                     newDropTarget = this.endpointDropTargets[i];
                     break;
                 }
@@ -893,10 +892,10 @@ export class EndpointDragHandler implements DragHandler {
 
         // TODO checkSanity
         if (idx === 1) {
-            this.instance.anchorManager.updateOtherEndpoint(this.jpc.sourceId, this.jpc.floatingId, this.jpc.targetId, this.jpc);
+            this.jpc.updateConnectedClass();
         }
         else {
-            this.instance.anchorManager.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+            this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
         }
 
         this.instance.repaint(this.jpc.sourceId);
@@ -940,10 +939,10 @@ export class EndpointDragHandler implements DragHandler {
 
                 // TODO checkSanity
                 if (idx === 1) {
-                    this.instance.anchorManager.updateOtherEndpoint(this.jpc.sourceId, this.jpc.floatingId, this.jpc.targetId, this.jpc);
+                    this.jpc.updateConnectedClass();
                 }
                 else {
-                    this.instance.anchorManager.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+                    this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
                 }
 
                 this.instance.repaint(this.jpc.sourceId);
@@ -1035,10 +1034,10 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         if (idx === 1) {
-            this.instance.anchorManager.updateOtherEndpoint(this.jpc.sourceId, this.jpc.floatingId, this.jpc.targetId, this.jpc);
+            this.jpc.updateConnectedClass();
         }
         else {
-            this.instance.anchorManager.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+            this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
         }
 
         // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
