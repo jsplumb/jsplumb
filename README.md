@@ -49,10 +49,8 @@ Note that currently we are not bundling jsPlumb with its dependencies. You need 
 situation).  These are the imports for the demonstration pages:
 
 ```html
-<script src="../../node_modules/biltong/src/biltong.js"></script>
 <script src="../../node_modules/mottle/js/mottle.js"></script>
 <script src="../../node_modules/katavorio/src/katavorio.js"></script>
-<script src="../../node_modules/jsbezier/js/jsbezier.js"></script>
 <script src="../../dist/js/jsplumb.js"></script>
 ```
 
@@ -136,14 +134,6 @@ No external dependencies.
 Links to various demonstrations can be found [here](https://jsplumbtoolkit.com).
 
 ## jsPlumb Helper Projects
-
-- Bezier curve functions:
-
-[https://github.com/jsplumb/jsBezier](https://github.com/jsplumb/jsBezier)
-
-- Simple geometry functions:
-
-[https://github.com/jsplumb/biltong](https://github.com/jsplumb/biltong)
 
 - Drag+drop:
 
