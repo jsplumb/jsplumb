@@ -2890,6 +2890,8 @@ var testSuite = function () {
         var labelOverlay = connection1.getOverlay("aLabel");
         var arrowOverlay = connection1.getOverlay("anArrow");
 
+        ok(labelOverlay.canvas != null, "the label overlay has a canvas");
+
         connection1.removeOverlay("aLabel");
 
         equal(null, connection1._jsPlumb.overlays["aLabel"], "not registered in overlays map");
@@ -2899,10 +2901,10 @@ var testSuite = function () {
         equal(1, _length(connection1._jsPlumb.overlays), "only one overlay remaining on the connection");
         equal("anArrow", connection1._jsPlumb.overlays["anArrow"].id, "the id of this overlay is what we expected");
 
-        equal(labelOverlay.renderer.canvas.parentNode, null, "the label overlay was actually removed from the DOM");
+        equal(labelOverlay.canvas, null, "the label overlay was actually removed from the DOM");
 
         // remove the arrow
-        var arrowElement = arrowOverlay.renderer.getElement();
+        var arrowElement = arrowOverlay.path;//renderer.getElement();
         ok(arrowElement.parentNode != null, "arrow element is in the DOM");
         connection1.removeOverlay("anArrow");
 
@@ -3047,8 +3049,8 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         var o = c.getOverlay("custom");
-        equal(o.renderer.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
-        equal(o.renderer.canvas.innerHTML, c.id, "custom overlay has correct value");
+        equal(o.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
+        equal(o.canvas.innerHTML, c.id, "custom overlay has correct value");
     });
 
     test(": _jsPlumb.connect (custom label overlay, set on Defaults, return selector)", function () {
@@ -3062,8 +3064,8 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         var o = c.getOverlay("custom");
-        equal(o.renderer.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
-        equal(o.renderer.canvas.innerHTML, c.id, "custom overlay has correct value");
+        equal(o.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
+        equal(o.canvas.innerHTML, c.id, "custom overlay has correct value");
     });
 
     test(": overlay events", function () {
@@ -3332,8 +3334,8 @@ var testSuite = function () {
 
     var _ensureContainer = function(component, container) {
         return _overlayTest(component, function(o) {
-            return (o.renderer.canvas && o.renderer.canvas.parentNode == container) ||
-                (o.renderer.path && o.renderer.path.parentNode.parentNode == container);
+            return (o.canvas && o.canvas.parentNode == container) ||
+                (o.path && o.path.parentNode.parentNode == container);
         });
     };
 
@@ -3618,13 +3620,13 @@ var testSuite = function () {
         ok(c.getOverlay("arrow") == null, "arrow overlay has been removed");
     });
 
-    test(" label overlay getElement function", function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
-            [ "Label", {id: "label"}]
-        ]});
-        ok(c.getOverlay("label").renderer.canvas != null, "label overlay exposes element via getElement method");
-    });
+    // test(" label overlay getElement function", function () {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
+    //         [ "Label", {id: "label"}]
+    //     ]});
+    //     ok(c.getOverlay("label").canvas != null, "label overlay exposes element via getElement method");
+    // });
 
 
     test(" label overlay provides getLabel and setLabel methods", function () {
@@ -3632,7 +3634,7 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
             [ "Label", {id: "label", label: "foo"}]
         ]});
-        var o = c.getOverlay("label"), e = o.renderer.canvas;
+        var o = c.getOverlay("label"), e = o.canvas;
         equal(e.innerHTML, "foo", "label text is set to original value");
         o.setLabel("baz");
         equal(e.innerHTML, "baz", "label text is set to new value 'baz'");
@@ -3655,7 +3657,7 @@ var testSuite = function () {
             }]
         ]});
         var o = c.getOverlay("label");
-        ok(_jsPlumb.hasClass(o.renderer.canvas, "foo"), "label overlay has custom css class");
+        ok(_jsPlumb.hasClass(o.canvas, "foo"), "label overlay has custom css class");
     });
 
     test(" parameters object works for Endpoint", function () {
@@ -3730,52 +3732,52 @@ var testSuite = function () {
     });
 
     // anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
-    test(" anchorManager registers standard connection", function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1);
-        equal(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 1);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1);
-        equal(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 1);
-        var c2 = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 2);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 2);
-        equal(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 2);
-        equal(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 2);
-    });
-
-
-    // anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
-    test(" anchorManager registers dynamic anchor connection, and removes it.", function () {
-        var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
-        var c = _jsPlumb.connect({source: d3, target: d4, anchors: ["AutoDefault", "AutoDefault"]});
-
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
-
-        var c2 = _jsPlumb.connect({source: d3, target: d4});
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 2);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 2);
-
-        equal(_jsPlumb.anchorManager.getEndpointsFor("d3").length, 2);
-        _jsPlumb.deleteConnection(c);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
-    });
-
-    // anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
-    test(" anchorManager registers continuous anchor connection, and removes it.", function () {
-        var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
-        var c = _jsPlumb.connect({source: d3, target: d4, anchors: ["Continuous", "Continuous"]});
-
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 1);
-
-        _jsPlumb.deleteConnection(c);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0);
-        equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 0);
-
-        _jsPlumb.reset();
-        equal(_jsPlumb.anchorManager.getEndpointsFor("d4").length, 0);
-    });
+    // test(" anchorManager registers standard connection", function () {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     var c = _jsPlumb.connect({source: d1, target: d2});
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1);
+    //     equal(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 1);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1);
+    //     equal(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 1);
+    //     var c2 = _jsPlumb.connect({source: d1, target: d2});
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 2);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 2);
+    //     equal(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 2);
+    //     equal(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 2);
+    // });
+    //
+    //
+    // // anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
+    // test(" anchorManager registers dynamic anchor connection, and removes it.", function () {
+    //     var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+    //     var c = _jsPlumb.connect({source: d3, target: d4, anchors: ["AutoDefault", "AutoDefault"]});
+    //
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
+    //
+    //     var c2 = _jsPlumb.connect({source: d3, target: d4});
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 2);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 2);
+    //
+    //     equal(_jsPlumb.anchorManager.getEndpointsFor("d3").length, 2);
+    //     _jsPlumb.deleteConnection(c);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
+    // });
+    //
+    // // anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
+    // test(" anchorManager registers continuous anchor connection, and removes it.", function () {
+    //     var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+    //     var c = _jsPlumb.connect({source: d3, target: d4, anchors: ["Continuous", "Continuous"]});
+    //
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 1);
+    //
+    //     _jsPlumb.deleteConnection(c);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0);
+    //     equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 0);
+    //
+    //     _jsPlumb.reset();
+    //     equal(_jsPlumb.anchorManager.getEndpointsFor("d4").length, 0);
+    // });
 
     test(" Continuous anchor default face, no faces supplied", function () {
         var d3 = support.addDiv("d3"), ep = _jsPlumb.addEndpoint(d3, {
@@ -4060,45 +4062,7 @@ var testSuite = function () {
         equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
     });
 
-    test(" setId, taking a selector and a string, only default scope", function () {
-        support.addDiv("d1");
-        support.addDiv("d2");
 
-        _jsPlumb.Defaults.maxConnections = -1;
-        var e1 = _jsPlumb.addEndpoint("d1"),
-            e2 = _jsPlumb.addEndpoint("d2"),
-            e3 = _jsPlumb.addEndpoint("d1");
-
-        support.assertEndpointCount("d1", 2, _jsPlumb);
-        equal(e1.elementId, "d1", "endpoint has correct element id");
-        equal(e3.elementId, "d1", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d1", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d1", "anchor has correct element id");
-
-        var c = _jsPlumb.connect({source: e1, target: e2}),
-            c2 = _jsPlumb.connect({source: e2, target: e1});
-
-        ok(_jsPlumb.getManagedElements()["d1"] != null, "d1 exists in managed elements");
-        ok(_jsPlumb.getManagedElements()["d3"] == null, "d3 does not exist in managed elements");
-
-        _jsPlumb.setId(_jsPlumb.getSelector("#d1"), "d3");
-        support.assertEndpointCount("d3", 2, _jsPlumb);
-        support.assertEndpointCount("d1", 0, _jsPlumb);
-
-        equal(e1.elementId, "d3", "endpoint has correct element id");
-        equal(e3.elementId, "d3", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d3", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d3", "anchor has correct element id");
-
-        equal(c.sourceId, "d3", "connection's sourceId has changed");
-        equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
-        equal(c2.targetId, "d3", "connection's targetId has changed");
-        equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
-
-        ok(_jsPlumb.getManagedElements()["d1"] == null, "d1 removed from managed elements");
-        ok(_jsPlumb.getManagedElements()["d3"] != null, "d3 exists in managed elements");
-
-    });
 
     test(" setId, taking a DOM element and a string, only default scope", function () {
         support.addDiv("d1");
@@ -4152,39 +4116,6 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: e2, target: e1});
 
         _jsPlumb.setId("d1", "d3");
-        support.assertEndpointCount("d3", 2, _jsPlumb);
-        support.assertEndpointCount("d1", 0, _jsPlumb);
-
-        equal(e1.elementId, "d3", "endpoint has correct element id");
-        equal(e3.elementId, "d3", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d3", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d3", "anchor has correct element id");
-
-        equal(c.sourceId, "d3", "connection's sourceId has changed");
-        equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
-        equal(c2.targetId, "d3", "connection's targetId has changed");
-        equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
-    });
-
-    test(" setId, taking a selector and a string, mix of scopes", function () {
-        support.addDiv("d1");
-        support.addDiv("d2");
-
-        _jsPlumb.Defaults.maxConnections = -1;
-        var e1 = _jsPlumb.addEndpoint("d1"),
-            e2 = _jsPlumb.addEndpoint("d2"),
-            e3 = _jsPlumb.addEndpoint("d1");
-
-        support.assertEndpointCount("d1", 2, _jsPlumb);
-        equal(e1.elementId, "d1", "endpoint has correct element id");
-        equal(e3.elementId, "d1", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d1", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d1", "anchor has correct element id");
-
-        var c = _jsPlumb.connect({source: e1, target: e2, scope: "FOO"}),
-            c2 = _jsPlumb.connect({source: e2, target: e1});
-
-        _jsPlumb.setId(_jsPlumb.getSelector("#d1"), "d3");
         support.assertEndpointCount("d3", 2, _jsPlumb);
         support.assertEndpointCount("d1", 0, _jsPlumb);
 
@@ -4296,6 +4227,113 @@ var testSuite = function () {
         var c2 = _jsPlumb.connect({source: "foo", target: "bar"});
         equal(c2.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is rectangle");
         equal(c2.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint is rectangle");
+
+    });
+
+    test(" setId, taking two strings, testing makeSource/makeTarget with the mouse", function () {
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+
+        // setup d1 as a source
+        _jsPlumb.makeSource("d1", {
+            endpoint:"Rectangle",
+            parameters:{
+                foo:"foo"
+            }
+        });
+        // and d2 as a target
+        _jsPlumb.makeTarget("d2", {
+            endpoint:"Rectangle"
+        });
+
+        support.dragConnection(d1, d2);
+
+        equal(1, _jsPlumb.select().length, "1 connection in instance.");
+
+        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+        _jsPlumb.setId("d1", "foo");
+
+        support.dragConnection(d1, d2);
+
+        equal(2, _jsPlumb.select().length, "2 connections in instance.");
+
+        _jsPlumb.setId("d2", "bar");
+
+        support.dragConnection(d1, d2);
+
+        equal(3, _jsPlumb.select().length, "3 connections in instance.");
+
+    });
+
+    test(" setId, taking an element and a string, testing makeSource/makeTarget with the mouse", function () {
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+
+        // setup d1 as a source
+        _jsPlumb.makeSource("d1", {
+            endpoint:"Rectangle",
+            parameters:{
+                foo:"foo"
+            }
+        });
+        // and d2 as a target
+        _jsPlumb.makeTarget("d2", {
+            endpoint:"Rectangle"
+        });
+
+        support.dragConnection(d1, d2);
+
+        equal(1, _jsPlumb.select().length, "1 connection in instance.");
+
+        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+        _jsPlumb.setId(d1, "foo");
+
+        support.dragConnection(d1, d2);
+
+        equal(2, _jsPlumb.select().length, "2 connections in instance.");
+
+        _jsPlumb.setId(d2, "bar");
+
+        support.dragConnection(d1, d2);
+
+        equal(3, _jsPlumb.select().length, "3 connections in instance.");
+
+    });
+
+    test(" setIdChanged testing makeSource/makeTarget with the mouse", function () {
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+
+        // setup d1 as a source
+        _jsPlumb.makeSource("d1", {
+            endpoint:"Rectangle",
+            parameters:{
+                foo:"foo"
+            }
+        });
+        // and d2 as a target
+        _jsPlumb.makeTarget("d2", {
+            endpoint:"Rectangle"
+        });
+
+        support.dragConnection(d1, d2);
+
+        equal(1, _jsPlumb.select().length, "1 connection in instance.");
+
+        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+        d1.setAttribute("id", "foo");
+        _jsPlumb.setIdChanged("d1", "foo");
+
+        support.dragConnection(d1, d2);
+
+        equal(2, _jsPlumb.select().length, "2 connections in instance.");
+
+        d2.setAttribute("id", "bar");
+        _jsPlumb.setIdChanged("d2", "bar");
+
+        support.dragConnection(d1, d2);
+
+        equal(3, _jsPlumb.select().length, "3 connections in instance.");
 
     });
 
@@ -5040,7 +5078,7 @@ var testSuite = function () {
         equal(c.endpoints[0].anchor.testFlag, "source", "test flag still set on source anchor: anchor was reused");
         equal(c.endpoints[1].anchor.testFlag, "target", "test flag still set on target anchor: anchor was reused");
         ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
-        ok(_head(c.getOverlays()).renderer.path.parentNode != null, "overlay was reattached to the DOM correctly");
+        ok(_head(c.getOverlays()).path.parentNode != null, "overlay was reattached to the DOM correctly");
     });
 
     test(" set connection type on existing connection, hasType + toggleType", function () {
@@ -5250,6 +5288,95 @@ var testSuite = function () {
         ok(e.getOverlay("myLabel1") != null, "label overlay was not blown away");
         e.removeType("selected");
         ok(e.getOverlay("myLabel1") != null, "label overlay was not blown away");
+    });
+
+    test("changing type does not hide overlays", function() {
+
+        var canvas = support.addDiv("canvas", null, null, 0, 0, 500, 500 ),
+            d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150),
+            d2 = support.addDiv("d2", canvas, null, 300,300,150,150);
+
+        var jpInstance = jsPlumb.newInstance({
+            container: canvas,
+            anchor: 'Continuous',
+            endpoint: [
+                'Dot',
+                {
+                    radius: 2
+                }
+            ],
+            connectionOverlays: [
+                ['Arrow', {
+                    location: 1,
+                    id: 'arrow',
+                    length: 8,
+                    width: 10,
+                    foldback: 1
+                }],
+                ['Label', {
+                    location: 0.5,
+                    id: 'label',
+                    label: "foo"
+                }]
+            ],
+            paintStyle: {
+                stroke: '#b6b6b6',
+                strokeWidth: 2,
+                outlineStroke: 'transparent',
+                outlineWidth: 4
+            },
+            hoverPaintStyle: {
+                stroke: '#545454',
+                zIndex: 6
+            }
+        });
+
+        jpInstance.registerConnectionType('default', {
+            connector: ['Flowchart', {
+                cornerRadius: 10,
+                gap: 10,
+                stub: 15
+            }],
+            cssClass: 'transition'
+        });
+
+        jpInstance.registerConnectionType('loopback', {
+            connector: ['StateMachine', {
+                loopbackRadius: 10
+            }],
+            cssClass: 'transition'
+        });
+
+        var con1 = jpInstance.connect({
+            source: 'd1',
+            target: 'd1',
+            type: 'loopback'
+        });
+
+        var con2 = jpInstance.connect({
+            source: 'd2',
+            target: 'd2',
+            type: 'default'
+        });
+
+        // con2 has an arrow overlay after creation
+        ok(con2.getOverlays()['arrow'] != null, "arrow overlay found");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
+        ok(con2.getOverlays()['label'] != null, "label overlay found");
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+
+        con2.setType('loopback');
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
+        con2.setType('default');
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
     });
 
     test(" connection type tests, space separated arguments", function () {
@@ -6117,18 +6244,18 @@ var testSuite = function () {
             ok(support.getConnectionCanvas(c).className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");
             ok(!_jsPlumb.hasClass(support.getEndpointCanvas(c.endpoints[0]), "bar"), "endpoint doesnt have class 'bar'");
 
-            ok(_jsPlumb.hasClass(o.renderer.canvas, "foo"), "overlay has class foo");
+            ok(_jsPlumb.hasClass(o.canvas, "foo"), "overlay has class foo");
 
             c.addClass("foo2");
-            ok(_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay has class foo2");
+            ok(_jsPlumb.hasClass(o.canvas, "foo2"), "overlay has class foo2");
             ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
 
             c.removeClass("foo2");
-            ok(!_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay no longer has class foo2");
+            ok(!_jsPlumb.hasClass(o.canvas, "foo2"), "overlay no longer has class foo2");
             ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") == -1, "connection no longer has class 'foo2'");
 
             c.addClass("foo2", true);
-            ok(_jsPlumb.hasClass(o.renderer.canvas, "foo2"), "overlay has class foo2");
+            ok(_jsPlumb.hasClass(o.canvas, "foo2"), "overlay has class foo2");
             ok(support.getConnectionCanvas(c).className.baseVal.indexOf("foo2") != -1, "connection has class 'foo2'");
     });
 
@@ -6329,7 +6456,7 @@ var testSuite = function () {
 
         //var o = connection.addOverlay(['Label', labelDef]);
 
-        _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
+        _jsPlumb.trigger(connection.getOverlay("label-1").canvas, "click");
 
         equal(clickCount, 1, "1 click on overlay registered after first trigger");
 
@@ -6340,13 +6467,13 @@ var testSuite = function () {
          });
 
 
-        _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
+        _jsPlumb.trigger(connection.getOverlay("label-1").canvas, "click");
 
         equal(clickCount, 1, "1 click on overlay registered");
 
         _jsPlumb.setContainer('canvas');
         clickCount = 0;
-        _jsPlumb.trigger(connection.getOverlay("label-1").renderer.canvas, "click");
+        _jsPlumb.trigger(connection.getOverlay("label-1").canvas, "click");
 
         equal(clickCount, 1, "1 click on overlay registered");
 
@@ -6655,7 +6782,7 @@ var testSuite = function () {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.renderer.path, "click");
+        _jsPlumb.trigger(lbl.path, "click");
 
         equal(c, 1, "1 click in total");
     });
@@ -6674,11 +6801,11 @@ var testSuite = function () {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
-        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
+        _jsPlumb.trigger(lbl.path, "dblclick");
+        _jsPlumb.trigger(lbl.path, "dblclick");
 
         // the SVG element
-        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
+        _jsPlumb.trigger(lbl.path, "dblclick");
 
         // each of those should have triggered a single click
 
@@ -6698,7 +6825,7 @@ var testSuite = function () {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.renderer.canvas, "click");
+        _jsPlumb.trigger(lbl.canvas, "click");
 
         equal(c, 1, "1 click in total");
     });
@@ -6717,11 +6844,11 @@ var testSuite = function () {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.renderer.canvas, "dblclick");
-        _jsPlumb.trigger(lbl.renderer.canvas, "dblclick");
+        _jsPlumb.trigger(lbl.canvas, "dblclick");
+        _jsPlumb.trigger(lbl.canvas, "dblclick");
 
         // the SVG element
-        _jsPlumb.trigger(lbl.renderer.canvas, "dblclick");
+        _jsPlumb.trigger(lbl.canvas, "dblclick");
 
         // each of those should have triggered a single click
 

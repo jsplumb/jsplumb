@@ -289,7 +289,7 @@ var testSuite = function () {
         equal(1, support.length(connection1._jsPlumb.overlays), "only one overlay remaining on the connection");
         equal("anArrow", connection1._jsPlumb.overlays["anArrow"].id, "the id of this overlay is what we expected");
 
-        equal(labelOverlay.renderer.canvas.parentNode, null, "the label overlay was actually removed from the DOM");
+        equal(labelOverlay.canvas, null, "the label overlay was actually removed from the DOM");
 
         // remove the arrow
         connection1.removeOverlay("anArrow");
@@ -300,7 +300,7 @@ var testSuite = function () {
 
         equal(0, support.length(connection1._jsPlumb.overlays), "no overlays remaining on the connection");
 
-        equal(arrowOverlay.renderer.path, null, "the arrow overlay was actually removed from the DOM");
+        equal(arrowOverlay.path, null, "the arrow overlay was actually removed from the DOM");
 
 
     });
@@ -435,8 +435,8 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         var o = c.getOverlay("custom");
-        equal(o.renderer.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
-        equal(o.renderer.canvas.innerHTML, c.id, "custom overlay has correct value");
+        equal(o.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
+        equal(o.canvas.innerHTML, c.id, "custom overlay has correct value");
     });
 
     test(": _jsPlumb.connect (custom label overlay, set on Defaults, return selector)", function () {
@@ -450,8 +450,8 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         var o = c.getOverlay("custom");
-        equal(o.renderer.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
-        equal(o.renderer.canvas.innerHTML, c.id, "custom overlay has correct value");
+        equal(o.canvas.getAttribute("custom"), "true", "custom overlay created correctly");
+        equal(o.canvas.innerHTML, c.id, "custom overlay has correct value");
     });
 
     test(": overlay events", function () {
@@ -542,7 +542,7 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
             [ "Label", {id: "label", label: "foo"}]
         ]});
-        var o = c.getOverlay("label"), e = o.renderer.canvas;
+        var o = c.getOverlay("label"), e = o.canvas;
         equal(e.innerHTML, "foo", "label text is set to original value");
         o.setLabel("baz");
         equal(e.innerHTML, "baz", "label text is set to new value 'baz'");
@@ -565,7 +565,7 @@ var testSuite = function () {
             }]
         ]});
         var o = c.getOverlay("label");
-        ok(_jsPlumb.hasClass(o.renderer.canvas, "foo"), "label overlay has custom css class");
+        ok(_jsPlumb.hasClass(o.canvas, "foo"), "label overlay has custom css class");
     });
 
 
@@ -611,11 +611,11 @@ var testSuite = function () {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.renderer.canvas, "click");
-        _jsPlumb.trigger(lbl.renderer.canvas, "click");
+        _jsPlumb.trigger(lbl.canvas, "click");
+        _jsPlumb.trigger(lbl.canvas, "click");
 
         // the SVG element
-        _jsPlumb.trigger(lbl.renderer.canvas, "click");
+        _jsPlumb.trigger(lbl.canvas, "click");
 
         // each of those should have triggered a single click
 
@@ -635,11 +635,11 @@ var testSuite = function () {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.renderer.path, "click");
-        _jsPlumb.trigger(lbl.renderer.path, "click");
+        _jsPlumb.trigger(lbl.path, "click");
+        _jsPlumb.trigger(lbl.path, "click");
 
         // the SVG element
-        _jsPlumb.trigger(lbl.renderer.path, "click");
+        _jsPlumb.trigger(lbl.path, "click");
 
         // each of those should have triggered a single click
 
@@ -659,11 +659,11 @@ var testSuite = function () {
         });
 
         // the path element
-        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
-        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
+        _jsPlumb.trigger(lbl.path, "dblclick");
+        _jsPlumb.trigger(lbl.path, "dblclick");
 
         // the SVG element
-        _jsPlumb.trigger(lbl.renderer.path, "dblclick");
+        _jsPlumb.trigger(lbl.path, "dblclick");
 
         // each of those should have triggered a single click
 
@@ -699,10 +699,10 @@ var testSuite = function () {
                 }]
             ]}), o = c.getOverlay("label"), o2 = c.getOverlay("arrow");
 
-        _jsPlumb.trigger(o.renderer.canvas, "click");
+        _jsPlumb.trigger(o.canvas, "click");
         equal(count, 1, "click event was triggered on label overlay");
 
-        _jsPlumb.trigger(o2.renderer.path, "click");
+        _jsPlumb.trigger(o2.path, "click");
         equal(count, 2, "click event was triggered on arrow overlay");
     });
 
