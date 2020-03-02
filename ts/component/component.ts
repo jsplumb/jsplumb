@@ -185,6 +185,8 @@ export abstract class Component<E> extends EventGenerator {
     w:number;
     h:number;
     id:string;
+
+    visible:boolean = true;
     
     typeId:string;
 
@@ -223,8 +225,7 @@ export abstract class Component<E> extends EventGenerator {
             overlayPlacements: [],
             hoverClass: params.hoverClass || instance.Defaults.hoverClass,
             types: [],
-            typeCache:{},
-            visible:true
+            typeCache:{}
         };
 
         this.id = this.getIdPrefix() + (new Date()).getTime();
@@ -499,7 +500,7 @@ export abstract class Component<E> extends EventGenerator {
 
             if (this._jsPlumb.hoverPaintStyle != null) {
                 this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
-                if (!this._jsPlumb.instance.isSuspendDrawing()) {
+                if (!this._jsPlumb.instance._suspendDrawing) {
                     timestamp = timestamp || _timestamp();
                     this.repaint({timestamp: timestamp, recalc: false});
                 }
@@ -533,26 +534,26 @@ export abstract class Component<E> extends EventGenerator {
     }
 
     setVisible(v:boolean) {
-        this._jsPlumb.visible = v;
+        this.visible = v;
     }
 
     isVisible():boolean {
-        return this._jsPlumb.visible;
+        return this.visible;
     }
 
     addClass(clazz:string, dontUpdateOverlays?:boolean):void {
-        let parts = (this._jsPlumb.cssClass || "").split(" ");
+        let parts = (this.cssClass || "").split(" ");
         parts.push(clazz);
-        this._jsPlumb.cssClass = parts.join(" ");
+        this.cssClass = parts.join(" ");
     }
 
     removeClass(clazz:string, dontUpdateOverlays?:boolean):void {
-        let parts = (this._jsPlumb.cssClass || "").split(" ");
-        this._jsPlumb.cssClass = parts.filter((p) => p !== clazz).join(" ");
+        let parts = (this.cssClass || "").split(" ");
+        this.cssClass = parts.filter((p) => p !== clazz).join(" ");
     }
 
     getClass() : string {
-        return this._jsPlumb.cssClass;
+        return this.cssClass;
     }
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
