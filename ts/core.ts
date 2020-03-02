@@ -216,7 +216,7 @@ function prepareList<E>(instance:jsPlumbInstance<E>, input:any, doNotGetIds?:boo
                 r = input;
             }
             else {
-                if (input.length) {
+                if (input.length != null) {
                     for (let i = 0, j = input.length; i < j; i++) {
                         r.push(instance._info(input[i]).id);
                     }
@@ -344,6 +344,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     _zoom:number = 1;
 
     abstract getElement(el:E|string):E;
+    abstract getElementById(el:string):E;
     abstract removeElement(el:E|string):void;
     abstract appendElement (el:E, parent?:E):void;
     abstract appendToRoot(node:E):void;
@@ -484,13 +485,27 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return r;
     }
 
-    getId (element:string | E, uuid?:string, doNotCreateIfNotFound?:boolean):string {
+    getInternalId(element:E):string {
+        let id = (element as any)._jsplumbid;
+        if (id == null) {
+            id = "jsplumb_" + this._instanceIndex + "_" + this._idstamp();
+            (element as any)._jsplumbid = id;
+        }
+        return id;
+    }
+
+    getId (element:string | E, uuid?:string/*, doNotCreateIfNotFound?:boolean*/):string {
         if (isString(element)) {
             return element as string;
         }
         if (element == null) {
             return null;
         }
+
+        // if ((element as any)._jsplumbid != null) {
+        //     return (element as any)._jsplumbid;
+        // }
+
         let id:string = this.getAttribute(element as E, "id");
         if (!id || id === "undefined") {
             // check if fixed uuid parameter is given
@@ -501,13 +516,21 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 id = "jsPlumb_" + this._instanceIndex + "_" + this._idstamp();
             }
 
-            if (!doNotCreateIfNotFound) {
+            //(element as any)._jsplumbid = id;
+
+            //if (!doNotCreateIfNotFound) {
                 this.setAttribute(element as E, "id", id);
-            }
+            //}
         }
         return id;
     }
 
+    /**
+     * Set the id of the given element. Changes all the refs etc. Why is this ene
+     * @param el
+     * @param newId
+     * @param doNotSetAttribute
+     */
     setId (el:string | E, newId:string, doNotSetAttribute?:boolean):void {
         //
         let id:string, _el:E;
@@ -527,6 +550,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         if (!doNotSetAttribute) {
             _el = this.getElement(id);
+            //(_el as any)._jsplumbid = id;
             this.setAttribute(_el, "id", newId);
         }
         else {
@@ -561,6 +585,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     getCachedData(elId:string):{o:Offset, s:Size} {
+
         let o = this._offsets[elId];
         if (!o) {
             return this.updateOffset({elId: elId});
@@ -829,12 +854,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     setSource (connection:Connection<E>, el:E|Endpoint<E>, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 0, doNotRepaint);
-        this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
+        this.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
     }
 
     setTarget (connection:Connection<E>, el:E|Endpoint<E>, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 1, doNotRepaint);
-        this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
+        connection.updateConnectedClass();
     };
 
     isHoverSuspended() { return this.hoverSuspended; }
@@ -853,18 +878,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return curVal;
     }
 
-    // returns whether or not drawing is currently suspended.
-    isSuspendDrawing ():boolean {
-        return this._suspendDrawing;
-    }
-
     // return time for when drawing was suspended.
     getSuspendedAt ():string {
         return this._suspendedAt;
     }
 
     batch (fn:Function, doNotRepaintAfterwards?:boolean):void {
-        const _wasSuspended = this.isSuspendDrawing();
+        const _wasSuspended = this._suspendDrawing === true;
         if (!_wasSuspended) {
             this.setSuspendDrawing(true);
         }
@@ -909,7 +929,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     updateOffset(params?:UpdateOffsetOptions):UpdateOffsetResult {
 
-        let timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
+        let timestamp = params.timestamp,
+            recalc = params.recalc,
+            offset = params.offset,
+            elId = params.elId,
+            s;
+
+
         if (this._suspendDrawing && !timestamp) {
             timestamp = this._suspendedAt;
         }
@@ -1026,47 +1052,28 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
     }
 
-    manage (id:ElementSpec<E>, element?:E):void {
-
-        let _one = (id:string | E, element?:E) => {
-            let _id:string, _element:E;
-
-            if (!isString(id)) {
-                _id = this.getId(id as E);
-                _element = id as E;
-            } else {
-                _id = id as string;
-                _element = element;
-            }
-
-            if (!this._managedElements[_id]) {
-                this._managedElements[_id] = {
-                    el: _element,
-                    endpoints: [],
-                    connections: []
+    manage (...elements:Array<ElementSpec<E>>):void {
+        elements.forEach((element:ElementSpec<E>) => {
+            const el:E = IS.aString(element) ? this.getElementById(element as string) : element as E;
+            const elId = this.getId(el);
+            if (!this._managedElements[elId]) {
+                this._managedElements[elId] = {
+                    el:el,
+                    endpoints:[],
+                    connections:[]
                 };
 
-                // dont compute size now if drawing suspend (to avoid any reflows)
-                if (this.isSuspendDrawing()) {
-                    this._sizes[_id] = [0,0];
-                    this._offsets[_id] = {left:0,top:0};
-                    this._managedElements[_id].info = {o:this._offsets[_id], s:this._sizes[_id]};
+                if (this._suspendDrawing) {
+                    this._sizes[elId] = [0,0];
+                    this._offsets[elId] = {left:0,top:0};
+                    this._managedElements[elId].info = {o:this._offsets[elId], s:this._sizes[elId]};
                 } else {
-                    this._managedElements[_id].info = this.updateOffset({elId: _id, timestamp: this._suspendedAt});
+                    this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: this._suspendedAt});
                 }
 
-                this.setAttribute(_element, Constants.ATTRIBUTE_MANAGED, "");
+                this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "");
             }
-        };
-
-        if ((<any>id).length != null && !IS.aString(id)) {
-            for (let i = 0; i < (<any>id).length; i++) {
-                _one((<any>id)[i]);
-            }
-        } else {
-            _one(<any>id, element);
-        }
-
+        });
     }
 
     unmanage (id:string):void {
@@ -1083,7 +1090,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         let ep = new Endpoint(this, _p);
         ep.id = "ep_" + this._idstamp();
-        this.manage(_p.elementId, _p.source);
+        this.manage(_p.source);
 
         return ep;
     }
@@ -1141,7 +1148,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
 
         for (elId in this.endpointsByElement) {
-            this._draw(elId, null, timestamp);
+            this._draw(elId, null, timestamp, true);
         }
 
         return this;
@@ -1155,11 +1162,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
      */
     abstract _getAssociatedElements(el:E):Array<E>;
 
-    _draw(element:string | E, ui?:any, timestamp?:string) {
+    _draw(element:string | E, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean) {
 
         if (!this._suspendDrawing) {
-            let id = this.getId(element),
-                el = this.getElement(element),
+
+            let id = typeof element === "string" ? element as string : this.getId(element),
+                el = typeof element === "string" ? this.getElementById(element as string) : element as E,//this.getElement(element),
                 repaintEls = this._getAssociatedElements(el),
                 repaintOffsets = [];
 
@@ -1167,10 +1175,21 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 timestamp = _timestamp();
             }
 
-            // update the offset of everything _before_ we try to draw anything.
-            this.updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
-            for (let i = 0; i < repaintEls.length; i++) {
-                repaintOffsets.push(this.updateOffset({ elId: this.getId(repaintEls[i]), recalc: true, timestamp: timestamp }).o);
+            if (!offsetsWereJustCalculated) {
+                // update the offset of everything _before_ we try to draw anything.
+                this.updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp});
+                for (let i = 0; i < repaintEls.length; i++) {
+                    repaintOffsets.push(this.updateOffset({
+                        elId: this.getId(repaintEls[i]),
+                        recalc: true,
+                        timestamp: timestamp
+                    }).o);
+                }
+            } else {
+                for (let i = 0; i < repaintEls.length; i++) {
+                    const reId = this.getId(repaintEls[i]);
+                    repaintOffsets.push({o: this._offsets[reId], s: this._sizes[reId]});
+                }
             }
 
             this.anchorManager.redraw(id, ui, timestamp, null);
@@ -1291,39 +1310,31 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    addEndpoint(el:ElementSpec<E>, params?:EndpointOptions<E>, referenceParams?:EndpointOptions<E>):Endpoint<E>{
+    addEndpoint(el:string|E, params?:EndpointOptions<E>, referenceParams?:EndpointOptions<E>):Endpoint<E>{
         referenceParams = referenceParams || {} as EndpointOptions<E>;
         let p:EndpointOptions<E> = extend({}, referenceParams);
         extend(p, params);
         p.endpoint = p.endpoint || this.Defaults.endpoint;
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
-        //delete p.label; // not supported on endpoint
+        let _p = extend({source:el}, p);
+        let id = this.getId(_p.source);
+        this.manage(el);
+        let e = this.newEndpoint(_p, id);
 
-        let ep:Array<Endpoint<E>> = [];
+        addToList(this.endpointsByElement, id, e);
 
-        this.each(el, (_el:E) => {
-            let _p = extend({source:_el}, p);
-            let id = this.getId(_p.source);
-            this.manage(id, _el);
-            let e = this.newEndpoint(_p, id);
+        if (!this._suspendDrawing) {
+            let myOffset = this._managedElements[id].info.o;
+            e.paint({
+                anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: this._sizes[id], element: e, timestamp: this._suspendedAt }),
+                timestamp: this._suspendedAt
+            });
+        }
 
-            addToList(this.endpointsByElement, id, e);
-
-            if (!this._suspendDrawing) {
-                let myOffset = this._managedElements[id].info.o;
-                e.paint({
-                    anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: this._sizes[id], element: e, timestamp: this._suspendedAt }),
-                    timestamp: this._suspendedAt
-                });
-            }
-
-            ep.push(e);
-        });
-
-        return ep[0];
+        return e;
     }
 
-    addEndpoints(el:ElementSpec<E>, endpoints:Array<EndpointOptions<E>>, referenceParams?:any):Array<Endpoint<E>> {
+    addEndpoints(el:E, endpoints:Array<EndpointOptions<E>>, referenceParams?:any):Array<Endpoint<E>> {
         let results:Array<Endpoint<E>> = [];
         for (let i = 0, j = endpoints.length; i < j; i++) {
             results.push(this.addEndpoint(el, endpoints[i], referenceParams));
@@ -1365,12 +1376,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     connect (params:any, referenceParams?:any):Connection<E> {
 
         // prepare a final set of parameters to create connection with
-     //   (console as any).cTimeStart("prepare connection params");
 
         let _p = this._prepareConnectionParams(params, referenceParams), jpc:Connection<E>;
-
-     //   (console as any).cTimeEnd("prepare connection params");
-
         // TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
         // will return null (and log something) if either endpoint was full.  what would be nicer is to
         // create a dedicated 'error' object.
@@ -1385,18 +1392,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             }
 
             // create the connection.  it is not yet registered
-        //    (console as any).cTimeStart("create connection");
-
             jpc = this._newConnection(_p);
-
-        //    (console as any).cTimeEnd("create connection");
 
             // now add it the model, fire an event, and redraw
 
-        //    (console as any).cTimeStart("finalise connection");
             this._finaliseConnection(jpc, _p);
-
-        //    (console as any).cTimeEnd("finalise connection");
         }
 
 
@@ -2132,10 +2132,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         if (index === 0) {
             // TODO why are there two differently named methods? Why is there not one method that says "some end of this
             // connection changed (you give the index), and here's the new element and element id."
-            this.anchorManager.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
+            this.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
         }
         else {
-            this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, originalElementId, proxyElId, connection);
+            connection.updateConnectedClass();
             connection.target = proxyEl;
             connection.targetId = proxyElId;
         }
@@ -2168,10 +2168,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         if (index === 0) {
             // TODO why are there two differently named methods? Why is there not one method that says "some end of this
             // connection changed (you give the index), and here's the new element and element id."
-            this.anchorManager.sourceChanged(proxyElId, originalElementId, connection, originalElement);
+            this.sourceChanged(proxyElId, originalElementId, connection, originalElement);
         }
         else {
-            this.anchorManager.updateOtherEndpoint(connection.endpoints[0].elementId, proxyElId, originalElementId, connection);
+            connection.updateConnectedClass();
             connection.target = originalElement;
             connection.targetId = originalElementId;
         }
@@ -2186,6 +2186,14 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         // cleanup
         connection.proxies.length = 0;
+    }
+
+    sourceChanged (originalId:string, newId:string, connection:any, newElement:any):void {
+        if (originalId !== newId) {
+            connection.sourceId = newId;
+            connection.source = newElement;
+            connection.updateConnectedClass();
+        }
     }
 
 // ------------------------ GROUPS --------------
