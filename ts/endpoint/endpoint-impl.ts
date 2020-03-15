@@ -51,6 +51,8 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     scope:string;
     timestamp:string;
 
+    maxConnections:number;
+
     connectorClass:string;
     connectorHoverClass:string;
 
@@ -99,7 +101,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         });
 
         this._jsPlumb.enabled = !(params.enabled === false);
-        this._jsPlumb.visible = true;
+        this.visible = true;
         this.element = this.instance.getElement(params.source);
         this._jsPlumb.uuid = params.uuid;
         this._jsPlumb.floatingEndpoint = null;
@@ -185,15 +187,20 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     }
 
     private _updateAnchorClass ():void {
-        // stash old, get new
-        let oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this._jsPlumb.currentAnchorClass;
-        this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
-        let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
+        const ac = this.anchor.getCssClass();
+        if (ac != null && ac.length > 0) {
+            // stash old, get new
+            let oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this._jsPlumb.currentAnchorClass;
+            this._jsPlumb.currentAnchorClass = ac;
+            let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
 
-        this.removeClass(oldAnchorClass);
-        this.addClass(anchorClass);
-        this.instance.removeClass(this.element, oldAnchorClass);
-        this.instance.addClass(this.element, anchorClass);
+            if (oldAnchorClass !== anchorClass) {
+                this.removeClass(oldAnchorClass);
+                this.addClass(anchorClass);
+                this.instance.removeClass(this.element, oldAnchorClass);
+                this.instance.addClass(this.element, anchorClass);
+            }
+        }
     }
 
     private prepareAnchor (anchorParams:any):Anchor<E> {
@@ -224,9 +231,17 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     }
 
     addConnection(conn:Connection<E>) {
+        const wasFull = this.isFull();
         this.connections.push(conn);
         this[(this.connections.length > 0 ? "add" : "remove") + "Class"](this.instance.endpointConnectedClass);
-        this[(this.isFull() ? "add" : "remove") + "Class"](this.instance.endpointFullClass);
+        if (this.isFull()) {
+            if (!wasFull) {
+                this.addClass(this.instance.endpointFullClass);
+            }
+        } else if (wasFull) {
+            this.removeClass(this.instance.endpointFullClass);
+        }
+
     }
 
     detachFromConnection (connection:Connection<E>, idx?:number, doNotCleanup?:boolean):void {
@@ -305,7 +320,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.connectionType = t.connectionType;
 
         if (t.maxConnections != null) {
-            this._jsPlumb.maxConnections = t.maxConnections;
+            this.maxConnections = t.maxConnections;
         }
         if (t.scope) {
             this.scope = t.scope;
@@ -344,7 +359,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     }
 
     isFull():boolean {
-        return this._jsPlumb.maxConnections === 0 ? true : !(this.isFloating() || this._jsPlumb.maxConnections < 0 || this.connections.length < this._jsPlumb.maxConnections);
+        return this.maxConnections === 0 ? true : !(this.isFloating() || this.maxConnections < 0 || this.connections.length < this.maxConnections);
     }
 
     isFloating():boolean {
