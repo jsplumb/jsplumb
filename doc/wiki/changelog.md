@@ -14,11 +14,17 @@ individually, we now use a single event listener on the container.
 
 - The `empty` method was removed.
 
+- The `jtk-endpoint-anchor` css class is not added to endpoints when the associated anchor did not declare a class. It is still
+used when the anchor has declared a class (eg `jtk-endpoint-anchor-foo`), but otherwise it is not added. Without the anchor's class
+suffix `jtk-endpoint-anchor` was just a shadow of `jtk-endpoint` - use `jtk-endpoint` instead.
+
 - The `deleteEveryEndpoint` method was removed. Functionally, it was identical to `reset`. Use `reset`.
 
 - `connector-pointer-events` not supported on Endpoint definitions.
 
 - `labelStyle` is no longer supported. Use `cssClass` and CSS tricks.
+
+- `addEndpoint` does not support a list of elements as the first argument - only a single element is supported.
 
 - By default, every node is draggable. `.draggable(someElement)` no longer exists.
 
@@ -47,9 +53,9 @@ the defaults into line with the parameters used in method calls like `connect` a
 - Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
 for every scope that is assigned.
 
-- jsPlumbUtil is no longer a static member on the window.
+- `jsPlumbUtil` is no longer a static member on the window.
 
-- setId no longer takes a "selector", that is an array-like argument. You must now pass in a single id, or element.
+- `setId` no longer supports an array-like argument. You must now pass in a single id, or element.
 
 
 ### New Functionality
