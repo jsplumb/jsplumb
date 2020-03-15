@@ -158,13 +158,11 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         instance.manage(this.source);
         instance.manage(this.target);
 
-        this._jsPlumb.visible = true;
+        this.visible = true;
 
         this._jsPlumb.params = {
             cssClass: params.cssClass,
-            //container: params.container,
             "pointer-events": params["pointer-events"],
-            //editorParams: params.editorParams,
             overlays: params.overlays
         };
         this._jsPlumb.lastPaintedAt = null;
@@ -543,9 +541,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                 }
             }
 
-            if (!doNotChangeListenerComponent) {
-                this.setListenerComponent(this.connector);
-            }
             if (!doNotRepaint) {
                 this.repaint();
             }
@@ -559,7 +554,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
     paint(params:any) {
 
-        if (!this.instance._suspendDrawing && this._jsPlumb.visible) {
+        if (!this.instance._suspendDrawing && this.visible !== false) {
 
             params = params || {};
             let timestamp = params.timestamp;
