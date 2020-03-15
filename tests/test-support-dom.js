@@ -55,7 +55,7 @@
     };
 
     var getConnectionCanvas = function(c) {
-        return c.getConnector().renderer.canvas;
+        return c.connector.renderer.canvas;
     };
 
     var getCanvas = function(epOrEl) {
