@@ -124,23 +124,23 @@ var testSuite = function () {
         ok(o != null, "overlay exists");
     });
 
-    test(': create two simple endpoints, registered using a selector', function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        _jsPlumb.addClass(d1, "window");
-        _jsPlumb.addClass(d2, "window");
-        var endpoints = _jsPlumb.addEndpoint(_jsPlumb.getSelector(".window"), {});
-        support.assertEndpointCount("d1", 1);
-        support.assertEndpointCount("d2", 1);
-    });
-
-    test(': create two simple endpoints, registered using an array of element ids', function () {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        _jsPlumb.addClass(d1, "window");
-        _jsPlumb.addClass(d2, "window");
-        var endpoints = _jsPlumb.addEndpoint(["d1", "d2"], {});
-        support.assertEndpointCount("d1", 1);
-        support.assertEndpointCount("d2", 1);
-    });
+    // test(': create two simple endpoints, registered using a selector', function () {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     _jsPlumb.addClass(d1, "window");
+    //     _jsPlumb.addClass(d2, "window");
+    //     var endpoints = _jsPlumb.addEndpoint(_jsPlumb.getSelector(".window"), {});
+    //     support.assertEndpointCount("d1", 1);
+    //     support.assertEndpointCount("d2", 1);
+    // });
+    //
+    // test(': create two simple endpoints, registered using an array of element ids', function () {
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     _jsPlumb.addClass(d1, "window");
+    //     _jsPlumb.addClass(d2, "window");
+    //     var endpoints = _jsPlumb.addEndpoint(["d1", "d2"], {});
+    //     support.assertEndpointCount("d1", 1);
+    //     support.assertEndpointCount("d2", 1);
+    // });
 
     test(' jsPlumb.remove after element removed from DOM', function () {
         var d = document.createElement("div");
@@ -1107,10 +1107,10 @@ var testSuite = function () {
     test(': addEndpoint, blank css class on anchor does not add extra prefix ', function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, { anchor: [0, 0, 1, 1, 0, 0  ]});
-        ok(_jsPlumb.hasClass(support.getEndpointCanvas(ep), "jtk-endpoint-anchor"), "class set on endpoint");
-        ok(_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class set on element");
-        _jsPlumb.deleteEndpoint(ep);
-        ok(!_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class removed from element");
+        ok(!_jsPlumb.hasClass(support.getEndpointCanvas(ep), "jtk-endpoint-anchor"), "class not set on endpoint, as anchor class is null");
+        ok(!_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class not set on endpoint, as anchor class is null");
+        // _jsPlumb.deleteEndpoint(ep);
+        // ok(!_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class removed from element");
     });
 
     test(': connect, jsplumb connected class added to elements', function () {
@@ -1795,11 +1795,11 @@ var testSuite = function () {
     });
 
 
-    test(": _jsPlumb.addEndpoint (empty array)", function () {
-        _jsPlumb.addEndpoint([], {isSource: true});
-        _jsPlumb.repaintEverything();
-        expect(0);
-    });
+    // test(": _jsPlumb.addEndpoint (empty array)", function () {
+    //     _jsPlumb.addEndpoint([], {isSource: true});
+    //     _jsPlumb.repaintEverything();
+    //     expect(0);
+    // });
 
     test(": _jsPlumb.addEndpoints (with reference params)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
@@ -6276,7 +6276,7 @@ var testSuite = function () {
     
 
     test(" : DOM adapter addClass/hasClass/removeClass/toggleClass", function () {
-        var d1 = support.addDiv(d1), _d1 = [ d1 ];
+        var d1 = support.addDiv(d1);//, _d1 = [ d1 ];
 
         // add a single class and test for its existence	
         _jsPlumb.addClass(d1, "FOO");
@@ -6284,7 +6284,7 @@ var testSuite = function () {
         ok(_jsPlumb.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method");
 
         // add multiple classes and test for their existence
-        _jsPlumb.addClass(_d1, "BAZ BAR SHAZ");
+        _jsPlumb.addClass(d1, "BAZ BAR SHAZ");
         ok(_jsPlumb.hasClass(d1, "BAZ"), "element has class BAZ, according to hasClass method, DOM element");
         ok(_jsPlumb.hasClass(d1, "BAR"), "element has class BAR, according to hasClass method, DOM element");
         ok(_jsPlumb.hasClass(d1, "SHAZ"), "element has class SHAZ, according to hasClass method, DOM element");
