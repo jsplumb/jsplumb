@@ -28,9 +28,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var ep = _jsPlumb.addEndpoint(d1, {anchor: [0, 0, 1, 1, 0, 0]});
         //ok(_jsPlumb.hasClass(support.getEndpointCanvas(ep), "jtk-endpoint-anchor"), "class set on endpoint");
-        ok(_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class set on element");
-        _jsPlumb.deleteEndpoint(ep);
-        ok(!_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "class removed from element");
+        ok(!_jsPlumb.hasClass(d1, "jtk-endpoint-anchor"), "jtk-endpoint-anchor class not set on element since anchor doesnt have a class");
     });
 
     test(": jsPlumb.remove, element identified by string", function () {
