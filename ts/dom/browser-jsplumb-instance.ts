@@ -276,16 +276,16 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         if (el != null && clazz != null && clazz.length > 0) {
 
-            this.each(el, (_el:HTMLElement) => {
-                if (_el.classList) {
+            //this.each(el, (_el:HTMLElement) => {
+                if (el.classList) {
                     let classes = Array.isArray(clazz) ? clazz : fastTrim(clazz).split(/\s+/);
-                    (<any>window).DOMTokenList.prototype.add.apply(_el.classList, classes);
+                    (<any>window).DOMTokenList.prototype.add.apply(el.classList, classes);
 
                 } else {
-                    _classManip(_el, clazz);
+                    _classManip(el, clazz);
                 }
 
-            });
+            //});
 
         }
     }
@@ -301,13 +301,13 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     removeClass(el:HTMLElement, clazz:string):void {
         if (el != null && clazz != null && clazz.length > 0) {
-            this.each(el, (_el:HTMLElement) => {
-                if (_el.classList) {
-                    (<any>window).DOMTokenList.prototype.remove.apply(_el.classList, clazz.split(/\s+/));
+            //this.each(el, (_el:HTMLElement) => {
+                if (el.classList) {
+                    (<any>window).DOMTokenList.prototype.remove.apply(el.classList, clazz.split(/\s+/));
                 } else {
-                    _classManip(_el, null, clazz);
+                    _classManip(el, null, clazz);
                 }
-            });
+        //    });
         }
     }
 
@@ -338,9 +338,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     setAttributes(el:HTMLElement, atts:Dictionary<string>) {
         for (let i in atts) {
-            if (atts.hasOwnProperty(i)) {
-                el.setAttribute(i, atts[i]);
-            }
+            el.setAttribute(i, atts[i]);
         }
     }
 
@@ -489,6 +487,9 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     }
 
     getDragScope(el:any):string {
+
+        console.log("REGRESSION: getDragScope will not work now that individual elements are not configured as draggables");
+
         return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
     }
 
