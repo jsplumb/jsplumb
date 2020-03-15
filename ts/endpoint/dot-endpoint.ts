@@ -30,7 +30,7 @@ export class DotEndpoint<E> extends EndpointRepresentation<E, ComputedDotEndpoin
             w = this.radius * 2,
             h = this.radius * 2;
 
-        if (endpointStyle.stroke) {
+        if (endpointStyle && endpointStyle.stroke) {
             let lw = endpointStyle.strokeWidth || 1;
             x -= lw;
             y -= lw;
