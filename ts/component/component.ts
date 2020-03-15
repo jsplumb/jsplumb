@@ -102,7 +102,10 @@ function _applyTypes<E>(component:Component<E>, params?:any, doNotRepaint?:boole
     if (component.getDefaultType) {
         let td = component.getTypeDescriptor(), map = {};
         let defType = component.getDefaultType();
-        let o = merge({}, defType);
+
+        //let o = merge({}, defType);
+        let o = extend({}, defType);
+
         _mapType(map, defType, "__default");
         for (let i = 0, j = component._jsPlumb.types.length; i < j; i++) {
             let tid = component._jsPlumb.types[i];
@@ -190,11 +193,8 @@ export abstract class Component<E> extends EventGenerator {
     
     typeId:string;
 
-    protected displayElements:Array<E> = [];
-    overlayPlacements:Array<any> = [];
     paintStyle:PaintStyle;
     hoverPaintStyle:PaintStyle;
-    domListeners:Array<any> = [];
     paintStyleInUse:PaintStyle;
 
     data:any;
@@ -262,13 +262,6 @@ export abstract class Component<E> extends EventGenerator {
             this.constructor.apply(o, [instance, params]);
             return o;
         };
-
-    }
-
-    setListenerComponent (c:any) {
-        for (let i = 0; i < this.domListeners.length; i++) {
-            this.domListeners[i][3] = c;
-        }
     }
 
     isDetachAllowed(connection:Connection<E>):boolean {
@@ -338,14 +331,6 @@ export abstract class Component<E> extends EventGenerator {
         return this._jsPlumb.typeCache[typeId] ? this._jsPlumb.typeCache[typeId][key] : null;
     }
 
-    getDisplayElements() {
-        return this.displayElements;
-    }
-
-    appendDisplayElement (el:E) {
-        this.displayElements.push(el);
-    };
-
     setType(typeId:string, params?:any, doNotRepaint?:boolean) {
         this.clearTypes();
         this._jsPlumb.types = _splitType(typeId) || [];
@@ -365,15 +350,15 @@ export abstract class Component<E> extends EventGenerator {
     }
 
     addType(typeId:string, params?:any, doNotRepaint?:boolean):void {
-        let t = _splitType(typeId), _cont = false;
+        let t = _splitType(typeId), _somethingAdded = false;
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
                 if (!this.hasType(t[i])) {
                     this._jsPlumb.types.push(t[i]);
-                    _cont = true;
+                    _somethingAdded = true;
                 }
             }
-            if (_cont) {
+            if (_somethingAdded) {
                 _applyTypes(this, params, doNotRepaint);
             }
         }
