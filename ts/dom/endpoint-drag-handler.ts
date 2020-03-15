@@ -353,7 +353,8 @@ export class EndpointDragHandler implements DragHandler {
         
         let boundingRect;
         // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
-        this.instance.getSelector(this.instance.getContainer(), ".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach((candidate:any) => {
+        this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach((candidate:any) => {
+        //this.instance.getSelector(this.instance.getContainer(), ".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach((candidate:any) => {
             //if (candidate !== this.ep.canvas && candidate !== _currentInstance.floatingEndpoint.canvas) {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
                 const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
@@ -376,7 +377,8 @@ export class EndpointDragHandler implements DragHandler {
         selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
         //}
 
-        this.instance.getSelector(this.instance.getContainer(), selectors.join(",")).forEach((candidate:any) => {
+        //this.instance.getSelector(this.instance.getContainer(), selectors.join(",")).forEach((candidate:any) => {
+        this.instance.getContainer().querySelectorAll(selectors.join(",")).forEach((candidate:any) => {
 
             //if (candidate !== this.ep.element) {
                 const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
@@ -499,7 +501,7 @@ export class EndpointDragHandler implements DragHandler {
             this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
         
             // fire an event that informs that a connection is being dragged. we do this before
-            // rthis.eplacing the original target with the floating element info.
+            // replacing the original target with the floating element info.
             this.instance.fire("connectionDrag", this.jpc);
         
             // now we rthis.eplace ourselves with the temporary div we created above:
