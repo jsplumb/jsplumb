@@ -119,7 +119,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         //
         if (o.type === "Label") {
 
-            //HTMLElementOverlay.getElement(o as any, o.component); //params.component.appendDisplayElement(this.canvas);   probably need this - it helps to know which elements should be hiddne/shown on visibility change
             this.getLabelElement(o as LabelOverlay<HTMLElement>);
 
             const XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
