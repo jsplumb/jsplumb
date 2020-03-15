@@ -39,8 +39,7 @@ export abstract class SvgComponent {
             "style": "",
             "width": "0",
             "height": "0",
-            "pointer-events": "none",
-            "position": "absolute"
+            "pointer-events": "none"
         });
 
         this.clazz = params.cssClass;
