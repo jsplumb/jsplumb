@@ -494,8 +494,12 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.setHover(false);
             // new anchor idx
             const anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1;
-            this.ep.detachFromConnection(this.jpc, null, true);                         // detach from the connection while dragging is occurring. but dont cleanup automatically.
-        
+
+            // detach from the connection while dragging is occurring. but dont cleanup automatically.
+            this.ep.detachFromConnection(this.jpc, null, true);
+            // attach the connection to the floating endpoint.
+            this.floatingEndpoint.addConnection(this.jpc);
+
             // store the original scope (issue 57)
             const dragScope = this.instance.getDragScope(canvasElement);
             this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
@@ -504,7 +508,7 @@ export class EndpointDragHandler implements DragHandler {
             // replacing the original target with the floating element info.
             this.instance.fire("connectionDrag", this.jpc);
         
-            // now we rthis.eplace ourselves with the temporary div we created above:
+            // now we replace ourselves with the temporary div we created above:
             if (anchorIdx === 0) {
                 this.existingJpcParams = [ this.jpc.source, this.jpc.sourceId, canvasElement, dragScope ];
                 this.instance.sourceChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element);
@@ -638,8 +642,7 @@ export class EndpointDragHandler implements DragHandler {
             }
 
             // is this an existing connection? try to reattach, if desired.
-            //this._maybeReattach(idx, originalEvent);
-            this._doForceReattach(idx, originalEvent);
+            this._doForceReattach(idx);
 
         } else {
             // otherwise throw it away (and throw away any endpoints attached to it that should be thrown away when they are no longer
@@ -676,9 +679,7 @@ export class EndpointDragHandler implements DragHandler {
 
                     // if we are dropping back on the original endpoint, force a reattach.
                     if (suspendedEndpoint && (suspendedEndpoint.id === dropEndpoint.id)) {
-                        //this.jpc._forceReattach = true;
-                        //this._maybeReattach(idx, originalEvent);
-                        this._doForceReattach(idx, originalEvent);
+                        this._doForceReattach(idx);
                     } else {
 
                         if (!dropEndpoint.isEnabled()) {
@@ -876,7 +877,9 @@ export class EndpointDragHandler implements DragHandler {
         return dropEndpoint;
     }
 
-    _doForceReattach(idx:number, originalEvent?:Event):void {
+    _doForceReattach(idx:number):void {
+
+        this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true);
 
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
         this.jpc.setHover(false);
@@ -906,7 +909,6 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     _shouldReattach(originalEvent?:Event):boolean {
-        //return this.jpc.isReattach() || this.jpc._forceReattach || !this.instance.deleteConnection(this.jpc, {originalEvent: originalEvent});
         return this.jpc.isReattach() || this.jpc._forceReattach || !functionChain(true, false, [
             [ this.jpc.endpoints[0], Constants.IS_DETACH_ALLOWED, [ this.jpc ] ],
             [ this.jpc.endpoints[1], Constants.IS_DETACH_ALLOWED, [ this.jpc ] ],
