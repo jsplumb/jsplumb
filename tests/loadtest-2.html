@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+    <title>jsPlumb load test - No Library</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <link rel="stylesheet" href="../css/jsPlumb.css">
+</head>
+<body class="loadtest">
+
+<style>
+    #output {
+        z-index: 500;
+        background-color: white;
+        position: fixed;
+        left: 0;
+        opacity: 0.9;
+        top: 0;
+        right: 0;
+    }
+
+    #btnTest {
+        position:fixed;
+        top:92px;
+        right:50px;
+        z-index:500;
+    }
+    #btnReset {
+        position:fixed;
+        top:92px;
+        right:0;
+        z-index:500;
+    }
+
+    #setup {
+        position: fixed;
+        right: 0;
+        top: 112px;
+        z-index: 5000;
+        background-color: white;
+    }
+</style>
+<div>
+    <div id="setup">
+        <table>
+            <tr>
+                <td>Anchors</td>
+                <td>
+                    <label><input type="radio" value="normal" name="anchors" checked>normal</label>
+                    <label><input type="radio" value="dynamic" name="anchors">dynamic</label>
+                    <label><input type="radio" value="continuous" name="anchors">continuous</label>
+                </td>
+            </tr>
+            <tr>
+                <td>Number of elements</td>
+                <td><input id="txtElements" value="10"></td>
+            </tr>
+            <tr>
+                <td>Suspend Drawing?</td>
+                <td>
+                    <label><input type="radio" name="chkSuspend" value="yes" checked>Yes</label>
+                    <label><input type="radio" name="chkSuspend" value="no">No</label>
+                </td>
+            </tr>
+            <tr>
+                <td>Paint jsPlumb artefacts?</td>
+                <td>
+                    <label><input type="radio" name="chkPaint" value="yes" checked>Yes</label>
+                    <label><input type="radio" name="chkPaint" value="no">No</label>
+                </td>
+            </tr>
+            <tr>
+                <td>setLabel?</td>
+                <td>
+                    <label><input value="yes" type="radio" name="chkLabel" checked>yes</label>
+                    <label><input value="no" type="radio" name="chkLabel">no</label>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="output">
+        <table colspacing="20">
+            <tr>
+                <td colspan="2">Num Connections:</td>
+                <td colspan="2" id="numConnections"></td>
+                <td colspan="2">Num Endpoints:</td>
+                <td colspan="2" id="numEndpoints"></td>
+                <td colspan="2">Num Elements:</td>
+                <td colspan="2" id="numElements"></td>
+            </tr>
+            <tr>
+                <td>Reset time:</td>
+                <td id="resetTime"></td>
+                <td>Total time:</td>
+                <td id="totalCreateTime"></td>
+            </tr>
+
+            <tr>
+                <td>Element Create time:</td>
+                <td id="elementCreateTime"></td>
+                <td>Average element create time:</td>
+                <td id="averageElementCreateTime"></td>
+            </tr>
+            <tr>
+                <td>Endpoint Create time:</td>
+                <td id="epCreateTime"></td>
+                <td>Average endpoint create time:</td>
+                <td id="averageEpCreateTime"></td>
+            </tr>
+            <tr>
+                <td>Connection Create time:</td>
+                <td id="createTime"></td>
+                <td>Average connection create time:</td>
+                <td id="averageCreateTime"></td>
+            </tr>
+            <tr>
+                <td>Repaint time:</td>
+                <td id="repaintTime"></td>
+                <td>Average Repaint time:</td>
+                <td id="averageRepaintTime"></td>
+            </tr>
+        </table>
+    </div>
+    <button id="btnTest">Run Test</button>
+    <button id="btnReset">Reset</button>
+</div>
+
+<div id="demo"></div>
+
+<!-- JS -->
+<script src="../node_modules/mottle/js/mottle.js"></script>
+<script src="../node_modules/katavorio/src/katavorio.js"></script>
+<script src="../dist/js/jsplumb.js"></script>
+<!-- /JS -->
+
+<!--  load test code -->
+<script src="loadtest2.js"></script>
+
+
+</body>
+</html>
