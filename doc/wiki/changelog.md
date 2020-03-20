@@ -1,3 +1,9 @@
+## 2.13.0
+
+March 20th 2020
+
+- upgrade to Mottle 1.0.1
+
 ## 2.12.14
 
 March 2nd 2020
