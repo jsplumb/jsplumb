@@ -1126,7 +1126,7 @@
                 obj.__tamee[evt][fn.__tauid] = fn;
             };
         },
-        isTouchDevice = "ontouchstart" in document.documentElement,
+        isTouchDevice = "ontouchstart" in document.documentElement || navigator.maxTouchPoints,
         isMouseDevice = "onmousedown" in document.documentElement,
         touchMap = { "mousedown": "touchstart", "mouseup": "touchend", "mousemove": "touchmove" },
         touchstart = "touchstart", touchend = "touchend", touchmove = "touchmove",
@@ -4329,7 +4329,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.12.14";
+        this.version = "2.13.0";
 
         this.Defaults = {
             Anchor: "Bottom",
