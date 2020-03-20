@@ -63,7 +63,7 @@ export class ContinuousAnchorFactory<E> {
         this.continuousAnchorLocations[endpointId] = pos;
     }
 
-    get(instance:jsPlumbInstance<E>, params?:any):ContinuousAnchor<E>{
+    get(instance:jsPlumbInstance<E>, params?:any):ContinuousAnchor {
         return new ContinuousAnchor(instance, params);
     }
 }
@@ -338,7 +338,7 @@ export class AnchorManager<E> {
                             this.anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] };
                         }
                         this._updateAnchorList(this.anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [anEndpoint, anEndpoint], paint: function () {
-                        }}, false, elementId, 0, false, (<ContinuousAnchor<E>>anEndpoint.anchor).getDefaultFace(), connectionsToPaint, endpointsToPaint);
+                        }}, false, elementId, 0, false, (<ContinuousAnchor>anEndpoint.anchor).getDefaultFace(), connectionsToPaint, endpointsToPaint);
                         anchorsToUpdate.add(elementId);
                     }
 

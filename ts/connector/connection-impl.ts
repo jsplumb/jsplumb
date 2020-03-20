@@ -703,7 +703,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         return e;
     }
 
-    private _makeAnchor(spec:AnchorSpec, elementId?:string):Anchor<E> {
+    private _makeAnchor(spec:AnchorSpec, elementId?:string):Anchor {
         return spec != null ? makeAnchorFromSpec(this.instance, spec, elementId) : null;
     }
 

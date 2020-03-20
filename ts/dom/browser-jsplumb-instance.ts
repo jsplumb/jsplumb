@@ -13,10 +13,14 @@ import { UIGroup } from "../group/group";
 declare const Mottle:any;
 
 export interface DragEventCallbackOptions {
-    drag: object; // The associated Drag instance
+    drag: {
+        size: [ number, number ];
+        getDragElement: () => HTMLElement;
+    }; // The associated Drag instance
     e: MouseEvent;
     el: HTMLElement; // element being dragged
     pos: [number, number]; // x,y location of the element. drag event only.
+
 }
 
 export interface DragOptions {

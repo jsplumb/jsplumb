@@ -43,7 +43,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
     connections:Array<Connection<E>> = [];
     connectorPointerEvents:string;
-    anchor:Anchor<E>;
+    anchor:Anchor;
     endpoint:EndpointRepresentation<E, any>;
     element:E;
     elementId:string;
@@ -203,16 +203,16 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         }
     }
 
-    private prepareAnchor (anchorParams:any):Anchor<E> {
+    private prepareAnchor (anchorParams:any):Anchor {
         let a = makeAnchorFromSpec(this.instance, anchorParams, this.elementId);
-        a.bind("anchorChanged", (currentAnchor:Anchor<E>) => {
+        a.bind("anchorChanged", (currentAnchor:Anchor) => {
             this.fire("anchorChanged", {endpoint: this, anchor: currentAnchor});
             this._updateAnchorClass();
         });
         return a;
     }
 
-    setPreparedAnchor (anchor:Anchor<E>, doNotRepaint?:boolean):Endpoint<E> {
+    setPreparedAnchor (anchor:Anchor, doNotRepaint?:boolean):Endpoint<E> {
         this.instance.anchorManager.continuousAnchorFactory.clear(this.elementId);
         this.anchor = anchor;
         this._updateAnchorClass();
@@ -459,7 +459,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
                 let ap = params.anchorLoc, connectorPaintStyle = params.connectorPaintStyle;
                 if (ap == null) {
                     let wh = params.dimensions || info.s,
-                        anchorParams:AnchorComputeParams<E> = { xy: [ xy.left, xy.top ], wh: wh, element: this, timestamp: timestamp };
+                        anchorParams:AnchorComputeParams = { xy: [ xy.left, xy.top ], wh: wh, element: this, timestamp: timestamp };
                     if (recalc && this.anchor.isDynamic && this.connections.length > 0) {
                         let c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
                             oIdx = c.endpoints[0] === this ? 1 : 0,

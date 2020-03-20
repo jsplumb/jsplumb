@@ -3,7 +3,7 @@ import {EventGenerator} from "../event-generator";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, ComputedAnchorPosition,  Orientation } from "../factory/anchor-factory";
 
-export class Anchor<E> extends EventGenerator {
+export class Anchor extends EventGenerator {
 
     type: AnchorId;
     isDynamic: boolean = false;
@@ -22,9 +22,9 @@ export class Anchor<E> extends EventGenerator {
 
     positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:PointArray, constructorParams:any) => any;
 
-    clone:() => Anchor<E>;
+    clone:() => Anchor;
 
-    constructor(public instance:jsPlumbInstance<E>,  params?:AnchorOptions) {
+    constructor(public instance:jsPlumbInstance<any>,  params?:AnchorOptions) {
         super();
         params = params || {};
         this.cssClass = params.cssClass || "";
@@ -35,11 +35,11 @@ export class Anchor<E> extends EventGenerator {
     }
 
 
-    getOrientation(endpoint?: Endpoint<E>): Orientation {
+    getOrientation(endpoint?: Endpoint<any>): Orientation {
         return this.orientation;
     }
 
-    getCurrentLocation(params:AnchorComputeParams<E>):ComputedAnchorPosition {
+    getCurrentLocation(params:AnchorComputeParams):ComputedAnchorPosition {
         params = params || {};
         return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp !== params.timestamp)) ? this.compute(params) : this.lastReturnValue;
     }
@@ -53,7 +53,7 @@ export class Anchor<E> extends EventGenerator {
         }
     }
 
-    compute (params:AnchorComputeParams<E>):ComputedAnchorPosition {
+    compute (params:AnchorComputeParams):ComputedAnchorPosition {
 
         let xy = params.xy, wh = params.wh, timestamp = params.timestamp;
 
@@ -67,7 +67,7 @@ export class Anchor<E> extends EventGenerator {
         return this.lastReturnValue;
     }
 
-    equals(anchor:Anchor<E>):boolean {
+    equals(anchor:Anchor):boolean {
         if (!anchor) {
             return false;
         }
@@ -85,7 +85,7 @@ export class Anchor<E> extends EventGenerator {
     unlock ():void { this.locked = false; };
     isLocked ():boolean { return this.locked; };
 
-    over (anchor:Anchor<E>, endpoint:Endpoint<E>):void { }
+    over (anchor:Anchor, endpoint:Endpoint<any>):void { }
 
     out ():void { }
 }

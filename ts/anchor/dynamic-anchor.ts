@@ -10,14 +10,14 @@ import {
 import {jsPlumbInstance, PointArray} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
 
-export interface DynamicAnchorOptions<E> extends AnchorOptions {
-    selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor<E>>) => Anchor<E>;
+export interface DynamicAnchorOptions extends AnchorOptions {
+    selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => Anchor;
     elementId?:string;
-    anchors:Array<Anchor<E>>;
+    anchors:Array<Anchor>;
 }
 
 // helper method to calculate the distance between the centers of the two elements.
-function _distance<E>(anchor:Anchor<E>, cx:number, cy:number, xy:PointArray, wh:PointArray):number {
+function _distance(anchor:Anchor, cx:number, cy:number, xy:PointArray, wh:PointArray):number {
 
     let ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]),
         acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2);
@@ -25,7 +25,7 @@ function _distance<E>(anchor:Anchor<E>, cx:number, cy:number, xy:PointArray, wh:
     return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)));
 }
 
-const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor<any>>) => {
+const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => {
     let cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
     let minIdx = -1, minDist = Infinity;
     for (let i = 0; i < anchors.length; i++) {
@@ -38,19 +38,19 @@ const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, t
     return anchors[minIdx];
 };
 
-function _convertAnchor<E>(anchor:Anchor<E> | AnchorSpec, instance:jsPlumbInstance<E>, elementId:string):Anchor<E> {
-    return anchor instanceof Anchor ? (anchor as Anchor<E>) : makeAnchorFromSpec(instance, anchor as AnchorSpec, elementId);
+function _convertAnchor(anchor:Anchor | AnchorSpec, instance:jsPlumbInstance<any>, elementId:string):Anchor {
+    return anchor instanceof Anchor ? (anchor as Anchor) : makeAnchorFromSpec(instance, anchor as AnchorSpec, elementId);
 }
 
-export class DynamicAnchor<E> extends Anchor<E> {
+export class DynamicAnchor extends Anchor {
 
-    anchors:Array<Anchor<E>>;
-    private _curAnchor:Anchor<E>;
-    private _lastAnchor:Anchor<E>;
+    anchors:Array<Anchor>;
+    private _curAnchor:Anchor;
+    private _lastAnchor:Anchor;
 
-    private _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor<E>>) => Anchor<E> = null;
+    private _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => Anchor = null;
 
-    constructor(public instance:jsPlumbInstance<E>, options:DynamicAnchorOptions<E>) {
+    constructor(public instance:jsPlumbInstance<any>, options:DynamicAnchorOptions) {
         super(instance, options);
 
         this.isDynamic = true;
@@ -75,11 +75,11 @@ export class DynamicAnchor<E> extends Anchor<E> {
 
     }
 
-    getAnchors ():Array<Anchor<E>> {
+    getAnchors ():Array<Anchor> {
         return this.anchors;
     }
 
-    compute (params:AnchorComputeParams<E>):ComputedAnchorPosition {
+    compute (params:AnchorComputeParams):ComputedAnchorPosition {
         let xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh;
 
         this.timestamp = params.timestamp;
@@ -107,15 +107,15 @@ export class DynamicAnchor<E> extends Anchor<E> {
         return this._curAnchor.compute(params);
     };
 
-    getCurrentLocation (params:AnchorComputeParams<E>):ComputedAnchorPosition {
+    getCurrentLocation (params:AnchorComputeParams):ComputedAnchorPosition {
         return (this._curAnchor != null ? this._curAnchor.getCurrentLocation(params) : null);
     };
 
-    getOrientation (_endpoint?:Endpoint<E>):Orientation {
+    getOrientation (_endpoint?:Endpoint<any>):Orientation {
         return this._curAnchor != null ? this._curAnchor.getOrientation(_endpoint) : [ 0, 0 ];
     }
 
-    over (anchor:Anchor<E>, endpoint:Endpoint<E>):void {
+    over (anchor:Anchor, endpoint:Endpoint<any>):void {
         if (this._curAnchor != null) {
             this._curAnchor.over(anchor, endpoint);
         }
@@ -127,11 +127,21 @@ export class DynamicAnchor<E> extends Anchor<E> {
         }
     }
 
-    setAnchor (a:Anchor<E>):void {
+    setAnchor (a:Anchor):void {
         this._curAnchor = a;
     }
 
     getCssClass ():string {
         return (this._curAnchor && this._curAnchor.getCssClass()) || "";
+    }
+
+    setAnchorCoordinates (coords: PointArray) {
+        const idx = this.anchors.findIndex((a:Anchor) => a.x === coords[0] && a.y === coords[1]);
+        if (idx !== -1) {
+            this.setAnchor(this.anchors[idx]);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -5,13 +5,13 @@ import {Endpoint} from "../endpoint/endpoint-impl";
 
 
 export interface FloatingAnchorOptions<E> extends AnchorOptions {
-    reference:Anchor<E>;
+    reference:Anchor;
     referenceCanvas:E;
 }
 
-export class FloatingAnchor<E> extends Anchor<E> {
+export class FloatingAnchor<E> extends Anchor {
 
-    ref:Anchor<E>;
+    ref:Anchor;
     refCanvas:E;
     size:Size;
     xDir:number;
@@ -42,7 +42,7 @@ export class FloatingAnchor<E> extends Anchor<E> {
 
         // clear from parent. we want floating anchor orientation to always be computed.
             this.orientation = null;
-            this._lastResult = null
+            this._lastResult = null;
 
         // set these to 0 each; they are used by certain types of connectors in the loopback case,
         // when the connector is trying to clear the element it is on. but for floating anchor it's not
@@ -56,7 +56,7 @@ export class FloatingAnchor<E> extends Anchor<E> {
 
 
 
-    compute(params:AnchorComputeParams<E>):ComputedAnchorPosition {
+    compute(params:AnchorComputeParams):ComputedAnchorPosition {
         let xy = params.xy,
             result = [ xy[0] + (this.size[0] / 2), xy[1] + (this.size[1] / 2), 0, 0 ] as ComputedAnchorPosition; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
         this._lastResult = result;
@@ -82,7 +82,7 @@ export class FloatingAnchor<E> extends Anchor<E> {
      * over another anchor; we want to assume that anchor's orientation
      * for the duration of the hover.
      */
-    over (anchor:Anchor<E>, endpoint:Endpoint<E>) {
+    over (anchor:Anchor, endpoint:Endpoint<E>) {
         this.orientation = anchor.getOrientation(endpoint);
     }
 
@@ -95,7 +95,7 @@ export class FloatingAnchor<E> extends Anchor<E> {
         this.orientation = null;
     }
 
-    getCurrentLocation (params:AnchorComputeParams<E>):ComputedAnchorPosition {
+    getCurrentLocation (params:AnchorComputeParams):ComputedAnchorPosition {
         return this._lastResult == null ? this.compute(params) : this._lastResult;
     }
 }

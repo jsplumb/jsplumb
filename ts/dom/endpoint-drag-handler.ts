@@ -14,7 +14,7 @@ import * as Constants from "../constants";
 import {EVENT_MAX_CONNECTIONS} from "../constants";
 import {intersects} from "../geom";
 
-function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor<HTMLElement>, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
+function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas });
     //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
     // adding the floating endpoint as a droppable.  that makes more sense anyway!

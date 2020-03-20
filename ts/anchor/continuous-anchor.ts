@@ -15,7 +15,7 @@ const clockwiseOptions:Dictionary<Face> = {"top": "right", "right": "bottom", "l
 const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "left": "bottom", "bottom": "right"};
 
 
-export class ContinuousAnchor<E> extends Anchor<E> {
+export class ContinuousAnchor extends Anchor {
 
     type:AnchorId  = "Continuous";
     isDynamic:boolean = true;
@@ -31,14 +31,14 @@ export class ContinuousAnchor<E> extends Anchor<E> {
 
     private availableFaces:FACE_MAP = {};
 
-    constructor(public instance:jsPlumbInstance<E>, anchorParams:ContinuousAnchorOptions) {
+    constructor(public instance:jsPlumbInstance<any>, anchorParams:ContinuousAnchorOptions) {
 
         super(instance, anchorParams);
 
         this.faces = anchorParams.faces || ["top", "right", "bottom", "left"];
         this.clockwise = !(anchorParams.clockwise === false);
         this.secondBest = this.clockwise ? clockwiseOptions : antiClockwiseOptions;
-        this.lastChoice = this.clockwise ? antiClockwiseOptions : clockwiseOptions;;
+        this.lastChoice = this.clockwise ? antiClockwiseOptions : clockwiseOptions;
         this._currentFace = null;
         this._lockedFace = null;
         this._lockedAxis = null;
@@ -129,7 +129,7 @@ export class ContinuousAnchor<E> extends Anchor<E> {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0];
     }
 
-    getOrientation (endpoint?:Endpoint<E>):Orientation {
+    getOrientation (endpoint?:Endpoint<any>):Orientation {
         return this.instance.anchorManager.continuousAnchorOrientations[endpoint.id] || [0, 0];
     }
 

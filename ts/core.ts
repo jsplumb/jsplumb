@@ -1757,7 +1757,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     // really just exposed for testing
-    makeAnchor(spec:AnchorSpec, elementId?:string):Anchor<E> {
+    makeAnchor(spec:AnchorSpec, elementId?:string):Anchor {
         return makeAnchorFromSpec(this, spec, elementId);
     }
 
