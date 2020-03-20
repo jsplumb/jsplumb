@@ -105,7 +105,7 @@
                 actuallyPaint = val("input[name='chkPaint']:checked") === "yes";
 
             instance.importDefaults({
-                container: "demo",
+                //container: "demo",
                 overlays:[ "Arrow" ]
             });
 
@@ -161,7 +161,7 @@
                 div.style.backgroundColor = "#123";
                 document.getElementById("demo").appendChild(div);
 
-                //instance.manage(div);
+                instance.manage(div);
 
                 elements.push(div);
             }
@@ -187,7 +187,7 @@
                     paintStyle:{
                         strokeWidth:1, stroke:"red"
                     },
-                    connector:"Bezier"
+                    connector:"Straight"
                 }));
             }
             t2 = new Date().getTime();
