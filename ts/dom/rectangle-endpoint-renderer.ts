@@ -1,34 +1,20 @@
 import {registerEndpointRenderer} from "./browser-renderer";
 import {_attr, _node} from "../svg/svg-util";
 import {PaintStyle} from "../styles";
-import {SvgComponentOptions} from "../svg/svg-component";
-import {ComputedRectangleEndpoint, RectangleEndpoint} from "../endpoint/rectangle-endpoint";
 import {jsPlumbInstance} from "../core";
-import {SvgEndpoint} from "./svg-element-endpoint";
-import {Endpoint} from "../endpoint/endpoint-impl";
 
-/**
- * SVG DOM element Dot endpoint renderer.
- */
-class SvgElementRectangleEndpointRenderer extends SvgEndpoint<ComputedRectangleEndpoint> {
-
-    constructor(protected endpoint:Endpoint<HTMLElement>, public ep:RectangleEndpoint<HTMLElement>, options?:SvgComponentOptions) {
-        super(endpoint, ep, options);
-    }
-
-    makeNode (style:PaintStyle) {
-        return _node(this.instance, "rect", {
-            "width": this.ep.w,
-            "height": this.ep.h
+registerEndpointRenderer("Rectangle", {
+    makeNode :(instance:jsPlumbInstance<any>, ep:any, style:PaintStyle) => {
+        return _node(instance, "rect", {
+            "width": ep.w,
+            "height": ep.h
         });
-    }
+    },
 
-    updateNode (node:SVGElement) {
+    updateNode :(ep:any, node:SVGElement) => {
         _attr(node, {
-            "width": this.ep.w,
-            "height": this.ep.h
+            "width": ep.w,
+            "height": ep.h
         });
     }
-}
-
-registerEndpointRenderer("Rectangle", SvgElementRectangleEndpointRenderer);
+});
