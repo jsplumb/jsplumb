@@ -396,7 +396,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             endpointHoverStyle: null,
             endpointHoverStyles: [ null, null ],
             hoverPaintStyle: null,
-            overlays: [ ],
             maxConnections: 1,
             paintStyle: { strokeWidth: 2, stroke: "#456" },
             reattachConnections: false,
@@ -997,7 +996,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                     return connection.id === _c.id;
                 });
 
-                connection.cleanup();
                 connection.destroy();
                 return true;
             }
@@ -1257,8 +1255,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
                 c.endpoints[0].detachFromConnection(c, null, doNotCleanup);
                 c.endpoints[1].detachFromConnection(c, null, doNotCleanup);
-
-                c.cleanup(true);
                 c.destroy(true);
             }
         }
@@ -1269,7 +1265,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             if (e._jsPlumb) {
                 this.unregisterEndpoint(e);
                 // FIRE some endpoint deleted event?
-                e.cleanup(true);
                 e.destroy(true);
             }
         }
