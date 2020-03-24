@@ -23,7 +23,6 @@ export interface jsPlumbDefaults {
 
     endpointOverlays?: Array<OverlaySpec>;
     connectionOverlays?: Array<OverlaySpec>;
-    overlays?: Array<OverlaySpec>;
 
     container?: any; // string(selector or id) or element
     connector?:ConnectorSpec;
