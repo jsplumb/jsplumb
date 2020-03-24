@@ -14,10 +14,6 @@ export interface Renderer<E> {
 
     getPath(segment:Segment, isFirstSegment:boolean):string;
 
-    assignRenderer<C>(endpoint:Endpoint<E>, ep: EndpointRepresentation<E, C>): EndpointRenderer<E>;
-
-    assignConnectorRenderer(instance:jsPlumbInstance<E>, c:AbstractConnector<E>):ConnectorRenderer<E>;
-
     repaint(component:Component<E>, typeDescriptor:string, options?:RepaintOptions):void;
 
     paintOverlay(o: Overlay<E>, params:any, extents:any):void;
@@ -30,21 +26,23 @@ export interface Renderer<E> {
     moveOverlayParent(o:Overlay<E>, newParent:E):void;
 
     paintConnector(connector:AbstractConnector<E>, paintStyle:PaintStyle, extents?:any):void;
-
     setConnectorHover(connector:AbstractConnector<E>, h:boolean):void;
-    cleanupConnector(connector:AbstractConnector<E>, force?:boolean):void;
     destroyConnector(connector:AbstractConnector<E>, force?:boolean):void;
-
     addConnectorClass(connector:AbstractConnector<E>, clazz:string):void;
-
     removeConnectorClass(connector:AbstractConnector<E>, clazz:string):void;
-    //getClass():string;
-
     setConnectorVisible(connector:AbstractConnector<E>, v:boolean):void;
-
     applyConnectorType(connector:AbstractConnector<E>, t:TypeDescriptor):void;
 
     moveConnectorParent(connector:AbstractConnector<E>, newParent:E):void;
+    moveEndpointParent<C>(endpoint:EndpointRepresentation<E,C>, newParent:E):void;
+
+    setEndpointHover<C>(endpoint:EndpointRepresentation<E, C>, h: boolean):void;
+    applyEndpointType<C>(ep:EndpointRepresentation<E,C>, t:TypeDescriptor):void;
+    setEndpointVisible<C>(ep:EndpointRepresentation<E,C>, v:boolean):void;
+    destroyEndpoint<C>(ep:EndpointRepresentation<E,C>):void;
+    paintEndpoint<C>(ep:EndpointRepresentation<E,C>, paintStyle:PaintStyle):void;
+    addEndpointClass<C>(ep:EndpointRepresentation<E,C>, c:string):void;
+    removeEndpointClass<C>(ep:EndpointRepresentation<E,C>, c:string):void;
 
 
 }
