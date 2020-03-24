@@ -9,11 +9,11 @@ export abstract class SVGElementOverlay {
             let parent:SVGElement = null;
 
             if (o.component instanceof Connection) {
-                let connector = (o.component as Connection<HTMLElement>).getConnector().renderer as SvgElementConnector;
-                parent = connector.svg;
+                let connector = (o.component as Connection<HTMLElement>).getConnector();// as SvgElementConnector;
+                parent = (connector as any).canvas;
             } else if (o.component instanceof Endpoint) {
-                let endpoint = (o.component as Endpoint<HTMLElement>).endpoint.renderer as SvgEndpoint<HTMLElement>;
-                parent = endpoint.svg;
+                let endpoint = (o.component as Endpoint<HTMLElement>).endpoint;//.renderer as SvgEndpoint<HTMLElement>;
+                parent = (endpoint as any).svg;
             }
 
             if (parent != null) {
