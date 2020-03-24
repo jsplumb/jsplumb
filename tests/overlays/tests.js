@@ -135,6 +135,10 @@ var testSuite = function () {
         ok(c.getOverlay("arrow2") != null, "Arrow overlay created from connection defaults");
     });
 
+    test("overlay visible tests", function() {
+        equal(1, 0, "you need to do a test for overlay visible, both toggling it and also specifying it in endpoint/connector defs");
+    });
+
 
     test(": _jsPlumb.connect (default overlays + default connection overlays)", function () {
         _jsPlumb.Defaults.connectionOverlays = [
