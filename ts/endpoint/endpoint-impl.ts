@@ -81,7 +81,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     deleteOnEmpty:boolean;
 
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number];
-    getDefaultOverlayKeys () { return ["overlays", "endpointOverlays"]; }
+    getDefaultOverlayKey () { return "endpointOverlays"; }
 
     constructor(public instance:jsPlumbInstance<E>, params:EndpointOptions<E>) {
         super(instance, params);
@@ -339,15 +339,16 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this._jsPlumb.enabled = e;
     }
 
-    cleanup(force?:boolean):void {
-        super.cleanup(force);
-
+    destroy(force?:boolean):void {
         let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
         this.instance.removeClass(this.element, anchorClass);
         this.anchor = null;
-        this.endpoint.cleanup(true);
-        this.endpoint.destroy();
+        if(this.endpoint != null) {
+            this.instance.renderer.destroyEndpoint(this.endpoint);
+        }
         this.endpoint = null;
+
+        super.destroy(force);
     }
 
 
@@ -485,11 +486,11 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
                 // paint overlays
                 for (let i in this._jsPlumb.overlays) {
                     if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                        // let o = this._jsPlumb.overlays[i];
-                        // if (o.isVisible()) {
-                        //     this._jsPlumb.overlayPlacements[i] = o.draw(this.endpoint, this._jsPlumb.paintStyleInUse);
-                        //     o.paint(this._jsPlumb.overlayPlacements[i]);
-                        // }
+                        let o = this._jsPlumb.overlays[i];
+                        if (o.isVisible()) {
+                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                            this.instance.renderer.paintOverlay(o, this._jsPlumb.overlayPlacements[i], {xmin:0, ymin:0});
+                        }
                     }
                 }
             }
@@ -550,8 +551,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
     setPreparedEndpoint<C>(ep:EndpointRepresentation<E, C>) {
         if (this.endpoint != null) {
-            this.endpoint.cleanup();
-            this.endpoint.destroy();
+            this.instance.renderer.destroyEndpoint(this.endpoint);
         }
         this.endpoint = ep;
         //this.type = this.endpoint.type;
@@ -575,7 +575,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     }
 
     moveParent(newParent:E):void {
-        this.endpoint.renderer.moveParent(newParent);
+        this.instance.renderer.moveEndpointParent(this.endpoint, newParent);
         super.moveParent(newParent);
     }
 }
