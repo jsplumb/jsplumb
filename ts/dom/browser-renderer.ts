@@ -3,30 +3,33 @@ import {Segment} from "../connector/abstract-segment";
 import {BezierSegment} from "../connector/bezier-segment";
 import {ArcSegment} from "../connector/arc-segment";
 import {Component, RepaintOptions} from "../component/component";
-import {EndpointRenderer} from "../endpoint/endpoint-renderer";
 import {EndpointRepresentation} from "../endpoint/endpoints";
 import {SvgEndpoint} from "./svg-element-endpoint";
-import {Constructable, Dictionary, jsPlumbInstance, TypeDescriptor} from "../core";
+import {Dictionary, jsPlumbInstance, TypeDescriptor} from "../core";
 import {Overlay} from "../overlay/overlay";
 import {HTMLElementOverlay} from "./html-element-overlay";
 import {SVGElementOverlay} from "./svg-element-overlay";
-import {ConnectorRenderer} from "../connector/connector-renderer";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
 import {LabelOverlay} from "../overlay/label-overlay";
-import {Endpoint} from "../endpoint/endpoint-impl";
-import {IS, isFunction, PaintStyle} from "..";
-import {ImageEndpoint} from "../endpoint/image-endpoint";
-import {DOMImageEndpointRenderer} from "./image-endpoint-renderer";
+import {BrowserJsPlumbInstance, IS, isFunction, PaintStyle} from "..";
 import {CustomOverlay} from "../overlay/custom-overlay";
 
-const endpointMap:Dictionary<Constructable<SvgEndpoint<any>>> = {};
-export function registerEndpointRenderer<C>(name:string, ep:Constructable<SvgEndpoint<C>>) {
-    endpointMap[name] = ep;
+export type EndpointHelperFunctions = {
+    makeNode:(instance:jsPlumbInstance<any>, ep:any, paintStyle:PaintStyle) => void,
+    updateNode: (ep:any, node:SVGElement) => void
+};
+
+const endpointMap:Dictionary<EndpointHelperFunctions> = {};
+export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunctions) {
+    endpointMap[name] = fns;
 }
 
-
 export class BrowserRenderer implements Renderer<HTMLElement> {
+
+    // this isnt the cleanest - the instance has to set this after creation, as this is created in the instance's constructor, so it
+    // cant be passed in at the time.
+    instance: BrowserJsPlumbInstance;
 
     getPath(segment:Segment, isFirstSegment:boolean):string {
         return ({
@@ -51,29 +54,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     repaint(component: Component<HTMLElement>, typeDescriptor: string, options?: RepaintOptions): void {
         console.log("doing a repaint of " + typeDescriptor);
-    }
-
-
-    assignRenderer<C>(endpoint:Endpoint<HTMLElement>,
-                      ep: EndpointRepresentation<HTMLElement, C>,
-                     options?:any): EndpointRenderer<HTMLElement> {
-
-        let t = ep.getType();
-
-        if (t === "Image") {
-            return new DOMImageEndpointRenderer(endpoint, (<unknown>ep) as ImageEndpoint<HTMLElement>, options);
-        }
-
-        let c:Constructable<SvgEndpoint<C>> = endpointMap[t];
-        if (!c) {
-            throw {message:"jsPlumb: no render for endpoint of type '" + t + "'"};
-        } else {
-            return new c(endpoint, ep, options) as SvgEndpoint<C>;
-        }
-    }
-
-    assignConnectorRenderer(instance: jsPlumbInstance<HTMLElement>, c: AbstractConnector<HTMLElement>): ConnectorRenderer<HTMLElement> {
-        return new SvgElementConnector(instance, c);
     }
 
     private getLabelElement(o:LabelOverlay<HTMLElement>):HTMLElement {
@@ -115,7 +95,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
     paintOverlay(o: Overlay<HTMLElement>, params:any, extents:any):void {
-       // console.log("painting overlay!");
+
         //
         if (o.type === "Label") {
 
@@ -149,8 +129,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         } else {
             throw "Could not paint overlay of type [" + o.type + "]";
         }
-
-
     }
 
     setOverlayVisible(o: Overlay<HTMLElement>, visible:boolean):void {
@@ -170,8 +148,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         // dont need to do anything with other types.
     }
 
-
-
     destroyOverlay(o: Overlay<HTMLElement>):void {
         if (o.type === "Label") {
             const el = this.getLabelElement(o as LabelOverlay<HTMLElement>);
@@ -190,19 +166,22 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     drawOverlay(o: Overlay<HTMLElement>, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any {
         if (o.type === "Label"|| o.type === "Custom") {
-            //console.log("draw label");
 
-            //  TO DO - move to a static method, or a shared method, etc.
+            //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
 
             let td = HTMLElementOverlay._getDimensions(o as any);//._getDimensions();
             if (td != null && td.length === 2) {
-                let cxy = { x: 0, y: 0 };
 
-                // absolutePosition would have been set by a call to connection.setAbsoluteOverlayPosition.
+                let cxy = {x: 0, y: 0};
                 if (absolutePosition) {
-                    cxy = { x: absolutePosition[0], y: absolutePosition[1] };
-                }
-                else if ((<any>component).pointOnPath != null) {
+                    cxy = {x: absolutePosition[0], y: absolutePosition[1]};
+                } else if (component instanceof EndpointRepresentation) {
+                    let locToUse: [number, number] = o.location.constructor === Array ? ((<unknown>o.location) as [number, number]) : o.endpointLocation || [o.location, o.location];
+                    cxy = {
+                        x: locToUse[0] * component.w,
+                        y: locToUse[1] * component.h
+                    };
+                } else {
                     let loc = o.location, absolute = false;
                     if (IS.aString(o.location) || o.location < 0 || o.location > 1) {
                         loc = parseInt("" + o.location, 10);
@@ -210,18 +189,13 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
                     }
                     cxy = (<any>component).pointOnPath(loc as number, absolute);  // a connection
                 }
-                else {
-                    let locToUse:[number, number] = o.location.constructor === Array ? ((<unknown>o.location) as [number, number]) : o.endpointLocation;
-                    cxy = { x: locToUse[0] * component.w,
-                        y: locToUse[1] * component.h };
-                }
 
                 let minx = cxy.x - (td[0] / 2),
                     miny = cxy.y - (td[1] / 2);
 
                 return {
                     component: o,
-                    d: { minx: minx, miny: miny, td: td, cxy: cxy },
+                    d: {minx: minx, miny: miny, td: td, cxy: cxy},
                     minX: minx,
                     maxX: minx + td[0],
                     minY: miny,
@@ -231,7 +205,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             else {
                 return {minX: 0, maxX: 0, minY: 0, maxY: 0};
             }
-
 
         } else if (o.type === "Arrow") {
             return (o as any).draw(component, paintStyle, absolutePosition);
@@ -251,7 +224,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             } else {
                 this.getLabelElement(o).innerHTML = "";
             }
-
         }
         else {
             if (o.labelText == null) {
@@ -261,46 +233,63 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
                 } else {
                     this.getLabelElement(o).innerHTML = "";
                 }
-
             }
         }
     }
 
-    paintConnector(connector:AbstractConnector<HTMLElement>, paintStyle:PaintStyle, extents?:any):void {
-        const el = SvgElementConnector.getConnectorElement(connector);
+    // ------------------------------- connectors ---------------------------------------------------------
 
+
+    paintConnector(connector:AbstractConnector<HTMLElement>, paintStyle:PaintStyle, extents?:any):void {
+        //const el = SvgElementConnector.getConnectorElement(connector);
+        //if (el != null) {
+
+            //connectorRenderers[connector.type].paint(connector, el, paintStyle, extents);
+            SvgElementConnector.paint(connector, paintStyle, extents);
+
+        // } else {
+        //     console.log("JSPLUMB: cannot paint connector of type [" + connector.type + "]; SVG element is null");
+        // }
+        //debugger;
     }
 
     setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean):void {
 
     }
 
-    cleanupConnector(connector:AbstractConnector<HTMLElement>, force?:boolean):void {
+    private cleanup(component: any) {
+        if (component.canvas) {
+            component.canvas.parentNode.removeChild(component.canvas);
+        }
 
+        delete component.canvas;
+        delete component.svg;
     }
-    destroyConnector(connector:AbstractConnector<HTMLElement>, force?:boolean):void {
 
+    destroyConnector(connector:AbstractConnector<HTMLElement>):void {
+        this.cleanup(connector);
     }
 
     addConnectorClass(connector:AbstractConnector<HTMLElement>, clazz:string):void {
-
+        if ((connector as any).canvas) {
+            this.instance.addClass((connector as any).canvas, clazz);
+        }
     }
 
     removeConnectorClass(connector:AbstractConnector<HTMLElement>, clazz:string):void {
-
+        if ((connector as any).canvas) {
+            this.instance.removeClass((connector as any).canvas, clazz);
+        }
     }
-    //getClass():string;
+
+    private setVisible(component: any, v:boolean) {
+        if (component.canvas) {
+            component.canvas.style.display = v ? "block" : "none";
+        }
+    }
 
     setConnectorVisible(connector:AbstractConnector<HTMLElement>, v:boolean):void {
-        const c:any = connector as any;
-
-        if (c.canvas) {
-            c.canvas.style.display = v ? "block" : "none";
-        }
-
-        if (c.bgCanvas) {
-            c.bgCanvas.style.display = v ? "block" : "none";
-        }
+        this.setVisible(connector, v);
     }
 
     applyConnectorType(connector:AbstractConnector<HTMLElement>, t:TypeDescriptor):void {
@@ -310,5 +299,52 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     moveConnectorParent(connector:AbstractConnector<HTMLElement>, newParent:HTMLElement):void {
 
     }
+
+    addEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>, c: string): void {
+        if ((ep as any).canvas) {
+            this.instance.addClass((ep as any).canvas, c);
+        }
+    }
+
+    applyEndpointType<C>(ep: EndpointRepresentation<HTMLElement, C>, t: TypeDescriptor): void {
+    }
+
+    destroyEndpoint<C>(ep: EndpointRepresentation<HTMLElement, C>): void {
+        this.cleanup(ep);
+    }
+
+    paintEndpoint<C>(ep: EndpointRepresentation<HTMLElement, C>, paintStyle: PaintStyle): void {
+        const renderer = endpointMap[ep.getType()];
+        if (renderer != null) {
+            SvgEndpoint.paint(ep, renderer, paintStyle);
+        } else {
+            console.log("JSPLUMB: no endpoint renderer found for type [" + ep.typeId  + "]");
+        }
+
+    }
+
+    moveEndpointParent<C>(endpoint:EndpointRepresentation<HTMLElement,C>, newParent:HTMLElement):void {
+
+    }
+
+    removeEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>, c: string): void {
+        if ((ep as any).canvas) {
+            this.instance.removeClass((ep as any).canvas, c);
+        }
+    }
+
+    setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean): void {
+    }
+
+    setEndpointVisible<C>(ep: EndpointRepresentation<HTMLElement, C>, v: boolean): void {
+        this.setVisible(ep, v);
+    }
+
+
+    // TODO this isnt ideal, not pluggable. different representations should reguster t
+
+// -------------------------------------------------- endpoints -------------------------------------
+
+
 }
 
