@@ -12,6 +12,9 @@ export class BlankEndpoint<E> extends EndpointRepresentation<E, ComputedBlankEnd
         super(endpoint);
     }
 
+    //
+    // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+    // it would be much more lightweight as we'd not need to create a class for each one.
     _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):ComputedBlankEndpoint {
 
         this.x = anchorPoint[0];
