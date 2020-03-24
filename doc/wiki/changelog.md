@@ -26,7 +26,8 @@ suffix `jtk-endpoint-anchor` was just a shadow of `jtk-endpoint` - use `jtk-endp
 
 - `addEndpoint` does not support a list of elements as the first argument - only a single element is supported.
 
-- By default, every node is draggable. `.draggable(someElement)` no longer exists.
+- By default, every node is draggable. `.draggable(someElement)` no longer exists. You can make an element not draggable by setting a `jtk-not-draggable`
+attribute on it. It doesn't matter what the value of the attribute is, just its presence is all that is required.
 
 - It is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
 first element to which an endpoint is added.
@@ -56,6 +57,14 @@ for every scope that is assigned.
 - `jsPlumbUtil` is no longer a static member on the window.
 
 - `setId` no longer supports an array-like argument. You must now pass in a single id, or element.
+
+- there is no "Image" endpoint in 4.x. You can achieve this via a 'Blank' endpoint with a css class. Or if you find you cannot and you can't think of
+any alternative, we could possibly add a 'Custom' endpoint type, with which you could achieve this.
+
+- paint styles for connectors dont support gradients anymore. You can use CSS for this.
+
+- removed 'overlays' default from jsplumb. Use connectionOverlays or endpointOverlays now: not all overlay types are supported by endpoints, so having a
+common set of overlays doesnt make sense.  
 
 
 ### New Functionality
