@@ -77,7 +77,7 @@ jsPlumb.ready(function () {
                     location: [0.5, 1.5],
                     label: "Drag",
                     cssClass: "endpointSourceLabel",
-                    visible:false
+                    visible:true
                 } ]
             ]
         },
