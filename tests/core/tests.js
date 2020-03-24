@@ -1406,50 +1406,9 @@ var testSuite = function () {
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
     });
 
-    test("Image Endpoint remove", function() {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        _jsPlumb.makeSource(d1, {
-            endpoint:[ "Image", { src:"atom.png" }]
-        });
 
-        _jsPlumb.makeTarget(d2, {
-            endpoint:[ "Image", { src:"atom.png" }]
-        });
 
-        var c = _jsPlumb.connect({source:d1, target:d2});
-        var ep = c.endpoints[0];
 
-        var canvas = support.getEndpointCanvas(ep);
-        ok(canvas.parentNode != null, "endpoint 1 is in the DOM");
-
-        _jsPlumb.deleteConnection(c);
-        equal(ep.endpoint, null, "endpoint 1 cleaned up");
-
-        ok(canvas.parentNode == null, "canvas removed from DOM");
-    });
-
-    // Some race condition causes this to fail randomly.
-    // asyncTest(" jsPlumbUtil.setImage on Endpoint, with supplied onload", function() {
-    // var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
-    // e = {
-    // endpoint:[ "Image", {
-    // src:"../demo/home/endpointTest1.png",
-    // onload:function(imgEp) {
-    // _jsPlumb.repaint("d1");
-    // ok(imgEp._jsPlumb.img.src.indexOf("endpointTest1.png") != -1, "image source is correct");
-    // ok(imgEp._jsPlumb.img.src.indexOf("endpointTest1.png") != -1, "image elementsource is correct");
-
-    // imgEp.canvas.setAttribute("id", "iwilllookforthis");
-
-     //_jsPlumb.removeAllEndpoints("d1");
-    // ok(document.getElementById("iwilllookforthis") == null, "image element was removed after remove endpoint");
-    // }
-    // } ]
-    // };
-    // start();
-    // _jsPlumb.addEndpoint(d1, e);
-    // expect(3);
-    // });
 
     test(": setting endpoint uuid", function () {
         var uuid = "14785937583175927504313";
@@ -1830,7 +1789,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.addEndpoints (default overlays)", function () {
-        _jsPlumb.Defaults.overlays = [
+        _jsPlumb.Defaults.endpointOverlays = [
             [ "Label", { id: "label" } ]
         ];
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"),
@@ -1843,7 +1802,7 @@ var testSuite = function () {
 
 
     test(": _jsPlumb.addEndpoints (default overlays)", function () {
-        _jsPlumb.Defaults.overlays = [
+        _jsPlumb.Defaults.endpointOverlays = [
             [ "Label", { id: "label" } ]
         ];
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"),
@@ -2580,12 +2539,13 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, paintStyle:{outlineStroke:"green", outlineWidth:6, strokeWidth:4, stroke:"red"}});
         var has = function (clazz, elName) {
-            var cn = c.getConnector().renderer[elName].className,
+            var canvas = support.getConnectionCanvas(c);
+            var cn = canvas.className,
                 cns = cn.constructor == String ? cn : cn.baseVal;
 
             return cns.indexOf(clazz) != -1;
         };
-        ok(has(_jsPlumb.connectorClass, "canvas"), "basic connector class set correctly");
+        ok(has(_jsPlumb.connectorClass), "basic connector class set correctly");
 
         ok(has("jtk-connector-outline", "bgPath"), "outline canvas set correctly");
         ok(has(_jsPlumb.connectorOutlineClass, "bgPath"), "outline canvas set correctly");
@@ -2595,7 +2555,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, cssClass: "CSS"});
         var has = function (clazz) {
-            var cn = c.getConnector().renderer.canvas.className,
+            var cn = support.getConnectionCanvas(c).className,
                 cns = cn.constructor == String ? cn : cn.baseVal;
 
             return cns.indexOf(clazz) != -1;
@@ -2686,7 +2646,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (default overlays)", function () {
-        _jsPlumb.Defaults.overlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Arrow", { location: 0.1, id: "arrow" }]
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -2696,7 +2656,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (default overlays + overlays specified in connect call)", function () {
-        _jsPlumb.Defaults.overlays = [
+        _jsPlumb.Defaults.connectionOverlays = [
             ["Arrow", { location: 0.1, id: "arrow" }]
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -2731,37 +2691,6 @@ var testSuite = function () {
         ok(c.getOverlay("label") != null, "Label overlay created from connect call");
     });
 
-    test(": _jsPlumb.connect (default overlays + default connection overlays)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
-            ["Arrow", { location: 0.1, id: "arrow" }]
-        ];
-        _jsPlumb.Defaults.overlays = [
-            ["Arrow", { location: 0.1, id: "arrow2" }]
-        ];
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
-            c = _jsPlumb.connect({source: d1, target: d2});
-
-        ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
-        ok(c.getOverlay("arrow2") != null, "Arrow overlay created from connection defaults");
-    });
-
-
-    test(": _jsPlumb.connect (default overlays + default connection overlays)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
-            ["Arrow", { location: 0.1, id: "arrow" }]
-        ];
-        _jsPlumb.Defaults.overlays = [
-            ["Arrow", { location: 0.1, id: "arrow2" }]
-        ];
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
-            c = _jsPlumb.connect({source: d1, target: d2, overlays: [
-                ["Label", {id: "label"}]
-            ]});
-
-        ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
-        ok(c.getOverlay("arrow2") != null, "Arrow overlay created from connection defaults");
-        ok(c.getOverlay("label") != null, "Label overlay created from connect call");
-    });
 
     test(": _jsPlumb.connect (label overlay set using 'label')", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -3904,27 +3833,6 @@ var testSuite = function () {
         _jsPlumb.revalidate(d3);
         equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after axis unlocked");
         equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
-    });
-
-    asyncTest(" setImage on Endpoint, with supplied onload", function () {
-
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), ep,
-            e = {
-                endpoint: [ "Image", {
-                    src: "atom.png",
-                    onload: function (imgEp) {
-                        QUnit.start();
-                        ok(imgEp.img.src.indexOf("atom.png") != -1);
-                        // ep.setImage("littledot.png", function (imgEp) {
-                        //     ok(imgEp._jsPlumb.img.src.indexOf("littledot.png") != -1);
-                        // });
-                    }
-                } ]
-            };
-
-
-        ep = _jsPlumb.addEndpoint(d1, e);
-
     });
 
 
