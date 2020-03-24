@@ -8,8 +8,6 @@ import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {EndpointSpec} from "../endpoint";
 import {ConnectorSpec} from "../connector";
 
-declare const jsPlumbUtil:any;
-
 export type ComponentConfig<E> = {
     paintStyle?:PaintStyle;
     hoverPaintStyle?:PaintStyle;
@@ -175,7 +173,7 @@ export interface ComponentOptions<E> {
 export abstract class Component<E> extends EventGenerator {
 
     abstract getTypeDescriptor():string;
-    abstract getDefaultOverlayKeys():Array<string>;
+    abstract getDefaultOverlayKey():string;
     abstract getAttachedElements():Array<Component<E>>;
     abstract getIdPrefix():string;
     abstract getXY():PointXY;
@@ -231,10 +229,12 @@ export abstract class Component<E> extends EventGenerator {
         this.id = this.getIdPrefix() + (new Date()).getTime();
 
         let o = params.overlays || [], oo = {};
-        let defaultOverlayKeys = this.getDefaultOverlayKeys();
-        if (defaultOverlayKeys) {
-            for (let i = 0; i < defaultOverlayKeys.length; i++) {
-                Array.prototype.push.apply(o, this.instance.Defaults[defaultOverlayKeys[i]] || []);
+        let defaultOverlayKey = this.getDefaultOverlayKey();
+        if (defaultOverlayKey) {
+
+            const defaultOverlays = this.instance.Defaults[defaultOverlayKey];
+            if (defaultOverlays) {
+                o.push(...defaultOverlays);
             }
 
             for (let i = 0; i < o.length; i++) {
@@ -448,10 +448,6 @@ export abstract class Component<E> extends EventGenerator {
 
     getHoverPaintStyle():PaintStyle {
         return this._jsPlumb.hoverPaintStyle;
-    }
-
-    cleanup(force?:boolean):void {
-
     }
 
     destroy(force?:boolean):void {
