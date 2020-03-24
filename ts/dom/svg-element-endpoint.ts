@@ -1,77 +1,93 @@
 import {EndpointRepresentation} from "../endpoint/endpoints";
-import {SvgComponent, SvgComponentOptions} from "../svg/svg-component";
-import {EndpointRenderer} from "../endpoint/endpoint-renderer";
+import {SvgComponent} from "../dom/svg-component";
 import {PaintStyle} from "../styles";
-import {_applyStyles, _attr, _node} from "../svg/svg-util";
-import {ComputedDotEndpoint, DotEndpoint} from "../endpoint/dot-endpoint";
-import {registerEndpointRenderer} from "./browser-renderer";
-import {extend, jsPlumbInstance, TypeDescriptor} from "../core";
-import {Endpoint} from "../endpoint/endpoint-impl";
+import {_applyStyles, _node} from "../svg/svg-util";
+import {EndpointHelperFunctions} from "./browser-renderer";
+import {extend} from "../core";
+import {sizeElement} from "..";
 
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
  * Type specific subclasses are expected to implement a `makeNode` and `updateNode` method,
  * which respectively create the type-specific elements, and update them at paint time.
  */
-export abstract class SvgEndpoint<C> extends SvgComponent implements EndpointRenderer<HTMLElement> {
+export abstract class SvgEndpoint<C> {
 
-    protected node:SVGElement;
+    static getEndpointElement<C>(ep:EndpointRepresentation<HTMLElement, C>):HTMLElement {
+        if ((ep as any).canvas != null) {
+            return (ep as any).canvas;
+        } else {
+            const svg:any = _node(ep.instance, "svg", {
+                "style": "",
+                "width": "0",
+                "height": "0",
+                "pointer-events": "none",
+                "position": "absolute"
+            });
+            (ep as any).svg = svg;
 
-    abstract makeNode(s:PaintStyle):SVGElement;
-    abstract updateNode(s:SVGElement):void;
 
-    instance:jsPlumbInstance<HTMLElement>;
+            const canvas:any = ep.instance.createElement("div", { position : "absolute" });
+            (ep as any).canvas = canvas;
 
-    constructor(protected endpoint:Endpoint<HTMLElement>, protected ep:EndpointRepresentation<HTMLElement, C>, options?:SvgComponentOptions) {
-        super(endpoint.instance, ep, extend(options || {}, { useDivWrapper:true }));
-        this.instance = endpoint.instance;
-        this.instance.addClass(<any>this.canvas, "jtk-endpoint");
-        this.instance.setAttribute(<any>this.svg, "pointer-events", "all");
-        (<any>this.canvas)._jsPlumb = {endpoint:endpoint, ep:ep};
+            const classes = ep.classes.join(" ");
+            ep.instance.addClass(canvas, classes);
 
-        if (endpoint.cssClass != null) {
-            this.instance.addClass(this.canvas, endpoint.cssClass);
+            const scopes = ep.endpoint.scope.split(/\s/);
+            for (let i = 0; i < scopes.length; i++) {
+                ep.instance.setAttribute(<any>canvas, "jtk-scope-" + scopes[i], "true");
+            }
+
+            if (!ep.instance._suspendDrawing) {
+                sizeElement(canvas, 0, 0, 1, 1);
+            }
+
+            //(ep as any).canvas = svg;
+            ep.instance.appendElement(canvas, ep.instance.getContainer());
+            canvas.appendChild(svg);
+
+            // TODO BG CANVAS! does it even need to be a canvas? i suppose not.
+
+            if ((ep as any).cssClass != null) {
+                ep.instance.addClass(canvas, (ep as any).cssClass);
+            }
+            ep.instance.addClass(canvas, ep.instance.endpointClass);
+
+            canvas.jtk = canvas.jtk || { };
+            canvas.jtk.endpoint = ep;
+
+            return canvas as HTMLElement;
         }
-
-        const scopes = endpoint.scope.split(/\s/);
-        for (let i = 0; i < scopes.length; i++) {
-            this.instance.setAttribute(<any>this.canvas, "jtk-scope-" + scopes[i], "true");
-        }
-
-        (<any>this.canvas).jtk = (<any>this.canvas).jtk || { };
-        (<any>this.canvas).jtk.endpoint = ep;
     }
 
-    getElement(): HTMLElement {
-        return <any>this.canvas;
-    }
+    static paint<C>(ep:EndpointRepresentation<HTMLElement, C>, handlers:EndpointHelperFunctions,  paintStyle: PaintStyle): void {
 
-    paint(paintStyle: PaintStyle): void {
+        this.getEndpointElement(ep);
 
-        super.paint(paintStyle);
-
+        SvgComponent.paint(ep, true, paintStyle);
+        //
         let s:PaintStyle = extend({}, paintStyle);
         if (s.outlineStroke) {
             s.stroke = s.outlineStroke;
         }
-
-        if (this.node == null) {
-            this.node = this.makeNode(s);
-            this.svg.appendChild(this.node);
+        //
+        if ((ep as any).node == null) {
+            (ep as any).node = handlers.makeNode(ep.instance, ep, s);
+            (ep as any).svg.appendChild((ep as any).node);
         }
-        else if (this.updateNode != null) {
-            this.updateNode(this.node);
+        else if (handlers.updateNode != null) {
+            handlers.updateNode(ep, (ep as any).node);
         }
 
-        _applyStyles(this.canvas, this.node, s, [ this.ep.x, this.ep.y, this.ep.w, this.ep.h], null);
+        _applyStyles((ep as any).canvas, (ep as any).node, s, [ ep.x, ep.y, ep.w, ep.h], null);
 
     }
 
-    applyType(t: TypeDescriptor): void {
-        if (t.cssClass != null && this.svg) {
-            this.instance.addClass(<any>this.canvas, t.cssClass);
-        }
-    }
+    // applyType(t: TypeDescriptor): void {
+    //     if (t.cssClass != null && this.svg) {
+    //         this.instance.renderer.addEndpointClass(<any>this.canvas, t.cssClass);
+    //     }
+    // }
 
 
 }
