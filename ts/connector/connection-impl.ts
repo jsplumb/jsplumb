@@ -86,7 +86,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
     typeId = "_jsplumb_connection";
     getIdPrefix () { return  "_jsPlumb_c"; }
-    getDefaultOverlayKeys():Array<string> { return ["overlays", "connectionOverlays"] };
+    getDefaultOverlayKey():string { return "connectionOverlays"; };
 
     getXY() {
         return { x:this.connector.x, y:this.connector.y };
@@ -423,21 +423,20 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.repaint();
     }
 
-    cleanup(force?:boolean) {
-        super.cleanup(force);
+    destroy(force?:boolean) {
         this.updateConnectedClass(true);
         this.endpoints = null;
         this.source = null;
         this.target = null;
         if (this.connector != null) {
-            this.connector.cleanup(true);
-            this.connector.destroy(true);
+            this.instance.renderer.destroyConnector(this.connector);
         }
         this.connector = null;
+        super.destroy(force);
     }
 
     moveParent(newParent:E):void {
-        this.connector.renderer.moveParent(newParent);
+        this.instance.renderer.moveConnectorParent(this.connector, newParent);
         super.moveParent(newParent);
     }
 
@@ -517,8 +516,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             if (this.connector != null) {
                 previous = this.connector;
                 previousClasses = previous.getClass();
-                this.connector.cleanup();
-                this.connector.destroy();
+                this.instance.renderer.destroyConnector(this.connector);
             }
 
             this.connector = connector;
@@ -617,7 +615,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                         ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                     };
 
-                this.connector.paint(this._jsPlumb.paintStyleInUse, extents);
+                this.instance.renderer.paintConnector(this.connector, this._jsPlumb.paintStyleInUse, extents);
 
                 // and then the overlays
                 for (let j in this._jsPlumb.overlays) {
