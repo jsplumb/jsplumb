@@ -347,7 +347,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     abstract getElementById(el:string):E;
     abstract removeElement(el:E|string):void;
     abstract appendElement (el:E, parent:E):void;
-    abstract appendToRoot(node:E):void;
 
     abstract removeClass(el:E, clazz:string):void;
     abstract addClass(el:E, clazz:string):void;

@@ -250,15 +250,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         if (parent) {
             parent.appendChild(el);
         }
-        // else {
-        //     let _container = this.getContainer();
-        //     if (_container) {
-        //         _container.appendChild(el);
-        //     }
-        //     else if (!parent) {
-        //         this.appendToRoot(el);
-        //     }
-        // }
     }
 
     _getAssociatedElements(el: HTMLElement): Array<HTMLElement> {
@@ -268,11 +259,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         return a;
     }
 
-
-
-    appendToRoot(node:HTMLElement):void {
-        document.body.appendChild(node);
-    }
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
         return true;

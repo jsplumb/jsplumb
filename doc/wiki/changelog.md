@@ -66,6 +66,7 @@ any alternative, we could possibly add a 'Custom' endpoint type, with which you 
 - removed 'overlays' default from jsplumb. Use connectionOverlays or endpointOverlays now: not all overlay types are supported by endpoints, so having a
 common set of overlays doesnt make sense.  
 
+- `appendToRoot` method removed. If you're using this, use `document.body.appendChild(..)` instead.
 
 ### New Functionality
 
