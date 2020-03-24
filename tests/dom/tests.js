@@ -57,24 +57,6 @@ var testSuite = function () {
         ok(e1.endpoint == null, "e1 cleaned up");
     });
 
-    test("Image Endpoint remove", function() {
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        _jsPlumb.makeSource(d1, {
-            endpoint:[ "Image", { src:"atom.png" }]
-        });
-
-        _jsPlumb.makeTarget(d2, {
-            endpoint:[ "Image", { src:"atom.png" }]
-        });
-
-        var c = _jsPlumb.connect({source:d1, target:d2});
-        var ep = c.endpoints[0];
-
-        ok(support.getEndpointCanvas(ep).parentNode != null, "endpoint 1 is in the DOM");
-
-        _jsPlumb.deleteConnection(c);
-        ok(ep.endpoint == null, "endpoint 1 is no longer in the DOM");
-    });
 
     test(': create a simple endpoint with a scope and ensure the scope is written to the DOM', function () {
         var d1 = support.addDiv("d1");
