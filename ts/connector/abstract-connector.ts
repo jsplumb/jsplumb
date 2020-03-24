@@ -211,6 +211,11 @@ export abstract class AbstractConnector<E> {
         if (absolute) {
             location = location > 0 ? location / this.totalLength : (this.totalLength + location) / this.totalLength;
         }
+
+        // TODO here we could be smarter. if location === 0, then obviously its the first segment, proportion 0. if
+        // segment === 1, then last segment, proportion 1.  if it's more than 0.5 should we not start from the end?
+        // etc.
+
         let idx = this.segmentProportions.length - 1, inSegmentProportion = 1;
         for (let i = 0; i < this.segmentProportions.length; i++) {
             if (this.segmentProportions[i][1] >= location) {
