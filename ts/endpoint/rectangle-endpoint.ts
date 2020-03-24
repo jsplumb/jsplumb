@@ -20,6 +20,8 @@ export class RectangleEndpoint<E> extends EndpointRepresentation<E, ComputedRect
         this.height = params.height || 20;
     }
 
+    // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+    // it would be much more lightweight as we'd not need to create a class for each one.
     _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):ComputedRectangleEndpoint {
         let width = endpointStyle.width || this.width,
             height = endpointStyle.height || this.height,
