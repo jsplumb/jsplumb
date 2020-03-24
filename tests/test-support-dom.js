@@ -51,11 +51,11 @@
     };
 
     var getEndpointCanvas = function(ep) {
-        return ep.endpoint.renderer.canvas;
+        return ep.endpoint.canvas;
     };
 
     var getConnectionCanvas = function(c) {
-        return c.connector.renderer.canvas;
+        return c.connector.canvas;
     };
 
     var getCanvas = function(epOrEl) {
