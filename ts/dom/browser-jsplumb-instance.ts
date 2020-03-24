@@ -152,6 +152,9 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>) {
         super(_instanceIndex, new BrowserRenderer(), defaults, helpers);
+        // not very clean: cant pass this in to BrowserRenderer as we're in the constructor of this class. this should be cleaned up.
+        (this.renderer as BrowserRenderer).instance = this;
+
         this.eventManager = new Mottle();
         this.dragManager = new DragManager(this);
 
