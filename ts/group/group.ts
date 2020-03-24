@@ -155,7 +155,7 @@ export class UIGroup<E> {
         let pos = this.manager.instance.getOffset(_el);
         (<any>_el).parentNode.removeChild(_el);
 
-        this.instance.appendElement(_el); // set back as child of container
+        this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
 
         this.instance.setPosition(_el, pos);
         delete _el[Constants.GROUP_KEY];

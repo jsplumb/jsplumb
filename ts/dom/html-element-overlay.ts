@@ -31,7 +31,7 @@ export class HTMLElementOverlay {
             }
 
             o.canvas.style.position = "absolute";
-            o.instance.appendElement(o.canvas);
+            o.instance.appendElement(o.canvas, o.instance.getContainer());
             o.instance.getId(o.canvas);
             
             let ts = "translate(-50%, -50%)";

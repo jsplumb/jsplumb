@@ -143,7 +143,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     moveOverlayParent(o: Overlay<HTMLElement>, newParent: HTMLElement): void {
         if (o.type === "Label" || o.type === "Custom") {
-            o.instance.appendElement((o as any).canvas);
+            o.instance.appendElement((o as any).canvas, this.instance.getContainer());
         }
         // dont need to do anything with other types.
     }

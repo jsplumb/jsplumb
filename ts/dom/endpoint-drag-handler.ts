@@ -197,7 +197,7 @@ export class EndpointDragHandler implements DragHandler {
         this.placeholderInfo = this.placeholderInfo || {};
 
         let n = this.instance.createElement("div", { position : "absolute" });
-        this.instance.appendElement(n);
+        this.instance.appendElement(n, this.instance.getContainer());
         let id = this.instance.getId(n);
         this.instance.setPosition(n, ipco);
         n.style.width = ips[0] + "px";

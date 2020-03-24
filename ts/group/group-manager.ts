@@ -153,7 +153,7 @@ export class GroupManager<E> {
             let id = this.instance.getId(_el);
             let pos = this.instance.getOffset(_el);
             (<any>_el).parentNode.removeChild(_el);
-            this.instance.appendElement(_el);
+            this.instance.appendElement(_el, this.instance.getContainer());
             this.instance.setPosition(_el, pos);
             delete _el[Constants.GROUP_KEY];
             return [id, pos];

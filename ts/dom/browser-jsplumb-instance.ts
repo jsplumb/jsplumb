@@ -246,18 +246,19 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.eventManager.remove(element);
     }
 
-    appendElement(el:HTMLElement, parent?:HTMLElement):void {
+    appendElement(el:HTMLElement, parent:HTMLElement):void {
         if (parent) {
             parent.appendChild(el);
-        } else {
-            let _container = this.getContainer();
-            if (_container) {
-                _container.appendChild(el);
-            }
-            else if (!parent) {
-                this.appendToRoot(el);
-            }
         }
+        // else {
+        //     let _container = this.getContainer();
+        //     if (_container) {
+        //         _container.appendChild(el);
+        //     }
+        //     else if (!parent) {
+        //         this.appendToRoot(el);
+        //     }
+        // }
     }
 
     _getAssociatedElements(el: HTMLElement): Array<HTMLElement> {
@@ -282,18 +283,12 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     addClass(el:HTMLElement, clazz:string):void {
 
         if (el != null && clazz != null && clazz.length > 0) {
+            if (el.classList) {
+                el.classList.add(...fastTrim(clazz).split(/\s+/));
 
-            //this.each(el, (_el:HTMLElement) => {
-                if (el.classList) {
-                    let classes = Array.isArray(clazz) ? clazz : fastTrim(clazz).split(/\s+/);
-                    (<any>window).DOMTokenList.prototype.add.apply(el.classList, classes);
-
-                } else {
-                    _classManip(el, clazz);
-                }
-
-            //});
-
+            } else {
+                _classManip(el, clazz);
+            }
         }
     }
 
@@ -308,30 +303,26 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
     removeClass(el:HTMLElement, clazz:string):void {
         if (el != null && clazz != null && clazz.length > 0) {
-            //this.each(el, (_el:HTMLElement) => {
-                if (el.classList) {
-                    (<any>window).DOMTokenList.prototype.remove.apply(el.classList, clazz.split(/\s+/));
-                } else {
-                    _classManip(el, null, clazz);
-                }
-        //    });
+            if (el.classList) {
+                el.classList.remove(...fastTrim(clazz).split(/\s+/));
+            } else {
+                _classManip(el, null, clazz);
+            }
         }
     }
 
     toggleClass(el:HTMLElement, clazz:string):void {
         if (el != null && clazz != null && clazz.length > 0) {
-            this.each(el, (_el:HTMLElement) => {
-                if (_el.classList) {
-                    _el.classList.toggle(clazz);
+            if (el.classList) {
+                el.classList.toggle(clazz);
+            }
+            else {
+                if (this.hasClass(el, clazz)) {
+                    this.removeClass(el, clazz);
+                } else {
+                    this.addClass(el, clazz);
                 }
-                else {
-                    if (this.hasClass(_el, clazz)) {
-                        this.removeClass(_el, clazz);
-                    } else {
-                        this.addClass(_el, clazz);
-                    }
-                }
-            });
+            }
         }
     }
 
