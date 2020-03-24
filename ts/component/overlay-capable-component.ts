@@ -226,8 +226,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         }
     }
 
-    cleanup(force?:boolean) {
-        super.cleanup(force);
+    destroy(force?:boolean) {
         for (let i in this._jsPlumb.overlays) {
             this._jsPlumb.overlays[i].destroy(force);
         }
@@ -235,6 +234,8 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
             this._jsPlumb.overlays = {};
             this._jsPlumb.overlayPositions = null;
         }
+
+        super.destroy(force);
     }
 
     setVisible(v:boolean):void {
@@ -315,7 +316,6 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
 
     moveParent(newParent:E):void {
         for (let i in this._jsPlumb.overlays) {
-            //this._jsPlumb.overlays[i].getRenderer().moveParent(newParent);
             this.instance.renderer.moveOverlayParent(this._jsPlumb.overlays[i], newParent)
         }
     }
