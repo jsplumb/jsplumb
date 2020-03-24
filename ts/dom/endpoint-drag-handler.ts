@@ -235,8 +235,8 @@ export class EndpointDragHandler implements DragHandler {
 
         let dragEl = p.drag.getDragElement();
 
-        this.ep = dragEl._jsPlumb.endpoint;
-        this.endpointRepresentation = dragEl._jsPlumb.ep;
+        this.endpointRepresentation = dragEl.jtk.endpoint;
+        this.ep = dragEl.jtk.endpoint.endpoint;
 
         if (!this.ep) {
             return false;
@@ -321,7 +321,7 @@ export class EndpointDragHandler implements DragHandler {
         
         // ----------------    make the element we will drag around, and position it -----------------------------
         
-        const canvasElement = (<unknown>(this.endpointRepresentation.renderer as SvgEndpoint<any>).canvas) as HTMLElement,
+        const canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as HTMLElement,
             ipco = this.instance.getOffset(canvasElement),
             ips = this.instance.getSize(canvasElement);
         
@@ -347,7 +347,8 @@ export class EndpointDragHandler implements DragHandler {
 
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
         const _savedAnchor = this.floatingEndpoint.anchor;
-        this.floatingElement = this.floatingEndpoint.endpoint.renderer.getElement();
+        this.floatingEndpoint.deleteOnEmpty = true;
+        this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas;
         
         const scope = this.ep._jsPlumb.scope;
         
@@ -359,7 +360,7 @@ export class EndpointDragHandler implements DragHandler {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
                 const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
                 boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
-                this.endpointDropTargets.push({el:candidate, r:boundingRect, endpoint:candidate._jsPlumb});
+                this.endpointDropTargets.push({el:candidate, r:boundingRect, endpoint:candidate.jtk.endpoint});
                 this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass ||*/ "jtk-drag-active"); // TODO get from defaults.
             }
         });
@@ -502,7 +503,8 @@ export class EndpointDragHandler implements DragHandler {
 
             // store the original scope (issue 57)
             const dragScope = this.instance.getDragScope(canvasElement);
-            this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
+            console.log("TODO: investigate if original drag scope needs to be retained");
+            //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
         
             // fire an event that informs that a connection is being dragged. we do this before
             // replacing the original target with the floating element info.
@@ -601,8 +603,13 @@ export class EndpointDragHandler implements DragHandler {
                             targetEndpoint: newDropTarget.endpoint.endpoint,
                             connection: this.jpc
                         });
+
+                        // this.instance.renderer[(bb ? "addEndpoint" : "removeEndpoint") + "Class"](newDropTarget.endpoint, this.instance.endpointDropAllowedClass);
+                        // this.instance.renderer[(bb ? "removeEndpoint" : "addEndpoint") + "Class"](newDropTarget.endpoint, this.instance.endpointDropForbiddenClass);
+
                         newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
                         newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
+
                         this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.endpoint.anchor, newDropTarget.endpoint.endpoint);
                     }
                 }
