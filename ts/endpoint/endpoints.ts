@@ -13,8 +13,6 @@ export abstract class EndpointRepresentation<E, C> {
 
     typeId:string;
 
-    renderer:EndpointRenderer<E>;
-
     x:number;
     y:number;
     w:number;
@@ -24,45 +22,48 @@ export abstract class EndpointRepresentation<E, C> {
 
     bounds:SegmentBounds = EMPTY_BOUNDS();
 
+    classes:Array<string> = [];
+
     instance:jsPlumbInstance<E>;
 
     abstract getType():string;
+    // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+    // it would be much more lightweight as we'd not need to create a class for each one.
     abstract _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):C;
 
-    constructor(protected endpoint:Endpoint<E>) {
+    constructor(public endpoint:Endpoint<E>) {
         this.instance = endpoint.instance;
-        this.renderer = this.instance.renderer.assignRenderer(endpoint, this);
+
+        if (endpoint.cssClass) {
+            this.classes.push(endpoint.cssClass);
+        }
     }
 
     addClass(c:string) {
-        this.renderer.addClass(c);
+        this.classes.push(c);
+        this.instance.renderer.addEndpointClass(this, c);
     }
 
     removeClass(c:string) {
-        this.renderer.removeClass(c);
+        this.classes = this.classes.filter((_c:string) => _c !== c);
+        this.instance.renderer.removeEndpointClass(this, c);
     }
 
     paint(paintStyle:PaintStyle) {
-        this.renderer.paint(paintStyle);
+        this.instance.renderer.paintEndpoint(this, paintStyle);
     }
 
     clone():EndpointRepresentation<E, C> {
         return null;
     }
 
-    cleanup(force?:boolean) {
-        this.renderer.cleanup(force);
-    }
-
-    destroy(force?:boolean) {
-        this.renderer.destroy(force);
-    }
-
     setHover(h:boolean) {
-        this.renderer.setHover(h);
+        this.instance.renderer.setEndpointHover(this, h);
     }
 
     compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any) {
+        // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+        // it would be much more lightweight as we'd not need to create a class for each one.
         this.computedValue = this._compute(anchorPoint, orientation, endpointStyle);
         this.bounds.minX = this.x;
         this.bounds.minY = this.y;
@@ -71,11 +72,11 @@ export abstract class EndpointRepresentation<E, C> {
     }
 
     applyType(t:TypeDescriptor) {
-        this.renderer.applyType(t);
+        this.instance.renderer.applyEndpointType(this, t);
     }
 
     setVisible(v:boolean){
-        this.renderer.setVisible(v);
+        this.instance.renderer.setEndpointVisible(this, v);
     }
 }
 
