@@ -74,8 +74,6 @@ export abstract class AbstractConnector<E> {
 
     abstract type:string;
 
-    renderer:ConnectorRenderer<E>;
-
     stub:number;
     sourceStub:number;
     targetStub:number;
@@ -109,7 +107,6 @@ export abstract class AbstractConnector<E> {
         this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
         this.maxStub = Math.max(this.sourceStub, this.targetStub);
         this.cssClass = params.cssClass || "";
-        this.renderer = instance.renderer.assignConnectorRenderer(instance, this);
     }
 
     getTypeDescriptor ():string {
@@ -354,48 +351,44 @@ export abstract class AbstractConnector<E> {
         this.segment = this.paintInfo.segment;
         this._updateSegmentProportions();
     }
-
-    paint(paintStyle:PaintStyle, extents?:any) {
-        this.renderer.paint(paintStyle, extents);
-    }
-
     getAttachedElements(): Array<Component<E>> {
         return [];
     }
 
     setHover(hover: boolean, ignoreAttachedElements?: boolean, timestamp?: Timestamp): void {
-        this.renderer.setHover(hover);
+        //this.renderer.setHover(hover);
     }
 
     setVisible(v: boolean): any {
-        return this.renderer.setVisible(v);
+        //return this.renderer.setVisible(v);
     }
 
     applyType(t:TypeDescriptor) {
-        this.renderer.applyType(t);
+        //this.renderer.applyType(t);
     }
 
     addClass(clazz:string) {
-        this.renderer.addClass(clazz);
+        //this.renderer.addClass(clazz);
     }
 
     removeClass(clazz:string) {
-        this.renderer.removeClass(clazz);
+        //this.renderer.removeClass(clazz);
     }
 
     getClass():string {
-        return this.renderer.getClass();
+        return "";
+        //return this.renderer.getClass();
     }
 
     cleanup(force?:boolean) {
         if (force || this.typeId == null) {
-            this.renderer.cleanup(force);
+            //this.renderer.cleanup(force);
         }
     }
 
     destroy(force?:boolean) {
         if (force || this.typeId == null) {
-            this.renderer.destroy(force);
+            //this.renderer.destroy(force);
         }
     }
 }
