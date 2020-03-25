@@ -808,18 +808,50 @@
              * as the absolute distance in pixels, rather than a proportion of the total path.
              */
             _findSegmentForLocation = function (location, absolute) {
+
+                var idx, i, inSegmentProportion;
+
                 if (absolute) {
                     location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
                 }
-                var idx = segmentProportions.length - 1, inSegmentProportion = 1;
-                for (var i = 0; i < segmentProportions.length; i++) {
-                    if (segmentProportions[i][1] >= location) {
-                        idx = i;
-                        // todo is this correct for all connector path types?
-                        inSegmentProportion = location === 1 ? 1 : location === 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
-                        break;
+
+                // if location 1 we know its the last segment
+                if (location === 1) {
+                    idx = segments.length - 1;
+                    inSegmentProportion = 1;
+                } else if (location === 0) {
+                    // if location 0 we know its the first segment
+                    inSegmentProportion = 0;
+                    idx = 0;
+                } else {
+
+                    // if location >= 0.5, traverse backwards (of course not exact, who knows the segment proportions. but
+                    // an educated guess at least)
+                    if (location >= 0.5) {
+
+                        idx = 0;
+                        inSegmentProportion = 0;
+                        for (i = segmentProportions.length - 1; i > -1; i--) {
+                            if (segmentProportions[i][1] >= location && segmentProportions[i][0] <= location) {
+                                idx = i;
+                                inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
+                                break;
+                            }
+                        }
+
+                    } else {
+                        idx = segmentProportions.length - 1;
+                        inSegmentProportion = 1;
+                        for (i = 0; i < segmentProportions.length; i++) {
+                            if (segmentProportions[i][1] >= location) {
+                                idx = i;
+                                inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
+                                break;
+                            }
+                        }
                     }
                 }
+
                 return { segment: segments[idx], proportion: inSegmentProportion, index: idx };
             },
             _addSegment = function (conn, type, params) {
