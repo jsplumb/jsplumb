@@ -105,7 +105,7 @@ console.cTimeSummary = function() {
                 actuallyPaint = val("input[name='chkPaint']:checked") === "yes";
 
             instance.importDefaults({
-                overlays:[ "Arrow" ]
+                connectionOverlays:[ "Arrow" ]
             });
                     
 
