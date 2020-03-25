@@ -208,23 +208,50 @@ export abstract class AbstractConnector<E> {
      * as the absolute distance in pixels, rather than a proportion of the total path.
      */
     _findSegmentForLocation (location:number, absolute?:boolean):{segment:Segment, proportion:number, index:number } {
+
+        let idx, i, inSegmentProportion;
+
         if (absolute) {
             location = location > 0 ? location / this.totalLength : (this.totalLength + location) / this.totalLength;
         }
 
-        // TODO here we could be smarter. if location === 0, then obviously its the first segment, proportion 0. if
-        // segment === 1, then last segment, proportion 1.  if it's more than 0.5 should we not start from the end?
-        // etc.
+        // if location 1 we know its the last segment
+        if (location === 1) {
+            idx = this.segments.length - 1;
+            inSegmentProportion = 1;
+        } else if (location === 0) {
+            // if location 0 we know its the first segment
+            inSegmentProportion = 0;
+            idx = 0;
+        } else {
 
-        let idx = this.segmentProportions.length - 1, inSegmentProportion = 1;
-        for (let i = 0; i < this.segmentProportions.length; i++) {
-            if (this.segmentProportions[i][1] >= location) {
-                idx = i;
-                // todo is this correct for all connector path types?
-                inSegmentProportion = location === 1 ? 1 : location === 0 ? 0 : (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
-                break;
+            // if location >= 0.5, traverse backwards (of course not exact, who knows the segment proportions. but
+            // an educated guess at least)
+            if (location >= 0.5) {
+
+                idx = 0;
+                inSegmentProportion = 0;
+                for (i = this.segmentProportions.length - 1; i > -1; i--) {
+                    if (this.segmentProportions[i][1] >= location && this.segmentProportions[i][0] <= location) {
+                        idx = i;
+                        inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
+                        break;
+                    }
+                }
+
+            } else {
+                idx = this.segmentProportions.length - 1;
+                inSegmentProportion = 1;
+                for (i = 0; i < this.segmentProportions.length; i++) {
+                    if (this.segmentProportions[i][1] >= location) {
+                        idx = i;
+                        inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
+                        break;
+                    }
+                }
             }
         }
+
         return { segment: this.segments[idx], proportion: inSegmentProportion, index: idx };
     }
 
