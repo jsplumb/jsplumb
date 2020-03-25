@@ -187,7 +187,11 @@
                     paintStyle:{
                         strokeWidth:1, stroke:"red"
                     },
-                    connector:"Bezier"
+                    connector:"Bezier",
+                    overlays:[
+                        [ "Arrow", {location:0.7} ],
+                        [ "Arrow", {location:0.3} ]
+                    ]
                 }));
             }
             t2 = new Date().getTime();
