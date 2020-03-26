@@ -387,40 +387,12 @@ export abstract class AbstractConnector<E> {
         return [];
     }
 
-    setHover(hover: boolean, ignoreAttachedElements?: boolean, timestamp?: Timestamp): void {
-        //this.renderer.setHover(hover);
-    }
-
-    setVisible(v: boolean): any {
-        //return this.renderer.setVisible(v);
-    }
-
     applyType(t:TypeDescriptor) {
         //this.renderer.applyType(t);
-    }
-
-    addClass(clazz:string) {
-        //this.renderer.addClass(clazz);
-    }
-
-    removeClass(clazz:string) {
-        //this.renderer.removeClass(clazz);
     }
 
     getClass():string {
         return "";
         //return this.renderer.getClass();
-    }
-
-    cleanup(force?:boolean) {
-        if (force || this.typeId == null) {
-            //this.renderer.cleanup(force);
-        }
-    }
-
-    destroy(force?:boolean) {
-        if (force || this.typeId == null) {
-            //this.renderer.destroy(force);
-        }
     }
 }
