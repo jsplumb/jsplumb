@@ -396,7 +396,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
         }
         if (this.connector) {
-            this.connector.addClass(c);
+            this.instance.renderer.addConnectorClass(this.connector, c);
         }
     }
 
@@ -411,14 +411,14 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
         }
         if (this.connector) {
-            this.connector.removeClass(c);
+            this.instance.renderer.removeConnectorClass(this.connector, c);
         }
     }
 
     setVisible(v:boolean) {
         super.setVisible(v);
         if (this.connector) {
-            this.connector.setVisible(v);
+            this.instance.renderer.setConnectorVisible(this.connector, v);
         }
         this.repaint();
     }
@@ -450,7 +450,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     setHover(state:boolean) {
         super.setHover(state);
         if (this.connector && this._jsPlumb && !this.instance.isConnectionBeingDragged) {
-            this.connector.setHover(state);
+            this.instance.renderer.setConnectorHover(this.connector, state);
             this.instance[state ? "addClass" : "removeClass"](this.source, this.instance.hoverSourceClass);
             this.instance[state ? "addClass" : "removeClass"](this.target, this.instance.hoverTargetClass);
         }
