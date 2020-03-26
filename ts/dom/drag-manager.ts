@@ -125,24 +125,9 @@ export class DragManager {
             }
         });
 
-        //(<any>this._katavorio_main = katavorio;
-
         this.instance.bind("zoom", (z:number) => {
             this.katavorio.setZoom(z);
         });
-
-        //
-        // ------------ drag handler for elements (and elements inside groups). this is added as a selector on the endpoint drag handler below ------------------
-        //
-
-        //const elementDragOptions = extend({selector:"> [jtk-managed]"}, this.instance.Defaults.dragOptions || {});
-        // const elementDragOptions:any = extend({selector:"> [jtk-managed]"}, {});  // we dont have dragOptions in the defaults for the time being
-        //
-        // elementDragOptions.start = wrap(elementDragOptions.start, (p:any) => { return this.instance._dragStart(p); });
-        // elementDragOptions.drag = wrap(elementDragOptions.drag, (p:any) => { return this.instance._dragMove(p); });
-        // elementDragOptions.stop = wrap(elementDragOptions.stop, (p:any) => { return this.instance._dragStop(p); });
-        //
-        // this.katavorio.draggable(this.instance.getContainer(), elementDragOptions);
     }
 
     addHandler(handler:DragHandler, dragOptions?:any):void {
@@ -176,6 +161,8 @@ export class DragManager {
         if (this.katavorioDraggable != null) {
             this.katavorio.destroyDraggable(this.instance.getContainer());
         }
+
+        delete this.katavorioDraggable;
     }
 
 }
