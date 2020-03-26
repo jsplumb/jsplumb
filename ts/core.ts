@@ -757,32 +757,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         let _c = this.getElement(c);
 
         // set container.
-        let previousContainer = this._container;
         this._container = _c;
-
-        // move existing connections and endpoints, if any.
-        this.select().each((conn:Connection<E>) => {
-            conn.moveParent(_c);
-        });
-        this.selectEndpoints().each((ep:Endpoint<E>) => {
-            ep.moveParent(_c);
-        });
-
-        // managed elements
-        for (let elId in this._managedElements) {
-            let el = this._managedElements[elId].el;
-            if ((<any>el).parentNode === previousContainer) {
-                (<any>previousContainer).removeChild(el);
-                (<any>this._container).appendChild(el);
-            }
-        }
 
         this.setAttribute(this._container, Constants.ATTRIBUTE_CONTAINER, uuid().replace("-", ""));
 
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
-
     }
-
 
     private _set (c:Connection<E>, el:E|Endpoint<E>, idx:number, doNotRepaint?:boolean):any {
 

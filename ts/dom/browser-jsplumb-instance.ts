@@ -552,7 +552,18 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         if (this.dragManager != null) {
             this.dragManager.reset();
         }
-        super.setContainer(c);
+
+        const newContainer = this.getElement(c);
+
+        // move all endpoints, connectors, and managed elements
+        const currentContainer = this.getContainer();
+        if (currentContainer != null) {
+            currentContainer.querySelectorAll(".jtk-connector, .jtk-endpoint, .jtk-overlay, [jtk-managed]").forEach((el: HTMLElement) => {
+                newContainer.appendChild(el)
+            });
+        }
+
+        super.setContainer(newContainer);
         if (this.eventManager != null) {
             this._attachEventDelegates();
         }
