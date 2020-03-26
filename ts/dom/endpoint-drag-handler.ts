@@ -161,7 +161,7 @@ export class EndpointDragHandler implements DragHandler {
 
                 // and then trigger its mousedown event, which will kick off a drag, which will start dragging
                 // a new connection from this endpoint.
-                instance.trigger(this.ep.endpoint.renderer.getElement(), EVT_MOUSEDOWN, e, payload);
+                instance.trigger(this.ep.endpoint.canvas, EVT_MOUSEDOWN, e, payload);
 
                 consume(e);
             }
@@ -219,8 +219,9 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     reset() {
-        this.instance.off(this.instance.getContainer(), EVT_MOUSEUP, this._mouseupHandler);
-        this.instance.off(this.instance.getContainer(), EVT_MOUSEDOWN, this._mousedownHandler);
+        const c = this.instance.getContainer();
+        this.instance.off(c, EVT_MOUSEUP, this._mouseupHandler);
+        this.instance.off(c, EVT_MOUSEDOWN, this._mousedownHandler);
     }
 
     init(katavorioDraggable:any) {}
