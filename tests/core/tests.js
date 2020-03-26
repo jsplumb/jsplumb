@@ -2535,59 +2535,62 @@ var testSuite = function () {
         ok(detachCallback != null, "detach callback was made");
     });
 
+    function testConnectionCanvasClass(conn, clazz) {
+        var el = support.getConnectionCanvas(conn);
+
+        var cn = el.className,
+            cns = cn.constructor == String ? cn : cn.baseVal;
+
+        return cns.indexOf(clazz) != -1;
+    }
+
+    function testEndpointCanvasClass(ep, clazz) {
+        var el = support.getEndpointCanvas(ep);
+
+        var cn = el.className,
+            cns = cn.constructor == String ? cn : cn.baseVal;
+
+        return cns.indexOf(clazz) != -1;
+    }
+
+    function testConnectionElementClass(conn, clazz, elName) {
+        var el = conn.connector[elName];
+        var cn = el.className,
+            cns = cn.constructor == String ? cn : cn.baseVal;
+
+        return cns.indexOf(clazz) != -1;
+    }
+
     test(": _jsPlumb.connect (setting outline class on Connector)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, paintStyle:{outlineStroke:"green", outlineWidth:6, strokeWidth:4, stroke:"red"}});
-        var has = function (clazz, elName) {
-            var canvas = support.getConnectionCanvas(c);
-            var cn = canvas.className,
-                cns = cn.constructor == String ? cn : cn.baseVal;
 
-            return cns.indexOf(clazz) != -1;
-        };
-        ok(has(_jsPlumb.connectorClass), "basic connector class set correctly");
+        ok(testConnectionCanvasClass(c, _jsPlumb.connectorClass), "basic connector class set correctly");
 
-        ok(has("jtk-connector-outline", "bgPath"), "outline canvas set correctly");
-        ok(has(_jsPlumb.connectorOutlineClass, "bgPath"), "outline canvas set correctly");
+        ok(testConnectionElementClass(c, "jtk-connector-outline", "bgPath"), "outline canvas set correctly");
+        ok(testConnectionElementClass(c, _jsPlumb.connectorOutlineClass, "bgPath"), "outline canvas set correctly");
     });
 
     test(": _jsPlumb.connect (setting cssClass on Connector)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, cssClass: "CSS"});
-        var has = function (clazz) {
-            var cn = support.getConnectionCanvas(c).className,
-                cns = cn.constructor == String ? cn : cn.baseVal;
-
-            return cns.indexOf(clazz) != -1;
-        };
-        ok(has("CSS"), "custom cssClass set correctly");
-        ok(has(_jsPlumb.connectorClass), "basic connector class set correctly");
+        ok(testConnectionCanvasClass(c, "CSS"), "custom cssClass set correctly");
+        ok(testConnectionCanvasClass(c, _jsPlumb.connectorClass), "basic connector class set correctly");
     });
 
     test(": _jsPlumb.addEndpoint (setting cssClass on Endpoint)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var e = _jsPlumb.addEndpoint(d1, {cssClass: "CSS"});
-        var has = function (clazz) {
-            var cn = support.getEndpointCanvas(e).className,
-                cns = cn.constructor == String ? cn : cn.baseVal;
 
-            return cns.indexOf(clazz) != -1;
-        };
-        ok(has("CSS"), "custom cssClass set correctly");
-        ok(has(_jsPlumb.endpointClass), "basic endpoint class set correctly");
+        ok(testEndpointCanvasClass(e,"CSS"), "custom cssClass set correctly");
+        ok(testEndpointCanvasClass(e, _jsPlumb.endpointClass), "basic endpoint class set correctly");
     });
 
     test(": _jsPlumb.addEndpoint (setting cssClass on blank Endpoint)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var e = _jsPlumb.addEndpoint(d1, {endpoint: "Blank", cssClass: "CSS"});
-        var has = function (clazz) {
-            var cn = support.getEndpointCanvas(e).className,
-                cns = cn.constructor == String ? cn : cn.baseVal;
-
-            return cns.indexOf(clazz) != -1;
-        };
-        ok(has("CSS"), "custom cssClass set correctly");
-        ok(has(_jsPlumb.endpointClass), "basic endpoint class set correctly");
+        ok(testEndpointCanvasClass(e, "CSS"), "custom cssClass set correctly");
+        ok(testEndpointCanvasClass(e, _jsPlumb.endpointClass), "basic endpoint class set correctly");
     });
 
     test(": _jsPlumb.connect (overlays, long-hand version)", function () {
