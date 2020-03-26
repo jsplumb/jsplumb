@@ -1,7 +1,7 @@
 import {jsPlumbDefaults, jsPlumbHelperFunctions} from "../defaults";
 import {Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
-import {each, fastTrim, isArray, isString, log} from "../util";
+import {each, fastTrim, isArray, isString, log, uuid} from "../util";
 import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
@@ -555,10 +555,13 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
         const newContainer = this.getElement(c);
 
+        this.setAttribute(newContainer, Constants.ATTRIBUTE_CONTAINER, uuid().replace("-", ""));
+
         // move all endpoints, connectors, and managed elements
         const currentContainer = this.getContainer();
         if (currentContainer != null) {
-            currentContainer.querySelectorAll(".jtk-connector, .jtk-endpoint, .jtk-overlay, [jtk-managed]").forEach((el: HTMLElement) => {
+            currentContainer.removeAttribute(Constants.ATTRIBUTE_CONTAINER);
+            currentContainer.querySelectorAll(".jtk-connector, .jtk-endpoint, div.jtk-overlay, [jtk-managed]").forEach((el: HTMLElement) => {
                 newContainer.appendChild(el)
             });
         }
