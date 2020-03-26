@@ -759,8 +759,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         // set container.
         this._container = _c;
 
-        this.setAttribute(this._container, Constants.ATTRIBUTE_CONTAINER, uuid().replace("-", ""));
-
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
     }
 
