@@ -748,17 +748,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this._makeEndpointSelectHandler(ep);
     }
 
-    //
-    // TODO this knows about the DOM. refactor
-    //
     setContainer(c:E|string):void {
-
-        // get container as dom element.
+        // get container as element.
         let _c = this.getElement(c);
-
         // set container.
         this._container = _c;
-
+        // tell people.
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
     }
 
