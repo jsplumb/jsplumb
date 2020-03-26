@@ -26,6 +26,7 @@ export const EVT_DRAG_MOVE = "drag:move";
 export const EVT_DRAG_STOP = "drag:stop";
 export const EVT_DRAG_START = "drag:start";
 export const EVT_MOUSEDOWN = "mousedown";
+export const EVT_MOUSEMOVE = "mousemove";
 export const EVT_MOUSEUP= "mouseup";
 export const EVT_REVERT = "revert";
 
