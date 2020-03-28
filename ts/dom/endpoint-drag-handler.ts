@@ -11,7 +11,7 @@ import {EndpointRepresentation} from "../endpoint/endpoints";
 import {SvgEndpoint} from "./svg-element-endpoint";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
-import {EVENT_MAX_CONNECTIONS} from "../constants";
+import {classList, cls, EVENT_MAX_CONNECTIONS} from "../constants";
 import {intersects} from "../geom";
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
@@ -43,6 +43,8 @@ function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:
     }
     return negate ? !ok : ok;
 }
+
+const DRAG_ACTIVE_OR_HOVER_SELECTOR = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER);
 
 export class EndpointDragHandler implements DragHandler {
 
@@ -356,13 +358,11 @@ export class EndpointDragHandler implements DragHandler {
         let boundingRect;
         // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
         this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach((candidate:any) => {
-        //this.instance.getSelector(this.instance.getContainer(), ".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach((candidate:any) => {
-            //if (candidate !== this.ep.canvas && candidate !== _currentInstance.floatingEndpoint.canvas) {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
                 const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
                 boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]};
                 this.endpointDropTargets.push({el:candidate, r:boundingRect, endpoint:candidate.jtk.endpoint});
-                this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass ||*/ "jtk-drag-active"); // TODO get from defaults.
+                this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
             }
         });
         
@@ -379,15 +379,12 @@ export class EndpointDragHandler implements DragHandler {
         selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
         //}
 
-        //this.instance.getSelector(this.instance.getContainer(), selectors.join(",")).forEach((candidate:any) => {
         this.instance.getContainer().querySelectorAll(selectors.join(",")).forEach((candidate:any) => {
 
             //if (candidate !== this.ep.element) {
                 const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
                 boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
                 let d: any = {el: candidate, r: boundingRect};
-                // targetDefinitionIdx = -1,
-                // sourceDefinitionIdx = -1;
 
                 //  if (this.epIsSource) {
                 // look for at least one target definition that is not disabled on the given element.
@@ -409,7 +406,7 @@ export class EndpointDragHandler implements DragHandler {
                         d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
                     }
                     this.endpointDropTargets.push(d);
-                    this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass || */"jtk-drag-active"); // TODO get from defaults.
+                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
                 }
 
                 // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
@@ -418,7 +415,7 @@ export class EndpointDragHandler implements DragHandler {
                         d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
                     }
                     this.endpointDropTargets.push(d);
-                    this.instance.addClass(candidate, /*this.instance.Defaults.dropOptions.activeClass ||*/ "jtk-drag-active"); // TODO get from defaults.
+                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
                 }
             //}
         
@@ -662,11 +659,15 @@ export class EndpointDragHandler implements DragHandler {
     onStop(p:any) {
 
         let originalEvent = p.e;
-        let reattached = false;
-        let aborted = false;
 
-        console.log("drag ended on endpoint");
+        //console.log("drag ended on endpoint");
         this.instance.isConnectionBeingDragged = false;
+
+        const classesToRemove = classList(CLASS_DRAG_HOVER, CLASS_DRAG_ACTIVE);
+
+        this.instance.getContainer().querySelectorAll(DRAG_ACTIVE_OR_HOVER_SELECTOR).forEach((el:HTMLElement) => {
+            this.instance.removeClass(el, classesToRemove);
+        });
 
         if (this.jpc && this.jpc.endpoints != null) {
 
@@ -758,6 +759,13 @@ export class EndpointDragHandler implements DragHandler {
 
             this._cleanupDraggablePlaceholder();
 
+            // // although the connection is no longer valid, there are use cases where this is useful.
+            // this.instance.fire("connectionDragStop", this.jpc, originalEvent);
+            // // fire this event to give people more fine-grained control (connectionDragStop fires a lot)
+            // if (jpc.pending) {
+            //     _jsPlumb.fire("connectionAborted", jpc, originalEvent);
+            // }
+
             delete this.jpc.suspendedEndpoint;
             delete this.jpc.suspendedElement;
             delete this.jpc.suspendedElementType;
@@ -767,6 +775,7 @@ export class EndpointDragHandler implements DragHandler {
             delete this.jpc.floatingEndpoint;
             delete this.jpc.floatingId;
             delete this.jpc.floatingIndex;
+            delete this.jpc.pending;
 
             if (dropEndpoint != null) {
 
@@ -782,6 +791,7 @@ export class EndpointDragHandler implements DragHandler {
                     }
                 }
             }
+
         }
 
     }
