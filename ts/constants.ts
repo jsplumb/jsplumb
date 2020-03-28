@@ -1,4 +1,10 @@
-export function cls(className:string):string { return  "." + className; }
+export function cls(...className:Array<string>):string {
+    return  className.map((cn:string) => "." + className).join(",");
+}
+
+export function classList(...className:Array<string>):string {
+    return className.join(" ");
+}
 
 export const SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions";
 export const TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions";
