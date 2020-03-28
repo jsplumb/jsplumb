@@ -30,6 +30,9 @@ export const EVT_MOUSEMOVE = "mousemove";
 export const EVT_MOUSEUP= "mouseup";
 export const EVT_REVERT = "revert";
 
+export const EVT_CONNECTION_DRAG = "connectionDrag";
+
+
 export interface DragHandler {
 
     selector:string;
