@@ -168,9 +168,15 @@ export class GroupManager<E> {
     }
 
     _updateConnectionsForGroup(group:UIGroup<E>) {
-        let members = group.children;
+
         group.connections.source.length = 0;
         group.connections.target.length = 0;
+
+        // get all direct members, and any of their descendants.
+        const members = group.children.slice();
+        const childMembers:Array<E> = [];
+        members.forEach((member: any) => childMembers.push(...member.querySelectorAll("[jtk-managed]")));
+        members.push(...childMembers);
 
         if (members.length > 0) {
 
@@ -184,18 +190,23 @@ export class GroupManager<E> {
             }, true) as Array<Connection<E>>;
             const processed = {};
 
+            let gs, gt;
             const oneSet = (c: Array<Connection<E>>) => {
                 for (let i = 0; i < c.length; i++) {
                     if (processed[c[i].id]) {
                         continue;
                     }
                     processed[c[i].id] = true;
-                    if (c[i].source[Constants.GROUP_KEY] === group) {
-                        if (c[i].target[Constants.GROUP_KEY] !== group) {
+
+                    gs = this.findGroupFor(c[i].source);
+                    gt = this.findGroupFor(c[i].target);
+
+                    if (gs === group) {
+                        if (gt !== group) {
                             group.connections.source.push(c[i]);
                         }
                         this._connectionSourceMap[c[i].id] = group;
-                    } else if (c[i].target[Constants.GROUP_KEY] === group) {
+                    } else if (gt === group) {
                         group.connections.target.push(c[i]);
                         this._connectionTargetMap[c[i].id] = group;
                     }
