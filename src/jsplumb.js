@@ -718,13 +718,11 @@
             _draw = function (element, ui, timestamp, clearEdits) {
 
                 if (!_suspendDrawing) {
-                    var id = _getId(element),
-                        repaintEls,
-                        dm = _currentInstance.getDragManager();
 
-                    if (dm) {
-                        repaintEls = dm.getElementsForDraggable(id);
-                    }
+                    element = _currentInstance.getElement(element);
+
+                    var id = _getId(element),
+                        repaintEls = element.querySelectorAll(".jtk-managed");
 
                     if (timestamp == null) {
                         timestamp = _timestamp();
@@ -733,25 +731,23 @@
                     // update the offset of everything _before_ we try to draw anything.
                     var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
 
-                    if (repaintEls && o && o.o) {
-                        for (var i in repaintEls) {
-                            _updateOffset({
-                                elId: repaintEls[i].id,
-                                offset: {
-                                    left: o.o.left + repaintEls[i].offset.left,
-                                    top: o.o.top + repaintEls[i].offset.top
-                                },
-                                recalc: false,
-                                timestamp: timestamp
-                            });
-                        }
+                    for (var i = 0; i < repaintEls.length; i++) {
+                        _updateOffset({
+                            elId: repaintEls[i].getAttribute("id"),
+                            // offset: {
+                            //     left: o.o.left + repaintEls[i].offset.left,
+                            //     top: o.o.top + repaintEls[i].offset.top
+                            // },
+                            recalc: true,
+                            timestamp: timestamp
+                        });
                     }
 
                     _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
 
                     if (repaintEls) {
-                        for (var j in repaintEls) {
-                            _currentInstance.anchorManager.redraw(repaintEls[j].id, ui, timestamp, repaintEls[j].offset, clearEdits, true);
+                        for (var j = 0; j < repaintEls.length; j++) {
+                            _currentInstance.anchorManager.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
                         }
                     }
                 }
