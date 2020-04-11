@@ -318,7 +318,7 @@
      * point.
      */
     var _pointAlongPath = function(curve, location, distance) {
-
+        
         if (_isPoint(curve)) {
             return {
                 point:curve[0],
@@ -338,10 +338,14 @@
             tally += _dist(cur, prev);
             prev = cur;
         }
+
         return {point:cur, location:curLoc};
     };
 
     var _length = function(curve) {
+
+        var d = new Date().getTime();
+
         if (_isPoint(curve)) return 0;
 
         var prev = _pointOnPath(curve, 0),
@@ -356,6 +360,8 @@
             tally += _dist(cur, prev);
             prev = cur;
         }
+        console.log("length", new Date().getTime() - d);
+
         return tally;
     };
 
@@ -379,9 +385,11 @@
      * thanks // http://bimixual.org/AnimationLibrary/beziertangents.html
      */
     var _gradientAtPoint = function(curve, location) {
+
         var p1 = _pointOnPath(curve, location),
             p2 = _pointOnPath(curve.slice(0, curve.length - 1), location),
             dy = p2.y - p1.y, dx = p2.x - p1.x;
+
         return dy === 0 ? Infinity : Math.atan(dy / dx);
     };
 
@@ -4329,7 +4337,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.13.0";
+        this.version = "2.13.1";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -11524,18 +11532,50 @@
              * as the absolute distance in pixels, rather than a proportion of the total path.
              */
             _findSegmentForLocation = function (location, absolute) {
+
+                var idx, i, inSegmentProportion;
+
                 if (absolute) {
                     location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
                 }
-                var idx = segmentProportions.length - 1, inSegmentProportion = 1;
-                for (var i = 0; i < segmentProportions.length; i++) {
-                    if (segmentProportions[i][1] >= location) {
-                        idx = i;
-                        // todo is this correct for all connector path types?
-                        inSegmentProportion = location === 1 ? 1 : location === 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
-                        break;
+
+                // if location 1 we know its the last segment
+                if (location === 1) {
+                    idx = segments.length - 1;
+                    inSegmentProportion = 1;
+                } else if (location === 0) {
+                    // if location 0 we know its the first segment
+                    inSegmentProportion = 0;
+                    idx = 0;
+                } else {
+
+                    // if location >= 0.5, traverse backwards (of course not exact, who knows the segment proportions. but
+                    // an educated guess at least)
+                    if (location >= 0.5) {
+
+                        idx = 0;
+                        inSegmentProportion = 0;
+                        for (i = segmentProportions.length - 1; i > -1; i--) {
+                            if (segmentProportions[i][1] >= location && segmentProportions[i][0] <= location) {
+                                idx = i;
+                                inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
+                                break;
+                            }
+                        }
+
+                    } else {
+                        idx = segmentProportions.length - 1;
+                        inSegmentProportion = 1;
+                        for (i = 0; i < segmentProportions.length; i++) {
+                            if (segmentProportions[i][1] >= location) {
+                                idx = i;
+                                inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
+                                break;
+                            }
+                        }
                     }
                 }
+
                 return { segment: segments[idx], proportion: inSegmentProportion, index: idx };
             },
             _addSegment = function (conn, type, params) {
@@ -12747,6 +12787,7 @@
 
         function _setVisible(group, state) {
 
+            // TODO discovering the list of elements would ideally be a pluggable function.
             var m = group.getEl().querySelectorAll(".jtk-managed");
             for (var i = 0; i < m.length; i++) {
                 _jsPlumb[state ? CMD_SHOW : CMD_HIDE](m[i], true);
@@ -12848,9 +12889,17 @@
 
         // TODO refactor this with the code that responds to `connection` events.
         function _updateConnectionsForGroup(group) {
-            var members = group.getMembers();
+            var members = group.getMembers().slice();
+
+            var childMembers = [];
+            for (var i = 0; i < members.length; i++) {
+                Array.prototype.push.apply(childMembers, members[i].querySelectorAll(".jtk-managed"));
+            }
+            Array.prototype.push.apply(members, childMembers);
+
             var c1 = _jsPlumb.getConnections({source:members, scope:"*"}, true);
             var c2 = _jsPlumb.getConnections({target:members, scope:"*"}, true);
+
             var processed = {};
             group.connections.source.length = 0;
             group.connections.target.length = 0;
@@ -12860,13 +12909,16 @@
                         continue;
                     }
                     processed[c[i].id] = true;
-                    if (c[i].source._jsPlumbGroup === group) {
-                        if (c[i].target._jsPlumbGroup !== group) {
+                    var gs = findGroupFor(c[i].source),
+                        gt = findGroupFor(c[i].target);
+
+                    if (gs === group) {
+                        if (gt !== group) {
                             group.connections.source.push(c[i]);
                         }
                         _connectionSourceMap[c[i].id] = group;
                     }
-                    else if (c[i].target._jsPlumbGroup === group) {
+                    else if (gt === group) {
                         group.connections.target.push(c[i]);
                         _connectionTargetMap[c[i].id] = group;
                     }

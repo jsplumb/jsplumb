@@ -1,3 +1,9 @@
+## 2.13.1
+
+April 11th 2020
+
+- fix issue #924 - connections for nested child elements not recognised when parent added to a group.
+
 ## 2.13.0
 
 March 20th 2020

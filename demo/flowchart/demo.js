@@ -77,7 +77,7 @@ jsPlumb.ready(function () {
                     location: [0.5, 1.5],
                     label: "Drag",
                     cssClass: "endpointSourceLabel",
-                    visible:false
+                    visible:true
                 } ]
             ]
         },
@@ -90,7 +90,7 @@ jsPlumb.ready(function () {
             dropOptions: { hoverClass: "hover", activeClass: "active" },
             isTarget: true,
             overlays: [
-                [ "Label", { location: [0.5, -0.5], label: "Drop", cssClass: "endpointTargetLabel", visible:false } ]
+                [ "Label", { location: [0.5, -0.5], label: "Drop", cssClass: "endpointTargetLabel", visible:true } ]
             ]
         },
         init = function (connection) {
