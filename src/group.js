@@ -40,28 +40,45 @@
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
 
-        function findGroupFor(el) {
+        // function findGroupFor(el) {
+        //     var c = _jsPlumb.getContainer();
+        //     var abort = false, g = null, child = null;
+        //     while (!abort) {
+        //         if (el == null || el === c) {
+        //             abort = true;
+        //         } else {
+        //             if (el[GROUP]) {
+        //                 g = el[GROUP];
+        //                 child = el;
+        //                 abort = true;
+        //             } else {
+        //                 el = el.parentNode;
+        //             }
+        //         }
+        //     }
+        //     return g;
+        // }
+
+        function isDescendant(el, parentEl) {
             var c = _jsPlumb.getContainer();
-            var abort = false, g = null;
+            var abort = false, g = null, child = null;
             while (!abort) {
                 if (el == null || el === c) {
-                    abort = true;
+                    return false;
                 } else {
-                    if (el[GROUP]) {
-                        g = el[GROUP];
-                        abort = true;
+                    if (el === parentEl) {
+                        return true;
                     } else {
                         el = el.parentNode;
                     }
                 }
             }
-            return g;
         }
 
         _jsPlumb.bind("connection", function(p) {
 
-            var sourceGroup = findGroupFor(p.source);
-            var targetGroup = findGroupFor(p.target);
+            var sourceGroup = _jsPlumb.getGroupFor(p.source);
+            var targetGroup = _jsPlumb.getGroupFor(p.target);
 
             if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
                 _connectionSourceMap[p.connection.id] = sourceGroup;
@@ -193,6 +210,32 @@
         this.removeFromGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
+
+                // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
+                // to be put back on their original element, and unproxied
+                if (group.collapsed) {
+                    var _expandSet = function (conns, index) {
+                        for (var i = 0; i < conns.length; i++) {
+                            var c = conns[i];
+                            if (c.proxies) {
+                                for(var j = 0; j < c.proxies.length; j++) {
+                                    if (c.proxies[j] != null) {
+                                        var proxiedElement = c.proxies[j].originalEp.element;
+                                        if (proxiedElement === el || isDescendant(proxiedElement, el)) {
+                                            _expandConnection(c, index, group);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    };
+
+                    // setup proxies for sources and targets
+                    _expandSet(group.connections.source.slice(), 0);
+                    _expandSet(group.connections.target.slice(), 1);
+                }
+
                 group.remove(el, null, doNotFireEvent);
             }
         };
@@ -304,7 +347,7 @@
             _setVisible(group, true);
 
             if (group.shouldProxy()) {
-                // collapses all connections in a group.
+                // expands all connections in a group.
                 var _expandSet = function (conns, index) {
                     for (var i = 0; i < conns.length; i++) {
                         var c = conns[i];
@@ -357,8 +400,8 @@
                         continue;
                     }
                     processed[c[i].id] = true;
-                    var gs = findGroupFor(c[i].source),
-                        gt = findGroupFor(c[i].target);
+                    var gs = _jsPlumb.getGroupFor(c[i].source),
+                        gt = _jsPlumb.getGroupFor(c[i].target);
 
                     if (gs === group) {
                         if (gt !== group) {
@@ -522,6 +565,7 @@
                         return e === __el;
                     });
 
+
                     if (manipulateDOM) {
                         try {
                             self.getDragArea().removeChild(__el);
@@ -530,6 +574,7 @@
                         }
                     }
                     _unbindDragHandlers(__el);
+
                     if (!doNotFireEvent) {
                         var p = {group: self, el: __el};
                         if (targetGroup) {
@@ -738,13 +783,14 @@
     };
 
     /**
-     * Remove an element from a group.
+     * Remove an element from a group, and sets its DOM element to be a child of the container again.  ??
      * @method removeFromGroup
      * @param {String} group Group, or ID of the group, to remove the element from.
      * @param {Element} el Element to add to the group.
      */
     _jpi.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
         this.getGroupManager().removeFromGroup(group, el, doNotFireEvent);
+        this.getContainer().appendChild(el);
     };
 
     /**
@@ -865,7 +911,22 @@
     _jpi.prototype.getGroupFor = function(el) {
         el = this.getElement(el);
         if (el) {
-            return el[GROUP];
+            var c = this.getContainer();
+            var abort = false, g = null, child = null;
+            while (!abort) {
+                if (el == null || el === c) {
+                    abort = true;
+                } else {
+                    if (el[GROUP]) {
+                        g = el[GROUP];
+                        child = el;
+                        abort = true;
+                    } else {
+                        el = el.parentNode;
+                    }
+                }
+            }
+            return g;
         }
     };
 
