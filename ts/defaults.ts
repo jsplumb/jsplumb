@@ -5,6 +5,10 @@ import {OverlaySpec} from "./overlay/overlay";
 import {ConnectorSpec} from "./connector";
 import {Offset, Size} from "./core";
 
+export interface ListSpec {
+    endpoint?: EndpointSpec;
+}
+
 export interface jsPlumbDefaults {
     endpoint?: EndpointSpec;
     endpoints?: [ EndpointSpec, EndpointSpec ];
@@ -23,6 +27,8 @@ export interface jsPlumbDefaults {
 
     endpointOverlays?: Array<OverlaySpec>;
     connectionOverlays?: Array<OverlaySpec>;
+
+    listStyle?: ListSpec;
 
     container?: any; // string(selector or id) or element
     connector?:ConnectorSpec;
