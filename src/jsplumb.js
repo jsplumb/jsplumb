@@ -495,6 +495,7 @@
             EndpointHoverStyles: [ null, null ],
             HoverPaintStyle: null,
             LabelStyle: { color: "black" },
+            ListStyle: { },
             LogEnabled: false,
             Overlays: [ ],
             MaxConnections: 1,
@@ -3095,7 +3096,7 @@
             return floatingConnections[id];
         };
 
-        this.listManager = new root.jsPlumbListManager(this);
+        this.listManager = new root.jsPlumbListManager(this, this.Defaults.ListStyle);
     };
 
     _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {
