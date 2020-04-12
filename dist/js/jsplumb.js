@@ -3649,11 +3649,12 @@
 
     var root = this;
 
-    var ListManager = function(jsPlumbInstance) {
+    var ListManager = function(jsPlumbInstance, params) {
 
         this.count = 0;
         this.instance = jsPlumbInstance;
         this.lists = {};
+        this.options = params || {};
 
         this.instance.addList = function(el, options) {
             return this.listManager.addList(el, options);
@@ -3694,6 +3695,7 @@
 
         addList : function(el, options) {
             var dp = this.instance.extend({}, DEFAULT_OPTIONS);
+            this.instance.extend(dp, this.options);
             options = this.instance.extend(dp,  options || {});
             var id = [this.instance.getInstanceIndex(), this.count++].join("_");
             this.lists[id] = new List(this.instance, el, options, id);
@@ -3799,7 +3801,7 @@
                     }
                 }
                 //
-                else if (children[i].offsetTop > el.scrollTop + el.offsetHeight) {
+                else if (children[i].offsetTop + children[i].offsetHeight > el.scrollTop + el.offsetHeight) {
                     if (!children[i]._jsPlumbProxies) {
                         children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
 
@@ -3861,6 +3863,7 @@
 
 
 }).call(typeof window !== 'undefined' ? window : this);
+
 /*
  * This file contains the core code.
  *
@@ -4358,6 +4361,7 @@
             EndpointHoverStyles: [ null, null ],
             HoverPaintStyle: null,
             LabelStyle: { color: "black" },
+            ListStyle: { },
             LogEnabled: false,
             Overlays: [ ],
             MaxConnections: 1,
@@ -6958,7 +6962,7 @@
             return floatingConnections[id];
         };
 
-        this.listManager = new root.jsPlumbListManager(this);
+        this.listManager = new root.jsPlumbListManager(this, this.Defaults.ListStyle);
     };
 
     _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {

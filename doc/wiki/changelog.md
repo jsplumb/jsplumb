@@ -1,8 +1,9 @@
 ## 2.13.1
 
-April 11th 2020
+April 12th 2020
 
 - fix issue #924 - connections for nested child elements not recognised when parent added to a group.
+- Support `ListStyle` default, for specifying endpoint/anchor of `jtk-scrollable-list` elements.
 
 ## 2.13.0
 
