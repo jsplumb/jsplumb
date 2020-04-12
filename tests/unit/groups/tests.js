@@ -1138,4 +1138,51 @@ var testSuite = function (_jsPlumb) {
 
     });
 
+    test("groups, remove child while group is collapsed - proxy connection should be cleaned up, reconnected to node", function() {
+
+        c1 = support.addDiv("container1", null, "container", 0, 50, 500, 500);
+        c2 = support.addDiv("container2", null, "container", 300, 50, 500, 500);
+        c1_1 = support.addDiv("c1_1", c1, "w", 30, 30, 150, 150);
+        c2_1 = support.addDiv("c2_1", c2, "w", 180, 130, 150, 150);
+
+        // create child elements and connect them
+        var c1_1_1 = support.addDiv("c1_1_1", c1_1, "w", 30, 30, 50, 50);
+        var c2_1_1 = support.addDiv("c2_1_1", c2_1, "w", 30, 30, 50, 50);
+        var conn = _jsPlumb.connect({source:c1_1_1, target:c2_1_1});
+
+        g2 = _addGroup(_jsPlumb, "two", c2, [], { constrain:true, droppable:false});
+
+        // add c2_1 to group 2.  c2_1 is not connected to anything itself, it has a child that is the target of a connection, though.
+        _jsPlumb.addToGroup(g2, c2_1);
+
+        equal(c2_1.parentNode, c2, "group 2's element is parent node of c2_1");
+
+        equal(g2.connections.target.length, 1, "1 connection in group target connections");
+
+        equal(true, conn.isVisible(), "connection is visible");
+
+        _jsPlumb.toggleGroup(g2);
+
+        equal(true, conn.isVisible(), "connection is visible after group collapse, because the group shows proxies.");
+
+        // make sure that the child's connection is removed from the group when the element is removed.
+        _jsPlumb.removeFromGroup(g2, c2_1);
+        equal(g2.connections.target.length, 0, "0 connections in group target connections");
+        equal(c2_1.parentNode, _jsPlumb.getContainer(), "container is parent node of c2_1");
+
+        debugger;
+
+        var groupConns = _jsPlumb.getConnections({target:c2, scope:'*'});
+        equal(0, groupConns.length, "no connections registered for the group element");
+
+        equal(true, conn.isVisible(), "connection is visible ");
+
+        equal(conn.source, c1_1_1, "c1_1_1 is connection source after removal from group");
+        equal(conn.target, c2_1_1, "c2_1_1 is connection target after removal from group");
+
+        var conns = _jsPlumb.getConnections({source:c1_1_1, scope:'*'});
+        equal(conns.length, 1, "1 connection registered for c1_1_1");
+
+    });
+
 };
