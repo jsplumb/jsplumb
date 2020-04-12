@@ -721,33 +721,36 @@
 
                     element = _currentInstance.getElement(element);
 
-                    var id = _getId(element),
-                        repaintEls = element.querySelectorAll(".jtk-managed");
+                    if (element != null) {
 
-                    if (timestamp == null) {
-                        timestamp = _timestamp();
-                    }
+                        var id = _getId(element),
+                            repaintEls = element.querySelectorAll(".jtk-managed");
 
-                    // update the offset of everything _before_ we try to draw anything.
-                    var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
+                        if (timestamp == null) {
+                            timestamp = _timestamp();
+                        }
 
-                    for (var i = 0; i < repaintEls.length; i++) {
-                        _updateOffset({
-                            elId: repaintEls[i].getAttribute("id"),
-                            // offset: {
-                            //     left: o.o.left + repaintEls[i].offset.left,
-                            //     top: o.o.top + repaintEls[i].offset.top
-                            // },
-                            recalc: true,
-                            timestamp: timestamp
-                        });
-                    }
+                        // update the offset of everything _before_ we try to draw anything.
+                        var o = _updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp});
 
-                    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+                        for (var i = 0; i < repaintEls.length; i++) {
+                            _updateOffset({
+                                elId: repaintEls[i].getAttribute("id"),
+                                // offset: {
+                                //     left: o.o.left + repaintEls[i].offset.left,
+                                //     top: o.o.top + repaintEls[i].offset.top
+                                // },
+                                recalc: true,
+                                timestamp: timestamp
+                            });
+                        }
 
-                    if (repaintEls) {
-                        for (var j = 0; j < repaintEls.length; j++) {
-                            _currentInstance.anchorManager.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
+                        _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+
+                        if (repaintEls) {
+                            for (var j = 0; j < repaintEls.length; j++) {
+                                _currentInstance.anchorManager.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
+                            }
                         }
                     }
                 }
