@@ -395,6 +395,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             endpointHoverStyle: null,
             endpointHoverStyles: [ null, null ],
             hoverPaintStyle: null,
+            listStyle: { },
             maxConnections: 1,
             paintStyle: { strokeWidth: 2, stroke: "#456" },
             reattachConnections: false,
@@ -1137,36 +1138,39 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         if (!this._suspendDrawing) {
 
             let id = typeof element === "string" ? element as string : this.getId(element),
-                el = typeof element === "string" ? this.getElementById(element as string) : element as E,//this.getElement(element),
-                repaintEls = this._getAssociatedElements(el),
-                repaintOffsets = [];
+                el = typeof element === "string" ? this.getElementById(element as string) : element as E;
 
-            if (timestamp == null) {
-                timestamp = _timestamp();
-            }
+            if (el != null) {
+                let repaintEls = this._getAssociatedElements(el),
+                    repaintOffsets = [];
 
-            if (!offsetsWereJustCalculated) {
-                // update the offset of everything _before_ we try to draw anything.
-                this.updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp});
-                for (let i = 0; i < repaintEls.length; i++) {
-                    repaintOffsets.push(this.updateOffset({
-                        elId: this.getId(repaintEls[i]),
-                        recalc: true,
-                        timestamp: timestamp
-                    }).o);
+                if (timestamp == null) {
+                    timestamp = _timestamp();
                 }
-            } else {
-                for (let i = 0; i < repaintEls.length; i++) {
-                    const reId = this.getId(repaintEls[i]);
-                    repaintOffsets.push({o: this._offsets[reId], s: this._sizes[reId]});
+
+                if (!offsetsWereJustCalculated) {
+                    // update the offset of everything _before_ we try to draw anything.
+                    this.updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp});
+                    for (let i = 0; i < repaintEls.length; i++) {
+                        repaintOffsets.push(this.updateOffset({
+                            elId: this.getId(repaintEls[i]),
+                            recalc: true,
+                            timestamp: timestamp
+                        }).o);
+                    }
+                } else {
+                    for (let i = 0; i < repaintEls.length; i++) {
+                        const reId = this.getId(repaintEls[i]);
+                        repaintOffsets.push({o: this._offsets[reId], s: this._sizes[reId]});
+                    }
                 }
-            }
 
-            this.anchorManager.redraw(id, ui, timestamp, null);
+                this.anchorManager.redraw(id, ui, timestamp, null);
 
-            if (repaintEls.length > 0) {
-                for (let j = 0; j < repaintEls.length; j++) {
-                    this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, true);
+                if (repaintEls.length > 0) {
+                    for (let j = 0; j < repaintEls.length; j++) {
+                        this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, true);
+                    }
                 }
             }
         }
@@ -2183,6 +2187,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
     removeFromGroup (group:string | UIGroup<E>, el:E, doNotFireEvent?:boolean):void {
         this.groupManager.removeFromGroup(group, el, doNotFireEvent);
+        this.appendElement(el, this.getContainer());
     }
 
     // ------------ posses (not ported yet, may not be...)
