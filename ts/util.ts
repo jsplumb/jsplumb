@@ -474,8 +474,15 @@ export function _mergeOverrides (def:any, values:any):any {
     return m;
 }
 
+export type MapFunction<T, Q> = (v:T) => Q;
 
-export function Optional<T, Q>(obj:T) {
+export interface Optional<T> {
+    isDefined:()=>boolean;
+    ifPresent:( fn: (v:T) => any) => void;
+    map:(fn:MapFunction<T, any>) => any;
+}
+
+export function optional<T>(obj:T):Optional<T> {
     return {
         isDefined:()=> obj != null,
         ifPresent:(fn:(v:T) => any) => {
@@ -483,7 +490,8 @@ export function Optional<T, Q>(obj:T) {
                 fn(obj);
             }
         },
-        map:(fn:(v:T) => Q):Q => {
+        //map:(fn:(v:T) => Q):Q => {
+        map:(fn:MapFunction<T, any>) => {
             if(obj!= null) {
                 return fn(obj);
             } else {
