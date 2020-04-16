@@ -14,8 +14,8 @@ export class GroupManager<E> {
 
         instance.bind(Constants.EVENT_CONNECTION, (p:any) => {
 
-            const sourceGroup = this.findGroupFor(p.source);
-            const targetGroup = this.findGroupFor(p.target);
+            const sourceGroup = this.getGroupFor(p.source);
+            const targetGroup = this.getGroupFor(p.target);
 
             if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
                 this._connectionSourceMap[p.connection.id] = sourceGroup;
@@ -48,24 +48,6 @@ export class GroupManager<E> {
                 }
             }
         });
-    }
-
-    private findGroupFor(el:E):UIGroup<E> {
-        const c = this.instance.getContainer();
-        let abort = false, g = null;
-        while (!abort) {
-            if (el == null || el === c) {
-                abort = true;
-            } else {
-                if (el[Constants.GROUP_KEY]) {
-                    g = el[Constants.GROUP_KEY];
-                    abort = true;
-                } else {
-                    el = (el as any).parentNode;
-                }
-            }
-        }
-        return g;
     }
 
     private _cleanupDetachedConnection(conn:Connection<E>) {
@@ -122,8 +104,24 @@ export class GroupManager<E> {
     }
 
     getGroupFor(el:E|string):UIGroup<E> {
-        const _el = this.instance.getElement(el);
-        return _el != null ? _el[Constants.GROUP_KEY] : null;
+        let _el = this.instance.getElement(el);
+        if (_el != null) {
+            const c = this.instance.getContainer();
+            let abort = false, g = null;
+            while (!abort) {
+                if (_el == null || _el === c) {
+                    abort = true;
+                } else {
+                    if (_el[Constants.GROUP_KEY]) {
+                        g = _el[Constants.GROUP_KEY];
+                        abort = true;
+                    } else {
+                        _el = (_el as any).parentNode;
+                    }
+                }
+            }
+            return g;
+        }
     }
 
     removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
@@ -198,8 +196,8 @@ export class GroupManager<E> {
                     }
                     processed[c[i].id] = true;
 
-                    gs = this.findGroupFor(c[i].source);
-                    gt = this.findGroupFor(c[i].target);
+                    gs = this.getGroupFor(c[i].source);
+                    gt = this.getGroupFor(c[i].target);
 
                     if (gs === group) {
                         if (gt !== group) {
@@ -229,6 +227,22 @@ export class GroupManager<E> {
 
     private _expandConnection(c:Connection<E>, index:number, group:UIGroup<E>) {
         this.instance.unproxyConnection(c, index, this.instance.getId(group.el));
+    }
+
+    private isDescendant(el:E, parentEl:E): boolean {
+        const c = this.instance.getContainer();
+        let abort = false;
+        while (!abort) {
+            if (el == null || el === c) {
+                return false;
+            } else {
+                if (el === parentEl) {
+                    return true;
+                } else {
+                    el = (el as any).parentNode; // TODO DOM specific.
+                }
+            }
+        }
     }
 
     collapseGroup (group:string | UIGroup<E>) {
@@ -383,6 +397,33 @@ export class GroupManager<E> {
     removeFromGroup (group:string | UIGroup<E>, el:E, doNotFireEvent?:boolean):void {
         let actualGroup = this.getGroup(group);
         if (actualGroup) {
+
+
+            // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
+            // to be put back on their original element, and unproxied
+            if (actualGroup.collapsed) {
+                const _expandSet =  (conns:Array<Connection<E>>, index:number) => {
+                    for (let i = 0; i < conns.length; i++) {
+                        const c = conns[i];
+                        if (c.proxies) {
+                            for(let j = 0; j < c.proxies.length; j++) {
+                                if (c.proxies[j] != null) {
+                                    const proxiedElement = c.proxies[j].originalEp.element;
+                                    if (proxiedElement === el || this.isDescendant(proxiedElement, el)) {
+                                        this._expandConnection(c, index, actualGroup);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                };
+
+                // setup proxies for sources and targets
+                _expandSet(actualGroup.connections.source.slice(), 0);
+                _expandSet(actualGroup.connections.target.slice(), 1);
+            }
+
             actualGroup.remove(el, null, doNotFireEvent);
         }
     }
