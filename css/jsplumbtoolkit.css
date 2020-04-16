@@ -1,7 +1,7 @@
 /* 
     Default styles for jsPlumb Toolkit
 
-    Copyright 2018 https://jsplumbtoolkit.com
+    Copyright 2020 https://jsplumbtoolkit.com
 */
 
 /* --------------------------------------------------------------------------------------------- */
@@ -91,6 +91,13 @@
     -webkit-backface-visibility: hidden;
     -webkit-transform: translateZ(0) scale(1.0, 1.0);
     */
+}
+
+/**
+* Assigned to a Surface element when direct rendering is switched on - no pan or zoom, the underlying canvas scaled to fit its contents at zoom:1.
+ */
+.jtk-surface-direct-render {
+    overflow:hidden !important;
 }
 
 /*
@@ -190,7 +197,7 @@ Assigned to tile images in a tiled background
     Assigned to some element that has been selected (either via lasso or programmatically).
 */
 .jtk-surface-selected-element {
-    border: 2px dashed #f76258 !important;
+    border: 2px dotted #c7726c !important;
 }
 
 /*
@@ -261,8 +268,8 @@ Assigned to tile images in a tiled background
     width: 125px;
     height: 125px;
     position: relative;
-    background-color: #B2C9CD;
-    border: 1px solid #E2E6CD;
+    background-color: transparent;
+    border: 2px solid #d4d8dc;
     border-radius: 4px;
     opacity: 0.8;
 }
@@ -387,9 +394,10 @@ Assigned to tile images in a tiled background
     display: none;
     background-color: white;
     font-family: "Open Sans", sans-serif;
-    padding: 7px;
-    box-shadow: 0 0 5px gray;
+    padding: 9px;
+    box-shadow: 0 0 5px grey;
     overflow: hidden;
+    border-radius: 3px;
 }
 
 .jtk-dialog-overlay-x {
@@ -439,19 +447,21 @@ Assigned to tile images in a tiled background
 */
 .jtk-dialog-buttons {
     text-align: right;
-    margin-top: 5px;
+    margin-top: 7px;
 }
 
 /*
     An individual button in a dialog.
 */
 .jtk-dialog-button {
-    border: none;
     cursor: pointer;
     margin-right: 5px;
     min-width: 56px;
     background-color: white;
-    outline: 1px solid #ccc;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 4px;
+    outline: none;
 }
 
 /*
@@ -459,7 +469,8 @@ Assigned to tile images in a tiled background
 */
 .jtk-dialog-button:hover {
     color: white;
-    background-color: #234b5e;
+    background-color: #5184a0;
+    border-color:white;
 }
 
 /*
@@ -500,8 +511,8 @@ Assigned to tile images in a tiled background
 }
 
 .jtk-dialog-overlay input:focus, .jtk-dialog-overlay textarea:focus {
-    background-color: #cbeae1;
-    border: 1px solid #83b8a8;
+    background-color: #f1f5fb;
+    border: 1px solid #5184a0;
     color: #333;
     font-size: 14px;
     font-style: normal;
