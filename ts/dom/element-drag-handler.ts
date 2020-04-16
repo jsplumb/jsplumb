@@ -10,7 +10,7 @@ import {
 import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance";
 import {UIGroup} from "../group/group";
 import {BoundingBox, Dictionary, Offset} from "../core";
-import {isString, Optional} from "../util";
+import {isString, optional} from "../util";
 import {intersects} from "../geom";
 
 type IntersectingGroup<E> = {
@@ -360,7 +360,7 @@ export class ElementDragHandler implements DragHandler {
     removeFromAllPosses(...els:Array<HTMLElement>):void {
         els.forEach((el) => {
             const elId = el.getAttribute("id");
-            Optional(this._posseByElementIdMap[elId]).ifPresent(posse => this.removeFromPosse(el, posse.id, elId))
+            optional(this._posseByElementIdMap[elId]).ifPresent(posse => this.removeFromPosse(el, posse.id, elId))
         });
     }
 
@@ -368,7 +368,7 @@ export class ElementDragHandler implements DragHandler {
 
         const elementIds = els.map(el => el.getAttribute("id"));
 
-        Optional<Posse, void>(this._posseMap[posseId]).map(posse => {
+        optional<Posse>(this._posseMap[posseId]).map(posse => {
             Array.from(posse.members.values()).forEach(member => {
                 if (elementIds.indexOf(member.elId)) {
                     member.active = state;
