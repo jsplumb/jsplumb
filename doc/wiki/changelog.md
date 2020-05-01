@@ -1,3 +1,9 @@
+## 2.13.2
+
+May 1st 2020
+
+- when adding new endpoint and drawing is not suspended, ensure offset/size is always updated. 
+
 ## 2.13.1
 
 April 12th 2020

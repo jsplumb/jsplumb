@@ -1217,8 +1217,8 @@
 
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
-                // ensure element is managed.
-                var myOffset = _manage(id, p.source).info.o;
+                // ensure element is managed. force a recalc if drawing not suspended, to ensure the cached value is fresh
+                var myOffset = _manage(id, p.source, null, !_suspendDrawing).info.o;
                 _ju.addToList(endpointsByElement, id, e);
 
                 if (!_suspendDrawing) {
@@ -1934,7 +1934,7 @@
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
-        var _manage = _currentInstance.manage = function (id, element, _transient) {
+        var _manage = _currentInstance.manage = function (id, element, _transient, _recalc) {
             if (!managedElements[id]) {
                 managedElements[id] = {
                     el: element,
@@ -1947,6 +1947,10 @@
 
                 if (!_transient) {
                     _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
+                }
+            } else {
+                if (_recalc) {
+                    managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt, recalc:true });
                 }
             }
 
