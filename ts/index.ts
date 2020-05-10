@@ -3,6 +3,7 @@ import {extend} from "./core";
 
 import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
+import {jsPlumbDefaults} from "./defaults";
 
 export * from "./constants";
 export * from "./core";
@@ -86,6 +87,23 @@ function getInstanceIndex ():number {
     return i;
 }
 
+export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>): BrowserJsPlumbInstance {
+    return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers);
+}
+
+export function ready(f:Function) {
+    const _do = function () {
+        if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) !== "undefined" && document.body != null) {
+            f();
+        }
+        else {
+            setTimeout(_do, 9);
+        }
+    };
+
+    _do();
+}
+
 /**
  *
  * Entry point.
@@ -95,21 +113,8 @@ function getInstanceIndex ():number {
 if(typeof window !== "undefined") {
 
     (<any>window).jsPlumb = {
-        newInstance:(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>):BrowserJsPlumbInstance => {
-            return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers);
-        },
-        ready:(f:Function) => {
-            const _do = function () {
-                if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) !== "undefined" && document.body != null) {
-                    f();
-                }
-                else {
-                    setTimeout(_do, 9);
-                }
-            };
-
-            _do();
-        },
+        newInstance:newInstance(),
+        ready:ready,
         extend:extend,
         svg:{
             node:_node,
@@ -118,6 +123,4 @@ if(typeof window !== "undefined") {
         }
     };
 
-
-    //ready(_jp.init);
 }
