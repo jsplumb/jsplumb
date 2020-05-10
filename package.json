@@ -1,6 +1,6 @@
 {
-  "name": "jsplumb",
-  "version": "4.0.0",
+  "name": "@jsplumb/community",
+  "version": "4.0.0-RC1",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
@@ -8,19 +8,19 @@
     "test": "tests"
   },
   "files": [
-    "index.d.ts",
+    "dist/**/*.d.ts",
     "dist/js/jsplumb.js",
-    "dist/js/jsplumb.min.js",
-    "css/jsplumbtoolkit-defaults.css"
+    "css/jsplumbtoolkit.css"
   ],
-  "types": "index",
+  "types": "dist/index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init": "node ./install.js",
     "build": "tsc",
     "babel": "./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
     "transpile": "npm run build;npm run babel",
-    "package": "npm run rollup;",
+    "package": "rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs",
+    "copy-defs": "node ./copy-typescript-defs.js",
     "rollup": "rollup -c",
     "rollup-dev": "rollup -c -w"
   },
@@ -36,6 +36,10 @@
   ],
   "author": "jsPlumb",
   "license": "(MIT OR GPL-2.0)",
+  "dependencies": {
+    "@jsplumb/katavorio": "^1.5.0",
+    "@jsplumb/mottle": "^1.5.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.4",
@@ -44,23 +48,10 @@
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-typescript": "^7.3.3",
     "babel-loader": "^8.0.6",
-    "grunt": "~0.4.1",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-connect": "^0.11.2",
-    "grunt-contrib-copy": "~0.5.0",
-    "grunt-contrib-jshint": "~0.6.2",
-    "grunt-contrib-uglify": "~0.2.2",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-exec": "^1.0.1",
-    "grunt-jekyll": "~0.4.2",
-    "katavorio": "1.4.11",
     "morgan": "1.8.0",
-    "mottle": "^1.0.0",
     "rollup": "^1.12.0",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-node-resolve": "^5.0.0",
     "typescript": "3.3.4000"
-  },
-  "dependencies": {}
+  }
 }
