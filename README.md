@@ -45,14 +45,19 @@ for every scope that is assigned.
 
 ##### Imports
 
-Note that currently we are not bundling jsPlumb with its dependencies. You need to include these yourself (this is a temporary
-situation).  These are the imports for the demonstration pages:
+Note that currently we are not bundling jsPlumb with its dependencies. You need to include these yourself; this may or may not end up being 
+a permanent arrangement. `@jsplumb/katavorio` and `@jsplumb/mottle` are the dependencies, and they are declared by jsPlumb's `package.json`, so
+they will be installed when jsPlumb is installed. 
+
+These are the imports for the demonstration pages:
 
 ```html
-<script src="../../node_modules/mottle/js/mottle.js"></script>
-<script src="../../node_modules/katavorio/src/katavorio.js"></script>
+<script src="../../node_modules/@jsplumb/mottle/js/mottle.js"></script>
+<script src="../../node_modules/@jsplumb/katavorio/src/katavorio.js"></script>
 <script src="../../dist/js/jsplumb.js"></script>
 ```
+
+The most likely future development is that these two packages will be pulled in to jsPlumb and rewritten as Typescript.
 
 
 ##### Reporting issues
