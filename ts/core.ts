@@ -1023,6 +1023,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
     }
 
+    // TODO 2.13.2 included a `_recalc` parameter here that we set when calling manage from addEndpoint. in certain circumstances involving the toolkit,
+    // `manage` had been called on an unpositioned/unsized element (not attached to dom), and when addEndpoint was called the
+    // cached offset/size was being used. _recalc was set by the code in addEndpoint to be `!_suspendDrawing`, ie. if a bulk paint is occurring dont update,
+    // otherwise do, as it's a cheap operation for a single element.
     manage (...elements:Array<ElementSpec<E>>):void {
         elements.forEach((element:ElementSpec<E>) => {
             const el:E = IS.aString(element) ? this.getElementById(element as string) : element as E;
