@@ -1,3 +1,9 @@
+---
+category: Dragging
+title: Element Dragging
+keywords: ui, drag, dragging
+---
+
 ## Element Dragging
 
 A common feature of interfaces using jsPlumb is that the elements are draggable. You should use the `draggable` method 
@@ -51,7 +57,7 @@ jsPlumbInstance.draggable(els);
 #### Options
 
 If you absolutely cannot use `jsPlumb.draggable`, you will have to arrange to repaint the drag element manually, via 
-`jsPlumb.repaint`.
+`jsPlumb.revalidate`.
 
 Note `jsPlumb` is an instance of the `jsPlumbInstance` class. If you are working with your own instances of jsPlumb, be 
 sure to call the draggable method on those instances, not the global instance.

@@ -1,3 +1,9 @@
+---
+category: Appearance
+title: CSS
+keywords: css, class, style
+---
+
 ## Styling via CSS
 
 Using CSS to style the artefacts that jsPlumb creates is a lot more flexible than using `paintStyle` or 

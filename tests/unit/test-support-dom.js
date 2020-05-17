@@ -233,7 +233,16 @@
                     return d.firstChild;
                 },
 
-                countKeys:countKeys
+                countKeys:countKeys,
+                length : function(obj) {
+                    var c = 0;
+                    for (var i in obj) if (obj.hasOwnProperty(i)) c++;
+                    return c;
+                },
+                head : function(obj) {
+                    for (var i in obj)
+                        return obj[i];
+                }
             }
         }
     };

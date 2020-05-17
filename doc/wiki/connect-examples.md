@@ -1,3 +1,9 @@
+---
+category: Example
+title: jsPlumb.connect Examples
+keywords: ui, connect, connection
+---
+
 ### jsPlumb.connect Examples
 This section provides various examples of how to use the programmatic API to establish Connections. 
 

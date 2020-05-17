@@ -1141,14 +1141,14 @@
                     jpc.floatingEndpoint = jpc.endpoints[0];
                     jpc.floatingIndex = 0;
                     jpc.source = dhParams.element;
-                    jpc.sourceId = dhParams.elementId;
+                    jpc.sourceId = _jsPlumb.getId(dhParams.element);
                 } else {
                     jpc.floatingElement = jpc.target;
                     jpc.floatingId = jpc.targetId;
                     jpc.floatingEndpoint = jpc.endpoints[1];
                     jpc.floatingIndex = 1;
                     jpc.target = dhParams.element;
-                    jpc.targetId = dhParams.elementId;
+                    jpc.targetId = _jsPlumb.getId(dhParams.element);
                 }
 
                 // if this is an existing connection and detach is not allowed we won't continue. The connection's

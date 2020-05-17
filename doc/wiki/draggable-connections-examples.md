@@ -1,3 +1,9 @@
+---
+category: Example
+title: Draggable Connections Examples
+keywords: ui, defaults, anchor, endpoint, connector
+---
+
 ### Draggable Connections Examples
 
 #### A note on `dragOptions` and `dropOptions`
@@ -175,4 +181,3 @@ Notice that the endpoint definition we use on the target window does not include
 ignores that flag when creating a Connection using an element as the target; but if you then tried to drag another 
 Connection to the Endpoint that was created, you would not be able to.  To permit that, you would set `isTarget:true` 
 on the `targetEndpoint` options defined above.
-	

@@ -131,9 +131,9 @@
 
 // INITIALISATION CODE
 
-        this.makeEndpoint = function (isSource, el, elId, ep) {
+        this.makeEndpoint = function (isSource, el, elId, ep, definition) {
             elId = elId || this._jsPlumb.instance.getId(el);
-            return this.prepareEndpoint(_jsPlumb, _newEndpoint, this, ep, isSource ? 0 : 1, params, el, elId);
+            return this.prepareEndpoint(_jsPlumb, _newEndpoint, this, ep, isSource ? 0 : 1, params, el, elId, definition);
         };
 
         // if type given, get the endpoint definitions mapping to that type from the jsplumb instance, and use those.
@@ -548,6 +548,7 @@
                             ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                         };
                     // paint the connector.
+                    this.connector.paintExtents = extents;
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
                     // and then the overlays
                     for (var j in this._jsPlumb.overlays) {
@@ -567,7 +568,7 @@
             p.elId = this.sourceId;
             this.paint(p);
         },
-        prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId) {
+        prepareEndpoint: function (_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId, definition) {
             var e;
             if (existing) {
                 conn.endpoints[index] = existing;
@@ -576,7 +577,7 @@
                 if (!params.endpoints) {
                     params.endpoints = [ null, null ];
                 }
-                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
+                var ep = definition || params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
                 if (!params.endpointStyles) {
                     params.endpointStyles = [ null, null ];
                 }
@@ -631,6 +632,23 @@
 
             }
             return e;
+        },
+        replaceEndpoint:function(idx, endpointDef) {
+
+            var current = this.endpoints[idx],
+                elId = current.elementId,
+                ebe = this._jsPlumb.instance.getEndpoints(elId),
+                _idx = ebe.indexOf(current),
+                _new = this.makeEndpoint(idx === 0, current.element, elId, null, endpointDef);
+
+            this.endpoints[idx] = _new;
+
+            ebe.splice(_idx, 1, _new);
+            this._jsPlumb.instance.deleteObject({endpoint:current, deleteAttachedObjects:false});
+            this._jsPlumb.instance.fire("endpointReplaced", {previous:current, current:_new});
+
+            this._jsPlumb.instance.anchorManager.updateOtherEndpoint(this.endpoints[0].elementId, this.endpoints[1].elementId, this.endpoints[1].elementId, this);
+
         }
 
     }); // END Connection class            

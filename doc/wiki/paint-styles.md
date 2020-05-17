@@ -1,7 +1,16 @@
+---
+category: Appearance
+title: Paint Styles
+keywords: paint style, color, colour
+---
+
 ### Paint Styles
 
 Defining the appearance of Connectors and Endpoints is achieved through a `paintStyle` (or a quite similar name) object passed as a parameter to one of `jsPlumb.connect`, `jsPlumb.addEndpoint`, `jsPlumb.makeSource` or `jsPlumb.makeTarget`.
 Depending on the method you are calling, the parameter names vary.
+
+Note that these docs - and this concept - are one of the very earliest things that jsPlumb supported, and over time we've tended to
+move towards the use of [css classes](styling-via-css) wherever possible. 
 
 ##### Connector Paint Styles
 These are specified in a `paintStyle` parameter on a call to `jsPlumb.connect`:

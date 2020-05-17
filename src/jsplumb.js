@@ -81,7 +81,17 @@
                     if (tid !== "__default") {
                         var _t = component._jsPlumb.instance.getType(tid, td);
                         if (_t != null) {
-                            o = _ju.merge(o, _t, [ "cssClass" ], [ "connector" ]);
+
+                            var overrides = ["anchor", "anchors", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints", "connectorOverlays", "connectorStyle", "connectorHoverStyle", "endpointStyle", "endpointHoverStyle"];
+                            var collations = [ ];
+
+                            if (_t.mergeStrategy === "override") {
+                                Array.prototype.push.apply(overrides, ["events", "overlays", "cssClass"]);
+                            } else {
+                                collations.push("cssClass");
+                            }
+
+                            o = _ju.merge(o, _t, collations, overrides);
                             _mapType(map, _t, tid);
                         }
                     }
@@ -485,6 +495,7 @@
             EndpointHoverStyles: [ null, null ],
             HoverPaintStyle: null,
             LabelStyle: { color: "black" },
+            ListStyle: { },
             LogEnabled: false,
             Overlays: [ ],
             MaxConnections: 1,
@@ -708,40 +719,39 @@
             _draw = function (element, ui, timestamp, clearEdits) {
 
                 if (!_suspendDrawing) {
-                    var id = _getId(element),
-                        repaintEls,
-                        dm = _currentInstance.getDragManager();
 
-                    if (dm) {
-                        repaintEls = dm.getElementsForDraggable(id);
-                    }
+                    element = _currentInstance.getElement(element);
 
-                    if (timestamp == null) {
-                        timestamp = _timestamp();
-                    }
+                    if (element != null) {
 
-                    // update the offset of everything _before_ we try to draw anything.
-                    var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
+                        var id = _getId(element),
+                            repaintEls = element.querySelectorAll(".jtk-managed");
 
-                    if (repaintEls && o && o.o) {
-                        for (var i in repaintEls) {
+                        if (timestamp == null) {
+                            timestamp = _timestamp();
+                        }
+
+                        // update the offset of everything _before_ we try to draw anything.
+                        var o = _updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp});
+
+                        for (var i = 0; i < repaintEls.length; i++) {
                             _updateOffset({
-                                elId: repaintEls[i].id,
-                                offset: {
-                                    left: o.o.left + repaintEls[i].offset.left,
-                                    top: o.o.top + repaintEls[i].offset.top
-                                },
-                                recalc: false,
+                                elId: repaintEls[i].getAttribute("id"),
+                                // offset: {
+                                //     left: o.o.left + repaintEls[i].offset.left,
+                                //     top: o.o.top + repaintEls[i].offset.top
+                                // },
+                                recalc: true,
                                 timestamp: timestamp
                             });
                         }
-                    }
 
-                    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+                        _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
 
-                    if (repaintEls) {
-                        for (var j in repaintEls) {
-                            _currentInstance.anchorManager.redraw(repaintEls[j].id, ui, timestamp, repaintEls[j].offset, clearEdits, true);
+                        if (repaintEls) {
+                            for (var j = 0; j < repaintEls.length; j++) {
+                                _currentInstance.anchorManager.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
+                            }
                         }
                     }
                 }
@@ -856,12 +866,13 @@
 
 
                 var _addEndpoint = function (el, def, idx) {
-                    return _currentInstance.addEndpoint(el, _mergeOverrides(def, {
+                    var params = _mergeOverrides(def, {
                         anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                         endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
                         paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
                         hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
-                    }));
+                    });
+                    return _currentInstance.addEndpoint(el, params);
                 };
 
                 // check for makeSource/makeTarget specs.
@@ -877,13 +888,17 @@
                             if (!tep.enabled) {
                                 return false;
                             }
-                            var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
+
+                            var epDef = jsPlumb.extend({}, tep.def);
+                            delete epDef.label;
+
+                            var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], epDef, idx);
                             if (newEndpoint.isFull()) {
                                 return false;
                             }
                             _p[type + "Endpoint"] = newEndpoint;
-                            if (!_p.scope && tep.def.scope) {
-                                _p.scope = tep.def.scope;
+                            if (!_p.scope && epDef.scope) {
+                                _p.scope = epDef.scope;
                             } // provide scope if not already provided and endpoint def has one.
                             if (tep.uniqueEndpoint) {
                                 if (!tep.endpoint) {
@@ -994,6 +1009,7 @@
             _newEndpoint = function (params, id) {
                 var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
                 var _p = jsPlumb.extend({}, params);
+                //delete _p.label; // not supported by endpoint.
                 _p._jsPlumb = _currentInstance;
                 _p.newConnection = _newConnection;
                 _p.newEndpoint = _newEndpoint;
@@ -1201,8 +1217,8 @@
 
                 var id = _getId(p.source), e = _newEndpoint(p, id);
 
-                // ensure element is managed.
-                var myOffset = _manage(id, p.source).info.o;
+                // ensure element is managed. force a recalc if drawing not suspended, to ensure the cached value is fresh
+                var myOffset = _manage(id, p.source, null, !_suspendDrawing).info.o;
                 _ju.addToList(endpointsByElement, id, e);
 
                 if (!_suspendDrawing) {
@@ -1918,7 +1934,7 @@
 
         // check if a given element is managed or not. if not, add to our map. if drawing is not suspended then
         // we'll also stash its dimensions; otherwise we'll do this in a lazy way through updateOffset.
-        var _manage = _currentInstance.manage = function (id, element, _transient) {
+        var _manage = _currentInstance.manage = function (id, element, _transient, _recalc) {
             if (!managedElements[id]) {
                 managedElements[id] = {
                     el: element,
@@ -1931,6 +1947,10 @@
 
                 if (!_transient) {
                     _currentInstance.fire("manageElement", { id:id, info:managedElements[id].info, el:element });
+                }
+            } else {
+                if (_recalc) {
+                    managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt, recalc:true });
                 }
             }
 
@@ -2423,6 +2443,8 @@
                             return;
                         }
 
+                        elid = this.getId(this.getElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
+
                         // TODO store def on element.
                         var def = this.sourceEndpointDefinitions[elid][type];
 
@@ -2430,8 +2452,6 @@
                         if (!def.enabled) {
                             return;
                         }
-
-                        elid = this.getId(this.getElement(elInfo.el)); // elid might have changed since this method was called to configure the element.
 
                         // if a filter was given, run it, and return if it says no.
                         if (p.filter) {
@@ -2856,7 +2876,7 @@
          */
         this.remove = function (el, doNotRepaint) {
             var info = _info(el), affectedElements = [];
-            if (info.text) {
+            if (info.text && info.el.parentNode) {
                 info.el.parentNode.removeChild(info.el);
             }
             else if (info.id) {
@@ -3080,7 +3100,7 @@
             return floatingConnections[id];
         };
 
-        this.listManager = new root.jsPlumbListManager(this);
+        this.listManager = new root.jsPlumbListManager(this, this.Defaults.ListStyle);
     };
 
     _ju.extend(root.jsPlumbInstance, _ju.EventGenerator, {

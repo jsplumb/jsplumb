@@ -1,3 +1,9 @@
+---
+category: Core
+title: Overview
+keywords: overview, home
+---
+
 ## jsPlumb
 
 jsPlumb Community edition provides a means for a developer to visually connect elements on their web pages, using SVG.
@@ -30,6 +36,14 @@ jsPlumb 1.7.x runs on everything from IE6 up. jsPlumb 2.x runs on everything fro
 
 <a name="setup"></a>
 ### Setup
+
+```javascript
+npm install jsplumb
+```
+
+**NOTE** jsPlumb does not follow the strict rules of semantic versioning. You cannot entrust jsPlumb to release a new version that will
+work in your software. That is your responsibility. We strongly recommend you do not use wildcards on the jsPlumb import statement, and forego
+your utopian dreams.  
 
 <a name="doctype"></a>
 ### Doctype

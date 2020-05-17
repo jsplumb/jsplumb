@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 - 2018 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
@@ -40,19 +40,58 @@
     var GroupManager = function(_jsPlumb) {
         var _managedGroups = {}, _connectionSourceMap = {}, _connectionTargetMap = {}, self = this;
 
+        // function findGroupFor(el) {
+        //     var c = _jsPlumb.getContainer();
+        //     var abort = false, g = null, child = null;
+        //     while (!abort) {
+        //         if (el == null || el === c) {
+        //             abort = true;
+        //         } else {
+        //             if (el[GROUP]) {
+        //                 g = el[GROUP];
+        //                 child = el;
+        //                 abort = true;
+        //             } else {
+        //                 el = el.parentNode;
+        //             }
+        //         }
+        //     }
+        //     return g;
+        // }
+
+        function isDescendant(el, parentEl) {
+            var c = _jsPlumb.getContainer();
+            var abort = false, g = null, child = null;
+            while (!abort) {
+                if (el == null || el === c) {
+                    return false;
+                } else {
+                    if (el === parentEl) {
+                        return true;
+                    } else {
+                        el = el.parentNode;
+                    }
+                }
+            }
+        }
+
         _jsPlumb.bind("connection", function(p) {
-            if (p.source[GROUP] != null && p.target[GROUP] != null && p.source[GROUP] === p.target[GROUP]) {
-                _connectionSourceMap[p.connection.id] = p.source[GROUP];
-                _connectionTargetMap[p.connection.id] = p.source[GROUP];
+
+            var sourceGroup = _jsPlumb.getGroupFor(p.source);
+            var targetGroup = _jsPlumb.getGroupFor(p.target);
+
+            if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
+                _connectionSourceMap[p.connection.id] = sourceGroup;
+                _connectionTargetMap[p.connection.id] = sourceGroup;
             }
             else {
-                if (p.source[GROUP] != null) {
-                    _ju.suggest(p.source[GROUP].connections.source, p.connection);
-                    _connectionSourceMap[p.connection.id] = p.source[GROUP];
+                if (sourceGroup != null) {
+                    _ju.suggest(sourceGroup.connections.source, p.connection);
+                    _connectionSourceMap[p.connection.id] = sourceGroup;
                 }
-                if (p.target[GROUP] != null) {
-                    _ju.suggest(p.target[GROUP].connections.target, p.connection);
-                    _connectionTargetMap[p.connection.id] = p.target[GROUP];
+                if (targetGroup != null) {
+                    _ju.suggest(targetGroup.connections.target, p.connection);
+                    _connectionTargetMap[p.connection.id] = targetGroup;
                 }
             }
         });
@@ -111,6 +150,9 @@
                 var currentGroup = el._jsPlumbGroup;
                 // if already a member of this group, do nothing
                 if (currentGroup !== group) {
+
+                    _jsPlumb.removeFromDragSelection(el);
+
                     var elpos = _jsPlumb.getOffset(el, true);
                     var cpos = group.collapsed ? _jsPlumb.getOffset(groupEl, true) : _jsPlumb.getOffset(group.getDragArea(), true);
 
@@ -168,6 +210,32 @@
         this.removeFromGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
+
+                // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
+                // to be put back on their original element, and unproxied
+                if (group.collapsed) {
+                    var _expandSet = function (conns, index) {
+                        for (var i = 0; i < conns.length; i++) {
+                            var c = conns[i];
+                            if (c.proxies) {
+                                for(var j = 0; j < c.proxies.length; j++) {
+                                    if (c.proxies[j] != null) {
+                                        var proxiedElement = c.proxies[j].originalEp.element;
+                                        if (proxiedElement === el || isDescendant(proxiedElement, el)) {
+                                            _expandConnection(c, index, group);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    };
+
+                    // setup proxies for sources and targets
+                    _expandSet(group.connections.source.slice(), 0);
+                    _expandSet(group.connections.target.slice(), 1);
+                }
+
                 group.remove(el, null, doNotFireEvent);
             }
         };
@@ -209,7 +277,9 @@
         };
 
         function _setVisible(group, state) {
-            var m = group.getMembers();
+
+            // TODO discovering the list of elements would ideally be a pluggable function.
+            var m = group.getEl().querySelectorAll(".jtk-managed");
             for (var i = 0; i < m.length; i++) {
                 _jsPlumb[state ? CMD_SHOW : CMD_HIDE](m[i], true);
             }
@@ -277,7 +347,7 @@
             _setVisible(group, true);
 
             if (group.shouldProxy()) {
-                // collapses all connections in a group.
+                // expands all connections in a group.
                 var _expandSet = function (conns, index) {
                     for (var i = 0; i < conns.length; i++) {
                         var c = conns[i];
@@ -310,9 +380,17 @@
 
         // TODO refactor this with the code that responds to `connection` events.
         function _updateConnectionsForGroup(group) {
-            var members = group.getMembers();
+            var members = group.getMembers().slice();
+
+            var childMembers = [];
+            for (var i = 0; i < members.length; i++) {
+                Array.prototype.push.apply(childMembers, members[i].querySelectorAll(".jtk-managed"));
+            }
+            Array.prototype.push.apply(members, childMembers);
+
             var c1 = _jsPlumb.getConnections({source:members, scope:"*"}, true);
             var c2 = _jsPlumb.getConnections({target:members, scope:"*"}, true);
+
             var processed = {};
             group.connections.source.length = 0;
             group.connections.target.length = 0;
@@ -322,13 +400,16 @@
                         continue;
                     }
                     processed[c[i].id] = true;
-                    if (c[i].source._jsPlumbGroup === group) {
-                        if (c[i].target._jsPlumbGroup !== group) {
+                    var gs = _jsPlumb.getGroupFor(c[i].source),
+                        gt = _jsPlumb.getGroupFor(c[i].target);
+
+                    if (gs === group) {
+                        if (gt !== group) {
                             group.connections.source.push(c[i]);
                         }
                         _connectionSourceMap[c[i].id] = group;
                     }
-                    else if (c[i].target._jsPlumbGroup === group) {
+                    else if (gt === group) {
                         group.connections.target.push(c[i]);
                         _connectionTargetMap[c[i].id] = group;
                     }
@@ -394,6 +475,11 @@
         this.collapsed = false;
         if (params.draggable !== false) {
             var opts = {
+                drag:function() {
+                    for (var i = 0; i < elements.length; i++) {
+                        _jsPlumb.draw(elements[i]);
+                    }
+                },
                 stop:function(params) {
                     _jsPlumb.fire(EVT_GROUP_DRAG_STOP, jsPlumb.extend(params, {group:self}));
                 },
@@ -473,24 +559,29 @@
         this.remove = function(el, manipulateDOM, doNotFireEvent, doNotUpdateConnections, targetGroup) {
 
             _each(el, function(__el) {
-                delete __el._jsPlumbGroup;
-                _ju.removeWithFunction(elements, function(e) {
-                    return e === __el;
-                });
+                if (__el._jsPlumbGroup === self) {
+                    delete __el._jsPlumbGroup;
+                    _ju.removeWithFunction(elements, function (e) {
+                        return e === __el;
+                    });
 
-                if (manipulateDOM) {
-                    try { self.getDragArea().removeChild(__el); }
-                    catch (e) {
-                        jsPlumbUtil.log("Could not remove element from Group " + e);
+
+                    if (manipulateDOM) {
+                        try {
+                            self.getDragArea().removeChild(__el);
+                        } catch (e) {
+                            jsPlumbUtil.log("Could not remove element from Group " + e);
+                        }
                     }
-                }
-                _unbindDragHandlers(__el);
-                if (!doNotFireEvent) {
-                    var p = {group: self, el: __el};
-                    if (targetGroup) {
-                        p.targetGroup = targetGroup;
+                    _unbindDragHandlers(__el);
+
+                    if (!doNotFireEvent) {
+                        var p = {group: self, el: __el};
+                        if (targetGroup) {
+                            p.targetGroup = targetGroup;
+                        }
+                        _jsPlumb.fire(EVT_CHILD_REMOVED, p);
                     }
-                    _jsPlumb.fire(EVT_CHILD_REMOVED, p);
                 }
             });
             if (!doNotUpdateConnections) {
@@ -553,7 +644,6 @@
             _el.parentNode.removeChild(_el);
             _jsPlumb.getContainer().appendChild(_el);
             _jsPlumb.setPosition(_el, pos);
-            delete _el._jsPlumbGroup;
             _unbindDragHandlers(_el);
             _jsPlumb.dragManager.clearParent(_el, id);
             return [id, pos];
@@ -563,19 +653,31 @@
         // remove an element from the group, then either prune it from the jsplumb instance, or just orphan it.
         //
         function _pruneOrOrphan(p) {
-            var orphanedPosition = null;
-            if (!_isInsideParent(p.el, p.pos)) {
-                var group = p.el._jsPlumbGroup;
-                if (prune) {
-                    _jsPlumb.remove(p.el);
-                } else {
-                    orphanedPosition = _orphan(p.el);
+
+            var out = [];
+
+            function _one(el, left, top) {
+                var orphanedPosition = null;
+                if (!_isInsideParent(el, [left, top])) {
+                    var group = el._jsPlumbGroup;
+                    if (prune) {
+                        _jsPlumb.remove(el);
+                    } else {
+                        orphanedPosition = _orphan(el);
+                    }
+
+                    group.remove(el);
                 }
 
-                group.remove(p.el);
+                return orphanedPosition;
             }
 
-            return orphanedPosition;
+            for (var i = 0; i < p.selection.length; i++) {
+                out.push(_one(p.selection[i][0], p.selection[i][1].left, p.selection[i][1].top));
+            }
+
+            return out.length === 1 ? out[0] : out;
+
         }
 
         //
@@ -681,13 +783,14 @@
     };
 
     /**
-     * Remove an element from a group.
+     * Remove an element from a group, and sets its DOM element to be a child of the container again.  ??
      * @method removeFromGroup
      * @param {String} group Group, or ID of the group, to remove the element from.
      * @param {Element} el Element to add to the group.
      */
     _jpi.prototype.removeFromGroup = function(group, el, doNotFireEvent) {
         this.getGroupManager().removeFromGroup(group, el, doNotFireEvent);
+        this.getContainer().appendChild(el);
     };
 
     /**
@@ -808,7 +911,22 @@
     _jpi.prototype.getGroupFor = function(el) {
         el = this.getElement(el);
         if (el) {
-            return el[GROUP];
+            var c = this.getContainer();
+            var abort = false, g = null, child = null;
+            while (!abort) {
+                if (el == null || el === c) {
+                    abort = true;
+                } else {
+                    if (el[GROUP]) {
+                        g = el[GROUP];
+                        child = el;
+                        abort = true;
+                    } else {
+                        el = el.parentNode;
+                    }
+                }
+            }
+            return g;
         }
     };
 

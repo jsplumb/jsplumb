@@ -1,3 +1,9 @@
+---
+category: Core
+title: Anchors
+keywords: ui, anchor, dynamic, continuous, perimeter
+---
+
 ## Anchors
 
   1. [Introduction](#intro)

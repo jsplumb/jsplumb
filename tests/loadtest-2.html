@@ -6,6 +6,39 @@
     <link rel="stylesheet" href="../css/jsPlumb.css">
 </head>
 <body class="loadtest">
+
+<style>
+    #output {
+        z-index: 500;
+        background-color: white;
+        position: fixed;
+        left: 0;
+        opacity: 0.9;
+        top: 0;
+        right: 0;
+    }
+
+    #btnTest {
+        position:fixed;
+        top:92px;
+        right:50px;
+        z-index:500;
+    }
+    #btnReset {
+        position:fixed;
+        top:92px;
+        right:0;
+        z-index:500;
+    }
+
+    #setup {
+        position: fixed;
+        right: 0;
+        top: 112px;
+        z-index: 5000;
+        background-color: white;
+    }
+</style>
 <div>
     <div id="setup">
         <table>
@@ -19,7 +52,7 @@
             </tr>
             <tr>
                 <td>Number of elements</td>
-                <td><input id="txtElements" value="10"></td>
+                <td><input id="txtElements" value="1000"></td>
             </tr>
             <tr>
                 <td>Suspend Drawing?</td>
@@ -49,6 +82,10 @@
             <tr>
                 <td colspan="2">Num Connections:</td>
                 <td colspan="2" id="numConnections"></td>
+                <td colspan="2">Num Endpoints:</td>
+                <td colspan="2" id="numEndpoints"></td>
+                <td colspan="2">Num Elements:</td>
+                <td colspan="2" id="numElements"></td>
             </tr>
             <tr>
                 <td>Reset time:</td>
@@ -56,10 +93,23 @@
                 <td>Total time:</td>
                 <td id="totalCreateTime"></td>
             </tr>
+
             <tr>
-                <td>Create time:</td>
+                <td>Element Create time:</td>
+                <td id="elementCreateTime"></td>
+                <td>Average element create time:</td>
+                <td id="averageElementCreateTime"></td>
+            </tr>
+            <tr>
+                <td>Endpoint Create time:</td>
+                <td id="epCreateTime"></td>
+                <td>Average endpoint create time:</td>
+                <td id="averageEpCreateTime"></td>
+            </tr>
+            <tr>
+                <td>Connection Create time:</td>
                 <td id="createTime"></td>
-                <td>Average create time:</td>
+                <td>Average connection create time:</td>
                 <td id="averageCreateTime"></td>
             </tr>
             <tr>
@@ -77,12 +127,13 @@
 <div id="demo"></div>
 
 <!-- JS -->
-<!-- support lib for bezier stuff -->
+<script src="../node_modules/mottle/js/mottle.js"></script>
+<script src="../node_modules/katavorio/src/katavorio.js"></script>
 <script src="../dist/js/jsplumb.js"></script>
 <!-- /JS -->
 
 <!--  load test code -->
-<script src="loadtest.js"></script>
+<script src="loadtest2.js"></script>
 
 
 </body>

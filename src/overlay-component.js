@@ -92,6 +92,8 @@
                     // maybe update from data, if there were parameterised values for instance.
                     existing.updateFrom(t.overlays[i][1]);
                     keep[t.overlays[i][1].id] = true;
+
+                    existing.reattach(component._jsPlumb.instance, component);
                 }
                 else {
                     var c = component.getCachedTypeItem("overlay", t.overlays[i][1].id);
@@ -131,6 +133,21 @@
         },
         addOverlay: function (overlay, doNotRepaint) {
             var o = _processOverlay(this, overlay);
+
+            if (this.getData && o.type === "Label" && _ju.isArray(overlay)) {
+                //
+                // component data might contain label location - look for it here.
+                var d = this.getData(), p = overlay[1];
+                if (d) {
+                    var locationAttribute = p.labelLocationAttribute || "labelLocation";
+                    var loc = d ? d[locationAttribute] : null;
+
+                    if (loc) {
+                        o.loc = loc;
+                    }
+                }
+            }
+
             if (!doNotRepaint) {
                 this.repaint();
             }

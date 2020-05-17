@@ -1,20 +1,25 @@
+---
+category: Core
+title: Basic Concepts
+keywords: ui, anchor, connector, endpoint
+---
+
 ## Basic Concepts
 
   - [Introduction](#intro)
   - [Connector, Endpoint, Anchor &amp; Overlay Definitions](#definitions)
 
   
-	
 <a name="intro"></a>
 ### Introduction
 jsPlumb is all about connecting things together, so the core abstraction in jsPlumb is the `Connection` object, which is 
 itself broken down into these five concepts:
-			
+
 - **Anchor** - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these 
 yourself; you supply hints to the various jsPlumb functions, which create them as needed.  They have no visual 
 representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships 
 with, or with an array containing various parameters, for greater control. See the [Anchors](anchors) page for more detail.
-				
+
 - **Endpoint** - the visual representation of one end of a Connection.  You can create and attach these to elements 
 yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection 
 programmatically using `jsPlumb.connect(...)`.  You can also join two Endpoints programmatically, by passing them as 

@@ -1,3 +1,9 @@
+---
+category: Data Model
+title: Overlays
+keywords: overlays, label, arrow
+---
+
 ## Overlays
 Overlays are UI elements that are painted onto Connections, such as Labels or Arrows.
 
@@ -317,4 +323,3 @@ var connection = jsPlumb.connect({
     
 connection.removeOverlay("myLabel");
 ```
-					

@@ -111,7 +111,9 @@
                 this.draw(_e[2].el, uip);
             }
 
-            delete _e[0]._jsPlumbDragOptions._dragging;
+            if (_e[0]._jsPlumbDragOptions != null) {
+                delete _e[0]._jsPlumbDragOptions._dragging;
+            }
 
             this.removeClass(_e[0], "jtk-dragged");
             this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
@@ -727,6 +729,30 @@
             }.bind(this));
             return this;
         },
+        snapToGrid : function(el, x, y) {
+            var out = [];
+            var _oneEl = function(_el) {
+                var info = this.info(_el);
+                if (info.el != null && info.el._katavorioDrag) {
+                    var snapped = info.el._katavorioDrag.snap(x, y);
+                    this.revalidate(info.el);
+                    out.push([info.el, snapped]);
+                }
+            }.bind(this);
+
+            // if you call this method with 0 arguments or 2 arguments it is assumed you want to snap all managed elements to
+            // a grid. if you supply one argument or 3, then you are assumed to be specifying one element.
+            if(arguments.length === 1 || arguments.length === 3) {
+                _oneEl(el, x, y);
+            } else {
+                var _me = this.getManagedElements();
+                for (var mel in _me) {
+                    _oneEl(mel, arguments[0], arguments[1]);
+                }
+            }
+
+            return out;
+        },
         initDraggable: function (el, options, category) {
             _getDragManager(this, category).draggable(el, options);
             el._jsPlumbDragOptions = options;
@@ -998,10 +1024,16 @@
             }
         },
         addToDragSelection: function (spec) {
-            _getDragManager(this).select(spec);
+            var el = this.getElement(spec);
+            if (el != null && (el._isJsPlumbGroup || el._jsPlumbGroup == null)) {
+                _getDragManager(this).select(spec);
+            }
         },
         removeFromDragSelection: function (spec) {
             _getDragManager(this).deselect(spec);
+        },
+        getDragSelection:function() {
+            return _getDragManager(this).getSelection();
         },
         clearDragSelection: function () {
             _getDragManager(this).deselectAll();
