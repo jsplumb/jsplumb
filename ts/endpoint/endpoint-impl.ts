@@ -327,7 +327,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         }
         extend(t, typeParameters);
 
-        this.endpoint.applyType(t);
+        this.instance.renderer.applyEndpointType(this.endpoint, t);
 
     }
 
