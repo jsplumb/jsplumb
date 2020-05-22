@@ -145,10 +145,6 @@ export function  _updateHoverStyle<E> (component:Component<E>) {
         extend(mergedHoverStyle, component._jsPlumb.paintStyle);
         extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
         delete component._jsPlumb.hoverPaintStyle;
-        // we want the fill of paintStyle to override a gradient, if possible.
-        if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fill) {
-            delete mergedHoverStyle.gradient;
-        }
         component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
     }
 }

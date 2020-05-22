@@ -42,7 +42,6 @@ export class SvgElementConnector {
                 let outlineWidth = paintStyle.outlineWidth || 1,
                     outlineStrokeWidth = paintStyle.strokeWidth + (2 * outlineWidth);
                 outlineStyle = extend({}, paintStyle);
-                delete outlineStyle.gradient;
                 outlineStyle.stroke = paintStyle.outlineStroke;
                 outlineStyle.strokeWidth = outlineStrokeWidth;
 
