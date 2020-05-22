@@ -388,7 +388,7 @@ export abstract class AbstractConnector<E> {
     }
 
     applyType(t:TypeDescriptor) {
-        //this.renderer.applyType(t);
+        this.instance.renderer.applyConnectorType(this, t);
     }
 
     getClass():string {
