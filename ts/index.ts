@@ -113,7 +113,7 @@ export function ready(f:Function) {
 if(typeof window !== "undefined") {
 
     (<any>window).jsPlumb = {
-        newInstance:newInstance(),
+        newInstance:newInstance,
         ready:ready,
         extend:extend,
         svg:{
