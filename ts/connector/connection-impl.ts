@@ -380,7 +380,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
         }
 
-        this.connector.applyType(t);
+        this.instance.renderer.applyConnectorType(this.connector, t);
 
      //   window.jtimeEnd("apply connection type");
     }
