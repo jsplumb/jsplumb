@@ -293,7 +293,10 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
     applyConnectorType(connector:AbstractConnector<HTMLElement>, t:TypeDescriptor):void {
-
+        if ((connector as any).canvas && t.cssClass) {
+            const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [ t.cssClass ];
+            this.instance.addClass((connector as any).canvas, classes.join(" "));
+        }
     }
 
     moveConnectorParent(connector:AbstractConnector<HTMLElement>, newParent:HTMLElement):void {
@@ -307,6 +310,10 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
     applyEndpointType<C>(ep: EndpointRepresentation<HTMLElement, C>, t: TypeDescriptor): void {
+        if ((ep as any).canvas && t.cssClass) {
+            const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [ t.cssClass ];
+            this.instance.addClass((ep as any).canvas, classes.join(" "));
+        }
     }
 
     destroyEndpoint<C>(ep: EndpointRepresentation<HTMLElement, C>): void {
