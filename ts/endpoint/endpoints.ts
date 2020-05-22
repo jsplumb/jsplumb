@@ -71,10 +71,6 @@ export abstract class EndpointRepresentation<E, C> {
         this.bounds.maxY = this.y + this.h;
     }
 
-    applyType(t:TypeDescriptor) {
-        this.instance.renderer.applyEndpointType(this, t);
-    }
-
     setVisible(v:boolean){
         this.instance.renderer.setEndpointVisible(this, v);
     }
