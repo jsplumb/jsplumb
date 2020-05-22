@@ -1095,32 +1095,6 @@ var testSuite = function () {
 
     });
 
-    test("svg gradients cleaned up correctly", function() {
-
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        var c = _jsPlumb.connect({source:d1, target:d2, paintStyle:{
-            gradient: {stops: [
-                [0, "#678678"],
-                [0.5, "#09098e"],
-                [1, "#678678"]
-            ]},
-            strokeWidth: 5,
-            stroke: "#678678",
-            dashstyle: "2 2"
-        }});
-
-        var canvas = support.getConnectionCanvas(c);
-        var defs = canvas.querySelectorAll("defs");
-        equal(defs.length, 1, "1 defs element");
-
-        _jsPlumb.manage(d1);
-
-        support.dragANodeAround(d1);
-
-        defs = canvas.querySelectorAll("defs");
-        equal(defs.length, 1, "1 defs element");
-    });
-
     test("drag selection, add/remove", function() {
 
         var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
