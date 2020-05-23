@@ -12,7 +12,7 @@ import {SVGElementOverlay} from "./svg-element-overlay";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
 import {LabelOverlay} from "../overlay/label-overlay";
-import {BrowserJsPlumbInstance, IS, isFunction, PaintStyle} from "..";
+import {BrowserJsPlumbInstance, IS, isFunction, OverlayCapableComponent, PaintStyle} from "..";
 import {CustomOverlay} from "../overlay/custom-overlay";
 
 export type EndpointHelperFunctions = {
@@ -144,8 +144,19 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     moveOverlayParent(o: Overlay<HTMLElement>, newParent: HTMLElement): void {
         if (o.type === "Label" || o.type === "Custom") {
             o.instance.appendElement((o as any).canvas, this.instance.getContainer());
+        } else {
+            // dont need to do anything with other types. seemingly. but why not.
         }
-        // dont need to do anything with other types.
+
+    }
+
+    reattachOverlay(o: Overlay<HTMLElement>, c: OverlayCapableComponent<HTMLElement>): any {
+        if (o.type === "Label" || o.type === "Custom") {
+            o.instance.appendElement((o as any).canvas, this.instance.getContainer());
+        }
+        else if (o.type === "Arrow") {
+            this.instance.appendElement((o as any).path, (c as any).connector.canvas);
+        }
     }
 
     destroyOverlay(o: Overlay<HTMLElement>):void {
