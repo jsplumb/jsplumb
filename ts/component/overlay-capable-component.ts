@@ -130,26 +130,26 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
     hideOverlay(id:string):void {
     let o = this.getOverlay(id);
         if (o) {
-            o.hide();
+            o.setVisible(false);
         }
     }
 
     hideOverlays():void {
         for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].hide();
+            this._jsPlumb.overlays[i].setVisible(false);
         }
     }
 
     showOverlay(id:string):void {
         let o = this.getOverlay(id);
         if (o) {
-            o.show();
+            o.setVisible(true);
         }
     }
 
     showOverlays():void {
         for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].show();
+            this._jsPlumb.overlays[i].setVisible(true);
         }
     }
 
@@ -285,12 +285,13 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
                     // maybe update from data, if there were parameterised values for instance.
                     existing.updateFrom(t.overlays[i][1]);
                     keep[t.overlays[i][1].id] = true;
-                    existing.reattach(this);
+                    this.instance.renderer.reattachOverlay(existing, this);
+
                 }
                 else {
                     let c:Overlay<E> = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
-                        c.reattach(this);
+                        this.instance.renderer.reattachOverlay(c, this);
                         c.setVisible(true);
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1]);
