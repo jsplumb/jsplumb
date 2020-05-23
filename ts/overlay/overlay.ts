@@ -74,15 +74,8 @@ export abstract class Overlay<E> extends EventGenerator {
 
     setVisible(v: boolean): void {
         this.visible = v;
+        console.log("setting visible " + v + " " + this);
         this.instance.renderer.setOverlayVisible(this, v);
-    }
-
-    hide(): void {
-        this.setVisible(false);
-    }
-
-    show(): void {
-        this.setVisible(true);
     }
 
     isVisible(): boolean {
@@ -91,33 +84,25 @@ export abstract class Overlay<E> extends EventGenerator {
 
     destroy(force?: boolean): void {
         this.instance.renderer.destroyOverlay(this, force);
-
     }
 
+    /**
+     * Add a class to the overlay.
+     * @param clazz
+     */
     addClass(clazz:string) {
         this.instance.renderer.addOverlayClass(this, clazz);
     }
 
+    /**
+     * Remove a class from the overlay.
+     * @param clazz
+     */
     removeClass(clazz:string) {
         this.instance.renderer.removeOverlayClass(this, clazz);
     }
 
     abstract updateFrom(d:any):void;
-
-    reattach(component:Component<E>) {
-
-
-        console.log("reattach overlay");
-
-        debugger
-
-        // if (this._jsPlumb.div != null) {
-        //     instance.getContainer().appendChild(this._jsPlumb.div);
-        // }
-        // this.detached = false;
-    }
-
-    transfer(target: any): void { }
 
     private _postComponentEvent(eventName:string, originalEvent:Event) {
         this.instance.fire(eventName, this.component, originalEvent);
