@@ -511,21 +511,18 @@ var testSuite = function () {
 
         // con2 has an arrow overlay after creation
         ok(con2.getOverlays()['arrow'] != null, "arrow overlay found");
-        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
-        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+        equal(con2.getOverlays()['arrow'].path.parentNode, con2.connector.canvas, "arrow overlay's parent is the connector canvas");
 
         ok(con2.getOverlays()['label'] != null, "label overlay found");
-        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+        equal(con2.getOverlays()['label'].canvas.parentNode, jpInstance.getContainer(), "label overlay's parent is the container");
 
         con2.setType('loopback');
-        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
-        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
-        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+        equal(con2.getOverlays()['label'].canvas.parentNode, jpInstance.getContainer(), "label overlay's parent is the container");
+        equal(con2.getOverlays()['arrow'].path.parentNode, con2.connector.canvas, "arrow overlay's parent is the connector canvas");
 
         con2.setType('default');
-        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
-        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
-        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+        equal(con2.getOverlays()['label'].canvas.parentNode, jpInstance.getContainer(), "label overlay's parent is the container");
+        equal(con2.getOverlays()['arrow'].path.parentNode, con2.connector.canvas, "arrow overlay's parent is the connector canvas");
 
     });
 
