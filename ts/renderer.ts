@@ -1,14 +1,12 @@
 import {Segment} from "./connector/abstract-segment";
 import {Component, RepaintOptions} from "./component/component";
 import {EndpointRepresentation} from "./endpoint/endpoints";
-import {EndpointRenderer} from "./endpoint/endpoint-renderer";
-import {jsPlumbInstance, PointArray, TypeDescriptor} from "./core";
+import {PointArray, TypeDescriptor} from "./core";
 import {Overlay} from "./overlay/overlay";
 import {LabelOverlay} from "./overlay/label-overlay";
-import {ConnectorRenderer} from "./connector/connector-renderer";
-import {AbstractConnector, AbstractConnectorOptions} from "./connector/abstract-connector";
-import {Endpoint} from "./endpoint/endpoint-impl";
+import {AbstractConnector} from "./connector/abstract-connector";
 import {PaintStyle} from "./styles";
+import {OverlayCapableComponent} from "./component/overlay-capable-component";
 
 export interface Renderer<E> {
 
@@ -24,6 +22,7 @@ export interface Renderer<E> {
     updateLabel(o:LabelOverlay<E>):void;
     drawOverlay(overlay:Overlay<E>, component:any, paintStyle:PaintStyle, absolutePosition?:PointArray):any;
     moveOverlayParent(o:Overlay<E>, newParent:E):void;
+    reattachOverlay(o:Overlay<E>, c:OverlayCapableComponent<E>):any;
 
     paintConnector(connector:AbstractConnector<E>, paintStyle:PaintStyle, extents?:any):void;
     setConnectorHover(connector:AbstractConnector<E>, h:boolean):void;
