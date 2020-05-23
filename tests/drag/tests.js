@@ -1399,7 +1399,7 @@ var testSuite = function () {
         _jsPlumb.manage(d);
         _jsPlumb.manage(d2);
 
-        _jsPlumb.addToPosse([d,d2], "posse");
+        _jsPlumb.addToPosse("posse", d, d2);
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
@@ -1425,7 +1425,49 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10));
         equal(550, parseInt(d2.style.top, 10));
     });
-    //*/
+
+    test("dragging a posse works, then set element passive, dragging disabled.", function() {
+
+        var d = support.addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+
+        var d2 = support.addDiv("d2");
+        d2.style.position = "absolute";
+        d2.style.left = "450px";
+        d2.style.top = "450px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+        _jsPlumb.manage(d2);
+
+        _jsPlumb.addToPosse("posse", d, d2);
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
+            }
+        });
+
+        equal(150, parseInt(d.style.left, 10), "d has moved left by 100");
+        equal(150, parseInt(d.style.top, 10), "d has moved top by 100");
+
+        equal(550, parseInt(d2.style.left, 10), "d2 has moved left by 100");
+        equal(550, parseInt(d2.style.top, 10), "d2 has moved top by 100");
+
+        _jsPlumb.setPosseState(false, d);
+        support.dragNodeBy(d, 100, 100);
+        equal(250, parseInt(d.style.left, 10), "d has moved further left by 100");
+        equal(250, parseInt(d.style.top, 10), "d has moved further top by 100");
+
+        equal(550, parseInt(d2.style.left, 10), "d2 has not moved this time");
+        equal(550, parseInt(d2.style.top, 10), "d2 has not moved this time");
+
+    });
 
 
     test("dragging a posse works, elements as argument", function() {
