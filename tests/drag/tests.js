@@ -1467,6 +1467,14 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10), "d2 has not moved this time");
         equal(550, parseInt(d2.style.top, 10), "d2 has not moved this time");
 
+        _jsPlumb.setPosseState(true, d);
+        support.dragNodeBy(d, 100, 100);
+        equal(350, parseInt(d.style.left, 10), "d has moved further left by 100");
+        equal(350, parseInt(d.style.top, 10), "d has moved further top by 100");
+
+        equal(650, parseInt(d2.style.left, 10), "d2 has moved further left by 100");
+        equal(650, parseInt(d2.style.top, 10), "d2 has further top by 100");
+
     });
 
 
