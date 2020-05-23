@@ -39,6 +39,8 @@ export class ElementDragHandler implements DragHandler {
     _posseMap:Dictionary<Posse> = {};
 
     _currentPosse:Posse = null;
+    private _currentPosseOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map();
+    private _currentPosseSizes:Map<string, [number, number]> = new Map();
 
     private _dragSelection: Array<jsPlumbDOMElement> = [];
     private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map();
@@ -88,11 +90,11 @@ export class ElementDragHandler implements DragHandler {
             _one(elements[i]);
         }
 
-        // if (this._currentPosse != null) {
-        //     this._currentPosse.members.forEach(member => {
-        //         if (element)
-        //     })
-        // }
+        if (this._currentPosse != null) {
+            this._currentPosse.members.forEach(member => {
+                console.log("posse element drag end");
+            });
+        }
 
         // do the contents of the drag selection
 
@@ -122,10 +124,13 @@ export class ElementDragHandler implements DragHandler {
 
         this._groupLocations.length = 0;
         this.instance.hoverSuspended = false;
-        this.instance.isConnectionBeingDragged = false;
+
         this._dragOffset = null;
         this._dragSelectionOffsets.clear();
         this._dragSizes.clear();
+
+        this._currentPosseOffsets.clear();
+        this._currentPosseSizes.clear();
 
         this._currentPosse = null;
     }
@@ -180,7 +185,14 @@ export class ElementDragHandler implements DragHandler {
             v[1].style.left = _b.x + "px";
             v[1].style.top = _b.y + "px";
             _one(v[1], _b, params.e);
+        });
 
+        this._currentPosseOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
+            const s = this._currentPosseSizes.get(k);
+            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s[0], h:s[1]};
+            v[1].style.left = _b.x + "px";
+            v[1].style.top = _b.y + "px";
+            _one(v[1], _b, params.e);
         });
 
     }
@@ -204,6 +216,7 @@ export class ElementDragHandler implements DragHandler {
 
             this._groupLocations.length = 0;
             this._intersectingGroups.length = 0;
+            this.instance.hoverSuspended = true;
 
             // reset the drag selection offsets array
             this._dragSelectionOffsets.clear();
@@ -215,53 +228,62 @@ export class ElementDragHandler implements DragHandler {
                 this._dragSizes.set(id, this.instance.getSize(jel));
             });
 
-            // if drag el not a group
-            if (!el._isJsPlumbGroup) {
+            const _one = (_el:any) => {
 
-                const isNotInAGroup = !el._jsPlumbGroup;
-                const membersAreDroppable = isNotInAGroup || el._jsPlumbGroup.dropOverride !== true;
-                const isGhostOrNotConstrained = !isNotInAGroup && (el._jsPlumbGroup.ghost || el._jsPlumbGroup.constrain !== true);
+                // if drag el not a group
+                if (!_el._isJsPlumbGroup) {
 
-                // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
-                // it's not in a group, OR
-                // it hasnt mandated its element can't be dropped on other groups
-                // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
+                    const isNotInAGroup = !_el._jsPlumbGroup;
+                    const membersAreDroppable = isNotInAGroup || _el._jsPlumbGroup.dropOverride !== true;
+                    const isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbGroup.ghost || _el._jsPlumbGroup.constrain !== true);
 
-                if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
-                    this.instance.groupManager.forEach((group: UIGroup<HTMLElement>) => {
-                        // prepare a list of potential droppable groups.
-                        if (group.droppable !== false && group.enabled !== false && group !== el._jsPlumbGroup) {
-                            let groupEl = group.el,
-                                s = this.instance.getSize(groupEl),
-                                o = this.instance.getOffset(groupEl),
-                                boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
+                    // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
+                    // it's not in a group, OR
+                    // it hasnt mandated its element can't be dropped on other groups
+                    // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
 
-                            this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
-                            this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
-                        }
-                    });
+                    if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
+                        this.instance.groupManager.forEach((group: UIGroup<HTMLElement>) => {
+                            // prepare a list of potential droppable groups.
+                            if (group.droppable !== false && group.enabled !== false && group !== _el._jsPlumbGroup) {
+                                let groupEl = group.el,
+                                    s = this.instance.getSize(groupEl),
+                                    o = this.instance.getOffset(groupEl),
+                                    boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
+
+                                this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
+                                this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                            }
+                        });
+                    }
                 }
-            }
 
-            this.instance.hoverSuspended = true;
-            this.instance.select({source: el as any}).addClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
-            this.instance.select({target: el as any}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
-            this.instance.isConnectionBeingDragged = true;
+                this.instance.select({source: _el}).addClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
+                this.instance.select({target: _el}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
+
+                this.instance.fire(EVT_DRAG_START, {
+                    el:_el,
+                    e:params.e
+                });
+            };
 
             const elId = this.instance.getId(el);
             this._currentPosse = this._posseByElementIdMap[elId];
+            if (this._currentPosse && !this.isActivePosseMember(this._currentPosse, el)) {
+                // clear the current posse if this element is not an active member, ie. cannot instigate a drag for all members.
+                this._currentPosse = null;
+            }
 
-            this.instance.fire(EVT_DRAG_START, {
-                el:el,
-                e:params.e
-            });
+            _one(el);      // process the original drag element.
 
             if (this._currentPosse != null) {
-                this._currentPosse.members.forEach(member => {
-                    this.instance.fire(EVT_DRAG_START, {
-                        el:member.el,
-                        e:params.e
-                    });
+                this._currentPosseOffsets.clear();
+                this._currentPosseSizes.clear();
+                this._currentPosse.members.forEach((jel) => {
+                    let off = this.instance.getOffset(jel.el);
+                    this._currentPosseOffsets.set(jel.elId, [ { left:off.left - elOffset.left, top:off.top - elOffset.top }, jel.el as jsPlumbDOMElement]);
+                    this._currentPosseSizes.set(jel.elId, this.instance.getSize(jel.el));
+                    _one(jel.el);
                 });
             }
         }
@@ -307,7 +329,7 @@ export class ElementDragHandler implements DragHandler {
         return this._dragSelection;
     }
 
-    private decodePosseSpec(spec:PosseSpec):{id:string, active:boolean} {
+    private static decodePosseSpec(spec:PosseSpec):{id:string, active:boolean} {
 
         if (isString(spec)) {
             return { id:spec as string, active:true };
@@ -321,59 +343,60 @@ export class ElementDragHandler implements DragHandler {
 
     addToPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
 
-        const details = this.decodePosseSpec(spec);
+        const details = ElementDragHandler.decodePosseSpec(spec);
         let posse = this._posseMap[details.id];
         if (posse == null) {
             posse = { id: details.id, members: new Set<PosseMemberSpec>()};
             this._posseMap[details.id] = posse;
         }
 
+        this.removeFromPosse(...els);
+
         els.forEach((el:HTMLElement) => {
             const elId = el.getAttribute("id");
-            this.removeFromAllPosses(el);
+
             posse.members.add({elId:elId, el:el, active:details.active});
             this._posseByElementIdMap[elId] = posse;
         });
-
     }
 
-    setPosse(spec:PosseSpec, ...els:Array<HTMLElement>):void {
-        this.removeFromAllPosses(...els);
-        this.addToPosse(spec, ...els)
-    }
-
-    removeFromPosse(el:HTMLElement, posseId:string, elId?:string) {
-        const posse = this._posseMap[posseId];
-        if (posse != null) {
-            const s = new Set<PosseMemberSpec>();
-            let p:IteratorResult<PosseMemberSpec>;
-            let e = posse.members.values();
-            while (!(p = e.next()).done) {
-                if (p.value.el !== el) {
-                    s.add(p.value);
+    removeFromPosse(...els:Array<HTMLElement>) {
+        els.forEach((el:HTMLElement) => {
+            const id = this.instance.getId(el);
+            const posse = this._posseByElementIdMap[id];
+            if (posse != null) {
+                const s = new Set<PosseMemberSpec>();
+                let p:IteratorResult<PosseMemberSpec>;
+                let e = posse.members.values();
+                while (!(p = e.next()).done) {
+                    if (p.value.el !== el) {
+                        s.add(p.value);
+                    }
                 }
-            }
-            posse.members = s;
-        }
-    }
+                posse.members = s;
 
-    removeFromAllPosses(...els:Array<HTMLElement>):void {
-        els.forEach((el) => {
-            const elId = el.getAttribute("id");
-            optional(this._posseByElementIdMap[elId]).ifPresent(posse => this.removeFromPosse(el, posse.id, elId))
+                delete this._posseByElementIdMap[id];
+            }
         });
     }
 
-    setPosseState (posseId:string, state:boolean, ...els:Array<HTMLElement>) {
-
+    setPosseState (state:boolean, ...els:Array<HTMLElement>) {
         const elementIds = els.map(el => el.getAttribute("id"));
-
-        optional<Posse>(this._posseMap[posseId]).map(posse => {
-            Array.from(posse.members.values()).forEach(member => {
-                if (elementIds.indexOf(member.elId)) {
+        elementIds.forEach((id:string) => {
+            optional<Posse>(this._posseByElementIdMap[id]).map(posse => {
+                optional(Array.from(posse.members).find((m:any) => m.elId === id)).map ( member => {
                     member.active = state;
-                }
+                });
             });
         });
+    }
+
+    private isActivePosseMember(posse:Posse, el:any): boolean {
+        const details = Array.from(posse.members).find((m:any) => m.el === el);
+        if (details !== null) {
+            return details.active === true;
+        } else {
+            return false;
+        }
     }
 }
