@@ -134,7 +134,33 @@ var testSuite = function () {
     });
 
     test("overlay visible tests", function() {
-        equal(1, 0, "you need to do a test for overlay visible, both toggling it and also specifying it in endpoint/connector defs");
+
+        _jsPlumb.Defaults.connectionOverlays = [
+            ["Arrow", { location: 0.1, id: "arrow" }],
+            ["Arrow", { location: 0.1, id: "arrow2" }],
+            [ "Label", {id:"label"}]
+        ];
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({source: d1, target: d2});
+
+        var a1 = c.getOverlay("arrow");
+        var l = c.getOverlay("label");
+
+        equal(c.connector.canvas, a1.path.parentNode, "arrow's parent is the connector");
+        equal(_jsPlumb.getContainer(), l.canvas.parentNode, "label's parent is the container");
+
+        a1.setVisible(false);
+        equal("none", a1.path.style.display, "arrow's style is 'none', as it is hidden");
+
+        l.setVisible(false);
+        equal("none", l.canvas.style.display, "label's display is 'none'; it is hidden");
+
+        a1.setVisible(true);
+        equal("block", a1.path.style.display, "arrow's display is 'block'; it is visible");
+
+        l.setVisible(true);
+        equal("block", l.canvas.style.display, "label's display is 'block'; it is visible");
+
     });
 
 
