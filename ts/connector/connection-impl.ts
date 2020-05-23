@@ -277,6 +277,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
 // PAINTING
 
+        this._jsPlumb.paintStyleInUse = this.getPaintStyle() || {};
+
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || this.instance.Defaults.connector, true);
 
         let data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
@@ -323,10 +325,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
     applyType(t:TypeDescriptor, doNotRepaint:boolean, typeMap:any):void {
 
-        super.applyType(t, doNotRepaint, typeMap);
-
-        //window.jtime("apply connection type");
-
         let _connector = null;
         if (t.connector != null) {
             _connector = this.getCachedTypeItem("connector", typeMap.connector);
@@ -336,6 +334,9 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
             this.setPreparedConnector(_connector);
         }
+
+        // apply connector before superclass, as a new connector means overlays have to move.
+        super.applyType(t, doNotRepaint, typeMap);
 
         // none of these things result in the creation of objects so can be ignored.
         if (t.detachable != null) {
@@ -533,9 +534,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             if (previous != null) {
                 let o:Dictionary<Overlay<E>> = this.getOverlays();
                 for (let i in o) {
-                    if (o[i].transfer) {
-                        o[i].transfer(this.connector);
-                    }
+                    this.instance.renderer.reattachOverlay(o[i], this);
                 }
             }
 
