@@ -23,6 +23,7 @@ export interface Renderer<E> {
     drawOverlay(overlay:Overlay<E>, component:any, paintStyle:PaintStyle, absolutePosition?:PointArray):any;
     moveOverlayParent(o:Overlay<E>, newParent:E):void;
     reattachOverlay(o:Overlay<E>, c:OverlayCapableComponent<E>):any;
+    setOverlayHover(o:Overlay<E>, hover:boolean):any;
 
     paintConnector(connector:AbstractConnector<E>, paintStyle:PaintStyle, extents?:any):void;
     setConnectorHover(connector:AbstractConnector<E>, h:boolean):void;
