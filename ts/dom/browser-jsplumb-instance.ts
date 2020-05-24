@@ -9,6 +9,7 @@ import {GroupDragHandler} from "./group-drag-handler";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
+import {EventManager} from "../event-manager";
 
 declare const Mottle:any;
 
@@ -148,6 +149,14 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     _overlayClick:Function;
     _overlayDblClick:Function;
 
+    _connectorMouseover:Function;
+    _connectorMouseout:Function;
+    _endpointMouseover:Function;
+    _endpointMouseout:Function;
+
+    _overlayMouseover:Function;
+    _overlayMouseout:Function;
+
     private elementDragHandler :ElementDragHandler;
 
     constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>) {
@@ -156,6 +165,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         (this.renderer as BrowserRenderer).instance = this;
 
         this.eventManager = new Mottle();
+        //this.eventManager = new EventManager();
         this.dragManager = new DragManager(this);
 
         this.dragManager.addHandler(new EndpointDragHandler(this));
@@ -181,6 +191,23 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
             }
         }.bind(this);
 
+        // TODO refactor into one
+        this._connectorMouseover = function(e:any) {
+            const el = (e.srcElement || e.target).parentNode;
+            if (el.jtk && el.jtk.connector) {
+                //console.log("mouse over connector", e);
+                this.renderer.setConnectorHover(el.jtk.connector, true);
+            }
+        }.bind(this);
+
+        this._connectorMouseout = function(e:any) {
+            const el = (e.srcElement || e.target).parentNode;
+            if (el.jtk && el.jtk.connector) {
+                //console.log("mouse over connector", e);
+                this.renderer.setConnectorHover(el.jtk.connector, false);
+            }
+        }.bind(this);
+
         this._endpointClick = function(e:any) {
             if (!e.defaultPrevented) {
                 console.log("endpoint click " + e + " " + this._instanceIndex);
@@ -196,6 +223,21 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
                 let endpointElement = findParent(e.srcElement || e.target, Constants.SELECTOR_ENDPOINT, this.getContainer());
                 console.log(endpointElement);
                 this.fire(Constants.EVENT_ENDPOINT_DBL_CLICK, (<any>endpointElement).jtk.endpoint, e);
+            }
+        }.bind(this);
+
+        // TODO refactor into one
+        this._endpointMouseover = function(e:any) {
+            const el = e.srcElement || e.target;
+            if (el.jtk && el.jtk.endpoint) {
+                this.renderer.setEndpointHover(el.jtk.endpoint, true);
+            }
+        }.bind(this);
+
+        this._endpointMouseout = function(e:any) {
+            const el = e.srcElement || e.target;
+            if (el.jtk && el.jtk.endpoint) {
+                this.renderer.setEndpointHover(el.jtk.endpoint, false);
             }
         }.bind(this);
 
@@ -220,6 +262,22 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
             //this.fire(Constants.EVENT_DBL_CLICK, overlay.component, e);
             //overlay.fire("dblclick", e);
             overlay.dblClick(e);
+        }.bind(this);
+
+        this._overlayMouseover = function(e:any) {
+            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
+            let overlay = (<any>overlayElement).jtk.overlay;
+            if (overlay) {
+                this.renderer.setOverlayHover(overlay, true);
+            }
+        }.bind(this);
+
+        this._overlayMouseout = function(e:any) {
+            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
+            let overlay = (<any>overlayElement).jtk.overlay;
+            if (overlay) {
+                this.renderer.setOverlayHover(overlay, false);
+            }
         }.bind(this);
 
         this._attachEventDelegates();
@@ -336,12 +394,17 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         // then can we be sure that the UP event wont be consumed (tap is a synthesized
         // event from a mousedown followed by a mouseup).
         //event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
+
         this.eventManager.on.apply(this, arguments);
+        //this.eventManager.on(el, event, callbackOrSelector, callback);
         return this;
     }
 
     off (el:HTMLElement, event:string, callback:Function) {
+
         this.eventManager.off.apply(this, arguments);
+        //this.eventManager.off(el, event, callback);
+
         return this;
     }
 
@@ -529,10 +592,21 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         let currentContainer = this.getContainer();
         this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_OVERLAY, this._overlayClick);
         this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_OVERLAY, this._overlayDblClick);
+
         this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_CONNECTOR, this._connectorClick);
         this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_CONNECTOR, this._connectorDblClick);
+
         this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_ENDPOINT, this._endpointClick);
         this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_ENDPOINT, this._endpointDblClick);
+
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, Constants.SELECTOR_CONNECTOR, this._connectorMouseover);
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, Constants.SELECTOR_CONNECTOR, this._connectorMouseout);
+
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, Constants.SELECTOR_ENDPOINT, this._endpointMouseover);
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, Constants.SELECTOR_ENDPOINT, this._endpointMouseout);
+
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, Constants.SELECTOR_OVERLAY, this._overlayMouseover);
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, Constants.SELECTOR_OVERLAY, this._overlayMouseout);
     }
 
     private _detachEventDelegates() {
@@ -544,6 +618,15 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
             this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._endpointDblClick);
             this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._overlayClick);
             this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._overlayDblClick);
+
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOVER, this._connectorMouseover);
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOUT, this._connectorMouseout);
+
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOVER, this._endpointMouseover);
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOUT, this._endpointMouseout);
+
+            this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, this._overlayMouseover);
+            this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, this._overlayMouseout);
         }
     }
 
@@ -623,29 +706,37 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         return this.elementDragHandler.getDragSelection();
     }
 
-    // ------------ posses (not ported yet, may not be...)
+    // ------------ posses
 
-    //*
-
+    /**
+     * Adds the given element(s) to the given posse.
+     * @param spec Either the ID of some posse, in which case the elements are all added as 'active', or an object of the form
+     * { id:"someId", active:boolean }. In the latter case, `active`, if true, which is the default, indicates whether
+     * dragging the given element(s) should cause all the elements in the posse to be dragged. If `active` is false it means the
+     * given element(s) is "passive" and should only move when an active member of the posse is dragged.
+     * @param els Elements to add to the posse.
+     */
     addToPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
         this.elementDragHandler.addToPosse(spec, ...els);
     }
 
-    setPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
-        this.elementDragHandler.setPosse(spec, ...els);
+    /**
+     * Removes the given element(s) from any posse they may be in. You don't need to supply the posse id, as elements
+     * can only be in one posse anyway.
+     * @param els Elements to remove from posses.
+     */
+    removeFromPosse(...els:Array<HTMLElement>) {
+        this.elementDragHandler.removeFromPosse(...els);
     }
 
-    removeFromPosse(el:HTMLElement, posseId:string) {
-        this.elementDragHandler.removeFromPosse(el, posseId);
+    /**
+     * Sets the active/passive state for the given element(s).You don't need to supply the posse id, as elements
+     * can only be in one posse anyway.
+     * @param state true for active, false for passive.
+     * @param els
+     */
+    setPosseState (state:boolean, ...els:Array<HTMLElement>) {
+        this.elementDragHandler.setPosseState(state, ...els);
     }
 
-    removeFromAllPosses(...els:Array<HTMLElement>):void {
-        this.elementDragHandler.removeFromAllPosses(...els);
-    }
-
-    setPosseState (posseId:string, state:boolean, ...els:Array<HTMLElement>) {
-        this.elementDragHandler.setPosseState(posseId, state, ...els);
-    }
-
-    //*/
 }
