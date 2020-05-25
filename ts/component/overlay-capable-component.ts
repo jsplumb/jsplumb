@@ -76,26 +76,6 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         }
     }
 
-    // setListenerComponent (c:any) {
-    //     // if (this._jsPlumb) {
-    //     //
-    //     //     super.setListenerComponent(c);
-    //     //
-    //     //     for (let i in this._jsPlumb.overlays) {
-    //     //         this._jsPlumb.overlays[i].setListenerComponent(c);
-    //     //     }
-    //     // }
-    // }
-
-    setHover(hover:boolean, ignoreAttachedElements?:boolean):void {
-        super.setHover(hover, ignoreAttachedElements);
-        if (this._jsPlumb && !this.instance.isConnectionBeingDragged) {
-            for (let i in this._jsPlumb.overlays) {
-                this._jsPlumb.overlays[i][hover ? "addClass" : "removeClass"](this._jsPlumb.instance.hoverClass);
-            }
-        }
-    }
-
     addOverlay(overlay:OverlaySpec, doNotRepaint?:boolean):Overlay<E> {
         let o = _processOverlay(this, overlay);
 
@@ -114,7 +94,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         }
 
         if (!doNotRepaint) {
-            this.repaint();
+            this.paint();
         }
         return o;
     }
@@ -162,7 +142,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         this._jsPlumb.overlayPositions = null;
         this._jsPlumb.overlayPlacements= {};
         if (!doNotRepaint) {
-            this.repaint();
+            this.paint();
         }
     }
 
@@ -222,7 +202,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         }
 
         if (!this._jsPlumb.instance._suspendDrawing) {
-            this.repaint();
+            this.paint();
         }
     }
 
@@ -312,12 +292,6 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
                     // just detached/reattached.
                 }
             }
-        }
-    }
-
-    moveParent(newParent:E):void {
-        for (let i in this._jsPlumb.overlays) {
-            this.instance.renderer.moveOverlayParent(this._jsPlumb.overlays[i], newParent)
         }
     }
 

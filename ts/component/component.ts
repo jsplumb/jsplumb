@@ -75,17 +75,6 @@ export type ComponentConfig<E> = {
 
 export type ComponentParameters = Dictionary<any>;
 
-function  _updateAttachedElements<E> (component:Component<E>, state:boolean, timestamp?:Timestamp, sourceElement?:any) {
-    let affectedElements = component.getAttachedElements();
-    if (affectedElements) {
-        for (let i = 0, j = affectedElements.length; i < j; i++) {
-            if (!sourceElement || sourceElement !== affectedElements[i]) {
-                affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
-            }
-        }
-    }
-}
-
 function _splitType (t:string):string[] {
     return t == null ? null : t.split(" ");
 }
@@ -122,7 +111,7 @@ function _applyTypes<E>(component:Component<E>, params?:any, doNotRepaint?:boole
 
         component.applyType(o, doNotRepaint, map);
         if (!doNotRepaint) {
-            component.repaint();
+            component.paint();
         }
     }
 }
@@ -170,7 +159,6 @@ export abstract class Component<E> extends EventGenerator {
 
     abstract getTypeDescriptor():string;
     abstract getDefaultOverlayKey():string;
-    abstract getAttachedElements():Array<Component<E>>;
     abstract getIdPrefix():string;
     abstract getXY():PointXY;
 
@@ -259,6 +247,8 @@ export abstract class Component<E> extends EventGenerator {
             return o;
         };
     }
+
+    abstract paint(params?:any):any;
 
     isDetachAllowed(connection:Connection<E>):boolean {
         let r = true;
@@ -361,7 +351,7 @@ export abstract class Component<E> extends EventGenerator {
     }
 
     removeType(typeId:string, params?:any, doNotRepaint?:boolean) {
-        let t = _splitType(typeId), _cont = false, _one = function (tt:string) {
+        let t = _splitType(typeId), _cont = false, _one = (tt:string) =>{
             let idx = this._jsPlumb.types.indexOf(tt);
             if (idx !== -1) {
                 // remove css class if necessary
@@ -370,7 +360,7 @@ export abstract class Component<E> extends EventGenerator {
                 return true;
             }
             return false;
-        }.bind(this);
+        };
 
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
@@ -426,7 +416,7 @@ export abstract class Component<E> extends EventGenerator {
         this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
         _updateHoverStyle(this);
         if (!doNotRepaint) {
-            this.repaint();
+            this.paint();
         }
     }
 
@@ -438,7 +428,7 @@ export abstract class Component<E> extends EventGenerator {
         this._jsPlumb.hoverPaintStyle = style;
         _updateHoverStyle(this);
         if (!doNotRepaint) {
-            this.repaint();
+            this.paint();
         }
     }
 
@@ -458,38 +448,6 @@ export abstract class Component<E> extends EventGenerator {
         return this._jsPlumb.hover;
     }
 
-    setHover(hover:boolean, ignoreAttachedElements?:boolean, timestamp?:Timestamp):void {
-        // while dragging, we ignore these events.  this keeps the UI from flashing and
-        // swishing and whatevering.
-        if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
-
-            this._jsPlumb.hover = hover;
-            let method = hover ? "addClass" : "removeClass";
-
-            // if (this.canvas != null) {
-            //     if (this._jsPlumb.instance.hoverClass != null) {
-            //         this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
-            //     }
-            //     if (this._jsPlumb.hoverClass != null) {
-            //         this._jsPlumb.instance[method](this.canvas, this._jsPlumb.hoverClass);
-            //     }
-            // }
-
-            if (this._jsPlumb.hoverPaintStyle != null) {
-                this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
-                if (!this._jsPlumb.instance._suspendDrawing) {
-                    timestamp = timestamp || _timestamp();
-                    this.repaint({timestamp: timestamp, recalc: false});
-                }
-            }
-            // get the list of other affected elements, if supported by this component.
-            // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-            if (this.getAttachedElements && !ignoreAttachedElements) {
-                _updateAttachedElements(this, hover, _timestamp(), this);
-            }
-        }
-    }
-
     getParameter(name:string):any {
         return this._jsPlumb.parameters[name];
     }
@@ -504,10 +462,6 @@ export abstract class Component<E> extends EventGenerator {
 
     setParameters(p:ComponentParameters) {
         this._jsPlumb.parameters = p;
-    }
-
-    reattach<E>(instance:jsPlumbInstance<E>) {
-
     }
 
     setVisible(v:boolean) {
@@ -535,10 +489,6 @@ export abstract class Component<E> extends EventGenerator {
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
         return true;
-    }
-
-    repaint(options?:RepaintOptions):void {
-        this.instance.renderer.repaint(this, this.getTypeDescriptor(), options);
     }
 
     getData () { return this.data; };

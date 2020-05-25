@@ -1,5 +1,5 @@
 import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults";
-import {ComponentParameters} from "./component/component";
+import {Component, ComponentParameters} from "./component/component";
 import {PaintStyle} from "./styles";
 import {Connection} from "./connector/connection-impl";
 import {Endpoint} from "./endpoint/endpoint-impl";
@@ -640,10 +640,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             each: _curryEach(list, executor),
             get: _curryGet(list)
         },
-        setters = ["setHover", "removeAllOverlays", "setLabel", "addClass", "addOverlay", "removeOverlay",
+        setters = ["removeAllOverlays", "setLabel", "addClass", "addOverlay", "removeOverlay",
             "removeOverlays", "showOverlay", "hideOverlay", "showOverlays", "hideOverlays", "setPaintStyle",
             "setHoverPaintStyle", "setSuspendEvents", "setParameter", "setParameters", "setVisible",
-            "repaint", "addType", "toggleType", "removeType", "removeClass", "setType", "bind", "unbind" ],
+            "addType", "toggleType", "removeType", "removeClass", "setType", "bind", "unbind" ],
 
         getters = ["getLabel", "getOverlay", "isHover", "getParameter", "getParameters", "getPaintStyle",
             "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ],
@@ -656,6 +656,17 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         for (i = 0, ii = getters.length; i < ii; i++) {
             out[getters[i]] = getter(list, getters[i]);
         }
+
+        out["setHover"] = (hover:boolean) => {
+            list.forEach((c:Component<E>) => this.renderer.setHover(c, hover));
+            return out;
+        };
+
+        // for backwards compat, map `repaint` to the `paint` method
+        out["repaint"] = () => {
+            list.forEach((c:Component<E>) => c.paint());
+            return out;
+        };
 
         return out as AbstractSelection<T, E>;
     }
@@ -815,7 +826,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             this.fireMoveEvent(evtParams);
 
             if (!doNotRepaint) {
-                c.repaint();
+                c.paint();
             }
         }
 
@@ -960,7 +971,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                     [ this, Constants.CHECK_CONDITION, [ Constants.BEFORE_DETACH, connection ] ]
                 ])) {
 
-                connection.setHover(false);
+                this.renderer.setHover(connection, false);
                 this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
 
                 connection.endpoints[0].detachFromConnection(connection);
@@ -1192,7 +1203,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         let unravelConnection = (connection:Connection<E>) => {
             if (connection != null && result.connections[connection.id] == null) {
                 if (!params.dontUpdateHover && connection._jsPlumb != null) {
-                    connection.setHover(false);
+                    this.renderer.setHover(connection, false);
                 }
                 result.connections[connection.id] = connection;
                 result.connectionCount++;
@@ -1201,7 +1212,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         let unravelEndpoint = (endpoint:Endpoint<E>) => {
             if (endpoint != null && result.endpoints[endpoint.id] == null) {
                 if (!params.dontUpdateHover && endpoint._jsPlumb != null) {
-                    endpoint.setHover(false);
+                    this.renderer.setHover(endpoint, false);
                 }
                 result.endpoints[endpoint.id] = endpoint;
                 result.endpointCount++;
@@ -2023,7 +2034,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 let fo = this.convertToFullOverlaySpec(type.overlays[i]);
                 to[fo[1].id] = fo;
             }
-            this._connectionTypes[id].overlayMap = to;
+            //this._connectionTypes[id].overlayMap = to;
+            this._connectionTypes[id].overlays = to as any;
         }
     }
 
@@ -2043,7 +2055,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 let fo = this.convertToFullOverlaySpec(type.overlays[i]);
                 to[fo[1].id] = fo;
             }
-            this._endpointTypes[id].overlayMap = to;
+            //this._endpointTypes[id].overlayMap = to;
+            this._endpointTypes[id].overlays = to as any;
         }
     }
 
@@ -2193,47 +2206,5 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.groupManager.removeFromGroup(group, el, doNotFireEvent);
         this.appendElement(el, this.getContainer());
     }
-
-    // ------------ posses (not ported yet, may not be...)
-
-    /*
-
-    addToPosse:function(el, spec) {
-            var specs = Array.prototype.slice.call(arguments, 1);
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) {
-                _el = [ _jp.getElement(_el) ];
-                _el.push.apply(_el, specs );
-                dm.addToPosse.apply(dm, _el);
-            });
-        },
-        setPosse:function(el, spec) {
-            var specs = Array.prototype.slice.call(arguments, 1);
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) {
-                _el = [ _jp.getElement(_el) ];
-                _el.push.apply(_el, specs );
-                dm.setPosse.apply(dm, _el);
-            });
-        },
-        removeFromPosse:function(el, posseId) {
-            var specs = Array.prototype.slice.call(arguments, 1);
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) {
-                _el = [ _jp.getElement(_el) ];
-                _el.push.apply(_el, specs );
-                dm.removeFromPosse.apply(dm, _el);
-            });
-        },
-        removeFromAllPosses:function(el) {
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
-        },
-        setPosseState:function(el, posseId, state) {
-            var dm = _getDragManager(this);
-            _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
-        },
-
-     */
 
 }

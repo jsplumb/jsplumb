@@ -36,7 +36,6 @@ export interface ConnectionParams<E> {
     outlineStroke?:number;
     outlineWidth?:number;
     uuids?:[string, string];
-   // drawEndpoints?:boolean;
 
     deleteEndpointsOnEmpty?:boolean;
     detachable?:boolean;
@@ -167,14 +166,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         };
         this._jsPlumb.lastPaintedAt = null;
 
-        this.bind("mouseover", () =>{
-            this.setHover(true);
-        });
-
-        this.bind("mouseout", () => {
-            this.setHover(false);
-        });
-
         if (params.type) {
             params.endpoints = params.endpoints || this.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
         }
@@ -291,7 +282,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         }
 
         this.updateConnectedClass();
-
     }
 
     makeEndpoint (isSource:boolean, el:E, elId:string, ep?:Endpoint<E>):Endpoint<E> {
@@ -349,10 +339,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             this.scope = t.scope;
         }
 
-        // if (t.cssClass != null && this.canvas) {
-        //     this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
-        // }
-
         let _anchors = null;
         // this also results in the creation of objects.
         if (t.anchor) {
@@ -382,8 +368,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         }
 
         this.instance.renderer.applyConnectorType(this.connector, t);
-
-     //   window.jtimeEnd("apply connection type");
     }
 
     addClass(c:string, informEndpoints?:boolean) {
@@ -421,7 +405,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         if (this.connector) {
             this.instance.renderer.setConnectorVisible(this.connector, v);
         }
-        this.repaint();
+        this.paint();
     }
 
     destroy(force?:boolean) {
@@ -436,24 +420,10 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         super.destroy(force);
     }
 
-    moveParent(newParent:E):void {
-        this.instance.renderer.moveConnectorParent(this.connector, newParent);
-        super.moveParent(newParent);
-    }
-
     updateConnectedClass(remove?:boolean) {
         if (this._jsPlumb) {
             _updateConnectedClass(this, this.source, remove);
             _updateConnectedClass(this, this.target, remove);
-        }
-    }
-
-    setHover(state:boolean) {
-        super.setHover(state);
-        if (this.connector && this._jsPlumb && !this.instance.isConnectionBeingDragged) {
-            this.instance.renderer.setConnectorHover(this.connector, state);
-            this.instance[state ? "addClass" : "removeClass"](this.source, this.instance.hoverSourceClass);
-            this.instance[state ? "addClass" : "removeClass"](this.target, this.instance.hoverTargetClass);
         }
     }
 
@@ -516,7 +486,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             // and we havent passed in `true` for "force" here.
             if (this.connector != null) {
                 previous = this.connector;
-                previousClasses = previous.getClass();
+                //previousClasses = previous.getClass();
+                previousClasses = this.instance.renderer.getConnectorClass(this.connector);
                 this.instance.renderer.destroyConnector(this.connector);
             }
 
@@ -524,9 +495,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             if (typeId) {
                 this.cacheTypeItem("connector", connector, typeId);
             }
-
-            // this.canvas = this.connector.canvas;
-            // this.bgCanvas = this.connector.bgCanvas;
 
             // put classes from prior connector onto the canvas
             this.addClass(previousClasses);
@@ -539,7 +507,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
 
             if (!doNotRepaint) {
-                this.repaint();
+                this.paint();
             }
         }
     }
@@ -549,7 +517,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId);
     }
 
-    paint(params:any) {
+    paint(params?:any) {
 
         if (!this.instance._suspendDrawing && this.visible !== false) {
 
@@ -628,12 +596,6 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             }
             this._jsPlumb.lastPaintedAt = timestamp;
         }
-    }
-
-    repaint(params?:any):void {
-        let p = extend(params || {}, {});
-        p.elId = this.sourceId;
-        this.paint(p);
     }
 
     prepareEndpoint(existing:Endpoint<E>, index:number, element?:E, elementId?:string, params?:ConnectionParams<E>):Endpoint<E> {
@@ -721,7 +683,4 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.updateConnectedClass();
 
     }
-
-
-
 }

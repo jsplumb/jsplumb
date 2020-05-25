@@ -1,6 +1,6 @@
 import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector";
-import {PaintParams, PaintGeometry, ConnectorComputeParams} from "./abstract-connector";
-import {jsPlumbInstance, PointArray} from "../core";
+import {PaintGeometry, ConnectorComputeParams} from "./abstract-connector";
+import {jsPlumbInstance} from "../core";
 import {BezierSegment} from "./bezier-segment";
 import {Connectors} from "./connectors";
 import {ComputedAnchorPosition} from "../factory/anchor-factory";
@@ -80,7 +80,6 @@ export class Bezier<E> extends AbstractBezierConnector<E> {
             cp1x: _CP[0], cp1y: _CP[1], cp2x: _CP2[0], cp2y: _CP2[1]
         });
     }
-
 
 }
 

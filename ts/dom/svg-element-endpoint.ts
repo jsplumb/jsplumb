@@ -80,15 +80,6 @@ export abstract class SvgEndpoint<C> {
         }
 
         _applyStyles((ep as any).canvas, (ep as any).node, s, [ ep.x, ep.y, ep.w, ep.h], null);
-
     }
-
-    // applyType(t: TypeDescriptor): void {
-    //     if (t.cssClass != null && this.svg) {
-    //         this.instance.renderer.addEndpointClass(<any>this.canvas, t.cssClass);
-    //     }
-    // }
-
-
 }
 

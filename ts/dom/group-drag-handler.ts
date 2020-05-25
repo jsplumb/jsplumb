@@ -67,7 +67,6 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         }
 
         return out;
-
     }
 
     private _isInsideParent(_el:HTMLElement, pos:PointXY):boolean {

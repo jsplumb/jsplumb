@@ -1,6 +1,6 @@
 
 import {Overlay} from "../overlay/overlay";
-import {jsPlumbInstance, PointArray, PointXY} from "../core";
+import {jsPlumbInstance, PointArray} from "../core";
 import {Component} from "../component/component";
 
 interface HTMLElementOverlayHolder extends Overlay<HTMLElement> {

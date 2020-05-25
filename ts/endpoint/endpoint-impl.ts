@@ -64,6 +64,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     isTarget:boolean;
     isTemporarySource:boolean;
 
+    connectionsDirected:boolean;
     connectionsDetachable:boolean;
     reattachConnections:boolean;
 
@@ -112,10 +113,9 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.dragProxy = params.dragProxy;
 
         this._jsPlumb.connectionCost = params.connectionCost;
-        this._jsPlumb.connectionsDirected = params.connectionsDirected;
+        this.connectionsDirected = params.connectionsDirected;
         this._jsPlumb.currentAnchorClass = "";
         this._jsPlumb.events = {};
-
 
         this.connectorOverlays = params.connectorOverlays;
         this._jsPlumb.scope = params.scope;
@@ -130,24 +130,6 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.connectorHoverClass = params.connectorHoverClass;
 
         this.deleteOnEmpty = params.deleteOnEmpty === true;
-
-        let internalHover = (state:boolean) => {
-            if (this.connections.length > 0) {
-                for (let i = 0; i < this.connections.length; i++) {
-                    this.connections[i].setHover(state);
-                }
-            }
-            else {
-                this.setHover(state);
-            }
-        };
-
-        this.bind("mouseover", function () {
-            internalHover(true);
-        });
-        this.bind("mouseout", function () {
-            internalHover(false);
-        });
 
         if (!params._transient) { // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this.instance.anchorManager.add(this, this.elementId);
@@ -302,10 +284,6 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         }
     }
 
-    getAttachedElements():Array<Component<E>> {
-        return this.connections;
-    }
-
     applyType(t:any, doNotRepaint:boolean, typeMap:any):void {
 
         super.applyType(t, doNotRepaint, typeMap);
@@ -351,14 +329,6 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         super.destroy(force);
     }
 
-
-    setHover(hover: boolean, ignoreAttachedElements?: boolean, timestamp?: Timestamp): void {
-        super.setHover(hover, ignoreAttachedElements);
-        if (this.endpoint && this._jsPlumb && !this.instance.isConnectionBeingDragged) {
-            this.endpoint.setHover(hover);
-        }
-    }
-
     isFull():boolean {
         return this.maxConnections === 0 ? true : !(this.isFloating() || this.maxConnections < 0 || this.connections.length < this.maxConnections);
     }
@@ -389,11 +359,11 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     }
 
     areConnectionsDirected():boolean {
-        return this._jsPlumb.connectionsDirected;
+        return this.connectionsDirected;
     }
 
     setConnectionsDirected(b:boolean):void {
-        this._jsPlumb.connectionsDirected = b;
+        this.connectionsDirected = b;
     }
 
     setElementId(_elId:string):void {
@@ -572,10 +542,5 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void {
         super.removeClass(clazz, dontUpdateOverlays);
         this.endpoint.removeClass(clazz);
-    }
-
-    moveParent(newParent:E):void {
-        this.instance.renderer.moveEndpointParent(this.endpoint, newParent);
-        super.moveParent(newParent);
     }
 }

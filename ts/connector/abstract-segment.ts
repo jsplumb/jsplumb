@@ -101,15 +101,6 @@ export abstract class AbstractSegment implements Segment {
         return noSuchPoint();
     }
 
-    // getBounds ():SegmentBounds {
-    //     return {
-    //         minX: Math.min(this.params.x1, this.params.x2),
-    //         minY: Math.min(this.params.y1, this.params.y2),
-    //         maxX: Math.max(this.params.x1, this.params.x2),
-    //         maxY: Math.max(this.params.y1, this.params.y2)
-    //     };
-    // }
-
     /**
      * Computes the list of points on the segment that intersect the given line.
      * @method lineIntersection

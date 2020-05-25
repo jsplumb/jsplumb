@@ -12,7 +12,7 @@ import {SVGElementOverlay} from "./svg-element-overlay";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
 import {LabelOverlay} from "../overlay/label-overlay";
-import {BrowserJsPlumbInstance, IS, isFunction, OverlayCapableComponent, PaintStyle} from "..";
+import {BrowserJsPlumbInstance, Connection, Endpoint, IS, isFunction, OverlayCapableComponent, PaintStyle} from "..";
 import {CustomOverlay} from "../overlay/custom-overlay";
 
 export type EndpointHelperFunctions = {
@@ -53,8 +53,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
 
     repaint(component: Component<HTMLElement>, typeDescriptor: string, options?: RepaintOptions): void {
-        console.log("doing a repaint of " + typeDescriptor);
-        //debugger;
         component.paint();
     }
 
@@ -62,12 +60,27 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         return HTMLElementOverlay.getElement(o as any);
     }
 
-    private getCustomElement(o:CustomOverlay<HTMLElement>):HTMLElement {
+    private static getCustomElement(o:CustomOverlay<HTMLElement>):HTMLElement {
         return HTMLElementOverlay.getElement(o as any, o.component, (c:Component<HTMLElement>) => {
             const el = o.create(c);
             o.instance.addClass(el, o.instance.overlayClass);
             return el;
         });
+    }
+
+    private static cleanup(component: any) {
+        if (component.canvas) {
+            component.canvas.parentNode.removeChild(component.canvas);
+        }
+
+        delete component.canvas;
+        delete component.svg;
+    }
+
+    private static setVisible(component: any, v:boolean) {
+        if (component.canvas) {
+            component.canvas.style.display = v ? "block" : "none";
+        }
     }
 
     addOverlayClass(o: Overlay<HTMLElement>, clazz: string): void {
@@ -77,7 +90,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         } else if (o.type === "Arrow") {
             o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (o.type === "Custom") {
-            o.instance.addClass(this.getCustomElement(o as CustomOverlay<HTMLElement>), clazz);
+            o.instance.addClass(BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>), clazz);
         } else {
             throw "Could not add class to overlay of type [" + o.type + "]";
         }
@@ -90,7 +103,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         } else if (o.type === "Arrow") {
             o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (o.type === "Custom") {
-            o.instance.removeClass(this.getCustomElement(o as CustomOverlay<HTMLElement>), clazz);
+            o.instance.removeClass(BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>), clazz);
         } else {
             throw "Could not remove class from overlay of type [" + o.type + "]";
         }
@@ -121,7 +134,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             SVGElementOverlay.paint(o, path, params, extents);
 
         } else if (o.type === "Custom") {
-            this.getCustomElement(o as CustomOverlay<HTMLElement>);
+            BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>);
 
             const XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
             // this.canvas.style.top = XY.y + params.d.miny + "px";
@@ -139,7 +152,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>).style.display = visible ? "block" : "none";
         }
         else if (o.type === "Custom") {
-            this.getCustomElement(o as CustomOverlay<HTMLElement>).style.display = visible ? "block" : "none";
+            BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>).style.display = visible ? "block" : "none";
         } else if (o.type === "Arrow") {
             (o as any).path.style.display = visible ? "block" : "none";
         }
@@ -149,7 +162,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         if (o.type === "Label") {
             o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
         } else if (o.type === "Custom") {
-            o.instance.appendElement(this.getCustomElement(o as any), this.instance.getContainer());
+            o.instance.appendElement(BrowserRenderer.getCustomElement(o as any), this.instance.getContainer());
         }
         else if (o.type === "Arrow"){
             // dont need to do anything with other types. seemingly. but why not.
@@ -162,7 +175,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
         }
         else if (o.type === "Custom") {
-            o.instance.appendElement(this.getCustomElement(o as any), this.instance.getContainer());
+            o.instance.appendElement(BrowserRenderer.getCustomElement(o as any), this.instance.getContainer());
         }
         else if (o.type === "Arrow") {
             this.instance.appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas);
@@ -178,7 +191,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             canvas = BrowserRenderer.getLabelElement(o as any);
         }
         else if (o.type === "Custom") {
-            canvas = this.getCustomElement(o as any)
+            canvas = BrowserRenderer.getCustomElement(o as any)
         }
         else if (o.type === "Arrow") {
             canvas = SVGElementOverlay.ensurePath(o);
@@ -189,11 +202,13 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
                 this.instance[method](canvas, this.instance.hoverClass);
             }
 
-            o.component.setHover(hover, true);
+            if (o.component instanceof Endpoint) {
+                this.setEndpointHover((o.component as Endpoint<HTMLElement>).endpoint, hover);
+            } else if(o.component instanceof Connection) {
+                this.setConnectorHover((o.component as Connection<HTMLElement>).connector, hover);
+            }
         }
     }
-
-
 
     destroyOverlay(o: Overlay<HTMLElement>):void {
         if (o.type === "Label") {
@@ -204,7 +219,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         } else if (o.type === "Arrow") {
             SVGElementOverlay.destroy(o as any);
         } else if (o.type === "Custom") {
-            const el = this.getCustomElement(o as CustomOverlay<HTMLElement>);
+            const el = BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>);
             el.parentNode.removeChild(el);
             delete (o as any).canvas;
             delete (o as any).cachedDimensions;
@@ -282,17 +297,24 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    // ------------------------------- connectors ---------------------------------------------------------
+    setHover(component: Component<HTMLElement>, hover: boolean): void {
+        component._jsPlumb.hover = hover;
+        if (component instanceof Endpoint) {
+            this.setEndpointHover((component as Endpoint<HTMLElement>).endpoint, hover);
+        } else if (component instanceof Connection) {
+            this.setConnectorHover((component as Connection<HTMLElement>).connector, hover);
+        }
+    }
 
+    // ------------------------------- connectors ---------------------------------------------------------
 
     paintConnector(connector:AbstractConnector<HTMLElement>, paintStyle:PaintStyle, extents?:any):void {
         SvgElementConnector.paint(connector, paintStyle, extents);
     }
 
-    setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean):void {
+    private setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean, doNotCascade?:boolean):void {
         if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
 
-            //this._jsPlumb.hover = h;
             const method = h ? "addClass" : "removeClass";
             const canvas = (connector as any).canvas;
 
@@ -304,25 +326,15 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             if (connector.connection._jsPlumb.hoverPaintStyle != null) {
                 connector.connection._jsPlumb.paintStyleInUse = h ? connector.connection._jsPlumb.hoverPaintStyle : connector.connection._jsPlumb.paintStyle;
                 if (!this.instance._suspendDrawing) {
-                    //timestamp = timestamp || _timestamp();
                     connector.connection.paint(connector.connection._jsPlumb.paintStyleInUse);
                 }
             }
-            // get the list of other affected elements, if supported by this component.
-            // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-            // if (this.getAttachedElements && !ignoreAttachedElements) {
-            //     _updateAttachedElements(this, hover, _timestamp(), this);
-            // }
-        }
-    }
 
-    private static cleanup(component: any) {
-        if (component.canvas) {
-            component.canvas.parentNode.removeChild(component.canvas);
+            if (!doNotCascade) {
+                this.setEndpointHover(connector.connection.endpoints[0].endpoint, h, true);
+                this.setEndpointHover(connector.connection.endpoints[1].endpoint, h, true);
+            }
         }
-
-        delete component.canvas;
-        delete component.svg;
     }
 
     destroyConnector(connector:AbstractConnector<HTMLElement>):void {
@@ -341,9 +353,11 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    private static setVisible(component: any, v:boolean) {
-        if (component.canvas) {
-            component.canvas.style.display = v ? "block" : "none";
+    getConnectorClass(connector: AbstractConnector<HTMLElement>): string {
+        if ((connector as any).canvas) {
+            return (connector as any).canvas.className.baseVal;
+        } else {
+            return "";
         }
     }
 
@@ -356,10 +370,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [ t.cssClass ];
             this.instance.addClass((connector as any).canvas, classes.join(" "));
         }
-    }
-
-    moveConnectorParent(connector:AbstractConnector<HTMLElement>, newParent:HTMLElement):void {
-        throw new Error("move connector parent not implemented");
     }
 
     addEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>, c: string): void {
@@ -388,22 +398,24 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    moveEndpointParent<C>(endpoint:EndpointRepresentation<HTMLElement,C>, newParent:HTMLElement):void {
-        throw new Error("move endpoint parent not implemented");
-    }
-
     removeEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>, c: string): void {
         if ((ep as any).canvas) {
             this.instance.removeClass((ep as any).canvas, c);
         }
     }
 
-    setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean): void {
+    getEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>): string {
+        if ((ep as any).canvas) {
+            return (ep as any).canvas.className;
+        } else {
+            return "";
+        }
+    }
 
+    private setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean, doNotCascade?:boolean): void {
 
         if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
 
-            //this._jsPlumb.hover = h;
             const method = h ? "addClass" : "removeClass";
             const canvas = (endpoint as any).canvas;
 
@@ -415,26 +427,22 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             if (endpoint.endpoint._jsPlumb.hoverPaintStyle != null) {
                 endpoint.endpoint._jsPlumb.paintStyleInUse = h ? endpoint.endpoint._jsPlumb.hoverPaintStyle : endpoint.endpoint._jsPlumb.paintStyle;
                 if (!this.instance._suspendDrawing) {
-                    //timestamp = timestamp || _timestamp();
                     endpoint.paint(endpoint.endpoint._jsPlumb.paintStyleInUse);
                 }
             }
-            // get the list of other affected elements, if supported by this component.
-            // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-            // if (this.getAttachedElements && !ignoreAttachedElements) {
-            //     _updateAttachedElements(this, hover, _timestamp(), this);
-            // }
-        }
 
-     //   throw new Error("set endpoint hover not implemented");
+            if (!doNotCascade) {
+                // instruct attached connections to set hover, unless doNotCascade was true.
+                for(let i = 0; i < endpoint.endpoint.connections.length; i++) {
+                    this.setConnectorHover(endpoint.endpoint.connections[i].connector, h, true);
+                }
+            }
+        }
     }
 
     setEndpointVisible<C>(ep: EndpointRepresentation<HTMLElement, C>, v: boolean): void {
         BrowserRenderer.setVisible(ep, v);
     }
-
-
-    // TODO this isnt ideal, not pluggable. different representations should reguster t
 
 // -------------------------------------------------- endpoints -------------------------------------
 

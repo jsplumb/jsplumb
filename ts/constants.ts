@@ -39,6 +39,8 @@ export const EVENT_CLICK = "click";
 export const EVENT_DBL_CLICK = "dblclick";
 export const EVENT_ENDPOINT_CLICK = "endpointClick";
 export const EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+export const EVENT_MOUSEOVER = "mouseover";
+export const EVENT_MOUSEOUT = "mouseout";
 
 export const EVENT_CHILD_ADDED = "group:addMember";
 export const EVENT_CHILD_REMOVED = "group:removeMember";

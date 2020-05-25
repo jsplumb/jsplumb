@@ -1,7 +1,5 @@
-
 import {
-    AbstractConnector, AbstractConnectorOptions, ConnectorComputeParams, PaintGeometry,
-    PaintParams
+    AbstractConnector, AbstractConnectorOptions, ConnectorComputeParams, PaintGeometry
 } from "./abstract-connector";
 import {Dictionary, jsPlumbInstance} from "../core";
 import {StraightSegment} from "./straight-segment";
@@ -31,7 +29,6 @@ function segmentDirections (segment:FlowchartSegment):[number, number] {
     ]
 }
 
-
 function segLength (s:FlowchartSegment):number {
     return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
 }
@@ -41,7 +38,6 @@ function _cloneArray (a:Array<any>):Array<any> {
     _a.push.apply(_a, a);
     return _a;
 }
-
 
 export class FlowchartConnector<E> extends AbstractConnector<E> {
 
@@ -71,8 +67,6 @@ export class FlowchartConnector<E> extends AbstractConnector<E> {
         // TODO now common between this and AbstractBezierEditor; refactor into superclass?
         this.loopbackRadius = params.loopbackRadius || 25;
         this.isLoopbackCurrently = false;
-
-
     }
 
     private addASegment(x:number, y:number, paintInfo:PaintGeometry) {
@@ -372,18 +366,12 @@ export class FlowchartConnector<E> extends AbstractConnector<E> {
         // line to end stub
         this.addASegment(stubs[2], stubs[3], paintInfo);
 
-        //}
-
         // end stub to end (common)
         this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo);
 
-
-
         // write out the segments.
         this.writeSegments(paintInfo);
-
     }
 }
-
 
 Connectors.register("Flowchart", FlowchartConnector);

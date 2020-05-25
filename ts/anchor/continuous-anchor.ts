@@ -52,9 +52,6 @@ export class ContinuousAnchor extends Anchor {
         return this.faces.length === 0 ? "top" : this.faces[0];
     }
 
-    //isRelocatable = function() { return true; };
-    //isSnapOnRelocate = function() { return true; };
-
     // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
     // supported. if none supported we also return the request edge.
     verifyEdge (edge:Face):Face {

@@ -19,7 +19,6 @@ export class StraightSegment extends AbstractSegment {
         this._setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2});
     }
 
-
     private _recalc ():void {
         this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
         this.m = gradient({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2});
@@ -35,10 +34,6 @@ export class StraightSegment extends AbstractSegment {
     getGradient ():number {
         return this.m;
     }
-
-    // getCoordinates ():StraightSegmentCoordinates  {
-    //     return { x1: this.x1, y1: y1, x2: x2, y2: y2 };
-    // }
 
     private _setCoordinates (coords:StraightSegmentCoordinates):void {
         this.x1 = coords.x1;

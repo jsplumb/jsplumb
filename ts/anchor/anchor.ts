@@ -34,7 +34,6 @@ export class Anchor extends EventGenerator {
         return true;
     }
 
-
     getOrientation(endpoint?: Endpoint<any>): Orientation {
         return this.orientation;
     }
@@ -75,7 +74,6 @@ export class Anchor extends EventGenerator {
             o = this.getOrientation();
         return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1];
     }
-
 
     getCssClass():string {
         return this.cssClass;

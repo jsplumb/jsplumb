@@ -96,10 +96,4 @@ export class SvgElementConnector {
             return svg as HTMLElement;
         }
     }
-
-    // applyType(t: TypeDescriptor): void {
-    //     if (t.cssClass != null && this.canvas) {
-    //         this.instance.addClass(<any>this.canvas, t.cssClass);
-    //     }
-    // }
 }

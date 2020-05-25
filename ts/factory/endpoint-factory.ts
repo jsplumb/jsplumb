@@ -1,5 +1,5 @@
 import {EndpointRepresentation} from "../endpoint/endpoints";
-import {Constructable, Dictionary, jsPlumbInstance} from "../core";
+import {Constructable, Dictionary} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
 const endpointMap:Dictionary<Constructable<EndpointRepresentation<any, any>>> = {};
 

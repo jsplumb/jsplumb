@@ -1,11 +1,9 @@
 import {isArray, log} from "../util";
-import {jsPlumbInstance, PointArray, PointXY, Timestamp, TypeDescriptor} from "../core";
+import {jsPlumbInstance, PointArray, PointXY, TypeDescriptor} from "../core";
 import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
-import {PaintStyle} from "../styles";
-import {Component, ComponentOptions} from "../component/component";
-import {ConnectorRenderer} from "./connector-renderer";
+import {ComponentOptions} from "../component/component";
 import {Connection} from "./connection-impl";
 import {pointXYFromArray, quadrant} from "../geom";
 
@@ -261,11 +259,8 @@ export abstract class AbstractConnector<E> {
         }
 
         let s = (new clazz(this.instance, params)) as Segment;
-
         this.segments.push(s);
-
         this.totalLength += s.getLength();
-
         this.updateBounds(s);
     }
 
@@ -383,16 +378,8 @@ export abstract class AbstractConnector<E> {
         this.segment = this.paintInfo.segment;
         this._updateSegmentProportions();
     }
-    getAttachedElements(): Array<Component<E>> {
-        return [];
-    }
 
     applyType(t:TypeDescriptor) {
         this.instance.renderer.applyConnectorType(this, t);
-    }
-
-    getClass():string {
-        return "";
-        //return this.renderer.getClass();
     }
 }

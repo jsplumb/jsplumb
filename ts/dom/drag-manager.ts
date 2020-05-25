@@ -78,12 +78,7 @@ export class DragManager {
                 return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight];
             },
             getPosition: (el:HTMLElement, relativeToRoot?:boolean):PointArray => {
-                // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
-                // compute against the Container's origin. see also the getUIPosition method below.
-                //var o = _currentInstance.getOffset(el, relativeToRoot, el._katavorioDrag ? el.offsetParent : null);
-                //var o = _currentInstance.getOffset(el, relativeToRoot, el._jsPlumbGroup ? el.offsetParent : null);
                 let o = this.instance.getOffset(el, relativeToRoot, <any>el.offsetParent);
-                //console.log("get position ", el.id, o.left, o.top);
                 return [o.left, o.top];
             },
             setPosition: (el:HTMLElement, xy:PointArray):void => {

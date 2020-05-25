@@ -57,7 +57,6 @@ export * from "./connection";
 export * from  "./connector";
 
 export * from "./endpoint";
-export * from "./endpoint/endpoint-renderer";
 export * from "./factory/endpoint-factory";
 
 
@@ -77,6 +76,8 @@ export * from "./dom/svg-element-endpoint";
 export * from "./dom/dot-endpoint-renderer";
 export * from "./dom/rectangle-endpoint-renderer";
 export * from "./dom/blank-endpoint-renderer";
+
+export * from './event-manager';
 
 
 let _jsPlumbInstanceIndex = 0;

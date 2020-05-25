@@ -53,13 +53,9 @@ export class FloatingAnchor<E> extends Anchor {
         this.isFloating = true;
     }
 
-
-
-
     compute(params:AnchorComputeParams):ComputedAnchorPosition {
-        let xy = params.xy,
-            result = [ xy[0] + (this.size[0] / 2), xy[1] + (this.size[1] / 2), 0, 0 ] as ComputedAnchorPosition; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-        this._lastResult = result;
+        let xy = params.xy;
+        this._lastResult = [ xy[0] + (this.size[0] / 2), xy[1] + (this.size[1] / 2), 0, 0 ] as ComputedAnchorPosition; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
         return this._lastResult;
     }
 

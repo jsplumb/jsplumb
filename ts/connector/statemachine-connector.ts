@@ -1,7 +1,5 @@
-
-
 import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector";
-import {jsPlumbInstance, PointArray} from "../core";
+import {jsPlumbInstance} from "../core";
 import {BezierSegment} from "./bezier-segment";
 import {Connectors} from "./connectors";
 import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector";
@@ -187,8 +185,6 @@ export class StateMachine<E> extends AbstractBezierConnector<E> {
             cp2x: cp2x, cp2y: cp2y
         });
     }
-
-
 
 }
 

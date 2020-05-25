@@ -1,7 +1,5 @@
 import {EndpointRepresentation} from "./endpoints";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
-import {PaintStyle} from "../styles";
-import {jsPlumbInstance} from "../core";
 import {EndpointFactory} from "../factory/endpoint-factory";
 import {Endpoint} from "./endpoint-impl";
 

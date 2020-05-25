@@ -25,24 +25,22 @@ export interface Renderer<E> {
     reattachOverlay(o:Overlay<E>, c:OverlayCapableComponent<E>):any;
     setOverlayHover(o:Overlay<E>, hover:boolean):any;
 
+    setHover(component:Component<E>, hover:boolean):void;
+
     paintConnector(connector:AbstractConnector<E>, paintStyle:PaintStyle, extents?:any):void;
-    setConnectorHover(connector:AbstractConnector<E>, h:boolean):void;
     destroyConnector(connector:AbstractConnector<E>, force?:boolean):void;
     addConnectorClass(connector:AbstractConnector<E>, clazz:string):void;
     removeConnectorClass(connector:AbstractConnector<E>, clazz:string):void;
+    getConnectorClass(connector:AbstractConnector<E>):string;
     setConnectorVisible(connector:AbstractConnector<E>, v:boolean):void;
     applyConnectorType(connector:AbstractConnector<E>, t:TypeDescriptor):void;
 
-    moveConnectorParent(connector:AbstractConnector<E>, newParent:E):void;
-    moveEndpointParent<C>(endpoint:EndpointRepresentation<E,C>, newParent:E):void;
-
-    setEndpointHover<C>(endpoint:EndpointRepresentation<E, C>, h: boolean):void;
     applyEndpointType<C>(ep:EndpointRepresentation<E,C>, t:TypeDescriptor):void;
     setEndpointVisible<C>(ep:EndpointRepresentation<E,C>, v:boolean):void;
     destroyEndpoint<C>(ep:EndpointRepresentation<E,C>):void;
     paintEndpoint<C>(ep:EndpointRepresentation<E,C>, paintStyle:PaintStyle):void;
     addEndpointClass<C>(ep:EndpointRepresentation<E,C>, c:string):void;
     removeEndpointClass<C>(ep:EndpointRepresentation<E,C>, c:string):void;
-
+    getEndpointClass<C>(ep:EndpointRepresentation<E, C>):string;
 
 }

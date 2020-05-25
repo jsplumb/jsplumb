@@ -2,9 +2,8 @@ import {Endpoint} from "./endpoint/endpoint-impl";
 import {_timestamp, Dictionary, ExtendedOffset, jsPlumbInstance, Offset, PointXY, SortFunction} from "./core";
 import {Connection} from "./connector/connection-impl";
 import {ComputedAnchorPosition, Face} from "./factory/anchor-factory";
-import {Anchor} from "./anchor/anchor";
 import { DynamicAnchor } from "./anchor/dynamic-anchor";
-import {addToList, addWithFunction, findWithFunction, removeWithFunction, sortHelper} from "./util";
+import {addToList, findWithFunction, removeWithFunction, sortHelper} from "./util";
 import {ContinuousAnchor} from "./anchor/continuous-anchor";
 import {lineLength} from "./geom";
 

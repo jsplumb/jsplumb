@@ -1,5 +1,5 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry, PaintParams} from "./abstract-connector";
-import {jsPlumbInstance, PointArray} from "../core";
+import {jsPlumbInstance} from "../core";
 import {ComputedAnchorPosition} from "../factory/anchor-factory";
 import {ArcSegment} from "./arc-segment";
 import {Connection} from "./connection-impl";

@@ -35,6 +35,10 @@ var within = function (val, target, _ok, msg) {
 
 var defaults = null, support, _jsPlumb;
 
+var isHover = function(connection) {
+    return connection.connector.canvas.classList.contains("jtk-hover");
+}
+
 var testSuite = function () {
 
     module("jsPlumb", {
@@ -190,7 +194,7 @@ var testSuite = function () {
                 outlineWidth: "5"
             }
         });
-        c.repaint();
+        c.paint();
         equal(c._jsPlumb.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
     });
 
@@ -208,7 +212,7 @@ var testSuite = function () {
                 outlineWidth: "5"
             }
         });
-        c.repaint();
+        c.paint();
         equal(c._jsPlumb.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
         equal(c._jsPlumb.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
     });
@@ -4287,9 +4291,9 @@ var testSuite = function () {
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" select, basic test with multiple scopes; dont filter on scope.", function () {
@@ -4303,9 +4307,9 @@ var testSuite = function () {
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" select, basic test with multiple scopes; filter on scope", function () {
@@ -4319,9 +4323,9 @@ var testSuite = function () {
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" select, basic test with multiple scopes; filter on scopes", function () {
@@ -4329,16 +4333,16 @@ var testSuite = function () {
         support.addDiv("d2");
         var c = _jsPlumb.connect({source: "d1", target: "d2", scope: "FOO"}),
             c2 = _jsPlumb.connect({source: "d1", target: "d2", scope: "BAR"}),
-            c3 = _jsPlumb.connect({source: "d1", target: "d2", scope: "BAZ"})
-        s = _jsPlumb.select({source: "d1", scope: ["FOO", "BAR"]});
+            c3 = _jsPlumb.connect({source: "d1", target: "d2", scope: "BAZ"}),
+            s = _jsPlumb.select({source: "d1", scope: ["FOO", "BAR"]});
 
         equal(s.length, 2, "two connections selected");
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" select, basic test with multiple scopes; scope but no scope filter; single source id", function () {
@@ -4354,9 +4358,9 @@ var testSuite = function () {
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" select, basic test with multiple scopes; filter on scopes; single source id", function () {
@@ -4372,9 +4376,9 @@ var testSuite = function () {
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" setHoverSuspended overrides setHover on connections", function () {
@@ -4388,10 +4392,10 @@ var testSuite = function () {
 
         _jsPlumb.hoverSuspended = true;
         s.setHover(true);
-        ok(s.get(0).isHover() == false, "connection did not set hover as jsplumb overrides it");
+        ok(isHover(s.get(0)) === false, "connection did not set hover as jsplumb overrides it");
         _jsPlumb.hoverSuspended = false ;
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection did set hover as jsplumb override removed");
+        ok(isHover(s.get(0)), "connection did set hover as jsplumb override removed");
     });
 
     test(" select, basic test with multiple scopes; filter on scope; dont supply sourceid", function () {
@@ -4405,9 +4409,9 @@ var testSuite = function () {
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" select, basic test with multiple scopes; filter on scope; dont supply sourceid", function () {
@@ -4421,9 +4425,9 @@ var testSuite = function () {
         equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
         s.setHover(true);
-        ok(s.get(0).isHover(), "connection has had hover set to true");
+        ok(isHover(s.get(0)), "connection has had hover set to true");
         s.setHover(false);
-        ok(!(s.get(0).isHover()), "connection has had hover set to false");
+        ok(!(isHover(s.get(0))), "connection has had hover set to false");
     });
 
     test(" select, two connections, with overlays", function () {
@@ -4459,12 +4463,12 @@ var testSuite = function () {
             overlays: [
                 ["Label", {id: "l"}]
             ]
-        });
+        }),
         s = _jsPlumb.select({source: "d1"});
 
         s.setHover(false).hideOverlay("l");
 
-        ok(!(s.get(0).isHover()), "connection is not hover");
+        ok(!(isHover(s.get(0))), "connection is not hover");
         ok(!(s.get(0).getOverlay("l").isVisible()), "overlay is not visible");
     });
 
@@ -4742,7 +4746,10 @@ var testSuite = function () {
         equal(c._jsPlumb.paintStyleInUse.strokeWidth, 999, "strokeWidth was set");
 
         c.setHoverPaintStyle({stroke: "BAZ", strokeWidth: 444});
-        c.setHover(true);
+
+        //c.setHover(true);
+        _jsPlumb.renderer.setHover(c, true);
+
         equal(c._jsPlumb.paintStyleInUse.stroke, "BAZ", "stroke was set");
         equal(c._jsPlumb.paintStyleInUse.strokeWidth, 444, "strokeWidth was set");
 

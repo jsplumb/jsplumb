@@ -8,7 +8,6 @@ import {Anchor} from "../anchor/anchor";
 import {PaintStyle} from "../styles";
 import { FloatingAnchor } from "../anchor/floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
-import {SvgEndpoint} from "./svg-element-endpoint";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
 import {classList, cls, EVENT_MAX_CONNECTIONS} from "../constants";
@@ -306,7 +305,7 @@ export class EndpointDragHandler implements DragHandler {
         
         // clear hover for all connections for this endpoint before continuing.
         for (let i = 0; i < this.ep.connections.length; i++) {
-            this.ep.connections[i].setHover(false);
+            this.instance.renderer.setHover(this.ep, false);
         }
         
         // clear this list. we'll reconstruct it based on whether its an existing or new connection.s
@@ -443,7 +442,7 @@ export class EndpointDragHandler implements DragHandler {
 
         });
         
-        this.ep.setHover(false, false);
+        this.instance.renderer.setHover(this.ep, false);
         
         if (this.jpc == null) {
             
@@ -452,7 +451,7 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc = this.instance._newConnection({
                 sourceEndpoint: this.ep,
                 targetEndpoint: this.floatingEndpoint,
-                source: this.ep.element,  // for makeSource with parent option.  ensure source element is rthis.epresented correctly.
+                source: this.ep.element,  // for makeSource with parent option.  ensure source element is represented correctly.
                 target: this.placeholderInfo.element,
                 anchors: [ this.ep.anchor, this.floatingEndpoint.anchor ],
                 paintStyle: this.ep.connectorStyle, // this can be null. Connection will use the default.
@@ -482,15 +481,9 @@ export class EndpointDragHandler implements DragHandler {
         
         } else {
         
-        
-            // get the list of potential drop targets for this endpoint, which includes the this.ep from which the connection has been dragged?
-            // TODO
-            // Array.prototype.push.apply(endpointDropTargets, _currentInstance.getSelector(_currentInstance.getContainer(), ".jtk-endpoint[jtk-scope-" + this.ep.scope + "]"));
-            // endpointDropTargets = endpointDropTargets.filter(function(candidate) { return candidate !== this.ep.canvas; });
-            // console.log(endpointDropTargets);
-        
             this.existingJpc = true;
-            this.jpc.setHover(false);
+            this.instance.renderer.setHover(this.jpc, false);
+
             // new anchor idx
             const anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1;
 
@@ -529,7 +522,8 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId;
             this.jpc.suspendedElementType = anchorIdx === 0 ? "source" : "target";
         
-            this.jpc.suspendedEndpoint.setHover(false);
+            this.instance.renderer.setHover(this.jpc.suspendedEndpoint, false);
+
             this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint;
             this.jpc.endpoints[anchorIdx] = this.floatingEndpoint;
         
@@ -602,9 +596,6 @@ export class EndpointDragHandler implements DragHandler {
                             connection: this.jpc
                         });
 
-                        // this.instance.renderer[(bb ? "addEndpoint" : "removeEndpoint") + "Class"](newDropTarget.endpoint, this.instance.endpointDropAllowedClass);
-                        // this.instance.renderer[(bb ? "removeEndpoint" : "addEndpoint") + "Class"](newDropTarget.endpoint, this.instance.endpointDropForbiddenClass);
-
                         newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
                         newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
 
@@ -660,7 +651,6 @@ export class EndpointDragHandler implements DragHandler {
 
         let originalEvent = p.e;
 
-        //console.log("drag ended on endpoint");
         this.instance.isConnectionBeingDragged = false;
 
         const classesToRemove = classList(CLASS_DRAG_HOVER, CLASS_DRAG_ACTIVE);
@@ -791,9 +781,7 @@ export class EndpointDragHandler implements DragHandler {
                     }
                 }
             }
-
         }
-
     }
 
     private _getSourceDefinition(fromElement:any, evt?:Event):any {
@@ -900,7 +888,7 @@ export class EndpointDragHandler implements DragHandler {
         this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true);
 
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
-        this.jpc.setHover(false);
+        this.instance.renderer.setHover(this.jpc, false);
 
         this.jpc._forceDetach = true;
 
@@ -937,7 +925,7 @@ export class EndpointDragHandler implements DragHandler {
 
      _maybeReattach(idx:number, originalEvent?:Event):void {
 
-         this.jpc.setHover(false);
+         this.instance.renderer.setHover(this.jpc, false);
 
         if (this.jpc.suspendedEndpoint) {
 
@@ -946,7 +934,9 @@ export class EndpointDragHandler implements DragHandler {
 
                 let floatingId;
                 this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
-                this.jpc.setHover(false);
+
+                this.instance.renderer.setHover(this.jpc, false);
+
                 this.jpc._forceDetach = true;
                 if (idx === 0) {
                     floatingId = this.jpc.sourceId;
@@ -979,11 +969,6 @@ export class EndpointDragHandler implements DragHandler {
             this.instance.deleteObject({endpoint: this.jpc.endpoints[idx], originalEvent:originalEvent});
 
             if (this.jpc.pending) {
-
-
-                // this.jpc.endpoints[idx === 1 ? 0 : 1].detachFromConnection(this.jpc);
-                // this.instance.deleteObject({connection: this.jpc});
-
                 this.instance.fire("connectionAborted", this.jpc, originalEvent);
             }
         }
@@ -1005,16 +990,11 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
         }
 
-
-
-        //this.instance.deleteObject({connection: this.jpc});
         if (this.jpc.floatingEndpoint) {
             this.jpc.floatingEndpoint.detachFromConnection(this.jpc);
-            //delete this.jpc.floatingEndpoint;
         }
 
         this.instance.deleteObject({connection: this.jpc, originalEvent:originalEvent});
-        //console.log("placeholder..we're discarding the connection here");
     }
 
     //
@@ -1087,23 +1067,17 @@ export class EndpointDragHandler implements DragHandler {
         // finalise will inform the anchor manager and also add to
         // connectionsByScope if necessary.
         this.instance._finaliseConnection(this.jpc, null, originalEvent, false);
-        this.jpc.setHover(false);
+        this.instance.renderer.setHover(this.jpc, false);
 
         // SP continuous anchor flush
         this.instance.revalidate(this.jpc.endpoints[0].element);
     }
 
     _registerFloatingConnection(info:any, conn:Connection<HTMLElement>, ep:Endpoint<HTMLElement>) {
-
-
-            this.floatingConnections[info.id] = conn;
-            // only register for the target endpoint; we will not be dragging the source at any time
-            // before this connection is either discarded or made into a permanent connection.
-            addToList(this.instance.endpointsByElement, info.id, ep);
-
-        // this.getFloatingConnectionFor = function(id) {
-        //     return floatingConnections[id];
-        // };
+        this.floatingConnections[info.id] = conn;
+        // only register for the target endpoint; we will not be dragging the source at any time
+        // before this connection is either discarded or made into a permanent connection.
+        addToList(this.instance.endpointsByElement, info.id, ep);
     }
 
     getFloatingAnchorIndex(jpc:Connection<HTMLElement>):number {

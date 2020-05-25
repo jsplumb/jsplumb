@@ -1,5 +1,4 @@
-import {_appendAtIndex, _attr, _node, Connection, Endpoint, SvgEndpoint} from "..";
-import {SvgElementConnector} from "./svg-element-connector";
+import {_appendAtIndex, _attr, _node, Connection, Endpoint} from "..";
 
 export abstract class SVGElementOverlay {
 
@@ -9,10 +8,10 @@ export abstract class SVGElementOverlay {
             let parent:SVGElement = null;
 
             if (o.component instanceof Connection) {
-                let connector = (o.component as Connection<HTMLElement>).getConnector();// as SvgElementConnector;
+                let connector = (o.component as Connection<HTMLElement>).getConnector();
                 parent = (connector as any).canvas;
             } else if (o.component instanceof Endpoint) {
-                let endpoint = (o.component as Endpoint<HTMLElement>).endpoint;//.renderer as SvgEndpoint<HTMLElement>;
+                let endpoint = (o.component as Endpoint<HTMLElement>).endpoint;
                 parent = (endpoint as any).svg;
             }
 

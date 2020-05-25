@@ -1,4 +1,3 @@
-
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstract-connector";
 import {Connectors} from "./connectors";
 import {StraightSegment} from "./straight-segment";

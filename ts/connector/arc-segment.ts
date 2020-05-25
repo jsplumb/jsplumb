@@ -100,26 +100,9 @@ export class ArcSegment extends AbstractSegment {
         }
     }
 
-
-
-
-
-
-
-    // segment is used by vml
-    //this.segment = _jg.quadrant([this.x1, this.y1], [this.x2, this.y2]);
-
-    // we now have startAngle and endAngle as positive numbers, meaning the
-    // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
-    // arc is 'anticlockwise' in which case 's' is given by 2PI - |d|.
-
-
-
     getLength ():number {
         return this.length;
     }
-
-
 
     /**
      * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from

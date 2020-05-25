@@ -60,7 +60,6 @@ export interface EndpointOptions<E> extends ComponentOptions<E> {
     connectionsDirected?:boolean;
     deleteOnEmpty?:boolean;
 
-    //endpointsByUUID?:Dictionary<Endpoint<E>>;
     elementId?:string;
     _transient?:boolean;
 }

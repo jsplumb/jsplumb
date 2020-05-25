@@ -1,7 +1,6 @@
-import {jsPlumbInstance, TypeDescriptor} from "../core";
+import {jsPlumbInstance} from "../core";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {PaintStyle} from "../styles";
-import {EndpointRenderer} from "./endpoint-renderer";
 import {EMPTY_BOUNDS, SegmentBounds} from "../connector/abstract-segment";
 import {Endpoint} from "./endpoint-impl";
 
@@ -55,10 +54,6 @@ export abstract class EndpointRepresentation<E, C> {
 
     clone():EndpointRepresentation<E, C> {
         return null;
-    }
-
-    setHover(h:boolean) {
-        this.instance.renderer.setEndpointHover(this, h);
     }
 
     compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any) {

@@ -1,4 +1,4 @@
-import {jsPlumbInstance, Offset, PointXY} from "../core";
+import {jsPlumbInstance, Offset} from "../core";
 import {AnchorSpec, Connection, EndpointSpec, GroupManager, log, removeWithFunction, uuid} from "..";
 import * as Constants from "../constants";
 
@@ -98,16 +98,7 @@ export class UIGroup<E> {
 
             __el[Constants.GROUP_KEY] = this;
             this.children.push(__el);
-
             this.manager.instance.appendElement(__el, dragArea);
-
-            // if (!doNotFireEvent) {
-            //     var p = {group: self, el: __el};
-            //     if (sourceGroup) {
-            //         p.sourceGroup = sourceGroup;
-            //     }
-            //     //_jsPlumb.fire(EVT_CHILD_ADDED, p);
-            // }
         });
 
         this.manager._updateConnectionsForGroup(this);
