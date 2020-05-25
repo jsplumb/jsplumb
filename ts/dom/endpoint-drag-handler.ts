@@ -652,6 +652,7 @@ export class EndpointDragHandler implements DragHandler {
         let originalEvent = p.e;
 
         this.instance.isConnectionBeingDragged = false;
+        this.instance.currentlyDragging = false;
 
         const classesToRemove = classList(CLASS_DRAG_HOVER, CLASS_DRAG_ACTIVE);
 
