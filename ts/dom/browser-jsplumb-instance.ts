@@ -1,7 +1,7 @@
 import {jsPlumbDefaults, jsPlumbHelperFunctions} from "../defaults";
 import {Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
-import {each, fastTrim, isArray, isString, log, uuid} from "../util";
+import {fastTrim, isArray, isString, log, uuid} from "../util";
 import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
@@ -31,10 +31,6 @@ export interface DragOptions {
     stop?: (params:DragEventCallbackOptions) => void;
     cursor?: string;
     zIndex?: number;
-}
-
-export interface DropOptions {
-    hoverClass: string;
 }
 
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
@@ -164,8 +160,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         // not very clean: cant pass this in to BrowserRenderer as we're in the constructor of this class. this should be cleaned up.
         (this.renderer as BrowserRenderer).instance = this;
 
-        this.eventManager = new Mottle();
-        //this.eventManager = new EventManager();
+        //this.eventManager = new Mottle();
+        this.eventManager = new EventManager();
         this.dragManager = new DragManager(this);
 
         this.dragManager.addHandler(new EndpointDragHandler(this));
@@ -173,112 +169,64 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.elementDragHandler = new ElementDragHandler(this);
         this.dragManager.addHandler(this.elementDragHandler);
 
-        this._connectorClick = function(e:any) {
+        const _connClick = function(event:string, e:any) {
             if (!e.defaultPrevented) {
-                console.log("connector click " + e + " " + this._instanceIndex);
                 let connectorElement = findParent(e.srcElement || e.target, Constants.SELECTOR_CONNECTOR, this.getContainer());
-                console.log(connectorElement);
-                this.fire(Constants.EVENT_CLICK, (<any>connectorElement).jtk.connector.connection, e);
+                this.fire(event, (<any>connectorElement).jtk.connector.connection, e);
             }
-        }.bind(this);
+        };
+        this._connectorClick = _connClick.bind(this, Constants.EVENT_CLICK);
+        this._connectorDblClick = _connClick.bind(this, Constants.EVENT_DBL_CLICK);
 
-        this._connectorDblClick = function(e:any) {
-            if (!e.defaultPrevented) {
-                console.log("connector dbl click " + e + " " + this._instanceIndex);
-                let connectorElement = findParent(e.srcElement || e.target, Constants.SELECTOR_CONNECTOR, this.getContainer());
-                console.log(connectorElement);
-                this.fire(Constants.EVENT_DBL_CLICK, (<any>connectorElement).jtk.connector.connection, e);
-            }
-        }.bind(this);
-
-        // TODO refactor into one
-        this._connectorMouseover = function(e:any) {
+        const _connectorHover = function(state:boolean, e:any) {
             const el = (e.srcElement || e.target).parentNode;
             if (el.jtk && el.jtk.connector) {
-                //console.log("mouse over connector", e);
-                this.renderer.setConnectorHover(el.jtk.connector, true);
+                this.renderer.setConnectorHover(el.jtk.connector, state);
             }
-        }.bind(this);
+        };
 
-        this._connectorMouseout = function(e:any) {
-            const el = (e.srcElement || e.target).parentNode;
-            if (el.jtk && el.jtk.connector) {
-                //console.log("mouse over connector", e);
-                this.renderer.setConnectorHover(el.jtk.connector, false);
-            }
-        }.bind(this);
+        this._connectorMouseover = _connectorHover.bind(this, true);
+        this._connectorMouseout = _connectorHover.bind(this, false);
 
-        this._endpointClick = function(e:any) {
+        const _epClick = function(event:string, e:any) {
             if (!e.defaultPrevented) {
-                console.log("endpoint click " + e + " " + this._instanceIndex);
                 let endpointElement = findParent(e.srcElement || e.target, Constants.SELECTOR_ENDPOINT, this.getContainer());
-                console.log(endpointElement);
-                this.fire(Constants.EVENT_ENDPOINT_CLICK, (<any>endpointElement).jtk.endpoint, e);
+                this.fire(event, (<any>endpointElement).jtk.endpoint, e);
             }
-        }.bind(this);
+        };
 
-        this._endpointDblClick = function(e:any) {
-            if (!e.defaultPrevented) {
-                console.log("endpoint dbl click " + e + " " + this._instanceIndex);
-                let endpointElement = findParent(e.srcElement || e.target, Constants.SELECTOR_ENDPOINT, this.getContainer());
-                console.log(endpointElement);
-                this.fire(Constants.EVENT_ENDPOINT_DBL_CLICK, (<any>endpointElement).jtk.endpoint, e);
-            }
-        }.bind(this);
+        this._endpointClick = _epClick.bind(this, Constants.EVENT_ENDPOINT_CLICK);
+        this._endpointDblClick = _epClick.bind(this, Constants.EVENT_ENDPOINT_DBL_CLICK);
 
-        // TODO refactor into one
-        this._endpointMouseover = function(e:any) {
+        const _endpointHover = function(state: boolean, e:any) {
             const el = e.srcElement || e.target;
             if (el.jtk && el.jtk.endpoint) {
                 this.renderer.setEndpointHover(el.jtk.endpoint, true);
             }
-        }.bind(this);
+        };
+        this._endpointMouseover = _endpointHover.bind(this, true);
+        this._endpointMouseout = _endpointHover.bind(this, false);
 
-        this._endpointMouseout = function(e:any) {
-            const el = e.srcElement || e.target;
-            if (el.jtk && el.jtk.endpoint) {
-                this.renderer.setEndpointHover(el.jtk.endpoint, false);
-            }
-        }.bind(this);
-
-        this._overlayClick = function(e:any) {
+        const _oClick = function(method:string, e:any) {
             consume(e);
-            console.log("overlay click " + e + " " + this._instanceIndex);
             let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
-            console.log(overlayElement);
             let overlay = (<any>overlayElement).jtk.overlay;
-            //this.fire(Constants.EVENT_CLICK, overlay.component, e);
-            //overlay.fire("click", e);
-            overlay.click(e);
+            overlay[method](e);
+        };
 
-        }.bind(this);
+        this._overlayClick = _oClick.bind(this, "click");
+        this._overlayDblClick = _oClick.bind(this, "dblClick");
 
-        this._overlayDblClick = function(e:any) {
-            consume(e);
-            console.log("overlay dbl click " + e + " " + this._instanceIndex);
-            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
-            console.log(overlayElement);
-            let overlay = (<any>overlayElement).jtk.overlay;
-            //this.fire(Constants.EVENT_DBL_CLICK, overlay.component, e);
-            //overlay.fire("dblclick", e);
-            overlay.dblClick(e);
-        }.bind(this);
-
-        this._overlayMouseover = function(e:any) {
+        const _overlayHover = function(state:boolean, e:any) {
             let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
             let overlay = (<any>overlayElement).jtk.overlay;
             if (overlay) {
-                this.renderer.setOverlayHover(overlay, true);
+                this.renderer.setOverlayHover(overlay, state);
             }
-        }.bind(this);
+        };
 
-        this._overlayMouseout = function(e:any) {
-            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
-            let overlay = (<any>overlayElement).jtk.overlay;
-            if (overlay) {
-                this.renderer.setOverlayHover(overlay, false);
-            }
-        }.bind(this);
+        this._overlayMouseover = _overlayHover.bind(this, true);
+        this._overlayMouseout = _overlayHover.bind(this, false);
 
         this._attachEventDelegates();
     }
