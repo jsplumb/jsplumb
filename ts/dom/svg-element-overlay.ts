@@ -1,4 +1,4 @@
-import {_appendAtIndex, _attr, _node, Connection, Endpoint} from "..";
+import {_appendAtIndex, _attr, _node, Connection, Endpoint, Overlay} from "..";
 
 export abstract class SVGElementOverlay {
 
@@ -51,18 +51,20 @@ export abstract class SVGElementOverlay {
         _attr(o.path, a);
     }
 
-    static destroy(o:any, force?:boolean) {
+    static destroy(o:Overlay<HTMLElement>, force?:boolean) {
 
-        if (o.path != null) {
-            o.path.parentNode.removeChild(o.path);
+        let _o = o as any;
+
+        if (_o.path != null && _o.path.parentNode != null) {
+            _o.path.parentNode.removeChild(_o.path);
         }
 
-        if (o.bgPath != null) {
-            o.bgPath.parentNode.removeChild(o.bgPath);
+        if (_o.bgPath != null && _o.bgPath.parentNode != null) {
+            _o.bgPath.parentNode.removeChild(_o.bgPath);
         }
 
-        delete o.path;
-        delete o.bgPath;
+        delete _o.path;
+        delete _o.bgPath;
 
 
     }
