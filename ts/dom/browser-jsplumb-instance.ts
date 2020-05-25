@@ -389,21 +389,17 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     }
 
     on (el:HTMLElement, event:string, callbackOrSelector:Function|string, callback?:Function) {
-        // TODO: here we would like to map the tap event if we know its
-        // an internal bind to a click. we have to know its internal because only
-        // then can we be sure that the UP event wont be consumed (tap is a synthesized
-        // event from a mousedown followed by a mouseup).
-        //event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-
-        this.eventManager.on.apply(this, arguments);
-        //this.eventManager.on(el, event, callbackOrSelector, callback);
+        if (callback == null) {
+            this.eventManager.on(el, event, callbackOrSelector);
+        } else {
+            this.eventManager.on(el, event, callbackOrSelector, callback);
+        }
         return this;
     }
 
     off (el:HTMLElement, event:string, callback:Function) {
 
-        this.eventManager.off.apply(this, arguments);
-        //this.eventManager.off(el, event, callback);
+        this.eventManager.off(el, event, callback);
 
         return this;
     }
