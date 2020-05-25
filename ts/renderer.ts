@@ -29,6 +29,7 @@ export interface Renderer<E> {
 
     paintConnector(connector:AbstractConnector<E>, paintStyle:PaintStyle, extents?:any):void;
     destroyConnector(connector:AbstractConnector<E>, force?:boolean):void;
+    setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean, doNotCascade?:boolean):void;
     addConnectorClass(connector:AbstractConnector<E>, clazz:string):void;
     removeConnectorClass(connector:AbstractConnector<E>, clazz:string):void;
     getConnectorClass(connector:AbstractConnector<E>):string;
@@ -42,5 +43,6 @@ export interface Renderer<E> {
     addEndpointClass<C>(ep:EndpointRepresentation<E,C>, c:string):void;
     removeEndpointClass<C>(ep:EndpointRepresentation<E,C>, c:string):void;
     getEndpointClass<C>(ep:EndpointRepresentation<E, C>):string;
+    setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean, doNotCascade?:boolean): void;
 
 }
