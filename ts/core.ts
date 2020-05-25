@@ -1545,7 +1545,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     _newConnection (params:any):Connection<E> {
         params.id = "con_" + this._idstamp();
-        return new Connection(this, params);
+        const c = new Connection(this, params);
+        c.paint();
+        return c;
     }
 
     //
@@ -1621,6 +1623,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         _one(info);
     }
 
+    //
+    // TODO this method performs DOM operations, and shouldnt.
     remove(el:string|E, doNotRepaint?:boolean):jsPlumbInstance<E> {
         let info = this._info(el), affectedElements:Array<any> = [];
         if (info.text && (info.el as any).parentNode) {
