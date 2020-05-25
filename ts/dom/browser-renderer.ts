@@ -54,9 +54,11 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     repaint(component: Component<HTMLElement>, typeDescriptor: string, options?: RepaintOptions): void {
         console.log("doing a repaint of " + typeDescriptor);
+        //debugger;
+        component.paint();
     }
 
-    private getLabelElement(o:LabelOverlay<HTMLElement>):HTMLElement {
+    private static getLabelElement(o:LabelOverlay<HTMLElement>):HTMLElement {
         return HTMLElementOverlay.getElement(o as any);
     }
 
@@ -71,7 +73,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     addOverlayClass(o: Overlay<HTMLElement>, clazz: string): void {
 
         if (o.type === "Label") {
-            o.instance.addClass(this.getLabelElement(o as LabelOverlay<HTMLElement>), clazz);
+            o.instance.addClass(BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>), clazz);
         } else if (o.type === "Arrow") {
             o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (o.type === "Custom") {
@@ -84,7 +86,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     //
     removeOverlayClass(o: Overlay<HTMLElement>, clazz: string): void {
         if (o.type === "Label") {
-            o.instance.removeClass(this.getLabelElement(o as LabelOverlay<HTMLElement>), clazz);
+            o.instance.removeClass(BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>), clazz);
         } else if (o.type === "Arrow") {
             o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (o.type === "Custom") {
@@ -99,7 +101,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         //
         if (o.type === "Label") {
 
-            this.getLabelElement(o as LabelOverlay<HTMLElement>);
+            BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>);
 
             const XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
             // this.canvas.style.top = XY.y + params.d.miny + "px";
@@ -134,7 +136,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     setOverlayVisible(o: Overlay<HTMLElement>, visible:boolean):void {
 
         if (o.type === "Label") {
-            this.getLabelElement(o as LabelOverlay<HTMLElement>).style.display = visible ? "block" : "none";
+            BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>).style.display = visible ? "block" : "none";
         }
         else if (o.type === "Custom") {
             this.getCustomElement(o as CustomOverlay<HTMLElement>).style.display = visible ? "block" : "none";
@@ -145,7 +147,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     moveOverlayParent(o: Overlay<HTMLElement>, newParent: HTMLElement): void {
         if (o.type === "Label") {
-            o.instance.appendElement(this.getLabelElement(o as any), this.instance.getContainer());
+            o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
         } else if (o.type === "Custom") {
             o.instance.appendElement(this.getCustomElement(o as any), this.instance.getContainer());
         }
@@ -157,7 +159,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     reattachOverlay(o: Overlay<HTMLElement>, c: OverlayCapableComponent<HTMLElement>): any {
         if (o.type === "Label") {
-            o.instance.appendElement(this.getLabelElement(o as any), this.instance.getContainer());
+            o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
         }
         else if (o.type === "Custom") {
             o.instance.appendElement(this.getCustomElement(o as any), this.instance.getContainer());
@@ -167,9 +169,35 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
+    setOverlayHover(o: Overlay<HTMLElement>, hover: boolean): any {
+
+        const method = hover ? "addClass" : "removeClass";
+        let canvas;
+
+        if (o.type === "Label") {
+            canvas = BrowserRenderer.getLabelElement(o as any);
+        }
+        else if (o.type === "Custom") {
+            canvas = this.getCustomElement(o as any)
+        }
+        else if (o.type === "Arrow") {
+            canvas = SVGElementOverlay.ensurePath(o);
+        }
+
+        if (canvas != null) {
+            if (this.instance.hoverClass != null) {
+                this.instance[method](canvas, this.instance.hoverClass);
+            }
+
+            o.component.setHover(hover, true);
+        }
+    }
+
+
+
     destroyOverlay(o: Overlay<HTMLElement>):void {
         if (o.type === "Label") {
-            const el = this.getLabelElement(o as LabelOverlay<HTMLElement>);
+            const el = BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>);
             el.parentNode.removeChild(el);
             delete (o as any).canvas;
             delete (o as any).cachedDimensions;
@@ -237,18 +265,18 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         if (isFunction(o.label)) {
             let lt = (o.label as Function)(this);
             if (lt != null) {
-                this.getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
+                BrowserRenderer.getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
             } else {
-                this.getLabelElement(o).innerHTML = "";
+                BrowserRenderer.getLabelElement(o).innerHTML = "";
             }
         }
         else {
             if (o.labelText == null) {
                 o.labelText = o.label as string;
                 if (o.labelText != null) {
-                    this.getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>");
+                    BrowserRenderer.getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>");
                 } else {
-                    this.getLabelElement(o).innerHTML = "";
+                    BrowserRenderer.getLabelElement(o).innerHTML = "";
                 }
             }
         }
@@ -262,10 +290,33 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
     setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean):void {
-        throw new Error("setConnectorHover not implemented");
+        if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
+
+            //this._jsPlumb.hover = h;
+            const method = h ? "addClass" : "removeClass";
+            const canvas = (connector as any).canvas;
+
+            if (canvas != null) {
+                if (this.instance.hoverClass != null) {
+                    this.instance[method](canvas, this.instance.hoverClass);
+                }
+            }
+            if (connector.connection._jsPlumb.hoverPaintStyle != null) {
+                connector.connection._jsPlumb.paintStyleInUse = h ? connector.connection._jsPlumb.hoverPaintStyle : connector.connection._jsPlumb.paintStyle;
+                if (!this.instance._suspendDrawing) {
+                    //timestamp = timestamp || _timestamp();
+                    connector.connection.paint(connector.connection._jsPlumb.paintStyleInUse);
+                }
+            }
+            // get the list of other affected elements, if supported by this component.
+            // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
+            // if (this.getAttachedElements && !ignoreAttachedElements) {
+            //     _updateAttachedElements(this, hover, _timestamp(), this);
+            // }
+        }
     }
 
-    private cleanup(component: any) {
+    private static cleanup(component: any) {
         if (component.canvas) {
             component.canvas.parentNode.removeChild(component.canvas);
         }
@@ -275,7 +326,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
     destroyConnector(connector:AbstractConnector<HTMLElement>):void {
-        this.cleanup(connector);
+        BrowserRenderer.cleanup(connector);
     }
 
     addConnectorClass(connector:AbstractConnector<HTMLElement>, clazz:string):void {
@@ -290,14 +341,14 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    private setVisible(component: any, v:boolean) {
+    private static setVisible(component: any, v:boolean) {
         if (component.canvas) {
             component.canvas.style.display = v ? "block" : "none";
         }
     }
 
     setConnectorVisible(connector:AbstractConnector<HTMLElement>, v:boolean):void {
-        this.setVisible(connector, v);
+        BrowserRenderer.setVisible(connector, v);
     }
 
     applyConnectorType(connector:AbstractConnector<HTMLElement>, t:TypeDescriptor):void {
@@ -325,7 +376,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
     destroyEndpoint<C>(ep: EndpointRepresentation<HTMLElement, C>): void {
-        this.cleanup(ep);
+        BrowserRenderer.cleanup(ep);
     }
 
     paintEndpoint<C>(ep: EndpointRepresentation<HTMLElement, C>, paintStyle: PaintStyle): void {
@@ -335,7 +386,6 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         } else {
             console.log("JSPLUMB: no endpoint renderer found for type [" + ep.typeId  + "]");
         }
-
     }
 
     moveEndpointParent<C>(endpoint:EndpointRepresentation<HTMLElement,C>, newParent:HTMLElement):void {
@@ -349,11 +399,38 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
     setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean): void {
-        throw new Error("set endpoint hover not implemented");
+
+
+        if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
+
+            //this._jsPlumb.hover = h;
+            const method = h ? "addClass" : "removeClass";
+            const canvas = (endpoint as any).canvas;
+
+            if (canvas != null) {
+                if (this.instance.hoverClass != null) {
+                    this.instance[method](canvas, this.instance.hoverClass);
+                }
+            }
+            if (endpoint.endpoint._jsPlumb.hoverPaintStyle != null) {
+                endpoint.endpoint._jsPlumb.paintStyleInUse = h ? endpoint.endpoint._jsPlumb.hoverPaintStyle : endpoint.endpoint._jsPlumb.paintStyle;
+                if (!this.instance._suspendDrawing) {
+                    //timestamp = timestamp || _timestamp();
+                    endpoint.paint(endpoint.endpoint._jsPlumb.paintStyleInUse);
+                }
+            }
+            // get the list of other affected elements, if supported by this component.
+            // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
+            // if (this.getAttachedElements && !ignoreAttachedElements) {
+            //     _updateAttachedElements(this, hover, _timestamp(), this);
+            // }
+        }
+
+     //   throw new Error("set endpoint hover not implemented");
     }
 
     setEndpointVisible<C>(ep: EndpointRepresentation<HTMLElement, C>, v: boolean): void {
-        this.setVisible(ep, v);
+        BrowserRenderer.setVisible(ep, v);
     }
 
 
