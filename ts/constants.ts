@@ -25,6 +25,7 @@ export const ATTRIBUTE_SOURCE = "jtk-source";
 export const ATTRIBUTE_TARGET = "jtk-target";
 export const ATTRIBUTE_CONTAINER = "jtk-container";
 export const ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
+export const ATTRIBUTE_TABINDEX = "tabindex";
 
 export const IS_DETACH_ALLOWED = "isDetachAllowed";
 export const BEFORE_DETACH = "beforeDetach";
@@ -39,8 +40,16 @@ export const EVENT_CLICK = "click";
 export const EVENT_DBL_CLICK = "dblclick";
 export const EVENT_ENDPOINT_CLICK = "endpointClick";
 export const EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+export const EVENT_FOCUS = "focus";
 export const EVENT_MOUSEOVER = "mouseover";
 export const EVENT_MOUSEOUT = "mouseout";
+export const EVENT_MOUSEENTER = "mouseenter";
+export const EVENT_MOUSEEXIT= "mouseexit";
+export const EVENT_TAP = "tap";
+export const EVENT_DBL_TAP = "dbltap";
+export const EVENT_CONTEXTMENU = "contextmenu";
+export const EVENT_MOUSEUP = "mouseup";
+export const EVENT_MOUSEDOWN = "mousedown";
 
 export const EVENT_CHILD_ADDED = "group:addMember";
 export const EVENT_CHILD_REMOVED = "group:removeMember";
