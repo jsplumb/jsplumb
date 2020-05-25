@@ -202,11 +202,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
                 this.instance[method](canvas, this.instance.hoverClass);
             }
 
-            if (o.component instanceof Endpoint) {
-                this.setEndpointHover((o.component as Endpoint<HTMLElement>).endpoint, hover);
-            } else if(o.component instanceof Connection) {
-                this.setConnectorHover((o.component as Connection<HTMLElement>).connector, hover);
-            }
+            this.setHover(o.component, hover);
         }
     }
 
@@ -217,7 +213,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             delete (o as any).canvas;
             delete (o as any).cachedDimensions;
         } else if (o.type === "Arrow") {
-            SVGElementOverlay.destroy(o as any);
+            SVGElementOverlay.destroy(o);
         } else if (o.type === "Custom") {
             const el = BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>);
             el.parentNode.removeChild(el);
@@ -299,9 +295,9 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     setHover(component: Component<HTMLElement>, hover: boolean): void {
         component._jsPlumb.hover = hover;
-        if (component instanceof Endpoint) {
+        if (component instanceof Endpoint && (component as Endpoint<HTMLElement>).endpoint != null) {
             this.setEndpointHover((component as Endpoint<HTMLElement>).endpoint, hover);
-        } else if (component instanceof Connection) {
+        } else if (component instanceof Connection && (component as Connection<HTMLElement>).connector != null) {
             this.setConnectorHover((component as Connection<HTMLElement>).connector, hover);
         }
     }
