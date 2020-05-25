@@ -1,6 +1,18 @@
+
+import {uuid} from "./util";
+import {
+    ATTRIBUTE_TABINDEX,
+    EVENT_CLICK, EVENT_CONTEXTMENU,
+    EVENT_DBL_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN,
+    EVENT_MOUSEENTER,
+    EVENT_MOUSEEXIT,
+    EVENT_MOUSEOUT,
+    EVENT_MOUSEOVER, EVENT_MOUSEUP,
+    EVENT_TAP
+} from "./constants";
+
 /**
  * Creates a Touch object.
- * @param view
  * @param target
  * @param pageX
  * @param pageY
@@ -11,8 +23,6 @@
  * @returns {Touch}
  * @private
  */
-import {uuid} from "./util";
-
 function _touch(target:any, pageX:number, pageY:number, screenX:number, screenY:number, clientX:number, clientY:number):Touch {
 
     return new Touch({
@@ -40,7 +50,7 @@ function _touchList(...touches:Array<Touch>) {
 }
 
 /**
- * Create a Touch object and then insert it into a synthetic touch list, returning the list.s
+ * Create a Touch object and then insert it into a synthetic touch list, returning the list.
  * @param target
  * @param pageX
  * @param pageY
@@ -112,9 +122,10 @@ let guid = 1;
 let isTouchDevice:boolean = "ontouchstart" in document.documentElement || (navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0);
 let isMouseDevice:boolean = "onmousedown" in document.documentElement;
 const touchMap = { "mousedown": "touchstart", "mouseup": "touchend", "mousemove": "touchmove" };
-const touchstart = "touchstart";
-const touchend = "touchend";
-const touchmove = "touchmove";
+
+const PAGE = "page";
+const SCREEN = "screen";
+const CLIENT = "client";
 
 function _genLoc (e:Event, prefix:string) {
     if (e == null) return [ 0, 0 ];
@@ -123,15 +134,15 @@ function _genLoc (e:Event, prefix:string) {
 }
 export function pageLocation (e:Event) {
     if (e == null) return [ 0, 0 ];
-    return _genLoc(e, "page");
+    return _genLoc(e, PAGE);
 }
 
 function _screenLocation (e:Event) {
-    return _genLoc(e, "screen");
+    return _genLoc(e, SCREEN);
 }
 
 function _clientLocation (e:Event) {
-    return _genLoc(e, "client");
+    return _genLoc(e, CLIENT);
 }
 
 function _getTouch (touches:TouchList, idx:number):Touch {
@@ -156,7 +167,7 @@ function _bind (obj:any, type:string, fn:any, originalFn?:any) {
         obj.addEventListener(type, fn, false);
     }
     else if (obj.attachEvent) {
-        var key = type + fn.__tauid;
+        const key = type + fn.__tauid;
         obj["e" + key] = fn;
         // TODO look at replacing with .call(..)
         obj[key] = function () {
@@ -197,15 +208,6 @@ function _each (obj:any, fn:any) {
     // if a list (or list-like), use it. if a string, get a list
     // by running the string through querySelectorAll. else, assume
     // it's an Element.
-    // obj.top is "unknown" in IE8.
-    // obj = (typeof Window !== "undefined" && (obj == obj.top)) ? [ obj ] :
-    //     (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj :
-    //         typeof obj === "string" ? document.querySelectorAll(obj)
-    //             : [ obj ];
-    //
-    // for (var i = 0; i < obj.length; i++)
-    //     fn.apply(obj[i]);
-
     const entries = typeof obj === "string" ? document.querySelectorAll(obj) : obj.length != null ? obj : [ obj ];
     for (let i = 0; i < entries.length; i++) {
         fn(entries[i]);
@@ -249,13 +251,14 @@ function _curryChildFilter (children:string, obj:any, fn:FunctionFacade, evt:str
         const c = children.split(","),
             _fn =  (e:any) => {
                 (_fn as any).__tauid = fn.__tauid;
-                var t = _t(e), target = t;  // t is the target element on which the event occurred. it is the
+                const t = _t(e);
+                let target = t;  // t is the target element on which the event occurred. it is the
                 // element we will wish to pass to any callbacks.
-                var pathInfo = _pi(e, t, obj, children != null)
+                const pathInfo = _pi(e, t, obj, children != null);
                 if (pathInfo.end != -1) {
-                    for (var p = 0; p < pathInfo.end; p++) {
+                    for (let p = 0; p < pathInfo.end; p++) {
                         target = pathInfo.path[p];
-                        for (var i = 0; i < c.length; i++) {
+                        for (let i = 0; i < c.length; i++) {
                             if (matchesSelector(target, c[i], obj)) {
                                 fn.apply(target, [e]);
                             }
@@ -279,15 +282,15 @@ const DefaultHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children
         const tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
         _bind(obj, touchMap[evt], tfn , fn);
     }
-    if (evt === "focus" && obj.getAttribute("tabindex") == null) {
-        obj.setAttribute("tabindex", "1");
+    if (evt === EVENT_FOCUS && obj.getAttribute(ATTRIBUTE_TABINDEX) == null) {
+        obj.setAttribute(ATTRIBUTE_TABINDEX, "1");
     }
     _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
 };
 
 const SmartClickHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children:string) => {
     if (obj.__taSmartClicks == null) {
-        var down = (e:Event) => {
+        const down = (e:Event) => {
                 obj.__tad = pageLocation(e);
             },
             up = (e:Event) => {
@@ -299,9 +302,9 @@ const SmartClickHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, child
                         obj.__taSmartClicks[i].apply(_t(e), [ e ]);
                 }
             };
-        DefaultHandler(obj, "mousedown", down as any, children);
-        DefaultHandler(obj, "mouseup", up as any, children);
-        DefaultHandler(obj, "click", click as any, children);
+        DefaultHandler(obj, EVENT_MOUSEDOWN, down as any, children);
+        DefaultHandler(obj, EVENT_MOUSEUP, up as any, children);
+        DefaultHandler(obj, EVENT_CLICK, click as any, children);
         obj.__taSmartClicks = [];
     }
 
@@ -333,7 +336,7 @@ class TapHandler {
         return (obj:any, evt:string, fn:FunctionFacade, children:string) => {
             // if event is contextmenu, for devices which are mouse only, we want to
             // use the default bind.
-            if (evt == "contextmenu" && isMouseDevice)
+            if (evt == EVENT_CONTEXTMENU && isMouseDevice)
                 DefaultHandler(obj, evt, fn, children);
             else {
                 // the issue here is that this down handler gets registered only for the
@@ -350,7 +353,7 @@ class TapHandler {
                         taps: 0,
                         downSelectors: []
                     };
-                    var down =  (e:Event) => {
+                    const down = (e:Event) => {
                             let target = _t(e), pathInfo = _pi(e, target, obj, children != null), finished = false;
                             for (let p = 0; p < pathInfo.end; p++) {
                                 if (finished) return;
@@ -427,7 +430,7 @@ class MouseEnterExitHandler {
                 const over = (e:Event) => {
                         const t:any = _t(e);
                         if ((children == null && (t == obj && !obj.__tamee.over)) || (matchesSelector(t, children, obj) && (t.__tamee == null || !t.__tamee.over))) {
-                            meeHelper("mouseenter", e, obj, t);
+                            meeHelper(EVENT_MOUSEENTER, e, obj, t);
                             t.__tamee = t.__tamee || {};
                             t.__tamee.over = true;
                             activeElements.push(t);
@@ -441,13 +444,13 @@ class MouseEnterExitHandler {
                             if (t == activeElements[i] && !matchesSelector(((e as any).relatedTarget || (e as any).toElement), "*", t)) {
                                 t.__tamee.over = false;
                                 activeElements.splice(i, 1);
-                                meeHelper("mouseexit", e, obj, t);
+                                meeHelper(EVENT_MOUSEEXIT, e, obj, t);
                             }
                         }
                     };
 
-                _bind(obj, "mouseover", _curryChildFilter(children, obj, over as any, "mouseover"), over);
-                _bind(obj, "mouseout", _curryChildFilter(children, obj, out as any, "mouseout"), out);
+                _bind(obj, EVENT_MOUSEOVER, _curryChildFilter(children, obj, over as any, EVENT_MOUSEOVER), over);
+                _bind(obj, EVENT_MOUSEOUT, _curryChildFilter(children, obj, out as any, EVENT_MOUSEOUT), out);
             }
 
             fn.__taUnstore = function () {
@@ -465,7 +468,6 @@ export interface EventManagerOptions {
     dblClickThreshold?:number;
     smartClicks?:boolean;
 }
-
 
 export class EventManager {
 
@@ -488,12 +490,12 @@ export class EventManager {
         if (fn == null) return;
         _each(obj,  (el:any) => {
             const _el = _gel(el);
-            if (this.smartClicks && evt === "click")
+            if (this.smartClicks && evt === EVENT_CLICK)
                 SmartClickHandler(_el, evt, fn, children);
-            else if (evt === "tap" || evt === "dbltap" || evt === "contextmenu") {
+            else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
                 this.tapHandler(_el, evt, fn, children);
             }
-            else if (evt === "mouseenter" || evt == "mouseexit")
+            else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT)
                 this.mouseEnterExitHandler(_el, evt, fn, children);
             else
                 DefaultHandler(_el, evt, fn, children);
@@ -506,7 +508,7 @@ export class EventManager {
             if (_el.__ta) {
                 for (let evt in _el.__ta) {
                     if (_el.__ta.hasOwnProperty(evt)) {
-                        for (var h in _el.__ta[evt]) {
+                        for (let h in _el.__ta[evt]) {
                             if (_el.__ta[evt].hasOwnProperty(h))
                                 _unbind(_el, evt, _el.__ta[evt][h]);
                         }
@@ -550,13 +552,15 @@ export class EventManager {
             };
 
             const _decorate = (_evt:any) => {
-                if (payload) _evt.payload = payload;
+                if (payload) {
+                    _evt.payload = payload;
+                }
             };
 
             const eventGenerators = {
                 "TouchEvent": (evt:any) => {
 
-                    var touchList = _touchAndList(_el, pl[0], pl[1], sl[0], sl[1], cl[0], cl[1]),
+                    const touchList = _touchAndList(_el, pl[0], pl[1], sl[0], sl[1], cl[0], cl[1]),
                         init = evt.initTouchEvent || evt.initEvent;
 
                     init(eventToBind, true, true, window, null, sl[0], sl[1],
@@ -581,18 +585,7 @@ export class EventManager {
         });
         return this;
     }
-
 }
-
-// export function consume (e:Event, doNotPreventDefault?:boolean) {
-//     if (e.stopPropagation)
-//         e.stopPropagation();
-//     else
-//         e.returnValue = false;
-//
-//     if (!doNotPreventDefault && e.preventDefault)
-//         e.preventDefault();
-// }
 
 export function setForceTouchEvents (value:boolean) {
     isTouchDevice = value;
