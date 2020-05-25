@@ -750,13 +750,6 @@ export class EndpointDragHandler implements DragHandler {
 
             this._cleanupDraggablePlaceholder();
 
-            // // although the connection is no longer valid, there are use cases where this is useful.
-            // this.instance.fire("connectionDragStop", this.jpc, originalEvent);
-            // // fire this event to give people more fine-grained control (connectionDragStop fires a lot)
-            // if (jpc.pending) {
-            //     _jsPlumb.fire("connectionAborted", jpc, originalEvent);
-            // }
-
             delete this.jpc.suspendedEndpoint;
             delete this.jpc.suspendedElement;
             delete this.jpc.suspendedElementType;
