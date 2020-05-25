@@ -308,7 +308,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         SvgElementConnector.paint(connector, paintStyle, extents);
     }
 
-    private setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean, doNotCascade?:boolean):void {
+    setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean, doNotCascade?:boolean):void {
         if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
 
             const method = h ? "addClass" : "removeClass";
@@ -408,7 +408,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    private setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean, doNotCascade?:boolean): void {
+    setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean, doNotCascade?:boolean): void {
 
         if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
 
