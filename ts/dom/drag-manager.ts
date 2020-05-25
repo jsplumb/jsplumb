@@ -71,8 +71,8 @@ export class DragManager {
 
         // create a delegated drag handler
         this.katavorio = new Katavorio({
-            bind: (el:any, event:string, fn:any) => this.instance.on(el, event, fn),
-            unbind:(el:any, event:string, fn:any) => this.instance.off(el, event, fn),
+            bind: this.instance.on.bind(instance),
+            unbind:this.instance.off.bind(instance),
             getSize: this.instance.getSize.bind(instance),
             getConstrainingRectangle: (el:HTMLElement) => {
                 return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight];
