@@ -625,8 +625,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOVER, this._endpointMouseover);
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOUT, this._endpointMouseout);
 
-            this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, this._overlayMouseover);
-            this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, this._overlayMouseout);
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOVER, this._overlayMouseover);
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOUT, this._overlayMouseout);
         }
     }
 
