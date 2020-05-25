@@ -270,6 +270,13 @@ var testSuite = function () {
             ],
             cssClass: "FOO"
         };
+
+        var overlayType = {
+            overlays: [
+                [ "Label", {id:"LBL2", label:"LABEL 2" } ]
+            ]
+        };
+
         // this tests all three merge types: connector should overwrite, strokeWidth should be inserted into
         // basic type's params, and arrow overlay should be added to list to end up with two overlays
         var otherType = {
@@ -282,7 +289,8 @@ var testSuite = function () {
         };
         _jsPlumb.registerConnectionTypes({
             "basic": basicType,
-            "other": otherType
+            "other": otherType,
+            "overlayType":overlayType
         });
 
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -290,24 +298,25 @@ var testSuite = function () {
 
         equal(_length(c.getOverlays()), 1, "connection has one overlay to begin with");
 
-        c.addType("basic", {lbl:"FOO"});
+        // TODO need another type. test addType (which should add overlays) and setType (which should set the overlays it wants)
+        c.setType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
-        equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label set via setType parameter");
-        equal(_length(c.getOverlays()), 1, "one overlay after adding 'basic' type");
-
-        c.addType("basic", {lbl:"FOO"});
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().strokeWidth, 4, "connection has strokeWidth 4");
-        equal(_length(c.getOverlays()), 1, "one overlay1 after setting type to 'basic'");
-
+        equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label set via setType parameter");
+        equal(_length(c.getOverlays()), 2, "two overlays after setting'basic' type");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class was set on canvas");
+
+        c.addType("overlayType");
+        equal(_length(c.getOverlays()), 3, "three overlays after adding type 'overlayType'");
+        equal(c.hasType("overlayType"), true, "connection has 'overlayType' type");
 
         c.addType("other", {lbl:"BAZ"});
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
         equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
-        equal(_length(c.getOverlays()), 2, "two overlays after adding 'other' type");
+        equal(_length(c.getOverlays()), 4, "four overlays after adding 'other' type");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class is still set on canvas");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "BAR"), "BAR class was set on canvas");
         //equal(c.getOverlay("LBL").getLabel(), "BAZ", "overlay's label updated via addType parameter is correct");
@@ -317,10 +326,13 @@ var testSuite = function () {
         equal(c.hasType("other"), true, "connection has 'other' type");
         equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
         equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
-        equal(_length(c.getOverlays()), 1, "one overlay after removing 'basic' type");
+        equal(_length(c.getOverlays()), 3, "three overlays after removing 'basic' type");
         ok(!_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class was removed from canvas");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "BAR"), "BAR class is still set on canvas");
         //equal(c.getOverlay("LBL").getLabel(), "FOO", "overlay's label updated via removeType parameter is correct");
+
+        c.removeType("overlayType");
+        equal(_length(c.getOverlays()), 2, "two overlays after removing 'overlayType' type");
 
         c.toggleType("other");
         equal(c.hasType("other"), false, "connection does not have 'other' type");
@@ -329,8 +341,6 @@ var testSuite = function () {
         equal(_length(c.getOverlays()), 1, "one overlay after toggling 'other' type. this is the original overlay now.");
         ok(!_jsPlumb.hasClass(support.getConnectionCanvas(c), "BAR"), "BAR class was removed from canvas");
 
-        // c.removeOverlay("LBL");
-        // equal(_length(c.getOverlays()), 0, "zero overlays after removing the original overlay.");
     });
 
     test("connection type tests, check overlays do not disappear", function () {
