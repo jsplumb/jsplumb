@@ -449,8 +449,8 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
                     ap = this.anchor.compute(anchorParams);
                 }
 
-                this.endpoint.compute(ap, this.anchor.getOrientation(this), this._jsPlumb.paintStyleInUse);
-                this.endpoint.paint(this._jsPlumb.paintStyleInUse);
+                this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse);
+                this.endpoint.paint(this.paintStyleInUse);
                 this.timestamp = timestamp;
 
                 // paint overlays
@@ -458,7 +458,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
                     if (this._jsPlumb.overlays.hasOwnProperty(i)) {
                         let o = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
-                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
                             this.instance.renderer.paintOverlay(o, this._jsPlumb.overlayPlacements[i], {xmin:0, ymin:0});
                         }
                     }

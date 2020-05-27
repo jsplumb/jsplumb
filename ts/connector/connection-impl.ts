@@ -176,8 +176,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this._jsPlumb.endpointHoverStyle = params.endpointHoverStyle;
         this._jsPlumb.endpointStyles = params.endpointStyles;
         this._jsPlumb.endpointHoverStyles = params.endpointHoverStyles;
-        this._jsPlumb.paintStyle = params.paintStyle;
-        this._jsPlumb.hoverPaintStyle = params.hoverPaintStyle;
+        this.paintStyle = params.paintStyle;
+        this.hoverPaintStyle = params.hoverPaintStyle;
         this._jsPlumb.uuids = params.uuids;
 
         let eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
@@ -268,7 +268,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
 
 // PAINTING
 
-        this._jsPlumb.paintStyleInUse = this.getPaintStyle() || {};
+        this.paintStyleInUse = this.getPaintStyle() || {};
 
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || this.instance.Defaults.connector, true);
 
@@ -549,7 +549,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                     targetOrientation:tE.anchor.getOrientation(tE),
                     sourceEndpoint: this.endpoints[sIdx],
                     targetEndpoint: this.endpoints[tIdx],
-                    strokeWidth: this._jsPlumb.paintStyleInUse.strokeWidth,
+                    strokeWidth: this.paintStyleInUse.strokeWidth,
                     sourceInfo: sourceInfo,
                     targetInfo: targetInfo
                 });
@@ -563,7 +563,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                         let o:Overlay<E> = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
 
-                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
 
                             overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
                             overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
@@ -573,8 +573,8 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                     }
                 }
 
-                let lineWidth = parseFloat("" + this._jsPlumb.paintStyleInUse.strokeWidth || "1") / 2,
-                    outlineWidth = parseFloat("" + this._jsPlumb.paintStyleInUse.strokeWidth || "0"),
+                let lineWidth = parseFloat("" + this.paintStyleInUse.strokeWidth || "1") / 2,
+                    outlineWidth = parseFloat("" + this.paintStyleInUse.strokeWidth || "0"),
                     extents = {
                         xmin: Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                         ymin: Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
@@ -582,7 +582,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                         ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                     };
 
-                this.instance.renderer.paintConnector(this.connector, this._jsPlumb.paintStyleInUse, extents);
+                this.instance.renderer.paintConnector(this.connector, this.paintStyleInUse, extents);
 
                 // and then the overlays
                 for (let j in this._jsPlumb.overlays) {

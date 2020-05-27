@@ -180,7 +180,7 @@ var testSuite = function () {
                 strokeWidth: "3"
             }
         });
-        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
+        equal(c.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
     });
 
     test(": outlineWidth specified as string (eew)", function () {
@@ -195,7 +195,7 @@ var testSuite = function () {
             }
         });
         c.paint();
-        equal(c._jsPlumb.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+        equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
     });
 
 
@@ -213,8 +213,8 @@ var testSuite = function () {
             }
         });
         c.paint();
-        equal(c._jsPlumb.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
-        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
+        equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+        equal(c.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
     });
 
     test(': defaultEndpointMaxConnections', function () {
@@ -4742,16 +4742,16 @@ var testSuite = function () {
     test(" setPaintStyle", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), c = _jsPlumb.connect({source: d1, target: d2});
         c.setPaintStyle({stroke: "FOO", strokeWidth: 999});
-        equal(c._jsPlumb.paintStyleInUse.stroke, "FOO", "stroke was set");
-        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 999, "strokeWidth was set");
+        equal(c.paintStyleInUse.stroke, "FOO", "stroke was set");
+        equal(c.paintStyleInUse.strokeWidth, 999, "strokeWidth was set");
 
         c.setHoverPaintStyle({stroke: "BAZ", strokeWidth: 444});
 
         //c.setHover(true);
         _jsPlumb.renderer.setHover(c, true);
 
-        equal(c._jsPlumb.paintStyleInUse.stroke, "BAZ", "stroke was set");
-        equal(c._jsPlumb.paintStyleInUse.strokeWidth, 444, "strokeWidth was set");
+        equal(c.paintStyleInUse.stroke, "BAZ", "stroke was set");
+        equal(c.paintStyleInUse.strokeWidth, 444, "strokeWidth was set");
 
         equal(c.getPaintStyle().stroke, "FOO", "getPaintStyle returns correct value");
         equal(c.getHoverPaintStyle().stroke, "BAZ", "getHoverPaintStyle returns correct value");

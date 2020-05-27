@@ -118,7 +118,7 @@ function _applyTypes<E>(component:Component<E>, params?:any, doNotRepaint?:boole
 
 export function _removeTypeCssHelper<E>(component:Component<E>, typeIndex:number) {
     let typeId = component._jsPlumb.types[typeIndex],
-        type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
+        type = component.instance.getType(typeId, component.getTypeDescriptor());
 
      if (type != null && type.cssClass) {
         component.removeClass(type.cssClass);
@@ -129,12 +129,11 @@ export function _removeTypeCssHelper<E>(component:Component<E>, typeIndex:number
 // we use paintStyle as the foundation and merge hoverPaintStyle over the
 // top.
 export function  _updateHoverStyle<E> (component:Component<E>) {
-    if (component._jsPlumb.paintStyle && component._jsPlumb.hoverPaintStyle) {
+    if (component.paintStyle && component.hoverPaintStyle) {
         let mergedHoverStyle:PaintStyle = {};
-        extend(mergedHoverStyle, component._jsPlumb.paintStyle);
-        extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
-        delete component._jsPlumb.hoverPaintStyle;
-        component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
+        extend(mergedHoverStyle, component.paintStyle);
+        extend(mergedHoverStyle, component.hoverPaintStyle);
+        component.hoverPaintStyle = mergedHoverStyle;
     }
 }
 
@@ -187,7 +186,7 @@ export abstract class Component<E> extends EventGenerator {
 
     cssClass:string;
 
-    constructor(protected instance:jsPlumbInstance<E>, params?:ComponentOptions<E>) {
+    constructor(public instance:jsPlumbInstance<E>, params?:ComponentOptions<E>) {
 
         super();
 
@@ -407,13 +406,13 @@ export abstract class Component<E> extends EventGenerator {
                 this.setParameter(i, t.parameters[i]);
             }
         }
-        this._jsPlumb.paintStyleInUse = this.getPaintStyle();
+        this.paintStyleInUse = this.getPaintStyle();
     }
 
     setPaintStyle(style:PaintStyle, doNotRepaint?:boolean):void {
 
-        this._jsPlumb.paintStyle = style;
-        this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
+        this.paintStyle = style;
+        this.paintStyleInUse = this.paintStyle;
         _updateHoverStyle(this);
         if (!doNotRepaint) {
             this.paint();
@@ -421,11 +420,11 @@ export abstract class Component<E> extends EventGenerator {
     }
 
     getPaintStyle():PaintStyle {
-        return this._jsPlumb.paintStyle;
+        return this.paintStyle;
     }
 
     setHoverPaintStyle(style:PaintStyle, doNotRepaint?:boolean) {
-        this._jsPlumb.hoverPaintStyle = style;
+        this.hoverPaintStyle = style;
         _updateHoverStyle(this);
         if (!doNotRepaint) {
             this.paint();
@@ -433,7 +432,7 @@ export abstract class Component<E> extends EventGenerator {
     }
 
     getHoverPaintStyle():PaintStyle {
-        return this._jsPlumb.hoverPaintStyle;
+        return this.hoverPaintStyle;
     }
 
     destroy(force?:boolean):void {
