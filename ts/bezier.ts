@@ -356,7 +356,7 @@ export function computeBezierLength(curve:Curve):number {
 
         for (let i = 0; i < steps - 1; i++) {
             let a = lut[i], b = lut[i + 1];
-            length += this._dist(a, b);
+            length += dist(a, b);
         }
 
     }
