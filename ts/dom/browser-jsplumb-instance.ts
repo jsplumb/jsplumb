@@ -11,8 +11,6 @@ import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
 import {EventManager} from "../event-manager";
 
-declare const Mottle:any;
-
 export interface DragEventCallbackOptions {
     drag: {
         size: [ number, number ];
@@ -526,10 +524,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         let state = this.isDraggable(el);
         this.setDraggable(el, !state);
         return !state;
-    }
-
-    consume(e:Event):void {
-        Mottle.consume(e);
     }
 
     private _attachEventDelegates() {
