@@ -88,7 +88,7 @@ export class BezierSegment extends AbstractSegment {
     }
 
     getLength ():number {
-        if (this.length == null) {
+        if (this.length == null || this.length === 0) {
             this.length = computeBezierLength(this.curve);
         }
         return this.length;
