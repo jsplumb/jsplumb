@@ -146,6 +146,8 @@ export class EndpointDragHandler implements DragHandler {
                 }
 
                 // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
+                // a mouseup listener on the canvas cleans anything up from this list if it has no connections.
+                // the list is then cleared.
                 sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
                 sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
 
@@ -167,7 +169,7 @@ export class EndpointDragHandler implements DragHandler {
                 consume(e);
             }
 
-        };
+        }.bind(this);
 
         instance.on(container , EVT_MOUSEDOWN, "[jtk-source]", this._mousedownHandler);
 
@@ -176,12 +178,10 @@ export class EndpointDragHandler implements DragHandler {
         // replaces what in previous versions was a mousedown/mouseup handler per element.
         //
         this._mouseupHandler = (e:Event) => {
-            console.log("a mouse up event occurred on a source element");
-            console.dir(e);
             let el:any = e.currentTarget || e.srcElement;
             if (el._jsPlumbOrphanedEndpoints) {
                 each(el._jsPlumbOrphanedEndpoints, (ep:any) => {
-                    if (!ep.deleteOnEmpty && ep.connections.length === 0) {
+                    if (ep.deleteOnEmpty && ep.connections.length === 0) {
                         instance.deleteEndpoint(ep);
                     }
                 });
