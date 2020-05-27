@@ -1034,32 +1034,31 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
     }
 
-    // TODO 2.13.2 included a `_recalc` parameter here that we set when calling manage from addEndpoint. in certain circumstances involving the toolkit,
-    // `manage` had been called on an unpositioned/unsized element (not attached to dom), and when addEndpoint was called the
-    // cached offset/size was being used. _recalc was set by the code in addEndpoint to be `!_suspendDrawing`, ie. if a bulk paint is occurring dont update,
-    // otherwise do, as it's a cheap operation for a single element.
-    manage (...elements:Array<ElementSpec<E>>):void {
-        elements.forEach((element:ElementSpec<E>) => {
-            const el:E = IS.aString(element) ? this.getElementById(element as string) : element as E;
-            const elId = this.getId(el);
-            if (!this._managedElements[elId]) {
-                this._managedElements[elId] = {
-                    el:el,
-                    endpoints:[],
-                    connections:[]
-                };
+    manage (element:ElementSpec<E>, recalc?:boolean):void {
 
-                if (this._suspendDrawing) {
-                    this._sizes[elId] = [0,0];
-                    this._offsets[elId] = {left:0,top:0};
-                    this._managedElements[elId].info = {o:this._offsets[elId], s:this._sizes[elId]};
-                } else {
-                    this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: this._suspendedAt});
-                }
+        const el:E = IS.aString(element) ? this.getElementById(element as string) : element as E;
+        const elId = this.getId(el);
+        if (!this._managedElements[elId]) {
+            this._managedElements[elId] = {
+                el:el,
+                endpoints:[],
+                connections:[]
+            };
 
-                this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "");
+            if (this._suspendDrawing) {
+                this._sizes[elId] = [0,0];
+                this._offsets[elId] = {left:0,top:0};
+                this._managedElements[elId].info = {o:this._offsets[elId], s:this._sizes[elId]};
+            } else {
+                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: this._suspendedAt});
             }
-        });
+
+            this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "");
+        } else {
+            if (recalc) {
+                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: null,  recalc:true });
+            }
+        }
     }
 
     unmanage (id:string):void {
@@ -1304,7 +1303,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
         let _p = extend({source:el}, p);
         let id = this.getId(_p.source);
-        this.manage(el);
+        this.manage(el, !this._suspendDrawing);
         let e = this.newEndpoint(_p, id);
 
         addToList(this.endpointsByElement, id, e);
