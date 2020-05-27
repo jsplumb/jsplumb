@@ -199,7 +199,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         const _endpointHover = function(state: boolean, e:any) {
             const el = e.srcElement || e.target;
             if (el.jtk && el.jtk.endpoint) {
-                this.renderer.setEndpointHover(el.jtk.endpoint, true);
+                this.renderer.setEndpointHover(el.jtk.endpoint, state);
             }
         };
         this._endpointMouseover = _endpointHover.bind(this, true);
