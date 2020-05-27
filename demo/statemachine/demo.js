@@ -77,7 +77,7 @@ jsPlumb.ready(function () {
 
     var newNode = function(x, y) {
         var d = document.createElement("div");
-        var id = jsPlumbUtil.uuid();
+        var id = instance.uuid();
         d.className = "w";
         d.id = id;
         d.innerHTML = id.substring(0, 7) + "<div class=\"ep\"></div>";
