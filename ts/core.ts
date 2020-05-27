@@ -1345,6 +1345,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         });
     }
 
+    uuid(): string {
+        return uuid();
+    }
+
     // clears the instance (without firing any events) and unbinds any listeners on the instance.
     destroy():void {
         this.reset(true);
