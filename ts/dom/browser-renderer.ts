@@ -319,10 +319,10 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
                     this.instance[method](canvas, this.instance.hoverClass);
                 }
             }
-            if (connector.connection._jsPlumb.hoverPaintStyle != null) {
-                connector.connection._jsPlumb.paintStyleInUse = h ? connector.connection._jsPlumb.hoverPaintStyle : connector.connection._jsPlumb.paintStyle;
+            if (connector.connection.hoverPaintStyle != null) {
+                connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
                 if (!this.instance._suspendDrawing) {
-                    connector.connection.paint(connector.connection._jsPlumb.paintStyleInUse);
+                    connector.connection.paint(connector.connection.paintStyleInUse);
                 }
             }
 
@@ -420,10 +420,10 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
                     this.instance[method](canvas, this.instance.hoverClass);
                 }
             }
-            if (endpoint.endpoint._jsPlumb.hoverPaintStyle != null) {
-                endpoint.endpoint._jsPlumb.paintStyleInUse = h ? endpoint.endpoint._jsPlumb.hoverPaintStyle : endpoint.endpoint._jsPlumb.paintStyle;
+            if (endpoint.endpoint.hoverPaintStyle != null) {
+                endpoint.endpoint.paintStyleInUse = h ? endpoint.endpoint.hoverPaintStyle : endpoint.endpoint.paintStyle;
                 if (!this.instance._suspendDrawing) {
-                    endpoint.paint(endpoint.endpoint._jsPlumb.paintStyleInUse);
+                    endpoint.paint(endpoint.endpoint.paintStyleInUse);
                 }
             }
 
