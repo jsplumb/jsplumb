@@ -54,7 +54,7 @@ the defaults into line with the parameters used in method calls like `connect` a
 - Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
 for every scope that is assigned.
 
-- `jsPlumbUtil` is no longer a static member on the window.
+- `jsPlumbUtil` is no longer a static member on the window. A `uuid` method, which we use a lot in our demos and internally, is now exposed on the `JsPlumbInstance` class.
 
 - `setId` no longer supports an array-like argument. You must now pass in a single id, or element.
 
