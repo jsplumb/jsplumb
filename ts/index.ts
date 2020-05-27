@@ -3,7 +3,7 @@ import {extend} from "./core";
 
 import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
-import {jsPlumbDefaults} from "./defaults";
+import {EventManager} from "./event-manager";
 
 export * from "./constants";
 export * from "./core";
@@ -123,5 +123,7 @@ if(typeof window !== "undefined") {
             pos:_pos
         }
     };
+
+    (<any>window).Mottle = EventManager;
 
 }
