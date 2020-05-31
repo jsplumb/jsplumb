@@ -1,6 +1,6 @@
 QUnit.config.reorder = false;
 
-var defaults = null, _divs = [], support, _jsPlumb;
+var defaults = null, support, _jsPlumb;
 
 /**
  * Tests for dragging
@@ -16,6 +16,7 @@ var testSuite = function () {
 
     module("Drag", {
         teardown: function () {
+            _jsPlumb.reset();
             support.cleanup();
         },
         setup: function () {
