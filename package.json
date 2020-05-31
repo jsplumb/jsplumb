@@ -18,8 +18,7 @@
     "init": "node ./install.js",
     "build": "tsc",
     "babel": "./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
-    "transpile": "npm run build;npm run babel",
-    "package": "rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs",
+    "package": "set -e;npm run build;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs",
     "copy-defs": "node ./copy-typescript-defs.js",
     "rollup": "rollup -c",
     "rollup-dev": "rollup -c -w"
