@@ -208,11 +208,11 @@ Test.prototype = {
 			if ( typeof this.callbackRuntime === "undefined" ) {
 				this.callbackRuntime = +new Date() - this.callbackStarted;
 			}
-			this.testEnvironment.teardown.call( this.testEnvironment );
+			this.testEnvironment.teardown.call( this.testEnvironment, this );
 			return;
 		} else {
 			try {
-				this.testEnvironment.teardown.call( this.testEnvironment );
+				this.testEnvironment.teardown.call( this.testEnvironment, this );
 			} catch( e ) {
 				QUnit.pushFailure( "Teardown failed on " + this.testName + ": " + ( e.message || e ), extractStacktrace( e, 1 ) );
 			}
