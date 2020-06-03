@@ -677,4 +677,12 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.elementDragHandler.setPosseState(state, ...els);
     }
 
+    /**
+     * Consumes the given event.
+     * @param e
+     * @param doNotPreventDefault
+     */
+    consume (e:Event, doNotPreventDefault?:boolean) {
+        consume(e, doNotPreventDefault);
+    }
 }
