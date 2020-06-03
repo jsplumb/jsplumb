@@ -3,7 +3,7 @@ import {extend} from "./core";
 
 import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
-import {EventManager} from "./event-manager";
+import {EventManager} from "./dom/event-manager";
 
 export * from "./constants";
 export * from "./core";
@@ -67,17 +67,18 @@ export * from "./util";
 // -------------------- DOM includes ----------------------
 
 export * from "./browser-util";
-export * from "./dom/browser-renderer";
-export * from "./dom/browser-jsplumb-instance";
-export * from "./dom/drag-manager";
-export * from "./dom/svg-component";
+
+export * from './dom/index';
+
 export * from "./svg/svg-util";
 export * from "./dom/svg-element-endpoint";
 export * from "./dom/dot-endpoint-renderer";
 export * from "./dom/rectangle-endpoint-renderer";
 export * from "./dom/blank-endpoint-renderer";
 
-export * from './event-manager';
+
+
+// export * from './event-manager';
 
 
 let _jsPlumbInstanceIndex = 0;
