@@ -186,7 +186,7 @@ export class AnchorManager<E> {
         })(this.anchorLists[endpoint.elementId], endpoint.id);
     }
 
-    connectionDetached (connection:Connection<E>, doNotRedraw?:boolean) {
+    connectionDetached (connection:Connection<E>) {
 
         if (connection.floatingId) {
             this.removeEndpointFromAnchorLists(connection.floatingEndpoint);
@@ -195,13 +195,6 @@ export class AnchorManager<E> {
         // remove from anchorLists
         this.removeEndpointFromAnchorLists(connection.endpoints[0]);
         this.removeEndpointFromAnchorLists(connection.endpoints[1]);
-
-        if (!doNotRedraw) {
-            this.redraw(connection.sourceId);
-            if (connection.targetId !== connection.sourceId) {
-                this.redraw(connection.targetId);
-            }
-        }
     }
 
     add (endpoint:Endpoint<E>, elementId:string) {
