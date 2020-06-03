@@ -1,4 +1,13 @@
-import {AnchorId, Axis, Face, Orientation, X_AXIS_FACES, Y_AXIS_FACES, AnchorOptions} from "../factory/anchor-factory";
+import {
+    AnchorId,
+    Axis,
+    Face,
+    Orientation,
+    X_AXIS_FACES,
+    Y_AXIS_FACES,
+    AnchorOptions,
+    AnchorComputeParams
+} from "../factory/anchor-factory";
 import {Anchor} from "./anchor";
 import {Dictionary, jsPlumbInstance} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
@@ -118,12 +127,12 @@ export class ContinuousAnchor extends Anchor {
         this._lockedAxis = null;
     }
 
-    compute (params:any) {
-        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0];
+    compute (params:AnchorComputeParams) {
+        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
     }
 
-    getCurrentLocation (params:any) {
-        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0];
+    getCurrentLocation (params:AnchorComputeParams) {
+        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
     }
 
     getOrientation (endpoint?:Endpoint<any>):Orientation {
