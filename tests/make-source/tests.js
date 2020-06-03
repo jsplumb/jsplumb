@@ -592,10 +592,10 @@ var testSuite = function () {
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        ok(_jsPlumb.isSource(d17) == true, "d17 is currently a source");
+        ok(_jsPlumb.isSource(d17) === true, "d17 is currently a source");
         // unmake source
         _jsPlumb.unmakeSource(d17);
-        ok(_jsPlumb.isSource(d17) == false, "d17 is no longer a source");
+        ok(_jsPlumb.isSource(d17) === false, "d17 is no longer a source");
 
         // this should succeed, because d17 is no longer a source and so jsPlumb will just create and add a new endpoint to d17.
         _jsPlumb.connect({source: "d17", target: e16});
@@ -611,10 +611,10 @@ var testSuite = function () {
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        ok(_jsPlumb.isTarget(d17) == true, "d17 is currently a target");
+        ok(_jsPlumb.isTarget(d17) === true, "d17 is currently a target");
         // unmake target
         _jsPlumb.unmakeTarget(d17);
-        ok(_jsPlumb.isTarget(d17) == false, "d17 is no longer a target");
+        ok(_jsPlumb.isTarget(d17) === false, "d17 is no longer a target");
 
         // this should succeed, because d17 is no longer a target and so jsPlumb will just create and add a new endpoint to d17.
         _jsPlumb.connect({source: e16, target: "d17"});
