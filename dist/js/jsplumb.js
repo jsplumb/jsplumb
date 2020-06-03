@@ -4617,7 +4617,7 @@
       }
     }, {
       key: "connectionDetached",
-      value: function connectionDetached(connection, doNotRedraw) {
+      value: function connectionDetached(connection) {
         if (connection.floatingId) {
           this.removeEndpointFromAnchorLists(connection.floatingEndpoint);
         } // remove from anchorLists
@@ -4625,14 +4625,6 @@
 
         this.removeEndpointFromAnchorLists(connection.endpoints[0]);
         this.removeEndpointFromAnchorLists(connection.endpoints[1]);
-
-        if (!doNotRedraw) {
-          this.redraw(connection.sourceId);
-
-          if (connection.targetId !== connection.sourceId) {
-            this.redraw(connection.targetId);
-          }
-        }
       }
     }, {
       key: "add",
@@ -9248,7 +9240,7 @@
     }, {
       key: "setEndpointHover",
       value: function setEndpointHover(endpoint, h, doNotCascade) {
-        if (h === false || !this.instance.currentlyDragging && !this.instance.isHoverSuspended()) {
+        if (endpoint != null && (h === false || !this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
           var method = h ? "addClass" : "removeClass";
           var canvas = endpoint.canvas;
 
