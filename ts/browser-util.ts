@@ -1,3 +1,5 @@
+import {fastTrim, isArray, log} from "./util";
+
 export function matchesSelector (el:HTMLElement, selector:string, ctx?:HTMLElement) {
     ctx = (ctx || el.parentNode) as HTMLElement;
     let possibles = ctx.querySelectorAll(selector);
@@ -52,6 +54,120 @@ export function findParent(el:HTMLElement, selector:string, container:HTMLElemen
             return pn;
         } else {
             pn = pn.parentNode;
+        }
+    }
+}
+
+function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void {
+    cn = fastTrim(cn);
+
+    if (typeof (<any>el.className).baseVal !== "undefined") {
+        (<any>el.className).baseVal = cn;
+    }
+    else {
+        el.className = cn;
+    }
+
+    // recent (i currently have  61.0.3163.100) version of chrome do not update classList when you set the base val
+    // of an svg element's className. in the long run we'd like to move to just using classList anyway
+    try {
+        let cl = el.classList;
+        if (cl != null) {
+            while (cl.length > 0) {
+                cl.remove(cl.item(0));
+            }
+            for (let i = 0; i < classList.length; i++) {
+                if (classList[i]) {
+                    cl.add(classList[i]);
+                }
+            }
+        }
+    }
+    catch(e) {
+        // not fatal
+        log("JSPLUMB: cannot set class list", e);
+    }
+}
+
+//
+// get the class name for either an html element or an svg element.
+function _getClassName (el:HTMLElement):string {
+    return (typeof (<any>el.className).baseVal === "undefined") ? el.className : (<any>el.className).baseVal as string;
+}
+
+function _classManip(el:HTMLElement, classesToAdd:string | Array<string>, classesToRemove?:string | Array<String>) {
+    const cta:Array<string> = classesToAdd == null ? [] : isArray(classesToAdd) ? classesToAdd as string[] : (classesToAdd as string).split(/\s+/);
+    const ctr:Array<string> = classesToRemove == null ? [] : isArray(classesToRemove) ? classesToRemove as string[] : (classesToRemove as string).split(/\s+/);
+
+    let className = _getClassName(el),
+        curClasses = className.split(/\s+/);
+
+    const _oneSet =  (add:boolean, classes:Array<string>) => {
+        for (let i = 0; i < classes.length; i++) {
+            if (add) {
+                if (curClasses.indexOf(classes[i]) === -1) {
+                    curClasses.push(classes[i]);
+                }
+            }
+            else {
+                let idx = curClasses.indexOf(classes[i]);
+                if (idx !== -1) {
+                    curClasses.splice(idx, 1);
+                }
+            }
+        }
+    };
+
+    _oneSet(true, cta);
+    _oneSet(false, ctr);
+
+    _setClassName(el, curClasses.join(" "), curClasses);
+}
+
+export function getClass(el:HTMLElement):string { return _getClassName(el); }
+
+export function addClass(el:HTMLElement, clazz:string):void {
+
+    if (el != null && clazz != null && clazz.length > 0) {
+        if (el.classList) {
+            el.classList.add(...fastTrim(clazz).split(/\s+/));
+
+        } else {
+            _classManip(el, clazz);
+        }
+    }
+}
+
+export function hasClass(el:HTMLElement, clazz:string):boolean {
+    if (el.classList) {
+        return el.classList.contains(clazz);
+    }
+    else {
+        return _getClassName(el).indexOf(clazz) !== -1;
+    }
+}
+
+export function removeClass(el:HTMLElement, clazz:string):void {
+    if (el != null && clazz != null && clazz.length > 0) {
+        if (el.classList) {
+            el.classList.remove(...fastTrim(clazz).split(/\s+/));
+        } else {
+            _classManip(el, null, clazz);
+        }
+    }
+}
+
+export function toggleClass(el:HTMLElement, clazz:string):void {
+    if (el != null && clazz != null && clazz.length > 0) {
+        if (el.classList) {
+            el.classList.toggle(clazz);
+        }
+        else {
+            if (this.hasClass(el, clazz)) {
+                this.removeClass(el, clazz);
+            } else {
+                this.addClass(el, clazz);
+            }
         }
     }
 }
