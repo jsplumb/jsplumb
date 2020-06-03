@@ -1,4 +1,4 @@
-import { AnchorId, Face, Orientation, AnchorOptions } from "../factory/anchor-factory";
+import { AnchorId, Face, Orientation, AnchorOptions, AnchorComputeParams } from "../factory/anchor-factory";
 import { Anchor } from "./anchor";
 import { Dictionary, jsPlumbInstance } from "../core";
 import { Endpoint } from "../endpoint/endpoint-impl";
@@ -32,8 +32,8 @@ export declare class ContinuousAnchor extends Anchor {
     isLocked(): boolean;
     lockCurrentAxis(): void;
     unlockCurrentAxis(): void;
-    compute(params: any): any;
-    getCurrentLocation(params: any): any;
+    compute(params: AnchorComputeParams): [number, number, number, number];
+    getCurrentLocation(params: AnchorComputeParams): [number, number, number, number];
     getOrientation(endpoint?: Endpoint<any>): Orientation;
     getCssClass(): string;
 }

@@ -113,4 +113,10 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement>
      * @param els
      */
     setPosseState(state: boolean, ...els: Array<HTMLElement>): void;
+    /**
+     * Consumes the given event.
+     * @param e
+     * @param doNotPreventDefault
+     */
+    consume(e: Event, doNotPreventDefault?: boolean): void;
 }

@@ -76,9 +76,7 @@ export declare type UpdateOffsetResult = {
     o: ExtendedOffset;
     s: Size;
 };
-export interface ExtendedOffset {
-    left: number;
-    top: number;
+export interface ExtendedOffset extends Offset {
     width?: number;
     height?: number;
     centerx?: number;
@@ -90,7 +88,7 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 export declare type ElementSpec<E> = string | E | Array<string | E>;
-export declare type SortFunction = (a: any, b: any) => number;
+export declare type SortFunction<T> = (a: T, b: T) => number;
 export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
