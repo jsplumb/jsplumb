@@ -1,72 +1,110 @@
-## 4.x alpha
+## 4.0.0-RC1
 
-- updated to Katavorio 1.4.10
+3 June 2020
 
-- Rewrote in Typescript
-- Major refactoring of the rendering pipeline
+This release is a rewrite of the codebase into Typescript, with a bunch of breaking changes. The rendering pipeline has been refactored, and the way element dragging is handled has been completely rewritten: where previously each element - and each endpoint - would be initialised as a draggable individually, we now use a single delegated event listener on the container. This reduces the memory footprint and the time taken to create endpoints/connections, and to register elements, quite drastically.
 
-This release focuses on performance enhancements, and contains several breaking changes.
+This release is considered "alpha", since it is largely new code that does not have the benefit of having being run in production, although there is a test suite of roughly 2200 tests, so we're confident - contingent upon taking the changes listed below into account - that 4.x will behave the same as the current 2.x release.
 
-The fundamental change is a rewrite of the code used to drag elements. Where previously each element would be initialised as a draggable
-individually, we now use a single event listener on the container. 
+If you're upgrading from a previous version of the Community edition, please do take the time to read through the changelog and familiarise yourself with what's different.
+
+### Installation 
+
+From 4.x onwards, jsPlumb Community Edition has a new package in npm:
+
+```
+npm i @jsplumb/community
+```
+
+After installation, you can import it directly into the page like this:
+
+```
+<script src="node_modules/@jsplumb/community/dist/js/jsplumb.js"></script>
+```
+
+
+
+
 
 ### Breaking changes
 
-- The `empty` method was removed.
+#### Methods
+
+- The `empty` method was removed from `JsPlumbInstance`.
+
+- The `deleteEveryEndpoint` method was removed from `JsPlumbInstance`. Functionally, it was identical to `reset`. Use `reset`.
+
+- `addEndpoint` does not support a list of elements as the first argument - only a single DOM element is supported.
+
+- `makeSource` does not support a list of elements as the first argument - only a single DOM element is supported.
+
+- `makeTarget` does not support a list of elements as the first argument - only a single DOM element is supported.
+
+- `getWidth` and `getHeight` methods removed from `JsPlumbInstance`. All they did was return the `offsetWidth` and `offsetHeight` of an element.
+
+- `updateClasses` method removed from `JsPlumbInstance`. It was an attempt at keeping reflows to a minimum but was used only in one method internally, which is a method that was very rarely called.
+
+- `setClass` method removed from `JsPlumbInstance`. This brings `JsPlumbInstance` into line with the way the DOM works: `classList` offers methods to add/remove/toggle classes, but not to set one particular class.
+
+- `jsPlumbUtil` is no longer a static member on the window. Some of its more useful methods for users of the library have been exposed elsewhere: 
+
+    - The `uuid` method, which we use a lot in our demos, and internally, is now exposed on the `JsPlumbInstance` class.
+    
+    - The `consume` method is exposed on the `BrowserJsPlumbInstance` class (which is currently the only concrete instance of `JsPlumbInstance` and the class you will get from a `jsPlumb.newInstance(..)` call).
+
+- `setId` no longer supports an array-like argument. You must now pass in a single id, or element.
+
+- `appendToRoot` method removed. If you're using this, use `document.body.appendChild(..)` instead.
+
+
+#### Configuration
+
+- All defaults converted to camelCase instead of having a leading capital, eg. "Anchors" -> "anchors", "ConnectionsDetachable" -> "connectionsDetachable". This brings the defaults into line with the parameters used in method calls like `connect` and `addEndpoint` etc.
+
+- It is **imperative** that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
+first element to which an endpoint is added. If you do not provide `container` an Error is thrown.
+
+- `connector-pointer-events` not supported on Endpoint definitions. Use `cssClass` and CSS tricks.
+
+- `labelStyle` is no longer supported. Use `cssClass` and CSS tricks.
+
+- The `LogEnabled` and `DoNotThrowErrors` defaults have been removed.
+
+- Paint styles for connectors dont support gradients anymore. You can use CSS for this.
+
+- Removed `overlays` default. Use `connectionOverlays` or `endpointOverlays` now: not all overlay types are supported by Endpoints, so having a
+common set of overlays doesnt make sense.  
+
+#### CSS classes
 
 - The `jtk-endpoint-anchor` css class is not added to endpoints when the associated anchor did not declare a class. It is still
 used when the anchor has declared a class (eg `jtk-endpoint-anchor-foo`), but otherwise it is not added. Without the anchor's class
 suffix `jtk-endpoint-anchor` was just a shadow of `jtk-endpoint` - use `jtk-endpoint` instead.
 
-- The `deleteEveryEndpoint` method was removed. Functionally, it was identical to `reset`. Use `reset`.
+- Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
+class but we include it here for completeness.
 
-- `connector-pointer-events` not supported on Endpoint definitions.
+- Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a`jtk-scope-**` attribute for every scope that is assigned.
 
-- `labelStyle` is no longer supported. Use `cssClass` and CSS tricks.
+#### Events
 
-- `addEndpoint` does not support a list of elements as the first argument - only a single element is supported.
+- The `manageElement` and `unmanageElement` events are no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
+ in case you have code that used them.
+ 
+- Added `drag:start`, `drag:move` and `drag:stop` events. These replace the `start`, `drag` and `stop` event handlers that used to
+be supported on individual `draggable(..)` method calls.
+
+
+#### Behaviour
 
 - By default, every node is draggable. `.draggable(someElement)` no longer exists. You can make an element not draggable by setting a `jtk-not-draggable`
 attribute on it. It doesn't matter what the value of the attribute is, just its presence is all that is required.
 
-- It is imperative that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
-first element to which an endpoint is added.
-
-- `manageElement` and `unmanageElement` events no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
- in case you have code that used them.
- 
-- Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
-class but we include it here for completeness.
-
-- All defaults converted to camelCase instead of having a leading capital, eg. "Anchors" -> "anchors", "ConnectionsDetachable" -> "connectionsDetachable". This brings
-the defaults into line with the parameters used in method calls like `connect` and `addEndpoint` etc.
-
-- The `LogEnabled` and `DoNotThrowErrors` defaults have been removed.
-
-- `getWidth` and `getHeight` methods removed from jsPlumb instance.
-
-- `updateClasses` method removed from jsPlumb. It was an attempt at keeping reflows to a minimum but was used only in one method, which is a method that was very rarely called.
-
-- `setClass` method removed from jsPlumb.
-
-- It is not possible to subclass Connection or Endpoint to provide your own implementations now.
+- It is not possible to subclass Connection or Endpoint to provide your own implementations in 4.0.0.
   
-- Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a `jtk-scope-**` attribute
-for every scope that is assigned.
-
-- `jsPlumbUtil` is no longer a static member on the window. A `uuid` method, which we use a lot in our demos and internally, is now exposed on the `JsPlumbInstance` class.
-
-- `setId` no longer supports an array-like argument. You must now pass in a single id, or element.
-
-- there is no "Image" endpoint in 4.x. You can achieve this via a 'Blank' endpoint with a css class. Or if you find you cannot and you can't think of
+- There is no "Image" endpoint in 4.x. You can achieve this via a 'Blank' endpoint with a css class. Or if you find you cannot and you can't think of
 any alternative, we could possibly add a 'Custom' endpoint type, with which you could achieve this.
 
-- paint styles for connectors dont support gradients anymore. You can use CSS for this.
-
-- removed 'overlays' default from jsplumb. Use connectionOverlays or endpointOverlays now: not all overlay types are supported by endpoints, so having a
-common set of overlays doesnt make sense.  
-
-- `appendToRoot` method removed. If you're using this, use `document.body.appendChild(..)` instead.
 
 ### New Functionality
 
@@ -74,6 +112,9 @@ common set of overlays doesnt make sense.
 
 - Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
 be supported on individual `draggable(..)` method calls.
+
+- The `Mottle` library, which used to be a separate project, has now been incorporated into jsPlumb. For convenience, we have exposed `Mottle` on the browser window, as some people do use standalone instances of Mottle from time to time.  
+
  
 ## 2.11.2
 
