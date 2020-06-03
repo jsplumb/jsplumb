@@ -1694,7 +1694,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     }
 
-
     toggleSourceEnabled (el:E, connectionType?:string):any {
         this._setEnabled(Constants.SOURCE, el, null, true, connectionType);
         return this.isSourceEnabled(el, connectionType);
@@ -1756,7 +1755,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     private _unmake (type:string, key:string, el:ElementSpec<E>, connectionType?:string) {
 
-        connectionType = connectionType || Constants.DEFAULT;
+        connectionType = connectionType || "*";
 
         this.each(el, (_el:E) => {
             if (_el[key]) {
@@ -1828,12 +1827,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         const _one = (_el:E) => {
 
-
             let elInfo = this._info(_el);
             // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
             // and use the endpoint definition if found.
-            let elid = elInfo.id,
-                _del = elInfo.el;
+            let _del = elInfo.el;
 
             this.manage(_del);
             this.setAttribute(_del, Constants.ATTRIBUTE_SOURCE, "");
