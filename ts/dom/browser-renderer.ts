@@ -410,7 +410,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean, doNotCascade?:boolean): void {
 
-        if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
+        if (endpoint != null && (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended()))) {
 
             const method = h ? "addClass" : "removeClass";
             const canvas = (endpoint as any).canvas;
