@@ -26,6 +26,41 @@ import {ConnectorSpec} from "./connector";
 import {GroupManager} from "./group/group-manager";
 import {UIGroup} from "./group/group";
 
+//import {ConnectParams, ElementRef, UUID} from "../index";
+
+export type UUID = string;
+export type ElementId = string;
+export type ElementRef<E> = ElementId | E;
+export type ElementGroupRef<E> = ElementId | E | Array<ElementId> | Array<E>;
+export type ConnectionId = string;
+
+export interface ConnectParams<E> {
+    uuids?: [UUID, UUID];
+    source?: ElementRef<E> | Endpoint<E>;
+    target?: ElementRef<E> | Endpoint<E>;
+    detachable?: boolean;
+    deleteEndpointsOnDetach?: boolean;
+    endpoint?: EndpointSpec;
+    anchor?: AnchorSpec;
+    anchors?: [AnchorSpec, AnchorSpec];
+    label?: string;
+    connector?: ConnectorSpec;
+    overlays?:Array<OverlaySpec>;
+    endpoints?:[EndpointSpec, EndpointSpec];
+    endpointStyles?:[PaintStyle, PaintStyle];
+    endpointHoverStyles?:[PaintStyle, PaintStyle];
+    endpointStyle?:PaintStyle;
+    endpointHoverStyle?:PaintStyle;
+}
+
+interface InternalConnectParams<E> extends ConnectParams<E> {
+    sourceEndpoint?:Endpoint<E>;
+    targetEndpoint?:Endpoint<E>;
+    scope?:string;
+    type?:string;
+    newConnection?:(p:any) => Connection<E>;
+}
+
 export interface TypeDescriptor {
     cssClass?:string;
     paintStyle?:PaintStyle;
@@ -161,15 +196,26 @@ export interface ConnectionSelection<E> extends AbstractSelection<Connection<E>,
 
 export interface EndpointSelection<E> extends AbstractSelection<Endpoint<E>, E> {
     setEnabled:(e:boolean) => void;
-
     setAnchor:(a:AnchorSpec) => void;
     isEnabled:() => any[];
     deleteEveryConnection:() => void;
 }
 
+/**
+ * Optional parameters to the `DeleteConnection` method.
+ */
 export type DeleteConnectionOptions = {
+    /**
+     * if true, force deletion even if the connection tries to cancel the deletion.
+     */
     force?:boolean;
+    /**
+     * If false, an event won't be fired. Otherwise a `connectionDetached` event will be fired.
+     */
     fireEvent?:boolean;
+    /**
+     * Optional original event that resulted in the connection being deleted.
+     */
     originalEvent?:Event;
 }
 
@@ -289,8 +335,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     private _initialDefaults:jsPlumbDefaults = {};
 
     _containerDelegations:ContainerDelegation[] = [];
-
-    eventManager:any;
 
     isConnectionBeingDragged:boolean = false;
     currentlyDragging:boolean = false;
@@ -491,17 +535,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return id;
     }
 
-    getId (element:string | E, uuid?:string/*, doNotCreateIfNotFound?:boolean*/):string {
+    getId (element:string | E, uuid?:string):string {
         if (isString(element)) {
             return element as string;
         }
         if (element == null) {
             return null;
         }
-
-        // if ((element as any)._jsplumbid != null) {
-        //     return (element as any)._jsplumbid;
-        // }
 
         let id:string = this.getAttribute(element as E, "id");
         if (!id || id === "undefined") {
@@ -513,11 +553,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 id = "jsPlumb_" + this._instanceIndex + "_" + this._idstamp();
             }
 
-            //(element as any)._jsplumbid = id;
-
-            //if (!doNotCreateIfNotFound) {
-                this.setAttribute(element as E, "id", id);
-            //}
+            this.setAttribute(element as E, "id", id);
         }
         return id;
     }
@@ -540,14 +576,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             id = this.getId(_el);
         }
 
-        let sConns = this.getConnections({source: id, scope: '*'}, true),
-            tConns = this.getConnections({target: id, scope: '*'}, true);
+        let sConns = this.getConnections({source: id, scope: '*'}, true) as Array<Connection<E>>,
+            tConns = this.getConnections({target: id, scope: '*'}, true) as Array<Connection<E>>;
 
         newId = "" + newId;
 
         if (!doNotSetAttribute) {
             _el = this.getElement(id);
-            //(_el as any)._jsplumbid = id;
             this.setAttribute(_el, "id", newId);
         }
         else {
@@ -563,7 +598,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this._managedElements[newId] = this._managedElements[id];
         delete this._managedElements[id];
 
-        let _conns = (list:any, epIdx:number, type:string) => {
+        const _conns = (list:Array<Connection<E>>, epIdx:number, type:string) => {
             for (let i = 0, ii = list.length; i < ii; i++) {
                 list[i].endpoints[epIdx].setElementId(newId);
                 list[i].endpoints[epIdx].setReferenceElement(_el);
@@ -759,10 +794,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     setContainer(c:E|string):void {
-        // get container as element.
-        let _c = this.getElement(c);
-        // set container.
-        this._container = _c;
+        // get container as element and set container.
+        this._container = this.getElement(c);;
         // tell people.
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
     }
@@ -843,9 +876,17 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         connection.updateConnectedClass();
     };
 
-    isHoverSuspended() { return this.hoverSuspended; }
+    /**
+     * Returns whether or not hover is currently suspended.
+     */
+    isHoverSuspended():boolean { return this.hoverSuspended; }
 
-    setSuspendDrawing (val?:boolean, repaintAfterwards?:boolean) {
+    /**
+     * Sets whether or not drawing is suspended.
+     * @param val True to suspend, false to enable.
+     * @param repaintAfterwards If true, repaint everything afterwards.
+     */
+    setSuspendDrawing (val?:boolean, repaintAfterwards?:boolean):boolean {
         let curVal = this._suspendDrawing;
         this._suspendDrawing = val;
         if (val) {
@@ -864,6 +905,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this._suspendedAt;
     }
 
+    /**
+     * Suspend drawing, run the given function, and then re-enable drawing, optionally repainting everything.
+     * @param fn Function to run while drawing is suspended.
+     * @param doNotRepaintAfterwards Whether or not to repaint everything after drawing is re-enabled.
+     */
     batch (fn:Function, doNotRepaintAfterwards?:boolean):void {
         const _wasSuspended = this._suspendDrawing === true;
         if (!_wasSuspended) {
@@ -887,7 +933,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     /**
      * Execute the given function for each of the given elements.
      * @param spec An Element, or an element id, or an array of elements/element ids.
-     * @param fn
+     * @param fn The function to run on each element.
      */
     each(spec:ElementSpec<E>, fn:(e:E) => any):jsPlumbInstance<E> {
         if (spec == null) {
@@ -908,6 +954,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
+    /**
+     * Update the cached offset information for some element.
+     * @param params
+     * @return an UpdateOffsetResult containing the offset information for the given element.
+     */
     updateOffset(params?:UpdateOffsetOptions):UpdateOffsetResult {
 
         let timestamp = params.timestamp,
@@ -915,7 +966,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             offset = params.offset,
             elId = params.elId,
             s;
-
 
         if (this._suspendDrawing && !timestamp) {
             timestamp = this._suspendedAt;
@@ -957,6 +1007,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return {o: this._offsets[elId], s: this._sizes[elId]};
     }
 
+    /**
+     * Delete the given connection.
+     * @param connection Connection to delete.
+     * @param params Optional extra parameters.
+     */
     deleteConnection (connection:Connection<E>, params?:DeleteConnectionOptions):boolean {
 
         if (connection != null) {
@@ -1361,7 +1416,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this.endpointsByUUID[id];
     }
 
-    connect (params:any, referenceParams?:any):Connection<E> {
+    connect (params:ConnectParams<E>, referenceParams?:ConnectParams<E>):Connection<E> {
 
         // prepare a final set of parameters to create connection with
 
@@ -1391,29 +1446,29 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return jpc;
     }
 
-    _prepareConnectionParams(params:any, referenceParams?:any):any {
+    _prepareConnectionParams(params:ConnectParams<E>, referenceParams?:ConnectParams<E>):any {
 
 
-        let _p = extend({ }, params);
+        let _p:InternalConnectParams<E> = extend({ }, params);
         if (referenceParams) {
             extend(_p, referenceParams);
         }
 
         // wire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
         if (_p.source) {
-            if (_p.source.endpoint) {
-                _p.sourceEndpoint = _p.source;
+            if ((_p.source as Endpoint<E>).endpoint) {
+                _p.sourceEndpoint = (_p.source as Endpoint<E>);
             }
             else {
-                _p.source = this.getElement(_p.source);
+                _p.source = this.getElement(_p.source as any) as E;
             }
         }
         if (_p.target) {
-            if (_p.target.endpoint) {
-                _p.targetEndpoint = _p.target;
+            if ((_p.target as Endpoint<E>).endpoint) {
+                _p.targetEndpoint = (_p.target as Endpoint<E>);
             }
             else {
-                _p.target = this.getElement(_p.target);
+                _p.target = this.getElement(_p.target as any) as E;
             }
         }
 
@@ -2121,8 +2176,6 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         // and advise the anchor manager
         if (index === 0) {
-            // TODO why are there two differently named methods? Why is there not one method that says "some end of this
-            // connection changed (you give the index), and here's the new element and element id."
             this.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
         }
         else {
