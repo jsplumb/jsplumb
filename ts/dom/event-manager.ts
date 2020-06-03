@@ -1,5 +1,5 @@
 
-import {uuid} from "./util";
+import {uuid} from "../util";
 import {
     ATTRIBUTE_TABINDEX,
     EVENT_CLICK, EVENT_CONTEXTMENU,
@@ -9,7 +9,8 @@ import {
     EVENT_MOUSEOUT,
     EVENT_MOUSEOVER, EVENT_MOUSEUP,
     EVENT_TAP
-} from "./constants";
+} from "../constants";
+import {PointArray} from "../core";
 
 /**
  * Creates a Touch object.
@@ -127,21 +128,21 @@ const PAGE = "page";
 const SCREEN = "screen";
 const CLIENT = "client";
 
-function _genLoc (e:Event, prefix:string) {
+function _genLoc (e:Event, prefix:string):PointArray {
     if (e == null) return [ 0, 0 ];
     const ts = _touches(e), t = _getTouch(ts, 0);
     return [t[prefix + "X"], t[prefix + "Y"]];
 }
-export function pageLocation (e:Event) {
+export function pageLocation (e:Event):PointArray {
     if (e == null) return [ 0, 0 ];
     return _genLoc(e, PAGE);
 }
 
-function _screenLocation (e:Event) {
+function _screenLocation (e:Event):PointArray {
     return _genLoc(e, SCREEN);
 }
 
-function _clientLocation (e:Event) {
+function _clientLocation (e:Event):PointArray {
     return _genLoc(e, CLIENT);
 }
 
