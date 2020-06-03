@@ -1034,12 +1034,7 @@
         for (var i in obj) {
           this._defaultType[i] = obj[i];
         }
-      } // clone ():Component<E> {
-      //     let o = Object.create(this.constructor.prototype);
-      //     this.constructor.apply(o, a);
-      //     return o;
-      // }
-
+      }
     }, {
       key: "getId",
       value: function getId() {
@@ -2301,12 +2296,12 @@
     }, {
       key: "compute",
       value: function compute(params) {
-        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0];
+        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
       }
     }, {
       key: "getCurrentLocation",
       value: function getCurrentLocation(params) {
-        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0];
+        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
       }
     }, {
       key: "getOrientation",
@@ -4429,7 +4424,7 @@
     }];
   }
 
-  function placeAnchorsOnLine(desc, elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse) {
+  function placeAnchorsOnLine(elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse) {
     var a = [],
         step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
 
@@ -4474,10 +4469,8 @@
   var ContinuousAnchorFactory =
   /*#__PURE__*/
   function () {
-    function ContinuousAnchorFactory(manager) {
+    function ContinuousAnchorFactory() {
       _classCallCheck(this, ContinuousAnchorFactory);
-
-      this.manager = manager;
 
       _defineProperty(this, "continuousAnchorLocations", {});
     }
@@ -4504,7 +4497,7 @@
   var AnchorManager =
   /*#__PURE__*/
   function () {
-    function AnchorManager(instance, params) {
+    function AnchorManager(instance) {
       _classCallCheck(this, AnchorManager);
 
       this.instance = instance;
@@ -4521,7 +4514,7 @@
 
       _defineProperty(this, "continuousAnchorFactory", void 0);
 
-      this.continuousAnchorFactory = new ContinuousAnchorFactory(this);
+      this.continuousAnchorFactory = new ContinuousAnchorFactory();
     }
 
     _createClass(AnchorManager, [{
@@ -4543,7 +4536,7 @@
             var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
                 // puts them in order based on the target element's pos on screen
             reverse = desc === "right" || desc === "top",
-                anchors = placeAnchorsOnLine(desc, elementDimensions, elementPosition, sc, isHorizontal, otherMultiplier, reverse); // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
+                anchors = placeAnchorsOnLine(elementDimensions, elementPosition, sc, isHorizontal, otherMultiplier, reverse); // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
 
             var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
               _this.continuousAnchorLocations[endpoint.id] = [anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3]];
@@ -4590,7 +4583,7 @@
             targetId = conn.targetId,
             ep = conn.endpoints,
             doRegisterTarget = true,
-            registerConnection = function registerConnection(otherIndex, otherEndpoint, otherAnchor, elId, c) {
+            registerConnection = function registerConnection(otherIndex, otherEndpoint, otherAnchor) {
           if (sourceId === targetId && otherAnchor.isContinuous) {
             // remove the target endpoint's canvas.  we dont need it.
             _this2.instance.renderer.destroyEndpoint(ep[1]);
@@ -4624,12 +4617,7 @@
       }
     }, {
       key: "connectionDetached",
-      value: function connectionDetached(connInfo, doNotRedraw) {
-        var connection = connInfo.connection || connInfo,
-            sourceId = connInfo.sourceId,
-            targetId = connInfo.targetId,
-            ep = connection.endpoints;
-
+      value: function connectionDetached(connection, doNotRedraw) {
         if (connection.floatingId) {
           this.removeEndpointFromAnchorLists(connection.floatingEndpoint);
         } // remove from anchorLists
@@ -4696,20 +4684,20 @@
           if (rIdx !== -1) {
             listToRemoveFrom.splice(rIdx, 1); // get all connections from this list
 
-            for (var _i = 0; _i < listToRemoveFrom.length; _i++) {
-              candidate = listToRemoveFrom[_i][1];
+            for (var i = 0; i < listToRemoveFrom.length; i++) {
+              candidate = listToRemoveFrom[i][1];
               connsToPaint.add(candidate);
-              endpointsToPaint.add(listToRemoveFrom[_i][1].endpoints[idx]);
-              endpointsToPaint.add(listToRemoveFrom[_i][1].endpoints[oIdx]);
+              endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[idx]);
+              endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[oIdx]);
             }
           }
         }
 
-        for (var _i2 = 0; _i2 < listToAddTo.length; _i2++) {
-          candidate = listToAddTo[_i2][1];
+        for (var _i = 0; _i < listToAddTo.length; _i++) {
+          candidate = listToAddTo[_i][1];
           connsToPaint.add(candidate);
-          endpointsToPaint.add(listToAddTo[_i2][1].endpoints[idx]);
-          endpointsToPaint.add(listToAddTo[_i2][1].endpoints[oIdx]);
+          endpointsToPaint.add(listToAddTo[_i][1].endpoints[idx]);
+          endpointsToPaint.add(listToAddTo[_i][1].endpoints[oIdx]);
         }
 
         {
@@ -4757,7 +4745,7 @@
       }
     }, {
       key: "redraw",
-      value: function redraw(elementId, ui, timestamp, offsetToUI, doNotRecalcEndpoint) {
+      value: function redraw(elementId, ui, timestamp, offsetToUI) {
         if (!this.instance._suspendDrawing) {
           var connectionsToPaint = new Set(),
               endpointsToPaint = new Set(),
@@ -4873,7 +4861,7 @@
                       this._updateAnchorList(this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
                     } else {
                       if (!o) {
-                        o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor, conn);
+                        o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor);
                         orientationCache[oKey] = o;
                       }
 
@@ -5035,7 +5023,7 @@
       }
     }, {
       key: "calculateOrientation",
-      value: function calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor, connection) {
+      value: function calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
         var Orientation = {
           HORIZONTAL: "horizontal",
           VERTICAL: "vertical",
@@ -6928,7 +6916,7 @@
 
 
         this.fire(EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent);
-        this.anchorManager.connectionDetached(params);
+        this.anchorManager.connectionDetached(params.connection);
       }
     }, {
       key: "fireMoveEvent",
@@ -7128,11 +7116,9 @@
               }
             } else {
               for (var _i2 = 0; _i2 < repaintEls.length; _i2++) {
-                var reId = this.getId(repaintEls[_i2]);
-                repaintOffsets.push({
-                  o: this._offsets[reId],
-                  s: this._sizes[reId]
-                });
+                var reId = this.getId(repaintEls[_i2]); //repaintOffsets.push({o: this._offsets[reId], s: this._sizes[reId]});
+
+                repaintOffsets.push(this._offsets[reId]);
               }
             }
 
@@ -7140,7 +7126,7 @@
 
             if (repaintEls.length > 0) {
               for (var j = 0; j < repaintEls.length; j++) {
-                this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, true);
+                this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null);
               }
             }
           }

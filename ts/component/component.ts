@@ -299,12 +299,6 @@ export abstract class Component<E> extends EventGenerator {
         }
     }
 
-    // clone ():Component<E> {
-    //     let o = Object.create(this.constructor.prototype);
-    //     this.constructor.apply(o, a);
-    //     return o;
-    // }
-
     getId():string { return this.id; }
 
     cacheTypeItem(key:string, item:any, typeId:string) {

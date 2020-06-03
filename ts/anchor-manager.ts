@@ -1,16 +1,26 @@
 import {Endpoint} from "./endpoint/endpoint-impl";
-import {_timestamp, Dictionary, ExtendedOffset, jsPlumbInstance, Offset, PointXY, SortFunction} from "./core";
+import {
+    _timestamp,
+    Dictionary,
+    ExtendedOffset,
+    jsPlumbInstance,
+    Offset,
+    PointArray,
+    PointXY,
+    SortFunction
+} from "./core";
 import {Connection} from "./connector/connection-impl";
-import {ComputedAnchorPosition, Face} from "./factory/anchor-factory";
+import {ComputedAnchorPosition, Face, Orientation} from "./factory/anchor-factory";
 import { DynamicAnchor } from "./anchor/dynamic-anchor";
 import {addToList, findWithFunction, removeWithFunction, sortHelper} from "./util";
-import {ContinuousAnchor} from "./anchor/continuous-anchor";
+import {ContinuousAnchor, ContinuousAnchorOptions} from "./anchor/continuous-anchor";
 import {lineLength} from "./geom";
+import {Anchor} from "./anchor/anchor";
 
-export interface AnchorManagerOptions { }
+type AnchorPlacement = [ number, number, number, number, any, any ];
 
-function placeAnchorsOnLine(desc:any, elementDimensions:any, elementPosition:any, connections:any, horizontal:any, otherMultiplier:any, reverse:any):any {
-    let a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:PointArray, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<AnchorPlacement> {
+    let a:Array<AnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
 
     for (let i = 0; i < connections.length; i++) {
         let val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
@@ -27,12 +37,12 @@ function placeAnchorsOnLine(desc:any, elementDimensions:any, elementPosition:any
     return a;
 }
 
-function rightAndBottomSort (a:any, b:any):number {
+function rightAndBottomSort (a:AnchorListEntry<any>, b:AnchorListEntry<any>):number {
     return b[0][0] - a[0][0];
 }
 
     // used by edgeSortFunctions
-function leftAndTopSort (a:any, b:any):number {
+function leftAndTopSort(a:AnchorListEntry<any>, b:AnchorListEntry<any>):number {
     let p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
         p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
 
@@ -40,7 +50,7 @@ function leftAndTopSort (a:any, b:any):number {
 }
 
 // used by placeAnchors
-const edgeSortFunctions:Dictionary<SortFunction> = {
+const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry<any>>> = {
     "top": leftAndTopSort,
     "right": rightAndBottomSort,
     "bottom": rightAndBottomSort,
@@ -52,8 +62,6 @@ export class ContinuousAnchorFactory<E> {
 
     private continuousAnchorLocations:Dictionary<ComputedAnchorPosition> = {};
 
-    constructor(private manager:AnchorManager<E>) {}
-
     clear(endpointId:string) {
         delete this.continuousAnchorLocations[endpointId];
     }
@@ -62,28 +70,42 @@ export class ContinuousAnchorFactory<E> {
         this.continuousAnchorLocations[endpointId] = pos;
     }
 
-    get(instance:jsPlumbInstance<E>, params?:any):ContinuousAnchor {
+    get(instance:jsPlumbInstance<E>, params?:ContinuousAnchorOptions):ContinuousAnchor {
         return new ContinuousAnchor(instance, params);
     }
 }
 
+interface ConnectionFacade<E> {
+    endpoints: [ Endpoint<E>, Endpoint<E> ],
+    paint:() => any
+}
+
+interface OrientationResult {
+    orientation?:string,
+    a:[Face, Face],
+    theta?:number,
+    theta2?:number
+}
+
+// internal data models for the anchor manager
+type AnchorListEntry<E> = [ PointArray, Connection<E>, boolean, string, string ];
+type AnchorLists<E> = { top: Array<AnchorListEntry<E>>, right: Array<AnchorListEntry<E>>, bottom: Array<AnchorListEntry<E>>, left: Array<AnchorListEntry<E>> };
+type AnchorDictionary<E> = Dictionary<AnchorLists<E>>;
 
 export class AnchorManager<E> {
     _amEndpoints:Dictionary<Array<Endpoint<E>>> = {};
 
-    continuousAnchorLocations:any = {};
-    continuousAnchorOrientations:any = {};
+    continuousAnchorLocations:Dictionary<[number, number, number, number]> = {};
+    continuousAnchorOrientations:Dictionary<Orientation> = {};
 
-    private anchorLists:any = {};
+    private anchorLists:AnchorDictionary<E> = {};
 
     private floatingConnections:Dictionary<Connection<E>> = {};
 
     continuousAnchorFactory:ContinuousAnchorFactory<E>;
 
-
-    constructor(private instance:jsPlumbInstance<E>, params?:AnchorManagerOptions) {
-
-        this.continuousAnchorFactory = new ContinuousAnchorFactory(this);
+    constructor(private instance:jsPlumbInstance<E>) {
+        this.continuousAnchorFactory = new ContinuousAnchorFactory();
     }
 
     reset () {
@@ -91,18 +113,18 @@ export class AnchorManager<E> {
         this.anchorLists = {};
     }
 
-    private placeAnchors (instance:jsPlumbInstance<E>, elementId:string, _anchorLists:any):any {
+    private placeAnchors (instance:jsPlumbInstance<E>, elementId:string, _anchorLists:AnchorLists<E>):void {
         let cd = instance.getCachedData(elementId), sS = cd.s, sO = cd.o,
-            placeSomeAnchors = (desc:any, elementDimensions:any, elementPosition:any, unsortedConnections:any, isHorizontal:any, otherMultiplier:any, orientation:any) => {
+            placeSomeAnchors = (desc:string, elementDimensions:PointArray, elementPosition:PointArray, unsortedConnections:Array<AnchorListEntry<E>>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {
                     let sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
                         reverse = desc === "right" || desc === "top",
-                        anchors = placeAnchorsOnLine(desc, elementDimensions,
+                        anchors = placeAnchorsOnLine(elementDimensions,
                             elementPosition, sc,
                             isHorizontal, otherMultiplier, reverse);
 
                     // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-                    let _setAnchorLocation = (endpoint:any, anchorPos:any) => {
+                    let _setAnchorLocation = (endpoint:Endpoint<E>, anchorPos:AnchorPlacement) => {
                         this.continuousAnchorLocations[endpoint.id] = [ anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3] ];
                         this.continuousAnchorOrientations[endpoint.id] = orientation;
                     };
@@ -136,7 +158,7 @@ export class AnchorManager<E> {
         let sourceId = conn.sourceId, targetId = conn.targetId,
             ep = conn.endpoints,
             doRegisterTarget = true,
-            registerConnection = (otherIndex:any, otherEndpoint:any, otherAnchor:any, elId:any, c:any) => {
+            registerConnection = (otherIndex:number, otherEndpoint:Endpoint<E>, otherAnchor:Anchor) => {
                 if ((sourceId === targetId) && otherAnchor.isContinuous) {
                     // remove the target endpoint's canvas.  we dont need it.
                     this.instance.renderer.destroyEndpoint(ep[1] as any);
@@ -144,16 +166,16 @@ export class AnchorManager<E> {
                 }
             };
 
-        registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
+        registerConnection(0, ep[0], ep[0].anchor);
         if (doRegisterTarget) {
-            registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
+            registerConnection(1, ep[1], ep[1].anchor);
         }
     }
 
-    removeEndpointFromAnchorLists (endpoint:any) {
+    removeEndpointFromAnchorLists (endpoint:Endpoint<E>):void {
         (function (list, eId) {
             if (list) {  // transient anchors dont get entries in this list.
-                let f = (e:any) => {
+                let f = (e:AnchorListEntry<E>) => {
                     return e[4] === eId;
                 };
                 removeWithFunction(list.top, f);
@@ -164,11 +186,7 @@ export class AnchorManager<E> {
         })(this.anchorLists[endpoint.elementId], endpoint.id);
     }
 
-    connectionDetached (connInfo:any, doNotRedraw?:boolean) {
-        let connection = connInfo.connection || connInfo,
-            sourceId = connInfo.sourceId,
-            targetId = connInfo.targetId,
-            ep = connection.endpoints;
+    connectionDetached (connection:Connection<E>, doNotRedraw?:boolean) {
 
         if (connection.floatingId) {
             this.removeEndpointFromAnchorLists(connection.floatingEndpoint);
@@ -186,7 +204,7 @@ export class AnchorManager<E> {
         }
     }
 
-    add (endpoint:any, elementId:string) {
+    add (endpoint:Endpoint<E>, elementId:string) {
         addToList(this._amEndpoints, elementId, endpoint);
     }
 
@@ -211,7 +229,7 @@ export class AnchorManager<E> {
     // all connections found along the way (those that are connected to one of the faces this function
     // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
     // them wthout having to calculate anything else about them.
-    private _updateAnchorList (lists:any, theta:any, order:any, conn:any, aBoolean:any, otherElId:any, idx:any, reverse:any, edgeId:any, connsToPaint:Set<Connection<E>>, endpointsToPaint:Set<Endpoint<E>>) {
+    private _updateAnchorList (lists:AnchorLists<E>, theta:number, order:number, conn:ConnectionFacade<E>, aBoolean:boolean, otherElId:string, idx:number, reverse:boolean, edgeId:string, connsToPaint:Set<Connection<E>>, endpointsToPaint:Set<Endpoint<E>>) {
         // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
         let exactIdx = -1,
             firstMatchingElIdx = -1,
@@ -226,9 +244,8 @@ export class AnchorManager<E> {
                 endpointId
             ],
             listToAddTo = lists[edgeId],
-            listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
-            i,
-            candidate:any;
+            listToRemoveFrom = (endpoint as any)._continuousAnchorEdge ? lists[(endpoint as any)._continuousAnchorEdge] : null,
+            candidate:Connection<E>;
 
         if (listToRemoveFrom) {
             let rIdx = findWithFunction(listToRemoveFrom, function (e) {
@@ -264,7 +281,7 @@ export class AnchorManager<E> {
         }
 
         // store this for next time.
-        endpoint._continuousAnchorEdge = edgeId;
+        (endpoint as any)._continuousAnchorEdge = edgeId;
     };
 
     //
@@ -300,7 +317,7 @@ export class AnchorManager<E> {
         }
     };
 
-    redraw (elementId:string, ui?:any, timestamp?:string, offsetToUI?:Offset, doNotRecalcEndpoint?:boolean) {
+    redraw (elementId:string, ui?:Offset, timestamp?:string, offsetToUI?:Offset) {
 
         if (!this.instance._suspendDrawing) {
 
@@ -336,8 +353,18 @@ export class AnchorManager<E> {
                         if (!this.anchorLists[elementId]) {
                             this.anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] };
                         }
-                        this._updateAnchorList(this.anchorLists[elementId], -Math.PI / 2, 0, {endpoints: [anEndpoint, anEndpoint], paint: function () {
-                        }}, false, elementId, 0, false, (<ContinuousAnchor>anEndpoint.anchor).getDefaultFace(), connectionsToPaint, endpointsToPaint);
+                        this._updateAnchorList(
+                            this.anchorLists[elementId],
+                            -Math.PI / 2,
+                            0,
+                            {endpoints: [anEndpoint, anEndpoint], paint: function () { }},
+                            false,
+                            elementId,
+                            0,
+                            false,
+                            (<ContinuousAnchor>anEndpoint.anchor).getDefaultFace(),
+                            connectionsToPaint,
+                            endpointsToPaint);
                         anchorsToUpdate.add(elementId);
                     }
 
@@ -381,7 +408,7 @@ export class AnchorManager<E> {
                             }
                             else {
                                 if (!o) {
-                                    o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor, conn);
+                                    o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, (conn.endpoints[0].anchor as ContinuousAnchor), (conn.endpoints[1].anchor as ContinuousAnchor));
                                     orientationCache[oKey] = o;
                                 }
                                 if (sourceContinuous) {
@@ -452,7 +479,8 @@ export class AnchorManager<E> {
         }
     }
 
-    calculateOrientation (sourceId:string, targetId:string, sd:any, td:any, sourceAnchor:any, targetAnchor:any, connection?:Connection<E>):{orientation?:string, a:[Face, Face], theta?:number, theta2?:number} {
+
+    calculateOrientation (sourceId:string, targetId:string, sd:ExtendedOffset, td:ExtendedOffset, sourceAnchor:ContinuousAnchor, targetAnchor:ContinuousAnchor):OrientationResult {
 
         let Orientation = { HORIZONTAL: "horizontal", VERTICAL: "vertical", DIAGONAL: "diagonal", IDENTITY: "identity" };
 

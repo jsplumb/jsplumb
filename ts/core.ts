@@ -78,9 +78,7 @@ export interface UpdateOffsetOptions {
 
 export type UpdateOffsetResult = {o:ExtendedOffset, s:Size}
 
-export interface ExtendedOffset {
-    left:number;
-    top:number;
+export interface ExtendedOffset extends Offset {
     width?:number;
     height?:number;
     centerx?:number;
@@ -95,7 +93,7 @@ export interface Dictionary<T> {
 
 export type ElementSpec<E> = string | E | Array<string | E>;
 
-export type SortFunction = (a:any,b:any) => number;
+export type SortFunction<T> = (a:T,b:T) => number;
 
 export type Constructable<T> = { new(...args: any[]): T };
 
@@ -1027,7 +1025,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         // always fire this. used by internal jsplumb stuff.
         this.fire(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent);
 
-        this.anchorManager.connectionDetached(params);
+        this.anchorManager.connectionDetached(params.connection);
     };
 
     fireMoveEvent (params?:any, evt?:Event):void {
@@ -1156,7 +1154,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
             if (el != null) {
                 let repaintEls = this._getAssociatedElements(el),
-                    repaintOffsets = [];
+                    repaintOffsets:Array<ExtendedOffset> = [];
 
                 if (timestamp == null) {
                     timestamp = _timestamp();
@@ -1175,7 +1173,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 } else {
                     for (let i = 0; i < repaintEls.length; i++) {
                         const reId = this.getId(repaintEls[i]);
-                        repaintOffsets.push({o: this._offsets[reId], s: this._sizes[reId]});
+                        //repaintOffsets.push({o: this._offsets[reId], s: this._sizes[reId]});
+                        repaintOffsets.push(this._offsets[reId]);
                     }
                 }
 
@@ -1183,7 +1182,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
                 if (repaintEls.length > 0) {
                     for (let j = 0; j < repaintEls.length; j++) {
-                        this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null, true);
+                        this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null);
                     }
                 }
             }

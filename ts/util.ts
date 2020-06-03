@@ -460,7 +460,7 @@ export function wrap(wrappedFunction: Function, newFunction: Function, returnOnT
     };
 }
 
-export function sortHelper (_array:Array<any>, _fn:SortFunction):Array<any> {
+export function sortHelper<T> (_array:Array<T>, _fn:SortFunction<T>):Array<T> {
     return _array.sort(_fn);
 }
 
