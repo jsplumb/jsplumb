@@ -2,7 +2,7 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import {Dictionary, extend, PointArray} from "../core";
+import {BoundingBox, Dictionary, extend, PointArray} from "../core";
 import {addClass, consume, matchesSelector, removeClass} from "../browser-util";
 import {IS, uuid} from "../util";
 import {EventManager, pageLocation} from "./event-manager";
@@ -245,9 +245,9 @@ export interface DragParams {
     snapThreshold?:number;
     grid?:PointArray;
     allowNegative?:boolean;
-    constrain?:Function | boolean;
+    constrain?:ConstrainFunction | boolean;
     containment?:boolean;
-    revert?:Function;
+    revert?:RevertFunction;
     canDrag?:Function;
     consumeFilteredEvents?:boolean;
     events?:Dictionary<Function>;
@@ -258,7 +258,7 @@ export interface DragParams {
 
 class Drag extends Base {
 
-    _class:string = _classes.draggable;
+    _class:string;
     rightButtonCanDrag:boolean;
     consumeStartEvent:boolean;
     clone:boolean;
@@ -290,8 +290,8 @@ class Drag extends Base {
     _snapThreshold:number;
     _grid:PointArray;
     _allowNegative:boolean;
-    _constrain:Function;
-    _revertFunction:Function;
+    _constrain:ConstrainFunction;
+    _revertFunction:RevertFunction;
     _canDrag:Function;
     private _consumeFilteredEvents:boolean;
     private _parent:any;
@@ -309,13 +309,16 @@ class Drag extends Base {
         moveListener:(e:MouseEvent) => void;
         upListener:(e?:MouseEvent) => void;
 
-    _dragClass:string = "";
+    //_dragClass:string = "";
 
-    listeners:Dictionary<Array<Function>> = {};
+    listeners:Dictionary<Array<Function>> = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] };
 
     constructor(el:HTMLElement, params: DragParams, k:Collicat) {
 
         super(el, k);
+
+        this._class = this.k.css.draggable;
+        addClass(this.el, this._class);
 
         this.downListener = this._downListener.bind(this);
         this.upListener = this._upListener.bind(this);
@@ -548,7 +551,7 @@ class Drag extends Base {
         this._pagePosAtDown = getOffsetRect(this._dragEl);
         this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]];
         this._size = _getSize(this._dragEl);
-        addClass(this._dragEl, this._dragClass || _classes.drag);
+        addClass(this._dragEl, this.k.css.drag);
 
         let cs:PointArray;
         // if (this._getConstrainingRectangle) {
@@ -578,7 +581,7 @@ class Drag extends Base {
             this._ghostProxyOffsets = null;
         }
 
-        removeClass(this._dragEl, this._dragClass || _classes.drag);
+        removeClass(this._dragEl, this.k.css.drag);
         this._isConstrained = false;
     }
 
@@ -764,8 +767,8 @@ class Drag extends Base {
         return (this._allowNegative === false) ? [ Math.max (0, pos[0]), Math.max(0, pos[1]) ] : pos;
     }
 
-    private _setConstrain (value:Function | boolean) {
-        this._constrain = typeof value === "function" ? value as Function : value ? (pos:PointArray, dragEl:any, _constrainRect:any, _size:PointArray):PointArray => {
+    private _setConstrain (value:ConstrainFunction | boolean) {
+        this._constrain = typeof value === "function" ? value as ConstrainFunction : value ? (pos:PointArray, dragEl:any, _constrainRect:any, _size:PointArray):PointArray => {
             return this._negativeFilter([
                 Math.max(0, Math.min(_constrainRect.w - _size[0], pos[0])),
                 Math.max(0, Math.min(_constrainRect.h - _size[1], pos[1]))
@@ -795,7 +798,7 @@ class Drag extends Base {
      * revert to its position before the previous drag.
      * @param fn
      */
-    setRevert (fn:Function) {
+    setRevert (fn:RevertFunction) {
         this._revertFunction = fn;
     }
 
@@ -869,10 +872,15 @@ class Drag extends Base {
 
 }
 
+export type ConstrainFunction = (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray) => PointArray;
+export type RevertFunction = (dragEl:HTMLElement, pos:PointArray) => boolean;
+
 export interface CollicatOptions {
     zoom?:number;
     css?:Dictionary<string>;
     inputFilterSelector?:string;
+    constrain?:ConstrainFunction;
+    revert?:RevertFunction;
 }
 
 const DEFAULT_INPUT_FILTER_SELECTOR = "input,textarea,select,button,option";
@@ -883,6 +891,8 @@ export class Collicat {
     private zoom:number = 1;
     css:Dictionary<string> = {};
     inputFilterSelector:string;
+    constrain:ConstrainFunction;
+    revert:RevertFunction;
 
     constructor(options?:CollicatOptions) {
         options = options || {};
@@ -890,7 +900,9 @@ export class Collicat {
         this.eventManager = new EventManager();
         this.zoom = options.zoom || 1;
         const _c = options.css || {};
-        extend(this.css, _c)
+        extend(this.css, _c);
+        this.constrain = options.constrain;
+        this.revert = options.revert;
     }
 
     getZoom():number {
@@ -904,6 +916,14 @@ export class Collicat {
     _prepareParams(p:DragParams):DragParams {
 
         p = p || {};
+
+        if (p.constrain == null && this.constrain != null) {
+            p.constrain = this.constrain;
+        }
+
+        if (p.revert == null && this.revert != null) {
+            p.revert = this.revert;
+        }
 
         let _p:DragParams = {
             events:{}
@@ -957,6 +977,7 @@ export class Collicat {
         if (el._katavorioDrag) {
             // current selection? are we handling that?
             (el._katavorioDrag as Drag).destroy();
+            delete el._katavorioDrag;
         }
     }
 }
