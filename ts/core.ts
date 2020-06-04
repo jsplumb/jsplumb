@@ -1087,6 +1087,22 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
     }
 
+    /**
+     * Manage a group of elements.
+     * @param elements Array-like object of strings or DOM elements.
+     * @param recalc Maybe recalculate offsets for the element also.
+     */
+    manageAll (elements:any, recalc?:boolean):void {
+        for (let i = 0; i < elements.length; i++) {
+            this.manage(elements[i], recalc);
+        }
+    }
+
+    /**
+     * Manage an element.
+     * @param element String, or DOM element.
+     * @param recalc Maybe recalculate offsets for the element also.
+     */
     manage (element:ElementSpec<E>, recalc?:boolean):void {
 
         const el:E = IS.aString(element) ? this.getElementById(element as string) : element as E;
@@ -1114,6 +1130,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
+    /**
+     * Stops managing the given element.
+     * @param id ID of the element to stop managing.
+     */
     unmanage (id:string):void {
         if (this._managedElements[id]) {
             this.removeAttribute(this._managedElements[id].el, Constants.ATTRIBUTE_MANAGED);
