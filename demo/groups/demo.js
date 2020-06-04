@@ -9,7 +9,7 @@ jsPlumb.ready(function () {
     });
 
     var managedElements = document.querySelectorAll("[group], .w");
-    j.manage(managedElements);
+    j.manageAll(managedElements);
 
     var evts = document.querySelector("#events");
     var _appendEvent = function(name, detail) {
