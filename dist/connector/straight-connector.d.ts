@@ -1,5 +1,5 @@
 import { AbstractConnector, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
-export declare class StraightConnector<E> extends AbstractConnector<E> {
+export declare class StraightConnector extends AbstractConnector {
     type: string;
-    _compute(paintInfo: PaintGeometry, _: ConnectorComputeParams<E>): void;
+    _compute(paintInfo: PaintGeometry, _: ConnectorComputeParams): void;
 }

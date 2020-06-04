@@ -13,11 +13,11 @@ export declare type AnchorComputeParams = {
     wh?: PointArray;
     txy?: PointArray;
     twh?: PointArray;
-    element?: Endpoint<any>;
+    element?: Endpoint;
     timestamp?: string;
     index?: number;
-    tElement?: Endpoint<any>;
-    connection?: Connection<any>;
+    tElement?: Endpoint;
+    connection?: Connection;
     elementId?: string;
 };
 export declare type ComputedAnchorPosition = [number, number, number, number];
@@ -27,7 +27,7 @@ export interface AnchorOptions {
 export declare type AnchorId = "Assign" | "AutoDefault" | "Bottom" | "BottomCenter" | "BottomLeft" | "BottomRight" | "Center" | "Continuous" | "ContinuousBottom" | "ContinuousLeft" | "ContinuousRight" | "ContinuousTop" | "ContinuousLeftRight" | "ContinuousTopBottom" | "Left" | "LeftMiddle" | "Perimeter" | "Right" | "RightMiddle" | "Top" | "TopCenter" | "TopLeft" | "TopRight";
 export declare type AnchorSpec = AnchorId | [AnchorId, AnchorOptions];
 export declare const Anchors: {
-    get: (instance: jsPlumbInstance<any>, name: string, args: any) => Anchor;
+    get: (instance: jsPlumbInstance, name: string, args: any) => Anchor;
 };
-export declare function makeAnchorFromSpec(instance: jsPlumbInstance<any>, spec: AnchorSpec, elementId?: string): Anchor;
+export declare function makeAnchorFromSpec(instance: jsPlumbInstance, spec: AnchorSpec, elementId?: string): Anchor;
 export declare type ShapeFunction = (anchorCount: number, p?: any) => Array<any>;

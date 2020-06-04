@@ -2,19 +2,19 @@ import { Component, ComponentOptions } from "./component";
 import { Overlay, OverlaySpec } from "../overlay/overlay";
 import { Dictionary, jsPlumbInstance, PointArray } from "../core";
 import { LabelOverlay } from "../overlay/label-overlay";
-export interface OverlayComponentOptions<E> extends ComponentOptions<E> {
+export interface OverlayComponentOptions extends ComponentOptions {
     label?: string;
     labelLocation?: number;
 }
-export declare abstract class OverlayCapableComponent<E> extends Component<E> {
-    instance: jsPlumbInstance<E>;
+export declare abstract class OverlayCapableComponent extends Component {
+    instance: jsPlumbInstance;
     defaultLabelLocation: number | [number, number];
-    overlays: Dictionary<Overlay<E>>;
+    overlays: Dictionary<Overlay>;
     overlayPositions: Dictionary<PointArray>;
-    constructor(instance: jsPlumbInstance<E>, params: OverlayComponentOptions<E>);
-    addOverlay(overlay: OverlaySpec, doNotRepaint?: boolean): Overlay<E>;
-    getOverlay(id: string): Overlay<E>;
-    getOverlays(): Dictionary<Overlay<E>>;
+    constructor(instance: jsPlumbInstance, params: OverlayComponentOptions);
+    addOverlay(overlay: OverlaySpec, doNotRepaint?: boolean): Overlay;
+    getOverlay(id: string): Overlay;
+    getOverlays(): Dictionary<Overlay>;
     hideOverlay(id: string): void;
     hideOverlays(): void;
     showOverlay(id: string): void;
@@ -23,12 +23,12 @@ export declare abstract class OverlayCapableComponent<E> extends Component<E> {
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
     removeOverlays(...overlays: string[]): void;
     getLabel(): string;
-    getLabelOverlay(): LabelOverlay<E>;
-    setLabel(l: string | Function | LabelOverlay<E>): void;
+    getLabelOverlay(): LabelOverlay;
+    setLabel(l: string | Function | LabelOverlay): void;
     destroy(force?: boolean): void;
     setVisible(v: boolean): void;
-    setAbsoluteOverlayPosition(overlay: Overlay<E>, xy: PointArray): void;
-    getAbsoluteOverlayPosition(overlay: Overlay<E>): PointArray;
+    setAbsoluteOverlayPosition(overlay: Overlay, xy: PointArray): void;
+    getAbsoluteOverlayPosition(overlay: Overlay): PointArray;
     private _clazzManip;
     addClass(clazz: string, dontUpdateOverlays?: boolean): void;
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void;

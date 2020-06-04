@@ -7,8 +7,8 @@ import { Connection } from "./connection-impl";
 export interface PaintParams<E> {
     sourcePos: PointArray;
     targetPos: PointArray;
-    sourceEndpoint: Endpoint<E>;
-    targetEndpoint: Endpoint<E>;
+    sourceEndpoint: Endpoint;
+    targetEndpoint: Endpoint;
     strokeWidth?: number;
 }
 export declare type PaintAxis = "y" | "x";
@@ -25,13 +25,13 @@ declare type SegmentForPoint = {
     index: number;
     connectorLocation: number;
 };
-export declare type ConnectorComputeParams<E> = {
+export declare type ConnectorComputeParams = {
     sourcePos: ComputedAnchorPosition;
     targetPos: ComputedAnchorPosition;
     sourceOrientation: Orientation;
     targetOrientation: Orientation;
-    sourceEndpoint: Endpoint<E>;
-    targetEndpoint: Endpoint<E>;
+    sourceEndpoint: Endpoint;
+    targetEndpoint: Endpoint;
     strokeWidth: number;
     sourceInfo: any;
     targetInfo: any;
@@ -67,13 +67,13 @@ export interface PaintGeometry {
     stubs: [number, number];
     anchorOrientation?: string;
 }
-export interface AbstractConnectorOptions<E> extends ComponentOptions<E> {
+export interface AbstractConnectorOptions extends ComponentOptions {
     stub?: number;
     gap?: number;
 }
-export declare abstract class AbstractConnector<E> {
-    instance: jsPlumbInstance<E>;
-    connection: Connection<E>;
+export declare abstract class AbstractConnector {
+    instance: jsPlumbInstance;
+    connection: Connection;
     abstract type: string;
     stub: number;
     sourceStub: number;
@@ -96,10 +96,10 @@ export declare abstract class AbstractConnector<E> {
     segment: number;
     bounds: SegmentBounds;
     cssClass: string;
-    constructor(instance: jsPlumbInstance<E>, connection: Connection<E>, params: AbstractConnectorOptions<E>);
+    constructor(instance: jsPlumbInstance, connection: Connection, params: AbstractConnectorOptions);
     getTypeDescriptor(): string;
     getIdPrefix(): string;
-    abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams<E>): void;
+    abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;
     resetBounds(): void;
     getPathData(): any;
     /**
@@ -143,7 +143,7 @@ export declare abstract class AbstractConnector<E> {
     pointOnPath(location: number, absolute?: boolean): PointXY;
     gradientAtPoint(location: number, absolute?: boolean): number;
     pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
-    compute(params: ConnectorComputeParams<E>): void;
+    compute(params: ConnectorComputeParams): void;
     applyType(t: TypeDescriptor): void;
 }
 export {};

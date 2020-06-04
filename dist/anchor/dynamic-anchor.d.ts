@@ -8,17 +8,17 @@ export interface DynamicAnchorOptions extends AnchorOptions {
     anchors: Array<Anchor>;
 }
 export declare class DynamicAnchor extends Anchor {
-    instance: jsPlumbInstance<any>;
+    instance: jsPlumbInstance;
     anchors: Array<Anchor>;
     private _curAnchor;
     private _lastAnchor;
     private _anchorSelector;
-    constructor(instance: jsPlumbInstance<any>, options: DynamicAnchorOptions);
+    constructor(instance: jsPlumbInstance, options: DynamicAnchorOptions);
     getAnchors(): Array<Anchor>;
     compute(params: AnchorComputeParams): ComputedAnchorPosition;
     getCurrentLocation(params: AnchorComputeParams): ComputedAnchorPosition;
-    getOrientation(_endpoint?: Endpoint<any>): Orientation;
-    over(anchor: Anchor, endpoint: Endpoint<any>): void;
+    getOrientation(_endpoint?: Endpoint): Orientation;
+    over(anchor: Anchor, endpoint: Endpoint): void;
     out(): void;
     setAnchor(a: Anchor): void;
     getCssClass(): string;

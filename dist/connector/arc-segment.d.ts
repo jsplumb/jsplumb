@@ -12,7 +12,7 @@ export declare class ArcSegment extends AbstractSegment {
     length: number;
     circumference: number;
     frac: number;
-    constructor(instance: jsPlumbInstance<any>, params: any);
+    constructor(instance: jsPlumbInstance, params: any);
     private _calcAngle;
     private _calcAngleForLocation;
     getLength(): number;

@@ -1,29 +1,29 @@
 import { Dictionary, jsPlumbInstance } from "../core";
 import { UIGroup } from "./group";
-export declare class GroupManager<E> {
-    instance: jsPlumbInstance<E>;
-    groupMap: Dictionary<UIGroup<E>>;
-    _connectionSourceMap: Dictionary<UIGroup<E>>;
-    _connectionTargetMap: Dictionary<UIGroup<E>>;
-    constructor(instance: jsPlumbInstance<E>);
+export declare class GroupManager {
+    instance: jsPlumbInstance;
+    groupMap: Dictionary<UIGroup>;
+    _connectionSourceMap: Dictionary<UIGroup>;
+    _connectionTargetMap: Dictionary<UIGroup>;
+    constructor(instance: jsPlumbInstance);
     private _cleanupDetachedConnection;
-    addGroup(params: any): UIGroup<E>;
-    getGroup(groupId: string | UIGroup<E>): UIGroup<E>;
-    getGroupFor(el: E | string): UIGroup<E>;
-    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void | {};
+    addGroup(params: any): UIGroup;
+    getGroup(groupId: string | UIGroup): UIGroup;
+    getGroupFor(el: any | string): UIGroup;
+    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void | {};
     removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
-    forEach(f: (g: UIGroup<E>) => any): void;
-    orphan(_el: E): (string | import("..").Offset)[];
+    forEach(f: (g: UIGroup) => any): void;
+    orphan(_el: any): (string | import("..").Offset)[];
     private _setGroupVisible;
-    _updateConnectionsForGroup(group: UIGroup<E>): void;
+    _updateConnectionsForGroup(group: UIGroup): void;
     private _collapseConnection;
     private _expandConnection;
     private isDescendant;
-    collapseGroup(group: string | UIGroup<E>): void;
-    expandGroup(group: string | UIGroup<E>, doNotFireEvent?: boolean): void;
-    toggleGroup(group: string | UIGroup<E>): void;
-    repaintGroup(group: string | UIGroup<E>): void;
-    addToGroup(group: string | UIGroup<E>, el: E | Array<E>, doNotFireEvent?: boolean): void;
-    removeFromGroup(group: string | UIGroup<E>, el: E, doNotFireEvent?: boolean): void;
+    collapseGroup(group: string | UIGroup): void;
+    expandGroup(group: string | UIGroup, doNotFireEvent?: boolean): void;
+    toggleGroup(group: string | UIGroup): void;
+    repaintGroup(group: string | UIGroup): void;
+    addToGroup(group: string | UIGroup, el: any | Array<any>, doNotFireEvent?: boolean): void;
+    removeFromGroup(group: string | UIGroup, el: any, doNotFireEvent?: boolean): void;
     reset(): void;
 }

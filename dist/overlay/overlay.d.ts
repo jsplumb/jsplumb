@@ -21,15 +21,15 @@ export interface LabelOverlayOptions extends OverlayOptions {
     endpointLocation?: [number, number];
     labelLocationAttribute?: string;
 }
-export interface CustomOverlayOptions<E> extends OverlayOptions {
-    create: (c: Component<E>) => E;
+export interface CustomOverlayOptions extends OverlayOptions {
+    create: (c: Component) => any;
 }
 export declare type OverlayId = "Label" | "Arrow" | "PlainArrow" | "Custom";
 export declare type FullOverlaySpec = [OverlayId, OverlayOptions];
 export declare type OverlaySpec = OverlayId | FullOverlaySpec;
-export declare abstract class Overlay<E> extends EventGenerator {
-    instance: jsPlumbInstance<E>;
-    component: Component<E>;
+export declare abstract class Overlay extends EventGenerator {
+    instance: jsPlumbInstance;
+    component: Component;
     id: string;
     abstract type: string;
     cssClass: string;
@@ -37,7 +37,7 @@ export declare abstract class Overlay<E> extends EventGenerator {
     location: number;
     endpointLocation: [number, number];
     events?: Dictionary<Function>;
-    constructor(instance: jsPlumbInstance<E>, component: Component<E>, p: OverlayOptions);
+    constructor(instance: jsPlumbInstance, component: Component, p: OverlayOptions);
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     setVisible(v: boolean): void;
     isVisible(): boolean;

@@ -6,17 +6,17 @@ import { Endpoint } from "../endpoint/endpoint-impl";
 import { Overlay, OverlaySpec } from "../overlay/overlay";
 import { EndpointSpec } from "../endpoint";
 import { ConnectorSpec } from "../connector";
-export declare type ComponentConfig<E> = {
+export declare type ComponentConfig = {
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
     types: string[];
-    instance: jsPlumbInstance<E>;
+    instance: jsPlumbInstance;
     paintStyleInUse?: PaintStyle;
     cssClass?: string;
     hoverClass?: string;
     parameters: ComponentParameters;
     typeCache: {};
-    overlays?: Dictionary<Overlay<E>>;
+    overlays?: Dictionary<Overlay>;
     overlayPlacements?: Dictionary<any>;
     overlayPositions?: Dictionary<PointArray>;
     hover?: boolean;
@@ -42,7 +42,7 @@ export declare type ComponentConfig<E> = {
     enabled?: boolean;
     currentAnchorClass?: string;
     uuid?: string;
-    floatingEndpoint?: Endpoint<E>;
+    floatingEndpoint?: Endpoint;
     events?: any;
     connectorStyle?: PaintStyle;
     connectorHoverStyle?: PaintStyle;
@@ -51,14 +51,14 @@ export declare type ComponentConfig<E> = {
     scope?: string;
 };
 export declare type ComponentParameters = Dictionary<any>;
-export declare function _removeTypeCssHelper<E>(component: Component<E>, typeIndex: number): void;
-export declare function _updateHoverStyle<E>(component: Component<E>): void;
+export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
+export declare function _updateHoverStyle<E>(component: Component): void;
 export declare type RepaintOptions = {
     timestamp?: Timestamp;
     recalc?: boolean;
 };
-export interface ComponentOptions<E> {
-    _jsPlumb?: jsPlumbInstance<E>;
+export interface ComponentOptions {
+    _jsPlumb?: jsPlumbInstance;
     parameters?: any;
     beforeDetach?: Function;
     beforeDrop?: Function;
@@ -68,13 +68,13 @@ export interface ComponentOptions<E> {
     scope?: string;
     cssClass?: string;
 }
-export declare abstract class Component<E> extends EventGenerator {
-    instance: jsPlumbInstance<E>;
+export declare abstract class Component extends EventGenerator {
+    instance: jsPlumbInstance;
     abstract getTypeDescriptor(): string;
     abstract getDefaultOverlayKey(): string;
     abstract getIdPrefix(): string;
     abstract getXY(): PointXY;
-    clone: () => Component<E>;
+    clone: () => Component;
     segment?: number;
     x: number;
     y: number;
@@ -88,12 +88,12 @@ export declare abstract class Component<E> extends EventGenerator {
     paintStyleInUse: PaintStyle;
     data: any;
     _defaultType: any;
-    _jsPlumb: ComponentConfig<E>;
+    _jsPlumb: ComponentConfig;
     cssClass: string;
-    constructor(instance: jsPlumbInstance<E>, params?: ComponentOptions<E>);
+    constructor(instance: jsPlumbInstance, params?: ComponentOptions);
     abstract paint(params?: any): any;
-    isDetachAllowed(connection: Connection<E>): boolean;
-    isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection<E>, dropEndpoint: Endpoint<E>, source?: E, target?: E): any;
+    isDetachAllowed(connection: Connection): boolean;
+    isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint, source?: any, target?: any): any;
     getDefaultType(): TypeDescriptor;
     appendToDefaultType(obj: any): void;
     getId(): string;

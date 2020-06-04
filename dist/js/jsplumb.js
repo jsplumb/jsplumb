@@ -12502,18 +12502,18 @@
         }); // at this point we are in fact uncertain about whether or not the given endpoint is a source/target. it may not have been
         // specifically configured as one
 
-        var selectors = []; //,
-        // this.epIsSource = this.ep.isSource || (existingthis.jpc && this.jpc.endpoints[0] === this.ep),
-        // this.epIsTarget = this.ep.isTarget || (existingthis.jpc && this.jpc.endpoints[1] === this.ep);
-        // if (this.epIsSource) {
+        var selectors = [];
+        var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
 
-        selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]"); //}
-        //if (this.epIsTarget) {
+        if (!isSourceDrag) {
+          selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
+        }
 
-        selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]"); //}
+        if (isSourceDrag) {
+          selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
+        }
 
         this.instance.getContainer().querySelectorAll(selectors.join(",")).forEach(function (candidate) {
-          //if (candidate !== this.ep.element) {
           var o = _this.instance.getOffset(candidate),
               s = _this.instance.getSize(candidate);
 
@@ -12526,19 +12526,15 @@
           var d = {
             el: candidate,
             r: boundingRect
-          }; //  if (this.epIsSource) {
-          // look for at least one target definition that is not disabled on the given element.
+          }; // look for at least one target definition that is not disabled on the given element.
 
-          var targetDefinitionIdx = findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
+          var targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
             return tdef.enabled !== false;
-          }); //}
-          //if (this.epIsTarget) {
-          // look for at least one target definition that is not disabled on the given element.
+          }); // look for at least one target definition that is not disabled on the given element.
 
-          var sourceDefinitionIdx = findWithFunction(candidate._jsPlumbSourceDefinitions, function (tdef) {
+          var sourceDefinitionIdx = isSourceDrag ? findWithFunction(candidate._jsPlumbSourceDefinitions, function (tdef) {
             return tdef.enabled !== false;
-          }); //}
-          // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
+          }) : -1; // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
 
           if (targetDefinitionIdx !== -1) {
             if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
@@ -12561,8 +12557,7 @@
 
             _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
 
-          } //}
-
+          }
         });
         this.endpointDropTargets.sort(function (a, b) {
           if (a.el[IS_GROUP_KEY] && !b.el[IS_GROUP_KEY]) {
@@ -12585,7 +12580,6 @@
 
         if (this.jpc == null) {
           // create a connection. one end is this endpoint, the other is a floating endpoint.
-          // TODO - get
           this.jpc = this.instance._newConnection({
             sourceEndpoint: this.ep,
             targetEndpoint: this.floatingEndpoint,
@@ -12908,9 +12902,19 @@
           }
         }
       }
+      /**
+       * Lookup a source definition on the given element.
+       * @param fromElement Element to lookup the source definition
+       * @param evt Associated mouse event - for instance, the event that started a drag.
+       * @param ignoreFilter Used when we're getting a source definition to possibly use as a drop target, ie. when a
+       * connection's source endpoint is being dragged. in that scenario we don't want to filter - we want the source to basically
+       * behave as a target.
+       * @private
+       */
+
     }, {
       key: "_getSourceDefinition",
-      value: function _getSourceDefinition(fromElement, evt) {
+      value: function _getSourceDefinition(fromElement, evt, ignoreFilter) {
         var sourceDef;
 
         if (fromElement._jsPlumbSourceDefinitions) {
@@ -12918,7 +12922,7 @@
             sourceDef = fromElement._jsPlumbSourceDefinitions[i];
 
             if (sourceDef.enabled !== false) {
-              if (sourceDef.def.filter) {
+              if (!ignoreFilter && sourceDef.def.filter) {
                 var r = isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter, this.instance, sourceDef.def.filterExclude) : sourceDef.def.filter(evt, fromElement);
 
                 if (r !== false) {
@@ -12965,7 +12969,7 @@
           var targetDefinition = jpc.floatingIndex == null || jpc.floatingIndex === 1 ? this._getTargetDefinition(this.currentDropTarget.el, p.e) : null; // need to figure the conditions under which each of these should be tested
 
           if (targetDefinition == null) {
-            targetDefinition = jpc.floatingIndex == null || jpc.floatingIndex === 0 ? this._getSourceDefinition(this.currentDropTarget.el, p.e) : null;
+            targetDefinition = jpc.floatingIndex == null || jpc.floatingIndex === 0 ? this._getSourceDefinition(this.currentDropTarget.el, p.e, true) : null;
           }
 
           if (targetDefinition == null) {

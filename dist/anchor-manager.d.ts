@@ -3,11 +3,11 @@ import { Dictionary, ExtendedOffset, jsPlumbInstance, Offset } from "./core";
 import { Connection } from "./connector/connection-impl";
 import { ComputedAnchorPosition, Face, Orientation } from "./factory/anchor-factory";
 import { ContinuousAnchor, ContinuousAnchorOptions } from "./anchor/continuous-anchor";
-export declare class ContinuousAnchorFactory<E> {
+export declare class ContinuousAnchorFactory {
     private continuousAnchorLocations;
     clear(endpointId: string): void;
     set(endpointId: string, pos: ComputedAnchorPosition): void;
-    get(instance: jsPlumbInstance<E>, params?: ContinuousAnchorOptions): ContinuousAnchor;
+    get(instance: jsPlumbInstance, params?: ContinuousAnchorOptions): ContinuousAnchor;
 }
 interface OrientationResult {
     orientation?: string;
@@ -15,28 +15,28 @@ interface OrientationResult {
     theta?: number;
     theta2?: number;
 }
-export declare class AnchorManager<E> {
+export declare class AnchorManager {
     private instance;
-    _amEndpoints: Dictionary<Array<Endpoint<E>>>;
+    _amEndpoints: Dictionary<Array<Endpoint>>;
     continuousAnchorLocations: Dictionary<[number, number, number, number]>;
     continuousAnchorOrientations: Dictionary<Orientation>;
     private anchorLists;
     private floatingConnections;
-    continuousAnchorFactory: ContinuousAnchorFactory<E>;
-    constructor(instance: jsPlumbInstance<E>);
+    continuousAnchorFactory: ContinuousAnchorFactory;
+    constructor(instance: jsPlumbInstance);
     reset(): void;
     private placeAnchors;
-    addFloatingConnection(key: string, conn: Connection<E>): void;
+    addFloatingConnection(key: string, conn: Connection): void;
     removeFloatingConnection(key: string): void;
-    newConnection(conn: Connection<E>): void;
-    removeEndpointFromAnchorLists(endpoint: Endpoint<E>): void;
-    connectionDetached(connection: Connection<E>): void;
-    add(endpoint: Endpoint<E>, elementId: string): void;
+    newConnection(conn: Connection): void;
+    removeEndpointFromAnchorLists(endpoint: Endpoint): void;
+    connectionDetached(connection: Connection): void;
+    add(endpoint: Endpoint, elementId: string): void;
     changeId(oldId: string, newId: string): void;
-    deleteEndpoint(endpoint: Endpoint<E>): void;
+    deleteEndpoint(endpoint: Endpoint): void;
     clearFor(elementId: string): void;
     private _updateAnchorList;
-    rehomeEndpoint(ep: Endpoint<E>, currentId: string, element: E): void;
+    rehomeEndpoint(ep: Endpoint, currentId: string, element: any): void;
     redraw(elementId: string, ui?: Offset, timestamp?: string, offsetToUI?: Offset): void;
     calculateOrientation(sourceId: string, targetId: string, sd: ExtendedOffset, td: ExtendedOffset, sourceAnchor: ContinuousAnchor, targetAnchor: ContinuousAnchor): OrientationResult;
 }

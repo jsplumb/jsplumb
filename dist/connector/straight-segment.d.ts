@@ -14,7 +14,7 @@ export declare class StraightSegment extends AbstractSegment {
     x2: number;
     y1: number;
     y2: number;
-    constructor(instance: jsPlumbInstance<any>, params: any);
+    constructor(instance: jsPlumbInstance, params: any);
     private _recalc;
     type: string;
     getLength(): number;

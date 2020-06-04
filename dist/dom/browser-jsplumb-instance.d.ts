@@ -3,6 +3,7 @@ import { Dictionary, jsPlumbInstance, Offset, Size } from "../core";
 import { DragManager } from "./drag-manager";
 import { UIGroup } from "../group/group";
 import { EventManager } from "./event-manager";
+import { AbstractConnector, Endpoint, Overlay } from "..";
 export interface DragEventCallbackOptions {
     drag: {
         size: [number, number];
@@ -23,17 +24,24 @@ export interface DragOptions {
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
     dragOptions?: DragOptions;
 }
+interface jsPlumbDOMInformation {
+    connector?: AbstractConnector;
+    endpoint?: Endpoint;
+    overlay?: Overlay;
+}
 export interface jsPlumbDOMElement extends HTMLElement {
-    _jsPlumbGroup: UIGroup<HTMLElement>;
+    _jsPlumbGroup: UIGroup;
     _isJsPlumbGroup: boolean;
     offsetParent: HTMLElement;
     getAttribute: (name: string) => string;
+    parentNode: jsPlumbDOMElement;
+    jtk: jsPlumbDOMInformation;
 }
 export declare type PosseSpec = string | {
     id: string;
     active: boolean;
 };
-export declare class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
+export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
     protected _instanceIndex: number;
     dragManager: DragManager;
     _connectorClick: Function;
@@ -50,7 +58,7 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement>
     _overlayMouseout: Function;
     eventManager: EventManager;
     private elementDragHandler;
-    constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions<HTMLElement>);
+    constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     getElement(el: HTMLElement | string): HTMLElement;
     getElementById(elId: string): HTMLElement;
     removeElement(element: HTMLElement | string): void;
@@ -71,8 +79,6 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement>
     trigger(el: HTMLElement, event: string, originalEvent?: Event, payload?: any): void;
     _getOffset(el: HTMLElement, relativeToRoot?: boolean, container?: HTMLElement): Offset;
     _getSize(el: HTMLElement): Size;
-    createElement(tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string>): HTMLElement;
-    createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string>): HTMLElement;
     getStyle(el: HTMLElement, prop: string): any;
     getSelector(ctx: string | HTMLElement, spec: string): NodeListOf<any>;
     setPosition(el: HTMLElement, p: Offset): void;
@@ -122,3 +128,4 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement>
      */
     consume(e: Event, doNotPreventDefault?: boolean): void;
 }
+export {};

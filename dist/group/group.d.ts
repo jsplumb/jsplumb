@@ -14,10 +14,10 @@ export interface GroupOptions {
     anchor?: AnchorSpec;
     endpoint?: EndpointSpec;
 }
-export declare class UIGroup<E> {
-    instance: jsPlumbInstance<E>;
-    children: Array<E>;
-    el: E;
+export declare class UIGroup {
+    instance: jsPlumbInstance;
+    children: Array<any>;
+    el: any;
     collapsed: boolean;
     droppable: boolean;
     enabled: boolean;
@@ -31,20 +31,20 @@ export declare class UIGroup<E> {
     anchor: AnchorSpec;
     endpoint: EndpointSpec;
     connections: {
-        source: Array<Connection<E>>;
-        target: Array<Connection<E>>;
-        internal: Array<Connection<E>>;
+        source: Array<Connection>;
+        target: Array<Connection>;
+        internal: Array<Connection>;
     };
-    groups: Array<UIGroup<E>>;
-    manager: GroupManager<E>;
+    groups: Array<UIGroup>;
+    manager: GroupManager;
     id: string;
-    constructor(instance: jsPlumbInstance<E>, el: E, options: GroupOptions);
-    overrideDrop(el: E, targetGroup: UIGroup<E>): boolean;
-    getDragArea(): E;
-    getAnchor(conn: Connection<E>, endpointIndex: number): AnchorSpec;
-    getEndpoint(conn: Connection<E>, endpointIndex: number): EndpointSpec;
-    add(_el: E, doNotFireEvent?: boolean): void;
-    remove(el: E | Array<E>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup<E>): void;
+    constructor(instance: jsPlumbInstance, el: any, options: GroupOptions);
+    overrideDrop(el: any, targetGroup: UIGroup): boolean;
+    getDragArea(): any;
+    getAnchor(conn: Connection, endpointIndex: number): AnchorSpec;
+    getEndpoint(conn: Connection, endpointIndex: number): EndpointSpec;
+    add(_el: any, doNotFireEvent?: boolean): void;
+    remove(el: any | Array<any>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup): void;
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     private _orphan;
     orphanAll(): {};

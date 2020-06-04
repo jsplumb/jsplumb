@@ -2,15 +2,15 @@ import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance, PosseSpec } from "./browser-jsplumb-instance";
 import { UIGroup } from "../group/group";
 import { BoundingBox, Dictionary, Offset } from "../core";
-declare type IntersectingGroup<E> = {
-    group: UIGroup<E>;
+declare type IntersectingGroup = {
+    group: UIGroup;
     d: number;
-    intersectingElement: E;
+    intersectingElement: HTMLElement;
 };
-declare type GroupLocation<E> = {
-    el: E;
+declare type GroupLocation = {
+    el: HTMLElement;
     r: BoundingBox;
-    group: UIGroup<E>;
+    group: UIGroup;
 };
 declare type PosseMemberSpec = {
     el: HTMLElement;
@@ -25,8 +25,8 @@ export declare class ElementDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     selector: string;
     _dragOffset: Offset;
-    _groupLocations: Array<GroupLocation<HTMLElement>>;
-    _intersectingGroups: Array<IntersectingGroup<HTMLElement>>;
+    _groupLocations: Array<GroupLocation>;
+    _intersectingGroups: Array<IntersectingGroup>;
     _posseByElementIdMap: Dictionary<Posse>;
     _posseMap: Dictionary<Posse>;
     _currentPosse: Posse;

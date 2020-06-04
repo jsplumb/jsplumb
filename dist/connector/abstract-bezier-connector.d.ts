@@ -10,8 +10,8 @@ export interface AbstractBezierOptions {
     orientation?: string;
     loopbackRadius?: number;
 }
-export declare abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
-    connection: Connection<E>;
+export declare abstract class AbstractBezierConnector extends AbstractConnector {
+    connection: Connection;
     showLoopback: boolean;
     curviness: number;
     margin: number;
@@ -20,7 +20,7 @@ export declare abstract class AbstractBezierConnector<E> extends AbstractConnect
     loopbackRadius: number;
     clockwise: boolean;
     isLoopbackCurrently: boolean;
-    constructor(instance: jsPlumbInstance<E>, connection: Connection<E>, params: any);
-    _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams<E>): void;
-    abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams<E>, sp: ComputedAnchorPosition, tp: ComputedAnchorPosition, _w: number, _h: number): void;
+    constructor(instance: jsPlumbInstance, connection: Connection, params: any);
+    _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
+    abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: ComputedAnchorPosition, tp: ComputedAnchorPosition, _w: number, _h: number): void;
 }

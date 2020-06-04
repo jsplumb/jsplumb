@@ -7,6 +7,6 @@ import { EndpointHelperFunctions } from "./browser-renderer";
  * which respectively create the type-specific elements, and update them at paint time.
  */
 export declare abstract class SvgEndpoint<C> {
-    static getEndpointElement<C>(ep: EndpointRepresentation<HTMLElement, C>): HTMLElement;
-    static paint<C>(ep: EndpointRepresentation<HTMLElement, C>, handlers: EndpointHelperFunctions, paintStyle: PaintStyle): void;
+    static getEndpointElement<C>(ep: EndpointRepresentation<C>): HTMLElement;
+    static paint<C>(ep: EndpointRepresentation<C>, handlers: EndpointHelperFunctions, paintStyle: PaintStyle): void;
 }

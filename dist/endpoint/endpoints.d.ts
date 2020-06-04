@@ -7,8 +7,8 @@ import { Endpoint } from "./endpoint-impl";
  * Superclass for all types of Endpoint. This class is renderer
  * agnostic, as are any subclasses of it.
  */
-export declare abstract class EndpointRepresentation<E, C> {
-    endpoint: Endpoint<E>;
+export declare abstract class EndpointRepresentation<C> {
+    endpoint: Endpoint;
     typeId: string;
     x: number;
     y: number;
@@ -17,14 +17,14 @@ export declare abstract class EndpointRepresentation<E, C> {
     computedValue: C;
     bounds: SegmentBounds;
     classes: Array<string>;
-    instance: jsPlumbInstance<E>;
+    instance: jsPlumbInstance;
     abstract getType(): string;
     abstract _compute(anchorPoint: ComputedAnchorPosition, orientation: Orientation, endpointStyle: any): C;
-    constructor(endpoint: Endpoint<E>);
+    constructor(endpoint: Endpoint);
     addClass(c: string): void;
     removeClass(c: string): void;
     paint(paintStyle: PaintStyle): void;
-    clone(): EndpointRepresentation<E, C>;
+    clone(): EndpointRepresentation<C>;
     compute(anchorPoint: ComputedAnchorPosition, orientation: Orientation, endpointStyle: any): void;
     setVisible(v: boolean): void;
 }

@@ -15,13 +15,13 @@ import { GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
 export declare type UUID = string;
 export declare type ElementId = string;
-export declare type ElementRef<E> = ElementId | E;
-export declare type ElementGroupRef<E> = ElementId | E | Array<ElementId> | Array<E>;
+export declare type ElementRef = ElementId | any;
+export declare type ElementGroupRef = ElementId | any | Array<ElementId> | Array<any>;
 export declare type ConnectionId = string;
-export interface ConnectParams<E> {
+export interface ConnectParams {
     uuids?: [UUID, UUID];
-    source?: ElementRef<E> | Endpoint<E>;
-    target?: ElementRef<E> | Endpoint<E>;
+    source?: ElementRef | Endpoint;
+    target?: ElementRef | Endpoint;
     detachable?: boolean;
     deleteEndpointsOnDetach?: boolean;
     endpoint?: EndpointSpec;
@@ -52,17 +52,17 @@ export interface TypeDescriptor {
     scope?: string;
     connector?: ConnectorSpec;
 }
-export interface DeleteOptions<E> {
-    connection?: Connection<E>;
-    endpoint?: Endpoint<E>;
+export interface DeleteOptions {
+    connection?: Connection;
+    endpoint?: Endpoint;
     dontUpdateHover?: boolean;
     deleteAttachedObjects?: boolean;
     originalEvent?: Event;
     fireEvent?: boolean;
 }
-export interface DeleteResult<E> {
-    endpoints: Dictionary<Endpoint<E>>;
-    connections: Dictionary<Connection<E>>;
+export interface DeleteResult {
+    endpoints: Dictionary<Endpoint>;
+    connections: Dictionary<Connection>;
     endpointCount: number;
     connectionCount: number;
 }
@@ -110,18 +110,18 @@ export interface ExtendedOffset extends Offset {
 export interface Dictionary<T> {
     [Key: string]: T;
 }
-export declare type ElementSpec<E> = string | E | Array<string | E>;
+export declare type ElementSpec = string | any | Array<string | any>;
 export declare type SortFunction<T> = (a: T, b: T) => number;
 export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
 export declare type Timestamp = string;
-interface AbstractSelection<T, E> {
+interface AbstractSelection<T> {
     length: number;
     each: (handler: (arg0: T) => void) => void;
     get(index: number): T;
     getLabel: () => string;
-    getOverlay: (id: string) => Overlay<E>;
+    getOverlay: (id: string) => Overlay;
     isHover: () => boolean;
     getParameter: (key: string) => any;
     getParameters: () => ComponentParameters;
@@ -135,25 +135,25 @@ interface AbstractSelection<T, E> {
     addClass: (clazz: string, updateAttachedElements?: boolean) => void;
     removeClass: (clazz: string, updateAttachedElements?: boolean) => void;
 }
-export interface AbstractSelectOptions<E> {
+export interface AbstractSelectOptions {
     scope?: string;
-    source?: string | E | Array<string | E>;
-    target?: string | E | Array<string | E>;
+    source?: string | any | Array<string | any>;
+    target?: string | any | Array<string | any>;
 }
-export interface SelectOptions<E> extends AbstractSelectOptions<E> {
-    connections?: Array<Connection<E>>;
+export interface SelectOptions extends AbstractSelectOptions {
+    connections?: Array<Connection>;
 }
-export interface SelectEndpointOptions<E> extends AbstractSelectOptions<E> {
-    element?: string | E | Array<string | E>;
+export interface SelectEndpointOptions extends AbstractSelectOptions {
+    element?: string | any | Array<string | any>;
 }
-export interface ConnectionSelection<E> extends AbstractSelection<Connection<E>, E> {
+export interface ConnectionSelection extends AbstractSelection<Connection> {
     setDetachable: (d: boolean) => void;
     setReattach: (d: boolean) => void;
     setConnector: (d: ConnectorSpec) => void;
     isDetachable: () => any;
     isReattach: () => any;
 }
-export interface EndpointSelection<E> extends AbstractSelection<Endpoint<E>, E> {
+export interface EndpointSelection extends AbstractSelection<Endpoint> {
     setEnabled: (e: boolean) => void;
     setAnchor: (a: AnchorSpec) => void;
     isEnabled: () => any[];
@@ -182,18 +182,18 @@ export declare type DeleteConnectionOptions = {
 export declare function _timestamp(): Timestamp;
 export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
 declare type ContainerDelegation = [string, Function];
-declare type ManagedElement<E> = {
-    el: E;
+declare type ManagedElement = {
+    el: any;
     info?: {
         o: Offset;
         s: Size;
     };
-    endpoints?: Array<Endpoint<E>>;
-    connections?: Array<Connection<E>>;
+    endpoints?: Array<Endpoint>;
+    connections?: Array<Connection>;
 };
-export declare abstract class jsPlumbInstance<E> extends EventGenerator {
+export declare abstract class jsPlumbInstance extends EventGenerator {
     protected _instanceIndex: number;
-    renderer: Renderer<E>;
+    renderer: Renderer;
     Defaults: jsPlumbDefaults;
     private _initialDefaults;
     _containerDelegations: ContainerDelegation[];
@@ -220,85 +220,83 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
     hoverSourceClass: string;
     hoverTargetClass: string;
     dragSelectClass: string;
-    connections: Array<Connection<E>>;
-    endpointsByElement: Dictionary<Array<Endpoint<E>>>;
-    endpointsByUUID: Dictionary<Endpoint<E>>;
+    connections: Array<Connection>;
+    endpointsByElement: Dictionary<Array<Endpoint>>;
+    endpointsByUUID: Dictionary<Endpoint>;
     private _curIdStamp;
     private _offsetTimestamps;
     private _offsets;
     private _sizes;
-    anchorManager: AnchorManager<E>;
-    groupManager: GroupManager<E>;
+    anchorManager: AnchorManager;
+    groupManager: GroupManager;
     _connectionTypes: Dictionary<TypeDescriptor>;
     _endpointTypes: Dictionary<TypeDescriptor>;
-    _container: E;
-    _managedElements: Dictionary<ManagedElement<E>>;
-    _floatingConnections: Dictionary<Connection<E>>;
+    _container: any;
+    _managedElements: Dictionary<ManagedElement>;
+    _floatingConnections: Dictionary<Connection>;
     DEFAULT_SCOPE: string;
-    _helpers?: jsPlumbHelperFunctions<E>;
+    _helpers?: jsPlumbHelperFunctions;
     _zoom: number;
-    abstract getElement(el: E | string): E;
-    abstract getElementById(el: string): E;
-    abstract removeElement(el: E | string): void;
-    abstract appendElement(el: E, parent: E): void;
-    abstract removeClass(el: E, clazz: string): void;
-    abstract addClass(el: E, clazz: string): void;
-    abstract toggleClass(el: E, clazz: string): void;
-    abstract getClass(el: E): string;
-    abstract hasClass(el: E, clazz: string): boolean;
-    abstract setAttribute(el: E, name: string, value: string): void;
-    abstract getAttribute(el: E, name: string): string;
-    abstract setAttributes(el: E, atts: Dictionary<string>): void;
-    abstract removeAttribute(el: E, attName: string): void;
-    abstract getSelector(ctx: string | E, spec?: string): NodeListOf<any>;
-    abstract getStyle(el: E, prop: string): any;
-    abstract _getSize(el: E): Size;
-    abstract _getOffset(el: E | string, relativeToRoot?: boolean, container?: E): Offset;
-    abstract setPosition(el: E, p: Offset): void;
+    abstract getElement(el: any | string): any;
+    abstract getElementById(el: string): any;
+    abstract removeElement(el: any | string): void;
+    abstract appendElement(el: any, parent: any): void;
+    abstract removeClass(el: any, clazz: string): void;
+    abstract addClass(el: any, clazz: string): void;
+    abstract toggleClass(el: any, clazz: string): void;
+    abstract getClass(el: any): string;
+    abstract hasClass(el: any, clazz: string): boolean;
+    abstract setAttribute(el: any, name: string, value: string): void;
+    abstract getAttribute(el: any, name: string): string;
+    abstract setAttributes(el: any, atts: Dictionary<string>): void;
+    abstract removeAttribute(el: any, attName: string): void;
+    abstract getSelector(ctx: string | any, spec?: string): NodeListOf<any>;
+    abstract getStyle(el: any, prop: string): any;
+    abstract _getSize(el: any): Size;
+    abstract _getOffset(el: any | string, relativeToRoot?: boolean, container?: any): Offset;
+    abstract setPosition(el: any, p: Offset): void;
     abstract getUIPosition(eventArgs: any): Offset;
-    abstract on(el: E, event: string, callbackOrSelector: Function | string, callback?: Function): void;
-    abstract off(el: E, event: string, callback: Function): void;
-    abstract trigger(el: E, event: string, originalEvent?: Event, payload?: any): void;
-    abstract createElement(tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): E;
-    abstract createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): E;
-    constructor(_instanceIndex: number, renderer: Renderer<E>, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions<E>);
-    getSize(el: E): [number, number];
-    getOffset(el: E | string, relativeToRoot?: boolean, container?: E): Offset;
-    getContainer(): E;
+    abstract on(el: any, event: string, callbackOrSelector: Function | string, callback?: Function): void;
+    abstract off(el: any, event: string, callback: Function): void;
+    abstract trigger(el: any, event: string, originalEvent?: Event, payload?: any): void;
+    constructor(_instanceIndex: number, renderer: Renderer, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
+    getSize(el: any): [number, number];
+    getOffset(el: any | string, relativeToRoot?: boolean, container?: any): Offset;
+    getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     getZoom(): number;
-    _info(el: string | E): {
-        el: E;
+    _info(el: string | any): {
+        el: any;
         text?: boolean;
         id?: string;
     };
     _idstamp(): string;
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
-    getInternalId(element: E): string;
-    getId(element: string | E, uuid?: string): string;
+    getInternalId(element: any): string;
+    getId(element: string | any, uuid?: string): string;
     /**
      * Set the id of the given element. Changes all the refs etc. Why is this ene
      * @param el
      * @param newId
      * @param doNotSetAttribute
      */
-    setId(el: string | E, newId: string, doNotSetAttribute?: boolean): void;
+    setId(el: any, newId: string, doNotSetAttribute?: boolean): void;
     setIdChanged(oldId: string, newId: string): void;
     getCachedData(elId: string): {
         o: Offset;
         s: Size;
     };
-    getConnections(options?: SelectOptions<E>, flat?: boolean): Dictionary<Connection<E>> | Array<Connection<E>>;
+    getConnections(options?: SelectOptions, flat?: boolean): Dictionary<Connection> | Array<Connection>;
     private _makeCommonSelectHandler;
     private _makeConnectionSelectHandler;
     private _makeEndpointSelectHandler;
-    select(params?: SelectOptions<E>): ConnectionSelection<E>;
-    selectEndpoints(params?: SelectEndpointOptions<E>): EndpointSelection<E>;
-    setContainer(c: E | string): void;
+    select(params?: SelectOptions): ConnectionSelection;
+    selectEndpoints(params?: SelectEndpointOptions): EndpointSelection;
+    setContainer(c: any | string): void;
     private _set;
-    setSource(connection: Connection<E>, el: E | Endpoint<E>, doNotRepaint?: boolean): void;
-    setTarget(connection: Connection<E>, el: E | Endpoint<E>, doNotRepaint?: boolean): void;
+    setSource(connection: Connection, el: any | Endpoint, doNotRepaint?: boolean): void;
+    setTarget(connection: Connection, el: any | Endpoint, doNotRepaint?: boolean): void;
     /**
      * Returns whether or not hover is currently suspended.
      */
@@ -322,7 +320,7 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param spec An Element, or an element id, or an array of elements/element ids.
      * @param fn The function to run on each element.
      */
-    each(spec: ElementSpec<E>, fn: (e: E) => any): jsPlumbInstance<E>;
+    each(spec: ElementSpec, fn: (e: any) => any): jsPlumbInstance;
     /**
      * Update the cached offset information for some element.
      * @param params
@@ -334,9 +332,9 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param connection Connection to delete.
      * @param params Optional extra parameters.
      */
-    deleteConnection(connection: Connection<E>, params?: DeleteConnectionOptions): boolean;
+    deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
     deleteEveryConnection(params?: DeleteConnectionOptions): number;
-    deleteConnectionsForElement(el: E | string, params?: DeleteConnectionOptions): jsPlumbInstance<E>;
+    deleteConnectionsForElement(el: any | string, params?: DeleteConnectionOptions): jsPlumbInstance;
     private fireDetachEvent;
     fireMoveEvent(params?: any, evt?: Event): void;
     /**
@@ -350,75 +348,75 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param element String, or DOM element.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage(element: ElementSpec<E>, recalc?: boolean): void;
+    manage(element: ElementSpec, recalc?: boolean): void;
     /**
      * Stops managing the given element.
      * @param id ID of the element to stop managing.
      */
     unmanage(id: string): void;
-    newEndpoint(params: any, id?: string): Endpoint<E>;
+    newEndpoint(params: any, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
-    getAllConnections(): Array<Connection<E>>;
-    repaint(el: string | E | Array<string | E>, ui?: any, timestamp?: string): jsPlumbInstance<E>;
-    revalidate(el: string | E | Array<string | E>, timestamp?: string, isIdAlready?: boolean): jsPlumbInstance<E>;
-    repaintEverything(): jsPlumbInstance<E>;
+    getAllConnections(): Array<Connection>;
+    repaint(el: string | any | Array<string | any>, ui?: any, timestamp?: string): jsPlumbInstance;
+    revalidate(el: string | any | Array<string | any>, timestamp?: string, isIdAlready?: boolean): jsPlumbInstance;
+    repaintEverything(): jsPlumbInstance;
     /**
      * for some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group.
      * @param el
      * @private
      */
-    abstract _getAssociatedElements(el: E): Array<E>;
-    _draw(element: string | E, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): void;
-    deleteObject(params: DeleteOptions<E>): DeleteResult<E>;
-    unregisterEndpoint(endpoint: Endpoint<E>): void;
-    deleteEndpoint(object: string | Endpoint<E>, dontUpdateHover?: boolean, deleteAttachedObjects?: boolean): jsPlumbInstance<E>;
-    addEndpoint(el: string | E, params?: EndpointOptions<E>, referenceParams?: EndpointOptions<E>): Endpoint<E>;
-    addEndpoints(el: E, endpoints: Array<EndpointOptions<E>>, referenceParams?: any): Array<Endpoint<E>>;
+    abstract _getAssociatedElements(el: any): Array<any>;
+    _draw(element: string | any, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): void;
+    deleteObject(params: DeleteOptions): DeleteResult;
+    unregisterEndpoint(endpoint: Endpoint): void;
+    deleteEndpoint(object: string | Endpoint, dontUpdateHover?: boolean, deleteAttachedObjects?: boolean): jsPlumbInstance;
+    addEndpoint(el: string | any, params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
+    addEndpoints(el: any, endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;
     reset(silently?: boolean): void;
     uuid(): string;
     destroy(): void;
-    getEndpoints(el: string | E): Array<Endpoint<E>>;
-    getEndpoint(id: string): Endpoint<E>;
-    connect(params: ConnectParams<E>, referenceParams?: ConnectParams<E>): Connection<E>;
-    _prepareConnectionParams(params: ConnectParams<E>, referenceParams?: ConnectParams<E>): any;
-    _newConnection(params: any): Connection<E>;
-    _finaliseConnection(jpc: Connection<E>, params?: any, originalEvent?: Event, doInformAnchorManager?: boolean): void;
+    getEndpoints(el: string | any): Array<Endpoint>;
+    getEndpoint(id: string): Endpoint;
+    connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
+    _prepareConnectionParams(params: ConnectParams, referenceParams?: ConnectParams): any;
+    _newConnection(params: any): Connection;
+    _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event, doInformAnchorManager?: boolean): void;
     private _doRemove;
-    remove(el: string | E, doNotRepaint?: boolean): jsPlumbInstance<E>;
-    removeAllEndpoints(el: string | E, recurse?: boolean, affectedElements?: Array<any>): jsPlumbInstance<E>;
+    remove(el: string | any, doNotRepaint?: boolean): jsPlumbInstance;
+    removeAllEndpoints(el: string | any, recurse?: boolean, affectedElements?: Array<any>): jsPlumbInstance;
     private _setEnabled;
-    toggleSourceEnabled(el: E, connectionType?: string): any;
-    setSourceEnabled(el: ElementSpec<E>, state: boolean, connectionType?: string): any;
-    findFirstSourceDefinition(el: E, connectionType?: string): any;
-    findFirstTargetDefinition(el: E, connectionType?: string): any;
+    toggleSourceEnabled(el: any, connectionType?: string): any;
+    setSourceEnabled(el: ElementSpec, state: boolean, connectionType?: string): any;
+    findFirstSourceDefinition(el: any, connectionType?: string): any;
+    findFirstTargetDefinition(el: any, connectionType?: string): any;
     private findFirstDefinition;
-    isSource(el: E, connectionType?: string): any;
-    isSourceEnabled(el: E, connectionType?: string): boolean;
-    toggleTargetEnabled(el: E, connectionType?: string): any;
-    isTarget(el: E, connectionType?: string): boolean;
-    isTargetEnabled(el: E, connectionType?: string): boolean;
-    setTargetEnabled(el: E, state: boolean, connectionType?: string): any;
+    isSource(el: any, connectionType?: string): any;
+    isSourceEnabled(el: any, connectionType?: string): boolean;
+    toggleTargetEnabled(el: any, connectionType?: string): any;
+    isTarget(el: any, connectionType?: string): boolean;
+    isTargetEnabled(el: any, connectionType?: string): boolean;
+    setTargetEnabled(el: any, state: boolean, connectionType?: string): any;
     makeAnchor(spec: AnchorSpec, elementId?: string): Anchor;
     private _unmake;
     private _unmakeEvery;
-    unmakeTarget(el: E, connectionType?: string): void;
-    unmakeSource(el: E, connectionType?: string): void;
+    unmakeTarget(el: any, connectionType?: string): void;
+    unmakeSource(el: any, connectionType?: string): void;
     unmakeEverySource(connectionType?: string): void;
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
-    makeSource(el: ElementSpec<E>, params?: any, referenceParams?: any): jsPlumbInstance<E>;
+    makeSource(el: ElementSpec, params?: any, referenceParams?: any): jsPlumbInstance;
     private _getScope;
-    getSourceScope(el: E | string): string;
-    getTargetScope(el: E | string): string;
-    getScope(el: E | string): string;
+    getSourceScope(el: any | string): string;
+    getTargetScope(el: any | string): string;
+    getScope(el: any | string): string;
     private _setScope;
-    setSourceScope(el: E | string, scope: string): void;
-    setTargetScope(el: E | string, scope: string): void;
-    setScope(el: E | string, scope: string): void;
-    makeTarget(el: ElementSpec<E>, params: any, referenceParams?: any): jsPlumbInstance<E>;
-    show(el: string | E, changeEndpoints?: boolean): jsPlumbInstance<E>;
-    hide(el: string | E, changeEndpoints?: boolean): jsPlumbInstance<E>;
+    setSourceScope(el: any | string, scope: string): void;
+    setTargetScope(el: any | string, scope: string): void;
+    setScope(el: any | string, scope: string): void;
+    makeTarget(el: ElementSpec, params: any, referenceParams?: any): jsPlumbInstance;
+    show(el: string | any, changeEndpoints?: boolean): jsPlumbInstance;
+    hide(el: string | any, changeEndpoints?: boolean): jsPlumbInstance;
     private _setVisible;
     /**
      * private method to do the business of toggling hiding/showing.
@@ -430,21 +428,21 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
     registerEndpointType(id: string, type: TypeDescriptor): void;
     registerEndpointTypes(types: Dictionary<TypeDescriptor>): void;
     getType(id: string, typeDescriptor: string): TypeDescriptor;
-    importDefaults(d: jsPlumbDefaults): jsPlumbInstance<E>;
-    restoreDefaults(): jsPlumbInstance<E>;
-    getManagedElements(): Dictionary<ManagedElement<E>>;
-    proxyConnection(connection: Connection<E>, index: number, proxyEl: E, proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
-    unproxyConnection(connection: Connection<E>, index: number, proxyElId: string): void;
+    importDefaults(d: jsPlumbDefaults): jsPlumbInstance;
+    restoreDefaults(): jsPlumbInstance;
+    getManagedElements(): Dictionary<ManagedElement>;
+    proxyConnection(connection: Connection, index: number, proxyEl: any, proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
+    unproxyConnection(connection: Connection, index: number, proxyElId: string): void;
     sourceChanged(originalId: string, newId: string, connection: any, newElement: any): void;
-    getGroup(id: string): UIGroup<E>;
-    getGroupFor(el: E | string): UIGroup<E>;
-    addGroup(params: any): UIGroup<E>;
-    addToGroup(group: string | UIGroup<E>, el: E | Array<E>, doNotFireEvent?: boolean): void;
-    collapseGroup(group: string | UIGroup<E>): void;
-    expandGroup(group: string | UIGroup<E>): void;
-    toggleGroup(group: string | UIGroup<E>): void;
-    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
+    getGroup(id: string): UIGroup;
+    getGroupFor(el: any | string): UIGroup;
+    addGroup(params: any): UIGroup;
+    addToGroup(group: string | UIGroup, el: any | Array<any>, doNotFireEvent?: boolean): void;
+    collapseGroup(group: string | UIGroup): void;
+    expandGroup(group: string | UIGroup): void;
+    toggleGroup(group: string | UIGroup): void;
+    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
-    removeFromGroup(group: string | UIGroup<E>, el: E, doNotFireEvent?: boolean): void;
+    removeFromGroup(group: string | UIGroup, el: any, doNotFireEvent?: boolean): void;
 }
 export {};

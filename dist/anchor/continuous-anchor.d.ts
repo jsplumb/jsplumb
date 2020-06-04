@@ -8,7 +8,7 @@ export interface ContinuousAnchorOptions extends AnchorOptions {
 }
 export declare type FACE_MAP = Dictionary<boolean>;
 export declare class ContinuousAnchor extends Anchor {
-    instance: jsPlumbInstance<any>;
+    instance: jsPlumbInstance;
     type: AnchorId;
     isDynamic: boolean;
     isContinuous: boolean;
@@ -20,7 +20,7 @@ export declare class ContinuousAnchor extends Anchor {
     private _lockedFace;
     private _lockedAxis;
     private availableFaces;
-    constructor(instance: jsPlumbInstance<any>, anchorParams: ContinuousAnchorOptions);
+    constructor(instance: jsPlumbInstance, anchorParams: ContinuousAnchorOptions);
     getDefaultFace(): Face;
     verifyEdge(edge: Face): Face;
     isEdgeSupported(edge: Face): boolean;
@@ -34,6 +34,6 @@ export declare class ContinuousAnchor extends Anchor {
     unlockCurrentAxis(): void;
     compute(params: AnchorComputeParams): [number, number, number, number];
     getCurrentLocation(params: AnchorComputeParams): [number, number, number, number];
-    getOrientation(endpoint?: Endpoint<any>): Orientation;
+    getOrientation(endpoint?: Endpoint): Orientation;
     getCssClass(): string;
 }

@@ -8,12 +8,12 @@ import { OverlaySpec } from "../overlay/overlay";
 import { AnchorSpec } from "../factory/anchor-factory";
 import { ConnectorSpec } from "../connector";
 import { EndpointSpec } from "../endpoint";
-export interface ConnectionParams<E> {
+export interface ConnectionParams {
     id?: string;
-    source?: string | E;
-    target?: string | E;
-    sourceEndpoint?: Endpoint<E>;
-    targetEndpoint?: Endpoint<E>;
+    source?: string | any;
+    target?: string | any;
+    sourceEndpoint?: Endpoint;
+    targetEndpoint?: Endpoint;
     scope?: string;
     overlays?: Array<OverlaySpec>;
     connector?: ConnectorSpec;
@@ -36,14 +36,14 @@ export interface ConnectionParams<E> {
     cssClass?: string;
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
-    previousConnection?: Connection<E>;
+    previousConnection?: Connection;
     anchors?: [AnchorSpec, AnchorSpec];
     anchor?: AnchorSpec;
 }
-export declare class Connection<E> extends OverlayCapableComponent<E> {
-    instance: jsPlumbInstance<E>;
+export declare class Connection extends OverlayCapableComponent {
+    instance: jsPlumbInstance;
     id: string;
-    connector: AbstractConnector<E>;
+    connector: AbstractConnector;
     defaultLabelLocation: number;
     scope: string;
     typeId: string;
@@ -53,36 +53,36 @@ export declare class Connection<E> extends OverlayCapableComponent<E> {
         x: number;
         y: number;
     };
-    previousConnection: Connection<E>;
+    previousConnection: Connection;
     sourceId: string;
     targetId: string;
-    source: E;
-    target: E;
-    endpoints: [Endpoint<E>, Endpoint<E>];
+    source: any;
+    target: any;
+    endpoints: [Endpoint, Endpoint];
     endpointStyles: [PaintStyle, PaintStyle];
-    suspendedEndpoint: Endpoint<E>;
+    suspendedEndpoint: Endpoint;
     suspendedIndex: number;
-    suspendedElement: E;
+    suspendedElement: any;
     suspendedElementId: string;
     suspendedElementType: string;
     _forceReattach: boolean;
     _forceDetach: boolean;
     proxies: Array<{
-        ep: Endpoint<E>;
-        originalEp: Endpoint<E>;
+        ep: Endpoint;
+        originalEp: Endpoint;
     }>;
     pending: boolean;
     anchors: [AnchorSpec, AnchorSpec];
     anchor: AnchorSpec;
     floatingIndex: number;
-    floatingEndpoint: Endpoint<E>;
+    floatingEndpoint: Endpoint;
     floatingId: string;
-    floatingElement: E;
-    constructor(instance: jsPlumbInstance<E>, params: ConnectionParams<E>);
-    makeEndpoint(isSource: boolean, el: E, elId: string, ep?: Endpoint<E>): Endpoint<E>;
+    floatingElement: any;
+    constructor(instance: jsPlumbInstance, params: ConnectionParams);
+    makeEndpoint(isSource: boolean, el: any, elId: string, ep?: Endpoint): Endpoint;
     getTypeDescriptor(): string;
-    getAttachedElements(): Array<Component<E>>;
-    isDetachable(ep?: Endpoint<E>): boolean;
+    getAttachedElements(): Array<Component>;
+    isDetachable(ep?: Endpoint): boolean;
     setDetachable(detachable: boolean): void;
     isReattach(): boolean;
     setReattach(reattach: boolean): void;
@@ -96,13 +96,13 @@ export declare class Connection<E> extends OverlayCapableComponent<E> {
     getCost(): number;
     setCost(c: number): void;
     isDirected(): boolean;
-    getConnector(): AbstractConnector<E>;
-    makeConnector(name: string, args: any): AbstractConnector<E>;
-    prepareConnector(connectorSpec: ConnectorSpec, typeId?: string): AbstractConnector<E>;
-    setPreparedConnector(connector: AbstractConnector<E>, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
+    getConnector(): AbstractConnector;
+    makeConnector(name: string, args: any): AbstractConnector;
+    prepareConnector(connectorSpec: ConnectorSpec, typeId?: string): AbstractConnector;
+    setPreparedConnector(connector: AbstractConnector, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     paint(params?: any): void;
-    prepareEndpoint(existing: Endpoint<E>, index: number, element?: E, elementId?: string, params?: ConnectionParams<E>): Endpoint<E>;
+    prepareEndpoint(existing: Endpoint, index: number, element?: any, elementId?: string, params?: ConnectionParams): Endpoint;
     private _makeAnchor;
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
 }

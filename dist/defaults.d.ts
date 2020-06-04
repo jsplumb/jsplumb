@@ -29,7 +29,7 @@ export interface jsPlumbDefaults {
     maxConnections?: number;
     hoverClass?: string;
 }
-export interface jsPlumbHelperFunctions<E> {
-    getSize?: (el: E) => Size;
-    getOffset?: (el: E | string, relativeToRoot?: boolean, container?: E) => Offset;
+export interface jsPlumbHelperFunctions {
+    getSize?: (el: any) => Size;
+    getOffset?: (el: any | string, relativeToRoot?: boolean, container?: any) => Offset;
 }

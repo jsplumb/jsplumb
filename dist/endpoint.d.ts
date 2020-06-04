@@ -8,7 +8,7 @@ export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndp
 export declare type UserDefinedEndpointId = string;
 export declare type EndpointParams = any;
 export declare type EndpointSpec = EndpointId | [EndpointId, EndpointParams];
-export interface EndpointOptions<E> extends ComponentOptions<E> {
+export interface EndpointOptions extends ComponentOptions {
     anchor?: AnchorSpec;
     anchors?: [AnchorSpec, AnchorSpec];
     endpoint?: EndpointSpec;
@@ -39,8 +39,8 @@ export interface EndpointOptions<E> extends ComponentOptions<E> {
     type?: string;
     connectorTooltip?: string;
     uuid?: string;
-    source?: string | E;
-    connections?: Array<Connection<E>>;
+    source?: string | any;
+    connections?: Array<Connection>;
     "connector-pointer-events"?: string;
     detachable?: boolean;
     dragAllowedWhenFull?: boolean;

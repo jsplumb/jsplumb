@@ -3,7 +3,7 @@ import { EventGenerator } from "../event-generator";
 import { Endpoint } from "../endpoint/endpoint-impl";
 import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, ComputedAnchorPosition, Orientation } from "../factory/anchor-factory";
 export declare class Anchor extends EventGenerator {
-    instance: jsPlumbInstance<any>;
+    instance: jsPlumbInstance;
     type: AnchorId;
     isDynamic: boolean;
     isContinuous: boolean;
@@ -20,9 +20,9 @@ export declare class Anchor extends EventGenerator {
     lastReturnValue: ComputedAnchorPosition;
     positionFinder: (dropPosition: Offset, elPosition: Offset, elSize: PointArray, constructorParams: any) => any;
     clone: () => Anchor;
-    constructor(instance: jsPlumbInstance<any>, params?: AnchorOptions);
+    constructor(instance: jsPlumbInstance, params?: AnchorOptions);
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
-    getOrientation(endpoint?: Endpoint<any>): Orientation;
+    getOrientation(endpoint?: Endpoint): Orientation;
     getCurrentLocation(params: AnchorComputeParams): ComputedAnchorPosition;
     setPosition(x: number, y: number, ox: AnchorOrientationHint, oy: AnchorOrientationHint, overrideLock?: boolean): void;
     compute(params: AnchorComputeParams): ComputedAnchorPosition;
@@ -31,6 +31,6 @@ export declare class Anchor extends EventGenerator {
     lock(): void;
     unlock(): void;
     isLocked(): boolean;
-    over(anchor: Anchor, endpoint: Endpoint<any>): void;
+    over(anchor: Anchor, endpoint: Endpoint): void;
     out(): void;
 }
