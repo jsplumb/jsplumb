@@ -2,6 +2,7 @@
 import {Overlay} from "../overlay/overlay";
 import {jsPlumbInstance, PointArray} from "../core";
 import {Component} from "../component/component";
+import {createElement} from "..";
 
 interface HTMLElementOverlayHolder extends Overlay {
     canvas:HTMLElement;
@@ -17,7 +18,7 @@ export class HTMLElementOverlay {
     }
 
     static createElement(o:HTMLElementOverlayHolder):HTMLElement {
-        return o.instance.createElement("div", {}, o.instance.overlayClass + " " +
+        return createElement("div", {}, o.instance.overlayClass + " " +
             (o.cssClass ? o.cssClass : ""));
     }
 

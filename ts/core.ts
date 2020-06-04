@@ -413,9 +413,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
     abstract off (el:any, event:string, callback:Function):void;
     abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void;
 
-    abstract createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):any;
-    abstract createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):any;
-
     constructor(protected _instanceIndex:number, public renderer:Renderer, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
 
         super();

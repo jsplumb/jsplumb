@@ -8390,7 +8390,7 @@
     attributes = attributes || {};
     attributes.version = "1.1";
     attributes.xmlns = ns.svg;
-    return instance.createElementNS(ns.svg, name, null, null, attributes);
+    return createElementNS(ns.svg, name, null, null, attributes);
   }
   function _pos(d) {
     return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
@@ -8438,6 +8438,7 @@
     }
   }
 
+  // These are utility functions for use inside a Browser.
   function matchesSelector(el, selector, ctx) {
     ctx = ctx || el.parentNode;
     var possibles = ctx.querySelectorAll(selector);
@@ -8494,6 +8495,9 @@
         pn = pn.parentNode;
       }
     }
+  }
+  function getEventSource(e) {
+    return e.srcElement || e.target;
   }
 
   function _setClassName(el, cn, classList) {
@@ -8608,6 +8612,30 @@
       }
     }
   }
+  function createElement(tag, style, clazz, atts) {
+    return createElementNS(null, tag, style, clazz, atts);
+  }
+  function createElementNS(ns, tag, style, clazz, atts) {
+    var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
+    var i;
+    style = style || {};
+
+    for (i in style) {
+      e.style[i] = style[i];
+    }
+
+    if (clazz) {
+      e.className = clazz;
+    }
+
+    atts = atts || {};
+
+    for (i in atts) {
+      e.setAttribute(i, "" + atts[i]);
+    }
+
+    return e;
+  }
 
   var SvgComponent =
   /*#__PURE__*/
@@ -8692,7 +8720,7 @@
           });
 
           ep.svg = svg;
-          var canvas = ep.instance.createElement("div", {
+          var canvas = createElement("div", {
             position: "absolute"
           });
           ep.canvas = canvas;
@@ -8765,8 +8793,8 @@
 
     _createClass(HTMLElementOverlay, null, [{
       key: "createElement",
-      value: function createElement(o) {
-        return o.instance.createElement("div", {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
+      value: function createElement$1(o) {
+        return createElement("div", {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
       }
     }, {
       key: "getElement",
@@ -12295,7 +12323,7 @@
       key: "_makeDraggablePlaceholder",
       value: function _makeDraggablePlaceholder(ipco, ips) {
         this.placeholderInfo = this.placeholderInfo || {};
-        var n = this.instance.createElement("div", {
+        var n = createElement("div", {
           position: "absolute"
         });
         this.instance.appendElement(n, this.instance.getContainer());
@@ -13370,8 +13398,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
 
-      _this.renderer.instance = _assertThisInitialized(_this); //this.eventManager = new Mottle();
-
+      _this.renderer.instance = _assertThisInitialized(_this);
       _this.eventManager = new EventManager();
       _this.dragManager = new DragManager(_assertThisInitialized(_this));
 
@@ -13385,7 +13412,7 @@
 
       var _connClick = function _connClick(event, e) {
         if (!e.defaultPrevented) {
-          var connectorElement = findParent(e.srcElement || e.target, SELECTOR_CONNECTOR, this.getContainer());
+          var connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer());
           this.fire(event, connectorElement.jtk.connector.connection, e);
         }
       };
@@ -13394,7 +13421,7 @@
       _this._connectorDblClick = _connClick.bind(_assertThisInitialized(_this), EVENT_DBL_CLICK);
 
       var _connectorHover = function _connectorHover(state, e) {
-        var el = (e.srcElement || e.target).parentNode;
+        var el = getEventSource(e).parentNode;
 
         if (el.jtk && el.jtk.connector) {
           this.renderer.setConnectorHover(el.jtk.connector, state);
@@ -13406,7 +13433,7 @@
 
       var _epClick = function _epClick(event, e) {
         if (!e.defaultPrevented) {
-          var endpointElement = findParent(e.srcElement || e.target, SELECTOR_ENDPOINT, this.getContainer());
+          var endpointElement = findParent(getEventSource(e), SELECTOR_ENDPOINT, this.getContainer());
           this.fire(event, endpointElement.jtk.endpoint, e);
         }
       };
@@ -13415,7 +13442,7 @@
       _this._endpointDblClick = _epClick.bind(_assertThisInitialized(_this), EVENT_ENDPOINT_DBL_CLICK);
 
       var _endpointHover = function _endpointHover(state, e) {
-        var el = e.srcElement || e.target;
+        var el = getEventSource(e);
 
         if (el.jtk && el.jtk.endpoint) {
           this.renderer.setEndpointHover(el.jtk.endpoint, state);
@@ -13428,16 +13455,19 @@
       var _oClick = function _oClick(method, e) {
         consume(e);
 
-        var overlayElement = findParent(e.srcElement || e.target, SELECTOR_OVERLAY, this.getContainer());
+        var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer());
         var overlay = overlayElement.jtk.overlay;
-        overlay[method](e);
+
+        if (overlay) {
+          overlay[method](e);
+        }
       };
 
       _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), "click");
       _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), "dblClick");
 
       var _overlayHover = function _overlayHover(state, e) {
-        var overlayElement = findParent(e.srcElement || e.target, SELECTOR_OVERLAY, this.getContainer());
+        var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer());
         var overlay = overlayElement.jtk.overlay;
 
         if (overlay) {
@@ -13612,34 +13642,6 @@
         return [el.offsetWidth, el.offsetHeight];
       }
     }, {
-      key: "createElement",
-      value: function createElement(tag, style, clazz, atts) {
-        return this.createElementNS(null, tag, style, clazz, atts);
-      }
-    }, {
-      key: "createElementNS",
-      value: function createElementNS(ns, tag, style, clazz, atts) {
-        var e = ns == null ? document.createElement(tag) : document.createElementNS(ns, tag);
-        var i;
-        style = style || {};
-
-        for (i in style) {
-          e.style[i] = style[i];
-        }
-
-        if (clazz) {
-          e.className = clazz;
-        }
-
-        atts = atts || {};
-
-        for (i in atts) {
-          e.setAttribute(i, "" + atts[i]);
-        }
-
-        return e;
-      }
-    }, {
       key: "getStyle",
       value: function getStyle(el, prop) {
         if (typeof window.getComputedStyle !== 'undefined') {
@@ -13656,8 +13658,7 @@
         if (arguments.length === 1) {
           if (!isString(ctx)) {
             var nodeList = document.createDocumentFragment();
-            nodeList.appendChild(ctx); //return ctx as [ HTMLElement ];
-
+            nodeList.appendChild(ctx);
             return nodeList.childNodes;
           }
 
@@ -17148,6 +17149,8 @@
   exports.cls = cls;
   exports.computeBezierLength = computeBezierLength;
   exports.consume = consume;
+  exports.createElement = createElement;
+  exports.createElementNS = createElementNS;
   exports.dist = dist;
   exports.distanceFromCurve = distanceFromCurve;
   exports.each = each;
@@ -17158,6 +17161,7 @@
   exports.findWithFunction = findWithFunction;
   exports.functionChain = functionChain;
   exports.getClass = getClass;
+  exports.getEventSource = getEventSource;
   exports.gradient = gradient;
   exports.gradientAtPoint = gradientAtPoint;
   exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;

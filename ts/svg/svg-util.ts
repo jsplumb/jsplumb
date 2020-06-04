@@ -1,6 +1,7 @@
 import {Dictionary, jsPlumbInstance} from "../core";
 import {Component} from "../component/component";
 import * as Constants from "../constants";
+import {createElementNS} from "..";
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",
         "stroke-dashoffset": "stroke-dashoffset",
@@ -29,11 +30,11 @@ export function _attr (node:SVGElement, attributes:ElementAttributes) {
     }
 }
 
-export function _node<E>(instance:jsPlumbInstance, name:string, attributes?:ElementAttributes):SVGElement {
+export function _node(instance:jsPlumbInstance, name:string, attributes?:ElementAttributes):SVGElement {
     attributes = attributes || {};
     attributes.version = "1.1";
     attributes.xmlns = ns.svg;
-    return (<unknown>instance.createElementNS(ns.svg, name, null, null, attributes)) as SVGElement;
+    return (<unknown>createElementNS(ns.svg, name, null, null, attributes)) as SVGElement;
 }
 
 export function _pos (d:[number, number]):string {

@@ -8,7 +8,7 @@ import {Anchor} from "../anchor/anchor";
 import {PaintStyle} from "../styles";
 import { FloatingAnchor } from "./floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
-import {consume, findParent} from "../browser/browser-util";
+import {consume, createElement, findParent} from "../browser/browser-util";
 import * as Constants from "../constants";
 import {classList, cls, EVENT_MAX_CONNECTIONS} from "../constants";
 import {intersects} from "../geom";
@@ -197,7 +197,7 @@ export class EndpointDragHandler implements DragHandler {
 
         this.placeholderInfo = this.placeholderInfo || {};
 
-        let n = this.instance.createElement("div", { position : "absolute" });
+        let n = createElement("div", { position : "absolute" });
         this.instance.appendElement(n, this.instance.getContainer());
         let id = this.instance.getId(n);
         this.instance.setPosition(n, ipco);

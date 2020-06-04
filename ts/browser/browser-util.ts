@@ -1,4 +1,6 @@
 import {fastTrim, isArray, log} from "../util";
+import {jsPlumbDOMElement} from "../dom";
+import {Dictionary} from "../core";
 
 // These are utility functions for use inside a Browser.
 
@@ -49,7 +51,7 @@ export function sizeElement (el:HTMLElement, x:number, y:number, w:number, h:num
     }
 }
 
-export function findParent(el:HTMLElement, selector:string, container:HTMLElement):HTMLElement {
+export function findParent(el:HTMLElement, selector:string, container:HTMLElement):jsPlumbDOMElement {
     let pn:any = el;
     while (pn != null && pn !== container) {
         if (matchesSelector(pn, selector)) {
@@ -58,6 +60,10 @@ export function findParent(el:HTMLElement, selector:string, container:HTMLElemen
             pn = pn.parentNode;
         }
     }
+}
+
+export function getEventSource(e:Event):jsPlumbDOMElement {
+    return (e.srcElement || e.target) as jsPlumbDOMElement;
 }
 
 function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void {
@@ -172,5 +178,31 @@ export function toggleClass(el:HTMLElement, clazz:string):void {
             }
         }
     }
+}
+
+export function createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string>):HTMLElement {
+    return createElementNS(null, tag, style, clazz, atts);
+}
+
+export function createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string|number>):HTMLElement {
+    let e = (ns == null ? document.createElement(tag) : document.createElementNS(ns, tag)) as HTMLElement;
+    let i;
+
+    style = style || {};
+
+    for (i in style) {
+        e.style[i] = style[i];
+    }
+
+    if (clazz) {
+        e.className = clazz;
+    }
+
+    atts = atts || {};
+    for (i in atts) {
+        e.setAttribute(i, "" + atts[i]);
+    }
+
+    return e;
 }
 
