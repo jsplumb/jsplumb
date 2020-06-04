@@ -48,7 +48,6 @@ export * from "./factory/overlay-factory";
 
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
-
 export * from "./anchor/continuous-anchor";
 export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
@@ -59,28 +58,15 @@ export * from  "./connector";
 export * from "./endpoint";
 export * from "./factory/endpoint-factory";
 
-
 export * from "./renderer";
 export * from "./styles";
 export * from "./util";
 
-// -------------------- DOM includes ----------------------
-
-export * from "./browser-util";
+// -------------------- BrowserJsPlumbInstance includes ----------------------
 
 export * from './dom/index';
 
-export * from "./svg/svg-util";
-export * from "./dom/svg-element-endpoint";
-export * from "./dom/dot-endpoint-renderer";
-export * from "./dom/rectangle-endpoint-renderer";
-export * from "./dom/blank-endpoint-renderer";
-export * from "./dom/floating-anchor";
-
-
-
-// export * from './event-manager';
-
+// ---------------------- window stuff ----------------------------------
 
 let _jsPlumbInstanceIndex = 0;
 

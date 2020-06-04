@@ -8,7 +8,7 @@ import {Anchor} from "../anchor/anchor";
 import {PaintStyle} from "../styles";
 import { FloatingAnchor } from "./floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
-import {consume, findParent} from "../browser-util";
+import {consume, findParent} from "../browser/browser-util";
 import * as Constants from "../constants";
 import {classList, cls, EVENT_MAX_CONNECTIONS} from "../constants";
 import {intersects} from "../geom";

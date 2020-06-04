@@ -1,4 +1,6 @@
-import {fastTrim, isArray, log} from "./util";
+import {fastTrim, isArray, log} from "../util";
+
+// These are utility functions for use inside a Browser.
 
 export function matchesSelector (el:HTMLElement, selector:string, ctx?:HTMLElement) {
     ctx = (ctx || el.parentNode) as HTMLElement;

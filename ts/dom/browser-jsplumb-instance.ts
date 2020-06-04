@@ -6,7 +6,7 @@ import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
 import {GroupDragHandler} from "./group-drag-handler";
-import {addClass, consume, findParent, getClass, hasClass, removeClass, toggleClass} from "../browser-util";
+import {addClass, consume, findParent, getClass, hasClass, removeClass, toggleClass} from "../browser/browser-util";
 import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
 import {EventManager} from "./event-manager";

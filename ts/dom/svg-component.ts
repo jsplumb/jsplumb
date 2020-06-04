@@ -1,7 +1,7 @@
 
 import {_attr, _pos} from "../svg/svg-util";
 import {PaintStyle} from "../styles";
-import {sizeElement} from "../browser-util";
+import {sizeElement} from "../browser/browser-util";
 
 export class SvgComponent {
 

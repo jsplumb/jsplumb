@@ -3,7 +3,7 @@
  does that for itself now.
 */
 import {BoundingBox, Dictionary, extend, PointArray} from "../core";
-import {addClass, consume, matchesSelector, removeClass} from "../browser-util";
+import {addClass, consume, matchesSelector, removeClass} from "../browser/browser-util";
 import {IS, uuid} from "../util";
 import {EventManager, pageLocation} from "./event-manager";
 
