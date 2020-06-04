@@ -157,11 +157,14 @@ export class ElementDragHandler implements DragHandler {
 
         const _one = (el:any, bounds:BoundingBox, e:Event) => {
 
-            // TODO  calculate if there is a target group
             this._groupLocations.forEach((groupLoc:any) => {
                 if (intersects(bounds, groupLoc.r)) {
                     this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
-                    this._intersectingGroups.push({group:groupLoc.group, intersectingElement:el, d:0});
+                    this._intersectingGroups.push({
+                        group:groupLoc.group,
+                        intersectingElement:params.drag.getDragElement(true),
+                        d:0
+                    });
                 } else {
                     this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
                 }
