@@ -367,57 +367,50 @@ export class EndpointDragHandler implements DragHandler {
         
         // at this point we are in fact uncertain about whether or not the given endpoint is a source/target. it may not have been
         // specifically configured as one
-        let selectors = [ ];//,
-        // this.epIsSource = this.ep.isSource || (existingthis.jpc && this.jpc.endpoints[0] === this.ep),
-        // this.epIsTarget = this.ep.isTarget || (existingthis.jpc && this.jpc.endpoints[1] === this.ep);
-        
-        // if (this.epIsSource) {
-        selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
-        //}
-        //if (this.epIsTarget) {
-        selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
-        //}
+        let selectors = [ ];
+        const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
+
+        if (!isSourceDrag) {
+            selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
+        }
+
+        if (isSourceDrag) {
+            selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
+        }
 
         this.instance.getContainer().querySelectorAll(selectors.join(",")).forEach((candidate:any) => {
 
-            //if (candidate !== this.ep.element) {
-                const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
-                boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
-                let d: any = {el: candidate, r: boundingRect};
+            const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate);
+            boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
+            let d: any = {el: candidate, r: boundingRect};
 
-                //  if (this.epIsSource) {
-                // look for at least one target definition that is not disabled on the given element.
-                let targetDefinitionIdx = findWithFunction(candidate._jsPlumbTargetDefinitions, (tdef: any) => {
-                    return tdef.enabled !== false;
-                });
-                //}
+            // look for at least one target definition that is not disabled on the given element.
+            let targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction(candidate._jsPlumbTargetDefinitions, (tdef: any) => {
+                return tdef.enabled !== false;
+            });
 
-                //if (this.epIsTarget) {
-                // look for at least one target definition that is not disabled on the given element.
-                let sourceDefinitionIdx = findWithFunction(candidate._jsPlumbSourceDefinitions, (tdef: any) => {
-                    return tdef.enabled !== false;
-                });
-                //}
+            // look for at least one target definition that is not disabled on the given element.
+            let sourceDefinitionIdx = isSourceDrag ? findWithFunction(candidate._jsPlumbSourceDefinitions, (tdef: any) => {
+                return tdef.enabled !== false;
+            }) : -1;
 
-                // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
-                if (targetDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
-                    }
-                    this.endpointDropTargets.push(d);
-                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
+            // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
+            if (targetDefinitionIdx !== -1) {
+                if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                    d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
                 }
+                this.endpointDropTargets.push(d);
+                this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
+            }
 
-                // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
-                if (sourceDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
-                    }
-                    this.endpointDropTargets.push(d);
-                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
+            // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
+            if (sourceDefinitionIdx !== -1) {
+                if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                    d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
                 }
-            //}
-        
+                this.endpointDropTargets.push(d);
+                this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
+            }
         });
 
         this.endpointDropTargets.sort((a:any, b:any) =>{
@@ -439,7 +432,6 @@ export class EndpointDragHandler implements DragHandler {
                     return 0;
                 }
             }
-
         });
         
         this.instance.renderer.setHover(this.ep, false);
@@ -447,7 +439,6 @@ export class EndpointDragHandler implements DragHandler {
         if (this.jpc == null) {
             
             // create a connection. one end is this endpoint, the other is a floating endpoint.
-            // TODO - get
             this.jpc = this.instance._newConnection({
                 sourceEndpoint: this.ep,
                 targetEndpoint: this.floatingEndpoint,
@@ -539,7 +530,6 @@ export class EndpointDragHandler implements DragHandler {
         
         // tell jsplumb about it
         this.instance.currentlyDragging = true;
-        
     }
 
     onBeforeStart (beforeStartParams:any):void {
@@ -547,6 +537,7 @@ export class EndpointDragHandler implements DragHandler {
     }
     
     onDrag (params:any) {
+
         if (this._stopped) {
             return true;
         }
@@ -778,13 +769,22 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    private _getSourceDefinition(fromElement:any, evt?:Event):any {
+    /**
+     * Lookup a source definition on the given element.
+     * @param fromElement Element to lookup the source definition
+     * @param evt Associated mouse event - for instance, the event that started a drag.
+     * @param ignoreFilter Used when we're getting a source definition to possibly use as a drop target, ie. when a
+     * connection's source endpoint is being dragged. in that scenario we don't want to filter - we want the source to basically
+     * behave as a target.
+     * @private
+     */
+    private _getSourceDefinition(fromElement:any, evt?:Event, ignoreFilter?:boolean):any {
         let sourceDef;
         if (fromElement._jsPlumbSourceDefinitions) {
             for (let i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
                 sourceDef = fromElement._jsPlumbSourceDefinitions[i];
                 if (sourceDef.enabled !== false) {
-                    if (sourceDef.def.filter) {
+                    if (!ignoreFilter && sourceDef.def.filter) {
                         let r = isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter, this.instance, sourceDef.def.filterExclude) : sourceDef.def.filter(evt, fromElement);
                         if (r !== false) {
                             return sourceDef;
@@ -828,7 +828,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // need to figure the conditions under which each of these should be tested
             if (targetDefinition == null) {
-                targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 0) ? this._getSourceDefinition(this.currentDropTarget.el, p.e) : null;
+                targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 0) ? this._getSourceDefinition(this.currentDropTarget.el, p.e, true) : null;
             }
 
             if (targetDefinition == null) {
