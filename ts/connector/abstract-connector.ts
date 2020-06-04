@@ -10,8 +10,8 @@ import {pointXYFromArray, quadrant} from "../geom";
 export interface PaintParams<E> {
     sourcePos:PointArray;
     targetPos:PointArray;
-    sourceEndpoint:Endpoint<E>;
-    targetEndpoint:Endpoint<E>;
+    sourceEndpoint:Endpoint;
+    targetEndpoint:Endpoint;
     strokeWidth?:number;
 }
 
@@ -19,13 +19,13 @@ export type PaintAxis = "y" | "x"
 
 type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number, connectorLocation: number };
 
-export type ConnectorComputeParams<E> = {
+export type ConnectorComputeParams = {
     sourcePos: ComputedAnchorPosition,
     targetPos: ComputedAnchorPosition,
     sourceOrientation:Orientation,
     targetOrientation:Orientation,
-    sourceEndpoint: Endpoint<E>,
-    targetEndpoint: Endpoint<E>,
+    sourceEndpoint: Endpoint,
+    targetEndpoint: Endpoint,
     strokeWidth: number,
     sourceInfo: any,
     targetInfo: any
@@ -63,12 +63,12 @@ export interface PaintGeometry {
     anchorOrientation?:string;
 }
 
-export interface AbstractConnectorOptions <E> extends ComponentOptions<E> {
+export interface AbstractConnectorOptions extends ComponentOptions {
     stub?:number;
     gap?:number;
 }
 
-export abstract class AbstractConnector<E> {
+export abstract class AbstractConnector {
 
     abstract type:string;
 
@@ -96,7 +96,7 @@ export abstract class AbstractConnector<E> {
     bounds:SegmentBounds = EMPTY_BOUNDS();
     cssClass:string;
 
-    constructor(public instance:jsPlumbInstance<E>, public connection:Connection<E>, params:AbstractConnectorOptions<E>) {
+    constructor(public instance:jsPlumbInstance, public connection:Connection, params:AbstractConnectorOptions) {
         this.stub = params.stub || 0;
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
@@ -113,7 +113,7 @@ export abstract class AbstractConnector<E> {
     
     getIdPrefix () { return  "_jsplumb_connector"; }
 
-    abstract _compute(geometry:PaintGeometry, params:ConnectorComputeParams<E>):void;
+    abstract _compute(geometry:PaintGeometry, params:ConnectorComputeParams):void;
 
     resetBounds():void {
         this.bounds = EMPTY_BOUNDS();
@@ -275,7 +275,7 @@ export abstract class AbstractConnector<E> {
         return this.totalLength;
     }
 
-    private _prepareCompute (params:ConnectorComputeParams<E>):PaintGeometry {
+    private _prepareCompute (params:ConnectorComputeParams):PaintGeometry {
         this.strokeWidth = params.strokeWidth;
         let segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
             swapX = params.targetPos[0] < params.sourcePos[0],
@@ -367,7 +367,7 @@ export abstract class AbstractConnector<E> {
         return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || {x:0, y:0};
     }
 
-    compute (params:ConnectorComputeParams<E>):void {
+    compute (params:ConnectorComputeParams):void {
         this.paintInfo = this._prepareCompute(params);
         this._clearSegments();
         this._compute(this.paintInfo, params);

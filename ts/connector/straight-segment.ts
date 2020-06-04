@@ -14,7 +14,7 @@ export class StraightSegment extends AbstractSegment {
     y1:number;
     y2:number;
 
-    constructor(instance:jsPlumbInstance<any>, params:any) {
+    constructor(instance:jsPlumbInstance, params:any) {
         super(params);
         this._setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2});
     }

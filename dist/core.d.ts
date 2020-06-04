@@ -13,6 +13,29 @@ import { EndpointOptions, EndpointSpec } from "./endpoint";
 import { ConnectorSpec } from "./connector";
 import { GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
+export declare type UUID = string;
+export declare type ElementId = string;
+export declare type ElementRef<E> = ElementId | E;
+export declare type ElementGroupRef<E> = ElementId | E | Array<ElementId> | Array<E>;
+export declare type ConnectionId = string;
+export interface ConnectParams<E> {
+    uuids?: [UUID, UUID];
+    source?: ElementRef<E> | Endpoint<E>;
+    target?: ElementRef<E> | Endpoint<E>;
+    detachable?: boolean;
+    deleteEndpointsOnDetach?: boolean;
+    endpoint?: EndpointSpec;
+    anchor?: AnchorSpec;
+    anchors?: [AnchorSpec, AnchorSpec];
+    label?: string;
+    connector?: ConnectorSpec;
+    overlays?: Array<OverlaySpec>;
+    endpoints?: [EndpointSpec, EndpointSpec];
+    endpointStyles?: [PaintStyle, PaintStyle];
+    endpointHoverStyles?: [PaintStyle, PaintStyle];
+    endpointStyle?: PaintStyle;
+    endpointHoverStyle?: PaintStyle;
+}
 export interface TypeDescriptor {
     cssClass?: string;
     paintStyle?: PaintStyle;
@@ -76,9 +99,7 @@ export declare type UpdateOffsetResult = {
     o: ExtendedOffset;
     s: Size;
 };
-export interface ExtendedOffset {
-    left: number;
-    top: number;
+export interface ExtendedOffset extends Offset {
     width?: number;
     height?: number;
     centerx?: number;
@@ -90,7 +111,7 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 export declare type ElementSpec<E> = string | E | Array<string | E>;
-export declare type SortFunction = (a: any, b: any) => number;
+export declare type SortFunction<T> = (a: T, b: T) => number;
 export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
@@ -138,9 +159,21 @@ export interface EndpointSelection<E> extends AbstractSelection<Endpoint<E>, E> 
     isEnabled: () => any[];
     deleteEveryConnection: () => void;
 }
+/**
+ * Optional parameters to the `DeleteConnection` method.
+ */
 export declare type DeleteConnectionOptions = {
+    /**
+     * if true, force deletion even if the connection tries to cancel the deletion.
+     */
     force?: boolean;
+    /**
+     * If false, an event won't be fired. Otherwise a `connectionDetached` event will be fired.
+     */
     fireEvent?: boolean;
+    /**
+     * Optional original event that resulted in the connection being deleted.
+     */
     originalEvent?: Event;
 };
 /**
@@ -164,7 +197,6 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
     Defaults: jsPlumbDefaults;
     private _initialDefaults;
     _containerDelegations: ContainerDelegation[];
-    eventManager: any;
     isConnectionBeingDragged: boolean;
     currentlyDragging: boolean;
     hoverSuspended: boolean;
@@ -267,24 +299,62 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
     private _set;
     setSource(connection: Connection<E>, el: E | Endpoint<E>, doNotRepaint?: boolean): void;
     setTarget(connection: Connection<E>, el: E | Endpoint<E>, doNotRepaint?: boolean): void;
+    /**
+     * Returns whether or not hover is currently suspended.
+     */
     isHoverSuspended(): boolean;
+    /**
+     * Sets whether or not drawing is suspended.
+     * @param val True to suspend, false to enable.
+     * @param repaintAfterwards If true, repaint everything afterwards.
+     */
     setSuspendDrawing(val?: boolean, repaintAfterwards?: boolean): boolean;
     getSuspendedAt(): string;
+    /**
+     * Suspend drawing, run the given function, and then re-enable drawing, optionally repainting everything.
+     * @param fn Function to run while drawing is suspended.
+     * @param doNotRepaintAfterwards Whether or not to repaint everything after drawing is re-enabled.
+     */
     batch(fn: Function, doNotRepaintAfterwards?: boolean): void;
     getDefaultScope(): string;
     /**
      * Execute the given function for each of the given elements.
      * @param spec An Element, or an element id, or an array of elements/element ids.
-     * @param fn
+     * @param fn The function to run on each element.
      */
     each(spec: ElementSpec<E>, fn: (e: E) => any): jsPlumbInstance<E>;
+    /**
+     * Update the cached offset information for some element.
+     * @param params
+     * @return an UpdateOffsetResult containing the offset information for the given element.
+     */
     updateOffset(params?: UpdateOffsetOptions): UpdateOffsetResult;
+    /**
+     * Delete the given connection.
+     * @param connection Connection to delete.
+     * @param params Optional extra parameters.
+     */
     deleteConnection(connection: Connection<E>, params?: DeleteConnectionOptions): boolean;
     deleteEveryConnection(params?: DeleteConnectionOptions): number;
     deleteConnectionsForElement(el: E | string, params?: DeleteConnectionOptions): jsPlumbInstance<E>;
     private fireDetachEvent;
     fireMoveEvent(params?: any, evt?: Event): void;
+    /**
+     * Manage a group of elements.
+     * @param elements Array-like object of strings or DOM elements.
+     * @param recalc Maybe recalculate offsets for the element also.
+     */
+    manageAll(elements: any, recalc?: boolean): void;
+    /**
+     * Manage an element.
+     * @param element String, or DOM element.
+     * @param recalc Maybe recalculate offsets for the element also.
+     */
     manage(element: ElementSpec<E>, recalc?: boolean): void;
+    /**
+     * Stops managing the given element.
+     * @param id ID of the element to stop managing.
+     */
     unmanage(id: string): void;
     newEndpoint(params: any, id?: string): Endpoint<E>;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
@@ -310,8 +380,8 @@ export declare abstract class jsPlumbInstance<E> extends EventGenerator {
     destroy(): void;
     getEndpoints(el: string | E): Array<Endpoint<E>>;
     getEndpoint(id: string): Endpoint<E>;
-    connect(params: any, referenceParams?: any): Connection<E>;
-    _prepareConnectionParams(params: any, referenceParams?: any): any;
+    connect(params: ConnectParams<E>, referenceParams?: ConnectParams<E>): Connection<E>;
+    _prepareConnectionParams(params: ConnectParams<E>, referenceParams?: ConnectParams<E>): any;
     _newConnection(params: any): Connection<E>;
     _finaliseConnection(jpc: Connection<E>, params?: any, originalEvent?: Event, doInformAnchorManager?: boolean): void;
     private _doRemove;

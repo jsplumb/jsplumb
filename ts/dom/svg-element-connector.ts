@@ -9,7 +9,7 @@ import {_appendAtIndex, _applyStyles, _attr, _node} from "../svg/svg-util";
  */
 export class SvgElementConnector {
 
-    static paint(connector:AbstractConnector<HTMLElement>, paintStyle:PaintStyle, extents?:any) {
+    static paint(connector:AbstractConnector, paintStyle:PaintStyle, extents?:any) {
 
         this.getConnectorElement(connector);
 
@@ -69,7 +69,7 @@ export class SvgElementConnector {
         }
     }
 
-    static getConnectorElement(c:AbstractConnector<HTMLElement>):HTMLElement {
+    static getConnectorElement(c:AbstractConnector):SVGElement {
         if ((c as any).canvas != null) {
             return (c as any).canvas;
         } else {
@@ -93,7 +93,7 @@ export class SvgElementConnector {
             svg.jtk = svg.jtk || { };
             svg.jtk.connector = c;
 
-            return svg as HTMLElement;
+            return svg as SVGElement;
         }
     }
 }

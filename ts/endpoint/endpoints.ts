@@ -8,7 +8,7 @@ import {Endpoint} from "./endpoint-impl";
  * Superclass for all types of Endpoint. This class is renderer
  * agnostic, as are any subclasses of it.
  */
-export abstract class EndpointRepresentation<E, C> {
+export abstract class EndpointRepresentation<C> {
 
     typeId:string;
 
@@ -23,14 +23,14 @@ export abstract class EndpointRepresentation<E, C> {
 
     classes:Array<string> = [];
 
-    instance:jsPlumbInstance<E>;
+    instance:jsPlumbInstance;
 
     abstract getType():string;
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
     // it would be much more lightweight as we'd not need to create a class for each one.
     abstract _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):C;
 
-    constructor(public endpoint:Endpoint<E>) {
+    constructor(public endpoint:Endpoint) {
         this.instance = endpoint.instance;
 
         if (endpoint.cssClass) {
@@ -52,7 +52,7 @@ export abstract class EndpointRepresentation<E, C> {
         this.instance.renderer.paintEndpoint(this, paintStyle);
     }
 
-    clone():EndpointRepresentation<E, C> {
+    clone():EndpointRepresentation<C> {
         return null;
     }
 

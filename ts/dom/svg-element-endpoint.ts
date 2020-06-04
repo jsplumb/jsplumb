@@ -4,7 +4,7 @@ import {PaintStyle} from "../styles";
 import {_applyStyles, _node} from "../svg/svg-util";
 import {EndpointHelperFunctions} from "./browser-renderer";
 import {extend} from "../core";
-import {sizeElement} from "..";
+import {createElement, sizeElement} from "..";
 
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
@@ -13,7 +13,7 @@ import {sizeElement} from "..";
  */
 export abstract class SvgEndpoint<C> {
 
-    static getEndpointElement<C>(ep:EndpointRepresentation<HTMLElement, C>):HTMLElement {
+    static getEndpointElement<C>(ep:EndpointRepresentation<C>):HTMLElement {
         if ((ep as any).canvas != null) {
             return (ep as any).canvas;
         } else {
@@ -27,7 +27,7 @@ export abstract class SvgEndpoint<C> {
             (ep as any).svg = svg;
 
 
-            const canvas:any = ep.instance.createElement("div", { position : "absolute" });
+            const canvas:any = createElement("div", { position : "absolute" });
             (ep as any).canvas = canvas;
 
             const classes = ep.classes.join(" ");
@@ -60,7 +60,7 @@ export abstract class SvgEndpoint<C> {
         }
     }
 
-    static paint<C>(ep:EndpointRepresentation<HTMLElement, C>, handlers:EndpointHelperFunctions,  paintStyle: PaintStyle): void {
+    static paint<C>(ep:EndpointRepresentation<C>, handlers:EndpointHelperFunctions,  paintStyle: PaintStyle): void {
 
         this.getEndpointElement(ep);
 

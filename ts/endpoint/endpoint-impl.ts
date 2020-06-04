@@ -13,7 +13,7 @@ import {EndpointRepresentation} from "./endpoints";
 import {EndpointFactory} from "../factory/endpoint-factory";
 import {OverlaySpec} from "..";
 
-function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint<E>, elementWithPrecedence?:string):Connection<E> {
+function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint, elementWithPrecedence?:string):Connection {
     let idx = 0;
     if (elementWithPrecedence != null) {
         for (let i = 0; i < ep.connections.length; i++) {
@@ -29,7 +29,7 @@ function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint<E>, elementWithPrece
 
 const typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass" ];
 
-export class Endpoint<E> extends OverlayCapableComponent<E> {
+export class Endpoint extends OverlayCapableComponent {
 
     getIdPrefix ():string { return  "_jsplumb_e"; }
 
@@ -41,11 +41,11 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return { x:this.endpoint.x, y:this.endpoint.y }
     }
 
-    connections:Array<Connection<E>> = [];
+    connections:Array<Connection> = [];
     connectorPointerEvents:string;
     anchor:Anchor;
-    endpoint:EndpointRepresentation<E, any>;
-    element:E;
+    endpoint:EndpointRepresentation<any>;
+    element:any;
     elementId:string;
     dragAllowedWhenFull:boolean = true;
     scope:string;
@@ -58,7 +58,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
     _originalAnchor:any;
     deleteAfterDragStop:boolean;
-    finalEndpoint:Endpoint<E>;
+    finalEndpoint:Endpoint;
 
     isSource:boolean;
     isTarget:boolean;
@@ -68,7 +68,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     connectionsDetachable:boolean;
     reattachConnections:boolean;
 
-    referenceEndpoint:Endpoint<E>;
+    referenceEndpoint:Endpoint;
 
     connectionType:string;
     connector:ConnectorSpec;
@@ -84,7 +84,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number];
     getDefaultOverlayKey () { return "endpointOverlays"; }
 
-    constructor(public instance:jsPlumbInstance<E>, params:EndpointOptions<E>) {
+    constructor(public instance:jsPlumbInstance, params:EndpointOptions) {
         super(instance, params);
 
         this.appendToDefaultType({
@@ -194,7 +194,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return a;
     }
 
-    setPreparedAnchor (anchor:Anchor, doNotRepaint?:boolean):Endpoint<E> {
+    setPreparedAnchor (anchor:Anchor, doNotRepaint?:boolean):Endpoint {
         this.instance.anchorManager.continuousAnchorFactory.clear(this.elementId);
         this.anchor = anchor;
         this._updateAnchorClass();
@@ -206,13 +206,13 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return this;
     }
 
-    setAnchor (anchorParams:any, doNotRepaint?:boolean):Endpoint<E> {
+    setAnchor (anchorParams:any, doNotRepaint?:boolean):Endpoint {
         let a = this.prepareAnchor(anchorParams);
         this.setPreparedAnchor(a, doNotRepaint);
         return this;
     }
 
-    addConnection(conn:Connection<E>) {
+    addConnection(conn:Connection) {
         const wasFull = this.isFull();
         this.connections.push(conn);
         this[(this.connections.length > 0 ? "add" : "remove") + "Class"](this.instance.endpointConnectedClass);
@@ -226,7 +226,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
 
     }
 
-    detachFromConnection (connection:Connection<E>, idx?:number, doNotCleanup?:boolean):void {
+    detachFromConnection (connection:Connection, idx?:number, doNotCleanup?:boolean):void {
         idx = idx == null ? this.connections.indexOf(connection) : idx;
         if (idx >= 0) {
             this.connections.splice(idx, 1);
@@ -250,7 +250,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         }
     }
 
-    detachFrom (targetEndpoint:Endpoint<E>, fireEvent?:boolean, originalEvent?:Event):Endpoint<E> {
+    detachFrom (targetEndpoint:Endpoint, fireEvent?:boolean, originalEvent?:Event):Endpoint {
         let c = [];
         for (let i = 0; i < this.connections.length; i++) {
             if (this.connections[i].endpoints[1] === targetEndpoint || this.connections[i].endpoints[0] === targetEndpoint) {
@@ -337,7 +337,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return this.anchor != null && this.anchor.isFloating;
     }
 
-    isConnectedTo(endpoint:Endpoint<E>):boolean {
+    isConnectedTo(endpoint:Endpoint):boolean {
         let found = false;
         if (endpoint) {
             for (let i = 0; i < this.connections.length; i++) {
@@ -371,7 +371,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.anchor.elementId = _elId;
     }
 
-    setReferenceElement(_el:E | string) {
+    setReferenceElement(_el:any) {
         this.element = this.instance.getElement(_el);
     }
 
@@ -379,7 +379,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.dragAllowedWhenFull = allowed;
     }
 
-    equals(endpoint:Endpoint<E>):boolean {
+    equals(endpoint:Endpoint):boolean {
         return this.anchor.equals(endpoint.anchor);
     }
 
@@ -391,11 +391,11 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return this.anchor.compute(params);
     }
 
-    setElement (el:E):Endpoint<E> {
+    setElement (el:any):Endpoint {
         let parentId = this.instance.getId(el),
             curId = this.elementId;
         // remove the endpoint from the list for the current endpoint's element
-        removeWithFunction(this.instance.endpointsByElement[this.elementId], (e:Endpoint<E>) => {
+        removeWithFunction(this.instance.endpointsByElement[this.elementId], (e:Endpoint) => {
             return e.id === this.id;
         });
         this.element = this.instance.getElement(el);
@@ -408,7 +408,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         return this;
     }
 
-    connectorSelector ():Connection<E> {
+    connectorSelector ():Connection {
         return this.connections[0];
     }
 
@@ -469,7 +469,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         }
     }
 
-    prepareEndpoint<C>(ep:EndpointSpec, typeId?:string):EndpointRepresentation<E, C> {
+    prepareEndpoint<C>(ep:EndpointSpec, typeId?:string):EndpointRepresentation<C> {
 
         let endpointArgs = {
             _jsPlumb: this._jsPlumb.instance,
@@ -480,7 +480,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
             endpoint: this
         };
 
-        let endpoint:EndpointRepresentation<E, C>;
+        let endpoint:EndpointRepresentation<C>;
 
         if (isString(ep)) {
             endpoint = EndpointFactory.get(this, ep as string, endpointArgs);
@@ -489,7 +489,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
             endpointArgs = merge(ep[1], endpointArgs);
             endpoint = EndpointFactory.get(this, ep[0] as string, endpointArgs);
         } else if (ep instanceof EndpointRepresentation) {
-            endpoint = (ep as EndpointRepresentation<E, any>).clone()
+            endpoint = (ep as EndpointRepresentation<any>).clone()
         }
 
         // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
@@ -506,7 +506,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
                 endpointArgs = merge(ep[1], endpointArgs);
                 return EndpointFactory.get(this, ep[0] as string, endpointArgs);
             } else if (ep instanceof EndpointRepresentation) {
-                return (ep as EndpointRepresentation<E, any>).clone()
+                return (ep as EndpointRepresentation<any>).clone()
             }
         };
 
@@ -519,7 +519,7 @@ export class Endpoint<E> extends OverlayCapableComponent<E> {
         this.setPreparedEndpoint(_ep);
     }
 
-    setPreparedEndpoint<C>(ep:EndpointRepresentation<E, C>) {
+    setPreparedEndpoint<C>(ep:EndpointRepresentation<C>) {
         if (this.endpoint != null) {
             this.instance.renderer.destroyEndpoint(this.endpoint);
         }

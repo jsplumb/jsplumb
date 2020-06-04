@@ -5,13 +5,13 @@ import {Endpoint} from "./endpoint-impl";
 
 export type ComputedDotEndpoint = [ number, number, number, number, number ];
 
-export class DotEndpoint<E> extends EndpointRepresentation<E, ComputedDotEndpoint> {
+export class DotEndpoint<E> extends EndpointRepresentation<ComputedDotEndpoint> {
 
     radius:number;
     defaultOffset:number;
     defaultInnerRadius:number;
 
-    constructor(endpoint:Endpoint<E>, params?:any) {
+    constructor(endpoint:Endpoint, params?:any) {
         
         super(endpoint);
         

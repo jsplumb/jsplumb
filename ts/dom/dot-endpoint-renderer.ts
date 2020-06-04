@@ -4,7 +4,7 @@ import {PaintStyle} from "../styles";
 import {jsPlumbInstance} from "../core";
 
 registerEndpointRenderer("Dot", {
-    makeNode : (instance:jsPlumbInstance<any>, ep:any, style:PaintStyle) => {
+    makeNode : (instance:jsPlumbInstance, ep:any, style:PaintStyle) => {
         return _node(instance, "circle", {
             "cx": ep.w / 2,
             "cy": ep.h / 2,

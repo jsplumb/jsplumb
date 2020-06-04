@@ -1,15 +1,25 @@
 import {jsPlumbDefaults, jsPlumbHelperFunctions} from "../defaults";
 import {Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
-import {fastTrim, isArray, isString, log, uuid} from "../util";
+import {isString, uuid} from "../util";
 import {DragManager} from "./drag-manager";
 import {ElementDragHandler} from "./element-drag-handler";
 import {EndpointDragHandler} from "./endpoint-drag-handler";
 import {GroupDragHandler} from "./group-drag-handler";
-import {consume, findParent} from "../browser-util";
+import {
+    addClass,
+    consume, createElementNS,
+    findParent,
+    getClass,
+    getEventSource,
+    hasClass,
+    removeClass,
+    toggleClass
+} from "../browser/browser-util";
 import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
-import {EventManager} from "../event-manager";
+import {EventManager} from "./event-manager";
+import {AbstractConnector, Endpoint, Overlay} from "..";
 
 export interface DragEventCallbackOptions {
     drag: {
@@ -35,80 +45,24 @@ export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
     dragOptions?: DragOptions;
 }
 
+interface jsPlumbDOMInformation {
+    connector?:AbstractConnector;
+    endpoint?:Endpoint;
+    overlay?:Overlay;
+}
+
 export interface jsPlumbDOMElement extends HTMLElement {
-    _jsPlumbGroup: UIGroup<HTMLElement>;
+    _jsPlumbGroup: UIGroup;
     _isJsPlumbGroup: boolean;
     offsetParent: HTMLElement;
     getAttribute:(name:string) => string;
+    parentNode: jsPlumbDOMElement;
+    jtk:jsPlumbDOMInformation;
 }
 
 export type PosseSpec = string | { id:string, active:boolean };
 
-function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void {
-    cn = fastTrim(cn);
 
-    if (typeof (<any>el.className).baseVal !== "undefined") {
-        (<any>el.className).baseVal = cn;
-    }
-    else {
-        el.className = cn;
-    }
-
-    // recent (i currently have  61.0.3163.100) version of chrome do not update classList when you set the base val
-    // of an svg element's className. in the long run we'd like to move to just using classList anyway
-    try {
-        let cl = el.classList;
-        if (cl != null) {
-            while (cl.length > 0) {
-                cl.remove(cl.item(0));
-            }
-            for (let i = 0; i < classList.length; i++) {
-                if (classList[i]) {
-                    cl.add(classList[i]);
-                }
-            }
-        }
-    }
-    catch(e) {
-        // not fatal
-        log("JSPLUMB: cannot set class list", e);
-    }
-}
-
-//
-// get the class name for either an html element or an svg element.
-function _getClassName (el:HTMLElement):string {
-     return (typeof (<any>el.className).baseVal === "undefined") ? el.className : (<any>el.className).baseVal as string;
-}
-
-function _classManip(el:HTMLElement, classesToAdd:string | Array<string>, classesToRemove?:string | Array<String>) {
-    const cta:Array<string> = classesToAdd == null ? [] : isArray(classesToAdd) ? classesToAdd as string[] : (classesToAdd as string).split(/\s+/);
-    const ctr:Array<string> = classesToRemove == null ? [] : isArray(classesToRemove) ? classesToRemove as string[] : (classesToRemove as string).split(/\s+/);
-
-    let className = _getClassName(el),
-        curClasses = className.split(/\s+/);
-
-    const _oneSet =  (add:boolean, classes:Array<string>) => {
-        for (let i = 0; i < classes.length; i++) {
-            if (add) {
-                if (curClasses.indexOf(classes[i]) === -1) {
-                    curClasses.push(classes[i]);
-                }
-            }
-            else {
-                let idx = curClasses.indexOf(classes[i]);
-                if (idx !== -1) {
-                    curClasses.splice(idx, 1);
-                }
-            }
-        }
-    };
-
-    _oneSet(true, cta);
-    _oneSet(false, ctr);
-
-    _setClassName(el, curClasses.join(" "), curClasses);
-}
 
 function _genLoc (prefix:string, e?:Event):PointArray {
     if (e == null) {
@@ -133,7 +87,7 @@ function _touches (e:Event):Array<Touch> {
 
 // ------------------------------------------------------------------------------------------------------------
 
-export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
+export class BrowserJsPlumbInstance extends jsPlumbInstance {
 
     dragManager:DragManager;
     _connectorClick:Function;
@@ -151,14 +105,15 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
     _overlayMouseover:Function;
     _overlayMouseout:Function;
 
+    eventManager:EventManager;
+
     private elementDragHandler :ElementDragHandler;
 
-    constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>) {
+    constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
         super(_instanceIndex, new BrowserRenderer(), defaults, helpers);
         // not very clean: cant pass this in to BrowserRenderer as we're in the constructor of this class. this should be cleaned up.
         (this.renderer as BrowserRenderer).instance = this;
 
-        //this.eventManager = new Mottle();
         this.eventManager = new EventManager();
         this.dragManager = new DragManager(this);
 
@@ -167,17 +122,17 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this.elementDragHandler = new ElementDragHandler(this);
         this.dragManager.addHandler(this.elementDragHandler);
 
-        const _connClick = function(event:string, e:any) {
+        const _connClick = function(event:string, e:MouseEvent) {
             if (!e.defaultPrevented) {
-                let connectorElement = findParent(e.srcElement || e.target, Constants.SELECTOR_CONNECTOR, this.getContainer());
-                this.fire(event, (<any>connectorElement).jtk.connector.connection, e);
+                let connectorElement = findParent(getEventSource(e), Constants.SELECTOR_CONNECTOR, this.getContainer());
+                this.fire(event, connectorElement.jtk.connector.connection, e);
             }
         };
         this._connectorClick = _connClick.bind(this, Constants.EVENT_CLICK);
         this._connectorDblClick = _connClick.bind(this, Constants.EVENT_DBL_CLICK);
 
-        const _connectorHover = function(state:boolean, e:any) {
-            const el = (e.srcElement || e.target).parentNode;
+        const _connectorHover = function(state:boolean, e:MouseEvent) {
+            const el = getEventSource(e).parentNode;
             if (el.jtk && el.jtk.connector) {
                 this.renderer.setConnectorHover(el.jtk.connector, state);
             }
@@ -186,18 +141,18 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this._connectorMouseover = _connectorHover.bind(this, true);
         this._connectorMouseout = _connectorHover.bind(this, false);
 
-        const _epClick = function(event:string, e:any) {
+        const _epClick = function(event:string, e:MouseEvent) {
             if (!e.defaultPrevented) {
-                let endpointElement = findParent(e.srcElement || e.target, Constants.SELECTOR_ENDPOINT, this.getContainer());
-                this.fire(event, (<any>endpointElement).jtk.endpoint, e);
+                let endpointElement = findParent(getEventSource(e), Constants.SELECTOR_ENDPOINT, this.getContainer());
+                this.fire(event, endpointElement.jtk.endpoint, e);
             }
         };
 
         this._endpointClick = _epClick.bind(this, Constants.EVENT_ENDPOINT_CLICK);
         this._endpointDblClick = _epClick.bind(this, Constants.EVENT_ENDPOINT_DBL_CLICK);
 
-        const _endpointHover = function(state: boolean, e:any) {
-            const el = e.srcElement || e.target;
+        const _endpointHover = function(state: boolean, e:MouseEvent) {
+            const el = getEventSource(e);
             if (el.jtk && el.jtk.endpoint) {
                 this.renderer.setEndpointHover(el.jtk.endpoint, state);
             }
@@ -205,19 +160,21 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         this._endpointMouseover = _endpointHover.bind(this, true);
         this._endpointMouseout = _endpointHover.bind(this, false);
 
-        const _oClick = function(method:string, e:any) {
+        const _oClick = function(method:string, e:MouseEvent) {
             consume(e);
-            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
-            let overlay = (<any>overlayElement).jtk.overlay;
-            overlay[method](e);
+            let overlayElement = findParent(getEventSource(e), Constants.SELECTOR_OVERLAY, this.getContainer());
+            let overlay = overlayElement.jtk.overlay;
+            if (overlay) {
+                overlay[method](e);
+            }
         };
 
         this._overlayClick = _oClick.bind(this, "click");
         this._overlayDblClick = _oClick.bind(this, "dblClick");
 
-        const _overlayHover = function(state:boolean, e:any) {
-            let overlayElement = findParent(e.srcElement || e.target, Constants.SELECTOR_OVERLAY, this.getContainer());
-            let overlay = (<any>overlayElement).jtk.overlay;
+        const _overlayHover = function(state:boolean, e:MouseEvent) {
+            let overlayElement = findParent(getEventSource(e), Constants.SELECTOR_OVERLAY, this.getContainer());
+            let overlay = overlayElement.jtk.overlay;
             if (overlay) {
                 this.renderer.setOverlayHover(overlay, state);
             }
@@ -268,52 +225,22 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         return true;
     }
 
-    getClass(el:HTMLElement):string { return _getClassName(el); }
+    getClass(el:HTMLElement):string { return getClass(el); }
 
     addClass(el:HTMLElement, clazz:string):void {
-
-        if (el != null && clazz != null && clazz.length > 0) {
-            if (el.classList) {
-                el.classList.add(...fastTrim(clazz).split(/\s+/));
-
-            } else {
-                _classManip(el, clazz);
-            }
-        }
+        addClass(el, clazz);
     }
 
     hasClass(el:HTMLElement, clazz:string):boolean {
-        if (el.classList) {
-            return el.classList.contains(clazz);
-        }
-        else {
-            return _getClassName(el).indexOf(clazz) !== -1;
-        }
+        return hasClass(el, clazz);
     }
 
     removeClass(el:HTMLElement, clazz:string):void {
-        if (el != null && clazz != null && clazz.length > 0) {
-            if (el.classList) {
-                el.classList.remove(...fastTrim(clazz).split(/\s+/));
-            } else {
-                _classManip(el, null, clazz);
-            }
-        }
+        removeClass(el, clazz);
     }
 
     toggleClass(el:HTMLElement, clazz:string):void {
-        if (el != null && clazz != null && clazz.length > 0) {
-            if (el.classList) {
-                el.classList.toggle(clazz);
-            }
-            else {
-                if (this.hasClass(el, clazz)) {
-                    this.removeClass(el, clazz);
-                } else {
-                    this.addClass(el, clazz);
-                }
-            }
-        }
+        toggleClass(el, clazz);
     }
 
     setAttribute(el:HTMLElement, name:string, value:string):void {
@@ -393,29 +320,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
         return [ el.offsetWidth, el.offsetHeight ];
     }
 
-    createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string>):HTMLElement {
-        return this.createElementNS(null, tag, style, clazz, atts);
-    }
-
-    createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string>):HTMLElement {
-        let e = (ns == null ? document.createElement(tag) : document.createElementNS(ns, tag)) as HTMLElement;
-        let i;
-        style = style || {};
-        for (i in style) {
-            e.style[i] = style[i];
-        }
-
-        if (clazz) {
-            e.className = clazz;
-        }
-
-        atts = atts || {};
-        for (i in atts) {
-            e.setAttribute(i, "" + atts[i]);
-        }
-
-        return e;
-    }
 
     getStyle(el:HTMLElement, prop:string):any {
         if (typeof window.getComputedStyle !== 'undefined') {
@@ -433,8 +337,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement> {
 
                 let nodeList = document.createDocumentFragment();
                 nodeList.appendChild(ctx as HTMLElement);
-
-                //return ctx as [ HTMLElement ];
                 return nodeList.childNodes;
             }
 

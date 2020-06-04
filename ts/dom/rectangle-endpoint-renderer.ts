@@ -4,7 +4,7 @@ import {PaintStyle} from "../styles";
 import {jsPlumbInstance} from "../core";
 
 registerEndpointRenderer("Rectangle", {
-    makeNode :(instance:jsPlumbInstance<any>, ep:any, style:PaintStyle) => {
+    makeNode :(instance:jsPlumbInstance, ep:any, style:PaintStyle) => {
         return _node(instance, "rect", {
             "width": ep.w,
             "height": ep.h

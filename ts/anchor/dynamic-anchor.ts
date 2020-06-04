@@ -38,7 +38,7 @@ const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, t
     return anchors[minIdx];
 };
 
-function _convertAnchor(anchor:Anchor | AnchorSpec, instance:jsPlumbInstance<any>, elementId:string):Anchor {
+function _convertAnchor(anchor:Anchor | AnchorSpec, instance:jsPlumbInstance, elementId:string):Anchor {
     return anchor instanceof Anchor ? (anchor as Anchor) : makeAnchorFromSpec(instance, anchor as AnchorSpec, elementId);
 }
 
@@ -50,7 +50,7 @@ export class DynamicAnchor extends Anchor {
 
     private _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => Anchor = null;
 
-    constructor(public instance:jsPlumbInstance<any>, options:DynamicAnchorOptions) {
+    constructor(public instance:jsPlumbInstance, options:DynamicAnchorOptions) {
         super(instance, options);
 
         this.isDynamic = true;
@@ -111,11 +111,11 @@ export class DynamicAnchor extends Anchor {
         return (this._curAnchor != null ? this._curAnchor.getCurrentLocation(params) : null);
     };
 
-    getOrientation (_endpoint?:Endpoint<any>):Orientation {
+    getOrientation (_endpoint?:Endpoint):Orientation {
         return this._curAnchor != null ? this._curAnchor.getOrientation(_endpoint) : [ 0, 0 ];
     }
 
-    over (anchor:Anchor, endpoint:Endpoint<any>):void {
+    over (anchor:Anchor, endpoint:Endpoint):void {
         if (this._curAnchor != null) {
             this._curAnchor.over(anchor, endpoint);
         }

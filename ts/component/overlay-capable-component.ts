@@ -7,12 +7,12 @@ import {OverlayFactory} from "../factory/overlay-factory";
 
 const _internalLabelOverlayId = "__label";
 
-export interface OverlayComponentOptions<E> extends ComponentOptions<E> {
+export interface OverlayComponentOptions extends ComponentOptions {
     label?:string;
     labelLocation?:number;
 }
 
-function _makeLabelOverlay<E>(component:OverlayCapableComponent<E>, params:any):LabelOverlay<E> {
+function _makeLabelOverlay(component:OverlayCapableComponent, params:any):LabelOverlay {
 
     let _params:any = {
             cssClass: params.cssClass,
@@ -25,8 +25,8 @@ function _makeLabelOverlay<E>(component:OverlayCapableComponent<E>, params:any):
     return new LabelOverlay(component.instance, component, mergedParams);
 }
 
-function _processOverlay<E>(component:OverlayCapableComponent<E>, o:OverlaySpec|Overlay<E>) {
-    let _newOverlay:Overlay<E> = null;
+function _processOverlay<E>(component:OverlayCapableComponent, o:OverlaySpec|Overlay) {
+    let _newOverlay:Overlay = null;
     if (isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
         // there's also a three arg version:
         // ["Arrow", { width:50 }, {location:0.7}]
@@ -42,7 +42,7 @@ function _processOverlay<E>(component:OverlayCapableComponent<E>, o:OverlaySpec|
     } else if (isString(o)) {
         _newOverlay = OverlayFactory.get(component.instance, o as string, component, {});
     } else {
-        _newOverlay = o as Overlay<E>;
+        _newOverlay = o as Overlay;
     }
 
     _newOverlay.id = _newOverlay.id || uuid();
@@ -52,14 +52,14 @@ function _processOverlay<E>(component:OverlayCapableComponent<E>, o:OverlaySpec|
     return _newOverlay;
 }
 
-export abstract class OverlayCapableComponent<E> extends Component<E> {
+export abstract class OverlayCapableComponent extends Component {
 
     defaultLabelLocation:number | [number, number] = 0.5;
 
-    overlays:Dictionary<Overlay<E>> = {};
+    overlays:Dictionary<Overlay> = {};
     overlayPositions:Dictionary<PointArray> = {};
 
-    constructor(public instance:jsPlumbInstance<E>, params: OverlayComponentOptions<E>) {
+    constructor(public instance:jsPlumbInstance, params: OverlayComponentOptions) {
         super(instance, params);
 
         params = params || {};
@@ -76,7 +76,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         }
     }
 
-    addOverlay(overlay:OverlaySpec, doNotRepaint?:boolean):Overlay<E> {
+    addOverlay(overlay:OverlaySpec, doNotRepaint?:boolean):Overlay {
         let o = _processOverlay(this, overlay);
 
         if (this.getData && o.type === "Label" && isArray(overlay)) {
@@ -99,11 +99,11 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         return o;
     }
 
-    getOverlay(id:string):Overlay<E> {
+    getOverlay(id:string):Overlay {
         return this._jsPlumb.overlays[id];
     }
 
-    getOverlays():Dictionary<Overlay<E>> {
+    getOverlays():Dictionary<Overlay> {
         return this._jsPlumb.overlays;
     }
 
@@ -171,15 +171,15 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
     }
 
     getLabel():string {
-        let lo:LabelOverlay<E> = this.getLabelOverlay();
+        let lo:LabelOverlay = this.getLabelOverlay();
         return lo != null ? lo.getLabel() : null;
     }
 
-    getLabelOverlay():LabelOverlay<E> {
-        return this.getOverlay(_internalLabelOverlayId) as LabelOverlay<E>;
+    getLabelOverlay():LabelOverlay {
+        return this.getOverlay(_internalLabelOverlayId) as LabelOverlay;
     }
 
-    setLabel(l:string|Function|LabelOverlay<E>):void {
+    setLabel(l:string|Function|LabelOverlay):void {
         let lo = this.getLabelOverlay();
         if (!lo) {
             let params = l.constructor === String || l.constructor === Function ? { label: l } : l;
@@ -191,7 +191,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
                 lo.setLabel(<any>l);
             }
             else {
-                let ll = l as LabelOverlay<E>;
+                let ll = l as LabelOverlay;
                 if (ll.label) {
                     lo.setLabel(ll.label);
                 }
@@ -223,11 +223,11 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
         this[v ? "showOverlays" : "hideOverlays"]();
     }
 
-    setAbsoluteOverlayPosition(overlay:Overlay<E>, xy:PointArray) {
+    setAbsoluteOverlayPosition(overlay:Overlay, xy:PointArray) {
         this._jsPlumb.overlayPositions[overlay.id] = xy;
     }
 
-    getAbsoluteOverlayPosition(overlay:Overlay<E>):PointArray {
+    getAbsoluteOverlayPosition(overlay:Overlay):PointArray {
         return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
     }
 
@@ -260,7 +260,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
 
             for (i in t.overlays) {
 
-                let existing:Overlay<E> = this._jsPlumb.overlays[t.overlays[i][1].id];
+                let existing:Overlay = this._jsPlumb.overlays[t.overlays[i][1].id];
                 if (existing) {
                     // maybe update from data, if there were parameterised values for instance.
                     existing.updateFrom(t.overlays[i][1]);
@@ -269,7 +269,7 @@ export abstract class OverlayCapableComponent<E> extends Component<E> {
 
                 }
                 else {
-                    let c:Overlay<E> = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
+                    let c:Overlay = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
                     if (c != null) {
                         this.instance.renderer.reattachOverlay(c, this);
                         c.setVisible(true);

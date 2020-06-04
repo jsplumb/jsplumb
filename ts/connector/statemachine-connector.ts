@@ -88,14 +88,14 @@ function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge
 
 export interface StateMachineOptions extends AbstractBezierOptions  { }
 
-export class StateMachine<E> extends AbstractBezierConnector<E> {
+export class StateMachine extends AbstractBezierConnector {
 
     type = "StateMachine";
 
     _controlPoint:[ number, number ];
     proximityLimit:number;
 
-    constructor(instance:jsPlumbInstance<E>, public connection:Connection<E>, params:StateMachineOptions) {
+    constructor(instance:jsPlumbInstance, public connection:Connection, params:StateMachineOptions) {
         super(instance, connection, params);
 
         this.curviness = params.curviness || 10;
@@ -104,7 +104,7 @@ export class StateMachine<E> extends AbstractBezierConnector<E> {
         this.clockwise = params.orientation && params.orientation === "clockwise";
     }
 
-    _computeBezier (paintInfo:PaintGeometry, params:ConnectorComputeParams<E>, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, w:number, h:number):void {
+    _computeBezier (paintInfo:PaintGeometry, params:ConnectorComputeParams, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, w:number, h:number):void {
         let _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
             _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
             _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,

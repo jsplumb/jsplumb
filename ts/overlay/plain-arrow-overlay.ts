@@ -2,9 +2,9 @@ import {ArrowOverlay} from "./arrow-overlay";
 import {jsPlumbInstance} from "../core";
 import {ArrowOverlayOptions, Component, OverlayFactory} from "..";
 
-export class PlainArrowOverlay<E> extends ArrowOverlay<E> {
+export class PlainArrowOverlay extends ArrowOverlay {
 
-    constructor(public instance:jsPlumbInstance<E>, component: Component<E>, p: ArrowOverlayOptions) {
+    constructor(public instance:jsPlumbInstance, component: Component, p: ArrowOverlayOptions) {
         super(instance, component, p);
         this.foldback = 1;
     }

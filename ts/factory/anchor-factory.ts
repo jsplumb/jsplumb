@@ -21,11 +21,11 @@ export type AnchorComputeParams = {
     wh?: PointArray;
     txy?:PointArray;
     twh?:PointArray;
-    element?:Endpoint<any>;
+    element?:Endpoint;
     timestamp?: string;
     index?:number;
-    tElement?:Endpoint<any>;
-    connection?:Connection<any>;
+    tElement?:Endpoint;
+    connection?:Connection;
     elementId?:string;
 };
 
@@ -65,10 +65,10 @@ export type AnchorSpec = AnchorId | [AnchorId, AnchorOptions]
 
 
 
-const anchorMap:Dictionary<(instance:jsPlumbInstance<any>, args:any) => Anchor> = {};
+const anchorMap:Dictionary<(instance:jsPlumbInstance, args:any) => Anchor> = {};
 export const Anchors = {
 
-    get:(instance:jsPlumbInstance<any>, name:string, args:any):Anchor => {
+    get:(instance:jsPlumbInstance, name:string, args:any):Anchor => {
 
         let con = anchorMap[name];
         if (!con) {
@@ -80,7 +80,7 @@ export const Anchors = {
     }
 };
 
-function _makeAnchor(instance:jsPlumbInstance<any>, x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint, offsetX:number, offsetY:number, elementId?:string):Anchor {
+function _makeAnchor(instance:jsPlumbInstance, x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint, offsetX:number, offsetY:number, elementId?:string):Anchor {
     let a = new Anchor(instance);
     a.x = x;
     a.y = y;
@@ -92,13 +92,13 @@ function _makeAnchor(instance:jsPlumbInstance<any>, x:number, y:number, ox:Ancho
     return a;
 }
 
-function getNamedAnchor(instance:jsPlumbInstance<any>, name:string, args?:any, elementId?:string):Anchor {
+function getNamedAnchor(instance:jsPlumbInstance, name:string, args?:any, elementId?:string):Anchor {
     let a = Anchors.get(instance, name, args);
     a.elementId = elementId;
     return a
 }
 
-function getAnchorWithValues(instance:jsPlumbInstance<any>,
+function getAnchorWithValues(instance:jsPlumbInstance,
                                 x:number, y:number,
                                 orientation:Orientation,
                                 offsets:[number, number],
@@ -119,7 +119,7 @@ function isPrimitiveAnchorSpec(sa:Array<any>):boolean {
            sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
 }
 
-export function makeAnchorFromSpec(instance:jsPlumbInstance<any>, spec:AnchorSpec, elementId?:string):Anchor {
+export function makeAnchorFromSpec(instance:jsPlumbInstance, spec:AnchorSpec, elementId?:string):Anchor {
 
     // if already an Anchor, return it
     if ((<any>spec).compute && (<any>spec).getOrientation) {
@@ -164,7 +164,7 @@ export function makeAnchorFromSpec(instance:jsPlumbInstance<any>, spec:AnchorSpe
 }
 
 function _curryAnchor (x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint, type:AnchorId, fnInit?:Function) {
-    anchorMap[type] = function(instance:jsPlumbInstance<any>, params:any):Anchor {
+    anchorMap[type] = function(instance:jsPlumbInstance, params:any):Anchor {
         let a = _makeAnchor(instance, x, y, ox, oy, 0, 0);
         a.type = type;
         if (fnInit) {
@@ -193,7 +193,7 @@ _curryAnchor(0, 1, 0, 1, "BottomLeft");
 // ------------- DYNAMIC ANCHOR DEFAULT ---------------------------
 
 const DEFAULT_DYNAMIC_ANCHORS = [ "TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle" ];
-anchorMap["AutoDefault"] = function(instance:jsPlumbInstance<any>, params:any):Anchor {
+anchorMap["AutoDefault"] = function(instance:jsPlumbInstance, params:any):Anchor {
     let a = new DynamicAnchor(instance, {anchors:DEFAULT_DYNAMIC_ANCHORS.map((da:string) => getNamedAnchor(instance, da, params))});
     a.type = "AutoDefault";
     return a;
@@ -303,7 +303,7 @@ const _shapes:Dictionary<ShapeFunction> = {
     }
 };
 
-anchorMap["Perimeter"] = function(instance:jsPlumbInstance<any>, params:any):Anchor {
+anchorMap["Perimeter"] = function(instance:jsPlumbInstance, params:any):Anchor {
     let anchorCount = params.anchorCount || 60;
 
     if (!params.shape) {
@@ -324,14 +324,14 @@ anchorMap["Perimeter"] = function(instance:jsPlumbInstance<any>, params:any):Anc
 // ------------------------- CONTINUOUS ANCHOR -------------------
 
 function _curryContinuousAnchor (type:AnchorId, faces:Array<Face>) {
-    anchorMap[type] = function(instance:jsPlumbInstance<any>, params:any):Anchor {
+    anchorMap[type] = function(instance:jsPlumbInstance, params:any):Anchor {
         let a = new ContinuousAnchor(instance, { faces: faces });
         a.type = type;
         return a;
     };
 }
 
-anchorMap["Continuous"] = function(instance:jsPlumbInstance<any>, params:any):Anchor {
+anchorMap["Continuous"] = function(instance:jsPlumbInstance, params:any):Anchor {
     return instance.anchorManager.continuousAnchorFactory.get(instance, params);
 };
 

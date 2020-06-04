@@ -3,7 +3,7 @@ import {extend} from "./core";
 
 import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
-import {EventManager} from "./event-manager";
+import {EventManager} from "./dom/event-manager";
 
 export * from "./constants";
 export * from "./core";
@@ -48,7 +48,6 @@ export * from "./factory/overlay-factory";
 
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
-export * from "./anchor/floating-anchor";
 export * from "./anchor/continuous-anchor";
 export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
@@ -59,26 +58,15 @@ export * from  "./connector";
 export * from "./endpoint";
 export * from "./factory/endpoint-factory";
 
-
 export * from "./renderer";
 export * from "./styles";
 export * from "./util";
 
-// -------------------- DOM includes ----------------------
+// -------------------- BrowserJsPlumbInstance includes ----------------------
 
-export * from "./browser-util";
-export * from "./dom/browser-renderer";
-export * from "./dom/browser-jsplumb-instance";
-export * from "./dom/drag-manager";
-export * from "./dom/svg-component";
-export * from "./svg/svg-util";
-export * from "./dom/svg-element-endpoint";
-export * from "./dom/dot-endpoint-renderer";
-export * from "./dom/rectangle-endpoint-renderer";
-export * from "./dom/blank-endpoint-renderer";
+export * from './dom/index';
 
-export * from './event-manager';
-
+// ---------------------- window stuff ----------------------------------
 
 let _jsPlumbInstanceIndex = 0;
 
@@ -88,7 +76,7 @@ function getInstanceIndex ():number {
     return i;
 }
 
-export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>): BrowserJsPlumbInstance {
+export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers);
 }
 

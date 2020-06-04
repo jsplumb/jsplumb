@@ -4,13 +4,13 @@ import * as Constants from "../constants";
 import {IS, removeWithFunction, suggest} from "../util";
 import {Connection} from "..";
 
-export class GroupManager<E> {
+export class GroupManager {
 
-    groupMap:Dictionary<UIGroup<E>> = {};
-    _connectionSourceMap:Dictionary<UIGroup<E>> = {};
-    _connectionTargetMap:Dictionary<UIGroup<E>> = {};
+    groupMap:Dictionary<UIGroup> = {};
+    _connectionSourceMap:Dictionary<UIGroup> = {};
+    _connectionTargetMap:Dictionary<UIGroup> = {};
 
-    constructor(public instance:jsPlumbInstance<E>) {
+    constructor(public instance:jsPlumbInstance) {
 
         instance.bind(Constants.EVENT_CONNECTION, (p:any) => {
 
@@ -50,11 +50,11 @@ export class GroupManager<E> {
         });
     }
 
-    private _cleanupDetachedConnection(conn:Connection<E>) {
+    private _cleanupDetachedConnection(conn:Connection) {
         delete conn.proxies;
         let group = this._connectionSourceMap[conn.id], f;
         if (group != null) {
-            f = (c:Connection<E>) => { return c.id === conn.id; };
+            f = (c:Connection) => { return c.id === conn.id; };
             removeWithFunction(group.connections.source, f);
             removeWithFunction(group.connections.target, f);
             delete this._connectionSourceMap[conn.id];
@@ -62,7 +62,7 @@ export class GroupManager<E> {
 
         group = this._connectionTargetMap[conn.id];
         if (group != null) {
-            f = (c:Connection<E>) => { return c.id === conn.id; };
+            f = (c:Connection) => { return c.id === conn.id; };
             removeWithFunction(group.connections.source, f);
             removeWithFunction(group.connections.target, f);
             delete this._connectionTargetMap[conn.id];
@@ -77,7 +77,7 @@ export class GroupManager<E> {
         if (params.el[Constants.IS_GROUP_KEY] != null) {
             throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group");
         }
-        let group = new UIGroup<E>(this.instance, params.el, params);
+        let group = new UIGroup(this.instance, params.el, params);
         this.groupMap[group.id] = group;
         if (params.collapsed) {
             this.collapseGroup(group);
@@ -92,7 +92,7 @@ export class GroupManager<E> {
         return group;
     }
 
-    getGroup (groupId:string | UIGroup<E>):UIGroup<E> {
+    getGroup (groupId:string | UIGroup):UIGroup {
         let group = groupId;
         if (IS.aString(groupId)) {
             group = this.groupMap[groupId as string];
@@ -100,10 +100,10 @@ export class GroupManager<E> {
                 throw new TypeError("No such group [" + groupId + "]");
             }
         }
-        return group as UIGroup<E>;
+        return group as UIGroup;
     }
 
-    getGroupFor(el:E|string):UIGroup<E> {
+    getGroupFor(el:any|string):UIGroup {
         let _el = this.instance.getElement(el);
         if (_el != null) {
             const c = this.instance.getContainer();
@@ -124,7 +124,7 @@ export class GroupManager<E> {
         }
     }
 
-    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         let actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
         let newPositions = actualGroup[deleteMembers ? Constants.CMD_REMOVE_ALL : Constants.CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
@@ -140,13 +140,13 @@ export class GroupManager<E> {
         }
     }
 
-    forEach(f:(g:UIGroup<E>) => any) {
+    forEach(f:(g:UIGroup) => any) {
         for (let key in this.groupMap) {
             f(this.groupMap[key]);
         }
     }
 
-    orphan(_el:E) {
+    orphan(_el:any) {
         if (_el[Constants.GROUP_KEY]) {
             let id = this.instance.getId(_el);
             let pos = this.instance.getOffset(_el);
@@ -158,21 +158,21 @@ export class GroupManager<E> {
         }
     }
 
-    private _setGroupVisible(group:UIGroup<E>, state:boolean) {
+    private _setGroupVisible(group:UIGroup, state:boolean) {
         let m = (group.el as any).querySelectorAll("[jtk-managed]");
         for (let i = 0; i < m.length; i++) {
             this.instance[state ? Constants.CMD_SHOW : Constants.CMD_HIDE](m[i], true);
         }
     }
 
-    _updateConnectionsForGroup(group:UIGroup<E>) {
+    _updateConnectionsForGroup(group:UIGroup) {
 
         group.connections.source.length = 0;
         group.connections.target.length = 0;
 
         // get all direct members, and any of their descendants.
         const members = group.children.slice();
-        const childMembers:Array<E> = [];
+        const childMembers:Array<any> = [];
         members.forEach((member: any) => childMembers.push(...member.querySelectorAll("[jtk-managed]")));
         members.push(...childMembers);
 
@@ -181,15 +181,15 @@ export class GroupManager<E> {
             const c1 = this.instance.getConnections({
                 source: members,
                 scope: Constants.WILDCARD
-            }, true) as Array<Connection<E>>;
+            }, true) as Array<Connection>;
             const c2 = this.instance.getConnections({
                 target: members,
                 scope: Constants.WILDCARD
-            }, true) as Array<Connection<E>>;
+            }, true) as Array<Connection>;
             const processed = {};
 
             let gs, gt;
-            const oneSet = (c: Array<Connection<E>>) => {
+            const oneSet = (c: Array<Connection>) => {
                 for (let i = 0; i < c.length; i++) {
                     if (processed[c[i].id]) {
                         continue;
@@ -215,21 +215,21 @@ export class GroupManager<E> {
         }
     }
 
-    private _collapseConnection(conn:Connection<E>, index:number, group:UIGroup<E>) {
+    private _collapseConnection(conn:Connection, index:number, group:UIGroup) {
         let otherEl = conn.endpoints[index === 0 ? 1 : 0].element;
         if (otherEl[Constants.GROUP_KEY] && (!otherEl[Constants.GROUP_KEY].proxied && otherEl[Constants.GROUP_KEY].collapsed)) {
             return;
         }
 
         let groupEl = group.el, groupElId = this.instance.getId(groupEl);
-        this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection<E>, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection<E>, index:number) => { return group.getAnchor(conn, index); });
+        this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); });
     }
 
-    private _expandConnection(c:Connection<E>, index:number, group:UIGroup<E>) {
+    private _expandConnection(c:Connection, index:number, group:UIGroup) {
         this.instance.unproxyConnection(c, index, this.instance.getId(group.el));
     }
 
-    private isDescendant(el:E, parentEl:E): boolean {
+    private isDescendant(el:any, parentEl:any): boolean {
         const c = this.instance.getContainer();
         let abort = false;
         while (!abort) {
@@ -245,7 +245,7 @@ export class GroupManager<E> {
         }
     }
 
-    collapseGroup (group:string | UIGroup<E>) {
+    collapseGroup (group:string | UIGroup) {
         let actualGroup = this.getGroup(group);
         if (actualGroup == null || actualGroup.collapsed) {
             return;
@@ -258,7 +258,7 @@ export class GroupManager<E> {
 
         if (actualGroup.proxied) {
             // collapses all connections in a group.
-            const _collapseSet =  (conns:Array<Connection<E>>, index:number) => {
+            const _collapseSet =  (conns:Array<Connection>, index:number) => {
                 for (let i = 0; i < conns.length; i++) {
                     let c = conns[i];
                     this._collapseConnection(c, index, actualGroup);
@@ -277,7 +277,7 @@ export class GroupManager<E> {
         this.instance.fire(Constants.EVENT_COLLAPSE, { group:actualGroup  });
     }
 
-    expandGroup(group:string | UIGroup<E>, doNotFireEvent?:boolean) {
+    expandGroup(group:string | UIGroup, doNotFireEvent?:boolean) {
 
         let actualGroup = this.getGroup(group);
 
@@ -290,7 +290,7 @@ export class GroupManager<E> {
 
         if (actualGroup.proxied) {
             // collapses all connections in a group.
-            var _expandSet = (conns:Array<Connection<E>>, index:number) => {
+            var _expandSet = (conns:Array<Connection>, index:number) => {
                 for (let i = 0; i < conns.length; i++) {
                     let c = conns[i];
                     this._expandConnection(c, index, actualGroup);
@@ -312,14 +312,14 @@ export class GroupManager<E> {
         }
     }
 
-    toggleGroup(group:string|UIGroup<E>) {
+    toggleGroup(group:string|UIGroup) {
         group = this.getGroup(group);
         if (group != null) {
             this[group.collapsed ? "expandGroup" : "collapseGroup"](group);
         }
     }
 
-    repaintGroup (group:string|UIGroup<E>) {
+    repaintGroup (group:string|UIGroup) {
         let actualGroup = this.getGroup(group);
         const m = actualGroup.children;
         for (let i = 0; i < m.length; i++) {
@@ -327,12 +327,12 @@ export class GroupManager<E> {
         }
     }
 
-    addToGroup(group:string | UIGroup<E>, el:E | Array<E>, doNotFireEvent?:boolean) {
+    addToGroup(group:string | UIGroup, el:any | Array<any>, doNotFireEvent?:boolean) {
         let actualGroup = this.getGroup(group);
         if (actualGroup) {
             let groupEl = actualGroup.el;
 
-            const _one = (el:E) => {
+            const _one = (el:any) => {
                 if (el[Constants.IS_GROUP_KEY] != null) {
                     console.log("the thing being added is a group! is it possible to support nested groups")
                 }
@@ -350,9 +350,9 @@ export class GroupManager<E> {
                     }
                     actualGroup.add(el, doNotFireEvent);
 
-                    const handleDroppedConnections = (list:ConnectionSelection<E>, index:number) => {
+                    const handleDroppedConnections = (list:ConnectionSelection, index:number) => {
                         let oidx = index === 0 ? 1 : 0;
-                        list.each( (c:Connection<E>) => {
+                        list.each( (c:Connection) => {
                             c.setVisible(false);
                             if (c.endpoints[oidx].element[Constants.GROUP_KEY] === actualGroup) {
                                 c.endpoints[oidx].setVisible(false);
@@ -394,7 +394,7 @@ export class GroupManager<E> {
         }
     }
 
-    removeFromGroup (group:string | UIGroup<E>, el:E, doNotFireEvent?:boolean):void {
+    removeFromGroup (group:string | UIGroup, el:any, doNotFireEvent?:boolean):void {
         let actualGroup = this.getGroup(group);
         if (actualGroup) {
 
@@ -402,7 +402,7 @@ export class GroupManager<E> {
             // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
             // to be put back on their original element, and unproxied
             if (actualGroup.collapsed) {
-                const _expandSet =  (conns:Array<Connection<E>>, index:number) => {
+                const _expandSet =  (conns:Array<Connection>, index:number) => {
                     for (let i = 0; i < conns.length; i++) {
                         const c = conns[i];
                         if (c.proxies) {

@@ -193,8 +193,11 @@
             e4.bind("maxConnections", maxConnectionsCallback);
             instance.addEndpoint("dragDropWindow4", { anchor: [0.25, 0, 0, -1] }, exampleEndpoint2);
 
-            // add endpoint of type 3 using a selector.
-            instance.addEndpoint(document.querySelectorAll(".drag-drop-demo .window"), exampleEndpoint3);
+
+            var windows = document.querySelectorAll(".drag-drop-demo .window");
+            for (var i = 0; i < windows.length; i++) {
+                instance.addEndpoint(windows[i], exampleEndpoint3);
+            }
 
             var hideLinks = document.querySelectorAll(".drag-drop-demo .hide");
             instance.on(hideLinks, "click", function (e) {

@@ -5,12 +5,12 @@ import {Endpoint} from "./endpoint-impl";
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ];
 
-export class RectangleEndpoint<E> extends EndpointRepresentation<E, ComputedRectangleEndpoint> {
+export class RectangleEndpoint<E> extends EndpointRepresentation<ComputedRectangleEndpoint> {
 
     width:number;
     height:number;
 
-    constructor(endpoint:Endpoint<E>, params?:any) {
+    constructor(endpoint:Endpoint, params?:any) {
 
         super(endpoint);
 

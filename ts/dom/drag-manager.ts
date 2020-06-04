@@ -2,6 +2,7 @@ import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import {BoundingBox, Dictionary, extend, PointArray} from "../core";
 import {wrap} from "../util";
 import {intersects} from "../geom";
+import {Collicat} from "./collicat";
 
 declare const Katavorio:any;
 
@@ -67,31 +68,63 @@ export class DragManager {
 
     constructor(protected instance:BrowserJsPlumbInstance) {
 
-        const e = instance.eventManager;
-
         // create a delegated drag handler
-        this.katavorio = new Katavorio({
-            bind: this.instance.on.bind(instance),
-            unbind:this.instance.off.bind(instance),
-            getSize: this.instance.getSize.bind(instance),
-            getConstrainingRectangle: (el:HTMLElement) => {
-                return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight];
-            },
-            getPosition: (el:HTMLElement, relativeToRoot?:boolean):PointArray => {
-                let o = this.instance.getOffset(el, relativeToRoot, <any>el.offsetParent);
-                return [o.left, o.top];
-            },
-            setPosition: (el:HTMLElement, xy:PointArray):void => {
-                el.style.left = xy[0] + "px";
-                el.style.top = xy[1] + "px";
-            },
-            addClass: this.instance.addClass.bind(instance),
-            removeClass: this.instance.removeClass.bind(instance),
-            intersects: intersects,
-            indexOf: (l:Array<any>, i:any):number => {
-                return l.indexOf(i);
-            },
-            scope: this.instance.getDefaultScope(),
+        // this.katavorio = new Katavorio({
+        //     bind: this.instance.on.bind(instance),
+        //     unbind:this.instance.off.bind(instance),
+        //     getSize: this.instance.getSize.bind(instance),
+        //     getConstrainingRectangle: (el:HTMLElement) => {
+        //         return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight];
+        //     },
+        //     getPosition: (el:HTMLElement, relativeToRoot?:boolean):PointArray => {
+        //         let o = this.instance.getOffset(el, relativeToRoot, <any>el.offsetParent);
+        //         return [o.left, o.top];
+        //     },
+        //     setPosition: (el:HTMLElement, xy:PointArray):void => {
+        //         el.style.left = xy[0] + "px";
+        //         el.style.top = xy[1] + "px";
+        //     },
+        //     addClass: this.instance.addClass.bind(instance),
+        //     removeClass: this.instance.removeClass.bind(instance),
+        //     intersects: intersects,
+        //     indexOf: (l:Array<any>, i:any):number => {
+        //         return l.indexOf(i);
+        //     },
+        //     scope: this.instance.getDefaultScope(),
+        //     css: {
+        //         noSelect: this.instance.dragSelectClass,
+        //         delegatedDraggable: "jtk-delegated-draggable",
+        //         droppable: "jtk-droppable",
+        //         draggable: "jtk-draggable",
+        //         drag: "jtk-drag",
+        //         selected: "jtk-drag-selected",
+        //         active: "jtk-drag-active",
+        //         hover: "jtk-drag-hover",
+        //         ghostProxy: "jtk-ghost-proxy"
+        //     },
+        //     zoom: this.instance.getZoom(),
+        //     constrain: (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray):PointArray => {
+        //         let x = desiredLoc[0], y = desiredLoc[1];
+        //
+        //         if ((<any>dragEl)._jsPlumbGroup && (<any>dragEl)._jsPlumbGroup.constrain) {
+        //             x = Math.max(desiredLoc[0], 0);
+        //             y = Math.max(desiredLoc[1], 0);
+        //             x = Math.min(x, constrainRect.w - size[0]);
+        //             y = Math.min(y, constrainRect.h - size[1]);
+        //
+        //         }
+        //
+        //         return [x, y];
+        //     },
+        //     revert: (dragEl:HTMLElement, pos:PointArray):boolean => {
+        //         const _el = <any>dragEl;
+        //         // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
+        //         return _el.parentNode != null && _el._jsPlumbGroup && _el._jsPlumbGroup.revert ? !_isInsideParent(this.instance, _el, pos) : false;
+        //     }
+        // });
+
+        this.katavorio = new Collicat({
+            zoom:this.instance.getZoom(),
             css: {
                 noSelect: this.instance.dragSelectClass,
                 delegatedDraggable: "jtk-delegated-draggable",
@@ -103,7 +136,7 @@ export class DragManager {
                 hover: "jtk-drag-hover",
                 ghostProxy: "jtk-ghost-proxy"
             },
-            zoom: this.instance.getZoom(),
+            // TODO this should move to the specific drag handler for elements.
             constrain: (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray):PointArray => {
                 let x = desiredLoc[0], y = desiredLoc[1];
 
@@ -145,7 +178,13 @@ export class DragManager {
         }
 
         if (this.katavorioDraggable == null) {
-            this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
+            //this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
+            this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o);
+
+            this.katavorioDraggable.on("revert", (el:HTMLElement) => {
+                this.instance.revalidate(el);
+            });
+
         } else {
             this.katavorioDraggable.addSelector(o);
         }

@@ -58,7 +58,7 @@ export declare function log(...args: string[]): void;
  * note that this is a simple comparison and only works for primitives right now.
  */
 export declare function wrap(wrappedFunction: Function, newFunction: Function, returnOnThisValue?: any): () => any;
-export declare function sortHelper(_array: Array<any>, _fn: SortFunction): Array<any>;
+export declare function sortHelper<T>(_array: Array<T>, _fn: SortFunction<T>): Array<T>;
 export declare function _mergeOverrides(def: any, values: any): any;
 export declare type MapFunction<T, Q> = (v: T) => Q;
 export interface Optional<T> {
