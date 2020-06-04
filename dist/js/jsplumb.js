@@ -12185,6 +12185,7 @@
 
       var _oClick = function _oClick(method, e) {
         consume(e);
+
         var overlayElement = findParent(e.srcElement || e.target, SELECTOR_OVERLAY, this.getContainer());
         var overlay = overlayElement.jtk.overlay;
         overlay[method](e);
@@ -12754,6 +12755,17 @@
         }
 
         (_this$elementDragHand3 = this.elementDragHandler).setPosseState.apply(_this$elementDragHand3, [state].concat(els));
+      }
+      /**
+       * Consumes the given event.
+       * @param e
+       * @param doNotPreventDefault
+       */
+
+    }, {
+      key: "consume",
+      value: function consume$1(e, doNotPreventDefault) {
+        consume(e, doNotPreventDefault);
       }
     }]);
 
