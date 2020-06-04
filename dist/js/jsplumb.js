@@ -6932,6 +6932,25 @@
       value: function fireMoveEvent(params, evt) {
         this.fire(EVENT_CONNECTION_MOVED, params, evt);
       }
+      /**
+       * Manage a group of elements.
+       * @param elements Array-like object of strings or DOM elements.
+       * @param recalc Maybe recalculate offsets for the element also.
+       */
+
+    }, {
+      key: "manageAll",
+      value: function manageAll(elements, recalc) {
+        for (var i = 0; i < elements.length; i++) {
+          this.manage(elements[i], recalc);
+        }
+      }
+      /**
+       * Manage an element.
+       * @param element String, or DOM element.
+       * @param recalc Maybe recalculate offsets for the element also.
+       */
+
     }, {
       key: "manage",
       value: function manage(element, recalc) {
@@ -6973,6 +6992,11 @@
           }
         }
       }
+      /**
+       * Stops managing the given element.
+       * @param id ID of the element to stop managing.
+       */
+
     }, {
       key: "unmanage",
       value: function unmanage(id) {
@@ -10381,6 +10405,7 @@
     _inherits(Drag, _Base);
 
     // a map of { spec -> [ fn, exclusion ] } entries.
+    //_dragClass:string = "";
     function Drag(el, params, k) {
       var _this;
 
@@ -10388,7 +10413,7 @@
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Drag).call(this, el, k));
 
-      _defineProperty(_assertThisInitialized(_this), "_class", _classes.draggable);
+      _defineProperty(_assertThisInitialized(_this), "_class", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "rightButtonCanDrag", void 0);
 
@@ -10472,10 +10497,18 @@
 
       _defineProperty(_assertThisInitialized(_this), "upListener", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "_dragClass", "");
+      _defineProperty(_assertThisInitialized(_this), "listeners", {
+        "start": [],
+        "drag": [],
+        "stop": [],
+        "over": [],
+        "out": [],
+        "beforeStart": [],
+        "revert": []
+      });
 
-      _defineProperty(_assertThisInitialized(_this), "listeners", {});
-
+      _this._class = _this.k.css.draggable;
+      addClass(_this.el, _this._class);
       _this.downListener = _this._downListener.bind(_assertThisInitialized(_this));
       _this.upListener = _this._upListener.bind(_assertThisInitialized(_this));
       _this.moveListener = _this._moveListener.bind(_assertThisInitialized(_this));
@@ -10702,9 +10735,9 @@
 
 
           if (this._downAt) {
-            var pos = pageLocation(e),
-                dx = pos[0] - this._downAt[0],
-                dy = pos[1] - this._downAt[1],
+            var _pos = pageLocation(e),
+                dx = _pos[0] - this._downAt[0],
+                dy = _pos[1] - this._downAt[1],
                 z = this._ignoreZoom ? 1 : this.k.getZoom();
 
             if (this._dragEl && this._dragEl.parentNode) {
@@ -10726,7 +10759,7 @@
         this._pagePosAtDown = getOffsetRect(this._dragEl);
         this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]];
         this._size = _getSize(this._dragEl);
-        addClass(this._dragEl, this._dragClass || _classes.drag);
+        addClass(this._dragEl, this.k.css.drag);
         var cs; // if (this._getConstrainingRectangle) {
         //     cs = this._getConstrainingRectangle(this._dragEl)
         // } else {
@@ -10754,7 +10787,7 @@
           this._ghostProxyOffsets = null;
         }
 
-        removeClass(this._dragEl, this._dragClass || _classes.drag);
+        removeClass(this._dragEl, this.k.css.drag);
         this._isConstrained = false;
       }
     }, {
@@ -11115,6 +11148,10 @@
 
       _defineProperty(this, "inputFilterSelector", void 0);
 
+      _defineProperty(this, "constrain", void 0);
+
+      _defineProperty(this, "revert", void 0);
+
       options = options || {};
       this.inputFilterSelector = options.inputFilterSelector || DEFAULT_INPUT_FILTER_SELECTOR;
       this.eventManager = new EventManager();
@@ -11123,6 +11160,8 @@
       var _c = options.css || {};
 
       extend(this.css, _c);
+      this.constrain = options.constrain;
+      this.revert = options.revert;
     }
 
     _createClass(Collicat, [{
@@ -11139,6 +11178,15 @@
       key: "_prepareParams",
       value: function _prepareParams(p) {
         p = p || {};
+
+        if (p.constrain == null && this.constrain != null) {
+          p.constrain = this.constrain;
+        }
+
+        if (p.revert == null && this.revert != null) {
+          p.revert = this.revert;
+        }
+
         var _p = {
           events: {}
         },
@@ -11201,12 +11249,25 @@
         if (el._katavorioDrag) {
           // current selection? are we handling that?
           el._katavorioDrag.destroy();
+
+          delete el._katavorioDrag;
         }
       }
     }]);
 
     return Collicat;
   }();
+
+  function _isInsideParent(instance, _el, pos) {
+    var p = _el.parentNode,
+        s = instance.getSize(p),
+        ss = instance.getSize(_el),
+        leftEdge = pos[0],
+        rightEdge = leftEdge + ss[0],
+        topEdge = pos[1],
+        bottomEdge = topEdge + ss[1];
+    return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
+  }
 
   var CLASS_DRAG_SELECTED = "jtk-drag-selected";
   var CLASS_DRAG_ACTIVE = "jtk-drag-active";
@@ -11312,6 +11373,25 @@
           active: "jtk-drag-active",
           hover: "jtk-drag-hover",
           ghostProxy: "jtk-ghost-proxy"
+        },
+        // TODO this should move to the specific drag handler for elements.
+        constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {
+          var x = desiredLoc[0],
+              y = desiredLoc[1];
+
+          if (dragEl._jsPlumbGroup && dragEl._jsPlumbGroup.constrain) {
+            x = Math.max(desiredLoc[0], 0);
+            y = Math.max(desiredLoc[1], 0);
+            x = Math.min(x, constrainRect.w - size[0]);
+            y = Math.min(y, constrainRect.h - size[1]);
+          }
+
+          return [x, y];
+        },
+        revert: function revert(dragEl, pos) {
+          var _el = dragEl; // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
+
+          return _el.parentNode != null && _el._jsPlumbGroup && _el._jsPlumbGroup.revert ? !_isInsideParent(_this.instance, _el, pos) : false;
         }
       });
       this.instance.bind("zoom", function (z) {
@@ -11322,6 +11402,8 @@
     _createClass(DragManager, [{
       key: "addHandler",
       value: function addHandler(handler, dragOptions) {
+        var _this2 = this;
+
         var o = extend({
           selector: handler.selector
         }, dragOptions || {});
@@ -11346,6 +11428,9 @@
         if (this.katavorioDraggable == null) {
           //this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o)[0];
           this.katavorioDraggable = this.katavorio.draggable(this.instance.getContainer(), o);
+          this.katavorioDraggable.on("revert", function (el) {
+            _this2.instance.revalidate(el);
+          });
         } else {
           this.katavorioDraggable.addSelector(o);
         }
@@ -11535,14 +11620,13 @@
         }
 
         var _one = function _one(el, bounds, e) {
-          // TODO  calculate if there is a target group
           _this2._groupLocations.forEach(function (groupLoc) {
             if (intersects(bounds, groupLoc.r)) {
               _this2.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
 
               _this2._intersectingGroups.push({
                 group: groupLoc.group,
-                intersectingElement: el,
+                intersectingElement: params.drag.getDragElement(true),
                 d: 0
               });
             } else {
