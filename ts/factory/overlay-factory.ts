@@ -4,7 +4,7 @@ import {Component} from "../component/component";
 const overlayMap:Dictionary<Constructable<Overlay>> = {};
 
 export const OverlayFactory = {
-    get:(instance:jsPlumbInstance<any>, name:string, component:Component, params:any):Overlay => {
+    get:(instance:jsPlumbInstance, name:string, component:Component, params:any):Overlay => {
 
         let c:Constructable<Overlay> = overlayMap[name];
         if (!c) {

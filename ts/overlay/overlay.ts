@@ -53,7 +53,7 @@ export abstract class Overlay extends EventGenerator {
 
     events?:Dictionary<Function>;
 
-    constructor(public instance:jsPlumbInstance<any>, public component:Component, p:OverlayOptions) {
+    constructor(public instance:jsPlumbInstance, public component:Component, p:OverlayOptions) {
         super();
         p = p || {};
         this.id = p.id  || uuid();

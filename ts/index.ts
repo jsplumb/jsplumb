@@ -90,7 +90,7 @@ function getInstanceIndex ():number {
     return i;
 }
 
-export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions<HTMLElement>): BrowserJsPlumbInstance {
+export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers);
 }
 

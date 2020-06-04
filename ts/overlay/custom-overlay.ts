@@ -6,7 +6,7 @@ export class CustomOverlay extends Overlay {
 
     create:(c:Component) => any;
 
-    constructor(public instance:jsPlumbInstance<any>, public component:Component,
+    constructor(public instance:jsPlumbInstance, public component:Component,
                 p:CustomOverlayOptions) {
 
         super(instance, component, p);

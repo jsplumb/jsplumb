@@ -59,7 +59,7 @@ export abstract class OverlayCapableComponent extends Component {
     overlays:Dictionary<Overlay> = {};
     overlayPositions:Dictionary<PointArray> = {};
 
-    constructor(public instance:jsPlumbInstance<any>, params: OverlayComponentOptions) {
+    constructor(public instance:jsPlumbInstance, params: OverlayComponentOptions) {
         super(instance, params);
 
         params = params || {};

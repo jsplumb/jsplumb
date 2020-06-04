@@ -12,7 +12,7 @@ export class HTMLElementOverlay {
 
     protected htmlElementOverlay:HTMLElementOverlayHolder;
 
-    constructor(public instance:jsPlumbInstance<any>, public overlay: Overlay) {
+    constructor(public instance:jsPlumbInstance, public overlay: Overlay) {
         this.htmlElementOverlay = overlay as HTMLElementOverlayHolder;
     }
 

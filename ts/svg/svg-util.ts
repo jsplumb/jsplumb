@@ -29,7 +29,7 @@ export function _attr (node:SVGElement, attributes:ElementAttributes) {
     }
 }
 
-export function _node<E>(instance:jsPlumbInstance<E>, name:string, attributes?:ElementAttributes):SVGElement {
+export function _node<E>(instance:jsPlumbInstance, name:string, attributes?:ElementAttributes):SVGElement {
     attributes = attributes || {};
     attributes.version = "1.1";
     attributes.xmlns = ns.svg;

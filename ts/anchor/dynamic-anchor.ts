@@ -38,7 +38,7 @@ const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, t
     return anchors[minIdx];
 };
 
-function _convertAnchor(anchor:Anchor | AnchorSpec, instance:jsPlumbInstance<any>, elementId:string):Anchor {
+function _convertAnchor(anchor:Anchor | AnchorSpec, instance:jsPlumbInstance, elementId:string):Anchor {
     return anchor instanceof Anchor ? (anchor as Anchor) : makeAnchorFromSpec(instance, anchor as AnchorSpec, elementId);
 }
 
@@ -50,7 +50,7 @@ export class DynamicAnchor extends Anchor {
 
     private _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => Anchor = null;
 
-    constructor(public instance:jsPlumbInstance<any>, options:DynamicAnchorOptions) {
+    constructor(public instance:jsPlumbInstance, options:DynamicAnchorOptions) {
         super(instance, options);
 
         this.isDynamic = true;

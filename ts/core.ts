@@ -34,7 +34,7 @@ export type ElementRef = ElementId | any;
 export type ElementGroupRef = ElementId | any | Array<ElementId> | Array<any>;
 export type ConnectionId = string;
 
-export interface ConnectParams<E> {
+export interface ConnectParams {
     uuids?: [UUID, UUID];
     source?: ElementRef | Endpoint;
     target?: ElementRef | Endpoint;
@@ -53,7 +53,7 @@ export interface ConnectParams<E> {
     endpointHoverStyle?:PaintStyle;
 }
 
-interface InternalConnectParams<E> extends ConnectParams<E> {
+interface InternalConnectParams extends ConnectParams {
     sourceEndpoint?:Endpoint;
     targetEndpoint?:Endpoint;
     scope?:string;
@@ -79,7 +79,7 @@ export interface TypeDescriptor {
 }
 
 
-export interface DeleteOptions<E> {
+export interface DeleteOptions {
     connection?:Connection;
     endpoint?:Endpoint;
     dontUpdateHover?:boolean;
@@ -88,7 +88,7 @@ export interface DeleteOptions<E> {
     fireEvent?:boolean;
 }
 
-export interface DeleteResult<E> {
+export interface DeleteResult {
     endpoints:Dictionary<Endpoint>;
     connections:Dictionary<Connection>;
     endpointCount:number;
@@ -126,7 +126,7 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
-export type ElementSpec<E> = string | E | Array<string | E>;
+export type ElementSpec = string | any | Array<string | any>;
 
 export type SortFunction<T> = (a:T,b:T) => number;
 
@@ -134,7 +134,7 @@ export type Constructable<T> = { new(...args: any[]): T };
 
 export type Timestamp = string;
 
-function _scopeMatch<E>(e1:Endpoint, e2:Endpoint):boolean {
+function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
     for (let i = 0; i < s1.length; i++) {
         for (let j = 0; j < s2.length; j++) {
@@ -246,7 +246,7 @@ function getter (list:Array<any>, func:string) {
     };
 }
 
-function prepareList<E>(instance:jsPlumbInstance<E>, input:any, doNotGetIds?:boolean):any {
+function prepareList(instance:jsPlumbInstance, input:any, doNotGetIds?:boolean):any {
     let r = [];
     if (input) {
         if (typeof input === 'string') {
@@ -322,14 +322,14 @@ function _curryGet<T>(list:Array<T>) {
 }
 
 type ContainerDelegation = [ string, Function ];
-type ManagedElement<E> = {
-    el:E,
+type ManagedElement = {
+    el:any,
     info?:{o:Offset, s:Size},
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>
 };
 
-export abstract class jsPlumbInstance<E> extends EventGenerator {
+export abstract class jsPlumbInstance extends EventGenerator {
 
     Defaults:jsPlumbDefaults;
     private _initialDefaults:jsPlumbDefaults = {};
@@ -374,49 +374,49 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     groupManager:GroupManager;
     _connectionTypes:Dictionary<TypeDescriptor> = {};
     _endpointTypes:Dictionary<TypeDescriptor> = {};
-    _container:E;
+    _container:any;
 
-    _managedElements:Dictionary<ManagedElement<E>> = {};
+    _managedElements:Dictionary<ManagedElement> = {};
     _floatingConnections:Dictionary<Connection> = {};
 
     DEFAULT_SCOPE:string;
 
-    _helpers?:jsPlumbHelperFunctions<E>;
+    _helpers?:jsPlumbHelperFunctions;
 
     _zoom:number = 1;
 
-    abstract getElement(el:E|string):E;
-    abstract getElementById(el:string):E;
-    abstract removeElement(el:E|string):void;
-    abstract appendElement (el:E, parent:E):void;
+    abstract getElement(el:any|string):any;
+    abstract getElementById(el:string):any;
+    abstract removeElement(el:any|string):void;
+    abstract appendElement (el:any, parent:any):void;
 
-    abstract removeClass(el:E, clazz:string):void;
-    abstract addClass(el:E, clazz:string):void;
-    abstract toggleClass(el:E, clazz:string):void;
-    abstract getClass(el:E):string;
-    abstract hasClass(el:E, clazz:string):boolean;
+    abstract removeClass(el:any, clazz:string):void;
+    abstract addClass(el:any, clazz:string):void;
+    abstract toggleClass(el:any, clazz:string):void;
+    abstract getClass(el:any):string;
+    abstract hasClass(el:any, clazz:string):boolean;
 
-    abstract setAttribute(el:E, name:string, value:string):void;
-    abstract getAttribute(el:E, name:string):string;
-    abstract setAttributes(el:E, atts:Dictionary<string>):void
-    abstract removeAttribute(el:E, attName:string):void;
+    abstract setAttribute(el:any, name:string, value:string):void;
+    abstract getAttribute(el:any, name:string):string;
+    abstract setAttributes(el:any, atts:Dictionary<string>):void
+    abstract removeAttribute(el:any, attName:string):void;
 
-    abstract getSelector(ctx:string | E, spec?:string):NodeListOf<any>;
-    abstract getStyle(el:E, prop:string):any;
+    abstract getSelector(ctx:string | any, spec?:string):NodeListOf<any>;
+    abstract getStyle(el:any, prop:string):any;
 
-    abstract _getSize(el:E):Size;
-    abstract _getOffset(el:E|string, relativeToRoot?:boolean, container?:E):Offset;
-    abstract setPosition(el:E, p:Offset):void;
+    abstract _getSize(el:any):Size;
+    abstract _getOffset(el:any|string, relativeToRoot?:boolean, container?:any):Offset;
+    abstract setPosition(el:any, p:Offset):void;
     abstract getUIPosition(eventArgs:any):Offset;
 
-    abstract on (el:E, event:string, callbackOrSelector:Function | string, callback?:Function):void;
-    abstract off (el:E, event:string, callback:Function):void;
-    abstract trigger(el:E, event:string, originalEvent?:Event, payload?:any):void;
+    abstract on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void;
+    abstract off (el:any, event:string, callback:Function):void;
+    abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void;
 
-    abstract createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):E;
-    abstract createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):E;
+    abstract createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):any;
+    abstract createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string | number>):any;
 
-    constructor(protected _instanceIndex:number, public renderer:Renderer<E>, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions<E>) {
+    constructor(protected _instanceIndex:number, public renderer:Renderer, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
 
         super();
 
@@ -457,15 +457,15 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.setContainer(this._initialDefaults.container);
     }
 
-    getSize(el:E) {
+    getSize(el:any) {
         return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el);
     }
 
-    getOffset(el:E|string, relativeToRoot?:boolean, container?:E) {
+    getOffset(el:any|string, relativeToRoot?:boolean, container?:any) {
         return this._helpers.getOffset ? this._helpers.getOffset(el, relativeToRoot, container) : this._getOffset(el, relativeToRoot, container);
     }
 
-    getContainer():E { return this._container; }
+    getContainer():any { return this._container; }
 
     setZoom (z:number, repaintEverything?:boolean):boolean {
         this._zoom = z;
@@ -480,12 +480,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this._zoom;
     }
 
-    _info (el:string | E):{el:E, text?:boolean, id?:string} {
+    _info (el:string | any):{el:any, text?:boolean, id?:string} {
         if (el == null) {
             return null;
         }
         else if ((<any>el).nodeType === 3 || (<any>el).nodeType === 8) {
-            return { el:el as E, text:true };
+            return { el:el, text:true };
         }
         else {
             let _el = this.getElement(el);
@@ -526,7 +526,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return r;
     }
 
-    getInternalId(element:E):string {
+    getInternalId(element:any):string {
         let id = (element as any)._jsplumbid;
         if (id == null) {
             id = "jsplumb_" + this._instanceIndex + "_" + this._idstamp();
@@ -535,7 +535,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return id;
     }
 
-    getId (element:string | E, uuid?:string):string {
+    getId (element:string | any, uuid?:string):string {
         if (isString(element)) {
             return element as string;
         }
@@ -543,7 +543,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             return null;
         }
 
-        let id:string = this.getAttribute(element as E, "id");
+        let id:string = this.getAttribute(element, "id");
         if (!id || id === "undefined") {
             // check if fixed uuid parameter is given
             if (arguments.length === 2 && arguments[1] !== undefined) {
@@ -553,7 +553,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 id = "jsPlumb_" + this._instanceIndex + "_" + this._idstamp();
             }
 
-            this.setAttribute(element as E, "id", id);
+            this.setAttribute(element, "id", id);
         }
         return id;
     }
@@ -564,9 +564,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param newId
      * @param doNotSetAttribute
      */
-    setId (el:string | E, newId:string, doNotSetAttribute?:boolean):void {
+    setId (el:any, newId:string, doNotSetAttribute?:boolean):void {
         //
-        let id:string, _el:E;
+        let id:string, _el:any;
 
         if (isString(el)) {
             id = el as string;
@@ -793,14 +793,14 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this._makeEndpointSelectHandler(ep);
     }
 
-    setContainer(c:E|string):void {
+    setContainer(c:any|string):void {
         // get container as element and set container.
         this._container = this.getElement(c);;
         // tell people.
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
     }
 
-    private _set (c:Connection, el:E|Endpoint, idx:number, doNotRepaint?:boolean):any {
+    private _set (c:Connection, el:any|Endpoint, idx:number, doNotRepaint?:boolean):any {
 
         const stTypes = [
             { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
@@ -866,12 +866,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     }
 
-    setSource (connection:Connection, el:E|Endpoint, doNotRepaint?:boolean):void {
+    setSource (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 0, doNotRepaint);
         this.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
     }
 
-    setTarget (connection:Connection, el:E|Endpoint, doNotRepaint?:boolean):void {
+    setTarget (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 1, doNotRepaint);
         connection.updateConnectedClass();
     };
@@ -935,7 +935,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param spec An Element, or an element id, or an array of elements/element ids.
      * @param fn The function to run on each element.
      */
-    each(spec:ElementSpec<E>, fn:(e:E) => any):jsPlumbInstance<E> {
+    each(spec:ElementSpec, fn:(e:any) => any):jsPlumbInstance {
         if (spec == null) {
             return;
         }
@@ -948,7 +948,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             }
         }
         else {
-            fn(spec as E);
+            fn(spec);
         } // assume it's an element.
 
         return this;
@@ -1051,7 +1051,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return deletedCount;
     }
 
-    deleteConnectionsForElement(el:E|string, params?:DeleteConnectionOptions):jsPlumbInstance<E> {
+    deleteConnectionsForElement(el:any|string, params?:DeleteConnectionOptions):jsPlumbInstance {
         params = params || {};
         let _el = this.getElement(el);
         let id = this.getId(_el), endpoints = this.endpointsByElement[id];
@@ -1103,9 +1103,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param element String, or DOM element.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage (element:ElementSpec<E>, recalc?:boolean):void {
+    manage (element:ElementSpec, recalc?:boolean):void {
 
-        const el:E = IS.aString(element) ? this.getElementById(element as string) : element as E;
+        const el:any = IS.aString(element) ? this.getElementById(element as string) : element;
         const elId = this.getId(el);
         if (!this._managedElements[elId]) {
             this._managedElements[elId] = {
@@ -1180,14 +1180,14 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     // repaint some element's endpoints and connections
-    repaint (el:string | E | Array<string | E>, ui?:any, timestamp?:string):jsPlumbInstance<E> {
-        return this.each(el, (_el:E | string) => {
+    repaint (el:string | any | Array<string | any>, ui?:any, timestamp?:string):jsPlumbInstance {
+        return this.each(el, (_el:any | string) => {
             this._draw(_el, ui, timestamp);
         });
     }
 
-    revalidate (el:string | E | Array<string | E>, timestamp?:string, isIdAlready?:boolean):jsPlumbInstance<E> {
-        return this.each(el, (_el:E | string) => {
+    revalidate (el:string | any | Array<string | any>, timestamp?:string, isIdAlready?:boolean):jsPlumbInstance {
+        return this.each(el, (_el:any | string) => {
             let elId = isIdAlready ? _el as string : this.getId(_el);
             this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
             this.repaint(_el);
@@ -1195,7 +1195,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     // repaint every endpoint and connection.
-    repaintEverything ():jsPlumbInstance<E> {
+    repaintEverything ():jsPlumbInstance {
         // TODO this timestamp causes continuous anchors to not repaint properly.
         // fix this. do not just take out the timestamp. it runs a lot faster with
         // the timestamp included.
@@ -1218,14 +1218,14 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param el
      * @private
      */
-    abstract _getAssociatedElements(el:E):Array<E>;
+    abstract _getAssociatedElements(el:any):Array<any>;
 
-    _draw(element:string | E, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean) {
+    _draw(element:string | any, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean) {
 
         if (!this._suspendDrawing) {
 
             let id = typeof element === "string" ? element as string : this.getId(element),
-                el = typeof element === "string" ? this.getElementById(element as string) : element as E;
+                el = typeof element === "string" ? this.getElementById(element as string) : element;
 
             if (el != null) {
                 let repaintEls = this._getAssociatedElements(el),
@@ -1264,8 +1264,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    deleteObject(params:DeleteOptions<E>):DeleteResult<E> {
-        let result:DeleteResult<E> = {
+    deleteObject(params:DeleteOptions):DeleteResult {
+        let result:DeleteResult = {
                 endpoints: {},
                 connections: {},
                 endpointCount: 0,
@@ -1361,7 +1361,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    deleteEndpoint(object:string | Endpoint, dontUpdateHover?:boolean, deleteAttachedObjects?:boolean):jsPlumbInstance<E> {
+    deleteEndpoint(object:string | Endpoint, dontUpdateHover?:boolean, deleteAttachedObjects?:boolean):jsPlumbInstance {
         let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint;
         if (endpoint) {
             this.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, deleteAttachedObjects:deleteAttachedObjects });
@@ -1369,7 +1369,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    addEndpoint(el:string|E, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
+    addEndpoint(el:string|any, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
         referenceParams = referenceParams || {} as EndpointOptions;
         let p:EndpointOptions = extend({}, referenceParams);
         extend(p, params);
@@ -1393,7 +1393,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return e;
     }
 
-    addEndpoints(el:E, endpoints:Array<EndpointOptions>, referenceParams?:any):Array<Endpoint> {
+    addEndpoints(el:any, endpoints:Array<EndpointOptions>, referenceParams?:any):Array<Endpoint> {
         let results:Array<Endpoint> = [];
         for (let i = 0, j = endpoints.length; i < j; i++) {
             results.push(this.addEndpoint(el, endpoints[i], referenceParams));
@@ -1428,7 +1428,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.unbind();
     }
 
-    getEndpoints(el:string|E):Array<Endpoint> {
+    getEndpoints(el:string|any):Array<Endpoint> {
         return this.endpointsByElement[this._info(el).id] || [];
     }
 
@@ -1436,7 +1436,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this.endpointsByUUID[id];
     }
 
-    connect (params:ConnectParams<E>, referenceParams?:ConnectParams<E>):Connection {
+    connect (params:ConnectParams, referenceParams?:ConnectParams):Connection {
 
         // prepare a final set of parameters to create connection with
 
@@ -1466,10 +1466,10 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return jpc;
     }
 
-    _prepareConnectionParams(params:ConnectParams<E>, referenceParams?:ConnectParams<E>):any {
+    _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):any {
 
 
-        let _p:InternalConnectParams<E> = extend({ }, params);
+        let _p:InternalConnectParams = extend({ }, params);
         if (referenceParams) {
             extend(_p, referenceParams);
         }
@@ -1480,7 +1480,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 _p.sourceEndpoint = (_p.source as Endpoint);
             }
             else {
-                _p.source = this.getElement(_p.source as any) as E;
+                _p.source = this.getElement(_p.source as any);
             }
         }
         if (_p.target) {
@@ -1488,7 +1488,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 _p.targetEndpoint = (_p.target as Endpoint);
             }
             else {
-                _p.target = this.getElement(_p.target as any) as E;
+                _p.target = this.getElement(_p.target as any);
             }
         }
 
@@ -1535,7 +1535,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
         }
 
-        let _addEndpoint = (el:E, def?:any, idx?:number):Endpoint | Array<Endpoint> => {
+        let _addEndpoint = (el:any, def?:any, idx?:number):Endpoint | Array<Endpoint> => {
             const params = _mergeOverrides(def, {
                 anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                 endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
@@ -1668,9 +1668,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    private _doRemove(info:{el:E, text?:boolean, id?:string}, affectedElements:Array<{el:E, text?:boolean, id?:string}>):void {
+    private _doRemove(info:{el:any, text?:boolean, id?:string}, affectedElements:Array<{el:any, text?:boolean, id?:string}>):void {
         this.removeAllEndpoints(info.id, true, affectedElements);
-        let _one = (_info:{el:E, text?:boolean, id?:string}) => {
+        let _one = (_info:{el:any, text?:boolean, id?:string}) => {
 
             if (info.el != null) {
                 this.anchorManager.clearFor(_info.id);
@@ -1702,7 +1702,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     //
     // TODO this method performs DOM operations, and shouldnt.
-    remove(el:string|E, doNotRepaint?:boolean):jsPlumbInstance<E> {
+    remove(el:string|any, doNotRepaint?:boolean):jsPlumbInstance {
         let info = this._info(el), affectedElements:Array<any> = [];
         if (info.text && (info.el as any).parentNode) {
             (info.el as any).parentNode.removeChild(info.el);
@@ -1715,9 +1715,9 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    removeAllEndpoints(el:string | E, recurse?:boolean, affectedElements?:Array<any>):jsPlumbInstance<E> {
+    removeAllEndpoints(el:string | any, recurse?:boolean, affectedElements?:Array<any>):jsPlumbInstance {
         affectedElements = affectedElements || [];
-        let _one = (_el:string | E) => {
+        let _one = (_el:string | any) => {
             let info = this._info(_el),
                 ebe = this.endpointsByElement[info.id],
                 i, ii;
@@ -1744,7 +1744,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    private _setEnabled (type:string, el:ElementSpec<E>, state:boolean, toggle?:boolean, connectionType?:string):any {
+    private _setEnabled (type:string, el:ElementSpec, state:boolean, toggle?:boolean, connectionType?:string):any {
         let originalState:Array<any> = [], newState, os;
 
         connectionType = connectionType || Constants.DEFAULT;
@@ -1768,24 +1768,24 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     }
 
-    toggleSourceEnabled (el:E, connectionType?:string):any {
+    toggleSourceEnabled (el:any, connectionType?:string):any {
         this._setEnabled(Constants.SOURCE, el, null, true, connectionType);
         return this.isSourceEnabled(el, connectionType);
     }
 
-    setSourceEnabled (el:ElementSpec<E>, state:boolean, connectionType?:string):any {
+    setSourceEnabled (el:ElementSpec, state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.SOURCE, el, state, null, connectionType);
     }
 
-    findFirstSourceDefinition(el:E, connectionType?:string):any {
+    findFirstSourceDefinition(el:any, connectionType?:string):any {
         return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType);
     }
 
-    findFirstTargetDefinition(el:E, connectionType?:string):any {
+    findFirstTargetDefinition(el:any, connectionType?:string):any {
         return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType);
     }
 
-    private findFirstDefinition(key:string, el:E, connectionType?:string):any {
+    private findFirstDefinition(key:string, el:any, connectionType?:string):any {
         let eldefs = el[key];
         if (eldefs && eldefs.length > 0) {
             let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d:any) => { return d.def.connectionType === connectionType; });
@@ -1795,30 +1795,30 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    isSource (el:E, connectionType?:string):any {
+    isSource (el:any, connectionType?:string):any {
         return this.findFirstSourceDefinition(el, connectionType) != null;
     }
 
-    isSourceEnabled (el:E, connectionType?:string):boolean {
+    isSourceEnabled (el:any, connectionType?:string):boolean {
         let def = this.findFirstSourceDefinition(el, connectionType);
         return def != null && def.enabled !== false;
     }
 
-    toggleTargetEnabled(el:E, connectionType?:string):any {
+    toggleTargetEnabled(el:any, connectionType?:string):any {
         this._setEnabled(Constants.TARGET, el, null, true, connectionType);
         return this.isTargetEnabled(el, connectionType);
     };
 
-    isTarget(el:E, connectionType?:string):boolean {
+    isTarget(el:any, connectionType?:string):boolean {
         return this.findFirstTargetDefinition(el, connectionType) != null;
     }
 
-    isTargetEnabled (el:E, connectionType?:string):boolean {
+    isTargetEnabled (el:any, connectionType?:string):boolean {
         let def = this.findFirstTargetDefinition(el, connectionType);
         return def != null && def.enabled !== false;
     }
 
-    setTargetEnabled(el:E, state:boolean, connectionType?:string):any {
+    setTargetEnabled(el:any, state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.TARGET, el, state, null, connectionType);
     }
 
@@ -1827,11 +1827,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return makeAnchorFromSpec(this, spec, elementId);
     }
 
-    private _unmake (type:string, key:string, el:ElementSpec<E>, connectionType?:string) {
+    private _unmake (type:string, key:string, el:ElementSpec, connectionType?:string) {
 
         connectionType = connectionType || "*";
 
-        this.each(el, (_el:E) => {
+        this.each(el, (_el:any) => {
             if (_el[key]) {
                 if (connectionType === "*") {
                     delete _el[key];
@@ -1863,12 +1863,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     // see api docs
-    unmakeTarget (el:E, connectionType?:string) {
+    unmakeTarget (el:any, connectionType?:string) {
         return this._unmake(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, el, connectionType);
     }
 
     // see api docs
-    unmakeSource (el:E, connectionType?:string) {
+    unmakeSource (el:any, connectionType?:string) {
         return this._unmake(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, el, connectionType);
     }
 
@@ -1882,7 +1882,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this._unmakeEvery(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, connectionType || "*");
     }
 
-    private _writeScopeAttribute (el:E, scope:string):void {
+    private _writeScopeAttribute (el:any, scope:string):void {
         let scopes = scope.split(/\s/);
         for (let i = 0; i < scopes.length; i++) {
             this.setAttribute(el, "jtk-scope-" + scopes[i], "");
@@ -1890,7 +1890,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     }
 
     // TODO knows about the DOM
-    makeSource(el:ElementSpec<E>, params?:any, referenceParams?:any):jsPlumbInstance<E> {
+    makeSource(el:ElementSpec, params?:any, referenceParams?:any):jsPlumbInstance {
         let p = extend({_jsPlumb: this}, referenceParams);
         extend(p, params);
         p.connectionType = p.connectionType || Constants.DEFAULT;
@@ -1899,7 +1899,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         p.anchor = p.anchor || aae.anchors[0];
         let maxConnections = p.maxConnections || -1;
 
-        const _one = (_el:E) => {
+        const _one = (_el:any) => {
 
             let elInfo = this._info(_el);
             // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -1938,7 +1938,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    private _getScope(el:E|string, defKey:string):string {
+    private _getScope(el:any|string, defKey:string):string {
         let elInfo = this._info(el);
         if (elInfo.el && elInfo.el[defKey] && elInfo.el[defKey].length > 0) {
             return elInfo.el[defKey][0].def.scope;
@@ -1947,39 +1947,39 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    getSourceScope(el:E|string):string {
+    getSourceScope(el:any|string):string {
         return this._getScope(el, Constants.SOURCE_DEFINITION_LIST);
     }
 
-    getTargetScope(el:E|string):string {
+    getTargetScope(el:any|string):string {
         return this._getScope(el, Constants.TARGET_DEFINITION_LIST);
     }
 
-    getScope(el:E|string):string {
+    getScope(el:any|string):string {
         return this.getSourceScope(el) || this.getTargetScope(el);
     }
 
-    private _setScope(el:E|string, scope:string, defKey:string):void {
+    private _setScope(el:any|string, scope:string, defKey:string):void {
         let elInfo = this._info(el);
         if (elInfo.el && elInfo.el[defKey]) {
             elInfo.el[defKey].forEach((def:any) => def.def.scope = scope);
         }
     }
 
-    setSourceScope(el:E|string, scope:string):void {
+    setSourceScope(el:any|string, scope:string):void {
         this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST);
     }
 
-    setTargetScope(el:E|string, scope:string):void {
+    setTargetScope(el:any|string, scope:string):void {
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST);
     }
 
-    setScope(el:E|string, scope:string):void {
+    setScope(el:any|string, scope:string):void {
         this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST);
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST);
     }
 
-    makeTarget (el:ElementSpec<E>, params:any, referenceParams?:any):jsPlumbInstance<E> {
+    makeTarget (el:ElementSpec, params:any, referenceParams?:any):jsPlumbInstance {
 
         // put jsplumb ref into params without altering the params passed in
         let p = extend({_jsPlumb: this}, referenceParams);
@@ -1988,7 +1988,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         let maxConnections = p.maxConnections || -1;//,
 
-        const _one = (_el:E) => {
+        const _one = (_el:any) => {
 
             // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
             // and use the endpoint definition if found.
@@ -2032,17 +2032,17 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    show (el:string|E, changeEndpoints?:boolean):jsPlumbInstance<E> {
+    show (el:string|any, changeEndpoints?:boolean):jsPlumbInstance {
         this._setVisible(el, Constants.BLOCK, changeEndpoints);
         return this;
     }
 
-    hide (el:string|E, changeEndpoints?:boolean):jsPlumbInstance<E> {
+    hide (el:string|any, changeEndpoints?:boolean):jsPlumbInstance {
         this._setVisible(el, Constants.NONE, changeEndpoints);
         return this;
     }
 
-    private _setVisible (el:string|E, state:string, alsoChangeEndpoints?:boolean) {
+    private _setVisible (el:string|any, state:string, alsoChangeEndpoints?:boolean) {
         let visible = state === Constants.BLOCK;
         let endpointFunc = null;
         if (alsoChangeEndpoints) {
@@ -2148,7 +2148,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
     }
 
-    importDefaults(d:jsPlumbDefaults):jsPlumbInstance<E> {
+    importDefaults(d:jsPlumbDefaults):jsPlumbInstance {
         for (let i in d) {
             this.Defaults[i] = d[i];
         }
@@ -2159,18 +2159,18 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    restoreDefaults ():jsPlumbInstance<E> {
+    restoreDefaults ():jsPlumbInstance {
         this.Defaults = extend({}, this._initialDefaults);
         return this;
     }
 
-    getManagedElements():Dictionary<ManagedElement<E>> {
+    getManagedElements():Dictionary<ManagedElement> {
         return this._managedElements;
     }
 
 // ----------------------------- proxy connections -----------------------
 
-    proxyConnection(connection:Connection, index:number, proxyEl:E, proxyElId:string,
+    proxyConnection(connection:Connection, index:number, proxyEl:any, proxyElId:string,
                     endpointGenerator:any, anchorGenerator:any) {
 
         let proxyEp,
@@ -2263,7 +2263,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 // ------------------------ GROUPS --------------
 
     getGroup(id:string) { return this.groupManager.getGroup(id); }
-    getGroupFor(el:E|string) { return this.groupManager.getGroupFor(el); }
+    getGroupFor(el:any|string) { return this.groupManager.getGroupFor(el); }
     addGroup(params:any) { return this.groupManager.addGroup(params); }
     addToGroup(group:string | UIGroup, el:any | Array<any>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
 

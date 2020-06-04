@@ -84,7 +84,7 @@ export class Endpoint extends OverlayCapableComponent {
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number];
     getDefaultOverlayKey () { return "endpointOverlays"; }
 
-    constructor(public instance:jsPlumbInstance<any>, params:EndpointOptions) {
+    constructor(public instance:jsPlumbInstance, params:EndpointOptions) {
         super(instance, params);
 
         this.appendToDefaultType({

@@ -44,7 +44,7 @@ export class UIGroup {
 
     id:string;
 
-    constructor(public instance:jsPlumbInstance<any>, el:any, options:GroupOptions) {
+    constructor(public instance:jsPlumbInstance, el:any, options:GroupOptions) {
         this.el = el;
         this.el[Constants.IS_GROUP_KEY] = true;
         this.el[Constants.GROUP_KEY] = this;

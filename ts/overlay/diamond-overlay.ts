@@ -5,7 +5,7 @@ import {ArrowOverlayOptions, Component, OverlayFactory} from "..";
 export class DiamondOverlay extends ArrowOverlay {
 
 
-    constructor(public instance: jsPlumbInstance<any>, component: Component, p: ArrowOverlayOptions) {
+    constructor(public instance: jsPlumbInstance, component: Component, p: ArrowOverlayOptions) {
         super(instance, component, p);
 
         this.length = this.length / 2;

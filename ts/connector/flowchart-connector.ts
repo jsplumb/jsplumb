@@ -53,7 +53,7 @@ export class FlowchartConnector extends AbstractConnector {
     loopbackRadius:number;
     isLoopbackCurrently:boolean;
 
-    constructor(public instance:jsPlumbInstance<any>, public connection:Connection, params:FlowchartConnectorOptions) {
+    constructor(public instance:jsPlumbInstance, public connection:Connection, params:FlowchartConnectorOptions) {
         super(instance, connection, params);
 
         this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;

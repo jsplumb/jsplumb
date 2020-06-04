@@ -12,7 +12,7 @@ export type ComponentConfig = {
     paintStyle?:PaintStyle;
     hoverPaintStyle?:PaintStyle;
     types:string[];
-    instance:jsPlumbInstance<any>;
+    instance:jsPlumbInstance;
     paintStyleInUse?:PaintStyle;
 
     cssClass?:string;
@@ -143,7 +143,7 @@ export type RepaintOptions = {
 }
 
 export interface ComponentOptions {
-    _jsPlumb?:jsPlumbInstance<any>;
+    _jsPlumb?:jsPlumbInstance;
     parameters?:any;
     beforeDetach?:Function;
     beforeDrop?:Function;
@@ -186,7 +186,7 @@ export abstract class Component extends EventGenerator {
 
     cssClass:string;
 
-    constructor(public instance:jsPlumbInstance<any>, params?:ComponentOptions) {
+    constructor(public instance:jsPlumbInstance, params?:ComponentOptions) {
 
         super();
 

@@ -23,7 +23,7 @@ export abstract class EndpointRepresentation<C> {
 
     classes:Array<string> = [];
 
-    instance:jsPlumbInstance<any>;
+    instance:jsPlumbInstance;
 
     abstract getType():string;
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.

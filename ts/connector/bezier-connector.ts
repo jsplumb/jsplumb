@@ -13,7 +13,7 @@ export class Bezier extends AbstractBezierConnector {
     majorAnchor:number;
     minorAnchor:number;
 
-    constructor(instance:jsPlumbInstance<any>, public connection:Connection, params:AbstractBezierOptions) {
+    constructor(instance:jsPlumbInstance, public connection:Connection, params:AbstractBezierOptions) {
         super(instance, connection, params);
         this.majorAnchor = params.curviness || 150;
         this.minorAnchor = 10;

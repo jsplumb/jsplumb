@@ -5,7 +5,7 @@ import {Connection} from "./connection-impl";
 const connectorMap:Dictionary<Constructable<AbstractConnector>> = {};
 
 export const Connectors = {
-    get:(instance:jsPlumbInstance<any>, connection:Connection, name:string, params:any):AbstractConnector => {
+    get:(instance:jsPlumbInstance, connection:Connection, name:string, params:any):AbstractConnector => {
 
         let c:Constructable<AbstractConnector> = connectorMap[name];
         if (!c) {

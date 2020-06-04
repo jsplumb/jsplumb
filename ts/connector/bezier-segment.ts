@@ -25,7 +25,7 @@ export class BezierSegment extends AbstractSegment {
 
     length:number = 0;
 
-    constructor(instance:jsPlumbInstance<any>, params:any) {
+    constructor(instance:jsPlumbInstance, params:any) {
         super(params);
 
         this.cp1x = params.cp1x;

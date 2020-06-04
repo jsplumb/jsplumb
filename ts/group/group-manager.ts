@@ -10,7 +10,7 @@ export class GroupManager {
     _connectionSourceMap:Dictionary<UIGroup> = {};
     _connectionTargetMap:Dictionary<UIGroup> = {};
 
-    constructor(public instance:jsPlumbInstance<any>) {
+    constructor(public instance:jsPlumbInstance) {
 
         instance.bind(Constants.EVENT_CONNECTION, (p:any) => {
 

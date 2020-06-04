@@ -24,7 +24,7 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
     clockwise:boolean;
     isLoopbackCurrently:boolean;
 
-    constructor(instance:jsPlumbInstance<any>, public connection:Connection, params:any) {
+    constructor(instance:jsPlumbInstance, public connection:Connection, params:any) {
 
         super(instance, connection, params);
 

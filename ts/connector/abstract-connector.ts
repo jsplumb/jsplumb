@@ -96,7 +96,7 @@ export abstract class AbstractConnector {
     bounds:SegmentBounds = EMPTY_BOUNDS();
     cssClass:string;
 
-    constructor(public instance:jsPlumbInstance<any>, public connection:Connection, params:AbstractConnectorOptions) {
+    constructor(public instance:jsPlumbInstance, public connection:Connection, params:AbstractConnectorOptions) {
         this.stub = params.stub || 0;
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;

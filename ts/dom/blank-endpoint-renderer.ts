@@ -11,7 +11,7 @@ const BLANK_ATTRIBUTES:ElementAttributes = {
 };
 
 registerEndpointRenderer("Blank", {
-    makeNode : (instance:jsPlumbInstance<any>, ep:any, style:PaintStyle) => {
+    makeNode : (instance:jsPlumbInstance, ep:any, style:PaintStyle) => {
         return _node(instance, "rect", BLANK_ATTRIBUTES);
     },
 

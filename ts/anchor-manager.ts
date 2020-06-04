@@ -70,7 +70,7 @@ export class ContinuousAnchorFactory {
         this.continuousAnchorLocations[endpointId] = pos;
     }
 
-    get(instance:jsPlumbInstance<any>, params?:ContinuousAnchorOptions):ContinuousAnchor {
+    get(instance:jsPlumbInstance, params?:ContinuousAnchorOptions):ContinuousAnchor {
         return new ContinuousAnchor(instance, params);
     }
 }
@@ -104,7 +104,7 @@ export class AnchorManager {
 
     continuousAnchorFactory:ContinuousAnchorFactory;
 
-    constructor(private instance:jsPlumbInstance<any>) {
+    constructor(private instance:jsPlumbInstance) {
         this.continuousAnchorFactory = new ContinuousAnchorFactory();
     }
 
@@ -113,7 +113,7 @@ export class AnchorManager {
         this.anchorLists = {};
     }
 
-    private placeAnchors (instance:jsPlumbInstance<any>, elementId:string, _anchorLists:AnchorLists):void {
+    private placeAnchors (instance:jsPlumbInstance, elementId:string, _anchorLists:AnchorLists):void {
         let cd = instance.getCachedData(elementId), sS = cd.s, sO = cd.o,
             placeSomeAnchors = (desc:string, elementDimensions:PointArray, elementPosition:PointArray, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {

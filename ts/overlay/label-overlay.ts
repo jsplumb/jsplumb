@@ -14,7 +14,7 @@ export class LabelOverlay extends Overlay {
 
     cachedDimensions:PointArray;
 
-    constructor(public instance:jsPlumbInstance<any>, public component:Component,
+    constructor(public instance:jsPlumbInstance, public component:Component,
                 p:LabelOverlayOptions) {
 
         super(instance, component, p);

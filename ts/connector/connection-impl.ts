@@ -122,7 +122,7 @@ export class Connection extends OverlayCapableComponent {
     floatingId:string;
     floatingElement:any;
 
-    constructor(public instance:jsPlumbInstance<any>, params:ConnectionParams) {
+    constructor(public instance:jsPlumbInstance, params:ConnectionParams) {
 
         super(instance, params);
 

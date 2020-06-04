@@ -18,7 +18,7 @@ export class FloatingAnchor extends Anchor {
     yDir:number;
     _lastResult:ComputedAnchorPosition;
 
-    constructor(public instance:jsPlumbInstance<any>,  params:FloatingAnchorOptions) {
+    constructor(public instance:jsPlumbInstance,  params:FloatingAnchorOptions) {
         super(instance, params);
 
         // this is the anchor that this floating anchor is referenced to for

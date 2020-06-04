@@ -40,7 +40,7 @@ export class ContinuousAnchor extends Anchor {
 
     private availableFaces:FACE_MAP = {};
 
-    constructor(public instance:jsPlumbInstance<any>, anchorParams:ContinuousAnchorOptions) {
+    constructor(public instance:jsPlumbInstance, anchorParams:ContinuousAnchorOptions) {
 
         super(instance, anchorParams);
 

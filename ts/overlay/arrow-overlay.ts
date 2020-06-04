@@ -18,7 +18,7 @@ export class ArrowOverlay extends Overlay {
 
     cachedDimensions:PointArray;
 
-    constructor(public instance:jsPlumbInstance<any>, public component:Component,
+    constructor(public instance:jsPlumbInstance, public component:Component,
                 p:ArrowOverlayOptions) {
 
         super(instance, component, p);

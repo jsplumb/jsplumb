@@ -16,7 +16,7 @@ import {BrowserJsPlumbInstance, Connection, Endpoint, IS, isFunction, OverlayCap
 import {CustomOverlay} from "../overlay/custom-overlay";
 
 export type EndpointHelperFunctions = {
-    makeNode:(instance:jsPlumbInstance<any>, ep:any, paintStyle:PaintStyle) => void,
+    makeNode:(instance:jsPlumbInstance, ep:any, paintStyle:PaintStyle) => void,
     updateNode: (ep:any, node:SVGElement) => void
 };
 
@@ -25,7 +25,7 @@ export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunct
     endpointMap[name] = fns;
 }
 
-export class BrowserRenderer implements Renderer<HTMLElement> {
+export class BrowserRenderer implements Renderer {
 
     // this isnt the cleanest - the instance has to set this after creation, as this is created in the instance's constructor, so it
     // cant be passed in at the time.

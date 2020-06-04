@@ -8,7 +8,7 @@ import {AbstractConnector} from "./connector/abstract-connector";
 import {PaintStyle} from "./styles";
 import {OverlayCapableComponent} from "./component/overlay-capable-component";
 
-export interface Renderer<E> {
+export interface Renderer {
 
     getPath(segment:Segment, isFirstSegment:boolean):string;
 
@@ -21,7 +21,7 @@ export interface Renderer<E> {
     destroyOverlay(o: Overlay, force?:boolean):void;
     updateLabel(o:LabelOverlay):void;
     drawOverlay(overlay:Overlay, component:any, paintStyle:PaintStyle, absolutePosition?:PointArray):any;
-    moveOverlayParent(o:Overlay, newParent:E):void;
+    moveOverlayParent(o:Overlay, newParent:any):void;
     reattachOverlay(o:Overlay, c:OverlayCapableComponent):any;
     setOverlayHover(o:Overlay, hover:boolean):any;
 

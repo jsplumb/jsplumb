@@ -24,7 +24,7 @@ export class Anchor extends EventGenerator {
 
     clone:() => Anchor;
 
-    constructor(public instance:jsPlumbInstance<any>,  params?:AnchorOptions) {
+    constructor(public instance:jsPlumbInstance,  params?:AnchorOptions) {
         super();
         params = params || {};
         this.cssClass = params.cssClass || "";

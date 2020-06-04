@@ -32,7 +32,7 @@ export class ArcSegment extends AbstractSegment {
     circumference:number;
     frac:number;
 
-    constructor(instance:jsPlumbInstance<any>, params:any) {
+    constructor(instance:jsPlumbInstance, params:any) {
 
         super(params);
 

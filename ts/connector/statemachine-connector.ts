@@ -95,7 +95,7 @@ export class StateMachine extends AbstractBezierConnector {
     _controlPoint:[ number, number ];
     proximityLimit:number;
 
-    constructor(instance:jsPlumbInstance<any>, public connection:Connection, params:StateMachineOptions) {
+    constructor(instance:jsPlumbInstance, public connection:Connection, params:StateMachineOptions) {
         super(instance, connection, params);
 
         this.curviness = params.curviness || 10;
