@@ -13,12 +13,12 @@ import {Anchor} from "../anchor/anchor";
 import {ConnectorSpec} from "../connector";
 import {EndpointSpec} from "../endpoint";
 
-export interface ConnectionParams<E> {
+export interface ConnectionParams {
     id?:string;
-    source?:string | E;
-    target?:string | E;
-    sourceEndpoint?:Endpoint<E>;
-    targetEndpoint?:Endpoint<E>;
+    source?:string | any;
+    target?:string | any;
+    sourceEndpoint?:Endpoint;
+    targetEndpoint?:Endpoint;
     scope?:string;
 
     overlays?:Array<OverlaySpec>;
@@ -51,13 +51,13 @@ export interface ConnectionParams<E> {
     paintStyle?:PaintStyle;
     hoverPaintStyle?:PaintStyle;
 
-    previousConnection?:Connection<E>;
+    previousConnection?:Connection;
 
     anchors?:[AnchorSpec, AnchorSpec];
     anchor?:AnchorSpec;
 }
 
-function _updateConnectedClass<E>(conn:Connection<E>, element:any, remove?:boolean) {
+function _updateConnectedClass<E>(conn:Connection, element:any, remove?:boolean) {
     if (element != null) {
         element._jsPlumbConnections = element._jsPlumbConnections || {};
         if (remove) {
@@ -76,10 +76,10 @@ function _updateConnectedClass<E>(conn:Connection<E>, element:any, remove?:boole
     }
 }
 
-export class Connection<E> extends OverlayCapableComponent<E>{//} implements Connection<E> {        // extend OverlayCapableComponent.. hmm.
+export class Connection extends OverlayCapableComponent {
 
     id:string;
-    connector:AbstractConnector<E>;
+    connector:AbstractConnector;
     defaultLabelLocation:number = 0.5;
     scope:string;
 
@@ -91,26 +91,26 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         return { x:this.connector.x, y:this.connector.y };
     }
 
-    previousConnection:Connection<E>;
+    previousConnection:Connection;
 
     sourceId:string;
     targetId:string;
-    source:E;
-    target:E;
+    source:any;
+    target:any;
 
-    endpoints:[Endpoint<E>, Endpoint<E>] = [null, null];
+    endpoints:[Endpoint, Endpoint] = [null, null];
     endpointStyles:[PaintStyle, PaintStyle] = [null, null];
 
-    suspendedEndpoint:Endpoint<E>;
+    suspendedEndpoint:Endpoint;
     suspendedIndex:number;
-    suspendedElement:E;
+    suspendedElement:any;
     suspendedElementId:string;
     suspendedElementType:string;
 
     _forceReattach:boolean;
     _forceDetach:boolean;
 
-    proxies:Array<{ ep:Endpoint<E>, originalEp: Endpoint<E> }> = [];
+    proxies:Array<{ ep:Endpoint, originalEp: Endpoint }> = [];
     
     pending:boolean = false;
 
@@ -118,11 +118,11 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
     anchor:AnchorSpec = null;
 
     floatingIndex:number;
-    floatingEndpoint:Endpoint<E>;
+    floatingEndpoint:Endpoint;
     floatingId:string;
-    floatingElement:E;
+    floatingElement:any;
 
-    constructor(public instance:jsPlumbInstance<E>, params:ConnectionParams<E>) {
+    constructor(public instance:jsPlumbInstance<any>, params:ConnectionParams) {
 
         super(instance, params);
 
@@ -284,7 +284,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         this.updateConnectedClass();
     }
 
-    makeEndpoint (isSource:boolean, el:E, elId:string, ep?:Endpoint<E>):Endpoint<E> {
+    makeEndpoint (isSource:boolean, el:any, elId:string, ep?:Endpoint):Endpoint {
         elId = elId || this._jsPlumb.instance.getId(el);
         return this.prepareEndpoint(ep, isSource ? 0 : 1, el, elId);
     };
@@ -293,11 +293,11 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         return "connection";
     }
 
-    getAttachedElements ():Array<Component<E>> {
+    getAttachedElements ():Array<Component> {
         return this.endpoints;
     }
 
-    isDetachable (ep?:Endpoint<E>):boolean {
+    isDetachable (ep?:Endpoint):boolean {
         return this._jsPlumb.detachable === false ? false : ep != null ? ep.connectionsDetachable === true : this._jsPlumb.detachable === true;
     }
 
@@ -443,15 +443,15 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         return this._jsPlumb.directed;
     }
 
-    getConnector():AbstractConnector<E> {
+    getConnector():AbstractConnector {
         return this.connector;
     }
 
-    makeConnector(name:string, args:any):AbstractConnector<E> {
+    makeConnector(name:string, args:any):AbstractConnector {
         return Connectors.get(this.instance, this, name, args);
     }
 
-    prepareConnector(connectorSpec:ConnectorSpec, typeId?:string):AbstractConnector<E> {
+    prepareConnector(connectorSpec:ConnectorSpec, typeId?:string):AbstractConnector {
         let connectorArgs = {
                 _jsPlumb: this._jsPlumb.instance,
                 cssClass: this._jsPlumb.params.cssClass,
@@ -477,7 +477,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         return connector;
     }
 
-    setPreparedConnector(connector:AbstractConnector<E>, doNotRepaint?:boolean, doNotChangeListenerComponent?:boolean, typeId?:string) {
+    setPreparedConnector(connector:AbstractConnector, doNotRepaint?:boolean, doNotChangeListenerComponent?:boolean, typeId?:string) {
 
         if (this.connector !== connector) {
 
@@ -500,7 +500,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
             this.addClass(previousClasses);
 
             if (previous != null) {
-                let o:Dictionary<Overlay<E>> = this.getOverlays();
+                let o:Dictionary<Overlay> = this.getOverlays();
                 for (let i in o) {
                     this.instance.renderer.reattachOverlay(o[i], this);
                 }
@@ -560,7 +560,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
                 // container if needs be (if an overlay would be clipped)
                 for (let i in this._jsPlumb.overlays) {
                     if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                        let o:Overlay<E> = this._jsPlumb.overlays[i];
+                        let o:Overlay = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
 
                             this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
@@ -598,7 +598,7 @@ export class Connection<E> extends OverlayCapableComponent<E>{//} implements Con
         }
     }
 
-    prepareEndpoint(existing:Endpoint<E>, index:number, element?:E, elementId?:string, params?:ConnectionParams<E>):Endpoint<E> {
+    prepareEndpoint(existing:Endpoint, index:number, element?:any, elementId?:string, params?:ConnectionParams):Endpoint {
 
         let e;
         params = <any>(params || this._jsPlumb);

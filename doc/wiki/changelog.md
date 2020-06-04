@@ -88,7 +88,7 @@ class but we include it here for completeness.
 
 #### Events
 
-- The `manageElement` and `unmanageElement` events are no longer fired by jsPlumb class. These were undocumented anyway, but we're calling it out
+- The `manageElement` and `unmanageElement` events are no longer fired by the `jsPlumbInstance` class. These were undocumented anyway, but we're calling it out
  in case you have code that used them.
  
 - Added `drag:start`, `drag:move` and `drag:stop` events. These replace the `start`, `drag` and `stop` event handlers that used to
@@ -114,6 +114,8 @@ any alternative, we could possibly add a 'Custom' endpoint type, with which you 
 be supported on individual `draggable(..)` method calls.
 
 - The `Mottle` library, which used to be a separate project, has now been incorporated into jsPlumb. For convenience, we have exposed `Mottle` on the browser window, as some people do use standalone instances of Mottle from time to time.  
+
+- The `Katavorio` library, which used to be a separate project, has now been incorporated into jsPlumb. At present there is nothing exposed on the window as we did with Mottle, but there could be.
 
  
 ## 2.11.2

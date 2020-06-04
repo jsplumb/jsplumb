@@ -6,14 +6,14 @@ import {addToList, each, findWithFunction, functionChain, IS, isString} from "..
 import {Dictionary, extend, jsPlumbInstance} from "../core";
 import {Anchor} from "../anchor/anchor";
 import {PaintStyle} from "../styles";
-import { FloatingAnchor } from "../anchor/floating-anchor";
+import { FloatingAnchor } from "./floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
 import {consume, findParent} from "../browser-util";
 import * as Constants from "../constants";
 import {classList, cls, EVENT_MAX_CONNECTIONS} from "../constants";
 import {intersects} from "../geom";
 
-function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint<HTMLElement>, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
+function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas });
     //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
     // adding the floating endpoint as a droppable.  that makes more sense anyway!
@@ -47,22 +47,22 @@ const DRAG_ACTIVE_OR_HOVER_SELECTOR = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER);
 
 export class EndpointDragHandler implements DragHandler {
 
-    jpc:Connection<HTMLElement>;
+    jpc:Connection;
     existingJpc:boolean;
 
-    ep:Endpoint<HTMLElement>;
-    endpointRepresentation:EndpointRepresentation<HTMLElement, any>;
+    ep:Endpoint;
+    endpointRepresentation:EndpointRepresentation<any>;
 
     existingJpcParams:any;
     placeholderInfo:any = { id: null, element: null };
     floatingElement:HTMLElement;
-    floatingEndpoint:Endpoint<HTMLElement>;
+    floatingEndpoint:Endpoint;
     _stopped:boolean;
     inPlaceCopy:any;
     endpointDropTargets:Array<any> = [];
     currentDropTarget:any = null;
     payload:any;
-    floatingConnections:Dictionary<Connection<HTMLElement>> = {};
+    floatingConnections:Dictionary<Connection> = {};
 
     _forceReattach:boolean;
     _forceDetach:boolean;
@@ -612,7 +612,7 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    maybeCleanup (ep:Endpoint<HTMLElement>):void {
+    maybeCleanup (ep:Endpoint):void {
         if ((<any>ep)._mtNew && ep.connections.length === 0) {
             this.instance.deleteObject({endpoint: ep});
         }
@@ -816,8 +816,8 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    _getDropEndpoint(p:any, jpc:Connection<HTMLElement>):Endpoint<HTMLElement> {
-        let dropEndpoint:Endpoint<HTMLElement>;
+    _getDropEndpoint(p:any, jpc:Connection):Endpoint {
+        let dropEndpoint:Endpoint;
 
         if (this.currentDropTarget.endpoint == null) {
 
@@ -847,7 +847,7 @@ export class EndpointDragHandler implements DragHandler {
                     anchor:targetDefinition.def.anchor || eps.anchors[1]
                 });
             }
-            dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp) as Endpoint<HTMLElement>;
+            dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp) as Endpoint;
             (<any>dropEndpoint)._mtNew = true;
             dropEndpoint.deleteOnEmpty = true;
 
@@ -994,7 +994,7 @@ export class EndpointDragHandler implements DragHandler {
     //
     // drops the current connection on the given endpoint
     //
-    private  _drop(dropEndpoint:Endpoint<HTMLElement>, idx:number, originalEvent:Event, optionalData?:any):void {
+    private  _drop(dropEndpoint:Endpoint, idx:number, originalEvent:Event, optionalData?:any):void {
         // remove this jpc from the current endpoint, which is a floating endpoint that we will
         // subsequently discard.
         this.jpc.endpoints[idx].detachFromConnection(this.jpc);
@@ -1067,14 +1067,14 @@ export class EndpointDragHandler implements DragHandler {
         this.instance.revalidate(this.jpc.endpoints[0].element);
     }
 
-    _registerFloatingConnection(info:any, conn:Connection<HTMLElement>, ep:Endpoint<HTMLElement>) {
+    _registerFloatingConnection(info:any, conn:Connection, ep:Endpoint) {
         this.floatingConnections[info.id] = conn;
         // only register for the target endpoint; we will not be dragging the source at any time
         // before this connection is either discarded or made into a permanent connection.
         addToList(this.instance.endpointsByElement, info.id, ep);
     }
 
-    getFloatingAnchorIndex(jpc:Connection<HTMLElement>):number {
+    getFloatingAnchorIndex(jpc:Connection):number {
         return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1;
     }
         

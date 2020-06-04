@@ -1,4 +1,5 @@
-export declare function pageLocation(e: Event): any[];
+import { PointArray } from "./core";
+export declare function pageLocation(e: Event): PointArray;
 interface FunctionFacade {
     __tauid: number;
     __taExtra: Array<any>;

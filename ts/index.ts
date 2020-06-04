@@ -48,7 +48,7 @@ export * from "./factory/overlay-factory";
 
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
-export * from "./anchor/floating-anchor";
+
 export * from "./anchor/continuous-anchor";
 export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
@@ -75,6 +75,7 @@ export * from "./dom/svg-element-endpoint";
 export * from "./dom/dot-endpoint-renderer";
 export * from "./dom/rectangle-endpoint-renderer";
 export * from "./dom/blank-endpoint-renderer";
+export * from "./dom/floating-anchor";
 
 
 

@@ -17,11 +17,11 @@ export interface GroupOptions {
     endpoint?:EndpointSpec;
 }
 
-export class UIGroup<E> {
+export class UIGroup {
 
-    children:Array<E> = [];
+    children:Array<any> = [];
 
-    el:E;
+    el:any;
 
     collapsed:boolean = false;
 
@@ -37,14 +37,14 @@ export class UIGroup<E> {
     anchor:AnchorSpec;
     endpoint:EndpointSpec;
 
-    connections:{source:Array<Connection<E>>, target:Array<Connection<E>>, internal:Array<Connection<E>>} = {source:[], target:[], internal:[]};
-    groups:Array<UIGroup<E>> = [];
+    connections:{source:Array<Connection>, target:Array<Connection>, internal:Array<Connection>} = {source:[], target:[], internal:[]};
+    groups:Array<UIGroup> = [];
 
-    manager:GroupManager<E>;
+    manager:GroupManager;
 
     id:string;
 
-    constructor(public instance:jsPlumbInstance<E>, el:E, options:GroupOptions) {
+    constructor(public instance:jsPlumbInstance<any>, el:any, options:GroupOptions) {
         this.el = el;
         this.el[Constants.IS_GROUP_KEY] = true;
         this.el[Constants.GROUP_KEY] = this;
@@ -65,28 +65,28 @@ export class UIGroup<E> {
         instance.setAttribute(el, Constants.ATTRIBUTE_GROUP, "");
     }
 
-    overrideDrop(el:E, targetGroup:UIGroup<E>):boolean {
+    overrideDrop(el:any, targetGroup:UIGroup):boolean {
         return this.dropOverride && (this.revert || this.prune || this.orphan);
     }
 
-    getDragArea():E {
+    getDragArea():any {
         let da = this.instance.getSelector(this.el, Constants.SELECTOR_GROUP_CONTAINER);
         return da && da.length > 0 ? da[0] : this.el;
     };
 
     // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
     // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
-    getAnchor (conn:Connection<E>, endpointIndex:number) {
+    getAnchor (conn:Connection, endpointIndex:number) {
         return this.anchor || "Continuous";
     };
 
-    getEndpoint (conn:Connection<E>, endpointIndex:number) {
+    getEndpoint (conn:Connection, endpointIndex:number) {
         return this.endpoint || [ "Dot", { radius:10 }];
     }
 
-    add(_el:E, doNotFireEvent?:boolean) {
+    add(_el:any, doNotFireEvent?:boolean) {
         const dragArea = this.getDragArea();
-        this.instance.each(_el, (__el:E) => {
+        this.instance.each(_el, (__el:any) => {
 
             if (__el[Constants.GROUP_KEY] != null) {
                 if (__el[Constants.GROUP_KEY] === this) {
@@ -104,11 +104,11 @@ export class UIGroup<E> {
         this.manager._updateConnectionsForGroup(this);
     }
 
-    remove (el:E | Array<E>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup<E>) {
+    remove (el:any | Array<any>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup) {
 
-        this.instance.each(el, (__el:E) => {
+        this.instance.each(el, (__el:any) => {
             delete __el[Constants.GROUP_KEY];
-            removeWithFunction(this.children, (e:E) => {
+            removeWithFunction(this.children, (e:any) => {
                 return e === __el;
             });
 
@@ -141,7 +141,7 @@ export class UIGroup<E> {
         this.manager._updateConnectionsForGroup(this);
     }
 
-    private _orphan(_el:E):[string, Offset] {
+    private _orphan(_el:any):[string, Offset] {
         const id = this.manager.instance.getId(_el);
         let pos = this.manager.instance.getOffset(_el);
         (<any>_el).parentNode.removeChild(_el);

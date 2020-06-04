@@ -13,7 +13,7 @@ export interface AbstractBezierOptions {
     loopbackRadius?:number;
 }
 
-export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
+export abstract class AbstractBezierConnector extends AbstractConnector {
 
     showLoopback:boolean;
     curviness:number;
@@ -24,7 +24,7 @@ export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
     clockwise:boolean;
     isLoopbackCurrently:boolean;
 
-    constructor(instance:jsPlumbInstance<E>, public connection:Connection<E>, params:any) {
+    constructor(instance:jsPlumbInstance<any>, public connection:Connection, params:any) {
 
         super(instance, connection, params);
 
@@ -38,7 +38,7 @@ export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
         this.isLoopbackCurrently = false;
     }
 
-    _compute (paintInfo:PaintGeometry, p:ConnectorComputeParams<E>) {
+    _compute (paintInfo:PaintGeometry, p:ConnectorComputeParams) {
 
         let sp = p.sourcePos,
             tp = p.targetPos,
@@ -82,5 +82,5 @@ export abstract class AbstractBezierConnector<E> extends AbstractConnector<E> {
         }
     }
 
-    abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams<E>, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, _w:number, _h:number):void;
+    abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, _w:number, _h:number):void;
 }

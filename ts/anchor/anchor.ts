@@ -34,7 +34,7 @@ export class Anchor extends EventGenerator {
         return true;
     }
 
-    getOrientation(endpoint?: Endpoint<any>): Orientation {
+    getOrientation(endpoint?: Endpoint): Orientation {
         return this.orientation;
     }
 
@@ -83,7 +83,7 @@ export class Anchor extends EventGenerator {
     unlock ():void { this.locked = false; };
     isLocked ():boolean { return this.locked; };
 
-    over (anchor:Anchor, endpoint:Endpoint<any>):void { }
+    over (anchor:Anchor, endpoint:Endpoint):void { }
 
     out ():void { }
 }

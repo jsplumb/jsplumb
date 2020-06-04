@@ -2634,7 +2634,6 @@
 
     _createClass(Connection, [{
       key: "getIdPrefix",
-      //} implements Connection<E> {        // extend OverlayCapableComponent.. hmm.
       value: function getIdPrefix() {
         return "_jsPlumb_c";
       }

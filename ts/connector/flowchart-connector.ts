@@ -7,7 +7,7 @@ import {ArcSegment} from "./arc-segment";
 import {Connectors} from "./connectors";
 import {Connection} from "./connection-impl";
 
-export interface FlowchartConnectorOptions<E> extends AbstractConnectorOptions<E> {
+export interface FlowchartConnectorOptions extends AbstractConnectorOptions {
     alwaysRespectStubs?:boolean;
     midpoint?:number;
     cornerRadius?:number;
@@ -39,7 +39,7 @@ function _cloneArray (a:Array<any>):Array<any> {
     return _a;
 }
 
-export class FlowchartConnector<E> extends AbstractConnector<E> {
+export class FlowchartConnector extends AbstractConnector {
 
     type = "Flowchart";
 
@@ -53,7 +53,7 @@ export class FlowchartConnector<E> extends AbstractConnector<E> {
     loopbackRadius:number;
     isLoopbackCurrently:boolean;
 
-    constructor(public instance:jsPlumbInstance<E>, public connection:Connection<E>, params:FlowchartConnectorOptions<E>) {
+    constructor(public instance:jsPlumbInstance<any>, public connection:Connection, params:FlowchartConnectorOptions) {
         super(instance, connection, params);
 
         this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;
@@ -145,7 +145,7 @@ export class FlowchartConnector<E> extends AbstractConnector<E> {
         }
     }
 
-    _compute (paintInfo:PaintGeometry, params:ConnectorComputeParams<E>):void {
+    _compute (paintInfo:PaintGeometry, params:ConnectorComputeParams):void {
 
         this.internalSegments.length = 0;
         this.segments.length = 0;

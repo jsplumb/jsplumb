@@ -48,9 +48,9 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     onStop(params: any) {
 
-        let originalGroup:UIGroup<HTMLElement> = params.el[Constants.GROUP_KEY],
+        let originalGroup:UIGroup = params.el[Constants.GROUP_KEY],
             out = super.onStop(params),
-            currentGroup:UIGroup<HTMLElement> = params.el[Constants.GROUP_KEY];
+            currentGroup:UIGroup = params.el[Constants.GROUP_KEY];
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params);

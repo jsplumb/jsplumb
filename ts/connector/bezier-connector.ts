@@ -6,14 +6,14 @@ import {Connectors} from "./connectors";
 import {ComputedAnchorPosition} from "../factory/anchor-factory";
 import {Connection} from "./connection-impl";
 
-export class Bezier<E> extends AbstractBezierConnector<E> {
+export class Bezier extends AbstractBezierConnector {
 
     type = "Bezier";
 
     majorAnchor:number;
     minorAnchor:number;
 
-    constructor(instance:jsPlumbInstance<E>, public connection:Connection<E>, params:AbstractBezierOptions) {
+    constructor(instance:jsPlumbInstance<any>, public connection:Connection, params:AbstractBezierOptions) {
         super(instance, connection, params);
         this.majorAnchor = params.curviness || 150;
         this.minorAnchor = 10;
@@ -63,7 +63,7 @@ export class Bezier<E> extends AbstractBezierConnector<E> {
         return p;
     }
 
-    _computeBezier (paintInfo:PaintGeometry, p:ConnectorComputeParams<E>, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, _w:number, _h:number):void {
+    _computeBezier (paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, _w:number, _h:number):void {
 
         let _CP, _CP2,
             _sx = sp[0] < tp[0] ? _w : 0,

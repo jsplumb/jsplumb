@@ -5,9 +5,9 @@ import {Endpoint} from "./endpoint-impl";
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ];
 
-export class BlankEndpoint<E> extends EndpointRepresentation<E, ComputedBlankEndpoint> {
+export class BlankEndpoint<E> extends EndpointRepresentation<ComputedBlankEndpoint> {
 
-    constructor(endpoint:Endpoint<E>, params?:any) {
+    constructor(endpoint:Endpoint, params?:any) {
         super(endpoint);
     }
 

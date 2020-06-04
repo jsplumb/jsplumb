@@ -1,24 +1,24 @@
 import {AnchorOrientationHint, AnchorComputeParams, AnchorOptions, ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
-import { Anchor } from "./anchor";
+import { Anchor } from "../anchor/anchor";
 import {jsPlumbInstance, Size} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
 
 
-export interface FloatingAnchorOptions<E> extends AnchorOptions {
+export interface FloatingAnchorOptions extends AnchorOptions {
     reference:Anchor;
-    referenceCanvas:E;
+    referenceCanvas:HTMLElement;
 }
 
-export class FloatingAnchor<E> extends Anchor {
+export class FloatingAnchor extends Anchor {
 
     ref:Anchor;
-    refCanvas:E;
+    refCanvas:HTMLElement;
     size:Size;
     xDir:number;
     yDir:number;
     _lastResult:ComputedAnchorPosition;
 
-    constructor(public instance:jsPlumbInstance<E>,  params:FloatingAnchorOptions<E>) {
+    constructor(public instance:jsPlumbInstance<any>,  params:FloatingAnchorOptions) {
         super(instance, params);
 
         // this is the anchor that this floating anchor is referenced to for
@@ -59,7 +59,7 @@ export class FloatingAnchor<E> extends Anchor {
         return this._lastResult;
     }
 
-    getOrientation (_endpoint:Endpoint<E>):Orientation {
+    getOrientation (_endpoint:Endpoint):Orientation {
         if (this.orientation) {
             return this.orientation;
         }
@@ -78,7 +78,7 @@ export class FloatingAnchor<E> extends Anchor {
      * over another anchor; we want to assume that anchor's orientation
      * for the duration of the hover.
      */
-    over (anchor:Anchor, endpoint:Endpoint<E>) {
+    over (anchor:Anchor, endpoint:Endpoint) {
         this.orientation = anchor.getOrientation(endpoint);
     }
 

@@ -5,7 +5,7 @@ import {AbstractConnector, Component, OverlayFactory, PaintStyle, perpendicularL
 const DEFAULT_WIDTH = 20;
 const DEFAULT_LENGTH = 20;
 
-export class ArrowOverlay<E> extends Overlay<E> {
+export class ArrowOverlay extends Overlay {
 
     width:number;
     length:number;
@@ -18,7 +18,7 @@ export class ArrowOverlay<E> extends Overlay<E> {
 
     cachedDimensions:PointArray;
 
-    constructor(public instance:jsPlumbInstance<E>, public component:Component<E>,
+    constructor(public instance:jsPlumbInstance<any>, public component:Component,
                 p:ArrowOverlayOptions) {
 
         super(instance, component, p);
@@ -32,11 +32,11 @@ export class ArrowOverlay<E> extends Overlay<E> {
     }
 
 
-    draw(component:Component<HTMLElement>, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
+    draw(component:Component, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
 
         if (component instanceof AbstractConnector) {
 
-            let connector = component as AbstractConnector<E>;
+            let connector = component as AbstractConnector;
 
             let hxy, mid, txy, tail, cxy;
 
@@ -51,7 +51,7 @@ export class ArrowOverlay<E> extends Overlay<E> {
                 txy = pointOnLine(hxy, mid, this.length);
 
                 if (this.direction === -1) {
-                    var _ = txy;
+                    const _ = txy;
                     txy = hxy;
                     hxy = _;
                 }
@@ -60,7 +60,7 @@ export class ArrowOverlay<E> extends Overlay<E> {
                 mid = connector.pointAlongPathFrom(this.location, this.length);
                 hxy = pointOnLine(txy, mid, this.length);
                 if (this.direction === -1) {
-                    let __ = txy;
+                    const __ = txy;
                     txy = hxy;
                     hxy = __;
                 }

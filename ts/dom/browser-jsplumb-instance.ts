@@ -36,7 +36,7 @@ export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
 }
 
 export interface jsPlumbDOMElement extends HTMLElement {
-    _jsPlumbGroup: UIGroup<HTMLElement>;
+    _jsPlumbGroup: UIGroup;
     _isJsPlumbGroup: boolean;
     offsetParent: HTMLElement;
     getAttribute:(name:string) => string;

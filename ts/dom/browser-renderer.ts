@@ -52,16 +52,16 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
     }
 
 
-    repaint(component: Component<HTMLElement>, typeDescriptor: string, options?: RepaintOptions): void {
+    repaint(component: Component, typeDescriptor: string, options?: RepaintOptions): void {
         component.paint();
     }
 
-    private static getLabelElement(o:LabelOverlay<HTMLElement>):HTMLElement {
+    private static getLabelElement(o:LabelOverlay):HTMLElement {
         return HTMLElementOverlay.getElement(o as any);
     }
 
-    private static getCustomElement(o:CustomOverlay<HTMLElement>):HTMLElement {
-        return HTMLElementOverlay.getElement(o as any, o.component, (c:Component<HTMLElement>) => {
+    private static getCustomElement(o:CustomOverlay):HTMLElement {
+        return HTMLElementOverlay.getElement(o as any, o.component, (c:Component) => {
             const el = o.create(c);
             o.instance.addClass(el, o.instance.overlayClass);
             return el;
@@ -83,38 +83,38 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    addOverlayClass(o: Overlay<HTMLElement>, clazz: string): void {
+    addOverlayClass(o: Overlay, clazz: string): void {
 
         if (o.type === "Label") {
-            o.instance.addClass(BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>), clazz);
+            o.instance.addClass(BrowserRenderer.getLabelElement(o as LabelOverlay), clazz);
         } else if (o.type === "Arrow") {
             o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (o.type === "Custom") {
-            o.instance.addClass(BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>), clazz);
+            o.instance.addClass(BrowserRenderer.getCustomElement(o as CustomOverlay), clazz);
         } else {
             throw "Could not add class to overlay of type [" + o.type + "]";
         }
      }
 
     //
-    removeOverlayClass(o: Overlay<HTMLElement>, clazz: string): void {
+    removeOverlayClass(o: Overlay, clazz: string): void {
         if (o.type === "Label") {
-            o.instance.removeClass(BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>), clazz);
+            o.instance.removeClass(BrowserRenderer.getLabelElement(o as LabelOverlay), clazz);
         } else if (o.type === "Arrow") {
             o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (o.type === "Custom") {
-            o.instance.removeClass(BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>), clazz);
+            o.instance.removeClass(BrowserRenderer.getCustomElement(o as CustomOverlay), clazz);
         } else {
             throw "Could not remove class from overlay of type [" + o.type + "]";
         }
     }
 
-    paintOverlay(o: Overlay<HTMLElement>, params:any, extents:any):void {
+    paintOverlay(o: Overlay, params:any, extents:any):void {
 
         //
         if (o.type === "Label") {
 
-            BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>);
+            BrowserRenderer.getLabelElement(o as LabelOverlay);
 
             const XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
             // this.canvas.style.top = XY.y + params.d.miny + "px";
@@ -134,7 +134,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
             SVGElementOverlay.paint(o, path, params, extents);
 
         } else if (o.type === "Custom") {
-            BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>);
+            BrowserRenderer.getCustomElement(o as CustomOverlay);
 
             const XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
             // this.canvas.style.top = XY.y + params.d.miny + "px";
@@ -146,19 +146,19 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    setOverlayVisible(o: Overlay<HTMLElement>, visible:boolean):void {
+    setOverlayVisible(o: Overlay, visible:boolean):void {
 
         if (o.type === "Label") {
-            BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>).style.display = visible ? "block" : "none";
+            BrowserRenderer.getLabelElement(o as LabelOverlay).style.display = visible ? "block" : "none";
         }
         else if (o.type === "Custom") {
-            BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>).style.display = visible ? "block" : "none";
+            BrowserRenderer.getCustomElement(o as CustomOverlay).style.display = visible ? "block" : "none";
         } else if (o.type === "Arrow") {
             (o as any).path.style.display = visible ? "block" : "none";
         }
     }
 
-    moveOverlayParent(o: Overlay<HTMLElement>, newParent: HTMLElement): void {
+    moveOverlayParent(o: Overlay, newParent: HTMLElement): void {
         if (o.type === "Label") {
             o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
         } else if (o.type === "Custom") {
@@ -170,7 +170,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
 
     }
 
-    reattachOverlay(o: Overlay<HTMLElement>, c: OverlayCapableComponent<HTMLElement>): any {
+    reattachOverlay(o: Overlay, c: OverlayCapableComponent): any {
         if (o.type === "Label") {
             o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
         }
@@ -182,7 +182,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    setOverlayHover(o: Overlay<HTMLElement>, hover: boolean): any {
+    setOverlayHover(o: Overlay, hover: boolean): any {
 
         const method = hover ? "addClass" : "removeClass";
         let canvas;
@@ -206,23 +206,23 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    destroyOverlay(o: Overlay<HTMLElement>):void {
+    destroyOverlay(o: Overlay):void {
         if (o.type === "Label") {
-            const el = BrowserRenderer.getLabelElement(o as LabelOverlay<HTMLElement>);
+            const el = BrowserRenderer.getLabelElement(o as LabelOverlay);
             el.parentNode.removeChild(el);
             delete (o as any).canvas;
             delete (o as any).cachedDimensions;
         } else if (o.type === "Arrow") {
             SVGElementOverlay.destroy(o);
         } else if (o.type === "Custom") {
-            const el = BrowserRenderer.getCustomElement(o as CustomOverlay<HTMLElement>);
+            const el = BrowserRenderer.getCustomElement(o as CustomOverlay);
             el.parentNode.removeChild(el);
             delete (o as any).canvas;
             delete (o as any).cachedDimensions;
         }
     }
 
-    drawOverlay(o: Overlay<HTMLElement>, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any {
+    drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any {
         if (o.type === "Label"|| o.type === "Custom") {
 
             //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
@@ -271,7 +271,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    updateLabel(o: LabelOverlay<HTMLElement>): void {
+    updateLabel(o: LabelOverlay): void {
 
         if (isFunction(o.label)) {
             let lt = (o.label as Function)(this);
@@ -293,22 +293,22 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    setHover(component: Component<HTMLElement>, hover: boolean): void {
+    setHover(component: Component, hover: boolean): void {
         component._jsPlumb.hover = hover;
-        if (component instanceof Endpoint && (component as Endpoint<HTMLElement>).endpoint != null) {
-            this.setEndpointHover((component as Endpoint<HTMLElement>).endpoint, hover);
-        } else if (component instanceof Connection && (component as Connection<HTMLElement>).connector != null) {
-            this.setConnectorHover((component as Connection<HTMLElement>).connector, hover);
+        if (component instanceof Endpoint && (component as Endpoint).endpoint != null) {
+            this.setEndpointHover((component as Endpoint).endpoint, hover);
+        } else if (component instanceof Connection && (component as Connection).connector != null) {
+            this.setConnectorHover((component as Connection).connector, hover);
         }
     }
 
     // ------------------------------- connectors ---------------------------------------------------------
 
-    paintConnector(connector:AbstractConnector<HTMLElement>, paintStyle:PaintStyle, extents?:any):void {
+    paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:any):void {
         SvgElementConnector.paint(connector, paintStyle, extents);
     }
 
-    setConnectorHover(connector:AbstractConnector<HTMLElement>, h:boolean, doNotCascade?:boolean):void {
+    setConnectorHover(connector:AbstractConnector, h:boolean, doNotCascade?:boolean):void {
         if (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
 
             const method = h ? "addClass" : "removeClass";
@@ -333,23 +333,23 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    destroyConnector(connector:AbstractConnector<HTMLElement>):void {
+    destroyConnector(connector:AbstractConnector):void {
         BrowserRenderer.cleanup(connector);
     }
 
-    addConnectorClass(connector:AbstractConnector<HTMLElement>, clazz:string):void {
+    addConnectorClass(connector:AbstractConnector, clazz:string):void {
         if ((connector as any).canvas) {
             this.instance.addClass((connector as any).canvas, clazz);
         }
     }
 
-    removeConnectorClass(connector:AbstractConnector<HTMLElement>, clazz:string):void {
+    removeConnectorClass(connector:AbstractConnector, clazz:string):void {
         if ((connector as any).canvas) {
             this.instance.removeClass((connector as any).canvas, clazz);
         }
     }
 
-    getConnectorClass(connector: AbstractConnector<HTMLElement>): string {
+    getConnectorClass(connector: AbstractConnector): string {
         if ((connector as any).canvas) {
             return (connector as any).canvas.className.baseVal;
         } else {
@@ -357,35 +357,35 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    setConnectorVisible(connector:AbstractConnector<HTMLElement>, v:boolean):void {
+    setConnectorVisible(connector:AbstractConnector, v:boolean):void {
         BrowserRenderer.setVisible(connector, v);
     }
 
-    applyConnectorType(connector:AbstractConnector<HTMLElement>, t:TypeDescriptor):void {
+    applyConnectorType(connector:AbstractConnector, t:TypeDescriptor):void {
         if ((connector as any).canvas && t.cssClass) {
             const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [ t.cssClass ];
             this.instance.addClass((connector as any).canvas, classes.join(" "));
         }
     }
 
-    addEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>, c: string): void {
+    addEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void {
         if ((ep as any).canvas) {
             this.instance.addClass((ep as any).canvas, c);
         }
     }
 
-    applyEndpointType<C>(ep: EndpointRepresentation<HTMLElement, C>, t: TypeDescriptor): void {
+    applyEndpointType<C>(ep: EndpointRepresentation<C>, t: TypeDescriptor): void {
         if ((ep as any).canvas && t.cssClass) {
             const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [ t.cssClass ];
             this.instance.addClass((ep as any).canvas, classes.join(" "));
         }
     }
 
-    destroyEndpoint<C>(ep: EndpointRepresentation<HTMLElement, C>): void {
+    destroyEndpoint<C>(ep: EndpointRepresentation<C>): void {
         BrowserRenderer.cleanup(ep);
     }
 
-    paintEndpoint<C>(ep: EndpointRepresentation<HTMLElement, C>, paintStyle: PaintStyle): void {
+    paintEndpoint<C>(ep: EndpointRepresentation<C>, paintStyle: PaintStyle): void {
         const renderer = endpointMap[ep.getType()];
         if (renderer != null) {
             SvgEndpoint.paint(ep, renderer, paintStyle);
@@ -394,13 +394,13 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    removeEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>, c: string): void {
+    removeEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void {
         if ((ep as any).canvas) {
             this.instance.removeClass((ep as any).canvas, c);
         }
     }
 
-    getEndpointClass<C>(ep: EndpointRepresentation<HTMLElement, C>): string {
+    getEndpointClass<C>(ep: EndpointRepresentation<C>): string {
         if ((ep as any).canvas) {
             return (ep as any).canvas.className;
         } else {
@@ -408,7 +408,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    setEndpointHover<C>(endpoint: EndpointRepresentation<HTMLElement, C>, h: boolean, doNotCascade?:boolean): void {
+    setEndpointHover<C>(endpoint: EndpointRepresentation<C>, h: boolean, doNotCascade?:boolean): void {
 
         if (endpoint != null && (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended()))) {
 
@@ -436,7 +436,7 @@ export class BrowserRenderer implements Renderer<HTMLElement> {
         }
     }
 
-    setEndpointVisible<C>(ep: EndpointRepresentation<HTMLElement, C>, v: boolean): void {
+    setEndpointVisible<C>(ep: EndpointRepresentation<C>, v: boolean): void {
         BrowserRenderer.setVisible(ep, v);
     }
 

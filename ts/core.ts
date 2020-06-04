@@ -30,14 +30,14 @@ import {UIGroup} from "./group/group";
 
 export type UUID = string;
 export type ElementId = string;
-export type ElementRef<E> = ElementId | E;
-export type ElementGroupRef<E> = ElementId | E | Array<ElementId> | Array<E>;
+export type ElementRef = ElementId | any;
+export type ElementGroupRef = ElementId | any | Array<ElementId> | Array<any>;
 export type ConnectionId = string;
 
 export interface ConnectParams<E> {
     uuids?: [UUID, UUID];
-    source?: ElementRef<E> | Endpoint<E>;
-    target?: ElementRef<E> | Endpoint<E>;
+    source?: ElementRef | Endpoint;
+    target?: ElementRef | Endpoint;
     detachable?: boolean;
     deleteEndpointsOnDetach?: boolean;
     endpoint?: EndpointSpec;
@@ -54,11 +54,11 @@ export interface ConnectParams<E> {
 }
 
 interface InternalConnectParams<E> extends ConnectParams<E> {
-    sourceEndpoint?:Endpoint<E>;
-    targetEndpoint?:Endpoint<E>;
+    sourceEndpoint?:Endpoint;
+    targetEndpoint?:Endpoint;
     scope?:string;
     type?:string;
-    newConnection?:(p:any) => Connection<E>;
+    newConnection?:(p:any) => Connection;
 }
 
 export interface TypeDescriptor {
@@ -80,8 +80,8 @@ export interface TypeDescriptor {
 
 
 export interface DeleteOptions<E> {
-    connection?:Connection<E>;
-    endpoint?:Endpoint<E>;
+    connection?:Connection;
+    endpoint?:Endpoint;
     dontUpdateHover?:boolean;
     deleteAttachedObjects?:boolean;
     originalEvent?:Event;
@@ -89,8 +89,8 @@ export interface DeleteOptions<E> {
 }
 
 export interface DeleteResult<E> {
-    endpoints:Dictionary<Endpoint<E>>;
-    connections:Dictionary<Connection<E>>;
+    endpoints:Dictionary<Endpoint>;
+    connections:Dictionary<Connection>;
     endpointCount:number;
     connectionCount:number;
 }
@@ -134,7 +134,7 @@ export type Constructable<T> = { new(...args: any[]): T };
 
 export type Timestamp = string;
 
-function _scopeMatch<E>(e1:Endpoint<E>, e2:Endpoint<E>):boolean {
+function _scopeMatch<E>(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
     for (let i = 0; i < s1.length; i++) {
         for (let j = 0; j < s2.length; j++) {
@@ -147,13 +147,13 @@ function _scopeMatch<E>(e1:Endpoint<E>, e2:Endpoint<E>):boolean {
     return false;
 }
 
-interface AbstractSelection<T, E> {
+interface AbstractSelection<T> {
     length:number;
     each:( handler:(arg0:T) => void ) => void;
     get(index:number):T;
 
     getLabel:() => string;
-    getOverlay:(id:string) => Overlay<E>;
+    getOverlay:(id:string) => Overlay;
     isHover:() => boolean;
     getParameter:(key:string) => any;
     getParameters:() => ComponentParameters;
@@ -170,20 +170,20 @@ interface AbstractSelection<T, E> {
     removeClass:(clazz:string, updateAttachedElements?:boolean) => void;
 }
 
-export interface AbstractSelectOptions<E> {
+export interface AbstractSelectOptions {
     scope?:string;
-    source?:string | E | Array<string | E>;
-    target?:string | E | Array<string | E>;
+    source?:string | any | Array<string | any>;
+    target?:string | any | Array<string | any>;
 }
-export interface SelectOptions<E> extends AbstractSelectOptions<E> {
-    connections?:Array<Connection<E>>;
-}
-
-export interface SelectEndpointOptions<E> extends AbstractSelectOptions<E> {
-    element?:string | E | Array<string | E>;
+export interface SelectOptions extends AbstractSelectOptions {
+    connections?:Array<Connection>;
 }
 
-export interface ConnectionSelection<E> extends AbstractSelection<Connection<E>, E> {
+export interface SelectEndpointOptions extends AbstractSelectOptions {
+    element?:string | any | Array<string | any>;
+}
+
+export interface ConnectionSelection extends AbstractSelection<Connection> {
 
     setDetachable: (d:boolean) => void;
     setReattach: (d:boolean) => void;
@@ -194,7 +194,7 @@ export interface ConnectionSelection<E> extends AbstractSelection<Connection<E>,
 
 }
 
-export interface EndpointSelection<E> extends AbstractSelection<Endpoint<E>, E> {
+export interface EndpointSelection extends AbstractSelection<Endpoint> {
     setEnabled:(e:boolean) => void;
     setAnchor:(a:AnchorSpec) => void;
     isEnabled:() => any[];
@@ -325,8 +325,8 @@ type ContainerDelegation = [ string, Function ];
 type ManagedElement<E> = {
     el:E,
     info?:{o:Offset, s:Size},
-    endpoints?:Array<Endpoint<E>>,
-    connections?:Array<Connection<E>>
+    endpoints?:Array<Endpoint>,
+    connections?:Array<Connection>
 };
 
 export abstract class jsPlumbInstance<E> extends EventGenerator {
@@ -361,23 +361,23 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     hoverTargetClass = "jtk-target-hover";
     dragSelectClass = "jtk-drag-select";
 
-    connections:Array<Connection<E>> = [];
-    endpointsByElement:Dictionary<Array<Endpoint<E>>> = {};
-    endpointsByUUID:Dictionary<Endpoint<E>> = {};
+    connections:Array<Connection> = [];
+    endpointsByElement:Dictionary<Array<Endpoint>> = {};
+    endpointsByUUID:Dictionary<Endpoint> = {};
 
     private _curIdStamp :number = 1;
     private _offsetTimestamps:Dictionary<string> = {};
     private _offsets:Dictionary<ExtendedOffset> = {};
     private _sizes:Dictionary<Size> = {};
 
-    anchorManager:AnchorManager<E>;
-    groupManager:GroupManager<E>;
+    anchorManager:AnchorManager;
+    groupManager:GroupManager;
     _connectionTypes:Dictionary<TypeDescriptor> = {};
     _endpointTypes:Dictionary<TypeDescriptor> = {};
     _container:E;
 
     _managedElements:Dictionary<ManagedElement<E>> = {};
-    _floatingConnections:Dictionary<Connection<E>> = {};
+    _floatingConnections:Dictionary<Connection> = {};
 
     DEFAULT_SCOPE:string;
 
@@ -576,8 +576,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             id = this.getId(_el);
         }
 
-        let sConns = this.getConnections({source: id, scope: '*'}, true) as Array<Connection<E>>,
-            tConns = this.getConnections({target: id, scope: '*'}, true) as Array<Connection<E>>;
+        let sConns = this.getConnections({source: id, scope: '*'}, true) as Array<Connection>,
+            tConns = this.getConnections({target: id, scope: '*'}, true) as Array<Connection>;
 
         newId = "" + newId;
 
@@ -598,7 +598,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this._managedElements[newId] = this._managedElements[id];
         delete this._managedElements[id];
 
-        const _conns = (list:Array<Connection<E>>, epIdx:number, type:string) => {
+        const _conns = (list:Array<Connection>, epIdx:number, type:string) => {
             for (let i = 0, ii = list.length; i < ii; i++) {
                 list[i].endpoints[epIdx].setElementId(newId);
                 list[i].endpoints[epIdx].setReferenceElement(_el);
@@ -631,11 +631,11 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
 // ------------------  element selection ------------------------
 
-    getConnections(options?:SelectOptions<E>, flat?:boolean):Dictionary<Connection<E>> | Array<Connection<E>> {
+    getConnections(options?:SelectOptions, flat?:boolean):Dictionary<Connection> | Array<Connection> {
         if (!options) {
             options = {};
         } else if (options.constructor === String) {
-            options = { "scope": options } as SelectOptions<E>;
+            options = { "scope": options } as SelectOptions;
         }
         let scope = options.scope || this.getDefaultScope(),
             scopes = prepareList(this, scope, true),
@@ -667,7 +667,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return results;
     }
 
-    private _makeCommonSelectHandler<T> (list:any[], executor:(l:any[]) => void):AbstractSelection<T, E> {
+    private _makeCommonSelectHandler<T> (list:any[], executor:(l:any[]) => void):AbstractSelection<T> {
         let out = {
             length: list.length,
             each: _curryEach(list, executor),
@@ -691,21 +691,21 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
 
         out["setHover"] = (hover:boolean) => {
-            list.forEach((c:Component<E>) => this.renderer.setHover(c, hover));
+            list.forEach((c:Component) => this.renderer.setHover(c, hover));
             return out;
         };
 
         // for backwards compat, map `repaint` to the `paint` method
         out["repaint"] = () => {
-            list.forEach((c:Component<E>) => c.paint());
+            list.forEach((c:Component) => c.paint());
             return out;
         };
 
-        return out as AbstractSelection<T, E>;
+        return out as AbstractSelection<T>;
     }
 
-    private _makeConnectionSelectHandler (list:Connection<E>[]):ConnectionSelection<E> {
-        let common = this._makeCommonSelectHandler<Connection<E>>(list, this._makeConnectionSelectHandler.bind(this))  as ConnectionSelection<E>;
+    private _makeConnectionSelectHandler (list:Connection[]):ConnectionSelection {
+        let common = this._makeCommonSelectHandler<Connection>(list, this._makeConnectionSelectHandler.bind(this))  as ConnectionSelection;
 
         let connectionFunctions:any = {
             // setters
@@ -725,8 +725,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return extend(common, connectionFunctions);
     }
 
-    private _makeEndpointSelectHandler (list:Array<Endpoint<E>>):EndpointSelection<E> {
-        let common = this._makeCommonSelectHandler(list, this._makeEndpointSelectHandler.bind(this)) as EndpointSelection<E>;
+    private _makeEndpointSelectHandler (list:Array<Endpoint>):EndpointSelection {
+        let common = this._makeCommonSelectHandler(list, this._makeEndpointSelectHandler.bind(this)) as EndpointSelection;
         let endpointFunctions:any = {
             setEnabled: setter(list, "setEnabled", this._makeEndpointSelectHandler.bind(this)),
             setAnchor: setter(list, "setAnchor", this._makeEndpointSelectHandler.bind(this)),
@@ -745,13 +745,13 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return extend(common, endpointFunctions);
     }
 
-    select (params?:SelectOptions<E>):ConnectionSelection<E> {
+    select (params?:SelectOptions):ConnectionSelection {
         params = params || {};
         params.scope = params.scope || "*";
-        return this._makeConnectionSelectHandler(params.connections || (this.getConnections(params, true) as Array<Connection<E>>));
+        return this._makeConnectionSelectHandler(params.connections || (this.getConnections(params, true) as Array<Connection>));
     }
 
-    selectEndpoints(params?:SelectEndpointOptions<E>):EndpointSelection<E> {
+    selectEndpoints(params?:SelectEndpointOptions):EndpointSelection {
         params = params || {};
         params.scope = params.scope || "*";
 
@@ -761,7 +761,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             targets = noElementFilters ? "*" : prepareList(this, params.target),
             scopes = prepareList(this, params.scope, true);
 
-        let ep:Array<Endpoint<E>> = [];
+        let ep:Array<Endpoint> = [];
 
         for (let el in this.endpointsByElement) {
             let either = filterList(elements, el, true),
@@ -800,7 +800,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
     }
 
-    private _set (c:Connection<E>, el:E|Endpoint<E>, idx:number, doNotRepaint?:boolean):any {
+    private _set (c:Connection, el:E|Endpoint, idx:number, doNotRepaint?:boolean):any {
 
         const stTypes = [
             { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
@@ -821,8 +821,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         if (el instanceof Endpoint) {
             ep = el;
-            (<Endpoint<E>>ep).addConnection(c);
-            el = (<Endpoint<E>>ep).element;
+            (<Endpoint>ep).addConnection(c);
+            el = (<Endpoint>ep).element;
         }
         else {
             sid = this.getId(el);
@@ -866,12 +866,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
     }
 
-    setSource (connection:Connection<E>, el:E|Endpoint<E>, doNotRepaint?:boolean):void {
+    setSource (connection:Connection, el:E|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 0, doNotRepaint);
         this.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
     }
 
-    setTarget (connection:Connection<E>, el:E|Endpoint<E>, doNotRepaint?:boolean):void {
+    setTarget (connection:Connection, el:E|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 1, doNotRepaint);
         connection.updateConnectedClass();
     };
@@ -1012,7 +1012,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
      * @param connection Connection to delete.
      * @param params Optional extra parameters.
      */
-    deleteConnection (connection:Connection<E>, params?:DeleteConnectionOptions):boolean {
+    deleteConnection (connection:Connection, params?:DeleteConnectionOptions):boolean {
 
         if (connection != null) {
             params = params || {};
@@ -1029,7 +1029,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
                 connection.endpoints[0].detachFromConnection(connection);
                 connection.endpoints[1].detachFromConnection(connection);
-                removeWithFunction(this.connections, (_c:Connection<E>) => {
+                removeWithFunction(this.connections, (_c:Connection) => {
                     return connection.id === _c.id;
                 });
 
@@ -1063,7 +1063,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return this;
     }
 
-    private fireDetachEvent (jpc:Connection<E> | any, doFireEvent?:boolean, originalEvent?:Event):void {
+    private fireDetachEvent (jpc:Connection | any, doFireEvent?:boolean, originalEvent?:Event):void {
         // may have been given a connection, or in special cases, an object
         let argIsConnection:boolean = (jpc.id != null),
             params = argIsConnection ? {
@@ -1141,7 +1141,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    newEndpoint(params:any, id?:string):Endpoint<E> {
+    newEndpoint(params:any, id?:string):Endpoint {
         let _p = extend({}, params);
         _p._jsPlumb = this;
         _p.elementId = id || this.getId(_p.source);
@@ -1175,7 +1175,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]};
     }
 
-    getAllConnections ():Array<Connection<E>> {
+    getAllConnections ():Array<Connection> {
         return this.connections;
     }
 
@@ -1273,7 +1273,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             },
             deleteAttachedObjects = params.deleteAttachedObjects !== false;
 
-        let unravelConnection = (connection:Connection<E>) => {
+        let unravelConnection = (connection:Connection) => {
             if (connection != null && result.connections[connection.id] == null) {
                 if (!params.dontUpdateHover && connection._jsPlumb != null) {
                     this.renderer.setHover(connection, false);
@@ -1282,7 +1282,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 result.connectionCount++;
             }
         };
-        let unravelEndpoint = (endpoint:Endpoint<E>) => {
+        let unravelEndpoint = (endpoint:Endpoint) => {
             if (endpoint != null && result.endpoints[endpoint.id] == null) {
                 if (!params.dontUpdateHover && endpoint._jsPlumb != null) {
                     this.renderer.setHover(endpoint, false);
@@ -1310,7 +1310,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         for (let i in result.connections) {
             let c = result.connections[i];
             if (c._jsPlumb) {
-                removeWithFunction(this.connections, (_c:Connection<E>) => {
+                removeWithFunction(this.connections, (_c:Connection) => {
                     return c.id === _c.id;
                 });
 
@@ -1336,7 +1336,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return result;
     }
 
-    unregisterEndpoint(endpoint:Endpoint<E>) {
+    unregisterEndpoint(endpoint:Endpoint) {
         if (endpoint._jsPlumb.uuid) {
             delete this.endpointsByUUID[endpoint._jsPlumb.uuid];
         }
@@ -1361,17 +1361,17 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         }
     }
 
-    deleteEndpoint(object:string | Endpoint<E>, dontUpdateHover?:boolean, deleteAttachedObjects?:boolean):jsPlumbInstance<E> {
-        let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint<E>;
+    deleteEndpoint(object:string | Endpoint, dontUpdateHover?:boolean, deleteAttachedObjects?:boolean):jsPlumbInstance<E> {
+        let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint;
         if (endpoint) {
             this.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, deleteAttachedObjects:deleteAttachedObjects });
         }
         return this;
     }
 
-    addEndpoint(el:string|E, params?:EndpointOptions<E>, referenceParams?:EndpointOptions<E>):Endpoint<E>{
-        referenceParams = referenceParams || {} as EndpointOptions<E>;
-        let p:EndpointOptions<E> = extend({}, referenceParams);
+    addEndpoint(el:string|E, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
+        referenceParams = referenceParams || {} as EndpointOptions;
+        let p:EndpointOptions = extend({}, referenceParams);
         extend(p, params);
         p.endpoint = p.endpoint || this.Defaults.endpoint;
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
@@ -1393,8 +1393,8 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return e;
     }
 
-    addEndpoints(el:E, endpoints:Array<EndpointOptions<E>>, referenceParams?:any):Array<Endpoint<E>> {
-        let results:Array<Endpoint<E>> = [];
+    addEndpoints(el:E, endpoints:Array<EndpointOptions>, referenceParams?:any):Array<Endpoint> {
+        let results:Array<Endpoint> = [];
         for (let i = 0, j = endpoints.length; i < j; i++) {
             results.push(this.addEndpoint(el, endpoints[i], referenceParams));
         }
@@ -1428,19 +1428,19 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.unbind();
     }
 
-    getEndpoints(el:string|E):Array<Endpoint<E>> {
+    getEndpoints(el:string|E):Array<Endpoint> {
         return this.endpointsByElement[this._info(el).id] || [];
     }
 
-    getEndpoint(id:string):Endpoint<E> {
+    getEndpoint(id:string):Endpoint {
         return this.endpointsByUUID[id];
     }
 
-    connect (params:ConnectParams<E>, referenceParams?:ConnectParams<E>):Connection<E> {
+    connect (params:ConnectParams<E>, referenceParams?:ConnectParams<E>):Connection {
 
         // prepare a final set of parameters to create connection with
 
-        let _p = this._prepareConnectionParams(params, referenceParams), jpc:Connection<E>;
+        let _p = this._prepareConnectionParams(params, referenceParams), jpc:Connection;
         // TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
         // will return null (and log something) if either endpoint was full.  what would be nicer is to
         // create a dedicated 'error' object.
@@ -1476,16 +1476,16 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
         // wire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
         if (_p.source) {
-            if ((_p.source as Endpoint<E>).endpoint) {
-                _p.sourceEndpoint = (_p.source as Endpoint<E>);
+            if ((_p.source as Endpoint).endpoint) {
+                _p.sourceEndpoint = (_p.source as Endpoint);
             }
             else {
                 _p.source = this.getElement(_p.source as any) as E;
             }
         }
         if (_p.target) {
-            if ((_p.target as Endpoint<E>).endpoint) {
-                _p.targetEndpoint = (_p.target as Endpoint<E>);
+            if ((_p.target as Endpoint).endpoint) {
+                _p.targetEndpoint = (_p.target as Endpoint);
             }
             else {
                 _p.target = this.getElement(_p.target as any) as E;
@@ -1535,7 +1535,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
             _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
         }
 
-        let _addEndpoint = (el:E, def?:any, idx?:number):Endpoint<E> | Array<Endpoint<E>> => {
+        let _addEndpoint = (el:E, def?:any, idx?:number):Endpoint | Array<Endpoint> => {
             const params = _mergeOverrides(def, {
                 anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                 endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
@@ -1620,7 +1620,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         return _p;
     }
 
-    _newConnection (params:any):Connection<E> {
+    _newConnection (params:any):Connection {
         params.id = "con_" + this._idstamp();
         const c = new Connection(this, params);
         c.paint();
@@ -1630,7 +1630,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     //
     // adds the connection to the backing model, fires an event if necessary and then redraws
     //
-    _finaliseConnection(jpc:Connection<E>, params?:any, originalEvent?:Event, doInformAnchorManager?:boolean):void {
+    _finaliseConnection(jpc:Connection, params?:any, originalEvent?:Event, doInformAnchorManager?:boolean):void {
 
         params = params || {};
         // add to list of connections (by scope).
@@ -1919,7 +1919,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 uniqueEndpoint: p.uniqueEndpoint,
                 maxConnections: maxConnections,
                 enabled: true,
-                endpoint:null as Endpoint<E>
+                endpoint:null as Endpoint
             };
 
             if (p.createEndpoint) {
@@ -2015,7 +2015,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
                 uniqueEndpoint: p.uniqueEndpoint,
                 maxConnections: maxConnections,
                 enabled: true,
-                endpoint:null as Endpoint<E>
+                endpoint:null as Endpoint
             };
 
             if (p.createEndpoint) {
@@ -2046,12 +2046,12 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         let visible = state === Constants.BLOCK;
         let endpointFunc = null;
         if (alsoChangeEndpoints) {
-            endpointFunc = (ep:Endpoint<E>) => {
+            endpointFunc = (ep:Endpoint) => {
                 ep.setVisible(visible, true, true);
             };
         }
         let info = this._info(el);
-        this._operation(info.id, (jpc:Connection<E>) => {
+        this._operation(info.id, (jpc:Connection) => {
             if (visible && alsoChangeEndpoints) {
                 // this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
                 // this block will only set a connection to be visible if the other endpoint in the connection is also visible.
@@ -2072,18 +2072,18 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     toggleVisible (elId:string, changeEndpoints?:boolean) {
         let endpointFunc = null;
         if (changeEndpoints) {
-            endpointFunc = (ep:Endpoint<E>) => {
+            endpointFunc = (ep:Endpoint) => {
                 let state = ep.isVisible();
                 ep.setVisible(!state);
             };
         }
-        this._operation(elId,  (jpc:Connection<E>) => {
+        this._operation(elId,  (jpc:Connection) => {
             let state = jpc.isVisible();
             jpc.setVisible(!state);
         }, endpointFunc);
     }
 
-    private _operation (elId:string, func:(c:Connection<E>) => any, endpointFunc?:(e:Endpoint<E>) => any) {
+    private _operation (elId:string, func:(c:Connection) => any, endpointFunc?:(e:Endpoint) => any) {
         let endpoints = this.endpointsByElement[elId];
         if (endpoints && endpoints.length) {
             for (let i = 0, ii = endpoints.length; i < ii; i++) {
@@ -2170,7 +2170,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
 
 // ----------------------------- proxy connections -----------------------
 
-    proxyConnection(connection:Connection<E>, index:number, proxyEl:E, proxyElId:string,
+    proxyConnection(connection:Connection, index:number, proxyEl:E, proxyElId:string,
                     endpointGenerator:any, anchorGenerator:any) {
 
         let proxyEp,
@@ -2218,7 +2218,7 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
         this.revalidate(proxyEl);
     }
 
-    unproxyConnection(connection:Connection<E>, index:number, proxyElId:string) {
+    unproxyConnection(connection:Connection, index:number, proxyElId:string) {
         // if connection cleaned up, no proxies, or none for this end of the connection, abort.
         if (connection.proxies == null || connection.proxies[index] == null) {
             return;
@@ -2265,20 +2265,20 @@ export abstract class jsPlumbInstance<E> extends EventGenerator {
     getGroup(id:string) { return this.groupManager.getGroup(id); }
     getGroupFor(el:E|string) { return this.groupManager.getGroupFor(el); }
     addGroup(params:any) { return this.groupManager.addGroup(params); }
-    addToGroup(group:string | UIGroup<E>, el:E | Array<E>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
+    addToGroup(group:string | UIGroup, el:any | Array<any>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
 
-    collapseGroup (group:string | UIGroup<E>) { this.groupManager.collapseGroup(group); }
-    expandGroup (group:string | UIGroup<E>) { this.groupManager.expandGroup(group); }
-    toggleGroup (group:string | UIGroup<E>) { this.groupManager.toggleGroup(group); }
+    collapseGroup (group:string | UIGroup) { this.groupManager.collapseGroup(group); }
+    expandGroup (group:string | UIGroup) { this.groupManager.expandGroup(group); }
+    toggleGroup (group:string | UIGroup) { this.groupManager.toggleGroup(group); }
 
-    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
     }
 
     removeAllGroups(deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
         this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
     }
-    removeFromGroup (group:string | UIGroup<E>, el:E, doNotFireEvent?:boolean):void {
+    removeFromGroup (group:string | UIGroup, el:any, doNotFireEvent?:boolean):void {
         this.groupManager.removeFromGroup(group, el, doNotFireEvent);
         this.appendElement(el, this.getContainer());
     }

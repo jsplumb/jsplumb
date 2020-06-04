@@ -135,7 +135,7 @@ export class ContinuousAnchor extends Anchor {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
     }
 
-    getOrientation (endpoint?:Endpoint<any>):Orientation {
+    getOrientation (endpoint?:Endpoint):Orientation {
         return this.instance.anchorManager.continuousAnchorOrientations[endpoint.id] || [0, 0];
     }
 

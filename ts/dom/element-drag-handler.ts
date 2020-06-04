@@ -13,16 +13,16 @@ import {BoundingBox, Dictionary, Offset} from "../core";
 import {isString, optional} from "../util";
 import {intersects} from "../geom";
 
-type IntersectingGroup<E> = {
-    group:UIGroup<E>;
+type IntersectingGroup = {
+    group:UIGroup;
     d:number;
-    intersectingElement:E;
+    intersectingElement:HTMLElement;
 }
 
-type GroupLocation<E> = {
-    el:E;
+type GroupLocation = {
+    el:HTMLElement;
     r: BoundingBox;
-    group: UIGroup<E>;
+    group: UIGroup;
 }
 
 type PosseMemberSpec = { el:HTMLElement, elId:string, active:boolean };
@@ -32,8 +32,8 @@ export class ElementDragHandler implements DragHandler {
 
     selector: string = "> [jtk-managed]";
     _dragOffset:Offset = null;
-    _groupLocations:Array<GroupLocation<HTMLElement>> = [];
-    _intersectingGroups:Array<IntersectingGroup<HTMLElement>> = [];
+    _groupLocations:Array<GroupLocation> = [];
+    _intersectingGroups:Array<IntersectingGroup> = [];
 
     _posseByElementIdMap:Dictionary<Posse> = {};
     _posseMap:Dictionary<Posse> = {};
@@ -246,7 +246,7 @@ export class ElementDragHandler implements DragHandler {
                     // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
 
                     if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
-                        this.instance.groupManager.forEach((group: UIGroup<HTMLElement>) => {
+                        this.instance.groupManager.forEach((group: UIGroup) => {
                             // prepare a list of potential droppable groups.
                             if (group.droppable !== false && group.enabled !== false && group !== _el._jsPlumbGroup) {
                                 let groupEl = group.el,

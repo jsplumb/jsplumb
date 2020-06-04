@@ -10,7 +10,7 @@ export type UserDefinedEndpointId = string;
 export type EndpointParams = any;
 export type EndpointSpec = EndpointId | [EndpointId, EndpointParams];
 
-export interface EndpointOptions<E> extends ComponentOptions<E> {
+export interface EndpointOptions extends ComponentOptions {
     anchor?: AnchorSpec;
     anchors?:[ AnchorSpec, AnchorSpec ];
     endpoint?: EndpointSpec;
@@ -45,9 +45,9 @@ export interface EndpointOptions<E> extends ComponentOptions<E> {
     connectorTooltip?:string;
 
     uuid?:string;
-    source?:string|E;
+    source?:string|any;
 
-    connections?:Array<Connection<E>>;
+    connections?:Array<Connection>;
 
     "connector-pointer-events"?:string;
 

@@ -2,12 +2,12 @@ import {CustomOverlayOptions, Overlay} from "./overlay";
 import { jsPlumbInstance } from "../core";
 import {Component, OverlayFactory } from "..";
 
-export class CustomOverlay<E> extends Overlay<E> {
+export class CustomOverlay extends Overlay {
 
-    create:(c:Component<E>) => E;
+    create:(c:Component) => any;
 
-    constructor(public instance:jsPlumbInstance<E>, public component:Component<E>,
-                p:CustomOverlayOptions<E>) {
+    constructor(public instance:jsPlumbInstance<any>, public component:Component,
+                p:CustomOverlayOptions) {
 
         super(instance, component, p);
         this.create = p.create;

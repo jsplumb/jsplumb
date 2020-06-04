@@ -40,7 +40,7 @@ export function _pos (d:[number, number]):string {
     return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
 }
 
-export function _applyStyles<E>(parent:any, node:SVGElement, style:any, dimensions:any, uiComponent:Component<E>) {
+export function _applyStyles(parent:any, node:SVGElement, style:any, dimensions:any, uiComponent:Component) {
 
     node.setAttribute(FILL, style.fill ? style.fill : Constants.NONE);
     node.setAttribute(STROKE, style.stroke ? style.stroke : Constants.NONE);

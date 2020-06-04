@@ -21,11 +21,11 @@ export type AnchorComputeParams = {
     wh?: PointArray;
     txy?:PointArray;
     twh?:PointArray;
-    element?:Endpoint<any>;
+    element?:Endpoint;
     timestamp?: string;
     index?:number;
-    tElement?:Endpoint<any>;
-    connection?:Connection<any>;
+    tElement?:Endpoint;
+    connection?:Connection;
     elementId?:string;
 };
 

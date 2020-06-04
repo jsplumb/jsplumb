@@ -5,7 +5,7 @@ import {Component} from "../component/component";
 import {jsPlumbInstance, PointArray} from "../core";
 import {OverlayFactory} from "../factory/overlay-factory";
 
-export class LabelOverlay<E> extends Overlay<E> {
+export class LabelOverlay extends Overlay {
 
     label:string | Function;
     labelText:string;
@@ -14,7 +14,7 @@ export class LabelOverlay<E> extends Overlay<E> {
 
     cachedDimensions:PointArray;
 
-    constructor(public instance:jsPlumbInstance<E>, public component:Component<E>,
+    constructor(public instance:jsPlumbInstance<any>, public component:Component,
                 p:LabelOverlayOptions) {
 
         super(instance, component, p);

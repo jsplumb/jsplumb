@@ -2,6 +2,7 @@ import { jsPlumbDefaults, jsPlumbHelperFunctions } from "../defaults";
 import { Dictionary, jsPlumbInstance, Offset, Size } from "../core";
 import { DragManager } from "./drag-manager";
 import { UIGroup } from "../group/group";
+import { EventManager } from "./event-manager";
 export interface DragEventCallbackOptions {
     drag: {
         size: [number, number];
@@ -47,6 +48,7 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance<HTMLElement>
     _endpointMouseout: Function;
     _overlayMouseover: Function;
     _overlayMouseout: Function;
+    eventManager: EventManager;
     private elementDragHandler;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions<HTMLElement>);
     getElement(el: HTMLElement | string): HTMLElement;

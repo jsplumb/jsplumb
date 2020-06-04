@@ -8,10 +8,10 @@ export abstract class SVGElementOverlay {
             let parent:SVGElement = null;
 
             if (o.component instanceof Connection) {
-                let connector = (o.component as Connection<HTMLElement>).getConnector();
+                let connector = (o.component as Connection).getConnector();
                 parent = (connector as any).canvas;
             } else if (o.component instanceof Endpoint) {
-                let endpoint = (o.component as Endpoint<HTMLElement>).endpoint;
+                let endpoint = (o.component as Endpoint).endpoint;
                 parent = (endpoint as any).svg;
             }
 
@@ -51,7 +51,7 @@ export abstract class SVGElementOverlay {
         _attr(o.path, a);
     }
 
-    static destroy(o:Overlay<HTMLElement>, force?:boolean) {
+    static destroy(o:Overlay, force?:boolean) {
 
         let _o = o as any;
 

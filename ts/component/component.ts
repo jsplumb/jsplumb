@@ -8,11 +8,11 @@ import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {EndpointSpec} from "../endpoint";
 import {ConnectorSpec} from "../connector";
 
-export type ComponentConfig<E> = {
+export type ComponentConfig = {
     paintStyle?:PaintStyle;
     hoverPaintStyle?:PaintStyle;
     types:string[];
-    instance:jsPlumbInstance<E>;
+    instance:jsPlumbInstance<any>;
     paintStyleInUse?:PaintStyle;
 
     cssClass?:string;
@@ -21,7 +21,7 @@ export type ComponentConfig<E> = {
     parameters:ComponentParameters;
     typeCache:{};
 
-    overlays?:Dictionary<Overlay<E>>;
+    overlays?:Dictionary<Overlay>;
     overlayPlacements?: Dictionary<any>;
     overlayPositions?:Dictionary<PointArray>
 
@@ -59,7 +59,7 @@ export type ComponentConfig<E> = {
 
     uuid?:string;
 
-    floatingEndpoint?:Endpoint<E>;
+    floatingEndpoint?:Endpoint;
 
     events?:any;
 
@@ -85,7 +85,7 @@ function _mapType (map:any, obj:any, typeId:string) {
     }
 }
 
-function _applyTypes<E>(component:Component<E>, params?:any, doNotRepaint?:boolean) {
+function _applyTypes<E>(component:Component, params?:any, doNotRepaint?:boolean) {
     if (component.getDefaultType) {
         let td = component.getTypeDescriptor(), map = {};
         let defType = component.getDefaultType();
@@ -116,7 +116,7 @@ function _applyTypes<E>(component:Component<E>, params?:any, doNotRepaint?:boole
     }
 }
 
-export function _removeTypeCssHelper<E>(component:Component<E>, typeIndex:number) {
+export function _removeTypeCssHelper<E>(component:Component, typeIndex:number) {
     let typeId = component._jsPlumb.types[typeIndex],
         type = component.instance.getType(typeId, component.getTypeDescriptor());
 
@@ -128,7 +128,7 @@ export function _removeTypeCssHelper<E>(component:Component<E>, typeIndex:number
 // helper method to update the hover style whenever it, or paintStyle, changes.
 // we use paintStyle as the foundation and merge hoverPaintStyle over the
 // top.
-export function  _updateHoverStyle<E> (component:Component<E>) {
+export function  _updateHoverStyle<E> (component:Component) {
     if (component.paintStyle && component.hoverPaintStyle) {
         let mergedHoverStyle:PaintStyle = {};
         extend(mergedHoverStyle, component.paintStyle);
@@ -142,8 +142,8 @@ export type RepaintOptions = {
     recalc?:boolean;
 }
 
-export interface ComponentOptions<E> {
-    _jsPlumb?:jsPlumbInstance<E>;
+export interface ComponentOptions {
+    _jsPlumb?:jsPlumbInstance<any>;
     parameters?:any;
     beforeDetach?:Function;
     beforeDrop?:Function;
@@ -154,14 +154,14 @@ export interface ComponentOptions<E> {
     cssClass?:string;
 }
 
-export abstract class Component<E> extends EventGenerator {
+export abstract class Component extends EventGenerator {
 
     abstract getTypeDescriptor():string;
     abstract getDefaultOverlayKey():string;
     abstract getIdPrefix():string;
     abstract getXY():PointXY;
 
-    clone: ()=>Component<E>;
+    clone: () => Component;
 
     segment?:number;
     x:number;
@@ -182,15 +182,15 @@ export abstract class Component<E> extends EventGenerator {
 
     _defaultType:any;
 
-    _jsPlumb:ComponentConfig<E>;
+    _jsPlumb:ComponentConfig;
 
     cssClass:string;
 
-    constructor(public instance:jsPlumbInstance<E>, params?:ComponentOptions<E>) {
+    constructor(public instance:jsPlumbInstance<any>, params?:ComponentOptions) {
 
         super();
 
-        params = params || ({} as ComponentOptions<E>);
+        params = params || ({} as ComponentOptions);
 
         this.cssClass = params.cssClass || "";
 
@@ -240,7 +240,7 @@ export abstract class Component<E> extends EventGenerator {
             }
         }
 
-        this.clone = ():Component<E> => {
+        this.clone = ():Component => {
             let o = Object.create(this.constructor.prototype);
             this.constructor.apply(o, [instance, params]);
             return o;
@@ -249,7 +249,7 @@ export abstract class Component<E> extends EventGenerator {
 
     abstract paint(params?:any):any;
 
-    isDetachAllowed(connection:Connection<E>):boolean {
+    isDetachAllowed(connection:Connection):boolean {
         let r = true;
         if (this._jsPlumb.beforeDetach) {
             try {
@@ -262,7 +262,7 @@ export abstract class Component<E> extends EventGenerator {
         return r;
     }
 
-    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection<E>, dropEndpoint:Endpoint<E>, source?:E, target?:E):any {
+    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint, source?:any, target?:any):any {
         let r = this._jsPlumb.instance.checkCondition("beforeDrop", {
             sourceId: sourceId,
             targetId: targetId,
