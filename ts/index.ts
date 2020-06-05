@@ -4,6 +4,7 @@ import {extend} from "./core";
 import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
 import {EventManager} from "./dom/event-manager";
+import {uuid} from "./util";
 
 export * from "./constants";
 export * from "./core";
@@ -109,7 +110,8 @@ if(typeof window !== "undefined") {
             node:_node,
             attr:_attr,
             pos:_pos
-        }
+        },
+        uuid:uuid
     };
 
     (<any>window).Mottle = EventManager;
