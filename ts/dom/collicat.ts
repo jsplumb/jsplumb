@@ -256,7 +256,7 @@ export interface DragParams {
     ghostProxyParent?:HTMLElement;
 }
 
-class Drag extends Base {
+export class Drag extends Base {
 
     _class:string;
     rightButtonCanDrag:boolean;
