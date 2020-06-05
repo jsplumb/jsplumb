@@ -10,8 +10,9 @@ import { FloatingAnchor } from "./floating-anchor";
 import {EndpointRepresentation} from "../endpoint/endpoints";
 import {consume, createElement, findParent} from "../browser/browser-util";
 import * as Constants from "../constants";
-import {classList, cls, EVENT_MAX_CONNECTIONS} from "../constants";
+import {classList, cls, EVENT_CONNECTION_DRAG, EVENT_MAX_CONNECTIONS} from "../constants";
 import {intersects} from "../geom";
+import {Drag} from "./collicat";
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas });
@@ -225,7 +226,7 @@ export class EndpointDragHandler implements DragHandler {
         this.instance.off(c, EVT_MOUSEDOWN, this._mousedownHandler);
     }
 
-    init(katavorioDraggable:any) {}
+    init(drag:Drag) {}
 
     selector: string = ".jtk-endpoint";
 
@@ -478,8 +479,10 @@ export class EndpointDragHandler implements DragHandler {
             // new anchor idx
             const anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1;
 
-            // detach from the connection while dragging is occurring. but dont cleanup automatically.
+            // detach from the connection while dragging is occurring. mark as a 'transient' detach, ie. dont delete
+            // the endpoint if there are no other connections and it would otherwise have been cleaned up.
             this.ep.detachFromConnection(this.jpc, null, true);
+
             // attach the connection to the floating endpoint.
             this.floatingEndpoint.addConnection(this.jpc);
 
@@ -490,7 +493,7 @@ export class EndpointDragHandler implements DragHandler {
         
             // fire an event that informs that a connection is being dragged. we do this before
             // replacing the original target with the floating element info.
-            this.instance.fire("connectionDrag", this.jpc);
+            this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
         
             // now we replace ourselves with the temporary div we created above:
             if (anchorIdx === 0) {
@@ -511,7 +514,7 @@ export class EndpointDragHandler implements DragHandler {
             // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
             this.jpc.suspendedElement = this.jpc.endpoints[anchorIdx].element;
             this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId;
-            this.jpc.suspendedElementType = anchorIdx === 0 ? "source" : "target";
+            this.jpc.suspendedElementType = anchorIdx === 0 ? Constants.SOURCE : Constants.TARGET;
         
             this.instance.renderer.setHover(this.jpc.suspendedEndpoint, false);
 
@@ -581,7 +584,7 @@ export class EndpointDragHandler implements DragHandler {
 
                     _cont = (newDropTarget.endpoint.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id);
                     if (_cont) {
-                        let bb = this.instance.checkCondition("checkDropAllowed", {
+                        let bb = this.instance.checkCondition(Constants.CHECK_DROP_ALLOWED, {
                             sourceEndpoint: this.jpc.endpoints[idx],
                             targetEndpoint: newDropTarget.endpoint.endpoint,
                             connection: this.jpc
@@ -605,7 +608,8 @@ export class EndpointDragHandler implements DragHandler {
 
     maybeCleanup (ep:Endpoint):void {
         if ((<any>ep)._mtNew && ep.connections.length === 0) {
-            this.instance.deleteObject({endpoint: ep});
+            //this.instance.deleteObject({endpoint: ep});
+            this.instance.deleteEndpoint(ep);
         }
         else {
             delete (<any>ep)._mtNew;
@@ -631,10 +635,13 @@ export class EndpointDragHandler implements DragHandler {
             // is this an existing connection? try to reattach, if desired.
             this._doForceReattach(idx);
 
+            // i think here we will need to throw away the floating endpoint
+
         } else {
             // otherwise throw it away (and throw away any endpoints attached to it that should be thrown away when they are no longer
             // connected to any edges.
             this._discard(idx, originalEvent);
+            // i think here the code will have throw away the floating endpoint.
         }
     }
     
@@ -737,7 +744,8 @@ export class EndpointDragHandler implements DragHandler {
 
             // common clean up
 
-            this.instance.deleteObject({endpoint: this.floatingEndpoint});
+            //this.instance.deleteObject({endpoint: this.floatingEndpoint});
+            //this.instance.deleteEndpoint(this.floatingEndpoint);
 
             this._cleanupDraggablePlaceholder();
 
@@ -758,7 +766,8 @@ export class EndpointDragHandler implements DragHandler {
 
                 /* makeTarget sets this flag, to tell us we have been replaced and should delete this object. */
                 if (dropEndpoint.deleteAfterDragStop) {
-                    this.instance.deleteObject({endpoint: dropEndpoint});
+                    //this.instance.deleteObject({endpoint: dropEndpoint});
+                    this.instance.deleteEndpoint(dropEndpoint);
                 }
                 else {
                     if (dropEndpoint._jsPlumb) {
@@ -879,7 +888,9 @@ export class EndpointDragHandler implements DragHandler {
 
     _doForceReattach(idx:number):void {
 
-        this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true);
+        // TODO check this logic. why in this case is this a transient detach?
+        //this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true);
+        this.floatingEndpoint.detachFromConnection(this.jpc, null, true);
 
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
         this.instance.renderer.setHover(this.jpc, false);
@@ -902,6 +913,8 @@ export class EndpointDragHandler implements DragHandler {
         else {
             this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
         }
+
+        this.instance.deleteEndpoint(this.floatingEndpoint);
 
         this.instance.repaint(this.jpc.sourceId);
 
@@ -955,12 +968,13 @@ export class EndpointDragHandler implements DragHandler {
                 this.jpc._forceDetach = false;
             }
             else {
+                console.log("TODO: not reattaching and not deleting. what should happen?")
                //this.instance.deleteObject({endpoint: this.jpc.suspendedEndpoint});
             }
 
         } else {
 
-            this.instance.deleteObject({endpoint: this.jpc.endpoints[idx], originalEvent:originalEvent});
+            this.instance.deleteEndpoint(this.jpc.endpoints[idx]);//, originalEvent:originalEvent});
 
             if (this.jpc.pending) {
                 this.instance.fire("connectionAborted", this.jpc, originalEvent);
@@ -988,7 +1002,7 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.floatingEndpoint.detachFromConnection(this.jpc);
         }
 
-        this.instance.deleteObject({connection: this.jpc, originalEvent:originalEvent});
+        this.instance.deleteConnection(this.jpc, {originalEvent:originalEvent});
     }
 
     //
