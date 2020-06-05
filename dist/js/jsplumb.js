@@ -16996,7 +16996,8 @@
         node: _node,
         attr: _attr,
         pos: _pos
-      }
+      },
+      uuid: uuid
     };
     window.Mottle = EventManager;
   }
