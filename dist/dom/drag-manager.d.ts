@@ -1,5 +1,6 @@
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { Dictionary } from "../core";
+import { Drag } from "./collicat";
 export declare const CLASS_DRAG_SELECTED = "jtk-drag-selected";
 export declare const CLASS_DRAG_ACTIVE = "jtk-drag-active";
 export declare const CLASS_DRAGGED = "jtk-dragged";
@@ -19,7 +20,7 @@ export interface DragHandler {
     onDrag: (params: any) => void;
     onStop: (params: any) => void;
     reset: () => void;
-    init: (katavorioDraggable: any) => void;
+    init: (drag: Drag) => void;
     onBeforeStart?: (beforeStartParams: any) => void;
 }
 export interface GhostProxyingDragHandler extends DragHandler {
@@ -28,8 +29,8 @@ export interface GhostProxyingDragHandler extends DragHandler {
 }
 export declare class DragManager {
     protected instance: BrowserJsPlumbInstance;
-    private katavorio;
-    private katavorioDraggable;
+    private collicat;
+    private drag;
     _draggables: Dictionary<any>;
     _dlist: Array<any>;
     _elementsWithEndpoints: Dictionary<any>;

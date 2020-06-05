@@ -4,6 +4,7 @@ import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint-impl";
 import { Dictionary } from "../core";
 import { EndpointRepresentation } from "../endpoint/endpoints";
+import { Drag } from "./collicat";
 export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
@@ -28,7 +29,7 @@ export declare class EndpointDragHandler implements DragHandler {
     _makeDraggablePlaceholder(ipco: any, ips: any): HTMLElement;
     _cleanupDraggablePlaceholder(): void;
     reset(): void;
-    init(katavorioDraggable: any): void;
+    init(drag: Drag): void;
     selector: string;
     onStart(p: any): boolean;
     onBeforeStart(beforeStartParams: any): void;

@@ -12,6 +12,7 @@ import {UIGroup} from "../group/group";
 import {BoundingBox, Dictionary, Offset} from "../core";
 import {isString, optional} from "../util";
 import {intersects} from "../geom";
+import {Drag} from "./collicat";
 
 type IntersectingGroup = {
     group:UIGroup;
@@ -46,7 +47,7 @@ export class ElementDragHandler implements DragHandler {
     private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map();
     private _dragSizes:Map<string, [number, number]> = new Map();
 
-    protected katavorioDraggable:any;
+    protected katavorioDraggable:Drag;
 
     constructor(protected instance:BrowserJsPlumbInstance) {}
 
@@ -137,8 +138,8 @@ export class ElementDragHandler implements DragHandler {
 
     reset() { }
 
-    init(katavorioDraggable:any) {
-        this.katavorioDraggable = katavorioDraggable;
+    init(drag:Drag) {
+        this.katavorioDraggable = drag;
     }
 
     onDrag(params:any):void {

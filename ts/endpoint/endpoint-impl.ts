@@ -1,5 +1,4 @@
 import {EndpointOptions, EndpointSpec} from "../endpoint";
-import {Component} from "../component/component";
 import {extend, jsPlumbInstance, OffsetAndSize, Size, Timestamp} from "../core";
 import {ComputedAnchorPosition, makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
@@ -226,20 +225,21 @@ export class Endpoint extends OverlayCapableComponent {
 
     }
 
-    detachFromConnection (connection:Connection, idx?:number, doNotCleanup?:boolean):void {
+    /**
+     * Detaches this Endpoint from the given Connection.  If `deleteOnEmpty` is set to true and there are no
+     * Connections after this one is detached, the Endpoint is deleted.
+     * @param connection
+     * @param idx
+     */
+    detachFromConnection (connection:Connection, idx?:number, transientDetach?:boolean):void {
         idx = idx == null ? this.connections.indexOf(connection) : idx;
         if (idx >= 0) {
             this.connections.splice(idx, 1);
-            this[(this.connections.length > 0 ? "add" : "remove") + "Class"](this.instance.endpointConnectedClass);
-            this[(this.isFull() ? "add" : "remove") + "Class"](this.instance.endpointFullClass);
+            this.instance.renderer.refreshEndpoint(this);
         }
 
-        if (!doNotCleanup && this.deleteOnEmpty && this.connections.length === 0) {
-            this.instance.deleteObject({
-                endpoint: this,
-                fireEvent: false,
-                deleteAttachedObjects: doNotCleanup !== true
-            });
+        if (!transientDetach  && this.deleteOnEmpty && this.connections.length === 0) {
+            this.instance.deleteEndpoint(this);
         }
     }
 
@@ -318,11 +318,12 @@ export class Endpoint extends OverlayCapableComponent {
     }
 
     destroy(force?:boolean):void {
+        // TODO i feel like this anchor class stuff should be in the renderer
         let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
         this.instance.removeClass(this.element, anchorClass);
         this.anchor = null;
         if(this.endpoint != null) {
-            this.instance.renderer.destroyEndpoint(this.endpoint);
+            this.instance.renderer.destroyEndpoint(this);
         }
         this.endpoint = null;
 
@@ -401,9 +402,6 @@ export class Endpoint extends OverlayCapableComponent {
         this.element = this.instance.getElement(el);
         this.elementId = this.instance.getId(this.element);
         this.instance.anchorManager.rehomeEndpoint(this, curId, this.element);
-
-        //this.instance.dragManager.endpointAdded(this.element);
-
         addToList(this.instance.endpointsByElement, parentId, this);
         return this;
     }
@@ -421,10 +419,7 @@ export class Endpoint extends OverlayCapableComponent {
         let timestamp = params.timestamp, recalc = !(params.recalc === false);
         if (!timestamp || this.timestamp !== timestamp) {
 
-        //    window.jtime("endpoint paint");
-
             let info = this.instance.updateOffset({ elId: this.elementId, timestamp: timestamp });
-
             let xy = params.offset ? params.offset.o : info.o;
             if (xy != null) {
                 let ap = params.anchorLoc, connectorPaintStyle = params.connectorPaintStyle;
@@ -464,8 +459,6 @@ export class Endpoint extends OverlayCapableComponent {
                     }
                 }
             }
-
-            //window.jtimeEnd("endpoint paint");
         }
     }
 
@@ -474,9 +467,6 @@ export class Endpoint extends OverlayCapableComponent {
         let endpointArgs = {
             _jsPlumb: this._jsPlumb.instance,
             cssClass: this._jsPlumb.cssClass,
-            // container: params.container,
-            // tooltip: params.tooltip,
-            // connectorTooltip: params.connectorTooltip,
             endpoint: this
         };
 
@@ -521,16 +511,9 @@ export class Endpoint extends OverlayCapableComponent {
 
     setPreparedEndpoint<C>(ep:EndpointRepresentation<C>) {
         if (this.endpoint != null) {
-            this.instance.renderer.destroyEndpoint(this.endpoint);
+            this.instance.renderer.destroyEndpoint(this);
         }
         this.endpoint = ep;
-        //this.type = this.endpoint.type;
-        //this.canvas = this.endpoint.canvas;
-
-        // let scopes = this.scope.split(/\s/);
-        // for (let i = 0; i < scopes.length; i++) {
-        //     this.instance.setAttribute(this.canvas, "jtk-scope-" + scopes[i], "true");
-        // }
     }
 
 

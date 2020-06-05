@@ -217,6 +217,12 @@ export type DeleteConnectionOptions = {
      * Optional original event that resulted in the connection being deleted.
      */
     originalEvent?:Event;
+
+    /**
+     * internally when a connection is deleted, it may be because the endpoint it was on is being deleted.
+     * in that case we want to ignore that endpoint.
+     */
+    endpointToIgnore?:Endpoint;
 }
 
 function _setOperation (list:Array<any>, func:string, args?:any, selector?:any):any {
@@ -1021,16 +1027,33 @@ export abstract class jsPlumbInstance extends EventGenerator {
                     [ this, Constants.CHECK_CONDITION, [ Constants.BEFORE_DETACH, connection ] ]
                 ])) {
 
-                this.renderer.setHover(connection, false);
                 this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
 
-                connection.endpoints[0].detachFromConnection(connection);
-                connection.endpoints[1].detachFromConnection(connection);
+                const sourceEndpoint = connection.endpoints[0];
+                const targetEndpoint = connection.endpoints[1];
+
+                if (sourceEndpoint !== params.endpointToIgnore) {
+                    sourceEndpoint.detachFromConnection(connection, null, true);
+                }
+
+                if (targetEndpoint !== params.endpointToIgnore) {
+                    targetEndpoint.detachFromConnection(connection, null, true);
+                }
+
                 removeWithFunction(this.connections, (_c:Connection) => {
                     return connection.id === _c.id;
                 });
 
                 connection.destroy();
+
+                if (sourceEndpoint !== params.endpointToIgnore && sourceEndpoint.deleteOnEmpty && sourceEndpoint.connections.length === 0) {
+                    this.deleteEndpoint(sourceEndpoint);
+                }
+
+                if (targetEndpoint !== params.endpointToIgnore && targetEndpoint.deleteOnEmpty && targetEndpoint.connections.length === 0) {
+                    this.deleteEndpoint(targetEndpoint);
+                }
+
                 return true;
             }
         }
@@ -1245,7 +1268,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 } else {
                     for (let i = 0; i < repaintEls.length; i++) {
                         const reId = this.getId(repaintEls[i]);
-                        //repaintOffsets.push({o: this._offsets[reId], s: this._sizes[reId]});
                         repaintOffsets.push(this._offsets[reId]);
                     }
                 }
@@ -1259,78 +1281,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 }
             }
         }
-    }
-
-    deleteObject(params:DeleteOptions):DeleteResult {
-        let result:DeleteResult = {
-                endpoints: {},
-                connections: {},
-                endpointCount: 0,
-                connectionCount: 0
-            },
-            deleteAttachedObjects = params.deleteAttachedObjects !== false;
-
-        let unravelConnection = (connection:Connection) => {
-            if (connection != null && result.connections[connection.id] == null) {
-                if (!params.dontUpdateHover && connection._jsPlumb != null) {
-                    this.renderer.setHover(connection, false);
-                }
-                result.connections[connection.id] = connection;
-                result.connectionCount++;
-            }
-        };
-        let unravelEndpoint = (endpoint:Endpoint) => {
-            if (endpoint != null && result.endpoints[endpoint.id] == null) {
-                if (!params.dontUpdateHover && endpoint._jsPlumb != null) {
-                    this.renderer.setHover(endpoint, false);
-                }
-                result.endpoints[endpoint.id] = endpoint;
-                result.endpointCount++;
-
-                if (deleteAttachedObjects) {
-                    for (let i = 0; i < endpoint.connections.length; i++) {
-                        let c = endpoint.connections[i];
-                        unravelConnection(c);
-                    }
-                }
-            }
-        };
-
-        if (params.connection) {
-            unravelConnection(params.connection);
-        }
-        else {
-            unravelEndpoint(params.endpoint);
-        }
-
-        // loop through connections
-        for (let i in result.connections) {
-            let c = result.connections[i];
-            if (c._jsPlumb) {
-                removeWithFunction(this.connections, (_c:Connection) => {
-                    return c.id === _c.id;
-                });
-
-                this.fireDetachEvent(c, params.fireEvent === false ? false : !c.pending, params.originalEvent);
-                let doNotCleanup = params.deleteAttachedObjects == null ? null : !params.deleteAttachedObjects;
-
-                c.endpoints[0].detachFromConnection(c, null, doNotCleanup);
-                c.endpoints[1].detachFromConnection(c, null, doNotCleanup);
-                c.destroy(true);
-            }
-        }
-
-        // loop through endpoints
-        for (let j in result.endpoints) {
-            let e = result.endpoints[j];
-            if (e._jsPlumb) {
-                this.unregisterEndpoint(e);
-                // FIRE some endpoint deleted event?
-                e.destroy(true);
-            }
-        }
-
-        return result;
     }
 
     unregisterEndpoint(endpoint:Endpoint) {
@@ -1358,10 +1308,26 @@ export abstract class jsPlumbInstance extends EventGenerator {
         }
     }
 
-    deleteEndpoint(object:string | Endpoint, dontUpdateHover?:boolean, deleteAttachedObjects?:boolean):jsPlumbInstance {
+    deleteEndpoint(object:string | Endpoint/*, dontUpdateHover?:boolean/*, deleteAttachedObjects?:boolean*/):jsPlumbInstance {
         let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint;
         if (endpoint) {
-            this.deleteObject({ endpoint: endpoint, dontUpdateHover: dontUpdateHover, deleteAttachedObjects:deleteAttachedObjects });
+
+            // find all connections for the endpoint
+            const connectionsToDelete = endpoint.connections.slice();
+            connectionsToDelete.forEach((connection) => {
+                // detach this endpoint from each of these connections.
+                endpoint.detachFromConnection(connection, null, true);
+            });
+
+            // delete the endpoint
+            this.unregisterEndpoint(endpoint);
+            endpoint.destroy(true);
+
+            // then delete the connections. each of these connections only has one endpoint at the moment
+            connectionsToDelete.forEach((connection) => {
+                // detach this endpoint from each of these connections.
+                this.deleteConnection(connection, {force:true, endpointToIgnore:endpoint});
+            });
         }
         return this;
     }
@@ -1464,7 +1430,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
     }
 
     _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):any {
-
 
         let _p:InternalConnectParams = extend({ }, params);
         if (referenceParams) {
@@ -1596,8 +1561,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
                         }
                     }
                 }
-
-
             }
         };
 
@@ -1722,7 +1685,9 @@ export abstract class jsPlumbInstance extends EventGenerator {
             if (ebe) {
                 affectedElements.push(info);
                 for (i = 0, ii = ebe.length; i < ii; i++) {
-                    this.deleteEndpoint(ebe[i], false);
+                    // TODO check this logic. was the second arg a "do not repaint now" argument?
+                    //this.deleteEndpoint(ebe[i], false);
+                    this.deleteEndpoint(ebe[i]);
                 }
             }
             delete this.endpointsByElement[info.id];
@@ -2201,7 +2166,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             connection.targetId = proxyElId;
         }
 
-        // detach the original EP from the connection.
+        // detach the original EP from the connection, but mark as a transient detach.
         originalEndpoint.detachFromConnection(connection, null, true);
 
         // set the proxy as the new ep

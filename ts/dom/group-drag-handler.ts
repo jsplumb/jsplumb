@@ -4,6 +4,7 @@ import {PointXY} from "../core";
 import {EVT_REVERT, GhostProxyingDragHandler} from "./drag-manager";
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import { UIGroup } from "../group/group";
+import {Drag} from "./collicat";
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
 
@@ -25,9 +26,9 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         this.instance.revalidate(el);
     }
 
-    init(katavorioDraggable:any) {
-        this.katavorioDraggable = katavorioDraggable;
-        katavorioDraggable.on(EVT_REVERT, this.doRevalidate);
+    init(drag:Drag) {
+        this.katavorioDraggable = drag;
+        drag.on(EVT_REVERT, this.doRevalidate);
     }
 
     useGhostProxy(container:any, dragEl:any) {

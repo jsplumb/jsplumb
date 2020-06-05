@@ -324,7 +324,7 @@ var testSuite = function () {
         support.detachConnection(e1, 0);
 
         equal(e1.connections.length, 0, "no connections");
-        ok(evt == true, "event was fired");
+        ok(evt === true, "event was fired");
         equal(evtCount, 1, "event was fired once only");
         ok(originalEvent != null, "original event was provided in event callback");
     });
@@ -346,12 +346,12 @@ var testSuite = function () {
             abortEvent = true;
         });
 
-        
-
         support.dragConnection(e2, e1);
-        ok(evt == false, "event was not fired");
+        ok(evt === false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
-        ok(abortEvent == true, "connectionAborted event was fired");
+        ok(abortEvent === true, "connectionAborted event was fired");
+
+        equal(document.querySelectorAll(".jtk-connector").length, 0, "there are no connectors - it was cleaned up after beforeDrop returned false");
     });
 
     test("connectionAborted event", function() {
@@ -366,12 +366,10 @@ var testSuite = function () {
             abortEvent = true;
         });
 
-        
-
         support.dragAndAbortConnection(e2);
-        ok(evt == false, "connectionDetached event was not fired");
+        ok(evt === false, "connectionDetached event was not fired");
         equal(e2.connections.length, 0, "no connections");
-        ok(abortEvent == true, "connectionAborted event was fired");
+        ok(abortEvent === true, "connectionAborted event was fired");
     });
 
     test("endpoint: suspendedElement set correctly", function() {

@@ -6,12 +6,16 @@ import { jsPlumbInstance, TypeDescriptor } from "../core";
 import { Overlay } from "../overlay/overlay";
 import { AbstractConnector } from "../connector/abstract-connector";
 import { LabelOverlay } from "../overlay/label-overlay";
-import { BrowserJsPlumbInstance, OverlayCapableComponent, PaintStyle } from "..";
+import { BrowserJsPlumbInstance, Connection, Endpoint, OverlayCapableComponent, PaintStyle } from "..";
 export declare type EndpointHelperFunctions = {
     makeNode: (instance: jsPlumbInstance, ep: any, paintStyle: PaintStyle) => void;
     updateNode: (ep: any, node: SVGElement) => void;
 };
 export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions): void;
+export interface UIComponent {
+    canvas: HTMLElement;
+    svg: SVGElement;
+}
 export declare class BrowserRenderer implements Renderer {
     instance: BrowserJsPlumbInstance;
     getPath(segment: Segment, isFirstSegment: boolean): string;
@@ -33,7 +37,7 @@ export declare class BrowserRenderer implements Renderer {
     setHover(component: Component, hover: boolean): void;
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: any): void;
     setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
-    destroyConnector(connector: AbstractConnector): void;
+    destroyConnection(connection: Connection): void;
     addConnectorClass(connector: AbstractConnector, clazz: string): void;
     removeConnectorClass(connector: AbstractConnector, clazz: string): void;
     getConnectorClass(connector: AbstractConnector): string;
@@ -41,10 +45,12 @@ export declare class BrowserRenderer implements Renderer {
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     addEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void;
     applyEndpointType<C>(ep: EndpointRepresentation<C>, t: TypeDescriptor): void;
-    destroyEndpoint<C>(ep: EndpointRepresentation<C>): void;
+    destroyEndpoint(ep: Endpoint): void;
     paintEndpoint<C>(ep: EndpointRepresentation<C>, paintStyle: PaintStyle): void;
     removeEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void;
     getEndpointClass<C>(ep: EndpointRepresentation<C>): string;
+    private static getEndpointCanvas;
+    refreshEndpoint(endpoint: Endpoint): void;
     setEndpointHover<C>(endpoint: EndpointRepresentation<C>, h: boolean, doNotCascade?: boolean): void;
     setEndpointVisible<C>(ep: EndpointRepresentation<C>, v: boolean): void;
 }

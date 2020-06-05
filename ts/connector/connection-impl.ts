@@ -413,9 +413,12 @@ export class Connection extends OverlayCapableComponent {
         this.endpoints = null;
         this.source = null;
         this.target = null;
-        if (this.connector != null) {
-            this.instance.renderer.destroyConnector(this.connector);
-        }
+
+        // TODO stop hover?
+
+
+        this.instance.renderer.destroyConnection(this);
+
         this.connector = null;
         super.destroy(force);
     }
@@ -488,7 +491,7 @@ export class Connection extends OverlayCapableComponent {
                 previous = this.connector;
                 //previousClasses = previous.getClass();
                 previousClasses = this.instance.renderer.getConnectorClass(this.connector);
-                this.instance.renderer.destroyConnector(this.connector);
+                this.instance.renderer.destroyConnection(this);
             }
 
             this.connector = connector;
@@ -677,7 +680,10 @@ export class Connection extends OverlayCapableComponent {
         this.endpoints[idx] = _new;
 
         ebe.splice(_idx, 1, _new);
-        this.instance.deleteObject({endpoint:current, deleteAttachedObjects:false});
+
+        current.detachFromConnection(this);
+        this.instance.deleteEndpoint(current);
+
         this.instance.fire("endpointReplaced", {previous:current, current:_new});
 
         this.updateConnectedClass();
