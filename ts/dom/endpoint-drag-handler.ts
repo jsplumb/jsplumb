@@ -1002,7 +1002,7 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.floatingEndpoint.detachFromConnection(this.jpc);
         }
 
-        this.instance.deleteConnection(this.jpc, {originalEvent:originalEvent});
+        this.instance.deleteConnection(this.jpc, {originalEvent:originalEvent, force:true});
     }
 
     //
