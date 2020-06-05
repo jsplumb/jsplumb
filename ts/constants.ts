@@ -27,6 +27,7 @@ export const ATTRIBUTE_CONTAINER = "jtk-container";
 export const ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
 export const ATTRIBUTE_TABINDEX = "tabindex";
 
+export const CHECK_DROP_ALLOWED = "checkDropAllowed";
 export const IS_DETACH_ALLOWED = "isDetachAllowed";
 export const BEFORE_DETACH = "beforeDetach";
 export const CHECK_CONDITION = "checkCondition";
@@ -50,6 +51,8 @@ export const EVENT_DBL_TAP = "dbltap";
 export const EVENT_CONTEXTMENU = "contextmenu";
 export const EVENT_MOUSEUP = "mouseup";
 export const EVENT_MOUSEDOWN = "mousedown";
+
+export const EVENT_CONNECTION_DRAG = "connectionDrag";
 
 export const EVENT_CHILD_ADDED = "group:addMember";
 export const EVENT_CHILD_REMOVED = "group:removeMember";
