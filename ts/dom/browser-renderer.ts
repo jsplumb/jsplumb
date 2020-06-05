@@ -12,7 +12,16 @@ import {SVGElementOverlay} from "./svg-element-overlay";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
 import {LabelOverlay} from "../overlay/label-overlay";
-import {BrowserJsPlumbInstance, Connection, Endpoint, IS, isFunction, OverlayCapableComponent, PaintStyle} from "..";
+import {
+    addClass,
+    BrowserJsPlumbInstance,
+    Connection,
+    Endpoint,
+    IS,
+    isFunction,
+    OverlayCapableComponent,
+    PaintStyle, removeClass
+} from "..";
 import {CustomOverlay} from "../overlay/custom-overlay";
 
 export type EndpointHelperFunctions = {
@@ -23,6 +32,11 @@ export type EndpointHelperFunctions = {
 const endpointMap:Dictionary<EndpointHelperFunctions> = {};
 export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunctions) {
     endpointMap[name] = fns;
+}
+
+export interface UIComponent {
+    canvas: HTMLElement;
+    svg:SVGElement;
 }
 
 export class BrowserRenderer implements Renderer {
@@ -68,7 +82,7 @@ export class BrowserRenderer implements Renderer {
         });
     }
 
-    private static cleanup(component: any) {
+    private static cleanup(component: UIComponent) {
         if (component.canvas) {
             component.canvas.parentNode.removeChild(component.canvas);
         }
@@ -77,7 +91,7 @@ export class BrowserRenderer implements Renderer {
         delete component.svg;
     }
 
-    private static setVisible(component: any, v:boolean) {
+    private static setVisible(component: UIComponent, v:boolean) {
         if (component.canvas) {
             component.canvas.style.display = v ? "block" : "none";
         }
@@ -124,7 +138,6 @@ export class BrowserRenderer implements Renderer {
 
         } else if (o.type === "Arrow") {
 
-
             const path = (isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y)) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y +
                 " L" + params.d.tail[0].x + "," + params.d.tail[0].y +
                 " L" + params.d.cxy.x + "," + params.d.cxy.y +
@@ -167,7 +180,6 @@ export class BrowserRenderer implements Renderer {
         else if (o.type === "Arrow"){
             // dont need to do anything with other types. seemingly. but why not.
         }
-
     }
 
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): any {
@@ -327,14 +339,17 @@ export class BrowserRenderer implements Renderer {
             }
 
             if (!doNotCascade) {
+
                 this.setEndpointHover(connector.connection.endpoints[0].endpoint, h, true);
                 this.setEndpointHover(connector.connection.endpoints[1].endpoint, h, true);
             }
         }
     }
 
-    destroyConnector(connector:AbstractConnector):void {
-        BrowserRenderer.cleanup(connector);
+    destroyConnection(connection:Connection):void {
+        if (connection.connector != null) {
+            BrowserRenderer.cleanup(connection.connector as any);
+        }
     }
 
     addConnectorClass(connector:AbstractConnector, clazz:string):void {
@@ -358,7 +373,7 @@ export class BrowserRenderer implements Renderer {
     }
 
     setConnectorVisible(connector:AbstractConnector, v:boolean):void {
-        BrowserRenderer.setVisible(connector, v);
+        BrowserRenderer.setVisible(connector as any, v);
     }
 
     applyConnectorType(connector:AbstractConnector, t:TypeDescriptor):void {
@@ -381,8 +396,8 @@ export class BrowserRenderer implements Renderer {
         }
     }
 
-    destroyEndpoint<C>(ep: EndpointRepresentation<C>): void {
-        BrowserRenderer.cleanup(ep);
+    destroyEndpoint(ep: Endpoint): void {
+        BrowserRenderer.cleanup(ep.endpoint as any);
     }
 
     paintEndpoint<C>(ep: EndpointRepresentation<C>, paintStyle: PaintStyle): void {
@@ -405,6 +420,30 @@ export class BrowserRenderer implements Renderer {
             return (ep as any).canvas.className;
         } else {
             return "";
+        }
+    }
+
+    private static getEndpointCanvas<C>(ep:EndpointRepresentation<C>):any {
+        return (ep as any).canvas;
+    }
+
+    refreshEndpoint(endpoint: Endpoint): void {
+        if (endpoint.endpoint != null) {
+            const c = BrowserRenderer.getEndpointCanvas(endpoint.endpoint);
+            if (c != null) {
+
+                if (endpoint.connections.length > 0) {
+                    addClass(c, this.instance.endpointConnectedClass);
+                } else {
+                    removeClass(c, this.instance.endpointConnectedClass);
+                }
+
+                if (endpoint.isFull()) {
+                    addClass(c, this.instance.endpointFullClass);
+                } else {
+                    removeClass(c, this.instance.endpointFullClass);
+                }
+            }
         }
     }
 
@@ -437,7 +476,7 @@ export class BrowserRenderer implements Renderer {
     }
 
     setEndpointVisible<C>(ep: EndpointRepresentation<C>, v: boolean): void {
-        BrowserRenderer.setVisible(ep, v);
+        BrowserRenderer.setVisible(ep as any, v);
     }
 
 // -------------------------------------------------- endpoints -------------------------------------
