@@ -1,6 +1,7 @@
 import { ElementDragHandler } from "./element-drag-handler";
 import { GhostProxyingDragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
+import { Drag } from "./collicat";
 export declare class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
     protected instance: BrowserJsPlumbInstance;
     selector: string;
@@ -8,7 +9,7 @@ export declare class GroupDragHandler extends ElementDragHandler implements Ghos
     constructor(instance: BrowserJsPlumbInstance);
     reset(): void;
     private _revalidate;
-    init(katavorioDraggable: any): void;
+    init(drag: Drag): void;
     useGhostProxy(container: any, dragEl: any): boolean;
     makeGhostProxy(el: any): any;
     onDrag(params: any): void;

@@ -175,6 +175,11 @@ export declare type DeleteConnectionOptions = {
      * Optional original event that resulted in the connection being deleted.
      */
     originalEvent?: Event;
+    /**
+     * internally when a connection is deleted, it may be because the endpoint it was on is being deleted.
+     * in that case we want to ignore that endpoint.
+     */
+    endpointToIgnore?: Endpoint;
 };
 /**
  * creates a timestamp, using milliseconds since 1970, but as a string.
@@ -368,9 +373,8 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
      */
     abstract _getAssociatedElements(el: any): Array<any>;
     _draw(element: string | any, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): void;
-    deleteObject(params: DeleteOptions): DeleteResult;
     unregisterEndpoint(endpoint: Endpoint): void;
-    deleteEndpoint(object: string | Endpoint, dontUpdateHover?: boolean, deleteAttachedObjects?: boolean): jsPlumbInstance;
+    deleteEndpoint(object: string | Endpoint): jsPlumbInstance;
     addEndpoint(el: string | any, params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
     addEndpoints(el: any, endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;
     reset(silently?: boolean): void;

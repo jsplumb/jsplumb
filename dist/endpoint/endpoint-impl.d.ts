@@ -53,7 +53,13 @@ export declare class Endpoint extends OverlayCapableComponent {
     setPreparedAnchor(anchor: Anchor, doNotRepaint?: boolean): Endpoint;
     setAnchor(anchorParams: any, doNotRepaint?: boolean): Endpoint;
     addConnection(conn: Connection): void;
-    detachFromConnection(connection: Connection, idx?: number, doNotCleanup?: boolean): void;
+    /**
+     * Detaches this Endpoint from the given Connection.  If `deleteOnEmpty` is set to true and there are no
+     * Connections after this one is detached, the Endpoint is deleted.
+     * @param connection
+     * @param idx
+     */
+    detachFromConnection(connection: Connection, idx?: number, transientDetach?: boolean): void;
     deleteEveryConnection(params?: any): void;
     detachFrom(targetEndpoint: Endpoint, fireEvent?: boolean, originalEvent?: Event): Endpoint;
     setVisible(v: boolean, doNotChangeConnections?: boolean, doNotNotifyOtherEndpoint?: boolean): void;

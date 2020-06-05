@@ -2,6 +2,7 @@ import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance, PosseSpec } from "./browser-jsplumb-instance";
 import { UIGroup } from "../group/group";
 import { BoundingBox, Dictionary, Offset } from "../core";
+import { Drag } from "./collicat";
 declare type IntersectingGroup = {
     group: UIGroup;
     d: number;
@@ -35,11 +36,11 @@ export declare class ElementDragHandler implements DragHandler {
     private _dragSelection;
     private _dragSelectionOffsets;
     private _dragSizes;
-    protected katavorioDraggable: any;
+    protected katavorioDraggable: Drag;
     constructor(instance: BrowserJsPlumbInstance);
     onStop(params: any): void;
     reset(): void;
-    init(katavorioDraggable: any): void;
+    init(drag: Drag): void;
     onDrag(params: any): void;
     onStart(params: any): boolean;
     addToDragSelection(el: string | HTMLElement): void;

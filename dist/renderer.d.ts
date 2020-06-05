@@ -7,6 +7,8 @@ import { LabelOverlay } from "./overlay/label-overlay";
 import { AbstractConnector } from "./connector/abstract-connector";
 import { PaintStyle } from "./styles";
 import { OverlayCapableComponent } from "./component/overlay-capable-component";
+import { Endpoint } from "./endpoint/endpoint-impl";
+import { Connection } from "./connector/connection-impl";
 export interface Renderer {
     getPath(segment: Segment, isFirstSegment: boolean): string;
     repaint(component: Component, typeDescriptor: string, options?: RepaintOptions): void;
@@ -22,7 +24,7 @@ export interface Renderer {
     setOverlayHover(o: Overlay, hover: boolean): any;
     setHover(component: Component, hover: boolean): void;
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: any): void;
-    destroyConnector(connector: AbstractConnector, force?: boolean): void;
+    destroyConnection(connection: Connection, force?: boolean): void;
     setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
     addConnectorClass(connector: AbstractConnector, clazz: string): void;
     removeConnectorClass(connector: AbstractConnector, clazz: string): void;
@@ -31,10 +33,11 @@ export interface Renderer {
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     applyEndpointType<C>(ep: EndpointRepresentation<C>, t: TypeDescriptor): void;
     setEndpointVisible<C>(ep: EndpointRepresentation<C>, v: boolean): void;
-    destroyEndpoint<C>(ep: EndpointRepresentation<C>): void;
+    destroyEndpoint(ep: Endpoint): void;
     paintEndpoint<C>(ep: EndpointRepresentation<C>, paintStyle: PaintStyle): void;
     addEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void;
     removeEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void;
     getEndpointClass<C>(ep: EndpointRepresentation<C>): string;
     setEndpointHover<C>(endpoint: EndpointRepresentation<C>, h: boolean, doNotCascade?: boolean): void;
+    refreshEndpoint(endpoint: Endpoint): void;
 }
