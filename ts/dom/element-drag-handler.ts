@@ -47,9 +47,13 @@ export class ElementDragHandler implements DragHandler {
     private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map();
     private _dragSizes:Map<string, [number, number]> = new Map();
 
-    protected katavorioDraggable:Drag;
+    protected drag:Drag;
 
     constructor(protected instance:BrowserJsPlumbInstance) {}
+
+    onDragInit(el:HTMLElement):HTMLElement {
+        return null;
+    }
 
     onStop(params:any):void {
 
@@ -139,7 +143,7 @@ export class ElementDragHandler implements DragHandler {
     reset() { }
 
     init(drag:Drag) {
-        this.katavorioDraggable = drag;
+        this.drag = drag;
     }
 
     onDrag(params:any):void {
