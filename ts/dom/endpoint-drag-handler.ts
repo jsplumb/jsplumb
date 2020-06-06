@@ -1,5 +1,5 @@
 import { CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER, DragHandler, EVT_MOUSEDOWN, EVT_MOUSEUP } from "./drag-manager";
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
+import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {addToList, each, findWithFunction, functionChain, IS, isString} from "../util";
@@ -55,7 +55,7 @@ export class EndpointDragHandler implements DragHandler {
     endpointRepresentation:EndpointRepresentation<any>;
 
     existingJpcParams:any;
-    placeholderInfo:any = { id: null, element: null };
+    placeholderInfo:{ id?:string, element?:jsPlumbDOMElement } = { id: null, element: null };
     floatingElement:HTMLElement;
     floatingEndpoint:Endpoint;
     _stopped:boolean;
@@ -68,137 +68,156 @@ export class EndpointDragHandler implements DragHandler {
     _forceReattach:boolean;
     _forceDetach:boolean;
 
-    _mousedownHandler:(e:any) => void;
-    _mouseupHandler:(e:any) => void;
+    mousedownHandler:(e:any) => void;
+    mouseupHandler:(e:any) => void;
 
     constructor(protected instance:BrowserJsPlumbInstance) {
 
         const container = instance.getContainer();
-        let self = this;
 
-        this._mousedownHandler = function(e:any) {
+        this.mousedownHandler = this._mousedownHandler.bind(this);
+        this.mouseupHandler = this._mouseupHandler.bind(this);
 
-            if (e.which === 3 || e.button === 2) {
-                return;
-            }
-
-            let targetEl:any = findParent(e.target || e.srcElement, "[jtk-managed]", container);
-
-            if (targetEl == null) {
-                return;
-            }
-
-            let elid = instance.getId(targetEl),
-                sourceDef = self._getSourceDefinition(targetEl, e),
-                sourceElement = e.currentTarget,
-                def;
-
-            if (sourceDef) {
-
-                consume(e);
-
-                def = sourceDef.def;
-                // if maxConnections reached
-                let sourceCount = instance.select({source: elid}).length;
-                if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
-                    consume(e);
-                    if (def.onMaxConnections) {
-                        def.onMaxConnections({
-                            element: self,
-                            maxConnections: sourceDef.maxConnections
-                        }, e);
-                    }
-                    e.stopImmediatePropagation && e.stopImmediatePropagation();
-                    return false;
-                }
-
-                // find the position on the element at which the mouse was pressed; this is where the endpoint
-                // will be located.
-                let elxy = instance.getPositionOnElement(e, targetEl, instance.getZoom());
-
-                // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
-                // the params passed in, because after a connection is established we're going to reset the endpoint
-                // to have the anchor we were given.
-                let tempEndpointParams:any = {};
-                extend(tempEndpointParams, def);
-                tempEndpointParams.isTemporarySource = true;
-                tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
-
-                if (def.scope) {
-                    tempEndpointParams.scope = def.scope;
-                }
-
-                this.ep = instance.addEndpoint(elid, tempEndpointParams);
-                this.ep.deleteOnEmpty = true;
-                // keep a reference to the anchor we want to use if the connection is finalised.
-                this.ep._originalAnchor = def.anchor || instance.Defaults.anchor;
-
-                // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
-                // of a successful connection we'll switch to that endpoint.
-                // TODO this is the same code as the programmatic endpoints create on line 1050 ish
-                if (def.uniqueEndpoint) {
-                    if (!def.endpoint) {
-                        def.endpoint = this.ep;
-                        this.ep.deleteOnEmpty = false;
-                    }
-                    else {
-                        this.ep.finalEndpoint = def.endpoint;
-                    }
-                }
-
-                // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
-                // a mouseup listener on the canvas cleans anything up from this list if it has no connections.
-                // the list is then cleared.
-                sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
-                sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
-
-                // optionally check for attributes to extract from the source element
-                let payload = {};
-                if (def.extract) {
-                    for (let att in def.extract) {
-                        let v = targetEl.getAttribute(att);
-                        if (v) {
-                            payload[def.extract[att]] = v;
-                        }
-                    }
-                }
-
-                // and then trigger its mousedown event, which will kick off a drag, which will start dragging
-                // a new connection from this endpoint.
-                instance.trigger(this.ep.endpoint.canvas, EVT_MOUSEDOWN, e, payload);
-
-                consume(e);
-            }
-
-        }.bind(this);
-
-        instance.on(container , EVT_MOUSEDOWN, "[jtk-source]", this._mousedownHandler);
-
-        //
-        // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
-        // replaces what in previous versions was a mousedown/mouseup handler per element.
-        //
-        this._mouseupHandler = (e:Event) => {
-            let el:any = e.currentTarget || e.srcElement;
-            if (el._jsPlumbOrphanedEndpoints) {
-                each(el._jsPlumbOrphanedEndpoints, (ep:any) => {
-                    if (ep.deleteOnEmpty && ep.connections.length === 0) {
-                        instance.deleteEndpoint(ep);
-                    }
-                });
-
-                el._jsPlumbOrphanedEndpoints.length = 0;
-            }
-        };
-        instance.on(container, "mouseup", "[jtk-source]", this._mouseupHandler);
+        instance.on(container , EVT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler);
+        instance.on(container, "mouseup", "[jtk-source]", this.mouseupHandler);
 
     }
 
+    private _mousedownHandler (e:MouseEvent) {
+
+        if (e.which === 3 || e.button === 2) {
+            return;
+        }
+
+        let targetEl:any = findParent((e.target || e.srcElement) as HTMLElement, "[jtk-managed]", this.instance.getContainer());
+
+        if (targetEl == null) {
+            return;
+        }
+
+        let elid = this.instance.getId(targetEl),
+            sourceDef = this._getSourceDefinition(targetEl, e),
+            sourceElement = e.currentTarget as jsPlumbDOMElement,
+            def;
+
+        if (sourceDef) {
+
+            consume(e);
+
+            // at this point we have a mousedown event on an element that is configured as a drag source.
+
+            def = sourceDef.def;
+            // if maxConnections reached
+            let sourceCount = this.instance.select({source: elid}).length;
+            if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
+                consume(e);
+                if (def.onMaxConnections) {
+                    def.onMaxConnections({
+                        element: self,
+                        maxConnections: sourceDef.maxConnections
+                    }, e);
+                }
+                e.stopImmediatePropagation && e.stopImmediatePropagation();
+                return false;
+            }
+
+            // find the position on the element at which the mouse was pressed; this is where the endpoint
+            // will be located.
+            let elxy = this.instance.getPositionOnElement(e, targetEl, this.instance.getZoom());
+
+            // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+            // the params passed in, because after a connection is established we're going to reset the endpoint
+            // to have the anchor we were given.
+            let tempEndpointParams:any = {};
+            extend(tempEndpointParams, def);
+            tempEndpointParams.isTemporarySource = true;
+            tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0];
+
+            if (def.scope) {
+                tempEndpointParams.scope = def.scope;
+            }
+
+            // add an endpoint to the element that is the connection source, using the anchor that will position it where
+            // the mousedown event occurred.
+            this.ep = this.instance.addEndpoint(elid, tempEndpointParams);
+            // mark delete on empty
+            this.ep.deleteOnEmpty = true;
+            // keep a reference to the anchor we want to use if the connection is finalised.
+            this.ep._originalAnchor = def.anchor || this.instance.Defaults.anchor;
+
+            // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
+            // of a successful connection we'll switch to that endpoint.
+            // TODO this is the same code as the programmatic endpoints create on line 1050 ish
+            if (def.uniqueEndpoint) {
+                if (!def.endpoint) {
+                    def.endpoint = this.ep;
+                    this.ep.deleteOnEmpty = false;
+                }
+                else {
+                    this.ep.finalEndpoint = def.endpoint;
+                }
+            }
+
+            // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
+            // a mouseup listener on the canvas cleans anything up from this list if it has no connections.
+            // the list is then cleared.
+            sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
+            sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
+
+            // optionally check for attributes to extract from the source element
+            let payload = {};
+            if (def.extract) {
+                for (let att in def.extract) {
+                    let v = targetEl.getAttribute(att);
+                    if (v) {
+                        payload[def.extract[att]] = v;
+                    }
+                }
+            }
+
+            // and then trigger its mousedown event, which will kick off a drag, which will start dragging
+            // a new connection from this endpoint. The entry point is the `onStart` method in this class.
+            this.instance.trigger((this.ep.endpoint as any).canvas, EVT_MOUSEDOWN, e, payload);
+        }
+    }
+
+    //
+    // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
+    // replaces what in previous versions was a mousedown/mouseup handler per element.
+    //
+    private _mouseupHandler(e:MouseEvent) {
+        let el:any = e.currentTarget || e.srcElement;
+        if (el._jsPlumbOrphanedEndpoints) {
+            each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint);
+            el._jsPlumbOrphanedEndpoints.length = 0;
+        }
+    }
+
+    onDragInit(el:jsPlumbDOMElement):jsPlumbDOMElement {
+        console.log("here we would return the draggable placeholder");
+
+        const //canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as HTMLElement,
+            ipco = this.instance.getOffset(el),
+            ips = this.instance.getSize(el);
+
+        this._makeDraggablePlaceholder(ipco, ips);
+
+        this.placeholderInfo.element.jtk = el.jtk;
+        return this.placeholderInfo.element;
+    }
+
+    /**
+     * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and when doing a
+     * makeSource drag, it should be this element that is being dragged. However i don't think that is the case right now.
+     * @param ipco
+     * @param ips
+     * @private
+     */
     _makeDraggablePlaceholder(ipco:any, ips:any):HTMLElement {
 
         this.placeholderInfo = this.placeholderInfo || {};
 
-        let n = createElement("div", { position : "absolute" });
+        let n = createElement("div", { position : "absolute" }) as jsPlumbDOMElement;
         this.instance.appendElement(n, this.instance.getContainer());
         let id = this.instance.getId(n);
         this.instance.setPosition(n, ipco);
@@ -222,8 +241,8 @@ export class EndpointDragHandler implements DragHandler {
 
     reset() {
         const c = this.instance.getContainer();
-        this.instance.off(c, EVT_MOUSEUP, this._mouseupHandler);
-        this.instance.off(c, EVT_MOUSEDOWN, this._mousedownHandler);
+        this.instance.off(c, EVT_MOUSEUP, this.mouseupHandler);
+        this.instance.off(c, EVT_MOUSEDOWN, this.mousedownHandler);
     }
 
     init(drag:Drag) {}
@@ -324,11 +343,7 @@ export class EndpointDragHandler implements DragHandler {
         
         // ----------------    make the element we will drag around, and position it -----------------------------
         
-        const canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as HTMLElement,
-            ipco = this.instance.getOffset(canvasElement),
-            ips = this.instance.getSize(canvasElement);
-        
-        this._makeDraggablePlaceholder(ipco, ips);
+        const canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as HTMLElement;
         
         // store the id of the dragging div and the source element. the drop function will pick these up.
         this.instance.setAttributes(canvasElement, {
@@ -533,6 +548,7 @@ export class EndpointDragHandler implements DragHandler {
         
         // tell jsplumb about it
         this.instance.currentlyDragging = true;
+
     }
 
     onBeforeStart (beforeStartParams:any):void {
