@@ -374,6 +374,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     abstract _getAssociatedElements(el: any): Array<any>;
     _draw(element: string | any, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): void;
     unregisterEndpoint(endpoint: Endpoint): void;
+    maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): jsPlumbInstance;
     addEndpoint(el: string | any, params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
     addEndpoints(el: any, endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;

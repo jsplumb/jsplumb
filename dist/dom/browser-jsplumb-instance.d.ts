@@ -32,6 +32,7 @@ interface jsPlumbDOMInformation {
 export interface jsPlumbDOMElement extends HTMLElement {
     _jsPlumbGroup: UIGroup;
     _isJsPlumbGroup: boolean;
+    _jsPlumbOrphanedEndpoints: Array<Endpoint>;
     offsetParent: HTMLElement;
     getAttribute: (name: string) => string;
     parentNode: jsPlumbDOMElement;
@@ -59,6 +60,8 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
     eventManager: EventManager;
     private elementDragHandler;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
+    addDragFilter(filter: Function | string, exclude?: boolean): void;
+    removeDragFilter(filter: Function | string): void;
     getElement(el: HTMLElement | string): HTMLElement;
     getElementById(elId: string): HTMLElement;
     removeElement(element: HTMLElement | string): void;

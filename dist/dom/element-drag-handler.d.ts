@@ -36,8 +36,9 @@ export declare class ElementDragHandler implements DragHandler {
     private _dragSelection;
     private _dragSelectionOffsets;
     private _dragSizes;
-    protected katavorioDraggable: Drag;
+    protected drag: Drag;
     constructor(instance: BrowserJsPlumbInstance);
+    onDragInit(el: HTMLElement): HTMLElement;
     onStop(params: any): void;
     reset(): void;
     init(drag: Drag): void;

@@ -1,5 +1,5 @@
 import { DragHandler } from "./drag-manager";
-import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
+import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint-impl";
 import { Dictionary } from "../core";
@@ -12,7 +12,10 @@ export declare class EndpointDragHandler implements DragHandler {
     ep: Endpoint;
     endpointRepresentation: EndpointRepresentation<any>;
     existingJpcParams: any;
-    placeholderInfo: any;
+    placeholderInfo: {
+        id?: string;
+        element?: jsPlumbDOMElement;
+    };
     floatingElement: HTMLElement;
     floatingEndpoint: Endpoint;
     _stopped: boolean;
@@ -23,9 +26,19 @@ export declare class EndpointDragHandler implements DragHandler {
     floatingConnections: Dictionary<Connection>;
     _forceReattach: boolean;
     _forceDetach: boolean;
-    _mousedownHandler: (e: any) => void;
-    _mouseupHandler: (e: any) => void;
+    mousedownHandler: (e: any) => void;
+    mouseupHandler: (e: any) => void;
     constructor(instance: BrowserJsPlumbInstance);
+    private _mousedownHandler;
+    private _mouseupHandler;
+    onDragInit(el: jsPlumbDOMElement): jsPlumbDOMElement;
+    /**
+     * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and when doing a
+     * makeSource drag, it should be this element that is being dragged. However i don't think that is the case right now.
+     * @param ipco
+     * @param ips
+     * @private
+     */
     _makeDraggablePlaceholder(ipco: any, ips: any): HTMLElement;
     _cleanupDraggablePlaceholder(): void;
     reset(): void;

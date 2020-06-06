@@ -19,6 +19,7 @@ export interface DragHandler {
     onStart: (params: any) => boolean;
     onDrag: (params: any) => void;
     onStop: (params: any) => void;
+    onDragInit: (el: HTMLElement) => HTMLElement;
     reset: () => void;
     init: (drag: Drag) => void;
     onBeforeStart?: (beforeStartParams: any) => void;
@@ -36,7 +37,10 @@ export declare class DragManager {
     _elementsWithEndpoints: Dictionary<any>;
     _draggablesForElements: Dictionary<any>;
     handlers: Array<DragHandler>;
+    private _filtersToAdd;
     constructor(instance: BrowserJsPlumbInstance);
     addHandler(handler: DragHandler, dragOptions?: any): void;
+    addFilter(filter: Function | string, exclude?: boolean): void;
+    removeFilter(filter: Function | string): void;
     reset(): void;
 }
