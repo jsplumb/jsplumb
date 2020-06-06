@@ -54,6 +54,7 @@ interface jsPlumbDOMInformation {
 export interface jsPlumbDOMElement extends HTMLElement {
     _jsPlumbGroup: UIGroup;
     _isJsPlumbGroup: boolean;
+    _jsPlumbOrphanedEndpoints:Array<Endpoint>;
     offsetParent: HTMLElement;
     getAttribute:(name:string) => string;
     parentNode: jsPlumbDOMElement;
@@ -184,6 +185,14 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         this._overlayMouseout = _overlayHover.bind(this, false);
 
         this._attachEventDelegates();
+    }
+
+    addDragFilter(filter:Function|string, exclude?:boolean) {
+        this.dragManager.addFilter(filter, exclude);
+    }
+
+    removeDragFilter(filter:Function|string) {
+        this.dragManager.removeFilter(filter);
     }
 
     getElement(el:HTMLElement|string):HTMLElement {
