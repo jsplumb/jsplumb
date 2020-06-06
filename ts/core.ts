@@ -1308,6 +1308,15 @@ export abstract class jsPlumbInstance extends EventGenerator {
         }
     }
 
+    maybePruneEndpoint(endpoint:Endpoint):boolean {
+        if (endpoint.deleteOnEmpty && endpoint.connections.length === 0) {
+            this.deleteEndpoint(endpoint);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     deleteEndpoint(object:string | Endpoint/*, dontUpdateHover?:boolean/*, deleteAttachedObjects?:boolean*/):jsPlumbInstance {
         let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint;
         if (endpoint) {
