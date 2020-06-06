@@ -7199,6 +7199,16 @@
         }
       }
     }, {
+      key: "maybePruneEndpoint",
+      value: function maybePruneEndpoint(endpoint) {
+        if (endpoint.deleteOnEmpty && endpoint.connections.length === 0) {
+          this.deleteEndpoint(endpoint);
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }, {
       key: "deleteEndpoint",
       value: function deleteEndpoint(object) {
         var _this8 = this;
@@ -10283,11 +10293,13 @@
     }
   }; //
   // filters out events on all input elements, like textarea, checkbox, input, select.
+  // Collicat has a default list of these.
+  //
 
 
-  var _inputFilter = function _inputFilter(e, el, _katavorio) {
+  var _inputFilter = function _inputFilter(e, el, collicat) {
     var t = e.srcElement || e.target;
-    return !matchesSelector(t, _katavorio.getInputFilterSelector(), el);
+    return !matchesSelector(t, collicat.getInputFilterSelector(), el);
   };
 
   var Base =
@@ -10632,22 +10644,32 @@
             this._activeSelectorParams = null;
             this._elementToDrag = null;
 
-            if (this._availableSelectors.length > 0) {
-              var match = findMatchingSelector(this._availableSelectors, this.el, e.target || e.srcElement);
+            if (this._availableSelectors.length === 0) {
+              console.log("JSPLUMB: no available drag selectors");
+            }
 
-              if (match != null) {
-                this._activeSelectorParams = match[0];
-                this._elementToDrag = match[1];
-              }
+            var eventTarget = e.target || e.srcElement;
+            var match = findMatchingSelector(this._availableSelectors, this.el, eventTarget);
 
-              if (this._elementToDrag == null) {
-                return;
-              }
-            } else {
-              this._elementToDrag = this.el;
+            if (match != null) {
+              this._activeSelectorParams = match[0];
+              this._elementToDrag = match[1];
+            }
+
+            if (this._activeSelectorParams == null || this._elementToDrag == null) {
+              return;
+            } // dragInit gives a handler a chance to provide the actual element to drag. in the case of the endpoint stuff, for instance,
+            // this is the drag placeholder. but for element drag the current value of `_elementToDrag` is the one we want to use.
+
+
+            var initial = this._activeSelectorParams.dragInit(this._elementToDrag);
+
+            if (initial != null) {
+              this._elementToDrag = initial;
             }
 
             if (this.clone) {
+              // here when doing a makeSource endpoint we dont end up with the right
               this._dragEl = this._elementToDrag.cloneNode(true);
               addClass(this._dragEl, _classes.clonedDrag);
 
@@ -10706,19 +10728,19 @@
       value: function _moveListener(e) {
         if (this._downAt) {
           if (!this._moving) {
-            var _continue = this._dispatch("start", {
+            var dispatchResult = this._dispatch("start", {
               el: this.el,
               pos: this._posAtDown,
               e: e,
               drag: this
             });
 
-            if (_continue !== false) {
+            if (dispatchResult !== false) {
               if (!this._downAt) {
                 return;
               }
 
-              this.mark(true);
+              this.mark(dispatchResult, true);
               this._moving = true;
             } else {
               this.abort();
@@ -10746,7 +10768,7 @@
       }
     }, {
       key: "mark",
-      value: function mark(andNotify) {
+      value: function mark(payload, andNotify) {
         this._posAtDown = _getPosition(this._dragEl); //this._pagePosAtDown = _getPosition(this._dragEl, true*);
 
         this._pagePosAtDown = getOffsetRect(this._dragEl);
@@ -11072,8 +11094,8 @@
         return true;
       }
     }, {
-      key: "setFilter",
-      value: function setFilter(f, _exclude) {
+      key: "addFilter",
+      value: function addFilter(f, _exclude) {
         var _this3 = this;
 
         if (f) {
@@ -11299,6 +11321,8 @@
 
       _defineProperty(this, "handlers", []);
 
+      _defineProperty(this, "_filtersToAdd", []);
+
       // create a delegated drag handler
       this.collicat = new Collicat({
         zoom: this.instance.getZoom(),
@@ -11359,6 +11383,10 @@
 
         o.beforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
 
+        o.dragInit = function (el) {
+          return handler.onDragInit(el);
+        };
+
         if (handler.useGhostProxy) {
           o.useGhostProxy = handler.useGhostProxy;
           o.makeGhostProxy = handler.makeGhostProxy;
@@ -11366,6 +11394,11 @@
 
         if (this.drag == null) {
           this.drag = this.collicat.draggable(this.instance.getContainer(), o);
+
+          this._filtersToAdd.forEach(function (filterToAdd) {
+            return _this2.drag.addFilter(filterToAdd[0], filterToAdd[1]);
+          });
+
           this.drag.on("revert", function (el) {
             _this2.instance.revalidate(el);
           });
@@ -11374,6 +11407,22 @@
         }
 
         handler.init(this.drag);
+      }
+    }, {
+      key: "addFilter",
+      value: function addFilter(filter, exclude) {
+        if (this.drag == null) {
+          this._filtersToAdd.push([filter, exclude === true]);
+        } else {
+          this.drag.addFilter(filter, exclude);
+        }
+      }
+    }, {
+      key: "removeFilter",
+      value: function removeFilter(filter) {
+        if (this.drag != null) {
+          this.drag.removeFilter(filter);
+        }
       }
     }, {
       key: "reset",
@@ -11425,10 +11474,15 @@
 
       _defineProperty(this, "_dragSizes", new Map());
 
-      _defineProperty(this, "katavorioDraggable", void 0);
+      _defineProperty(this, "drag", void 0);
     }
 
     _createClass(ElementDragHandler, [{
+      key: "onDragInit",
+      value: function onDragInit(el) {
+        return null;
+      }
+    }, {
       key: "onStop",
       value: function onStop(params) {
         var _this = this;
@@ -11536,7 +11590,7 @@
     }, {
       key: "init",
       value: function init(drag) {
-        this.katavorioDraggable = drag;
+        this.drag = drag;
       }
     }, {
       key: "onDrag",
@@ -12104,36 +12158,43 @@
 
       _defineProperty(this, "_forceDetach", void 0);
 
-      _defineProperty(this, "_mousedownHandler", void 0);
+      _defineProperty(this, "mousedownHandler", void 0);
 
-      _defineProperty(this, "_mouseupHandler", void 0);
+      _defineProperty(this, "mouseupHandler", void 0);
 
       _defineProperty(this, "selector", ".jtk-endpoint");
 
       var container = instance.getContainer();
-      var self = this;
+      this.mousedownHandler = this._mousedownHandler.bind(this);
+      this.mouseupHandler = this._mouseupHandler.bind(this);
+      instance.on(container, EVT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler);
+      instance.on(container, "mouseup", "[jtk-source]", this.mouseupHandler);
+    }
 
-      this._mousedownHandler = function (e) {
+    _createClass(EndpointDragHandler, [{
+      key: "_mousedownHandler",
+      value: function _mousedownHandler(e) {
         if (e.which === 3 || e.button === 2) {
           return;
         }
 
-        var targetEl = findParent(e.target || e.srcElement, "[jtk-managed]", container);
+        var targetEl = findParent(e.target || e.srcElement, "[jtk-managed]", this.instance.getContainer());
 
         if (targetEl == null) {
           return;
         }
 
-        var elid = instance.getId(targetEl),
-            sourceDef = self._getSourceDefinition(targetEl, e),
+        var elid = this.instance.getId(targetEl),
+            sourceDef = this._getSourceDefinition(targetEl, e),
             sourceElement = e.currentTarget,
             def;
 
         if (sourceDef) {
-          consume(e);
+          consume(e); // at this point we have a mousedown event on an element that is configured as a drag source.
+
           def = sourceDef.def; // if maxConnections reached
 
-          var sourceCount = instance.select({
+          var sourceCount = this.instance.select({
             source: elid
           }).length;
 
@@ -12153,7 +12214,7 @@
           // will be located.
 
 
-          var elxy = instance.getPositionOnElement(e, targetEl, instance.getZoom()); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+          var elxy = this.instance.getPositionOnElement(e, targetEl, this.instance.getZoom()); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
           // the params passed in, because after a connection is established we're going to reset the endpoint
           // to have the anchor we were given.
 
@@ -12164,12 +12225,15 @@
 
           if (def.scope) {
             tempEndpointParams.scope = def.scope;
-          }
+          } // add an endpoint to the element that is the connection source, using the anchor that will position it where
+          // the mousedown event occurred.
 
-          this.ep = instance.addEndpoint(elid, tempEndpointParams);
+
+          this.ep = this.instance.addEndpoint(elid, tempEndpointParams); // mark delete on empty
+
           this.ep.deleteOnEmpty = true; // keep a reference to the anchor we want to use if the connection is finalised.
 
-          this.ep._originalAnchor = def.anchor || instance.Defaults.anchor; // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
+          this.ep._originalAnchor = def.anchor || this.instance.Defaults.anchor; // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
           // of a successful connection we'll switch to that endpoint.
           // TODO this is the same code as the programmatic endpoints create on line 1050 ish
 
@@ -12201,36 +12265,48 @@
               }
             }
           } // and then trigger its mousedown event, which will kick off a drag, which will start dragging
-          // a new connection from this endpoint.
+          // a new connection from this endpoint. The entry point is the `onStart` method in this class.
 
 
-          instance.trigger(this.ep.endpoint.canvas, EVT_MOUSEDOWN, e, payload);
-          consume(e);
+          this.instance.trigger(this.ep.endpoint.canvas, EVT_MOUSEDOWN, e, payload);
         }
-      }.bind(this);
-
-      instance.on(container, EVT_MOUSEDOWN, "[jtk-source]", this._mousedownHandler); //
+      } //
       // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
       // replaces what in previous versions was a mousedown/mouseup handler per element.
       //
 
-      this._mouseupHandler = function (e) {
+    }, {
+      key: "_mouseupHandler",
+      value: function _mouseupHandler(e) {
         var el = e.currentTarget || e.srcElement;
 
         if (el._jsPlumbOrphanedEndpoints) {
-          each(el._jsPlumbOrphanedEndpoints, function (ep) {
-            if (ep.deleteOnEmpty && ep.connections.length === 0) {
-              instance.deleteEndpoint(ep);
-            }
-          });
+          each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint);
           el._jsPlumbOrphanedEndpoints.length = 0;
         }
-      };
+      }
+    }, {
+      key: "onDragInit",
+      value: function onDragInit(el) {
+        console.log("here we would return the draggable placeholder");
+        var //canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as HTMLElement,
+        ipco = this.instance.getOffset(el),
+            ips = this.instance.getSize(el);
 
-      instance.on(container, "mouseup", "[jtk-source]", this._mouseupHandler);
-    }
+        this._makeDraggablePlaceholder(ipco, ips);
 
-    _createClass(EndpointDragHandler, [{
+        this.placeholderInfo.element.jtk = el.jtk;
+        return this.placeholderInfo.element;
+      }
+      /**
+       * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and when doing a
+       * makeSource drag, it should be this element that is being dragged. However i don't think that is the case right now.
+       * @param ipco
+       * @param ips
+       * @private
+       */
+
+    }, {
       key: "_makeDraggablePlaceholder",
       value: function _makeDraggablePlaceholder(ipco, ips) {
         this.placeholderInfo = this.placeholderInfo || {};
@@ -12263,8 +12339,8 @@
       key: "reset",
       value: function reset() {
         var c = this.instance.getContainer();
-        this.instance.off(c, EVT_MOUSEUP, this._mouseupHandler);
-        this.instance.off(c, EVT_MOUSEDOWN, this._mousedownHandler);
+        this.instance.off(c, EVT_MOUSEUP, this.mouseupHandler);
+        this.instance.off(c, EVT_MOUSEDOWN, this.mousedownHandler);
       }
     }, {
       key: "init",
@@ -12359,12 +12435,7 @@
           elId: this.ep.elementId
         }); // ----------------    make the element we will drag around, and position it -----------------------------
 
-        var canvasElement = this.endpointRepresentation.canvas,
-            ipco = this.instance.getOffset(canvasElement),
-            ips = this.instance.getSize(canvasElement);
-
-        this._makeDraggablePlaceholder(ipco, ips); // store the id of the dragging div and the source element. the drop function will pick these up.
-
+        var canvasElement = this.endpointRepresentation.canvas; // store the id of the dragging div and the source element. the drop function will pick these up.
 
         this.instance.setAttributes(canvasElement, {
           "dragId": this.placeholderInfo.id,
@@ -13152,7 +13223,7 @@
     _createClass(GroupDragHandler, [{
       key: "reset",
       value: function reset() {
-        this.katavorioDraggable.off(EVT_REVERT, this.doRevalidate);
+        this.drag.off(EVT_REVERT, this.doRevalidate);
       }
     }, {
       key: "_revalidate",
@@ -13162,7 +13233,7 @@
     }, {
       key: "init",
       value: function init(drag) {
-        this.katavorioDraggable = drag;
+        this.drag = drag;
         drag.on(EVT_REVERT, this.doRevalidate);
       }
     }, {
@@ -13181,9 +13252,12 @@
     }, {
       key: "onDrag",
       value: function onDrag(params) {
-        console.log("on drag, inside a group");
-
         _get(_getPrototypeOf(GroupDragHandler.prototype), "onDrag", this).call(this, params);
+      }
+    }, {
+      key: "onDragInit",
+      value: function onDragInit(el) {
+        return null;
       }
     }, {
       key: "onStop",
@@ -13400,6 +13474,16 @@
     }
 
     _createClass(BrowserJsPlumbInstance, [{
+      key: "addDragFilter",
+      value: function addDragFilter(filter, exclude) {
+        this.dragManager.addFilter(filter, exclude);
+      }
+    }, {
+      key: "removeDragFilter",
+      value: function removeDragFilter(filter) {
+        this.dragManager.removeFilter(filter);
+      }
+    }, {
       key: "getElement",
       value: function getElement(el) {
         if (el == null) {
