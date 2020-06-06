@@ -100,16 +100,16 @@ export interface DragSelector {
  * @param childElement
  * @returns {*}
  */
-function findMatchingSelector(availableSelectors:Array<DragSelector>, parentElement:HTMLElement, childElement:any) {
+function findMatchingSelector(availableSelectors:Array<DragParams>, parentElement:HTMLElement, childElement:HTMLElement) {
     let el = null;
     let draggableId = parentElement.getAttribute("katavorio-draggable"),
         prefix = draggableId != null ? "[katavorio-draggable='" + draggableId + "'] " : "";
 
-    for (var i = 0; i < availableSelectors.length; i++) {
+    for (let i = 0; i < availableSelectors.length; i++) {
         el = findDelegateElement(parentElement, childElement, prefix + availableSelectors[i].selector);
         if (el != null) {
             if (availableSelectors[i].filter) {
-                var matches = matchesSelector(childElement, availableSelectors[i].filter, el),
+                const matches = matchesSelector(childElement, availableSelectors[i].filter, el),
                     exclude = availableSelectors[i].filterExclude === true;
 
                 if ( (exclude && !matches) || matches) {
@@ -161,9 +161,11 @@ const _each = function(obj:any, fn:any) {
 
 //
 // filters out events on all input elements, like textarea, checkbox, input, select.
-const _inputFilter = function(e:Event, el:any, _katavorio:any) {
+// Collicat has a default list of these.
+//
+const _inputFilter = function(e:Event, el:any, collicat:Collicat) {
     const t = (e.srcElement || e.target) as HTMLElement;
-    return !matchesSelector(t, _katavorio.getInputFilterSelector(), el);
+    return !matchesSelector(t, collicat.getInputFilterSelector(), el);
 };
 
 abstract class Base {
@@ -254,6 +256,12 @@ export interface DragParams {
     parent?:any;
     ignoreZoom?:boolean;
     ghostProxyParent?:HTMLElement;
+    filter?:string;
+    filterExclude?:boolean;
+}
+
+export interface DragSelector {
+
 }
 
 export class Drag extends Base {
@@ -285,7 +293,7 @@ export class Drag extends Base {
     _isConstrained: boolean = false;
     _useGhostProxy:Function;
     _activeSelectorParams:any;
-    _availableSelectors:Array<any> = [];
+    _availableSelectors:Array<DragParams> = [];
     _ghostProxyFunction:GhostProxyGenerator;
     _snapThreshold:number;
     _grid:PointArray;
@@ -437,26 +445,36 @@ export class Drag extends Base {
         const isNotRightClick = this.rightButtonCanDrag || (e.which !== 3 && e.button !== 2);
         if (isNotRightClick && this.isEnabled() && this._canDrag()) {
 
-            var _f =  this._testFilter(e) && _inputFilter(e, this.el, this.k);
+            const _f =  this._testFilter(e) && _inputFilter(e, this.el, this.k);
             if (_f) {
 
                 this._activeSelectorParams = null;
                 this._elementToDrag = null;
-                if (this._availableSelectors.length > 0) {
-                    const match = findMatchingSelector(this._availableSelectors, this.el, e.target || e.srcElement);
-                    if (match != null) {
-                        this._activeSelectorParams = match[0];
-                        this._elementToDrag = match[1];
-                    }
-                    if(this._elementToDrag == null) {
-                        return;
-                    }
+
+                if (this._availableSelectors.length === 0) {
+                    console.log("JSPLUMB: no available drag selectors");
                 }
-                else {
-                    this._elementToDrag = this.el;
+
+                const eventTarget = (e.target || e.srcElement) as HTMLElement;
+                const match = findMatchingSelector(this._availableSelectors, this.el, eventTarget);
+                if (match != null) {
+                    this._activeSelectorParams = match[0];
+                    this._elementToDrag = match[1];
+                }
+
+                if(this._activeSelectorParams == null || this._elementToDrag == null) {
+                    return;
+                }
+
+                // dragInit gives a handler a chance to provide the actual element to drag. in the case of the endpoint stuff, for instance,
+                // this is the drag placeholder. but for element drag the current value of `_elementToDrag` is the one we want to use.
+                const initial = this._activeSelectorParams.dragInit(this._elementToDrag);
+                if (initial != null) {
+                    this._elementToDrag = initial;
                 }
 
                 if (this.clone) {
+                    // here when doing a makeSource endpoint we dont end up with the right
                     this._dragEl = this._elementToDrag.cloneNode(true);
                     addClass(this._dragEl, _classes.clonedDrag);
 
@@ -509,12 +527,12 @@ export class Drag extends Base {
     private _moveListener(e:MouseEvent) {
         if (this._downAt) {
             if (!this._moving) {
-                var _continue = this._dispatch("start", {el:this.el, pos:this._posAtDown, e:e, drag:this});
-                if (_continue !== false) {
+                const dispatchResult = this._dispatch("start", {el:this.el, pos:this._posAtDown, e:e, drag:this});
+                if (dispatchResult !== false) {
                     if (!this._downAt) {
                         return;
                     }
-                    this.mark(true);
+                    this.mark(dispatchResult,true);
                     this._moving = true;
                 } else {
                     this.abort();
@@ -545,7 +563,7 @@ export class Drag extends Base {
         }
     }
 
-    mark(andNotify?:boolean) {
+    mark(payload:any, andNotify?:boolean) {
         this._posAtDown = _getPosition(this._dragEl);
         //this._pagePosAtDown = _getPosition(this._dragEl, true*);
         this._pagePosAtDown = getOffsetRect(this._dragEl);
@@ -813,6 +831,7 @@ export class Drag extends Base {
 
     _testFilter (e:any) {
         for (let key in this._filters) {
+
             const f = this._filters[key];
             let rv = f[0](e);
             if (f[1]) {
@@ -825,7 +844,7 @@ export class Drag extends Base {
         return true;
     }
 
-    setFilter (f:Function|string, _exclude?:boolean) {
+    addFilter (f:Function|string, _exclude?:boolean) {
         if (f) {
             const key = this._assignId(f);
             this._filters[key] = [
@@ -842,7 +861,6 @@ export class Drag extends Base {
                 },
                 _exclude !== false
             ];
-
         }
     }
 
