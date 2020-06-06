@@ -19,7 +19,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
     }
 
     reset() {
-        this.katavorioDraggable.off(EVT_REVERT, this.doRevalidate);
+        this.drag.off(EVT_REVERT, this.doRevalidate);
     }
 
     private _revalidate(el:any) {
@@ -27,7 +27,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
     }
 
     init(drag:Drag) {
-        this.katavorioDraggable = drag;
+        this.drag = drag;
         drag.on(EVT_REVERT, this.doRevalidate);
     }
 
@@ -43,8 +43,11 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
     }
 
     onDrag(params: any) {
-        console.log("on drag, inside a group");
         super.onDrag(params);
+    }
+
+    onDragInit(el:HTMLElement):HTMLElement {
+        return null;
     }
 
     onStop(params: any) {
