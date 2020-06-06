@@ -37,6 +37,7 @@ export interface DragHandler {
     onStart:(params:any) => boolean;
     onDrag:(params:any) => void;
     onStop:(params:any) => void;
+    onDragInit: (el:HTMLElement) => HTMLElement;
 
     reset:() => void;
     init:(drag:Drag) => void;
@@ -48,6 +49,8 @@ export interface GhostProxyingDragHandler extends DragHandler {
     makeGhostProxy:(el:any) => any;
     useGhostProxy:(container:any, dragEl:any) => boolean;
 }
+
+type DragFilterSpec = [ Function|string, boolean ];
 
 export class DragManager {
 
@@ -61,6 +64,8 @@ export class DragManager {
     _draggablesForElements:Dictionary<any> = {};
 
     handlers:Array<DragHandler> = [];
+
+    private _filtersToAdd:Array<DragFilterSpec> = [];
 
     constructor(protected instance:BrowserJsPlumbInstance) {
 
@@ -113,6 +118,7 @@ export class DragManager {
         o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); });
         o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); });
         o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler);
+        o.dragInit = (el:HTMLElement) => handler.onDragInit(el);
 
         if ((handler as GhostProxyingDragHandler).useGhostProxy) {
             o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy;
@@ -121,6 +127,7 @@ export class DragManager {
 
         if (this.drag == null) {
             this.drag = this.collicat.draggable(this.instance.getContainer(), o);
+            this._filtersToAdd.forEach((filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]));
 
             this.drag.on("revert", (el:HTMLElement) => {
                 this.instance.revalidate(el);
@@ -131,6 +138,20 @@ export class DragManager {
         }
 
         handler.init(this.drag);
+    }
+
+    addFilter(filter:Function|string, exclude?:boolean) {
+        if (this.drag == null) {
+            this._filtersToAdd.push([filter, exclude === true ]);
+        } else {
+            this.drag.addFilter(filter, exclude);
+        }
+    }
+
+    removeFilter(filter:Function|string) {
+        if (this.drag != null) {
+            this.drag.removeFilter(filter);
+        }
     }
 
     reset():void {
