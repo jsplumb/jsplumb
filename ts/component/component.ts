@@ -1,12 +1,12 @@
 import {PaintStyle} from "../styles";
-import {extend, _timestamp, Dictionary, jsPlumbInstance, Timestamp, TypeDescriptor, PointArray, PointXY} from "../core";
+import {extend, Dictionary, jsPlumbInstance, Timestamp, TypeDescriptor, PointArray, PointXY} from "../core";
 import {log, merge, populate} from "../util";
 import {EventGenerator} from "../event-generator";
 import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {Overlay, OverlaySpec} from "../overlay/overlay";
-import {EndpointSpec} from "../endpoint";
-import {ConnectorSpec} from "../connector";
+import {EndpointSpec} from "../endpoint/endpoint";
+import {ConnectorSpec} from "../connector/abstract-connector";
 
 export type ComponentConfig = {
     paintStyle?:PaintStyle;
