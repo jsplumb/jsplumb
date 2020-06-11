@@ -1,5 +1,5 @@
 import {
-    AbstractConnector, AbstractConnectorOptions, ConnectorComputeParams, PaintGeometry
+    AbstractConnector, ConnectorOptions, ConnectorComputeParams, PaintGeometry
 } from "./abstract-connector";
 import {Dictionary, jsPlumbInstance} from "../core";
 import {StraightSegment} from "./straight-segment";
@@ -7,7 +7,7 @@ import {ArcSegment} from "./arc-segment";
 import {Connectors} from "./connectors";
 import {Connection} from "./connection-impl";
 
-export interface FlowchartConnectorOptions extends AbstractConnectorOptions {
+export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?:boolean;
     midpoint?:number;
     cornerRadius?:number;
