@@ -20,6 +20,7 @@ import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
 import {EventManager} from "./event-manager";
 import {AbstractConnector, Endpoint, Overlay} from "..";
+import {EVENT_ELEMENT_MOUSE_MOVE} from "../constants";
 
 export interface DragEventCallbackOptions {
     drag: {
@@ -45,7 +46,7 @@ export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
     dragOptions?: DragOptions;
 }
 
-interface jsPlumbDOMInformation {
+export interface jsPlumbDOMInformation {
     connector?:AbstractConnector;
     endpoint?:Endpoint;
     overlay?:Overlay;
@@ -59,11 +60,11 @@ export interface jsPlumbDOMElement extends HTMLElement {
     getAttribute:(name:string) => string;
     parentNode: jsPlumbDOMElement;
     jtk:jsPlumbDOMInformation;
+    _jsPlumbTargetDefinitions:Array<any>;
+    _jsPlumbSourceDefinitions:Array<any>;
 }
 
 export type PosseSpec = string | { id:string, active:boolean };
-
-
 
 function _genLoc (prefix:string, e?:Event):PointArray {
     if (e == null) {
@@ -106,6 +107,12 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
     _overlayMouseover:Function;
     _overlayMouseout:Function;
 
+    _elementClick:Function;
+    _elementDblClick:Function;
+    _elementMouseenter:Function;
+    _elementMouseexit:Function;
+    _elementMousemove:Function;
+
     eventManager:EventManager;
 
     private elementDragHandler :ElementDragHandler;
@@ -122,6 +129,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         this.dragManager.addHandler(new GroupDragHandler(this));
         this.elementDragHandler = new ElementDragHandler(this);
         this.dragManager.addHandler(this.elementDragHandler);
+
+        // ---
 
         const _connClick = function(event:string, e:MouseEvent) {
             if (!e.defaultPrevented) {
@@ -142,6 +151,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         this._connectorMouseover = _connectorHover.bind(this, true);
         this._connectorMouseout = _connectorHover.bind(this, false);
 
+        // ---
+
         const _epClick = function(event:string, e:MouseEvent) {
             if (!e.defaultPrevented) {
                 let endpointElement = findParent(getEventSource(e), Constants.SELECTOR_ENDPOINT, this.getContainer());
@@ -160,6 +171,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         };
         this._endpointMouseover = _endpointHover.bind(this, true);
         this._endpointMouseout = _endpointHover.bind(this, false);
+
+        // ---
 
         const _oClick = function(method:string, e:MouseEvent) {
             consume(e);
@@ -184,6 +197,40 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         this._overlayMouseover = _overlayHover.bind(this, true);
         this._overlayMouseout = _overlayHover.bind(this, false);
 
+        // ---
+
+        const _elementClick = function(event:string, e:MouseEvent) {
+            if (!e.defaultPrevented) {
+                let element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
+                this.fire(event, element, e);
+            }
+        };
+        this._elementClick = _elementClick.bind(this, Constants.EVENT_ELEMENT_CLICK);
+        this._elementDblClick = _elementClick.bind(this, Constants.EVENT_ELEMENT_DBL_CLICK);
+
+        const _elementHover = function(state:boolean, e:MouseEvent) {
+            const el = getEventSource(e).parentNode;
+            // if (el.jtk && el.jtk.connector) {
+            //     this.renderer.setConnectorHover(el.jtk.connector, state);
+            // }
+
+            console.log("element hover?");
+        };
+
+        this._elementMouseenter = _elementHover.bind(this, true);
+        this._elementMouseexit = _elementHover.bind(this, false);
+
+        const _elementMousemove = function(e:MouseEvent) {
+            if (!e.defaultPrevented) {
+                let element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
+                this.fire(EVENT_ELEMENT_MOUSE_MOVE, element, e);
+            }
+        };
+
+        this._elementMousemove = _elementMousemove.bind(this);
+
+        // ------------
+
         this._attachEventDelegates();
     }
 
@@ -199,10 +246,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         if (el == null) {
             return null;
         }
-        // here we pluck the first entry if el was a list of entries.
-        // this is not my favourite thing to do, but previous versions of
-        // jsplumb supported jquery selectors, and it is possible a selector
-        // will be passed in here.
+
         return (typeof el === "string" ? document.getElementById(el) : el) as HTMLElement;
     }
 
@@ -228,7 +272,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         Array.prototype.push.apply(a, els);
         return a;
     }
-
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
         return true;
@@ -280,9 +323,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
     }
 
     off (el:HTMLElement, event:string, callback:Function) {
-
         this.eventManager.off(el, event, callback);
-
         return this;
     }
 
@@ -328,7 +369,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
     _getSize(el:HTMLElement):Size {
         return [ el.offsetWidth, el.offsetHeight ];
     }
-
 
     getStyle(el:HTMLElement, prop:string):any {
         if (typeof window.getComputedStyle !== 'undefined') {
@@ -393,7 +433,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
     }
 
-    getPositionOnElement(evt:Event, el:HTMLElement, zoom:number) {
+    static getPositionOnElement(evt:Event, el:HTMLElement, zoom:number):PointArray {
         let box:any = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
             body = document.body,
             docElem = document.documentElement,
@@ -448,6 +488,9 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_ENDPOINT, this._endpointClick);
         this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_ENDPOINT, this._endpointDblClick);
 
+        this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_MANAGED_ELEMENT, this._elementClick);
+        this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_MANAGED_ELEMENT, this._elementDblClick);
+
         this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, Constants.SELECTOR_CONNECTOR, this._connectorMouseover);
         this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, Constants.SELECTOR_CONNECTOR, this._connectorMouseout);
 
@@ -456,6 +499,10 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
 
         this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, Constants.SELECTOR_OVERLAY, this._overlayMouseover);
         this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, Constants.SELECTOR_OVERLAY, this._overlayMouseout);
+
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, Constants.SELECTOR_MANAGED_ELEMENT, this._elementMouseenter);
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, Constants.SELECTOR_MANAGED_ELEMENT, this._elementMouseexit);
+        this.eventManager.on(currentContainer, Constants.EVENT_MOUSEMOVE, Constants.SELECTOR_MANAGED_ELEMENT, this._elementMousemove);
     }
 
     private _detachEventDelegates() {
@@ -468,6 +515,9 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
             this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._overlayClick);
             this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._overlayDblClick);
 
+            this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._elementClick);
+            this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._elementDblClick);
+
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOVER, this._connectorMouseover);
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOUT, this._connectorMouseout);
 
@@ -476,6 +526,10 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
 
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOVER, this._overlayMouseover);
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOUT, this._overlayMouseout);
+
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEENTER, this._elementMouseenter);
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEEXIT, this._elementMouseexit);
+            this.eventManager.off(currentContainer, Constants.EVENT_MOUSEMOVE, this._elementMousemove);
         }
     }
 
