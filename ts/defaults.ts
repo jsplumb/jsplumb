@@ -1,8 +1,8 @@
-import {EndpointSpec} from "./endpoint";
+import {EndpointSpec} from "./endpoint/endpoint";
 import {AnchorSpec} from "./factory/anchor-factory";
 import {PaintStyle} from "./styles";
 import {OverlaySpec} from "./overlay/overlay";
-import {ConnectorSpec} from "./connector";
+import {ConnectorSpec} from "./connector/abstract-connector";
 import {Offset, Size} from "./core";
 
 export interface ListSpec {
