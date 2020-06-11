@@ -54,7 +54,7 @@ export abstract class SvgEndpoint<C> {
             ep.instance.addClass(canvas, ep.instance.endpointClass);
 
             canvas.jtk = canvas.jtk || { };
-            canvas.jtk.endpoint = ep;
+            canvas.jtk.endpoint = ep.endpoint;
 
             return canvas as HTMLElement;
         }
