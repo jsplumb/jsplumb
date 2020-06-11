@@ -41,9 +41,13 @@ export const EVENT_CLICK = "click";
 export const EVENT_DBL_CLICK = "dblclick";
 export const EVENT_ENDPOINT_CLICK = "endpointClick";
 export const EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+export const EVENT_ELEMENT_CLICK = "elementClick";
+export const EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
+export const EVENT_ELEMENT_MOUSE_MOVE = "elementMousemove";
 export const EVENT_FOCUS = "focus";
 export const EVENT_MOUSEOVER = "mouseover";
 export const EVENT_MOUSEOUT = "mouseout";
+export const EVENT_MOUSEMOVE = "mousemove";
 export const EVENT_MOUSEENTER = "mouseenter";
 export const EVENT_MOUSEEXIT= "mouseexit";
 export const EVENT_TAP = "tap";
@@ -79,5 +83,6 @@ export const SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
 export const SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 export const SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
+export const SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
 
 
