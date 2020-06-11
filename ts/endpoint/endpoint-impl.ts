@@ -1,4 +1,4 @@
-import {EndpointOptions, EndpointSpec} from "../endpoint";
+import {EndpointOptions, EndpointSpec} from "../endpoint/endpoint";
 import {extend, jsPlumbInstance, OffsetAndSize, Size, Timestamp} from "../core";
 import {ComputedAnchorPosition, makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
@@ -7,7 +7,7 @@ import {addToList, isArray, isString, merge, removeWithFunction} from "../util";
 import {AnchorComputeParams} from "../factory/anchor-factory";
 import {Connection} from "../connector/connection-impl";
 import {PaintStyle} from "../styles";
-import {ConnectorSpec} from "../connector";
+import {ConnectorSpec} from "../connector/abstract-connector";
 import {EndpointRepresentation} from "./endpoints";
 import {EndpointFactory} from "../factory/endpoint-factory";
 import {OverlaySpec} from "..";
@@ -305,7 +305,7 @@ export class Endpoint extends OverlayCapableComponent {
         }
         extend(t, typeParameters);
 
-        this.instance.renderer.applyEndpointType(this.endpoint, t);
+        this.instance.renderer.applyEndpointType(this, t);
 
     }
 
@@ -445,7 +445,8 @@ export class Endpoint extends OverlayCapableComponent {
                 }
 
                 this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse);
-                this.endpoint.paint(this.paintStyleInUse);
+                //this.endpoint.paint(this.paintStyleInUse);
+                this.instance.renderer.paintEndpoint(this, this.paintStyleInUse);
                 this.timestamp = timestamp;
 
                 // paint overlays
@@ -462,7 +463,7 @@ export class Endpoint extends OverlayCapableComponent {
         }
     }
 
-    prepareEndpoint<C>(ep:EndpointSpec, typeId?:string):EndpointRepresentation<C> {
+    prepareEndpoint<C>(ep:EndpointSpec | EndpointRepresentation<C>, typeId?:string):EndpointRepresentation<C> {
 
         let endpointArgs = {
             _jsPlumb: this._jsPlumb.instance,

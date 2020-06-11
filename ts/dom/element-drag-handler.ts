@@ -11,7 +11,6 @@ import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-js
 import {UIGroup} from "../group/group";
 import {BoundingBox, Dictionary, Offset} from "../core";
 import {isString, optional} from "../util";
-import {intersects} from "../geom";
 import {Drag} from "./collicat";
 
 type IntersectingGroup = {
@@ -163,7 +162,7 @@ export class ElementDragHandler implements DragHandler {
         const _one = (el:any, bounds:BoundingBox, e:Event) => {
 
             this._groupLocations.forEach((groupLoc:any) => {
-                if (intersects(bounds, groupLoc.r)) {
+                if (this.instance.geometry.intersects(bounds, groupLoc.r)) {
                     this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
                     this._intersectingGroups.push({
                         group:groupLoc.group,
