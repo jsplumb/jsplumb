@@ -1,4 +1,4 @@
-import {jsPlumbInstance, Offset} from "../core";
+import {Dictionary, jsPlumbInstance, Offset} from "../core";
 import {AnchorSpec, Connection, EndpointSpec, GroupManager, log, removeWithFunction, uuid} from "..";
 import * as Constants from "../constants";
 
@@ -131,7 +131,7 @@ export class UIGroup {
         }
     }
 
-    removeAll(manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+    removeAll(manipulateDOM?:boolean, doNotFireEvent?:boolean):void {
         for (let i = 0, l = this.children.length; i < l; i++) {
             let el = this.children[0];
             this.remove(el, manipulateDOM, doNotFireEvent, true);
@@ -153,8 +153,8 @@ export class UIGroup {
         return [id, pos];
     }
 
-    orphanAll () {
-        let orphanedPositions = {};
+    orphanAll ():Dictionary<Offset> {
+        let orphanedPositions:Dictionary<Offset> = {};
         for (let i = 0; i < this.children.length; i++) {
             let newPosition = this._orphan(this.children[i]);
             orphanedPositions[newPosition[0]] = newPosition[1];
