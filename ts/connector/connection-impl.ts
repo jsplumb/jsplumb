@@ -10,8 +10,8 @@ import {Overlay, OverlaySpec} from "../overlay/overlay";
 import {Connectors} from "./connectors";
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
-import {ConnectorSpec} from "../connector";
-import {EndpointSpec} from "../endpoint";
+import {ConnectorSpec} from "./abstract-connector";
+import {EndpointSpec} from "../endpoint/endpoint";
 
 export interface ConnectionParams {
     id?:string;
@@ -468,7 +468,7 @@ export class Connection extends OverlayCapableComponent {
         } // lets you use a string as shorthand.
         else if (isArray(connectorSpec)) {
             if (connectorSpec.length === 1) {
-                connector = this.makeConnector((connectorSpec as Array<any>)[0], connectorArgs);
+                connector = this.makeConnector(connectorSpec[0], connectorArgs);
             }
             else {
                 connector = this.makeConnector((connectorSpec as Array<any>)[0], merge((connectorSpec as Array<any>)[1], connectorArgs));
