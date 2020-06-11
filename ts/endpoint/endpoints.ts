@@ -40,16 +40,12 @@ export abstract class EndpointRepresentation<C> {
 
     addClass(c:string) {
         this.classes.push(c);
-        this.instance.renderer.addEndpointClass(this, c);
+        this.instance.renderer.addEndpointClass(this.endpoint, c);
     }
 
     removeClass(c:string) {
         this.classes = this.classes.filter((_c:string) => _c !== c);
-        this.instance.renderer.removeEndpointClass(this, c);
-    }
-
-    paint(paintStyle:PaintStyle) {
-        this.instance.renderer.paintEndpoint(this, paintStyle);
+        this.instance.renderer.removeEndpointClass(this.endpoint, c);
     }
 
     clone():EndpointRepresentation<C> {
@@ -67,7 +63,7 @@ export abstract class EndpointRepresentation<C> {
     }
 
     setVisible(v:boolean){
-        this.instance.renderer.setEndpointVisible(this, v);
+        this.instance.renderer.setEndpointVisible(this.endpoint, v);
     }
 }
 
