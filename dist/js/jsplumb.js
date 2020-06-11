@@ -3522,7 +3522,7 @@
       key: "addClass",
       value: function addClass(c) {
         this.classes.push(c);
-        this.instance.renderer.addEndpointClass(this, c);
+        this.instance.renderer.addEndpointClass(this.endpoint, c);
       }
     }, {
       key: "removeClass",
@@ -3530,12 +3530,7 @@
         this.classes = this.classes.filter(function (_c) {
           return _c !== c;
         });
-        this.instance.renderer.removeEndpointClass(this, c);
-      }
-    }, {
-      key: "paint",
-      value: function paint(paintStyle) {
-        this.instance.renderer.paintEndpoint(this, paintStyle);
+        this.instance.renderer.removeEndpointClass(this.endpoint, c);
       }
     }, {
       key: "clone",
@@ -3556,7 +3551,7 @@
     }, {
       key: "setVisible",
       value: function setVisible(v) {
-        this.instance.renderer.setEndpointVisible(this, v);
+        this.instance.renderer.setEndpointVisible(this.endpoint, v);
       }
     }]);
 
@@ -3943,7 +3938,7 @@
         }
 
         extend(t, typeParameters);
-        this.instance.renderer.applyEndpointType(this.endpoint, t);
+        this.instance.renderer.applyEndpointType(this, t);
       }
     }, {
       key: "isEnabled",
@@ -4116,8 +4111,9 @@
               ap = this.anchor.compute(anchorParams);
             }
 
-            this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse);
-            this.endpoint.paint(this.paintStyleInUse);
+            this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse); //this.endpoint.paint(this.paintStyleInUse);
+
+            this.instance.renderer.paintEndpoint(this, this.paintStyleInUse);
             this.timestamp = timestamp; // paint overlays
 
             for (var i in this._jsPlumb.overlays) {
@@ -4211,204 +4207,6 @@
 
     return Endpoint;
   }(OverlayCapableComponent);
-
-  /**
-   * Various geometry functions
-   *
-   * Copyright (c) 2020 jsPlumb
-   * https://jsplumbtoolkit.com
-   *
-   * Permission is hereby granted, free of charge, to any person
-   * obtaining a copy of this software and associated documentation
-   * files (the "Software"), to deal in the Software without
-   * restriction, including without limitation the rights to use,
-   * copy, modify, merge, publish, distribute, sublicense, and/or sell
-   * copies of the Software, and to permit persons to whom the
-   * Software is furnished to do so, subject to the following
-   * conditions:
-   *
-   * The above copyright notice and this permission notice shall be
-   * included in all copies or substantial portions of the Software.
-   *
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-   * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-   * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-   * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   * OTHER DEALINGS IN THE SOFTWARE.
-   */
-  var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
-  var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
-  var TWO_PI = 2 * Math.PI;
-  function pointXYFromArray(a) {
-    return {
-      x: a[0],
-      y: a[1]
-    };
-  }
-  /**
-   * @name gradient
-   * @function
-   * @desc Calculates the gradient of a line between the two points.
-   * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-   * @return {number} The gradient of a line between the two points.
-   */
-
-  function gradient(p1, p2) {
-    if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
-  }
-  /**
-   * @name normal
-   * @function
-   * @desc Calculates the gradient of a normal to a line between the two points.
-   * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-   * @return {number} The gradient of a normal to a line between the two points.
-   */
-
-  function normal(p1, p2) {
-    return -1 / gradient(p1, p2);
-  }
-  /**
-   * @name lineLength
-   * @function
-   * @desc Calculates the length of a line between the two points.
-   * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-   * @return {number} The length of a line between the two points.
-   */
-
-  function lineLength(p1, p2) {
-    return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
-  }
-  /**
-   * @name quadrant
-   * @function
-   * @desc Calculates the quadrant in which the angle between the two points lies.
-   * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-   * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
-   */
-
-  function quadrant(p1, p2) {
-    if (p2.x > p1.x) {
-      return p2.y > p1.y ? 2 : 1;
-    } else if (p2.x == p1.x) {
-      return p2.y > p1.y ? 2 : 1;
-    } else {
-      return p2.y > p1.y ? 3 : 4;
-    }
-  }
-  /**
-   * @name theta
-   * @function
-   * @desc Calculates the angle between the two points.
-   * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-   * @return {number} The angle between the two points.
-   */
-
-  function theta(p1, p2) {
-    var m = gradient(p1, p2),
-        t = Math.atan(m),
-        s = quadrant(p1, p2);
-    if (s == 4 || s == 3) t += Math.PI;
-    if (t < 0) t += 2 * Math.PI;
-    return t;
-  }
-  /**
-   * @name intersects
-   * @function
-   * @desc Calculates whether or not the two rectangles intersect.
-   * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-   * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-   * @return {boolean} True if the rectangles intersect, false otherwise.
-   */
-
-  function intersects(r1, r2) {
-    var x1 = r1.x,
-        x2 = r1.x + r1.w,
-        y1 = r1.y,
-        y2 = r1.y + r1.h,
-        a1 = r2.x,
-        a2 = r2.x + r2.w,
-        b1 = r2.y,
-        b2 = r2.y + r2.h;
-    return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
-  }
-  /**
-   * @name encloses
-   * @function
-   * @desc Calculates whether or not r2 is completely enclosed by r1.
-   * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-   * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-   * @param {boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
-   * @return {boolean} True if r1 encloses r2, false otherwise.
-   */
-
-  function encloses(r1, r2, allowSharedEdges) {
-    var x1 = r1.x,
-        x2 = r1.x + r1.w,
-        y1 = r1.y,
-        y2 = r1.y + r1.h,
-        a1 = r2.x,
-        a2 = r2.x + r2.w,
-        b1 = r2.y,
-        b2 = r2.y + r2.h,
-        c = function c(v1, v2, v3, v4) {
-      return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
-    };
-
-    return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
-  }
-  /**
-   * @name pointOnLine
-   * @function
-   * @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
-   * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {number} distance Distance along the length that the point should be located.
-   * @return {PointXY} Point on the line, in the form `{ x:..., y:... }`.
-   */
-
-  function pointOnLine(fromPoint, toPoint, distance) {
-    var m = gradient(fromPoint, toPoint),
-        s = quadrant(fromPoint, toPoint),
-        segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
-        theta = Math.atan(m),
-        y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-        x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-    return {
-      x: fromPoint.x + x,
-      y: fromPoint.y + y
-    };
-  }
-  /**
-   * @name perpendicularLineTo
-   * @function
-   * @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
-   * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
-   * @param {number} length Length of the line to generate
-   * @return {LineXY} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
-   */
-
-  function perpendicularLineTo(fromPoint, toPoint, length) {
-    var m = gradient(fromPoint, toPoint),
-        theta2 = Math.atan(-1 / m),
-        y = length / 2 * Math.sin(theta2),
-        x = length / 2 * Math.cos(theta2);
-    return [{
-      x: toPoint.x + x,
-      y: toPoint.y + y
-    }, {
-      x: toPoint.x - x,
-      y: toPoint.y - y
-    }];
-  }
 
   function placeAnchorsOnLine(elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse) {
     var a = [],
@@ -5055,7 +4853,7 @@
             candidates.push({
               source: FACES[sf],
               target: FACES[tf],
-              dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+              dist: this.instance.geometry.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
             });
           }
         }
@@ -5154,9 +4952,13 @@
   var EVENT_DBL_CLICK = "dblclick";
   var EVENT_ENDPOINT_CLICK = "endpointClick";
   var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+  var EVENT_ELEMENT_CLICK = "elementClick";
+  var EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
+  var EVENT_ELEMENT_MOUSE_MOVE = "elementMousemove";
   var EVENT_FOCUS = "focus";
   var EVENT_MOUSEOVER = "mouseover";
   var EVENT_MOUSEOUT = "mouseout";
+  var EVENT_MOUSEMOVE = "mousemove";
   var EVENT_MOUSEENTER = "mouseenter";
   var EVENT_MOUSEEXIT = "mouseexit";
   var EVENT_TAP = "tap";
@@ -5186,6 +4988,7 @@
   var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
   var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
   var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
+  var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
 
   var UIGroup =
   /*#__PURE__*/
@@ -5544,7 +5347,14 @@
         var actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
 
-        var newPositions = actualGroup[deleteMembers ? CMD_REMOVE_ALL : CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
+        var newPositions = {}; //actualGroup[deleteMembers ? Constants.CMD_REMOVE_ALL : Constants.CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
+
+        if (deleteMembers) {
+          actualGroup.removeAll(manipulateDOM, doNotFireEvent);
+        } else {
+          newPositions = actualGroup.orphanAll();
+        }
+
         this.instance.remove(actualGroup.el);
         delete this.groupMap[actualGroup.id];
         this.instance.fire(EVENT_GROUP_REMOVED, {
@@ -5923,6 +5733,235 @@
     return GroupManager;
   }();
 
+  /**
+   * Various geometry functions
+   *
+   * Copyright (c) 2020 jsPlumb
+   * https://jsplumbtoolkit.com
+   *
+   * Permission is hereby granted, free of charge, to any person
+   * obtaining a copy of this software and associated documentation
+   * files (the "Software"), to deal in the Software without
+   * restriction, including without limitation the rights to use,
+   * copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the
+   * Software is furnished to do so, subject to the following
+   * conditions:
+   *
+   * The above copyright notice and this permission notice shall be
+   * included in all copies or substantial portions of the Software.
+   *
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+   * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+   * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+   * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   * OTHER DEALINGS IN THE SOFTWARE.
+   */
+  var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
+  var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
+  var TWO_PI = 2 * Math.PI;
+  var jsPlumbGeometry =
+  /*#__PURE__*/
+  function () {
+    function jsPlumbGeometry() {
+      _classCallCheck(this, jsPlumbGeometry);
+    }
+
+    _createClass(jsPlumbGeometry, [{
+      key: "pointXYFromArray",
+      value: function pointXYFromArray(a) {
+        return {
+          x: a[0],
+          y: a[1]
+        };
+      }
+      /**
+       * @name gradient
+       * @function
+       * @desc Calculates the gradient of a line between the two points.
+       * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+       * @return {number} The gradient of a line between the two points.
+       */
+
+    }, {
+      key: "gradient",
+      value: function gradient(p1, p2) {
+        if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
+      }
+      /**
+       * @name normal
+       * @function
+       * @desc Calculates the gradient of a normal to a line between the two points.
+       * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+       * @return {number} The gradient of a normal to a line between the two points.
+       */
+
+    }, {
+      key: "normal",
+      value: function normal(p1, p2) {
+        return -1 / this.gradient(p1, p2);
+      }
+      /**
+       * @name lineLength
+       * @function
+       * @desc Calculates the length of a line between the two points.
+       * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+       * @return {number} The length of a line between the two points.
+       */
+
+    }, {
+      key: "lineLength",
+      value: function lineLength(p1, p2) {
+        return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
+      }
+      /**
+       * @name quadrant
+       * @function
+       * @desc Calculates the quadrant in which the angle between the two points lies.
+       * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+       * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+       */
+
+    }, {
+      key: "quadrant",
+      value: function quadrant(p1, p2) {
+        if (p2.x > p1.x) {
+          return p2.y > p1.y ? 2 : 1;
+        } else if (p2.x == p1.x) {
+          return p2.y > p1.y ? 2 : 1;
+        } else {
+          return p2.y > p1.y ? 3 : 4;
+        }
+      }
+      /**
+       * @name theta
+       * @function
+       * @desc Calculates the angle between the two points.
+       * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+       * @return {number} The angle between the two points.
+       */
+
+    }, {
+      key: "theta",
+      value: function theta(p1, p2) {
+        var m = this.gradient(p1, p2),
+            t = Math.atan(m),
+            s = this.quadrant(p1, p2);
+        if (s == 4 || s == 3) t += Math.PI;
+        if (t < 0) t += 2 * Math.PI;
+        return t;
+      }
+      /**
+       * @name intersects
+       * @function
+       * @desc Calculates whether or not the two rectangles intersect.
+       * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+       * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+       * @return {boolean} True if the rectangles intersect, false otherwise.
+       */
+
+    }, {
+      key: "intersects",
+      value: function intersects(r1, r2) {
+        var x1 = r1.x,
+            x2 = r1.x + r1.w,
+            y1 = r1.y,
+            y2 = r1.y + r1.h,
+            a1 = r2.x,
+            a2 = r2.x + r2.w,
+            b1 = r2.y,
+            b2 = r2.y + r2.h;
+        return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
+      }
+      /**
+       * @name encloses
+       * @function
+       * @desc Calculates whether or not r2 is completely enclosed by r1.
+       * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+       * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+       * @param {boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
+       * @return {boolean} True if r1 encloses r2, false otherwise.
+       */
+
+    }, {
+      key: "encloses",
+      value: function encloses(r1, r2, allowSharedEdges) {
+        var x1 = r1.x,
+            x2 = r1.x + r1.w,
+            y1 = r1.y,
+            y2 = r1.y + r1.h,
+            a1 = r2.x,
+            a2 = r2.x + r2.w,
+            b1 = r2.y,
+            b2 = r2.y + r2.h,
+            c = function c(v1, v2, v3, v4) {
+          return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
+        };
+
+        return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
+      }
+      /**
+       * @name pointOnLine
+       * @function
+       * @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
+       * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {number} distance Distance along the length that the point should be located.
+       * @return {PointXY} Point on the line, in the form `{ x:..., y:... }`.
+       */
+
+    }, {
+      key: "pointOnLine",
+      value: function pointOnLine(fromPoint, toPoint, distance) {
+        var m = this.gradient(fromPoint, toPoint),
+            s = this.quadrant(fromPoint, toPoint),
+            segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
+            theta = Math.atan(m),
+            y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+            x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+        return {
+          x: fromPoint.x + x,
+          y: fromPoint.y + y
+        };
+      }
+      /**
+       * @name perpendicularLineTo
+       * @function
+       * @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
+       * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
+       * @param {number} length Length of the line to generate
+       * @return {LineXY} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
+       */
+
+    }, {
+      key: "perpendicularLineTo",
+      value: function perpendicularLineTo(fromPoint, toPoint, length) {
+        var m = this.gradient(fromPoint, toPoint),
+            theta2 = Math.atan(-1 / m),
+            y = length / 2 * Math.sin(theta2),
+            x = length / 2 * Math.cos(theta2);
+        return [{
+          x: toPoint.x + x,
+          y: toPoint.y + y
+        }, {
+          x: toPoint.x - x,
+          y: toPoint.y - y
+        }];
+      }
+    }]);
+
+    return jsPlumbGeometry;
+  }();
+
   function _scopeMatch(e1, e2) {
     var s1 = e1.scope.split(/\s/),
         s2 = e2.scope.split(/\s/);
@@ -6143,9 +6182,12 @@
 
       _defineProperty(_assertThisInitialized(_this), "_helpers", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
 
       _this._helpers = helpers || {};
+      _this.geometry = new jsPlumbGeometry();
       _this.Defaults = {
         anchor: "Bottom",
         anchors: [null, null],
@@ -8694,7 +8736,7 @@
 
           ep.instance.addClass(canvas, ep.instance.endpointClass);
           canvas.jtk = canvas.jtk || {};
-          canvas.jtk.endpoint = ep;
+          canvas.jtk.endpoint = ep.endpoint;
           return canvas;
         }
       }
@@ -9238,7 +9280,7 @@
         component._jsPlumb.hover = hover;
 
         if (component instanceof Endpoint && component.endpoint != null) {
-          this.setEndpointHover(component.endpoint, hover);
+          this.setEndpointHover(component, hover);
         } else if (component instanceof Connection && component.connector != null) {
           this.setConnectorHover(component.connector, hover);
         }
@@ -9271,8 +9313,8 @@
           }
 
           if (!doNotCascade) {
-            this.setEndpointHover(connector.connection.endpoints[0].endpoint, h, true);
-            this.setEndpointHover(connector.connection.endpoints[1].endpoint, h, true);
+            this.setEndpointHover(connector.connection.endpoints[0], h, true);
+            this.setEndpointHover(connector.connection.endpoints[1], h, true);
           }
         }
       }
@@ -9322,17 +9364,28 @@
     }, {
       key: "addEndpointClass",
       value: function addEndpointClass(ep, c) {
-        if (ep.canvas) {
-          this.instance.addClass(ep.canvas, c);
+        var canvas = this.getEndpointCanvas(ep);
+
+        if (canvas != null) {
+          this.instance.addClass(canvas, c);
         }
       }
     }, {
       key: "applyEndpointType",
       value: function applyEndpointType(ep, t) {
-        if (ep.canvas && t.cssClass) {
-          var classes = Array.isArray(t.cssClass) ? t.cssClass : [t.cssClass];
-          this.instance.addClass(ep.canvas, classes.join(" "));
+        if (t.cssClass) {
+          var canvas = this.getEndpointCanvas(ep);
+
+          if (canvas) {
+            var classes = Array.isArray(t.cssClass) ? t.cssClass : [t.cssClass];
+            this.instance.addClass(canvas, classes.join(" "));
+          }
         }
+      }
+    }, {
+      key: "getEndpointCanvas",
+      value: function getEndpointCanvas(ep) {
+        return ep.endpoint.canvas;
       }
     }, {
       key: "destroyEndpoint",
@@ -9342,10 +9395,10 @@
     }, {
       key: "paintEndpoint",
       value: function paintEndpoint(ep, paintStyle) {
-        var renderer = endpointMap$1[ep.getType()];
+        var renderer = endpointMap$1[ep.endpoint.getType()];
 
         if (renderer != null) {
-          SvgEndpoint.paint(ep, renderer, paintStyle);
+          SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
         } else {
           console.log("JSPLUMB: no endpoint renderer found for type [" + ep.typeId + "]");
         }
@@ -9353,15 +9406,19 @@
     }, {
       key: "removeEndpointClass",
       value: function removeEndpointClass(ep, c) {
-        if (ep.canvas) {
-          this.instance.removeClass(ep.canvas, c);
+        var canvas = this.getEndpointCanvas(ep);
+
+        if (canvas != null) {
+          this.instance.removeClass(canvas, c);
         }
       }
     }, {
       key: "getEndpointClass",
       value: function getEndpointClass(ep) {
-        if (ep.canvas) {
-          return ep.canvas.className;
+        var canvas = this.getEndpointCanvas(ep);
+
+        if (canvas != null) {
+          return canvas.className;
         } else {
           return "";
         }
@@ -9392,7 +9449,7 @@
       value: function setEndpointHover(endpoint, h, doNotCascade) {
         if (endpoint != null && (h === false || !this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
           var method = h ? "addClass" : "removeClass";
-          var canvas = endpoint.canvas;
+          var canvas = this.getEndpointCanvas(endpoint);
 
           if (canvas != null) {
             if (this.instance.hoverClass != null) {
@@ -9400,18 +9457,19 @@
             }
           }
 
-          if (endpoint.endpoint.hoverPaintStyle != null) {
-            endpoint.endpoint.paintStyleInUse = h ? endpoint.endpoint.hoverPaintStyle : endpoint.endpoint.paintStyle;
+          if (endpoint.hoverPaintStyle != null) {
+            endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
 
             if (!this.instance._suspendDrawing) {
-              endpoint.paint(endpoint.endpoint.paintStyleInUse);
+              //endpoint.paint(endpoint.endpoint.paintStyleInUse);
+              this.paintEndpoint(endpoint, endpoint.paintStyleInUse);
             }
           }
 
           if (!doNotCascade) {
             // instruct attached connections to set hover, unless doNotCascade was true.
-            for (var i = 0; i < endpoint.endpoint.connections.length; i++) {
-              this.setConnectorHover(endpoint.endpoint.connections[i].connector, h, true);
+            for (var i = 0; i < endpoint.connections.length; i++) {
+              this.setConnectorHover(endpoint.connections[i].connector, h, true);
             }
           }
         }
@@ -9419,7 +9477,7 @@
     }, {
       key: "setEndpointVisible",
       value: function setEndpointVisible(ep, v) {
-        BrowserRenderer.setVisible(ep, v);
+        BrowserRenderer.setVisible(ep.endpoint, v);
       } // -------------------------------------------------- endpoints -------------------------------------
 
     }], [{
@@ -11613,7 +11671,7 @@
 
         var _one = function _one(el, bounds, e) {
           _this2._groupLocations.forEach(function (groupLoc) {
-            if (intersects(bounds, groupLoc.r)) {
+            if (_this2.instance.geometry.intersects(bounds, groupLoc.r)) {
               _this2.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
 
               _this2._intersectingGroups.push({
@@ -12214,7 +12272,7 @@
           // will be located.
 
 
-          var elxy = this.instance.getPositionOnElement(e, targetEl, this.instance.getZoom()); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+          var elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.getZoom()); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
           // the params passed in, because after a connection is established we're going to reset the endpoint
           // to have the anchor we were given.
 
@@ -12285,12 +12343,16 @@
           el._jsPlumbOrphanedEndpoints.length = 0;
         }
       }
+      /**
+       * At the beginning of a drag, this method can be used to perform some setup in a handler, and if it returns a DOM
+       * element, that element will be the one used for dragging.
+       * @param el The element that will be dragged unless we return something different.
+       */
+
     }, {
       key: "onDragInit",
       value: function onDragInit(el) {
-        console.log("here we would return the draggable placeholder");
-        var //canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as HTMLElement,
-        ipco = this.instance.getOffset(el),
+        var ipco = this.instance.getOffset(el),
             ips = this.instance.getSize(el);
 
         this._makeDraggablePlaceholder(ipco, ips);
@@ -12299,8 +12361,8 @@
         return this.placeholderInfo.element;
       }
       /**
-       * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and when doing a
-       * makeSource drag, it should be this element that is being dragged. However i don't think that is the case right now.
+       * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and `unmanaged` when dragging
+       * ends.
        * @param ipco
        * @param ips
        * @private
@@ -12489,9 +12551,7 @@
 
         if (!isSourceDrag) {
           selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
-        }
-
-        if (isSourceDrag) {
+        } else {
           selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
         }
 
@@ -12673,7 +12733,7 @@
               _cont;
 
           for (var i = 0; i < this.endpointDropTargets.length; i++) {
-            if (intersects(boundingRect, this.endpointDropTargets[i].r)) {
+            if (this.instance.geometry.intersects(boundingRect, this.endpointDropTargets[i].r)) {
               newDropTarget = this.endpointDropTargets[i];
               break;
             }
@@ -12722,10 +12782,9 @@
         }
       }
     }, {
-      key: "maybeCleanup",
-      value: function maybeCleanup(ep) {
+      key: "_maybeCleanup",
+      value: function _maybeCleanup(ep) {
         if (ep._mtNew && ep.connections.length === 0) {
-          //this.instance.deleteObject({endpoint: ep});
           this.instance.deleteEndpoint(ep);
         } else {
           delete ep._mtNew;
@@ -12747,13 +12806,11 @@
           } // is this an existing connection? try to reattach, if desired.
 
 
-          this._doForceReattach(idx); // i think here we will need to throw away the floating endpoint
-
+          this._doForceReattach(idx);
         } else {
           // otherwise throw it away (and throw away any endpoints attached to it that should be thrown away when they are no longer
           // connected to any edges.
-          this._discard(idx, originalEvent); // i think here the code will have throw away the floating endpoint.
-
+          this._discard(idx, originalEvent);
         }
       }
     }, {
@@ -12849,8 +12906,6 @@
             // no drop target: either reattach, or discard.
             this._reattachOrDiscard(p.e);
           } // common clean up
-          //this.instance.deleteObject({endpoint: this.floatingEndpoint});
-          //this.instance.deleteEndpoint(this.floatingEndpoint);
 
 
           this._cleanupDraggablePlaceholder();
@@ -12867,11 +12922,11 @@
           delete this.jpc.pending;
 
           if (dropEndpoint != null) {
-            this.maybeCleanup(dropEndpoint);
+            this._maybeCleanup(dropEndpoint);
             /* makeTarget sets this flag, to tell us we have been replaced and should delete this object. */
 
+
             if (dropEndpoint.deleteAfterDragStop) {
-              //this.instance.deleteObject({endpoint: dropEndpoint});
               this.instance.deleteEndpoint(dropEndpoint);
             } else {
               if (dropEndpoint._jsPlumb) {
@@ -12916,6 +12971,13 @@
           }
         }
       }
+      /**
+       * Lookup a target definition on the given element.
+       * @param fromElement Element to lookup the source definition
+       * @param evt Associated mouse event - for instance, the event that started a drag.
+       * @private
+       */
+
     }, {
       key: "_getTargetDefinition",
       value: function _getTargetDefinition(fromElement, evt) {
@@ -13042,17 +13104,14 @@
           if (this.jpc.isReattach() || this.jpc._forceReattach || !this.instance.deleteConnection(this.jpc, {
             originalEvent: originalEvent
           })) {
-            var floatingId;
             this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
             this.instance.renderer.setHover(this.jpc, false);
             this.jpc._forceDetach = true;
 
             if (idx === 0) {
-              floatingId = this.jpc.sourceId;
               this.jpc.source = this.jpc.suspendedEndpoint.element;
               this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
             } else {
-              floatingId = this.jpc.targetId;
               this.jpc.target = this.jpc.suspendedEndpoint.element;
               this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
             }
@@ -13384,6 +13443,16 @@
 
       _defineProperty(_assertThisInitialized(_this), "_overlayMouseout", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "_elementClick", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_elementDblClick", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_elementMouseenter", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_elementMouseexit", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_elementMousemove", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "eventManager", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
@@ -13398,7 +13467,8 @@
 
       _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this));
 
-      _this.dragManager.addHandler(_this.elementDragHandler);
+      _this.dragManager.addHandler(_this.elementDragHandler); // ---
+
 
       var _connClick = function _connClick(event, e) {
         if (!e.defaultPrevented) {
@@ -13419,7 +13489,7 @@
       };
 
       _this._connectorMouseover = _connectorHover.bind(_assertThisInitialized(_this), true);
-      _this._connectorMouseout = _connectorHover.bind(_assertThisInitialized(_this), false);
+      _this._connectorMouseout = _connectorHover.bind(_assertThisInitialized(_this), false); // ---
 
       var _epClick = function _epClick(event, e) {
         if (!e.defaultPrevented) {
@@ -13440,7 +13510,7 @@
       };
 
       _this._endpointMouseover = _endpointHover.bind(_assertThisInitialized(_this), true);
-      _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized(_this), false);
+      _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized(_this), false); // ---
 
       var _oClick = function _oClick(method, e) {
         consume(e);
@@ -13466,7 +13536,37 @@
       };
 
       _this._overlayMouseover = _overlayHover.bind(_assertThisInitialized(_this), true);
-      _this._overlayMouseout = _overlayHover.bind(_assertThisInitialized(_this), false);
+      _this._overlayMouseout = _overlayHover.bind(_assertThisInitialized(_this), false); // ---
+
+      var _elementClick = function _elementClick(event, e) {
+        if (!e.defaultPrevented) {
+          var element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
+          this.fire(event, element, e);
+        }
+      };
+
+      _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_CLICK);
+      _this._elementDblClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_DBL_CLICK);
+
+      var _elementHover = function _elementHover(state, e) {
+        var el = getEventSource(e).parentNode; // if (el.jtk && el.jtk.connector) {
+        //     this.renderer.setConnectorHover(el.jtk.connector, state);
+        // }
+
+        console.log("element hover?");
+      };
+
+      _this._elementMouseenter = _elementHover.bind(_assertThisInitialized(_this), true);
+      _this._elementMouseexit = _elementHover.bind(_assertThisInitialized(_this), false);
+
+      var _elementMousemove = function _elementMousemove(e) {
+        if (!e.defaultPrevented) {
+          var element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
+          this.fire(EVENT_ELEMENT_MOUSE_MOVE, element, e);
+        }
+      };
+
+      _this._elementMousemove = _elementMousemove.bind(_assertThisInitialized(_this)); // ------------
 
       _this._attachEventDelegates();
 
@@ -13488,11 +13588,7 @@
       value: function getElement(el) {
         if (el == null) {
           return null;
-        } // here we pluck the first entry if el was a list of entries.
-        // this is not my favourite thing to do, but previous versions of
-        // jsplumb supported jquery selectors, and it is possible a selector
-        // will be passed in here.
-
+        }
 
         return typeof el === "string" ? document.getElementById(el) : el;
       }
@@ -13713,33 +13809,6 @@
         return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
       }
     }, {
-      key: "getPositionOnElement",
-      value: function getPositionOnElement(evt, el, zoom) {
-        var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : {
-          left: 0,
-          top: 0,
-          width: 0,
-          height: 0
-        },
-            body = document.body,
-            docElem = document.documentElement,
-            scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-            scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-            clientTop = docElem.clientTop || body.clientTop || 0,
-            clientLeft = docElem.clientLeft || body.clientLeft || 0,
-            pst = 0,
-            psl = 0,
-            top = box.top + scrollTop - clientTop + pst * zoom,
-            left = box.left + scrollLeft - clientLeft + psl * zoom,
-            cl = _pageLocation(evt),
-            w = box.width || el.offsetWidth * zoom,
-            h = box.height || el.offsetHeight * zoom,
-            x = (cl[0] - left) / w,
-            y = (cl[1] - top) / h;
-
-        return [x, y];
-      }
-    }, {
       key: "setDraggable",
       value: function setDraggable(element, draggable) {
         if (draggable) {
@@ -13776,12 +13845,17 @@
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_CONNECTOR, this._connectorDblClick);
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_ENDPOINT, this._endpointClick);
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_ENDPOINT, this._endpointDblClick);
+        this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_MANAGED_ELEMENT, this._elementClick);
+        this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_MANAGED_ELEMENT, this._elementDblClick);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_ENDPOINT, this._endpointMouseover);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_ENDPOINT, this._endpointMouseout);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_OVERLAY, this._overlayMouseover);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_OVERLAY, this._overlayMouseout);
+        this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_MANAGED_ELEMENT, this._elementMouseenter);
+        this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_MANAGED_ELEMENT, this._elementMouseexit);
+        this.eventManager.on(currentContainer, EVENT_MOUSEMOVE, SELECTOR_MANAGED_ELEMENT, this._elementMousemove);
       }
     }, {
       key: "_detachEventDelegates",
@@ -13795,12 +13869,17 @@
           this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._endpointDblClick);
           this.eventManager.off(currentContainer, EVENT_CLICK, this._overlayClick);
           this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._overlayDblClick);
+          this.eventManager.off(currentContainer, EVENT_CLICK, this._elementClick);
+          this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._elementDblClick);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover);
           this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._endpointMouseover);
           this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._endpointMouseout);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._overlayMouseover);
           this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._overlayMouseout);
+          this.eventManager.off(currentContainer, EVENT_MOUSEENTER, this._elementMouseenter);
+          this.eventManager.off(currentContainer, EVENT_MOUSEEXIT, this._elementMouseexit);
+          this.eventManager.off(currentContainer, EVENT_MOUSEMOVE, this._elementMousemove);
         }
       }
     }, {
@@ -13979,6 +14058,33 @@
       key: "consume",
       value: function consume$1(e, doNotPreventDefault) {
         consume(e, doNotPreventDefault);
+      }
+    }], [{
+      key: "getPositionOnElement",
+      value: function getPositionOnElement(evt, el, zoom) {
+        var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : {
+          left: 0,
+          top: 0,
+          width: 0,
+          height: 0
+        },
+            body = document.body,
+            docElem = document.documentElement,
+            scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+            scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+            clientTop = docElem.clientTop || body.clientTop || 0,
+            clientLeft = docElem.clientLeft || body.clientLeft || 0,
+            pst = 0,
+            psl = 0,
+            top = box.top + scrollTop - clientTop + pst * zoom,
+            left = box.left + scrollLeft - clientLeft + psl * zoom,
+            cl = _pageLocation(evt),
+            w = box.width || el.offsetWidth * zoom,
+            h = box.height || el.offsetHeight * zoom,
+            x = (cl[0] - left) / w,
+            y = (cl[1] - top) / h;
+
+        return [x, y];
       }
     }]);
 
@@ -15010,7 +15116,7 @@
       key: "_prepareCompute",
       value: function _prepareCompute(params) {
         this.strokeWidth = params.strokeWidth;
-        var segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
+        var segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
             swapX = params.targetPos[0] < params.sourcePos[0],
             swapY = params.targetPos[1] < params.sourcePos[1],
             lw = params.strokeWidth || 1,
@@ -15176,6 +15282,7 @@
       _classCallCheck(this, ArcSegment);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
+      _this.instance = instance;
 
       _defineProperty(_assertThisInitialized(_this), "type", "Arc");
 
@@ -15246,7 +15353,7 @@
     _createClass(ArcSegment, [{
       key: "_calcAngle",
       value: function _calcAngle(_x, _y) {
-        return theta({
+        return this.instance.geometry.theta({
           x: this.cx,
           y: this.cy
         }, {
@@ -15316,7 +15423,7 @@
        */
       value: function gradientAtPoint(location, absolute) {
         var p = this.pointOnPath(location, absolute);
-        var m = normal({
+        var m = this.instance.geometry.normal({
           x: this.cx,
           y: this.cy
         }, p);
@@ -15690,6 +15797,7 @@
       _classCallCheck(this, StraightSegment);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(StraightSegment).call(this, params));
+      _this.instance = instance;
 
       _defineProperty(_assertThisInitialized(_this), "length", void 0);
 
@@ -15721,7 +15829,7 @@
       key: "_recalc",
       value: function _recalc() {
         this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
-        this.m = gradient({
+        this.m = this.instance.geometry.gradient({
           x: this.x1,
           y: this.y1
         }, {
@@ -15780,7 +15888,7 @@
           };
         } else {
           var l = absolute ? location > 0 ? location : this.length + location : location * this.length;
-          return pointOnLine({
+          return this.instance.geometry.pointOnLine({
             x: this.x1,
             y: this.y1
           }, {
@@ -15826,7 +15934,7 @@
           distance *= -1;
         }
 
-        return pointOnLine(p, farAwayPoint, distance);
+        return this.instance.geometry.pointOnLine(p, farAwayPoint, distance);
       } // is c between a and b?
 
     }, {
@@ -15882,14 +15990,14 @@
           out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1); //_y1;
         }
 
-        var fractionInSegment = lineLength({
+        var fractionInSegment = this.instance.geometry.lineLength({
           x: out.x,
           y: out.y
         }, {
           x: this.x1,
           y: this.y1
         });
-        out.d = lineLength({
+        out.d = this.instance.geometry.lineLength({
           x: x,
           y: y
         }, out);
@@ -15913,7 +16021,7 @@
     }, {
       key: "lineIntersection",
       value: function lineIntersection(_x1, _y1, _x2, _y2) {
-        var m2 = Math.abs(gradient({
+        var m2 = Math.abs(this.instance.geometry.gradient({
           x: _x1,
           y: _y1
         }, {
@@ -16776,11 +16884,11 @@
             var fromLoc = this.location < 0 ? 1 : 0;
             hxy = connector.pointAlongPathFrom(fromLoc, this.location, false);
             mid = connector.pointAlongPathFrom(fromLoc, this.location - this.direction * this.length / 2, false);
-            txy = pointOnLine(hxy, mid, this.length);
+            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
           } else if (this.location === 1) {
             hxy = connector.pointOnPath(this.location);
             mid = connector.pointAlongPathFrom(this.location, -this.length);
-            txy = pointOnLine(hxy, mid, this.length);
+            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
 
             if (this.direction === -1) {
               var _ = txy;
@@ -16790,7 +16898,7 @@
           } else if (this.location === 0) {
             txy = connector.pointOnPath(this.location);
             mid = connector.pointAlongPathFrom(this.location, this.length);
-            hxy = pointOnLine(txy, mid, this.length);
+            hxy = this.instance.geometry.pointOnLine(txy, mid, this.length);
 
             if (this.direction === -1) {
               var __ = txy;
@@ -16800,11 +16908,11 @@
           } else {
             hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2);
             mid = connector.pointOnPath(this.location);
-            txy = pointOnLine(hxy, mid, this.length);
+            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
           }
 
-          tail = perpendicularLineTo(hxy, txy, this.width);
-          cxy = pointOnLine(hxy, txy, this.foldback * this.length);
+          tail = this.instance.geometry.perpendicularLineTo(hxy, txy, this.width);
+          cxy = this.instance.geometry.pointOnLine(hxy, txy, this.foldback * this.length);
           var d = {
             hxy: hxy,
             tail: tail,
@@ -16976,13 +17084,13 @@
 
     _do();
   }
+
   /**
    *
    * Entry point.
    *
    *
    */
-
   if (typeof window !== "undefined") {
     window.jsPlumb = {
       newInstance: newInstance,
@@ -17062,6 +17170,9 @@
   exports.EVENT_CONTEXTMENU = EVENT_CONTEXTMENU;
   exports.EVENT_DBL_CLICK = EVENT_DBL_CLICK;
   exports.EVENT_DBL_TAP = EVENT_DBL_TAP;
+  exports.EVENT_ELEMENT_CLICK = EVENT_ELEMENT_CLICK;
+  exports.EVENT_ELEMENT_DBL_CLICK = EVENT_ELEMENT_DBL_CLICK;
+  exports.EVENT_ELEMENT_MOUSE_MOVE = EVENT_ELEMENT_MOUSE_MOVE;
   exports.EVENT_ENDPOINT_CLICK = EVENT_ENDPOINT_CLICK;
   exports.EVENT_ENDPOINT_DBL_CLICK = EVENT_ENDPOINT_DBL_CLICK;
   exports.EVENT_EXPAND = EVENT_EXPAND;
@@ -17074,6 +17185,7 @@
   exports.EVENT_MOUSEDOWN = EVENT_MOUSEDOWN;
   exports.EVENT_MOUSEENTER = EVENT_MOUSEENTER;
   exports.EVENT_MOUSEEXIT = EVENT_MOUSEEXIT;
+  exports.EVENT_MOUSEMOVE = EVENT_MOUSEMOVE;
   exports.EVENT_MOUSEOUT = EVENT_MOUSEOUT;
   exports.EVENT_MOUSEOVER = EVENT_MOUSEOVER;
   exports.EVENT_MOUSEUP = EVENT_MOUSEUP;
@@ -17112,6 +17224,7 @@
   exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
   exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
   exports.SELECTOR_GROUP_CONTAINER = SELECTOR_GROUP_CONTAINER;
+  exports.SELECTOR_MANAGED_ELEMENT = SELECTOR_MANAGED_ELEMENT;
   exports.SELECTOR_OVERLAY = SELECTOR_OVERLAY;
   exports.SOURCE = SOURCE;
   exports.SOURCE_DEFINITION_LIST = SOURCE_DEFINITION_LIST;
@@ -17158,7 +17271,6 @@
   exports.dist = dist;
   exports.distanceFromCurve = distanceFromCurve;
   exports.each = each;
-  exports.encloses = encloses;
   exports.extend = extend;
   exports.fastTrim = fastTrim;
   exports.findParent = findParent;
@@ -17166,11 +17278,9 @@
   exports.functionChain = functionChain;
   exports.getClass = getClass;
   exports.getEventSource = getEventSource;
-  exports.gradient = gradient;
   exports.gradientAtPoint = gradientAtPoint;
   exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;
   exports.hasClass = hasClass;
-  exports.intersects = intersects;
   exports.isArray = isArray;
   exports.isBoolean = isBoolean;
   exports.isDate = isDate;
@@ -17182,9 +17292,9 @@
   exports.isObject = isObject;
   exports.isPoint = isPoint;
   exports.isString = isString;
+  exports.jsPlumbGeometry = jsPlumbGeometry;
   exports.jsPlumbInstance = jsPlumbInstance;
   exports.lineIntersection = lineIntersection;
-  exports.lineLength = lineLength;
   exports.locationAlongCurveFrom = locationAlongCurveFrom;
   exports.log = log;
   exports.logEnabled = logEnabled;
@@ -17195,18 +17305,13 @@
   exports.mergeWithParents = mergeWithParents;
   exports.nearestPointOnCurve = nearestPointOnCurve;
   exports.newInstance = newInstance;
-  exports.normal = normal;
   exports.optional = optional;
   exports.pageLocation = pageLocation;
-  exports.perpendicularLineTo = perpendicularLineTo;
   exports.perpendicularToPathAt = perpendicularToPathAt;
   exports.pointAlongCurveFrom = pointAlongCurveFrom;
   exports.pointAlongPath = pointAlongPath;
   exports.pointOnCurve = pointOnCurve;
-  exports.pointOnLine = pointOnLine;
-  exports.pointXYFromArray = pointXYFromArray;
   exports.populate = populate;
-  exports.quadrant = quadrant;
   exports.ready = ready;
   exports.registerEndpointRenderer = registerEndpointRenderer;
   exports.remove = remove;
@@ -17218,7 +17323,6 @@
   exports.sizeElement = sizeElement;
   exports.sortHelper = sortHelper;
   exports.suggest = suggest;
-  exports.theta = theta;
   exports.toggleClass = toggleClass;
   exports.uuid = uuid;
   exports.wrap = wrap;
