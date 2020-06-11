@@ -5,6 +5,7 @@ import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
 import {EventManager} from "./dom/event-manager";
 import {uuid} from "./util";
+import {Collicat, CollicatOptions} from "./dom";
 
 export * from "./constants";
 export * from "./core";
@@ -54,9 +55,8 @@ export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
 
 export * from "./connection";
-export * from  "./connector";
 
-export * from "./endpoint";
+export * from "./endpoint/endpoint";
 export * from "./factory/endpoint-factory";
 
 export * from "./renderer";
@@ -92,6 +92,14 @@ export function ready(f:Function) {
     };
 
     _do();
+}
+
+export interface jsPlumbGlobal {
+    newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance;
+    ready(f:Function):void;
+    extend<T>(o1:T, o2:T, keys?:string[]):T
+    uuid():string;
+    createDragManager(options:CollicatOptions):Collicat;
 }
 
 /**
