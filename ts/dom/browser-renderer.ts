@@ -308,7 +308,7 @@ export class BrowserRenderer implements Renderer {
     setHover(component: Component, hover: boolean): void {
         component._jsPlumb.hover = hover;
         if (component instanceof Endpoint && (component as Endpoint).endpoint != null) {
-            this.setEndpointHover((component as Endpoint).endpoint, hover);
+            this.setEndpointHover((component as Endpoint), hover);
         } else if (component instanceof Connection && (component as Connection).connector != null) {
             this.setConnectorHover((component as Connection).connector, hover);
         }
@@ -340,8 +340,8 @@ export class BrowserRenderer implements Renderer {
 
             if (!doNotCascade) {
 
-                this.setEndpointHover(connector.connection.endpoints[0].endpoint, h, true);
-                this.setEndpointHover(connector.connection.endpoints[1].endpoint, h, true);
+                this.setEndpointHover(connector.connection.endpoints[0], h, true);
+                this.setEndpointHover(connector.connection.endpoints[1], h, true);
             }
         }
     }
@@ -383,41 +383,51 @@ export class BrowserRenderer implements Renderer {
         }
     }
 
-    addEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void {
-        if ((ep as any).canvas) {
-            this.instance.addClass((ep as any).canvas, c);
+    addEndpointClass(ep: Endpoint, c: string): void {
+        const canvas = this.getEndpointCanvas(ep);
+        if (canvas != null) {
+            this.instance.addClass(canvas, c);
         }
     }
 
-    applyEndpointType<C>(ep: EndpointRepresentation<C>, t: TypeDescriptor): void {
-        if ((ep as any).canvas && t.cssClass) {
-            const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [ t.cssClass ];
-            this.instance.addClass((ep as any).canvas, classes.join(" "));
+    applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void {
+        if(t.cssClass) {
+            const canvas = this.getEndpointCanvas(ep);
+            if (canvas) {
+                const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [t.cssClass];
+                this.instance.addClass(canvas, classes.join(" "));
+            }
         }
+    }
+
+    private getEndpointCanvas(ep:Endpoint):HTMLElement {
+        return (ep.endpoint as any).canvas;
     }
 
     destroyEndpoint(ep: Endpoint): void {
         BrowserRenderer.cleanup(ep.endpoint as any);
     }
 
-    paintEndpoint<C>(ep: EndpointRepresentation<C>, paintStyle: PaintStyle): void {
-        const renderer = endpointMap[ep.getType()];
+    paintEndpoint<C>(ep: Endpoint, paintStyle: PaintStyle): void {
+        const renderer = endpointMap[ep.endpoint.getType()];
         if (renderer != null) {
-            SvgEndpoint.paint(ep, renderer, paintStyle);
+            SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
         } else {
             console.log("JSPLUMB: no endpoint renderer found for type [" + ep.typeId  + "]");
         }
     }
 
-    removeEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void {
-        if ((ep as any).canvas) {
-            this.instance.removeClass((ep as any).canvas, c);
+    removeEndpointClass<C>(ep: Endpoint, c: string): void {
+        const canvas = this.getEndpointCanvas(ep);
+        if (canvas != null) {
+            this.instance.removeClass(canvas, c);
         }
     }
 
-    getEndpointClass<C>(ep: EndpointRepresentation<C>): string {
-        if ((ep as any).canvas) {
-            return (ep as any).canvas.className;
+    getEndpointClass(ep: Endpoint): string {
+        const canvas = this.getEndpointCanvas(ep);
+        if (canvas != null) {
+            return canvas.className;
         } else {
             return "";
         }
@@ -447,36 +457,37 @@ export class BrowserRenderer implements Renderer {
         }
     }
 
-    setEndpointHover<C>(endpoint: EndpointRepresentation<C>, h: boolean, doNotCascade?:boolean): void {
+    setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?:boolean): void {
 
         if (endpoint != null && (h === false || (!this.instance.currentlyDragging && !this.instance.isHoverSuspended()))) {
 
             const method = h ? "addClass" : "removeClass";
-            const canvas = (endpoint as any).canvas;
+            const canvas = this.getEndpointCanvas(endpoint);
 
             if (canvas != null) {
                 if (this.instance.hoverClass != null) {
                     this.instance[method](canvas, this.instance.hoverClass);
                 }
             }
-            if (endpoint.endpoint.hoverPaintStyle != null) {
-                endpoint.endpoint.paintStyleInUse = h ? endpoint.endpoint.hoverPaintStyle : endpoint.endpoint.paintStyle;
+            if (endpoint.hoverPaintStyle != null) {
+                endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
                 if (!this.instance._suspendDrawing) {
-                    endpoint.paint(endpoint.endpoint.paintStyleInUse);
+                    //endpoint.paint(endpoint.endpoint.paintStyleInUse);
+                    this.paintEndpoint(endpoint, endpoint.paintStyleInUse);
                 }
             }
 
             if (!doNotCascade) {
                 // instruct attached connections to set hover, unless doNotCascade was true.
-                for(let i = 0; i < endpoint.endpoint.connections.length; i++) {
-                    this.setConnectorHover(endpoint.endpoint.connections[i].connector, h, true);
+                for(let i = 0; i < endpoint.connections.length; i++) {
+                    this.setConnectorHover(endpoint.connections[i].connector, h, true);
                 }
             }
         }
     }
 
-    setEndpointVisible<C>(ep: EndpointRepresentation<C>, v: boolean): void {
-        BrowserRenderer.setVisible(ep as any, v);
+    setEndpointVisible<C>(ep: Endpoint, v: boolean): void {
+        BrowserRenderer.setVisible(ep.endpoint as any, v);
     }
 
 // -------------------------------------------------- endpoints -------------------------------------
