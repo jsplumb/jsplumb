@@ -14,7 +14,6 @@ import {ComputedAnchorPosition, Face, Orientation} from "./factory/anchor-factor
 import { DynamicAnchor } from "./anchor/dynamic-anchor";
 import {addToList, findWithFunction, removeWithFunction, sortHelper} from "./util";
 import {ContinuousAnchor, ContinuousAnchorOptions} from "./anchor/continuous-anchor";
-import {lineLength} from "./geom";
 import {Anchor} from "./anchor/anchor";
 
 type AnchorPlacement = [ number, number, number, number, any, any ];
@@ -516,7 +515,7 @@ export class AnchorManager {
                 candidates.push({
                     source: FACES[sf],
                     target: FACES[tf],
-                    dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+                    dist: this.instance.geometry.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
                 });
             }
         }
