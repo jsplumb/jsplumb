@@ -257,8 +257,8 @@ export class EndpointDragHandler implements DragHandler {
 
         let dragEl = p.drag.getDragElement();
 
-        this.endpointRepresentation = dragEl.jtk.endpoint;
-        this.ep = dragEl.jtk.endpoint.endpoint;
+        this.endpointRepresentation = dragEl.jtk.endpoint.endpoint;
+        this.ep = dragEl.jtk.endpoint;
 
         if (!this.ep) {
             return false;
