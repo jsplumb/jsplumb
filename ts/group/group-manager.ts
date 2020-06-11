@@ -1,4 +1,4 @@
-import {ConnectionSelection, Dictionary, jsPlumbInstance} from "../core";
+import {ConnectionSelection, Dictionary, jsPlumbInstance, Offset, PointArray} from "../core";
 import {UIGroup} from "./group";
 import * as Constants from "../constants";
 import {IS, removeWithFunction, suggest} from "../util";
@@ -124,10 +124,16 @@ export class GroupManager {
         }
     }
 
-    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
         let actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
-        let newPositions = actualGroup[deleteMembers ? Constants.CMD_REMOVE_ALL : Constants.CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
+        let newPositions:Dictionary<Offset> = {};
+        //actualGroup[deleteMembers ? Constants.CMD_REMOVE_ALL : Constants.CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
+        if (deleteMembers) {
+            actualGroup.removeAll(manipulateDOM, doNotFireEvent);
+        } else {
+            newPositions = actualGroup.orphanAll();
+        }
         this.instance.remove(actualGroup.el);
         delete this.groupMap[actualGroup.id];
         this.instance.fire(Constants.EVENT_GROUP_REMOVED, { group:actualGroup });
@@ -140,13 +146,13 @@ export class GroupManager {
         }
     }
 
-    forEach(f:(g:UIGroup) => any) {
+    forEach(f:(g:UIGroup) => any):void {
         for (let key in this.groupMap) {
             f(this.groupMap[key]);
         }
     }
 
-    orphan(_el:any) {
+    orphan(_el:any):[string, Offset] {
         if (_el[Constants.GROUP_KEY]) {
             let id = this.instance.getId(_el);
             let pos = this.instance.getOffset(_el);
