@@ -1,9 +1,9 @@
-import {AnchorSpec} from "./factory/anchor-factory";
-import {PaintStyle} from "./styles";
-import {OverlaySpec} from "./overlay/overlay";
-import {ComponentOptions} from "./component/component";
-import {ConnectorSpec} from "./connector";
-import {Connection} from "./connector/connection-impl";
+import {AnchorSpec} from "../factory/anchor-factory";
+import {PaintStyle} from "../styles";
+import {OverlaySpec} from "../overlay/overlay";
+import {ComponentOptions} from "../component/component";
+import {ConnectorSpec} from "../connector/abstract-connector";
+import {Connection} from "../connector/connection-impl";
 
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 export type UserDefinedEndpointId = string;
