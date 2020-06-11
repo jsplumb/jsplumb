@@ -5,7 +5,15 @@ import {Endpoint} from "../endpoint/endpoint-impl";
 import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
 import {ComponentOptions} from "../component/component";
 import {Connection} from "./connection-impl";
-import {pointXYFromArray, quadrant} from "../geom";
+
+/**
+ * Created by simon on 14/05/2019.
+ */
+export interface ConnectorOptions { }
+export type UserDefinedConnectorId = string;
+export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
+export type ConnectorWithOptions = [ConnectorId, ConnectorOptions];
+export type ConnectorSpec = ConnectorId | ConnectorWithOptions;
 
 export interface PaintParams<E> {
     sourcePos:PointArray;
@@ -63,12 +71,16 @@ export interface PaintGeometry {
     anchorOrientation?:string;
 }
 
-export interface AbstractConnectorOptions extends ComponentOptions {
+export interface ConnectorOptions extends ComponentOptions {
     stub?:number;
     gap?:number;
 }
 
-export abstract class AbstractConnector {
+export interface Connector {
+
+}
+
+export abstract class AbstractConnector implements Connector {
 
     abstract type:string;
 
@@ -96,7 +108,7 @@ export abstract class AbstractConnector {
     bounds:SegmentBounds = EMPTY_BOUNDS();
     cssClass:string;
 
-    constructor(public instance:jsPlumbInstance, public connection:Connection, params:AbstractConnectorOptions) {
+    constructor(public instance:jsPlumbInstance, public connection:Connection, params:ConnectorOptions) {
         this.stub = params.stub || 0;
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
@@ -277,7 +289,7 @@ export abstract class AbstractConnector {
 
     private _prepareCompute (params:ConnectorComputeParams):PaintGeometry {
         this.strokeWidth = params.strokeWidth;
-        let segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
+        let segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
             swapX = params.targetPos[0] < params.sourcePos[0],
             swapY = params.targetPos[1] < params.sourcePos[1],
             lw = params.strokeWidth || 1,
