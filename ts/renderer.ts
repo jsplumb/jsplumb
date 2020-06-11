@@ -1,6 +1,5 @@
 import {Segment} from "./connector/abstract-segment";
 import {Component, RepaintOptions} from "./component/component";
-import {EndpointRepresentation} from "./endpoint/endpoints";
 import {PointArray, TypeDescriptor} from "./core";
 import {Overlay} from "./overlay/overlay";
 import {LabelOverlay} from "./overlay/label-overlay";
@@ -38,14 +37,14 @@ export interface Renderer {
     setConnectorVisible(connector:AbstractConnector, v:boolean):void;
     applyConnectorType(connector:AbstractConnector, t:TypeDescriptor):void;
 
-    applyEndpointType<C>(ep:EndpointRepresentation<C>, t:TypeDescriptor):void;
-    setEndpointVisible<C>(ep:EndpointRepresentation<C>, v:boolean):void;
+    applyEndpointType(ep:Endpoint, t:TypeDescriptor):void;
+    setEndpointVisible(ep:Endpoint, v:boolean):void;
     destroyEndpoint(ep:Endpoint):void;
-    paintEndpoint<C>(ep:EndpointRepresentation<C>, paintStyle:PaintStyle):void;
-    addEndpointClass<C>(ep:EndpointRepresentation<C>, c:string):void;
-    removeEndpointClass<C>(ep:EndpointRepresentation<C>, c:string):void;
-    getEndpointClass<C>(ep:EndpointRepresentation<C>):string;
-    setEndpointHover<C>(endpoint: EndpointRepresentation<C>, h: boolean, doNotCascade?:boolean): void;
+    paintEndpoint(ep:Endpoint, paintStyle:PaintStyle):void;
+    addEndpointClass(ep:Endpoint, c:string):void;
+    removeEndpointClass(ep:Endpoint, c:string):void;
+    getEndpointClass(ep:Endpoint):string;
+    setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?:boolean): void;
     refreshEndpoint(endpoint:Endpoint):void;
 
 }
