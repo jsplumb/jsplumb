@@ -887,7 +887,7 @@ export class EndpointDragHandler implements DragHandler {
                 // the target is furthest away from the source.
             }
         } else {
-            dropEndpoint = this.currentDropTarget.endpoint.endpoint;
+            dropEndpoint = this.currentDropTarget.endpoint;
         }
 
         if (dropEndpoint) {
