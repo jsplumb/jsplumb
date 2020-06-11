@@ -21,18 +21,15 @@ import * as Constants from "./constants";
 import {Renderer} from "./renderer";
 import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory";
 import { Anchor } from "./anchor/anchor";
-import {EndpointOptions, EndpointSpec} from "./endpoint";
-import {ConnectorSpec} from "./connector";
+import {EndpointOptions, EndpointSpec} from "./endpoint/endpoint";
+import {ConnectorSpec} from "./connector/abstract-connector";
 import {GroupManager} from "./group/group-manager";
 import {UIGroup} from "./group/group";
-
-//import {ConnectParams, ElementRef, UUID} from "../index";
+import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom";
 
 export type UUID = string;
 export type ElementId = string;
 export type ElementRef = ElementId | any;
-export type ElementGroupRef = ElementId | any | Array<ElementId> | Array<any>;
-export type ConnectionId = string;
 
 export interface ConnectParams {
     uuids?: [UUID, UUID];
@@ -387,7 +384,8 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
     DEFAULT_SCOPE:string;
 
-    _helpers?:jsPlumbHelperFunctions;
+    _helpers:jsPlumbHelperFunctions;
+    geometry:jsPlumbGeometryHelpers;
 
     _zoom:number = 1;
 
@@ -424,6 +422,8 @@ export abstract class jsPlumbInstance extends EventGenerator {
         super();
 
         this._helpers = helpers || {};
+
+        this.geometry = new jsPlumbGeometry();
 
         this.Defaults = {
             anchor: "Bottom",
@@ -1317,7 +1317,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         }
     }
 
-    deleteEndpoint(object:string | Endpoint/*, dontUpdateHover?:boolean/*, deleteAttachedObjects?:boolean*/):jsPlumbInstance {
+    deleteEndpoint(object:string | Endpoint):jsPlumbInstance {
         let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint;
         if (endpoint) {
 
