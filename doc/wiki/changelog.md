@@ -1,3 +1,9 @@
+## 2.13.3
+
+Jun 16th 2020
+
+- Minor changes to demonstrations. No change to the library.
+
 ## 2.13.2
 
 May 1st 2020
