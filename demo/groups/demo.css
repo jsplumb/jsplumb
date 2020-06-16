@@ -112,32 +112,3 @@
 .katavorio-ghost-proxy {
     outline:2px solid red;
 }
-
-.events {
-    position:absolute;
-    right:0;
-    top:0;
-    border-left:4px solid #58775d;
-    bottom:0;
-    width:156px;
-    font-size: 11px;
-    padding-left:11px;
-    background-color: white;
-}
-
-#events {
-    position: absolute;
-    right: 0;
-    top: 0;
-    border-left: 1px solid #58775d;
-    bottom: 0;
-    width: 256px;
-    font-size: 11px;
-    padding-left: 11px;
-    background-color: white;
-}
-
-.events h3 {
-    font-size: 20px;
-    margin-top: 10px;
-}

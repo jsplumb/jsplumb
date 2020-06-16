@@ -8,27 +8,23 @@ jsPlumb.ready(function () {
         });
     });
 
-    var evts = document.querySelector("#events");
-    var _appendEvent = function(name, detail) {
-        evts.innerHTML = "<br/><strong>" + name + "</strong><br/> " + detail + "<br/>" + evts.innerHTML;
-    };
     j.bind("group:addMember", function(p) {
-        _appendEvent("group:addMember", p.group.id + " - " + p.el.id);
+        console.log("group:addMember", p.group.id + " - " + p.el.id);
     });
     j.bind("group:removeMember", function(p) {
-        _appendEvent("group:removeMember", p.group.id + " - " + p.el.id);
+        console.log("group:removeMember", p.group.id + " - " + p.el.id);
     });
     j.bind("group:expand", function(p) {
-        _appendEvent("group:expand", p.group.id);
+        console.log("group:expand", p.group.id);
     });
     j.bind("group:collapse", function(p) {
-        _appendEvent("group:collapse", p.group.id);
+        console.log("group:collapse", p.group.id);
     });
     j.bind("group:add", function(p) {
-        _appendEvent("group:add", p.group.id);
+        console.log("group:add", p.group.id);
     });
     j.bind("group:remove", function(p) {
-        _appendEvent("group:remove", p.group.id);
+        console.log("group:remove", p.group.id);
     });
 
     // connect some before configuring group
