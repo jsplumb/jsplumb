@@ -17,7 +17,7 @@ Issues reported for the Toolkit edition in this issue tracker will be deleted.
 
 For the Community edition the documentation can now be found here:
 
-[http://jsplumb.github.io/jsplumb/](http://jsplumb.github.io/jsplumb/)
+[https://docs.jsplumbtoolkit.com/community/current/index.html](https://docs.jsplumbtoolkit.com/community/current/index.html)
 
 ## Changelog
 
