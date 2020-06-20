@@ -417,7 +417,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     abstract off (el:any, event:string, callback:Function):void;
     abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void;
 
-    constructor(protected _instanceIndex:number, public renderer:Renderer, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
+    constructor(public readonly _instanceIndex:number, public readonly renderer:Renderer, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
 
         super();
 
@@ -2220,7 +2220,12 @@ export abstract class jsPlumbInstance extends EventGenerator {
         }
 
         // cleanup
-        connection.proxies.length = 0;
+        connection.proxies[index] = null;
+
+        // if both empty, set length to 0.
+        if (connection.proxies.find(p => p != null) == null) {
+            connection.proxies.length = 0;
+        }
     }
 
     sourceChanged (originalId:string, newId:string, connection:any, newElement:any):void {
