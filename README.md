@@ -1,11 +1,8 @@
 # jsPlumb
 
-jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG and runs on all browsers
-from IE9 and later. 
+jsPlumb provides a means for a developer to visually connect elements on their web pages. First released in 2009 with support for IE6 using VML, more recent version use SVG and run on all browsers from IE9 and later.  The final version of jsPlumb to support IE8 was 1.7.10. You can still get 1.7.10 from a tag, if you need it. 
 
-The final version of jsPlumb to support IE8 was 1.7.10. You can still get 1.7.10 from a tag, if you need it. 
-
-If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.github.io/jsplumb/). 
+If you're new to jsPlumb, please do take the time to read the [documentation](https://docs.jsplumbtoolkit.com/community/current/index.html). 
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 This project is the 'Community Edition' of jsPlumb. The 'Toolkit Edition' is a commercially-licensed wrapper around this. 
@@ -19,17 +16,21 @@ For the Community edition the documentation can now be found here:
 
 [https://docs.jsplumbtoolkit.com/community/current/index.html](https://docs.jsplumbtoolkit.com/community/current/index.html)
 
-## Changelog
-
-Can be found at [http://jsplumb.github.io/jsplumb/changelog.html](http://jsplumb.github.io/jsplumb/changelog.html)
-
 ## Installation
+
+For all versions < 4.x:
 
 ```
 npm install jsplumb
 ```
 
-NOTE: jsPlumb does not follow strict semantic versioning.  It is not at all recommended that you use wildcards when 
+For 4.x onwards:
+
+```
+npm install @jsplumb/community
+```
+
+**NOTE** jsPlumb does not follow strict semantic versioning.  It is not at all recommended that you use wildcards when 
 specifying a dependency on jsPlumb.  The given command will install jsPlumb version using a caret for wildcard, eg `^2.9.0` - you 
 might want to take off the caret.
 
