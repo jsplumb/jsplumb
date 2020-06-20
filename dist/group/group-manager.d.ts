@@ -1,4 +1,4 @@
-import { Dictionary, jsPlumbInstance } from "../core";
+import { Dictionary, jsPlumbInstance, Offset } from "../core";
 import { UIGroup } from "./group";
 export declare class GroupManager {
     instance: jsPlumbInstance;
@@ -10,10 +10,10 @@ export declare class GroupManager {
     addGroup(params: any): UIGroup;
     getGroup(groupId: string | UIGroup): UIGroup;
     getGroupFor(el: any | string): UIGroup;
-    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void | {};
+    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
     removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup) => any): void;
-    orphan(_el: any): (string | import("..").Offset)[];
+    orphan(_el: any): [string, Offset];
     private _setGroupVisible;
     _updateConnectionsForGroup(group: UIGroup): void;
     private _collapseConnection;

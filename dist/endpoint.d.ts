@@ -2,7 +2,7 @@ import { AnchorSpec } from "./factory/anchor-factory";
 import { PaintStyle } from "./styles";
 import { OverlaySpec } from "./overlay/overlay";
 import { ComponentOptions } from "./component/component";
-import { ConnectorSpec } from "./connector";
+import { ConnectorSpec } from "./connector/abstract-connector";
 import { Connection } from "./connector/connection-impl";
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 export declare type UserDefinedEndpointId = string;

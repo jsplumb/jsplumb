@@ -1,7 +1,6 @@
 import { Renderer } from "../renderer";
 import { Segment } from "../connector/abstract-segment";
 import { Component, RepaintOptions } from "../component/component";
-import { EndpointRepresentation } from "../endpoint/endpoints";
 import { jsPlumbInstance, TypeDescriptor } from "../core";
 import { Overlay } from "../overlay/overlay";
 import { AbstractConnector } from "../connector/abstract-connector";
@@ -43,14 +42,15 @@ export declare class BrowserRenderer implements Renderer {
     getConnectorClass(connector: AbstractConnector): string;
     setConnectorVisible(connector: AbstractConnector, v: boolean): void;
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
-    addEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void;
-    applyEndpointType<C>(ep: EndpointRepresentation<C>, t: TypeDescriptor): void;
+    addEndpointClass(ep: Endpoint, c: string): void;
+    applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
+    private getEndpointCanvas;
     destroyEndpoint(ep: Endpoint): void;
-    paintEndpoint<C>(ep: EndpointRepresentation<C>, paintStyle: PaintStyle): void;
-    removeEndpointClass<C>(ep: EndpointRepresentation<C>, c: string): void;
-    getEndpointClass<C>(ep: EndpointRepresentation<C>): string;
+    paintEndpoint<C>(ep: Endpoint, paintStyle: PaintStyle): void;
+    removeEndpointClass<C>(ep: Endpoint, c: string): void;
+    getEndpointClass(ep: Endpoint): string;
     private static getEndpointCanvas;
     refreshEndpoint(endpoint: Endpoint): void;
-    setEndpointHover<C>(endpoint: EndpointRepresentation<C>, h: boolean, doNotCascade?: boolean): void;
-    setEndpointVisible<C>(ep: EndpointRepresentation<C>, v: boolean): void;
+    setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
+    setEndpointVisible<C>(ep: Endpoint, v: boolean): void;
 }

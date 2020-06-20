@@ -1,7 +1,7 @@
-import { AbstractConnector, AbstractConnectorOptions, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
+import { AbstractConnector, ConnectorOptions, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
 import { jsPlumbInstance } from "../core";
 import { Connection } from "./connection-impl";
-export interface FlowchartConnectorOptions extends AbstractConnectorOptions {
+export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?: boolean;
     midpoint?: number;
     cornerRadius?: number;

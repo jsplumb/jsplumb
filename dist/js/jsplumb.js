@@ -8288,7 +8288,7 @@
         } // cleanup
 
 
-        connection.proxies[index] = null;
+        connection.proxies[index] = null; // if both empty, set length to 0.
 
         if (connection.proxies.find(function (p) {
           return p != null;
@@ -13526,25 +13526,6 @@
       key: "deriveEndpoint",
       value: function deriveEndpoint(edge, index, ep, conn) {
         return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.getType();
-      } //
-      // look for a parent of the given scrollable list that is draggable, and then update the child offsets for it. this should not
-      // be necessary in the delegated drag stuff from the upcoming 3.0.0 release.
-      //
-
-    }, {
-      key: "_maybeUpdateDraggable",
-      value: function _maybeUpdateDraggable(el) {
-        var parent = el.parentNode;
-        var container = this.instance.getContainer();
-
-        while (parent != null && parent !== container) {
-          // if (this.instance.hasClass(parent, "jtk-managed")) {
-          //     console.log("we used to recalculate offsets here");
-          //     //this.instance.recalculateOffsets(parent);
-          //     return
-          // }
-          parent = parent.parentNode;
-        }
       }
     }, {
       key: "scrollHandler",
@@ -13626,8 +13607,6 @@
         for (var i = 0; i < children.length; i++) {
           _loop(i);
         }
-
-        this._maybeUpdateDraggable(this.el);
       }
     }, {
       key: "destroy",

@@ -4,6 +4,15 @@ import { Endpoint } from "../endpoint/endpoint-impl";
 import { ComputedAnchorPosition, Orientation } from "../factory/anchor-factory";
 import { ComponentOptions } from "../component/component";
 import { Connection } from "./connection-impl";
+/**
+ * Created by simon on 14/05/2019.
+ */
+export interface ConnectorOptions {
+}
+export declare type UserDefinedConnectorId = string;
+export declare type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
+export declare type ConnectorWithOptions = [ConnectorId, ConnectorOptions];
+export declare type ConnectorSpec = ConnectorId | ConnectorWithOptions;
 export interface PaintParams<E> {
     sourcePos: PointArray;
     targetPos: PointArray;
@@ -67,11 +76,13 @@ export interface PaintGeometry {
     stubs: [number, number];
     anchorOrientation?: string;
 }
-export interface AbstractConnectorOptions extends ComponentOptions {
+export interface ConnectorOptions extends ComponentOptions {
     stub?: number;
     gap?: number;
 }
-export declare abstract class AbstractConnector {
+export interface Connector {
+}
+export declare abstract class AbstractConnector implements Connector {
     instance: jsPlumbInstance;
     connection: Connection;
     abstract type: string;
@@ -96,7 +107,7 @@ export declare abstract class AbstractConnector {
     segment: number;
     bounds: SegmentBounds;
     cssClass: string;
-    constructor(instance: jsPlumbInstance, connection: Connection, params: AbstractConnectorOptions);
+    constructor(instance: jsPlumbInstance, connection: Connection, params: ConnectorOptions);
     getTypeDescriptor(): string;
     getIdPrefix(): string;
     abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;

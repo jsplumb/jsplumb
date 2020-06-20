@@ -1,9 +1,10 @@
 import { jsPlumbDefaults, jsPlumbHelperFunctions } from "../defaults";
-import { Dictionary, jsPlumbInstance, Offset, Size } from "../core";
+import { Dictionary, jsPlumbInstance, Offset, PointArray, Size } from "../core";
 import { DragManager } from "./drag-manager";
 import { UIGroup } from "../group/group";
 import { EventManager } from "./event-manager";
 import { AbstractConnector, Endpoint, Overlay } from "..";
+import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
 export interface DragEventCallbackOptions {
     drag: {
         size: [number, number];
@@ -24,7 +25,7 @@ export interface DragOptions {
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
     dragOptions?: DragOptions;
 }
-interface jsPlumbDOMInformation {
+export interface jsPlumbDOMInformation {
     connector?: AbstractConnector;
     endpoint?: Endpoint;
     overlay?: Overlay;
@@ -37,13 +38,17 @@ export interface jsPlumbDOMElement extends HTMLElement {
     getAttribute: (name: string) => string;
     parentNode: jsPlumbDOMElement;
     jtk: jsPlumbDOMInformation;
+    _jsPlumbTargetDefinitions: Array<any>;
+    _jsPlumbSourceDefinitions: Array<any>;
+    _jsPlumbList: any;
+    _jsPlumbScrollHandler?: Function;
 }
 export declare type PosseSpec = string | {
     id: string;
     active: boolean;
 };
 export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
-    protected _instanceIndex: number;
+    _instanceIndex: number;
     dragManager: DragManager;
     _connectorClick: Function;
     _connectorDblClick: Function;
@@ -57,7 +62,13 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
     _endpointMouseout: Function;
     _overlayMouseover: Function;
     _overlayMouseout: Function;
+    _elementClick: Function;
+    _elementDblClick: Function;
+    _elementMouseenter: Function;
+    _elementMouseexit: Function;
+    _elementMousemove: Function;
     eventManager: EventManager;
+    listManager: jsPlumbListManager;
     private elementDragHandler;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     addDragFilter(filter: Function | string, exclude?: boolean): void;
@@ -87,7 +98,7 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
     setPosition(el: HTMLElement, p: Offset): void;
     getUIPosition(eventArgs: any): Offset;
     getDragScope(el: any): string;
-    getPositionOnElement(evt: Event, el: HTMLElement, zoom: number): number[];
+    static getPositionOnElement(evt: Event, el: HTMLElement, zoom: number): PointArray;
     setDraggable(element: HTMLElement, draggable: boolean): void;
     isDraggable(el: HTMLElement): boolean;
     toggleDraggable(el: HTMLElement): boolean;
@@ -130,5 +141,6 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
      * @param doNotPreventDefault
      */
     consume(e: Event, doNotPreventDefault?: boolean): void;
+    addList(el: jsPlumbDOMElement, options?: jsPlumbListOptions): jsPlumbList;
+    removeList(el: jsPlumbDOMElement): void;
 }
-export {};

@@ -1,6 +1,5 @@
 import { jsPlumbInstance } from "../core";
 import { ComputedAnchorPosition, Orientation } from "../factory/anchor-factory";
-import { PaintStyle } from "../styles";
 import { SegmentBounds } from "../connector/abstract-segment";
 import { Endpoint } from "./endpoint-impl";
 /**
@@ -23,7 +22,6 @@ export declare abstract class EndpointRepresentation<C> {
     constructor(endpoint: Endpoint);
     addClass(c: string): void;
     removeClass(c: string): void;
-    paint(paintStyle: PaintStyle): void;
     clone(): EndpointRepresentation<C>;
     compute(anchorPoint: ComputedAnchorPosition, orientation: Orientation, endpointStyle: any): void;
     setVisible(v: boolean): void;

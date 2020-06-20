@@ -1,4 +1,4 @@
-import { jsPlumbInstance } from "../core";
+import { Dictionary, jsPlumbInstance, Offset } from "../core";
 import { AnchorSpec, Connection, EndpointSpec, GroupManager } from "..";
 export interface GroupOptions {
     id?: string;
@@ -47,5 +47,5 @@ export declare class UIGroup {
     remove(el: any | Array<any>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup): void;
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     private _orphan;
-    orphanAll(): {};
+    orphanAll(): Dictionary<Offset>;
 }

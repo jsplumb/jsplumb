@@ -6,8 +6,8 @@ import { Component } from "../component/component";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
 import { OverlaySpec } from "../overlay/overlay";
 import { AnchorSpec } from "../factory/anchor-factory";
-import { ConnectorSpec } from "../connector";
-import { EndpointSpec } from "../endpoint";
+import { ConnectorSpec } from "./abstract-connector";
+import { EndpointSpec } from "../endpoint/endpoint";
 export interface ConnectionParams {
     id?: string;
     source?: string | any;

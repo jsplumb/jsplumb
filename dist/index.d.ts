@@ -1,5 +1,6 @@
 import { BrowserJsPlumbDefaults, BrowserJsPlumbInstance } from "./dom/browser-jsplumb-instance";
 import { jsPlumbHelperFunctions } from "./defaults";
+import { Collicat, CollicatOptions } from "./dom";
 export * from "./constants";
 export * from "./core";
 export * from "./defaults";
@@ -40,8 +41,7 @@ export * from "./anchor/continuous-anchor";
 export * from "./factory/anchor-factory";
 export * from "./anchor-manager";
 export * from "./connection";
-export * from "./connector";
-export * from "./endpoint";
+export * from "./endpoint/endpoint";
 export * from "./factory/endpoint-factory";
 export * from "./renderer";
 export * from "./styles";
@@ -49,3 +49,10 @@ export * from "./util";
 export * from './dom/index';
 export declare function newInstance(defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions): BrowserJsPlumbInstance;
 export declare function ready(f: Function): void;
+export interface jsPlumbGlobal {
+    newInstance(defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions): BrowserJsPlumbInstance;
+    ready(f: Function): void;
+    extend<T>(o1: T, o2: T, keys?: string[]): T;
+    uuid(): string;
+    createDragManager(options: CollicatOptions): Collicat;
+}

@@ -1,11 +1,11 @@
-import { EndpointOptions, EndpointSpec } from "../endpoint";
+import { EndpointOptions, EndpointSpec } from "../endpoint/endpoint";
 import { jsPlumbInstance, OffsetAndSize, Size } from "../core";
 import { ComputedAnchorPosition } from "../factory/anchor-factory";
 import { Anchor } from "../anchor/anchor";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
 import { Connection } from "../connector/connection-impl";
 import { PaintStyle } from "../styles";
-import { ConnectorSpec } from "../connector";
+import { ConnectorSpec } from "../connector/abstract-connector";
 import { EndpointRepresentation } from "./endpoints";
 import { OverlaySpec } from "..";
 export declare class Endpoint extends OverlayCapableComponent {
@@ -79,7 +79,7 @@ export declare class Endpoint extends OverlayCapableComponent {
     setDragAllowedWhenFull(allowed: boolean): void;
     equals(endpoint: Endpoint): boolean;
     getUuid(): string;
-    computeAnchor(params: any): [number, number, number, number];
+    computeAnchor(params: any): ComputedAnchorPosition;
     setElement(el: any): Endpoint;
     connectorSelector(): Connection;
     paint(params: {
@@ -91,7 +91,7 @@ export declare class Endpoint extends OverlayCapableComponent {
         connectorPaintStyle?: PaintStyle;
         anchorLoc?: ComputedAnchorPosition;
     }): void;
-    prepareEndpoint<C>(ep: EndpointSpec, typeId?: string): EndpointRepresentation<C>;
+    prepareEndpoint<C>(ep: EndpointSpec | EndpointRepresentation<C>, typeId?: string): EndpointRepresentation<C>;
     setEndpoint(ep: EndpointSpec): void;
     setPreparedEndpoint<C>(ep: EndpointRepresentation<C>): void;
     addClass(clazz: string, dontUpdateOverlays?: boolean): void;

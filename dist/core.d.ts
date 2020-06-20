@@ -9,15 +9,14 @@ import { EventGenerator } from "./event-generator";
 import { Renderer } from "./renderer";
 import { AnchorSpec } from "./factory/anchor-factory";
 import { Anchor } from "./anchor/anchor";
-import { EndpointOptions, EndpointSpec } from "./endpoint";
-import { ConnectorSpec } from "./connector";
+import { EndpointOptions, EndpointSpec } from "./endpoint/endpoint";
+import { ConnectorSpec } from "./connector/abstract-connector";
 import { GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
+import { jsPlumbGeometryHelpers } from "./geom";
 export declare type UUID = string;
 export declare type ElementId = string;
 export declare type ElementRef = ElementId | any;
-export declare type ElementGroupRef = ElementId | any | Array<ElementId> | Array<any>;
-export declare type ConnectionId = string;
 export interface ConnectParams {
     uuids?: [UUID, UUID];
     source?: ElementRef | Endpoint;
@@ -197,8 +196,8 @@ declare type ManagedElement = {
     connections?: Array<Connection>;
 };
 export declare abstract class jsPlumbInstance extends EventGenerator {
-    protected _instanceIndex: number;
-    renderer: Renderer;
+    readonly _instanceIndex: number;
+    readonly renderer: Renderer;
     Defaults: jsPlumbDefaults;
     private _initialDefaults;
     _containerDelegations: ContainerDelegation[];
@@ -240,7 +239,8 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     _managedElements: Dictionary<ManagedElement>;
     _floatingConnections: Dictionary<Connection>;
     DEFAULT_SCOPE: string;
-    _helpers?: jsPlumbHelperFunctions;
+    _helpers: jsPlumbHelperFunctions;
+    geometry: jsPlumbGeometryHelpers;
     _zoom: number;
     abstract getElement(el: any | string): any;
     abstract getElementById(el: string): any;
@@ -265,7 +265,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     abstract off(el: any, event: string, callback: Function): void;
     abstract trigger(el: any, event: string, originalEvent?: Event, payload?: any): void;
     constructor(_instanceIndex: number, renderer: Renderer, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
-    getSize(el: any): [number, number];
+    getSize(el: any): Size;
     getOffset(el: any | string, relativeToRoot?: boolean, container?: any): Offset;
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;

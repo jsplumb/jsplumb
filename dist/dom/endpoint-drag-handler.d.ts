@@ -28,26 +28,31 @@ export declare class EndpointDragHandler implements DragHandler {
     _forceDetach: boolean;
     mousedownHandler: (e: any) => void;
     mouseupHandler: (e: any) => void;
+    selector: string;
     constructor(instance: BrowserJsPlumbInstance);
     private _mousedownHandler;
     private _mouseupHandler;
+    /**
+     * At the beginning of a drag, this method can be used to perform some setup in a handler, and if it returns a DOM
+     * element, that element will be the one used for dragging.
+     * @param el The element that will be dragged unless we return something different.
+     */
     onDragInit(el: jsPlumbDOMElement): jsPlumbDOMElement;
     /**
-     * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and when doing a
-     * makeSource drag, it should be this element that is being dragged. However i don't think that is the case right now.
+     * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and `unmanaged` when dragging
+     * ends.
      * @param ipco
      * @param ips
      * @private
      */
-    _makeDraggablePlaceholder(ipco: any, ips: any): HTMLElement;
-    _cleanupDraggablePlaceholder(): void;
+    private _makeDraggablePlaceholder;
+    private _cleanupDraggablePlaceholder;
     reset(): void;
     init(drag: Drag): void;
-    selector: string;
     onStart(p: any): boolean;
     onBeforeStart(beforeStartParams: any): void;
     onDrag(params: any): boolean;
-    maybeCleanup(ep: Endpoint): void;
+    private _maybeCleanup;
     private _reattachOrDiscard;
     onStop(p: any): void;
     /**
@@ -60,13 +65,19 @@ export declare class EndpointDragHandler implements DragHandler {
      * @private
      */
     private _getSourceDefinition;
+    /**
+     * Lookup a target definition on the given element.
+     * @param fromElement Element to lookup the source definition
+     * @param evt Associated mouse event - for instance, the event that started a drag.
+     * @private
+     */
     private _getTargetDefinition;
-    _getDropEndpoint(p: any, jpc: Connection): Endpoint;
-    _doForceReattach(idx: number): void;
-    _shouldReattach(originalEvent?: Event): boolean;
-    _maybeReattach(idx: number, originalEvent?: Event): void;
+    private _getDropEndpoint;
+    private _doForceReattach;
+    private _shouldReattach;
+    private _maybeReattach;
     private _discard;
     private _drop;
-    _registerFloatingConnection(info: any, conn: Connection, ep: Endpoint): void;
-    getFloatingAnchorIndex(jpc: Connection): number;
+    private _registerFloatingConnection;
+    private getFloatingAnchorIndex;
 }

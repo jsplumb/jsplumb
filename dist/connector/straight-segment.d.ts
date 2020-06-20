@@ -7,6 +7,7 @@ export declare type StraightSegmentCoordinates = {
     y2: number;
 };
 export declare class StraightSegment extends AbstractSegment {
+    private instance;
     length: number;
     m: number;
     m2: number;

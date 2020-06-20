@@ -4,8 +4,8 @@ import { EventGenerator } from "../event-generator";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint-impl";
 import { Overlay, OverlaySpec } from "../overlay/overlay";
-import { EndpointSpec } from "../endpoint";
-import { ConnectorSpec } from "../connector";
+import { EndpointSpec } from "../endpoint/endpoint";
+import { ConnectorSpec } from "../connector/abstract-connector";
 export declare type ComponentConfig = {
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
