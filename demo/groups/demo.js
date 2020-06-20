@@ -11,9 +11,9 @@ jsPlumb.ready(function () {
     var managedElements = document.querySelectorAll("[group], .w");
     j.manageAll(managedElements);
 
-    var evts = document.querySelector("#events");
+
     var _appendEvent = function(name, detail) {
-        evts.innerHTML = "<br/><strong>" + name + "</strong><br/> " + detail + "<br/>" + evts.innerHTML;
+        console.log(name + " - " + detail + " - " + evts.innerHTML);
     };
     j.bind("group:addMember", function(p) {
         _appendEvent("group:addMember", p.group.id + " - " + p.el.id);
