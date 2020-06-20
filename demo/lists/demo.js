@@ -1,11 +1,11 @@
 jsPlumb.ready(function () {
 
-    var instance = jsPlumb.getInstance({
-        Connector: "Straight",
-        PaintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
-        Endpoint: [ "Dot", { radius: 5 } ],
-        EndpointStyle: { fill: "#ffa500" },
-        Container: "canvas"
+    var instance = jsPlumb.newInstance({
+        connector: "Straight",
+        paintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
+        endpoint: [ "Dot", { radius: 5 } ],
+        endpointStyle: { fill: "#ffa500" },
+        container: "canvas"
     });
 
     window.jsp = instance;
@@ -16,11 +16,11 @@ jsPlumb.ready(function () {
         list1Ul = list1El.querySelector("ul"),
         list2Ul = list2El.querySelector("ul");
 
-    instance.draggable(list1El);
-    instance.draggable(list2El);
+    instance.manage(list1El);
+    instance.manage(list2El);
 
     // get uls
-    var lists = jsPlumb.getSelector("ul");
+    var lists = document.querySelectorAll("ul");
 
     // suspend drawing and initialise.
     instance.batch(function () {
@@ -73,9 +73,9 @@ jsPlumb.ready(function () {
 
     instance.bind("click", function(c) { instance.deleteConnection(c); });
 
-    jsPlumb.on(document, "change", "[type='checkbox']", function(e) {
+    instance.on(document, "change", "[type='checkbox']", function(e) {
         instance[e.srcElement.checked ? "addList" : "removeList"](e.srcElement.value === "list1" ? list1Ul : list2Ul);
     });
 
-    jsPlumb.fire("jsPlumbDemoLoaded", instance);
+    //jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });
