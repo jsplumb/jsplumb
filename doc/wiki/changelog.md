@@ -1,6 +1,6 @@
 ## 4.0.0-RC1
 
-3 June 2020
+20th June 2020
 
 This release is a rewrite of the codebase into Typescript, with a bunch of breaking changes. The rendering pipeline has been refactored, and the way element dragging is handled has been completely rewritten: where previously each element - and each endpoint - would be initialised as a draggable individually, we now use a single delegated event listener on the container. This reduces the memory footprint and the time taken to create endpoints/connections, and to register elements, quite drastically.
 
@@ -21,9 +21,6 @@ After installation, you can import it directly into the page like this:
 ```
 <script src="node_modules/@jsplumb/community/dist/js/jsplumb.js"></script>
 ```
-
-
-
 
 
 ### Breaking changes
@@ -48,7 +45,9 @@ After installation, you can import it directly into the page like this:
 
 - `jsPlumbUtil` is no longer a static member on the window. Some of its more useful methods for users of the library have been exposed elsewhere: 
 
-    - The `uuid` method, which we use a lot in our demos, and internally, is now exposed on the `JsPlumbInstance` class.
+    - The `uuid` method, which we use a lot in our demos, and internally, is now exposed on the `JsPlumbInstance` class and on the global `jsPlumb` object
+    
+    - The `extend` method is now exposed on the `JsPlumbInstance` class and on the global `jsPlumb` object
     
     - The `consume` method is exposed on the `BrowserJsPlumbInstance` class (which is currently the only concrete instance of `JsPlumbInstance` and the class you will get from a `jsPlumb.newInstance(..)` call).
 
@@ -61,8 +60,7 @@ After installation, you can import it directly into the page like this:
 
 - All defaults converted to camelCase instead of having a leading capital, eg. "Anchors" -> "anchors", "ConnectionsDetachable" -> "connectionsDetachable". This brings the defaults into line with the parameters used in method calls like `connect` and `addEndpoint` etc.
 
-- It is **imperative** that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the
-first element to which an endpoint is added. If you do not provide `container` an Error is thrown.
+- It is **imperative** that you provide the `container` for an instance of jsPlumb.  We no longer infer the container from the `offsetParent` of the first element to which an Endpoint is added. If you do not provide `container` an Error is thrown.
 
 - `connector-pointer-events` not supported on Endpoint definitions. Use `cssClass` and CSS tricks.
 
@@ -72,8 +70,7 @@ first element to which an endpoint is added. If you do not provide `container` a
 
 - Paint styles for connectors dont support gradients anymore. You can use CSS for this.
 
-- Removed `overlays` default. Use `connectionOverlays` or `endpointOverlays` now: not all overlay types are supported by Endpoints, so having a
-common set of overlays doesnt make sense.  
+- Removed `overlays` default. Use `connectionOverlays` or `endpointOverlays` now: not all overlay types are supported by Endpoints, so having a common set of overlays doesnt make sense.  
 
 #### CSS classes
 
@@ -81,14 +78,13 @@ common set of overlays doesnt make sense.
 used when the anchor has declared a class (eg `jtk-endpoint-anchor-foo`), but otherwise it is not added. Without the anchor's class
 suffix `jtk-endpoint-anchor` was just a shadow of `jtk-endpoint` - use `jtk-endpoint` instead.
 
-- Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this
-class but we include it here for completeness.
+- Managed elements do not have the `jtk-managed` class applied. They now have a `jtk-managed` attribute set on them. It is unlikely anyone was using this class but we include it here for completeness.
 
 - Elements configured via `makeTarget` do not get assigned a `jtk-droppable` css class now. Instead, they are given a `jtk-target` attribute, as well as a`jtk-scope-**` attribute for every scope that is assigned.
 
 #### Events
 
-- The `manageElement` and `unmanageElement` events are no longer fired by the `jsPlumbInstance` class. These were undocumented anyway, but we're calling it out
+- The `manageElement` and `unmanageElement` events are no longer fired by the `JsPlumbInstance` class. These were undocumented anyway, but we're calling it out
  in case you have code that used them.
  
 - Added `drag:start`, `drag:move` and `drag:stop` events. These replace the `start`, `drag` and `stop` event handlers that used to
@@ -97,21 +93,18 @@ be supported on individual `draggable(..)` method calls.
 
 #### Behaviour
 
-- By default, every node is draggable. `.draggable(someElement)` no longer exists. You can make an element not draggable by setting a `jtk-not-draggable`
-attribute on it. It doesn't matter what the value of the attribute is, just its presence is all that is required.
+- By default, every node is draggable. `.draggable(someElement)` no longer exists. You can make an element not draggable by setting a `jtk-not-draggable` attribute on it. It doesn't matter what the value of the attribute is, just its presence is all that is required.
 
-- It is not possible to subclass Connection or Endpoint to provide your own implementations in 4.0.0.
+- It is not possible to subclass Connection or Endpoint to provide your own implementations in 4.x.
   
-- There is no "Image" endpoint in 4.x. You can achieve this via a 'Blank' endpoint with a css class. Or if you find you cannot and you can't think of
-any alternative, we could possibly add a 'Custom' endpoint type, with which you could achieve this.
+- There is no `Image` endpoint in 4.x. You can achieve this via a 'Blank' endpoint with a css class. Or if you find you cannot and you can't think of any alternative, we could possibly add a `Custom` endpoint type, with which you could achieve this.
 
 
 ### New Functionality
 
 - `elementsDraggable` added to `Defaults`, with a default value of true.
 
-- Added `drag:start`, `drag:move` and `drag:stop` events to jsPlumb class. These replace the `start`, `drag` and `stop` event handlers that used to
-be supported on individual `draggable(..)` method calls.
+- Added `drag:start`, `drag:move` and `drag:stop` events to the `JsPlumbInstance` class. These replace the `start`, `drag` and `stop` event handlers that used to be supported on individual `draggable(..)` method calls.
 
 - The `Mottle` library, which used to be a separate project, has now been incorporated into jsPlumb. For convenience, we have exposed `Mottle` on the browser window, as some people do use standalone instances of Mottle from time to time.  
 
