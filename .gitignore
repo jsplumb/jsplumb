@@ -6,3 +6,4 @@ node_modules
 demo/webpack/dist
 dist/test-apidocs
 /_build/
+/_build_es6/
