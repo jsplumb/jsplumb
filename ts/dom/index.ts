@@ -11,3 +11,4 @@ export * from "./dot-endpoint-renderer";
 export * from "./rectangle-endpoint-renderer";
 export * from "./blank-endpoint-renderer";
 export * from "./floating-anchor";
+export * from './lists';
