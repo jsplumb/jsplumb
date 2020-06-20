@@ -5,7 +5,7 @@ var defaults = null, _divs = [], support, _jsPlumb;
 var testSuite = function () {
 
 
-    module("Drag", {
+    module("Groups", {
         teardown: function () {
             support.cleanup();
         },
@@ -1171,6 +1171,55 @@ var testSuite = function () {
 
         var conns = _jsPlumb.getConnections({source:c1_1_1, scope:'*'});
         equal(conns.length, 1, "1 connection registered for c1_1_1");
+
+    });
+
+    /**
+     * tests a specific problem in the original rewrite: an edge between two nodes which are children of different
+     * groups
+     */
+    test("nodes inside groups, collapse both groups, expand both groups", function() {
+
+        var c1 = support.addDiv("container1", null, "container", 0, 50),
+            c2 = support.addDiv("container2", null, "container", 300, 50);
+
+        c1.style.outline = "1px solid black";
+        c2.style.outline = "1px solid black";
+
+        var c1_1 = support.addDiv("c1_1", c1, "w", 30, 30),
+            c2_1 = support.addDiv("c2_1", c2, "w", 180, 130);
+
+        var g1 = _addGroup(_jsPlumb, "one", c1, [c1_1]);
+        var g2 = _addGroup(_jsPlumb, "two", c2, [c2_1]);
+
+        var conn = _jsPlumb.connect({source:"c1_1", target:"c2_1"});
+
+        equal(conn.endpoints[0].element, c1_1, "c1_1 is connection source");
+        equal(conn.endpoints[1].element, c2_1, "c2_1 is connection target");
+
+        _jsPlumb.collapseGroup("one");
+
+        equal(conn.endpoints[0].element, c1, "c1 is connection source");
+        equal(conn.endpoints[1].element, c2_1, "c2_1 is connection target");
+
+        _jsPlumb.collapseGroup("two");
+
+        equal(conn.endpoints[0].element, c1, "c1 is connection source");
+        equal(conn.endpoints[1].element, c2, "c2 is connection target");
+
+        _jsPlumb.expandGroup("one");
+
+        equal(conn.endpoints[0].element, c1_1, "c1_1 is connection source");
+        equal(conn.endpoints[1].element, c2, "c2 is connection target");
+
+        _jsPlumb.expandGroup("two");
+
+        // this is where the original code would fail: the target did not get reinstated to be c2_1, because the unproxy method
+        // that ran when we expanded group one blew away the proxies, so when it came to unproxying this side it didnt know
+        // it should.
+        equal(conn.endpoints[0].element, c1_1, "c1_1 is connection source");
+        equal(conn.endpoints[1].element, c2_1, "c2_1 is connection target");
+
 
     });
 
