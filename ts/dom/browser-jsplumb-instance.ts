@@ -20,7 +20,8 @@ import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
 import {EventManager} from "./event-manager";
 import {AbstractConnector, Endpoint, Overlay} from "..";
-import {EVENT_ELEMENT_MOUSE_MOVE} from "../constants";
+import {EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER} from "../constants";
+import {jsPlumbList, jsPlumbListManager, jsPlumbListOptions} from "./lists";
 
 export interface DragEventCallbackOptions {
     drag: {
@@ -62,6 +63,8 @@ export interface jsPlumbDOMElement extends HTMLElement {
     jtk:jsPlumbDOMInformation;
     _jsPlumbTargetDefinitions:Array<any>;
     _jsPlumbSourceDefinitions:Array<any>;
+    _jsPlumbList:any;
+    _jsPlumbScrollHandler?:Function;
 }
 
 export type PosseSpec = string | { id:string, active:boolean };
@@ -114,16 +117,18 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
     _elementMousemove:Function;
 
     eventManager:EventManager;
+    listManager:jsPlumbListManager;
 
     private elementDragHandler :ElementDragHandler;
 
-    constructor(protected _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
+    constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
         super(_instanceIndex, new BrowserRenderer(), defaults, helpers);
         // not very clean: cant pass this in to BrowserRenderer as we're in the constructor of this class. this should be cleaned up.
         (this.renderer as BrowserRenderer).instance = this;
 
         this.eventManager = new EventManager();
         this.dragManager = new DragManager(this);
+        this.listManager = new jsPlumbListManager(this);
 
         this.dragManager.addHandler(new EndpointDragHandler(this));
         this.dragManager.addHandler(new GroupDragHandler(this));
@@ -209,12 +214,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         this._elementDblClick = _elementClick.bind(this, Constants.EVENT_ELEMENT_DBL_CLICK);
 
         const _elementHover = function(state:boolean, e:MouseEvent) {
-            const el = getEventSource(e).parentNode;
-            // if (el.jtk && el.jtk.connector) {
-            //     this.renderer.setConnectorHover(el.jtk.connector, state);
-            // }
-
-            console.log("element hover?");
+            this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
         };
 
         this._elementMouseenter = _elementHover.bind(this, true);
@@ -649,5 +649,13 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
      */
     consume (e:Event, doNotPreventDefault?:boolean) {
         consume(e, doNotPreventDefault);
+    }
+
+    addList (el:jsPlumbDOMElement, options?:jsPlumbListOptions):jsPlumbList {
+        return this.listManager.addList(el, options);
+    }
+
+    removeList (el:jsPlumbDOMElement) {
+        this.listManager.removeList(el);
     }
 }
