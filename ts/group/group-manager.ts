@@ -124,6 +124,14 @@ export class GroupManager {
         }
     }
 
+    getGroups():Array<UIGroup> {
+        const g = [];
+        for (let key in this.groupMap) {
+            g.push(this.groupMap[key]);
+        }
+        return g;
+    }
+
     removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
         let actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
