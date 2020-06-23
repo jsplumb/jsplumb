@@ -158,9 +158,8 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
 
         // ---
 
-        const _epClick = function(event:string, e:MouseEvent) {
+        const _epClick = function(event:string, e:MouseEvent, endpointElement:jsPlumbDOMElement) {
             if (!e.defaultPrevented) {
-                let endpointElement = findParent(getEventSource(e), Constants.SELECTOR_ENDPOINT, this.getContainer());
                 this.fire(event, endpointElement.jtk.endpoint, e);
             }
         };
@@ -204,10 +203,9 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
 
         // ---
 
-        const _elementClick = function(event:string, e:MouseEvent) {
+        const _elementClick = function(event:string, e:MouseEvent, target:HTMLElement) {
             if (!e.defaultPrevented) {
-                let element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
-                this.fire(event, element, e);
+                this.fire(event, target, e);
             }
         };
         this._elementClick = _elementClick.bind(this, Constants.EVENT_ELEMENT_CLICK);
