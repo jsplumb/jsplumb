@@ -673,14 +673,15 @@
     _createClass(EventGenerator, [{
       key: "fire",
       value: function fire(event, value, originalEvent) {
+        var ret = null;
+
         if (!this.tick) {
           this.tick = true;
 
           if (!this.eventsSuspended && this._listeners[event]) {
             var l = this._listeners[event].length,
                 i = 0,
-                _gone = false,
-                ret = null;
+                _gone = false;
 
             if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
               while (!_gone && i < l && ret !== false) {
@@ -712,7 +713,7 @@
           this.queue.unshift(arguments);
         }
 
-        return this;
+        return ret;
       }
     }, {
       key: "_drain",
@@ -748,7 +749,7 @@
     }, {
       key: "getListener",
       value: function getListener(forEvent) {
-        return this._listeners[forEvent];
+        return this._listeners[forEvent] || [];
       }
     }, {
       key: "isSuspendEvents",
@@ -5344,6 +5345,17 @@
         }
       }
     }, {
+      key: "getGroups",
+      value: function getGroups() {
+        var g = [];
+
+        for (var key in this.groupMap) {
+          g.push(this.groupMap[key]);
+        }
+
+        return g;
+      }
+    }, {
       key: "removeGroup",
       value: function removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent) {
         var actualGroup = this.getGroup(group);
@@ -9807,7 +9819,7 @@
 
             for (var i = 0; i < c.length; i++) {
               if (matchesSelector$1(target, c[i], obj)) {
-                fn.apply(target, [e]);
+                fn.apply(target, [e, target]);
               }
             }
           }
@@ -11553,55 +11565,43 @@
       value: function onStop(params) {
         var _this = this;
 
-        var elements = params.selection,
-            uip;
+        var _one = function _one(_el, pos) {
+          _this.instance._draw(_el, pos);
 
-        if (elements.length === 0) {
-          elements = [[params.el, {
-            left: params.finalPos[0],
-            top: params.finalPos[1]
-          }, params.drag]];
-        }
+          _this.instance.fire(EVT_DRAG_STOP, {
+            el: _el,
+            e: params.e,
+            pos: pos
+          });
 
-        var _one = function _one(_e) {
-          var dragElement = _e[2].getDragElement();
-
-          if (_e[1] != null) {
-            // run the reported offset through the code that takes parent containers
-            // into account, to adjust if necessary (issue 554)
-            uip = _this.instance.getUIPosition([{
-              el: dragElement,
-              pos: [_e[1].left, _e[1].top]
-            }]);
-
-            if (_this._dragOffset) {
-              uip.left += _this._dragOffset.left;
-              uip.top += _this._dragOffset.top;
-            }
-
-            _this.instance._draw(dragElement, uip);
-
-            _this.instance.fire(EVT_DRAG_STOP, {
-              el: dragElement,
-              e: params.e,
-              pos: uip
-            });
-          }
-
-          _this.instance.removeClass(_e[0], CLASS_DRAGGED);
+          _this.instance.removeClass(_el, CLASS_DRAGGED);
 
           _this.instance.select({
-            source: dragElement
+            source: _el
           }).removeClass(_this.instance.elementDraggingClass + " " + _this.instance.sourceElementDraggingClass, true);
 
           _this.instance.select({
-            target: dragElement
+            target: _el
           }).removeClass(_this.instance.elementDraggingClass + " " + _this.instance.targetElementDraggingClass, true);
         };
 
-        for (var i = 0; i < elements.length; i++) {
-          _one(elements[i]);
-        }
+        var dragElement = params.drag.getDragElement();
+
+        _one(dragElement, {
+          left: params.finalPos[0],
+          top: params.finalPos[1]
+        });
+
+        this._dragSelectionOffsets.forEach(function (v, k) {
+          if (v[1] !== params.el) {
+            var pp = {
+              left: params.finalPos[0] + v[0].left,
+              top: params.finalPos[1] + v[0].top
+            };
+
+            _one(v[1], pp);
+          }
+        });
 
         if (this._currentPosse != null) {
           this._currentPosse.members.forEach(function (member) {
@@ -11613,27 +11613,31 @@
         if (this._intersectingGroups.length > 0) {
           // we only support one for the time being
           var targetGroup = this._intersectingGroups[0].group;
-          var intersectingElement = this._intersectingGroups[0].intersectingElement; //let currentGroup = params.el._jsPlumbGroup;
-
+          var intersectingElement = this._intersectingGroups[0].intersectingElement;
           var currentGroup = intersectingElement._jsPlumbGroup;
 
           if (currentGroup !== targetGroup) {
             if (currentGroup != null) {
-              //if (currentGroup.overrideDrop(params.el, targetGroup)) {
               if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
                 return;
               }
-            } //this.instance.groupManager.addToGroup(targetGroup, params.el, false);
-
+            }
 
             this.instance.groupManager.addToGroup(targetGroup, intersectingElement, false);
           }
         }
 
-        this._groupLocations.forEach(function (groupLoc) {
-          _this.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE);
+        this._cleanup();
+      }
+    }, {
+      key: "_cleanup",
+      value: function _cleanup() {
+        var _this2 = this;
 
-          _this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
+        this._groupLocations.forEach(function (groupLoc) {
+          _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE);
+
+          _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
         });
 
         this._groupLocations.length = 0;
@@ -11661,7 +11665,7 @@
     }, {
       key: "onDrag",
       value: function onDrag(params) {
-        var _this2 = this;
+        var _this3 = this;
 
         var el = params.drag.getDragElement();
         var finalPos = params.finalPos || params.pos;
@@ -11678,26 +11682,26 @@
         }
 
         var _one = function _one(el, bounds, e) {
-          _this2._groupLocations.forEach(function (groupLoc) {
-            if (_this2.instance.geometry.intersects(bounds, groupLoc.r)) {
-              _this2.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+          _this3._groupLocations.forEach(function (groupLoc) {
+            if (_this3.instance.geometry.intersects(bounds, groupLoc.r)) {
+              _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
 
-              _this2._intersectingGroups.push({
+              _this3._intersectingGroups.push({
                 group: groupLoc.group,
                 intersectingElement: params.drag.getDragElement(true),
                 d: 0
               });
             } else {
-              _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
+              _this3.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
             }
           });
 
-          _this2.instance._draw(el, {
+          _this3.instance._draw(el, {
             left: bounds.x,
             top: bounds.y
           }, null);
 
-          _this2.instance.fire(EVT_DRAG_MOVE, {
+          _this3.instance.fire(EVT_DRAG_MOVE, {
             el: el,
             e: params.e,
             pos: {
@@ -11717,7 +11721,7 @@
         _one(el, elBounds, params.e);
 
         this._dragSelectionOffsets.forEach(function (v, k) {
-          var s = _this2._dragSizes.get(k);
+          var s = _this3._dragSizes.get(k);
 
           var _b = {
             x: elBounds.x + v[0].left,
@@ -11732,7 +11736,7 @@
         });
 
         this._currentPosseOffsets.forEach(function (v, k) {
-          var s = _this2._currentPosseSizes.get(k);
+          var s = _this3._currentPosseSizes.get(k);
 
           var _b = {
             x: elBounds.x + v[0].left,
@@ -11749,7 +11753,7 @@
     }, {
       key: "onStart",
       value: function onStart(params) {
-        var _this3 = this;
+        var _this4 = this;
 
         var el = params.drag.getDragElement();
         var elOffset = this.instance.getOffset(el);
@@ -11775,16 +11779,16 @@
           this._dragSizes.clear();
 
           this._dragSelection.forEach(function (jel) {
-            var id = _this3.instance.getId(jel);
+            var id = _this4.instance.getId(jel);
 
-            var off = _this3.instance.getOffset(jel);
+            var off = _this4.instance.getOffset(jel);
 
-            _this3._dragSelectionOffsets.set(id, [{
+            _this4._dragSelectionOffsets.set(id, [{
               left: off.left - elOffset.left,
               top: off.top - elOffset.top
             }, jel]);
 
-            _this3._dragSizes.set(id, _this3.instance.getSize(jel));
+            _this4._dragSizes.set(id, _this4.instance.getSize(jel));
           });
 
           var _one = function _one(_el) {
@@ -11798,12 +11802,12 @@
               // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
 
               if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
-                _this3.instance.groupManager.forEach(function (group) {
+                _this4.instance.groupManager.forEach(function (group) {
                   // prepare a list of potential droppable groups.
                   if (group.droppable !== false && group.enabled !== false && group !== _el._jsPlumbGroup) {
                     var groupEl = group.el,
-                        s = _this3.instance.getSize(groupEl),
-                        o = _this3.instance.getOffset(groupEl),
+                        s = _this4.instance.getSize(groupEl),
+                        o = _this4.instance.getOffset(groupEl),
                         boundingRect = {
                       x: o.left,
                       y: o.top,
@@ -11811,27 +11815,29 @@
                       h: s[1]
                     };
 
-                    _this3._groupLocations.push({
+                    _this4._groupLocations.push({
                       el: groupEl,
                       r: boundingRect,
                       group: group
                     });
 
-                    _this3.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                    _this4.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
                   }
                 });
               }
             }
 
-            _this3.instance.select({
+            _this4.instance.select({
               source: _el
-            }).addClass(_this3.instance.elementDraggingClass + " " + _this3.instance.sourceElementDraggingClass, true);
+            }).addClass(_this4.instance.elementDraggingClass + " " + _this4.instance.sourceElementDraggingClass, true);
 
-            _this3.instance.select({
+            _this4.instance.select({
               target: _el
-            }).addClass(_this3.instance.elementDraggingClass + " " + _this3.instance.targetElementDraggingClass, true);
+            }).addClass(_this4.instance.elementDraggingClass + " " + _this4.instance.targetElementDraggingClass, true); // if this event listener returns false it will be piped all the way back to the drag manager and cause
+            // the drag to be aborted.
 
-            _this3.instance.fire(EVT_DRAG_START, {
+
+            return _this4.instance.fire(EVT_DRAG_START, {
               el: _el,
               e: params.e
             });
@@ -11845,8 +11851,14 @@
             this._currentPosse = null;
           }
 
-          _one(el); // process the original drag element.
+          var dragStartReturn = _one(el); // process the original drag element.
 
+
+          if (dragStartReturn === false) {
+            this._cleanup();
+
+            return false;
+          }
 
           if (this._currentPosse != null) {
             this._currentPosseOffsets.clear();
@@ -11854,14 +11866,14 @@
             this._currentPosseSizes.clear();
 
             this._currentPosse.members.forEach(function (jel) {
-              var off = _this3.instance.getOffset(jel.el);
+              var off = _this4.instance.getOffset(jel.el);
 
-              _this3._currentPosseOffsets.set(jel.elId, [{
+              _this4._currentPosseOffsets.set(jel.elId, [{
                 left: off.left - elOffset.left,
                 top: off.top - elOffset.top
               }, jel.el]);
 
-              _this3._currentPosseSizes.set(jel.elId, _this3.instance.getSize(jel.el));
+              _this4._currentPosseSizes.set(jel.elId, _this4.instance.getSize(jel.el));
 
               _one(jel.el);
             });
@@ -11884,10 +11896,10 @@
     }, {
       key: "clearDragSelection",
       value: function clearDragSelection() {
-        var _this4 = this;
+        var _this5 = this;
 
         this._dragSelection.forEach(function (el) {
-          return _this4.instance.removeClass(el, CLASS_DRAG_SELECTED);
+          return _this5.instance.removeClass(el, CLASS_DRAG_SELECTED);
         });
 
         this._dragSelection.length = 0;
@@ -11895,14 +11907,14 @@
     }, {
       key: "removeFromDragSelection",
       value: function removeFromDragSelection(el) {
-        var _this5 = this;
+        var _this6 = this;
 
         var domElement = this.instance.getElement(el);
         this._dragSelection = this._dragSelection.filter(function (e) {
           var out = e !== domElement;
 
           if (!out) {
-            _this5.instance.removeClass(e, CLASS_DRAG_SELECTED);
+            _this6.instance.removeClass(e, CLASS_DRAG_SELECTED);
           }
 
           return out;
@@ -11928,7 +11940,7 @@
     }, {
       key: "addToPosse",
       value: function addToPosse(spec) {
-        var _this6 = this;
+        var _this7 = this;
 
         var details = ElementDragHandler.decodePosseSpec(spec);
         var posse = this._posseMap[details.id];
@@ -11953,22 +11965,22 @@
             el: el,
             active: details.active
           });
-          _this6._posseByElementIdMap[elId] = posse;
+          _this7._posseByElementIdMap[elId] = posse;
         });
       }
     }, {
       key: "removeFromPosse",
       value: function removeFromPosse() {
-        var _this7 = this;
+        var _this8 = this;
 
         for (var _len2 = arguments.length, els = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
           els[_key2] = arguments[_key2];
         }
 
         els.forEach(function (el) {
-          var id = _this7.instance.getId(el);
+          var id = _this8.instance.getId(el);
 
-          var posse = _this7._posseByElementIdMap[id];
+          var posse = _this8._posseByElementIdMap[id];
 
           if (posse != null) {
             var s = new Set();
@@ -11982,14 +11994,14 @@
             }
 
             posse.members = s;
-            delete _this7._posseByElementIdMap[id];
+            delete _this8._posseByElementIdMap[id];
           }
         });
       }
     }, {
       key: "setPosseState",
       value: function setPosseState(state) {
-        var _this8 = this;
+        var _this9 = this;
 
         for (var _len3 = arguments.length, els = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
           els[_key3 - 1] = arguments[_key3];
@@ -11999,7 +12011,7 @@
           return el.getAttribute("id");
         });
         elementIds.forEach(function (id) {
-          optional(_this8._posseByElementIdMap[id]).map(function (posse) {
+          optional(_this9._posseByElementIdMap[id]).map(function (posse) {
             optional(Array.from(posse.members).find(function (m) {
               return m.elId === id;
             })).map(function (member) {
@@ -13745,9 +13757,9 @@
       _this._connectorMouseover = _connectorHover.bind(_assertThisInitialized(_this), true);
       _this._connectorMouseout = _connectorHover.bind(_assertThisInitialized(_this), false); // ---
 
-      var _epClick = function _epClick(event, e) {
+      var _epClick = function _epClick(event, e, endpointElement) {
         if (!e.defaultPrevented) {
-          var endpointElement = findParent(getEventSource(e), SELECTOR_ENDPOINT, this.getContainer());
+          //let endpointElement = findParent(getEventSource(e), Constants.SELECTOR_ENDPOINT, this.getContainer());
           this.fire(event, endpointElement.jtk.endpoint, e);
         }
       };
@@ -13792,10 +13804,11 @@
       _this._overlayMouseover = _overlayHover.bind(_assertThisInitialized(_this), true);
       _this._overlayMouseout = _overlayHover.bind(_assertThisInitialized(_this), false); // ---
 
-      var _elementClick = function _elementClick(event, e) {
+      var _elementClick = function _elementClick(event, e, target) {
         if (!e.defaultPrevented) {
-          var element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
-          this.fire(event, element, e);
+          //let element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
+          //this.fire(event, element, e);
+          this.fire(event, target, e);
         }
       };
 
