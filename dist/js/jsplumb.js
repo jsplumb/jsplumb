@@ -13759,7 +13759,6 @@
 
       var _epClick = function _epClick(event, e, endpointElement) {
         if (!e.defaultPrevented) {
-          //let endpointElement = findParent(getEventSource(e), Constants.SELECTOR_ENDPOINT, this.getContainer());
           this.fire(event, endpointElement.jtk.endpoint, e);
         }
       };
@@ -13806,8 +13805,6 @@
 
       var _elementClick = function _elementClick(event, e, target) {
         if (!e.defaultPrevented) {
-          //let element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
-          //this.fire(event, element, e);
           this.fire(event, target, e);
         }
       };
