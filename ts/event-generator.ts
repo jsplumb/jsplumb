@@ -13,11 +13,12 @@ export abstract class EventGenerator {
 
     constructor() { }
 
-    fire (event: string, value?: any, originalEvent?: Event): EventGenerator {
+    fire (event: string, value?: any, originalEvent?: Event): any {
+        let ret = null;
         if (!this.tick) {
             this.tick = true;
             if (!this.eventsSuspended && this._listeners[event]) {
-                let l = this._listeners[event].length, i = 0, _gone = false, ret = null;
+                let l = this._listeners[event].length, i = 0, _gone = false;
                 if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
                     while (!_gone && i < l && ret !== false) {
                         // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
@@ -44,7 +45,7 @@ export abstract class EventGenerator {
         } else {
             this.queue.unshift(arguments);
         }
-        return this;
+        return ret;
     }
 
     private _drain (): void {
@@ -79,7 +80,7 @@ export abstract class EventGenerator {
     }
 
     getListener (forEvent: string): Array<any> {
-        return this._listeners[forEvent];
+        return this._listeners[forEvent] || [];
     }
 
     isSuspendEvents(): boolean {
