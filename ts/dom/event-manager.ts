@@ -261,7 +261,7 @@ function _curryChildFilter (children:string, obj:any, fn:FunctionFacade, evt:str
                         target = pathInfo.path[p];
                         for (let i = 0; i < c.length; i++) {
                             if (matchesSelector(target, c[i], obj)) {
-                                fn.apply(target, [e]);
+                                fn.apply(target, [e, target]);
                             }
                         }
                     }
