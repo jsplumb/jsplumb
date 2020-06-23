@@ -9,7 +9,7 @@ import {
 } from "./drag-manager";
 import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance";
 import {UIGroup} from "../group/group";
-import {BoundingBox, Dictionary, Offset} from "../core";
+import {BoundingBox, Dictionary, Offset, PointArray} from "../core";
 import {isString, optional} from "../util";
 import {Drag} from "./collicat";
 
@@ -54,45 +54,37 @@ export class ElementDragHandler implements DragHandler {
         return null;
     }
 
-    onStop(params:any):void {
+    onStop(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}):void {
 
-        let elements = params.selection, uip;
 
-        if (elements.length === 0) {
-            elements = [ [ params.el, {left:params.finalPos[0], top:params.finalPos[1] }, params.drag ] ];
-        }
+        const _one = (_el:jsPlumbDOMElement, pos:Offset) => {
 
-        const _one = (_e:any) => {
-            const dragElement = _e[2].getDragElement();
-            if (_e[1] != null) {
-                // run the reported offset through the code that takes parent containers
-                // into account, to adjust if necessary (issue 554)
-                uip = this.instance.getUIPosition([{
-                    el:dragElement,
-                    pos:[_e[1].left, _e[1].top]
-                }]);
-                if (this._dragOffset) {
-                    uip.left += this._dragOffset.left;
-                    uip.top += this._dragOffset.top;
-                }
-                this.instance._draw(dragElement, uip);
+            this.instance._draw(_el, pos);
 
-                this.instance.fire(EVT_DRAG_STOP, {
-                    el:dragElement,
-                    e:params.e,
-                    pos:uip
-                });
-            }
+            this.instance.fire(EVT_DRAG_STOP, {
+                el:_el,
+                e:params.e,
+                pos:pos
+            });
 
-            this.instance.removeClass(_e[0], CLASS_DRAGGED);
-            this.instance.select({source: dragElement}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
-            this.instance.select({target: dragElement}).removeClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
+            this.instance.removeClass(_el, CLASS_DRAGGED);
+            this.instance.select({source: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
+            this.instance.select({target: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
 
         };
 
-        for (let i = 0; i < elements.length; i++) {
-            _one(elements[i]);
-        }
+        const dragElement = params.drag.getDragElement();
+        _one(dragElement, {left:params.finalPos[0], top:params.finalPos[1]});
+
+        this._dragSelectionOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
+            if (v[1] !== params.el) {
+                const pp = {
+                    left:params.finalPos[0] + v[0].left,
+                    top:params.finalPos[1] + v[0].top
+                };
+                _one(v[1], pp);
+            }
+        });
 
         if (this._currentPosse != null) {
             this._currentPosse.members.forEach(member => {
@@ -106,21 +98,21 @@ export class ElementDragHandler implements DragHandler {
             // we only support one for the time being
             let targetGroup = this._intersectingGroups[0].group;
             let intersectingElement = this._intersectingGroups[0].intersectingElement;
-            //let currentGroup = params.el._jsPlumbGroup;
             let currentGroup = (<any>intersectingElement)._jsPlumbGroup;
             if (currentGroup !== targetGroup) {
                 if (currentGroup != null) {
-                    //if (currentGroup.overrideDrop(params.el, targetGroup)) {
                     if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
                         return;
                     }
                 }
-                //this.instance.groupManager.addToGroup(targetGroup, params.el, false);
                 this.instance.groupManager.addToGroup(targetGroup, intersectingElement, false);
             }
         }
 
+        this._cleanup();
+    }
 
+    private _cleanup() {
         this._groupLocations.forEach((groupLoc:any) => {
             this.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE);
             this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
@@ -145,7 +137,7 @@ export class ElementDragHandler implements DragHandler {
         this.drag = drag;
     }
 
-    onDrag(params:any):void {
+    onDrag(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}):void {
 
         const el = params.drag.getDragElement();
         const finalPos = params.finalPos || params.pos;
@@ -204,7 +196,7 @@ export class ElementDragHandler implements DragHandler {
 
     }
 
-    onStart(params:any):boolean {
+    onStart(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, drag:Drag}):boolean {
 
         const el = params.drag.getDragElement() as jsPlumbDOMElement;
         const elOffset = this.instance.getOffset(el);
@@ -235,7 +227,7 @@ export class ElementDragHandler implements DragHandler {
                 this._dragSizes.set(id, this.instance.getSize(jel));
             });
 
-            const _one = (_el:any) => {
+            const _one = (_el:any):any => {
 
                 // if drag el not a group
                 if (!_el._isJsPlumbGroup) {
@@ -268,7 +260,9 @@ export class ElementDragHandler implements DragHandler {
                 this.instance.select({source: _el}).addClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true);
                 this.instance.select({target: _el}).addClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true);
 
-                this.instance.fire(EVT_DRAG_START, {
+                // if this event listener returns false it will be piped all the way back to the drag manager and cause
+                // the drag to be aborted.
+                return this.instance.fire(EVT_DRAG_START, {
                     el:_el,
                     e:params.e
                 });
@@ -281,7 +275,11 @@ export class ElementDragHandler implements DragHandler {
                 this._currentPosse = null;
             }
 
-            _one(el);      // process the original drag element.
+            const dragStartReturn = _one(el);      // process the original drag element.
+            if (dragStartReturn === false) {
+                this._cleanup();
+                return false;
+            }
 
             if (this._currentPosse != null) {
                 this._currentPosseOffsets.clear();
