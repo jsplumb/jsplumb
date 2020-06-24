@@ -15,8 +15,8 @@ export class RectangleEndpoint<E> extends EndpointRepresentation<ComputedRectang
         super(endpoint);
 
         params = params || {};
-        this.width = params.width || 20;
-        this.height = params.height || 20;
+        this.width = params.width || 10;
+        this.height = params.height || 10;
     }
 
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
