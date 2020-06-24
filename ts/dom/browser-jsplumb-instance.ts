@@ -1,5 +1,5 @@
 import {jsPlumbDefaults, jsPlumbHelperFunctions} from "../defaults";
-import {Dictionary, jsPlumbInstance, Offset, PointArray, Size} from "../core";
+import {Dictionary, jsPlumbInstance, Offset, PointArray, Size, SourceDefinition, TargetDefinition} from "../core";
 import {BrowserRenderer} from "./browser-renderer";
 import {isString, uuid} from "../util";
 import {DragManager} from "./drag-manager";
@@ -61,8 +61,8 @@ export interface jsPlumbDOMElement extends HTMLElement {
     getAttribute:(name:string) => string;
     parentNode: jsPlumbDOMElement;
     jtk:jsPlumbDOMInformation;
-    _jsPlumbTargetDefinitions:Array<any>;
-    _jsPlumbSourceDefinitions:Array<any>;
+    _jsPlumbTargetDefinitions:Array<TargetDefinition>;
+    _jsPlumbSourceDefinitions:Array<SourceDefinition>;
     _jsPlumbList:any;
     _jsPlumbScrollHandler?:Function;
 }
