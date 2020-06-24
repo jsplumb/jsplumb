@@ -7924,8 +7924,7 @@
 
           _this16.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
 
-          elInfo.el[SOURCE_DEFINITION_LIST] = elInfo.el[SOURCE_DEFINITION_LIST] || []; // TODO find the interface that pertains to this
-
+          elInfo.el[SOURCE_DEFINITION_LIST] = elInfo.el[SOURCE_DEFINITION_LIST] || [];
           var _def = {
             def: extend({}, p),
             uniqueEndpoint: p.uniqueEndpoint,
@@ -12277,7 +12276,7 @@
           }).length;
 
           if (sourceDef.maxConnections >= 0 && sourceCount >= sourceDef.maxConnections) {
-            consume(e);
+            consume(e); // TODO this is incorrect - "self"
 
             if (def.onMaxConnections) {
               def.onMaxConnections({
@@ -12316,11 +12315,11 @@
           // TODO this is the same code as the programmatic endpoints create on line 1050 ish
 
           if (def.uniqueEndpoint) {
-            if (!def.endpoint) {
-              def.endpoint = this.ep;
+            if (!sourceDef.endpoint) {
+              sourceDef.endpoint = this.ep;
               this.ep.deleteOnEmpty = false;
             } else {
-              this.ep.finalEndpoint = def.endpoint;
+              this.ep.finalEndpoint = sourceDef.endpoint;
             }
           } // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
           // a mouseup listener on the canvas cleans anything up from this list if it has no connections.
@@ -12776,7 +12775,7 @@
             idx = this.getFloatingAnchorIndex(this.jpc);
 
             if (newDropTarget.endpoint != null) {
-              _cont = newDropTarget.endpoint.endpoint.isTarget && idx !== 0 || this.jpc.suspendedEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id;
+              _cont = newDropTarget.endpoint.isTarget && idx !== 0 || this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id;
 
               if (_cont) {
                 var bb = this.instance.checkCondition(CHECK_DROP_ALLOWED, {
@@ -12786,7 +12785,9 @@
                 });
                 newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
                 newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
-                this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.endpoint.anchor, newDropTarget.endpoint.endpoint);
+                this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
+              } else {
+                newDropTarget = null;
               }
             }
           }
@@ -13050,6 +13051,10 @@
             pp = extend(pp, {
               anchor: targetDefinition.def.anchor || eps.anchors[1]
             });
+          }
+
+          if (targetDefinition.def.parameters != null) {
+            pp.parameters = targetDefinition.def.parameters;
           }
 
           dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
@@ -16978,7 +16983,7 @@
       _defineProperty(_assertThisInitialized(_this), "defaultInnerRadius", void 0);
 
       params = params || {};
-      _this.radius = params.radius || 10;
+      _this.radius = params.radius || 5;
       _this.defaultOffset = 0.5 * _this.radius;
       _this.defaultInnerRadius = _this.radius / 3;
       return _this;
@@ -17037,8 +17042,8 @@
       _defineProperty(_assertThisInitialized(_this), "height", void 0);
 
       params = params || {};
-      _this.width = params.width || 20;
-      _this.height = params.height || 20;
+      _this.width = params.width || 10;
+      _this.height = params.height || 10;
       return _this;
     } // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
     // it would be much more lightweight as we'd not need to create a class for each one.
