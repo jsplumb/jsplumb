@@ -75,6 +75,24 @@ export interface TypeDescriptor {
     connector?:ConnectorSpec;
 }
 
+export interface BehaviouralTypeDescriptor extends TypeDescriptor {
+    filter?:string | Function;
+    filterExclude?:boolean;
+    extract?:Dictionary<string>;
+    uniqueEndpoint?:boolean;
+    onMaxConnections?:Function;
+    connectionType?:string;
+}
+
+interface SourceOrTargetDefinition {
+    enabled?:boolean;
+    def:BehaviouralTypeDescriptor;
+    endpoint?:Endpoint;
+    maxConnections?:number;
+}
+
+export interface SourceDefinition extends SourceOrTargetDefinition { }
+export interface TargetDefinition extends SourceOrTargetDefinition { }
 
 export interface DeleteOptions {
     connection?:Connection;
@@ -1723,7 +1741,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         this.each(el, (_el:any) => {
             let defs = _el[type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST];
             if (defs) {
-                this.each(defs, (def:any) =>{
+                this.each(defs, (def:SourceOrTargetDefinition) =>{
                     if (def.def.connectionType == null || def.def.connectionType === connectionType) {
                         os = def.enabled;
                         originalState.push(os);
@@ -1748,16 +1766,16 @@ export abstract class jsPlumbInstance extends EventGenerator {
         return this._setEnabled(Constants.SOURCE, el, state, null, connectionType);
     }
 
-    findFirstSourceDefinition(el:any, connectionType?:string):any {
+    findFirstSourceDefinition(el:any, connectionType?:string):SourceDefinition {
         return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType);
     }
 
-    findFirstTargetDefinition(el:any, connectionType?:string):any {
+    findFirstTargetDefinition(el:any, connectionType?:string):TargetDefinition {
         return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType);
     }
 
-    private findFirstDefinition(key:string, el:any, connectionType?:string):any {
-        let eldefs = el[key];
+    private findFirstDefinition<T>(key:string, el:any, connectionType?:string):T {
+        const eldefs = el[key];
         if (eldefs && eldefs.length > 0) {
             let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d:any) => { return d.def.connectionType === connectionType; });
             if (idx >= 0) {
