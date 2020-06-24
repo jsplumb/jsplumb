@@ -89,6 +89,7 @@ interface SourceOrTargetDefinition {
     def:BehaviouralTypeDescriptor;
     endpoint?:Endpoint;
     maxConnections?:number;
+    uniqueEndpoint?:boolean;
 }
 
 export interface SourceDefinition extends SourceOrTargetDefinition { }
@@ -1879,7 +1880,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     }
 
     // TODO knows about the DOM
-    makeSource(el:ElementSpec, params?:any, referenceParams?:any):jsPlumbInstance {
+    makeSource(el:ElementSpec, params?:BehaviouralTypeDescriptor, referenceParams?:any):jsPlumbInstance {
         let p = extend({_jsPlumb: this}, referenceParams);
         extend(p, params);
         p.connectionType = p.connectionType || Constants.DEFAULT;
@@ -1902,8 +1903,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
             (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST] = (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST] || [];
 
-            // TODO find the interface that pertains to this
-            let _def = {
+            let _def:SourceDefinition = {
                 def:extend({}, p),
                 uniqueEndpoint: p.uniqueEndpoint,
                 maxConnections: maxConnections,
@@ -1968,7 +1968,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST);
     }
 
-    makeTarget (el:ElementSpec, params:any, referenceParams?:any):jsPlumbInstance {
+    makeTarget (el:ElementSpec, params:BehaviouralTypeDescriptor, referenceParams?:any):jsPlumbInstance {
 
         // put jsplumb ref into params without altering the params passed in
         let p = extend({_jsPlumb: this}, referenceParams);
