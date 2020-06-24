@@ -3,7 +3,15 @@ import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-insta
 import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
 import {addToList, each, findWithFunction, functionChain, IS, isString} from "../util";
-import {Dictionary, extend, jsPlumbInstance} from "../core";
+import {
+    BoundingBox,
+    Dictionary,
+    extend,
+    jsPlumbInstance,
+    PointArray,
+    SourceDefinition,
+    TargetDefinition
+} from "../core";
 import {Anchor} from "../anchor/anchor";
 import {PaintStyle} from "../styles";
 import { FloatingAnchor } from "./floating-anchor";
@@ -59,7 +67,7 @@ export class EndpointDragHandler implements DragHandler {
     floatingEndpoint:Endpoint;
     _stopped:boolean;
     inPlaceCopy:any;
-    endpointDropTargets:Array<any> = [];
+    endpointDropTargets:Array<{el:jsPlumbDOMElement, endpoint:Endpoint, r:BoundingBox}> = [];
     currentDropTarget:any = null;
     payload:any;
     floatingConnections:Dictionary<Connection> = {};
@@ -112,6 +120,7 @@ export class EndpointDragHandler implements DragHandler {
             let sourceCount = this.instance.select({source: elid}).length;
             if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
                 consume(e);
+                // TODO this is incorrect - "self"
                 if (def.onMaxConnections) {
                     def.onMaxConnections({
                         element: self,
@@ -150,12 +159,12 @@ export class EndpointDragHandler implements DragHandler {
             // of a successful connection we'll switch to that endpoint.
             // TODO this is the same code as the programmatic endpoints create on line 1050 ish
             if (def.uniqueEndpoint) {
-                if (!def.endpoint) {
-                    def.endpoint = this.ep;
+                if (!sourceDef.endpoint) {
+                    sourceDef.endpoint = this.ep;
                     this.ep.deleteOnEmpty = false;
                 }
                 else {
-                    this.ep.finalEndpoint = def.endpoint;
+                    this.ep.finalEndpoint = sourceDef.endpoint;
                 }
             }
 
@@ -249,7 +258,7 @@ export class EndpointDragHandler implements DragHandler {
 
     init(drag:Drag) {}
 
-    onStart(p:any):boolean {
+    onStart(p:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, drag:Drag}):boolean {
     
         this.currentDropTarget = null;
 
@@ -553,7 +562,7 @@ export class EndpointDragHandler implements DragHandler {
         this.payload = beforeStartParams.e.payload || {};
     }
     
-    onDrag (params:any) {
+    onDrag (params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) {
 
         if (this._stopped) {
             return true;
@@ -596,7 +605,7 @@ export class EndpointDragHandler implements DragHandler {
 
                 if (newDropTarget.endpoint != null) {
 
-                    _cont = (newDropTarget.endpoint.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint && newDropTarget.endpoint.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id);
+                    _cont = (newDropTarget.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id);
                     if (_cont) {
                         let bb = this.instance.checkCondition(Constants.CHECK_DROP_ALLOWED, {
                             sourceEndpoint: this.jpc.endpoints[idx],
@@ -607,7 +616,9 @@ export class EndpointDragHandler implements DragHandler {
                         newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
                         newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
 
-                        this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.endpoint.anchor, newDropTarget.endpoint.endpoint);
+                        this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
+                    } else {
+                        newDropTarget = null;
                     }
                 }
             }
@@ -655,7 +666,7 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
     
-    onStop(p:any) {
+    onStop(p:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) {
 
         let originalEvent = p.e;
 
@@ -793,14 +804,14 @@ export class EndpointDragHandler implements DragHandler {
      * behave as a target.
      * @private
      */
-    private _getSourceDefinition(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):any {
+    private _getSourceDefinition(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
         let sourceDef;
         if (fromElement._jsPlumbSourceDefinitions) {
             for (let i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
                 sourceDef = fromElement._jsPlumbSourceDefinitions[i];
                 if (sourceDef.enabled !== false) {
                     if (!ignoreFilter && sourceDef.def.filter) {
-                        let r = isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter, this.instance, sourceDef.def.filterExclude) : sourceDef.def.filter(evt, fromElement);
+                        let r = isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter as string, this.instance, sourceDef.def.filterExclude) : (sourceDef.def.filter as Function)(evt, fromElement);
                         if (r !== false) {
                             return sourceDef;
                         }
@@ -818,14 +829,14 @@ export class EndpointDragHandler implements DragHandler {
      * @param evt Associated mouse event - for instance, the event that started a drag.
      * @private
      */
-    private _getTargetDefinition(fromElement:jsPlumbDOMElement, evt?:Event):any {
+    private _getTargetDefinition(fromElement:jsPlumbDOMElement, evt?:Event):TargetDefinition {
         let targetDef;
         if (fromElement._jsPlumbTargetDefinitions) {
             for (let i = 0; i < fromElement._jsPlumbTargetDefinitions.length; i++) {
                 targetDef = fromElement._jsPlumbTargetDefinitions[i];
                 if (targetDef.enabled !== false) {
                     if (targetDef.def.filter) {
-                        let r = isString(targetDef.def.filter) ? selectorFilter(evt, fromElement, targetDef.def.filter, this.instance, targetDef.def.filterExclude) : targetDef.def.filter(evt, fromElement);
+                        let r = isString(targetDef.def.filter) ? selectorFilter(evt, fromElement, targetDef.def.filter as string, this.instance, targetDef.def.filterExclude) : (targetDef.def.filter as Function)(evt, fromElement);
                         if (r !== false) {
                             return targetDef;
                         }
@@ -868,6 +879,11 @@ export class EndpointDragHandler implements DragHandler {
                     anchor:targetDefinition.def.anchor || eps.anchors[1]
                 });
             }
+
+            if(targetDefinition.def.parameters != null) {
+                pp.parameters = targetDefinition.def.parameters;
+            }
+
             dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp) as Endpoint;
             (<any>dropEndpoint)._mtNew = true;
             dropEndpoint.deleteOnEmpty = true;
