@@ -1,4 +1,4 @@
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
+import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 import {BoundingBox, Dictionary, extend, PointArray} from "../core";
 import {wrap} from "../util";
 import {Collicat, Drag} from "./collicat";
@@ -34,9 +34,9 @@ export interface DragHandler {
 
     selector:string;
 
-    onStart:(params:any) => boolean;
-    onDrag:(params:any) => void;
-    onStop:(params:any) => void;
+    onStart:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, drag:Drag}) => boolean;
+    onDrag:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) => void;
+    onStop:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) => void;
     onDragInit: (el:HTMLElement) => HTMLElement;
 
     reset:() => void;
