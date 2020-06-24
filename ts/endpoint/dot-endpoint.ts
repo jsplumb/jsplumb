@@ -16,7 +16,7 @@ export class DotEndpoint<E> extends EndpointRepresentation<ComputedDotEndpoint> 
         super(endpoint);
         
         params = params || {};
-        this.radius = params.radius || 10;
+        this.radius = params.radius || 5;
         this.defaultOffset = 0.5 * this.radius;
         this.defaultInnerRadius = this.radius / 3;
     }
