@@ -1,3 +1,14 @@
+## 4.0.0-RC2
+
+25th June 2020
+
+Second pre-release of the 4.x version of jsPlumb Community Edition. This release contains mostly updates to the types used in the code, as well as a bugfix for dragging connections.
+
+- introduced a type for target/source definitions (used by makeTarget/makeSource)
+- changed default Dot endpoint radius to 5px
+- changed default Rectangle endpoint width/height to 10px
+- fixed issue with resolution of target endpoint, found after introducing types for the target/source definitions.
+
 ## 4.0.0-RC1
 
 20th June 2020
