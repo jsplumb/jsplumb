@@ -1,3 +1,9 @@
+---
+category: Data Model
+title: Endpoints
+keywords: ui, endpoint, anchor, port, connection
+---
+
 ## Endpoints
 
 An `Endpoint` models the appearance and behaviour of one end of a `Connection`; it delegates its location to an underlying `Anchor`. 
@@ -20,10 +26,10 @@ In each of these different cases, the parameters you can use to specify the Endp
 
 ### Endpoint types
 
-- **Dot** This Endpoint draws a dot on the screen. It supports three constructor parameters:  				 						 
-    - `radius` - Optional; defaults to 10 pixels. Defines the radius of the dot.					
-    - `cssClass` - Optional.  A CSS class to attach to the element the Endpoint creates.					   
-    - `hoverClass` - Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the element or an attached Connection.					
+- **Dot** This Endpoint draws a dot on the screen. It supports three constructor parameters:
+    - `radius` - Optional; defaults to 10 pixels. Defines the radius of the dot.
+    - `cssClass` - Optional.  A CSS class to attach to the element the Endpoint creates.
+    - `hoverClass` - Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the element or an attached Connection.
 
 - **Rectangle** Draws a rectangle. Supported constructor parameters are:
     - `width` Optional; defaults to 20 pixels. Defines the width of the rectangle.

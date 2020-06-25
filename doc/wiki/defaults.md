@@ -1,3 +1,9 @@
+---
+category: Core
+title: Defaults
+keywords: ui, defaults, anchor, endpoint, connector
+---
+
 ## Configuring Defaults
 
 The easiest way to set a look and feel for your plumbing is to override the defaults that jsPlumb uses. If you do not do this you are forced to provide your overridden values on every call.  Every argument to the `connect` and `addEndpoint` methods has an associated default value in jsPlumb.

@@ -5,7 +5,10 @@ jsPlumb.ready(function () {
         paintStyle: { strokeWidth: 3, stroke: "#ffa500", "dashstyle": "2 4" },
         endpoint: [ "Dot", { radius: 5 } ],
         endpointStyle: { fill: "#ffa500" },
-        container: "canvas"
+        container: "canvas",
+        listStyle:{
+            endpoint:[ "Rectangle", { width:30, height:30 }]
+        }
     });
 
     window.jsp = instance;
@@ -64,9 +67,9 @@ jsPlumb.ready(function () {
         }
     });
 
-    var list1 = instance.addList(list2Ul);
-
-    var list2 = instance.addList(list1Ul, {
+    // configure list1Ul manually, as it does not have a `jtk-scrollable-list` attribute, whereas list2Ul does, and is therefore
+    // configured automatically.
+    instance.addList(list1Ul, {
         endpoint:["Rectangle", {width:20, height:20}]
     });
 

@@ -1,3 +1,9 @@
+---
+category: Miscellaneous
+title: Events
+keywords: event, events, click, bind
+---
+
 ## Events
 jsPlumb supports binding to several different events on Connections, Endpoints and Overlays, and also on the jsPlumb object itself.  
 
@@ -22,9 +28,9 @@ jsPlumb supports binding to several different events on Connections, Endpoints a
 			
 <a name="jsPlumbEvents"></a>
 ### jsPlumb Events
-To bind an to event on jsPlumb itself (or a jsPlumb instance), use `jsPlumb.bind(event, callback)`:
+To bind an to event on an instance of jsPlumb itself, use `instance.bind(event, callback)`:
 
-    jsPlumb.bind("connection", function(info) {
+    instance.bind("connection", function(info) {
        .. update your model in here, maybe.
     });
 
@@ -45,7 +51,7 @@ Notification a Connection was established.
       <li><strong>targetEndpoint</strong> -	the targetEndpoint in the Connection</li>
     </ul>
 
-**Note:** `jsPlumb.connect` causes this event to be fired, but there is of course no original event when a connection is established programmatically. So you can test to see if `originalEvent` is undefined to determine whether a connection was estblished using the mouse or not.
+**Note:** The `connect` method causes this event to be fired, but there is of course no original event when a connection is established programmatically. So you can test to see if `originalEvent` is undefined to determine whether a connection was estblished using the mouse or not.
 
 All of the source/target properties are actually available inside the Connection object, but - for one of those rubbish historical reasons - are provided separately because of a vagary of the `connectionDetached` callback, which is discussed below.
 

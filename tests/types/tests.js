@@ -890,6 +890,8 @@ var testSuite = function () {
         equal(o2.getLabel(), "label", "parameterised label with provided value set correctly");
         var o3 = c.getOverlay("three");
         equal(o3.getLabel(), "", "parameterised label with missing value set correctly");
+
+        ok(c.endpoints[0].getLabel() == null, "endpoint did not get a label assigned from the connector's type");
     });
 
     test(" create connection with parameterised type, label", function () {
@@ -1196,9 +1198,94 @@ var testSuite = function () {
 
     });
 
+    test("changing type does not hide overlays", function() {
 
-// elements
+        var canvas = support.addDiv("canvas", null, null, 0, 0, 500, 500 ),
+            d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150),
+            d2 = support.addDiv("d2", canvas, null, 300,300,150,150);
 
+        var jpInstance = jsPlumb.getInstance({
+            Container: canvas,
+            Anchor: 'Continuous',
+            Endpoint: [
+                'Dot',
+                {
+                    radius: 2
+                }
+            ],
+            ConnectionOverlays: [
+                ['Arrow', {
+                    location: 1,
+                    id: 'arrow',
+                    length: 8,
+                    width: 10,
+                    foldback: 1
+                }],
+                ['Label', {
+                    location: 0.5,
+                    id: 'label',
+                    label: "foo"
+                }]
+            ],
+            PaintStyle: {
+                stroke: '#b6b6b6',
+                strokeWidth: 2,
+                outlineStroke: 'transparent',
+                outlineWidth: 4
+            },
+            HoverPaintStyle: {
+                stroke: '#545454',
+                zIndex: 6
+            }
+        });
+
+        jpInstance.registerConnectionType('default', {
+            connector: ['Flowchart', {
+                cornerRadius: 10,
+                gap: 10,
+                stub: 15
+            }],
+            cssClass: 'transition'
+        });
+
+        jpInstance.registerConnectionType('loopback', {
+            connector: ['StateMachine', {
+                loopbackRadius: 10
+            }],
+            cssClass: 'transition'
+        });
+
+        var con1 = jpInstance.connect({
+            source: 'd1',
+            target: 'd1',
+            type: 'loopback'
+        });
+
+        var con2 = jpInstance.connect({
+            source: 'd2',
+            target: 'd2',
+            type: 'default'
+        });
+
+        // con2 has an arrow overlay after creation
+        ok(con2.getOverlays()['arrow'] != null, "arrow overlay found");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
+        ok(con2.getOverlays()['label'] != null, "label overlay found");
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+
+        con2.setType('loopback');
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
+        con2.setType('default');
+        ok(con2.getOverlays()['label'].canvas.parentNode != null, "label overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode != null, "arrow overlay is in the DOM");
+        ok(con2.getOverlays()['arrow'].path.parentNode.parentNode != null, "arrow overlay is in the DOM");
+
+    });
 
 };
 

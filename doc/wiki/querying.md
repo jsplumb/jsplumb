@@ -1,3 +1,9 @@
+---
+category: Navigation
+title: Querying jsPlumb
+keywords: filter, select, connection, query, find, endpoint
+---
+
 ## Querying jsPlumb
 
 - **Connections**
@@ -22,7 +28,7 @@
 
 <a name="select"></a>
 #### Selecting and operating on a list of Connections
-The `jsPlumb.select` function provides a fluid interface for working with lists of Connections.  The syntax used to 
+The `select` function provides a fluid interface for working with lists of Connections.  The syntax used to 
 specify which Connections you want is identical to that which you use for `getConnections`, but the return value is an 
 object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. 
 Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the 
@@ -62,7 +68,7 @@ Each of these operations returns a selector that can be chained.
 
 <a name="selectGetters"></a>
 ##### Getter Operations
-This is the full list of getter operations supported by `jsPlumb.select`:
+This is the full list of getter operations supported by `select`:
 
 - getLabel
 - getOverlay
@@ -75,7 +81,9 @@ This is the full list of getter operations supported by `jsPlumb.select`:
 - getType    
 - hasType
 
-Each of these operations returns an array whose entries are [ value, Connection ] arrays, where `value` is the return value from the given Connection.  Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.
+Each of these operations returns an array whose entries are [ value, Connection ] arrays, where `value` is the return 
+value from the given Connection.  Remember that the return values from a getter are not chainable, but a getter may be 
+called at the end of a chain of setters.
 
 <a name="selectExamples"></a>
 ##### Examples

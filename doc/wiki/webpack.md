@@ -1,3 +1,9 @@
+---
+category: Miscellaneous
+title: Webpack
+keywords: webpack, bundle, bundling
+---
+
 ### Webpack
 
 jsPlumb can be bundled with Webpack - see `/demo/webpack` for an example. This page discusses that demonstration.

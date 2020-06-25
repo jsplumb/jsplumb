@@ -125,6 +125,9 @@ console.cTimeSummary = function() {
                 div.style.zIndex = 100;
                 div.className = "jspLoad";
                 div.setAttribute("id", "div-" + i);
+
+                jsPlumb.draggable(div);
+
                 x += jsPlumbLoadTest.spacing;
                 if (x > ww) {
                     x = 0;

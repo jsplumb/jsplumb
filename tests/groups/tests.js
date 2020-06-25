@@ -46,6 +46,7 @@ var testSuite = function () {
         support.dragNodeTo(el, tx, ty);
     };
     var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2, c_noparent;
+    var g1, g2, g3, g4, g5, g6;
 
     var _setupGroups = function(doNotMakeConnections) {
         c1 = support.addDiv("container1", null, "container", 0, 50);
@@ -79,12 +80,12 @@ var testSuite = function () {
 
       //  _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
 
-        _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
-        _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
-        _addGroup(_jsPlumb, "three", c3, [c3_1,c3_2],{ revert:false });
-        _addGroup(_jsPlumb, "four", c4, [c4_1,c4_2], { prune: true });
-        _addGroup(_jsPlumb, "five", c5, [c5_1,c5_2], { orphan:true, droppable:false });
-        _addGroup(_jsPlumb, "six", c6, [c6_1,c6_2], { orphan:true, droppable:false, proxied:false });
+        g1 = _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
+        g2 = _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
+        g3 = _addGroup(_jsPlumb, "three", c3, [c3_1,c3_2],{ revert:false });
+        g4 = _addGroup(_jsPlumb, "four", c4, [c4_1,c4_2], { prune: true });
+        g5 = _addGroup(_jsPlumb, "five", c5, [c5_1,c5_2], { orphan:true, droppable:false });
+        g6 = _addGroup(_jsPlumb, "six", c6, [c6_1,c6_2], { orphan:true, droppable:false, proxied:false });
 
         if (!doNotMakeConnections) {
 

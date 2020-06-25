@@ -168,7 +168,16 @@ var testSuite = function () {
         equal(_jsPlumb.selectEndpoints({element: "output"}).length, 0, "no endpoints registered for in1");
     });
 
+    test(' jsPlumb.connect an endpoint to a div.', function () {
 
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d2);
+
+        _jsPlumb.connect({source: e1, target: d1});
+
+        equal(_jsPlumb.select().length, 1, "one connection established");
+    });
 
     test(": lineWidth specified as string (eew)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
