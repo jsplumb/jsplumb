@@ -127,3 +127,9 @@ export abstract class EventGenerator {
         this.setSuspendEvents(false);
     }
 }
+
+export class OptimisticEventGenerator extends EventGenerator {
+    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
+        return true;
+    }
+}
