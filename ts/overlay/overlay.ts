@@ -72,7 +72,6 @@ export abstract class Overlay extends EventGenerator {
 
     setVisible(v: boolean): void {
         this.visible = v;
-        console.log("setting visible " + v + " " + this);
         this.instance.renderer.setOverlayVisible(this, v);
     }
 

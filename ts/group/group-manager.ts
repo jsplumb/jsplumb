@@ -348,7 +348,7 @@ export class GroupManager {
 
             const _one = (el:any) => {
                 if (el[Constants.IS_GROUP_KEY] != null) {
-                    console.log("the thing being added is a group! is it possible to support nested groups")
+                    //console.log("the thing being added is a group! is it possible to support nested groups")
                 }
 
                 let currentGroup = el[Constants.GROUP_KEY];

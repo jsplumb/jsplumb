@@ -806,6 +806,26 @@
 
     return EventGenerator;
   }();
+  var OptimisticEventGenerator =
+  /*#__PURE__*/
+  function (_EventGenerator) {
+    _inherits(OptimisticEventGenerator, _EventGenerator);
+
+    function OptimisticEventGenerator() {
+      _classCallCheck(this, OptimisticEventGenerator);
+
+      return _possibleConstructorReturn(this, _getPrototypeOf(OptimisticEventGenerator).apply(this, arguments));
+    }
+
+    _createClass(OptimisticEventGenerator, [{
+      key: "shouldFireEvent",
+      value: function shouldFireEvent(event, value, originalEvent) {
+        return true;
+      }
+    }]);
+
+    return OptimisticEventGenerator;
+  }(EventGenerator);
 
   function _splitType(t) {
     return t == null ? null : t.split(" ");
@@ -1348,7 +1368,6 @@
       key: "setVisible",
       value: function setVisible(v) {
         this.visible = v;
-        console.log("setting visible " + v + " " + this);
         this.instance.renderer.setOverlayVisible(this, v);
       }
     }, {
@@ -5620,9 +5639,7 @@
           var groupEl = actualGroup.el;
 
           var _one = function _one(el) {
-            if (el[IS_GROUP_KEY] != null) {
-              console.log("the thing being added is a group! is it possible to support nested groups");
-            }
+            if (el[IS_GROUP_KEY] != null) ;
 
             var currentGroup = el[GROUP_KEY]; // if already a member of this group, do nothing
 
@@ -11603,8 +11620,7 @@
         });
 
         if (this._currentPosse != null) {
-          this._currentPosse.members.forEach(function (member) {
-            console.log("posse element drag end");
+          this._currentPosse.members.forEach(function (member) {//console.log("posse element drag end");
           });
         } // do the contents of the drag selection
 
@@ -12683,8 +12699,8 @@
 
           this.floatingEndpoint.addConnection(this.jpc); // store the original scope (issue 57)
 
-          var dragScope = this.instance.getDragScope(canvasElement);
-          console.log("TODO: investigate if original drag scope needs to be retained"); //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
+          var dragScope = this.instance.getDragScope(canvasElement); //TODO: investigate if original drag scope needs to be retained
+          //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
           // fire an event that informs that a connection is being dragged. we do this before
           // replacing the original target with the floating element info.
 
@@ -13151,8 +13167,6 @@
 
             this.instance.repaint(this.jpc.sourceId);
             this.jpc._forceDetach = false;
-          } else {
-            console.log("TODO: not reattaching and not deleting. what should happen?"); //this.instance.deleteObject({endpoint: this.jpc.suspendedEndpoint});
           }
         } else {
           this.instance.deleteEndpoint(this.jpc.endpoints[idx]); //, originalEvent:originalEvent});
@@ -17493,6 +17507,7 @@
   exports.LINE_WIDTH = LINE_WIDTH;
   exports.LabelOverlay = LabelOverlay;
   exports.NONE = NONE;
+  exports.OptimisticEventGenerator = OptimisticEventGenerator;
   exports.Overlay = Overlay;
   exports.OverlayCapableComponent = OverlayCapableComponent;
   exports.OverlayFactory = OverlayFactory;

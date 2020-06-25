@@ -510,7 +510,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // store the original scope (issue 57)
             const dragScope = this.instance.getDragScope(canvasElement);
-            console.log("TODO: investigate if original drag scope needs to be retained");
+            //TODO: investigate if original drag scope needs to be retained
             //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
         
             // fire an event that informs that a connection is being dragged. we do this before
@@ -993,8 +993,7 @@ export class EndpointDragHandler implements DragHandler {
                 this.jpc._forceDetach = false;
             }
             else {
-                console.log("TODO: not reattaching and not deleting. what should happen?")
-               //this.instance.deleteObject({endpoint: this.jpc.suspendedEndpoint});
+                // TODO: not reattaching and not deleting. what should happen? seems nothing, after the rewrite
             }
 
         } else {

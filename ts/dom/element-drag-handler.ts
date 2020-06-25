@@ -88,7 +88,7 @@ export class ElementDragHandler implements DragHandler {
 
         if (this._currentPosse != null) {
             this._currentPosse.members.forEach(member => {
-                console.log("posse element drag end");
+                //console.log("posse element drag end");
             });
         }
 
