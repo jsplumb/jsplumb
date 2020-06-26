@@ -1204,16 +1204,16 @@ var testSuite = function () {
             d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150),
             d2 = support.addDiv("d2", canvas, null, 300,300,150,150);
 
-        var jpInstance = jsPlumb.getInstance({
-            Container: canvas,
-            Anchor: 'Continuous',
-            Endpoint: [
+        var jpInstance = jsPlumb.newInstance({
+            container: canvas,
+            anchor: 'Continuous',
+            endpoint: [
                 'Dot',
                 {
                     radius: 2
                 }
             ],
-            ConnectionOverlays: [
+            connectionOverlays: [
                 ['Arrow', {
                     location: 1,
                     id: 'arrow',
@@ -1227,7 +1227,7 @@ var testSuite = function () {
                     label: "foo"
                 }]
             ],
-            PaintStyle: {
+            paintStyle: {
                 stroke: '#b6b6b6',
                 strokeWidth: 2,
                 outlineStroke: 'transparent',
