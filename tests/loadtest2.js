@@ -161,7 +161,7 @@
                 div.style.backgroundColor = "#123";
                 document.getElementById("demo").appendChild(div);
 
-                instance.draggable(div);
+                instance.manage(div);
 
                 elements.push(div);
             }
@@ -230,7 +230,7 @@
 
 
     jsPlumb.ready(function() {
-        instance = jsPlumb.getInstance({Container:demo});
+        instance = jsPlumb.newInstance({container:demo});
 
         instance.on(document.getElementById("btnTest"), "click", jsPlumbLoadTest.reset);
 
