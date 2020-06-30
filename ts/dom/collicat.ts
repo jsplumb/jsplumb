@@ -6,6 +6,7 @@ import {BoundingBox, Dictionary, extend, PointArray} from "../core";
 import {addClass, consume, matchesSelector, removeClass} from "../browser/browser-util";
 import {IS, uuid} from "../util";
 import {EventManager, pageLocation} from "./event-manager";
+import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 
 // function _suggest<T> (list:Array<T>, item:T, head?:boolean):boolean {
 //     if (list.indexOf(item) === -1) {
@@ -234,15 +235,24 @@ function getConstrainingRectangle(el:HTMLElement):PointArray {
     return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight];
 }
 
+export interface DragHandlerOptions {
+    selector?:string;
+    start?:(p:DragEventCallbackOptions) => any;
+    stop?:(p:DragEventCallbackOptions) => any;
+    drag?:(p:DragEventCallbackOptions) => any;
+    beforeStart?:(beforeStartParams:any) => void;
+    dragInit?:(el:jsPlumbDOMElement) => any;
+    ghostProxy?:GhostProxyGenerator | boolean;
+    makeGhostProxy?:GhostProxyGenerator;
+    useGhostProxy?:(container:any, dragEl:any) => boolean;
+}
 
-export interface DragParams {
+export interface DragParams extends DragHandlerOptions {
     rightButtonCanDrag?:boolean;
     consumeStartEvent?:boolean;
     clone?:boolean;
     scroll?:boolean;
     multipleDrop?:boolean;
-    ghostProxy?:GhostProxyGenerator | boolean;
-    makeGhostProxy?:GhostProxyGenerator;
     selector?:string;
     snapThreshold?:number;
     grid?:PointArray;
@@ -258,7 +268,9 @@ export interface DragParams {
     ghostProxyParent?:HTMLElement;
     filter?:string;
     filterExclude?:boolean;
+    scope?:string;
 }
+
 
 export interface DragSelector {
 
@@ -873,7 +885,7 @@ export class Drag extends Base {
         this._filters = {};
     }
 
-    addSelector (params:any) {
+    addSelector (params:DragHandlerOptions) {
         if (params.selector) {
             this._availableSelectors.push(params);
         }
@@ -901,9 +913,18 @@ export interface CollicatOptions {
     revert?:RevertFunction;
 }
 
+export interface jsPlumbDragManager {
+    getZoom():number;
+    setZoom(z:number):void;
+    getInputFilterSelector():string;
+    setInputFilterSelector (selector:string):void;
+    draggable(el:jsPlumbDOMElement, params:DragParams):Drag;
+    destroyDraggable(el:jsPlumbDOMElement):void;
+}
+
 const DEFAULT_INPUT_FILTER_SELECTOR = "input,textarea,select,button,option";
 
-export class Collicat {
+export class Collicat implements jsPlumbDragManager {
 
     eventManager:EventManager;
     private zoom:number = 1;
@@ -927,11 +948,11 @@ export class Collicat {
         return this.zoom;
     }
 
-    setZoom(z:number) {
+    setZoom(z:number):void {
         this.zoom = z;
     }
 
-    _prepareParams(p:DragParams):DragParams {
+    private _prepareParams(p:DragParams):DragParams {
 
         p = p || {};
 
@@ -971,18 +992,18 @@ export class Collicat {
      * Sets the selector identifying which input elements to filter from drag events.
      * @method setInputFilterSelector
      * @param {String} selector Input filter selector to set.
-     * @return {Katavorio} Current instance; method may be chained.
+     * @return {Collicat} Current instance; method may be chained.
      */
     setInputFilterSelector (selector:string) {
         this.inputFilterSelector = selector;
         return this;
     };
 
-    draggable(el:any, params:DragParams):Drag {
+    draggable(el:jsPlumbDOMElement, params:DragParams):Drag {
 
         if(el._katavorioDrag == null) {
             const p = this._prepareParams(params);
-            const d = new Drag(el, p, this)
+            const d = new Drag(el, p, this);
             addClass(el, _classes.delegatedDraggable);
             el._katavorioDrag = d;
             return d;
@@ -991,10 +1012,10 @@ export class Collicat {
         }
     }
 
-    destroyDraggable(el:any) {
+    destroyDraggable(el:jsPlumbDOMElement):void {
         if (el._katavorioDrag) {
             // current selection? are we handling that?
-            (el._katavorioDrag as Drag).destroy();
+            el._katavorioDrag.destroy();
             delete el._katavorioDrag;
         }
     }
