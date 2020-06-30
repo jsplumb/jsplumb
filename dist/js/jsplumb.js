@@ -9557,1815 +9557,6 @@
     return BrowserRenderer;
   }();
 
-  /**
-   * Creates a Touch object.
-   * @param target
-   * @param pageX
-   * @param pageY
-   * @param screenX
-   * @param screenY
-   * @param clientX
-   * @param clientY
-   * @returns {Touch}
-   * @private
-   */
-  function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
-    return new Touch({
-      target: target,
-      identifier: uuid(),
-      pageX: pageX,
-      pageY: pageY,
-      screenX: screenX,
-      screenY: screenY,
-      clientX: clientX || screenX,
-      clientY: clientY || screenY
-    });
-  }
-  /**
-   * Create a synthetic touch list from the given list of Touch objects.
-   * @returns {Array}
-   * @private
-   */
-
-
-  function _touchList() {
-    var list = [];
-    list.push.apply(list, arguments);
-
-    list.item = function (index) {
-      return this[index];
-    };
-
-    return list;
-  }
-  /**
-   * Create a Touch object and then insert it into a synthetic touch list, returning the list.
-   * @param target
-   * @param pageX
-   * @param pageY
-   * @param screenX
-   * @param screenY
-   * @param clientX
-   * @param clientY
-   * @returns {Array}
-   * @private
-   */
-
-
-  function _touchAndList(target, pageX, pageY, screenX, screenY, clientX, clientY) {
-    return _touchList(_touch(target, pageX, pageY, screenX, screenY, clientX, clientY));
-  }
-
-  function matchesSelector$1(el, selector, ctx) {
-    ctx = ctx || el.parentNode;
-    var possibles = ctx.querySelectorAll(selector);
-
-    for (var i = 0; i < possibles.length; i++) {
-      if (possibles[i] === el) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  function _gel(el) {
-    return typeof el == "string" || el.constructor === String ? document.getElementById(el) : el;
-  }
-
-  function _t(e) {
-    return e.srcElement || e.target;
-  } //
-  // gets path info for the given event - the path from target to obj, in the event's bubble chain. if doCompute
-  // is false we just return target for the path.
-  //
-
-
-  function _pi(e, target, obj, doCompute) {
-    if (!doCompute) return {
-      path: [target],
-      end: 1
-    };else if (typeof e.path !== "undefined" && e.path.indexOf) {
-      return {
-        path: e.path,
-        end: e.path.indexOf(obj)
-      };
-    } else {
-      var out = {
-        path: [],
-        end: -1
-      },
-          _one = function _one(el) {
-        out.path.push(el);
-
-        if (el === obj) {
-          out.end = out.path.length - 1;
-        } else if (el.parentNode != null) {
-          _one(el.parentNode);
-        }
-      };
-
-      _one(target);
-
-      return out;
-    }
-  }
-
-  function _d(l, fn) {
-    var i = 0,
-        j;
-
-    for (i = 0, j = l.length; i < j; i++) {
-      if (l[i] == fn) break;
-    }
-
-    if (i < l.length) l.splice(i, 1);
-  }
-
-  var guid = 1;
-  var isTouchDevice = "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
-  var isMouseDevice = "onmousedown" in document.documentElement;
-  var touchMap = {
-    "mousedown": "touchstart",
-    "mouseup": "touchend",
-    "mousemove": "touchmove"
-  };
-  var PAGE = "page";
-  var SCREEN = "screen";
-  var CLIENT = "client";
-
-  function _genLoc(e, prefix) {
-    if (e == null) return [0, 0];
-
-    var ts = _touches(e),
-        t = _getTouch(ts, 0);
-
-    return [t[prefix + "X"], t[prefix + "Y"]];
-  }
-
-  function pageLocation(e) {
-    if (e == null) return [0, 0];
-    return _genLoc(e, PAGE);
-  }
-
-  function _screenLocation(e) {
-    return _genLoc(e, SCREEN);
-  }
-
-  function _clientLocation(e) {
-    return _genLoc(e, CLIENT);
-  }
-
-  function _getTouch(touches, idx) {
-    return touches.item ? touches.item(idx) : touches[idx];
-  }
-
-  function _touches(e) {
-    return e.touches && e.touches.length > 0 ? e.touches : e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches : e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches : [e];
-  }
-
-  function _touchCount(e) {
-    return _touches(e).length;
-  }
-
-  function _bind(obj, type, fn, originalFn) {
-    _store(obj, type, fn);
-
-    originalFn.__tauid = fn.__tauid;
-
-    if (obj.addEventListener) {
-      obj.addEventListener(type, fn, false);
-    } else if (obj.attachEvent) {
-      var key = type + fn.__tauid;
-      obj["e" + key] = fn; // TODO look at replacing with .call(..)
-
-      obj[key] = function () {
-        obj["e" + key] && obj["e" + key](window.event);
-      };
-
-      obj.attachEvent("on" + type, obj[key]);
-    }
-  }
-
-  function _unbind(obj, type, fn) {
-    var _this = this;
-
-    if (fn == null) return;
-
-    _each(obj, function (el) {
-      var _el = _gel(el);
-
-      _unstore(_el, type, fn); // it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
-
-
-      if (fn.__tauid != null) {
-        if (_el.removeEventListener) {
-          _el.removeEventListener(type, fn, false);
-
-          if (isTouchDevice && touchMap[type]) _el.removeEventListener(touchMap[type], fn, false);
-        } else if (_this.detachEvent) {
-          var key = type + fn.__tauid;
-          _el[key] && _el.detachEvent("on" + type, _el[key]);
-          _el[key] = null;
-          _el["e" + key] = null;
-        }
-      } // if a touch event was also registered, deregister now.
-
-
-      if (fn.__taTouchProxy) {
-        _unbind(obj, fn.__taTouchProxy[1], fn.__taTouchProxy[0]);
-      }
-    });
-  }
-
-  function _each(obj, fn) {
-    if (obj == null) return; // if a list (or list-like), use it. if a string, get a list
-    // by running the string through querySelectorAll. else, assume
-    // it's an Element.
-
-    var entries = typeof obj === "string" ? document.querySelectorAll(obj) : obj.length != null ? obj : [obj];
-
-    for (var i = 0; i < entries.length; i++) {
-      fn(entries[i]);
-    }
-  }
-
-  function _store(obj, event, fn) {
-    var g = guid++;
-    obj.__ta = obj.__ta || {};
-    obj.__ta[event] = obj.__ta[event] || {}; // store each handler with a unique guid.
-
-    obj.__ta[event][g] = fn; // set the guid on the handler.
-
-    fn.__tauid = g;
-    return g;
-  }
-
-  function _unstore(obj, event, fn) {
-    obj.__ta && obj.__ta[event] && delete obj.__ta[event][fn.__tauid]; // a handler might have attached extra functions, so we unbind those too.
-
-    if (fn.__taExtra) {
-      for (var i = 0; i < fn.__taExtra.length; i++) {
-        _unbind(obj, fn.__taExtra[i][0], fn.__taExtra[i][1]);
-      }
-
-      fn.__taExtra.length = 0;
-    } // a handler might have attached an unstore callback
-
-
-    fn.__taUnstore && fn.__taUnstore();
-  }
-
-  function _curryChildFilter(children, obj, fn, evt) {
-    if (children == null) return fn;else {
-      var c = children.split(","),
-          _fn = function _fn(e) {
-        _fn.__tauid = fn.__tauid;
-
-        var t = _t(e);
-
-        var target = t; // t is the target element on which the event occurred. it is the
-        // element we will wish to pass to any callbacks.
-
-        var pathInfo = _pi(e, t, obj, children != null);
-
-        if (pathInfo.end != -1) {
-          for (var p = 0; p < pathInfo.end; p++) {
-            target = pathInfo.path[p];
-
-            for (var i = 0; i < c.length; i++) {
-              if (matchesSelector$1(target, c[i], obj)) {
-                fn.apply(target, [e, target]);
-              }
-            }
-          }
-        }
-      };
-
-      registerExtraFunction(fn, evt, _fn);
-      return _fn;
-    }
-  }
-
-  function registerExtraFunction(fn, evt, newFn) {
-    fn.__taExtra = fn.__taExtra || [];
-
-    fn.__taExtra.push([evt, newFn]);
-  }
-
-  var DefaultHandler = function DefaultHandler(obj, evt, fn, children) {
-    if (isTouchDevice && touchMap[evt]) {
-      var tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
-
-      _bind(obj, touchMap[evt], tfn, fn);
-    }
-
-    if (evt === EVENT_FOCUS && obj.getAttribute(ATTRIBUTE_TABINDEX) == null) {
-      obj.setAttribute(ATTRIBUTE_TABINDEX, "1");
-    }
-
-    _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
-  };
-
-  var SmartClickHandler = function SmartClickHandler(obj, evt, fn, children) {
-    if (obj.__taSmartClicks == null) {
-      var down = function down(e) {
-        obj.__tad = pageLocation(e);
-      },
-          up = function up(e) {
-        obj.__tau = pageLocation(e);
-      },
-          click = function click(e) {
-        if (obj.__tad && obj.__tau && obj.__tad[0] === obj.__tau[0] && obj.__tad[1] === obj.__tau[1]) {
-          for (var i = 0; i < obj.__taSmartClicks.length; i++) {
-            obj.__taSmartClicks[i].apply(_t(e), [e]);
-          }
-        }
-      };
-
-      DefaultHandler(obj, EVENT_MOUSEDOWN, down, children);
-      DefaultHandler(obj, EVENT_MOUSEUP, up, children);
-      DefaultHandler(obj, EVENT_CLICK, click, children);
-      obj.__taSmartClicks = [];
-    } // store in the list of callbacks
-
-
-    obj.__taSmartClicks.push(fn); // the unstore function removes this function from the object's listener list for this type.
-
-
-    fn.__taUnstore = function () {
-      _d(obj.__taSmartClicks, fn);
-    };
-  };
-
-  var _tapProfiles = {
-    "tap": {
-      touches: 1,
-      taps: 1
-    },
-    "dbltap": {
-      touches: 1,
-      taps: 2
-    },
-    "contextmenu": {
-      touches: 2,
-      taps: 1
-    }
-  };
-
-  function meeHelper(type, evt, obj, target) {
-    for (var i in obj.__tamee[type]) {
-      if (obj.__tamee[type].hasOwnProperty(i)) {
-        obj.__tamee[type][i].apply(target, [evt]);
-      }
-    }
-  }
-
-  var TapHandler =
-  /*#__PURE__*/
-  function () {
-    function TapHandler() {
-      _classCallCheck(this, TapHandler);
-    }
-
-    _createClass(TapHandler, null, [{
-      key: "generate",
-      value: function generate(clickThreshold, dblClickThreshold) {
-        return function (obj, evt, fn, children) {
-          // if event is contextmenu, for devices which are mouse only, we want to
-          // use the default bind.
-          if (evt == EVENT_CONTEXTMENU && isMouseDevice) DefaultHandler(obj, evt, fn, children);else {
-            // the issue here is that this down handler gets registered only for the
-            // child nodes in the first registration. in fact it should be registered with
-            // no child selector and then on down we should cycle through the registered
-            // functions to see if one of them matches. on mouseup we should execute ALL of
-            // the functions whose children are either null or match the element.
-            if (obj.__taTapHandler == null) {
-              var tt = obj.__taTapHandler = {
-                tap: [],
-                dbltap: [],
-                contextmenu: [],
-                down: false,
-                taps: 0,
-                downSelectors: []
-              };
-
-              var down = function down(e) {
-                var target = _t(e),
-                    pathInfo = _pi(e, target, obj, children != null),
-                    finished = false;
-
-                for (var p = 0; p < pathInfo.end; p++) {
-                  if (finished) return;
-                  target = pathInfo.path[p];
-
-                  for (var i = 0; i < tt.downSelectors.length; i++) {
-                    if (tt.downSelectors[i] == null || matchesSelector$1(target, tt.downSelectors[i], obj)) {
-                      tt.down = true;
-                      setTimeout(clearSingle, clickThreshold);
-                      setTimeout(clearDouble, dblClickThreshold);
-                      finished = true;
-                      break; // we only need one match on mousedown
-                    }
-                  }
-                }
-              },
-                  up = function up(e) {
-                if (tt.down) {
-                  var target = _t(e),
-                      currentTarget,
-                      pathInfo;
-
-                  tt.taps++;
-
-                  var tc = _touchCount(e);
-
-                  for (var eventId in _tapProfiles) {
-                    if (_tapProfiles.hasOwnProperty(eventId)) {
-                      var p = _tapProfiles[eventId];
-
-                      if (p.touches === tc && (p.taps === 1 || p.taps === tt.taps)) {
-                        for (var i = 0; i < tt[eventId].length; i++) {
-                          pathInfo = _pi(e, target, obj, tt[eventId][i][1] != null);
-
-                          for (var pLoop = 0; pLoop < pathInfo.end; pLoop++) {
-                            currentTarget = pathInfo.path[pLoop]; // this is a single event registration handler.
-
-                            if (tt[eventId][i][1] == null || matchesSelector$1(currentTarget, tt[eventId][i][1], obj)) {
-                              tt[eventId][i][0].apply(currentTarget, [e]);
-                              break;
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-                  clearSingle = function clearSingle() {
-                tt.down = false;
-              },
-                  clearDouble = function clearDouble() {
-                tt.taps = 0;
-              };
-
-              DefaultHandler(obj, "mousedown", down);
-              DefaultHandler(obj, "mouseup", up);
-            } // add this child selector (it can be null, that's fine).
-
-
-            obj.__taTapHandler.downSelectors.push(children);
-
-            obj.__taTapHandler[evt].push([fn, children]); // the unstore function removes this function from the object's listener list for this type.
-
-
-            fn.__taUnstore = function () {
-              _d(obj.__taTapHandler[evt], fn);
-            };
-          }
-        };
-      }
-    }]);
-
-    return TapHandler;
-  }();
-
-  var MouseEnterExitHandler =
-  /*#__PURE__*/
-  function () {
-    function MouseEnterExitHandler() {
-      _classCallCheck(this, MouseEnterExitHandler);
-    }
-
-    _createClass(MouseEnterExitHandler, null, [{
-      key: "generate",
-      value: function generate() {
-        var activeElements = [];
-        return function (obj, evt, fn, children) {
-          if (!obj.__tamee) {
-            // __tamee holds a flag saying whether the mouse is currently "in" the element, and a list of
-            // both mouseenter and mouseexit functions.
-            obj.__tamee = {
-              over: false,
-              mouseenter: [],
-              mouseexit: []
-            }; // register over and out functions
-
-            var over = function over(e) {
-              var t = _t(e);
-
-              if (children == null && t == obj && !obj.__tamee.over || matchesSelector$1(t, children, obj) && (t.__tamee == null || !t.__tamee.over)) {
-                meeHelper(EVENT_MOUSEENTER, e, obj, t);
-                t.__tamee = t.__tamee || {};
-                t.__tamee.over = true;
-                activeElements.push(t);
-              }
-            },
-                out = function out(e) {
-              var t = _t(e); // is the current target one of the activeElements? and is the
-              // related target NOT a descendant of it?
-
-
-              for (var i = 0; i < activeElements.length; i++) {
-                if (t == activeElements[i] && !matchesSelector$1(e.relatedTarget || e.toElement, "*", t)) {
-                  t.__tamee.over = false;
-                  activeElements.splice(i, 1);
-                  meeHelper(EVENT_MOUSEEXIT, e, obj, t);
-                }
-              }
-            };
-
-            _bind(obj, EVENT_MOUSEOVER, _curryChildFilter(children, obj, over, EVENT_MOUSEOVER), over);
-
-            _bind(obj, EVENT_MOUSEOUT, _curryChildFilter(children, obj, out, EVENT_MOUSEOUT), out);
-          }
-
-          fn.__taUnstore = function () {
-            delete obj.__tamee[evt][fn.__tauid];
-          };
-
-          _store(obj, evt, fn);
-
-          obj.__tamee[evt][fn.__tauid] = fn;
-        };
-      }
-    }]);
-
-    return MouseEnterExitHandler;
-  }();
-
-  var EventManager =
-  /*#__PURE__*/
-  function () {
-    function EventManager(params) {
-      _classCallCheck(this, EventManager);
-
-      _defineProperty(this, "clickThreshold", void 0);
-
-      _defineProperty(this, "dblClickThreshold", void 0);
-
-      _defineProperty(this, "tapHandler", void 0);
-
-      _defineProperty(this, "mouseEnterExitHandler", void 0);
-
-      _defineProperty(this, "smartClicks", void 0);
-
-      params = params || {};
-      this.clickThreshold = params.clickThreshold || 250;
-      this.dblClickThreshold = params.dblClickThreshold || 450;
-      this.mouseEnterExitHandler = MouseEnterExitHandler.generate();
-      this.tapHandler = TapHandler.generate(this.clickThreshold, this.dblClickThreshold);
-      this.smartClicks = params.smartClicks;
-    }
-
-    _createClass(EventManager, [{
-      key: "_doBind",
-      value: function _doBind(obj, evt, fn, children) {
-        var _this2 = this;
-
-        if (fn == null) return;
-
-        _each(obj, function (el) {
-          var _el = _gel(el);
-
-          if (_this2.smartClicks && evt === EVENT_CLICK) SmartClickHandler(_el, evt, fn, children);else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
-            _this2.tapHandler(_el, evt, fn, children);
-          } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) _this2.mouseEnterExitHandler(_el, evt, fn, children);else DefaultHandler(_el, evt, fn, children);
-        });
-      }
-    }, {
-      key: "remove",
-      value: function remove(el) {
-        _each(el, function (__el) {
-          var _el = _gel(__el);
-
-          if (_el.__ta) {
-            for (var _evt2 in _el.__ta) {
-              if (_el.__ta.hasOwnProperty(_evt2)) {
-                for (var h in _el.__ta[_evt2]) {
-                  if (_el.__ta[_evt2].hasOwnProperty(h)) _unbind(_el, _evt2, _el.__ta[_evt2][h]);
-                }
-              }
-            }
-          }
-
-          _el.parentNode && _el.parentNode.removeChild(_el);
-        });
-
-        return this;
-      }
-    }, {
-      key: "on",
-      value: function on(el, event, children, fn) {
-        var _c = fn == null ? null : children,
-            _f = fn == null ? children : fn;
-
-        this._doBind(el, event, _f, _c);
-
-        return this;
-      }
-    }, {
-      key: "off",
-      value: function off(el, event, fn) {
-        _unbind(el, event, fn);
-
-        return this;
-      }
-    }, {
-      key: "trigger",
-      value: function trigger(el, event, originalEvent, payload) {
-        // MouseEvent undefined in old IE; that's how we know it's a mouse event.  A fine Microsoft paradox.
-        var originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent);
-        var eventToBind = isTouchDevice && !isMouseDevice && touchMap[event] ? touchMap[event] : event,
-            bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
-
-        var pl = pageLocation(originalEvent),
-            sl = _screenLocation(originalEvent),
-            cl = _clientLocation(originalEvent);
-
-        _each(el, function (__el) {
-          var _el = _gel(__el);
-
-          var evt;
-          originalEvent = originalEvent || {
-            screenX: sl[0],
-            screenY: sl[1],
-            clientX: cl[0],
-            clientY: cl[1]
-          };
-
-          var _decorate = function _decorate(_evt) {
-            if (payload) {
-              _evt.payload = payload;
-            }
-          };
-
-          var eventGenerators = {
-            "TouchEvent": function TouchEvent(evt) {
-              var touchList = _touchAndList(_el, pl[0], pl[1], sl[0], sl[1], cl[0], cl[1]),
-                  init = evt.initTouchEvent || evt.initEvent;
-
-              init(eventToBind, true, true, window, null, sl[0], sl[1], cl[0], cl[1], false, false, false, false, touchList, touchList, touchList, 1, 0);
-            },
-            "MouseEvents": function MouseEvents(evt) {
-              evt.initMouseEvent(eventToBind, true, true, window, 0, sl[0], sl[1], cl[0], cl[1], false, false, false, false, 1, _el);
-            }
-          };
-          var ite = !bindingAMouseEvent && !originalIsMouse && isTouchDevice && touchMap[event],
-              evtName = ite ? "TouchEvent" : "MouseEvents";
-          evt = document.createEvent(evtName);
-          eventGenerators[evtName](evt);
-
-          _decorate(evt);
-
-          _el.dispatchEvent(evt);
-        });
-
-        return this;
-      }
-    }]);
-
-    return EventManager;
-  }();
-  function setForceTouchEvents(value) {
-    isTouchDevice = value;
-  }
-  function setForceMouseEvents(value) {
-    isMouseDevice = value;
-  }
-
-  //     if (list.indexOf(item) === -1) {
-  //         head ? list.unshift(item) : list.push(item);
-  //         return true;
-  //     }
-  //     return false;
-  // }
-  //
-  // function _vanquish<T>(list:Array<T>, item:T):void {
-  //     const idx = list.indexOf(item);
-  //     if (idx !== -1) {
-  //         list.splice(idx, 1);
-  //     }
-  // }
-  //
-  // function _difference<T> (l1:Array<T>, l2:Array<T>) {
-  //     const d = [];
-  //     for (let i = 0; i < l1.length; i++) {
-  //         if (l2.indexOf(l1[i]) === -1)
-  //             d.push(l1[i]);
-  //     }
-  //     return d;
-  // }
-
-  function getOffsetRect(elem) {
-    // (1)
-    var box = elem.getBoundingClientRect(),
-        body = document.body,
-        docElem = document.documentElement,
-        // (2)
-    scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-        scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-        // (3)
-    clientTop = docElem.clientTop || body.clientTop || 0,
-        clientLeft = docElem.clientLeft || body.clientLeft || 0,
-        // (4)
-    top = box.top + scrollTop - clientTop,
-        left = box.left + scrollLeft - clientLeft;
-    return [Math.round(left), Math.round(top)];
-  }
-
-  function findDelegateElement(parentElement, childElement, selector) {
-    if (matchesSelector(childElement, selector, parentElement)) {
-      return childElement;
-    } else {
-      var currentParent = childElement.parentNode;
-
-      while (currentParent != null && currentParent !== parentElement) {
-        if (matchesSelector(currentParent, selector, parentElement)) {
-          return currentParent;
-        } else {
-          currentParent = currentParent.parentNode;
-        }
-      }
-    }
-  }
-
-  function _getPosition(el) {
-    return [el.offsetLeft, el.offsetTop];
-  }
-
-  function _getSize(el) {
-    return [el.offsetWidth, el.offsetHeight];
-  }
-
-  function _setPosition(el, pos) {
-    el.style.left = pos[0] + "px";
-    el.style.top = pos[1] + "px";
-  }
-
-  /**
-   * Finds all elements matching the given selector, for the given parent. In order to support "scoped root" selectors,
-   * ie. things like "> .someClass", that is .someClass elements that are direct children of `parentElement`, we have to
-   * jump through a small hoop here: when a delegate draggable is registered, we write a `katavorio-draggable` attribute
-   * on the element on which the draggable is registered. Then when this method runs, we grab the value of that attribute and
-   * prepend it as part of the selector we're looking for.  So "> .someClass" ends up being written as
-   * "[katavorio-draggable='...' > .someClass]", which works with querySelectorAll.
-   *
-   * @param availableSelectors
-   * @param parentElement
-   * @param childElement
-   * @returns {*}
-   */
-  function findMatchingSelector(availableSelectors, parentElement, childElement) {
-    var el = null;
-    var draggableId = parentElement.getAttribute("katavorio-draggable"),
-        prefix = draggableId != null ? "[katavorio-draggable='" + draggableId + "'] " : "";
-
-    for (var i = 0; i < availableSelectors.length; i++) {
-      el = findDelegateElement(parentElement, childElement, prefix + availableSelectors[i].selector);
-
-      if (el != null) {
-        if (availableSelectors[i].filter) {
-          var matches = matchesSelector(childElement, availableSelectors[i].filter, el),
-              exclude = availableSelectors[i].filterExclude === true;
-
-          if (exclude && !matches || matches) {
-            return null;
-          }
-        }
-
-        return [availableSelectors[i], el];
-      }
-    }
-
-    return null;
-  }
-
-  var DEFAULT_GRID_X = 10;
-  var DEFAULT_GRID_Y = 10;
-
-  var TRUE = function TRUE() {
-    return true;
-  };
-
-  var FALSE = function FALSE() {
-    return false;
-  };
-
-  var _classes = {
-    delegatedDraggable: "katavorio-delegated-draggable",
-    // elements that are the delegated drag handler for a bunch of other elements
-    draggable: "katavorio-draggable",
-    // draggable elements
-    droppable: "katavorio-droppable",
-    // droppable elements
-    drag: "katavorio-drag",
-    // elements currently being dragged
-    selected: "katavorio-drag-selected",
-    // elements in current drag selection
-    active: "katavorio-drag-active",
-    // droppables that are targets of a currently dragged element
-    hover: "katavorio-drag-hover",
-    // droppables over which a matching drag element is hovering
-    noSelect: "katavorio-drag-no-select",
-    // added to the body to provide a hook to suppress text selection
-    ghostProxy: "katavorio-ghost-proxy",
-    // added to a ghost proxy element in use when a drag has exited the bounds of its parent.
-    clonedDrag: "katavorio-clone-drag" // added to a node that is a clone of an element created at the start of a drag
-
-  };
-  var _events = ["stop", "start", "drag", "drop", "over", "out", "beforeStart"];
-
-  var _devNull = function _devNull() {};
-
-  var _each$1 = function _each(obj, fn) {
-    if (obj == null) return;
-    obj = !IS.aString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
-
-    for (var i = 0; i < obj.length; i++) {
-      fn.apply(obj[i], [obj[i]]);
-    }
-  }; //
-  // filters out events on all input elements, like textarea, checkbox, input, select.
-  // Collicat has a default list of these.
-  //
-
-
-  var _inputFilter = function _inputFilter(e, el, collicat) {
-    var t = e.srcElement || e.target;
-    return !matchesSelector(t, collicat.getInputFilterSelector(), el);
-  };
-
-  var Base =
-  /*#__PURE__*/
-  function () {
-    function Base(el, k) {
-      _classCallCheck(this, Base);
-
-      this.el = el;
-      this.k = k;
-
-      _defineProperty(this, "_class", void 0);
-
-      _defineProperty(this, "uuid", uuid());
-
-      _defineProperty(this, "enabled", true);
-
-      _defineProperty(this, "scopes", []);
-    }
-
-    _createClass(Base, [{
-      key: "setEnabled",
-      value: function setEnabled(e) {
-        this.enabled = e;
-      }
-    }, {
-      key: "isEnabled",
-      value: function isEnabled() {
-        return this.enabled;
-      }
-    }, {
-      key: "toggleEnabled",
-      value: function toggleEnabled() {
-        this.enabled = !this.enabled;
-      } // setScope (scopes:string) {
-      //     this.scopes = scopes ? scopes.split(/\s+/) : [ this.scope ];
-      // }
-
-    }, {
-      key: "addScope",
-      value: function addScope(scopes) {
-        var m = {};
-
-        _each$1(this.scopes, function (s) {
-          m[s] = true;
-        });
-
-        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
-          m[s] = true;
-        });
-
-        this.scopes.length = 0;
-
-        for (var i in m) {
-          this.scopes.push(i);
-        }
-      }
-    }, {
-      key: "removeScope",
-      value: function removeScope(scopes) {
-        var m = {};
-
-        _each$1(this.scopes, function (s) {
-          m[s] = true;
-        });
-
-        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
-          delete m[s];
-        });
-
-        this.scopes.length = 0;
-
-        for (var i in m) {
-          this.scopes.push(i);
-        }
-      }
-    }, {
-      key: "toggleScope",
-      value: function toggleScope(scopes) {
-        var m = {};
-
-        _each$1(this.scopes, function (s) {
-          m[s] = true;
-        });
-
-        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
-          if (m[s]) delete m[s];else m[s] = true;
-        });
-
-        this.scopes.length = 0;
-
-        for (var i in m) {
-          this.scopes.push(i);
-        }
-      }
-    }]);
-
-    return Base;
-  }();
-
-  function getConstrainingRectangle(el) {
-    return [el.parentNode.scrollWidth, el.parentNode.scrollHeight];
-  }
-
-  var Drag =
-  /*#__PURE__*/
-  function (_Base) {
-    _inherits(Drag, _Base);
-
-    // a map of { spec -> [ fn, exclusion ] } entries.
-    //_dragClass:string = "";
-    function Drag(el, params, k) {
-      var _this;
-
-      _classCallCheck(this, Drag);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Drag).call(this, el, k));
-
-      _defineProperty(_assertThisInitialized(_this), "_class", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "rightButtonCanDrag", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "consumeStartEvent", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "clone", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "scroll", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_downAt", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_posAtDown", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_pagePosAtDown", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_pageDelta", [0, 0]);
-
-      _defineProperty(_assertThisInitialized(_this), "_moving", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_initialScroll", [0, 0]);
-
-      _defineProperty(_assertThisInitialized(_this), "_size", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_currentParentPosition", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_ghostParentPosition", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_dragEl", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_multipleDrop", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_ghostProxyOffsets", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_ghostDx", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_ghostDy", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_ghostProxyParent", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_isConstrained", false);
-
-      _defineProperty(_assertThisInitialized(_this), "_useGhostProxy", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_activeSelectorParams", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_availableSelectors", []);
-
-      _defineProperty(_assertThisInitialized(_this), "_ghostProxyFunction", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_snapThreshold", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_grid", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_allowNegative", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_constrain", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_revertFunction", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_canDrag", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_consumeFilteredEvents", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_parent", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_ignoreZoom", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_filters", {});
-
-      _defineProperty(_assertThisInitialized(_this), "_constrainRect", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "_matchingDroppables", []);
-
-      _defineProperty(_assertThisInitialized(_this), "_intersectingDroppables", []);
-
-      _defineProperty(_assertThisInitialized(_this), "_elementToDrag", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "downListener", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "moveListener", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "upListener", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "listeners", {
-        "start": [],
-        "drag": [],
-        "stop": [],
-        "over": [],
-        "out": [],
-        "beforeStart": [],
-        "revert": []
-      });
-
-      _this._class = _this.k.css.draggable;
-      addClass(_this.el, _this._class);
-      _this.downListener = _this._downListener.bind(_assertThisInitialized(_this));
-      _this.upListener = _this._upListener.bind(_assertThisInitialized(_this));
-      _this.moveListener = _this._moveListener.bind(_assertThisInitialized(_this));
-      _this.rightButtonCanDrag = params.rightButtonCanDrag === true;
-      _this.consumeStartEvent = params.consumeStartEvent !== false;
-      _this._dragEl = _this.el;
-      _this.clone = params.clone === true;
-      _this.scroll = params.scroll === true;
-      _this._multipleDrop = params.multipleDrop !== false;
-      _this._grid = params.grid;
-      _this._allowNegative = params.allowNegative;
-      _this._revertFunction = params.revert;
-      _this._canDrag = params.canDrag || TRUE;
-      _this._consumeFilteredEvents = params.consumeFilteredEvents;
-      _this._parent = params.parent;
-      _this._ignoreZoom = params.ignoreZoom === true;
-      _this._ghostProxyParent = params.ghostProxyParent;
-
-      if (params.ghostProxy === true) {
-        _this._useGhostProxy = TRUE;
-      } else {
-        if (params.ghostProxy && typeof params.ghostProxy === "function") {
-          _this._useGhostProxy = params.ghostProxy;
-        } else {
-          _this._useGhostProxy = function (container, dragEl) {
-            if (_this._activeSelectorParams && _this._activeSelectorParams.useGhostProxy) {
-              return _this._activeSelectorParams.useGhostProxy(container, dragEl);
-            } else {
-              return false;
-            }
-          };
-        }
-      }
-
-      if (params.makeGhostProxy) {
-        _this._ghostProxyFunction = params.makeGhostProxy;
-      } else {
-        _this._ghostProxyFunction = function (el) {
-          if (_this._activeSelectorParams && _this._activeSelectorParams.makeGhostProxy) {
-            return _this._activeSelectorParams.makeGhostProxy(el);
-          } else {
-            return el.cloneNode(true);
-          }
-        };
-      }
-
-      if (params.selector) {
-        var draggableId = _this.el.getAttribute("katavorio-draggable");
-
-        if (draggableId == null) {
-          draggableId = "" + new Date().getTime();
-
-          _this.el.setAttribute("katavorio-draggable", draggableId);
-        }
-
-        _this._availableSelectors.push(params);
-      }
-
-      _this._snapThreshold = params.snapThreshold;
-
-      _this._setConstrain(typeof params.constrain === "function" ? params.constrain : params.constrain || params.containment);
-
-      _this.k.eventManager.on(_this.el, "mousedown", _this.downListener);
-
-      return _this;
-    }
-
-    _createClass(Drag, [{
-      key: "on",
-      value: function on(evt, fn) {
-        if (this.listeners[evt]) {
-          this.listeners[evt].push(fn);
-        }
-      }
-    }, {
-      key: "off",
-      value: function off(evt, fn) {
-        if (this.listeners[evt]) {
-          var l = [];
-
-          for (var i = 0; i < this.listeners[evt].length; i++) {
-            if (this.listeners[evt][i] !== fn) {
-              l.push(this.listeners[evt][i]);
-            }
-          }
-
-          this.listeners[evt] = l;
-        }
-      }
-    }, {
-      key: "_upListener",
-      value: function _upListener(e) {
-        if (this._downAt) {
-          this._downAt = null;
-          this.k.eventManager.off(document, "mousemove", this.moveListener);
-          this.k.eventManager.off(document, "mouseup", this.upListener);
-          removeClass(document.body, _classes.noSelect);
-          this.unmark(e); // k.unmarkSelection(this, e);
-
-          this.stop(e);
-          this._moving = false;
-
-          if (this.clone) {
-            this._dragEl && this._dragEl.parentNode && this._dragEl.parentNode.removeChild(this._dragEl);
-            this._dragEl = null;
-          } else {
-            if (this._revertFunction && this._revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
-              _setPosition(this._dragEl, this._posAtDown);
-
-              this._dispatch("revert", this._dragEl);
-            }
-          }
-        }
-      }
-    }, {
-      key: "_downListener",
-      value: function _downListener(e) {
-        if (e.defaultPrevented) {
-          return;
-        }
-
-        var isNotRightClick = this.rightButtonCanDrag || e.which !== 3 && e.button !== 2;
-
-        if (isNotRightClick && this.isEnabled() && this._canDrag()) {
-          var _f = this._testFilter(e) && _inputFilter(e, this.el, this.k);
-
-          if (_f) {
-            this._activeSelectorParams = null;
-            this._elementToDrag = null;
-
-            if (this._availableSelectors.length === 0) {
-              console.log("JSPLUMB: no available drag selectors");
-            }
-
-            var eventTarget = e.target || e.srcElement;
-            var match = findMatchingSelector(this._availableSelectors, this.el, eventTarget);
-
-            if (match != null) {
-              this._activeSelectorParams = match[0];
-              this._elementToDrag = match[1];
-            }
-
-            if (this._activeSelectorParams == null || this._elementToDrag == null) {
-              return;
-            } // dragInit gives a handler a chance to provide the actual element to drag. in the case of the endpoint stuff, for instance,
-            // this is the drag placeholder. but for element drag the current value of `_elementToDrag` is the one we want to use.
-
-
-            var initial = this._activeSelectorParams.dragInit(this._elementToDrag);
-
-            if (initial != null) {
-              this._elementToDrag = initial;
-            }
-
-            if (this.clone) {
-              // here when doing a makeSource endpoint we dont end up with the right
-              this._dragEl = this._elementToDrag.cloneNode(true);
-              addClass(this._dragEl, _classes.clonedDrag);
-
-              this._dragEl.setAttribute("id", null);
-
-              this._dragEl.style.position = "absolute";
-
-              if (this._parent != null) {
-                var p = _getPosition(this.el);
-
-                this._dragEl.style.left = p[0] + "px";
-                this._dragEl.style.top = p[1] + "px";
-
-                this._parent.appendChild(this._dragEl);
-              } else {
-                // the clone node is added to the body; getOffsetRect gives us a value
-                // relative to the body.
-                var b = getOffsetRect(this._elementToDrag);
-                this._dragEl.style.left = b[0] + "px";
-                this._dragEl.style.top = b[1] + "px";
-                document.body.appendChild(this._dragEl);
-              }
-            } else {
-              this._dragEl = this._elementToDrag;
-            }
-
-            if (this.consumeStartEvent) {
-              consume(e);
-            }
-
-            this._downAt = pageLocation(e);
-
-            if (this._dragEl && this._dragEl.parentNode) {
-              this._initialScroll = [this._dragEl.parentNode.scrollLeft, this._dragEl.parentNode.scrollTop];
-            } //
-
-
-            this.k.eventManager.on(document, "mousemove", this.moveListener);
-            this.k.eventManager.on(document, "mouseup", this.upListener); //k.markSelection(this);
-
-            addClass(document.body, _classes.noSelect);
-
-            this._dispatch("beforeStart", {
-              el: this.el,
-              pos: this._posAtDown,
-              e: e,
-              drag: this
-            });
-          } else if (this._consumeFilteredEvents) {
-            consume(e);
-          }
-        }
-      }
-    }, {
-      key: "_moveListener",
-      value: function _moveListener(e) {
-        if (this._downAt) {
-          if (!this._moving) {
-            var dispatchResult = this._dispatch("start", {
-              el: this.el,
-              pos: this._posAtDown,
-              e: e,
-              drag: this
-            });
-
-            if (dispatchResult !== false) {
-              if (!this._downAt) {
-                return;
-              }
-
-              this.mark(dispatchResult, true);
-              this._moving = true;
-            } else {
-              this.abort();
-            }
-          } // it is possible that the start event caused the drag to be aborted. So we check
-          // again that we are currently dragging.
-
-
-          if (this._downAt) {
-            var _pos = pageLocation(e),
-                dx = _pos[0] - this._downAt[0],
-                dy = _pos[1] - this._downAt[1],
-                z = this._ignoreZoom ? 1 : this.k.getZoom();
-
-            if (this._dragEl && this._dragEl.parentNode) {
-              dx += this._dragEl.parentNode.scrollLeft - this._initialScroll[0];
-              dy += this._dragEl.parentNode.scrollTop - this._initialScroll[1];
-            }
-
-            dx /= z;
-            dy /= z;
-            this.moveBy(dx, dy, e); //k.updateSelection(dx, dy, this);
-          }
-        }
-      }
-    }, {
-      key: "mark",
-      value: function mark(payload, andNotify) {
-        this._posAtDown = _getPosition(this._dragEl); //this._pagePosAtDown = _getPosition(this._dragEl, true*);
-
-        this._pagePosAtDown = getOffsetRect(this._dragEl);
-        this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]];
-        this._size = _getSize(this._dragEl);
-        addClass(this._dragEl, this.k.css.drag);
-        var cs; // if (this._getConstrainingRectangle) {
-        //     cs = this._getConstrainingRectangle(this._dragEl)
-        // } else {
-        //     cs = _getSize(this._dragEl.parentNode);
-        // }
-
-        cs = getConstrainingRectangle(this._dragEl);
-        this._constrainRect = {
-          w: cs[0],
-          h: cs[1]
-        };
-        this._ghostDx = 0;
-        this._ghostDy = 0;
-      }
-    }, {
-      key: "unmark",
-      value: function unmark(e) {
-        if (this._isConstrained && this._useGhostProxy(this._elementToDrag, this._dragEl)) {
-          this._ghostProxyOffsets = [this._dragEl.offsetLeft - this._ghostDx, this._dragEl.offsetTop - this._ghostDy];
-
-          this._dragEl.parentNode.removeChild(this._dragEl);
-
-          this._dragEl = this._elementToDrag;
-        } else {
-          this._ghostProxyOffsets = null;
-        }
-
-        removeClass(this._dragEl, this.k.css.drag);
-        this._isConstrained = false;
-      }
-    }, {
-      key: "moveBy",
-      value: function moveBy(dx, dy, e) {
-        var desiredLoc = this.toGrid([this._posAtDown[0] + dx, this._posAtDown[1] + dy]),
-            cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size); // if we should use a ghost proxy...
-
-
-        if (this._useGhostProxy(this.el, this._dragEl)) {
-          // and the element has been dragged outside of its parent bounds
-          if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
-            // ...if ghost proxy not yet created
-            if (!this._isConstrained) {
-              // create it
-              var gp = this._ghostProxyFunction(this._elementToDrag);
-
-              addClass(gp, _classes.ghostProxy);
-
-              if (this._ghostProxyParent) {
-                this._ghostProxyParent.appendChild(gp); // find offset between drag el's parent the ghost parent
-                // this._currentParentPosition = _getPosition(this._elementToDrag.parentNode, true);
-                // this._ghostParentPosition = _getPosition(this._ghostProxyParent, true);
-
-
-                this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode);
-                this._ghostParentPosition = getOffsetRect(this._ghostProxyParent);
-                this._ghostDx = this._currentParentPosition[0] - this._ghostParentPosition[0];
-                this._ghostDy = this._currentParentPosition[1] - this._ghostParentPosition[1];
-              } else {
-                this._elementToDrag.parentNode.appendChild(gp);
-              } // the ghost proxy is the drag element
-
-
-              this._dragEl = gp; // set this flag so we dont recreate the ghost proxy
-
-              this._isConstrained = true;
-            } // now the drag position can be the desired position, as the ghost proxy can support it.
-
-
-            cPos = desiredLoc;
-          } else {
-            // if the element is not outside of its parent bounds, and ghost proxy is in place,
-            if (this._isConstrained) {
-              // remove the ghost proxy from the dom
-              this._dragEl.parentNode.removeChild(this._dragEl); // reset the drag element to the original element
-
-
-              this._dragEl = this._elementToDrag; // clear this flag.
-
-              this._isConstrained = false;
-              this._currentParentPosition = null;
-              this._ghostParentPosition = null;
-              this._ghostDx = 0;
-              this._ghostDy = 0;
-            }
-          }
-        }
-
-        var rect = {
-          x: cPos[0],
-          y: cPos[1],
-          w: this._size[0],
-          h: this._size[1]
-        },
-            pageRect = {
-          x: rect.x + this._pageDelta[0],
-          y: rect.y + this._pageDelta[1],
-          w: rect.w,
-          h: rect.h
-        };
-
-        _setPosition(this._dragEl, [cPos[0] + this._ghostDx, cPos[1] + this._ghostDy]);
-
-        this._dispatch("drag", {
-          el: this.el,
-          pos: cPos,
-          e: e,
-          drag: this
-        });
-        /* test to see if the parent needs to be scrolled (future)
-         if (scroll) {
-         var pnsl = dragEl.parentNode.scrollLeft, pnst = dragEl.parentNode.scrollTop;
-         console.log("scroll!", pnsl, pnst);
-         }*/
-
-      }
-    }, {
-      key: "abort",
-      value: function abort() {
-        if (this._downAt != null) {
-          this._upListener();
-        }
-      }
-    }, {
-      key: "getDragElement",
-      value: function getDragElement(retrieveOriginalElement) {
-        return retrieveOriginalElement ? this._elementToDrag || this.el : this._dragEl || this.el;
-      }
-    }, {
-      key: "stop",
-      value: function stop(e, force) {
-        if (force || this._moving) {
-          var positions = [],
-              sel = [],
-              //this.k.getSelection(),
-          dPos = _getPosition(this._dragEl);
-
-          if (sel.length > 0) {
-            for (var i = 0; i < sel.length; i++) {
-              var p = _getPosition(sel[i].el);
-
-              positions.push([sel[i].el, {
-                left: p[0],
-                top: p[1]
-              }, sel[i]]);
-            }
-          } else {
-            positions.push([this._dragEl, {
-              left: dPos[0],
-              top: dPos[1]
-            }, this]);
-          }
-
-          this._dispatch("stop", {
-            el: this._dragEl,
-            pos: this._ghostProxyOffsets || dPos,
-            finalPos: dPos,
-            e: e,
-            drag: this,
-            selection: positions
-          });
-        }
-      }
-    }, {
-      key: "notifyStart",
-      value: function notifyStart(e) {
-        this._dispatch("start", {
-          el: this.el,
-          pos: _getPosition(this._dragEl),
-          e: e,
-          drag: this
-        });
-      }
-    }, {
-      key: "_dispatch",
-      value: function _dispatch(evt, value) {
-        var result = null;
-
-        if (this._activeSelectorParams && this._activeSelectorParams[evt]) {
-          result = this._activeSelectorParams[evt](value);
-        } else if (this.listeners[evt]) {
-          for (var i = 0; i < this.listeners[evt].length; i++) {
-            try {
-              var v = this.listeners[evt][i](value);
-
-              if (v != null) {
-                result = v;
-              }
-            } catch (e) {}
-          }
-        }
-
-        return result;
-      }
-    }, {
-      key: "_snap",
-      value: function _snap(pos, gridX, gridY, thresholdX, thresholdY) {
-        var _dx = Math.floor(pos[0] / gridX),
-            _dxl = gridX * _dx,
-            _dxt = _dxl + gridX,
-            _x = Math.abs(pos[0] - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos[0]) <= thresholdX ? _dxt : pos[0];
-
-        var _dy = Math.floor(pos[1] / gridY),
-            _dyl = gridY * _dy,
-            _dyt = _dyl + gridY,
-            _y = Math.abs(pos[1] - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos[1]) <= thresholdY ? _dyt : pos[1];
-
-        return [_x, _y];
-      }
-    }, {
-      key: "toGrid",
-      value: function toGrid(pos) {
-        if (this._grid == null) {
-          return pos;
-        } else {
-          var tx = this._grid ? this._grid[0] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2,
-              ty = this._grid ? this._grid[1] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2;
-          return this._snap(pos, this._grid[0], this._grid[1], tx, ty);
-        }
-      }
-    }, {
-      key: "snap",
-      value: function snap(x, y) {
-        if (this._dragEl == null) {
-          return;
-        }
-
-        x = x || (this._grid ? this._grid[0] : DEFAULT_GRID_X);
-        y = y || (this._grid ? this._grid[1] : DEFAULT_GRID_Y);
-
-        var p = _getPosition(this._dragEl),
-            tx = this._grid ? this._grid[0] / 2 : this._snapThreshold,
-            ty = this._grid ? this._grid[1] / 2 : this._snapThreshold,
-            snapped = this._snap(p, x, y, tx, ty);
-
-        _setPosition(this._dragEl, snapped);
-
-        return snapped;
-      }
-    }, {
-      key: "setUseGhostProxy",
-      value: function setUseGhostProxy(val) {
-        this._useGhostProxy = val ? TRUE : FALSE;
-      }
-    }, {
-      key: "_negativeFilter",
-      value: function _negativeFilter(pos) {
-        return this._allowNegative === false ? [Math.max(0, pos[0]), Math.max(0, pos[1])] : pos;
-      }
-    }, {
-      key: "_setConstrain",
-      value: function _setConstrain(value) {
-        var _this2 = this;
-
-        this._constrain = typeof value === "function" ? value : value ? function (pos, dragEl, _constrainRect, _size) {
-          return _this2._negativeFilter([Math.max(0, Math.min(_constrainRect.w - _size[0], pos[0])), Math.max(0, Math.min(_constrainRect.h - _size[1], pos[1]))]);
-        } : function (pos) {
-          return _this2._negativeFilter(pos);
-        };
-      }
-      /**
-       * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
-       * will be executed and returns true if the position is allowed.
-       * @param value
-       */
-
-    }, {
-      key: "setConstrain",
-      value: function setConstrain(value) {
-        this._setConstrain(value);
-      }
-    }, {
-      key: "_doConstrain",
-      value: function _doConstrain(pos, dragEl, _constrainRect, _size) {
-        if (this._activeSelectorParams != null && this._activeSelectorParams.constrain && typeof this._activeSelectorParams.constrain === "function") {
-          return this._activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size);
-        } else {
-          return this._constrain(pos, dragEl, _constrainRect, _size);
-        }
-      }
-      /**
-       * Sets a function to call on drag stop, which, if it returns true, indicates that the given element should
-       * revert to its position before the previous drag.
-       * @param fn
-       */
-
-    }, {
-      key: "setRevert",
-      value: function setRevert(fn) {
-        this._revertFunction = fn;
-      }
-    }, {
-      key: "_assignId",
-      value: function _assignId(obj) {
-        if (typeof obj === "function") {
-          obj._katavorioId = uuid();
-          return obj._katavorioId;
-        } else {
-          return obj;
-        }
-      }
-    }, {
-      key: "_testFilter",
-      value: function _testFilter(e) {
-        for (var key in this._filters) {
-          var f = this._filters[key];
-          var rv = f[0](e);
-
-          if (f[1]) {
-            rv = !rv;
-          }
-
-          if (!rv) {
-            return false;
-          }
-        }
-
-        return true;
-      }
-    }, {
-      key: "addFilter",
-      value: function addFilter(f, _exclude) {
-        var _this3 = this;
-
-        if (f) {
-          var key = this._assignId(f);
-
-          this._filters[key] = [function (e) {
-            var t = e.srcElement || e.target;
-            var m;
-
-            if (IS.aString(f)) {
-              m = matchesSelector(t, f, _this3.el);
-            } else if (typeof f === "function") {
-              m = f(e, _this3.el);
-            }
-
-            return m;
-          }, _exclude !== false];
-        }
-      }
-    }, {
-      key: "removeFilter",
-      value: function removeFilter(f) {
-        var key = typeof f === "function" ? f._katavorioId : f;
-        delete this._filters[key];
-      }
-    }, {
-      key: "clearAllFilters",
-      value: function clearAllFilters() {
-        this._filters = {};
-      }
-    }, {
-      key: "addSelector",
-      value: function addSelector(params) {
-        if (params.selector) {
-          this._availableSelectors.push(params);
-        }
-      }
-    }, {
-      key: "destroy",
-      value: function destroy() {
-        this.k.eventManager.off(this.el, "mousedown", this.downListener);
-        this.k.eventManager.off(document, "mousemove", this.moveListener);
-        this.k.eventManager.off(document, "mouseup", this.upListener);
-        this.downListener = null;
-        this.upListener = null;
-        this.moveListener = null;
-      }
-    }]);
-
-    return Drag;
-  }(Base);
-  var DEFAULT_INPUT_FILTER_SELECTOR = "input,textarea,select,button,option";
-  var Collicat =
-  /*#__PURE__*/
-  function () {
-    function Collicat(options) {
-      _classCallCheck(this, Collicat);
-
-      _defineProperty(this, "eventManager", void 0);
-
-      _defineProperty(this, "zoom", 1);
-
-      _defineProperty(this, "css", {});
-
-      _defineProperty(this, "inputFilterSelector", void 0);
-
-      _defineProperty(this, "constrain", void 0);
-
-      _defineProperty(this, "revert", void 0);
-
-      options = options || {};
-      this.inputFilterSelector = options.inputFilterSelector || DEFAULT_INPUT_FILTER_SELECTOR;
-      this.eventManager = new EventManager();
-      this.zoom = options.zoom || 1;
-
-      var _c = options.css || {};
-
-      extend(this.css, _c);
-      this.constrain = options.constrain;
-      this.revert = options.revert;
-    }
-
-    _createClass(Collicat, [{
-      key: "getZoom",
-      value: function getZoom() {
-        return this.zoom;
-      }
-    }, {
-      key: "setZoom",
-      value: function setZoom(z) {
-        this.zoom = z;
-      }
-    }, {
-      key: "_prepareParams",
-      value: function _prepareParams(p) {
-        p = p || {};
-
-        if (p.constrain == null && this.constrain != null) {
-          p.constrain = this.constrain;
-        }
-
-        if (p.revert == null && this.revert != null) {
-          p.revert = this.revert;
-        }
-
-        var _p = {
-          events: {}
-        },
-            i; // for (i in katavorioParams) {
-        //     _p[i] = katavorioParams[i];
-        // }
-
-        for (i in p) {
-          _p[i] = p[i];
-        } // events
-
-
-        for (i = 0; i < _events.length; i++) {
-          _p.events[_events[i]] = p[_events[i]] || _devNull;
-        }
-
-        return _p;
-      }
-      /**
-       * Gets the selector identifying which input elements to filter from drag events.
-       * @method getInputFilterSelector
-       * @return {String} Current input filter selector.
-       */
-
-    }, {
-      key: "getInputFilterSelector",
-      value: function getInputFilterSelector() {
-        return this.inputFilterSelector;
-      }
-    }, {
-      key: "setInputFilterSelector",
-
-      /**
-       * Sets the selector identifying which input elements to filter from drag events.
-       * @method setInputFilterSelector
-       * @param {String} selector Input filter selector to set.
-       * @return {Katavorio} Current instance; method may be chained.
-       */
-      value: function setInputFilterSelector(selector) {
-        this.inputFilterSelector = selector;
-        return this;
-      }
-    }, {
-      key: "draggable",
-      value: function draggable(el, params) {
-        if (el._katavorioDrag == null) {
-          var p = this._prepareParams(params);
-
-          var d = new Drag(el, p, this);
-          addClass(el, _classes.delegatedDraggable);
-          el._katavorioDrag = d;
-          return d;
-        } else {
-          return el._katavorioDrag;
-        }
-      }
-    }, {
-      key: "destroyDraggable",
-      value: function destroyDraggable(el) {
-        if (el._katavorioDrag) {
-          // current selection? are we handling that?
-          el._katavorioDrag.destroy();
-
-          delete el._katavorioDrag;
-        }
-      }
-    }]);
-
-    return Collicat;
-  }();
-
   function _isInsideParent(instance, _el, pos) {
     var p = _el.parentNode,
         s = instance.getSize(p),
@@ -11418,7 +9609,7 @@
       _defineProperty(this, "_filtersToAdd", []);
 
       // create a delegated drag handler
-      this.collicat = new Collicat({
+      this.collicat = this.instance.createDragManager({
         zoom: this.instance.getZoom(),
         css: {
           noSelect: this.instance.dragSelectClass,
@@ -13419,6 +11610,683 @@
     return GroupDragHandler;
   }(ElementDragHandler);
 
+  /**
+   * Creates a Touch object.
+   * @param target
+   * @param pageX
+   * @param pageY
+   * @param screenX
+   * @param screenY
+   * @param clientX
+   * @param clientY
+   * @returns {Touch}
+   * @private
+   */
+  function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
+    return new Touch({
+      target: target,
+      identifier: uuid(),
+      pageX: pageX,
+      pageY: pageY,
+      screenX: screenX,
+      screenY: screenY,
+      clientX: clientX || screenX,
+      clientY: clientY || screenY
+    });
+  }
+  /**
+   * Create a synthetic touch list from the given list of Touch objects.
+   * @returns {Array}
+   * @private
+   */
+
+
+  function _touchList() {
+    var list = [];
+    list.push.apply(list, arguments);
+
+    list.item = function (index) {
+      return this[index];
+    };
+
+    return list;
+  }
+  /**
+   * Create a Touch object and then insert it into a synthetic touch list, returning the list.
+   * @param target
+   * @param pageX
+   * @param pageY
+   * @param screenX
+   * @param screenY
+   * @param clientX
+   * @param clientY
+   * @returns {Array}
+   * @private
+   */
+
+
+  function _touchAndList(target, pageX, pageY, screenX, screenY, clientX, clientY) {
+    return _touchList(_touch(target, pageX, pageY, screenX, screenY, clientX, clientY));
+  }
+
+  function matchesSelector$1(el, selector, ctx) {
+    ctx = ctx || el.parentNode;
+    var possibles = ctx.querySelectorAll(selector);
+
+    for (var i = 0; i < possibles.length; i++) {
+      if (possibles[i] === el) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function _gel(el) {
+    return typeof el == "string" || el.constructor === String ? document.getElementById(el) : el;
+  }
+
+  function _t(e) {
+    return e.srcElement || e.target;
+  } //
+  // gets path info for the given event - the path from target to obj, in the event's bubble chain. if doCompute
+  // is false we just return target for the path.
+  //
+
+
+  function _pi(e, target, obj, doCompute) {
+    if (!doCompute) return {
+      path: [target],
+      end: 1
+    };else if (typeof e.path !== "undefined" && e.path.indexOf) {
+      return {
+        path: e.path,
+        end: e.path.indexOf(obj)
+      };
+    } else {
+      var out = {
+        path: [],
+        end: -1
+      },
+          _one = function _one(el) {
+        out.path.push(el);
+
+        if (el === obj) {
+          out.end = out.path.length - 1;
+        } else if (el.parentNode != null) {
+          _one(el.parentNode);
+        }
+      };
+
+      _one(target);
+
+      return out;
+    }
+  }
+
+  function _d(l, fn) {
+    var i = 0,
+        j;
+
+    for (i = 0, j = l.length; i < j; i++) {
+      if (l[i] == fn) break;
+    }
+
+    if (i < l.length) l.splice(i, 1);
+  }
+
+  var guid = 1;
+  var isTouchDevice = "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
+  var isMouseDevice = "onmousedown" in document.documentElement;
+  var touchMap = {
+    "mousedown": "touchstart",
+    "mouseup": "touchend",
+    "mousemove": "touchmove"
+  };
+  var PAGE = "page";
+  var SCREEN = "screen";
+  var CLIENT = "client";
+
+  function _genLoc(e, prefix) {
+    if (e == null) return [0, 0];
+
+    var ts = _touches(e),
+        t = _getTouch(ts, 0);
+
+    return [t[prefix + "X"], t[prefix + "Y"]];
+  }
+
+  function pageLocation(e) {
+    if (e == null) return [0, 0];
+    return _genLoc(e, PAGE);
+  }
+
+  function _screenLocation(e) {
+    return _genLoc(e, SCREEN);
+  }
+
+  function _clientLocation(e) {
+    return _genLoc(e, CLIENT);
+  }
+
+  function _getTouch(touches, idx) {
+    return touches.item ? touches.item(idx) : touches[idx];
+  }
+
+  function _touches(e) {
+    return e.touches && e.touches.length > 0 ? e.touches : e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches : e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches : [e];
+  }
+
+  function _touchCount(e) {
+    return _touches(e).length;
+  }
+
+  function _bind(obj, type, fn, originalFn) {
+    _store(obj, type, fn);
+
+    originalFn.__tauid = fn.__tauid;
+
+    if (obj.addEventListener) {
+      obj.addEventListener(type, fn, false);
+    } else if (obj.attachEvent) {
+      var key = type + fn.__tauid;
+      obj["e" + key] = fn; // TODO look at replacing with .call(..)
+
+      obj[key] = function () {
+        obj["e" + key] && obj["e" + key](window.event);
+      };
+
+      obj.attachEvent("on" + type, obj[key]);
+    }
+  }
+
+  function _unbind(obj, type, fn) {
+    var _this = this;
+
+    if (fn == null) return;
+
+    _each(obj, function (el) {
+      var _el = _gel(el);
+
+      _unstore(_el, type, fn); // it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
+
+
+      if (fn.__tauid != null) {
+        if (_el.removeEventListener) {
+          _el.removeEventListener(type, fn, false);
+
+          if (isTouchDevice && touchMap[type]) _el.removeEventListener(touchMap[type], fn, false);
+        } else if (_this.detachEvent) {
+          var key = type + fn.__tauid;
+          _el[key] && _el.detachEvent("on" + type, _el[key]);
+          _el[key] = null;
+          _el["e" + key] = null;
+        }
+      } // if a touch event was also registered, deregister now.
+
+
+      if (fn.__taTouchProxy) {
+        _unbind(obj, fn.__taTouchProxy[1], fn.__taTouchProxy[0]);
+      }
+    });
+  }
+
+  function _each(obj, fn) {
+    if (obj == null) return; // if a list (or list-like), use it. if a string, get a list
+    // by running the string through querySelectorAll. else, assume
+    // it's an Element.
+
+    var entries = typeof obj === "string" ? document.querySelectorAll(obj) : obj.length != null ? obj : [obj];
+
+    for (var i = 0; i < entries.length; i++) {
+      fn(entries[i]);
+    }
+  }
+
+  function _store(obj, event, fn) {
+    var g = guid++;
+    obj.__ta = obj.__ta || {};
+    obj.__ta[event] = obj.__ta[event] || {}; // store each handler with a unique guid.
+
+    obj.__ta[event][g] = fn; // set the guid on the handler.
+
+    fn.__tauid = g;
+    return g;
+  }
+
+  function _unstore(obj, event, fn) {
+    obj.__ta && obj.__ta[event] && delete obj.__ta[event][fn.__tauid]; // a handler might have attached extra functions, so we unbind those too.
+
+    if (fn.__taExtra) {
+      for (var i = 0; i < fn.__taExtra.length; i++) {
+        _unbind(obj, fn.__taExtra[i][0], fn.__taExtra[i][1]);
+      }
+
+      fn.__taExtra.length = 0;
+    } // a handler might have attached an unstore callback
+
+
+    fn.__taUnstore && fn.__taUnstore();
+  }
+
+  function _curryChildFilter(children, obj, fn, evt) {
+    if (children == null) return fn;else {
+      var c = children.split(","),
+          _fn = function _fn(e) {
+        _fn.__tauid = fn.__tauid;
+
+        var t = _t(e);
+
+        var target = t; // t is the target element on which the event occurred. it is the
+        // element we will wish to pass to any callbacks.
+
+        var pathInfo = _pi(e, t, obj, children != null);
+
+        if (pathInfo.end != -1) {
+          for (var p = 0; p < pathInfo.end; p++) {
+            target = pathInfo.path[p];
+
+            for (var i = 0; i < c.length; i++) {
+              if (matchesSelector$1(target, c[i], obj)) {
+                fn.apply(target, [e, target]);
+              }
+            }
+          }
+        }
+      };
+
+      registerExtraFunction(fn, evt, _fn);
+      return _fn;
+    }
+  }
+
+  function registerExtraFunction(fn, evt, newFn) {
+    fn.__taExtra = fn.__taExtra || [];
+
+    fn.__taExtra.push([evt, newFn]);
+  }
+
+  var DefaultHandler = function DefaultHandler(obj, evt, fn, children) {
+    if (isTouchDevice && touchMap[evt]) {
+      var tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
+
+      _bind(obj, touchMap[evt], tfn, fn);
+    }
+
+    if (evt === EVENT_FOCUS && obj.getAttribute(ATTRIBUTE_TABINDEX) == null) {
+      obj.setAttribute(ATTRIBUTE_TABINDEX, "1");
+    }
+
+    _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
+  };
+
+  var SmartClickHandler = function SmartClickHandler(obj, evt, fn, children) {
+    if (obj.__taSmartClicks == null) {
+      var down = function down(e) {
+        obj.__tad = pageLocation(e);
+      },
+          up = function up(e) {
+        obj.__tau = pageLocation(e);
+      },
+          click = function click(e) {
+        if (obj.__tad && obj.__tau && obj.__tad[0] === obj.__tau[0] && obj.__tad[1] === obj.__tau[1]) {
+          for (var i = 0; i < obj.__taSmartClicks.length; i++) {
+            obj.__taSmartClicks[i].apply(_t(e), [e]);
+          }
+        }
+      };
+
+      DefaultHandler(obj, EVENT_MOUSEDOWN, down, children);
+      DefaultHandler(obj, EVENT_MOUSEUP, up, children);
+      DefaultHandler(obj, EVENT_CLICK, click, children);
+      obj.__taSmartClicks = [];
+    } // store in the list of callbacks
+
+
+    obj.__taSmartClicks.push(fn); // the unstore function removes this function from the object's listener list for this type.
+
+
+    fn.__taUnstore = function () {
+      _d(obj.__taSmartClicks, fn);
+    };
+  };
+
+  var _tapProfiles = {
+    "tap": {
+      touches: 1,
+      taps: 1
+    },
+    "dbltap": {
+      touches: 1,
+      taps: 2
+    },
+    "contextmenu": {
+      touches: 2,
+      taps: 1
+    }
+  };
+
+  function meeHelper(type, evt, obj, target) {
+    for (var i in obj.__tamee[type]) {
+      if (obj.__tamee[type].hasOwnProperty(i)) {
+        obj.__tamee[type][i].apply(target, [evt]);
+      }
+    }
+  }
+
+  var TapHandler =
+  /*#__PURE__*/
+  function () {
+    function TapHandler() {
+      _classCallCheck(this, TapHandler);
+    }
+
+    _createClass(TapHandler, null, [{
+      key: "generate",
+      value: function generate(clickThreshold, dblClickThreshold) {
+        return function (obj, evt, fn, children) {
+          // if event is contextmenu, for devices which are mouse only, we want to
+          // use the default bind.
+          if (evt == EVENT_CONTEXTMENU && isMouseDevice) DefaultHandler(obj, evt, fn, children);else {
+            // the issue here is that this down handler gets registered only for the
+            // child nodes in the first registration. in fact it should be registered with
+            // no child selector and then on down we should cycle through the registered
+            // functions to see if one of them matches. on mouseup we should execute ALL of
+            // the functions whose children are either null or match the element.
+            if (obj.__taTapHandler == null) {
+              var tt = obj.__taTapHandler = {
+                tap: [],
+                dbltap: [],
+                contextmenu: [],
+                down: false,
+                taps: 0,
+                downSelectors: []
+              };
+
+              var down = function down(e) {
+                var target = _t(e),
+                    pathInfo = _pi(e, target, obj, children != null),
+                    finished = false;
+
+                for (var p = 0; p < pathInfo.end; p++) {
+                  if (finished) return;
+                  target = pathInfo.path[p];
+
+                  for (var i = 0; i < tt.downSelectors.length; i++) {
+                    if (tt.downSelectors[i] == null || matchesSelector$1(target, tt.downSelectors[i], obj)) {
+                      tt.down = true;
+                      setTimeout(clearSingle, clickThreshold);
+                      setTimeout(clearDouble, dblClickThreshold);
+                      finished = true;
+                      break; // we only need one match on mousedown
+                    }
+                  }
+                }
+              },
+                  up = function up(e) {
+                if (tt.down) {
+                  var target = _t(e),
+                      currentTarget,
+                      pathInfo;
+
+                  tt.taps++;
+
+                  var tc = _touchCount(e);
+
+                  for (var eventId in _tapProfiles) {
+                    if (_tapProfiles.hasOwnProperty(eventId)) {
+                      var p = _tapProfiles[eventId];
+
+                      if (p.touches === tc && (p.taps === 1 || p.taps === tt.taps)) {
+                        for (var i = 0; i < tt[eventId].length; i++) {
+                          pathInfo = _pi(e, target, obj, tt[eventId][i][1] != null);
+
+                          for (var pLoop = 0; pLoop < pathInfo.end; pLoop++) {
+                            currentTarget = pathInfo.path[pLoop]; // this is a single event registration handler.
+
+                            if (tt[eventId][i][1] == null || matchesSelector$1(currentTarget, tt[eventId][i][1], obj)) {
+                              tt[eventId][i][0].apply(currentTarget, [e]);
+                              break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+                  clearSingle = function clearSingle() {
+                tt.down = false;
+              },
+                  clearDouble = function clearDouble() {
+                tt.taps = 0;
+              };
+
+              DefaultHandler(obj, "mousedown", down);
+              DefaultHandler(obj, "mouseup", up);
+            } // add this child selector (it can be null, that's fine).
+
+
+            obj.__taTapHandler.downSelectors.push(children);
+
+            obj.__taTapHandler[evt].push([fn, children]); // the unstore function removes this function from the object's listener list for this type.
+
+
+            fn.__taUnstore = function () {
+              _d(obj.__taTapHandler[evt], fn);
+            };
+          }
+        };
+      }
+    }]);
+
+    return TapHandler;
+  }();
+
+  var MouseEnterExitHandler =
+  /*#__PURE__*/
+  function () {
+    function MouseEnterExitHandler() {
+      _classCallCheck(this, MouseEnterExitHandler);
+    }
+
+    _createClass(MouseEnterExitHandler, null, [{
+      key: "generate",
+      value: function generate() {
+        var activeElements = [];
+        return function (obj, evt, fn, children) {
+          if (!obj.__tamee) {
+            // __tamee holds a flag saying whether the mouse is currently "in" the element, and a list of
+            // both mouseenter and mouseexit functions.
+            obj.__tamee = {
+              over: false,
+              mouseenter: [],
+              mouseexit: []
+            }; // register over and out functions
+
+            var over = function over(e) {
+              var t = _t(e);
+
+              if (children == null && t == obj && !obj.__tamee.over || matchesSelector$1(t, children, obj) && (t.__tamee == null || !t.__tamee.over)) {
+                meeHelper(EVENT_MOUSEENTER, e, obj, t);
+                t.__tamee = t.__tamee || {};
+                t.__tamee.over = true;
+                activeElements.push(t);
+              }
+            },
+                out = function out(e) {
+              var t = _t(e); // is the current target one of the activeElements? and is the
+              // related target NOT a descendant of it?
+
+
+              for (var i = 0; i < activeElements.length; i++) {
+                if (t == activeElements[i] && !matchesSelector$1(e.relatedTarget || e.toElement, "*", t)) {
+                  t.__tamee.over = false;
+                  activeElements.splice(i, 1);
+                  meeHelper(EVENT_MOUSEEXIT, e, obj, t);
+                }
+              }
+            };
+
+            _bind(obj, EVENT_MOUSEOVER, _curryChildFilter(children, obj, over, EVENT_MOUSEOVER), over);
+
+            _bind(obj, EVENT_MOUSEOUT, _curryChildFilter(children, obj, out, EVENT_MOUSEOUT), out);
+          }
+
+          fn.__taUnstore = function () {
+            delete obj.__tamee[evt][fn.__tauid];
+          };
+
+          _store(obj, evt, fn);
+
+          obj.__tamee[evt][fn.__tauid] = fn;
+        };
+      }
+    }]);
+
+    return MouseEnterExitHandler;
+  }();
+
+  var EventManager =
+  /*#__PURE__*/
+  function () {
+    function EventManager(params) {
+      _classCallCheck(this, EventManager);
+
+      _defineProperty(this, "clickThreshold", void 0);
+
+      _defineProperty(this, "dblClickThreshold", void 0);
+
+      _defineProperty(this, "tapHandler", void 0);
+
+      _defineProperty(this, "mouseEnterExitHandler", void 0);
+
+      _defineProperty(this, "smartClicks", void 0);
+
+      params = params || {};
+      this.clickThreshold = params.clickThreshold || 250;
+      this.dblClickThreshold = params.dblClickThreshold || 450;
+      this.mouseEnterExitHandler = MouseEnterExitHandler.generate();
+      this.tapHandler = TapHandler.generate(this.clickThreshold, this.dblClickThreshold);
+      this.smartClicks = params.smartClicks;
+    }
+
+    _createClass(EventManager, [{
+      key: "_doBind",
+      value: function _doBind(obj, evt, fn, children) {
+        var _this2 = this;
+
+        if (fn == null) return;
+
+        _each(obj, function (el) {
+          var _el = _gel(el);
+
+          if (_this2.smartClicks && evt === EVENT_CLICK) SmartClickHandler(_el, evt, fn, children);else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
+            _this2.tapHandler(_el, evt, fn, children);
+          } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) _this2.mouseEnterExitHandler(_el, evt, fn, children);else DefaultHandler(_el, evt, fn, children);
+        });
+      }
+    }, {
+      key: "remove",
+      value: function remove(el) {
+        _each(el, function (__el) {
+          var _el = _gel(__el);
+
+          if (_el.__ta) {
+            for (var _evt2 in _el.__ta) {
+              if (_el.__ta.hasOwnProperty(_evt2)) {
+                for (var h in _el.__ta[_evt2]) {
+                  if (_el.__ta[_evt2].hasOwnProperty(h)) _unbind(_el, _evt2, _el.__ta[_evt2][h]);
+                }
+              }
+            }
+          }
+
+          _el.parentNode && _el.parentNode.removeChild(_el);
+        });
+
+        return this;
+      }
+    }, {
+      key: "on",
+      value: function on(el, event, children, fn) {
+        var _c = fn == null ? null : children,
+            _f = fn == null ? children : fn;
+
+        this._doBind(el, event, _f, _c);
+
+        return this;
+      }
+    }, {
+      key: "off",
+      value: function off(el, event, fn) {
+        _unbind(el, event, fn);
+
+        return this;
+      }
+    }, {
+      key: "trigger",
+      value: function trigger(el, event, originalEvent, payload) {
+        // MouseEvent undefined in old IE; that's how we know it's a mouse event.  A fine Microsoft paradox.
+        var originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent);
+        var eventToBind = isTouchDevice && !isMouseDevice && touchMap[event] ? touchMap[event] : event,
+            bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
+
+        var pl = pageLocation(originalEvent),
+            sl = _screenLocation(originalEvent),
+            cl = _clientLocation(originalEvent);
+
+        _each(el, function (__el) {
+          var _el = _gel(__el);
+
+          var evt;
+          originalEvent = originalEvent || {
+            screenX: sl[0],
+            screenY: sl[1],
+            clientX: cl[0],
+            clientY: cl[1]
+          };
+
+          var _decorate = function _decorate(_evt) {
+            if (payload) {
+              _evt.payload = payload;
+            }
+          };
+
+          var eventGenerators = {
+            "TouchEvent": function TouchEvent(evt) {
+              var touchList = _touchAndList(_el, pl[0], pl[1], sl[0], sl[1], cl[0], cl[1]),
+                  init = evt.initTouchEvent || evt.initEvent;
+
+              init(eventToBind, true, true, window, null, sl[0], sl[1], cl[0], cl[1], false, false, false, false, touchList, touchList, touchList, 1, 0);
+            },
+            "MouseEvents": function MouseEvents(evt) {
+              evt.initMouseEvent(eventToBind, true, true, window, 0, sl[0], sl[1], cl[0], cl[1], false, false, false, false, 1, _el);
+            }
+          };
+          var ite = !bindingAMouseEvent && !originalIsMouse && isTouchDevice && touchMap[event],
+              evtName = ite ? "TouchEvent" : "MouseEvents";
+          evt = document.createEvent(evtName);
+          eventGenerators[evtName](evt);
+
+          _decorate(evt);
+
+          _el.dispatchEvent(evt);
+        });
+
+        return this;
+      }
+    }]);
+
+    return EventManager;
+  }();
+  function setForceTouchEvents(value) {
+    isTouchDevice = value;
+  }
+  function setForceMouseEvents(value) {
+    isMouseDevice = value;
+  }
+
   var DEFAULT_LIST_OPTIONS = {
     deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
       return {
@@ -14347,6 +13215,16 @@
       key: "removeList",
       value: function removeList(el) {
         this.listManager.removeList(el);
+      }
+      /**
+       * Helper method for other libs/code to get a DragManager.
+       * @param options
+       */
+
+    }, {
+      key: "createDragManager",
+      value: function createDragManager(options) {
+        return new Collicat(options);
       }
     }], [{
       key: "getPositionOnElement",
@@ -17303,6 +16181,1138 @@
     return CustomOverlay;
   }(Overlay);
   OverlayFactory.register("Custom", CustomOverlay);
+
+  // function _suggest<T> (list:Array<T>, item:T, head?:boolean):boolean {
+  //     if (list.indexOf(item) === -1) {
+  //         head ? list.unshift(item) : list.push(item);
+  //         return true;
+  //     }
+  //     return false;
+  // }
+  //
+  // function _vanquish<T>(list:Array<T>, item:T):void {
+  //     const idx = list.indexOf(item);
+  //     if (idx !== -1) {
+  //         list.splice(idx, 1);
+  //     }
+  // }
+  //
+  // function _difference<T> (l1:Array<T>, l2:Array<T>) {
+  //     const d = [];
+  //     for (let i = 0; i < l1.length; i++) {
+  //         if (l2.indexOf(l1[i]) === -1)
+  //             d.push(l1[i]);
+  //     }
+  //     return d;
+  // }
+  function getOffsetRect(elem) {
+    // (1)
+    var box = elem.getBoundingClientRect(),
+        body = document.body,
+        docElem = document.documentElement,
+        // (2)
+    scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+        scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+        // (3)
+    clientTop = docElem.clientTop || body.clientTop || 0,
+        clientLeft = docElem.clientLeft || body.clientLeft || 0,
+        // (4)
+    top = box.top + scrollTop - clientTop,
+        left = box.left + scrollLeft - clientLeft;
+    return [Math.round(left), Math.round(top)];
+  }
+
+  function findDelegateElement(parentElement, childElement, selector) {
+    if (matchesSelector(childElement, selector, parentElement)) {
+      return childElement;
+    } else {
+      var currentParent = childElement.parentNode;
+
+      while (currentParent != null && currentParent !== parentElement) {
+        if (matchesSelector(currentParent, selector, parentElement)) {
+          return currentParent;
+        } else {
+          currentParent = currentParent.parentNode;
+        }
+      }
+    }
+  }
+
+  function _getPosition(el) {
+    return [el.offsetLeft, el.offsetTop];
+  }
+
+  function _getSize(el) {
+    return [el.offsetWidth, el.offsetHeight];
+  }
+
+  function _setPosition(el, pos) {
+    el.style.left = pos[0] + "px";
+    el.style.top = pos[1] + "px";
+  }
+
+  /**
+   * Finds all elements matching the given selector, for the given parent. In order to support "scoped root" selectors,
+   * ie. things like "> .someClass", that is .someClass elements that are direct children of `parentElement`, we have to
+   * jump through a small hoop here: when a delegate draggable is registered, we write a `katavorio-draggable` attribute
+   * on the element on which the draggable is registered. Then when this method runs, we grab the value of that attribute and
+   * prepend it as part of the selector we're looking for.  So "> .someClass" ends up being written as
+   * "[katavorio-draggable='...' > .someClass]", which works with querySelectorAll.
+   *
+   * @param availableSelectors
+   * @param parentElement
+   * @param childElement
+   * @returns {*}
+   */
+  function findMatchingSelector(availableSelectors, parentElement, childElement) {
+    var el = null;
+    var draggableId = parentElement.getAttribute("katavorio-draggable"),
+        prefix = draggableId != null ? "[katavorio-draggable='" + draggableId + "'] " : "";
+
+    for (var i = 0; i < availableSelectors.length; i++) {
+      el = findDelegateElement(parentElement, childElement, prefix + availableSelectors[i].selector);
+
+      if (el != null) {
+        if (availableSelectors[i].filter) {
+          var matches = matchesSelector(childElement, availableSelectors[i].filter, el),
+              exclude = availableSelectors[i].filterExclude === true;
+
+          if (exclude && !matches || matches) {
+            return null;
+          }
+        }
+
+        return [availableSelectors[i], el];
+      }
+    }
+
+    return null;
+  }
+
+  var DEFAULT_GRID_X = 10;
+  var DEFAULT_GRID_Y = 10;
+
+  var TRUE = function TRUE() {
+    return true;
+  };
+
+  var FALSE = function FALSE() {
+    return false;
+  };
+
+  var _classes = {
+    delegatedDraggable: "katavorio-delegated-draggable",
+    // elements that are the delegated drag handler for a bunch of other elements
+    draggable: "katavorio-draggable",
+    // draggable elements
+    droppable: "katavorio-droppable",
+    // droppable elements
+    drag: "katavorio-drag",
+    // elements currently being dragged
+    selected: "katavorio-drag-selected",
+    // elements in current drag selection
+    active: "katavorio-drag-active",
+    // droppables that are targets of a currently dragged element
+    hover: "katavorio-drag-hover",
+    // droppables over which a matching drag element is hovering
+    noSelect: "katavorio-drag-no-select",
+    // added to the body to provide a hook to suppress text selection
+    ghostProxy: "katavorio-ghost-proxy",
+    // added to a ghost proxy element in use when a drag has exited the bounds of its parent.
+    clonedDrag: "katavorio-clone-drag" // added to a node that is a clone of an element created at the start of a drag
+
+  };
+  var _events = ["stop", "start", "drag", "drop", "over", "out", "beforeStart"];
+
+  var _devNull = function _devNull() {};
+
+  var _each$1 = function _each(obj, fn) {
+    if (obj == null) return;
+    obj = !IS.aString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
+
+    for (var i = 0; i < obj.length; i++) {
+      fn.apply(obj[i], [obj[i]]);
+    }
+  }; //
+  // filters out events on all input elements, like textarea, checkbox, input, select.
+  // Collicat has a default list of these.
+  //
+
+
+  var _inputFilter = function _inputFilter(e, el, collicat) {
+    var t = e.srcElement || e.target;
+    return !matchesSelector(t, collicat.getInputFilterSelector(), el);
+  };
+
+  var Base =
+  /*#__PURE__*/
+  function () {
+    function Base(el, k) {
+      _classCallCheck(this, Base);
+
+      this.el = el;
+      this.k = k;
+
+      _defineProperty(this, "_class", void 0);
+
+      _defineProperty(this, "uuid", uuid());
+
+      _defineProperty(this, "enabled", true);
+
+      _defineProperty(this, "scopes", []);
+    }
+
+    _createClass(Base, [{
+      key: "setEnabled",
+      value: function setEnabled(e) {
+        this.enabled = e;
+      }
+    }, {
+      key: "isEnabled",
+      value: function isEnabled() {
+        return this.enabled;
+      }
+    }, {
+      key: "toggleEnabled",
+      value: function toggleEnabled() {
+        this.enabled = !this.enabled;
+      } // setScope (scopes:string) {
+      //     this.scopes = scopes ? scopes.split(/\s+/) : [ this.scope ];
+      // }
+
+    }, {
+      key: "addScope",
+      value: function addScope(scopes) {
+        var m = {};
+
+        _each$1(this.scopes, function (s) {
+          m[s] = true;
+        });
+
+        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
+          m[s] = true;
+        });
+
+        this.scopes.length = 0;
+
+        for (var i in m) {
+          this.scopes.push(i);
+        }
+      }
+    }, {
+      key: "removeScope",
+      value: function removeScope(scopes) {
+        var m = {};
+
+        _each$1(this.scopes, function (s) {
+          m[s] = true;
+        });
+
+        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
+          delete m[s];
+        });
+
+        this.scopes.length = 0;
+
+        for (var i in m) {
+          this.scopes.push(i);
+        }
+      }
+    }, {
+      key: "toggleScope",
+      value: function toggleScope(scopes) {
+        var m = {};
+
+        _each$1(this.scopes, function (s) {
+          m[s] = true;
+        });
+
+        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
+          if (m[s]) delete m[s];else m[s] = true;
+        });
+
+        this.scopes.length = 0;
+
+        for (var i in m) {
+          this.scopes.push(i);
+        }
+      }
+    }]);
+
+    return Base;
+  }();
+
+  function getConstrainingRectangle(el) {
+    return [el.parentNode.scrollWidth, el.parentNode.scrollHeight];
+  }
+
+  var Drag =
+  /*#__PURE__*/
+  function (_Base) {
+    _inherits(Drag, _Base);
+
+    // a map of { spec -> [ fn, exclusion ] } entries.
+    //_dragClass:string = "";
+    function Drag(el, params, k) {
+      var _this;
+
+      _classCallCheck(this, Drag);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Drag).call(this, el, k));
+
+      _defineProperty(_assertThisInitialized(_this), "_class", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "rightButtonCanDrag", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "consumeStartEvent", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "clone", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "scroll", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_downAt", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_posAtDown", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_pagePosAtDown", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_pageDelta", [0, 0]);
+
+      _defineProperty(_assertThisInitialized(_this), "_moving", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_initialScroll", [0, 0]);
+
+      _defineProperty(_assertThisInitialized(_this), "_size", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_currentParentPosition", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_ghostParentPosition", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_dragEl", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_multipleDrop", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_ghostProxyOffsets", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_ghostDx", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_ghostDy", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_ghostProxyParent", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_isConstrained", false);
+
+      _defineProperty(_assertThisInitialized(_this), "_useGhostProxy", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_activeSelectorParams", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_availableSelectors", []);
+
+      _defineProperty(_assertThisInitialized(_this), "_ghostProxyFunction", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_snapThreshold", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_grid", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_allowNegative", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_constrain", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_revertFunction", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_canDrag", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_consumeFilteredEvents", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_parent", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_ignoreZoom", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_filters", {});
+
+      _defineProperty(_assertThisInitialized(_this), "_constrainRect", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "_matchingDroppables", []);
+
+      _defineProperty(_assertThisInitialized(_this), "_intersectingDroppables", []);
+
+      _defineProperty(_assertThisInitialized(_this), "_elementToDrag", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "downListener", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "moveListener", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "upListener", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "listeners", {
+        "start": [],
+        "drag": [],
+        "stop": [],
+        "over": [],
+        "out": [],
+        "beforeStart": [],
+        "revert": []
+      });
+
+      _this._class = _this.k.css.draggable;
+      addClass(_this.el, _this._class);
+      _this.downListener = _this._downListener.bind(_assertThisInitialized(_this));
+      _this.upListener = _this._upListener.bind(_assertThisInitialized(_this));
+      _this.moveListener = _this._moveListener.bind(_assertThisInitialized(_this));
+      _this.rightButtonCanDrag = params.rightButtonCanDrag === true;
+      _this.consumeStartEvent = params.consumeStartEvent !== false;
+      _this._dragEl = _this.el;
+      _this.clone = params.clone === true;
+      _this.scroll = params.scroll === true;
+      _this._multipleDrop = params.multipleDrop !== false;
+      _this._grid = params.grid;
+      _this._allowNegative = params.allowNegative;
+      _this._revertFunction = params.revert;
+      _this._canDrag = params.canDrag || TRUE;
+      _this._consumeFilteredEvents = params.consumeFilteredEvents;
+      _this._parent = params.parent;
+      _this._ignoreZoom = params.ignoreZoom === true;
+      _this._ghostProxyParent = params.ghostProxyParent;
+
+      if (params.ghostProxy === true) {
+        _this._useGhostProxy = TRUE;
+      } else {
+        if (params.ghostProxy && typeof params.ghostProxy === "function") {
+          _this._useGhostProxy = params.ghostProxy;
+        } else {
+          _this._useGhostProxy = function (container, dragEl) {
+            if (_this._activeSelectorParams && _this._activeSelectorParams.useGhostProxy) {
+              return _this._activeSelectorParams.useGhostProxy(container, dragEl);
+            } else {
+              return false;
+            }
+          };
+        }
+      }
+
+      if (params.makeGhostProxy) {
+        _this._ghostProxyFunction = params.makeGhostProxy;
+      } else {
+        _this._ghostProxyFunction = function (el) {
+          if (_this._activeSelectorParams && _this._activeSelectorParams.makeGhostProxy) {
+            return _this._activeSelectorParams.makeGhostProxy(el);
+          } else {
+            return el.cloneNode(true);
+          }
+        };
+      }
+
+      if (params.selector) {
+        var draggableId = _this.el.getAttribute("katavorio-draggable");
+
+        if (draggableId == null) {
+          draggableId = "" + new Date().getTime();
+
+          _this.el.setAttribute("katavorio-draggable", draggableId);
+        }
+
+        _this._availableSelectors.push(params);
+      }
+
+      _this._snapThreshold = params.snapThreshold;
+
+      _this._setConstrain(typeof params.constrain === "function" ? params.constrain : params.constrain || params.containment);
+
+      _this.k.eventManager.on(_this.el, "mousedown", _this.downListener);
+
+      return _this;
+    }
+
+    _createClass(Drag, [{
+      key: "on",
+      value: function on(evt, fn) {
+        if (this.listeners[evt]) {
+          this.listeners[evt].push(fn);
+        }
+      }
+    }, {
+      key: "off",
+      value: function off(evt, fn) {
+        if (this.listeners[evt]) {
+          var l = [];
+
+          for (var i = 0; i < this.listeners[evt].length; i++) {
+            if (this.listeners[evt][i] !== fn) {
+              l.push(this.listeners[evt][i]);
+            }
+          }
+
+          this.listeners[evt] = l;
+        }
+      }
+    }, {
+      key: "_upListener",
+      value: function _upListener(e) {
+        if (this._downAt) {
+          this._downAt = null;
+          this.k.eventManager.off(document, "mousemove", this.moveListener);
+          this.k.eventManager.off(document, "mouseup", this.upListener);
+          removeClass(document.body, _classes.noSelect);
+          this.unmark(e); // k.unmarkSelection(this, e);
+
+          this.stop(e);
+          this._moving = false;
+
+          if (this.clone) {
+            this._dragEl && this._dragEl.parentNode && this._dragEl.parentNode.removeChild(this._dragEl);
+            this._dragEl = null;
+          } else {
+            if (this._revertFunction && this._revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+              _setPosition(this._dragEl, this._posAtDown);
+
+              this._dispatch("revert", this._dragEl);
+            }
+          }
+        }
+      }
+    }, {
+      key: "_downListener",
+      value: function _downListener(e) {
+        if (e.defaultPrevented) {
+          return;
+        }
+
+        var isNotRightClick = this.rightButtonCanDrag || e.which !== 3 && e.button !== 2;
+
+        if (isNotRightClick && this.isEnabled() && this._canDrag()) {
+          var _f = this._testFilter(e) && _inputFilter(e, this.el, this.k);
+
+          if (_f) {
+            this._activeSelectorParams = null;
+            this._elementToDrag = null;
+
+            if (this._availableSelectors.length === 0) {
+              console.log("JSPLUMB: no available drag selectors");
+            }
+
+            var eventTarget = e.target || e.srcElement;
+            var match = findMatchingSelector(this._availableSelectors, this.el, eventTarget);
+
+            if (match != null) {
+              this._activeSelectorParams = match[0];
+              this._elementToDrag = match[1];
+            }
+
+            if (this._activeSelectorParams == null || this._elementToDrag == null) {
+              return;
+            } // dragInit gives a handler a chance to provide the actual element to drag. in the case of the endpoint stuff, for instance,
+            // this is the drag placeholder. but for element drag the current value of `_elementToDrag` is the one we want to use.
+
+
+            var initial = this._activeSelectorParams.dragInit(this._elementToDrag);
+
+            if (initial != null) {
+              this._elementToDrag = initial;
+            }
+
+            if (this.clone) {
+              // here when doing a makeSource endpoint we dont end up with the right
+              this._dragEl = this._elementToDrag.cloneNode(true);
+              addClass(this._dragEl, _classes.clonedDrag);
+
+              this._dragEl.setAttribute("id", null);
+
+              this._dragEl.style.position = "absolute";
+
+              if (this._parent != null) {
+                var _p2 = _getPosition(this.el);
+
+                this._dragEl.style.left = _p2[0] + "px";
+                this._dragEl.style.top = _p2[1] + "px";
+
+                this._parent.appendChild(this._dragEl);
+              } else {
+                // the clone node is added to the body; getOffsetRect gives us a value
+                // relative to the body.
+                var b = getOffsetRect(this._elementToDrag);
+                this._dragEl.style.left = b[0] + "px";
+                this._dragEl.style.top = b[1] + "px";
+                document.body.appendChild(this._dragEl);
+              }
+            } else {
+              this._dragEl = this._elementToDrag;
+            }
+
+            if (this.consumeStartEvent) {
+              consume(e);
+            }
+
+            this._downAt = pageLocation(e);
+
+            if (this._dragEl && this._dragEl.parentNode) {
+              this._initialScroll = [this._dragEl.parentNode.scrollLeft, this._dragEl.parentNode.scrollTop];
+            } //
+
+
+            this.k.eventManager.on(document, "mousemove", this.moveListener);
+            this.k.eventManager.on(document, "mouseup", this.upListener); //k.markSelection(this);
+
+            addClass(document.body, _classes.noSelect);
+
+            this._dispatch("beforeStart", {
+              el: this.el,
+              pos: this._posAtDown,
+              e: e,
+              drag: this
+            });
+          } else if (this._consumeFilteredEvents) {
+            consume(e);
+          }
+        }
+      }
+    }, {
+      key: "_moveListener",
+      value: function _moveListener(e) {
+        if (this._downAt) {
+          if (!this._moving) {
+            var dispatchResult = this._dispatch("start", {
+              el: this.el,
+              pos: this._posAtDown,
+              e: e,
+              drag: this
+            });
+
+            if (dispatchResult !== false) {
+              if (!this._downAt) {
+                return;
+              }
+
+              this.mark(dispatchResult, true);
+              this._moving = true;
+            } else {
+              this.abort();
+            }
+          } // it is possible that the start event caused the drag to be aborted. So we check
+          // again that we are currently dragging.
+
+
+          if (this._downAt) {
+            var _pos = pageLocation(e),
+                dx = _pos[0] - this._downAt[0],
+                dy = _pos[1] - this._downAt[1],
+                _z = this._ignoreZoom ? 1 : this.k.getZoom();
+
+            if (this._dragEl && this._dragEl.parentNode) {
+              dx += this._dragEl.parentNode.scrollLeft - this._initialScroll[0];
+              dy += this._dragEl.parentNode.scrollTop - this._initialScroll[1];
+            }
+
+            dx /= _z;
+            dy /= _z;
+            this.moveBy(dx, dy, e); //k.updateSelection(dx, dy, this);
+          }
+        }
+      }
+    }, {
+      key: "mark",
+      value: function mark(payload, andNotify) {
+        this._posAtDown = _getPosition(this._dragEl); //this._pagePosAtDown = _getPosition(this._dragEl, true*);
+
+        this._pagePosAtDown = getOffsetRect(this._dragEl);
+        this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]];
+        this._size = _getSize(this._dragEl);
+        addClass(this._dragEl, this.k.css.drag);
+        var cs; // if (this._getConstrainingRectangle) {
+        //     cs = this._getConstrainingRectangle(this._dragEl)
+        // } else {
+        //     cs = _getSize(this._dragEl.parentNode);
+        // }
+
+        cs = getConstrainingRectangle(this._dragEl);
+        this._constrainRect = {
+          w: cs[0],
+          h: cs[1]
+        };
+        this._ghostDx = 0;
+        this._ghostDy = 0;
+      }
+    }, {
+      key: "unmark",
+      value: function unmark(e) {
+        if (this._isConstrained && this._useGhostProxy(this._elementToDrag, this._dragEl)) {
+          this._ghostProxyOffsets = [this._dragEl.offsetLeft - this._ghostDx, this._dragEl.offsetTop - this._ghostDy];
+
+          this._dragEl.parentNode.removeChild(this._dragEl);
+
+          this._dragEl = this._elementToDrag;
+        } else {
+          this._ghostProxyOffsets = null;
+        }
+
+        removeClass(this._dragEl, this.k.css.drag);
+        this._isConstrained = false;
+      }
+    }, {
+      key: "moveBy",
+      value: function moveBy(dx, dy, e) {
+        var desiredLoc = this.toGrid([this._posAtDown[0] + dx, this._posAtDown[1] + dy]),
+            cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size); // if we should use a ghost proxy...
+
+
+        if (this._useGhostProxy(this.el, this._dragEl)) {
+          // and the element has been dragged outside of its parent bounds
+          if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
+            // ...if ghost proxy not yet created
+            if (!this._isConstrained) {
+              // create it
+              var gp = this._ghostProxyFunction(this._elementToDrag);
+
+              addClass(gp, _classes.ghostProxy);
+
+              if (this._ghostProxyParent) {
+                this._ghostProxyParent.appendChild(gp); // find offset between drag el's parent the ghost parent
+                // this._currentParentPosition = _getPosition(this._elementToDrag.parentNode, true);
+                // this._ghostParentPosition = _getPosition(this._ghostProxyParent, true);
+
+
+                this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode);
+                this._ghostParentPosition = getOffsetRect(this._ghostProxyParent);
+                this._ghostDx = this._currentParentPosition[0] - this._ghostParentPosition[0];
+                this._ghostDy = this._currentParentPosition[1] - this._ghostParentPosition[1];
+              } else {
+                this._elementToDrag.parentNode.appendChild(gp);
+              } // the ghost proxy is the drag element
+
+
+              this._dragEl = gp; // set this flag so we dont recreate the ghost proxy
+
+              this._isConstrained = true;
+            } // now the drag position can be the desired position, as the ghost proxy can support it.
+
+
+            cPos = desiredLoc;
+          } else {
+            // if the element is not outside of its parent bounds, and ghost proxy is in place,
+            if (this._isConstrained) {
+              // remove the ghost proxy from the dom
+              this._dragEl.parentNode.removeChild(this._dragEl); // reset the drag element to the original element
+
+
+              this._dragEl = this._elementToDrag; // clear this flag.
+
+              this._isConstrained = false;
+              this._currentParentPosition = null;
+              this._ghostParentPosition = null;
+              this._ghostDx = 0;
+              this._ghostDy = 0;
+            }
+          }
+        }
+
+        var rect = {
+          x: cPos[0],
+          y: cPos[1],
+          w: this._size[0],
+          h: this._size[1]
+        },
+            pageRect = {
+          x: rect.x + this._pageDelta[0],
+          y: rect.y + this._pageDelta[1],
+          w: rect.w,
+          h: rect.h
+        };
+
+        _setPosition(this._dragEl, [cPos[0] + this._ghostDx, cPos[1] + this._ghostDy]);
+
+        this._dispatch("drag", {
+          el: this.el,
+          pos: cPos,
+          e: e,
+          drag: this
+        });
+        /* test to see if the parent needs to be scrolled (future)
+         if (scroll) {
+         var pnsl = dragEl.parentNode.scrollLeft, pnst = dragEl.parentNode.scrollTop;
+         console.log("scroll!", pnsl, pnst);
+         }*/
+
+      }
+    }, {
+      key: "abort",
+      value: function abort() {
+        if (this._downAt != null) {
+          this._upListener();
+        }
+      }
+    }, {
+      key: "getDragElement",
+      value: function getDragElement(retrieveOriginalElement) {
+        return retrieveOriginalElement ? this._elementToDrag || this.el : this._dragEl || this.el;
+      }
+    }, {
+      key: "stop",
+      value: function stop(e, force) {
+        if (force || this._moving) {
+          var positions = [],
+              sel = [],
+              //this.k.getSelection(),
+          dPos = _getPosition(this._dragEl);
+
+          if (sel.length > 0) {
+            for (var i = 0; i < sel.length; i++) {
+              var _p3 = _getPosition(sel[i].el);
+
+              positions.push([sel[i].el, {
+                left: _p3[0],
+                top: _p3[1]
+              }, sel[i]]);
+            }
+          } else {
+            positions.push([this._dragEl, {
+              left: dPos[0],
+              top: dPos[1]
+            }, this]);
+          }
+
+          this._dispatch("stop", {
+            el: this._dragEl,
+            pos: this._ghostProxyOffsets || dPos,
+            finalPos: dPos,
+            e: e,
+            drag: this,
+            selection: positions
+          });
+        }
+      }
+    }, {
+      key: "notifyStart",
+      value: function notifyStart(e) {
+        this._dispatch("start", {
+          el: this.el,
+          pos: _getPosition(this._dragEl),
+          e: e,
+          drag: this
+        });
+      }
+    }, {
+      key: "_dispatch",
+      value: function _dispatch(evt, value) {
+        var result = null;
+
+        if (this._activeSelectorParams && this._activeSelectorParams[evt]) {
+          result = this._activeSelectorParams[evt](value);
+        } else if (this.listeners[evt]) {
+          for (var i = 0; i < this.listeners[evt].length; i++) {
+            try {
+              var v = this.listeners[evt][i](value);
+
+              if (v != null) {
+                result = v;
+              }
+            } catch (e) {}
+          }
+        }
+
+        return result;
+      }
+    }, {
+      key: "_snap",
+      value: function _snap(pos, gridX, gridY, thresholdX, thresholdY) {
+        var _dx = Math.floor(pos[0] / gridX),
+            _dxl = gridX * _dx,
+            _dxt = _dxl + gridX,
+            _x = Math.abs(pos[0] - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos[0]) <= thresholdX ? _dxt : pos[0];
+
+        var _dy = Math.floor(pos[1] / gridY),
+            _dyl = gridY * _dy,
+            _dyt = _dyl + gridY,
+            _y = Math.abs(pos[1] - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos[1]) <= thresholdY ? _dyt : pos[1];
+
+        return [_x, _y];
+      }
+    }, {
+      key: "toGrid",
+      value: function toGrid(pos) {
+        if (this._grid == null) {
+          return pos;
+        } else {
+          var tx = this._grid ? this._grid[0] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2,
+              ty = this._grid ? this._grid[1] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2;
+          return this._snap(pos, this._grid[0], this._grid[1], tx, ty);
+        }
+      }
+    }, {
+      key: "snap",
+      value: function snap(x, y) {
+        if (this._dragEl == null) {
+          return;
+        }
+
+        x = x || (this._grid ? this._grid[0] : DEFAULT_GRID_X);
+        y = y || (this._grid ? this._grid[1] : DEFAULT_GRID_Y);
+
+        var p = _getPosition(this._dragEl),
+            tx = this._grid ? this._grid[0] / 2 : this._snapThreshold,
+            ty = this._grid ? this._grid[1] / 2 : this._snapThreshold,
+            snapped = this._snap(p, x, y, tx, ty);
+
+        _setPosition(this._dragEl, snapped);
+
+        return snapped;
+      }
+    }, {
+      key: "setUseGhostProxy",
+      value: function setUseGhostProxy(val) {
+        this._useGhostProxy = val ? TRUE : FALSE;
+      }
+    }, {
+      key: "_negativeFilter",
+      value: function _negativeFilter(pos) {
+        return this._allowNegative === false ? [Math.max(0, pos[0]), Math.max(0, pos[1])] : pos;
+      }
+    }, {
+      key: "_setConstrain",
+      value: function _setConstrain(value) {
+        var _this2 = this;
+
+        this._constrain = typeof value === "function" ? value : value ? function (pos, dragEl, _constrainRect, _size) {
+          return _this2._negativeFilter([Math.max(0, Math.min(_constrainRect.w - _size[0], pos[0])), Math.max(0, Math.min(_constrainRect.h - _size[1], pos[1]))]);
+        } : function (pos) {
+          return _this2._negativeFilter(pos);
+        };
+      }
+      /**
+       * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
+       * will be executed and returns true if the position is allowed.
+       * @param value
+       */
+
+    }, {
+      key: "setConstrain",
+      value: function setConstrain(value) {
+        this._setConstrain(value);
+      }
+    }, {
+      key: "_doConstrain",
+      value: function _doConstrain(pos, dragEl, _constrainRect, _size) {
+        if (this._activeSelectorParams != null && this._activeSelectorParams.constrain && typeof this._activeSelectorParams.constrain === "function") {
+          return this._activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size);
+        } else {
+          return this._constrain(pos, dragEl, _constrainRect, _size);
+        }
+      }
+      /**
+       * Sets a function to call on drag stop, which, if it returns true, indicates that the given element should
+       * revert to its position before the previous drag.
+       * @param fn
+       */
+
+    }, {
+      key: "setRevert",
+      value: function setRevert(fn) {
+        this._revertFunction = fn;
+      }
+    }, {
+      key: "_assignId",
+      value: function _assignId(obj) {
+        if (typeof obj === "function") {
+          obj._katavorioId = uuid();
+          return obj._katavorioId;
+        } else {
+          return obj;
+        }
+      }
+    }, {
+      key: "_testFilter",
+      value: function _testFilter(e) {
+        for (var key in this._filters) {
+          var f = this._filters[key];
+          var rv = f[0](e);
+
+          if (f[1]) {
+            rv = !rv;
+          }
+
+          if (!rv) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+    }, {
+      key: "addFilter",
+      value: function addFilter(f, _exclude) {
+        var _this3 = this;
+
+        if (f) {
+          var key = this._assignId(f);
+
+          this._filters[key] = [function (e) {
+            var t = e.srcElement || e.target;
+            var m;
+
+            if (IS.aString(f)) {
+              m = matchesSelector(t, f, _this3.el);
+            } else if (typeof f === "function") {
+              m = f(e, _this3.el);
+            }
+
+            return m;
+          }, _exclude !== false];
+        }
+      }
+    }, {
+      key: "removeFilter",
+      value: function removeFilter(f) {
+        var key = typeof f === "function" ? f._katavorioId : f;
+        delete this._filters[key];
+      }
+    }, {
+      key: "clearAllFilters",
+      value: function clearAllFilters() {
+        this._filters = {};
+      }
+    }, {
+      key: "addSelector",
+      value: function addSelector(params) {
+        if (params.selector) {
+          this._availableSelectors.push(params);
+        }
+      }
+    }, {
+      key: "destroy",
+      value: function destroy() {
+        this.k.eventManager.off(this.el, "mousedown", this.downListener);
+        this.k.eventManager.off(document, "mousemove", this.moveListener);
+        this.k.eventManager.off(document, "mouseup", this.upListener);
+        this.downListener = null;
+        this.upListener = null;
+        this.moveListener = null;
+      }
+    }]);
+
+    return Drag;
+  }(Base);
+  var DEFAULT_INPUT_FILTER_SELECTOR = "input,textarea,select,button,option";
+  var Collicat =
+  /*#__PURE__*/
+  function () {
+    function Collicat(options) {
+      _classCallCheck(this, Collicat);
+
+      _defineProperty(this, "eventManager", void 0);
+
+      _defineProperty(this, "zoom", 1);
+
+      _defineProperty(this, "css", {});
+
+      _defineProperty(this, "inputFilterSelector", void 0);
+
+      _defineProperty(this, "constrain", void 0);
+
+      _defineProperty(this, "revert", void 0);
+
+      options = options || {};
+      this.inputFilterSelector = options.inputFilterSelector || DEFAULT_INPUT_FILTER_SELECTOR;
+      this.eventManager = new EventManager();
+      this.zoom = options.zoom || 1;
+
+      var _c = options.css || {};
+
+      extend(this.css, _c);
+      this.constrain = options.constrain;
+      this.revert = options.revert;
+    }
+
+    _createClass(Collicat, [{
+      key: "getZoom",
+      value: function getZoom() {
+        return this.zoom;
+      }
+    }, {
+      key: "setZoom",
+      value: function setZoom(z) {
+        this.zoom = z;
+      }
+    }, {
+      key: "_prepareParams",
+      value: function _prepareParams(p) {
+        p = p || {};
+
+        if (p.constrain == null && this.constrain != null) {
+          p.constrain = this.constrain;
+        }
+
+        if (p.revert == null && this.revert != null) {
+          p.revert = this.revert;
+        }
+
+        var _p = {
+          events: {}
+        },
+            i; // for (i in katavorioParams) {
+        //     _p[i] = katavorioParams[i];
+        // }
+
+        for (i in p) {
+          _p[i] = p[i];
+        } // events
+
+
+        for (i = 0; i < _events.length; i++) {
+          _p.events[_events[i]] = p[_events[i]] || _devNull;
+        }
+
+        return _p;
+      }
+      /**
+       * Gets the selector identifying which input elements to filter from drag events.
+       * @method getInputFilterSelector
+       * @return {String} Current input filter selector.
+       */
+
+    }, {
+      key: "getInputFilterSelector",
+      value: function getInputFilterSelector() {
+        return this.inputFilterSelector;
+      }
+    }, {
+      key: "setInputFilterSelector",
+
+      /**
+       * Sets the selector identifying which input elements to filter from drag events.
+       * @method setInputFilterSelector
+       * @param {String} selector Input filter selector to set.
+       * @return {Collicat} Current instance; method may be chained.
+       */
+      value: function setInputFilterSelector(selector) {
+        this.inputFilterSelector = selector;
+        return this;
+      }
+    }, {
+      key: "draggable",
+      value: function draggable(el, params) {
+        if (el._katavorioDrag == null) {
+          var _p4 = this._prepareParams(params);
+
+          var d = new Drag(el, _p4, this);
+          addClass(el, _classes.delegatedDraggable);
+          el._katavorioDrag = d;
+          return d;
+        } else {
+          return el._katavorioDrag;
+        }
+      }
+    }, {
+      key: "destroyDraggable",
+      value: function destroyDraggable(el) {
+        if (el._katavorioDrag) {
+          // current selection? are we handling that?
+          el._katavorioDrag.destroy();
+
+          delete el._katavorioDrag;
+        }
+      }
+    }]);
+
+    return Collicat;
+  }();
 
   registerEndpointRenderer("Dot", {
     makeNode: function makeNode(instance, ep, style) {
