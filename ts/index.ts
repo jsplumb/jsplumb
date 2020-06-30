@@ -5,7 +5,6 @@ import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
 import {EventManager} from "./dom/event-manager";
 import {uuid} from "./util";
-import {Collicat, CollicatOptions} from "./dom";
 
 export * from "./constants";
 export * from "./core";
@@ -99,7 +98,6 @@ export interface jsPlumbGlobal {
     ready(f:Function):void;
     extend<T>(o1:T, o2:T, keys?:string[]):T
     uuid():string;
-    createDragManager(options:CollicatOptions):Collicat;
 }
 
 /**
