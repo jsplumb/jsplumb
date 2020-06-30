@@ -1,7 +1,7 @@
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 import {BoundingBox, Dictionary, extend, PointArray} from "../core";
 import {wrap} from "../util";
-import {Collicat, Drag} from "./collicat";
+import {Collicat, Drag, DragHandlerOptions, GhostProxyGenerator} from "./collicat";
 
 function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointArray):boolean {
     const p = <any>_el.parentNode,
@@ -46,8 +46,8 @@ export interface DragHandler {
 }
 
 export interface GhostProxyingDragHandler extends DragHandler {
-    makeGhostProxy:(el:any) => any;
     useGhostProxy:(container:any, dragEl:any) => boolean;
+    makeGhostProxy?:GhostProxyGenerator;
 }
 
 type DragFilterSpec = [ Function|string, boolean ];
@@ -70,7 +70,7 @@ export class DragManager {
     constructor(protected instance:BrowserJsPlumbInstance) {
 
         // create a delegated drag handler
-        this.collicat = new Collicat({
+        this.collicat = this.instance.createDragManager({
             zoom:this.instance.getZoom(),
             css: {
                 noSelect: this.instance.dragSelectClass,
@@ -109,8 +109,8 @@ export class DragManager {
         });
     }
 
-    addHandler(handler:DragHandler, dragOptions?:any):void {
-        const o = extend({selector:handler.selector}, dragOptions || {});
+    addHandler(handler:DragHandler, dragOptions?:DragHandlerOptions):void {
+        const o = extend<DragHandlerOptions>({selector:handler.selector} as any, (dragOptions || {}) as any);
 
         this.handlers.push(handler);
 
