@@ -19,13 +19,13 @@ import {
 import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
 import {EventManager} from "./event-manager";
-import {AbstractConnector, Endpoint, Overlay} from "..";
+import {AbstractConnector, Collicat, CollicatOptions, Drag, Endpoint, Overlay} from "..";
 import {EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER} from "../constants";
 import {jsPlumbList, jsPlumbListManager, jsPlumbListOptions} from "./lists";
 
 export interface DragEventCallbackOptions {
     drag: {
-        size: [ number, number ];
+        _size: [ number, number ];
         getDragElement: () => HTMLElement;
     }; // The associated Drag instance
     e: MouseEvent;
@@ -65,6 +65,7 @@ export interface jsPlumbDOMElement extends HTMLElement {
     _jsPlumbSourceDefinitions:Array<SourceDefinition>;
     _jsPlumbList:any;
     _jsPlumbScrollHandler?:Function;
+    _katavorioDrag?:Drag;
 }
 
 export type PosseSpec = string | { id:string, active:boolean };
@@ -655,5 +656,13 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
 
     removeList (el:jsPlumbDOMElement) {
         this.listManager.removeList(el);
+    }
+
+    /**
+     * Helper method for other libs/code to get a DragManager.
+     * @param options
+     */
+    createDragManager(options:CollicatOptions):Collicat {
+        return new Collicat(options);
     }
 }
