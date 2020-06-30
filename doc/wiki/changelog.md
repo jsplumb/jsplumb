@@ -1,3 +1,13 @@
+## 4.0.0-RC3
+
+30th June 2020
+
+Third pre-release of the 4.x version. Couple of tiny changes, nothing functional:
+
+- optional `center` added to the `BoundingBox` type definition
+- added notes about the removal of the `droppable` method
+
+
 ## 4.0.0-RC2
 
 25th June 2020

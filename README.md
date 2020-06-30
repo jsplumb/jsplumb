@@ -38,6 +38,8 @@ changes to be mindful of, though:
 
 - `appendToRoot` method removed. If you're using this, use `document.body.appendChild(..)` instead.
 
+- The `droppable` method was removed. It was not used internally by any of the other code in either the Community or Toolkit editions, and had no accompanying tests. A question was raised [on Github](https://github.com/jsplumb/jsplumb/issues/942) about it and the OP ended up saying they'd just used native droppable stuff to achieve what they needed. If you feel `droppable` should be reinstated, we can chat about it [in this issue](https://github.com/jsplumb/jsplumb/issues/943). 
+
 
 #### Configuration
 
