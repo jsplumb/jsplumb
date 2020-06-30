@@ -1,3 +1,10 @@
+## 4.0.0-RC4
+
+30th June 2020
+
+- Improved typing for various classes related to dragging.
+- added `createDragManager` method to `BrowserJsPlumbInstance` class.
+
 ## 4.0.0-RC3
 
 30th June 2020
