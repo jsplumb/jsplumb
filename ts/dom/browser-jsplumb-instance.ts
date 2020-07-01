@@ -19,17 +19,27 @@ import {
 import * as Constants from "../constants";
 import { UIGroup } from "../group/group";
 import {EventManager} from "./event-manager";
-import {AbstractConnector, Collicat, CollicatOptions, Drag, Endpoint, Overlay} from "..";
+import {
+    _attr,
+    _node, _pos,
+    AbstractConnector,
+    Collicat,
+    CollicatOptions,
+    Drag,
+    ElementAttributes,
+    Endpoint,
+    Overlay
+} from "..";
 import {EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER} from "../constants";
 import {jsPlumbList, jsPlumbListManager, jsPlumbListOptions} from "./lists";
 
 export interface DragEventCallbackOptions {
     drag: {
         _size: [ number, number ];
-        getDragElement: () => HTMLElement;
+        getDragElement:() => jsPlumbDOMElement;
     }; // The associated Drag instance
     e: MouseEvent;
-    el: HTMLElement; // element being dragged
+    el: jsPlumbDOMElement; // element being dragged
     pos: [number, number]; // x,y location of the element. drag event only.
 
 }
@@ -664,5 +674,11 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
      */
     createDragManager(options:CollicatOptions):Collicat {
         return new Collicat(options);
+    }
+
+    svg = {
+        node: (name:string, attributes?:ElementAttributes) => _node(this, name, attributes),
+        attr:(node:SVGElement, attributes:ElementAttributes) => _attr (node, attributes),
+        pos:(d:[number, number]):string => _pos(d)
     }
 }
