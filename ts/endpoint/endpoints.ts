@@ -1,8 +1,9 @@
 import {jsPlumbInstance} from "../core";
-import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
+import {Orientation} from "../factory/anchor-factory";
 import {PaintStyle} from "../styles";
 import {EMPTY_BOUNDS, SegmentBounds} from "../connector/abstract-segment";
 import {Endpoint} from "./endpoint-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 /**
  * Superclass for all types of Endpoint. This class is renderer
@@ -28,7 +29,7 @@ export abstract class EndpointRepresentation<C> {
     abstract getType():string;
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
     // it would be much more lightweight as we'd not need to create a class for each one.
-    abstract _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):C;
+    abstract _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):C;
 
     constructor(public endpoint:Endpoint) {
         this.instance = endpoint.instance;
@@ -52,7 +53,7 @@ export abstract class EndpointRepresentation<C> {
         return null;
     }
 
-    compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any) {
+    compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any) {
         // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
         // it would be much more lightweight as we'd not need to create a class for each one.
         this.computedValue = this._compute(anchorPoint, orientation, endpointStyle);
