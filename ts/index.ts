@@ -1,10 +1,11 @@
 import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./dom/browser-jsplumb-instance";
-import {extend} from "./core";
+import {Constructable, extend} from "./core";
 
-import {_node, _attr, _pos} from "./svg/svg-util";
 import {jsPlumbHelperFunctions} from "./defaults";
 import {EventManager} from "./dom/event-manager";
 import {uuid} from "./util";
+import {Connectors} from "./connector/connectors";
+import {AbstractConnector} from "./connector/abstract-connector";
 
 export * from "./constants";
 export * from "./core";
@@ -98,6 +99,9 @@ export interface jsPlumbGlobal {
     ready(f:Function):void;
     extend<T>(o1:T, o2:T, keys?:string[]):T
     uuid():string;
+    Connectors:{
+        register:(name:string, conn:Constructable<AbstractConnector>) => void
+    }
 }
 
 /**
@@ -112,12 +116,12 @@ if(typeof window !== "undefined") {
         newInstance:newInstance,
         ready:ready,
         extend:extend,
-        svg:{
-            node:_node,
-            attr:_attr,
-            pos:_pos
-        },
-        uuid:uuid
+        uuid:uuid,
+        Connectors:{
+            register:(name:string, conn:Constructable<AbstractConnector>) => {
+                Connectors.register(name, conn);
+            }
+        }
     };
 
     (<any>window).Mottle = EventManager;
