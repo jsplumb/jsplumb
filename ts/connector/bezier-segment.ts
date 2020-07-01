@@ -56,7 +56,8 @@ export class BezierSegment extends AbstractSegment {
         };
     }
 
-    type = "Bezier";
+    static segmentType:string = "Bezier";
+    type = BezierSegment.segmentType;
 
     private static _translateLocation (_curve:Curve, location:number, absolute?:boolean):number {
         if (absolute) {
