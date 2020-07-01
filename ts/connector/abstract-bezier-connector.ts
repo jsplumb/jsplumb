@@ -1,8 +1,8 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry, PaintParams} from "./abstract-connector";
 import {jsPlumbInstance} from "../core";
-import {ComputedAnchorPosition} from "../factory/anchor-factory";
 import {ArcSegment} from "./arc-segment";
 import {Connection} from "./connection-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 export interface AbstractBezierOptions {
     showLoopback?:boolean;
@@ -23,6 +23,12 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
     loopbackRadius:number;
     clockwise:boolean;
     isLoopbackCurrently:boolean;
+
+    geometry:{
+        controlPoints:[any, any],
+        source:AnchorPlacement,
+        target:AnchorPlacement
+    };
 
     constructor(instance:jsPlumbInstance, public connection:Connection, params:any) {
 
@@ -82,5 +88,9 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         }
     }
 
-    abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, _w:number, _h:number):void;
+    getGeometry(): any {
+        return this.geometry;
+    }
+
+    abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, _w:number, _h:number):void;
 }

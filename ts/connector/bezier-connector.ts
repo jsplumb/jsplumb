@@ -3,8 +3,8 @@ import {PaintGeometry, ConnectorComputeParams} from "./abstract-connector";
 import {jsPlumbInstance} from "../core";
 import {BezierSegment} from "./bezier-segment";
 import {Connectors} from "./connectors";
-import {ComputedAnchorPosition} from "../factory/anchor-factory";
 import {Connection} from "./connection-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 export class Bezier extends AbstractBezierConnector {
 
@@ -63,7 +63,7 @@ export class Bezier extends AbstractBezierConnector {
         return p;
     }
 
-    _computeBezier (paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, _w:number, _h:number):void {
+    _computeBezier (paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, _w:number, _h:number):void {
 
         let _CP, _CP2,
             _sx = sp[0] < tp[0] ? _w : 0,
@@ -74,6 +74,12 @@ export class Bezier extends AbstractBezierConnector {
         _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
         _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
 
+        this.geometry = {
+            controlPoints:[_CP, _CP2],
+            source:p.sourcePos,
+            target:p.targetPos
+
+        };
 
         this._addSegment(BezierSegment, {
             x1: _sx, y1: _sy, x2: _tx, y2: _ty,

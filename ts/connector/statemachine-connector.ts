@@ -3,8 +3,8 @@ import {jsPlumbInstance} from "../core";
 import {BezierSegment} from "./bezier-segment";
 import {Connectors} from "./connectors";
 import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector";
-import {ComputedAnchorPosition} from "../factory/anchor-factory";
 import {Connection} from "./connection-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 function _segment (x1:number, y1:number, x2:number, y2:number):number {
     if (x1 <= x2 && y2 <= y1) {
@@ -104,7 +104,7 @@ export class StateMachine extends AbstractBezierConnector {
         this.clockwise = params.orientation && params.orientation === "clockwise";
     }
 
-    _computeBezier (paintInfo:PaintGeometry, params:ConnectorComputeParams, sp:ComputedAnchorPosition, tp:ComputedAnchorPosition, w:number, h:number):void {
+    _computeBezier (paintInfo:PaintGeometry, params:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, w:number, h:number):void {
         let _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
             _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
             _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
@@ -178,6 +178,12 @@ export class StateMachine extends AbstractBezierConnector {
         cp2x = this._controlPoint[0];
         cp1y = this._controlPoint[1];
         cp2y = this._controlPoint[1];
+
+        this.geometry = {
+            controlPoints:[this._controlPoint, this._controlPoint],
+            source:params.sourcePos,
+            target:params.targetPos
+        };
 
         this._addSegment(BezierSegment, {
             x1: _tx, y1: _ty, x2: _sx, y2: _sy,
