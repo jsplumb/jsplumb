@@ -693,7 +693,7 @@
                   try {
                     ret = this._listeners[event][i].apply(this, [value, originalEvent]);
                   } catch (e) {
-                    log("jsPlumb: fire failed for event " + event + " : " + e);
+                    log("jsPlumb: fire failed for event " + event + " : " + (e.message || e));
                   }
                 }
 
@@ -1416,7 +1416,7 @@
     }, {
       key: "dblClick",
       value: function dblClick(e) {
-        this.fire("click", e);
+        this.fire("dblClick", e);
         var eventName = this.component instanceof Connection ? "dblclick" : "endpointDblClick";
 
         this._postComponentEvent(eventName, e);
@@ -3397,10 +3397,10 @@
 
   function EMPTY_BOUNDS() {
     return {
-      minX: 0,
-      maxX: 0,
-      minY: 0,
-      maxY: 0
+      minX: Infinity,
+      maxX: -Infinity,
+      minY: Infinity,
+      maxY: -Infinity
     };
   }
   var AbstractSegment =
@@ -14074,7 +14074,9 @@
 
       _defineProperty(this, "cssClass", void 0);
 
-      this.stub = params.stub || 0;
+      _defineProperty(this, "geometry", void 0);
+
+      this.stub = params.stub || this.getDefaultStubs();
       this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
       this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
       this.gap = params.gap || 0;
@@ -14093,6 +14095,30 @@
       key: "getIdPrefix",
       value: function getIdPrefix() {
         return "_jsplumb_connector";
+      }
+    }, {
+      key: "setGeometry",
+      value: function setGeometry(g, internal) {
+        this.geometry = g;
+      }
+      /**
+       * Subclasses can override this. By default we just pass back the geometry we are using internally.
+       */
+
+    }, {
+      key: "exportGeometry",
+      value: function exportGeometry() {
+        return this.geometry;
+      }
+      /**
+       * Subclasses can override this. By default we just set the given geometry as our internal representation.
+       */
+
+    }, {
+      key: "importGeometry",
+      value: function importGeometry(g) {
+        this.geometry = g;
+        return true;
       }
     }, {
       key: "resetBounds",
@@ -14639,6 +14665,13 @@
   function (_AbstractConnector) {
     _inherits(AbstractBezierConnector, _AbstractConnector);
 
+    _createClass(AbstractBezierConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [0, 0];
+      }
+    }]);
+
     function AbstractBezierConnector(instance, connection, params) {
       var _this;
 
@@ -14662,6 +14695,8 @@
       _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
 
       params = params || {};
       _this.showLoopback = params.showLoopback !== false;
@@ -14951,6 +14986,11 @@
 
         _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
         _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+        this.geometry = {
+          controlPoints: [_CP, _CP2],
+          source: p.sourcePos,
+          target: p.targetPos
+        };
 
         this._addSegment(BezierSegment, {
           x1: _sx,
@@ -15320,6 +15360,13 @@
   /*#__PURE__*/
   function (_AbstractConnector) {
     _inherits(FlowchartConnector, _AbstractConnector);
+
+    _createClass(FlowchartConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [30, 30];
+      }
+    }]);
 
     function FlowchartConnector(instance, connection, params) {
       var _this;
@@ -15802,6 +15849,11 @@
         cp2x = this._controlPoint[0];
         cp1y = this._controlPoint[1];
         cp2y = this._controlPoint[1];
+        this.geometry = {
+          controlPoints: [this._controlPoint, this._controlPoint],
+          source: params.sourcePos,
+          target: params.targetPos
+        };
 
         this._addSegment(BezierSegment, {
           x1: _tx,
@@ -15844,8 +15896,13 @@
     }
 
     _createClass(StraightConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [0, 0];
+      }
+    }, {
       key: "_compute",
-      value: function _compute(paintInfo, _) {
+      value: function _compute(paintInfo, p) {
         this._addSegment(StraightSegment, {
           x1: paintInfo.sx,
           y1: paintInfo.sy,
@@ -15866,6 +15923,11 @@
           x2: paintInfo.tx,
           y2: paintInfo.ty
         });
+
+        this.geometry = {
+          source: p.sourcePos,
+          target: p.targetPos
+        };
       }
     }]);
 
@@ -16721,7 +16783,7 @@
             // this is the drag placeholder. but for element drag the current value of `_elementToDrag` is the one we want to use.
 
 
-            var initial = this._activeSelectorParams.dragInit(this._elementToDrag);
+            var initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag) : null;
 
             if (initial != null) {
               this._elementToDrag = initial;
