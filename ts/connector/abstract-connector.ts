@@ -2,9 +2,10 @@ import {isArray, log} from "../util";
 import {jsPlumbInstance, PointArray, PointXY, TypeDescriptor} from "../core";
 import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment";
 import {Endpoint} from "../endpoint/endpoint-impl";
-import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
+import {Orientation} from "../factory/anchor-factory";
 import {ComponentOptions} from "../component/component";
 import {Connection} from "./connection-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 /**
  * Created by simon on 14/05/2019.
@@ -28,8 +29,8 @@ export type PaintAxis = "y" | "x"
 type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number, connectorLocation: number };
 
 export type ConnectorComputeParams = {
-    sourcePos: ComputedAnchorPosition,
-    targetPos: ComputedAnchorPosition,
+    sourcePos: AnchorPlacement,
+    targetPos: AnchorPlacement,
     sourceOrientation:Orientation,
     targetOrientation:Orientation,
     sourceEndpoint: Endpoint,
@@ -94,11 +95,11 @@ export abstract class AbstractConnector implements Connector {
     gap:number;
     sourceGap:number;
     targetGap:number;
-    segments:Array<Segment> = [];
+    private segments:Array<Segment> = [];
     totalLength:number = 0;
     segmentProportions:Array<[number,number]> = [];
     segmentProportionalLengths:Array<number> = [];
-    private paintInfo:PaintGeometry = null;
+    protected paintInfo:PaintGeometry = null;
     strokeWidth:number;
     x:number;
     y:number;
@@ -107,6 +108,8 @@ export abstract class AbstractConnector implements Connector {
     segment:number;
     bounds:SegmentBounds = EMPTY_BOUNDS();
     cssClass:string;
+
+    geometry:any;
 
     constructor(public instance:jsPlumbInstance, public connection:Connection, params:ConnectorOptions) {
         this.stub = params.stub || 0;
@@ -124,6 +127,10 @@ export abstract class AbstractConnector implements Connector {
     }
     
     getIdPrefix () { return  "_jsplumb_connector"; }
+
+    setGeometry(g:any, internal:boolean) {
+        this.geometry = g;
+    }
 
     abstract _compute(geometry:PaintGeometry, params:ConnectorComputeParams):void;
 
@@ -286,6 +293,8 @@ export abstract class AbstractConnector implements Connector {
     getLength ():number {
         return this.totalLength;
     }
+
+    abstract getGeometry():any;
 
     private _prepareCompute (params:ConnectorComputeParams):PaintGeometry {
         this.strokeWidth = params.strokeWidth;
