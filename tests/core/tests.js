@@ -5083,7 +5083,7 @@ var testSuite = function () {
         ok(_jsPlumb.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
 
         // now for an SVG element.
-        var s1 = jsPlumb.svg.node(_jsPlumb, "svg");
+        var s1 = _jsPlumb.svg.node("svg");
         document.body.appendChild(s1);
         _jsPlumb.addClass(s1, "SFOO");
         ok(_jsPlumb.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
