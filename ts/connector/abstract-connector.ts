@@ -81,11 +81,16 @@ export interface Connector {
 
 }
 
+export interface Geometry {
+    source:any,
+    target:any
+}
+
 export abstract class AbstractConnector implements Connector {
 
     abstract type:string;
 
-    stub:number;
+    stub:number | [number, number];
     sourceStub:number;
     targetStub:number;
     maxStub:number;
@@ -109,10 +114,12 @@ export abstract class AbstractConnector implements Connector {
     bounds:SegmentBounds = EMPTY_BOUNDS();
     cssClass:string;
 
-    geometry:any;
+    abstract getDefaultStubs():[number, number];
+
+    protected geometry:Geometry;
 
     constructor(public instance:jsPlumbInstance, public connection:Connection, params:ConnectorOptions) {
-        this.stub = params.stub || 0;
+        this.stub = params.stub || this.getDefaultStubs();
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
         this.gap = params.gap || 0;
@@ -130,6 +137,21 @@ export abstract class AbstractConnector implements Connector {
 
     setGeometry(g:any, internal:boolean) {
         this.geometry = g;
+    }
+
+    /**
+     * Subclasses can override this. By default we just pass back the geometry we are using internally.
+     */
+    exportGeometry():any {
+        return this.geometry;
+    }
+
+    /**
+     * Subclasses can override this. By default we just set the given geometry as our internal representation.
+     */
+    importGeometry(g:any):boolean {
+        this.geometry = g;
+        return true;
     }
 
     abstract _compute(geometry:PaintGeometry, params:ConnectorComputeParams):void;
@@ -293,8 +315,6 @@ export abstract class AbstractConnector implements Connector {
     getLength ():number {
         return this.totalLength;
     }
-
-    abstract getGeometry():any;
 
     private _prepareCompute (params:ConnectorComputeParams):PaintGeometry {
         this.strokeWidth = params.strokeWidth;

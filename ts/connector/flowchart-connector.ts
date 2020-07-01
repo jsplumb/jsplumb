@@ -53,6 +53,10 @@ export class FlowchartConnector extends AbstractConnector {
     loopbackRadius:number;
     isLoopbackCurrently:boolean;
 
+    getDefaultStubs(): [number, number] {
+        return [30, 30];
+    }
+
     constructor(public instance:jsPlumbInstance, public connection:Connection, params:FlowchartConnectorOptions) {
         super(instance, connection, params);
 
@@ -371,11 +375,6 @@ export class FlowchartConnector extends AbstractConnector {
         // write out the segments.
         this.writeSegments(paintInfo);
     }
-
-    getGeometry(): any {
-        return this.internalSegments;
-    }
-
 }
 
 Connectors.register("Flowchart", FlowchartConnector);

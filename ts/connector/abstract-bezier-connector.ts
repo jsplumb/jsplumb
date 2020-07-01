@@ -30,6 +30,10 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         target:AnchorPlacement
     };
 
+    getDefaultStubs():[number, number] {
+        return [0,0];
+    }
+
     constructor(instance:jsPlumbInstance, public connection:Connection, params:any) {
 
         super(instance, connection, params);
@@ -86,10 +90,6 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
                 cy: cy - _y
             });
         }
-    }
-
-    getGeometry(): any {
-        return this.geometry;
     }
 
     abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, _w:number, _h:number):void;
