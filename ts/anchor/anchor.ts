@@ -1,7 +1,8 @@
 import {jsPlumbInstance, Offset, PointArray} from "../core";
 import {EventGenerator} from "../event-generator";
 import {Endpoint} from "../endpoint/endpoint-impl";
-import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, ComputedAnchorPosition,  Orientation } from "../factory/anchor-factory";
+import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory";
+import {AnchorPlacement} from "../anchor-manager";
 
 export class Anchor extends EventGenerator {
 
@@ -18,7 +19,7 @@ export class Anchor extends EventGenerator {
     x: number;
     y: number;
     timestamp:string;
-    lastReturnValue: ComputedAnchorPosition;
+    lastReturnValue: AnchorPlacement;
 
     positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:PointArray, constructorParams:any) => any;
 
@@ -38,7 +39,7 @@ export class Anchor extends EventGenerator {
         return this.orientation;
     }
 
-    getCurrentLocation(params:AnchorComputeParams):ComputedAnchorPosition {
+    getCurrentLocation(params:AnchorComputeParams):AnchorPlacement {
         params = params || {};
         return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp !== params.timestamp)) ? this.compute(params) : this.lastReturnValue;
     }
@@ -52,7 +53,7 @@ export class Anchor extends EventGenerator {
         }
     }
 
-    compute (params:AnchorComputeParams):ComputedAnchorPosition {
+    compute (params:AnchorComputeParams):AnchorPlacement {
 
         let xy = params.xy, wh = params.wh, timestamp = params.timestamp;
 

@@ -3,12 +3,13 @@ import {
 } from "./anchor";
 
 import {
-    AnchorComputeParams, AnchorOptions, AnchorSpec, ComputedAnchorPosition, makeAnchorFromSpec,
+    AnchorComputeParams, AnchorOptions, AnchorSpec, makeAnchorFromSpec,
     Orientation
 } from "../factory/anchor-factory";
 
 import {jsPlumbInstance, PointArray} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 export interface DynamicAnchorOptions extends AnchorOptions {
     selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => Anchor;
@@ -79,7 +80,7 @@ export class DynamicAnchor extends Anchor {
         return this.anchors;
     }
 
-    compute (params:AnchorComputeParams):ComputedAnchorPosition {
+    compute (params:AnchorComputeParams):AnchorPlacement {
         let xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh;
 
         this.timestamp = params.timestamp;
@@ -107,7 +108,7 @@ export class DynamicAnchor extends Anchor {
         return this._curAnchor.compute(params);
     };
 
-    getCurrentLocation (params:AnchorComputeParams):ComputedAnchorPosition {
+    getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
         return (this._curAnchor != null ? this._curAnchor.getCurrentLocation(params) : null);
     };
 
