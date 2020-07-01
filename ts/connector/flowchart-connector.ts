@@ -148,7 +148,6 @@ export class FlowchartConnector extends AbstractConnector {
     _compute (paintInfo:PaintGeometry, params:ConnectorComputeParams):void {
 
         this.internalSegments.length = 0;
-        this.segments.length = 0;
         this.lastx = null;
         this.lasty = null;
         this.lastOrientation = null;
@@ -372,6 +371,11 @@ export class FlowchartConnector extends AbstractConnector {
         // write out the segments.
         this.writeSegments(paintInfo);
     }
+
+    getGeometry(): any {
+        return this.internalSegments;
+    }
+
 }
 
 Connectors.register("Flowchart", FlowchartConnector);
