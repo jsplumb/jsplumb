@@ -39,7 +39,7 @@ export type SegmentBounds = {
     maxY: number;
 }
 
-export function EMPTY_BOUNDS():SegmentBounds { return  { minX:0, maxX:0, minY:0, maxY:0 }; }
+export function EMPTY_BOUNDS():SegmentBounds { return  { minX:Infinity, maxX:-Infinity, minY:Infinity, maxY:-Infinity }; }
 
 export interface Segment {
 
