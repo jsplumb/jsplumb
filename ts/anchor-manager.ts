@@ -17,6 +17,7 @@ import {ContinuousAnchor, ContinuousAnchorOptions} from "./anchor/continuous-anc
 import {Anchor} from "./anchor/anchor";
 
 export type AnchorPlacement = [ number, number, number, number, any?, any? ];
+export type AnchorFace = "top" | "right" | "bottom" | "left";
 
 function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:PointArray, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<AnchorPlacement> {
     let a:Array<AnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
