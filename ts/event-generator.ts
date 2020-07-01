@@ -30,7 +30,7 @@ export abstract class EventGenerator {
                             try {
                                 ret = this._listeners[event][i].apply(this, [value, originalEvent]);
                             } catch (e) {
-                                log("jsPlumb: fire failed for event " + event + " : " + e);
+                                log("jsPlumb: fire failed for event " + event + " : " + (e.message || e));
                             }
                         }
                         i++;
