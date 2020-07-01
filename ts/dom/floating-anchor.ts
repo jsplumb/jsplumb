@@ -1,7 +1,8 @@
-import {AnchorOrientationHint, AnchorComputeParams, AnchorOptions, ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
+import {AnchorOrientationHint, AnchorComputeParams, AnchorOptions, Orientation} from "../factory/anchor-factory";
 import { Anchor } from "../anchor/anchor";
 import {jsPlumbInstance, Size} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 
 export interface FloatingAnchorOptions extends AnchorOptions {
@@ -16,7 +17,7 @@ export class FloatingAnchor extends Anchor {
     size:Size;
     xDir:number;
     yDir:number;
-    _lastResult:ComputedAnchorPosition;
+    _lastResult:AnchorPlacement;
 
     constructor(public instance:jsPlumbInstance,  params:FloatingAnchorOptions) {
         super(instance, params);
@@ -53,9 +54,9 @@ export class FloatingAnchor extends Anchor {
         this.isFloating = true;
     }
 
-    compute(params:AnchorComputeParams):ComputedAnchorPosition {
+    compute(params:AnchorComputeParams):AnchorPlacement{
         let xy = params.xy;
-        this._lastResult = [ xy[0] + (this.size[0] / 2), xy[1] + (this.size[1] / 2), 0, 0 ] as ComputedAnchorPosition; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+        this._lastResult = [ xy[0] + (this.size[0] / 2), xy[1] + (this.size[1] / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
         return this._lastResult;
     }
 
@@ -91,7 +92,7 @@ export class FloatingAnchor extends Anchor {
         this.orientation = null;
     }
 
-    getCurrentLocation (params:AnchorComputeParams):ComputedAnchorPosition {
+    getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
         return this._lastResult == null ? this.compute(params) : this._lastResult;
     }
 }
