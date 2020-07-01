@@ -1,6 +1,6 @@
 import {EndpointOptions, EndpointSpec} from "../endpoint/endpoint";
 import {extend, jsPlumbInstance, OffsetAndSize, Size, Timestamp} from "../core";
-import {ComputedAnchorPosition, makeAnchorFromSpec} from "../factory/anchor-factory";
+import {makeAnchorFromSpec} from "../factory/anchor-factory";
 import {Anchor} from "../anchor/anchor";
 import {OverlayCapableComponent} from "../component/overlay-capable-component";
 import {addToList, isArray, isString, merge, removeWithFunction} from "../util";
@@ -10,7 +10,7 @@ import {PaintStyle} from "../styles";
 import {ConnectorSpec} from "../connector/abstract-connector";
 import {EndpointRepresentation} from "./endpoints";
 import {EndpointFactory} from "../factory/endpoint-factory";
-import {OverlaySpec} from "..";
+import {AnchorPlacement, OverlaySpec} from "..";
 
 function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint, elementWithPrecedence?:string):Connection {
     let idx = 0;
@@ -413,7 +413,7 @@ export class Endpoint extends OverlayCapableComponent {
     paint(params:{ timestamp?: string, offset?: OffsetAndSize, dimensions?: Size,
         recalc?:boolean, elementWithPrecedence?:string,
         connectorPaintStyle?:PaintStyle,
-        anchorLoc?:ComputedAnchorPosition }):void {
+        anchorLoc?:AnchorPlacement }):void {
 
         params = params || {};
         let timestamp = params.timestamp, recalc = !(params.recalc === false);
