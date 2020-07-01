@@ -29,8 +29,6 @@ export type AnchorComputeParams = {
     elementId?:string;
 };
 
-export type ComputedAnchorPosition = [ number, number, number, number ];
-
 export interface AnchorOptions {
     cssClass?:string;
 }
