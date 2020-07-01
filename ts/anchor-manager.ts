@@ -10,13 +10,13 @@ import {
     SortFunction
 } from "./core";
 import {Connection} from "./connector/connection-impl";
-import {ComputedAnchorPosition, Face, Orientation} from "./factory/anchor-factory";
+import {Face, Orientation} from "./factory/anchor-factory";
 import { DynamicAnchor } from "./anchor/dynamic-anchor";
 import {addToList, findWithFunction, removeWithFunction, sortHelper} from "./util";
 import {ContinuousAnchor, ContinuousAnchorOptions} from "./anchor/continuous-anchor";
 import {Anchor} from "./anchor/anchor";
 
-type AnchorPlacement = [ number, number, number, number, any, any ];
+export type AnchorPlacement = [ number, number, number, number, any?, any? ];
 
 function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:PointArray, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<AnchorPlacement> {
     let a:Array<AnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
@@ -59,13 +59,13 @@ const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
 
 export class ContinuousAnchorFactory {
 
-    private continuousAnchorLocations:Dictionary<ComputedAnchorPosition> = {};
+    private continuousAnchorLocations:Dictionary<AnchorPlacement> = {};
 
     clear(endpointId:string) {
         delete this.continuousAnchorLocations[endpointId];
     }
 
-    set(endpointId:string, pos:ComputedAnchorPosition) {
+    set(endpointId:string, pos:AnchorPlacement) {
         this.continuousAnchorLocations[endpointId] = pos;
     }
 
