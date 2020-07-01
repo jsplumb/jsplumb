@@ -24,7 +24,8 @@ export class StraightSegment extends AbstractSegment {
         this.m2 = -1 / this.m;
     }
 
-    type = "Straight";
+    static segmentType:string = "Straight";
+    type = StraightSegment.segmentType;
 
     getLength ():number {
         return this.length;
