@@ -1,7 +1,8 @@
 import {EndpointRepresentation} from "./endpoints";
-import {ComputedAnchorPosition, Orientation} from "../factory/anchor-factory";
+import {Orientation} from "../factory/anchor-factory";
 import {EndpointFactory} from "../factory/endpoint-factory";
 import {Endpoint} from "./endpoint-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ];
 
@@ -21,7 +22,7 @@ export class RectangleEndpoint<E> extends EndpointRepresentation<ComputedRectang
 
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
     // it would be much more lightweight as we'd not need to create a class for each one.
-    _compute(anchorPoint:ComputedAnchorPosition, orientation:Orientation, endpointStyle:any):ComputedRectangleEndpoint {
+    _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedRectangleEndpoint {
         let width = endpointStyle.width || this.width,
             height = endpointStyle.height || this.height,
             x = anchorPoint[0] - (width / 2),
