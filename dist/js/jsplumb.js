@@ -8972,7 +8972,7 @@
       value: function paint(connector, paintStyle, extents) {
         this.getConnectorElement(connector);
         SvgComponent.paint(connector, false, paintStyle, extents);
-        var segments = connector.segments;
+        var segments = connector.getSegments();
         var p = "",
             offset = [0, 0];
 
@@ -12609,6 +12609,18 @@
 
       _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "svg", {
+        node: function node(name, attributes) {
+          return _node(_assertThisInitialized(_this), name, attributes);
+        },
+        attr: function attr(node, attributes) {
+          return _attr(node, attributes);
+        },
+        pos: function pos(d) {
+          return _pos(d);
+        }
+      });
+
       _this.renderer.instance = _assertThisInitialized(_this);
       _this.eventManager = new EventManager();
       _this.dragManager = new DragManager(_assertThisInitialized(_this));
@@ -14451,7 +14463,7 @@
       _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
       _this.instance = instance;
 
-      _defineProperty(_assertThisInitialized(_this), "type", "Arc");
+      _defineProperty(_assertThisInitialized(_this), "type", ArcSegment.segmentType);
 
       _defineProperty(_assertThisInitialized(_this), "cx", void 0);
 
@@ -14620,6 +14632,8 @@
     return ArcSegment;
   }(AbstractSegment);
 
+  _defineProperty(ArcSegment, "segmentType", "Arc");
+
   var AbstractBezierConnector =
   /*#__PURE__*/
   function (_AbstractConnector) {
@@ -14744,7 +14758,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "length", 0);
 
-      _defineProperty(_assertThisInitialized(_this), "type", "Bezier");
+      _defineProperty(_assertThisInitialized(_this), "type", BezierSegment.segmentType);
 
       _this.cp1x = params.cp1x;
       _this.cp1y = params.cp1y;
@@ -14857,6 +14871,8 @@
 
     return BezierSegment;
   }(AbstractSegment);
+
+  _defineProperty(BezierSegment, "segmentType", "Bezier");
 
   var Bezier =
   /*#__PURE__*/
@@ -14980,7 +14996,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "y2", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "type", "Straight");
+      _defineProperty(_assertThisInitialized(_this), "type", StraightSegment.segmentType);
 
       _this._setCoordinates({
         x1: params.x1,
@@ -15278,6 +15294,8 @@
     return StraightSegment;
   }(AbstractSegment);
 
+  _defineProperty(StraightSegment, "segmentType", "Straight");
+
   function sgn$1(n) {
     return n < 0 ? -1 : n === 0 ? 0 : 1;
   }
@@ -15435,7 +15453,6 @@
         var _this2 = this;
 
         this.internalSegments.length = 0;
-        this.segments.length = 0;
         this.lastx = null;
         this.lasty = null;
         this.lastOrientation = null;
@@ -17395,12 +17412,12 @@
       newInstance: newInstance,
       ready: ready,
       extend: extend,
-      svg: {
-        node: _node,
-        attr: _attr,
-        pos: _pos
-      },
-      uuid: uuid
+      uuid: uuid,
+      Connectors: {
+        register: function register(name, conn) {
+          Connectors.register(name, conn);
+        }
+      }
     };
     window.Mottle = EventManager;
   }
