@@ -1,9 +1,11 @@
 ## 4.0.0-RC4
 
-30th June 2020
+1st July 2020
 
 - Improved typing for various classes related to dragging.
-- added `createDragManager` method to `BrowserJsPlumbInstance` class.
+- Added `createDragManager` method to `BrowserJsPlumbInstance` class.
+- "dblClick" event on Overlay was incorrectly firing "click"
+- Folded a couple of types related to anchor placements into one
 
 ## 4.0.0-RC3
 
