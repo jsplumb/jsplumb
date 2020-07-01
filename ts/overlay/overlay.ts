@@ -112,7 +112,7 @@ export abstract class Overlay extends EventGenerator {
     }
 
     dblClick(e:Event) {
-        this.fire("click", e);
+        this.fire("dblClick", e);
         let eventName = this.component instanceof Connection ? "dblclick" : "endpointDblClick";
         this._postComponentEvent(eventName, e);
     }
