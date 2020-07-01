@@ -15,7 +15,7 @@ export class SvgElementConnector {
 
         SvgComponent.paint(connector, false, paintStyle, extents);
 
-        let segments = connector.segments;
+        let segments = connector.getSegments();
 
         let p = "", offset = [0, 0];
         if (extents.xmin < 0) {
