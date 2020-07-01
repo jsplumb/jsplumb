@@ -17,7 +17,8 @@ function gentleRound (n:number):number {
 
 export class ArcSegment extends AbstractSegment {
 
-    type = "Arc";
+    static segmentType:string = "Arc";
+    type = ArcSegment.segmentType;
 
     cx:number;
     cy:number;
