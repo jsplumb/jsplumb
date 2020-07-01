@@ -177,7 +177,7 @@ abstract class Base {
     private enabled = true;
     scopes:Array<string> = [];
 
-    constructor(protected el:HTMLElement, protected k:Collicat) { }
+    constructor(protected el:jsPlumbDOMElement, protected k:Collicat) { }
 
     setEnabled(e:boolean) {
         this.enabled = e;
@@ -245,6 +245,14 @@ export interface DragHandlerOptions {
     ghostProxy?:GhostProxyGenerator | boolean;
     makeGhostProxy?:GhostProxyGenerator;
     useGhostProxy?:(container:any, dragEl:any) => boolean;
+    ghostProxyParent?:HTMLElement;
+    constrain?:ConstrainFunction | boolean;
+    revert?:RevertFunction;
+    filter?:string;
+    filterExclude?:boolean;
+    snapThreshold?:number;
+    grid?:PointArray;
+    allowNegative?:boolean;
 }
 
 export interface DragParams extends DragHandlerOptions {
@@ -253,21 +261,16 @@ export interface DragParams extends DragHandlerOptions {
     clone?:boolean;
     scroll?:boolean;
     multipleDrop?:boolean;
-    selector?:string;
-    snapThreshold?:number;
-    grid?:PointArray;
-    allowNegative?:boolean;
-    constrain?:ConstrainFunction | boolean;
+
     containment?:boolean;
-    revert?:RevertFunction;
+
     canDrag?:Function;
     consumeFilteredEvents?:boolean;
     events?:Dictionary<Function>;
     parent?:any;
     ignoreZoom?:boolean;
-    ghostProxyParent?:HTMLElement;
-    filter?:string;
-    filterExclude?:boolean;
+
+
     scope?:string;
 }
 
@@ -333,7 +336,7 @@ export class Drag extends Base {
 
     listeners:Dictionary<Array<Function>> = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] };
 
-    constructor(el:HTMLElement, params: DragParams, k:Collicat) {
+    constructor(el:jsPlumbDOMElement, params: DragParams, k:Collicat) {
 
         super(el, k);
 
@@ -480,7 +483,7 @@ export class Drag extends Base {
 
                 // dragInit gives a handler a chance to provide the actual element to drag. in the case of the endpoint stuff, for instance,
                 // this is the drag placeholder. but for element drag the current value of `_elementToDrag` is the one we want to use.
-                const initial = this._activeSelectorParams.dragInit(this._elementToDrag);
+                const initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag) : null;
                 if (initial != null) {
                     this._elementToDrag = initial;
                 }
