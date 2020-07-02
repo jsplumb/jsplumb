@@ -1776,17 +1776,23 @@ export abstract class jsPlumbInstance extends EventGenerator {
     }
 
     private findFirstDefinition<T>(key:string, el:any, connectionType?:string):T {
-        const eldefs = el[key];
-        if (eldefs && eldefs.length > 0) {
-            let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d:any) => { return d.def.connectionType === connectionType; });
-            if (idx >= 0) {
-                return eldefs[0];
+        if (el == null) {
+            return null;
+        } else {
+            const eldefs = el[key];
+            if (eldefs && eldefs.length > 0) {
+                let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d: any) => {
+                    return d.def.connectionType === connectionType;
+                });
+                if (idx >= 0) {
+                    return eldefs[0];
+                }
             }
         }
     }
 
     isSource (el:any, connectionType?:string):any {
-        return this.findFirstSourceDefinition(el, connectionType) != null;
+        return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null;
     }
 
     isSourceEnabled (el:any, connectionType?:string):boolean {
@@ -1800,7 +1806,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     };
 
     isTarget(el:any, connectionType?:string):boolean {
-        return this.findFirstTargetDefinition(el, connectionType) != null;
+        return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null;
     }
 
     isTargetEnabled (el:any, connectionType?:string):boolean {
