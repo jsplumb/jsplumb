@@ -6,6 +6,7 @@ import {Anchor} from "../anchor/anchor";
 import {DynamicAnchor} from "../anchor/dynamic-anchor";
 import {IS, isArray, isNumber, isString} from "../util";
 import {ContinuousAnchor} from "../anchor/continuous-anchor";
+import {AnchorPlacement} from "../anchor-manager";
 
 export type AnchorOrientationHint = -1 | 0 | 1;
 export type Orientation = [ AnchorOrientationHint, AnchorOrientationHint ];
@@ -59,9 +60,7 @@ export type AnchorId =
     "TopRight";
 
 
-export type AnchorSpec = AnchorId | [AnchorId, AnchorOptions]
-
-
+export type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | AnchorPlacement;
 
 const anchorMap:Dictionary<(instance:jsPlumbInstance, args:any) => Anchor> = {};
 export const Anchors = {
