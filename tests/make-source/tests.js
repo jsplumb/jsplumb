@@ -290,6 +290,15 @@ var testSuite = function () {
         ok(_jsPlumb.isSourceEnabled(d17) == true, "d17 is recognised as enabled");
         _jsPlumb.setSourceEnabled(d17, false);
         ok(_jsPlumb.isSourceEnabled(d17) == false, "d17 is recognised as disabled");
+
+        equal(_jsPlumb.isSource("d17"), true, "d17 is recognised as a source when provided as a string");
+
+        try {
+            _jsPlumb.isSource(null);
+            ok(true, "requesting isSource with null argument doesnt throw an error");
+        } catch {
+            ok(false, "requesting isSource with null argument threw an error when it shouldnt have");
+        }
     });
 
     // makeSource, then disable it. should not be able to make a connection to it.
@@ -398,6 +407,15 @@ var testSuite = function () {
         ok(_jsPlumb.isTargetEnabled(d17) == true, "d17 is recognised as enabled");
         _jsPlumb.setTargetEnabled(d17, false);
         ok(_jsPlumb.isTargetEnabled(d17) == false, "d17 is recognised as disabled");
+
+        equal(_jsPlumb.isTarget("d17"), true, "d17 is recognised as a target when provided as a string");
+
+        try {
+            _jsPlumb.isTarget(null);
+            ok(true, "requesting isTarget with null argument doesnt throw an error");
+        } catch {
+            ok(false, "requesting isTarget with null argument threw an error when it shouldnt have");
+        }
     });
 
     test(": _jsPlumb.makeTarget - endpoints deleted by default when they have no more connections", function () {
