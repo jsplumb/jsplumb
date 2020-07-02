@@ -7784,22 +7784,26 @@
     }, {
       key: "findFirstDefinition",
       value: function findFirstDefinition(key, el, connectionType) {
-        var eldefs = el[key];
+        if (el == null) {
+          return null;
+        } else {
+          var eldefs = el[key];
 
-        if (eldefs && eldefs.length > 0) {
-          var idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
-            return d.def.connectionType === connectionType;
-          });
+          if (eldefs && eldefs.length > 0) {
+            var idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
+              return d.def.connectionType === connectionType;
+            });
 
-          if (idx >= 0) {
-            return eldefs[0];
+            if (idx >= 0) {
+              return eldefs[0];
+            }
           }
         }
       }
     }, {
       key: "isSource",
       value: function isSource(el, connectionType) {
-        return this.findFirstSourceDefinition(el, connectionType) != null;
+        return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null;
       }
     }, {
       key: "isSourceEnabled",
@@ -7817,7 +7821,7 @@
     }, {
       key: "isTarget",
       value: function isTarget(el, connectionType) {
-        return this.findFirstTargetDefinition(el, connectionType) != null;
+        return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null;
       }
     }, {
       key: "isTargetEnabled",
