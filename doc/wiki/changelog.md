@@ -1,4 +1,10 @@
-## 4.0.0-RC4
+## 4.0.0-RC5
+
+3rd July 2020
+
+- added endpoint/connection mouseover and mouseout event bindings on jsPlumbInstance (in previous version you could bind to these events on an Endpoint or Connection)
+
+## 4.0.0-RC4   
 
 2nd July 2020
 
