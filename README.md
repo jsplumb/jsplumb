@@ -57,6 +57,8 @@ changes to be mindful of, though:
 
 - Removed `overlays` default. Use `connectionOverlays` or `endpointOverlays` now: not all overlay types are supported by Endpoints, so having a common set of overlays doesnt make sense.  
 
+- The `radius` option is not supported on `PaintStyle` any longer. More generally, type specific values are not supported - `radius` only pertains to `Dot` endpoints, for instance. `width` and `height` from the Rectangle endpoint are also instance of this.  Put type specific values on the endpoint spec itself, eg `endpoint:['Dot', { radius:10 }]`.  
+
 #### CSS classes
 
 - The `jtk-endpoint-anchor` css class is not added to endpoints when the associated anchor did not declare a class. It is still
