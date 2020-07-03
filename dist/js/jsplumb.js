@@ -4970,8 +4970,12 @@
   var EVENT_CONTAINER_CHANGE = "container:change";
   var EVENT_CLICK = "click";
   var EVENT_DBL_CLICK = "dblclick";
+  var EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver";
+  var EVENT_CONNECTION_MOUSEOUT = "connectionMouseOut";
   var EVENT_ENDPOINT_CLICK = "endpointClick";
   var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+  var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
+  var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
   var EVENT_ELEMENT_CLICK = "elementClick";
   var EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
   var EVENT_ELEMENT_MOUSE_MOVE = "elementMousemove";
@@ -12654,6 +12658,7 @@
 
         if (el.jtk && el.jtk.connector) {
           this.renderer.setConnectorHover(el.jtk.connector, state);
+          this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
         }
       };
 
@@ -12674,6 +12679,7 @@
 
         if (el.jtk && el.jtk.endpoint) {
           this.renderer.setEndpointHover(el.jtk.endpoint, state);
+          this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
         }
       };
 
@@ -17547,6 +17553,8 @@
   exports.EVENT_CONNECTION = EVENT_CONNECTION;
   exports.EVENT_CONNECTION_DETACHED = EVENT_CONNECTION_DETACHED;
   exports.EVENT_CONNECTION_DRAG = EVENT_CONNECTION_DRAG;
+  exports.EVENT_CONNECTION_MOUSEOUT = EVENT_CONNECTION_MOUSEOUT;
+  exports.EVENT_CONNECTION_MOUSEOVER = EVENT_CONNECTION_MOUSEOVER;
   exports.EVENT_CONNECTION_MOVED = EVENT_CONNECTION_MOVED;
   exports.EVENT_CONTAINER_CHANGE = EVENT_CONTAINER_CHANGE;
   exports.EVENT_CONTEXTMENU = EVENT_CONTEXTMENU;
@@ -17559,6 +17567,8 @@
   exports.EVENT_ELEMENT_MOUSE_OVER = EVENT_ELEMENT_MOUSE_OVER;
   exports.EVENT_ENDPOINT_CLICK = EVENT_ENDPOINT_CLICK;
   exports.EVENT_ENDPOINT_DBL_CLICK = EVENT_ENDPOINT_DBL_CLICK;
+  exports.EVENT_ENDPOINT_MOUSEOUT = EVENT_ENDPOINT_MOUSEOUT;
+  exports.EVENT_ENDPOINT_MOUSEOVER = EVENT_ENDPOINT_MOUSEOVER;
   exports.EVENT_EXPAND = EVENT_EXPAND;
   exports.EVENT_FOCUS = EVENT_FOCUS;
   exports.EVENT_GROUP_ADDED = EVENT_GROUP_ADDED;

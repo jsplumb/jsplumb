@@ -161,6 +161,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
             const el = getEventSource(e).parentNode;
             if (el.jtk && el.jtk.connector) {
                 this.renderer.setConnectorHover(el.jtk.connector, state);
+                this.fire(state ? Constants.EVENT_CONNECTION_MOUSEOVER : Constants.EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
             }
         };
 
@@ -182,6 +183,7 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
             const el = getEventSource(e);
             if (el.jtk && el.jtk.endpoint) {
                 this.renderer.setEndpointHover(el.jtk.endpoint, state);
+                this.fire(state ? Constants.EVENT_ENDPOINT_MOUSEOVER : Constants.EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
             }
         };
         this._endpointMouseover = _endpointHover.bind(this, true);
