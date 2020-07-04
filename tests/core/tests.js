@@ -5510,6 +5510,30 @@ var testSuite = function () {
         equal(c, 0, "no other dbl clicks");
     });
 
+    test("endpoint mouseover/mouseout", function() {
+        var d = support.addDiv("d1"),
+            e = _jsPlumb.addEndpoint(d),
+            mm = 0,
+            mo = 0;
+
+        _jsPlumb.bind("endpointMouseOver", function() {
+            mm++;
+        });
+
+        _jsPlumb.bind("endpointMouseOut", function() {
+            mo++;
+        });
+
+        // the SVG element
+        _jsPlumb.trigger(support.getEndpointCanvas(e), "mouseover");
+
+        // the path element
+        _jsPlumb.trigger(support.getEndpointCanvas(e), "mouseout");
+
+        equal(mo, 1, "1 endpoint mouseout");
+        equal(mm, 1, "1 endpoint mouseover");
+    });
+
     test("connector click", function() {
         var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
             conn = _jsPlumb.connect({source:d, target:d2}),
@@ -5548,6 +5572,27 @@ var testSuite = function () {
         // each of those should have triggered a single click
 
         equal(c, 2, "2 dblclicks in total");
+    });
+
+    test("connector mouseover/mouseout", function() {
+        var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2}),
+            mo = 0, mm = 0;
+
+        _jsPlumb.bind("connectionMouseOver", function() {
+            mm++;
+        });
+
+        _jsPlumb.bind("connectionMouseOut", function() {
+            mo++;
+        });
+
+        _jsPlumb.trigger(support.getConnectionCanvas(conn).childNodes[0], "mouseover");
+
+        _jsPlumb.trigger(support.getConnectionCanvas(conn).childNodes[0], "mouseout");
+
+        equal(mo, 1, "1 connection mouseout");
+        equal(mm, 1, "1 connection mouseover");
     });
 
     test("arrow overlay click", function() {
