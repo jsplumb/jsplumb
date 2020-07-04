@@ -71,12 +71,17 @@ suffix `jtk-endpoint-anchor` was just a shadow of `jtk-endpoint` - use `jtk-endp
 
 #### Events
 
-- The `manageElement` and `unmanageElement` events are no longer fired by the `JsPlumbInstance` class. These were undocumented anyway, but we're calling it out
- in case you have code that used them.
+- The `manageElement` and `unmanageElement` events are no longer fired by the `JsPlumbInstance` class. These were undocumented anyway, but we're calling it out in case you have code that used them.
  
-- Added `drag:start`, `drag:move` and `drag:stop` events. These replace the `start`, `drag` and `stop` event handlers that used to
-be supported on individual `draggable(..)` method calls.
+- Added `drag:start`, `drag:move` and `drag:stop` events. These replace the `start`, `drag` and `stop` event handlers that used to be supported on individual `draggable(..)` method calls.
 
+- Binding to `mouseover` and `mouseout` on Endpoints and Connections is not supported. You now should bind to these events on a jsplumb instance instead:
+
+    - endpointMouseOver
+    - endpointMouseOut
+    - connectionMouseOver
+    - connectionMouseOut
+    
 
 #### Behaviour
 
