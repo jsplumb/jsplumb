@@ -12,7 +12,12 @@ const _one = (dir, subdir) => {
     const path = subdir == null ? dir : dir + "/" + subdir;
 
     if (subdir != null) {
-        fs.mkdirSync(targetDir + "/" + subdir);
+        try {
+            fs.mkdirSync(targetDir + "/" + subdir);
+        }
+        catch (e) {
+            // dir exists, no problem.
+        }
     }
 
     let inputPath;
