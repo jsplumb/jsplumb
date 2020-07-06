@@ -2,6 +2,7 @@ import { AbstractSegment } from "./abstract-segment";
 import { jsPlumbInstance, PointXY } from "../core";
 export declare class ArcSegment extends AbstractSegment {
     private instance;
+    static segmentType: string;
     type: string;
     cx: number;
     cy: number;

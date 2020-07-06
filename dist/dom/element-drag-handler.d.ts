@@ -1,7 +1,7 @@
 import { DragHandler } from "./drag-manager";
-import { BrowserJsPlumbInstance, PosseSpec } from "./browser-jsplumb-instance";
+import { BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec } from "./browser-jsplumb-instance";
 import { UIGroup } from "../group/group";
-import { BoundingBox, Dictionary, Offset } from "../core";
+import { BoundingBox, Dictionary, Offset, PointArray } from "../core";
 import { Drag } from "./collicat";
 declare type IntersectingGroup = {
     group: UIGroup;
@@ -39,11 +39,29 @@ export declare class ElementDragHandler implements DragHandler {
     protected drag: Drag;
     constructor(instance: BrowserJsPlumbInstance);
     onDragInit(el: HTMLElement): HTMLElement;
-    onStop(params: any): void;
+    onStop(params: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        pos: PointArray;
+        drag: Drag;
+    }): void;
+    private _cleanup;
     reset(): void;
     init(drag: Drag): void;
-    onDrag(params: any): void;
-    onStart(params: any): boolean;
+    onDrag(params: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        pos: PointArray;
+        drag: Drag;
+    }): void;
+    onStart(params: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        drag: Drag;
+    }): boolean;
     addToDragSelection(el: string | HTMLElement): void;
     clearDragSelection(): void;
     removeFromDragSelection(el: string | HTMLElement): void;

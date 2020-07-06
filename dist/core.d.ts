@@ -51,6 +51,25 @@ export interface TypeDescriptor {
     scope?: string;
     connector?: ConnectorSpec;
 }
+export interface BehaviouralTypeDescriptor extends TypeDescriptor {
+    filter?: string | Function;
+    filterExclude?: boolean;
+    extract?: Dictionary<string>;
+    uniqueEndpoint?: boolean;
+    onMaxConnections?: Function;
+    connectionType?: string;
+}
+interface SourceOrTargetDefinition {
+    enabled?: boolean;
+    def: BehaviouralTypeDescriptor;
+    endpoint?: Endpoint;
+    maxConnections?: number;
+    uniqueEndpoint?: boolean;
+}
+export interface SourceDefinition extends SourceOrTargetDefinition {
+}
+export interface TargetDefinition extends SourceOrTargetDefinition {
+}
 export interface DeleteOptions {
     connection?: Connection;
     endpoint?: Endpoint;
@@ -85,6 +104,7 @@ export declare type BoundingBox = {
     y: number;
     w: number;
     h: number;
+    center?: PointXY;
 };
 export declare type RectangleXY = BoundingBox;
 export declare type LineXY = [PointXY, PointXY];
@@ -393,8 +413,8 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     private _setEnabled;
     toggleSourceEnabled(el: any, connectionType?: string): any;
     setSourceEnabled(el: ElementSpec, state: boolean, connectionType?: string): any;
-    findFirstSourceDefinition(el: any, connectionType?: string): any;
-    findFirstTargetDefinition(el: any, connectionType?: string): any;
+    findFirstSourceDefinition(el: any, connectionType?: string): SourceDefinition;
+    findFirstTargetDefinition(el: any, connectionType?: string): TargetDefinition;
     private findFirstDefinition;
     isSource(el: any, connectionType?: string): any;
     isSourceEnabled(el: any, connectionType?: string): boolean;
@@ -410,7 +430,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     unmakeEverySource(connectionType?: string): void;
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
-    makeSource(el: ElementSpec, params?: any, referenceParams?: any): jsPlumbInstance;
+    makeSource(el: ElementSpec, params?: BehaviouralTypeDescriptor, referenceParams?: any): jsPlumbInstance;
     private _getScope;
     getSourceScope(el: any | string): string;
     getTargetScope(el: any | string): string;
@@ -419,7 +439,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     setSourceScope(el: any | string, scope: string): void;
     setTargetScope(el: any | string, scope: string): void;
     setScope(el: any | string, scope: string): void;
-    makeTarget(el: ElementSpec, params: any, referenceParams?: any): jsPlumbInstance;
+    makeTarget(el: ElementSpec, params: BehaviouralTypeDescriptor, referenceParams?: any): jsPlumbInstance;
     show(el: string | any, changeEndpoints?: boolean): jsPlumbInstance;
     hide(el: string | any, changeEndpoints?: boolean): jsPlumbInstance;
     private _setVisible;

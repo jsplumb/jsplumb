@@ -1,17 +1,17 @@
 import { jsPlumbDefaults, jsPlumbHelperFunctions } from "../defaults";
-import { Dictionary, jsPlumbInstance, Offset, PointArray, Size } from "../core";
+import { Dictionary, jsPlumbInstance, Offset, PointArray, Size, SourceDefinition, TargetDefinition } from "../core";
 import { DragManager } from "./drag-manager";
 import { UIGroup } from "../group/group";
 import { EventManager } from "./event-manager";
-import { AbstractConnector, Endpoint, Overlay } from "..";
+import { AbstractConnector, Collicat, CollicatOptions, Drag, ElementAttributes, Endpoint, Overlay } from "..";
 import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
 export interface DragEventCallbackOptions {
     drag: {
-        size: [number, number];
-        getDragElement: () => HTMLElement;
+        _size: [number, number];
+        getDragElement: () => jsPlumbDOMElement;
     };
     e: MouseEvent;
-    el: HTMLElement;
+    el: jsPlumbDOMElement;
     pos: [number, number];
 }
 export interface DragOptions {
@@ -38,10 +38,11 @@ export interface jsPlumbDOMElement extends HTMLElement {
     getAttribute: (name: string) => string;
     parentNode: jsPlumbDOMElement;
     jtk: jsPlumbDOMInformation;
-    _jsPlumbTargetDefinitions: Array<any>;
-    _jsPlumbSourceDefinitions: Array<any>;
+    _jsPlumbTargetDefinitions: Array<TargetDefinition>;
+    _jsPlumbSourceDefinitions: Array<SourceDefinition>;
     _jsPlumbList: any;
     _jsPlumbScrollHandler?: Function;
+    _katavorioDrag?: Drag;
 }
 export declare type PosseSpec = string | {
     id: string;
@@ -143,4 +144,14 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
     consume(e: Event, doNotPreventDefault?: boolean): void;
     addList(el: jsPlumbDOMElement, options?: jsPlumbListOptions): jsPlumbList;
     removeList(el: jsPlumbDOMElement): void;
+    /**
+     * Helper method for other libs/code to get a DragManager.
+     * @param options
+     */
+    createDragManager(options: CollicatOptions): Collicat;
+    svg: {
+        node: (name: string, attributes?: ElementAttributes) => SVGElement;
+        attr: (node: SVGElement, attributes: ElementAttributes) => void;
+        pos: (d: [number, number]) => string;
+    };
 }

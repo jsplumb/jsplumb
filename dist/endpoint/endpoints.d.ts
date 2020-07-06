@@ -1,7 +1,8 @@
 import { jsPlumbInstance } from "../core";
-import { ComputedAnchorPosition, Orientation } from "../factory/anchor-factory";
+import { Orientation } from "../factory/anchor-factory";
 import { SegmentBounds } from "../connector/abstract-segment";
 import { Endpoint } from "./endpoint-impl";
+import { AnchorPlacement } from "../anchor-manager";
 /**
  * Superclass for all types of Endpoint. This class is renderer
  * agnostic, as are any subclasses of it.
@@ -18,11 +19,11 @@ export declare abstract class EndpointRepresentation<C> {
     classes: Array<string>;
     instance: jsPlumbInstance;
     abstract getType(): string;
-    abstract _compute(anchorPoint: ComputedAnchorPosition, orientation: Orientation, endpointStyle: any): C;
+    abstract _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): C;
     constructor(endpoint: Endpoint);
     addClass(c: string): void;
     removeClass(c: string): void;
     clone(): EndpointRepresentation<C>;
-    compute(anchorPoint: ComputedAnchorPosition, orientation: Orientation, endpointStyle: any): void;
+    compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): void;
     setVisible(v: boolean): void;
 }

@@ -1,12 +1,14 @@
 import { Endpoint } from "./endpoint/endpoint-impl";
 import { Dictionary, ExtendedOffset, jsPlumbInstance, Offset } from "./core";
 import { Connection } from "./connector/connection-impl";
-import { ComputedAnchorPosition, Face, Orientation } from "./factory/anchor-factory";
+import { Face, Orientation } from "./factory/anchor-factory";
 import { ContinuousAnchor, ContinuousAnchorOptions } from "./anchor/continuous-anchor";
+export declare type AnchorPlacement = [number, number, number, number, any?, any?];
+export declare type AnchorFace = "top" | "right" | "bottom" | "left";
 export declare class ContinuousAnchorFactory {
     private continuousAnchorLocations;
     clear(endpointId: string): void;
-    set(endpointId: string, pos: ComputedAnchorPosition): void;
+    set(endpointId: string, pos: AnchorPlacement): void;
     get(instance: jsPlumbInstance, params?: ContinuousAnchorOptions): ContinuousAnchor;
 }
 interface OrientationResult {

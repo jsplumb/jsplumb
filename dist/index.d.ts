@@ -1,6 +1,7 @@
 import { BrowserJsPlumbDefaults, BrowserJsPlumbInstance } from "./dom/browser-jsplumb-instance";
+import { Constructable } from "./core";
 import { jsPlumbHelperFunctions } from "./defaults";
-import { Collicat, CollicatOptions } from "./dom";
+import { AbstractConnector } from "./connector/abstract-connector";
 export * from "./constants";
 export * from "./core";
 export * from "./defaults";
@@ -54,5 +55,7 @@ export interface jsPlumbGlobal {
     ready(f: Function): void;
     extend<T>(o1: T, o2: T, keys?: string[]): T;
     uuid(): string;
-    createDragManager(options: CollicatOptions): Collicat;
+    Connectors: {
+        register: (name: string, conn: Constructable<AbstractConnector>) => void;
+    };
 }

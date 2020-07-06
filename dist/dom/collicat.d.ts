@@ -4,19 +4,20 @@
 */
 import { BoundingBox, Dictionary, PointArray } from "../core";
 import { EventManager } from "./event-manager";
+import { DragEventCallbackOptions, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 export interface DragSelector {
     filter?: string;
     filterExclude?: boolean;
     selector: string;
 }
 declare abstract class Base {
-    protected el: HTMLElement;
+    protected el: jsPlumbDOMElement;
     protected k: Collicat;
     abstract _class: string;
     uuid: string;
     private enabled;
     scopes: Array<string>;
-    constructor(el: HTMLElement, k: Collicat);
+    constructor(el: jsPlumbDOMElement, k: Collicat);
     setEnabled(e: boolean): void;
     isEnabled(): boolean;
     toggleEnabled(): void;
@@ -25,29 +26,38 @@ declare abstract class Base {
     toggleScope(scopes: string): void;
 }
 export declare type GhostProxyGenerator = (el: HTMLElement) => HTMLElement;
-export interface DragParams {
+export interface DragHandlerOptions {
+    selector?: string;
+    start?: (p: DragEventCallbackOptions) => any;
+    stop?: (p: DragEventCallbackOptions) => any;
+    drag?: (p: DragEventCallbackOptions) => any;
+    beforeStart?: (beforeStartParams: any) => void;
+    dragInit?: (el: jsPlumbDOMElement) => any;
+    ghostProxy?: GhostProxyGenerator | boolean;
+    makeGhostProxy?: GhostProxyGenerator;
+    useGhostProxy?: (container: any, dragEl: any) => boolean;
+    ghostProxyParent?: HTMLElement;
+    constrain?: ConstrainFunction | boolean;
+    revert?: RevertFunction;
+    filter?: string;
+    filterExclude?: boolean;
+    snapThreshold?: number;
+    grid?: PointArray;
+    allowNegative?: boolean;
+}
+export interface DragParams extends DragHandlerOptions {
     rightButtonCanDrag?: boolean;
     consumeStartEvent?: boolean;
     clone?: boolean;
     scroll?: boolean;
     multipleDrop?: boolean;
-    ghostProxy?: GhostProxyGenerator | boolean;
-    makeGhostProxy?: GhostProxyGenerator;
-    selector?: string;
-    snapThreshold?: number;
-    grid?: PointArray;
-    allowNegative?: boolean;
-    constrain?: ConstrainFunction | boolean;
     containment?: boolean;
-    revert?: RevertFunction;
     canDrag?: Function;
     consumeFilteredEvents?: boolean;
     events?: Dictionary<Function>;
     parent?: any;
     ignoreZoom?: boolean;
-    ghostProxyParent?: HTMLElement;
-    filter?: string;
-    filterExclude?: boolean;
+    scope?: string;
 }
 export interface DragSelector {
 }
@@ -98,7 +108,7 @@ export declare class Drag extends Base {
     moveListener: (e: MouseEvent) => void;
     upListener: (e?: MouseEvent) => void;
     listeners: Dictionary<Array<Function>>;
-    constructor(el: HTMLElement, params: DragParams, k: Collicat);
+    constructor(el: jsPlumbDOMElement, params: DragParams, k: Collicat);
     on(evt: string, fn: Function): void;
     off(evt: string, fn: Function): void;
     private _upListener;
@@ -136,7 +146,7 @@ export declare class Drag extends Base {
     addFilter(f: Function | string, _exclude?: boolean): void;
     removeFilter(f: Function | string): void;
     clearAllFilters(): void;
-    addSelector(params: any): void;
+    addSelector(params: DragHandlerOptions): void;
     destroy(): void;
 }
 export declare type ConstrainFunction = (desiredLoc: PointArray, dragEl: HTMLElement, constrainRect: BoundingBox, size: PointArray) => PointArray;
@@ -148,7 +158,15 @@ export interface CollicatOptions {
     constrain?: ConstrainFunction;
     revert?: RevertFunction;
 }
-export declare class Collicat {
+export interface jsPlumbDragManager {
+    getZoom(): number;
+    setZoom(z: number): void;
+    getInputFilterSelector(): string;
+    setInputFilterSelector(selector: string): void;
+    draggable(el: jsPlumbDOMElement, params: DragParams): Drag;
+    destroyDraggable(el: jsPlumbDOMElement): void;
+}
+export declare class Collicat implements jsPlumbDragManager {
     eventManager: EventManager;
     private zoom;
     css: Dictionary<string>;
@@ -158,7 +176,7 @@ export declare class Collicat {
     constructor(options?: CollicatOptions);
     getZoom(): number;
     setZoom(z: number): void;
-    _prepareParams(p: DragParams): DragParams;
+    private _prepareParams;
     /**
      * Gets the selector identifying which input elements to filter from drag events.
      * @method getInputFilterSelector
@@ -169,10 +187,10 @@ export declare class Collicat {
      * Sets the selector identifying which input elements to filter from drag events.
      * @method setInputFilterSelector
      * @param {String} selector Input filter selector to set.
-     * @return {Katavorio} Current instance; method may be chained.
+     * @return {Collicat} Current instance; method may be chained.
      */
     setInputFilterSelector(selector: string): this;
-    draggable(el: any, params: DragParams): Drag;
-    destroyDraggable(el: any): void;
+    draggable(el: jsPlumbDOMElement, params: DragParams): Drag;
+    destroyDraggable(el: jsPlumbDOMElement): void;
 }
 export {};

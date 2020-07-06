@@ -1,6 +1,6 @@
-import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
-import { Dictionary } from "../core";
-import { Drag } from "./collicat";
+import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { Dictionary, PointArray } from "../core";
+import { Drag, DragHandlerOptions, GhostProxyGenerator } from "./collicat";
 export declare const CLASS_DRAG_SELECTED = "jtk-drag-selected";
 export declare const CLASS_DRAG_ACTIVE = "jtk-drag-active";
 export declare const CLASS_DRAGGED = "jtk-dragged";
@@ -16,17 +16,34 @@ export declare const EVT_REVERT = "revert";
 export declare const EVT_CONNECTION_DRAG = "connectionDrag";
 export interface DragHandler {
     selector: string;
-    onStart: (params: any) => boolean;
-    onDrag: (params: any) => void;
-    onStop: (params: any) => void;
+    onStart: (params: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        drag: Drag;
+    }) => boolean;
+    onDrag: (params: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        pos: PointArray;
+        drag: Drag;
+    }) => void;
+    onStop: (params: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        pos: PointArray;
+        drag: Drag;
+    }) => void;
     onDragInit: (el: HTMLElement) => HTMLElement;
     reset: () => void;
     init: (drag: Drag) => void;
     onBeforeStart?: (beforeStartParams: any) => void;
 }
 export interface GhostProxyingDragHandler extends DragHandler {
-    makeGhostProxy: (el: any) => any;
     useGhostProxy: (container: any, dragEl: any) => boolean;
+    makeGhostProxy?: GhostProxyGenerator;
 }
 export declare class DragManager {
     protected instance: BrowserJsPlumbInstance;
@@ -39,7 +56,7 @@ export declare class DragManager {
     handlers: Array<DragHandler>;
     private _filtersToAdd;
     constructor(instance: BrowserJsPlumbInstance);
-    addHandler(handler: DragHandler, dragOptions?: any): void;
+    addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
     addFilter(filter: Function | string, exclude?: boolean): void;
     removeFilter(filter: Function | string): void;
     reset(): void;

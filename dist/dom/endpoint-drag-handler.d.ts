@@ -2,7 +2,7 @@ import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint-impl";
-import { Dictionary } from "../core";
+import { BoundingBox, Dictionary, PointArray } from "../core";
 import { EndpointRepresentation } from "../endpoint/endpoints";
 import { Drag } from "./collicat";
 export declare class EndpointDragHandler implements DragHandler {
@@ -20,7 +20,11 @@ export declare class EndpointDragHandler implements DragHandler {
     floatingEndpoint: Endpoint;
     _stopped: boolean;
     inPlaceCopy: any;
-    endpointDropTargets: Array<any>;
+    endpointDropTargets: Array<{
+        el: jsPlumbDOMElement;
+        endpoint: Endpoint;
+        r: BoundingBox;
+    }>;
     currentDropTarget: any;
     payload: any;
     floatingConnections: Dictionary<Connection>;
@@ -49,12 +53,29 @@ export declare class EndpointDragHandler implements DragHandler {
     private _cleanupDraggablePlaceholder;
     reset(): void;
     init(drag: Drag): void;
-    onStart(p: any): boolean;
+    onStart(p: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        drag: Drag;
+    }): boolean;
     onBeforeStart(beforeStartParams: any): void;
-    onDrag(params: any): boolean;
+    onDrag(params: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        pos: PointArray;
+        drag: Drag;
+    }): boolean;
     private _maybeCleanup;
     private _reattachOrDiscard;
-    onStop(p: any): void;
+    onStop(p: {
+        e: MouseEvent;
+        el: jsPlumbDOMElement;
+        finalPos: PointArray;
+        pos: PointArray;
+        drag: Drag;
+    }): void;
     /**
      * Lookup a source definition on the given element.
      * @param fromElement Element to lookup the source definition

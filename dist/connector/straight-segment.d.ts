@@ -17,6 +17,7 @@ export declare class StraightSegment extends AbstractSegment {
     y2: number;
     constructor(instance: jsPlumbInstance, params: any);
     private _recalc;
+    static segmentType: string;
     type: string;
     getLength(): number;
     getGradient(): number;

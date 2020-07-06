@@ -1,7 +1,8 @@
-import { AnchorComputeParams, AnchorOptions, ComputedAnchorPosition, Orientation } from "../factory/anchor-factory";
+import { AnchorComputeParams, AnchorOptions, Orientation } from "../factory/anchor-factory";
 import { Anchor } from "../anchor/anchor";
 import { jsPlumbInstance, Size } from "../core";
 import { Endpoint } from "../endpoint/endpoint-impl";
+import { AnchorPlacement } from "../anchor-manager";
 export interface FloatingAnchorOptions extends AnchorOptions {
     reference: Anchor;
     referenceCanvas: HTMLElement;
@@ -13,9 +14,9 @@ export declare class FloatingAnchor extends Anchor {
     size: Size;
     xDir: number;
     yDir: number;
-    _lastResult: ComputedAnchorPosition;
+    _lastResult: AnchorPlacement;
     constructor(instance: jsPlumbInstance, params: FloatingAnchorOptions);
-    compute(params: AnchorComputeParams): ComputedAnchorPosition;
+    compute(params: AnchorComputeParams): AnchorPlacement;
     getOrientation(_endpoint: Endpoint): Orientation;
     /**
      * notification the endpoint associated with this anchor is hovering
@@ -29,5 +30,5 @@ export declare class FloatingAnchor extends Anchor {
      * orientation as we normally do.
      */
     out(): void;
-    getCurrentLocation(params: AnchorComputeParams): ComputedAnchorPosition;
+    getCurrentLocation(params: AnchorComputeParams): AnchorPlacement;
 }

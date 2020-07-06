@@ -14,6 +14,7 @@ export declare class BezierSegment extends AbstractSegment {
     y2: number;
     length: number;
     constructor(instance: jsPlumbInstance, params: any);
+    static segmentType: string;
     type: string;
     private static _translateLocation;
     /**

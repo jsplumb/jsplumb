@@ -1,9 +1,10 @@
 import { jsPlumbInstance, PointArray, PointXY, TypeDescriptor } from "../core";
 import { Segment, SegmentBounds } from "./abstract-segment";
 import { Endpoint } from "../endpoint/endpoint-impl";
-import { ComputedAnchorPosition, Orientation } from "../factory/anchor-factory";
+import { Orientation } from "../factory/anchor-factory";
 import { ComponentOptions } from "../component/component";
 import { Connection } from "./connection-impl";
+import { AnchorPlacement } from "../anchor-manager";
 /**
  * Created by simon on 14/05/2019.
  */
@@ -35,8 +36,8 @@ declare type SegmentForPoint = {
     connectorLocation: number;
 };
 export declare type ConnectorComputeParams = {
-    sourcePos: ComputedAnchorPosition;
-    targetPos: ComputedAnchorPosition;
+    sourcePos: AnchorPlacement;
+    targetPos: AnchorPlacement;
     sourceOrientation: Orientation;
     targetOrientation: Orientation;
     sourceEndpoint: Endpoint;
@@ -82,11 +83,15 @@ export interface ConnectorOptions extends ComponentOptions {
 }
 export interface Connector {
 }
+export interface Geometry {
+    source: any;
+    target: any;
+}
 export declare abstract class AbstractConnector implements Connector {
     instance: jsPlumbInstance;
     connection: Connection;
     abstract type: string;
-    stub: number;
+    stub: number | [number, number];
     sourceStub: number;
     targetStub: number;
     maxStub: number;
@@ -94,11 +99,11 @@ export declare abstract class AbstractConnector implements Connector {
     gap: number;
     sourceGap: number;
     targetGap: number;
-    segments: Array<Segment>;
+    private segments;
     totalLength: number;
     segmentProportions: Array<[number, number]>;
     segmentProportionalLengths: Array<number>;
-    private paintInfo;
+    protected paintInfo: PaintGeometry;
     strokeWidth: number;
     x: number;
     y: number;
@@ -107,9 +112,20 @@ export declare abstract class AbstractConnector implements Connector {
     segment: number;
     bounds: SegmentBounds;
     cssClass: string;
+    abstract getDefaultStubs(): [number, number];
+    protected geometry: Geometry;
     constructor(instance: jsPlumbInstance, connection: Connection, params: ConnectorOptions);
     getTypeDescriptor(): string;
     getIdPrefix(): string;
+    setGeometry(g: any, internal: boolean): void;
+    /**
+     * Subclasses can override this. By default we just pass back the geometry we are using internally.
+     */
+    exportGeometry(): any;
+    /**
+     * Subclasses can override this. By default we just set the given geometry as our internal representation.
+     */
+    importGeometry(g: any): boolean;
     abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;
     resetBounds(): void;
     getPathData(): any;

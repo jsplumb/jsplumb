@@ -10,6 +10,7 @@ export declare class GroupManager {
     addGroup(params: any): UIGroup;
     getGroup(groupId: string | UIGroup): UIGroup;
     getGroupFor(el: any | string): UIGroup;
+    getGroups(): Array<UIGroup>;
     removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
     removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup) => any): void;

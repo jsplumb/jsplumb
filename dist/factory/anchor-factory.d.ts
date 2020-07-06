@@ -2,6 +2,7 @@ import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint-impl";
 import { jsPlumbInstance, PointArray } from "../core";
 import { Anchor } from "../anchor/anchor";
+import { AnchorPlacement } from "../anchor-manager";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
 export declare type Orientation = [AnchorOrientationHint, AnchorOrientationHint];
 export declare type Face = "top" | "right" | "bottom" | "left";
@@ -20,12 +21,11 @@ export declare type AnchorComputeParams = {
     connection?: Connection;
     elementId?: string;
 };
-export declare type ComputedAnchorPosition = [number, number, number, number];
 export interface AnchorOptions {
     cssClass?: string;
 }
 export declare type AnchorId = "Assign" | "AutoDefault" | "Bottom" | "BottomCenter" | "BottomLeft" | "BottomRight" | "Center" | "Continuous" | "ContinuousBottom" | "ContinuousLeft" | "ContinuousRight" | "ContinuousTop" | "ContinuousLeftRight" | "ContinuousTopBottom" | "Left" | "LeftMiddle" | "Perimeter" | "Right" | "RightMiddle" | "Top" | "TopCenter" | "TopLeft" | "TopRight";
-export declare type AnchorSpec = AnchorId | [AnchorId, AnchorOptions];
+export declare type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | AnchorPlacement;
 export declare const Anchors: {
     get: (instance: jsPlumbInstance, name: string, args: any) => Anchor;
 };

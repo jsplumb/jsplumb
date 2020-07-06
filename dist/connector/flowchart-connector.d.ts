@@ -21,6 +21,7 @@ export declare class FlowchartConnector extends AbstractConnector {
     lastOrientation: any;
     loopbackRadius: number;
     isLoopbackCurrently: boolean;
+    getDefaultStubs(): [number, number];
     constructor(instance: jsPlumbInstance, connection: Connection, params: FlowchartConnectorOptions);
     private addASegment;
     private writeSegments;

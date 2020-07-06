@@ -6,7 +6,7 @@ export declare abstract class EventGenerator {
     private queue;
     abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     constructor();
-    fire(event: string, value?: any, originalEvent?: Event): EventGenerator;
+    fire(event: string, value?: any, originalEvent?: Event): any;
     private _drain;
     unbind(eventOrListener?: string | Function, listener?: Function): EventGenerator;
     getListener(forEvent: string): Array<any>;
@@ -15,4 +15,7 @@ export declare abstract class EventGenerator {
     bind(event: string | Array<String>, listener: Function, insertAtStart?: boolean): EventGenerator;
     cleanupListeners(): void;
     silently(fn: Function): void;
+}
+export declare class OptimisticEventGenerator extends EventGenerator {
+    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
 }
