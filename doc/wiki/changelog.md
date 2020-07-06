@@ -1,3 +1,9 @@
+## 4.0.0-RC6
+
+6th July 2020
+
+- Re-release of 4.0.0-RC5, which may have had packaging problem
+
 ## 4.0.0-RC5
 
 3rd July 2020
