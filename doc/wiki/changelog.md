@@ -1,3 +1,9 @@
+## 4.0.0-RC7
+
+6th July 2020
+
+- Fixed issue with typedefs not being up to date in package.
+
 ## 4.0.0-RC6
 
 6th July 2020
