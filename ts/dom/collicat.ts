@@ -101,7 +101,7 @@ export interface DragSelector {
  * @param childElement
  * @returns {*}
  */
-function findMatchingSelector(availableSelectors:Array<DragParams>, parentElement:HTMLElement, childElement:HTMLElement) {
+function findMatchingSelector(availableSelectors:Array<DragParams>, parentElement:HTMLElement, childElement:HTMLElement):[DragParams, HTMLElement] {
     let el = null;
     let draggableId = parentElement.getAttribute("katavorio-draggable"),
         prefix = draggableId != null ? "[katavorio-draggable='" + draggableId + "'] " : "";
@@ -242,6 +242,7 @@ export interface DragHandlerOptions {
     drag?:(p:DragEventCallbackOptions) => any;
     beforeStart?:(beforeStartParams:any) => void;
     dragInit?:(el:jsPlumbDOMElement) => any;
+    dragAbort?:(el:jsPlumbDOMElement) => any;
     ghostProxy?:GhostProxyGenerator | boolean;
     makeGhostProxy?:GhostProxyGenerator;
     useGhostProxy?:(container:any, dragEl:any) => boolean;
@@ -307,7 +308,7 @@ export class Drag extends Base {
     _ghostProxyParent:HTMLElement;
     _isConstrained: boolean = false;
     _useGhostProxy:Function;
-    _activeSelectorParams:any;
+    _activeSelectorParams:DragParams;
     _availableSelectors:Array<DragParams> = [];
     _ghostProxyFunction:GhostProxyGenerator;
     _snapThreshold:number;
@@ -723,6 +724,8 @@ export class Drag extends Base {
                 drag: this,
                 selection:positions
             });
+        } else if (!this._moving) {
+            this._activeSelectorParams.dragAbort ? this._activeSelectorParams.dragAbort(this._elementToDrag) : null;
         }
     }
 

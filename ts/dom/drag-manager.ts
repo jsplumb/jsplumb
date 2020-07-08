@@ -27,6 +27,7 @@ export const EVT_MOUSEDOWN = "mousedown";
 export const EVT_MOUSEMOVE = "mousemove";
 export const EVT_MOUSEUP= "mouseup";
 export const EVT_REVERT = "revert";
+export const EVT_ZOOM = "zoom";
 
 export const EVT_CONNECTION_DRAG = "connectionDrag";
 
@@ -38,6 +39,7 @@ export interface DragHandler {
     onDrag:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) => void;
     onStop:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) => void;
     onDragInit: (el:HTMLElement) => HTMLElement;
+    onDragAbort:(el:HTMLElement) => void;
 
     reset:() => void;
     init:(drag:Drag) => void;
@@ -104,7 +106,7 @@ export class DragManager {
             }
         });
 
-        this.instance.bind("zoom", (z:number) => {
+        this.instance.bind(EVT_ZOOM, (z:number) => {
             this.collicat.setZoom(z);
         });
     }
@@ -119,6 +121,7 @@ export class DragManager {
         o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); });
         o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler);
         o.dragInit = (el:HTMLElement) => handler.onDragInit(el);
+        o.dragAbort = (el:HTMLElement) => handler.onDragAbort(el);
 
         if ((handler as GhostProxyingDragHandler).useGhostProxy) {
             o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy;
@@ -129,7 +132,7 @@ export class DragManager {
             this.drag = this.collicat.draggable(this.instance.getContainer(), o);
             this._filtersToAdd.forEach((filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]));
 
-            this.drag.on("revert", (el:HTMLElement) => {
+            this.drag.on(EVT_REVERT, (el:HTMLElement) => {
                 this.instance.revalidate(el);
             });
 

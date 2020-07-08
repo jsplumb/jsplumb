@@ -46,9 +46,11 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         super.onDrag(params);
     }
 
-    onDragInit(el:HTMLElement):HTMLElement {
-        return null;
-    }
+    onDragInit(el:HTMLElement):HTMLElement { return null; }
+
+    onDragAbort: (el: HTMLElement) => void;
+
+
 
     onStop(params: any) {
 

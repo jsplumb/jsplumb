@@ -217,6 +217,10 @@ export class EndpointDragHandler implements DragHandler {
         return this.placeholderInfo.element;
     }
 
+    onDragAbort(el:jsPlumbDOMElement):void {
+        this._cleanupDraggablePlaceholder();
+    }
+
     /**
      * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and `unmanaged` when dragging
      * ends.
