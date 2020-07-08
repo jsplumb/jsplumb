@@ -33,6 +33,7 @@ export interface DragHandlerOptions {
     drag?: (p: DragEventCallbackOptions) => any;
     beforeStart?: (beforeStartParams: any) => void;
     dragInit?: (el: jsPlumbDOMElement) => any;
+    dragAbort?: (el: jsPlumbDOMElement) => any;
     ghostProxy?: GhostProxyGenerator | boolean;
     makeGhostProxy?: GhostProxyGenerator;
     useGhostProxy?: (container: any, dragEl: any) => boolean;
@@ -84,7 +85,7 @@ export declare class Drag extends Base {
     _ghostProxyParent: HTMLElement;
     _isConstrained: boolean;
     _useGhostProxy: Function;
-    _activeSelectorParams: any;
+    _activeSelectorParams: DragParams;
     _availableSelectors: Array<DragParams>;
     _ghostProxyFunction: GhostProxyGenerator;
     _snapThreshold: number;

@@ -1,3 +1,11 @@
+## 4.0.0-RC8
+
+8th July 2020
+
+- Fixed issue with drag elements not being cleaned up when mouse clicked on endpoint but no drag occurs
+- Fixed issue with classes not being cleaned up properly after endpoint drag
+- Improved the internal typing of the drag manager
+
 ## 4.0.0-RC7
 
 6th July 2020

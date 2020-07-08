@@ -13,6 +13,7 @@ export declare const EVT_MOUSEDOWN = "mousedown";
 export declare const EVT_MOUSEMOVE = "mousemove";
 export declare const EVT_MOUSEUP = "mouseup";
 export declare const EVT_REVERT = "revert";
+export declare const EVT_ZOOM = "zoom";
 export declare const EVT_CONNECTION_DRAG = "connectionDrag";
 export interface DragHandler {
     selector: string;
@@ -37,6 +38,7 @@ export interface DragHandler {
         drag: Drag;
     }) => void;
     onDragInit: (el: HTMLElement) => HTMLElement;
+    onDragAbort: (el: HTMLElement) => void;
     reset: () => void;
     init: (drag: Drag) => void;
     onBeforeStart?: (beforeStartParams: any) => void;

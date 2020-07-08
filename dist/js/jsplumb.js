@@ -9588,6 +9588,7 @@
   var EVT_MOUSEMOVE = "mousemove";
   var EVT_MOUSEUP = "mouseup";
   var EVT_REVERT = "revert";
+  var EVT_ZOOM = "zoom";
   var EVT_CONNECTION_DRAG = "connectionDrag";
   var DragManager =
   /*#__PURE__*/
@@ -9650,7 +9651,7 @@
           return _el.parentNode != null && _el._jsPlumbGroup && _el._jsPlumbGroup.revert ? !_isInsideParent(_this.instance, _el, pos) : false;
         }
       });
-      this.instance.bind("zoom", function (z) {
+      this.instance.bind(EVT_ZOOM, function (z) {
         _this.collicat.setZoom(z);
       });
     }
@@ -9680,6 +9681,10 @@
           return handler.onDragInit(el);
         };
 
+        o.dragAbort = function (el) {
+          return handler.onDragAbort(el);
+        };
+
         if (handler.useGhostProxy) {
           o.useGhostProxy = handler.useGhostProxy;
           o.makeGhostProxy = handler.makeGhostProxy;
@@ -9692,7 +9697,7 @@
             return _this2.drag.addFilter(filterToAdd[0], filterToAdd[1]);
           });
 
-          this.drag.on("revert", function (el) {
+          this.drag.on(EVT_REVERT, function (el) {
             _this2.instance.revalidate(el);
           });
         } else {
@@ -9768,6 +9773,8 @@
       _defineProperty(this, "_dragSizes", new Map());
 
       _defineProperty(this, "drag", void 0);
+
+      _defineProperty(this, "onDragAbort", void 0);
     }
 
     _createClass(ElementDragHandler, [{
@@ -10594,6 +10601,11 @@
         this.placeholderInfo.element.jtk = el.jtk;
         return this.placeholderInfo.element;
       }
+    }, {
+      key: "onDragAbort",
+      value: function onDragAbort(el) {
+        this._cleanupDraggablePlaceholder();
+      }
       /**
        * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and `unmanaged` when dragging
        * ends.
@@ -11141,11 +11153,15 @@
           } else {
             // no drop target: either reattach, or discard.
             this._reattachOrDiscard(p.e);
-          } // common clean up
+          }
 
+          this.instance.renderer.refreshEndpoint(this.ep); // common clean up
 
           this._cleanupDraggablePlaceholder();
 
+          this.ep.removeClass("endpointDrag");
+          this.ep.removeClass(this.instance.draggingClass);
+          this.jpc.removeClass(this.instance.draggingClass);
           delete this.jpc.suspendedEndpoint;
           delete this.jpc.suspendedElement;
           delete this.jpc.suspendedElementType;
@@ -11512,6 +11528,8 @@
       _defineProperty(_assertThisInitialized(_this), "selector", "> [jtk-group] [jtk-managed]");
 
       _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "onDragAbort", void 0);
 
       _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
       return _this;
@@ -17066,6 +17084,8 @@
             drag: this,
             selection: positions
           });
+        } else if (!this._moving) {
+          this._activeSelectorParams.dragAbort ? this._activeSelectorParams.dragAbort(this._elementToDrag) : null;
         }
       }
     }, {
@@ -17592,6 +17612,7 @@
   exports.EVT_MOUSEMOVE = EVT_MOUSEMOVE;
   exports.EVT_MOUSEUP = EVT_MOUSEUP;
   exports.EVT_REVERT = EVT_REVERT;
+  exports.EVT_ZOOM = EVT_ZOOM;
   exports.Endpoint = Endpoint;
   exports.EndpointFactory = EndpointFactory;
   exports.EndpointRepresentation = EndpointRepresentation;

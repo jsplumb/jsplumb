@@ -14,6 +14,7 @@ export declare class GroupDragHandler extends ElementDragHandler implements Ghos
     makeGhostProxy(el: any): any;
     onDrag(params: any): void;
     onDragInit(el: HTMLElement): HTMLElement;
+    onDragAbort: (el: HTMLElement) => void;
     onStop(params: any): void;
     private _isInsideParent;
     private _pruneOrOrphan;
