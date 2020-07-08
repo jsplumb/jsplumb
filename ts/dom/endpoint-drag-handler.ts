@@ -763,9 +763,15 @@ export class EndpointDragHandler implements DragHandler {
                 this._reattachOrDiscard(p.e);
             }
 
+            this.instance.renderer.refreshEndpoint(this.ep);
+
             // common clean up
 
             this._cleanupDraggablePlaceholder();
+
+            this.ep.removeClass("endpointDrag");
+            this.ep.removeClass(this.instance.draggingClass);
+            this.jpc.removeClass(this.instance.draggingClass);
 
             delete this.jpc.suspendedEndpoint;
             delete this.jpc.suspendedElement;
@@ -792,6 +798,7 @@ export class EndpointDragHandler implements DragHandler {
                     }
                 }
             }
+
         }
     }
 
