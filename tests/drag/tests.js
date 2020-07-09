@@ -1760,4 +1760,25 @@ var testSuite = function () {
         equal(2, document.querySelectorAll("[jtk-managed]").length, 2, "two managed elements after aborted drag: drag element was cleaned up.");
     });
 
+    test("endpoint:drag, attached classes removed afterwards.", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {
+                isSource:true, isTarget:true,
+                connectionsDetachable:false
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
+            ec1 = support.getEndpointCanvas(e1);
+
+        var conn = support.dragConnection(e1, e2),
+            cc = support.getConnectionCanvas(conn);
+
+        ok(!ec1.classList.contains("endpointDrag"), "endpointDrag class removed from endpoint after drag");
+        ok(!ec1.classList.contains("jtk-dragging"), "jtk-dragging class removed from endpoint after drag");
+        ok(!cc.classList.contains("jtk-dragging"), "jtk-dragging class removed from connection after drag");
+
+
+
+
+    });
+
 };
