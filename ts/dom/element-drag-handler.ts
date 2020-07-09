@@ -51,7 +51,9 @@ export class ElementDragHandler implements DragHandler {
     constructor(protected instance:BrowserJsPlumbInstance) {}
 
     onDragInit(el:HTMLElement):HTMLElement { return null; }
-    onDragAbort: (el: HTMLElement) => void;
+    onDragAbort(el: HTMLElement):void {
+        return null;
+    }
 
 
     onStop(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}):void {
