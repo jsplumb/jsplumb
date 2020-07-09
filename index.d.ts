@@ -382,6 +382,7 @@ declare module jsPlumb {
         reattachConnections?: boolean;
         type?: string; // "Dot", etc.
         overlays?:Array<OverlaySpec>;
+        uuid?:string;
     }
 
     class Endpoint {
