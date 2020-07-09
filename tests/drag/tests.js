@@ -1743,4 +1743,21 @@ var testSuite = function () {
         ok(dragStopped, "drag stop event was fired");
     });
 
+    test("endpoint:click but not drag results in drag proxy being cleaned up", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = _jsPlumb.addEndpoint(d1, {
+                isSource:true, isTarget:true,
+                connectionsDetachable:false
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
+            ec1 = support.getEndpointCanvas(e1);
+
+        equal(2, document.querySelectorAll("[jtk-managed]").length, 2, "two managed elements after init");
+
+        _jsPlumb.trigger(ec1, "mousedown", support.makeEvent(_jsPlumb, ec1));
+        _jsPlumb.trigger(ec1, "mouseup", support.makeEvent(_jsPlumb, ec1));
+
+        equal(2, document.querySelectorAll("[jtk-managed]").length, 2, "two managed elements after aborted drag: drag element was cleaned up.");
+    });
+
 };
