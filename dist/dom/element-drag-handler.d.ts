@@ -39,7 +39,7 @@ export declare class ElementDragHandler implements DragHandler {
     protected drag: Drag;
     constructor(instance: BrowserJsPlumbInstance);
     onDragInit(el: HTMLElement): HTMLElement;
-    onDragAbort: (el: HTMLElement) => void;
+    onDragAbort(el: HTMLElement): void;
     onStop(params: {
         e: MouseEvent;
         el: jsPlumbDOMElement;

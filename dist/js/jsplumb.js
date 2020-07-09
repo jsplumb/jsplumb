@@ -9773,13 +9773,16 @@
       _defineProperty(this, "_dragSizes", new Map());
 
       _defineProperty(this, "drag", void 0);
-
-      _defineProperty(this, "onDragAbort", void 0);
     }
 
     _createClass(ElementDragHandler, [{
       key: "onDragInit",
       value: function onDragInit(el) {
+        return null;
+      }
+    }, {
+      key: "onDragAbort",
+      value: function onDragAbort(el) {
         return null;
       }
     }, {
@@ -11529,8 +11532,6 @@
 
       _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "onDragAbort", void 0);
-
       _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
       return _this;
     }
@@ -11572,6 +11573,11 @@
     }, {
       key: "onDragInit",
       value: function onDragInit(el) {
+        return null;
+      }
+    }, {
+      key: "onDragAbort",
+      value: function onDragAbort(el) {
         return null;
       }
     }, {

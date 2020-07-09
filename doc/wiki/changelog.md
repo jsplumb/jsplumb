@@ -1,3 +1,10 @@
+## 4.0.0-RC9
+
+9th July 2020
+
+- Added a proper implementation of onDragAbort for group and element drag handlers.
+- Added tests for changes made in 4.0.0-RC8
+
 ## 4.0.0-RC8
 
 8th July 2020
