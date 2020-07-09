@@ -1,3 +1,9 @@
+## 2.13.4
+
+July 9th 2020
+
+- Added missing `uuid` option to `EndpointOptions` in types. No change to the code.
+
 ## 2.13.3
 
 Jun 16th 2020
