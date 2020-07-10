@@ -890,7 +890,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
     setSource (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 0, doNotRepaint);
-        this.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
+        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
     }
 
     setTarget (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
@@ -2190,14 +2190,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         connection.proxies[index] = { ep:proxyEp, originalEp: originalEndpoint };
 
         // and advise the anchor manager
-        if (index === 0) {
-            this.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
-        }
-        else {
-            connection.updateConnectedClass();
-            connection.target = proxyEl;
-            connection.targetId = proxyElId;
-        }
+        this.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, index);
 
         // detach the original EP from the connection, but mark as a transient detach.
         originalEndpoint.detachFromConnection(connection, null, true);
@@ -2224,16 +2217,18 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
         connection.endpoints[index] = connection.proxies[index].originalEp;
         // and advise the anchor manager
-        if (index === 0) {
-            // TODO why are there two differently named methods? Why is there not one method that says "some end of this
-            // connection changed (you give the index), and here's the new element and element id."
-            this.sourceChanged(proxyElId, originalElementId, connection, originalElement);
-        }
-        else {
-            connection.updateConnectedClass();
-            connection.target = originalElement;
-            connection.targetId = originalElementId;
-        }
+        // if (index === 0) {
+        //     // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+        //     // connection changed (you give the index), and here's the new element and element id."
+        //     this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement);
+        // }
+        // else {
+        //     connection.updateConnectedClass();
+        //     connection.target = originalElement;
+        //     connection.targetId = originalElementId;
+        // }
+
+        this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index);
 
         // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
         connection.proxies[index].ep.detachFromConnection(connection, null);
@@ -2252,10 +2247,16 @@ export abstract class jsPlumbInstance extends EventGenerator {
         }
     }
 
-    sourceChanged (originalId:string, newId:string, connection:any, newElement:any):void {
-        if (originalId !== newId) {
-            connection.sourceId = newId;
-            connection.source = newElement;
+    sourceOrTargetChanged (originalId:string, newId:string, connection:any, newElement:any, index:number):void {
+        if (index === 0) {
+            if (originalId !== newId) {
+                connection.sourceId = newId;
+                connection.source = newElement;
+                connection.updateConnectedClass();
+            }
+        } else if (index === 1) {
+            connection.targetId = newId;
+            connection.target = newElement;
             connection.updateConnectedClass();
         }
     }

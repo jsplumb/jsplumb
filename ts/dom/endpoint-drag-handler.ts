@@ -520,19 +520,15 @@ export class EndpointDragHandler implements DragHandler {
             // fire an event that informs that a connection is being dragged. we do this before
             // replacing the original target with the floating element info.
             this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
-        
-            // now we replace ourselves with the temporary div we created above:
+
             if (anchorIdx === 0) {
                 this.existingJpcParams = [ this.jpc.source, this.jpc.sourceId, canvasElement, dragScope ];
-                this.instance.sourceChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element);
-        
             } else {
                 this.existingJpcParams = [ this.jpc.target, this.jpc.targetId, canvasElement, dragScope ];
-                this.jpc.target = this.placeholderInfo.element;
-                this.jpc.targetId = this.placeholderInfo.id;
-
-                this.jpc.updateConnectedClass();
             }
+
+            // now we replace ourselves with the temporary div we created above
+            this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx);
         
             // store the original endpoint and assign the new floating endpoint for the drag.
             this.jpc.suspendedEndpoint = this.jpc.endpoints[anchorIdx];
@@ -936,22 +932,25 @@ export class EndpointDragHandler implements DragHandler {
 
         this.jpc._forceDetach = true;
 
-        if (idx === 0) {
-            this.jpc.source = this.jpc.suspendedEndpoint.element;
-            this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
-        } else {
-            this.jpc.target = this.jpc.suspendedEndpoint.element;
-            this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
-        }
-        this.jpc.suspendedEndpoint.addConnection(this.jpc);
+        // if (idx === 0) {
+        //     this.jpc.source = this.jpc.suspendedEndpoint.element;
+        //     this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
+        // } else {
+        //     this.jpc.target = this.jpc.suspendedEndpoint.element;
+        //     this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
+        // }
+        // this.jpc.suspendedEndpoint.addConnection(this.jpc);
+        //
+        // // TODO checkSanity
+        // if (idx === 1) {
+        //     this.jpc.updateConnectedClass();
+        // }
+        // else {
+        //     this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+        // }
 
-        // TODO checkSanity
-        if (idx === 1) {
-            this.jpc.updateConnectedClass();
-        }
-        else {
-            this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
-        }
+        this.jpc.suspendedEndpoint.addConnection(this.jpc);
+        this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx);
 
         this.instance.deleteEndpoint(this.floatingEndpoint);
 
@@ -979,27 +978,10 @@ export class EndpointDragHandler implements DragHandler {
             if (this.jpc.isReattach() || this.jpc._forceReattach || !this.instance.deleteConnection(this.jpc, {originalEvent: originalEvent})) {
 
                 this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
-
                 this.instance.renderer.setHover(this.jpc, false);
-
                 this.jpc._forceDetach = true;
-                if (idx === 0) {
-                    this.jpc.source = this.jpc.suspendedEndpoint.element;
-                    this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
-                } else {
-                    this.jpc.target = this.jpc.suspendedEndpoint.element;
-                    this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
-                }
                 this.jpc.suspendedEndpoint.addConnection(this.jpc);
-
-                // TODO checkSanity
-                if (idx === 1) {
-                    this.jpc.updateConnectedClass();
-                }
-                else {
-                    this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
-                }
-
+                this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx);
                 this.instance.repaint(this.jpc.sourceId);
                 this.jpc._forceDetach = false;
             }
@@ -1082,7 +1064,7 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.updateConnectedClass();
         }
         else {
-            this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+            this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0);
         }
 
         // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints

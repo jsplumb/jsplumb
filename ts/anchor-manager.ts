@@ -299,14 +299,12 @@ export class AnchorManager {
         }
 
         for (let i = 0; i < ep.connections.length; i++) {
-            if (ep.connections[i].sourceId === currentId) {
-                this.instance.sourceChanged(currentId, ep.elementId, ep.connections[i], ep.element);
-            }
-            else if (ep.connections[i].targetId === currentId) {
-                ep.connections[i].targetId = ep.elementId;
-                ep.connections[i].target = ep.element;
-                ep.connections[i].updateConnectedClass();
-            }
+            this.instance.sourceOrTargetChanged(currentId,
+                ep.elementId,
+                ep.connections[i],
+                ep.element,
+                ep.connections[i].sourceId === currentId ? 0 : 1
+            );
         }
     };
 
