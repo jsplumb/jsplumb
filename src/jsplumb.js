@@ -1418,7 +1418,7 @@
             endpointsByUUID = {};
             offsets = {};
             offsetTimestamps = {};
-            _currentInstance.anchorManager.reset();
+            _currentInstance.router.reset();
             var dm = _currentInstance.getDragManager();
             if (dm) {
                 dm.reset();

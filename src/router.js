@@ -27,6 +27,10 @@
         this.sourceOrTargetChanged = function (originalId, newId, connection, newElement, anchorIndex) {
             this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex);
         };
+
+        this.reset = function() {
+            this.anchorManager.reset();
+        }
     };
 
 
