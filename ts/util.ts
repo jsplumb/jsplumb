@@ -1,7 +1,7 @@
 import {extend, SortFunction} from "./core";
 
 export function isArray(a: any): boolean {
-    return Object.prototype.toString.call(a) === "[object Array]";
+    return Array.isArray(a);
 }
 
 export function isNumber(n: any): boolean {
@@ -24,11 +24,11 @@ export function isObject(o: any): boolean {
     return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
 }
 
-export function isDate(o: any): boolean {
+export function isDate(o: any): o is Date {
     return Object.prototype.toString.call(o) === "[object Date]";
 }
 
-export function isFunction(o: any): boolean {
+export function isFunction(o: any): o is Function {
     return Object.prototype.toString.call(o) === "[object Function]";
 }
 
