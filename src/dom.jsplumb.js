@@ -1,7 +1,7 @@
 /*
  * This file contains code used when jsPlumb is being rendered in a DOM.
  *
- * Copyright (c) 2010 - 2019 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
