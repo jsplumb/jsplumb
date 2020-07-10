@@ -153,7 +153,8 @@
   }
 
   function isArray(a) {
-    return Object.prototype.toString.call(a) === "[object Array]";
+    //return Object.prototype.toString.call(a) === "[object Array]";
+    return Array.isArray(a);
   }
   function isNumber(n) {
     return Object.prototype.toString.call(n) === "[object Number]";
@@ -205,7 +206,7 @@
       return new Date(a.getTime());
     } else if (isFunction(a)) {
       return a;
-    } else if (isArray(a)) {
+    } else if (Array.isArray(a)) {
       var b = [];
 
       for (var i = 0; i < a.length; i++) {
@@ -253,15 +254,15 @@
         } else {
           ar = []; // if c's object is also an array we can keep its values.
 
-          ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]]);
+          ar.push.apply(ar, Array.isArray(c[i]) ? c[i] : [c[i]]);
           ar.push.apply(ar, isBoolean(b[i]) ? b[i] : [b[i]]);
           c[i] = ar;
         }
       } else {
-        if (isArray(b[i])) {
+        if (Array.isArray(b[i])) {
           ar = []; // if c's object is also an array we can keep its values.
 
-          if (isArray(c[i])) {
+          if (Array.isArray(c[i])) {
             ar.push.apply(ar, c[i]);
           }
 
@@ -381,7 +382,7 @@
           return getValue(d);
         } else if (isFunction(d) && !doNotExpandFunctions && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
           return d(values);
-        } else if (isArray(d)) {
+        } else if (Array.isArray(d)) {
           var r = [];
 
           for (var i = 0; i < d.length; i++) {
@@ -1383,23 +1384,18 @@
       /**
        * Add a class to the overlay.
        * @param clazz
-       */
-
-    }, {
-      key: "addClass",
-      value: function addClass(clazz) {
-        this.instance.renderer.addOverlayClass(this, clazz);
+       *
+      addClass(clazz:string) {
+          this.instance.renderer.addOverlayClass(this, clazz);
       }
-      /**
+       /**
        * Remove a class from the overlay.
        * @param clazz
-       */
+       *
+      removeClass(clazz:string) {
+          this.instance.renderer.removeOverlayClass(this, clazz);
+      }*/
 
-    }, {
-      key: "removeClass",
-      value: function removeClass(clazz) {
-        this.instance.renderer.removeOverlayClass(this, clazz);
-      }
     }, {
       key: "_postComponentEvent",
       value: function _postComponentEvent(eventName, originalEvent) {
@@ -1462,7 +1458,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "labelText", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "type", "Label");
+      _defineProperty(_assertThisInitialized(_this), "type", LabelOverlay.labelType);
 
       _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
 
@@ -1507,6 +1503,12 @@
 
     return LabelOverlay;
   }(Overlay);
+
+  _defineProperty(LabelOverlay, "labelType", "Label");
+
+  function isLabelOverlay(o) {
+    return o.type === LabelOverlay.labelType;
+  }
   OverlayFactory.register("Label", LabelOverlay);
 
   var _internalLabelOverlayId = "__label";
@@ -1783,7 +1785,13 @@
       value: function _clazzManip(action, clazz, dontUpdateOverlays) {
         if (!dontUpdateOverlays) {
           for (var i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i][action + "Class"](clazz);
+            if (action === "add") {
+              //this._jsPlumb.overlays[i].addClass(clazz);
+              this.instance.renderer.addOverlayClass(this._jsPlumb.overlays[i], clazz);
+            } else if (action === "remove") {
+              //this._jsPlumb.overlays[i].removeClass(clazz);
+              this.instance.renderer.removeOverlayClass(this._jsPlumb.overlays[i], clazz);
+            }
           }
         }
       }
@@ -4530,13 +4538,7 @@
         }
 
         for (var i = 0; i < ep.connections.length; i++) {
-          if (ep.connections[i].sourceId === currentId) {
-            this.instance.sourceChanged(currentId, ep.elementId, ep.connections[i], ep.element);
-          } else if (ep.connections[i].targetId === currentId) {
-            ep.connections[i].targetId = ep.elementId;
-            ep.connections[i].target = ep.element;
-            ep.connections[i].updateConnectedClass();
-          }
+          this.instance.sourceOrTargetChanged(currentId, ep.elementId, ep.connections[i], ep.element, ep.connections[i].sourceId === currentId ? 0 : 1);
         }
       }
     }, {
@@ -6739,7 +6741,7 @@
       value: function setSource(connection, el, doNotRepaint) {
         var p = this._set(connection, el, 0, doNotRepaint);
 
-        this.sourceChanged(p.originalSourceId, p.newSourceId, connection, p.el);
+        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
       }
     }, {
       key: "setTarget",
@@ -8276,14 +8278,7 @@
           originalEp: originalEndpoint
         }; // and advise the anchor manager
 
-        if (index === 0) {
-          this.sourceChanged(originalElementId, proxyElId, connection, proxyEl);
-        } else {
-          connection.updateConnectedClass();
-          connection.target = proxyEl;
-          connection.targetId = proxyElId;
-        } // detach the original EP from the connection, but mark as a transient detach.
-
+        this.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, index); // detach the original EP from the connection, but mark as a transient detach.
 
         originalEndpoint.detachFromConnection(connection, null, true); // set the proxy as the new ep
 
@@ -8304,17 +8299,18 @@
         var originalElement = connection.proxies[index].originalEp.element,
             originalElementId = connection.proxies[index].originalEp.elementId;
         connection.endpoints[index] = connection.proxies[index].originalEp; // and advise the anchor manager
+        // if (index === 0) {
+        //     // TODO why are there two differently named methods? Why is there not one method that says "some end of this
+        //     // connection changed (you give the index), and here's the new element and element id."
+        //     this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement);
+        // }
+        // else {
+        //     connection.updateConnectedClass();
+        //     connection.target = originalElement;
+        //     connection.targetId = originalElementId;
+        // }
 
-        if (index === 0) {
-          // TODO why are there two differently named methods? Why is there not one method that says "some end of this
-          // connection changed (you give the index), and here's the new element and element id."
-          this.sourceChanged(proxyElId, originalElementId, connection, originalElement);
-        } else {
-          connection.updateConnectedClass();
-          connection.target = originalElement;
-          connection.targetId = originalElementId;
-        } // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
-
+        this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index); // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
 
         connection.proxies[index].ep.detachFromConnection(connection, null);
         connection.proxies[index].originalEp.addConnection(connection);
@@ -8333,11 +8329,17 @@
         }
       }
     }, {
-      key: "sourceChanged",
-      value: function sourceChanged(originalId, newId, connection, newElement) {
-        if (originalId !== newId) {
-          connection.sourceId = newId;
-          connection.source = newElement;
+      key: "sourceOrTargetChanged",
+      value: function sourceOrTargetChanged(originalId, newId, connection, newElement, index) {
+        if (index === 0) {
+          if (originalId !== newId) {
+            connection.sourceId = newId;
+            connection.source = newElement;
+            connection.updateConnectedClass();
+          }
+        } else if (index === 1) {
+          connection.targetId = newId;
+          connection.target = newElement;
           connection.updateConnectedClass();
         }
       } // ------------------------ GROUPS --------------
@@ -8899,15 +8901,14 @@
 
           if (o.component instanceof Connection) {
             var connector = o.component.getConnector();
-            parent = connector.canvas;
+            parent = connector != null ? connector.canvas : null;
           } else if (o.component instanceof Endpoint) {
             var endpoint = o.component.endpoint;
-            parent = endpoint.svg;
+            parent = endpoint != null ? endpoint.svg : endpoint;
           }
 
           if (parent != null) {
-            _appendAtIndex(parent, o.path, 1); //params.paintStyle.outlineStroke ? 1 : 0);
-
+            _appendAtIndex(parent, o.path, 1);
           }
 
           o.instance.addClass(o.path, o.instance.overlayClass);
@@ -9064,6 +9065,43 @@
     return SvgElementConnector;
   }();
 
+  var CustomOverlay =
+  /*#__PURE__*/
+  function (_Overlay) {
+    _inherits(CustomOverlay, _Overlay);
+
+    function CustomOverlay(instance, component, p) {
+      var _this;
+
+      _classCallCheck(this, CustomOverlay);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomOverlay).call(this, instance, component, p));
+      _this.instance = instance;
+      _this.component = component;
+
+      _defineProperty(_assertThisInitialized(_this), "create", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "type", CustomOverlay.customType);
+
+      _this.create = p.create;
+      return _this;
+    }
+
+    _createClass(CustomOverlay, [{
+      key: "updateFrom",
+      value: function updateFrom(d) {}
+    }]);
+
+    return CustomOverlay;
+  }(Overlay);
+
+  _defineProperty(CustomOverlay, "customType", "Custom");
+
+  function isCustomOverlay(o) {
+    return o.type === CustomOverlay.customType;
+  }
+  OverlayFactory.register("Custom", CustomOverlay);
+
   var endpointMap$1 = {};
   function registerEndpointRenderer(name, fns) {
     endpointMap$1[name] = fns;
@@ -9104,11 +9142,11 @@
     }, {
       key: "addOverlayClass",
       value: function addOverlayClass(o, clazz) {
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           o.instance.addClass(BrowserRenderer.getLabelElement(o), clazz);
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           o.instance.addClass(BrowserRenderer.getCustomElement(o), clazz);
         } else {
           throw "Could not add class to overlay of type [" + o.type + "]";
@@ -9118,11 +9156,11 @@
     }, {
       key: "removeOverlayClass",
       value: function removeOverlayClass(o, clazz) {
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           o.instance.removeClass(BrowserRenderer.getLabelElement(o), clazz);
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           o.instance.removeClass(BrowserRenderer.getCustomElement(o), clazz);
         } else {
           throw "Could not remove class from overlay of type [" + o.type + "]";
@@ -9132,23 +9170,18 @@
       key: "paintOverlay",
       value: function paintOverlay(o, params, extents) {
         //
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           BrowserRenderer.getLabelElement(o);
-          var XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
-          // this.canvas.style.top = XY.y + params.d.miny + "px";
-
-          o.canvas.style.left = XY.x + params.d.minx + "px"; // wont work for endpoint. abstracts
-
+          var XY = o.component.getXY();
+          o.canvas.style.left = XY.x + params.d.minx + "px";
           o.canvas.style.top = XY.y + params.d.miny + "px";
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
           SVGElementOverlay.paint(o, path, params, extents);
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           BrowserRenderer.getCustomElement(o);
 
-          var _XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
-          // this.canvas.style.top = XY.y + params.d.miny + "px";
-
+          var _XY = o.component.getXY();
 
           o.canvas.style.left = _XY.x + params.d.minx + "px"; // wont work for endpoint. abstracts
 
@@ -9160,31 +9193,31 @@
     }, {
       key: "setOverlayVisible",
       value: function setOverlayVisible(o, visible) {
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           BrowserRenderer.getLabelElement(o).style.display = visible ? "block" : "none";
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           BrowserRenderer.getCustomElement(o).style.display = visible ? "block" : "none";
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           o.path.style.display = visible ? "block" : "none";
         }
       }
     }, {
       key: "moveOverlayParent",
       value: function moveOverlayParent(o, newParent) {
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           o.instance.appendElement(BrowserRenderer.getLabelElement(o), this.instance.getContainer());
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer());
-        } else if (o.type === "Arrow") ;
+        } else if (isArrowOverlay(o)) ;
       }
     }, {
       key: "reattachOverlay",
       value: function reattachOverlay(o, c) {
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           o.instance.appendElement(BrowserRenderer.getLabelElement(o), this.instance.getContainer());
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer());
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           this.instance.appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
         }
       }
@@ -9194,11 +9227,11 @@
         var method = hover ? "addClass" : "removeClass";
         var canvas;
 
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           canvas = BrowserRenderer.getLabelElement(o);
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           canvas = BrowserRenderer.getCustomElement(o);
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           canvas = SVGElementOverlay.ensurePath(o);
         }
 
@@ -9213,14 +9246,14 @@
     }, {
       key: "destroyOverlay",
       value: function destroyOverlay(o) {
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
           var el = BrowserRenderer.getLabelElement(o);
           el.parentNode.removeChild(el);
           delete o.canvas;
           delete o.cachedDimensions;
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           SVGElementOverlay.destroy(o);
-        } else if (o.type === "Custom") {
+        } else if (isCustomOverlay(o)) {
           var _el = BrowserRenderer.getCustomElement(o);
 
           _el.parentNode.removeChild(_el);
@@ -9232,7 +9265,7 @@
     }, {
       key: "drawOverlay",
       value: function drawOverlay(o, component, paintStyle, absolutePosition) {
-        if (o.type === "Label" || o.type === "Custom") {
+        if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
           //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
           var td = HTMLElementOverlay._getDimensions(o); //._getDimensions();
 
@@ -9289,7 +9322,7 @@
               maxY: 0
             };
           }
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
           return o.draw(component, paintStyle, absolutePosition);
         } else {
           throw "Could not draw overlay of type [" + o.type + "]";
@@ -10918,18 +10951,16 @@
           // fire an event that informs that a connection is being dragged. we do this before
           // replacing the original target with the floating element info.
 
-          this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc); // now we replace ourselves with the temporary div we created above:
+          this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
 
           if (anchorIdx === 0) {
             this.existingJpcParams = [this.jpc.source, this.jpc.sourceId, canvasElement, dragScope];
-            this.instance.sourceChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element);
           } else {
             this.existingJpcParams = [this.jpc.target, this.jpc.targetId, canvasElement, dragScope];
-            this.jpc.target = this.placeholderInfo.element;
-            this.jpc.targetId = this.placeholderInfo.id;
-            this.jpc.updateConnectedClass();
-          } // store the original endpoint and assign the new floating endpoint for the drag.
+          } // now we replace ourselves with the temporary div we created above
 
+
+          this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx); // store the original endpoint and assign the new floating endpoint for the drag.
 
           this.jpc.suspendedEndpoint = this.jpc.endpoints[anchorIdx]; // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
 
@@ -11326,24 +11357,25 @@
         this.floatingEndpoint.detachFromConnection(this.jpc, null, true);
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
         this.instance.renderer.setHover(this.jpc, false);
-        this.jpc._forceDetach = true;
+        this.jpc._forceDetach = true; // if (idx === 0) {
+        //     this.jpc.source = this.jpc.suspendedEndpoint.element;
+        //     this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
+        // } else {
+        //     this.jpc.target = this.jpc.suspendedEndpoint.element;
+        //     this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
+        // }
+        // this.jpc.suspendedEndpoint.addConnection(this.jpc);
+        //
+        // // TODO checkSanity
+        // if (idx === 1) {
+        //     this.jpc.updateConnectedClass();
+        // }
+        // else {
+        //     this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+        // }
 
-        if (idx === 0) {
-          this.jpc.source = this.jpc.suspendedEndpoint.element;
-          this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
-        } else {
-          this.jpc.target = this.jpc.suspendedEndpoint.element;
-          this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
-        }
-
-        this.jpc.suspendedEndpoint.addConnection(this.jpc); // TODO checkSanity
-
-        if (idx === 1) {
-          this.jpc.updateConnectedClass();
-        } else {
-          this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
-        }
-
+        this.jpc.suspendedEndpoint.addConnection(this.jpc);
+        this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx);
         this.instance.deleteEndpoint(this.floatingEndpoint);
         this.instance.repaint(this.jpc.sourceId);
         delete this.jpc._forceDetach;
@@ -11366,23 +11398,8 @@
             this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
             this.instance.renderer.setHover(this.jpc, false);
             this.jpc._forceDetach = true;
-
-            if (idx === 0) {
-              this.jpc.source = this.jpc.suspendedEndpoint.element;
-              this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
-            } else {
-              this.jpc.target = this.jpc.suspendedEndpoint.element;
-              this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
-            }
-
-            this.jpc.suspendedEndpoint.addConnection(this.jpc); // TODO checkSanity
-
-            if (idx === 1) {
-              this.jpc.updateConnectedClass();
-            } else {
-              this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
-            }
-
+            this.jpc.suspendedEndpoint.addConnection(this.jpc);
+            this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx);
             this.instance.repaint(this.jpc.sourceId);
             this.jpc._forceDetach = false;
           }
@@ -11462,7 +11479,7 @@
         if (idx === 1) {
           this.jpc.updateConnectedClass();
         } else {
-          this.instance.sourceChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+          this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0);
         } // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
         // that are subsequently deleted. So makeSource sets `finalEndpoint`, which is the Endpoint to
         // which the connection should be attached. The `detachFromConnection` call below results in the
@@ -16138,7 +16155,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "type", "Arrow");
+      _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.arrowType);
 
       _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
 
@@ -16221,6 +16238,12 @@
 
     return ArrowOverlay;
   }(Overlay);
+
+  _defineProperty(ArrowOverlay, "arrowType", "Arrow");
+
+  function isArrowOverlay(o) {
+    return o.type === ArrowOverlay.arrowType;
+  }
   OverlayFactory.register("Arrow", ArrowOverlay);
 
   var PlainArrowOverlay =
@@ -16263,37 +16286,6 @@
     return DiamondOverlay;
   }(ArrowOverlay);
   OverlayFactory.register("Diamond", DiamondOverlay);
-
-  var CustomOverlay =
-  /*#__PURE__*/
-  function (_Overlay) {
-    _inherits(CustomOverlay, _Overlay);
-
-    function CustomOverlay(instance, component, p) {
-      var _this;
-
-      _classCallCheck(this, CustomOverlay);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomOverlay).call(this, instance, component, p));
-      _this.instance = instance;
-      _this.component = component;
-
-      _defineProperty(_assertThisInitialized(_this), "create", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "type", "Custom");
-
-      _this.create = p.create;
-      return _this;
-    }
-
-    _createClass(CustomOverlay, [{
-      key: "updateFrom",
-      value: function updateFrom(d) {}
-    }]);
-
-    return CustomOverlay;
-  }(Overlay);
-  OverlayFactory.register("Custom", CustomOverlay);
 
   // function _suggest<T> (list:Array<T>, item:T, head?:boolean):boolean {
   //     if (list.indexOf(item) === -1) {
@@ -17704,10 +17696,13 @@
   exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;
   exports.hasClass = hasClass;
   exports.isArray = isArray;
+  exports.isArrowOverlay = isArrowOverlay;
   exports.isBoolean = isBoolean;
+  exports.isCustomOverlay = isCustomOverlay;
   exports.isDate = isDate;
   exports.isEmpty = isEmpty;
   exports.isFunction = isFunction;
+  exports.isLabelOverlay = isLabelOverlay;
   exports.isNamedFunction = isNamedFunction;
   exports.isNull = isNull;
   exports.isNumber = isNumber;

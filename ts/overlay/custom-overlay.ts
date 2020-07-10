@@ -1,6 +1,6 @@
 import {CustomOverlayOptions, Overlay} from "./overlay";
 import { jsPlumbInstance } from "../core";
-import {Component, OverlayFactory } from "..";
+import {Component, LabelOverlay, OverlayFactory} from "..";
 
 export class CustomOverlay extends Overlay {
 
@@ -13,10 +13,15 @@ export class CustomOverlay extends Overlay {
         this.create = p.create;
     }
 
-    type:string = "Custom";
+    static customType = "Custom";
+    type:string = CustomOverlay.customType;
 
     updateFrom(d: any): void { }
 
+}
+
+export function isCustomOverlay(o:Overlay):o is CustomOverlay {
+    return o.type === CustomOverlay.customType
 }
 
 OverlayFactory.register("Custom", CustomOverlay);

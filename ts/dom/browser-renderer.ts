@@ -11,13 +11,13 @@ import {HTMLElementOverlay} from "./html-element-overlay";
 import {SVGElementOverlay} from "./svg-element-overlay";
 import {SvgElementConnector} from "./svg-element-connector";
 import {AbstractConnector} from "../connector/abstract-connector";
-import {LabelOverlay} from "../overlay/label-overlay";
+import {isLabelOverlay, LabelOverlay} from "../overlay/label-overlay";
 import {
     addClass,
     BrowserJsPlumbInstance,
     Connection,
     Endpoint,
-    IS,
+    IS, isArrowOverlay, isCustomOverlay,
     isFunction,
     OverlayCapableComponent,
     PaintStyle, removeClass
@@ -99,12 +99,12 @@ export class BrowserRenderer implements Renderer {
 
     addOverlayClass(o: Overlay, clazz: string): void {
 
-        if (o.type === "Label") {
-            o.instance.addClass(BrowserRenderer.getLabelElement(o as LabelOverlay), clazz);
-        } else if (o.type === "Arrow") {
+        if (isLabelOverlay(o)) {
+            o.instance.addClass(BrowserRenderer.getLabelElement(o), clazz);
+        } else if (isArrowOverlay(o)) {
             o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
-        } else if (o.type === "Custom") {
-            o.instance.addClass(BrowserRenderer.getCustomElement(o as CustomOverlay), clazz);
+        } else if (isCustomOverlay(o)) {
+            o.instance.addClass(BrowserRenderer.getCustomElement(o), clazz);
         } else {
             throw "Could not add class to overlay of type [" + o.type + "]";
         }
@@ -112,12 +112,12 @@ export class BrowserRenderer implements Renderer {
 
     //
     removeOverlayClass(o: Overlay, clazz: string): void {
-        if (o.type === "Label") {
-            o.instance.removeClass(BrowserRenderer.getLabelElement(o as LabelOverlay), clazz);
-        } else if (o.type === "Arrow") {
+        if (isLabelOverlay(o)) {
+            o.instance.removeClass(BrowserRenderer.getLabelElement(o), clazz);
+        } else if (isArrowOverlay(o)) {
             o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
-        } else if (o.type === "Custom") {
-            o.instance.removeClass(BrowserRenderer.getCustomElement(o as CustomOverlay), clazz);
+        } else if (isCustomOverlay(o)) {
+            o.instance.removeClass(BrowserRenderer.getCustomElement(o), clazz);
         } else {
             throw "Could not remove class from overlay of type [" + o.type + "]";
         }
@@ -126,17 +126,16 @@ export class BrowserRenderer implements Renderer {
     paintOverlay(o: Overlay, params:any, extents:any):void {
 
         //
-        if (o.type === "Label") {
+        if (isLabelOverlay(o)) {
 
-            BrowserRenderer.getLabelElement(o as LabelOverlay);
+            BrowserRenderer.getLabelElement(o);
 
-            const XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
-            // this.canvas.style.top = XY.y + params.d.miny + "px";
+            const XY = o.component.getXY();
 
-            (o as any).canvas.style.left = XY.x + params.d.minx + "px"; // wont work for endpoint. abstracts
+            (o as any).canvas.style.left = XY.x + params.d.minx + "px";
             (o as any).canvas.style.top = XY.y + params.d.miny + "px";
 
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)) {
 
             const path = (isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y)) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y +
                 " L" + params.d.tail[0].x + "," + params.d.tail[0].y +
@@ -146,11 +145,10 @@ export class BrowserRenderer implements Renderer {
 
             SVGElementOverlay.paint(o, path, params, extents);
 
-        } else if (o.type === "Custom") {
-            BrowserRenderer.getCustomElement(o as CustomOverlay);
+        } else if (isCustomOverlay(o)) {
+            BrowserRenderer.getCustomElement(o);
 
-            const XY = o.component.getXY(); // this.canvas.style.left = XY.x +  params.d.minx + "px";  // wont work for endpoint. abstracts
-            // this.canvas.style.top = XY.y + params.d.miny + "px";
+            const XY = o.component.getXY();
 
             (o as any).canvas.style.left = XY.x + params.d.minx + "px"; // wont work for endpoint. abstracts
             (o as any).canvas.style.top = XY.y + params.d.miny + "px";
@@ -161,35 +159,34 @@ export class BrowserRenderer implements Renderer {
 
     setOverlayVisible(o: Overlay, visible:boolean):void {
 
-        if (o.type === "Label") {
-            BrowserRenderer.getLabelElement(o as LabelOverlay).style.display = visible ? "block" : "none";
+        if (isLabelOverlay(o)) {
+            BrowserRenderer.getLabelElement(o).style.display = visible ? "block" : "none";
         }
-        else if (o.type === "Custom") {
-            BrowserRenderer.getCustomElement(o as CustomOverlay).style.display = visible ? "block" : "none";
-        } else if (o.type === "Arrow") {
+        else if (isCustomOverlay(o)) {
+            BrowserRenderer.getCustomElement(o).style.display = visible ? "block" : "none";
+        } else if (isArrowOverlay(o)) {
             (o as any).path.style.display = visible ? "block" : "none";
         }
     }
 
     moveOverlayParent(o: Overlay, newParent: HTMLElement): void {
-        if (o.type === "Label") {
-            o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
-        } else if (o.type === "Custom") {
-            o.instance.appendElement(BrowserRenderer.getCustomElement(o as any), this.instance.getContainer());
+        if (isLabelOverlay(o)) {
+            o.instance.appendElement(BrowserRenderer.getLabelElement(o), this.instance.getContainer());
+        } else if (isCustomOverlay(o)) {
+            o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer());
         }
-        else if (o.type === "Arrow"){
+        else if (isArrowOverlay(o)){
             // dont need to do anything with other types. seemingly. but why not.
         }
     }
 
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): any {
-        if (o.type === "Label") {
-            o.instance.appendElement(BrowserRenderer.getLabelElement(o as any), this.instance.getContainer());
+        if (isLabelOverlay(o)) {
+            o.instance.appendElement(BrowserRenderer.getLabelElement(o), this.instance.getContainer());
+        } else if (isCustomOverlay(o)) {
+            o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer());
         }
-        else if (o.type === "Custom") {
-            o.instance.appendElement(BrowserRenderer.getCustomElement(o as any), this.instance.getContainer());
-        }
-        else if (o.type === "Arrow") {
+        else if (isArrowOverlay(o)){
             this.instance.appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas);
         }
     }
@@ -199,13 +196,12 @@ export class BrowserRenderer implements Renderer {
         const method = hover ? "addClass" : "removeClass";
         let canvas;
 
-        if (o.type === "Label") {
-            canvas = BrowserRenderer.getLabelElement(o as any);
+        if (isLabelOverlay(o)) {
+            canvas = BrowserRenderer.getLabelElement(o);
+        } else if (isCustomOverlay(o)) {
+            canvas = BrowserRenderer.getCustomElement(o);
         }
-        else if (o.type === "Custom") {
-            canvas = BrowserRenderer.getCustomElement(o as any)
-        }
-        else if (o.type === "Arrow") {
+        else if (isArrowOverlay(o)){
             canvas = SVGElementOverlay.ensurePath(o);
         }
 
@@ -219,15 +215,15 @@ export class BrowserRenderer implements Renderer {
     }
 
     destroyOverlay(o: Overlay):void {
-        if (o.type === "Label") {
-            const el = BrowserRenderer.getLabelElement(o as LabelOverlay);
+        if (isLabelOverlay(o)) {
+            const el = BrowserRenderer.getLabelElement(o);
             el.parentNode.removeChild(el);
             delete (o as any).canvas;
             delete (o as any).cachedDimensions;
-        } else if (o.type === "Arrow") {
+        } else if (isArrowOverlay(o)){
             SVGElementOverlay.destroy(o);
-        } else if (o.type === "Custom") {
-            const el = BrowserRenderer.getCustomElement(o as CustomOverlay);
+        } else if (isCustomOverlay(o)) {
+            const el = BrowserRenderer.getCustomElement(o);
             el.parentNode.removeChild(el);
             delete (o as any).canvas;
             delete (o as any).cachedDimensions;
@@ -235,7 +231,7 @@ export class BrowserRenderer implements Renderer {
     }
 
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any {
-        if (o.type === "Label"|| o.type === "Custom") {
+        if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
 
             //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
 
@@ -276,8 +272,8 @@ export class BrowserRenderer implements Renderer {
                 return {minX: 0, maxX: 0, minY: 0, maxY: 0};
             }
 
-        } else if (o.type === "Arrow") {
-            return (o as any).draw(component, paintStyle, absolutePosition);
+        } else if (isArrowOverlay(o)) {
+            return o.draw(component, paintStyle, absolutePosition);
         } else {
             throw "Could not draw overlay of type [" + o.type + "]";
         }
@@ -286,7 +282,7 @@ export class BrowserRenderer implements Renderer {
     updateLabel(o: LabelOverlay): void {
 
         if (isFunction(o.label)) {
-            let lt = (o.label as Function)(this);
+            let lt = (o.label)(this);
             if (lt != null) {
                 BrowserRenderer.getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
             } else {

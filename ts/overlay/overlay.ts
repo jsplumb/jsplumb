@@ -86,7 +86,7 @@ export abstract class Overlay extends EventGenerator {
     /**
      * Add a class to the overlay.
      * @param clazz
-     */
+     *
     addClass(clazz:string) {
         this.instance.renderer.addOverlayClass(this, clazz);
     }
@@ -94,10 +94,10 @@ export abstract class Overlay extends EventGenerator {
     /**
      * Remove a class from the overlay.
      * @param clazz
-     */
+     *
     removeClass(clazz:string) {
         this.instance.renderer.removeOverlayClass(this, clazz);
-    }
+    }*/
 
     abstract updateFrom(d:any):void;
 

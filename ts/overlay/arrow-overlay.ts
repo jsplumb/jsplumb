@@ -1,6 +1,6 @@
 import {ArrowOverlayOptions, Overlay} from "./overlay";
 import {jsPlumbInstance, PointArray} from "../core";
-import {AbstractConnector, Component, OverlayFactory, PaintStyle} from "..";
+import {AbstractConnector, Component, LabelOverlay, OverlayFactory, PaintStyle} from "..";
 
 const DEFAULT_WIDTH = 20;
 const DEFAULT_LENGTH = 20;
@@ -14,7 +14,8 @@ export class ArrowOverlay extends Overlay {
 
     paintStyle:PaintStyle;
 
-    type:string = "Arrow";
+    static arrowType = "Arrow";
+    type:string = ArrowOverlay.arrowType;
 
     cachedDimensions:PointArray;
 
@@ -94,6 +95,10 @@ export class ArrowOverlay extends Overlay {
 
     updateFrom(d: any): void { }
 
+}
+
+export function isArrowOverlay(o:Overlay):o is ArrowOverlay {
+    return o.type === ArrowOverlay.arrowType;
 }
 
 OverlayFactory.register("Arrow", ArrowOverlay);

@@ -10,7 +10,8 @@ export class LabelOverlay extends Overlay {
     label:string | Function;
     labelText:string;
 
-    type:string = "Label";
+    static labelType = "Label";
+    type:string = LabelOverlay.labelType;
 
     cachedDimensions:PointArray;
 
@@ -44,6 +45,10 @@ export class LabelOverlay extends Overlay {
             this.setLabel(d.label);
         }
     }
+}
+
+export function isLabelOverlay(o:Overlay):o is LabelOverlay {
+    return o.type === LabelOverlay.labelType;
 }
 
 

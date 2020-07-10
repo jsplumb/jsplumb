@@ -12,6 +12,8 @@ export interface OverlayComponentOptions extends ComponentOptions {
     labelLocation?:number;
 }
 
+export type ClassAction = "add" | "remove";
+
 function _makeLabelOverlay(component:OverlayCapableComponent, params:any):LabelOverlay {
 
     let _params:any = {
@@ -231,10 +233,16 @@ export abstract class OverlayCapableComponent extends Component {
         return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
     }
 
-    private _clazzManip(action:string, clazz:string, dontUpdateOverlays?:boolean) {
+    private _clazzManip(action:ClassAction, clazz:string, dontUpdateOverlays?:boolean) {
         if (!dontUpdateOverlays) {
             for (let i in this._jsPlumb.overlays) {
-                this._jsPlumb.overlays[i][action + "Class"](clazz);
+                if (action === "add") {
+                    //this._jsPlumb.overlays[i].addClass(clazz);
+                    this.instance.renderer.addOverlayClass(this._jsPlumb.overlays[i], clazz);
+                } else if (action === "remove") {
+                    //this._jsPlumb.overlays[i].removeClass(clazz);
+                    this.instance.renderer.removeOverlayClass(this._jsPlumb.overlays[i], clazz);
+                }
             }
         }
     }
