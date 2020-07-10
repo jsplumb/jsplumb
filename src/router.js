@@ -30,7 +30,11 @@
 
         this.reset = function() {
             this.anchorManager.reset();
-        }
+        };
+
+        this.changeId = function (oldId, newId) {
+            this.anchorManager.changeId(oldId, newId);
+        };
     };
 
 
