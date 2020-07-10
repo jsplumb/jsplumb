@@ -5,8 +5,8 @@ export declare function isString(s: any): boolean;
 export declare function isBoolean(s: any): boolean;
 export declare function isNull(s: any): boolean;
 export declare function isObject(o: any): boolean;
-export declare function isDate(o: any): boolean;
-export declare function isFunction(o: any): boolean;
+export declare function isDate(o: any): o is Date;
+export declare function isFunction(o: any): o is Function;
 export declare function isNamedFunction(o: any): boolean;
 export declare function isEmpty(o: any): boolean;
 export declare const IS: {

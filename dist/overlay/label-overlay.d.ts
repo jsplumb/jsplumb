@@ -6,6 +6,7 @@ export declare class LabelOverlay extends Overlay {
     component: Component;
     label: string | Function;
     labelText: string;
+    static labelType: string;
     type: string;
     cachedDimensions: PointArray;
     constructor(instance: jsPlumbInstance, component: Component, p: LabelOverlayOptions);
@@ -14,3 +15,4 @@ export declare class LabelOverlay extends Overlay {
     getDimensions(): PointArray;
     updateFrom(d: any): void;
 }
+export declare function isLabelOverlay(o: Overlay): o is LabelOverlay;

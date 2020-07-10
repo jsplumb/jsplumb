@@ -45,13 +45,18 @@ export declare abstract class Overlay extends EventGenerator {
     /**
      * Add a class to the overlay.
      * @param clazz
-     */
-    addClass(clazz: string): void;
+     *
+    addClass(clazz:string) {
+        this.instance.renderer.addOverlayClass(this, clazz);
+    }
+
     /**
      * Remove a class from the overlay.
      * @param clazz
-     */
-    removeClass(clazz: string): void;
+     *
+    removeClass(clazz:string) {
+        this.instance.renderer.removeOverlayClass(this, clazz);
+    }*/
     abstract updateFrom(d: any): void;
     private _postComponentEvent;
     click(e: Event): void;

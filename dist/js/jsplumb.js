@@ -153,7 +153,6 @@
   }
 
   function isArray(a) {
-    //return Object.prototype.toString.call(a) === "[object Array]";
     return Array.isArray(a);
   }
   function isNumber(n) {
@@ -206,7 +205,7 @@
       return new Date(a.getTime());
     } else if (isFunction(a)) {
       return a;
-    } else if (Array.isArray(a)) {
+    } else if (isArray(a)) {
       var b = [];
 
       for (var i = 0; i < a.length; i++) {
@@ -254,15 +253,15 @@
         } else {
           ar = []; // if c's object is also an array we can keep its values.
 
-          ar.push.apply(ar, Array.isArray(c[i]) ? c[i] : [c[i]]);
+          ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]]);
           ar.push.apply(ar, isBoolean(b[i]) ? b[i] : [b[i]]);
           c[i] = ar;
         }
       } else {
-        if (Array.isArray(b[i])) {
+        if (isArray(b[i])) {
           ar = []; // if c's object is also an array we can keep its values.
 
-          if (Array.isArray(c[i])) {
+          if (isArray(c[i])) {
             ar.push.apply(ar, c[i]);
           }
 
@@ -382,7 +381,7 @@
           return getValue(d);
         } else if (isFunction(d) && !doNotExpandFunctions && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
           return d(values);
-        } else if (Array.isArray(d)) {
+        } else if (isArray(d)) {
           var r = [];
 
           for (var i = 0; i < d.length; i++) {

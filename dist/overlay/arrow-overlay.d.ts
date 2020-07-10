@@ -9,9 +9,11 @@ export declare class ArrowOverlay extends Overlay {
     foldback: number;
     direction: number;
     paintStyle: PaintStyle;
+    static arrowType: string;
     type: string;
     cachedDimensions: PointArray;
     constructor(instance: jsPlumbInstance, component: Component, p: ArrowOverlayOptions);
     draw(component: Component, currentConnectionPaintStyle: PaintStyle, absolutePosition?: PointArray): any;
     updateFrom(d: any): void;
 }
+export declare function isArrowOverlay(o: Overlay): o is ArrowOverlay;

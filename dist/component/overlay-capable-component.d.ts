@@ -6,6 +6,7 @@ export interface OverlayComponentOptions extends ComponentOptions {
     label?: string;
     labelLocation?: number;
 }
+export declare type ClassAction = "add" | "remove";
 export declare abstract class OverlayCapableComponent extends Component {
     instance: jsPlumbInstance;
     defaultLabelLocation: number | [number, number];

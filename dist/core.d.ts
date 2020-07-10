@@ -458,7 +458,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     getManagedElements(): Dictionary<ManagedElement>;
     proxyConnection(connection: Connection, index: number, proxyEl: any, proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
     unproxyConnection(connection: Connection, index: number, proxyElId: string): void;
-    sourceChanged(originalId: string, newId: string, connection: any, newElement: any): void;
+    sourceOrTargetChanged(originalId: string, newId: string, connection: any, newElement: any, index: number): void;
     getGroup(id: string): UIGroup;
     getGroupFor(el: any | string): UIGroup;
     addGroup(params: any): UIGroup;
