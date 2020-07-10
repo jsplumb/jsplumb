@@ -1,3 +1,13 @@
+/*
+ * This file contains the code for working with scrollable lists.
+ *
+ * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * https://jsplumbtoolkit.com
+ * https://github.com/jsplumb/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
 
     var DEFAULT_OPTIONS = {
