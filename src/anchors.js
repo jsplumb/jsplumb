@@ -192,8 +192,8 @@
             });
             removeEndpointFromAnchorLists(endpoint);
         };
-        this.clearFor = function (elementId) {
-            delete floatingConnections[key];
+        this.elementRemoved = function (elementId) {
+            delete floatingConnections[elementId];
             delete _amEndpoints[elementId];
             _amEndpoints[elementId] = [];
         };

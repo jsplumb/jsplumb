@@ -2840,8 +2840,7 @@
                 if (dm) {
                     dm.elementRemoved(_info.id);
                 }
-                _currentInstance.anchorManager.clearFor(_info.id);
-                _currentInstance.anchorManager.removeFloatingConnection(_info.id);
+                _currentInstance.anchorManager.elementRemoved(_info.id);
 
                 if (_currentInstance.isSource(_info.el)) {
                     _currentInstance.unmakeSource(_info.el);

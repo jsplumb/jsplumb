@@ -5303,7 +5303,7 @@
             endpointsByUUID = {};
             offsets = {};
             offsetTimestamps = {};
-            _currentInstance.anchorManager.reset();
+            _currentInstance.router.reset();
             var dm = _currentInstance.getDragManager();
             if (dm) {
                 dm.reset();
@@ -6725,8 +6725,7 @@
                 if (dm) {
                     dm.elementRemoved(_info.id);
                 }
-                _currentInstance.anchorManager.clearFor(_info.id);
-                _currentInstance.anchorManager.removeFloatingConnection(_info.id);
+                _currentInstance.anchorManager.elementRemoved(_info.id);
 
                 if (_currentInstance.isSource(_info.el)) {
                     _currentInstance.unmakeSource(_info.el);
@@ -6896,7 +6895,7 @@
             this.targetEndpointDefinitions[newId] = this.targetEndpointDefinitions[id];
             delete this.targetEndpointDefinitions[id];
 
-            this.anchorManager.changeId(id, newId);
+            this.router.changeId(id, newId);
             var dm = this.getDragManager();
             if (dm) {
                 dm.changeId(id, newId);
@@ -7564,9 +7563,6 @@
     // create a floating endpoint (for drag connections)
     var _makeFloatingEndpoint = function (paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, _jsPlumb, _newEndpoint, scope) {
         var floatingAnchor = new _jp.FloatingAnchor({ reference: referenceAnchor, referenceCanvas: referenceCanvas, jsPlumbInstance: _jsPlumb });
-        //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
-        // adding the floating endpoint as a droppable.  that makes more sense anyway!
-        // TRANSIENT MANAGE
         return _newEndpoint({
             paintStyle: paintStyle,
             endpoint: endpoint,
@@ -8180,14 +8176,6 @@
 
                     _jsPlumb.registerFloatingConnection(placeholderInfo, jpc, this._jsPlumb.floatingEndpoint);
 
-                    // // register it and register connection on it.
-                    // _jsPlumb.floatingConnections[placeholderInfo.id] = jpc;
-                    //
-                    // // only register for the target endpoint; we will not be dragging the source at any time
-                    // // before this connection is either discarded or made into a permanent connection.
-                    // _ju.addToList(params.endpointsByElement, placeholderInfo.id, this._jsPlumb.floatingEndpoint);
-
-
                     // tell jsplumb about it
                     _jsPlumb.currentlyDragging = true;
                 }.bind(this);
@@ -8201,9 +8189,7 @@
                         // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                         var idx = _jsPlumb.getFloatingAnchorIndex(jpc);
                         jpc.endpoints[idx === 0 ? 1 : 0].anchor.unlock();
-                        // TODO: Dont want to know about css classes inside jsplumb, ideally.
                         jpc.removeClass(_jsPlumb.draggingClass);
-
                         // if we have the floating endpoint then the connection has not been dropped
                         // on another endpoint.  If it is a new connection we throw it away. If it is an
                         // existing connection we check to see if we should reattach it, throwing it away
@@ -8248,10 +8234,10 @@
                                     // in the code; it all refers to the connection itself. we could add a
                                     // `checkSanity(connection)` method to anchorManager that did this.
                                     if (idx === 1) {
-                                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, 1);
+                                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, idx);
                                     }
                                     else {
-                                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, 0);
+                                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, idx);
                                     }
 
                                     _jsPlumb.repaint(existingJpcParams[1]);
@@ -9560,9 +9546,6 @@
         this.addFloatingConnection = function (key, conn) {
             floatingConnections[key] = conn;
         };
-        this.removeFloatingConnection = function (key) {
-            delete floatingConnections[key];
-        };
         this.newConnection = function (conn) {
             var sourceId = conn.sourceId, targetId = conn.targetId,
                 ep = conn.endpoints,
@@ -9644,7 +9627,8 @@
             });
             removeEndpointFromAnchorLists(endpoint);
         };
-        this.clearFor = function (elementId) {
+        this.elementRemoved = function (elementId) {
+            delete floatingConnections[elementId];
             delete _amEndpoints[elementId];
             _amEndpoints[elementId] = [];
         };
@@ -10743,6 +10727,8 @@
 
 /*
  * Default router. Defers to an AnchorManager for placement of anchors, and connector paint routines for paths.
+ * Currently this is a placeholder and acts as a facade to the pre-existing anchor manager. The Toolkit edition
+ * will make use of concept to provide more advanced routing.
  *
  * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
  *
@@ -10767,6 +10753,14 @@
 
         this.sourceOrTargetChanged = function (originalId, newId, connection, newElement, anchorIndex) {
             this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex);
+        };
+
+        this.reset = function() {
+            this.anchorManager.reset();
+        };
+
+        this.changeId = function (oldId, newId) {
+            this.anchorManager.changeId(oldId, newId);
         };
     };
 
