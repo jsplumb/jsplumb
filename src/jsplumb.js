@@ -1447,7 +1447,7 @@
             // always fire this. used by internal jsplumb stuff.
             _currentInstance.fire("internal.connectionDetached", params, originalEvent);
 
-            _currentInstance.anchorManager.connectionDetached(params);
+            _currentInstance.router.connectionDetached(params);
         };
 
         var fireMoveEvent = _currentInstance.fireMoveEvent = function (params, evt) {

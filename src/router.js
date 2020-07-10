@@ -43,6 +43,10 @@
         this.newConnection = function (conn) {
             this.anchorManager.newConnection(conn);
         };
+
+        this.connectionDetached = function (connInfo, doNotRedraw) {
+            this.anchorManager.connectionDetached(connInfo, doNotRedraw);
+        };
     };
 
 

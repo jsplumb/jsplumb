@@ -4867,7 +4867,7 @@
                 // connection is new; it has just (possibly) moved. the question is whether
                 // to make that call here or in the anchor manager.  i think perhaps here.
                 if (doInformAnchorManager !== false) {
-                    _currentInstance.anchorManager.newConnection(jpc);
+                    _currentInstance.router.newConnection(jpc);
                 }
 
                 // force a paint
@@ -5332,7 +5332,7 @@
             // always fire this. used by internal jsplumb stuff.
             _currentInstance.fire("internal.connectionDetached", params, originalEvent);
 
-            _currentInstance.anchorManager.connectionDetached(params);
+            _currentInstance.router.connectionDetached(params);
         };
 
         var fireMoveEvent = _currentInstance.fireMoveEvent = function (params, evt) {
@@ -10769,6 +10769,10 @@
 
         this.newConnection = function (conn) {
             this.anchorManager.newConnection(conn);
+        };
+
+        this.connectionDetached = function (connInfo, doNotRedraw) {
+            this.anchorManager.connectionDetached(connInfo, doNotRedraw);
         };
     };
 
