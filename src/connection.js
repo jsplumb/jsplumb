@@ -647,7 +647,7 @@
             this._jsPlumb.instance.deleteObject({endpoint:current, deleteAttachedObjects:false});
             this._jsPlumb.instance.fire("endpointReplaced", {previous:current, current:_new});
 
-            this._jsPlumb.instance.anchorManager.sourceOrTargetChanged(this.endpoints[1].elementId, this.endpoints[1].elementId, this, this.endpoints[1].element, 1);
+            this._jsPlumb.instance.router.sourceOrTargetChanged(this.endpoints[1].elementId, this.endpoints[1].elementId, this, this.endpoints[1].element, 1);
 
         }
 

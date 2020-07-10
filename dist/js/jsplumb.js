@@ -4359,7 +4359,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.13.4";
+        this.version = "2.14.0";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -5273,11 +5273,11 @@
 
         this.setSource = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 0, doNotRepaint);
-            this.anchorManager.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
+            this.router.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
         };
         this.setTarget = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 1, doNotRepaint);
-            this.anchorManager.sourceOrTargetChanged(p.originalTargetId, p.newTargetId, connection, p.el, 1);
+            this.router.sourceOrTargetChanged(p.originalTargetId, p.newTargetId, connection, p.el, 1);
         };
 
         this.deleteEndpoint = function (object, dontUpdateHover, deleteAttachedObjects) {
@@ -5911,7 +5911,6 @@
             if (!initialized) {
                 _getContainerFromDefaults();
                 _currentInstance.router = new root.jsPlumb.DefaultRouter(_currentInstance);
-                //_currentInstance.anchorManager = new root.jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
                 _currentInstance.anchorManager = _currentInstance.router.anchorManager;
                 initialized = true;
                 _currentInstance.fire("ready", _currentInstance);
@@ -7103,10 +7102,10 @@
 
             // and advise the anchor manager
             if (index === 0) {
-                this.anchorManager.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 0);
+                this.router.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 0);
             }
             else {
-                this.anchorManager.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 1);
+                this.router.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 1);
             }
 
             // detach the original EP from the connection.
@@ -7136,10 +7135,10 @@
             if (index === 0) {
                 // TODO why are there two differently named methods? Why is there not one method that says "some end of this
                 // connection changed (you give the index), and here's the new element and element id."
-                this.anchorManager.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 0);
+                this.router.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 0);
             }
             else {
-                this.anchorManager.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 1);
+                this.router.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 1);
             }
 
             // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
@@ -8156,11 +8155,11 @@
                         // now we replace ourselves with the temporary div we created above:
                         if (anchorIdx === 0) {
                             existingJpcParams = [ jpc.source, jpc.sourceId, canvasElement, dragScope ];
-                            _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.endpoints[anchorIdx].elementId, placeholderInfo.id, jpc, placeholderInfo.element, 0);
+                            _jsPlumb.router.sourceOrTargetChanged(jpc.endpoints[anchorIdx].elementId, placeholderInfo.id, jpc, placeholderInfo.element, 0);
 
                         } else {
                             existingJpcParams = [ jpc.target, jpc.targetId, canvasElement, dragScope ];
-                            _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.endpoints[anchorIdx].elementId, placeholderInfo.id, jpc, placeholderInfo.element, 1);
+                            _jsPlumb.router.sourceOrTargetChanged(jpc.endpoints[anchorIdx].elementId, placeholderInfo.id, jpc, placeholderInfo.element, 1);
                         }
 
                         // store the original endpoint and assign the new floating endpoint for the drag.
@@ -8249,10 +8248,10 @@
                                     // in the code; it all refers to the connection itself. we could add a
                                     // `checkSanity(connection)` method to anchorManager that did this.
                                     if (idx === 1) {
-                                        _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, 1);
+                                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, 1);
                                     }
                                     else {
-                                        _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, 0);
+                                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, 0);
                                     }
 
                                     _jsPlumb.repaint(existingJpcParams[1]);
@@ -8708,10 +8707,10 @@
                     }
 
                     if (idx === 1) {
-                        _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, 1);
+                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, 1);
                     }
                     else {
-                        _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, 0);
+                        _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, 0);
                     }
 
                     // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
@@ -8756,10 +8755,10 @@
 
                         // TODO checkSanity
                         if (idx === 1) {
-                            _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, 1);
+                            _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.targetId, jpc, jpc.target, 1);
                         }
                         else {
-                            _jsPlumb.anchorManager.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, 0);
+                            _jsPlumb.router.sourceOrTargetChanged(jpc.floatingId, jpc.sourceId, jpc, jpc.source, 0);
                         }
 
                         _jsPlumb.repaint(jpc.sourceId);
@@ -9441,7 +9440,7 @@
             this._jsPlumb.instance.deleteObject({endpoint:current, deleteAttachedObjects:false});
             this._jsPlumb.instance.fire("endpointReplaced", {previous:current, current:_new});
 
-            this._jsPlumb.instance.anchorManager.sourceOrTargetChanged(this.endpoints[1].elementId, this.endpoints[1].elementId, this, this.endpoints[1].element, 1);
+            this._jsPlumb.instance.router.sourceOrTargetChanged(this.endpoints[1].elementId, this.endpoints[1].elementId, this, this.endpoints[1].element, 1);
 
         }
 
@@ -10765,7 +10764,13 @@
     _jp.DefaultRouter = function(jsPlumbInstance) {
         this.jsPlumbInstance = jsPlumbInstance;
         this.anchorManager = new _jp.AnchorManager({jsPlumbInstance:jsPlumbInstance});
+
+        this.sourceOrTargetChanged = function (originalId, newId, connection, newElement, anchorIndex) {
+            this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex);
+        };
     };
+
+
 
 }).call(typeof window !== 'undefined' ? window : this);
 

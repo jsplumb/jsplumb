@@ -1388,11 +1388,11 @@
 
         this.setSource = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 0, doNotRepaint);
-            this.anchorManager.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
+            this.router.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
         };
         this.setTarget = function (connection, el, doNotRepaint) {
             var p = _set(connection, el, 1, doNotRepaint);
-            this.anchorManager.sourceOrTargetChanged(p.originalTargetId, p.newTargetId, connection, p.el, 1);
+            this.router.sourceOrTargetChanged(p.originalTargetId, p.newTargetId, connection, p.el, 1);
         };
 
         this.deleteEndpoint = function (object, dontUpdateHover, deleteAttachedObjects) {
@@ -2026,7 +2026,6 @@
             if (!initialized) {
                 _getContainerFromDefaults();
                 _currentInstance.router = new root.jsPlumb.DefaultRouter(_currentInstance);
-                //_currentInstance.anchorManager = new root.jsPlumb.AnchorManager({jsPlumbInstance: _currentInstance});
                 _currentInstance.anchorManager = _currentInstance.router.anchorManager;
                 initialized = true;
                 _currentInstance.fire("ready", _currentInstance);
@@ -3218,10 +3217,10 @@
 
             // and advise the anchor manager
             if (index === 0) {
-                this.anchorManager.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 0);
+                this.router.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 0);
             }
             else {
-                this.anchorManager.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 1);
+                this.router.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, 1);
             }
 
             // detach the original EP from the connection.
@@ -3251,10 +3250,10 @@
             if (index === 0) {
                 // TODO why are there two differently named methods? Why is there not one method that says "some end of this
                 // connection changed (you give the index), and here's the new element and element id."
-                this.anchorManager.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 0);
+                this.router.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 0);
             }
             else {
-                this.anchorManager.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 1);
+                this.router.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, 1);
             }
 
             // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
