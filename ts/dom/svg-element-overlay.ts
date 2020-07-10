@@ -9,14 +9,14 @@ export abstract class SVGElementOverlay {
 
             if (o.component instanceof Connection) {
                 let connector = (o.component as Connection).getConnector();
-                parent = (connector as any).canvas;
+                parent = connector != null ? (connector as any).canvas : null;
             } else if (o.component instanceof Endpoint) {
                 let endpoint = (o.component as Endpoint).endpoint;
-                parent = (endpoint as any).svg;
+                parent = endpoint != null ? (endpoint as any).svg : endpoint;
             }
 
             if (parent != null) {
-                _appendAtIndex(parent, o.path, 1);//params.paintStyle.outlineStroke ? 1 : 0);
+                _appendAtIndex(parent, o.path, 1);
             }
 
             o.instance.addClass(<any>o.path, o.instance.overlayClass);
