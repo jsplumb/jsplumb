@@ -111,9 +111,6 @@
         this.addFloatingConnection = function (key, conn) {
             floatingConnections[key] = conn;
         };
-        this.removeFloatingConnection = function (key) {
-            delete floatingConnections[key];
-        };
         this.newConnection = function (conn) {
             var sourceId = conn.sourceId, targetId = conn.targetId,
                 ep = conn.endpoints,
@@ -196,6 +193,7 @@
             removeEndpointFromAnchorLists(endpoint);
         };
         this.clearFor = function (elementId) {
+            delete floatingConnections[key];
             delete _amEndpoints[elementId];
             _amEndpoints[elementId] = [];
         };
