@@ -625,7 +625,7 @@
                         // becomes established, the anchor manager is informed that the target of the connection has
                         // changed.
 
-                        _jsPlumb.anchorManager.newConnection(jpc);
+                        _jsPlumb.router.newConnection(jpc);
 
                     } else {
                         existingJpc = true;

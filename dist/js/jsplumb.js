@@ -8131,7 +8131,7 @@
                         // becomes established, the anchor manager is informed that the target of the connection has
                         // changed.
 
-                        _jsPlumb.anchorManager.newConnection(jpc);
+                        _jsPlumb.router.newConnection(jpc);
 
                     } else {
                         existingJpc = true;
@@ -10765,7 +10765,11 @@
 
         this.elementRemoved = function (elementId) {
             this.anchorManager.elementRemoved(elementId);
-        }
+        };
+
+        this.newConnection = function (conn) {
+            this.anchorManager.newConnection(conn);
+        };
     };
 
 

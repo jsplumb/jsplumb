@@ -38,7 +38,11 @@
 
         this.elementRemoved = function (elementId) {
             this.anchorManager.elementRemoved(elementId);
-        }
+        };
+
+        this.newConnection = function (conn) {
+            this.anchorManager.newConnection(conn);
+        };
     };
 
 
