@@ -6725,7 +6725,7 @@
                 if (dm) {
                     dm.elementRemoved(_info.id);
                 }
-                _currentInstance.anchorManager.elementRemoved(_info.id);
+                _currentInstance.router.elementRemoved(_info.id);
 
                 if (_currentInstance.isSource(_info.el)) {
                     _currentInstance.unmakeSource(_info.el);
@@ -10762,6 +10762,10 @@
         this.changeId = function (oldId, newId) {
             this.anchorManager.changeId(oldId, newId);
         };
+
+        this.elementRemoved = function (elementId) {
+            this.anchorManager.elementRemoved(elementId);
+        }
     };
 
 

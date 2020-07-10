@@ -35,6 +35,10 @@
         this.changeId = function (oldId, newId) {
             this.anchorManager.changeId(oldId, newId);
         };
+
+        this.elementRemoved = function (elementId) {
+            this.anchorManager.elementRemoved(elementId);
+        }
     };
 
 
