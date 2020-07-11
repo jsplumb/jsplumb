@@ -1,3 +1,19 @@
+## 4.0.0-RC11
+
+11th July 2020
+
+### Breaking
+
+- Refactored connection paint code to not take overlay placements or stroke width of connector into account when computing SVG bounds.  The `.jtk-connector` class in the `css/jsplumbtoolkit.css` file now has `overflow:visible`, which covers this. If you are upgrading from a prior version you should ensure this style is applied to your `.jtk-connector` elements.
+
+
+## 4.0.0-RC10
+
+10th July 2020
+
+- fixed issue with css class removal of deleted connection causing a console log.
+
+
 ## 4.0.0-RC9
 
 9th July 2020
