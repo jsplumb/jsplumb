@@ -1,3 +1,16 @@
+## 2.14.0
+
+July 11th 2020
+
+### Breaking
+
+- Refactored connection paint code to not take overlay placements or stroke width of connector into account when computing SVG bounds.  The `.jtk-connector` class in the `jsplumbtoolkit-defaults.css` file now has `overflow:visible`, which covers this. If you are upgrading from a prior version you should ensure this style is applied to your `.jtk-connector` elements.
+
+### Non-breaking
+
+- `doNotFireEvent` parameter in `deleteConnection` js doc switched to `fireEvent` (issue 932)
+- Internal refactoring of paint code to introduce the concept of a "router". No functional change.
+
 ## 2.13.4
 
 July 9th 2020
