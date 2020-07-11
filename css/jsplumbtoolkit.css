@@ -8,6 +8,10 @@
 /* --- SURFACE WIDGET -------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------------------------- */
 
+.jtk-connector {
+    overflow: visible;
+}
+
 /*
     Assigned to every Node managed by an instance of the Toolkit. They are required to be positioned absolute, to
     enable dragging to work properly.
