@@ -1,3 +1,9 @@
+## 2.14.1
+
+July 12th 2020
+
+- Fixed issue with SVG elements sometimes being assigned height/width of 0, in which case overflow is ignored.
+
 ## 2.14.0
 
 July 11th 2020
