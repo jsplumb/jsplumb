@@ -1,3 +1,9 @@
+## 2.14.2
+
+July 12th 2020
+
+- Always use width/height of at least 1 pixel in SVG element. This is a proper fix for the issue from 2.14.0; don't use 2.14.1.
+
 ## 2.14.1
 
 July 12th 2020

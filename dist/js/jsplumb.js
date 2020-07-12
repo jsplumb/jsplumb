@@ -4359,7 +4359,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.14.1";
+        this.version = "2.14.2";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -11661,14 +11661,7 @@
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
                 h = Math.abs(params.targetPos[1] - params.sourcePos[1]);
-
-            if (w === 0) {
-                w = 1;
-            }
-            if (h === 0) {
-                h = 1;
-            }
-
+            
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
             // point each anchor at the other element.  this is also used when dragging a new connection.
@@ -14510,7 +14503,7 @@
                 }
 
                 if (params.useDivWrapper) {
-                    _ju.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
+                    _ju.sizeElement(this.canvas, xy[0], xy[1], wh[0] > 0 ? wh[0] : 1, wh[1] > 0 ? wh[1] : 1);
                     xy[0] = 0;
                     xy[1] = 0;
                     p = _pos([ 0, 0 ]);
@@ -14523,8 +14516,8 @@
 
                 _attr(this.svg, {
                     "style": p,
-                    "width": wh[0] || 0,
-                    "height": wh[1] || 0
+                    "width": wh[0] || 1,
+                    "height": wh[1] || 1
                 });
             }
         };
