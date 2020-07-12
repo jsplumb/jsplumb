@@ -222,7 +222,7 @@
                 }
 
                 if (params.useDivWrapper) {
-                    _ju.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
+                    _ju.sizeElement(this.canvas, xy[0], xy[1], wh[0] > 0 ? wh[0] : 1, wh[1] > 0 ? wh[1] : 1);
                     xy[0] = 0;
                     xy[1] = 0;
                     p = _pos([ 0, 0 ]);
@@ -235,8 +235,8 @@
 
                 _attr(this.svg, {
                     "style": p,
-                    "width": wh[0] || 0,
-                    "height": wh[1] || 0
+                    "width": wh[0] || 1,
+                    "height": wh[1] || 1
                 });
             }
         };
