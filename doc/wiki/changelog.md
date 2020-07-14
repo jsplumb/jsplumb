@@ -1,3 +1,9 @@
+## 2.14.3
+
+July 14th 2020
+
+- Backed out the change from 2.14.0 that dispensed with taking overlay placements/stroke width into account. In some cases browsers were choosing spurious values for stroke width with this setup.
+
 ## 2.14.2
 
 July 12th 2020
