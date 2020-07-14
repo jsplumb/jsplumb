@@ -1,3 +1,9 @@
+## 4.0.0-RC14
+
+14th July 2020
+
+- Added 'anchor' and 'anchors' to connection type merge overrides array
+
 ## 4.0.0-RC13
 
 14th July 2020

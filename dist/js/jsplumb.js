@@ -841,6 +841,8 @@
   var MERGE_STRATEGY_OVERRIDE = "override";
   var CSS_CLASS = "cssClass";
   var DEFAULT_TYPE_KEY = "__default";
+  var ANCHOR = "anchor";
+  var ANCHORS = "anchors";
 
   function _applyTypes(component, params, doNotRepaint) {
     if (component.getDefaultType) {
@@ -858,7 +860,7 @@
           var _t = component._jsPlumb.instance.getType(tid, td);
 
           if (_t != null) {
-            var overrides = new Set(CONNECTOR);
+            var overrides = new Set([CONNECTOR, ANCHOR, ANCHORS]);
 
             if (_t.mergeStrategy === MERGE_STRATEGY_OVERRIDE) {
               for (var k in _t) {
