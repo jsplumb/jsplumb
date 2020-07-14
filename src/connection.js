@@ -522,25 +522,40 @@
                         targetInfo: targetInfo
                     });
 
-                    var extents = {
-                        xmin: Math.min(this.connector.bounds.minX),
-                        ymin: Math.min(this.connector.bounds.minY),
-                        xmax: Math.max(this.connector.bounds.maxX),
-                        ymax: Math.max(this.connector.bounds.maxY)
-                    };
+                    var overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
 
-                    // paint the connector.
-                    this.connector.paintExtents = extents;
-                    this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
-
-                    // paint overlays. since 2.14.0 we do not need to do this first as we now use overflow:visible on the
-                    // jtk-connector class, which avoids things being clipped.
+                    // compute overlays. we do this first so we can get their placements, and adjust the
+                    // container if needs be (if an overlay would be clipped)
                     for (var i in this._jsPlumb.overlays) {
                         if (this._jsPlumb.overlays.hasOwnProperty(i)) {
                             var o = this._jsPlumb.overlays[i];
                             if (o.isVisible()) {
                                 this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                                o.paint(this._jsPlumb.overlayPlacements[i], extents);
+                                overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
+                                overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
+                                overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
+                                overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
+                            }
+                        }
+                    }
+
+                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 1) / 2,
+                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 0),
+                        extents = {
+                            xmin: Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
+                            ymin: Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
+                            xmax: Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
+                            ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
+                        };
+                    // paint the connector.
+                    this.connector.paintExtents = extents;
+                    this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);
+                    // and then the overlays
+                    for (var j in this._jsPlumb.overlays) {
+                        if (this._jsPlumb.overlays.hasOwnProperty(j)) {
+                            var p = this._jsPlumb.overlays[j];
+                            if (p.isVisible()) {
+                                p.paint(this._jsPlumb.overlayPlacements[j], extents);
                             }
                         }
                     }
