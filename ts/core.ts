@@ -73,6 +73,7 @@ export interface TypeDescriptor {
     reattach?:boolean;
     scope?:string;
     connector?:ConnectorSpec;
+    mergeStrategy?:string;
 }
 
 export interface BehaviouralTypeDescriptor extends TypeDescriptor {
@@ -463,7 +464,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             maxConnections: 1,
             paintStyle: { strokeWidth: 2, stroke: "#456" },
             reattachConnections: false,
-            scope: "jsPlumb_DefaultScope"
+            scope: "jsplumb_defaultscope"
         };
 
         if (defaults) {
