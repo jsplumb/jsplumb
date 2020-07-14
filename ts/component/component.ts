@@ -85,21 +85,33 @@ function _mapType (map:any, obj:any, typeId:string) {
     }
 }
 
+const CONNECTOR = "connector";
+const MERGE_STRATEGY_OVERRIDE = "override";
+const CSS_CLASS = "cssClass";
+const DEFAULT_TYPE_KEY = "__default";
+
 function _applyTypes<E>(component:Component, params?:any, doNotRepaint?:boolean) {
     if (component.getDefaultType) {
         let td = component.getTypeDescriptor(), map = {};
         let defType = component.getDefaultType();
 
-        //let o = merge({}, defType);
         let o = extend({}, defType);
 
-        _mapType(map, defType, "__default");
+        _mapType(map, defType, DEFAULT_TYPE_KEY);
         for (let i = 0, j = component._jsPlumb.types.length; i < j; i++) {
             let tid = component._jsPlumb.types[i];
-            if (tid !== "__default") {
+            if (tid !== DEFAULT_TYPE_KEY) {
                 let _t = component._jsPlumb.instance.getType(tid, td);
                 if (_t != null) {
-                    o = merge(o, _t, [ "cssClass" ], [ "connector" ]);
+
+                    const overrides = new Set(CONNECTOR);
+                    if (_t.mergeStrategy === MERGE_STRATEGY_OVERRIDE) {
+                        for (let k in _t) {
+                            overrides.add(k);
+                        }
+                    }
+
+                    o = merge(o, _t, [CSS_CLASS], Array.from(overrides));
                     _mapType(map, _t, tid);
                 }
             }
