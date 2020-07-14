@@ -1,3 +1,9 @@
+## 4.0.0-RC13
+
+14th July 2020
+
+- Added support for mergeStrategy:"override" to connection/endpoint type descriptors.
+
 ## 4.0.0-RC12
 
 14th July 2020
