@@ -1,3 +1,9 @@
+## 4.0.0-RC12
+
+14th July 2020
+
+- Backed out the paint changes from RC11. In some cases browsers were choosing spurious values for stroke widths with this arrangement.  You should still ensure you have the `overflow:visible` style on `.jtk-connector`, though, it's a good practice.
+
 ## 4.0.0-RC11
 
 11th July 2020
