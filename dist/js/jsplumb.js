@@ -837,24 +837,36 @@
     }
   }
 
+  var CONNECTOR = "connector";
+  var MERGE_STRATEGY_OVERRIDE = "override";
+  var CSS_CLASS = "cssClass";
+  var DEFAULT_TYPE_KEY = "__default";
+
   function _applyTypes(component, params, doNotRepaint) {
     if (component.getDefaultType) {
       var td = component.getTypeDescriptor(),
           map = {};
-      var defType = component.getDefaultType(); //let o = merge({}, defType);
-
+      var defType = component.getDefaultType();
       var o = extend({}, defType);
 
-      _mapType(map, defType, "__default");
+      _mapType(map, defType, DEFAULT_TYPE_KEY);
 
       for (var i = 0, j = component._jsPlumb.types.length; i < j; i++) {
         var tid = component._jsPlumb.types[i];
 
-        if (tid !== "__default") {
+        if (tid !== DEFAULT_TYPE_KEY) {
           var _t = component._jsPlumb.instance.getType(tid, td);
 
           if (_t != null) {
-            o = merge(o, _t, ["cssClass"], ["connector"]);
+            var overrides = new Set(CONNECTOR);
+
+            if (_t.mergeStrategy === MERGE_STRATEGY_OVERRIDE) {
+              for (var k in _t) {
+                overrides.add(k);
+              }
+            }
+
+            o = merge(o, _t, [CSS_CLASS], Array.from(overrides));
 
             _mapType(map, _t, tid);
           }
@@ -6248,7 +6260,7 @@
           stroke: "#456"
         },
         reattachConnections: false,
-        scope: "jsPlumb_DefaultScope"
+        scope: "jsplumb_defaultscope"
       };
 
       if (defaults) {

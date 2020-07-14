@@ -50,6 +50,7 @@ export interface TypeDescriptor {
     reattach?: boolean;
     scope?: string;
     connector?: ConnectorSpec;
+    mergeStrategy?: string;
 }
 export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     filter?: string | Function;
