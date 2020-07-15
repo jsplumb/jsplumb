@@ -561,17 +561,17 @@ export class Connection extends OverlayCapableComponent {
 
                 // compute overlays. we do this first so we can get their placements, and adjust the
                 // container if needs be (if an overlay would be clipped)
-                for (let i in this._jsPlumb.overlays) {
-                    if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                        let o:Overlay = this._jsPlumb.overlays[i];
+                for (let i in this.overlays) {
+                    if (this.overlays.hasOwnProperty(i)) {
+                        let o:Overlay = this.overlays[i];
                         if (o.isVisible()) {
 
-                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                            this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
 
-                            overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
-                            overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
-                            overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
-                            overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
+                            overlayExtents.minX = Math.min(overlayExtents.minX, this.overlayPlacements[i].minX);
+                            overlayExtents.maxX = Math.max(overlayExtents.maxX, this.overlayPlacements[i].maxX);
+                            overlayExtents.minY = Math.min(overlayExtents.minY, this.overlayPlacements[i].minY);
+                            overlayExtents.maxY = Math.max(overlayExtents.maxY, this.overlayPlacements[i].maxY);
                         }
                     }
                 }
@@ -588,11 +588,11 @@ export class Connection extends OverlayCapableComponent {
                 this.instance.renderer.paintConnector(this.connector, this.paintStyleInUse, extents);
 
                 // and then the overlays
-                for (let j in this._jsPlumb.overlays) {
-                    if (this._jsPlumb.overlays.hasOwnProperty(j)) {
-                        let p = this._jsPlumb.overlays[j];
+                for (let j in this.overlays) {
+                    if (this.overlays.hasOwnProperty(j)) {
+                        let p = this.overlays[j];
                         if (p.isVisible()) {
-                            this.instance.renderer.paintOverlay(p, this._jsPlumb.overlayPlacements[j], extents);
+                            this.instance.renderer.paintOverlay(p, this.overlayPlacements[j], extents);
                         }
                     }
                 }

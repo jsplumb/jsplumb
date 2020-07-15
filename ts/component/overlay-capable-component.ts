@@ -49,7 +49,7 @@ function _processOverlay<E>(component:OverlayCapableComponent, o:OverlaySpec|Ove
 
     _newOverlay.id = _newOverlay.id || uuid();
     component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
-    component._jsPlumb.overlays[_newOverlay.id] = _newOverlay;
+    component.overlays[_newOverlay.id] = _newOverlay;
 
     return _newOverlay;
 }
@@ -60,14 +60,15 @@ export abstract class OverlayCapableComponent extends Component {
 
     overlays:Dictionary<Overlay> = {};
     overlayPositions:Dictionary<PointArray> = {};
+    overlayPlacements:Dictionary<{minX:number, maxX:number, minY:number, maxY:number}> = {};
 
     constructor(public instance:jsPlumbInstance, params: OverlayComponentOptions) {
         super(instance, params);
 
         params = params || {};
 
-        this._jsPlumb.overlays = {};
-        this._jsPlumb.overlayPositions = {};
+        this.overlays = {};
+        this.overlayPositions = {};
 
         if (params.label) {
             this.getDefaultType().overlays[_internalLabelOverlayId] = ["Label", {
@@ -102,11 +103,11 @@ export abstract class OverlayCapableComponent extends Component {
     }
 
     getOverlay(id:string):Overlay {
-        return this._jsPlumb.overlays[id];
+        return this.overlays[id];
     }
 
     getOverlays():Dictionary<Overlay> {
-        return this._jsPlumb.overlays;
+        return this.overlays;
     }
 
     hideOverlay(id:string):void {
@@ -117,8 +118,8 @@ export abstract class OverlayCapableComponent extends Component {
     }
 
     hideOverlays():void {
-        for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].setVisible(false);
+        for (let i in this.overlays) {
+            this.overlays[i].setVisible(false);
         }
     }
 
@@ -130,38 +131,38 @@ export abstract class OverlayCapableComponent extends Component {
     }
 
     showOverlays():void {
-        for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].setVisible(true);
+        for (let i in this.overlays) {
+            this.overlays[i].setVisible(true);
         }
     }
 
     removeAllOverlays(doNotRepaint?:boolean):void {
-        for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].destroy(true);
+        for (let i in this.overlays) {
+            this.overlays[i].destroy(true);
         }
 
-        this._jsPlumb.overlays = {};
-        this._jsPlumb.overlayPositions = null;
-        this._jsPlumb.overlayPlacements= {};
+        this.overlays = {};
+        this.overlayPositions = null;
+        this.overlayPlacements= {};
         if (!doNotRepaint) {
             this.paint();
         }
     }
 
     removeOverlay(overlayId:string, dontCleanup?:boolean):void {
-        let o = this._jsPlumb.overlays[overlayId];
+        let o = this.overlays[overlayId];
         if (o) {
             o.setVisible(false);
             if (!dontCleanup) {
                 o.destroy(true);
             }
-            delete this._jsPlumb.overlays[overlayId];
-            if (this._jsPlumb.overlayPositions) {
-                delete this._jsPlumb.overlayPositions[overlayId];
+            delete this.overlays[overlayId];
+            if (this.overlayPositions) {
+                delete this.overlayPositions[overlayId];
             }
 
-            if (this._jsPlumb.overlayPlacements) {
-                delete this._jsPlumb.overlayPlacements[overlayId];
+            if (this.overlayPlacements) {
+                delete this.overlayPlacements[overlayId];
             }
         }
     }
@@ -186,7 +187,7 @@ export abstract class OverlayCapableComponent extends Component {
         if (!lo) {
             let params = l.constructor === String || l.constructor === Function ? { label: l } : l;
             lo = _makeLabelOverlay(this, params);
-            this._jsPlumb.overlays[_internalLabelOverlayId] = lo;
+            this.overlays[_internalLabelOverlayId] = lo;
         }
         else {
             if (isString(l) || isFunction(l)) {
@@ -209,12 +210,12 @@ export abstract class OverlayCapableComponent extends Component {
     }
 
     destroy(force?:boolean) {
-        for (let i in this._jsPlumb.overlays) {
-            this._jsPlumb.overlays[i].destroy(force);
+        for (let i in this.overlays) {
+            this.overlays[i].destroy(force);
         }
         if (force) {
-            this._jsPlumb.overlays = {};
-            this._jsPlumb.overlayPositions = null;
+            this.overlays = {};
+            this.overlayPositions = {};
         }
 
         super.destroy(force);
@@ -235,13 +236,13 @@ export abstract class OverlayCapableComponent extends Component {
 
     private _clazzManip(action:ClassAction, clazz:string, dontUpdateOverlays?:boolean) {
         if (!dontUpdateOverlays) {
-            for (let i in this._jsPlumb.overlays) {
+            for (let i in this.overlays) {
                 if (action === "add") {
-                    //this._jsPlumb.overlays[i].addClass(clazz);
-                    this.instance.renderer.addOverlayClass(this._jsPlumb.overlays[i], clazz);
+                    //this.overlays[i].addClass(clazz);
+                    this.instance.renderer.addOverlayClass(this.overlays[i], clazz);
                 } else if (action === "remove") {
-                    //this._jsPlumb.overlays[i].removeClass(clazz);
-                    this.instance.renderer.removeOverlayClass(this._jsPlumb.overlays[i], clazz);
+                    //this.overlays[i].removeClass(clazz);
+                    this.instance.renderer.removeOverlayClass(this.overlays[i], clazz);
                 }
             }
         }
@@ -268,7 +269,7 @@ export abstract class OverlayCapableComponent extends Component {
 
             for (i in t.overlays) {
 
-                let existing:Overlay = this._jsPlumb.overlays[t.overlays[i][1].id];
+                let existing:Overlay = this.overlays[t.overlays[i][1].id];
                 if (existing) {
                     // maybe update from data, if there were parameterised values for instance.
                     existing.updateFrom(t.overlays[i][1]);
@@ -283,7 +284,7 @@ export abstract class OverlayCapableComponent extends Component {
                         c.setVisible(true);
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1]);
-                        this._jsPlumb.overlays[c.id] = c;
+                        this.overlays[c.id] = c;
                     }
                     else {
                         c = this.addOverlay(t.overlays[i], true);
@@ -293,9 +294,9 @@ export abstract class OverlayCapableComponent extends Component {
             }
 
             // now loop through the full overlays and remove those that we dont want to keep
-            for (i in this._jsPlumb.overlays) {
-                if (keep[this._jsPlumb.overlays[i].id] == null) {
-                    this.removeOverlay(this._jsPlumb.overlays[i].id, true); // remove overlay but dont clean it up.
+            for (i in this.overlays) {
+                if (keep[this.overlays[i].id] == null) {
+                    this.removeOverlay(this.overlays[i].id, true); // remove overlay but dont clean it up.
                     // that would remove event listeners etc; overlays are never discarded by the types stuff, they are
                     // just detached/reattached.
                 }

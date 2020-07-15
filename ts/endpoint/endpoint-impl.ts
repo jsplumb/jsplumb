@@ -450,12 +450,12 @@ export class Endpoint extends OverlayCapableComponent {
                 this.timestamp = timestamp;
 
                 // paint overlays
-                for (let i in this._jsPlumb.overlays) {
-                    if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                        let o = this._jsPlumb.overlays[i];
+                for (let i in this.overlays) {
+                    if (this.overlays.hasOwnProperty(i)) {
+                        let o = this.overlays[i];
                         if (o.isVisible()) {
-                            this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                            this.instance.renderer.paintOverlay(o, this._jsPlumb.overlayPlacements[i], {xmin:0, ymin:0});
+                            this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                            this.instance.renderer.paintOverlay(o, this.overlayPlacements[i], {xmin:0, ymin:0});
                         }
                     }
                 }
