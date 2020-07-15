@@ -640,7 +640,7 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    private _reattachOrDiscard(originalEvent: Event) {
+    private _reattachOrDiscard(originalEvent: Event):boolean {
 
         let existingConnection = this.jpc.suspendedEndpoint != null;
         let idx = this.getFloatingAnchorIndex(this.jpc);
@@ -658,11 +658,13 @@ export class EndpointDragHandler implements DragHandler {
 
             // is this an existing connection? try to reattach, if desired.
             this._doForceReattach(idx);
+            return true;
 
         } else {
             // otherwise throw it away (and throw away any endpoints attached to it that should be thrown away when they are no longer
             // connected to any edges.
             this._discard(idx, originalEvent);
+            return false;
         }
     }
     
@@ -685,6 +687,7 @@ export class EndpointDragHandler implements DragHandler {
             let idx = this.getFloatingAnchorIndex(this.jpc);
             let suspendedEndpoint = this.jpc.suspendedEndpoint;
             let dropEndpoint;
+            let discarded = false;
 
             // 1. is there a drop target?
             if (this.currentDropTarget != null) {
@@ -693,7 +696,7 @@ export class EndpointDragHandler implements DragHandler {
                 dropEndpoint = this._getDropEndpoint(p, this.jpc);
                 if (dropEndpoint == null) {
                     // no drop endpoint resolved. either reattach, or discard.
-                    this._reattachOrDiscard(p.e);
+                    discarded = !this._reattachOrDiscard(p.e);
                 } else {
 
                     // if we are dropping back on the original endpoint, force a reattach.
@@ -703,7 +706,7 @@ export class EndpointDragHandler implements DragHandler {
 
                         if (!dropEndpoint.isEnabled()) {
                             // if endpoint disabled, either reattach or discard
-                            this._reattachOrDiscard(p.e);
+                            discarded = !this._reattachOrDiscard(p.e);
                         } else if (dropEndpoint.isFull()) {
                             // if endpoint full, fire an event, then either reattach or discard
                             dropEndpoint.fire(EVENT_MAX_CONNECTIONS, {
@@ -751,7 +754,7 @@ export class EndpointDragHandler implements DragHandler {
                             if (_doContinue) {
                                 this._drop(dropEndpoint, idx, originalEvent, _doContinue);
                             } else {
-                                this._reattachOrDiscard(p.e);
+                                discarded = !this._reattachOrDiscard(p.e);
                             }
                         }
                     }
@@ -760,17 +763,21 @@ export class EndpointDragHandler implements DragHandler {
 
             } else {
                 // no drop target: either reattach, or discard.
-                this._reattachOrDiscard(p.e);
+                discarded = !this._reattachOrDiscard(p.e);
             }
 
-            this.instance.renderer.refreshEndpoint(this.ep);
+            if (!discarded) {
+                this.instance.renderer.refreshEndpoint(this.ep);
+                this.ep.removeClass("endpointDrag");
+                this.ep.removeClass(this.instance.draggingClass);
+            }
+
 
             // common clean up
 
             this._cleanupDraggablePlaceholder();
 
-            this.ep.removeClass("endpointDrag");
-            this.ep.removeClass(this.instance.draggingClass);
+
             this.jpc.removeClass(this.instance.draggingClass);
 
             delete this.jpc.suspendedEndpoint;
