@@ -204,7 +204,7 @@ export abstract class OverlayCapableComponent extends Component {
             }
         }
 
-        if (!this._jsPlumb.instance._suspendDrawing) {
+        if (!this.instance._suspendDrawing) {
             this.paint();
         }
     }
@@ -227,11 +227,11 @@ export abstract class OverlayCapableComponent extends Component {
     }
 
     setAbsoluteOverlayPosition(overlay:Overlay, xy:PointArray) {
-        this._jsPlumb.overlayPositions[overlay.id] = xy;
+        this.overlayPositions[overlay.id] = xy;
     }
 
     getAbsoluteOverlayPosition(overlay:Overlay):PointArray {
-        return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
+        return this.overlayPositions ? this.overlayPositions[overlay.id] : null;
     }
 
     private _clazzManip(action:ClassAction, clazz:string, dontUpdateOverlays?:boolean) {

@@ -466,7 +466,7 @@ export class Endpoint extends OverlayCapableComponent {
     prepareEndpoint<C>(ep:EndpointSpec | EndpointRepresentation<C>, typeId?:string):EndpointRepresentation<C> {
 
         let endpointArgs = {
-            _jsPlumb: this._jsPlumb.instance,
+            _jsPlumb: this.instance,
             cssClass: this._jsPlumb.cssClass,
             endpoint: this
         };

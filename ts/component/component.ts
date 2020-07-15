@@ -103,7 +103,7 @@ function _applyTypes<E>(component:Component, params?:any, doNotRepaint?:boolean)
         for (let i = 0, j = component._jsPlumb.types.length; i < j; i++) {
             let tid = component._jsPlumb.types[i];
             if (tid !== DEFAULT_TYPE_KEY) {
-                let _t = component._jsPlumb.instance.getType(tid, td);
+                let _t = component.instance.getType(tid, td);
                 if (_t != null) {
 
                     const overrides = new Set([CONNECTOR, ANCHOR, ANCHORS]);
