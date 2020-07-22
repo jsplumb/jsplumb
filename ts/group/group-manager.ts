@@ -274,7 +274,6 @@ export class GroupManager {
 
             if (actualGroup.proxied) {
 
-                actualGroup.collapsed = true;
                 this.instance.removeClass(groupEl, Constants.GROUP_EXPANDED_CLASS);
                 this.instance.addClass(groupEl, Constants.GROUP_COLLAPSED_CLASS);
 
@@ -294,11 +293,13 @@ export class GroupManager {
                     this.cascadeCollapse(actualGroup, cg);
                 });
 
-                this.instance.revalidate(groupEl);
-                this.repaintGroup(actualGroup);
-                this.instance.fire(Constants.EVENT_COLLAPSE, { group:actualGroup  });
-
             }
+
+            actualGroup.collapsed = true;
+            this.instance.revalidate(groupEl);
+            this.repaintGroup(actualGroup);
+            this.instance.fire(Constants.EVENT_COLLAPSE, { group:actualGroup  });
+
         } else {
             actualGroup.collapsed = true;
             this.instance.removeClass(groupEl, Constants.GROUP_EXPANDED_CLASS);
@@ -346,8 +347,6 @@ export class GroupManager {
             this._setGroupVisible(actualGroup, true);
 
             if (actualGroup.proxied) {
-
-                actualGroup.collapsed = false;
                 this.instance.addClass(groupEl, Constants.GROUP_EXPANDED_CLASS);
                 this.instance.removeClass(groupEl, Constants.GROUP_COLLAPSED_CLASS);
 
@@ -368,6 +367,7 @@ export class GroupManager {
                 });
             }
 
+            actualGroup.collapsed = false;
             this.instance.revalidate(groupEl);
             this.repaintGroup(actualGroup);
             if (!doNotFireEvent) {
@@ -378,6 +378,7 @@ export class GroupManager {
             this.instance.addClass(groupEl, Constants.GROUP_EXPANDED_CLASS);
             this.instance.removeClass(groupEl, Constants.GROUP_COLLAPSED_CLASS);
         }
+
     }
 
     /**
