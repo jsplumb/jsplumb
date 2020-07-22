@@ -1095,8 +1095,8 @@ var testSuite = function () {
         equal(c.getPaintStyle().stroke, "green", "connection has stroke style specified in Endpoint type's `connectorStyle` property");
         equal(c.getHoverPaintStyle().strokeWidth, 534, "connection has hover style specified in Endpoint type");
         equal(c.getConnector().type, "Flowchart", "connector is Flowchart");
-        equal(_length(c._jsPlumb.overlays), 1, "connector has one overlay");
-        equal(_length(e1._jsPlumb.overlays), 0, "endpoint has no overlays");
+        equal(_length(c.overlays), 1, "connector has one overlay");
+        equal(_length(e1.overlays), 0, "endpoint has no overlays");
     });
 
     test(" create connection from Endpoints - type should be passed through.", function () {

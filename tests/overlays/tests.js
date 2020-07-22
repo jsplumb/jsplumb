@@ -34,7 +34,7 @@ var testSuite = function () {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(support.length(connection1._jsPlumb.overlays), 2);
+        equal(support.length(connection1.overlays), 2);
         equal("Label", connection1.getOverlays()["l"].type);
 
         equal("Arrow", connection1.getOverlays()["a"].type);
@@ -64,15 +64,15 @@ var testSuite = function () {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, support.length(connection1._jsPlumb.overlays));
+        equal(2, support.length(connection1.overlays));
         equal("Label", connection1.getOverlays()["aLabel"].type);
         equal("aLabel", connection1.getOverlays()["aLabel"].id);
 
         equal("Arrow", connection1.getOverlays()["anArrow"].type);
-        equal(0.7, connection1._jsPlumb.overlays["anArrow"].location);
-        equal(40, connection1._jsPlumb.overlays["anArrow"].width);
-        equal(40, connection1._jsPlumb.overlays["anArrow"].length);
-        equal("anArrow", connection1._jsPlumb.overlays["anArrow"].id);
+        equal(0.7, connection1.overlays["anArrow"].location);
+        equal(40, connection1.overlays["anArrow"].width);
+        equal(40, connection1.overlays["anArrow"].length);
+        equal("anArrow", connection1.overlays["anArrow"].id);
     });
 
     test(": _jsPlumb.connect (default overlays)", function () {
@@ -301,30 +301,30 @@ var testSuite = function () {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, support.length(connection1._jsPlumb.overlays));
+        equal(2, support.length(connection1.overlays));
 
         var labelOverlay = connection1.getOverlay("aLabel");
         var arrowOverlay = connection1.getOverlay("anArrow");
 
         connection1.removeOverlay("aLabel");
 
-        equal(null, connection1._jsPlumb.overlays["aLabel"], "not registered in overlays map");
-        equal(null, connection1._jsPlumb.overlayPositions["aLabel"], "not registered in overlay positions map");
-        equal(null, connection1._jsPlumb.overlayPlacements["aLabel"], "not registered in overlay positions map");
+        equal(null, connection1.overlays["aLabel"], "not registered in overlays map");
+        equal(null, connection1.overlayPositions["aLabel"], "not registered in overlay positions map");
+        equal(null, connection1.overlayPlacements["aLabel"], "not registered in overlay positions map");
 
-        equal(1, support.length(connection1._jsPlumb.overlays), "only one overlay remaining on the connection");
-        equal("anArrow", connection1._jsPlumb.overlays["anArrow"].id, "the id of this overlay is what we expected");
+        equal(1, support.length(connection1.overlays), "only one overlay remaining on the connection");
+        equal("anArrow", connection1.overlays["anArrow"].id, "the id of this overlay is what we expected");
 
         equal(labelOverlay.canvas, null, "the label overlay was actually removed from the DOM");
 
         // remove the arrow
         connection1.removeOverlay("anArrow");
 
-        equal(null, connection1._jsPlumb.overlays["anArrow"], "anArrow not registered in overlays map");
-        equal(null, connection1._jsPlumb.overlayPositions["anArrow"], "anArrow not registered in overlay positions map");
-        equal(null, connection1._jsPlumb.overlayPlacements["anArrow"], "anArrow not registered in overlay positions map");
+        equal(null, connection1.overlays["anArrow"], "anArrow not registered in overlays map");
+        equal(null, connection1.overlayPositions["anArrow"], "anArrow not registered in overlay positions map");
+        equal(null, connection1.overlayPlacements["anArrow"], "anArrow not registered in overlay positions map");
 
-        equal(0, support.length(connection1._jsPlumb.overlays), "no overlays remaining on the connection");
+        equal(0, support.length(connection1.overlays), "no overlays remaining on the connection");
 
         equal(arrowOverlay.path, null, "the arrow overlay was actually removed from the DOM");
 
@@ -350,9 +350,9 @@ var testSuite = function () {
                 ["Arrow", arrowSpec ]
             ]
         });
-        equal(2, support.length(connection1._jsPlumb.overlays));
+        equal(2, support.length(connection1.overlays));
         connection1.removeOverlays("aLabel", "anArrow");
-        equal(0, support.length(connection1._jsPlumb.overlays));
+        equal(0, support.length(connection1.overlays));
     });
 
     test(": _jsPlumb.connect (overlays, short-hand version)", function () {
@@ -370,13 +370,13 @@ var testSuite = function () {
                 ["Arrow", arrowSpec, loc]
             ]
         });
-        equal(2, support.length(connection1._jsPlumb.overlays));
+        equal(2, support.length(connection1.overlays));
         equal("Label", connection1.getOverlays()["l"].type);
 
         equal("Arrow", connection1.getOverlays()["a"].type);
-        equal(0.7, connection1._jsPlumb.overlays["a"].location);
-        equal(40, connection1._jsPlumb.overlays["a"].width);
-        equal(40, connection1._jsPlumb.overlays["a"].length);
+        equal(0.7, connection1.overlays["a"].location);
+        equal(40, connection1.overlays["a"].width);
+        equal(40, connection1.overlays["a"].length);
     });
 
     test(": _jsPlumb.connect (removeAllOverlays)", function () {
@@ -394,17 +394,17 @@ var testSuite = function () {
                 ["Arrow", arrowSpec, loc]
             ]
         });
-        equal(2, support.length(connection1._jsPlumb.overlays));
+        equal(2, support.length(connection1.overlays));
         equal("Label", connection1.getOverlays()["l"].type);
 
         equal("Arrow", connection1.getOverlays()["a"].type);
-        equal(0.7, connection1._jsPlumb.overlays["a"].location);
-        equal(40, connection1._jsPlumb.overlays["a"].width);
-        equal(40, connection1._jsPlumb.overlays["a"].length);
+        equal(0.7, connection1.overlays["a"].location);
+        equal(40, connection1.overlays["a"].width);
+        equal(40, connection1.overlays["a"].length);
 
         // not valid anymore, as we dont nuke overlays until the component is deleted.
         /*connection1.removeAllOverlays();
-         equal(0, connection1._jsPlumb.overlays.length);
+         equal(0, connection1.overlays.length);
          equal(0, jsPlumb.getSelector(".PPPP").length);*/
         _jsPlumb.deleteConnection(connection1);
         equal(0, document.querySelectorAll(".PPPP").length, "overlay has been fully cleaned up");
