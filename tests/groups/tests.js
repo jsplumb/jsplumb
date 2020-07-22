@@ -47,6 +47,46 @@ var testSuite = function () {
     };
     var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2, c_noparent;
     var g1, g2, g3, g4, g5, g6;
+    var GROUP_WIDTH = 150;
+    var GROUP_HEIGHT = 150;
+    var NODE_WIDTH = 50;
+    var NODE_HEIGHT = 50;
+
+    var gpointer = 100, gx = 0, gy = 0;
+    var _addGroupAndContainer = function(w, h) {
+        w = w || GROUP_WIDTH;
+        h = h || GROUP_HEIGHT;
+        var cId = "container_" + gpointer;
+        var c = support.addDiv(cId, null, "container", gx, gy, w, h);
+        c.style.outline = "1px solid black";
+        gx += w;
+        gy += h;
+
+        var gId = "" + gpointer;
+        var g = _addGroup(_jsPlumb, gId, c, []);
+
+        gpointer++;
+        return g;
+    };
+
+    var npointer = 0;
+    var _addNodeToGroup = function(g) {
+        var cId = "node_" + npointer;
+        var c = support.addDiv(cId, g.getDragArea(), "w", 30, 30, NODE_WIDTH, NODE_HEIGHT);
+        _jsPlumb.manage(c);
+
+        npointer++;
+        return c;
+    };
+
+    var _addNode = function(x, y, w, h) {
+        var cId = "node_" + npointer;
+        var c = support.addDiv(cId, _jsPlumb.getContainer(), "w", x, y, w, h);
+
+        npointer++;
+        _jsPlumb.manage(c);
+        return c;
+    };
 
     var _setupGroups = function(doNotMakeConnections) {
         c1 = support.addDiv("container1", null, "container", 0, 50);
@@ -1221,6 +1261,176 @@ var testSuite = function () {
         equal(conn.endpoints[0].element, c1_1, "c1_1 is connection source");
         equal(conn.endpoints[1].element, c2_1, "c2_1 is connection target");
 
+
+    });
+
+    test("nested groups, setup", function() {
+
+        var c1 = support.addDiv("container1", null, "container", 0, 50),
+            c2 = support.addDiv("container2", null, "container", 300, 50);
+
+        c1.style.outline = "1px solid black";
+        c2.style.outline = "1px solid black";
+
+        var c1_1 = support.addDiv("c1_1", c1, "w", 30, 30),
+            c2_1 = support.addDiv("c2_1", c2, "w", 180, 130);
+
+        var g1 = _addGroup(_jsPlumb, "one", c1, [c1_1]);
+        var g2 = _addGroup(_jsPlumb, "two", c2, [c2_1]);
+
+        g1.addGroup(g2);
+
+        equal(1, g1.getGroups().length, "g1 has one child group");
+
+        var g1DragArea = g1.getDragArea();
+        equal(g1DragArea, g2.el.parentNode, "g2 has been set as a child of g1's drag area");
+
+        equal(0, g2.getGroups().length, "g2 initially has one child group");
+
+        // create a new group and add as a child of g2 (which is itself a child of g1)
+        var c3 = support.addDiv("container3", null, "container", 300, 50);
+        c3.style.outline = "1px solid black";
+        var g3 = _addGroup(_jsPlumb, "three", c3, []);
+        g2.addGroup(g3);
+
+        equal(1, g2.getGroups().length, "g2 now has one child group");
+        equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
+
+    });
+
+    test("nested groups, access parent, collapseParent and proxyGroup properties", function() {
+
+        var c1 = support.addDiv("container1", null, "container", 0, 50, 400, 400),
+            c2 = support.addDiv("container2", null, "container", 300, 50, 400, 400),
+            c3 = support.addDiv("container3", null, "container", 300, 50, 400, 400);
+
+        c1.style.outline = "1px solid black";
+        c2.style.outline = "1px solid black";
+        c3.style.outline = "1px solid black";
+
+        var c1_1 = support.addDiv("c1_1", c1, "w", 30, 30),
+            c2_1 = support.addDiv("c2_1", c2, "w", 180, 130);
+
+        var g1 = _addGroup(_jsPlumb, "one", c1, [c1_1]);
+        var g2 = _addGroup(_jsPlumb, "two", c2, [c2_1]);
+        var g3 = _addGroup(_jsPlumb, "three", c3, []);
+
+        g1.addGroup(g2);
+        g2.addGroup(g3);
+
+        equal(g2.group, g1, "group 2's parent is group one");
+        equal(g3.group, g2, "group 3's parent is group two");
+
+        equal(g2.proxyGroup, null, "g2 reports null as the group handling its proxies to start with");
+        equal(g3.proxyGroup, null, "g3 reports null as the group handling its proxies to start with");
+
+        // collapse g2.
+        equal(g2.collapsed, false, "g2 is not collapsed");
+        _jsPlumb.collapseGroup(g2);
+        equal(g2.collapsed, true, "g2 is collapsed now");
+
+        // g3's collapseParent should be g2
+        equal(g3.collapseParent, g2, "g3's collapseParent is g2");
+
+        // now collapse g1. g2 should report it as its collapseParent - and so should g3.
+        _jsPlumb.collapseGroup(g1);
+        equal(g2.collapseParent, g1, "g2's collapseParent is g1");
+        equal(g3.collapseParent, g1, "g3's collapseParent is g1");
+
+        // create a new group, g0.  collapse it. add g1 to it. g2 and g3 should report g0 as their collapse parent.
+        var c0 = support.addDiv("container0", null, "container", 0, 50);
+        var g0 = _addGroup(_jsPlumb, "zero", c0, []);
+        _jsPlumb.collapseGroup(g0);
+
+        g0.addGroup(g1);
+        equal(g1.collapseParent.id, "zero", "g1's collapseParent is g0 after being added to g0");
+        equal(g2.collapseParent.id, "zero", "g2's collapseParent is g0 after being added to g0");
+        equal(g3.collapseParent.id, "zero", "g3's collapseParent is g0 after being added to g0");
+
+        // expand g0. g1 should report no collapseParent. g2 and g3 should report g1.
+        _jsPlumb.expandGroup(g0);
+        equal(g1.collapseParent, null, "g1's collapseParent is null after g0 is expanded");
+        equal(g2.collapseParent.id, "one", "g2's collapseParent is still g1 after g0 is expanded");
+        equal(g3.collapseParent.id, "one", "g3's collapseParent is still g1 after g0 is expanded");
+
+        // expand g1. g1 and g2 should report no collapse group. g3 should report g2.
+        _jsPlumb.expandGroup(g1);
+        equal(g1.collapseParent, null, "g1's collapseParent is null after g1 is expanded");
+        equal(g2.collapseParent, null, "g2's collapseParent is null after g1 is expanded");
+        equal(g3.collapseParent, g2, "g3's collapseParent is still g2 after g1 is expanded");
+
+    });
+
+    test("nested groups, add group to another group when it is already a child of a group", function() {
+        // should remove from the current group and add to the new one
+    });
+
+    test("nested group collapse and expand, group added to parent group before collapse", function() {
+
+        var g1 = _addGroupAndContainer(100,100),
+            g2 = _addGroupAndContainer(400,400),
+            g3 = _addGroupAndContainer(),
+            n1_1 = _addNodeToGroup(g1),
+            n2_1 = _addNodeToGroup(g2),
+            n3_1 = _addNodeToGroup(g3),
+            n4 = _addNode(500, 20, 50, 50);
+
+        var c = _jsPlumb.connect({source:n3_1, target:n4}); // connect node in group 3 to node 4, which is standalone.
+
+        equal(c.endpoints[0].element, n3_1, "source element is n3_1");
+        equal(c.endpoints[1].element, n4, "source element is n4");
+
+        // collapse group 3, which is the parent of n3_1, and the source of the connection should now be g3's element, as it is proxied.
+        _jsPlumb.collapseGroup(g3);
+        equal(c.endpoints[0].element, g3.el, "source element is g3");
+        equal(c.endpoints[1].element, n4, "source element is n4");
+
+        // ok now expand g3 and check its back to how it was
+        _jsPlumb.expandGroup(g3);
+        equal(c.endpoints[0].element, n3_1, "source element is n3_1");
+        equal(c.endpoints[1].element, n4, "source element is n4");
+
+        // equal(g2.connections.source.length, 0, "no source connections for g2");
+        // equal(g2.connections.source.length, 0, "no connections for g2");
+
+        // add g3 as a child to g2
+        g2.addGroup(g3);
+        // manually resize group 2, this is just for me to look at, because g3 appears outside g2 even though its not.
+        g2.el.style.width="700px";
+        g2.el.style.height="700px";
+
+        // STATE 1: g3 is a child of g2. both g3 and g2 expanded. connection goes from n3 (child of g3) to n4 (not a group child)
+        equal(1, g2.getGroups().length, "g2 now has one child group");
+        equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
+        equal(c.endpoints[0].element, n3_1, "source element is n3_1");
+        equal(c.endpoints[1].element, n4, "source element is n4");
+
+        // collapse g2, the edge source should now be g2's element
+        _jsPlumb.collapseGroup(g2);
+        equal(c.endpoints[0].element, g2.el, "source element is g2");
+        equal(c.endpoints[1].element, n4, "source element is n4");
+
+        // so now we have group2 collapsed, with a connection showing to node 4. group 3 is a child of group2 and not visible. node 3, a child of group 3, is also not
+        // visible.  if we collapse group 3 then nothing should happen to this arrangement:
+
+        _jsPlumb.collapseGroup(g3);
+        equal(c.endpoints[0].element, g2.el, "source element is g2");
+        equal(c.endpoints[1].element, n4, "source element is n4");
+
+        // if we expand group 3 there should still be no change, because it's inside a collapsed group.
+        _jsPlumb.expandGroup(g3);
+        equal(c.endpoints[0].element, g2.el, "source element is g2");
+        equal(c.endpoints[1].element, n4, "source element is n4");
+
+        // so now again we have group2 collapsed, with a connection showing to node 4. group 3 is a child of group2 and not visible. node 3, a child of group 3, is also not
+        // visible.
+        // expand group 2. should return to state 1.
+        // STATE 1: g3 is a child of g2. both g3 and g2 expanded. connection goes from n3 (child of g3) to n4 (not a group child)
+        _jsPlumb.expandGroup(g2);
+        equal(1, g2.getGroups().length, "g2 now has one child group");
+        equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
+        equal(c.endpoints[0].element, n3_1, "source element is n3_1");
+        equal(c.endpoints[1].element, n4, "source element is n4");
 
     });
 
