@@ -17,11 +17,15 @@ export interface GroupOptions {
     endpoint?:EndpointSpec;
 }
 
-export class UIGroup {
+export class UINode {
+    group:UIGroup;
+    constructor(public instance:jsPlumbInstance, public el:any) { }
+}
+
+export class UIGroup extends UINode {
 
     children:Array<any> = [];
-
-    el:any;
+    childGroups:Array<UIGroup> = [];
 
     collapsed:boolean = false;
 
@@ -45,7 +49,7 @@ export class UIGroup {
     id:string;
 
     constructor(public instance:jsPlumbInstance, el:any, options:GroupOptions) {
-        this.el = el;
+        super(instance, el);
         this.el[Constants.IS_GROUP_KEY] = true;
         this.el[Constants.GROUP_KEY] = this;
         this.revert = options.revert !== false;
@@ -162,6 +166,40 @@ export class UIGroup {
         this.children.length = 0;
 
         return orphanedPositions;
+    }
+
+    addGroup(group:UIGroup):void {
+
+        const elpos = this.instance.getOffset(group.el, true);
+        const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+
+        this.childGroups.push(group);
+        this.instance.appendElement(group.el, this.getDragArea());
+        group.group = this;
+        let newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top };
+
+        this.instance.setPosition(group.el, newPosition);
+
+    }
+
+    getGroups():Array<UIGroup> {
+        return this.childGroups;
+    }
+
+    get collapseParent():UIGroup {
+        let cg:UIGroup = null;
+        if (this.group == null) {
+            return null;
+        } else {
+            let g = this.group;
+            while(g != null) {
+                if (g.collapsed) {
+                    cg = g;
+                }
+                g = g.group;
+            }
+            return cg;
+        }
     }
 
 }
