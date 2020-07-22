@@ -1,3 +1,10 @@
+## 4.0.0-RC15
+
+15th July 2020
+
+- Internal changes to the way Overlays are registered on connections and endpoints.
+- Internal changes to remove an intermediate object that is a hangover from the previous version's approach to inheritance.
+
 ## 4.0.0-RC14
 
 14th July 2020
