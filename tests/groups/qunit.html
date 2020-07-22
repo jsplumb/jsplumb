@@ -2,21 +2,36 @@
 <html>
 <head>
     <link rel="stylesheet" href="../qunit-1.11.0.css" type="text/css" media="screen">
-    <script src="../bind-shim.js"></script>
     <script src="../qunit-1.11.0.js"></script>
 
     <style>
         .jtk-group-expanded {
             outline:1px solid #ccc;
+            /*width:400px !important;*/
+            /*height:400px !important;*/
+            background-color:lightcyan;
         }
 
         .w {
             outline:1px solid #3491be;
         }
 
-        .jtk-group-collapsed .w {
+        .jtk-group-collapsed {
+            width:200px !important;
+            height:60px !important;
+            outline:1px solid #346789;
+        }
+
+        /*.jtk-group-collapsed .w {*/
+        /*    display:none;*/
+        /*}*/
+
+
+/* TODO this rule should be ported to the toolkit defaults css */
+        .jtk-group-collapsed [jtk-managed] {
             display:none;
         }
+
     </style>
 
     <script src="../../dist/js/jsplumb.js"></script>
