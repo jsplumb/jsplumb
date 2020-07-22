@@ -26,9 +26,16 @@
     is automatically reverted anyway, and without overflow:visible you cannot drag a node to some other element. You can
     also drag a node out of the element's viewport and if you drop it you can never get it back.
 */
-.jtk-group {
+[jtk-group] {
     position: absolute;
     overflow: visible;
+}
+
+/*
+    Default behaviour for children of a collapsed group - hide them.
+ */
+[jtk-group].jtk-group-collapsed [jtk-managed] {
+    display:none;
 }
 
 /*
