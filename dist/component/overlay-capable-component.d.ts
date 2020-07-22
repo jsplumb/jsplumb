@@ -12,6 +12,12 @@ export declare abstract class OverlayCapableComponent extends Component {
     defaultLabelLocation: number | [number, number];
     overlays: Dictionary<Overlay>;
     overlayPositions: Dictionary<PointArray>;
+    overlayPlacements: Dictionary<{
+        minX: number;
+        maxX: number;
+        minY: number;
+        maxY: number;
+    }>;
     constructor(instance: jsPlumbInstance, params: OverlayComponentOptions);
     addOverlay(overlay: OverlaySpec, doNotRepaint?: boolean): Overlay;
     getOverlay(id: string): Overlay;
