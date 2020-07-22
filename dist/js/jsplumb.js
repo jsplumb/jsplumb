@@ -857,7 +857,7 @@
         var tid = component._jsPlumb.types[i];
 
         if (tid !== DEFAULT_TYPE_KEY) {
-          var _t = component._jsPlumb.instance.getType(tid, td);
+          var _t = component.instance.getType(tid, td);
 
           if (_t != null) {
             var overrides = new Set([CONNECTOR, ANCHOR, ANCHORS]);
@@ -1564,7 +1564,7 @@
 
     _newOverlay.id = _newOverlay.id || uuid();
     component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
-    component._jsPlumb.overlays[_newOverlay.id] = _newOverlay;
+    component.overlays[_newOverlay.id] = _newOverlay;
     return _newOverlay;
   }
 
@@ -1587,9 +1587,11 @@
 
       _defineProperty(_assertThisInitialized(_this), "overlayPositions", {});
 
+      _defineProperty(_assertThisInitialized(_this), "overlayPlacements", {});
+
       params = params || {};
-      _this._jsPlumb.overlays = {};
-      _this._jsPlumb.overlayPositions = {};
+      _this.overlays = {};
+      _this.overlayPositions = {};
 
       if (params.label) {
         _this.getDefaultType().overlays[_internalLabelOverlayId] = ["Label", {
@@ -1632,12 +1634,12 @@
     }, {
       key: "getOverlay",
       value: function getOverlay(id) {
-        return this._jsPlumb.overlays[id];
+        return this.overlays[id];
       }
     }, {
       key: "getOverlays",
       value: function getOverlays() {
-        return this._jsPlumb.overlays;
+        return this.overlays;
       }
     }, {
       key: "hideOverlay",
@@ -1651,8 +1653,8 @@
     }, {
       key: "hideOverlays",
       value: function hideOverlays() {
-        for (var i in this._jsPlumb.overlays) {
-          this._jsPlumb.overlays[i].setVisible(false);
+        for (var i in this.overlays) {
+          this.overlays[i].setVisible(false);
         }
       }
     }, {
@@ -1667,20 +1669,20 @@
     }, {
       key: "showOverlays",
       value: function showOverlays() {
-        for (var i in this._jsPlumb.overlays) {
-          this._jsPlumb.overlays[i].setVisible(true);
+        for (var i in this.overlays) {
+          this.overlays[i].setVisible(true);
         }
       }
     }, {
       key: "removeAllOverlays",
       value: function removeAllOverlays(doNotRepaint) {
-        for (var i in this._jsPlumb.overlays) {
-          this._jsPlumb.overlays[i].destroy(true);
+        for (var i in this.overlays) {
+          this.overlays[i].destroy(true);
         }
 
-        this._jsPlumb.overlays = {};
-        this._jsPlumb.overlayPositions = null;
-        this._jsPlumb.overlayPlacements = {};
+        this.overlays = {};
+        this.overlayPositions = null;
+        this.overlayPlacements = {};
 
         if (!doNotRepaint) {
           this.paint();
@@ -1689,7 +1691,7 @@
     }, {
       key: "removeOverlay",
       value: function removeOverlay(overlayId, dontCleanup) {
-        var o = this._jsPlumb.overlays[overlayId];
+        var o = this.overlays[overlayId];
 
         if (o) {
           o.setVisible(false);
@@ -1698,14 +1700,14 @@
             o.destroy(true);
           }
 
-          delete this._jsPlumb.overlays[overlayId];
+          delete this.overlays[overlayId];
 
-          if (this._jsPlumb.overlayPositions) {
-            delete this._jsPlumb.overlayPositions[overlayId];
+          if (this.overlayPositions) {
+            delete this.overlayPositions[overlayId];
           }
 
-          if (this._jsPlumb.overlayPlacements) {
-            delete this._jsPlumb.overlayPlacements[overlayId];
+          if (this.overlayPlacements) {
+            delete this.overlayPlacements[overlayId];
           }
         }
       }
@@ -1741,7 +1743,7 @@
             label: l
           } : l;
           lo = _makeLabelOverlay(this, params);
-          this._jsPlumb.overlays[_internalLabelOverlayId] = lo;
+          this.overlays[_internalLabelOverlayId] = lo;
         } else {
           if (isString(l) || isFunction(l)) {
             lo.setLabel(l);
@@ -1758,20 +1760,20 @@
           }
         }
 
-        if (!this._jsPlumb.instance._suspendDrawing) {
+        if (!this.instance._suspendDrawing) {
           this.paint();
         }
       }
     }, {
       key: "destroy",
       value: function destroy(force) {
-        for (var i in this._jsPlumb.overlays) {
-          this._jsPlumb.overlays[i].destroy(force);
+        for (var i in this.overlays) {
+          this.overlays[i].destroy(force);
         }
 
         if (force) {
-          this._jsPlumb.overlays = {};
-          this._jsPlumb.overlayPositions = null;
+          this.overlays = {};
+          this.overlayPositions = {};
         }
 
         _get(_getPrototypeOf(OverlayCapableComponent.prototype), "destroy", this).call(this, force);
@@ -1786,24 +1788,24 @@
     }, {
       key: "setAbsoluteOverlayPosition",
       value: function setAbsoluteOverlayPosition(overlay, xy) {
-        this._jsPlumb.overlayPositions[overlay.id] = xy;
+        this.overlayPositions[overlay.id] = xy;
       }
     }, {
       key: "getAbsoluteOverlayPosition",
       value: function getAbsoluteOverlayPosition(overlay) {
-        return this._jsPlumb.overlayPositions ? this._jsPlumb.overlayPositions[overlay.id] : null;
+        return this.overlayPositions ? this.overlayPositions[overlay.id] : null;
       }
     }, {
       key: "_clazzManip",
       value: function _clazzManip(action, clazz, dontUpdateOverlays) {
         if (!dontUpdateOverlays) {
-          for (var i in this._jsPlumb.overlays) {
+          for (var i in this.overlays) {
             if (action === "add") {
-              //this._jsPlumb.overlays[i].addClass(clazz);
-              this.instance.renderer.addOverlayClass(this._jsPlumb.overlays[i], clazz);
+              //this.overlays[i].addClass(clazz);
+              this.instance.renderer.addOverlayClass(this.overlays[i], clazz);
             } else if (action === "remove") {
-              //this._jsPlumb.overlays[i].removeClass(clazz);
-              this.instance.renderer.removeOverlayClass(this._jsPlumb.overlays[i], clazz);
+              //this.overlays[i].removeClass(clazz);
+              this.instance.renderer.removeOverlayClass(this.overlays[i], clazz);
             }
           }
         }
@@ -1835,7 +1837,7 @@
               i;
 
           for (i in t.overlays) {
-            var existing = this._jsPlumb.overlays[t.overlays[i][1].id];
+            var existing = this.overlays[t.overlays[i][1].id];
 
             if (existing) {
               // maybe update from data, if there were parameterised values for instance.
@@ -1850,7 +1852,7 @@
                 c.setVisible(true); // maybe update from data, if there were parameterised values for instance.
 
                 c.updateFrom(t.overlays[i][1]);
-                this._jsPlumb.overlays[c.id] = c;
+                this.overlays[c.id] = c;
               } else {
                 c = this.addOverlay(t.overlays[i], true);
               }
@@ -1860,9 +1862,9 @@
           } // now loop through the full overlays and remove those that we dont want to keep
 
 
-          for (i in this._jsPlumb.overlays) {
-            if (keep[this._jsPlumb.overlays[i].id] == null) {
-              this.removeOverlay(this._jsPlumb.overlays[i].id, true); // remove overlay but dont clean it up.
+          for (i in this.overlays) {
+            if (keep[this.overlays[i].id] == null) {
+              this.removeOverlay(this.overlays[i].id, true); // remove overlay but dont clean it up.
               // that would remove event listeners etc; overlays are never discarded by the types stuff, they are
               // just detached/reattached.
             }
@@ -3260,16 +3262,16 @@
             }; // compute overlays. we do this first so we can get their placements, and adjust the
             // container if needs be (if an overlay would be clipped)
 
-            for (var i in this._jsPlumb.overlays) {
-              if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                var o = this._jsPlumb.overlays[i];
+            for (var i in this.overlays) {
+              if (this.overlays.hasOwnProperty(i)) {
+                var o = this.overlays[i];
 
                 if (o.isVisible()) {
-                  this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                  overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
-                  overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
-                  overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
-                  overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
+                  this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                  overlayExtents.minX = Math.min(overlayExtents.minX, this.overlayPlacements[i].minX);
+                  overlayExtents.maxX = Math.max(overlayExtents.maxX, this.overlayPlacements[i].maxX);
+                  overlayExtents.minY = Math.min(overlayExtents.minY, this.overlayPlacements[i].minY);
+                  overlayExtents.maxY = Math.max(overlayExtents.maxY, this.overlayPlacements[i].maxY);
                 }
               }
             }
@@ -3284,12 +3286,12 @@
             };
             this.instance.renderer.paintConnector(this.connector, this.paintStyleInUse, extents); // and then the overlays
 
-            for (var j in this._jsPlumb.overlays) {
-              if (this._jsPlumb.overlays.hasOwnProperty(j)) {
-                var p = this._jsPlumb.overlays[j];
+            for (var j in this.overlays) {
+              if (this.overlays.hasOwnProperty(j)) {
+                var p = this.overlays[j];
 
                 if (p.isVisible()) {
-                  this.instance.renderer.paintOverlay(p, this._jsPlumb.overlayPlacements[j], extents);
+                  this.instance.renderer.paintOverlay(p, this.overlayPlacements[j], extents);
                 }
               }
             }
@@ -4157,13 +4159,13 @@
             this.instance.renderer.paintEndpoint(this, this.paintStyleInUse);
             this.timestamp = timestamp; // paint overlays
 
-            for (var i in this._jsPlumb.overlays) {
-              if (this._jsPlumb.overlays.hasOwnProperty(i)) {
-                var o = this._jsPlumb.overlays[i];
+            for (var i in this.overlays) {
+              if (this.overlays.hasOwnProperty(i)) {
+                var o = this.overlays[i];
 
                 if (o.isVisible()) {
-                  this._jsPlumb.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                  this.instance.renderer.paintOverlay(o, this._jsPlumb.overlayPlacements[i], {
+                  this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                  this.instance.renderer.paintOverlay(o, this.overlayPlacements[i], {
                     xmin: 0,
                     ymin: 0
                   });
@@ -4179,7 +4181,7 @@
         var _this4 = this;
 
         var endpointArgs = {
-          _jsPlumb: this._jsPlumb.instance,
+          _jsPlumb: this.instance,
           cssClass: this._jsPlumb.cssClass,
           endpoint: this
         };
@@ -5031,71 +5033,84 @@
   var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
   var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
 
+  var UINode = function UINode(instance, el) {
+    _classCallCheck(this, UINode);
+
+    this.instance = instance;
+    this.el = el;
+
+    _defineProperty(this, "group", void 0);
+  };
   var UIGroup =
   /*#__PURE__*/
-  function () {
+  function (_UINode) {
+    _inherits(UIGroup, _UINode);
+
     function UIGroup(instance, el, options) {
+      var _this;
+
       _classCallCheck(this, UIGroup);
 
-      this.instance = instance;
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(UIGroup).call(this, instance, el));
+      _this.instance = instance;
 
-      _defineProperty(this, "children", []);
+      _defineProperty(_assertThisInitialized(_this), "children", []);
 
-      _defineProperty(this, "el", void 0);
+      _defineProperty(_assertThisInitialized(_this), "childGroups", []);
 
-      _defineProperty(this, "collapsed", false);
+      _defineProperty(_assertThisInitialized(_this), "collapsed", false);
 
-      _defineProperty(this, "droppable", void 0);
+      _defineProperty(_assertThisInitialized(_this), "droppable", void 0);
 
-      _defineProperty(this, "enabled", void 0);
+      _defineProperty(_assertThisInitialized(_this), "enabled", void 0);
 
-      _defineProperty(this, "orphan", void 0);
+      _defineProperty(_assertThisInitialized(_this), "orphan", void 0);
 
-      _defineProperty(this, "constrain", void 0);
+      _defineProperty(_assertThisInitialized(_this), "constrain", void 0);
 
-      _defineProperty(this, "proxied", void 0);
+      _defineProperty(_assertThisInitialized(_this), "proxied", void 0);
 
-      _defineProperty(this, "ghost", void 0);
+      _defineProperty(_assertThisInitialized(_this), "ghost", void 0);
 
-      _defineProperty(this, "revert", void 0);
+      _defineProperty(_assertThisInitialized(_this), "revert", void 0);
 
-      _defineProperty(this, "prune", void 0);
+      _defineProperty(_assertThisInitialized(_this), "prune", void 0);
 
-      _defineProperty(this, "dropOverride", void 0);
+      _defineProperty(_assertThisInitialized(_this), "dropOverride", void 0);
 
-      _defineProperty(this, "anchor", void 0);
+      _defineProperty(_assertThisInitialized(_this), "anchor", void 0);
 
-      _defineProperty(this, "endpoint", void 0);
+      _defineProperty(_assertThisInitialized(_this), "endpoint", void 0);
 
-      _defineProperty(this, "connections", {
+      _defineProperty(_assertThisInitialized(_this), "connections", {
         source: [],
         target: [],
         internal: []
       });
 
-      _defineProperty(this, "groups", []);
+      _defineProperty(_assertThisInitialized(_this), "groups", []);
 
-      _defineProperty(this, "manager", void 0);
+      _defineProperty(_assertThisInitialized(_this), "manager", void 0);
 
-      _defineProperty(this, "id", void 0);
+      _defineProperty(_assertThisInitialized(_this), "id", void 0);
 
-      this.el = el;
-      this.el[IS_GROUP_KEY] = true;
-      this.el[GROUP_KEY] = this;
-      this.revert = options.revert !== false;
-      this.droppable = options.droppable !== false;
-      this.ghost = options.ghost === true;
-      this.enabled = options.enabled !== false;
-      this.orphan = options.orphan === true;
-      this.prune = options.prune === true;
-      this.constrain = this.ghost || options.constrain === true;
-      this.proxied = options.proxied !== false;
-      this.id = options.id || uuid();
-      this.dropOverride = options.dropOverride === true;
-      this.anchor = options.anchor;
-      this.endpoint = options.endpoint;
-      this.anchor = options.anchor;
+      _this.el[IS_GROUP_KEY] = true;
+      _this.el[GROUP_KEY] = _assertThisInitialized(_this);
+      _this.revert = options.revert !== false;
+      _this.droppable = options.droppable !== false;
+      _this.ghost = options.ghost === true;
+      _this.enabled = options.enabled !== false;
+      _this.orphan = options.orphan === true;
+      _this.prune = options.prune === true;
+      _this.constrain = _this.ghost || options.constrain === true;
+      _this.proxied = options.proxied !== false;
+      _this.id = options.id || uuid();
+      _this.dropOverride = options.dropOverride === true;
+      _this.anchor = options.anchor;
+      _this.endpoint = options.endpoint;
+      _this.anchor = options.anchor;
       instance.setAttribute(el, ATTRIBUTE_GROUP, "");
+      return _this;
     }
 
     _createClass(UIGroup, [{
@@ -5126,23 +5141,23 @@
     }, {
       key: "add",
       value: function add(_el, doNotFireEvent) {
-        var _this = this;
+        var _this2 = this;
 
         var dragArea = this.getDragArea();
         this.instance.each(_el, function (__el) {
           if (__el[GROUP_KEY] != null) {
-            if (__el[GROUP_KEY] === _this) {
+            if (__el[GROUP_KEY] === _this2) {
               return;
             } else {
               __el[GROUP_KEY].remove(__el, true, doNotFireEvent, false);
             }
           }
 
-          __el[GROUP_KEY] = _this;
+          __el[GROUP_KEY] = _this2;
 
-          _this.children.push(__el);
+          _this2.children.push(__el);
 
-          _this.manager.instance.appendElement(__el, dragArea);
+          _this2.manager.instance.appendElement(__el, dragArea);
         });
 
         this.manager._updateConnectionsForGroup(this);
@@ -5150,17 +5165,17 @@
     }, {
       key: "remove",
       value: function remove(el, manipulateDOM, doNotFireEvent, doNotUpdateConnections, targetGroup) {
-        var _this2 = this;
+        var _this3 = this;
 
         this.instance.each(el, function (__el) {
           delete __el[GROUP_KEY];
-          removeWithFunction(_this2.children, function (e) {
+          removeWithFunction(_this3.children, function (e) {
             return e === __el;
           });
 
           if (manipulateDOM) {
             try {
-              _this2.getDragArea().removeChild(__el);
+              _this3.getDragArea().removeChild(__el);
             } catch (e) {
               log("Could not remove element from Group " + e);
             }
@@ -5168,7 +5183,7 @@
 
           if (!doNotFireEvent) {
             var p = {
-              group: _this2,
+              group: _this3,
               el: __el
             };
 
@@ -5176,7 +5191,7 @@
               p.targetGroup = targetGroup;
             }
 
-            _this2.manager.instance.fire(EVENT_CHILD_REMOVED, p);
+            _this3.manager.instance.fire(EVENT_CHILD_REMOVED, p);
           }
         });
 
@@ -5188,9 +5203,9 @@
       key: "removeAll",
       value: function removeAll(manipulateDOM, doNotFireEvent) {
         for (var i = 0, l = this.children.length; i < l; i++) {
-          var el = this.children[0];
-          this.remove(el, manipulateDOM, doNotFireEvent, true);
-          this.manager.instance.remove(el, true);
+          var _el2 = this.children[0];
+          this.remove(_el2, manipulateDOM, doNotFireEvent, true);
+          this.manager.instance.remove(_el2, true);
         }
 
         this.children.length = 0;
@@ -5225,10 +5240,50 @@
         this.children.length = 0;
         return orphanedPositions;
       }
+    }, {
+      key: "addGroup",
+      value: function addGroup(group) {
+        var elpos = this.instance.getOffset(group.el, true);
+        var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+        this.childGroups.push(group);
+        this.instance.appendElement(group.el, this.getDragArea());
+        group.group = this;
+        var newPosition = {
+          left: elpos.left - cpos.left,
+          top: elpos.top - cpos.top
+        };
+        this.instance.setPosition(group.el, newPosition);
+      }
+    }, {
+      key: "getGroups",
+      value: function getGroups() {
+        return this.childGroups;
+      }
+    }, {
+      key: "collapseParent",
+      get: function get() {
+        var cg = null;
+
+        if (this.group == null) {
+          return null;
+        } else {
+          var g = this.group;
+
+          while (g != null) {
+            if (g.collapsed) {
+              cg = g;
+            }
+
+            g = g.group;
+          }
+
+          return cg;
+        }
+      }
     }]);
 
     return UIGroup;
-  }();
+  }(UINode);
 
   var GroupManager =
   /*#__PURE__*/
@@ -5557,38 +5612,81 @@
           return;
         }
 
-        var groupEl = actualGroup.el; // hide all connections
+        var groupEl = actualGroup.el;
 
-        this._setGroupVisible(actualGroup, false);
+        if (actualGroup.collapseParent == null) {
+          // hide all connections
+          this._setGroupVisible(actualGroup, false);
 
-        if (actualGroup.proxied) {
+          if (actualGroup.proxied) {
+            this.instance.removeClass(groupEl, GROUP_EXPANDED_CLASS);
+            this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS); // collapses all connections in a group.
+
+            var _collapseSet = function _collapseSet(conns, index) {
+              for (var i = 0; i < conns.length; i++) {
+                var c = conns[i];
+
+                _this3._collapseConnection(c, index, actualGroup);
+              }
+            }; // setup proxies for sources and targets
+
+
+            _collapseSet(actualGroup.connections.source, 0);
+
+            _collapseSet(actualGroup.connections.target, 1);
+
+            actualGroup.childGroups.forEach(function (cg) {
+              _this3.cascadeCollapse(actualGroup, cg);
+            });
+          }
+
+          actualGroup.collapsed = true;
+          this.instance.revalidate(groupEl);
+          this.repaintGroup(actualGroup);
+          this.instance.fire(EVENT_COLLAPSE, {
+            group: actualGroup
+          });
+        } else {
+          actualGroup.collapsed = true;
+          this.instance.removeClass(groupEl, GROUP_EXPANDED_CLASS);
+          this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS);
+        }
+      }
+      /**
+       * Cascade a collapse from the given `collapsedGroup` into the given `targetGroup`.
+       * @param collapsedGroup
+       * @param targetGroup
+       */
+
+    }, {
+      key: "cascadeCollapse",
+      value: function cascadeCollapse(collapsedGroup, targetGroup) {
+        var _this4 = this;
+
+        if (collapsedGroup.proxied) {
           // collapses all connections in a group.
           var _collapseSet = function _collapseSet(conns, index) {
             for (var i = 0; i < conns.length; i++) {
               var c = conns[i];
 
-              _this3._collapseConnection(c, index, actualGroup);
+              _this4._collapseConnection(c, index, collapsedGroup);
             }
           }; // setup proxies for sources and targets
 
 
-          _collapseSet(actualGroup.connections.source, 0);
+          _collapseSet(targetGroup.connections.source, 0);
 
-          _collapseSet(actualGroup.connections.target, 1);
+          _collapseSet(targetGroup.connections.target, 1);
         }
 
-        actualGroup.collapsed = true;
-        this.instance.removeClass(groupEl, GROUP_EXPANDED_CLASS);
-        this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS);
-        this.instance.revalidate(groupEl);
-        this.instance.fire(EVENT_COLLAPSE, {
-          group: actualGroup
+        targetGroup.childGroups.forEach(function (cg) {
+          _this4.cascadeCollapse(collapsedGroup, cg);
         });
       }
     }, {
       key: "expandGroup",
       value: function expandGroup(group, doNotFireEvent) {
-        var _this4 = this;
+        var _this5 = this;
 
         var actualGroup = this.getGroup(group);
 
@@ -5598,35 +5696,84 @@
 
         var groupEl = actualGroup.el;
 
-        this._setGroupVisible(actualGroup, true);
+        if (actualGroup.collapseParent == null) {
+          this._setGroupVisible(actualGroup, true);
 
-        if (actualGroup.proxied) {
-          // collapses all connections in a group.
+          if (actualGroup.proxied) {
+            this.instance.addClass(groupEl, GROUP_EXPANDED_CLASS);
+            this.instance.removeClass(groupEl, GROUP_COLLAPSED_CLASS); // collapses all connections in a group.
+
+            var _expandSet = function _expandSet(conns, index) {
+              for (var i = 0; i < conns.length; i++) {
+                var c = conns[i];
+
+                _this5._expandConnection(c, index, actualGroup);
+              }
+            }; // setup proxies for sources and targets
+
+
+            _expandSet(actualGroup.connections.source, 0);
+
+            _expandSet(actualGroup.connections.target, 1);
+
+            actualGroup.childGroups.forEach(function (cg) {
+              _this5.cascadeExpand(actualGroup, cg);
+            });
+          }
+
+          actualGroup.collapsed = false;
+          this.instance.revalidate(groupEl);
+          this.repaintGroup(actualGroup);
+
+          if (!doNotFireEvent) {
+            this.instance.fire(EVENT_EXPAND, {
+              group: group
+            });
+          }
+        } else {
+          actualGroup.collapsed = false;
+          this.instance.addClass(groupEl, GROUP_EXPANDED_CLASS);
+          this.instance.removeClass(groupEl, GROUP_COLLAPSED_CLASS);
+        }
+      }
+      /**
+       * Cascade an expand from the given `collapsedGroup` into the given `targetGroup`.
+       * @param expandedGroup
+       * @param targetGroup
+       */
+
+    }, {
+      key: "cascadeExpand",
+      value: function cascadeExpand(expandedGroup, targetGroup) {
+        var _this6 = this;
+
+        //  What to do.
+        //
+        // We assume this method is only called when targetGroup is legitimately a descendant of collapsedGroup.
+        // Basically all the connections on this group have to be re-proxied onto collapsedGroup, and this group has to be hidden.
+        if (expandedGroup.proxied) {
           var _expandSet = function _expandSet(conns, index) {
             for (var i = 0; i < conns.length; i++) {
               var c = conns[i];
 
-              _this4._expandConnection(c, index, actualGroup);
+              _this6._expandConnection(c, index, expandedGroup);
             }
           }; // setup proxies for sources and targets
 
 
-          _expandSet(actualGroup.connections.source, 0);
+          _expandSet(targetGroup.connections.source, 0);
 
-          _expandSet(actualGroup.connections.target, 1);
+          _expandSet(targetGroup.connections.target, 1);
         }
 
-        actualGroup.collapsed = false;
-        this.instance.addClass(groupEl, GROUP_EXPANDED_CLASS);
-        this.instance.removeClass(groupEl, GROUP_COLLAPSED_CLASS);
-        this.instance.revalidate(groupEl);
-        this.repaintGroup(actualGroup);
-
-        if (!doNotFireEvent) {
-          this.instance.fire(EVENT_EXPAND, {
-            group: group
-          });
-        }
+        this.instance.revalidate(targetGroup.el);
+        this.repaintGroup(targetGroup.el);
+        this.instance.fire(EVENT_EXPAND, {
+          group: targetGroup.el
+        });
+        targetGroup.childGroups.forEach(function (cg) {
+          _this6.cascadeExpand(expandedGroup, cg);
+        });
       }
     }, {
       key: "toggleGroup",
@@ -5634,7 +5781,11 @@
         group = this.getGroup(group);
 
         if (group != null) {
-          this[group.collapsed ? "expandGroup" : "collapseGroup"](group);
+          if (group.collapsed) {
+            this.expandGroup(group);
+          } else {
+            this.collapseGroup(group);
+          }
         }
       }
     }, {
@@ -5650,7 +5801,7 @@
     }, {
       key: "addToGroup",
       value: function addToGroup(group, el, doNotFireEvent) {
-        var _this5 = this;
+        var _this7 = this;
 
         var actualGroup = this.getGroup(group);
 
@@ -5663,14 +5814,14 @@
             var currentGroup = el[GROUP_KEY]; // if already a member of this group, do nothing
 
             if (currentGroup !== actualGroup) {
-              var elpos = _this5.instance.getOffset(el, true);
+              var elpos = _this7.instance.getOffset(el, true);
 
-              var cpos = actualGroup.collapsed ? _this5.instance.getOffset(groupEl, true) : _this5.instance.getOffset(actualGroup.getDragArea(), true); // otherwise, transfer to this group.
+              var cpos = actualGroup.collapsed ? _this7.instance.getOffset(groupEl, true) : _this7.instance.getOffset(actualGroup.getDragArea(), true); // otherwise, transfer to this group.
 
               if (currentGroup != null) {
                 currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
 
-                _this5._updateConnectionsForGroup(currentGroup);
+                _this7._updateConnectionsForGroup(currentGroup);
               }
 
               actualGroup.add(el, doNotFireEvent);
@@ -5683,36 +5834,36 @@
                   if (c.endpoints[oidx].element[GROUP_KEY] === actualGroup) {
                     c.endpoints[oidx].setVisible(false);
 
-                    _this5._expandConnection(c, oidx, actualGroup);
+                    _this7._expandConnection(c, oidx, actualGroup);
                   } else {
                     c.endpoints[index].setVisible(false);
 
-                    _this5._collapseConnection(c, index, actualGroup);
+                    _this7._collapseConnection(c, index, actualGroup);
                   }
                 });
               };
 
               if (actualGroup.collapsed) {
-                handleDroppedConnections(_this5.instance.select({
+                handleDroppedConnections(_this7.instance.select({
                   source: el
                 }), 0);
-                handleDroppedConnections(_this5.instance.select({
+                handleDroppedConnections(_this7.instance.select({
                   target: el
                 }), 1);
               }
 
-              var elId = _this5.instance.getId(el);
+              var elId = _this7.instance.getId(el);
 
               var newPosition = {
                 left: elpos.left - cpos.left,
                 top: elpos.top - cpos.top
               };
 
-              _this5.instance.setPosition(el, newPosition);
+              _this7.instance.setPosition(el, newPosition);
 
-              _this5._updateConnectionsForGroup(actualGroup);
+              _this7._updateConnectionsForGroup(actualGroup);
 
-              _this5.instance.revalidate(elId);
+              _this7.instance.revalidate(elId);
 
               if (!doNotFireEvent) {
                 var p = {
@@ -5725,7 +5876,7 @@
                   p.sourceGroup = currentGroup;
                 }
 
-                _this5.instance.fire(EVENT_CHILD_ADDED, p);
+                _this7.instance.fire(EVENT_CHILD_ADDED, p);
               }
             }
           };
@@ -5736,7 +5887,7 @@
     }, {
       key: "removeFromGroup",
       value: function removeFromGroup(group, el, doNotFireEvent) {
-        var _this6 = this;
+        var _this8 = this;
 
         var actualGroup = this.getGroup(group);
 
@@ -5753,8 +5904,8 @@
                     if (c.proxies[j] != null) {
                       var proxiedElement = c.proxies[j].originalEp.element;
 
-                      if (proxiedElement === el || _this6.isDescendant(proxiedElement, el)) {
-                        _this6._expandConnection(c, index, actualGroup);
+                      if (proxiedElement === el || _this8.isDescendant(proxiedElement, el)) {
+                        _this8._expandConnection(c, index, actualGroup);
                       }
                     }
                   }
@@ -11102,10 +11253,14 @@
 
 
           this._doForceReattach(idx);
+
+          return true;
         } else {
           // otherwise throw it away (and throw away any endpoints attached to it that should be thrown away when they are no longer
           // connected to any edges.
           this._discard(idx, originalEvent);
+
+          return false;
         }
       }
     }, {
@@ -11125,7 +11280,8 @@
           var existingConnection = this.jpc.suspendedEndpoint != null;
           var idx = this.getFloatingAnchorIndex(this.jpc);
           var suspendedEndpoint = this.jpc.suspendedEndpoint;
-          var dropEndpoint; // 1. is there a drop target?
+          var dropEndpoint;
+          var discarded = false; // 1. is there a drop target?
 
           if (this.currentDropTarget != null) {
             // get the drop endpoint.
@@ -11133,7 +11289,7 @@
 
             if (dropEndpoint == null) {
               // no drop endpoint resolved. either reattach, or discard.
-              this._reattachOrDiscard(p.e);
+              discarded = !this._reattachOrDiscard(p.e);
             } else {
               // if we are dropping back on the original endpoint, force a reattach.
               if (suspendedEndpoint && suspendedEndpoint.id === dropEndpoint.id) {
@@ -11141,7 +11297,7 @@
               } else {
                 if (!dropEndpoint.isEnabled()) {
                   // if endpoint disabled, either reattach or discard
-                  this._reattachOrDiscard(p.e);
+                  discarded = !this._reattachOrDiscard(p.e);
                 } else if (dropEndpoint.isFull()) {
                   // if endpoint full, fire an event, then either reattach or discard
                   dropEndpoint.fire(EVENT_MAX_CONNECTIONS, {
@@ -11192,22 +11348,25 @@
                   if (_doContinue) {
                     this._drop(dropEndpoint, idx, originalEvent, _doContinue);
                   } else {
-                    this._reattachOrDiscard(p.e);
+                    discarded = !this._reattachOrDiscard(p.e);
                   }
                 }
               }
             }
           } else {
             // no drop target: either reattach, or discard.
-            this._reattachOrDiscard(p.e);
+            discarded = !this._reattachOrDiscard(p.e);
           }
 
-          this.instance.renderer.refreshEndpoint(this.ep); // common clean up
+          if (!discarded) {
+            this.instance.renderer.refreshEndpoint(this.ep);
+            this.ep.removeClass("endpointDrag");
+            this.ep.removeClass(this.instance.draggingClass);
+          } // common clean up
+
 
           this._cleanupDraggablePlaceholder();
 
-          this.ep.removeClass("endpointDrag");
-          this.ep.removeClass(this.instance.draggingClass);
           this.jpc.removeClass(this.instance.draggingClass);
           delete this.jpc.suspendedEndpoint;
           delete this.jpc.suspendedElement;
@@ -17671,6 +17830,7 @@
   exports.TARGET_INDEX = TARGET_INDEX;
   exports.TWO_PI = TWO_PI;
   exports.UIGroup = UIGroup;
+  exports.UINode = UINode;
   exports.WILDCARD = WILDCARD;
   exports.X_AXIS_FACES = X_AXIS_FACES;
   exports.Y_AXIS_FACES = Y_AXIS_FACES;
