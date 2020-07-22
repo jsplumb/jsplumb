@@ -54,16 +54,11 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     onStop(params: any) {
 
+        const originalElement = params.drag.getDragElement(true);
+
         let originalGroup:UIGroup = params.el[Constants.GROUP_KEY],
-            currentGroup:UIGroup = params.el[Constants.GROUP_KEY],
-            og = this.instance.getOffset(currentGroup.getDragArea()),
-            p = extend({}, params);
-
-        p.finalPos = params.finalPos.slice();
-        p.finalPos[0] += og.left;
-        p.finalPos[1] += og.top;
-
-        const out = super.onStop(p);
+            out = super.onStop(params),
+            currentGroup:UIGroup = params.el[Constants.GROUP_KEY];
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params);
@@ -72,12 +67,12 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
                 const o1 = this.instance.getOffset(currentGroup.getDragArea());
                 const o2 = this.instance.getOffset(originalGroup.getDragArea());
                 const o = { left:o2.left + params.pos[0] - o1.left, top:o2.top + params.pos[1]-o1.top};
-                const originalElement = params.drag.getDragElement(true);
                 originalElement.style.left = o.left + "px";
                 originalElement.style.top = o.top + "px";
-                this.instance.revalidate(originalElement);
             }
         }
+
+        this.instance.revalidate(originalElement);
 
         return out;
     }
