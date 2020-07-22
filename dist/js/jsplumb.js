@@ -5386,6 +5386,7 @@
           this.collapseGroup(group);
         }
 
+        this.instance.manage(group.el);
         this.instance.addClass(group.el, GROUP_EXPANDED_CLASS);
         group.manager = this;
 
@@ -11773,8 +11774,14 @@
       key: "onStop",
       value: function onStop(params) {
         var originalGroup = params.el[GROUP_KEY],
-            out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params),
-            currentGroup = params.el[GROUP_KEY];
+            currentGroup = params.el[GROUP_KEY],
+            og = this.instance.getOffset(currentGroup.getDragArea()),
+            p = extend({}, params);
+        p.finalPos = params.finalPos.slice();
+        p.finalPos[0] += og.left;
+        p.finalPos[1] += og.top;
+
+        var out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, p);
 
         if (currentGroup === originalGroup) {
           this._pruneOrOrphan(params);
