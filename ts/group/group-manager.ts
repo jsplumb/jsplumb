@@ -83,6 +83,7 @@ export class GroupManager {
             this.collapseGroup(group);
         }
 
+        this.instance.manage(group.el);
         this.instance.addClass(group.el, Constants.GROUP_EXPANDED_CLASS);
         group.manager = this;
         this._updateConnectionsForGroup(group);
