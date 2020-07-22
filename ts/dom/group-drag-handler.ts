@@ -1,6 +1,6 @@
 import {ElementDragHandler} from "./element-drag-handler";
 import * as Constants from "../constants";
-import {PointXY} from "../core";
+import {extend, PointXY} from "../core";
 import {EVT_REVERT, GhostProxyingDragHandler} from "./drag-manager";
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
 import { UIGroup } from "../group/group";
@@ -55,8 +55,15 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
     onStop(params: any) {
 
         let originalGroup:UIGroup = params.el[Constants.GROUP_KEY],
-            out = super.onStop(params),
-            currentGroup:UIGroup = params.el[Constants.GROUP_KEY];
+            currentGroup:UIGroup = params.el[Constants.GROUP_KEY],
+            og = this.instance.getOffset(currentGroup.getDragArea()),
+            p = extend({}, params);
+
+        p.finalPos = params.finalPos.slice();
+        p.finalPos[0] += og.left;
+        p.finalPos[1] += og.top;
+
+        const out = super.onStop(p);
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params);
