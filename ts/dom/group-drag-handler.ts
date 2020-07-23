@@ -32,13 +32,13 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
     }
 
     useGhostProxy(container:any, dragEl:any) {
-        let group = dragEl[Constants.GROUP_KEY];
+        let group = dragEl[Constants.PARENT_GROUP_KEY];
         return group == null ? false : group.ghost === true;
     }
 
     makeGhostProxy (el: any) {
         const newEl = el.cloneNode(true);
-        newEl[Constants.GROUP_KEY] = el[Constants.GROUP_KEY];
+        newEl[Constants.PARENT_GROUP_KEY] = el[Constants.PARENT_GROUP_KEY];
         return newEl;
     }
 
@@ -56,9 +56,9 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
         const originalElement = params.drag.getDragElement(true);
 
-        let originalGroup:UIGroup = params.el[Constants.GROUP_KEY],
+        let originalGroup:UIGroup = params.el[Constants.PARENT_GROUP_KEY],
             out = super.onStop(params),
-            currentGroup:UIGroup = params.el[Constants.GROUP_KEY];
+            currentGroup:UIGroup = params.el[Constants.PARENT_GROUP_KEY];
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params);
@@ -93,7 +93,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
         let orphanedPosition = null;
         if (!this._isInsideParent(params.el, params.pos)) {
-            let group = params.el[Constants.GROUP_KEY];
+            let group = params.el[Constants.PARENT_GROUP_KEY];
             if (group.prune) {
 
                 this.instance.remove(params.el);
