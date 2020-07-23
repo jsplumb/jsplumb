@@ -388,6 +388,8 @@ export abstract class jsPlumbInstance extends EventGenerator {
     endpointsByElement:Dictionary<Array<Endpoint>> = {};
     endpointsByUUID:Dictionary<Endpoint> = {};
 
+    _allowNestedGroups:boolean;
+
     private _curIdStamp :number = 1;
     private _offsetTimestamps:Dictionary<string> = {};
     private _offsets:Dictionary<ExtendedOffset> = {};
@@ -464,7 +466,8 @@ export abstract class jsPlumbInstance extends EventGenerator {
             maxConnections: 1,
             paintStyle: { strokeWidth: 2, stroke: "#456" },
             reattachConnections: false,
-            scope: "jsplumb_defaultscope"
+            scope: "jsplumb_defaultscope",
+            allowNestedGroups:true
         };
 
         if (defaults) {
@@ -473,6 +476,8 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
         extend(this._initialDefaults, this.Defaults);
         this.DEFAULT_SCOPE = this.Defaults.scope;
+
+        this._allowNestedGroups = this._initialDefaults.allowNestedGroups !== false;
 
         this.anchorManager = new AnchorManager(this);
         this.groupManager = new GroupManager(this);
