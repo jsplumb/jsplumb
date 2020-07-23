@@ -235,7 +235,7 @@ export class ElementDragHandler implements DragHandler {
             const _one = (_el:any):any => {
 
                 // if drag el not a group
-                if (!_el._isJsPlumbGroup) {
+                if (!_el._isJsPlumbGroup || this.instance._allowNestedGroups) {
 
                     const isNotInAGroup = !_el[Constants.PARENT_GROUP_KEY];
                     const membersAreDroppable = isNotInAGroup || _el[Constants.PARENT_GROUP_KEY].dropOverride !== true;
@@ -249,7 +249,11 @@ export class ElementDragHandler implements DragHandler {
                     if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
                         this.instance.groupManager.forEach((group: UIGroup) => {
                             // prepare a list of potential droppable groups.
-                            if (group.droppable !== false && group.enabled !== false && group !== _el[Constants.PARENT_GROUP_KEY]) {
+
+                            // get the group pertaining to the dragged element. this may be null, in fact in many cases it is.
+                            const elementGroup = _el[Constants.GROUP_KEY] as UIGroup;
+
+                            if (group.droppable !== false && group.enabled !== false && _el[Constants.GROUP_KEY] !== group && !this.instance.groupManager.isAncestor(elementGroup, group) && !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),
