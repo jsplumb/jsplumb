@@ -47,9 +47,10 @@ export class DotEndpoint<E> extends EndpointRepresentation<ComputedDotEndpoint> 
         return [ x, y, w, h, this.radius ];
     }
 
+    static dotEndpointType = "Dot";
 
     getType(): string {
-        return "Dot";
+        return DotEndpoint.dotEndpointType;
     }
 }
 
