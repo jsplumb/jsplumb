@@ -16,7 +16,9 @@ export const BLOCK = "block";
 export const NONE = "none";
 export const SOURCE_INDEX = 0;
 export const TARGET_INDEX = 1;
+
 export const GROUP_KEY = "_jsPlumbGroup";
+export const PARENT_GROUP_KEY = "_jsPlumbParentGroup";
 export const IS_GROUP_KEY = "_isJsPlumbGroup";
 
 export const ATTRIBUTE_MANAGED = "jtk-managed";
