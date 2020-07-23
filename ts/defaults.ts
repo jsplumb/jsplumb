@@ -37,6 +37,8 @@ export interface jsPlumbDefaults {
     maxConnections?:number;
 
     hoverClass?:string;
+
+    allowNestedGroups?:boolean;
 }
 
 export interface jsPlumbHelperFunctions{
