@@ -2218,7 +2218,7 @@
       _this = _possibleConstructorReturn(this, _getPrototypeOf(ContinuousAnchor).call(this, instance, anchorParams));
       _this.instance = instance;
 
-      _defineProperty(_assertThisInitialized(_this), "type", "Continuous");
+      _defineProperty(_assertThisInitialized(_this), "type", ContinuousAnchor.continuousAnchorType);
 
       _defineProperty(_assertThisInitialized(_this), "isDynamic", true);
 
@@ -2360,6 +2360,8 @@
 
     return ContinuousAnchor;
   }(Anchor);
+
+  _defineProperty(ContinuousAnchor, "continuousAnchorType", "Continuous");
 
   var X_AXIS_FACES = ["left", "right"];
   var Y_AXIS_FACES = ["top", "bottom"];
@@ -4968,6 +4970,7 @@
   var SOURCE_INDEX = 0;
   var TARGET_INDEX = 1;
   var GROUP_KEY = "_jsPlumbGroup";
+  var PARENT_GROUP_KEY = "_jsPlumbParentGroup";
   var IS_GROUP_KEY = "_isJsPlumbGroup";
   var ATTRIBUTE_MANAGED = "jtk-managed";
   var ATTRIBUTE_GROUP = "jtk-group";
@@ -5095,7 +5098,8 @@
       _defineProperty(_assertThisInitialized(_this), "id", void 0);
 
       _this.el[IS_GROUP_KEY] = true;
-      _this.el[GROUP_KEY] = _assertThisInitialized(_this);
+      _this.el[GROUP_KEY] = _assertThisInitialized(_this); //this.el[Constants.PARENT_GROUP_KEY] = this;
+
       _this.revert = options.revert !== false;
       _this.droppable = options.droppable !== false;
       _this.ghost = options.ghost === true;
@@ -5123,18 +5127,18 @@
       value: function getDragArea() {
         var da = this.instance.getSelector(this.el, SELECTOR_GROUP_CONTAINER);
         return da && da.length > 0 ? da[0] : this.el;
-      }
+      } // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
+      // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
+
     }, {
       key: "getAnchor",
-      // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
-      // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
       value: function getAnchor(conn, endpointIndex) {
-        return this.anchor || "Continuous";
+        return this.anchor || ContinuousAnchor.continuousAnchorType;
       }
     }, {
       key: "getEndpoint",
       value: function getEndpoint(conn, endpointIndex) {
-        return this.endpoint || ["Dot", {
+        return this.endpoint || [DotEndpoint.dotEndpointType, {
           radius: 10
         }];
       }
@@ -5145,15 +5149,15 @@
 
         var dragArea = this.getDragArea();
         this.instance.each(_el, function (__el) {
-          if (__el[GROUP_KEY] != null) {
-            if (__el[GROUP_KEY] === _this2) {
+          if (__el[PARENT_GROUP_KEY] != null) {
+            if (__el[PARENT_GROUP_KEY] === _this2) {
               return;
             } else {
-              __el[GROUP_KEY].remove(__el, true, doNotFireEvent, false);
+              __el[PARENT_GROUP_KEY].remove(__el, true, doNotFireEvent, false);
             }
           }
 
-          __el[GROUP_KEY] = _this2;
+          __el[PARENT_GROUP_KEY] = _this2;
 
           _this2.children.push(__el);
 
@@ -5168,7 +5172,7 @@
         var _this3 = this;
 
         this.instance.each(el, function (__el) {
-          delete __el[GROUP_KEY];
+          delete __el[PARENT_GROUP_KEY];
           removeWithFunction(_this3.children, function (e) {
             return e === __el;
           });
@@ -5223,7 +5227,7 @@
         this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
 
         this.instance.setPosition(_el, pos);
-        delete _el[GROUP_KEY];
+        delete _el[PARENT_GROUP_KEY];
         return [id, pos];
       }
     }, {
@@ -5243,16 +5247,18 @@
     }, {
       key: "addGroup",
       value: function addGroup(group) {
-        var elpos = this.instance.getOffset(group.el, true);
-        var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
-        this.childGroups.push(group);
-        this.instance.appendElement(group.el, this.getDragArea());
-        group.group = this;
-        var newPosition = {
-          left: elpos.left - cpos.left,
-          top: elpos.top - cpos.top
-        };
-        this.instance.setPosition(group.el, newPosition);
+        if (this.instance._allowNestedGroups) {
+          var elpos = this.instance.getOffset(group.el, true);
+          var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+          this.childGroups.push(group);
+          this.instance.appendElement(group.el, this.getDragArea());
+          group.group = this;
+          var newPosition = {
+            left: elpos.left - cpos.left,
+            top: elpos.top - cpos.top
+          };
+          this.instance.setPosition(group.el, newPosition);
+        }
       }
     }, {
       key: "getGroups",
@@ -5426,8 +5432,8 @@
             if (_el == null || _el === c) {
               abort = true;
             } else {
-              if (_el[GROUP_KEY]) {
-                _g = _el[GROUP_KEY];
+              if (_el[PARENT_GROUP_KEY]) {
+                _g = _el[PARENT_GROUP_KEY];
                 abort = true;
               } else {
                 _el = _el.parentNode;
@@ -5487,7 +5493,7 @@
     }, {
       key: "orphan",
       value: function orphan(_el) {
-        if (_el[GROUP_KEY]) {
+        if (_el[PARENT_GROUP_KEY]) {
           var id = this.instance.getId(_el);
           var pos = this.instance.getOffset(_el);
 
@@ -5495,7 +5501,7 @@
 
           this.instance.appendElement(_el, this.instance.getContainer());
           this.instance.setPosition(_el, pos);
-          delete _el[GROUP_KEY];
+          delete _el[PARENT_GROUP_KEY];
           return [id, pos];
         }
       }
@@ -5567,17 +5573,31 @@
       value: function _collapseConnection(conn, index, group) {
         var otherEl = conn.endpoints[index === 0 ? 1 : 0].element;
 
-        if (otherEl[GROUP_KEY] && !otherEl[GROUP_KEY].proxied && otherEl[GROUP_KEY].collapsed) {
-          return;
+        if (otherEl[PARENT_GROUP_KEY] && !otherEl[PARENT_GROUP_KEY].proxied && otherEl[PARENT_GROUP_KEY].collapsed) {
+          return false;
         }
 
-        var groupEl = group.el,
-            groupElId = this.instance.getId(groupEl);
-        this.instance.proxyConnection(conn, index, groupEl, groupElId, function (conn, index) {
-          return group.getEndpoint(conn, index);
-        }, function (conn, index) {
-          return group.getAnchor(conn, index);
-        });
+        var es = conn.endpoints[0].element,
+            esg = es[PARENT_GROUP_KEY],
+            esgcp = esg != null ? esg.collapseParent || esg : null,
+            et = conn.endpoints[1].element,
+            etg = et[PARENT_GROUP_KEY],
+            etgcp = etg != null ? etg.collapseParent || etg : null;
+
+        if (esgcp == null || etgcp == null || esgcp.id !== etgcp.id) {
+          var groupEl = group.el,
+              groupElId = this.instance.getId(groupEl);
+          this.instance.proxyConnection(conn, index, groupEl, groupElId, function (conn, index) {
+            return group.getEndpoint(conn, index);
+          }, function (conn, index) {
+            return group.getAnchor(conn, index);
+          });
+          return true;
+        } else {
+          return false;
+        } // let groupEl = group.el, groupElId = this.instance.getId(groupEl);
+        // this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); });
+
       }
     }, {
       key: "_expandConnection",
@@ -5619,15 +5639,34 @@
           // hide all connections
           this._setGroupVisible(actualGroup, false);
 
+          actualGroup.collapsed = true;
+
           if (actualGroup.proxied) {
             this.instance.removeClass(groupEl, GROUP_EXPANDED_CLASS);
-            this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS); // collapses all connections in a group.
+            this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS);
+            console.log("COLLAPSE SET");
+            var collapsedConnectionIds = new Set(); // collapses all connections in a group.
 
             var _collapseSet = function _collapseSet(conns, index) {
               for (var i = 0; i < conns.length; i++) {
                 var c = conns[i];
 
-                _this3._collapseConnection(c, index, actualGroup);
+                if (_this3._collapseConnection(c, index, actualGroup) === true) {
+                  collapsedConnectionIds.add(c.id);
+                } // const es = c.endpoints[0].element,
+                //     esg = es[Constants.PARENT_GROUP_KEY],
+                //     esgcp = esg != null ? (esg.collapseParent || esg) : null,
+                //     et = c.endpoints[1].element,
+                //     etg = et[Constants.PARENT_GROUP_KEY],
+                //     etgcp = etg != null ? (etg.collapseParent || etg) : null;
+                //
+                //
+                // if (esgcp == null || etgcp == null || (esgcp.id !== etgcp.id)) {
+                //     console.log(esgcp ? esgcp.id : null, etgcp ? etgcp.id : null);
+                //     this._collapseConnection(c, index, actualGroup);
+                //     collapsedConnectionIds.add(c.id);
+                // }
+
               }
             }; // setup proxies for sources and targets
 
@@ -5637,11 +5676,10 @@
             _collapseSet(actualGroup.connections.target, 1);
 
             actualGroup.childGroups.forEach(function (cg) {
-              _this3.cascadeCollapse(actualGroup, cg);
+              _this3.cascadeCollapse(actualGroup, cg, collapsedConnectionIds);
             });
           }
 
-          actualGroup.collapsed = true;
           this.instance.revalidate(groupEl);
           this.repaintGroup(actualGroup);
           this.instance.fire(EVENT_COLLAPSE, {
@@ -5661,16 +5699,32 @@
 
     }, {
       key: "cascadeCollapse",
-      value: function cascadeCollapse(collapsedGroup, targetGroup) {
+      value: function cascadeCollapse(collapsedGroup, targetGroup, collapsedIds) {
         var _this4 = this;
 
         if (collapsedGroup.proxied) {
-          // collapses all connections in a group.
+          console.log("COLLAPSE CASCADE"); // collapses all connections in a group.
+
           var _collapseSet = function _collapseSet(conns, index) {
             for (var i = 0; i < conns.length; i++) {
               var c = conns[i];
 
-              _this4._collapseConnection(c, index, collapsedGroup);
+              if (!collapsedIds.has(c.id)) {
+                // const es = c.endpoints[0].element,
+                //     esg = es[Constants.PARENT_GROUP_KEY],
+                //     esgcp = esg != null ? (esg.collapseParent || esg) : null,
+                //     et = c.endpoints[1].element,
+                //     etg = et[Constants.PARENT_GROUP_KEY],
+                //     etgcp = etg != null ? (etg.collapseParent || etg) : null;
+                // if (esgcp == null || etgcp == null || (esgcp.id !== etgcp.id)) {
+                //     console.log(esgcp ? esgcp.id : null, etgcp ? etgcp.id : null);
+                //     this._collapseConnection(c, index, collapsedGroup);
+                //     collapsedIds.add(c.id);
+                // }
+                if (_this4._collapseConnection(c, index, collapsedGroup) === true) {
+                  collapsedIds.add(c.id);
+                }
+              }
             }
           }; // setup proxies for sources and targets
 
@@ -5681,7 +5735,7 @@
         }
 
         targetGroup.childGroups.forEach(function (cg) {
-          _this4.cascadeCollapse(collapsedGroup, cg);
+          _this4.cascadeCollapse(collapsedGroup, cg, collapsedIds);
         });
       }
     }, {
@@ -5699,6 +5753,8 @@
 
         if (actualGroup.collapseParent == null) {
           this._setGroupVisible(actualGroup, true);
+
+          actualGroup.collapsed = false;
 
           if (actualGroup.proxied) {
             this.instance.addClass(groupEl, GROUP_EXPANDED_CLASS);
@@ -5722,7 +5778,6 @@
             });
           }
 
-          actualGroup.collapsed = false;
           this.instance.revalidate(groupEl);
           this.repaintGroup(actualGroup);
 
@@ -5812,7 +5867,7 @@
           var _one = function _one(el) {
             if (el[IS_GROUP_KEY] != null) ;
 
-            var currentGroup = el[GROUP_KEY]; // if already a member of this group, do nothing
+            var currentGroup = el[PARENT_GROUP_KEY]; // if already a member of this group, do nothing
 
             if (currentGroup !== actualGroup) {
               var elpos = _this7.instance.getOffset(el, true);
@@ -5830,7 +5885,7 @@
               var handleDroppedConnections = function handleDroppedConnections(list, index) {
                 var oidx = index === 0 ? 1 : 0;
                 list.each(function (c) {
-                  c.setVisible(false);
+                  c.setVisible(false); //if (c.endpoints[oidx].element[Constants.PARENT_GROUP_KEY] === actualGroup) {
 
                   if (c.endpoints[oidx].element[GROUP_KEY] === actualGroup) {
                     c.endpoints[oidx].setVisible(false);
@@ -6358,6 +6413,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", {});
 
+      _defineProperty(_assertThisInitialized(_this), "_allowNestedGroups", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "_curIdStamp", 1);
 
       _defineProperty(_assertThisInitialized(_this), "_offsetTimestamps", {});
@@ -6414,7 +6471,8 @@
           stroke: "#456"
         },
         reattachConnections: false,
-        scope: "jsplumb_defaultscope"
+        scope: "jsplumb_defaultscope",
+        allowNestedGroups: true
       };
 
       if (defaults) {
@@ -6423,6 +6481,7 @@
 
       extend(_this._initialDefaults, _this.Defaults);
       _this.DEFAULT_SCOPE = _this.Defaults.scope;
+      _this._allowNestedGroups = _this._initialDefaults.allowNestedGroups !== false;
       _this.anchorManager = new AnchorManager(_assertThisInitialized(_this));
       _this.groupManager = new GroupManager(_assertThisInitialized(_this));
 
@@ -9834,7 +9893,7 @@
           var x = desiredLoc[0],
               y = desiredLoc[1];
 
-          if (dragEl._jsPlumbGroup && dragEl._jsPlumbGroup.constrain) {
+          if (dragEl[PARENT_GROUP_KEY] && dragEl[PARENT_GROUP_KEY].constrain) {
             x = Math.max(desiredLoc[0], 0);
             y = Math.max(desiredLoc[1], 0);
             x = Math.min(x, constrainRect.w - size[0]);
@@ -9846,7 +9905,7 @@
         revert: function revert(dragEl, pos) {
           var _el = dragEl; // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
 
-          return _el.parentNode != null && _el._jsPlumbGroup && _el._jsPlumbGroup.revert ? !_isInsideParent(_this.instance, _el, pos) : false;
+          return _el.parentNode != null && _el[PARENT_GROUP_KEY] && _el[PARENT_GROUP_KEY].revert ? !_isInsideParent(_this.instance, _el, pos) : false;
         }
       });
       this.instance.bind(EVT_ZOOM, function (z) {
@@ -10036,7 +10095,7 @@
           // we only support one for the time being
           var targetGroup = this._intersectingGroups[0].group;
           var intersectingElement = this._intersectingGroups[0].intersectingElement;
-          var currentGroup = intersectingElement._jsPlumbGroup;
+          var currentGroup = intersectingElement[PARENT_GROUP_KEY];
 
           if (currentGroup !== targetGroup) {
             if (currentGroup != null) {
@@ -10180,7 +10239,7 @@
         var el = params.drag.getDragElement();
         var elOffset = this.instance.getOffset(el);
 
-        if (el._jsPlumbGroup) {
+        if (el[PARENT_GROUP_KEY]) {
           this._dragOffset = this.instance.getOffset(el.offsetParent);
         }
 
@@ -10216,9 +10275,9 @@
           var _one = function _one(_el) {
             // if drag el not a group
             if (!_el._isJsPlumbGroup) {
-              var isNotInAGroup = !_el._jsPlumbGroup;
-              var membersAreDroppable = isNotInAGroup || _el._jsPlumbGroup.dropOverride !== true;
-              var isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbGroup.ghost || _el._jsPlumbGroup.constrain !== true); // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
+              var isNotInAGroup = !_el[PARENT_GROUP_KEY];
+              var membersAreDroppable = isNotInAGroup || _el[PARENT_GROUP_KEY].dropOverride !== true;
+              var isGhostOrNotConstrained = !isNotInAGroup && (_el[PARENT_GROUP_KEY].ghost || _el[PARENT_GROUP_KEY].constrain !== true); // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
               // it's not in a group, OR
               // it hasnt mandated its element can't be dropped on other groups
               // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
@@ -10226,7 +10285,7 @@
               if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
                 _this4.instance.groupManager.forEach(function (group) {
                   // prepare a list of potential droppable groups.
-                  if (group.droppable !== false && group.enabled !== false && group !== _el._jsPlumbGroup) {
+                  if (group.droppable !== false && group.enabled !== false && group !== _el[PARENT_GROUP_KEY]) {
                     var groupEl = group.el,
                         s = _this4.instance.getSize(groupEl),
                         o = _this4.instance.getOffset(groupEl),
@@ -11745,14 +11804,14 @@
     }, {
       key: "useGhostProxy",
       value: function useGhostProxy(container, dragEl) {
-        var group = dragEl[GROUP_KEY];
+        var group = dragEl[PARENT_GROUP_KEY];
         return group == null ? false : group.ghost === true;
       }
     }, {
       key: "makeGhostProxy",
       value: function makeGhostProxy(el) {
         var newEl = el.cloneNode(true);
-        newEl[GROUP_KEY] = el[GROUP_KEY];
+        newEl[PARENT_GROUP_KEY] = el[PARENT_GROUP_KEY];
         return newEl;
       }
     }, {
@@ -11773,15 +11832,11 @@
     }, {
       key: "onStop",
       value: function onStop(params) {
-        var originalGroup = params.el[GROUP_KEY],
-            currentGroup = params.el[GROUP_KEY],
-            og = this.instance.getOffset(currentGroup.getDragArea()),
-            p = extend({}, params);
-        p.finalPos = params.finalPos.slice();
-        p.finalPos[0] += og.left;
-        p.finalPos[1] += og.top;
+        var originalElement = params.drag.getDragElement(true);
 
-        var out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, p);
+        var originalGroup = params.el[PARENT_GROUP_KEY],
+            out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params),
+            currentGroup = params.el[PARENT_GROUP_KEY];
 
         if (currentGroup === originalGroup) {
           this._pruneOrOrphan(params);
@@ -11793,13 +11848,12 @@
               left: o2.left + params.pos[0] - o1.left,
               top: o2.top + params.pos[1] - o1.top
             };
-            var originalElement = params.drag.getDragElement(true);
             originalElement.style.left = o.left + "px";
             originalElement.style.top = o.top + "px";
-            this.instance.revalidate(originalElement);
           }
         }
 
+        this.instance.revalidate(originalElement);
         return out;
       }
     }, {
@@ -11820,7 +11874,7 @@
         var orphanedPosition = null;
 
         if (!this._isInsideParent(params.el, params.pos)) {
-          var group = params.el[GROUP_KEY];
+          var group = params.el[PARENT_GROUP_KEY];
 
           if (group.prune) {
             this.instance.remove(params.el);
@@ -16218,12 +16272,15 @@
     }, {
       key: "getType",
       value: function getType() {
-        return "Dot";
+        return DotEndpoint.dotEndpointType;
       }
     }]);
 
     return DotEndpoint;
   }(EndpointRepresentation);
+
+  _defineProperty(DotEndpoint, "dotEndpointType", "Dot");
+
   EndpointFactory.register("Dot", DotEndpoint);
 
   var RectangleEndpoint =
@@ -17812,6 +17869,7 @@
   exports.Overlay = Overlay;
   exports.OverlayCapableComponent = OverlayCapableComponent;
   exports.OverlayFactory = OverlayFactory;
+  exports.PARENT_GROUP_KEY = PARENT_GROUP_KEY;
   exports.PlainArrowOverlay = PlainArrowOverlay;
   exports.RectangleEndpoint = RectangleEndpoint;
   exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
