@@ -113,8 +113,8 @@ export class GroupManager {
                 if (_el == null || _el === c) {
                     abort = true;
                 } else {
-                    if (_el[Constants.GROUP_KEY]) {
-                        g = _el[Constants.GROUP_KEY];
+                    if (_el[Constants.PARENT_GROUP_KEY]) {
+                        g = _el[Constants.PARENT_GROUP_KEY];
                         abort = true;
                     } else {
                         _el = (_el as any).parentNode;
@@ -162,13 +162,13 @@ export class GroupManager {
     }
 
     orphan(_el:any):[string, Offset] {
-        if (_el[Constants.GROUP_KEY]) {
+        if (_el[Constants.PARENT_GROUP_KEY]) {
             let id = this.instance.getId(_el);
             let pos = this.instance.getOffset(_el);
             (<any>_el).parentNode.removeChild(_el);
             this.instance.appendElement(_el, this.instance.getContainer());
             this.instance.setPosition(_el, pos);
-            delete _el[Constants.GROUP_KEY];
+            delete _el[Constants.PARENT_GROUP_KEY];
             return [id, pos];
         }
     }
@@ -230,14 +230,29 @@ export class GroupManager {
         }
     }
 
-    private _collapseConnection(conn:Connection, index:number, group:UIGroup) {
+    private _collapseConnection(conn:Connection, index:number, group:UIGroup):boolean {
         let otherEl = conn.endpoints[index === 0 ? 1 : 0].element;
-        if (otherEl[Constants.GROUP_KEY] && (!otherEl[Constants.GROUP_KEY].proxied && otherEl[Constants.GROUP_KEY].collapsed)) {
-            return;
+        if (otherEl[Constants.PARENT_GROUP_KEY] && (!otherEl[Constants.PARENT_GROUP_KEY].proxied && otherEl[Constants.PARENT_GROUP_KEY].collapsed)) {
+            return false;
         }
 
-        let groupEl = group.el, groupElId = this.instance.getId(groupEl);
-        this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); });
+        const es = conn.endpoints[0].element,
+            esg = es[Constants.PARENT_GROUP_KEY],
+            esgcp = esg != null ? (esg.collapseParent || esg) : null,
+            et = conn.endpoints[1].element,
+            etg = et[Constants.PARENT_GROUP_KEY],
+            etgcp = etg != null ? (etg.collapseParent || etg) : null;
+
+        if (esgcp == null || etgcp == null || (esgcp.id !== etgcp.id)) {
+            let groupEl = group.el, groupElId = this.instance.getId(groupEl);
+            this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); });
+            return true;
+        } else {
+            return false;
+        }
+
+        // let groupEl = group.el, groupElId = this.instance.getId(groupEl);
+        // this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); });
     }
 
     private _expandConnection(c:Connection, index:number, group:UIGroup) {
@@ -273,16 +288,23 @@ export class GroupManager {
             // hide all connections
             this._setGroupVisible(actualGroup, false);
 
+            actualGroup.collapsed = true;
+
             if (actualGroup.proxied) {
 
                 this.instance.removeClass(groupEl, Constants.GROUP_EXPANDED_CLASS);
                 this.instance.addClass(groupEl, Constants.GROUP_COLLAPSED_CLASS);
 
+                const collapsedConnectionIds = new Set<string>();
+
                 // collapses all connections in a group.
                 const _collapseSet = (conns: Array<Connection>, index: number) => {
                     for (let i = 0; i < conns.length; i++) {
                         let c = conns[i];
-                        this._collapseConnection(c, index, actualGroup);
+
+                        if (this._collapseConnection(c, index, actualGroup) === true) {
+                            collapsedConnectionIds.add(c.id);
+                        }
                     }
                 };
 
@@ -291,12 +313,11 @@ export class GroupManager {
                 _collapseSet(actualGroup.connections.target, 1);
 
                 actualGroup.childGroups.forEach((cg: UIGroup) => {
-                    this.cascadeCollapse(actualGroup, cg);
+                    this.cascadeCollapse(actualGroup, cg, collapsedConnectionIds);
                 });
 
             }
 
-            actualGroup.collapsed = true;
             this.instance.revalidate(groupEl);
             this.repaintGroup(actualGroup);
             this.instance.fire(Constants.EVENT_COLLAPSE, { group:actualGroup  });
@@ -312,14 +333,21 @@ export class GroupManager {
      * Cascade a collapse from the given `collapsedGroup` into the given `targetGroup`.
      * @param collapsedGroup
      * @param targetGroup
+     * @param collapsedIds Set of connection ids for already collapsed connections, which we can ignore.
      */
-    cascadeCollapse(collapsedGroup:UIGroup, targetGroup:UIGroup) {
+    cascadeCollapse(collapsedGroup:UIGroup, targetGroup:UIGroup, collapsedIds:Set<string>) {
         if (collapsedGroup.proxied) {
+
             // collapses all connections in a group.
             const _collapseSet =  (conns:Array<Connection>, index:number) => {
                 for (let i = 0; i < conns.length; i++) {
                     let c = conns[i];
-                    this._collapseConnection(c, index, collapsedGroup);
+                    if (!collapsedIds.has(c.id)) {
+
+                        if (this._collapseConnection(c, index, collapsedGroup) === true) {
+                            collapsedIds.add(c.id);
+                        }
+                    }
                 }
             };
 
@@ -330,7 +358,7 @@ export class GroupManager {
         }
 
         targetGroup.childGroups.forEach((cg:UIGroup) => {
-            this.cascadeCollapse(collapsedGroup, cg);
+            this.cascadeCollapse(collapsedGroup, cg, collapsedIds);
         });
     }
 
@@ -346,6 +374,7 @@ export class GroupManager {
         if (actualGroup.collapseParent == null) {
 
             this._setGroupVisible(actualGroup, true);
+            actualGroup.collapsed = false;
 
             if (actualGroup.proxied) {
                 this.instance.addClass(groupEl, Constants.GROUP_EXPANDED_CLASS);
@@ -368,7 +397,7 @@ export class GroupManager {
                 });
             }
 
-            actualGroup.collapsed = false;
+
             this.instance.revalidate(groupEl);
             this.repaintGroup(actualGroup);
             if (!doNotFireEvent) {
@@ -445,7 +474,7 @@ export class GroupManager {
                     //console.log("the thing being added is a group! is it possible to support nested groups")
                 }
 
-                let currentGroup = el[Constants.GROUP_KEY];
+                let currentGroup = el[Constants.PARENT_GROUP_KEY];
                 // if already a member of this group, do nothing
                 if (currentGroup !== actualGroup) {
                     const elpos = this.instance.getOffset(el, true);
@@ -462,6 +491,7 @@ export class GroupManager {
                         const oidx = index === 0 ? 1 : 0;
                         list.each( (c:Connection) => {
                             c.setVisible(false);
+                            //if (c.endpoints[oidx].element[Constants.PARENT_GROUP_KEY] === actualGroup) {
                             if (c.endpoints[oidx].element[Constants.GROUP_KEY] === actualGroup) {
                                 c.endpoints[oidx].setVisible(false);
                                 this._expandConnection(c, oidx, actualGroup);
