@@ -170,15 +170,20 @@ export class UIGroup extends UINode {
 
     addGroup(group:UIGroup):void {
 
-        const elpos = this.instance.getOffset(group.el, true);
-        const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+        if (this.instance._allowNestedGroups) {
 
-        this.childGroups.push(group);
-        this.instance.appendElement(group.el, this.getDragArea());
-        group.group = this;
-        let newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top };
+            const elpos = this.instance.getOffset(group.el, true);
+            const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
 
-        this.instance.setPosition(group.el, newPosition);
+            this.childGroups.push(group);
+            this.instance.appendElement(group.el, this.getDragArea());
+            group.group = this;
+            let newPosition = {left: elpos.left - cpos.left, top: elpos.top - cpos.top};
+
+            this.instance.setPosition(group.el, newPosition);
+        } else {
+            // console log?
+        }
 
     }
 
