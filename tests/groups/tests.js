@@ -77,6 +77,7 @@ var testSuite = function () {
         var cId = "node_" + npointer;
         var c = support.addDiv(cId, g.getDragArea(), "w", 30, 30, NODE_WIDTH, NODE_HEIGHT);
         _jsPlumb.manage(c);
+        _jsPlumb.addToGroup(g, c);
 
         npointer++;
         return c;
@@ -1379,6 +1380,7 @@ var testSuite = function () {
             n4 = _addNode(500, 20, 50, 50);
 
         var c = _jsPlumb.connect({source:n3_1, target:n4}); // connect node in group 3 to node 4, which is standalone.
+        equal(g3.connections.source.length, 1, "group 3 shows 1 source connection");
 
         equal(c.endpoints[0].element, n3_1, "source element is n3_1");
         equal(c.endpoints[1].element, n4, "source element is n4");
