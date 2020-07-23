@@ -26,7 +26,9 @@ const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "l
 
 export class ContinuousAnchor extends Anchor {
 
-    type:AnchorId  = "Continuous";
+    static continuousAnchorType:AnchorId = "Continuous";
+
+    type:AnchorId  = ContinuousAnchor.continuousAnchorType;
     isDynamic:boolean = true;
     isContinuous:boolean = true;
 
