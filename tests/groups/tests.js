@@ -53,7 +53,10 @@ var testSuite = function () {
     var NODE_HEIGHT = 50;
 
     var gpointer = 100, gx = 0, gy = 0;
-    var _addGroupAndContainer = function(w, h) {
+    var _addGroupAndContainer = function(w, h, j) {
+
+        j = j || _jsPlumb;
+
         w = w || GROUP_WIDTH;
         h = h || GROUP_HEIGHT;
         var cId = "container_" + gpointer;
@@ -63,7 +66,7 @@ var testSuite = function () {
         gy += h;
 
         var gId = "" + gpointer;
-        var g = _addGroup(_jsPlumb, gId, c, []);
+        var g = _addGroup(j, gId, c, []);
 
         gpointer++;
         return g;
@@ -1058,8 +1061,8 @@ var testSuite = function () {
         ok(removeEvt, "the remove group member event was fired");
         ok(addEvt, "the add group member event was fired");
 
-        equal(targetGroup, g3, "g3 reported as target group in remove from group event");
-        equal(sourceGroup, g1, "g1 reported as source group in add to group event");
+        equal(targetGroup.id, "g3", "g3 reported as target group in remove from group event");
+        equal(sourceGroup.id, "g1", "g1 reported as source group in add to group event");
 
     });
 
@@ -1431,6 +1434,72 @@ var testSuite = function () {
         equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
         equal(c.endpoints[0].element, n3_1, "source element is n3_1");
         equal(c.endpoints[1].element, n4, "source element is n4");
+
+    });
+
+    test("nested groups, collapse group that has a child group, each group has a node, and they are connected. On collapse, that connection should be hidden.", function() {
+        // should remove from the current group and add to the new one
+
+        var g1 = _addGroupAndContainer(100,100),
+            g2 = _addGroupAndContainer(400,400),
+            n1_1 = _addNodeToGroup(g1),
+            n2_1 = _addNodeToGroup(g2);
+
+        g2.addGroup(g1);
+        g1.el.style.left = "100px";
+        g1.el.style.top = "100px";
+        _jsPlumb.revalidate(g1.el);
+
+        var c = _jsPlumb.connect({source:n1_1, target:n2_1, connector:"StateMachine", anchor:"Continuous"}); // connect node in group 3 to node 4, which is standalone.
+        equal(c.isVisible(), true, "connection initially visible");
+
+        var c2 = _jsPlumb.connect({source:n2_1, target:n1_1, connector:"StateMachine", anchor:"Continuous"}); // connect node in group 3 to node 4, which is standalone.
+        equal(c2.isVisible(), true, "connection 2 initially visible");
+
+        _jsPlumb.collapseGroup(g2);
+
+        equal(c.isVisible(), false, "connection is not visible after group collapse");
+        equal(c2.isVisible(), false, "connection 2 is not visible after group collapse");
+
+    });
+
+    test("nested groups, dont try to add a group to itself.", function() {
+
+    });
+
+    test("nested groups, adding a group to some other group when it is already a child of a group automatically removes it from its current group", function() {
+
+    });
+
+    test("nested groups, one group can be dropped on another", function() {
+
+    });
+
+    test("nested groups, a group can be dragged out of its parent group", function() {
+
+    });
+
+    test("nested groups, a group that is a child of another group, when deleted, all its children become children of the group it was a child of.", function() {
+
+    });
+
+    test("nested groups, support allowNestedGroups flag on jsplumb constructor (defaults to true)", function() {
+        var j = jsPlumb.newInstance({
+            container:container,
+            allowNestedGroups:false
+        });
+
+        var g1 = _addGroupAndContainer(100,100, j),
+            g2 = _addGroupAndContainer(400,400, j);
+
+        g2.addGroup(g1);
+
+        equal(g2.getGroups().length, 0, "g2 has no child groups as nested groups are not allowed");
+
+        j.destroy();
+    });
+
+    test("nested groups, one group can't be dropped on another if allowNestedGroups is false", function() {
 
     });
 
