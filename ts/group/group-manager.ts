@@ -259,7 +259,7 @@ export class GroupManager {
         this.instance.unproxyConnection(c, index, this.instance.getId(group.el));
     }
 
-    private isDescendant(el:any, parentEl:any): boolean {
+    private isElementDescendant(el:any, parentEl:any): boolean {
         const c = this.instance.getContainer();
         let abort = false;
         while (!abort) {
@@ -470,9 +470,8 @@ export class GroupManager {
             let groupEl = actualGroup.el;
 
             const _one = (el:any) => {
-                if (el[Constants.IS_GROUP_KEY] != null) {
-                    //console.log("the thing being added is a group! is it possible to support nested groups")
-                }
+                let isGroup = el[Constants.IS_GROUP_KEY] != null,
+                    droppingGroup = el[Constants.GROUP_KEY] as UIGroup;
 
                 let currentGroup = el[Constants.PARENT_GROUP_KEY];
                 // if already a member of this group, do nothing
@@ -485,7 +484,12 @@ export class GroupManager {
                         currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
                         this._updateConnectionsForGroup(currentGroup);
                     }
-                    actualGroup.add(el, doNotFireEvent);
+                    if (isGroup) {
+                        actualGroup.addGroup(droppingGroup);
+                    } else {
+                        actualGroup.add(el, doNotFireEvent);
+                    }
+
 
                     const handleDroppedConnections = (list:ConnectionSelection, index:number) => {
                         const oidx = index === 0 ? 1 : 0;
@@ -518,6 +522,9 @@ export class GroupManager {
                     this.instance.revalidate(elId);
 
                     if (!doNotFireEvent) {
+
+                        // TODO fire a "child group added" event in that case?
+
                         let p = {group: actualGroup, el: el, pos:newPosition};
                         if (currentGroup) {
                             (<any>p).sourceGroup = currentGroup;
@@ -547,7 +554,7 @@ export class GroupManager {
                             for(let j = 0; j < c.proxies.length; j++) {
                                 if (c.proxies[j] != null) {
                                     const proxiedElement = c.proxies[j].originalEp.element;
-                                    if (proxiedElement === el || this.isDescendant(proxiedElement, el)) {
+                                    if (proxiedElement === el || this.isElementDescendant(proxiedElement, el)) {
                                         this._expandConnection(c, index, actualGroup);
                                     }
                                 }
@@ -564,6 +571,40 @@ export class GroupManager {
 
             actualGroup.remove(el, null, doNotFireEvent);
         }
+    }
+
+    getAncestors(group:UIGroup):Array<UIGroup> {
+        const ancestors:Array<UIGroup> = [];
+        let p = group.group;
+        while (p != null) {
+            ancestors.push(p);
+            p = p.group;
+        }
+        return ancestors;
+    }
+
+    isAncestor(group:UIGroup, possibleAncestor:UIGroup):boolean {
+        if (group == null || possibleAncestor == null) {
+            return false;
+        }
+        return this.getAncestors(group).indexOf(possibleAncestor) !== -1;
+    }
+
+    getDescendants(group:UIGroup):Array<UIGroup> {
+        const d:Array<UIGroup> = [];
+        const _one = (g:UIGroup) => {
+            d.push(...g.childGroups);
+            g.childGroups.forEach(_one);
+        };
+        _one(group);
+        return d;
+    }
+
+    isDescendant(possibleDescendant:UIGroup, ancestor:UIGroup):boolean {
+        if (possibleDescendant == null || ancestor == null) {
+            return false;
+        }
+        return this.getDescendants(ancestor).indexOf(possibleDescendant) !== -1;
     }
 
     reset() {
