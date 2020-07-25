@@ -158,14 +158,26 @@ export class ElementDragHandler implements DragHandler {
 
         const _one = (el:any, bounds:BoundingBox, e:Event) => {
 
-            this._groupLocations.forEach((groupLoc:any) => {
-                if (this.instance.geometry.intersects(bounds, groupLoc.r)) {
+            // keep track of the ancestors of each intersecting group we find. if
+            const ancestorsOfIntersectingGroups = new Set<string>();
+
+            this._groupLocations.forEach((groupLoc:GroupLocation) => {
+                if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && this.instance.geometry.intersects(bounds, groupLoc.r)) {
+
+                    // when a group intersects it should only get the hover class if one of its descendants does not also intersect.
+                    // groupLocations is already sorted by level of nesting
+
                     this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+
                     this._intersectingGroups.push({
                         group:groupLoc.group,
                         intersectingElement:params.drag.getDragElement(true),
                         d:0
                     });
+
+                    // store all this group's ancestor ids in a set, which will preclude them from being added as an intersecting group
+                    this.instance.groupManager.getAncestors(groupLoc.group).forEach((g:UIGroup) => ancestorsOfIntersectingGroups.add(g.id));
+
                 } else {
                     this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
                 }
@@ -253,7 +265,7 @@ export class ElementDragHandler implements DragHandler {
                             // get the group pertaining to the dragged element. this is null if the element being dragged is not a UIGroup.
                             const elementGroup = _el[Constants.GROUP_KEY] as UIGroup;
 
-                            if (group.droppable !== false && group.enabled !== false && _el[Constants.PARENT_GROUP_KEY] !== group && _el[Constants.GROUP_KEY] !== group && !this.instance.groupManager.isAncestor(elementGroup, group) && !this.instance.groupManager.isDescendant(group, elementGroup)) {
+                            if (group.droppable !== false && group.enabled !== false && _el[Constants.PARENT_GROUP_KEY] !== group && _el[Constants.GROUP_KEY] !== group && /*!this.instance.groupManager.isAncestor(elementGroup, group) &&*/ !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),
