@@ -137,9 +137,11 @@ export class GroupManager {
         let actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
         let newPositions:Dictionary<Offset> = {};
-        //actualGroup[deleteMembers ? Constants.CMD_REMOVE_ALL : Constants.CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
         if (deleteMembers) {
+            // remove all child groups
+            actualGroup.childGroups.forEach((cg:UIGroup) => this.removeGroup(cg, deleteMembers, manipulateDOM));
             actualGroup.removeAll(manipulateDOM, doNotFireEvent);
+
         } else {
             newPositions = actualGroup.orphanAll();
         }
