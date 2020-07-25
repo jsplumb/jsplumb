@@ -5098,8 +5098,7 @@
       _defineProperty(_assertThisInitialized(_this), "id", void 0);
 
       _this.el[IS_GROUP_KEY] = true;
-      _this.el[GROUP_KEY] = _assertThisInitialized(_this); //this.el[Constants.PARENT_GROUP_KEY] = this;
-
+      _this.el[GROUP_KEY] = _assertThisInitialized(_this);
       _this.revert = options.revert !== false;
       _this.droppable = options.droppable !== false;
       _this.ghost = options.ghost === true;
@@ -5233,6 +5232,7 @@
     }, {
       key: "orphanAll",
       value: function orphanAll() {
+        // TODO needs to take into account child groups also.
         var orphanedPositions = {};
 
         for (var i = 0; i < this.children.length; i++) {
@@ -5242,6 +5242,14 @@
         }
 
         this.children.length = 0;
+
+        for (var _i = 0; _i < this.childGroups.length; _i++) {
+          var _newPosition = this._orphan(this.childGroups[_i].el);
+
+          orphanedPositions[_newPosition[0]] = _newPosition[1];
+        }
+
+        this.childGroups.length = 0;
         return orphanedPositions;
       }
     }, {
@@ -5250,6 +5258,7 @@
         if (this.instance._allowNestedGroups) {
           var elpos = this.instance.getOffset(group.el, true);
           var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+          group.el[PARENT_GROUP_KEY] = this;
           this.childGroups.push(group);
           this.instance.appendElement(group.el, this.getDragArea());
           group.group = this;
@@ -5458,12 +5467,18 @@
     }, {
       key: "removeGroup",
       value: function removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent) {
+        var _this2 = this;
+
         var actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
 
-        var newPositions = {}; //actualGroup[deleteMembers ? Constants.CMD_REMOVE_ALL : Constants.CMD_ORPHAN_ALL](manipulateDOM, doNotFireEvent);
+        var newPositions = {};
 
         if (deleteMembers) {
+          // remove all child groups
+          actualGroup.childGroups.forEach(function (cg) {
+            return _this2.removeGroup(cg, deleteMembers, manipulateDOM);
+          });
           actualGroup.removeAll(manipulateDOM, doNotFireEvent);
         } else {
           newPositions = actualGroup.orphanAll();
@@ -5517,7 +5532,7 @@
     }, {
       key: "_updateConnectionsForGroup",
       value: function _updateConnectionsForGroup(group) {
-        var _this2 = this;
+        var _this3 = this;
 
         group.connections.source.length = 0;
         group.connections.target.length = 0; // get all direct members, and any of their descendants.
@@ -5548,18 +5563,18 @@
               }
 
               processed[c[i].id] = true;
-              gs = _this2.getGroupFor(c[i].source);
-              gt = _this2.getGroupFor(c[i].target);
+              gs = _this3.getGroupFor(c[i].source);
+              gt = _this3.getGroupFor(c[i].target);
 
               if (gs === group) {
                 if (gt !== group) {
                   group.connections.source.push(c[i]);
                 }
 
-                _this2._connectionSourceMap[c[i].id] = group;
+                _this3._connectionSourceMap[c[i].id] = group;
               } else if (gt === group) {
                 group.connections.target.push(c[i]);
-                _this2._connectionTargetMap[c[i].id] = group;
+                _this3._connectionTargetMap[c[i].id] = group;
               }
             }
           };
@@ -5605,8 +5620,8 @@
         this.instance.unproxyConnection(c, index, this.instance.getId(group.el));
       }
     }, {
-      key: "isDescendant",
-      value: function isDescendant(el, parentEl) {
+      key: "isElementDescendant",
+      value: function isElementDescendant(el, parentEl) {
         var c = this.instance.getContainer();
         var abort = false;
 
@@ -5625,7 +5640,7 @@
     }, {
       key: "collapseGroup",
       value: function collapseGroup(group) {
-        var _this3 = this;
+        var _this4 = this;
 
         var actualGroup = this.getGroup(group);
 
@@ -5644,29 +5659,15 @@
           if (actualGroup.proxied) {
             this.instance.removeClass(groupEl, GROUP_EXPANDED_CLASS);
             this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS);
-            console.log("COLLAPSE SET");
             var collapsedConnectionIds = new Set(); // collapses all connections in a group.
 
             var _collapseSet = function _collapseSet(conns, index) {
               for (var i = 0; i < conns.length; i++) {
                 var c = conns[i];
 
-                if (_this3._collapseConnection(c, index, actualGroup) === true) {
+                if (_this4._collapseConnection(c, index, actualGroup) === true) {
                   collapsedConnectionIds.add(c.id);
-                } // const es = c.endpoints[0].element,
-                //     esg = es[Constants.PARENT_GROUP_KEY],
-                //     esgcp = esg != null ? (esg.collapseParent || esg) : null,
-                //     et = c.endpoints[1].element,
-                //     etg = et[Constants.PARENT_GROUP_KEY],
-                //     etgcp = etg != null ? (etg.collapseParent || etg) : null;
-                //
-                //
-                // if (esgcp == null || etgcp == null || (esgcp.id !== etgcp.id)) {
-                //     console.log(esgcp ? esgcp.id : null, etgcp ? etgcp.id : null);
-                //     this._collapseConnection(c, index, actualGroup);
-                //     collapsedConnectionIds.add(c.id);
-                // }
-
+                }
               }
             }; // setup proxies for sources and targets
 
@@ -5676,7 +5677,7 @@
             _collapseSet(actualGroup.connections.target, 1);
 
             actualGroup.childGroups.forEach(function (cg) {
-              _this3.cascadeCollapse(actualGroup, cg, collapsedConnectionIds);
+              _this4.cascadeCollapse(actualGroup, cg, collapsedConnectionIds);
             });
           }
 
@@ -5695,33 +5696,22 @@
        * Cascade a collapse from the given `collapsedGroup` into the given `targetGroup`.
        * @param collapsedGroup
        * @param targetGroup
+       * @param collapsedIds Set of connection ids for already collapsed connections, which we can ignore.
        */
 
     }, {
       key: "cascadeCollapse",
       value: function cascadeCollapse(collapsedGroup, targetGroup, collapsedIds) {
-        var _this4 = this;
+        var _this5 = this;
 
         if (collapsedGroup.proxied) {
-          console.log("COLLAPSE CASCADE"); // collapses all connections in a group.
-
+          // collapses all connections in a group.
           var _collapseSet = function _collapseSet(conns, index) {
             for (var i = 0; i < conns.length; i++) {
               var c = conns[i];
 
               if (!collapsedIds.has(c.id)) {
-                // const es = c.endpoints[0].element,
-                //     esg = es[Constants.PARENT_GROUP_KEY],
-                //     esgcp = esg != null ? (esg.collapseParent || esg) : null,
-                //     et = c.endpoints[1].element,
-                //     etg = et[Constants.PARENT_GROUP_KEY],
-                //     etgcp = etg != null ? (etg.collapseParent || etg) : null;
-                // if (esgcp == null || etgcp == null || (esgcp.id !== etgcp.id)) {
-                //     console.log(esgcp ? esgcp.id : null, etgcp ? etgcp.id : null);
-                //     this._collapseConnection(c, index, collapsedGroup);
-                //     collapsedIds.add(c.id);
-                // }
-                if (_this4._collapseConnection(c, index, collapsedGroup) === true) {
+                if (_this5._collapseConnection(c, index, collapsedGroup) === true) {
                   collapsedIds.add(c.id);
                 }
               }
@@ -5735,13 +5725,13 @@
         }
 
         targetGroup.childGroups.forEach(function (cg) {
-          _this4.cascadeCollapse(collapsedGroup, cg, collapsedIds);
+          _this5.cascadeCollapse(collapsedGroup, cg, collapsedIds);
         });
       }
     }, {
       key: "expandGroup",
       value: function expandGroup(group, doNotFireEvent) {
-        var _this5 = this;
+        var _this6 = this;
 
         var actualGroup = this.getGroup(group);
 
@@ -5764,7 +5754,7 @@
               for (var i = 0; i < conns.length; i++) {
                 var c = conns[i];
 
-                _this5._expandConnection(c, index, actualGroup);
+                _this6._expandConnection(c, index, actualGroup);
               }
             }; // setup proxies for sources and targets
 
@@ -5774,7 +5764,7 @@
             _expandSet(actualGroup.connections.target, 1);
 
             actualGroup.childGroups.forEach(function (cg) {
-              _this5.cascadeExpand(actualGroup, cg);
+              _this6.cascadeExpand(actualGroup, cg);
             });
           }
 
@@ -5801,7 +5791,7 @@
     }, {
       key: "cascadeExpand",
       value: function cascadeExpand(expandedGroup, targetGroup) {
-        var _this6 = this;
+        var _this7 = this;
 
         //  What to do.
         //
@@ -5812,7 +5802,7 @@
             for (var i = 0; i < conns.length; i++) {
               var c = conns[i];
 
-              _this6._expandConnection(c, index, expandedGroup);
+              _this7._expandConnection(c, index, expandedGroup);
             }
           }; // setup proxies for sources and targets
 
@@ -5828,7 +5818,7 @@
           group: targetGroup.el
         });
         targetGroup.childGroups.forEach(function (cg) {
-          _this6.cascadeExpand(expandedGroup, cg);
+          _this7.cascadeExpand(expandedGroup, cg);
         });
       }
     }, {
@@ -5857,7 +5847,7 @@
     }, {
       key: "addToGroup",
       value: function addToGroup(group, el, doNotFireEvent) {
-        var _this7 = this;
+        var _this8 = this;
 
         var actualGroup = this.getGroup(group);
 
@@ -5865,22 +5855,26 @@
           var groupEl = actualGroup.el;
 
           var _one = function _one(el) {
-            if (el[IS_GROUP_KEY] != null) ;
-
+            var isGroup = el[IS_GROUP_KEY] != null,
+                droppingGroup = el[GROUP_KEY];
             var currentGroup = el[PARENT_GROUP_KEY]; // if already a member of this group, do nothing
 
             if (currentGroup !== actualGroup) {
-              var elpos = _this7.instance.getOffset(el, true);
+              var elpos = _this8.instance.getOffset(el, true);
 
-              var cpos = actualGroup.collapsed ? _this7.instance.getOffset(groupEl, true) : _this7.instance.getOffset(actualGroup.getDragArea(), true); // otherwise, transfer to this group.
+              var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getDragArea(), true); // otherwise, transfer to this group.
 
               if (currentGroup != null) {
                 currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
 
-                _this7._updateConnectionsForGroup(currentGroup);
+                _this8._updateConnectionsForGroup(currentGroup);
               }
 
-              actualGroup.add(el, doNotFireEvent);
+              if (isGroup) {
+                actualGroup.addGroup(droppingGroup);
+              } else {
+                actualGroup.add(el, doNotFireEvent);
+              }
 
               var handleDroppedConnections = function handleDroppedConnections(list, index) {
                 var oidx = index === 0 ? 1 : 0;
@@ -5890,38 +5884,39 @@
                   if (c.endpoints[oidx].element[GROUP_KEY] === actualGroup) {
                     c.endpoints[oidx].setVisible(false);
 
-                    _this7._expandConnection(c, oidx, actualGroup);
+                    _this8._expandConnection(c, oidx, actualGroup);
                   } else {
                     c.endpoints[index].setVisible(false);
 
-                    _this7._collapseConnection(c, index, actualGroup);
+                    _this8._collapseConnection(c, index, actualGroup);
                   }
                 });
               };
 
               if (actualGroup.collapsed) {
-                handleDroppedConnections(_this7.instance.select({
+                handleDroppedConnections(_this8.instance.select({
                   source: el
                 }), 0);
-                handleDroppedConnections(_this7.instance.select({
+                handleDroppedConnections(_this8.instance.select({
                   target: el
                 }), 1);
               }
 
-              var elId = _this7.instance.getId(el);
+              var elId = _this8.instance.getId(el);
 
               var newPosition = {
                 left: elpos.left - cpos.left,
                 top: elpos.top - cpos.top
               };
 
-              _this7.instance.setPosition(el, newPosition);
+              _this8.instance.setPosition(el, newPosition);
 
-              _this7._updateConnectionsForGroup(actualGroup);
+              _this8._updateConnectionsForGroup(actualGroup);
 
-              _this7.instance.revalidate(elId);
+              _this8.instance.revalidate(elId);
 
               if (!doNotFireEvent) {
+                // TODO fire a "child group added" event in that case?
                 var p = {
                   group: actualGroup,
                   el: el,
@@ -5932,7 +5927,7 @@
                   p.sourceGroup = currentGroup;
                 }
 
-                _this7.instance.fire(EVENT_CHILD_ADDED, p);
+                _this8.instance.fire(EVENT_CHILD_ADDED, p);
               }
             }
           };
@@ -5943,7 +5938,7 @@
     }, {
       key: "removeFromGroup",
       value: function removeFromGroup(group, el, doNotFireEvent) {
-        var _this8 = this;
+        var _this9 = this;
 
         var actualGroup = this.getGroup(group);
 
@@ -5960,8 +5955,8 @@
                     if (c.proxies[j] != null) {
                       var proxiedElement = c.proxies[j].originalEp.element;
 
-                      if (proxiedElement === el || _this8.isDescendant(proxiedElement, el)) {
-                        _this8._expandConnection(c, index, actualGroup);
+                      if (proxiedElement === el || _this9.isElementDescendant(proxiedElement, el)) {
+                        _this9._expandConnection(c, index, actualGroup);
                       }
                     }
                   }
@@ -5977,6 +5972,51 @@
 
           actualGroup.remove(el, null, doNotFireEvent);
         }
+      }
+    }, {
+      key: "getAncestors",
+      value: function getAncestors(group) {
+        var ancestors = [];
+        var p = group.group;
+
+        while (p != null) {
+          ancestors.push(p);
+          p = p.group;
+        }
+
+        return ancestors;
+      }
+    }, {
+      key: "isAncestor",
+      value: function isAncestor(group, possibleAncestor) {
+        if (group == null || possibleAncestor == null) {
+          return false;
+        }
+
+        return this.getAncestors(group).indexOf(possibleAncestor) !== -1;
+      }
+    }, {
+      key: "getDescendants",
+      value: function getDescendants(group) {
+        var d = [];
+
+        var _one = function _one(g) {
+          d.push.apply(d, _toConsumableArray(g.childGroups));
+          g.childGroups.forEach(_one);
+        };
+
+        _one(group);
+
+        return d;
+      }
+    }, {
+      key: "isDescendant",
+      value: function isDescendant(possibleDescendant, ancestor) {
+        if (possibleDescendant == null || ancestor == null) {
+          return false;
+        }
+
+        return this.getDescendants(ancestor).indexOf(possibleDescendant) !== -1;
       }
     }, {
       key: "reset",
@@ -10274,7 +10314,7 @@
 
           var _one = function _one(_el) {
             // if drag el not a group
-            if (!_el._isJsPlumbGroup) {
+            if (!_el._isJsPlumbGroup || _this4.instance._allowNestedGroups) {
               var isNotInAGroup = !_el[PARENT_GROUP_KEY];
               var membersAreDroppable = isNotInAGroup || _el[PARENT_GROUP_KEY].dropOverride !== true;
               var isGhostOrNotConstrained = !isNotInAGroup && (_el[PARENT_GROUP_KEY].ghost || _el[PARENT_GROUP_KEY].constrain !== true); // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
@@ -10285,7 +10325,10 @@
               if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
                 _this4.instance.groupManager.forEach(function (group) {
                   // prepare a list of potential droppable groups.
-                  if (group.droppable !== false && group.enabled !== false && group !== _el[PARENT_GROUP_KEY]) {
+                  // get the group pertaining to the dragged element. this may be null, in fact in many cases it is.
+                  var elementGroup = _el[GROUP_KEY];
+
+                  if (group.droppable !== false && group.enabled !== false && _el[PARENT_GROUP_KEY] !== group && _el[GROUP_KEY] !== group && !_this4.instance.groupManager.isAncestor(elementGroup, group) && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                     var groupEl = group.el,
                         s = _this4.instance.getSize(groupEl),
                         o = _this4.instance.getOffset(groupEl),
@@ -10303,6 +10346,17 @@
                     });
 
                     _this4.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                  }
+                }); // sort group locations so that nested groups will be processed first in a drop
+
+
+                _this4._groupLocations.sort(function (a, b) {
+                  if (_this4.instance.groupManager.isDescendant(a.group, b.group)) {
+                    return -1;
+                  } else if (_this4.instance.groupManager.isAncestor(b, a)) {
+                    return 1;
+                  } else {
+                    return 0;
                   }
                 });
               }
