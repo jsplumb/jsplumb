@@ -250,10 +250,10 @@ export class ElementDragHandler implements DragHandler {
                         this.instance.groupManager.forEach((group: UIGroup) => {
                             // prepare a list of potential droppable groups.
 
-                            // get the group pertaining to the dragged element. this may be null, in fact in many cases it is.
+                            // get the group pertaining to the dragged element. this is null if the element being dragged is not a UIGroup.
                             const elementGroup = _el[Constants.GROUP_KEY] as UIGroup;
 
-                            if (group.droppable !== false && group.enabled !== false && _el[Constants.GROUP_KEY] !== group && !this.instance.groupManager.isAncestor(elementGroup, group) && !this.instance.groupManager.isDescendant(group, elementGroup)) {
+                            if (group.droppable !== false && group.enabled !== false && _el[Constants.PARENT_GROUP_KEY] !== group && _el[Constants.GROUP_KEY] !== group && !this.instance.groupManager.isAncestor(elementGroup, group) && !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),
@@ -261,6 +261,16 @@ export class ElementDragHandler implements DragHandler {
 
                                 this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
                                 this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                            }
+                        });
+                        // sort group locations so that nested groups will be processed first in a drop
+                        this._groupLocations.sort((a:GroupLocation, b:GroupLocation) => {
+                            if (this.instance.groupManager.isDescendant(a.group, b.group)) {
+                                return -1;
+                            } else if (this.instance.groupManager.isAncestor(b.group, a.group)) {
+                                return 1;
+                            } else {
+                                return 0;
                             }
                         });
                     }
