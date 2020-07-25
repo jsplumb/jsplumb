@@ -170,12 +170,21 @@ export class UIGroup extends UINode {
     }
 
     orphanAll ():Dictionary<Offset> {
+
         let orphanedPositions:Dictionary<Offset> = {};
+
         for (let i = 0; i < this.children.length; i++) {
             let newPosition = this._orphan(this.children[i]);
             orphanedPositions[newPosition[0]] = newPosition[1];
         }
         this.children.length = 0;
+
+        for (let i = 0; i < this.childGroups.length; i++) {
+            let newPosition = this._orphan(this.childGroups[i].el);
+            orphanedPositions[newPosition[0]] = newPosition[1];
+        }
+
+        this.childGroups.length = 0;
 
         return orphanedPositions;
     }
@@ -186,6 +195,8 @@ export class UIGroup extends UINode {
 
             const elpos = this.instance.getOffset(group.el, true);
             const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+
+            group.el[Constants.PARENT_GROUP_KEY] = this;
 
             this.childGroups.push(group);
             this.instance.appendElement(group.el, this.getDragArea());
