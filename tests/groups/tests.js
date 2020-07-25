@@ -1404,6 +1404,8 @@ var testSuite = function () {
         g2.el.style.width="700px";
         g2.el.style.height="700px";
 
+        equal(g3.el._jsPlumbParentGroup.id, "101", "g2 marked as parent group on g3's element");
+
         // STATE 1: g3 is a child of g2. both g3 and g2 expanded. connection goes from n3 (child of g3) to n4 (not a group child)
         equal(1, g2.getGroups().length, "g2 now has one child group");
         equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
@@ -1502,6 +1504,20 @@ var testSuite = function () {
     });
 
     test("nested groups, one group can't be dropped on another if allowNestedGroups is false", function() {
+
+    });
+
+    test("nested groups, remove a group that has child groups, with deleteMembers true - should remove child groups too", function() {
+
+    });
+
+    test("nested groups, remove a group that has child groups, with deleteMembers false - should not remove child groups from the instance", function() {
+        // also check that the 'parent group' flag has been removed.
+
+    });
+
+    test("nested groups, prune nested group", function() {
+        // also check that the 'parent group' flag has been removed.
 
     });
 
