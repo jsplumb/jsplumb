@@ -1,3 +1,10 @@
+## 2.14.4
+
+July 27th 2020
+
+- change `parameters` to `Record<string, any>` in `EndpointOptions` in type definitions
+- add `parameters` to `ConnectParams` in type definitions
+
 ## 2.14.3
 
 July 14th 2020
