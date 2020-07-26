@@ -281,7 +281,8 @@ declare module jsPlumb {
         label?: string;
         connector?: ConnectorSpec;
         overlays?:Array<OverlaySpec>;
-        cssClass?: string
+        cssClass?: string;
+        parameters?: Record<string, any>;
     }
 
     interface DragEventCallbackOptions {
@@ -373,7 +374,7 @@ declare module jsPlumb {
         isSource?: boolean;//= false
         isTarget?: boolean;//= false
         reattach?: boolean;//= false
-        parameters?: object;
+        parameters?: Record<string, any>;
         "connector-pointer-events"?: string;
         connectionType?: string;
         dragProxy?: string | Array<string>;
