@@ -34,6 +34,8 @@
             <div class="node-collapse"></div>
             <div id="c1_1" class="w" style="left:30px;top:35px">1.1</div>
             <div id="c1_2" class="w" style="left:60px;top:140px">1.2</div>
+
+            <!-- Group 2 is delivered to the browser as a child of Group 1 -->
             <div class="group-container" id="container2" group="two">
                 <div class="title"></div>
                 <ul>
@@ -48,8 +50,6 @@
             </div>
         </div>
 
-
-
         <div class="group-container" id="container3" group="three">
             <div class="title"></div>
             <ul>
@@ -63,6 +63,7 @@
             <div id="c3_2" class="w" style="left:80px;top:162px">3.2</div>
         </div>
 
+        <!-- this group will be added to Group3 by the JS at load time -->
         <div class="group-container" id="container4" group="four">
             <div class="title"></div>
             <ul>
