@@ -87,7 +87,7 @@ declare module jsPlumb {
 
         getAllConnections(): Array<Connection>;
 
-        getConnections(scope: string, options: Object, scope2?: string | string, source?: string | string | Selector, target?: string | string | Selector, flat?: boolean/* =false */): Array<any> | Map<any, any>;
+        getConnections(scope: string, options: Object, scope2?: string | string, source?: string | string | Selector, target?: string | string | Selector, flat?: boolean/* =false */): Array<any> | Record<any, any>;
 
         getContainer(): Element;
 
@@ -305,10 +305,16 @@ declare module jsPlumb {
         hoverClass: string;
     }
 
-    interface Connection {
+    interface UIComponent {
+        getParameter:(name:string) => any;
+        setParameter:(name: string, value: any) => void;
+        getParameters:() => Record<string, any>;
+        setParameters:(parameters:Record<string, any>) => void;
+    }
+
+    interface Connection extends UIComponent {
         id: ConnectionId;
         setDetachable(detachable: boolean): void;
-        setParameter(name: string, value: any): void;
         endpoints: [Endpoint, Endpoint];
         getLabelOverlay(): Overlay;
         getOverlays(): Object;
@@ -386,7 +392,7 @@ declare module jsPlumb {
         uuid?:string;
     }
 
-    class Endpoint {
+    interface Endpoint extends UIComponent {
         anchor: Anchor;
         connections?: Array<Connection>;
         maxConnections: number;//= 1?
