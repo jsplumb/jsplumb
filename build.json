@@ -80,6 +80,11 @@
             "id":"groups",
             "name":"Groups",
             "desc":"Demonstrates the various options for defining and working with Groups"
+        },
+        {
+            "id":"nested-groups",
+            "name":"Nested Groups",
+            "desc":"Extends the original Groups demonstration with the inclusion of nested groups"
         }
     ]
 }
