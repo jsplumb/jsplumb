@@ -1,8 +1,29 @@
-import {ConnectionSelection, Dictionary, jsPlumbInstance, Offset, PointArray} from "../core";
+import {
+    ConnectionDetachedParams,
+    ConnectionEstablishedParams,
+    ConnectionSelection,
+    Dictionary,
+    jsPlumbInstance,
+    Offset
+} from "../core";
 import {UIGroup} from "./group";
 import * as Constants from "../constants";
 import {IS, removeWithFunction, suggest} from "../util";
-import {Connection} from "..";
+import {Connection, jsPlumbDOMElement} from "..";
+import {ConnectionMovedParams} from "../dom/endpoint-drag-handler";
+
+interface GroupMemberEventParams {
+    el:jsPlumbDOMElement;
+    group:UIGroup;
+}
+
+interface GroupMemberAddedParams extends GroupMemberEventParams {
+    pos:Offset;
+}
+
+interface GroupMemberRemovedParams extends GroupMemberEventParams {
+    targetGroup?:UIGroup;
+}
 
 export class GroupManager {
 
@@ -12,7 +33,7 @@ export class GroupManager {
 
     constructor(public instance:jsPlumbInstance) {
 
-        instance.bind(Constants.EVENT_CONNECTION, (p:any) => {
+        instance.bind(Constants.EVENT_CONNECTION, (p:ConnectionEstablishedParams) => {
 
             const sourceGroup = this.getGroupFor(p.source);
             const targetGroup = this.getGroupFor(p.target);
@@ -20,6 +41,7 @@ export class GroupManager {
             if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
                 this._connectionSourceMap[p.connection.id] = sourceGroup;
                 this._connectionTargetMap[p.connection.id] = sourceGroup;
+                suggest(sourceGroup.connections.internal, p.connection)
             }
             else {
                 if (sourceGroup != null) {
@@ -33,30 +55,65 @@ export class GroupManager {
             }
         });
 
-        instance.bind(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:any) => {
+        instance.bind(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams) => {
             this._cleanupDetachedConnection(p.connection);
         });
 
-        instance.bind(Constants.EVENT_CONNECTION_MOVED, (p:any) => {
-            let connMap = p.index === 0 ? this._connectionSourceMap : this._connectionTargetMap;
-            let group = connMap[p.connection.id];
-            if (group) {
-                let list = group.connections[p.index === 0 ? Constants.SOURCE : Constants.TARGET ];
-                let idx = list.indexOf(p.connection);
-                if (idx !== -1) {
-                    list.splice(idx, 1);
+        instance.bind(Constants.EVENT_CONNECTION_MOVED, (p:ConnectionMovedParams) => {
+
+            const originalEndpoint = p.index === 0 ? p.originalSourceEndpoint : p.originalTargetEndpoint,
+                  originalElement = originalEndpoint.element,
+                  originalGroup = this.getGroupFor(originalElement),
+                  newEndpoint = p.index === 0 ? p.newSourceEndpoint : p.newTargetEndpoint,
+                  newElement = newEndpoint.element,
+                  newGroup = this.getGroupFor(newElement),
+                  connMap = p.index === 0 ? this._connectionSourceMap : this._connectionTargetMap,
+                  otherConnMap = p.index === 0 ? this._connectionTargetMap : this._connectionSourceMap;
+
+            // adjust group manager's map for source/target (depends on index).
+            if (newGroup != null) {
+                connMap[p.connection.id] = newGroup;
+                // if source === target set the same ref in the other map
+                if (p.connection.source === p.connection.target) {
+                    otherConnMap[p.connection.id] = newGroup;
+                }
+            } else {
+                // otherwise if the connection's endpoint for index is no longer in a group, remove from the map.
+                delete connMap[p.connection.id];
+                // if source === target delete the ref in the other map.
+                if (p.connection.source === p.connection.target) {
+                    delete otherConnMap[p.connection.id];
                 }
             }
+
+            if (originalGroup != null) {
+                this._updateConnectionsForGroup(originalGroup);
+            }
+
+            if (newGroup != null) {
+                this._updateConnectionsForGroup(newGroup);
+            }
+        });
+
+        instance.bind(Constants.EVENT_GROUP_MEMBER_ADDED, (p:GroupMemberAddedParams) => {
+            console.log("group member added", p);
+        });
+
+        instance.bind(Constants.EVENT_GROUP_MEMBER_REMOVED, (p:GroupMemberRemovedParams) => {
+            console.log("group member removed", p);
         });
     }
 
     private _cleanupDetachedConnection(conn:Connection) {
-        delete conn.proxies;
+
+        conn.proxies.length = 0;
+
         let group = this._connectionSourceMap[conn.id], f;
         if (group != null) {
             f = (c:Connection) => { return c.id === conn.id; };
             removeWithFunction(group.connections.source, f);
             removeWithFunction(group.connections.target, f);
+            removeWithFunction(group.connections.internal, f);
             delete this._connectionSourceMap[conn.id];
         }
 
@@ -65,11 +122,12 @@ export class GroupManager {
             f = (c:Connection) => { return c.id === conn.id; };
             removeWithFunction(group.connections.source, f);
             removeWithFunction(group.connections.target, f);
+            removeWithFunction(group.connections.internal, f);
             delete this._connectionTargetMap[conn.id];
         }
     }
 
-    addGroup(params:any) {
+    addGroup(params:{id:string, el:jsPlumbDOMElement, collapsed?:boolean}) {
 
         if (this.groupMap[params.id] != null) {
             throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists");
@@ -140,12 +198,26 @@ export class GroupManager {
         if (deleteMembers) {
             // remove all child groups
             actualGroup.childGroups.forEach((cg:UIGroup) => this.removeGroup(cg, deleteMembers, manipulateDOM));
+            // remove all child nodes
             actualGroup.removeAll(manipulateDOM, doNotFireEvent);
 
         } else {
+            // if we want to retain the child nodes then we need to test if there is a group that the parent of actualGroup.
+            // if so, transfer the nodes to that group
+            if (actualGroup.group) {
+                actualGroup.children.forEach((c:any) => actualGroup.group.add(c));
+            }
             newPositions = actualGroup.orphanAll();
+
         }
-        this.instance.remove(actualGroup.el);
+
+        if (actualGroup.group) {
+            actualGroup.group.removeGroup(actualGroup);
+        } else {
+            this.instance.remove(actualGroup.el);
+        }
+
+
         delete this.groupMap[actualGroup.id];
         this.instance.fire(Constants.EVENT_GROUP_REMOVED, { group:actualGroup });
         return newPositions; // this will be null in the case or remove, but be a map of {id->[x,y]} in the case of orphan
@@ -163,14 +235,14 @@ export class GroupManager {
         }
     }
 
-    orphan(_el:any):[string, Offset] {
-        if (_el[Constants.PARENT_GROUP_KEY]) {
+    orphan(_el:jsPlumbDOMElement):[string, Offset] {
+        if (_el._jsPlumbParentGroup) {
             let id = this.instance.getId(_el);
             let pos = this.instance.getOffset(_el);
-            (<any>_el).parentNode.removeChild(_el);
+            _el.parentNode.removeChild(_el);
             this.instance.appendElement(_el, this.instance.getContainer());
             this.instance.setPosition(_el, pos);
-            delete _el[Constants.PARENT_GROUP_KEY];
+            delete _el._jsPlumbParentGroup;
             return [id, pos];
         }
     }
@@ -186,6 +258,7 @@ export class GroupManager {
 
         group.connections.source.length = 0;
         group.connections.target.length = 0;
+        group.connections.internal.length = 0;
 
         // get all direct members, and any of their descendants.
         const members = group.children.slice();
@@ -219,6 +292,8 @@ export class GroupManager {
                     if (gs === group) {
                         if (gt !== group) {
                             group.connections.source.push(c[i]);
+                        } else {
+                            group.connections.internal.push(c[i]);
                         }
                         this._connectionSourceMap[c[i].id] = group;
                     } else if (gt === group) {
@@ -368,7 +443,7 @@ export class GroupManager {
 
         let actualGroup = this.getGroup(group);
 
-        if (actualGroup == null || !actualGroup.collapsed) {
+        if (actualGroup == null /*|| !actualGroup.collapsed*/) {
             return;
         }
         const groupEl = actualGroup.el;
@@ -394,9 +469,46 @@ export class GroupManager {
                 _expandSet(actualGroup.connections.source, 0);
                 _expandSet(actualGroup.connections.target, 1);
 
-                actualGroup.childGroups.forEach((cg:UIGroup) => {
-                    this.cascadeExpand(actualGroup, cg);
-                });
+                const _expandNestedGroup = (group:UIGroup) => {
+                  // if the group is collapsed:
+                    // - all of its internal connections should remain hidden.
+                    // - all external connections should be proxied to this group we are expanding (`actualGroup`)
+                  // otherwise:
+                    // just expend it as usual
+
+                    if (group.collapsed) {
+
+                        //const collapsedIds = new Set<string>();
+
+                        const _collapseSet =  (conns:Array<Connection>, index:number) => {
+                            for (let i = 0; i < conns.length; i++) {
+                                let c = conns[i];
+                                this._collapseConnection(c, index, group);
+                                //if (!collapsedIds.has(c.id)) {
+                              //       if (this._collapseConnection(c, index, group) === true) {
+                              //         collapsedIds.add(c.id);
+                              //       }
+                              // }
+                            }
+                        };
+
+                        // setup proxies for sources and targets
+                        _collapseSet(group.connections.source, 0);
+                        _collapseSet(group.connections.target, 1);
+
+                        // hide internal connections - the group is collapsed
+                        group.connections.internal.forEach((c:Connection) => c.setVisible(false));
+
+                        // expand child groups
+                        group.childGroups.forEach(_expandNestedGroup);
+
+                    } else {
+                        this.expandGroup(group, doNotFireEvent);
+                    }
+                };
+
+                // expand any nested groups. this will take into account if the nested group is collapsed.
+                actualGroup.childGroups.forEach(_expandNestedGroup);
             }
 
 
@@ -428,7 +540,11 @@ export class GroupManager {
             const _expandSet = (conns: Array<Connection>, index: number) => {
                 for (let i = 0; i < conns.length; i++) {
                     let c = conns[i];
-                    this._expandConnection(c, index, expandedGroup);
+                    if (targetGroup.collapsed) {
+                        this._collapseConnection(c, index, targetGroup);
+                    } else {
+                        this._expandConnection(c, index, expandedGroup);
+                    }
                 }
             };
 
@@ -531,7 +647,7 @@ export class GroupManager {
                         if (currentGroup) {
                             (<any>p).sourceGroup = currentGroup;
                         }
-                        this.instance.fire(Constants.EVENT_CHILD_ADDED, p);
+                        this.instance.fire(Constants.EVENT_GROUP_MEMBER_ADDED, p);
                     }
                 }
             };
