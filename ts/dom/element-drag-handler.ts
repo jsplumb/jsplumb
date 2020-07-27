@@ -35,6 +35,7 @@ export class ElementDragHandler implements DragHandler {
     _dragOffset:Offset = null;
     _groupLocations:Array<GroupLocation> = [];
     _intersectingGroups:Array<IntersectingGroup> = [];
+    _currentDragParentGroup:UIGroup = null;
 
     _posseByElementIdMap:Dictionary<Posse> = {};
     _posseMap:Dictionary<Posse> = {};
@@ -122,6 +123,7 @@ export class ElementDragHandler implements DragHandler {
             this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
         });
 
+        this._currentDragParentGroup = null;
         this._groupLocations.length = 0;
         this.instance.hoverSuspended = false;
 
@@ -166,7 +168,10 @@ export class ElementDragHandler implements DragHandler {
                     // when a group intersects it should only get the hover class if one of its descendants does not also intersect.
                     // groupLocations is already sorted by level of nesting
 
-                    this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+                    // we don't add the css class to the current group (but we do still add the group to the list of intersecting groups)
+                    if (groupLoc.group !== this._currentDragParentGroup) {
+                        this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+                    }
 
                     this._intersectingGroups.push({
                         group:groupLoc.group,
@@ -217,8 +222,9 @@ export class ElementDragHandler implements DragHandler {
         const el = params.drag.getDragElement() as jsPlumbDOMElement;
         const elOffset = this.instance.getOffset(el);
 
-        if (el[Constants.PARENT_GROUP_KEY]) {
+        if (el._jsPlumbParentGroup) {
             this._dragOffset = this.instance.getOffset(el.offsetParent);
+            this._currentDragParentGroup = el._jsPlumbParentGroup;
         }
 
         let cont = true;
@@ -264,14 +270,18 @@ export class ElementDragHandler implements DragHandler {
                             // get the group pertaining to the dragged element. this is null if the element being dragged is not a UIGroup.
                             const elementGroup = _el[Constants.GROUP_KEY] as UIGroup;
 
-                            if (group.droppable !== false && group.enabled !== false && _el[Constants.PARENT_GROUP_KEY] !== group && _el[Constants.GROUP_KEY] !== group && /*!this.instance.groupManager.isAncestor(elementGroup, group) &&*/ !this.instance.groupManager.isDescendant(group, elementGroup)) {
+                            if (group.droppable !== false && group.enabled !== false && _el[Constants.GROUP_KEY] !== group && !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),
                                     boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]};
 
                                 this._groupLocations.push({el: groupEl, r: boundingRect, group: group});
-                                this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+
+                                // dont add the active class to the element/group's current parent (if any)
+                                if (group !== this._currentDragParentGroup) {
+                                    this.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                                }
                             }
                         });
                         // sort group locations so that nested groups will be processed first in a drop
