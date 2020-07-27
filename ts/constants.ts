@@ -66,13 +66,15 @@ export const EVENT_MOUSEDOWN = "mousedown";
 
 export const EVENT_CONNECTION_DRAG = "connectionDrag";
 
-export const EVENT_CHILD_ADDED = "group:addMember";
-export const EVENT_CHILD_REMOVED = "group:removeMember";
+export const EVENT_GROUP_MEMBER_ADDED = "group:addMember";
+export const EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
 export const EVENT_GROUP_ADDED = "group:add";
 export const EVENT_GROUP_REMOVED = "group:remove";
 export const EVENT_EXPAND = "group:expand";
 export const EVENT_COLLAPSE = "group:collapse";
 export const EVENT_GROUP_DRAG_STOP = "groupDragStop";
+export const EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
+export const EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
 
 export const EVENT_MAX_CONNECTIONS = "maxConnections";
 
