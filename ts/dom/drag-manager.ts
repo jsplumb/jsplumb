@@ -36,11 +36,11 @@ export interface DragHandler {
 
     selector:string;
 
-    onStart:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, drag:Drag}) => boolean;
-    onDrag:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) => void;
-    onStop:(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) => void;
-    onDragInit: (el:HTMLElement) => HTMLElement;
-    onDragAbort:(el:HTMLElement) => void;
+    onStart:(params:DragStartEventParams) => boolean;
+    onDrag:(params:DragEventParams) => void;
+    onStop:(params:DragStopEventParams) => void;
+    onDragInit: (el:jsPlumbDOMElement) => jsPlumbDOMElement;
+    onDragAbort:(el:jsPlumbDOMElement) => void;
 
     reset:() => void;
     init:(drag:Drag) => void;
@@ -49,11 +49,27 @@ export interface DragHandler {
 }
 
 export interface GhostProxyingDragHandler extends DragHandler {
-    useGhostProxy:(container:any, dragEl:any) => boolean;
+    useGhostProxy:(container:any, dragEl:jsPlumbDOMElement) => boolean;
     makeGhostProxy?:GhostProxyGenerator;
 }
 
 type DragFilterSpec = [ Function|string, boolean ];
+
+export interface DragStartEventParams {
+    e:MouseEvent;
+    el:jsPlumbDOMElement;
+    finalPos?:PointArray;
+    drag:Drag;
+}
+
+export interface DragEventParams extends DragStartEventParams {
+    pos:PointArray;
+}
+
+export interface DragStopEventParams extends DragEventParams {
+    finalPos:PointArray;
+    selection:Array<any>;
+}
 
 export class DragManager {
 
@@ -121,8 +137,8 @@ export class DragManager {
         o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); });
         o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); });
         o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler);
-        o.dragInit = (el:HTMLElement) => handler.onDragInit(el);
-        o.dragAbort = (el:HTMLElement) => handler.onDragAbort(el);
+        o.dragInit = (el:jsPlumbDOMElement) => handler.onDragInit(el);
+        o.dragAbort = (el:jsPlumbDOMElement) => handler.onDragAbort(el);
 
         if ((handler as GhostProxyingDragHandler).useGhostProxy) {
             o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy;
