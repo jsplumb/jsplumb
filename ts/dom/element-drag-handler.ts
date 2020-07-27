@@ -2,10 +2,10 @@ import {
     ATTR_NOT_DRAGGABLE,
     CLASS_DRAG_ACTIVE,
     CLASS_DRAG_HOVER, CLASS_DRAG_SELECTED,
-    CLASS_DRAGGED,
+    CLASS_DRAGGED, DragEventParams,
     DragHandler,
     EVT_DRAG_MOVE, EVT_DRAG_START,
-    EVT_DRAG_STOP
+    EVT_DRAG_STOP, DragStopEventParams
 } from "./drag-manager";
 import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance";
 import {UIGroup} from "../group/group";
@@ -51,13 +51,12 @@ export class ElementDragHandler implements DragHandler {
 
     constructor(protected instance:BrowserJsPlumbInstance) {}
 
-    onDragInit(el:HTMLElement):HTMLElement { return null; }
-    onDragAbort(el: HTMLElement):void {
+    onDragInit(el:jsPlumbDOMElement):jsPlumbDOMElement { return null; }
+    onDragAbort(el: jsPlumbDOMElement):void {
         return null;
     }
 
-
-    onStop(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}):void {
+    onStop(params:DragStopEventParams):void {
 
 
         const _one = (_el:jsPlumbDOMElement, pos:Offset) => {
@@ -142,7 +141,7 @@ export class ElementDragHandler implements DragHandler {
         this.drag = drag;
     }
 
-    onDrag(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}):void {
+    onDrag(params:DragEventParams):void {
 
         const el = params.drag.getDragElement();
         const finalPos = params.finalPos || params.pos;
