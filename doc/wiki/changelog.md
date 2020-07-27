@@ -1,3 +1,9 @@
+## 2.14.5
+
+July 27th 2020
+
+- Further updates to type defs for Connection and Endpoint - added setParameter/setParameters/getParameter/getParameters
+
 ## 2.14.4
 
 July 27th 2020
