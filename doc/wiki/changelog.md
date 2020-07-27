@@ -1,9 +1,10 @@
 ## 4.0.0-RC15
 
-15th July 2020
+27th July 2020
 
 - Internal changes to the way Overlays are registered on connections and endpoints.
 - Internal changes to remove an intermediate object that is a hangover from the previous version's approach to inheritance.
+- Added initial support for nested groups. 
 
 ## 4.0.0-RC14
 
