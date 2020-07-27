@@ -26,6 +26,7 @@ import {ConnectorSpec} from "./connector/abstract-connector";
 import {GroupManager} from "./group/group-manager";
 import {UIGroup} from "./group/group";
 import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom";
+import {jsPlumbDOMElement} from "./dom";
 
 export type UUID = string;
 export type ElementId = string;
@@ -56,6 +57,20 @@ interface InternalConnectParams extends ConnectParams {
     scope?:string;
     type?:string;
     newConnection?:(p:any) => Connection;
+}
+
+export interface ConnectionEstablishedParams {
+    connection:Connection;
+    source:jsPlumbDOMElement;
+    sourceEndpoint:Endpoint;
+    sourceId:string;
+    target:jsPlumbDOMElement;
+    targetEndpoint:Endpoint;
+    targetId:string;
+}
+
+export interface ConnectionDetachedParams extends ConnectionEstablishedParams {
+
 }
 
 export interface TypeDescriptor {
@@ -2171,16 +2186,31 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
 // ----------------------------- proxy connections -----------------------
 
-    proxyConnection(connection:Connection, index:number, proxyEl:any, proxyElId:string,
+    proxyConnection(connection:Connection, index:number,
+                    proxyEl:any, proxyElId:string,
                     endpointGenerator:any, anchorGenerator:any) {
 
-        let proxyEp,
-            originalElementId = connection.endpoints[index].elementId,
-            originalEndpoint = connection.endpoints[index];
+        let alreadyProxied = connection.proxies[index] != null,
+            proxyEp,
+            originalElementId = alreadyProxied ? connection.proxies[index].originalEp.elementId : connection.endpoints[index].elementId,
+            originalEndpoint = alreadyProxied ? connection.proxies[index].originalEp : connection.endpoints[index];
 
-        connection.proxies = connection.proxies || [];
+        // if proxies exist for this end of the connection
         if(connection.proxies[index]) {
-            proxyEp = connection.proxies[index].ep;
+            // and the endpoint is for the element we're going to proxy to, just use it.
+            if (connection.proxies[index].ep.elementId === proxyElId) {
+                proxyEp = connection.proxies[index].ep;
+            } else {
+                // otherwise detach that previous endpoint; it will delete itself
+                connection.proxies[index].ep.detachFromConnection(connection, index);
+                proxyEp = this.addEndpoint(proxyEl, {
+                    endpoint:endpointGenerator(connection, index),
+                    anchor:anchorGenerator(connection, index),
+                    parameters:{
+                        isProxyEndpoint:true
+                    }
+                });
+            }
         }else {
             proxyEp = this.addEndpoint(proxyEl, {
                 endpoint:endpointGenerator(connection, index),
@@ -2222,17 +2252,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
             originalElementId = connection.proxies[index].originalEp.elementId;
 
         connection.endpoints[index] = connection.proxies[index].originalEp;
-        // and advise the anchor manager
-        // if (index === 0) {
-        //     // TODO why are there two differently named methods? Why is there not one method that says "some end of this
-        //     // connection changed (you give the index), and here's the new element and element id."
-        //     this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement);
-        // }
-        // else {
-        //     connection.updateConnectedClass();
-        //     connection.target = originalElement;
-        //     connection.targetId = originalElementId;
-        // }
 
         this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index);
 
