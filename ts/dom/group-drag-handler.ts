@@ -1,8 +1,8 @@
 import {ElementDragHandler} from "./element-drag-handler";
 import * as Constants from "../constants";
-import {extend, PointXY} from "../core";
-import {EVT_REVERT, GhostProxyingDragHandler} from "./drag-manager";
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance";
+import {PointArray} from "../core";
+import {DragEventParams, EVT_REVERT, GhostProxyingDragHandler, DragStopEventParams} from "./drag-manager";
+import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 import { UIGroup } from "../group/group";
 import {Drag} from "./collicat";
 
@@ -10,7 +10,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     selector: string = "> [jtk-group] [jtk-managed]";
 
-    doRevalidate:(el:any) => void;
+    doRevalidate:(el:jsPlumbDOMElement) => void;
 
     constructor(protected instance:BrowserJsPlumbInstance) {
         super(instance);
@@ -31,28 +31,28 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         drag.on(EVT_REVERT, this.doRevalidate);
     }
 
-    useGhostProxy(container:any, dragEl:any) {
-        let group = dragEl[Constants.PARENT_GROUP_KEY];
+    useGhostProxy(container:any, dragEl:jsPlumbDOMElement) {
+        let group = dragEl._jsPlumbParentGroup;
         return group == null ? false : group.ghost === true;
     }
 
-    makeGhostProxy (el: any) {
-        const newEl = el.cloneNode(true);
-        newEl[Constants.PARENT_GROUP_KEY] = el[Constants.PARENT_GROUP_KEY];
+    makeGhostProxy (el: jsPlumbDOMElement):jsPlumbDOMElement {
+        const newEl = el.cloneNode(true) as jsPlumbDOMElement;
+        newEl._jsPlumbParentGroup = el._jsPlumbParentGroup;
         return newEl;
     }
 
-    onDrag(params: any) {
+    onDrag(params: DragEventParams) {
         super.onDrag(params);
     }
 
-    onDragInit(el:HTMLElement):HTMLElement { return null; }
+    onDragInit(el:jsPlumbDOMElement):jsPlumbDOMElement { return null; }
 
-    onDragAbort(el: HTMLElement):void {
+    onDragAbort(el: jsPlumbDOMElement):void {
         return null;
     }
 
-    onStop(params: any) {
+    onStop(params: DragStopEventParams) {
 
         const originalElement = params.drag.getDragElement(true);
 
@@ -77,8 +77,8 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         return out;
     }
 
-    private _isInsideParent(_el:HTMLElement, pos:PointXY):boolean {
-        let p = (<any>_el).offsetParent,
+    private _isInsideParent(_el:jsPlumbDOMElement, pos:PointArray):boolean {
+        let p = _el.offsetParent,
             s = this.instance.getSize(p),
             ss = this.instance.getSize(_el),
             leftEdge = pos[0],
@@ -89,21 +89,30 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
     }
 
-    private _pruneOrOrphan(params:any) {
+    private _pruneOrOrphan(params:DragStopEventParams) {
 
         let orphanedPosition = null;
         if (!this._isInsideParent(params.el, params.pos)) {
             let group = params.el[Constants.PARENT_GROUP_KEY];
             if (group.prune) {
-
-                this.instance.remove(params.el);
-                group.remove(params.el);
+                if (params.el._isJsPlumbGroup) {
+                    // remove the group from the instance
+                    this.instance.removeGroup(params.el._jsPlumbGroup);
+                } else {
+                    // instruct the group to remove the element from itself and also from the DOM.
+                    group.remove(params.el, true);
+                }
 
             } else if (group.orphan) {
                 orphanedPosition = this.instance.groupManager.orphan(params.el);
-                group.remove(params.el);
+                if (params.el._isJsPlumbGroup) {
+                    // remove the nested group from the parent
+                    group.removeGroup(params.el._jsPlumbGroup);
+                } else {
+                    // remove the element from the group's DOM element.
+                    group.remove(params.el);
+                }
             }
-
         }
 
         return orphanedPosition;
