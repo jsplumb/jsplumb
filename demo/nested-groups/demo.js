@@ -1,31 +1,37 @@
 jsPlumb.ready(function () {
 
     var j = window.j = jsPlumb.newInstance({container:canvas, connector:"StateMachine", endpoint:["Dot", {radius:3}], anchor:"Center"});
-    //
-    // j.bind("connection", function(p) {
-    //     p.connection.bind("click", function() {
-    //         j.detach(this);
-    //     });
-    // });
-    //
-    // j.bind("group:addMember", function(p) {
-    //     console.log("group:addMember", p.group.id + " - " + p.el.id);
-    // });
-    // j.bind("group:removeMember", function(p) {
-    //     console.log("group:removeMember", p.group.id + " - " + p.el.id);
-    // });
-    // j.bind("group:expand", function(p) {
-    //     console.log("group:expand", p.group.id);
-    // });
-    // j.bind("group:collapse", function(p) {
-    //     console.log("group:collapse", p.group.id);
-    // });
-    // j.bind("group:add", function(p) {
-    //     console.log("group:add", p.group.id);
-    // });
-    // j.bind("group:remove", function(p) {
-    //     console.log("group:remove", p.group.id);
-    // });
+
+    j.bind("connection", function(p) {
+        p.connection.bind("click", function() {
+            j.detach(this);
+        });
+    });
+
+    j.bind("group:addMember", function(p) {
+        console.log("group:addMember", p.group.id + " - " + p.el.id);
+    });
+    j.bind("group:removeMember", function(p) {
+        console.log("group:removeMember", p.group.id + " - " + p.el.id);
+    });
+    j.bind("group:expand", function(p) {
+        console.log("group:expand", p.group.id);
+    });
+    j.bind("group:collapse", function(p) {
+        console.log("group:collapse", p.group.id);
+    });
+    j.bind("group:add", function(p) {
+        console.log("group:add", p.group.id);
+    });
+    j.bind("group:remove", function(p) {
+        console.log("group:remove", p.group.id);
+    });
+    j.bind("nestedGroupAdded", function(p) {
+        console.log("nestedGroupAdded", p.child.id + " added to " + p.parent.id);
+    });
+    j.bind("nestedGroupRemoved", function(p) {
+        console.log("nestedGroupRemoved", p.child.id + " removed from " + p.parent.id);
+    });
 
     // connect some before configuring group
     j.connect({source:c1_1, target:c2_1});
@@ -59,7 +65,7 @@ jsPlumb.ready(function () {
     j.addToGroup("two", c2_2);
     group1.addGroup(group2);
 
-    j.addGroup({
+    var group3 = j.addGroup({
         el:container3,
         id:"three",
         revert:false,
@@ -68,7 +74,7 @@ jsPlumb.ready(function () {
     j.addToGroup("three", c3_1);
     j.addToGroup("three", c3_2);
 
-    j.addGroup({
+    var group4 = j.addGroup({
         el:container4,
         id:"four",
         prune:true,
@@ -76,6 +82,8 @@ jsPlumb.ready(function () {
     });
     j.addToGroup("four", c4_1);
     j.addToGroup("four", c4_2);
+    group3.addGroup(group4);
+
 
     j.addGroup({
         el:container5,
