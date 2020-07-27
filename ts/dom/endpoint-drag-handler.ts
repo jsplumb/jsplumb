@@ -1,4 +1,11 @@
-import { CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER, DragHandler, EVT_MOUSEDOWN, EVT_MOUSEUP } from "./drag-manager";
+import {
+    CLASS_DRAG_ACTIVE,
+    CLASS_DRAG_HOVER, DragEventParams,
+    DragHandler, DragStartEventParams,
+    EVT_MOUSEDOWN,
+    EVT_MOUSEUP,
+    DragStopEventParams
+} from "./drag-manager";
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 import {Connection} from "../connector/connection-impl";
 import {Endpoint} from "../endpoint/endpoint-impl";
@@ -52,6 +59,19 @@ function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:
 }
 
 const DRAG_ACTIVE_OR_HOVER_SELECTOR = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER);
+
+export interface ConnectionMovedParams {
+    connection:Connection,
+    index:number,
+    originalSourceId:string,
+    newSourceId:string,
+    originalTargetId:string,
+    newTargetId:string,
+    originalSourceEndpoint:Endpoint,
+    newSourceEndpoint:Endpoint,
+    originalTargetEndpoint:Endpoint,
+    newTargetEndpoint:Endpoint
+}
 
 export class EndpointDragHandler implements DragHandler {
 
@@ -262,7 +282,7 @@ export class EndpointDragHandler implements DragHandler {
 
     init(drag:Drag) {}
 
-    onStart(p:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, drag:Drag}):boolean {
+    onStart(p:DragStartEventParams):boolean {
     
         this.currentDropTarget = null;
 
@@ -562,7 +582,7 @@ export class EndpointDragHandler implements DragHandler {
         this.payload = beforeStartParams.e.payload || {};
     }
     
-    onDrag (params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) {
+    onDrag (params:DragEventParams) {
 
         if (this._stopped) {
             return true;
@@ -668,7 +688,7 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
     
-    onStop(p:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, pos:PointArray, drag:Drag}) {
+    onStop(p:DragStopEventParams) {
 
         let originalEvent = p.e;
 
