@@ -2,6 +2,26 @@ QUnit.config.reorder = false;
 
 var defaults = null, _divs = [], support, _jsPlumb;
 
+function getGroupSize(groupId) {
+    return getNodeSize(_jsPlumb.getGroup(groupId).el);
+}
+
+function getNodeSize(node) {
+    return _jsPlumb.getSize(node);
+}
+
+function getNodePosition(node) {
+    return [ parseInt(node.style.left, 10), parseInt(node.style.top, 10)];
+}
+
+function positionsNotEqual(p1, p2) {
+    return p1[0] !== p2[0] && p1[1] !== p2[1];
+}
+
+function positionsEqual(p1, p2) {
+    return p1[0] === p2[0] && p1[1] === p2[1];
+}
+
 var testSuite = function () {
 
 
@@ -43,7 +63,11 @@ var testSuite = function () {
             tx = tgo.left + (tgs[0] / 2),
             ty = tgo.top + (tgs[1] / 2);
 
+        //
+        //
         support.dragNodeTo(el, tx, ty);
+        // _jsPlumb.getContainer().appendChild(el);
+        // support.dragNodeTo(el, tx, ty);
     };
     var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2, c_noparent;
     var g1, g2, g3, g4, g5, g6;
@@ -93,12 +117,12 @@ var testSuite = function () {
     };
 
     var _setupGroups = function(doNotMakeConnections) {
-        c1 = support.addDiv("container1", null, "container", 0, 50);
-        c2 = support.addDiv("container2", null, "container", 300, 50);
-        c3 = support.addDiv("container3", null, "container", 600, 50);
-        c4 = support.addDiv("container4", null, "container", 1000, 400);
-        c5 = support.addDiv("container5", null, "container", 300, 400);
-        c6 = support.addDiv("container6", null, "container", 800, 1000);
+        c1 = support.addDiv("container1", null, "container", 0, 50, 300, 300);
+        c2 = support.addDiv("container2", null, "container", 400, 50, 300, 300);
+        c3 = support.addDiv("container3", null, "container", 800, 50, 300, 300);
+        c4 = support.addDiv("container4", null, "container", 0, 400, 300, 300);
+        c5 = support.addDiv("container5", null, "container", 400, 400, 300, 300);
+        c6 = support.addDiv("container6", null, "container", 800, 400, 300, 300);
 
         c1.style.outline = "1px solid black";
         c2.style.outline = "1px solid black";
@@ -359,30 +383,39 @@ var testSuite = function () {
 
     test("dragging nodes out of groups", function() {
         _setupGroups();
+
+        var groupOneSize = getGroupSize("one");
+        var groupTwoSize = getGroupSize("two");
+        var c1_2_size = getNodeSize(c1_2);
+        var c2_2_size = getNodeSize(c2_2);
+
         // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
-        var c12o = _jsPlumb.getOffset(c1_2);
+        // 1_2 will end up in the bottom right corner of the group.
+        //var c12o = _jsPlumb.getOffset(c1_2);
         support.dragtoDistantLand(c1_2);
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
         // check the node has not actually moved.
-        equal(c12o.left, _jsPlumb.getOffset(c1_2).left, "c1_2 left position unchanged");
-        equal(c12o.top, _jsPlumb.getOffset(c1_2).top, "c1_2 top position unchanged");
+        var c1_2_pos = getNodePosition(c1_2);
+        equal(groupOneSize[0] - c1_2_size[0], c1_2_pos[0], "c1_2 left position constrained by parent");
+        equal(groupOneSize[1] - c1_2_size[1], c1_2_pos[1], "c1_2 top position constrained by parent");
 
-        // try dragging 2_2 right out of the box and dropping it. it should not work: c1 has revert switched on.
-        var c22o = _jsPlumb.getOffset(c2_2);
+        // try dragging 2_2 right out of the box and dropping it.
+        //var c22o = _jsPlumb.getOffset(c2_2);
+        var c2_2_pos = getNodePosition(c2_2);
         support.dragtoDistantLand(c2_2);
         equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two");
-        // check the node has not actually moved.
-        equal(c22o.left, _jsPlumb.getOffset(c2_2).left, "c2_2 left position unchanged");
-        equal(c22o.top, _jsPlumb.getOffset(c2_2).top, "c2_2 top position unchanged");
+        // check the node position
+        var c2_2_pos2 = getNodePosition(c2_2);
+        ok(positionsEqual(c2_2_pos, c2_2_pos2), "c2_2 not moved");
 
 
         // c3, should also allow nodes to be dropped outside
-        var c32o = _jsPlumb.getOffset(c3_2);
+        var c32o = getNodePosition(c3_2);
         support.dragtoDistantLand(c3_2);
         equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
         // check the node has moved. but just not removed from the group.
-        ok(c32o.left != _jsPlumb.getOffset(c3_2).left, "c3_2 left position changed");
-        ok(c32o.top != _jsPlumb.getOffset(c3_2).top, "c3_2 top position changed");
+        var c32o2 = getNodePosition(c3_2);
+        ok(positionsNotEqual(c32o, c32o2), "left and top positions changed");
 
         // c4 prunes nodes on drop outside
         support.dragtoDistantLand(c4_2);
@@ -393,6 +426,83 @@ var testSuite = function () {
         support.dragtoDistantLand(c5_2);
         equal(_jsPlumb.getGroup("five").children.length, 1, "1 member in group five");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
+    });
+
+    /**
+     * - Create an internal connection and check it is registered
+     * - Move the source element to another group, check that it was deregistered as internal and tracked as source/target in group2/group1
+     */
+    test("internal connection registration, test 1", function() {
+
+        _setupGroups(true);
+
+        // 1. create a connection which is internal, see it registered as internal.
+        var c = _jsPlumb.connect({source: c3_1, target: c3_2});
+        equal(_jsPlumb.getGroup("three").connections.internal.length, 1, "one internal connection in group 3");
+        equal(_jsPlumb.getGroup("four").connections.target.length, 0, "zero target connections in group 4");
+        equal(_jsPlumb.getGroup("three").connections.source.length, 0, "zero source connections in group 3");
+        equal(c3_1._jsPlumbParentGroup.id, "three", "group three is parent of c3_1");
+
+        // 2. drag its source to group 1
+        _dragToGroup(_jsPlumb, c3_1, "four");
+        equal(_jsPlumb.getGroup("three").connections.internal.length, 0, "zero internal connections in group 3");
+        equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source connection in group 4");
+        equal(_jsPlumb.getGroup("three").connections.target.length, 1, "one target connection in group 3");
+
+        equal(c3_1._jsPlumbParentGroup.id, "four", "group four is parent of c3_1 now");
+
+        // 3. delete it
+        _jsPlumb.deleteConnection(c);
+    });
+
+    /**
+     * - Create an internal connection and check it is registered
+     * - Delete it. Check it was deregistered.
+     */
+    test("internal connection registration, test 2", function() {
+
+        _setupGroups(true);
+
+        // 1. create a connection which is internal, see it registered as internal.
+        var c = _jsPlumb.connect({source: c1_1, target: c1_2});
+        equal(_jsPlumb.getGroup("one").connections.internal.length, 1, "one internal connection in group 1");
+        equal(_jsPlumb.getGroup("one").connections.source.length, 0, "zero source connections in group 1");
+
+        // 3. delete it
+        _jsPlumb.deleteConnection(c);
+
+        equal(_jsPlumb.getGroup("one").connections.internal.length, 0, "zero internal connections in group 1");
+        equal(_jsPlumb.getGroup("one").connections.source.length, 0, "zero source connections in group 1");
+    });
+
+    /**
+     * - Create an internal connection and check it is registered
+     * - Drag its source to an element in another group
+     * - Check it was deregistered as an internal connection and changed to a target
+     */
+    test("internal connection registration, test 3", function() {
+
+        _setupGroups(true);
+
+        // 1. create a connection which is internal, see it registered as internal.
+        var c = _jsPlumb.connect({source: c3_1, target: c3_2});
+        equal(_jsPlumb.getGroup("three").connections.internal.length, 1, "one internal connection in group 3");
+        equal(_jsPlumb.getGroup("four").connections.target.length, 0, "zero target connections in group 4");
+        equal(_jsPlumb.getGroup("three").connections.source.length, 0, "zero source connections in group 3");
+        equal(c3_1._jsPlumbParentGroup.id, "three", "group three is parent of c3_1");
+
+        // 2. drag its source to group 1
+        _jsPlumb.makeSource(c4_1);
+        support.relocateSource(c, c4_1);
+
+        equal(_jsPlumb.getGroup("three").connections.internal.length, 0, "zero internal connections in group 3");
+        equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source connection in group 4");
+        equal(_jsPlumb.getGroup("three").connections.target.length, 1, "one target connection in group 3");
+
+        equal(c3_1._jsPlumbParentGroup.id, "three", "group three is still parent of c3_1 (unlike in the first of these internal connection tests)");
+
+        // 3. delete it
+        _jsPlumb.deleteConnection(c);
     });
 
     test("single group collapse and expand", function() {
@@ -595,7 +705,7 @@ var testSuite = function () {
         // there should be no connections of any sort.
         _jsPlumb.deleteConnection(c);
         equal(_jsPlumb.select().length, 0, "there should be no connections left after detach");
-        ok(c.proxies == null, "proxies removed after detach");
+        equal(c.proxies.length, 0, "proxies not removed after detach, but cleaned up");
     });
 
     test("indirect deletion of proxIED connections cleans up their proxy connections.", function() {
@@ -613,6 +723,25 @@ var testSuite = function () {
         _jsPlumb.deleteEndpoint(c.endpoints[1]);
         equal(_jsPlumb.select().length, 0, "no connections");
 
+    });
+
+    test("move connections between group children via dragging connections", function() {
+        _setupGroups(true);
+
+        equal(_jsPlumb.select().length, 0, "0 connections to start");
+
+        // a connection to the group to be collapsed
+        var c = _jsPlumb.connect({source: c4_2, target: c3_1});
+        _jsPlumb.makeTarget(c2_1);
+
+        equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source conn in group 4");
+        equal(_jsPlumb.getGroup("three").connections.target.length, 1, "one target conn in group 3");
+        equal(_jsPlumb.getGroup("two").connections.target.length, 0, "zero target conns in group 2 before move");
+
+        support.relocateTarget(c, c2_1);
+        equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source conn in group 4 after move");
+        equal(_jsPlumb.getGroup("three").connections.target.length, 0, "zero target conns in group 3 after move");
+        equal(_jsPlumb.getGroup("two").connections.target.length, 1, "one target conn in group 2 after move");
     });
 
     test("move connections between group children via dragging connections", function() {
@@ -1365,10 +1494,6 @@ var testSuite = function () {
 
     });
 
-    test("nested groups, add group to another group when it is already a child of a group", function() {
-        // should remove from the current group and add to the new one
-    });
-
     test("nested group collapse and expand, group added to parent group before collapse", function() {
 
         var g1 = _addGroupAndContainer(100,100),
@@ -1468,23 +1593,93 @@ var testSuite = function () {
     });
 
     test("nested groups, dont try to add a group to itself.", function() {
+        var g1 = _addGroupAndContainer(100,100);
+
+        var added = g1.addGroup(g1);
+        equal(added, false, "g1 reports that it was not added to itself");
+        equal(0, g1.childGroups.length, "g1 has zero child groups");
 
     });
 
-    test("nested groups, adding a group to some other group when it is already a child of a group automatically removes it from its current group", function() {
+    test("nested groups, adding a group to some other group of which it is an ancestor does not succeed", function() {
+        var groupA = _addGroupAndContainer(100,100),
+            groupB = _addGroupAndContainer(400,400),
+            n1_1 = _addNodeToGroup(groupA),
+            n2_1 = _addNodeToGroup(groupB);
 
+        groupB.addGroup(groupA);
+
+        equal(groupB.childGroups.length, 1, "g2 has one child group");
+        equal(groupA.childGroups.length, 0, "g1 has zero child groups");
+
+        _jsPlumb.connect({source:n1_1, target:n2_1});
+
+        groupA.addGroup(groupB);
+        equal(groupB.childGroups.length, 1, "g2 has one child group");
+        equal(groupA.childGroups.length, 0, "g1 has zero child groups");
+    });
+
+    test("nested groups, group A is child of group B. group C is child of group A. Add group B as a child to Group C. Should not work. ", function() {
+        var groupA = _addGroupAndContainer(100,100),
+            groupB = _addGroupAndContainer(400,400),
+            groupC = _addGroupAndContainer(400,400),
+            n1_1 = _addNodeToGroup(groupA),
+            n2_1 = _addNodeToGroup(groupB);
+
+        groupB.addGroup(groupA);
+        groupA.addGroup(groupC);
+
+        equal(groupB.childGroups.length, 1, "groupB has one child group");
+        equal(groupA.childGroups.length, 1, "groupA has one child group");
+        equal(groupC.childGroups.length, 0, "groupC zero child groups");
+
+        _jsPlumb.connect({source:n1_1, target:n2_1});
+
+        // cannot add B to A
+        groupA.addGroup(groupB);
+        equal(groupB.childGroups.length, 1, "groupB has one child group");
+        equal(groupA.childGroups.length, 1, "groupA has one child group");
+
+        // cannot add B to C
+        groupC.addGroup(groupB);
+        equal(groupB.childGroups.length, 1, "groupB has one child group");
+        equal(groupA.childGroups.length, 1, "groupA has one child group");
+        equal(groupC.childGroups.length, 0, "groupC has zero child groups");
+
+        // CAN add C to B
+        groupB.addGroup(groupC);
+        equal(groupB.childGroups.length, 2, "groupB has two child groups");
+        equal(groupA.childGroups.length, 0, "groupA has zero child groups");
+        equal(groupC.childGroups.length, 0, "groupC has zero child groups");
+        equal(groupB.getDragArea(), groupC.el.parentNode, "groupC is child of groupB in the DOM");
     });
 
     test("nested groups, one group can be dropped on another", function() {
+        var groupA = _addGroupAndContainer(400,400),
+            groupB = _addGroupAndContainer(100,100);
+
+        _dragToGroup(_jsPlumb, groupB.el, groupA);
+
+        equal(groupA.getDragArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.childGroups.length, 1, "groupA has one child group");
 
     });
 
     test("nested groups, a group can be dragged out of its parent group", function() {
+        var groupA = _addGroupAndContainer(400,400),
+            groupB = _addGroupAndContainer(100,100);
 
-    });
+        groupA.orphan = true;
 
-    test("nested groups, a group that is a child of another group, when deleted, all its children become children of the group it was a child of.", function() {
+        _dragToGroup(_jsPlumb, groupB.el, groupA);
 
+        equal(groupA.getDragArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.childGroups.length, 1, "groupA has one child group");
+
+        support.dragtoDistantLand(groupB.el);
+        equal(_jsPlumb.getContainer(), groupB.el.parentNode, "groupB is no longer a child of groupA in the DOM after being dragged out");
+        equal(groupA.childGroups.length, 0, "groupA has zero child groups");
+        ok(groupB.group == null, "groupB has no parent group");
     });
 
     test("nested groups, support allowNestedGroups flag on jsplumb constructor (defaults to true)", function() {
@@ -1504,20 +1699,151 @@ var testSuite = function () {
     });
 
     test("nested groups, one group can't be dropped on another if allowNestedGroups is false", function() {
+        var j = jsPlumb.newInstance({
+            container:container,
+            allowNestedGroups:false
+        });
 
+        var groupA = _addGroupAndContainer(400,400, j),
+            groupB = _addGroupAndContainer(100,100, j);
+
+        _dragToGroup(j, groupB.el, groupA);
+
+        equal(j.getContainer(), groupB.el.parentNode, "groupB is child of jsplumb container in the DOM (it wasnt dropped because allowNestedGroups is false)");
+        equal(groupA.childGroups.length, 0, "groupA has no child groups");
+
+        j.destroy();
     });
 
     test("nested groups, remove a group that has child groups, with deleteMembers true - should remove child groups too", function() {
+
+        var groupA = _addGroupAndContainer(100,100),
+            groupB = _addGroupAndContainer(400,400),
+            groupC = _addGroupAndContainer(400,400),
+            n1_1 = _addNodeToGroup(groupA),
+            n2_1 = _addNodeToGroup(groupB);
+
+        groupB.addGroup(groupA);
+        groupA.addGroup(groupC);
+
+        equal(_jsPlumb.groupManager.getGroups().length, 3, "there are 3 groups in the instance");
+
+        _jsPlumb.removeGroup(groupA, true);
+        equal(_jsPlumb.groupManager.getGroups().length, 1, "there is 1 group in the instance after groupA was removed");
+
+        equal(groupC.el.parentNode, null, "groupC is not in the DOM");
+        equal(groupA.el.parentNode, null, "groupA is not in the DOM");
 
     });
 
     test("nested groups, remove a group that has child groups, with deleteMembers false - should not remove child groups from the instance", function() {
         // also check that the 'parent group' flag has been removed.
+        var groupA = _addGroupAndContainer(100,100),
+            groupB = _addGroupAndContainer(400,400),
+            groupC = _addGroupAndContainer(400,400),
+            n1_1 = _addNodeToGroup(groupA),
+            n2_1 = _addNodeToGroup(groupB),
+            n3_1 = _addNodeToGroup(groupC);
+
+        groupB.addGroup(groupA);
+        groupA.addGroup(groupC);
+
+        equal(groupB.children.length, 1, "groupB reports one child node");
+        equal(_jsPlumb.groupManager.getGroups().length, 3, "there are 3 groups in the instance");
+
+        _jsPlumb.removeGroup(groupA, false);
+        equal(_jsPlumb.groupManager.getGroups().length, 2, "there are 2 groups in the instance after groupA was removed.");
+
+        // n1_1, which was a child of groupA, should now be a child of groupB
+        equal(groupB.children.length, 2, "groupB reports two child nodes");
+        equal(n1_1.parentNode, groupB.getDragArea(), "n1_1 is a child of groupB in the DOM");
+        // it should be positioned at exactly the same place it was before wrt the origin of the group it is now a child of.
+        // so we need the offset groupA and also n1_1
+
+        // groupC should be a child of groupB
+        equal(groupC.el.parentNode, groupB.getDragArea(), "groupC is a child of groupB in the DOM");
+    });
+
+
+    test("nested groups, prune nested group", function() {
+        var groupA = _addGroupAndContainer(100,100),
+            groupB = _addGroupAndContainer(400,400);
+
+        groupB.addGroup(groupA);
+
+        groupB.prune = true;
+
+        equal(_jsPlumb.groupManager.getGroups().length, 2, "2 groups in the instance");
+        equal(groupB.childGroups.length, 1, "groupB reports one child group");
+
+        support.dragtoDistantLand(groupA.el);
+
+        equal(_jsPlumb.groupManager.getGroups().length, 1, "1 group in the instance after nested group dragged out of parent that has prune:true set on it");
+        equal(groupB.childGroups.length, 0, "groupB reports zero child groups");
 
     });
 
-    test("nested groups, prune nested group", function() {
-        // also check that the 'parent group' flag has been removed.
+    test("nested groups, nestedGroupAdded and nestedGroupRemoved events fired, group added/removed programmatically", function() {
+
+        var nestedRemoved, nestedAdded;
+
+        _jsPlumb.bind("nestedGroupAdded", function() {
+            nestedAdded = true;
+        });
+
+        _jsPlumb.bind("nestedGroupRemoved", function() {
+            nestedRemoved = true;
+        });
+
+        var g1 = _addGroupAndContainer(100,100),
+            g2 = _addGroupAndContainer(400,400);
+
+        g2.addGroup(g1);
+
+        equal(true, nestedAdded, "nested group added event");
+
+        g2.removeGroup(g1);
+        equal(true, nestedRemoved, "nested group removed event");
+    });
+
+    test("nested groups, nestedGroupAdded and nestedGroupRemoved events fired, group added/removed via mouse", function() {
+        var nestedRemoved, nestedAdded;
+
+        _jsPlumb.bind("nestedGroupAdded", function() {
+            nestedAdded = true;
+        });
+
+        _jsPlumb.bind("nestedGroupRemoved", function() {
+            nestedRemoved = true;
+        });
+
+        var g1 = _addGroupAndContainer(100,100),
+            g2 = _addGroupAndContainer(400,400);
+
+        _dragToGroup(_jsPlumb, g1.el, g2);
+
+        g2.orphan = true;
+
+        equal(true, nestedAdded, "nested group added event");
+
+        support.dragtoDistantLand(g1.el);
+        equal(true, nestedRemoved, "nested group removed event");
+    });
+
+    test("nested groups, removeGroup on instance updates groups correctly", function() {
+        var groupA = _addGroupAndContainer(100,100),
+            groupB = _addGroupAndContainer(400,400);
+
+        groupB.addGroup(groupA);
+
+
+        equal(_jsPlumb.groupManager.getGroups().length, 2, "2 groups in the instance");
+        equal(groupB.childGroups.length, 1, "groupB reports one child group");
+
+        _jsPlumb.removeGroup(groupA);
+
+        equal(_jsPlumb.groupManager.getGroups().length, 1, "1 group in the instance after group removed via jsPlumb.removeGroup");
+        equal(groupB.childGroups.length, 0, "groupB reports zero child groups after");
 
     });
 
