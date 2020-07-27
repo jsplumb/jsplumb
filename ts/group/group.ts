@@ -139,7 +139,7 @@ export class UIGroup extends UINode {
                 if (targetGroup) {
                     (<any>p).targetGroup = targetGroup;
                 }
-                this.manager.instance.fire(Constants.EVENT_CHILD_REMOVED, p);
+                this.manager.instance.fire(Constants.EVENT_GROUP_MEMBER_REMOVED, p);
             }
         });
         if (!doNotUpdateConnections) {
@@ -158,11 +158,18 @@ export class UIGroup extends UINode {
     }
 
     private _orphan(_el:any):[string, Offset] {
+        const groupPos = this.manager.instance.getOffset(this.el);
         const id = this.manager.instance.getId(_el);
-        let pos = this.manager.instance.getOffset(_el);
+        const pos = this.manager.instance.getOffset(_el);
         (<any>_el).parentNode.removeChild(_el);
 
-        this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
+        if (this.group) {
+            pos.left += groupPos.left;
+            pos.top += groupPos.top;
+            this.group.getDragArea().appendChild(_el); // set as child of parent group, if there is one.
+        } else {
+            this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
+        }
 
         this.instance.setPosition(_el, pos);
         delete _el[Constants.PARENT_GROUP_KEY];
@@ -189,9 +196,19 @@ export class UIGroup extends UINode {
         return orphanedPositions;
     }
 
-    addGroup(group:UIGroup):void {
+    addGroup(group:UIGroup):boolean {
 
-        if (this.instance._allowNestedGroups) {
+        if (this.instance._allowNestedGroups && group !== this) {
+
+            if (this.instance.groupManager.isAncestor(this, group)) {
+                return false; // cannot add a group as a child to this group if it is an ancestor of this group.
+            }
+
+            // TODO what happens if the group is a member of another group?
+            if (group.group != null) {
+
+                group.group.removeGroup(group);
+            }
 
             const elpos = this.instance.getOffset(group.el, true);
             const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
@@ -199,15 +216,41 @@ export class UIGroup extends UINode {
             group.el[Constants.PARENT_GROUP_KEY] = this;
 
             this.childGroups.push(group);
+
+            //group.el.parentNode && group.el.parentNode.removeChild(group.el);
             this.instance.appendElement(group.el, this.getDragArea());
+
             group.group = this;
             let newPosition = {left: elpos.left - cpos.left, top: elpos.top - cpos.top};
 
             this.instance.setPosition(group.el, newPosition);
+
+            this.instance.fire(Constants.EVENT_NESTED_GROUP_ADDED, {
+                parent:this,
+                child:group
+            });
+
+            return true;
         } else {
             // console log?
+            return false;
         }
+    }
 
+    removeGroup(group:UIGroup) {
+        if (group.group === this) {
+            const d = this.getDragArea();
+            if (d === group.el.parentNode) {
+                d.removeChild(group.el);
+            }
+            this.childGroups = this.childGroups.filter((cg:UIGroup) => cg.id !== group.id);
+            delete group.group;
+            delete group.el._jsPlumbParentGroup;
+            this.instance.fire(Constants.EVENT_NESTED_GROUP_REMOVED, {
+                parent:this,
+                child:group
+            });
+        }
     }
 
     getGroups():Array<UIGroup> {
