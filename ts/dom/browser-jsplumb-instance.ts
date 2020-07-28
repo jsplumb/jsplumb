@@ -559,8 +559,15 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         const currentContainer = this.getContainer();
         if (currentContainer != null) {
             currentContainer.removeAttribute(Constants.ATTRIBUTE_CONTAINER);
-            currentContainer.querySelectorAll(".jtk-connector, .jtk-endpoint, div.jtk-overlay, [jtk-managed]").forEach((el: HTMLElement) => {
-                newContainer.appendChild(el)
+            const children = Array.from(currentContainer.childNodes).filter( (cn:HTMLElement) => {
+                const cl = cn.classList;
+                return (cl && (cl.contains(Constants.CLASS_CONNECTOR) ||  cl.contains(Constants.CLASS_ENDPOINT) || cl.contains(Constants.CLASS_OVERLAY)) ||
+                    cn.getAttribute && cn.getAttribute(Constants.ATTRIBUTE_MANAGED) != null
+                );
+            });
+
+            children.forEach( (el:HTMLElement) => {
+                newContainer.appendChild(el);
             });
         }
 
