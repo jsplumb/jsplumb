@@ -41,15 +41,23 @@ export class GroupManager {
             if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
                 this._connectionSourceMap[p.connection.id] = sourceGroup;
                 this._connectionTargetMap[p.connection.id] = sourceGroup;
-                suggest(sourceGroup.connections.internal, p.connection)
+                suggest(sourceGroup.connections.internal, p.connection);
             }
             else {
                 if (sourceGroup != null) {
-                    suggest(sourceGroup.connections.source, p.connection);
+                    if (p.target._jsPlumbGroup === sourceGroup) {
+                        suggest(sourceGroup.connections.internal, p.connection);
+                    } else {
+                        suggest(sourceGroup.connections.source, p.connection);
+                    }
                     this._connectionSourceMap[p.connection.id] = sourceGroup;
                 }
                 if (targetGroup != null) {
-                    suggest(targetGroup.connections.target, p.connection);
+                    if (p.source._jsPlumbGroup === targetGroup) {
+                        suggest(targetGroup.connections.internal, p.connection);
+                    } else {
+                        suggest(targetGroup.connections.target, p.connection);
+                    }
                     this._connectionTargetMap[p.connection.id] = targetGroup;
                 }
             }
@@ -289,7 +297,10 @@ export class GroupManager {
                     gs = this.getGroupFor(c[i].source);
                     gt = this.getGroupFor(c[i].target);
 
-                    if (gs === group) {
+                    if ( (c[i].source === group.el && gt === group) || (c[i].target === group.el && gs === group) ) {
+                        group.connections.internal.push(c[i]);
+                    }
+                    else if (gs === group) {
                         if (gt !== group) {
                             group.connections.source.push(c[i]);
                         } else {
@@ -478,17 +489,10 @@ export class GroupManager {
 
                     if (group.collapsed) {
 
-                        //const collapsedIds = new Set<string>();
-
                         const _collapseSet =  (conns:Array<Connection>, index:number) => {
                             for (let i = 0; i < conns.length; i++) {
                                 let c = conns[i];
-                                this._collapseConnection(c, index, group);
-                                //if (!collapsedIds.has(c.id)) {
-                              //       if (this._collapseConnection(c, index, group) === true) {
-                              //         collapsedIds.add(c.id);
-                              //       }
-                              // }
+                                this._collapseConnection(c, index, group.collapseParent || group);
                             }
                         };
 
