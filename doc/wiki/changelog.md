@@ -1,3 +1,8 @@
+## 4.0.0-RC16
+
+- When dragging an element/group, do not assign hover/active classes to its current parent (if any). Dragging within the current group will not result in a drop event.
+- Improvements to collapse/expand for connections between a node and a group
+
 ## 4.0.0-RC15
 
 27th July 2020
