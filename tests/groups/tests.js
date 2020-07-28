@@ -97,9 +97,9 @@ var testSuite = function () {
     };
 
     var npointer = 0;
-    var _addNodeToGroup = function(g) {
+    var _addNodeToGroup = function(g, x, y, w, h ) {
         var cId = "node_" + npointer;
-        var c = support.addDiv(cId, g.getDragArea(), "w", 30, 30, NODE_WIDTH, NODE_HEIGHT);
+        var c = support.addDiv(cId, g.getDragArea(), "w", x || 30, y || 30, w || NODE_WIDTH, h || NODE_HEIGHT);
         _jsPlumb.manage(c);
         _jsPlumb.addToGroup(g, c);
 
@@ -1844,6 +1844,195 @@ var testSuite = function () {
 
         equal(_jsPlumb.groupManager.getGroups().length, 1, "1 group in the instance after group removed via jsPlumb.removeGroup");
         equal(groupB.childGroups.length, 0, "groupB reports zero child groups after");
+
+    });
+
+    //
+    // this tests that when you expand a root group that has nested groups which are collapsed, the expansion results in the
+    // appropriate proxying of the connections in all nested groups.
+    //
+    test("nested groups, nested to 2 levels, collapse 2nd level nested, then collapse 1st nested, then collapse and expand root", function() {
+        var groupA = _addGroupAndContainer(600,400),
+            groupB = _addGroupAndContainer(300,350),
+            groupC = _addGroupAndContainer(150,150),
+            a1_1 = _addNodeToGroup(groupA, 10, 10, 50, 50),
+            a1_2 = _addNodeToGroup(groupA, 100, 100, 50, 50),
+            b1_1 = _addNodeToGroup(groupB, 10, 10, 50, 50),
+            b1_2 = _addNodeToGroup(groupB, 100, 10, 50, 50),
+            c1_1 = _addNodeToGroup(groupC, 10, 10, 50, 50),
+            c1_2 = _addNodeToGroup(groupC, 100, 100, 50, 50),
+            node = _addNode(50, 700, 100, 100);
+
+        _jsPlumb.importDefaults({
+            connector:"Straight",
+            anchor:"Continuous"
+        });
+
+        groupB.el.style.left = "200px";
+        groupB.el.style.top = "10px";
+
+        groupC.el.style.left = "330px";
+        groupC.el.style.top = "150px";
+
+        _jsPlumb.revalidate(groupA.el);
+        _jsPlumb.revalidate(groupB.el);
+
+        _jsPlumb.revalidate(groupC.el);
+
+        var a1_group = _jsPlumb.connect({source:a1_1, target:groupA.el});
+        var b1_group = _jsPlumb.connect({source:b1_1, target:groupB.el});
+        var c1_group = _jsPlumb.connect({source:c1_1, target:groupC.el});
+
+        var a1_a2 = _jsPlumb.connect({source:a1_1, target:a1_2});
+        var b1_b2 = _jsPlumb.connect({source:b1_1, target:b1_2});
+        var c1_c2 = _jsPlumb.connect({source:c1_1, target:c1_2});
+
+        var a1_node = _jsPlumb.connect({source:a1_1, target:node});
+        var b1_node = _jsPlumb.connect({source:b1_1, target:node});
+        var c1_node = _jsPlumb.connect({source:c1_1, target:node});
+
+        groupA.addGroup(groupB);
+        groupB.addGroup(groupC);
+
+        // STATE 0
+        // sanity check to start.
+        function state0(msg) {
+            ok(c1_c2.isVisible(), msg + " : internal connection in groupC is visible");
+            ok(b1_b2.isVisible(), msg + " : internal connection in groupB is visible");
+            ok(a1_a2.isVisible(), msg + " : internal connection in groupA is visible");
+
+            ok(a1_group.isVisible(), msg + " : internal connection to group in groupA is visible");
+            ok(b1_group.isVisible(), msg + " : internal connection to group in groupB is visible");
+            ok(c1_group.isVisible(), msg + " : internal connection to group in groupC is visible");
+
+            equal(a1_1, a1_a2.endpoints[0].element, msg + " : a1_1 is source element for a1_1-a1_2");
+            equal(a1_2, a1_a2.endpoints[1].element, msg + " : a1_2 is target element for a1_1-a1_2");
+            equal(b1_1, b1_b2.endpoints[0].element, msg + " : b1_1 is source element for b1_1-b1_2");
+            equal(b1_2, b1_b2.endpoints[1].element, msg + " : b1_2 is target element for b1_1-b1_2");
+            equal(c1_1, c1_c2.endpoints[0].element, msg + " : c1_1 is source element for c1_1-c1_2");
+            equal(c1_2, c1_c2.endpoints[1].element, msg + " : c1_2 is target element for c1_1-c1_2");
+
+            equal(a1_1, a1_node.endpoints[0].element, msg + " : a1_1 is source element for a1_1-node");
+            equal(node, a1_node.endpoints[1].element, msg + " : node is target element for a1_1-node");
+            equal(b1_1, b1_node.endpoints[0].element, msg + " : b1_1 is source element for b1_1-node");
+            equal(node, b1_node.endpoints[1].element, msg + " : node is target element for b1_1-node");
+            equal(c1_1, c1_node.endpoints[0].element, msg + " : c1_1 is source element for c1_1-node");
+            equal(node, c1_node.endpoints[1].element, msg + " : node is target element for c1_1-node");
+
+            equal(_jsPlumb.groupManager.getGroups().length, 3, msg + " : 3 groups in the instance");
+            equal(groupA.childGroups.length, 1, msg + " : groupA reports one child group");
+            equal(groupB.childGroups.length, 1, msg + " : groupB reports one child group");
+        }
+
+        state0("initial setup");
+
+        function state1(msg) {
+            ok(!c1_c2.isVisible(), msg + " : internal connection in groupC is not visible");
+            ok(b1_b2.isVisible(), msg + " : internal connection in groupB is visible");
+            ok(a1_a2.isVisible(), msg + " : internal connection in groupA is visible");
+            ok(a1_group.isVisible(), msg + " : internal connection to group in groupA is visible");
+            ok(b1_group.isVisible(), msg + " : internal connection to group in groupB is visible");
+            ok(!c1_group.isVisible(), msg + " : internal connection to group in groupC is not visible");
+
+            equal(a1_1, a1_a2.endpoints[0].element, msg + " : a1_1 is source element for a1_1-a1_2");
+            equal(a1_2, a1_a2.endpoints[1].element, msg + " : a1_2 is target element for a1_1-a1_2");
+            equal(b1_1, b1_b2.endpoints[0].element, msg + " : b1_1 is source element for b1_1-b1_2");
+            equal(b1_2, b1_b2.endpoints[1].element, msg + " : b1_2 is target element for b1_1-b1_2");
+            equal(c1_1, c1_c2.endpoints[0].element, msg + " : c1_1 is source element for c1_1-c1_2");
+            equal(c1_2, c1_c2.endpoints[1].element, msg + " : c1_2 is target element for c1_1-c1_2");
+
+            equal(a1_1, a1_node.endpoints[0].element, msg + " : a1_1 is source element for a1_1-node");
+            equal(node, a1_node.endpoints[1].element, msg + " : node is target element for a1_1-node");
+            equal(b1_1, b1_node.endpoints[0].element, msg + " : b1_1 is source element for b1_1-node");
+            equal(node, b1_node.endpoints[1].element, msg + " : node is target element for b1_1-node");
+            //equal(c1_1, c1_node.endpoints[0].element, "c1_1 is source element for c1_1-node");
+            equal(groupC.el, c1_node.endpoints[0].element, msg + " : groupC is the source of group C's external connection (the proxy)");
+            equal(node, c1_node.endpoints[1].element, msg + " : node is target element for c1_1-node");
+        }
+
+        // STATE 1
+        // collapse group C, the innermost group. we expect c1_c2 to be invisible, and c1_node to be proxied with its source on groupC's element
+        _jsPlumb.collapseGroup(groupC);
+        state1("after collapse C");
+
+        // STATE 2
+        // collapse group B, the middle group. we expect c1_c2 and b1_b2 to be invisible, c1_node and b1_node to be proxied with its source on groupB's element
+        _jsPlumb.collapseGroup(groupB);
+
+        function state2(msg) {
+            equal(a1_1, a1_a2.endpoints[0].element, msg + " : a1_1 is source element for a1_1-a1_2");
+            equal(a1_2, a1_a2.endpoints[1].element, msg + " : a1_2 is target element for a1_1-a1_2");
+            equal(b1_1, b1_b2.endpoints[0].element, msg + " : b1_1 is source element for b1_1-b1_2");
+            equal(b1_2, b1_b2.endpoints[1].element, msg + " : b1_2 is target element for b1_1-b1_2");
+            equal(c1_1, c1_c2.endpoints[0].element, msg + " : c1_1 is source element for c1_1-c1_2");
+            equal(c1_2, c1_c2.endpoints[1].element, msg + " : c1_2 is target element for c1_1-c1_2");
+
+            equal(a1_1, a1_node.endpoints[0].element, msg + " : a1_1 is source element for a1_1-node");
+            equal(node, a1_node.endpoints[1].element, msg + " : node is target element for a1_1-node");
+            //equal(b1_1, b1_node.endpoints[0].element, "b1_1 is source element for b1_1-node");
+            equal(groupB.el, b1_node.endpoints[0].element, msg + " : groupB is the source of group B's external connection (the proxy)");
+            equal(node, b1_node.endpoints[1].element, msg + " : node is target element for b1_1-node");
+            //equal(c1_1, c1_node.endpoints[0].element, "c1_1 is source element for c1_1-node");
+            equal(groupB.el, c1_node.endpoints[0].element, msg + " : groupB is the source of group C's external connection (the proxy)");
+            equal(node, c1_node.endpoints[1].element, msg + " : node is target element for c1_1-node");
+
+            ok(!c1_c2.isVisible(), msg + " : internal connection in groupC is not visible");
+            ok(!b1_b2.isVisible(), msg + " : internal connection in groupB is not visible");
+            ok(a1_a2.isVisible(), msg + " : internal connection in groupA is visible");
+
+            ok(a1_group.isVisible(), msg + " : internal connection to group in groupA is visible");
+            ok(!b1_group.isVisible(), msg + " : internal connection to group in groupB is not visible");
+            ok(!c1_group.isVisible(), msg + " : internal connection to group in groupC is not visible");
+        }
+
+        state2("after collapse B");
+
+        // collapse group A, the top group. we expect a1_a2, c1_c2 and b1_b2 to be invisible, a1_node, c1_node and b1_node to be proxied with its source on groupA's element
+        _jsPlumb.collapseGroup(groupA);
+
+        function state3(msg) {
+            ok(!c1_c2.isVisible(), " : internal connection in groupC is not visible");
+            ok(!b1_b2.isVisible(), " : internal connection in groupB is not visible");
+            ok(!a1_a2.isVisible(), " : internal connection in groupA is not visible");
+
+            ok(!a1_group.isVisible(), msg + " : internal connection to group in groupA is not visible");
+            ok(!b1_group.isVisible(), msg + " : internal connection to group in groupB is not visible");
+            ok(!c1_group.isVisible(), msg + " : internal connection to group in groupC is not visible");
+
+            equal(a1_1, a1_a2.endpoints[0].element, msg + " : a1_1 is source element for a1_1-a1_2");
+            equal(a1_2, a1_a2.endpoints[1].element, msg + " : a1_2 is target element for a1_1-a1_2");
+            equal(b1_1, b1_b2.endpoints[0].element, msg + " : b1_1 is source element for b1_1-b1_2");
+            equal(b1_2, b1_b2.endpoints[1].element, msg + " : b1_2 is target element for b1_1-b1_2");
+            equal(c1_1, c1_c2.endpoints[0].element, msg + " : c1_1 is source element for c1_1-c1_2");
+            equal(c1_2, c1_c2.endpoints[1].element, msg + " : c1_2 is target element for c1_1-c1_2");
+
+            //equal(a1_1, a1_node.endpoints[0].element, "a1_1 is source element for a1_1-node");
+            equal(groupA.el, a1_node.endpoints[0].element, msg + " : groupA is the source of group A's external connection (the proxy)");
+            equal(node, a1_node.endpoints[1].element, msg + " : node is target element for a1_1-node");
+            //equal(b1_1, b1_node.endpoints[0].element, "b1_1 is source element for b1_1-node");
+            equal(groupA.el, b1_node.endpoints[0].element, msg + " : groupA is the source of group B's external connection (the proxy)");
+            equal(node, b1_node.endpoints[1].element, msg + " : node is target element for b1_1-node");
+            //equal(c1_1, c1_node.endpoints[0].element, "c1_1 is source element for c1_1-node");
+            equal(groupA.el, c1_node.endpoints[0].element, msg + " : groupA is the source of group C's external connection (the proxy)");
+            equal(node, c1_node.endpoints[1].element, msg + " : node is target element for c1_1-node");
+        }
+
+        state3("after collapse A");
+
+
+        // expand group A
+        _jsPlumb.expandGroup(groupA);
+        state2("after expand A");
+
+        // expand group B
+        _jsPlumb.expandGroup(groupB);
+        state1("after expand B");
+
+        // expand groupC
+        _jsPlumb.expandGroup(groupC);
+        state0("after expand C");
+
+
 
     });
 
