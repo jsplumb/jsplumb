@@ -14,6 +14,7 @@ import { ConnectorSpec } from "./connector/abstract-connector";
 import { GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
 import { jsPlumbGeometryHelpers } from "./geom";
+import { jsPlumbDOMElement } from "./dom";
 export declare type UUID = string;
 export declare type ElementId = string;
 export declare type ElementRef = ElementId | any;
@@ -34,6 +35,17 @@ export interface ConnectParams {
     endpointHoverStyles?: [PaintStyle, PaintStyle];
     endpointStyle?: PaintStyle;
     endpointHoverStyle?: PaintStyle;
+}
+export interface ConnectionEstablishedParams {
+    connection: Connection;
+    source: jsPlumbDOMElement;
+    sourceEndpoint: Endpoint;
+    sourceId: string;
+    target: jsPlumbDOMElement;
+    targetEndpoint: Endpoint;
+    targetId: string;
+}
+export interface ConnectionDetachedParams extends ConnectionEstablishedParams {
 }
 export interface TypeDescriptor {
     cssClass?: string;
@@ -248,6 +260,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     connections: Array<Connection>;
     endpointsByElement: Dictionary<Array<Endpoint>>;
     endpointsByUUID: Dictionary<Endpoint>;
+    _allowNestedGroups: boolean;
     private _curIdStamp;
     private _offsetTimestamps;
     private _offsets;

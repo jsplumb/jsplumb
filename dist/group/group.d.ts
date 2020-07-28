@@ -14,10 +14,16 @@ export interface GroupOptions {
     anchor?: AnchorSpec;
     endpoint?: EndpointSpec;
 }
-export declare class UIGroup {
+export declare class UINode {
+    instance: jsPlumbInstance;
+    el: any;
+    group: UIGroup;
+    constructor(instance: jsPlumbInstance, el: any);
+}
+export declare class UIGroup extends UINode {
     instance: jsPlumbInstance;
     children: Array<any>;
-    el: any;
+    childGroups: Array<UIGroup>;
     collapsed: boolean;
     droppable: boolean;
     enabled: boolean;
@@ -48,4 +54,8 @@ export declare class UIGroup {
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     private _orphan;
     orphanAll(): Dictionary<Offset>;
+    addGroup(group: UIGroup): boolean;
+    removeGroup(group: UIGroup): void;
+    getGroups(): Array<UIGroup>;
+    get collapseParent(): UIGroup;
 }

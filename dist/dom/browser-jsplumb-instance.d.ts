@@ -32,6 +32,7 @@ export interface jsPlumbDOMInformation {
 }
 export interface jsPlumbDOMElement extends HTMLElement {
     _jsPlumbGroup: UIGroup;
+    _jsPlumbParentGroup: UIGroup;
     _isJsPlumbGroup: boolean;
     _jsPlumbOrphanedEndpoints: Array<Endpoint>;
     offsetParent: HTMLElement;

@@ -1,10 +1,22 @@
-import { DragHandler } from "./drag-manager";
+import { DragEventParams, DragHandler, DragStartEventParams, DragStopEventParams } from "./drag-manager";
 import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint-impl";
-import { BoundingBox, Dictionary, PointArray } from "../core";
+import { BoundingBox, Dictionary } from "../core";
 import { EndpointRepresentation } from "../endpoint/endpoints";
 import { Drag } from "./collicat";
+export interface ConnectionMovedParams {
+    connection: Connection;
+    index: number;
+    originalSourceId: string;
+    newSourceId: string;
+    originalTargetId: string;
+    newTargetId: string;
+    originalSourceEndpoint: Endpoint;
+    newSourceEndpoint: Endpoint;
+    originalTargetEndpoint: Endpoint;
+    newTargetEndpoint: Endpoint;
+}
 export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
@@ -54,29 +66,12 @@ export declare class EndpointDragHandler implements DragHandler {
     private _cleanupDraggablePlaceholder;
     reset(): void;
     init(drag: Drag): void;
-    onStart(p: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        drag: Drag;
-    }): boolean;
+    onStart(p: DragStartEventParams): boolean;
     onBeforeStart(beforeStartParams: any): void;
-    onDrag(params: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        pos: PointArray;
-        drag: Drag;
-    }): boolean;
+    onDrag(params: DragEventParams): boolean;
     private _maybeCleanup;
     private _reattachOrDiscard;
-    onStop(p: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        pos: PointArray;
-        drag: Drag;
-    }): void;
+    onStop(p: DragStopEventParams): void;
     /**
      * Lookup a source definition on the given element.
      * @param fromElement Element to lookup the source definition

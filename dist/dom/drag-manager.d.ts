@@ -17,35 +17,31 @@ export declare const EVT_ZOOM = "zoom";
 export declare const EVT_CONNECTION_DRAG = "connectionDrag";
 export interface DragHandler {
     selector: string;
-    onStart: (params: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        drag: Drag;
-    }) => boolean;
-    onDrag: (params: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        pos: PointArray;
-        drag: Drag;
-    }) => void;
-    onStop: (params: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        pos: PointArray;
-        drag: Drag;
-    }) => void;
-    onDragInit: (el: HTMLElement) => HTMLElement;
-    onDragAbort: (el: HTMLElement) => void;
+    onStart: (params: DragStartEventParams) => boolean;
+    onDrag: (params: DragEventParams) => void;
+    onStop: (params: DragStopEventParams) => void;
+    onDragInit: (el: jsPlumbDOMElement) => jsPlumbDOMElement;
+    onDragAbort: (el: jsPlumbDOMElement) => void;
     reset: () => void;
     init: (drag: Drag) => void;
     onBeforeStart?: (beforeStartParams: any) => void;
 }
 export interface GhostProxyingDragHandler extends DragHandler {
-    useGhostProxy: (container: any, dragEl: any) => boolean;
+    useGhostProxy: (container: any, dragEl: jsPlumbDOMElement) => boolean;
     makeGhostProxy?: GhostProxyGenerator;
+}
+export interface DragStartEventParams {
+    e: MouseEvent;
+    el: jsPlumbDOMElement;
+    finalPos?: PointArray;
+    drag: Drag;
+}
+export interface DragEventParams extends DragStartEventParams {
+    pos: PointArray;
+}
+export interface DragStopEventParams extends DragEventParams {
+    finalPos: PointArray;
+    selection: Array<any>;
 }
 export declare class DragManager {
     protected instance: BrowserJsPlumbInstance;

@@ -5374,12 +5374,22 @@
           suggest(sourceGroup.connections.internal, p.connection);
         } else {
           if (sourceGroup != null) {
-            suggest(sourceGroup.connections.source, p.connection);
+            if (p.target._jsPlumbGroup === sourceGroup) {
+              suggest(sourceGroup.connections.internal, p.connection);
+            } else {
+              suggest(sourceGroup.connections.source, p.connection);
+            }
+
             _this._connectionSourceMap[p.connection.id] = sourceGroup;
           }
 
           if (targetGroup != null) {
-            suggest(targetGroup.connections.target, p.connection);
+            if (p.source._jsPlumbGroup === targetGroup) {
+              suggest(targetGroup.connections.internal, p.connection);
+            } else {
+              suggest(targetGroup.connections.target, p.connection);
+            }
+
             _this._connectionTargetMap[p.connection.id] = targetGroup;
           }
         }
@@ -5658,7 +5668,9 @@
               gs = _this3.getGroupFor(c[i].source);
               gt = _this3.getGroupFor(c[i].target);
 
-              if (gs === group) {
+              if (c[i].source === group.el && gt === group || c[i].target === group.el && gs === group) {
+                group.connections.internal.push(c[i]);
+              } else if (gs === group) {
                 if (gt !== group) {
                   group.connections.source.push(c[i]);
                 } else {
@@ -5866,17 +5878,11 @@
               // otherwise:
               // just expend it as usual
               if (group.collapsed) {
-                //const collapsedIds = new Set<string>();
                 var _collapseSet = function _collapseSet(conns, index) {
                   for (var i = 0; i < conns.length; i++) {
                     var c = conns[i];
 
-                    _this6._collapseConnection(c, index, group); //if (!collapsedIds.has(c.id)) {
-                    //       if (this._collapseConnection(c, index, group) === true) {
-                    //         collapsedIds.add(c.id);
-                    //       }
-                    // }
-
+                    _this6._collapseConnection(c, index, group.collapseParent || group);
                   }
                 }; // setup proxies for sources and targets
 
@@ -10191,6 +10197,8 @@
 
       _defineProperty(this, "_intersectingGroups", []);
 
+      _defineProperty(this, "_currentDragParentGroup", null);
+
       _defineProperty(this, "_posseByElementIdMap", {});
 
       _defineProperty(this, "_posseMap", {});
@@ -10299,6 +10307,7 @@
           _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
         });
 
+        this._currentDragParentGroup = null;
         this._groupLocations.length = 0;
         this.instance.hoverSuspended = false;
         this._dragOffset = null;
@@ -10348,7 +10357,10 @@
             if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && _this3.instance.geometry.intersects(bounds, groupLoc.r)) {
               // when a group intersects it should only get the hover class if one of its descendants does not also intersect.
               // groupLocations is already sorted by level of nesting
-              _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+              // we don't add the css class to the current group (but we do still add the group to the list of intersecting groups)
+              if (groupLoc.group !== _this3._currentDragParentGroup) {
+                _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
+              }
 
               _this3._intersectingGroups.push({
                 group: groupLoc.group,
@@ -10427,8 +10439,9 @@
         var el = params.drag.getDragElement();
         var elOffset = this.instance.getOffset(el);
 
-        if (el[PARENT_GROUP_KEY]) {
+        if (el._jsPlumbParentGroup) {
           this._dragOffset = this.instance.getOffset(el.offsetParent);
+          this._currentDragParentGroup = el._jsPlumbParentGroup;
         }
 
         var cont = true;
@@ -10476,9 +10489,7 @@
                   // get the group pertaining to the dragged element. this is null if the element being dragged is not a UIGroup.
                   var elementGroup = _el[GROUP_KEY];
 
-                  if (group.droppable !== false && group.enabled !== false && _el[PARENT_GROUP_KEY] !== group && _el[GROUP_KEY] !== group &&
-                  /*!this.instance.groupManager.isAncestor(elementGroup, group) &&*/
-                  !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
+                  if (group.droppable !== false && group.enabled !== false && _el[GROUP_KEY] !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                     var groupEl = group.el,
                         s = _this4.instance.getSize(groupEl),
                         o = _this4.instance.getOffset(groupEl),
@@ -10493,9 +10504,12 @@
                       el: groupEl,
                       r: boundingRect,
                       group: group
-                    });
+                    }); // dont add the active class to the element/group's current parent (if any)
 
-                    _this4.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+
+                    if (group !== _this4._currentDragParentGroup) {
+                      _this4.instance.addClass(groupEl, CLASS_DRAG_ACTIVE);
+                    }
                   }
                 }); // sort group locations so that nested groups will be processed first in a drop
 

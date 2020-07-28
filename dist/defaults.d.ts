@@ -28,6 +28,7 @@ export interface jsPlumbDefaults {
     scope?: string;
     maxConnections?: number;
     hoverClass?: string;
+    allowNestedGroups?: boolean;
 }
 export interface jsPlumbHelperFunctions {
     getSize?: (el: any) => Size;

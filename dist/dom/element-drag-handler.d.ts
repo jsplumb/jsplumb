@@ -1,4 +1,4 @@
-import { DragHandler } from "./drag-manager";
+import { DragEventParams, DragHandler, DragStopEventParams } from "./drag-manager";
 import { BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec } from "./browser-jsplumb-instance";
 import { UIGroup } from "../group/group";
 import { BoundingBox, Dictionary, Offset, PointArray } from "../core";
@@ -28,6 +28,7 @@ export declare class ElementDragHandler implements DragHandler {
     _dragOffset: Offset;
     _groupLocations: Array<GroupLocation>;
     _intersectingGroups: Array<IntersectingGroup>;
+    _currentDragParentGroup: UIGroup;
     _posseByElementIdMap: Dictionary<Posse>;
     _posseMap: Dictionary<Posse>;
     _currentPosse: Posse;
@@ -38,25 +39,13 @@ export declare class ElementDragHandler implements DragHandler {
     private _dragSizes;
     protected drag: Drag;
     constructor(instance: BrowserJsPlumbInstance);
-    onDragInit(el: HTMLElement): HTMLElement;
-    onDragAbort(el: HTMLElement): void;
-    onStop(params: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        pos: PointArray;
-        drag: Drag;
-    }): void;
+    onDragInit(el: jsPlumbDOMElement): jsPlumbDOMElement;
+    onDragAbort(el: jsPlumbDOMElement): void;
+    onStop(params: DragStopEventParams): void;
     private _cleanup;
     reset(): void;
     init(drag: Drag): void;
-    onDrag(params: {
-        e: MouseEvent;
-        el: jsPlumbDOMElement;
-        finalPos: PointArray;
-        pos: PointArray;
-        drag: Drag;
-    }): void;
+    onDrag(params: DragEventParams): void;
     onStart(params: {
         e: MouseEvent;
         el: jsPlumbDOMElement;

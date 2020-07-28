@@ -9,6 +9,7 @@ export interface ContinuousAnchorOptions extends AnchorOptions {
 export declare type FACE_MAP = Dictionary<boolean>;
 export declare class ContinuousAnchor extends Anchor {
     instance: jsPlumbInstance;
+    static continuousAnchorType: AnchorId;
     type: AnchorId;
     isDynamic: boolean;
     isContinuous: boolean;

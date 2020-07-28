@@ -9,5 +9,6 @@ export declare class DotEndpoint<E> extends EndpointRepresentation<ComputedDotEn
     defaultInnerRadius: number;
     constructor(endpoint: Endpoint, params?: any);
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedDotEndpoint;
+    static dotEndpointType: string;
     getType(): string;
 }
