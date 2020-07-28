@@ -1,4 +1,12 @@
+## 4.0.0-RC17
+
+28th July 2020
+
+- Fixed issue with `setContainer` method incorrectly moving nested managed elements out of their parents
+
 ## 4.0.0-RC16
+
+28th July 2020
 
 - When dragging an element/group, do not assign hover/active classes to its current parent (if any). Dragging within the current group will not result in a drop event.
 - Improvements to collapse/expand for connections between a node and a group

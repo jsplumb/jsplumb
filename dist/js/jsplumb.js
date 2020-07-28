@@ -13571,7 +13571,11 @@
 
         if (currentContainer != null) {
           currentContainer.removeAttribute(ATTRIBUTE_CONTAINER);
-          currentContainer.querySelectorAll(".jtk-connector, .jtk-endpoint, div.jtk-overlay, [jtk-managed]").forEach(function (el) {
+          var children = Array.from(currentContainer.childNodes).filter(function (cn) {
+            var cl = cn.classList;
+            return cl && (cl.contains(CLASS_CONNECTOR) || cl.contains(CLASS_ENDPOINT) || cl.contains(CLASS_OVERLAY)) || cn.getAttribute && cn.getAttribute(ATTRIBUTE_MANAGED) != null;
+          });
+          children.forEach(function (el) {
             newContainer.appendChild(el);
           });
         }
