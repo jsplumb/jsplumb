@@ -1,4 +1,4 @@
-import {AbstractConnector, ConnectorComputeParams, PaintGeometry, PaintParams} from "./abstract-connector";
+import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstract-connector";
 import {jsPlumbInstance} from "../core";
 import {ArcSegment} from "./arc-segment";
 import {Connection} from "./connection-impl";
@@ -92,5 +92,57 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         }
     }
 
+    exportGeometry():any {
+        if (this.geometry == null) {
+            return null;
+        } else {
+            const s:Array<any> = [], t:Array<any> = [], cp1:Array<any> = [], cp2:Array<any> = [];
+            Array.prototype.push.apply(s, this.geometry.source);
+            Array.prototype.push.apply(t, this.geometry.target);
+            Array.prototype.push.apply(cp1, this.geometry.controlPoints[0]);
+            Array.prototype.push.apply(cp2, this.geometry.controlPoints[1]);
+            return {
+                source:s,
+                target:t,
+                controlPoints:[ cp1, cp2 ]
+            };
+        }
+    }
+
+    importGeometry(geometry:any):boolean {
+        if (geometry != null) {
+
+            if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
+                console.log("Bezier: cannot import geometry; controlPoints missing or does not have length 2");
+                this.setGeometry(null, true);
+                return false;
+            }
+
+            if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
+                console.log("Bezier: cannot import geometry; controlPoints malformed");
+                this.setGeometry(null, true);
+                return false;
+            }
+
+            if (geometry.source == null || geometry.source.length != 4) {
+                console.log("Bezier: cannot import geometry; source missing or malformed");
+                this.setGeometry(null, true);
+                return false;
+            }
+
+            if (geometry.target == null || geometry.target.length != 4) {
+                console.log("Bezier: cannot import geometry; target missing or malformed");
+                this.setGeometry(null, true);
+                return false;
+            }
+
+            this.setGeometry(geometry, false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, _w:number, _h:number):void;
+
 }
