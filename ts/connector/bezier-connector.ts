@@ -15,6 +15,7 @@ export class Bezier extends AbstractBezierConnector {
 
     constructor(instance:jsPlumbInstance, public connection:Connection, params:AbstractBezierOptions) {
         super(instance, connection, params);
+        params = params || {};
         this.majorAnchor = params.curviness || 150;
         this.minorAnchor = 10;
     }
@@ -23,7 +24,7 @@ export class Bezier extends AbstractBezierConnector {
         return this.majorAnchor;
     }
 
-    private _findControlPoint (point:any, sourceAnchorPosition:any, targetAnchorPosition:any, soo:any, too:any) {
+    protected _findControlPoint (point:any, sourceAnchorPosition:any, targetAnchorPosition:any, soo:any, too:any) {
         // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
         // points around if so (code could be tightened up)
         let perpendicular = soo[0] !== too[0] || soo[1] === too[1],
@@ -71,8 +72,14 @@ export class Bezier extends AbstractBezierConnector {
             _tx = sp[0] < tp[0] ? 0 : _w,
             _ty = sp[1] < tp[1] ? 0 : _h;
 
-        _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
-        _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+        if (this.edited !== true) {
+            _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
+            _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+
+        } else {
+            _CP = this.geometry.controlPoints[0];
+            _CP2 = this.geometry.controlPoints[1];
+        }
 
         this.geometry = {
             controlPoints:[_CP, _CP2],
