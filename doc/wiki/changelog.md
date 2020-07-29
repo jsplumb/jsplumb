@@ -1,3 +1,9 @@
+## 4.0.0-RC18
+
+30th July 2020
+
+- Ported some code from the Toolkit edition to support user-specified geometry in edges
+
 ## 4.0.0-RC17
 
 28th July 2020
