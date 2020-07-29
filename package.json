@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/community",
-  "version": "4.0.0-RC17",
+  "version": "4.0.0-RC18",
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb.js",
   "directories": {
