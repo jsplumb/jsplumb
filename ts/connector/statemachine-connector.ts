@@ -156,23 +156,29 @@ export class StateMachine extends AbstractBezierConnector {
         // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
         //
 
-        let _midx = (_sx + _tx) / 2,
-            _midy = (_sy + _ty) / 2,
-            segment = _segment(_sx, _sy, _tx, _ty),
-            distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
-            cp1x, cp2x, cp1y, cp2y;
+        if (this.edited !== true) {
+
+            let _midx = (_sx + _tx) / 2,
+                _midy = (_sy + _ty) / 2,
+                segment = _segment(_sx, _sy, _tx, _ty),
+                distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
 
 
-        // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-        // will work by extending the control point to force the curve to be, um, curvier.
-        this._controlPoint = _findControlPoint(_midx,
-            _midy,
-            segment,
-            params.sourcePos,
-            params.targetPos,
-            this.curviness, this.curviness,
-            distance,
-            this.proximityLimit);
+            // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+            // will work by extending the control point to force the curve to be, um, curvier.
+            this._controlPoint = _findControlPoint(_midx,
+                _midy,
+                segment,
+                params.sourcePos,
+                params.targetPos,
+                this.curviness, this.curviness,
+                distance,
+                this.proximityLimit);
+        } else {
+            this._controlPoint = this.geometry.controlPoints[0];
+        }
+
+        let cp1x, cp2x, cp1y, cp2y;
 
         cp1x = this._controlPoint[0];
         cp2x = this._controlPoint[0];
