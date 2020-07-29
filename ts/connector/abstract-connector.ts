@@ -90,6 +90,8 @@ export abstract class AbstractConnector implements Connector {
 
     abstract type:string;
 
+    edited = false;
+
     stub:number | [number, number];
     sourceStub:number;
     targetStub:number;
@@ -135,8 +137,9 @@ export abstract class AbstractConnector implements Connector {
     
     getIdPrefix () { return  "_jsplumb_connector"; }
 
-    setGeometry(g:any, internal:boolean) {
+    protected setGeometry(g:any, internal:boolean) {
         this.geometry = g;
+        this.edited = g != null && !internal;
     }
 
     /**
@@ -152,6 +155,11 @@ export abstract class AbstractConnector implements Connector {
     importGeometry(g:any):boolean {
         this.geometry = g;
         return true;
+    }
+
+    resetGeometry():void {
+        this.geometry = null;
+        this.edited = false;
     }
 
     abstract _compute(geometry:PaintGeometry, params:ConnectorComputeParams):void;
