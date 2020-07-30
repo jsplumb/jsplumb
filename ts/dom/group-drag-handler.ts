@@ -46,8 +46,6 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         super.onDrag(params);
     }
 
-    onDragInit(el:jsPlumbDOMElement):jsPlumbDOMElement { return null; }
-
     onDragAbort(el: jsPlumbDOMElement):void {
         return null;
     }
