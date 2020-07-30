@@ -8,29 +8,6 @@ import {IS, uuid} from "../util";
 import {EventManager, pageLocation} from "./event-manager";
 import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance";
 
-// function _suggest<T> (list:Array<T>, item:T, head?:boolean):boolean {
-//     if (list.indexOf(item) === -1) {
-//         head ? list.unshift(item) : list.push(item);
-//         return true;
-//     }
-//     return false;
-// }
-//
-// function _vanquish<T>(list:Array<T>, item:T):void {
-//     const idx = list.indexOf(item);
-//     if (idx !== -1) {
-//         list.splice(idx, 1);
-//     }
-// }
-//
-// function _difference<T> (l1:Array<T>, l2:Array<T>) {
-//     const d = [];
-//     for (let i = 0; i < l1.length; i++) {
-//         if (l2.indexOf(l1[i]) === -1)
-//             d.push(l1[i]);
-//     }
-//     return d;
-// }
 
 function getOffsetRect (elem:HTMLElement):PointArray {
     // (1)
@@ -142,7 +119,6 @@ const _classes:Dictionary<string> = {
     clonedDrag:"katavorio-clone-drag"     // added to a node that is a clone of an element created at the start of a drag
 };
 
-const _defaultScope = "katavorio-drag-scope";
 const _events = [ "stop", "start", "drag", "drop", "over", "out", "beforeStart" ];
 const _devNull = function() {};
 
@@ -190,10 +166,6 @@ abstract class Base {
     toggleEnabled() {
         this.enabled = !this.enabled;
     }
-
-    // setScope (scopes:string) {
-    //     this.scopes = scopes ? scopes.split(/\s+/) : [ this.scope ];
-    // }
 
     addScope (scopes:string) {
         const m:Dictionary<boolean> = {};
@@ -275,11 +247,6 @@ export interface DragParams extends DragHandlerOptions {
     scope?:string;
 }
 
-
-export interface DragSelector {
-
-}
-
 export class Drag extends Base {
 
     _class:string;
@@ -329,11 +296,9 @@ export class Drag extends Base {
     _intersectingDroppables:Array<any> = [];
     _elementToDrag:any;
 
-        downListener:(e:MouseEvent) => void;
-        moveListener:(e:MouseEvent) => void;
-        upListener:(e?:MouseEvent) => void;
-
-    //_dragClass:string = "";
+    downListener:(e:MouseEvent) => void;
+    moveListener:(e:MouseEvent) => void;
+    upListener:(e?:MouseEvent) => void;
 
     listeners:Dictionary<Array<Function>> = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] };
 
@@ -406,8 +371,6 @@ export class Drag extends Base {
         this._snapThreshold = params.snapThreshold;
         this._setConstrain(typeof params.constrain === "function" ? params.constrain  : (params.constrain || params.containment));
 
-
-
         this.k.eventManager.on(this.el, "mousedown", this.downListener);
     }
 
@@ -431,16 +394,13 @@ export class Drag extends Base {
 
     private _upListener (e?:MouseEvent) {
         if (this._downAt) {
+
             this._downAt = null;
             this.k.eventManager.off(document, "mousemove", this.moveListener);
             this.k.eventManager.off(document, "mouseup", this.upListener);
             removeClass(document.body as any, _classes.noSelect);
             this.unmark(e);
-
-            // k.unmarkSelection(this, e);
-
             this.stop(e);
-
             this._moving = false;
 
             if (this.clone) {
@@ -471,7 +431,7 @@ export class Drag extends Base {
                     console.log("JSPLUMB: no available drag selectors");
                 }
 
-                const eventTarget = (e.target || e.srcElement) as HTMLElement;
+                const eventTarget = (e.target || e.srcElement) as jsPlumbDOMElement;
                 const match = findMatchingSelector(this._availableSelectors, this.el, eventTarget);
                 if (match != null) {
                     this._activeSelectorParams = match[0];
@@ -548,7 +508,7 @@ export class Drag extends Base {
                     if (!this._downAt) {
                         return;
                     }
-                    this.mark(dispatchResult,true);
+                    this.mark(dispatchResult);
                     this._moving = true;
                 } else {
                     this.abort();
@@ -573,35 +533,23 @@ export class Drag extends Base {
                 dy /= z;
 
                 this.moveBy(dx, dy, e);
-
-                //k.updateSelection(dx, dy, this);
             }
         }
     }
 
-    mark(payload:any, andNotify?:boolean) {
+    mark(payload:any) {
         this._posAtDown = _getPosition(this._dragEl);
-        //this._pagePosAtDown = _getPosition(this._dragEl, true*);
         this._pagePosAtDown = getOffsetRect(this._dragEl);
         this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]];
         this._size = _getSize(this._dragEl);
         addClass(this._dragEl, this.k.css.drag);
 
         let cs:PointArray;
-        // if (this._getConstrainingRectangle) {
-        //     cs = this._getConstrainingRectangle(this._dragEl)
-        // } else {
-        //     cs = _getSize(this._dragEl.parentNode);
-        // }
         cs = getConstrainingRectangle(this._dragEl);
         this._constrainRect = {w: cs[0], h: cs[1]};
 
         this._ghostDx = 0;
         this._ghostDy = 0;
-
-        if (andNotify) {
-            //this.k.notifySelectionDragStart(this);
-        }
     }
 
     unmark(e:MouseEvent) {
@@ -703,7 +651,7 @@ export class Drag extends Base {
     stop (e?:MouseEvent, force?:boolean) {
         if (force || this._moving) {
             let positions = [],
-                sel:Array<any> = [],//this.k.getSelection(),
+                sel:Array<any> = [],
                 dPos = _getPosition(this._dragEl);
 
             if (sel.length > 0) {
@@ -891,9 +839,13 @@ export class Drag extends Base {
         this._filters = {};
     }
 
-    addSelector (params:DragHandlerOptions) {
+    addSelector (params:DragHandlerOptions, atStart?:boolean) {
         if (params.selector) {
-            this._availableSelectors.push(params);
+            if (atStart) {
+                this._availableSelectors.unshift(params);
+            } else {
+                this._availableSelectors.push(params);
+            }
         }
     }
 
@@ -973,9 +925,6 @@ export class Collicat implements jsPlumbDragManager {
         let _p:DragParams = {
             events:{}
         }, i;
-        // for (i in katavorioParams) {
-        //     _p[i] = katavorioParams[i];
-        // }
 
         for (i in p) _p[i] = p[i];
         // events
