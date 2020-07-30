@@ -12038,11 +12038,6 @@
         _get(_getPrototypeOf(GroupDragHandler.prototype), "onDrag", this).call(this, params);
       }
     }, {
-      key: "onDragInit",
-      value: function onDragInit(el) {
-        return null;
-      }
-    }, {
       key: "onDragAbort",
       value: function onDragAbort(el) {
         return null;
@@ -14550,6 +14545,8 @@
 
       _defineProperty(this, "type", void 0);
 
+      _defineProperty(this, "edited", false);
+
       _defineProperty(this, "stub", void 0);
 
       _defineProperty(this, "sourceStub", void 0);
@@ -14618,6 +14615,7 @@
       key: "setGeometry",
       value: function setGeometry(g, internal) {
         this.geometry = g;
+        this.edited = g != null && !internal;
       }
       /**
        * Subclasses can override this. By default we just pass back the geometry we are using internally.
@@ -14637,6 +14635,12 @@
       value: function importGeometry(g) {
         this.geometry = g;
         return true;
+      }
+    }, {
+      key: "resetGeometry",
+      value: function resetGeometry() {
+        this.geometry = null;
+        this.edited = false;
       }
     }, {
       key: "resetBounds",
@@ -14973,7 +14977,13 @@
       key: "applyType",
       value: function applyType(t) {
         this.instance.renderer.applyConnectorType(this, t);
-      }
+      } //
+      // a dummy implementation for subclasses to override if they want to.
+      //
+
+    }, {
+      key: "setAnchorOrientation",
+      value: function setAnchorOrientation(idx, orientation) {}
     }]);
 
     return AbstractConnector;
@@ -15272,6 +15282,61 @@
           });
         }
       }
+    }, {
+      key: "exportGeometry",
+      value: function exportGeometry() {
+        if (this.geometry == null) {
+          return null;
+        } else {
+          var s = [],
+              t = [],
+              cp1 = [],
+              cp2 = [];
+          Array.prototype.push.apply(s, this.geometry.source);
+          Array.prototype.push.apply(t, this.geometry.target);
+          Array.prototype.push.apply(cp1, this.geometry.controlPoints[0]);
+          Array.prototype.push.apply(cp2, this.geometry.controlPoints[1]);
+          return {
+            source: s,
+            target: t,
+            controlPoints: [cp1, cp2]
+          };
+        }
+      }
+    }, {
+      key: "importGeometry",
+      value: function importGeometry(geometry) {
+        if (geometry != null) {
+          if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
+            console.log("Bezier: cannot import geometry; controlPoints missing or does not have length 2");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
+            console.log("Bezier: cannot import geometry; controlPoints malformed");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          if (geometry.source == null || geometry.source.length != 4) {
+            console.log("Bezier: cannot import geometry; source missing or malformed");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          if (geometry.target == null || geometry.target.length != 4) {
+            console.log("Bezier: cannot import geometry; target missing or malformed");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          this.setGeometry(geometry, false);
+          return true;
+        } else {
+          return false;
+        }
+      }
     }]);
 
     return AbstractBezierConnector;
@@ -15446,6 +15511,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "minorAnchor", void 0);
 
+      params = params || {};
       _this.majorAnchor = params.curviness || 150;
       _this.minorAnchor = 10;
       return _this;
@@ -15502,8 +15568,14 @@
             _tx = sp[0] < tp[0] ? 0 : _w,
             _ty = sp[1] < tp[1] ? 0 : _h;
 
-        _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
-        _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+        if (this.edited !== true) {
+          _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
+          _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+        } else {
+          _CP = this.geometry.controlPoints[0];
+          _CP2 = this.geometry.controlPoints[1];
+        }
+
         this.geometry = {
           controlPoints: [_CP, _CP2],
           source: p.sourcePos,
@@ -16351,18 +16423,20 @@
         //
 
 
-        var _midx = (_sx + _tx) / 2,
-            _midy = (_sy + _ty) / 2,
-            segment = _segment(_sx, _sy, _tx, _ty),
-            distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),
-            cp1x,
-            cp2x,
-            cp1y,
-            cp2y; // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-        // will work by extending the control point to force the curve to be, um, curvier.
+        if (this.edited !== true) {
+          var _midx = (_sx + _tx) / 2,
+              _midy = (_sy + _ty) / 2,
+              segment = _segment(_sx, _sy, _tx, _ty),
+              distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)); // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+          // will work by extending the control point to force the curve to be, um, curvier.
 
 
-        this._controlPoint = _findControlPoint(_midx, _midy, segment, params.sourcePos, params.targetPos, this.curviness, this.curviness, distance, this.proximityLimit);
+          this._controlPoint = _findControlPoint(_midx, _midy, segment, params.sourcePos, params.targetPos, this.curviness, this.curviness, distance, this.proximityLimit);
+        } else {
+          this._controlPoint = this.geometry.controlPoints[0];
+        }
+
+        var cp1x, cp2x, cp1y, cp2y;
         cp1x = this._controlPoint[0];
         cp2x = this._controlPoint[0];
         cp1y = this._controlPoint[1];
@@ -16757,29 +16831,6 @@
   }(ArrowOverlay);
   OverlayFactory.register("Diamond", DiamondOverlay);
 
-  // function _suggest<T> (list:Array<T>, item:T, head?:boolean):boolean {
-  //     if (list.indexOf(item) === -1) {
-  //         head ? list.unshift(item) : list.push(item);
-  //         return true;
-  //     }
-  //     return false;
-  // }
-  //
-  // function _vanquish<T>(list:Array<T>, item:T):void {
-  //     const idx = list.indexOf(item);
-  //     if (idx !== -1) {
-  //         list.splice(idx, 1);
-  //     }
-  // }
-  //
-  // function _difference<T> (l1:Array<T>, l2:Array<T>) {
-  //     const d = [];
-  //     for (let i = 0; i < l1.length; i++) {
-  //         if (l2.indexOf(l1[i]) === -1)
-  //             d.push(l1[i]);
-  //     }
-  //     return d;
-  // }
   function getOffsetRect(elem) {
     // (1)
     var box = elem.getBoundingClientRect(),
@@ -16951,10 +17002,7 @@
       key: "toggleEnabled",
       value: function toggleEnabled() {
         this.enabled = !this.enabled;
-      } // setScope (scopes:string) {
-      //     this.scopes = scopes ? scopes.split(/\s+/) : [ this.scope ];
-      // }
-
+      }
     }, {
       key: "addScope",
       value: function addScope(scopes) {
@@ -17027,7 +17075,6 @@
     _inherits(Drag, _Base);
 
     // a map of { spec -> [ fn, exclusion ] } entries.
-    //_dragClass:string = "";
     function Drag(el, params, k) {
       var _this;
 
@@ -17228,8 +17275,7 @@
           this.k.eventManager.off(document, "mousemove", this.moveListener);
           this.k.eventManager.off(document, "mouseup", this.upListener);
           removeClass(document.body, _classes.noSelect);
-          this.unmark(e); // k.unmarkSelection(this, e);
-
+          this.unmark(e);
           this.stop(e);
           this._moving = false;
 
@@ -17357,7 +17403,7 @@
                 return;
               }
 
-              this.mark(dispatchResult, true);
+              this.mark(dispatchResult);
               this._moving = true;
             } else {
               this.abort();
@@ -17379,25 +17425,19 @@
 
             dx /= _z;
             dy /= _z;
-            this.moveBy(dx, dy, e); //k.updateSelection(dx, dy, this);
+            this.moveBy(dx, dy, e);
           }
         }
       }
     }, {
       key: "mark",
-      value: function mark(payload, andNotify) {
-        this._posAtDown = _getPosition(this._dragEl); //this._pagePosAtDown = _getPosition(this._dragEl, true*);
-
+      value: function mark(payload) {
+        this._posAtDown = _getPosition(this._dragEl);
         this._pagePosAtDown = getOffsetRect(this._dragEl);
         this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]];
         this._size = _getSize(this._dragEl);
         addClass(this._dragEl, this.k.css.drag);
-        var cs; // if (this._getConstrainingRectangle) {
-        //     cs = this._getConstrainingRectangle(this._dragEl)
-        // } else {
-        //     cs = _getSize(this._dragEl.parentNode);
-        // }
-
+        var cs;
         cs = getConstrainingRectangle(this._dragEl);
         this._constrainRect = {
           w: cs[0],
@@ -17525,8 +17565,7 @@
         if (force || this._moving) {
           var positions = [],
               sel = [],
-              //this.k.getSelection(),
-          dPos = _getPosition(this._dragEl);
+              dPos = _getPosition(this._dragEl);
 
           if (sel.length > 0) {
             for (var i = 0; i < sel.length; i++) {
@@ -17747,9 +17786,13 @@
       }
     }, {
       key: "addSelector",
-      value: function addSelector(params) {
+      value: function addSelector(params, atStart) {
         if (params.selector) {
-          this._availableSelectors.push(params);
+          if (atStart) {
+            this._availableSelectors.unshift(params);
+          } else {
+            this._availableSelectors.push(params);
+          }
         }
       }
     }, {
@@ -17823,9 +17866,7 @@
         var _p = {
           events: {}
         },
-            i; // for (i in katavorioParams) {
-        //     _p[i] = katavorioParams[i];
-        // }
+            i;
 
         for (i in p) {
           _p[i] = p[i];

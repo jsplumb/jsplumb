@@ -60,8 +60,6 @@ export interface DragParams extends DragHandlerOptions {
     ignoreZoom?: boolean;
     scope?: string;
 }
-export interface DragSelector {
-}
 export declare class Drag extends Base {
     _class: string;
     rightButtonCanDrag: boolean;
@@ -115,7 +113,7 @@ export declare class Drag extends Base {
     private _upListener;
     private _downListener;
     private _moveListener;
-    mark(payload: any, andNotify?: boolean): void;
+    mark(payload: any): void;
     unmark(e: MouseEvent): void;
     moveBy(dx: number, dy: number, e?: MouseEvent): void;
     abort(): void;
@@ -147,7 +145,7 @@ export declare class Drag extends Base {
     addFilter(f: Function | string, _exclude?: boolean): void;
     removeFilter(f: Function | string): void;
     clearAllFilters(): void;
-    addSelector(params: DragHandlerOptions): void;
+    addSelector(params: DragHandlerOptions, atStart?: boolean): void;
     destroy(): void;
 }
 export declare type ConstrainFunction = (desiredLoc: PointArray, dragEl: HTMLElement, constrainRect: BoundingBox, size: PointArray) => PointArray;

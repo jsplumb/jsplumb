@@ -91,6 +91,7 @@ export declare abstract class AbstractConnector implements Connector {
     instance: jsPlumbInstance;
     connection: Connection;
     abstract type: string;
+    edited: boolean;
     stub: number | [number, number];
     sourceStub: number;
     targetStub: number;
@@ -117,7 +118,7 @@ export declare abstract class AbstractConnector implements Connector {
     constructor(instance: jsPlumbInstance, connection: Connection, params: ConnectorOptions);
     getTypeDescriptor(): string;
     getIdPrefix(): string;
-    setGeometry(g: any, internal: boolean): void;
+    protected setGeometry(g: any, internal: boolean): void;
     /**
      * Subclasses can override this. By default we just pass back the geometry we are using internally.
      */
@@ -126,6 +127,7 @@ export declare abstract class AbstractConnector implements Connector {
      * Subclasses can override this. By default we just set the given geometry as our internal representation.
      */
     importGeometry(g: any): boolean;
+    resetGeometry(): void;
     abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;
     resetBounds(): void;
     getPathData(): any;
@@ -172,5 +174,6 @@ export declare abstract class AbstractConnector implements Connector {
     pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
     compute(params: ConnectorComputeParams): void;
     applyType(t: TypeDescriptor): void;
+    setAnchorOrientation(idx: number, orientation: number[]): void;
 }
 export {};

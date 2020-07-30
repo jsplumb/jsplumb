@@ -28,5 +28,7 @@ export declare abstract class AbstractBezierConnector extends AbstractConnector 
     getDefaultStubs(): [number, number];
     constructor(instance: jsPlumbInstance, connection: Connection, params: any);
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
+    exportGeometry(): any;
+    importGeometry(geometry: any): boolean;
     abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, _w: number, _h: number): void;
 }
