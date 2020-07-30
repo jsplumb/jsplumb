@@ -431,4 +431,9 @@ export abstract class AbstractConnector implements Connector {
     applyType(t:TypeDescriptor) {
         this.instance.renderer.applyConnectorType(this, t);
     }
+
+    //
+    // a dummy implementation for subclasses to override if they want to.
+    //
+    setAnchorOrientation(idx:number, orientation:number[]):void { }
 }
