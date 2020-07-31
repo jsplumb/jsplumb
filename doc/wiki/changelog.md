@@ -1,8 +1,10 @@
 ## 4.0.0-RC18
 
-30th July 2020
+31st July 2020
 
 - Ported some code from the Toolkit edition to support user-specified geometry in edges
+- Refactored the code that reports click/double click on managed elements.
+- Improved handling for element double click
 
 ## 4.0.0-RC17
 
