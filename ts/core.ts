@@ -98,9 +98,10 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     uniqueEndpoint?:boolean;
     onMaxConnections?:Function;
     connectionType?:string;
+    portId?:string;
 }
 
-interface SourceOrTargetDefinition {
+export interface SourceOrTargetDefinition {
     enabled?:boolean;
     def:BehaviouralTypeDescriptor;
     endpoint?:Endpoint;
@@ -1928,7 +1929,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope));
             this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
 
-            (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST] = (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST] || [];
+            (elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions = (elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions || [];
 
             let _def:SourceDefinition = {
                 def:extend({}, p),
@@ -1945,7 +1946,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             }
 
             (<any>elInfo).def = _def;
-            (<any>elInfo.el)[Constants.SOURCE_DEFINITION_LIST].push(_def);
+            (elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions.push(_def);
 
         };
 
@@ -2017,7 +2018,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope));
             this.setAttribute(elInfo.el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
 
-            (<any>elInfo.el)[Constants.TARGET_DEFINITION_LIST] = (<any>elInfo.el)[Constants.TARGET_DEFINITION_LIST] || [];
+            (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions = (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions || [];
 
             // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
             // precedence.
@@ -2040,7 +2041,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 _def.endpoint.deleteOnEmpty = false;
             }
 
-            (<any>elInfo.el)[Constants.TARGET_DEFINITION_LIST].push(_def);
+            (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions.push(_def);
         };
 
         this.each(el, _one);
