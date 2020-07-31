@@ -123,7 +123,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
     _overlayMouseout:Function;
 
     _elementClick:Function;
-    _elementDblClick:Function;
     _elementMouseenter:Function;
     _elementMouseexit:Function;
     _elementMousemove:Function;
@@ -219,11 +218,10 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
 
         const _elementClick = function(event:string, e:MouseEvent, target:HTMLElement) {
             if (!e.defaultPrevented) {
-                this.fire(event, target, e);
+                this.fire(e.detail === 1 ? Constants.EVENT_ELEMENT_CLICK : Constants.EVENT_ELEMENT_DBL_CLICK, target, e);
             }
         };
         this._elementClick = _elementClick.bind(this, Constants.EVENT_ELEMENT_CLICK);
-        this._elementDblClick = _elementClick.bind(this, Constants.EVENT_ELEMENT_DBL_CLICK);
 
         const _elementHover = function(state:boolean, e:MouseEvent) {
             this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
@@ -528,7 +526,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
             this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._overlayDblClick);
 
             this.eventManager.off(currentContainer, Constants.EVENT_CLICK, this._elementClick);
-            this.eventManager.off(currentContainer, Constants.EVENT_DBL_CLICK, this._elementDblClick);
 
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOVER, this._connectorMouseover);
             this.eventManager.off(currentContainer, Constants.EVENT_MOUSEOUT, this._connectorMouseout);
