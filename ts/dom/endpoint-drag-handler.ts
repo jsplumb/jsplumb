@@ -786,12 +786,13 @@ export class EndpointDragHandler implements DragHandler {
                 discarded = !this._reattachOrDiscard(p.e);
             }
 
-            if (!discarded) {
-                this.instance.renderer.refreshEndpoint(this.ep);
-                this.ep.removeClass("endpointDrag");
-                this.ep.removeClass(this.instance.draggingClass);
-            }
-
+            // originally, the rewrite had this test. but in the case that a connection was detached via the mouse and the endpoint remained in place,
+            // that endpoint's classes were not cleaned up.
+            //if (!discarded) {
+            this.instance.renderer.refreshEndpoint(this.ep);
+            this.ep.removeClass("endpointDrag");
+            this.ep.removeClass(this.instance.draggingClass);
+            //}
 
             // common clean up
 
