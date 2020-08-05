@@ -16,7 +16,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init": "node ./install.js",
-    "build": "tsc",
+    "build": "set -e;tsc",
     "babel": "./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
     "package": "set -e;npm run build;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs",
     "copy-defs": "node ./copy-typescript-defs.js",
