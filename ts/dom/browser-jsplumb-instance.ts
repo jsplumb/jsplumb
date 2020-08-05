@@ -499,7 +499,6 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
         this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_ENDPOINT, this._endpointDblClick);
 
         this.eventManager.on(currentContainer, Constants.EVENT_CLICK, Constants.SELECTOR_MANAGED_ELEMENT, this._elementClick);
-        this.eventManager.on(currentContainer, Constants.EVENT_DBL_CLICK, Constants.SELECTOR_MANAGED_ELEMENT, this._elementDblClick);
 
         this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOVER, Constants.SELECTOR_CONNECTOR, this._connectorMouseover);
         this.eventManager.on(currentContainer, Constants.EVENT_MOUSEOUT, Constants.SELECTOR_CONNECTOR, this._connectorMouseout);
