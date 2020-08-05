@@ -8357,7 +8357,7 @@
 
           _this16.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
 
-          elInfo.el[SOURCE_DEFINITION_LIST] = elInfo.el[SOURCE_DEFINITION_LIST] || [];
+          elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || [];
           var _def = {
             def: extend({}, p),
             uniqueEndpoint: p.uniqueEndpoint,
@@ -8373,7 +8373,8 @@
           }
 
           elInfo.def = _def;
-          elInfo.el[SOURCE_DEFINITION_LIST].push(_def);
+
+          elInfo.el._jsPlumbSourceDefinitions.push(_def);
         };
 
         this.each(el, _one);
@@ -8461,7 +8462,7 @@
 
           _this17.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
 
-          elInfo.el[TARGET_DEFINITION_LIST] = elInfo.el[TARGET_DEFINITION_LIST] || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
+          elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
           // precedence.
 
           if (elInfo.el._isJsPlumbGroup && dropOptions.rank == null) {
@@ -8483,7 +8484,7 @@
             _def.endpoint.deleteOnEmpty = false;
           }
 
-          elInfo.el[TARGET_DEFINITION_LIST].push(_def);
+          elInfo.el._jsPlumbTargetDefinitions.push(_def);
         };
 
         this.each(el, _one);
@@ -13102,8 +13103,6 @@
 
       _defineProperty(_assertThisInitialized(_this), "_elementClick", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "_elementDblClick", void 0);
-
       _defineProperty(_assertThisInitialized(_this), "_elementMouseenter", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "_elementMouseexit", void 0);
@@ -13213,12 +13212,11 @@
 
       var _elementClick = function _elementClick(event, e, target) {
         if (!e.defaultPrevented) {
-          this.fire(event, target, e);
+          this.fire(e.detail === 1 ? EVENT_ELEMENT_CLICK : EVENT_ELEMENT_DBL_CLICK, target, e);
         }
       };
 
       _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_CLICK);
-      _this._elementDblClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_DBL_CLICK);
 
       var _elementHover = function _elementHover(state, e) {
         this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
@@ -13514,7 +13512,6 @@
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_ENDPOINT, this._endpointClick);
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_ENDPOINT, this._endpointDblClick);
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_MANAGED_ELEMENT, this._elementClick);
-        this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_MANAGED_ELEMENT, this._elementDblClick);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_ENDPOINT, this._endpointMouseover);
@@ -13538,7 +13535,6 @@
           this.eventManager.off(currentContainer, EVENT_CLICK, this._overlayClick);
           this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._overlayDblClick);
           this.eventManager.off(currentContainer, EVENT_CLICK, this._elementClick);
-          this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._elementDblClick);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover);
           this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._endpointMouseover);

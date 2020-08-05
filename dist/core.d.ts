@@ -71,8 +71,9 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     uniqueEndpoint?: boolean;
     onMaxConnections?: Function;
     connectionType?: string;
+    portId?: string;
 }
-interface SourceOrTargetDefinition {
+export interface SourceOrTargetDefinition {
     enabled?: boolean;
     def: BehaviouralTypeDescriptor;
     endpoint?: Endpoint;

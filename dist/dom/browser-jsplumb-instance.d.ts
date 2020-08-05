@@ -65,7 +65,6 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
     _overlayMouseover: Function;
     _overlayMouseout: Function;
     _elementClick: Function;
-    _elementDblClick: Function;
     _elementMouseenter: Function;
     _elementMouseexit: Function;
     _elementMousemove: Function;
