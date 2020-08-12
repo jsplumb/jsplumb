@@ -44,6 +44,7 @@ export interface EndpointOptions extends ComponentOptions {
     type?: string; // "Dot", etc.
     connectorTooltip?:string;
 
+    portId?:string;
     uuid?:string;
     source?:string|any;
 
