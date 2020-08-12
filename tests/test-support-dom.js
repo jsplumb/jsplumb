@@ -132,7 +132,7 @@
     //
     // helper method to cause a connection to be dragged via the mouse, but programmatically.
     //
-    var _dragConnection = function (_jsPlumb, d1, d2) {
+    var _dragConnection = function (_jsPlumb, d1, d2, mouseUpOnTarget) {
         var el1 = getCanvas(d1), el2 = getCanvas(d2);
         var e1 = _makeEvt(_jsPlumb, el1), e2 = _makeEvt(_jsPlumb, el2);
 
@@ -140,7 +140,7 @@
 
         _jsPlumb.trigger(el1, "mousedown", e1);
         _jsPlumb.trigger(document, "mousemove", e2);
-        _jsPlumb.trigger(document, "mouseup", e2);
+        _jsPlumb.trigger(mouseUpOnTarget ? el2 : document, "mouseup", e2);
 
         return _jsPlumb.select().get(conns);
     };
