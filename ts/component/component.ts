@@ -53,11 +53,9 @@ export type ComponentConfig = {
     endpointHoverStyles?:[PaintStyle, PaintStyle];
 
 
-    enabled?:boolean;
+    //enabled?:boolean;
 
     currentAnchorClass?:string;
-
-    uuid?:string;
 
     floatingEndpoint?:Endpoint;
 
