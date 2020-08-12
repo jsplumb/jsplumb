@@ -50,6 +50,8 @@ export class Endpoint extends OverlayCapableComponent {
     scope:string;
     timestamp:string;
 
+    portId:string;
+
     maxConnections:number;
 
     connectorClass:string;
@@ -58,6 +60,8 @@ export class Endpoint extends OverlayCapableComponent {
     _originalAnchor:any;
     deleteAfterDragStop:boolean;
     finalEndpoint:Endpoint;
+
+    enabled = true;
 
     isSource:boolean;
     isTarget:boolean;
@@ -80,6 +84,8 @@ export class Endpoint extends OverlayCapableComponent {
 
     deleteOnEmpty:boolean;
 
+    private uuid:string;
+
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number];
     getDefaultOverlayKey () { return "endpointOverlays"; }
 
@@ -100,13 +106,17 @@ export class Endpoint extends OverlayCapableComponent {
             connectorTooltip: params.connectorTooltip
         });
 
-        this._jsPlumb.enabled = !(params.enabled === false);
+        //this._jsPlumb.enabled = !(params.enabled === false);
+        this.enabled = !(params.enabled === false);
         this.visible = true;
         this.element = this.instance.getElement(params.source);
-        this._jsPlumb.uuid = params.uuid;
+
+        this.uuid = params.uuid;
+
+        this.portId = params.portId;
         this._jsPlumb.floatingEndpoint = null;
-        if (this._jsPlumb.uuid) {
-            this.instance.endpointsByUUID[this._jsPlumb.uuid] = this;
+        if (this.uuid) {
+            this.instance.endpointsByUUID[this.uuid] = this;
         }
         this.elementId = params.elementId;
         this.dragProxy = params.dragProxy;
@@ -309,13 +319,13 @@ export class Endpoint extends OverlayCapableComponent {
 
     }
 
-    isEnabled():boolean {
-        return this._jsPlumb.enabled;
-    }
-
-    setEnabled(e:boolean):void {
-        this._jsPlumb.enabled = e;
-    }
+    // isEnabled():boolean {
+    //     return this._jsPlumb.enabled;
+    // }
+    //
+    // setEnabled(e:boolean):void {
+    //     this._jsPlumb.enabled = e;
+    // }
 
     destroy(force?:boolean):void {
         // TODO i feel like this anchor class stuff should be in the renderer
@@ -385,7 +395,7 @@ export class Endpoint extends OverlayCapableComponent {
     }
 
     getUuid():string {
-        return this._jsPlumb.uuid;
+        return this.uuid;
     }
 
     computeAnchor(params:any) {
