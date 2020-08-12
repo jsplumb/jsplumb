@@ -303,7 +303,7 @@ export class EndpointDragHandler implements DragHandler {
         
         let _continue = true;
         // if not enabled, return
-        if (!this.ep.isEnabled()) {
+        if (!this.ep.enabled) {
             _continue = false;
         }
         // if no connection and we're not a source - or temporarily a source, as is the case with makeSource - return.
@@ -724,7 +724,7 @@ export class EndpointDragHandler implements DragHandler {
                         this._doForceReattach(idx);
                     } else {
 
-                        if (!dropEndpoint.isEnabled()) {
+                        if (!dropEndpoint.enabled) {
                             // if endpoint disabled, either reattach or discard
                             discarded = !this._reattachOrDiscard(p.e);
                         } else if (dropEndpoint.isFull()) {
@@ -917,6 +917,10 @@ export class EndpointDragHandler implements DragHandler {
 
             if(targetDefinition.def.parameters != null) {
                 pp.parameters = targetDefinition.def.parameters;
+            }
+
+            if(targetDefinition.def.portId != null) {
+                pp.portId = targetDefinition.def.portId;
             }
 
             dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp) as Endpoint;
