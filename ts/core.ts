@@ -49,6 +49,7 @@ export interface ConnectParams {
     endpointHoverStyles?:[PaintStyle, PaintStyle];
     endpointStyle?:PaintStyle;
     endpointHoverStyle?:PaintStyle;
+    ports?:[string, string];
 }
 
 interface InternalConnectParams extends ConnectParams {
@@ -1325,8 +1326,9 @@ export abstract class jsPlumbInstance extends EventGenerator {
     }
 
     unregisterEndpoint(endpoint:Endpoint) {
-        if (endpoint._jsPlumb.uuid) {
-            delete this.endpointsByUUID[endpoint._jsPlumb.uuid];
+        const uuid = endpoint.getUuid();
+        if (uuid) {
+            delete this.endpointsByUUID[uuid];
         }
         this.anchorManager.deleteEndpoint(endpoint);
 
@@ -1479,7 +1481,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         return jpc;
     }
 
-    _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):any {
+    private _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):InternalConnectParams {
 
         let _p:InternalConnectParams = extend({ }, params);
         if (referenceParams) {
@@ -1552,21 +1554,26 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
                 endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
                 paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
-                hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
+                hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle,
+                portId: _p.ports ? _p.ports[idx] : null
             });
             return this.addEndpoint(el, params);
         };
 
         // check for makeSource/makeTarget specs.
 
-        let _oneElementDef = (type:string, idx:number, matchType?:string) => {
+        let _oneElementDef = (type:string, idx:number, matchType:string, portId:string) => {
             // `type` is "source" or "target". Check that it exists, and is not already an Endpoint.
             if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
 
                 let elDefs = _p[type][type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST];
                 if (elDefs) {
                     let defIdx = findWithFunction(elDefs, (d:any) => {
-                        return d.def.connectionType == null || d.def.connectionType === matchType;
+
+                        //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId);
+
+                        return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId);
+                        //return (d.def.portId == null || d.def.portId == portId);
                     });
                     if (defIdx >= 0) {
 
@@ -1614,10 +1621,10 @@ export abstract class jsPlumbInstance extends EventGenerator {
             }
         };
 
-        if (_oneElementDef(Constants.SOURCE, 0, _p.type || Constants.DEFAULT) === false) {
+        if (_oneElementDef(Constants.SOURCE, 0, _p.type || Constants.DEFAULT, _p.ports ? _p.ports[0] : null) === false) {
             return;
         }
-        if (_oneElementDef(Constants.TARGET, 1, _p.type || Constants.DEFAULT) === false) {
+        if (_oneElementDef(Constants.TARGET, 1, _p.type || Constants.DEFAULT, _p.ports ? _p.ports[1] : null) === false) {
             return;
         }
 
