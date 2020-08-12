@@ -3693,6 +3693,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "timestamp", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "portId", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "maxConnections", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "connectorClass", void 0);
@@ -3733,6 +3735,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "deleteOnEmpty", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "uuid", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", [0.5, 0.5]);
 
       _this.appendToDefaultType({
@@ -3753,11 +3757,12 @@
       _this._jsPlumb.enabled = !(params.enabled === false);
       _this.visible = true;
       _this.element = _this.instance.getElement(params.source);
-      _this._jsPlumb.uuid = params.uuid;
+      _this.uuid = params.uuid;
+      _this.portId = params.portId;
       _this._jsPlumb.floatingEndpoint = null;
 
-      if (_this._jsPlumb.uuid) {
-        _this.instance.endpointsByUUID[_this._jsPlumb.uuid] = _assertThisInitialized(_this);
+      if (_this.uuid) {
+        _this.instance.endpointsByUUID[_this.uuid] = _assertThisInitialized(_this);
       }
 
       _this.elementId = params.elementId;
@@ -4081,7 +4086,7 @@
     }, {
       key: "getUuid",
       value: function getUuid() {
-        return this._jsPlumb.uuid;
+        return this.uuid;
       }
     }, {
       key: "computeAnchor",
@@ -7657,8 +7662,10 @@
     }, {
       key: "unregisterEndpoint",
       value: function unregisterEndpoint(endpoint) {
-        if (endpoint._jsPlumb.uuid) {
-          delete this.endpointsByUUID[endpoint._jsPlumb.uuid];
+        var uuid = endpoint.getUuid();
+
+        if (uuid) {
+          delete this.endpointsByUUID[uuid];
         }
 
         this.anchorManager.deleteEndpoint(endpoint); // TODO at least replace this with a removeWithFunction call.
@@ -7917,21 +7924,23 @@
             anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
             endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
             paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
-            hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
+            hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle,
+            portId: _p.ports ? _p.ports[idx] : null
           });
 
           return _this10.addEndpoint(el, params);
         }; // check for makeSource/makeTarget specs.
 
 
-        var _oneElementDef = function _oneElementDef(type, idx, matchType) {
+        var _oneElementDef = function _oneElementDef(type, idx, matchType, portId) {
           // `type` is "source" or "target". Check that it exists, and is not already an Endpoint.
           if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
             var elDefs = _p[type][type === SOURCE ? SOURCE_DEFINITION_LIST : TARGET_DEFINITION_LIST];
 
             if (elDefs) {
               var defIdx = findWithFunction(elDefs, function (d) {
-                return d.def.connectionType == null || d.def.connectionType === matchType;
+                //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId);
+                return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId); //return (d.def.portId == null || d.def.portId == portId);
               });
 
               if (defIdx >= 0) {
@@ -7982,11 +7991,11 @@
           }
         };
 
-        if (_oneElementDef(SOURCE, 0, _p.type || DEFAULT) === false) {
+        if (_oneElementDef(SOURCE, 0, _p.type || DEFAULT, _p.ports ? _p.ports[0] : null) === false) {
           return;
         }
 
-        if (_oneElementDef(TARGET, 1, _p.type || DEFAULT) === false) {
+        if (_oneElementDef(TARGET, 1, _p.type || DEFAULT, _p.ports ? _p.ports[1] : null) === false) {
           return;
         } // last, ensure scopes match
 
@@ -11772,6 +11781,10 @@
 
           if (targetDefinition.def.parameters != null) {
             pp.parameters = targetDefinition.def.parameters;
+          }
+
+          if (targetDefinition.def.portId != null) {
+            pp.portId = targetDefinition.def.portId;
           }
 
           dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
