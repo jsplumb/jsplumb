@@ -11,6 +11,7 @@ import {
 import {Anchor} from "./anchor";
 import {Dictionary, jsPlumbInstance} from "../core";
 import {Endpoint} from "../endpoint/endpoint-impl";
+import {AnchorPlacement} from "../anchor-manager";
 
 export interface ContinuousAnchorOptions extends AnchorOptions {
     faces?:Array<Face>;
@@ -111,7 +112,7 @@ export class ContinuousAnchor extends Anchor {
         this._lockedFace = this._currentFace;
     }
 
-    unlock () {
+    unlock ():void {
         this._lockedFace = null;
     }
 
@@ -129,11 +130,11 @@ export class ContinuousAnchor extends Anchor {
         this._lockedAxis = null;
     }
 
-    compute (params:AnchorComputeParams) {
+    compute (params:AnchorComputeParams):AnchorPlacement {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
     }
 
-    getCurrentLocation (params:AnchorComputeParams) {
+    getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
     }
 
