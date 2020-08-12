@@ -403,10 +403,10 @@ var testSuite = function () {
     test(": jsPlumb.isTarget and jsPlumb.isTargetEnabled", function () {
         var d17 = support.addDiv("d17");
         _jsPlumb.makeTarget(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        ok(_jsPlumb.isTarget(d17) == true, "d17 is recognised as connection target");
-        ok(_jsPlumb.isTargetEnabled(d17) == true, "d17 is recognised as enabled");
+        ok(_jsPlumb.isTarget(d17) === true, "d17 is recognised as connection target");
+        ok(_jsPlumb.isTargetEnabled(d17) === true, "d17 is recognised as enabled");
         _jsPlumb.setTargetEnabled(d17, false);
-        ok(_jsPlumb.isTargetEnabled(d17) == false, "d17 is recognised as disabled");
+        ok(_jsPlumb.isTargetEnabled(d17) === false, "d17 is recognised as disabled");
 
         equal(_jsPlumb.isTarget("d17"), true, "d17 is recognised as a target when provided as a string");
 
@@ -670,5 +670,240 @@ var testSuite = function () {
         ok(c.getOverlay("overlay") != null);
     });
 
+
+// ------------------------ filters and port ids ---------------------------------------------
+
+    //
+    // basic source filter setup - a single makeSource call on an element, with a filter.
+    //
+    test("source filter, ", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250);
+
+        //_addDiv = function (id, parent, className, x, y, w, h) {
+
+        var d16s = support.addDiv("d16source", d16, "source", 10, 10, 50, 50);
+        d16s.style.position = "absolute";
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            filter:".source"
+        });
+
+        _jsPlumb.makeTarget(d17);
+
+        var c = support.dragConnection(d16, d17);
+        ok(c == null, "no connection - source filter prevented it");
+
+        c = support.dragConnection(d16s, d17);
+        ok(c != null, "connection established - source filter allowed it");
+    });
+
+    //
+    // more advanced source filter setup - two makeSource calls on an element, one with a filter that excludes it.
+    //
+    // the connection's source endpoint should provide the appropriate `portId`.
+    //
+    test("source filter, ", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250),
+            d16s = support.addDiv("d16source", d16, "source", 10, 10, 50, 50);
+
+        d16s.style.position = "absolute";
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            filter:".source",
+            filterExclude:true
+        });
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            portId:"port2"
+        });
+
+        _jsPlumb.makeTarget(d17);
+
+        var c = support.dragConnection(d16s, d17);
+        ok(c != null, "connection established - the source config without a filter allowed it.");
+
+        equal(c.endpoints[0].portId, "port2", "port2 is the id of the source port");
+    });
+
+    test("target filter, single target zone", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250),
+            d16s = support.addDiv("d16source", d16, "source", 10, 10, 50, 50),
+            d17t = support.addDiv("d17target", d17, "target", 10, 10, 50, 50);
+
+        d16s.style.position = "absolute";
+        d17t.style.position = "absolute";
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            filter:".target",
+            filterExclude:true,
+            portId:"port1"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            portId:"port2"
+        });
+
+        var c = support.dragConnection(d16, d17t, true);
+        ok(c != null, "connection established - the target config without a filter allowed it.");
+
+        equal(c.endpoints[1].portId, "port2", "port2 is the id of the target port");
+    });
+
+    test("target filter, two target zones", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250),
+            d17t = support.addDiv("d17target", d17, "target", 10, 10, 50, 50),
+            d17t2 = support.addDiv("d17target2", d17, "target2", 10, 10, 50, 50);
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            filter:".target",
+            portId:"port1"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            filter:".target2",
+            portId:"port2"
+        });
+
+        var c = support.dragConnection(d16, d17t, true);
+        equal(c.endpoints[1].portId, "port1", "connection shows `port1` as target port id");
+        var c2 = support.dragConnection(d16, d17t2, true);
+        equal(c2.endpoints[1].portId, "port2", "connection shows `port2` as target port id");
+    });
+
+    test("target filter, two source and two target zones", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d16s = support.addDiv("d16source", d16, "source", 10, 10, 50, 50),
+            d16s2 = support.addDiv("d16source2", d16, "source2", 10, 10, 50, 50),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250),
+            d17t = support.addDiv("d17target", d17, "target", 10, 10, 50, 50),
+            d17t2 = support.addDiv("d17target2", d17, "target2", 10, 10, 50, 50);
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            filter:".source",
+            portId:"port1"
+        });
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            filter:".source2",
+            portId:"port2"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            filter:".target",
+            portId:"port1"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            filter:".target2",
+            portId:"port2"
+        });
+
+        var c = support.dragConnection(d16s, d17t, true);
+        equal(c.endpoints[0].portId, "port1", "connection shows `port1` as source port id");
+        equal(c.endpoints[1].portId, "port1", "connection shows `port1` as target port id");
+
+        c = support.dragConnection(d16s, d17t2, true);
+        equal(c.endpoints[0].portId, "port1", "connection shows `port1` as source port id");
+        equal(c.endpoints[1].portId, "port2", "connection shows `port2` as target port id");
+
+        c = support.dragConnection(d16s2, d17t, true);
+        equal(c.endpoints[0].portId, "port2", "connection shows `port2` as source port id");
+        equal(c.endpoints[1].portId, "port1", "connection shows `port1` as target port id");
+
+        c = support.dragConnection(d16s2, d17t2, true);
+        equal(c.endpoints[0].portId, "port2", "connection shows `port2` as source port id");
+        equal(c.endpoints[1].portId, "port2", "connection shows `port2` as target port id");
+    });
+
+    test("target filter, two source and two target zones, programmatic", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d16s = support.addDiv("d16source", d16, "source", 10, 10, 50, 50),
+            d16s2 = support.addDiv("d16source2", d16, "source2", 10, 10, 50, 50),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250),
+            d17t = support.addDiv("d17target", d17, "target", 10, 10, 50, 50),
+            d17t2 = support.addDiv("d17target2", d17, "target2", 10, 10, 50, 50);
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            filter:".source",
+            portId:"port1",
+            endpoint:"Blank"
+        });
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            filter:".source2",
+            portId:"port2"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            filter:".target",
+            portId:"port1"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            filter:".target2",
+            portId:"port2",
+            endpoint:"Rectangle"
+        });
+
+        var c = _jsPlumb.connect({source:d16, target:d17, ports:["port1", "port1"]});
+        equal(c.endpoints[0].portId, "port1", "connection shows `port1` as source port id");
+        equal(c.endpoints[1].portId, "port1", "connection shows `port1` as target port id");
+        equal(c.endpoints[0].endpoint.getType(), "Blank", "source endpoint type derived from the port1 source spec");
+        equal(c.endpoints[1].endpoint.getType(), "Dot", "target endpoint type derived from the default");
+
+        c = _jsPlumb.connect({source:d16, target:d17, ports:["port1", "port2"]});
+        equal(c.endpoints[0].portId, "port1", "connection shows `port1` as source port id");
+        equal(c.endpoints[1].portId, "port2", "connection shows `port2` as target port id");
+        equal(c.endpoints[0].endpoint.getType(), "Blank", "source endpoint type derived from the port1 source spec");
+        equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint type derived from the port2 target spec");
+
+        c = _jsPlumb.connect({source:d16, target:d17, ports:["port2", "port1"]});
+        equal(c.endpoints[0].portId, "port2", "connection shows `port2` as source port id");
+        equal(c.endpoints[1].portId, "port1", "connection shows `port1` as target port id");
+        equal(c.endpoints[0].endpoint.getType(), "Dot", "source endpoint type derived from the default");
+        equal(c.endpoints[1].endpoint.getType(), "Dot", "target endpoint type derived from the default");
+
+        c = _jsPlumb.connect({source:d16, target:d17, ports:["port2", "port2"]});
+        equal(c.endpoints[0].portId, "port2", "connection shows `port2` as source port id");
+        equal(c.endpoints[1].portId, "port2", "connection shows `port2` as target port id");
+        equal(c.endpoints[0].endpoint.getType(), "Dot", "source endpoint type derived from the default");
+        equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint type derived from the port2 target spec");
+    });
+
+    // 1. two sources on one element, single target, mouse
+
+    // 2. two sources on one element, two target zones on target element, mouse
+
+    // 3. two sources on one element, single target, programmatic
+
+    // 4. two sources on one element, two target zones on target element, programmatic
 
 };
