@@ -2897,11 +2897,11 @@
         });
       }
 
-      _this._jsPlumb.cost = params.cost || _this.endpoints[0].getConnectionCost();
+      _this._jsPlumb.cost = params.cost || _this.endpoints[0].connectionCost;
       _this._jsPlumb.directed = params.directed; // inherit directed flag if set no source endpoint
 
       if (params.directed == null) {
-        _this._jsPlumb.directed = _this.endpoints[0].areConnectionsDirected();
+        _this._jsPlumb.directed = _this.endpoints[0].connectionsDirected;
       } // PARAMETERS
       // merge all the parameters objects into the connection.  parameters set
       // on the connection take precedence; then source endpoint params, then
@@ -3707,11 +3707,15 @@
 
       _defineProperty(_assertThisInitialized(_this), "finalEndpoint", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "enabled", true);
+
       _defineProperty(_assertThisInitialized(_this), "isSource", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "isTarget", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "isTemporarySource", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "connectionCost", 1);
 
       _defineProperty(_assertThisInitialized(_this), "connectionsDirected", void 0);
 
@@ -3754,7 +3758,7 @@
         connectorTooltip: params.connectorTooltip
       });
 
-      _this._jsPlumb.enabled = !(params.enabled === false);
+      _this.enabled = !(params.enabled === false);
       _this.visible = true;
       _this.element = _this.instance.getElement(params.source);
       _this.uuid = params.uuid;
@@ -3767,7 +3771,7 @@
 
       _this.elementId = params.elementId;
       _this.dragProxy = params.dragProxy;
-      _this._jsPlumb.connectionCost = params.connectionCost;
+      _this.connectionCost = params.connectionCost == null ? 1 : params.connectionCost;
       _this.connectionsDirected = params.connectionsDirected;
       _this._jsPlumb.currentAnchorClass = "";
       _this._jsPlumb.events = {};
@@ -3991,16 +3995,6 @@
         this.instance.renderer.applyEndpointType(this, t);
       }
     }, {
-      key: "isEnabled",
-      value: function isEnabled() {
-        return this._jsPlumb.enabled;
-      }
-    }, {
-      key: "setEnabled",
-      value: function setEnabled(e) {
-        this._jsPlumb.enabled = e;
-      }
-    }, {
       key: "destroy",
       value: function destroy(force) {
         // TODO i feel like this anchor class stuff should be in the renderer
@@ -4041,27 +4035,21 @@
         }
 
         return found;
-      }
-    }, {
-      key: "getConnectionCost",
-      value: function getConnectionCost() {
-        return this._jsPlumb.connectionCost;
-      }
-    }, {
-      key: "setConnectionCost",
-      value: function setConnectionCost(c) {
-        this._jsPlumb.connectionCost = c;
-      }
-    }, {
-      key: "areConnectionsDirected",
-      value: function areConnectionsDirected() {
-        return this.connectionsDirected;
-      }
-    }, {
-      key: "setConnectionsDirected",
-      value: function setConnectionsDirected(b) {
-        this.connectionsDirected = b;
-      }
+      } // getConnectionCost():number {
+      //     return this._jsPlumb.connectionCost;
+      // }
+      //
+      // setConnectionCost(c:number) {
+      //     this._jsPlumb.connectionCost = c;
+      // }
+      // areConnectionsDirected():boolean {
+      //     return this.connectionsDirected;
+      // }
+      //
+      // setConnectionsDirected(b:boolean):void {
+      //     this.connectionsDirected = b;
+      // }
+
     }, {
       key: "setElementId",
       value: function setElementId(_elId) {
@@ -5240,7 +5228,7 @@
         }
 
         this.instance.setPosition(_el, pos);
-        delete _el[PARENT_GROUP_KEY];
+        delete _el._jsPlumbParentGroup;
         return [id, pos];
       }
     }, {
@@ -7005,9 +6993,17 @@
         var common = this._makeCommonSelectHandler(list, this._makeEndpointSelectHandler.bind(this));
 
         var endpointFunctions = {
-          setEnabled: setter(list, "setEnabled", this._makeEndpointSelectHandler.bind(this)),
+          setEnabled: function setEnabled(e) {
+            for (var i = 0, ii = list.length; i < ii; i++) {
+              list[i].enabled = e;
+            }
+          },
           setAnchor: setter(list, "setAnchor", this._makeEndpointSelectHandler.bind(this)),
-          isEnabled: getter(list, "isEnabled"),
+          isEnabled: function isEnabled() {
+            return list.map(function (e) {
+              return [e.enabled, e];
+            });
+          },
           deleteEveryConnection: function deleteEveryConnection() {
             for (var i = 0, ii = list.length; i < ii; i++) {
               list[i].deleteEveryConnection();
@@ -11160,7 +11156,7 @@
 
         var _continue = true; // if not enabled, return
 
-        if (!this.ep.isEnabled()) {
+        if (!this.ep.enabled) {
           _continue = false;
         } // if no connection and we're not a source - or temporarily a source, as is the case with makeSource - return.
 
@@ -11583,7 +11579,7 @@
               if (suspendedEndpoint && suspendedEndpoint.id === dropEndpoint.id) {
                 this._doForceReattach(idx);
               } else {
-                if (!dropEndpoint.isEnabled()) {
+                if (!dropEndpoint.enabled) {
                   // if endpoint disabled, either reattach or discard
                   discarded = !this._reattachOrDiscard(p.e);
                 } else if (dropEndpoint.isFull()) {
