@@ -154,7 +154,7 @@ export type RepaintOptions = {
     recalc?:boolean;
 }
 
-export interface ComponentOptions {
+export interface ComponentOptions extends Record<string, any> {
     _jsPlumb?:jsPlumbInstance;
     parameters?:any;
     beforeDetach?:Function;
