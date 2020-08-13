@@ -5,7 +5,7 @@ import {
     ContinuousAnchor,
     DotEndpoint,
     EndpointSpec,
-    GroupManager,
+    GroupManager, jsPlumbDOMElement,
     log,
     removeWithFunction,
     uuid
@@ -157,11 +157,11 @@ export class UIGroup extends UINode {
         this.manager._updateConnectionsForGroup(this);
     }
 
-    private _orphan(_el:any):[string, Offset] {
+    private _orphan(_el:jsPlumbDOMElement):[string, Offset] {
         const groupPos = this.manager.instance.getOffset(this.el);
         const id = this.manager.instance.getId(_el);
         const pos = this.manager.instance.getOffset(_el);
-        (<any>_el).parentNode.removeChild(_el);
+        _el.parentNode.removeChild(_el);
 
         if (this.group) {
             pos.left += groupPos.left;
@@ -172,7 +172,7 @@ export class UIGroup extends UINode {
         }
 
         this.instance.setPosition(_el, pos);
-        delete _el[Constants.PARENT_GROUP_KEY];
+        delete _el._jsPlumbParentGroup;
         return [id, pos];
     }
 
