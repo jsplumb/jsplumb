@@ -88,11 +88,11 @@ var testSuite = function () {
         equal(e2.connections.length, 0, "zero connections on endpoint 2 after connection removed");
 
         // now disable e1 and try to drag a new connection: it should fail
-        e1.setEnabled(false);
+        e1.enabled = false;
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 0, "zero connections after drag from disabled endpoint");
 
-        e1.setEnabled(true);
+        e1.enabled = true;
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag from enabled endpoint");
 
