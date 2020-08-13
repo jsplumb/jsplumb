@@ -67,6 +67,7 @@ export class Endpoint extends OverlayCapableComponent {
     isTarget:boolean;
     isTemporarySource:boolean;
 
+    connectionCost:number = 1;
     connectionsDirected:boolean;
     connectionsDetachable:boolean;
     reattachConnections:boolean;
@@ -106,7 +107,6 @@ export class Endpoint extends OverlayCapableComponent {
             connectorTooltip: params.connectorTooltip
         });
 
-        //this._jsPlumb.enabled = !(params.enabled === false);
         this.enabled = !(params.enabled === false);
         this.visible = true;
         this.element = this.instance.getElement(params.source);
@@ -121,7 +121,7 @@ export class Endpoint extends OverlayCapableComponent {
         this.elementId = params.elementId;
         this.dragProxy = params.dragProxy;
 
-        this._jsPlumb.connectionCost = params.connectionCost;
+        this.connectionCost = params.connectionCost == null ? 1 : params.connectionCost;
         this.connectionsDirected = params.connectionsDirected;
         this._jsPlumb.currentAnchorClass = "";
         this._jsPlumb.events = {};
@@ -319,14 +319,6 @@ export class Endpoint extends OverlayCapableComponent {
 
     }
 
-    // isEnabled():boolean {
-    //     return this._jsPlumb.enabled;
-    // }
-    //
-    // setEnabled(e:boolean):void {
-    //     this._jsPlumb.enabled = e;
-    // }
-
     destroy(force?:boolean):void {
         // TODO i feel like this anchor class stuff should be in the renderer
         let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
@@ -361,22 +353,6 @@ export class Endpoint extends OverlayCapableComponent {
         return found;
     }
 
-    getConnectionCost():number {
-        return this._jsPlumb.connectionCost;
-    }
-
-    setConnectionCost(c:number) {
-        this._jsPlumb.connectionCost = c;
-    }
-
-    areConnectionsDirected():boolean {
-        return this.connectionsDirected;
-    }
-
-    setConnectionsDirected(b:boolean):void {
-        this.connectionsDirected = b;
-    }
-
     setElementId(_elId:string):void {
         this.elementId = _elId;
         this.anchor.elementId = _elId;
@@ -398,7 +374,7 @@ export class Endpoint extends OverlayCapableComponent {
         return this.uuid;
     }
 
-    computeAnchor(params:any) {
+    computeAnchor(params:any):AnchorPlacement {
         return this.anchor.compute(params);
     }
 
