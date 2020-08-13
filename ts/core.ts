@@ -773,9 +773,13 @@ export abstract class jsPlumbInstance extends EventGenerator {
     private _makeEndpointSelectHandler (list:Array<Endpoint>):EndpointSelection {
         let common = this._makeCommonSelectHandler(list, this._makeEndpointSelectHandler.bind(this)) as EndpointSelection;
         let endpointFunctions:any = {
-            setEnabled: setter(list, "setEnabled", this._makeEndpointSelectHandler.bind(this)),
+            setEnabled: (e:boolean) => {
+                for (let i = 0, ii = list.length; i < ii; i++) {
+                    list[i].enabled = e;
+                }
+            },
             setAnchor: setter(list, "setAnchor", this._makeEndpointSelectHandler.bind(this)),
-            isEnabled: getter(list, "isEnabled"),
+            isEnabled: () => list.map(e => [ e.enabled, e ]),
             deleteEveryConnection: () => {
                 for (let i = 0, ii = list.length; i < ii; i++) {
                     list[i].deleteEveryConnection();
