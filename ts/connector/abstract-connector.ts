@@ -7,10 +7,7 @@ import {ComponentOptions} from "../component/component";
 import {Connection} from "./connection-impl";
 import {AnchorPlacement} from "../anchor-manager";
 
-/**
- * Created by simon on 14/05/2019.
- */
-export interface ConnectorOptions { }
+export interface ConnectorOptions extends Record<string, any> { }
 export type UserDefinedConnectorId = string;
 export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
 export type ConnectorWithOptions = [ConnectorId, ConnectorOptions];
