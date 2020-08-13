@@ -16,11 +16,12 @@ import {addToList, findWithFunction, removeWithFunction, sortHelper} from "./uti
 import {ContinuousAnchor, ContinuousAnchorOptions} from "./anchor/continuous-anchor";
 import {Anchor} from "./anchor/anchor";
 
-export type AnchorPlacement = [ number, number, number, number, any?, any? ];
+export type AnchorPlacement = [ number, number, number, number ];
+export type ContinuousAnchorPlacement = [ number, number, number, number, Connection, Connection ];
 export type AnchorFace = "top" | "right" | "bottom" | "left";
 
-function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:PointArray, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<AnchorPlacement> {
-    let a:Array<AnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:PointArray, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
+    let a:Array<ContinuousAnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
 
     for (let i = 0; i < connections.length; i++) {
         let val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
@@ -124,7 +125,7 @@ export class AnchorManager {
                             isHorizontal, otherMultiplier, reverse);
 
                     // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-                    let _setAnchorLocation = (endpoint:Endpoint, anchorPos:AnchorPlacement) => {
+                    let _setAnchorLocation = (endpoint:Endpoint, anchorPos:ContinuousAnchorPlacement) => {
                         this.continuousAnchorLocations[endpoint.id] = [ anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3] ];
                         this.continuousAnchorOrientations[endpoint.id] = orientation;
                     };
