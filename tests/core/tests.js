@@ -2018,7 +2018,7 @@ var testSuite = function () {
         ok(e16.anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {isSource: true});
         var c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.getCost(), undefined, "default connection cost is 1");
+        equal(c.getCost(), 1, "default connection cost is 1");
     });
 
     test(': _jsPlumb.connect (set cost)', function () {
@@ -2027,7 +2027,7 @@ var testSuite = function () {
         ok(e16.anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {isSource: true});
         var c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.getCost(), undefined, "default connection cost is 1");
+        equal(c.getCost(), 1, "default connection cost is 1");
         c.setCost(8989);
         equal(c.getCost(), 8989, "connection cost is 8989");
     });
@@ -2047,7 +2047,7 @@ var testSuite = function () {
             e17 = _jsPlumb.addEndpoint(d17, {isSource: true, maxConnections: -1});
         c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         equal(c.getCost(), 567, "connection cost is 567");
-        e16.setConnectionCost(23);
+        e16.connectionCost = 23;
         var c2 = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         equal(c2.getCost(), 23, "connection cost is 23 after change on endpoint");
     });
@@ -2083,7 +2083,7 @@ var testSuite = function () {
             e17 = _jsPlumb.addEndpoint(d17, {isSource: true, maxConnections: -1});
         c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         equal(c.isDirected(), true, "connection is directed");
-        e16.setConnectionsDirected(false);
+        e16.connectionsDirected = false;
         var c2 = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         equal(c2.isDirected(), false, "connection is not directed");
     });
@@ -4729,16 +4729,16 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {isSource: true, isTarget: true});
 
-        equal(e1.isEnabled(), true, "endpoint is enabled");
+        equal(e1.enabled, true, "endpoint is enabled");
         _jsPlumb.selectEndpoints({source: "d1"}).setEnabled(false);
-        equal(e1.isEnabled(), false, "endpoint not enabled");
+        equal(e1.enabled, false, "endpoint not enabled");
     });
 
     test(" selectEndpoints, setEnabled tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {isSource: true, isTarget: true});
 
-        equal(e1.isEnabled(), true, "endpoint is enabled");
+        equal(e1.enabled, true, "endpoint is enabled");
         var e = _jsPlumb.selectEndpoints({source: "d1"}).isEnabled();
         equal(e[0][0], true, "endpoint enabled");
         _jsPlumb.selectEndpoints({source: "d1"}).setEnabled(false);
