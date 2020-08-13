@@ -249,11 +249,11 @@ export class Connection extends OverlayCapableComponent {
             this.endpoints[1].paint({ anchorLoc: anchorLoc, timestamp: initialTimestamp });
         }
 
-        this._jsPlumb.cost = params.cost || this.endpoints[0].getConnectionCost();
+        this._jsPlumb.cost = params.cost || this.endpoints[0].connectionCost;
         this._jsPlumb.directed = params.directed;
         // inherit directed flag if set no source endpoint
         if (params.directed == null) {
-            this._jsPlumb.directed = this.endpoints[0].areConnectionsDirected();
+            this._jsPlumb.directed = this.endpoints[0].connectionsDirected;
         }
 
         // PARAMETERS
