@@ -92,15 +92,15 @@ export class UIGroup extends UINode {
 
     // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
     // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
-    getAnchor (conn:Connection, endpointIndex:number) {
+    getAnchor (conn:Connection, endpointIndex:number):AnchorSpec {
         return this.anchor || ContinuousAnchor.continuousAnchorType;
     }
 
-    getEndpoint (conn:Connection, endpointIndex:number) {
+    getEndpoint (conn:Connection, endpointIndex:number):EndpointSpec {
         return this.endpoint || [ DotEndpoint.dotEndpointType, { radius:10 }];
     }
 
-    add(_el:any, doNotFireEvent?:boolean) {
+    add(_el:any, doNotFireEvent?:boolean):void {
         const dragArea = this.getDragArea();
         this.instance.each(_el, (__el:any) => {
 
@@ -237,7 +237,7 @@ export class UIGroup extends UINode {
         }
     }
 
-    removeGroup(group:UIGroup) {
+    removeGroup(group:UIGroup):void {
         if (group.group === this) {
             const d = this.getDragArea();
             if (d === group.el.parentNode) {
