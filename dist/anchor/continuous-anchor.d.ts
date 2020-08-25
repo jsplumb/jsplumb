@@ -2,6 +2,7 @@ import { AnchorId, Face, Orientation, AnchorOptions, AnchorComputeParams } from 
 import { Anchor } from "./anchor";
 import { Dictionary, jsPlumbInstance } from "../core";
 import { Endpoint } from "../endpoint/endpoint-impl";
+import { AnchorPlacement } from "../anchor-manager";
 export interface ContinuousAnchorOptions extends AnchorOptions {
     faces?: Array<Face>;
     clockwise?: boolean;
@@ -33,8 +34,8 @@ export declare class ContinuousAnchor extends Anchor {
     isLocked(): boolean;
     lockCurrentAxis(): void;
     unlockCurrentAxis(): void;
-    compute(params: AnchorComputeParams): [number, number, number, number];
-    getCurrentLocation(params: AnchorComputeParams): [number, number, number, number];
+    compute(params: AnchorComputeParams): AnchorPlacement;
+    getCurrentLocation(params: AnchorComputeParams): AnchorPlacement;
     getOrientation(endpoint?: Endpoint): Orientation;
     getCssClass(): string;
 }

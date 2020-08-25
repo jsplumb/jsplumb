@@ -39,9 +39,7 @@ export declare type ComponentConfig = {
     endpointHoverStyle?: PaintStyle;
     endpointStyles?: [PaintStyle, PaintStyle];
     endpointHoverStyles?: [PaintStyle, PaintStyle];
-    enabled?: boolean;
     currentAnchorClass?: string;
-    uuid?: string;
     floatingEndpoint?: Endpoint;
     events?: any;
     connectorStyle?: PaintStyle;
@@ -57,7 +55,7 @@ export declare type RepaintOptions = {
     timestamp?: Timestamp;
     recalc?: boolean;
 };
-export interface ComponentOptions {
+export interface ComponentOptions extends Record<string, any> {
     _jsPlumb?: jsPlumbInstance;
     parameters?: any;
     beforeDetach?: Function;

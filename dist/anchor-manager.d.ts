@@ -3,7 +3,8 @@ import { Dictionary, ExtendedOffset, jsPlumbInstance, Offset } from "./core";
 import { Connection } from "./connector/connection-impl";
 import { Face, Orientation } from "./factory/anchor-factory";
 import { ContinuousAnchor, ContinuousAnchorOptions } from "./anchor/continuous-anchor";
-export declare type AnchorPlacement = [number, number, number, number, any?, any?];
+export declare type AnchorPlacement = [number, number, number, number];
+export declare type ContinuousAnchorPlacement = [number, number, number, number, Connection, Connection];
 export declare type AnchorFace = "top" | "right" | "bottom" | "left";
 export declare class ContinuousAnchorFactory {
     private continuousAnchorLocations;

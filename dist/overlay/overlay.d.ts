@@ -2,7 +2,7 @@ import { Dictionary, jsPlumbInstance } from "../core";
 import { PaintStyle } from "../styles";
 import { Component } from "../component/component";
 import { EventGenerator } from "../event-generator";
-export interface OverlayOptions {
+export interface OverlayOptions extends Record<string, any> {
     id?: string;
     cssClass?: string;
     location?: number;
@@ -42,21 +42,6 @@ export declare abstract class Overlay extends EventGenerator {
     setVisible(v: boolean): void;
     isVisible(): boolean;
     destroy(force?: boolean): void;
-    /**
-     * Add a class to the overlay.
-     * @param clazz
-     *
-    addClass(clazz:string) {
-        this.instance.renderer.addOverlayClass(this, clazz);
-    }
-
-    /**
-     * Remove a class from the overlay.
-     * @param clazz
-     *
-    removeClass(clazz:string) {
-        this.instance.renderer.removeOverlayClass(this, clazz);
-    }*/
     abstract updateFrom(d: any): void;
     private _postComponentEvent;
     click(e: Event): void;

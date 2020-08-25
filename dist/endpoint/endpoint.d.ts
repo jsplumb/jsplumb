@@ -38,6 +38,7 @@ export interface EndpointOptions extends ComponentOptions {
     reattachConnections?: boolean;
     type?: string;
     connectorTooltip?: string;
+    portId?: string;
     uuid?: string;
     source?: string | any;
     connections?: Array<Connection>;

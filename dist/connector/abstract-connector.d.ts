@@ -5,10 +5,7 @@ import { Orientation } from "../factory/anchor-factory";
 import { ComponentOptions } from "../component/component";
 import { Connection } from "./connection-impl";
 import { AnchorPlacement } from "../anchor-manager";
-/**
- * Created by simon on 14/05/2019.
- */
-export interface ConnectorOptions {
+export interface ConnectorOptions extends Record<string, any> {
 }
 export declare type UserDefinedConnectorId = string;
 export declare type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;

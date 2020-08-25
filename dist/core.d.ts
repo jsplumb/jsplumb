@@ -35,6 +35,7 @@ export interface ConnectParams {
     endpointHoverStyles?: [PaintStyle, PaintStyle];
     endpointStyle?: PaintStyle;
     endpointHoverStyle?: PaintStyle;
+    ports?: [string, string];
 }
 export interface ConnectionEstablishedParams {
     connection: Connection;
@@ -419,7 +420,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     getEndpoints(el: string | any): Array<Endpoint>;
     getEndpoint(id: string): Endpoint;
     connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
-    _prepareConnectionParams(params: ConnectParams, referenceParams?: ConnectParams): any;
+    private _prepareConnectionParams;
     _newConnection(params: any): Connection;
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event, doInformAnchorManager?: boolean): void;
     private _doRemove;

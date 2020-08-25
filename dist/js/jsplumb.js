@@ -1394,21 +1394,6 @@
       value: function destroy(force) {
         this.instance.renderer.destroyOverlay(this, force);
       }
-      /**
-       * Add a class to the overlay.
-       * @param clazz
-       *
-      addClass(clazz:string) {
-          this.instance.renderer.addOverlayClass(this, clazz);
-      }
-       /**
-       * Remove a class from the overlay.
-       * @param clazz
-       *
-      removeClass(clazz:string) {
-          this.instance.renderer.removeOverlayClass(this, clazz);
-      }*/
-
     }, {
       key: "_postComponentEvent",
       value: function _postComponentEvent(eventName, originalEvent) {
@@ -4035,21 +4020,7 @@
         }
 
         return found;
-      } // getConnectionCost():number {
-      //     return this._jsPlumb.connectionCost;
-      // }
-      //
-      // setConnectionCost(c:number) {
-      //     this._jsPlumb.connectionCost = c;
-      // }
-      // areConnectionsDirected():boolean {
-      //     return this.connectionsDirected;
-      // }
-      //
-      // setConnectionsDirected(b:boolean):void {
-      //     this.connectionsDirected = b;
-      // }
-
+      }
     }, {
       key: "setElementId",
       value: function setElementId(_elId) {
