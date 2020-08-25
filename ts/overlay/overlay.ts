@@ -8,7 +8,7 @@ import {EventGenerator} from "../event-generator";
 import {Connection} from "..";
 
 
-export interface OverlayOptions {
+export interface OverlayOptions extends Record<string, any> {
     id?:string;
     cssClass?: string;
     location?: number; // 0.5
@@ -82,22 +82,6 @@ export abstract class Overlay extends EventGenerator {
     destroy(force?: boolean): void {
         this.instance.renderer.destroyOverlay(this, force);
     }
-
-    /**
-     * Add a class to the overlay.
-     * @param clazz
-     *
-    addClass(clazz:string) {
-        this.instance.renderer.addOverlayClass(this, clazz);
-    }
-
-    /**
-     * Remove a class from the overlay.
-     * @param clazz
-     *
-    removeClass(clazz:string) {
-        this.instance.renderer.removeOverlayClass(this, clazz);
-    }*/
 
     abstract updateFrom(d:any):void;
 
