@@ -171,7 +171,7 @@
                 }
             }
         };
-        this.add = function (endpoint, elementId) {
+        this.addEndpoint = function (endpoint, elementId) {
             _ju.addToList(_amEndpoints, elementId, endpoint);
         };
         this.changeId = function (oldId, newId) {
