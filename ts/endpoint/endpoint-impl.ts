@@ -203,6 +203,7 @@ export class Endpoint extends OverlayCapableComponent {
         return a
     }
 
+    // TODO refactor, somehow, to take AnchorManager out of the equation.
     setPreparedAnchor (anchor:Anchor, doNotRepaint?:boolean):Endpoint {
         this.instance.anchorManager.continuousAnchorFactory.clear(this.elementId)
         this.anchor = anchor
