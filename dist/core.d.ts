@@ -15,6 +15,7 @@ import { GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
 import { jsPlumbGeometryHelpers } from "./geom";
 import { jsPlumbDOMElement } from "./dom";
+import { Router } from "./router/router";
 export declare type UUID = string;
 export declare type ElementId = string;
 export declare type ElementRef = ElementId | any;
@@ -267,6 +268,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     private _offsetTimestamps;
     private _offsets;
     private _sizes;
+    router: Router;
     anchorManager: AnchorManager;
     groupManager: GroupManager;
     _connectionTypes: Dictionary<TypeDescriptor>;
@@ -314,7 +316,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     _idstamp(): string;
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
-    getInternalId(element: any): string;
+    getInternalId(element: jsPlumbDOMElement): string;
     getId(element: string | any, uuid?: string): string;
     /**
      * Set the id of the given element. Changes all the refs etc. Why is this ene

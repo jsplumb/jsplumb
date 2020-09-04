@@ -2322,17 +2322,20 @@
       key: "unlockCurrentAxis",
       value: function unlockCurrentAxis() {
         this._lockedAxis = null;
-      }
+      } // TODO Whoever calls this should be using the Router instead.
+
     }, {
       key: "compute",
       value: function compute(params) {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
-      }
+      } // TODO Whoever calls this should be using the Router instead.
+
     }, {
       key: "getCurrentLocation",
       value: function getCurrentLocation(params) {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
-      }
+      } // TODO Whoever calls this should be using the Router instead.
+
     }, {
       key: "getOrientation",
       value: function getOrientation(endpoint) {
@@ -2623,11 +2626,7 @@
       a.type = type;
       return a;
     };
-  } // TODO refactor, somehow, to take AnchorManager out of the equation.
-  // anchorMap["Continuous"] = function(instance:jsPlumbInstance, params:any):Anchor {
-  //     return instance.anchorManager.continuousAnchorFactory.get(instance, params)
-  // }
-
+  }
 
   _curryContinuousAnchor("Continuous");
 
@@ -7730,11 +7729,11 @@
               }
             }
 
-            this.anchorManager.redraw(_id, ui, timestamp, null);
+            this.router.redraw(_id, ui, timestamp, null);
 
             if (repaintEls.length > 0) {
               for (var j = 0; j < repaintEls.length; j++) {
-                this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null);
+                this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null);
               }
             }
           }
@@ -7749,7 +7748,7 @@
           delete this.endpointsByUUID[uuid];
         }
 
-        this.anchorManager.deleteEndpoint(endpoint); // TODO at least replace this with a removeWithFunction call.
+        this.router.deleteEndpoint(endpoint); // TODO at least replace this with a removeWithFunction call.
 
         for (var _e in this.endpointsByElement) {
           var endpoints = this.endpointsByElement[_e];
@@ -7868,7 +7867,7 @@
           _this9._offsets = {};
           _this9._offsetTimestamps = {};
 
-          _this9.anchorManager.reset();
+          _this9.router.reset();
 
           _this9.groupManager.reset();
 
@@ -8117,7 +8116,7 @@
         // to make that call here or in the anchor manager.  i think perhaps here.
 
         if (doInformAnchorManager !== false) {
-          this.anchorManager.newConnection(jpc);
+          this.router.newConnection(jpc);
         } // force a paint
 
 

@@ -1,5 +1,6 @@
 import { Dictionary, jsPlumbInstance } from "../core";
 import { Component } from "../component/component";
+import { jsPlumbDOMElement } from "..";
 export declare const STROKE_DASHARRAY = "stroke-dasharray";
 export declare const DASHSTYLE = "dashstyle";
 export declare const DEFS = "defs";
@@ -11,7 +12,7 @@ export declare const STYLE = "style";
 export declare const LINE_WIDTH = "strokeWidth";
 export declare type ElementAttributes = Dictionary<string | number>;
 export declare function _attr(node: SVGElement, attributes: ElementAttributes): void;
-export declare function _node(instance: jsPlumbInstance, name: string, attributes?: ElementAttributes): SVGElement;
+export declare function _node(instance: jsPlumbInstance, name: string, attributes?: ElementAttributes): jsPlumbDOMElement;
 export declare function _pos(d: [number, number]): string;
 export declare function _applyStyles(parent: any, node: SVGElement, style: any, dimensions: any, uiComponent: Component): void;
-export declare function _appendAtIndex(svg: SVGElement, path: SVGElement, idx: number): void;
+export declare function _appendAtIndex(svg: SVGElement, path: jsPlumbDOMElement, idx: number): void;

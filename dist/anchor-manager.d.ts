@@ -34,7 +34,7 @@ export declare class AnchorManager {
     newConnection(conn: Connection): void;
     removeEndpointFromAnchorLists(endpoint: Endpoint): void;
     connectionDetached(connection: Connection): void;
-    add(endpoint: Endpoint, elementId: string): void;
+    addEndpoint(endpoint: Endpoint, elementId: string): void;
     changeId(oldId: string, newId: string): void;
     deleteEndpoint(endpoint: Endpoint): void;
     clearFor(elementId: string): void;

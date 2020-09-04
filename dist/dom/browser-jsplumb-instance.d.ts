@@ -31,6 +31,7 @@ export interface jsPlumbDOMInformation {
     overlay?: Overlay;
 }
 export interface jsPlumbDOMElement extends HTMLElement {
+    _jsplumbid?: string;
     _jsPlumbGroup: UIGroup;
     _jsPlumbParentGroup: UIGroup;
     _isJsPlumbGroup: boolean;
@@ -150,7 +151,7 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
      */
     createDragManager(options: CollicatOptions): Collicat;
     svg: {
-        node: (name: string, attributes?: ElementAttributes) => SVGElement;
+        node: (name: string, attributes?: ElementAttributes) => jsPlumbDOMElement;
         attr: (node: SVGElement, attributes: ElementAttributes) => void;
         pos: (d: [number, number]) => string;
     };

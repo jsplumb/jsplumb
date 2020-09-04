@@ -59,7 +59,7 @@ export declare abstract class AbstractSegment implements Segment {
      * returning both the x and y of the point plus its distance from
      * the supplied point, and its location along the length of the
      * path inscribed by the segment.  This implementation returns
-     * Infinity for distance and null values for everything else;
+     * Infinity for distance and null values for everything else
      * subclasses are expected to override.
      */
     findClosestPointOnPath(x: number, y: number): PointNearPath;

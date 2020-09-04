@@ -1,7 +1,7 @@
 /**
  * jsBezier
  *
- * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * licensed under the MIT license.
  *
