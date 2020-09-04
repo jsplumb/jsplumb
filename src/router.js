@@ -47,6 +47,22 @@
         this.connectionDetached = function (connInfo, doNotRedraw) {
             this.anchorManager.connectionDetached(connInfo, doNotRedraw);
         };
+
+        this.redraw = function (elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
+            this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint);
+        };
+
+        this.deleteEndpoint = function (endpoint) {
+            this.anchorManager.deleteEndpoint(endpoint);
+        };
+
+        this.rehomeEndpoint = function (ep, currentId, element) {
+            this.anchorManager.rehomeEndpoint(ep, currentId, element);
+        };
+
+        this.addEndpoint = function (endpoint, elementId) {
+            this.anchorManager.addEndpoint(endpoint, elementId);
+        };
     };
 
 
