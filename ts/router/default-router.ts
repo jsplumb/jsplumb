@@ -52,6 +52,31 @@ export class DefaultRouter implements Router {
     addEndpoint (endpoint:Endpoint, elementId:string):void {
         this.anchorManager.addEndpoint(endpoint, elementId)
     }
+
+    computePath(connection: Connection, timestamp:string): void {
+        let sourceInfo = this.instance.updateOffset({elId:connection.sourceId}).o,
+            targetInfo = this.instance.updateOffset({elId:connection.targetId}).o,
+            sE = connection.endpoints[0], tE = connection.endpoints[1]
+
+        let sAnchorP = sE.anchor.getCurrentLocation({xy: [sourceInfo.left, sourceInfo.top], wh: [sourceInfo.width, sourceInfo.height], element: sE, timestamp: timestamp}),
+            tAnchorP = tE.anchor.getCurrentLocation({xy: [targetInfo.left, targetInfo.top], wh: [targetInfo.width, targetInfo.height], element: tE, timestamp: timestamp})
+
+        connection.connector.resetBounds()
+
+        connection.connector.compute({
+            sourcePos: sAnchorP,
+            targetPos: tAnchorP,
+            sourceOrientation:sE.anchor.getOrientation(sE),
+            targetOrientation:tE.anchor.getOrientation(tE),
+            sourceEndpoint: connection.endpoints[0],
+            targetEndpoint: connection.endpoints[1],
+            strokeWidth: connection.paintStyleInUse.strokeWidth,
+            sourceInfo: sourceInfo,
+            targetInfo: targetInfo
+        })
+    }
+
+
 }
 
 /*
