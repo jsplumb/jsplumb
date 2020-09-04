@@ -4359,7 +4359,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.14.5";
+        this.version = "2.14.6";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -4631,11 +4631,11 @@
                             });
                         }
 
-                        _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+                        _currentInstance.router.redraw(id, ui, timestamp, null, clearEdits);
 
                         if (repaintEls) {
                             for (var j = 0; j < repaintEls.length; j++) {
-                                _currentInstance.anchorManager.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
+                                _currentInstance.router.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
                             }
                         }
                     }
@@ -5343,7 +5343,7 @@
             if (endpoint._jsPlumb.uuid) {
                 endpointsByUUID[endpoint._jsPlumb.uuid] = null;
             }
-            _currentInstance.anchorManager.deleteEndpoint(endpoint);
+            _currentInstance.router.deleteEndpoint(endpoint);
             // TODO at least replace this with a removeWithFunction call.
             for (var e in endpointsByElement) {
                 var endpoints = endpointsByElement[e];
@@ -7700,7 +7700,7 @@
 
         // ANCHOR MANAGER
         if (!params._transient) { // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
-            this._jsPlumb.instance.anchorManager.add(this, this.elementId);
+            this._jsPlumb.instance.router.addEndpoint(this, this.elementId);
         }
 
         this.prepareEndpoint = function(ep, typeId) {
@@ -7852,7 +7852,7 @@
             }.bind(this));
             this.element = _jp.getElement(el);
             this.elementId = _jsPlumb.getId(this.element);
-            _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
+            _jsPlumb.router.rehomeEndpoint(this, curId, this.element);
             _jsPlumb.dragManager.endpointAdded(this.element);
             _ju.addToList(params.endpointsByElement, parentId, this);
             return this;
@@ -9606,7 +9606,7 @@
                 }
             }
         };
-        this.add = function (endpoint, elementId) {
+        this.addEndpoint = function (endpoint, elementId) {
             _ju.addToList(_amEndpoints, elementId, endpoint);
         };
         this.changeId = function (oldId, newId) {
@@ -10773,6 +10773,22 @@
 
         this.connectionDetached = function (connInfo, doNotRedraw) {
             this.anchorManager.connectionDetached(connInfo, doNotRedraw);
+        };
+
+        this.redraw = function (elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
+            this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint);
+        };
+
+        this.deleteEndpoint = function (endpoint) {
+            this.anchorManager.deleteEndpoint(endpoint);
+        };
+
+        this.rehomeEndpoint = function (ep, currentId, element) {
+            this.anchorManager.rehomeEndpoint(ep, currentId, element);
+        };
+
+        this.addEndpoint = function (endpoint, elementId) {
+            this.anchorManager.addEndpoint(endpoint, elementId);
         };
     };
 
