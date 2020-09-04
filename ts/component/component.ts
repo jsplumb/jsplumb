@@ -30,7 +30,6 @@ export type ComponentConfig = {
     beforeDrop?:Function
 
     params?:any
-    lastPaintedAt?:string
 
     directed?:boolean
     cost?:number
@@ -189,6 +188,8 @@ export abstract class Component extends EventGenerator {
     paintStyle:PaintStyle
     hoverPaintStyle:PaintStyle
     paintStyleInUse:PaintStyle
+
+    lastPaintedAt:string
 
     data:any
 
