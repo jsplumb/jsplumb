@@ -58,7 +58,6 @@ const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
     "left": leftAndTopSort
 }
 
-
 export class ContinuousAnchorFactory {
 
     private continuousAnchorLocations:Dictionary<AnchorPlacement> = {}
