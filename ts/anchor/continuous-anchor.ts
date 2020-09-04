@@ -130,14 +130,17 @@ export class ContinuousAnchor extends Anchor {
         this._lockedAxis = null
     }
 
+    // TODO Whoever calls this should be using the Router instead.
     compute (params:AnchorComputeParams):AnchorPlacement {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
     }
 
+    // TODO Whoever calls this should be using the Router instead.
     getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
         return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
     }
 
+    // TODO Whoever calls this should be using the Router instead.
     getOrientation (endpoint?:Endpoint):Orientation {
         return this.instance.anchorManager.continuousAnchorOrientations[endpoint.id] || [0, 0]
     }
