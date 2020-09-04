@@ -1,3 +1,9 @@
+## 2.14.6
+
+September 4th 2020
+
+- Internal changes to reference a Router for various methods rather than an AnchorManager. There is no functional change; this work was undertaken to assist in the 4.x rewrite.
+
 ## 2.14.5
 
 July 27th 2020
