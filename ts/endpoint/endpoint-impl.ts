@@ -141,7 +141,7 @@ export class Endpoint extends OverlayCapableComponent {
         this.deleteOnEmpty = params.deleteOnEmpty === true
 
         if (!params._transient) { // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
-            this.instance.anchorManager.add(this, this.elementId)
+            this.instance.router.addEndpoint(this, this.elementId)
         }
 
         // what does this do?
@@ -387,7 +387,7 @@ export class Endpoint extends OverlayCapableComponent {
         })
         this.element = this.instance.getElement(el)
         this.elementId = this.instance.getId(this.element)
-        this.instance.anchorManager.rehomeEndpoint(this, curId, this.element)
+        this.instance.router.rehomeEndpoint(this, curId, this.element)
         addToList(this.instance.endpointsByElement, parentId, this)
         return this
     }

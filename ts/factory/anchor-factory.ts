@@ -62,7 +62,9 @@ export type AnchorId =
 
 export type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | AnchorPlacement
 
+//const anchorMap:Dictionary<(instance:jsPlumbInstance, args:any) => Anchor> = {}
 const anchorMap:Dictionary<(instance:jsPlumbInstance, args:any) => Anchor> = {}
+
 export const Anchors = {
 
     get:(instance:jsPlumbInstance, name:string, args:any):Anchor => {

@@ -515,7 +515,7 @@ export class EndpointDragHandler implements DragHandler {
             // changed.
         
             // TODO is this still necessary.
-            this.instance.anchorManager.newConnection(this.jpc)
+            this.instance.router.newConnection(this.jpc)
         
         } else {
         

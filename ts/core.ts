@@ -27,6 +27,7 @@ import {GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
 import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom"
 import {jsPlumbDOMElement} from "./dom"
+import {DefaultRouter} from "./router/default-router"
 
 export type UUID = string
 export type ElementId = string
@@ -412,6 +413,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     private _offsets:Dictionary<ExtendedOffset> = {}
     private _sizes:Dictionary<Size> = {}
 
+    router: DefaultRouter
     anchorManager:AnchorManager
     groupManager:GroupManager
     _connectionTypes:Dictionary<TypeDescriptor> = {}
@@ -496,7 +498,10 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
         this._allowNestedGroups = this._initialDefaults.allowNestedGroups !== false
 
-        this.anchorManager = new AnchorManager(this)
+        this.router = new DefaultRouter(this)
+
+        //new AnchorManager(this)
+        this.anchorManager = this.router.anchorManager
         this.groupManager = new GroupManager(this)
 
         this.setContainer(this._initialDefaults.container)
@@ -1146,7 +1151,8 @@ export abstract class jsPlumbInstance extends EventGenerator {
         // always fire this. used by internal jsplumb stuff.
         this.fire(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent)
 
-        this.anchorManager.connectionDetached(params.connection)
+        //this.anchorManager.connectionDetached(params.connection)
+        this.router.connectionDetached(params.connection)
     }
 
     fireMoveEvent (params?:any, evt?:Event):void {

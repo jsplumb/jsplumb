@@ -1,5 +1,6 @@
 import {Router} from "./router"
 import {AnchorManager} from "../anchor-manager"
+import {Connection, Endpoint, jsPlumbInstance, Offset} from ".."
 
 /*
  * Default router. Defers to an AnchorManager for placement of anchors, and connector paint routines for paths.
@@ -14,9 +15,42 @@ import {AnchorManager} from "../anchor-manager"
  * Dual licensed under the MIT and GPL2 licenses.
  */
 export class DefaultRouter implements Router {
+    anchorManager:AnchorManager;
 
-    constructor(public anchorManager:AnchorManager) {
+    constructor(public instance:jsPlumbInstance ) {
+        this.anchorManager = new AnchorManager(this.instance)
+    }
 
+    reset ():void {
+        this.anchorManager.reset()
+    }
+
+    changeId (oldId:string, newId:string):void {
+        this.anchorManager.changeId(oldId, newId)
+    }
+
+    newConnection (conn:Connection):void {
+        this.anchorManager.newConnection(conn)
+    }
+
+    connectionDetached (connInfo:any):void {
+        this.anchorManager.connectionDetached(connInfo)
+    }
+
+    redraw (elementId:string, ui?:Offset, timestamp?:string, offsetToUI?:Offset):void {
+        this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI)
+    }
+
+    deleteEndpoint (endpoint:Endpoint):void {
+        this.anchorManager.deleteEndpoint(endpoint)
+    }
+
+    rehomeEndpoint (ep:Endpoint, currentId:string, element:any):void {
+        this.anchorManager.rehomeEndpoint(ep, currentId, element)
+    }
+
+    addEndpoint (endpoint:Endpoint, elementId:string):void {
+        this.anchorManager.addEndpoint(endpoint, elementId)
     }
 }
 

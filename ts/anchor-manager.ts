@@ -198,7 +198,7 @@ export class AnchorManager {
         this.removeEndpointFromAnchorLists(connection.endpoints[1])
     }
 
-    add (endpoint:Endpoint, elementId:string) {
+    addEndpoint (endpoint:Endpoint, elementId:string) {
         addToList(this._amEndpoints, elementId, endpoint)
     }
 
@@ -295,7 +295,7 @@ export class AnchorManager {
             let idx = eps.indexOf(ep)
             if (idx > -1) {
                 let _ep = eps.splice(idx, 1)[0]
-                this.add(_ep, elementId)
+                this.addEndpoint(_ep, elementId)
             }
         }
 
