@@ -943,6 +943,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "paintStyleInUse", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "lastPaintedAt", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "data", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "_defaultType", void 0);
@@ -2350,6 +2352,7 @@
 
   var X_AXIS_FACES = ["left", "right"];
   var Y_AXIS_FACES = ["top", "bottom"];
+  //const anchorMap:Dictionary<(instance:jsPlumbInstance, args:any) => Anchor> = {}
   var anchorMap = {};
   var Anchors = {
     get: function get(instance, name, args) {
@@ -2609,17 +2612,24 @@
 
   function _curryContinuousAnchor(type, faces) {
     anchorMap[type] = function (instance, params) {
-      var a = new ContinuousAnchor(instance, {
-        faces: faces
-      });
+      var o = {};
+      Object.assign(o, params || {});
+
+      if (faces) {
+        o.faces = faces;
+      }
+
+      var a = new ContinuousAnchor(instance, o);
       a.type = type;
       return a;
     };
-  }
+  } // TODO refactor, somehow, to take AnchorManager out of the equation.
+  // anchorMap["Continuous"] = function(instance:jsPlumbInstance, params:any):Anchor {
+  //     return instance.anchorManager.continuousAnchorFactory.get(instance, params)
+  // }
 
-  anchorMap["Continuous"] = function (instance, params) {
-    return instance.anchorManager.continuousAnchorFactory.get(instance, params);
-  };
+
+  _curryContinuousAnchor("Continuous");
 
   _curryContinuousAnchor("ContinuousLeft", ["left"]);
 
@@ -2777,7 +2787,7 @@
         "pointer-events": params["pointer-events"],
         overlays: params.overlays
       };
-      _this._jsPlumb.lastPaintedAt = null;
+      _this.lastPaintedAt = null;
 
       if (params.type) {
         params.endpoints = params.endpoints || _this.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
@@ -3197,50 +3207,12 @@
           params = params || {};
           var timestamp = params.timestamp;
 
-          if (timestamp != null && timestamp === this._jsPlumb.lastPaintedAt) {
+          if (timestamp != null && timestamp === this.lastPaintedAt) {
             return;
-          } // if the moving object is not the source we must transpose the two references.
+          }
 
-
-          var swap = false,
-              tId = swap ? this.sourceId : this.targetId,
-              sId = swap ? this.targetId : this.sourceId,
-              tIdx = swap ? 0 : 1,
-              sIdx = swap ? 1 : 0;
-
-          if (timestamp == null || timestamp !== this._jsPlumb.lastPaintedAt) {
-            var sourceInfo = this.instance.updateOffset({
-              elId: sId
-            }).o,
-                targetInfo = this.instance.updateOffset({
-              elId: tId
-            }).o,
-                sE = this.endpoints[sIdx],
-                tE = this.endpoints[tIdx];
-            var sAnchorP = sE.anchor.getCurrentLocation({
-              xy: [sourceInfo.left, sourceInfo.top],
-              wh: [sourceInfo.width, sourceInfo.height],
-              element: sE,
-              timestamp: timestamp
-            }),
-                tAnchorP = tE.anchor.getCurrentLocation({
-              xy: [targetInfo.left, targetInfo.top],
-              wh: [targetInfo.width, targetInfo.height],
-              element: tE,
-              timestamp: timestamp
-            });
-            this.connector.resetBounds();
-            this.connector.compute({
-              sourcePos: sAnchorP,
-              targetPos: tAnchorP,
-              sourceOrientation: sE.anchor.getOrientation(sE),
-              targetOrientation: tE.anchor.getOrientation(tE),
-              sourceEndpoint: this.endpoints[sIdx],
-              targetEndpoint: this.endpoints[tIdx],
-              strokeWidth: this.paintStyleInUse.strokeWidth,
-              sourceInfo: sourceInfo,
-              targetInfo: targetInfo
-            });
+          if (timestamp == null || timestamp !== this.lastPaintedAt) {
+            this.instance.router.computePath(this, timestamp);
             var overlayExtents = {
               minX: Infinity,
               minY: Infinity,
@@ -3285,7 +3257,7 @@
             }
           }
 
-          this._jsPlumb.lastPaintedAt = timestamp;
+          this.lastPaintedAt = timestamp;
         }
       }
     }, {
@@ -3775,7 +3747,7 @@
 
       if (!params._transient) {
         // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
-        _this.instance.anchorManager.add(_assertThisInitialized(_this), _this.elementId);
+        _this.instance.router.addEndpoint(_assertThisInitialized(_this), _this.elementId);
       } // what does this do?
 
 
@@ -3850,7 +3822,8 @@
           _this2._updateAnchorClass();
         });
         return a;
-      }
+      } // TODO refactor, somehow, to take AnchorManager out of the equation.
+
     }, {
       key: "setPreparedAnchor",
       value: function setPreparedAnchor(anchor, doNotRepaint) {
@@ -4066,7 +4039,7 @@
         });
         this.element = this.instance.getElement(el);
         this.elementId = this.instance.getId(this.element);
-        this.instance.anchorManager.rehomeEndpoint(this, curId, this.element);
+        this.instance.router.rehomeEndpoint(this, curId, this.element);
         addToList(this.instance.endpointsByElement, parentId, this);
         return this;
       }
@@ -4217,696 +4190,6 @@
 
     return Endpoint;
   }(OverlayCapableComponent);
-
-  function placeAnchorsOnLine(elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse) {
-    var a = [],
-        step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
-
-    for (var i = 0; i < connections.length; i++) {
-      var val = (i + 1) * step,
-          other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
-
-      if (reverse) {
-        val = elementDimensions[horizontal ? 0 : 1] - val;
-      }
-
-      var dx = horizontal ? val : other,
-          x = elementPosition[0] + dx,
-          xp = dx / elementDimensions[0];
-      var dy = horizontal ? other : val,
-          y = elementPosition[1] + dy,
-          yp = dy / elementDimensions[1];
-      a.push([x, y, xp, yp, connections[i][1], connections[i][2]]);
-    }
-
-    return a;
-  }
-
-  function rightAndBottomSort(a, b) {
-    return b[0][0] - a[0][0];
-  } // used by edgeSortFunctions
-
-
-  function leftAndTopSort(a, b) {
-    var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
-        p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-    return p1 - p2;
-  } // used by placeAnchors
-
-
-  var edgeSortFunctions = {
-    "top": leftAndTopSort,
-    "right": rightAndBottomSort,
-    "bottom": rightAndBottomSort,
-    "left": leftAndTopSort
-  };
-  var ContinuousAnchorFactory =
-  /*#__PURE__*/
-  function () {
-    function ContinuousAnchorFactory() {
-      _classCallCheck(this, ContinuousAnchorFactory);
-
-      _defineProperty(this, "continuousAnchorLocations", {});
-    }
-
-    _createClass(ContinuousAnchorFactory, [{
-      key: "clear",
-      value: function clear(endpointId) {
-        delete this.continuousAnchorLocations[endpointId];
-      }
-    }, {
-      key: "set",
-      value: function set(endpointId, pos) {
-        this.continuousAnchorLocations[endpointId] = pos;
-      }
-    }, {
-      key: "get",
-      value: function get(instance, params) {
-        return new ContinuousAnchor(instance, params);
-      }
-    }]);
-
-    return ContinuousAnchorFactory;
-  }();
-  var AnchorManager =
-  /*#__PURE__*/
-  function () {
-    function AnchorManager(instance) {
-      _classCallCheck(this, AnchorManager);
-
-      this.instance = instance;
-
-      _defineProperty(this, "_amEndpoints", {});
-
-      _defineProperty(this, "continuousAnchorLocations", {});
-
-      _defineProperty(this, "continuousAnchorOrientations", {});
-
-      _defineProperty(this, "anchorLists", {});
-
-      _defineProperty(this, "floatingConnections", {});
-
-      _defineProperty(this, "continuousAnchorFactory", void 0);
-
-      this.continuousAnchorFactory = new ContinuousAnchorFactory();
-    }
-
-    _createClass(AnchorManager, [{
-      key: "reset",
-      value: function reset() {
-        this._amEndpoints = {};
-        this.anchorLists = {};
-      }
-    }, {
-      key: "placeAnchors",
-      value: function placeAnchors(instance, elementId, _anchorLists) {
-        var _this = this;
-
-        var cd = instance.getCachedData(elementId),
-            sS = cd.s,
-            sO = cd.o,
-            placeSomeAnchors = function placeSomeAnchors(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
-          if (unsortedConnections.length > 0) {
-            var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
-                // puts them in order based on the target element's pos on screen
-            reverse = desc === "right" || desc === "top",
-                anchors = placeAnchorsOnLine(elementDimensions, elementPosition, sc, isHorizontal, otherMultiplier, reverse); // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-
-            var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
-              _this.continuousAnchorLocations[endpoint.id] = [anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3]];
-              _this.continuousAnchorOrientations[endpoint.id] = orientation;
-            };
-
-            for (var i = 0; i < anchors.length; i++) {
-              var c = anchors[i][4],
-                  weAreSource = c.endpoints[0].elementId === elementId,
-                  weAreTarget = c.endpoints[1].elementId === elementId;
-
-              if (weAreSource) {
-                _setAnchorLocation(c.endpoints[0], anchors[i]);
-              }
-
-              if (weAreTarget) {
-                _setAnchorLocation(c.endpoints[1], anchors[i]);
-              }
-            }
-          }
-        };
-
-        placeSomeAnchors("bottom", sS, [sO.left, sO.top], _anchorLists.bottom, true, 1, [0, 1]);
-        placeSomeAnchors("top", sS, [sO.left, sO.top], _anchorLists.top, true, 0, [0, -1]);
-        placeSomeAnchors("left", sS, [sO.left, sO.top], _anchorLists.left, false, 0, [-1, 0]);
-        placeSomeAnchors("right", sS, [sO.left, sO.top], _anchorLists.right, false, 1, [1, 0]);
-      }
-    }, {
-      key: "addFloatingConnection",
-      value: function addFloatingConnection(key, conn) {
-        this.floatingConnections[key] = conn;
-      }
-    }, {
-      key: "removeFloatingConnection",
-      value: function removeFloatingConnection(key) {
-        delete this.floatingConnections[key];
-      }
-    }, {
-      key: "newConnection",
-      value: function newConnection(conn) {
-        var _this2 = this;
-
-        var sourceId = conn.sourceId,
-            targetId = conn.targetId,
-            ep = conn.endpoints,
-            doRegisterTarget = true,
-            registerConnection = function registerConnection(otherIndex, otherEndpoint, otherAnchor) {
-          if (sourceId === targetId && otherAnchor.isContinuous) {
-            // remove the target endpoint's canvas.  we dont need it.
-            _this2.instance.renderer.destroyEndpoint(ep[1]);
-
-            doRegisterTarget = false;
-          }
-        };
-
-        registerConnection(0, ep[0], ep[0].anchor);
-
-        if (doRegisterTarget) {
-          registerConnection(1, ep[1], ep[1].anchor);
-        }
-      }
-    }, {
-      key: "removeEndpointFromAnchorLists",
-      value: function removeEndpointFromAnchorLists(endpoint) {
-        (function (list, eId) {
-          if (list) {
-            // transient anchors dont get entries in this list.
-            var f = function f(e) {
-              return e[4] === eId;
-            };
-
-            removeWithFunction(list.top, f);
-            removeWithFunction(list.left, f);
-            removeWithFunction(list.bottom, f);
-            removeWithFunction(list.right, f);
-          }
-        })(this.anchorLists[endpoint.elementId], endpoint.id);
-      }
-    }, {
-      key: "connectionDetached",
-      value: function connectionDetached(connection) {
-        if (connection.floatingId) {
-          this.removeEndpointFromAnchorLists(connection.floatingEndpoint);
-        } // remove from anchorLists
-
-
-        this.removeEndpointFromAnchorLists(connection.endpoints[0]);
-        this.removeEndpointFromAnchorLists(connection.endpoints[1]);
-      }
-    }, {
-      key: "add",
-      value: function add(endpoint, elementId) {
-        addToList(this._amEndpoints, elementId, endpoint);
-      }
-    }, {
-      key: "changeId",
-      value: function changeId(oldId, newId) {
-        this._amEndpoints[newId] = this._amEndpoints[oldId];
-        delete this._amEndpoints[oldId];
-      }
-    }, {
-      key: "deleteEndpoint",
-      value: function deleteEndpoint(endpoint) {
-        removeWithFunction(this._amEndpoints[endpoint.elementId], function (e) {
-          return e.id === endpoint.id;
-        });
-        this.removeEndpointFromAnchorLists(endpoint);
-      }
-    }, {
-      key: "clearFor",
-      value: function clearFor(elementId) {
-        delete this._amEndpoints[elementId];
-        this._amEndpoints[elementId] = [];
-      } // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
-      // also removes the anchor from its previous list, if the edge it is on has changed.
-      // all connections found along the way (those that are connected to one of the faces this function
-      // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
-      // them wthout having to calculate anything else about them.
-
-    }, {
-      key: "_updateAnchorList",
-      value: function _updateAnchorList(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, connsToPaint, endpointsToPaint) {
-        // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
-        var endpoint = conn.endpoints[idx],
-            endpointId = endpoint.id,
-            oIdx = [1, 0][idx],
-            values = [[theta, order], conn, aBoolean, otherElId, endpointId],
-            listToAddTo = lists[edgeId],
-            listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
-            candidate;
-
-        if (listToRemoveFrom) {
-          var rIdx = findWithFunction(listToRemoveFrom, function (e) {
-            return e[4] === endpointId;
-          });
-
-          if (rIdx !== -1) {
-            listToRemoveFrom.splice(rIdx, 1); // get all connections from this list
-
-            for (var i = 0; i < listToRemoveFrom.length; i++) {
-              candidate = listToRemoveFrom[i][1];
-              connsToPaint.add(candidate);
-              endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[idx]);
-              endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[oIdx]);
-            }
-          }
-        }
-
-        for (var _i = 0; _i < listToAddTo.length; _i++) {
-          candidate = listToAddTo[_i][1];
-          connsToPaint.add(candidate);
-          endpointsToPaint.add(listToAddTo[_i][1].endpoints[idx]);
-          endpointsToPaint.add(listToAddTo[_i][1].endpoints[oIdx]);
-        }
-
-        {
-          var insertIdx = reverse ?  0 : listToAddTo.length; // of course we will get this from having looked through the array shortly.
-
-          listToAddTo.splice(insertIdx, 0, values);
-        } // store this for next time.
-
-
-        endpoint._continuousAnchorEdge = edgeId;
-      } //
-      // moves the given endpoint from `currentId` to `element`.
-      // This involves:
-      //
-      // 1. changing the key in _amEndpoints under which the endpoint is stored
-      // 2. changing the source or target values in all of the endpoint's connections
-      // 3. changing the array in connectionsByElementId in which the endpoint's connections
-      //    are stored (done by either sourceChanged or updateOtherEndpoint)
-      //
-
-    }, {
-      key: "rehomeEndpoint",
-      value: function rehomeEndpoint(ep, currentId, element) {
-        var eps = this._amEndpoints[currentId] || [],
-            elementId = this.instance.getId(element);
-
-        if (elementId !== currentId) {
-          var idx = eps.indexOf(ep);
-
-          if (idx > -1) {
-            var _ep = eps.splice(idx, 1)[0];
-            this.add(_ep, elementId);
-          }
-        }
-
-        for (var i = 0; i < ep.connections.length; i++) {
-          this.instance.sourceOrTargetChanged(currentId, ep.elementId, ep.connections[i], ep.element, ep.connections[i].sourceId === currentId ? 0 : 1);
-        }
-      }
-    }, {
-      key: "redraw",
-      value: function redraw(elementId, ui, timestamp, offsetToUI) {
-        if (!this.instance._suspendDrawing) {
-          var connectionsToPaint = new Set(),
-              endpointsToPaint = new Set(),
-              anchorsToUpdate = new Set(); // get all the endpoints for this element
-
-          var ep = this._amEndpoints[elementId] || [];
-          timestamp = timestamp || _timestamp(); // offsetToUI are values that would have been calculated in the dragManager when registering
-          // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
-          // registered as draggable.
-
-          offsetToUI = offsetToUI || {
-            left: 0,
-            top: 0
-          };
-
-          if (ui) {
-            ui = {
-              left: ui.left + offsetToUI.left,
-              top: ui.top + offsetToUI.top
-            };
-          } // valid for one paint cycle.
-
-
-          var myOffset = this.instance.updateOffset({
-            elId: elementId,
-            offset: ui,
-            recalc: false,
-            timestamp: timestamp
-          }),
-              orientationCache = {};
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = ep[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var anEndpoint = _step.value;
-              endpointsToPaint.add(anEndpoint);
-
-              if (anEndpoint.connections.length === 0) {
-                if (anEndpoint.anchor.isContinuous) {
-                  if (!this.anchorLists[elementId]) {
-                    this.anchorLists[elementId] = {
-                      top: [],
-                      right: [],
-                      bottom: [],
-                      left: []
-                    };
-                  }
-
-                  this._updateAnchorList(this.anchorLists[elementId], -Math.PI / 2, 0, {
-                    endpoints: [anEndpoint, anEndpoint],
-                    paint: function paint() {}
-                  }, false, elementId, 0, false, anEndpoint.anchor.getDefaultFace(), connectionsToPaint, endpointsToPaint);
-
-                  anchorsToUpdate.add(elementId);
-                }
-              } else {
-                for (var i = 0; i < anEndpoint.connections.length; i++) {
-                  var conn = anEndpoint.connections[i],
-                      sourceId = conn.sourceId,
-                      targetId = conn.targetId,
-                      sourceContinuous = conn.endpoints[0].anchor.isContinuous,
-                      targetContinuous = conn.endpoints[1].anchor.isContinuous;
-
-                  if (sourceContinuous || targetContinuous) {
-                    var oKey = sourceId + "_" + targetId,
-                        o = orientationCache[oKey],
-                        oIdx = conn.sourceId === elementId ? 1 : 0;
-
-                    if (sourceContinuous && !this.anchorLists[sourceId]) {
-                      this.anchorLists[sourceId] = {
-                        top: [],
-                        right: [],
-                        bottom: [],
-                        left: []
-                      };
-                    }
-
-                    if (targetContinuous && !this.anchorLists[targetId]) {
-                      this.anchorLists[targetId] = {
-                        top: [],
-                        right: [],
-                        bottom: [],
-                        left: []
-                      };
-                    }
-
-                    if (elementId !== targetId) {
-                      this.instance.updateOffset({
-                        elId: targetId,
-                        timestamp: timestamp
-                      });
-                    }
-
-                    if (elementId !== sourceId) {
-                      this.instance.updateOffset({
-                        elId: sourceId,
-                        timestamp: timestamp
-                      });
-                    }
-
-                    var td = this.instance.getCachedData(targetId),
-                        sd = this.instance.getCachedData(sourceId);
-
-                    if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
-                      // here we may want to improve this by somehow determining the face we'd like
-                      // to put the connector on.  ideally, when drawing, the face should be calculated
-                      // by determining which face is closest to the point at which the mouse button
-                      // was released.  for now, we're putting it on the top face.
-                      this._updateAnchorList(this.anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
-
-                      this._updateAnchorList(this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
-                    } else {
-                      if (!o) {
-                        o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor);
-                        orientationCache[oKey] = o;
-                      }
-
-                      if (sourceContinuous) {
-                        this._updateAnchorList(this.anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
-                      }
-
-                      if (targetContinuous) {
-                        this._updateAnchorList(this.anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
-                      }
-                    }
-
-                    if (sourceContinuous) {
-                      anchorsToUpdate.add(sourceId);
-                    }
-
-                    if (targetContinuous) {
-                      anchorsToUpdate.add(targetId);
-                    }
-
-                    connectionsToPaint.add(conn);
-
-                    if (sourceContinuous && oIdx === 0 || targetContinuous && oIdx === 1) {
-                      endpointsToPaint.add(conn.endpoints[oIdx]);
-                    }
-                  } else {
-                    var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0];
-
-                    if (otherEndpoint.anchor.constructor === DynamicAnchor) {
-                      otherEndpoint.paint({
-                        elementWithPrecedence: elementId,
-                        timestamp: timestamp
-                      });
-                      connectionsToPaint.add(anEndpoint.connections[i]); // all the connections for the other endpoint now need to be repainted
-
-                      for (var k = 0; k < otherEndpoint.connections.length; k++) {
-                        if (otherEndpoint.connections[k] !== anEndpoint.connections[i]) {
-                          connectionsToPaint.add(otherEndpoint.connections[k]);
-                        }
-                      }
-                    } else {
-                      connectionsToPaint.add(anEndpoint.connections[i]);
-                    }
-                  }
-                }
-              }
-            } // now place all the continuous anchors we need to
-
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                _iterator["return"]();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-
-          var _iteratorNormalCompletion2 = true;
-          var _didIteratorError2 = false;
-          var _iteratorError2 = undefined;
-
-          try {
-            for (var _iterator2 = anchorsToUpdate[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              var anchor = _step2.value;
-              this.placeAnchors(this.instance, anchor, this.anchorLists[anchor]);
-            } // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
-
-          } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-                _iterator2["return"]();
-              }
-            } finally {
-              if (_didIteratorError2) {
-                throw _iteratorError2;
-              }
-            }
-          }
-
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
-
-          try {
-            for (var _iterator3 = endpointsToPaint[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var _ep2 = _step3.value;
-              var cd = this.instance.getCachedData(_ep2.elementId);
-
-              _ep2.paint({
-                timestamp: timestamp,
-                offset: cd,
-                dimensions: cd.s
-              });
-            } // paint current floating connection for this element, if there is one.
-
-          } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-                _iterator3["return"]();
-              }
-            } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
-              }
-            }
-          }
-
-          var fc = this.floatingConnections[elementId];
-
-          if (fc) {
-            fc.paint({
-              timestamp: timestamp,
-              recalc: false,
-              elId: elementId
-            });
-          } // paint all the connections
-
-
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
-
-          try {
-            for (var _iterator4 = connectionsToPaint[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var c = _step4.value;
-              c.paint({
-                elId: elementId,
-                timestamp: timestamp,
-                recalc: false
-              });
-            }
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
-                _iterator4["return"]();
-              }
-            } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
-              }
-            }
-          }
-        }
-      }
-    }, {
-      key: "calculateOrientation",
-      value: function calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
-        var Orientation = {
-          HORIZONTAL: "horizontal",
-          VERTICAL: "vertical",
-          DIAGONAL: "diagonal",
-          IDENTITY: "identity"
-        };
-
-        if (sourceId === targetId) {
-          return {
-            orientation: Orientation.IDENTITY,
-            a: ["top", "top"]
-          };
-        }
-
-        var theta = Math.atan2(td.centery - sd.centery, td.centerx - sd.centerx),
-            theta2 = Math.atan2(sd.centery - td.centery, sd.centerx - td.centerx); // --------------------------------------------------------------------------------------
-        // improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
-        // source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can
-        // go through the array one by one until we find an entry in which each requested face is supported.
-
-        var candidates = [],
-            midpoints = {};
-
-        (function (types, dim) {
-          for (var i = 0; i < types.length; i++) {
-            midpoints[types[i]] = {
-              "left": {
-                x: dim[i].left,
-                y: dim[i].centery
-              },
-              "right": {
-                x: dim[i].right,
-                y: dim[i].centery
-              },
-              "top": {
-                x: dim[i].centerx,
-                y: dim[i].top
-              },
-              "bottom": {
-                x: dim[i].centerx,
-                y: dim[i].bottom
-              }
-            };
-          }
-        })(["source", "target"], [sd, td]);
-
-        var FACES = ["top", "right", "left", "bottom"];
-
-        for (var sf = 0; sf < FACES.length; sf++) {
-          for (var tf = 0; tf < FACES.length; tf++) {
-            candidates.push({
-              source: FACES[sf],
-              target: FACES[tf],
-              dist: this.instance.geometry.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
-            });
-          }
-        }
-
-        candidates.sort(function (a, b) {
-          return a.dist < b.dist ? -1 : a.dist > b.dist ? 1 : 0;
-        }); // now go through this list and try to get an entry that satisfies both (there will be one, unless one of the anchors
-        // declares no available faces)
-
-        var sourceEdge = candidates[0].source,
-            targetEdge = candidates[0].target;
-
-        for (var i = 0; i < candidates.length; i++) {
-          if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
-            sourceEdge = candidates[i].source;
-          } else {
-            sourceEdge = null;
-          }
-
-          if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
-            targetEdge = candidates[i].target;
-          } else {
-            targetEdge = null;
-          }
-
-          if (sourceEdge != null && targetEdge != null) {
-            break;
-          }
-        }
-
-        if (sourceAnchor.isContinuous) {
-          sourceAnchor.setCurrentFace(sourceEdge);
-        }
-
-        if (targetAnchor.isContinuous) {
-          targetAnchor.setCurrentFace(targetEdge);
-        } // --------------------------------------------------------------------------------------
-
-
-        return {
-          a: [sourceEdge, targetEdge],
-          theta: theta,
-          theta2: theta2
-        };
-      }
-    }]);
-
-    return AnchorManager;
-  }();
 
   function cls() {
     for (var _len = arguments.length, className = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -6366,6 +5649,830 @@
     return jsPlumbGeometry;
   }();
 
+  function placeAnchorsOnLine(elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse) {
+    var a = [],
+        step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+
+    for (var i = 0; i < connections.length; i++) {
+      var val = (i + 1) * step,
+          other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
+
+      if (reverse) {
+        val = elementDimensions[horizontal ? 0 : 1] - val;
+      }
+
+      var dx = horizontal ? val : other,
+          x = elementPosition[0] + dx,
+          xp = dx / elementDimensions[0];
+      var dy = horizontal ? other : val,
+          y = elementPosition[1] + dy,
+          yp = dy / elementDimensions[1];
+      a.push([x, y, xp, yp, connections[i][1], connections[i][2]]);
+    }
+
+    return a;
+  }
+
+  function rightAndBottomSort(a, b) {
+    return b[0][0] - a[0][0];
+  } // used by edgeSortFunctions
+
+
+  function leftAndTopSort(a, b) {
+    var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
+        p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
+    return p1 - p2;
+  } // used by placeAnchors
+
+
+  var edgeSortFunctions = {
+    "top": leftAndTopSort,
+    "right": rightAndBottomSort,
+    "bottom": rightAndBottomSort,
+    "left": leftAndTopSort
+  };
+  var ContinuousAnchorFactory =
+  /*#__PURE__*/
+  function () {
+    function ContinuousAnchorFactory() {
+      _classCallCheck(this, ContinuousAnchorFactory);
+
+      _defineProperty(this, "continuousAnchorLocations", {});
+    }
+
+    _createClass(ContinuousAnchorFactory, [{
+      key: "clear",
+      value: function clear(endpointId) {
+        delete this.continuousAnchorLocations[endpointId];
+      }
+    }, {
+      key: "set",
+      value: function set(endpointId, pos) {
+        this.continuousAnchorLocations[endpointId] = pos;
+      }
+    }, {
+      key: "get",
+      value: function get(instance, params) {
+        return new ContinuousAnchor(instance, params);
+      }
+    }]);
+
+    return ContinuousAnchorFactory;
+  }();
+  var AnchorManager =
+  /*#__PURE__*/
+  function () {
+    function AnchorManager(instance) {
+      _classCallCheck(this, AnchorManager);
+
+      this.instance = instance;
+
+      _defineProperty(this, "_amEndpoints", {});
+
+      _defineProperty(this, "continuousAnchorLocations", {});
+
+      _defineProperty(this, "continuousAnchorOrientations", {});
+
+      _defineProperty(this, "anchorLists", {});
+
+      _defineProperty(this, "floatingConnections", {});
+
+      _defineProperty(this, "continuousAnchorFactory", void 0);
+
+      this.continuousAnchorFactory = new ContinuousAnchorFactory();
+    }
+
+    _createClass(AnchorManager, [{
+      key: "reset",
+      value: function reset() {
+        this._amEndpoints = {};
+        this.anchorLists = {};
+      }
+    }, {
+      key: "placeAnchors",
+      value: function placeAnchors(instance, elementId, _anchorLists) {
+        var _this = this;
+
+        var cd = instance.getCachedData(elementId),
+            sS = cd.s,
+            sO = cd.o,
+            placeSomeAnchors = function placeSomeAnchors(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
+          if (unsortedConnections.length > 0) {
+            var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
+                // puts them in order based on the target element's pos on screen
+            reverse = desc === "right" || desc === "top",
+                anchors = placeAnchorsOnLine(elementDimensions, elementPosition, sc, isHorizontal, otherMultiplier, reverse); // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
+
+            var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
+              _this.continuousAnchorLocations[endpoint.id] = [anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3]];
+              _this.continuousAnchorOrientations[endpoint.id] = orientation;
+            };
+
+            for (var i = 0; i < anchors.length; i++) {
+              var c = anchors[i][4],
+                  weAreSource = c.endpoints[0].elementId === elementId,
+                  weAreTarget = c.endpoints[1].elementId === elementId;
+
+              if (weAreSource) {
+                _setAnchorLocation(c.endpoints[0], anchors[i]);
+              }
+
+              if (weAreTarget) {
+                _setAnchorLocation(c.endpoints[1], anchors[i]);
+              }
+            }
+          }
+        };
+
+        placeSomeAnchors("bottom", sS, [sO.left, sO.top], _anchorLists.bottom, true, 1, [0, 1]);
+        placeSomeAnchors("top", sS, [sO.left, sO.top], _anchorLists.top, true, 0, [0, -1]);
+        placeSomeAnchors("left", sS, [sO.left, sO.top], _anchorLists.left, false, 0, [-1, 0]);
+        placeSomeAnchors("right", sS, [sO.left, sO.top], _anchorLists.right, false, 1, [1, 0]);
+      }
+    }, {
+      key: "addFloatingConnection",
+      value: function addFloatingConnection(key, conn) {
+        this.floatingConnections[key] = conn;
+      }
+    }, {
+      key: "removeFloatingConnection",
+      value: function removeFloatingConnection(key) {
+        delete this.floatingConnections[key];
+      }
+    }, {
+      key: "newConnection",
+      value: function newConnection(conn) {
+        var _this2 = this;
+
+        var sourceId = conn.sourceId,
+            targetId = conn.targetId,
+            ep = conn.endpoints,
+            doRegisterTarget = true,
+            registerConnection = function registerConnection(otherIndex, otherEndpoint, otherAnchor) {
+          if (sourceId === targetId && otherAnchor.isContinuous) {
+            // remove the target endpoint's canvas.  we dont need it.
+            _this2.instance.renderer.destroyEndpoint(ep[1]);
+
+            doRegisterTarget = false;
+          }
+        };
+
+        registerConnection(0, ep[0], ep[0].anchor);
+
+        if (doRegisterTarget) {
+          registerConnection(1, ep[1], ep[1].anchor);
+        }
+      }
+    }, {
+      key: "removeEndpointFromAnchorLists",
+      value: function removeEndpointFromAnchorLists(endpoint) {
+        (function (list, eId) {
+          if (list) {
+            // transient anchors dont get entries in this list.
+            var f = function f(e) {
+              return e[4] === eId;
+            };
+
+            removeWithFunction(list.top, f);
+            removeWithFunction(list.left, f);
+            removeWithFunction(list.bottom, f);
+            removeWithFunction(list.right, f);
+          }
+        })(this.anchorLists[endpoint.elementId], endpoint.id);
+      }
+    }, {
+      key: "connectionDetached",
+      value: function connectionDetached(connection) {
+        if (connection.floatingId) {
+          this.removeEndpointFromAnchorLists(connection.floatingEndpoint);
+        } // remove from anchorLists
+
+
+        this.removeEndpointFromAnchorLists(connection.endpoints[0]);
+        this.removeEndpointFromAnchorLists(connection.endpoints[1]);
+      }
+    }, {
+      key: "addEndpoint",
+      value: function addEndpoint(endpoint, elementId) {
+        addToList(this._amEndpoints, elementId, endpoint);
+      }
+    }, {
+      key: "changeId",
+      value: function changeId(oldId, newId) {
+        this._amEndpoints[newId] = this._amEndpoints[oldId];
+        delete this._amEndpoints[oldId];
+      }
+    }, {
+      key: "deleteEndpoint",
+      value: function deleteEndpoint(endpoint) {
+        removeWithFunction(this._amEndpoints[endpoint.elementId], function (e) {
+          return e.id === endpoint.id;
+        });
+        this.removeEndpointFromAnchorLists(endpoint);
+      }
+    }, {
+      key: "clearFor",
+      value: function clearFor(elementId) {
+        delete this._amEndpoints[elementId];
+        this._amEndpoints[elementId] = [];
+      } // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
+      // also removes the anchor from its previous list, if the edge it is on has changed.
+      // all connections found along the way (those that are connected to one of the faces this function
+      // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
+      // them wthout having to calculate anything else about them.
+
+    }, {
+      key: "_updateAnchorList",
+      value: function _updateAnchorList(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, connsToPaint, endpointsToPaint) {
+        // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
+        var endpoint = conn.endpoints[idx],
+            endpointId = endpoint.id,
+            oIdx = [1, 0][idx],
+            values = [[theta, order], conn, aBoolean, otherElId, endpointId],
+            listToAddTo = lists[edgeId],
+            listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
+            candidate;
+
+        if (listToRemoveFrom) {
+          var rIdx = findWithFunction(listToRemoveFrom, function (e) {
+            return e[4] === endpointId;
+          });
+
+          if (rIdx !== -1) {
+            listToRemoveFrom.splice(rIdx, 1); // get all connections from this list
+
+            for (var i = 0; i < listToRemoveFrom.length; i++) {
+              candidate = listToRemoveFrom[i][1];
+              connsToPaint.add(candidate);
+              endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[idx]);
+              endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[oIdx]);
+            }
+          }
+        }
+
+        for (var _i = 0; _i < listToAddTo.length; _i++) {
+          candidate = listToAddTo[_i][1];
+          connsToPaint.add(candidate);
+          endpointsToPaint.add(listToAddTo[_i][1].endpoints[idx]);
+          endpointsToPaint.add(listToAddTo[_i][1].endpoints[oIdx]);
+        }
+
+        {
+          var insertIdx = reverse ?  0 : listToAddTo.length; // of course we will get this from having looked through the array shortly.
+
+          listToAddTo.splice(insertIdx, 0, values);
+        } // store this for next time.
+
+
+        endpoint._continuousAnchorEdge = edgeId;
+      } //
+      // moves the given endpoint from `currentId` to `element`.
+      // This involves:
+      //
+      // 1. changing the key in _amEndpoints under which the endpoint is stored
+      // 2. changing the source or target values in all of the endpoint's connections
+      // 3. changing the array in connectionsByElementId in which the endpoint's connections
+      //    are stored (done by either sourceChanged or updateOtherEndpoint)
+      //
+
+    }, {
+      key: "rehomeEndpoint",
+      value: function rehomeEndpoint(ep, currentId, element) {
+        var eps = this._amEndpoints[currentId] || [],
+            elementId = this.instance.getId(element);
+
+        if (elementId !== currentId) {
+          var idx = eps.indexOf(ep);
+
+          if (idx > -1) {
+            var _ep = eps.splice(idx, 1)[0];
+            this.addEndpoint(_ep, elementId);
+          }
+        }
+
+        for (var i = 0; i < ep.connections.length; i++) {
+          this.instance.sourceOrTargetChanged(currentId, ep.elementId, ep.connections[i], ep.element, ep.connections[i].sourceId === currentId ? 0 : 1);
+        }
+      }
+    }, {
+      key: "redraw",
+      value: function redraw(elementId, ui, timestamp, offsetToUI) {
+        if (!this.instance._suspendDrawing) {
+          var connectionsToPaint = new Set(),
+              endpointsToPaint = new Set(),
+              anchorsToUpdate = new Set(); // get all the endpoints for this element
+
+          var ep = this._amEndpoints[elementId] || [];
+          timestamp = timestamp || _timestamp(); // offsetToUI are values that would have been calculated in the dragManager when registering
+          // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
+          // registered as draggable.
+
+          offsetToUI = offsetToUI || {
+            left: 0,
+            top: 0
+          };
+
+          if (ui) {
+            ui = {
+              left: ui.left + offsetToUI.left,
+              top: ui.top + offsetToUI.top
+            };
+          } // valid for one paint cycle.
+
+
+          var myOffset = this.instance.updateOffset({
+            elId: elementId,
+            offset: ui,
+            recalc: false,
+            timestamp: timestamp
+          }),
+              orientationCache = {};
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = ep[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var anEndpoint = _step.value;
+              endpointsToPaint.add(anEndpoint);
+
+              if (anEndpoint.connections.length === 0) {
+                if (anEndpoint.anchor.isContinuous) {
+                  if (!this.anchorLists[elementId]) {
+                    this.anchorLists[elementId] = {
+                      top: [],
+                      right: [],
+                      bottom: [],
+                      left: []
+                    };
+                  }
+
+                  this._updateAnchorList(this.anchorLists[elementId], -Math.PI / 2, 0, {
+                    endpoints: [anEndpoint, anEndpoint],
+                    paint: function paint() {}
+                  }, false, elementId, 0, false, anEndpoint.anchor.getDefaultFace(), connectionsToPaint, endpointsToPaint);
+
+                  anchorsToUpdate.add(elementId);
+                }
+              } else {
+                for (var i = 0; i < anEndpoint.connections.length; i++) {
+                  var conn = anEndpoint.connections[i],
+                      sourceId = conn.sourceId,
+                      targetId = conn.targetId,
+                      sourceContinuous = conn.endpoints[0].anchor.isContinuous,
+                      targetContinuous = conn.endpoints[1].anchor.isContinuous;
+
+                  if (sourceContinuous || targetContinuous) {
+                    var oKey = sourceId + "_" + targetId,
+                        o = orientationCache[oKey],
+                        oIdx = conn.sourceId === elementId ? 1 : 0;
+
+                    if (sourceContinuous && !this.anchorLists[sourceId]) {
+                      this.anchorLists[sourceId] = {
+                        top: [],
+                        right: [],
+                        bottom: [],
+                        left: []
+                      };
+                    }
+
+                    if (targetContinuous && !this.anchorLists[targetId]) {
+                      this.anchorLists[targetId] = {
+                        top: [],
+                        right: [],
+                        bottom: [],
+                        left: []
+                      };
+                    }
+
+                    if (elementId !== targetId) {
+                      this.instance.updateOffset({
+                        elId: targetId,
+                        timestamp: timestamp
+                      });
+                    }
+
+                    if (elementId !== sourceId) {
+                      this.instance.updateOffset({
+                        elId: sourceId,
+                        timestamp: timestamp
+                      });
+                    }
+
+                    var td = this.instance.getCachedData(targetId),
+                        sd = this.instance.getCachedData(sourceId);
+
+                    if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
+                      // here we may want to improve this by somehow determining the face we'd like
+                      // to put the connector on.  ideally, when drawing, the face should be calculated
+                      // by determining which face is closest to the point at which the mouse button
+                      // was released.  for now, we're putting it on the top face.
+                      this._updateAnchorList(this.anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
+
+                      this._updateAnchorList(this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
+                    } else {
+                      if (!o) {
+                        o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor);
+                        orientationCache[oKey] = o;
+                      }
+
+                      if (sourceContinuous) {
+                        this._updateAnchorList(this.anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
+                      }
+
+                      if (targetContinuous) {
+                        this._updateAnchorList(this.anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
+                      }
+                    }
+
+                    if (sourceContinuous) {
+                      anchorsToUpdate.add(sourceId);
+                    }
+
+                    if (targetContinuous) {
+                      anchorsToUpdate.add(targetId);
+                    }
+
+                    connectionsToPaint.add(conn);
+
+                    if (sourceContinuous && oIdx === 0 || targetContinuous && oIdx === 1) {
+                      endpointsToPaint.add(conn.endpoints[oIdx]);
+                    }
+                  } else {
+                    var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0];
+
+                    if (otherEndpoint.anchor.constructor === DynamicAnchor) {
+                      otherEndpoint.paint({
+                        elementWithPrecedence: elementId,
+                        timestamp: timestamp
+                      });
+                      connectionsToPaint.add(anEndpoint.connections[i]); // all the connections for the other endpoint now need to be repainted
+
+                      for (var k = 0; k < otherEndpoint.connections.length; k++) {
+                        if (otherEndpoint.connections[k] !== anEndpoint.connections[i]) {
+                          connectionsToPaint.add(otherEndpoint.connections[k]);
+                        }
+                      }
+                    } else {
+                      connectionsToPaint.add(anEndpoint.connections[i]);
+                    }
+                  }
+                }
+              }
+            } // now place all the continuous anchors we need to
+
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+                _iterator["return"]();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = anchorsToUpdate[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var anchor = _step2.value;
+              this.placeAnchors(this.instance, anchor, this.anchorLists[anchor]);
+            } // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
+
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+                _iterator2["return"]();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
+
+          try {
+            for (var _iterator3 = endpointsToPaint[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              var _ep2 = _step3.value;
+              var cd = this.instance.getCachedData(_ep2.elementId);
+
+              _ep2.paint({
+                timestamp: timestamp,
+                offset: cd,
+                dimensions: cd.s
+              });
+            } // paint current floating connection for this element, if there is one.
+
+          } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+                _iterator3["return"]();
+              }
+            } finally {
+              if (_didIteratorError3) {
+                throw _iteratorError3;
+              }
+            }
+          }
+
+          var fc = this.floatingConnections[elementId];
+
+          if (fc) {
+            fc.paint({
+              timestamp: timestamp,
+              recalc: false,
+              elId: elementId
+            });
+          } // paint all the connections
+
+
+          var _iteratorNormalCompletion4 = true;
+          var _didIteratorError4 = false;
+          var _iteratorError4 = undefined;
+
+          try {
+            for (var _iterator4 = connectionsToPaint[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+              var c = _step4.value;
+              c.paint({
+                elId: elementId,
+                timestamp: timestamp,
+                recalc: false
+              });
+            }
+          } catch (err) {
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+                _iterator4["return"]();
+              }
+            } finally {
+              if (_didIteratorError4) {
+                throw _iteratorError4;
+              }
+            }
+          }
+        }
+      }
+    }, {
+      key: "calculateOrientation",
+      value: function calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
+        var Orientation = {
+          HORIZONTAL: "horizontal",
+          VERTICAL: "vertical",
+          DIAGONAL: "diagonal",
+          IDENTITY: "identity"
+        };
+
+        if (sourceId === targetId) {
+          return {
+            orientation: Orientation.IDENTITY,
+            a: ["top", "top"]
+          };
+        }
+
+        var theta = Math.atan2(td.centery - sd.centery, td.centerx - sd.centerx),
+            theta2 = Math.atan2(sd.centery - td.centery, sd.centerx - td.centerx); // --------------------------------------------------------------------------------------
+        // improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
+        // source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can
+        // go through the array one by one until we find an entry in which each requested face is supported.
+
+        var candidates = [],
+            midpoints = {};
+
+        (function (types, dim) {
+          for (var i = 0; i < types.length; i++) {
+            midpoints[types[i]] = {
+              "left": {
+                x: dim[i].left,
+                y: dim[i].centery
+              },
+              "right": {
+                x: dim[i].right,
+                y: dim[i].centery
+              },
+              "top": {
+                x: dim[i].centerx,
+                y: dim[i].top
+              },
+              "bottom": {
+                x: dim[i].centerx,
+                y: dim[i].bottom
+              }
+            };
+          }
+        })(["source", "target"], [sd, td]);
+
+        var FACES = ["top", "right", "left", "bottom"];
+
+        for (var sf = 0; sf < FACES.length; sf++) {
+          for (var tf = 0; tf < FACES.length; tf++) {
+            candidates.push({
+              source: FACES[sf],
+              target: FACES[tf],
+              dist: this.instance.geometry.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+            });
+          }
+        }
+
+        candidates.sort(function (a, b) {
+          return a.dist < b.dist ? -1 : a.dist > b.dist ? 1 : 0;
+        }); // now go through this list and try to get an entry that satisfies both (there will be one, unless one of the anchors
+        // declares no available faces)
+
+        var sourceEdge = candidates[0].source,
+            targetEdge = candidates[0].target;
+
+        for (var i = 0; i < candidates.length; i++) {
+          if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
+            sourceEdge = candidates[i].source;
+          } else {
+            sourceEdge = null;
+          }
+
+          if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
+            targetEdge = candidates[i].target;
+          } else {
+            targetEdge = null;
+          }
+
+          if (sourceEdge != null && targetEdge != null) {
+            break;
+          }
+        }
+
+        if (sourceAnchor.isContinuous) {
+          sourceAnchor.setCurrentFace(sourceEdge);
+        }
+
+        if (targetAnchor.isContinuous) {
+          targetAnchor.setCurrentFace(targetEdge);
+        } // --------------------------------------------------------------------------------------
+
+
+        return {
+          a: [sourceEdge, targetEdge],
+          theta: theta,
+          theta2: theta2
+        };
+      }
+    }]);
+
+    return AnchorManager;
+  }();
+
+  /*
+   * Default router. Defers to an AnchorManager for placement of anchors, and connector paint routines for paths.
+   * Currently this is a placeholder and acts as a facade to the pre-existing anchor manager. The Toolkit edition
+   * will make use of concept to provide more advanced routing.
+   *
+   * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
+   *
+   * https://jsplumbtoolkit.com
+   * https://github.com/jsplumb/jsplumb
+   *
+   * Dual licensed under the MIT and GPL2 licenses.
+   */
+  var DefaultRouter =
+  /*#__PURE__*/
+  function () {
+    function DefaultRouter(instance) {
+      _classCallCheck(this, DefaultRouter);
+
+      this.instance = instance;
+
+      _defineProperty(this, "anchorManager", void 0);
+
+      this.anchorManager = new AnchorManager(this.instance);
+    }
+
+    _createClass(DefaultRouter, [{
+      key: "reset",
+      value: function reset() {
+        this.anchorManager.reset();
+      }
+    }, {
+      key: "changeId",
+      value: function changeId(oldId, newId) {
+        this.anchorManager.changeId(oldId, newId);
+      }
+    }, {
+      key: "newConnection",
+      value: function newConnection(conn) {
+        this.anchorManager.newConnection(conn);
+      }
+    }, {
+      key: "connectionDetached",
+      value: function connectionDetached(connInfo) {
+        this.anchorManager.connectionDetached(connInfo);
+      }
+    }, {
+      key: "redraw",
+      value: function redraw(elementId, ui, timestamp, offsetToUI) {
+        this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI);
+      }
+    }, {
+      key: "deleteEndpoint",
+      value: function deleteEndpoint(endpoint) {
+        this.anchorManager.deleteEndpoint(endpoint);
+      }
+    }, {
+      key: "rehomeEndpoint",
+      value: function rehomeEndpoint(ep, currentId, element) {
+        this.anchorManager.rehomeEndpoint(ep, currentId, element);
+      }
+    }, {
+      key: "addEndpoint",
+      value: function addEndpoint(endpoint, elementId) {
+        this.anchorManager.addEndpoint(endpoint, elementId);
+      }
+    }, {
+      key: "computePath",
+      value: function computePath(connection, timestamp) {
+        var sourceInfo = this.instance.updateOffset({
+          elId: connection.sourceId
+        }).o,
+            targetInfo = this.instance.updateOffset({
+          elId: connection.targetId
+        }).o,
+            sE = connection.endpoints[0],
+            tE = connection.endpoints[1];
+        var sAnchorP = sE.anchor.getCurrentLocation({
+          xy: [sourceInfo.left, sourceInfo.top],
+          wh: [sourceInfo.width, sourceInfo.height],
+          element: sE,
+          timestamp: timestamp
+        }),
+            tAnchorP = tE.anchor.getCurrentLocation({
+          xy: [targetInfo.left, targetInfo.top],
+          wh: [targetInfo.width, targetInfo.height],
+          element: tE,
+          timestamp: timestamp
+        });
+        connection.connector.resetBounds();
+        connection.connector.compute({
+          sourcePos: sAnchorP,
+          targetPos: tAnchorP,
+          sourceOrientation: sE.anchor.getOrientation(sE),
+          targetOrientation: tE.anchor.getOrientation(tE),
+          sourceEndpoint: connection.endpoints[0],
+          targetEndpoint: connection.endpoints[1],
+          strokeWidth: connection.paintStyleInUse.strokeWidth,
+          sourceInfo: sourceInfo,
+          targetInfo: targetInfo
+        });
+      }
+    }]);
+
+    return DefaultRouter;
+  }();
+  /*
+
+
+
+  (function () {
+
+      "use strict"
+
+      var root = this,
+          _ju = root.jsPlumbUtil,
+          _jp = root.jsPlumb
+
+      _jp.DefaultRouter = function(jsPlumbInstance) {
+          this.jsPlumbInstance = jsPlumbInstance
+          this.anchorManager = new _jp.AnchorManager({jsPlumbInstance:jsPlumbInstance})
+
+          this.sourceOrTargetChanged = function (originalId, newId, connection, newElement, anchorIndex) {
+              this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex)
+          }
+      }
+
+
+
+  }).call(typeof window !== 'undefined' ? window : this)
+
+
+
+  */
+
   function _scopeMatch(e1, e2) {
     var s1 = e1.scope.split(/\s/),
         s2 = e2.scope.split(/\s/);
@@ -6570,6 +6677,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "_sizes", {});
 
+      _defineProperty(_assertThisInitialized(_this), "router", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "anchorManager", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "groupManager", void 0);
@@ -6629,7 +6738,11 @@
       extend(_this._initialDefaults, _this.Defaults);
       _this.DEFAULT_SCOPE = _this.Defaults.scope;
       _this._allowNestedGroups = _this._initialDefaults.allowNestedGroups !== false;
-      _this.anchorManager = new AnchorManager(_assertThisInitialized(_this));
+      _this.router = new DefaultRouter(_assertThisInitialized(_this)); // TODO we don't want to expose the anchor manager on the instance. we dont want to expose it on Router, either.
+      // this cast would currently mean any alternative Router could fail (if it didn't expose an anchorManager).
+      // this is something that will need to be refactored before the Toolkit edition 4.x can be released.
+
+      _this.anchorManager = _this.router.anchorManager;
       _this.groupManager = new GroupManager(_assertThisInitialized(_this));
 
       _this.setContainer(_this._initialDefaults.container);
@@ -7388,7 +7501,7 @@
 
 
         this.fire(EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent);
-        this.anchorManager.connectionDetached(params.connection);
+        this.router.connectionDetached(params.connection);
       }
     }, {
       key: "fireMoveEvent",
@@ -11353,7 +11466,7 @@
           // changed.
           // TODO is this still necessary.
 
-          this.instance.anchorManager.newConnection(this.jpc);
+          this.instance.router.newConnection(this.jpc);
         } else {
           this.existingJpc = true;
           this.instance.renderer.setHover(this.jpc, false); // new anchor idx
