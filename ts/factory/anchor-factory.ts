@@ -5,7 +5,7 @@ import {Dictionary, jsPlumbInstance, PointArray} from "../core"
 import {Anchor} from "../anchor/anchor"
 import {DynamicAnchor} from "../anchor/dynamic-anchor"
 import {IS, isArray, isNumber, isString} from "../util"
-import {ContinuousAnchor} from "../anchor/continuous-anchor"
+import {ContinuousAnchor, ContinuousAnchorOptions} from "../anchor/continuous-anchor"
 import {AnchorPlacement} from "../anchor-manager"
 
 export type AnchorOrientationHint = -1 | 0 | 1
@@ -322,18 +322,20 @@ anchorMap["Perimeter"] = function(instance:jsPlumbInstance, params:any):Anchor {
 
 // ------------------------- CONTINUOUS ANCHOR -------------------
 
-function _curryContinuousAnchor (type:AnchorId, faces:Array<Face>) {
+function _curryContinuousAnchor (type:AnchorId, faces?:Array<Face>) {
     anchorMap[type] = function(instance:jsPlumbInstance, params:any):Anchor {
-        let a = new ContinuousAnchor(instance, { faces: faces })
+        let o:ContinuousAnchorOptions = {}
+        Object.assign(o, params || {})
+        if (faces) {
+            o.faces = faces;
+        }
+        let a = new ContinuousAnchor(instance, o)
         a.type = type
         return a
     }
 }
 
-anchorMap["Continuous"] = function(instance:jsPlumbInstance, params:any):Anchor {
-    return instance.anchorManager.continuousAnchorFactory.get(instance, params)
-}
-
+_curryContinuousAnchor("Continuous")
 _curryContinuousAnchor("ContinuousLeft", ["left"])
 _curryContinuousAnchor("ContinuousTop", ["top"])
 _curryContinuousAnchor("ContinuousBottom", ["bottom"])
