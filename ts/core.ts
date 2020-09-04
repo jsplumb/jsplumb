@@ -28,6 +28,7 @@ import {UIGroup} from "./group/group"
 import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom"
 import {jsPlumbDOMElement} from "./dom"
 import {DefaultRouter} from "./router/default-router"
+import {Router} from "./router/router"
 
 export type UUID = string
 export type ElementId = string
@@ -413,7 +414,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     private _offsets:Dictionary<ExtendedOffset> = {}
     private _sizes:Dictionary<Size> = {}
 
-    router: DefaultRouter
+    router: Router
     anchorManager:AnchorManager
     groupManager:GroupManager
     _connectionTypes:Dictionary<TypeDescriptor> = {}
@@ -500,8 +501,10 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
         this.router = new DefaultRouter(this)
 
-        //new AnchorManager(this)
-        this.anchorManager = this.router.anchorManager
+        // TODO we don't want to expose the anchor manager on the instance. we dont want to expose it on Router, either.
+        // this cast would currently mean any alternative Router could fail (if it didn't expose an anchorManager).
+        // this is something that will need to be refactored before the Toolkit edition 4.x can be released.
+        this.anchorManager = (this.router as DefaultRouter).anchorManager
         this.groupManager = new GroupManager(this)
 
         this.setContainer(this._initialDefaults.container)
@@ -1151,7 +1154,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
         // always fire this. used by internal jsplumb stuff.
         this.fire(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent)
 
-        //this.anchorManager.connectionDetached(params.connection)
         this.router.connectionDetached(params.connection)
     }
 
@@ -1324,11 +1326,11 @@ export abstract class jsPlumbInstance extends EventGenerator {
                     }
                 }
 
-                this.anchorManager.redraw(id, ui, timestamp, null)
+                this.router.redraw(id, ui, timestamp, null)
 
                 if (repaintEls.length > 0) {
                     for (let j = 0; j < repaintEls.length; j++) {
-                        this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null)
+                        this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null)
                     }
                 }
             }
@@ -1340,7 +1342,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         if (uuid) {
             delete this.endpointsByUUID[uuid]
         }
-        this.anchorManager.deleteEndpoint(endpoint)
+        this.router.deleteEndpoint(endpoint)
 
         // TODO at least replace this with a removeWithFunction call.
         for (let e in this.endpointsByElement) {
@@ -1435,7 +1437,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             this.endpointsByUUID = {}
             this._offsets = {}
             this._offsetTimestamps = {}
-            this.anchorManager.reset()
+            this.router.reset()
             this.groupManager.reset()
             this._connectionTypes = {}
             this._endpointTypes = {}
@@ -1675,7 +1677,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         // connection is new; it has just (possibly) moved. the question is whether
         // to make that call here or in the anchor manager.  i think perhaps here.
         if (doInformAnchorManager !== false) {
-            this.anchorManager.newConnection(jpc)
+            this.router.newConnection(jpc)
         }
 
         // force a paint
