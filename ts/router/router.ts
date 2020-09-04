@@ -19,4 +19,6 @@ export interface Router {
 
     addEndpoint (endpoint:Endpoint, elementId:string):void
 
+    computePath(connection:Connection, timestamp:string):void
+
 }
