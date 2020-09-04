@@ -1,5 +1,5 @@
-import {Endpoint} from "./endpoint/endpoint-impl";
+import {Endpoint} from "./endpoint/endpoint-impl"
 
 export interface ProxyConnection {
-    originalEp:Endpoint;
+    originalEp:Endpoint
 }

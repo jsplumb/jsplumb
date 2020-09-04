@@ -1,47 +1,47 @@
-import {EndpointSpec} from "./endpoint/endpoint";
-import {AnchorSpec} from "./factory/anchor-factory";
-import {PaintStyle} from "./styles";
-import {OverlaySpec} from "./overlay/overlay";
-import {ConnectorSpec} from "./connector/abstract-connector";
-import {Offset, Size} from "./core";
+import {EndpointSpec} from "./endpoint/endpoint"
+import {AnchorSpec} from "./factory/anchor-factory"
+import {PaintStyle} from "./styles"
+import {OverlaySpec} from "./overlay/overlay"
+import {ConnectorSpec} from "./connector/abstract-connector"
+import {Offset, Size} from "./core"
 
 export interface ListSpec {
-    endpoint?: EndpointSpec;
+    endpoint?: EndpointSpec
 }
 
 export interface jsPlumbDefaults {
-    endpoint?: EndpointSpec;
-    endpoints?: [ EndpointSpec, EndpointSpec ];
-    anchor?: AnchorSpec;
-    anchors?: [ AnchorSpec, AnchorSpec ];
-    paintStyle?: PaintStyle;
-    hoverPaintStyle?: PaintStyle;
+    endpoint?: EndpointSpec
+    endpoints?: [ EndpointSpec, EndpointSpec ]
+    anchor?: AnchorSpec
+    anchors?: [ AnchorSpec, AnchorSpec ]
+    paintStyle?: PaintStyle
+    hoverPaintStyle?: PaintStyle
 
-    endpointStyle?: PaintStyle;
-    endpointHoverStyle?: PaintStyle;
-    endpointStyles?: [ PaintStyle, PaintStyle ];
+    endpointStyle?: PaintStyle
+    endpointHoverStyle?: PaintStyle
+    endpointStyles?: [ PaintStyle, PaintStyle ]
     endpointHoverStyles?: [ PaintStyle, PaintStyle ],
 
-    connectionsDetachable?: boolean;
-    reattachConnections?: boolean;
+    connectionsDetachable?: boolean
+    reattachConnections?: boolean
 
-    endpointOverlays?: Array<OverlaySpec>;
-    connectionOverlays?: Array<OverlaySpec>;
+    endpointOverlays?: Array<OverlaySpec>
+    connectionOverlays?: Array<OverlaySpec>
 
-    listStyle?: ListSpec;
+    listStyle?: ListSpec
 
     container?: any; // string(selector or id) or element
-    connector?:ConnectorSpec;
-    scope?:string;
+    connector?:ConnectorSpec
+    scope?:string
 
-    maxConnections?:number;
+    maxConnections?:number
 
-    hoverClass?:string;
+    hoverClass?:string
 
-    allowNestedGroups?:boolean;
+    allowNestedGroups?:boolean
 }
 
 export interface jsPlumbHelperFunctions{
-    getSize?:(el:any) => Size;
-    getOffset?:(el:any|string, relativeToRoot?:boolean, container?:any) => Offset;
+    getSize?:(el:any) => Size
+    getOffset?:(el:any|string, relativeToRoot?:boolean, container?:any) => Offset
 }

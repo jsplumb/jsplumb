@@ -1,88 +1,88 @@
-import {jsPlumbInstance, Offset, PointArray} from "../core";
-import {EventGenerator} from "../event-generator";
-import {Endpoint} from "../endpoint/endpoint-impl";
-import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory";
-import {AnchorPlacement} from "../anchor-manager";
+import {jsPlumbInstance, Offset, PointArray} from "../core"
+import {EventGenerator} from "../event-generator"
+import {Endpoint} from "../endpoint/endpoint-impl"
+import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory"
+import {AnchorPlacement} from "../anchor-manager"
 
 export class Anchor extends EventGenerator {
 
-    type: AnchorId;
-    isDynamic: boolean = false;
-    isContinuous: boolean = false;
-    isFloating:boolean = false;
-    cssClass: string = "";
-    elementId: string;
-    id: string;
-    locked: boolean;
-    offsets: [number, number];
-    orientation: Orientation;
-    x: number;
-    y: number;
-    timestamp:string;
-    lastReturnValue: AnchorPlacement;
+    type: AnchorId
+    isDynamic: boolean = false
+    isContinuous: boolean = false
+    isFloating:boolean = false
+    cssClass: string = ""
+    elementId: string
+    id: string
+    locked: boolean
+    offsets: [number, number]
+    orientation: Orientation
+    x: number
+    y: number
+    timestamp:string
+    lastReturnValue: AnchorPlacement
 
-    positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:PointArray, constructorParams:any) => any;
+    positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:PointArray, constructorParams:any) => any
 
-    clone:() => Anchor;
+    clone:() => Anchor
 
     constructor(public instance:jsPlumbInstance,  params?:AnchorOptions) {
-        super();
-        params = params || {};
-        this.cssClass = params.cssClass || "";
+        super()
+        params = params || {}
+        this.cssClass = params.cssClass || ""
     }
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
-        return true;
+        return true
     }
 
     getOrientation(endpoint?: Endpoint): Orientation {
-        return this.orientation;
+        return this.orientation
     }
 
     getCurrentLocation(params:AnchorComputeParams):AnchorPlacement {
-        params = params || {};
-        return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp !== params.timestamp)) ? this.compute(params) : this.lastReturnValue;
+        params = params || {}
+        return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp !== params.timestamp)) ? this.compute(params) : this.lastReturnValue
     }
 
     setPosition (x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint, overrideLock?:boolean):void {
         if (!this.locked || overrideLock) {
-            this.x = x;
-            this.y = y;
-            this.orientation = [ ox, oy ];
-            this.lastReturnValue = null;
+            this.x = x
+            this.y = y
+            this.orientation = [ ox, oy ]
+            this.lastReturnValue = null
         }
     }
 
     compute (params:AnchorComputeParams):AnchorPlacement {
 
-        let xy = params.xy, wh = params.wh, timestamp = params.timestamp;
+        let xy = params.xy, wh = params.wh, timestamp = params.timestamp
 
         if (timestamp && timestamp === this.timestamp) {
-            return this.lastReturnValue;
+            return this.lastReturnValue
         }
 
-        this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
+        this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ]
 
-        this.timestamp = timestamp;
-        return this.lastReturnValue;
+        this.timestamp = timestamp
+        return this.lastReturnValue
     }
 
     equals(anchor:Anchor):boolean {
         if (!anchor) {
-            return false;
+            return false
         }
         let ao = anchor.getOrientation(),
-            o = this.getOrientation();
-        return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1];
+            o = this.getOrientation()
+        return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1]
     }
 
     getCssClass():string {
-        return this.cssClass;
+        return this.cssClass
     }
 
-    lock ():void { this.locked = true; };
-    unlock ():void { this.locked = false; };
-    isLocked ():boolean { return this.locked; };
+    lock ():void { this.locked = true; }
+    unlock ():void { this.locked = false; }
+    isLocked ():boolean { return this.locked; }
 
     over (anchor:Anchor, endpoint:Endpoint):void { }
 

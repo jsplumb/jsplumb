@@ -1,10 +1,10 @@
-import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults";
-import {Component, ComponentParameters} from "./component/component";
-import {PaintStyle} from "./styles";
-import {Connection} from "./connector/connection-impl";
-import {Endpoint} from "./endpoint/endpoint-impl";
-import {FullOverlaySpec, Overlay, OverlayId, OverlaySpec} from "./overlay/overlay";
-import {AnchorManager} from "./anchor-manager";
+import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults"
+import {Component, ComponentParameters} from "./component/component"
+import {PaintStyle} from "./styles"
+import {Connection} from "./connector/connection-impl"
+import {Endpoint} from "./endpoint/endpoint-impl"
+import {FullOverlaySpec, Overlay, OverlayId, OverlaySpec} from "./overlay/overlay"
+import {AnchorManager} from "./anchor-manager"
 import {
     _mergeOverrides,
     addToList,
@@ -15,59 +15,59 @@ import {
     log,
     removeWithFunction,
     uuid
-} from "./util";
-import { EventGenerator } from "./event-generator";
-import * as Constants from "./constants";
-import {Renderer} from "./renderer";
-import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory";
-import { Anchor } from "./anchor/anchor";
-import {EndpointOptions, EndpointSpec} from "./endpoint/endpoint";
-import {ConnectorSpec} from "./connector/abstract-connector";
-import {GroupManager} from "./group/group-manager";
-import {UIGroup} from "./group/group";
-import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom";
-import {jsPlumbDOMElement} from "./dom";
+} from "./util"
+import { EventGenerator } from "./event-generator"
+import * as Constants from "./constants"
+import {Renderer} from "./renderer"
+import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory"
+import { Anchor } from "./anchor/anchor"
+import {EndpointOptions, EndpointSpec} from "./endpoint/endpoint"
+import {ConnectorSpec} from "./connector/abstract-connector"
+import {GroupManager} from "./group/group-manager"
+import {UIGroup} from "./group/group"
+import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom"
+import {jsPlumbDOMElement} from "./dom"
 
-export type UUID = string;
-export type ElementId = string;
-export type ElementRef = ElementId | any;
+export type UUID = string
+export type ElementId = string
+export type ElementRef = ElementId | any
 
 export interface ConnectParams {
-    uuids?: [UUID, UUID];
-    source?: ElementRef | Endpoint;
-    target?: ElementRef | Endpoint;
-    detachable?: boolean;
-    deleteEndpointsOnDetach?: boolean;
-    endpoint?: EndpointSpec;
-    anchor?: AnchorSpec;
-    anchors?: [AnchorSpec, AnchorSpec];
-    label?: string;
-    connector?: ConnectorSpec;
-    overlays?:Array<OverlaySpec>;
-    endpoints?:[EndpointSpec, EndpointSpec];
-    endpointStyles?:[PaintStyle, PaintStyle];
-    endpointHoverStyles?:[PaintStyle, PaintStyle];
-    endpointStyle?:PaintStyle;
-    endpointHoverStyle?:PaintStyle;
-    ports?:[string, string];
+    uuids?: [UUID, UUID]
+    source?: ElementRef | Endpoint
+    target?: ElementRef | Endpoint
+    detachable?: boolean
+    deleteEndpointsOnDetach?: boolean
+    endpoint?: EndpointSpec
+    anchor?: AnchorSpec
+    anchors?: [AnchorSpec, AnchorSpec]
+    label?: string
+    connector?: ConnectorSpec
+    overlays?:Array<OverlaySpec>
+    endpoints?:[EndpointSpec, EndpointSpec]
+    endpointStyles?:[PaintStyle, PaintStyle]
+    endpointHoverStyles?:[PaintStyle, PaintStyle]
+    endpointStyle?:PaintStyle
+    endpointHoverStyle?:PaintStyle
+    ports?:[string, string]
 }
 
 interface InternalConnectParams extends ConnectParams {
-    sourceEndpoint?:Endpoint;
-    targetEndpoint?:Endpoint;
-    scope?:string;
-    type?:string;
-    newConnection?:(p:any) => Connection;
+    sourceEndpoint?:Endpoint
+    targetEndpoint?:Endpoint
+    scope?:string
+    type?:string
+    newConnection?:(p:any) => Connection
 }
 
 export interface ConnectionEstablishedParams {
-    connection:Connection;
-    source:jsPlumbDOMElement;
-    sourceEndpoint:Endpoint;
-    sourceId:string;
-    target:jsPlumbDOMElement;
-    targetEndpoint:Endpoint;
-    targetId:string;
+    connection:Connection
+    source:jsPlumbDOMElement
+    sourceEndpoint:Endpoint
+    sourceId:string
+    target:jsPlumbDOMElement
+    targetEndpoint:Endpoint
+    targetId:string
 }
 
 export interface ConnectionDetachedParams extends ConnectionEstablishedParams {
@@ -75,58 +75,58 @@ export interface ConnectionDetachedParams extends ConnectionEstablishedParams {
 }
 
 export interface TypeDescriptor {
-    cssClass?:string;
-    paintStyle?:PaintStyle;
-    hoverPaintStyle?:PaintStyle;
-    parameters?:any;
-    overlays?:Array<OverlaySpec>;
-    overlayMap?:Dictionary<FullOverlaySpec>;
-    endpoints?:[ EndpointSpec, EndpointSpec ];
-    endpoint?:EndpointSpec;
-    anchors?:[AnchorSpec, AnchorSpec];
-    anchor?:AnchorSpec;
-    detachable?:boolean;
-    reattach?:boolean;
-    scope?:string;
-    connector?:ConnectorSpec;
-    mergeStrategy?:string;
+    cssClass?:string
+    paintStyle?:PaintStyle
+    hoverPaintStyle?:PaintStyle
+    parameters?:any
+    overlays?:Array<OverlaySpec>
+    overlayMap?:Dictionary<FullOverlaySpec>
+    endpoints?:[ EndpointSpec, EndpointSpec ]
+    endpoint?:EndpointSpec
+    anchors?:[AnchorSpec, AnchorSpec]
+    anchor?:AnchorSpec
+    detachable?:boolean
+    reattach?:boolean
+    scope?:string
+    connector?:ConnectorSpec
+    mergeStrategy?:string
 }
 
 export interface BehaviouralTypeDescriptor extends TypeDescriptor {
-    filter?:string | Function;
-    filterExclude?:boolean;
-    extract?:Dictionary<string>;
-    uniqueEndpoint?:boolean;
-    onMaxConnections?:Function;
-    connectionType?:string;
-    portId?:string;
+    filter?:string | Function
+    filterExclude?:boolean
+    extract?:Dictionary<string>
+    uniqueEndpoint?:boolean
+    onMaxConnections?:Function
+    connectionType?:string
+    portId?:string
 }
 
 export interface SourceOrTargetDefinition {
-    enabled?:boolean;
-    def:BehaviouralTypeDescriptor;
-    endpoint?:Endpoint;
-    maxConnections?:number;
-    uniqueEndpoint?:boolean;
+    enabled?:boolean
+    def:BehaviouralTypeDescriptor
+    endpoint?:Endpoint
+    maxConnections?:number
+    uniqueEndpoint?:boolean
 }
 
 export interface SourceDefinition extends SourceOrTargetDefinition { }
 export interface TargetDefinition extends SourceOrTargetDefinition { }
 
 export interface DeleteOptions {
-    connection?:Connection;
-    endpoint?:Endpoint;
-    dontUpdateHover?:boolean;
-    deleteAttachedObjects?:boolean;
-    originalEvent?:Event;
-    fireEvent?:boolean;
+    connection?:Connection
+    endpoint?:Endpoint
+    dontUpdateHover?:boolean
+    deleteAttachedObjects?:boolean
+    originalEvent?:Event
+    fireEvent?:boolean
 }
 
 export interface DeleteResult {
-    endpoints:Dictionary<Endpoint>;
-    connections:Dictionary<Connection>;
-    endpointCount:number;
-    connectionCount:number;
+    endpoints:Dictionary<Endpoint>
+    connections:Dictionary<Connection>
+    endpointCount:number
+    connectionCount:number
 }
 
 export interface Offset {left:number, top:number}
@@ -135,104 +135,104 @@ export interface OffsetAndSize { o:Offset, s:Size }
 export type PointArray = [ number, number ]
 export type PointXY = { x:number, y:number, theta?:number }
 export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
-export type RectangleXY = BoundingBox;
-export type LineXY = [ PointXY, PointXY ];
+export type RectangleXY = BoundingBox
+export type LineXY = [ PointXY, PointXY ]
 
 export interface UpdateOffsetOptions {
-    timestamp?:string;
-    recalc?:boolean;
-    offset?:Offset;
-    elId?:string;
+    timestamp?:string
+    recalc?:boolean
+    offset?:Offset
+    elId?:string
 }
 
 export type UpdateOffsetResult = {o:ExtendedOffset, s:Size}
 
 export interface ExtendedOffset extends Offset {
-    width?:number;
-    height?:number;
-    centerx?:number;
-    centery?:number;
-    bottom?:number;
-    right?:number;
+    width?:number
+    height?:number
+    centerx?:number
+    centery?:number
+    bottom?:number
+    right?:number
 }
 
 export interface Dictionary<T> {
-    [Key: string]: T;
+    [Key: string]: T
 }
 
-export type ElementSpec = string | any | Array<string | any>;
+export type ElementSpec = string | any | Array<string | any>
 
-export type SortFunction<T> = (a:T,b:T) => number;
+export type SortFunction<T> = (a:T,b:T) => number
 
-export type Constructable<T> = { new(...args: any[]): T };
+export type Constructable<T> = { new(...args: any[]): T }
 
-export type Timestamp = string;
+export type Timestamp = string
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
-    let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/);
+    let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
     for (let i = 0; i < s1.length; i++) {
         for (let j = 0; j < s2.length; j++) {
             if (s2[j] === s1[i]) {
-                return true;
+                return true
             }
         }
     }
 
-    return false;
+    return false
 }
 
 interface AbstractSelection<T> {
-    length:number;
-    each:( handler:(arg0:T) => void ) => void;
-    get(index:number):T;
+    length:number
+    each:( handler:(arg0:T) => void ) => void
+    get(index:number):T
 
-    getLabel:() => string;
-    getOverlay:(id:string) => Overlay;
-    isHover:() => boolean;
-    getParameter:(key:string) => any;
-    getParameters:() => ComponentParameters;
-    getPaintStyle:() => PaintStyle;
-    getHoverPaintStyle:() => PaintStyle;
-    isVisible:() => boolean;
-    hasType:(id:string) => boolean;
-    getType:() => any;
-    isSuspendEvents:() => boolean;
+    getLabel:() => string
+    getOverlay:(id:string) => Overlay
+    isHover:() => boolean
+    getParameter:(key:string) => any
+    getParameters:() => ComponentParameters
+    getPaintStyle:() => PaintStyle
+    getHoverPaintStyle:() => PaintStyle
+    isVisible:() => boolean
+    hasType:(id:string) => boolean
+    getType:() => any
+    isSuspendEvents:() => boolean
 
-    "delete": () => void;
+    "delete": () => void
 
-    addClass:(clazz:string, updateAttachedElements?:boolean) => void;
-    removeClass:(clazz:string, updateAttachedElements?:boolean) => void;
+    addClass:(clazz:string, updateAttachedElements?:boolean) => void
+    removeClass:(clazz:string, updateAttachedElements?:boolean) => void
 }
 
 export interface AbstractSelectOptions {
-    scope?:string;
-    source?:string | any | Array<string | any>;
-    target?:string | any | Array<string | any>;
+    scope?:string
+    source?:string | any | Array<string | any>
+    target?:string | any | Array<string | any>
 }
 export interface SelectOptions extends AbstractSelectOptions {
-    connections?:Array<Connection>;
+    connections?:Array<Connection>
 }
 
 export interface SelectEndpointOptions extends AbstractSelectOptions {
-    element?:string | any | Array<string | any>;
+    element?:string | any | Array<string | any>
 }
 
 export interface ConnectionSelection extends AbstractSelection<Connection> {
 
-    setDetachable: (d:boolean) => void;
-    setReattach: (d:boolean) => void;
-    setConnector: (d:ConnectorSpec) => void;
+    setDetachable: (d:boolean) => void
+    setReattach: (d:boolean) => void
+    setConnector: (d:ConnectorSpec) => void
 
-    isDetachable:() => any;
-    isReattach: () => any;
+    isDetachable:() => any
+    isReattach: () => any
 
 }
 
 export interface EndpointSelection extends AbstractSelection<Endpoint> {
-    setEnabled:(e:boolean) => void;
-    setAnchor:(a:AnchorSpec) => void;
-    isEnabled:() => any[];
-    deleteEveryConnection:() => void;
+    setEnabled:(e:boolean) => void
+    setAnchor:(a:AnchorSpec) => void
+    isEnabled:() => any[]
+    deleteEveryConnection:() => void
 }
 
 /**
@@ -242,227 +242,227 @@ export type DeleteConnectionOptions = {
     /**
      * if true, force deletion even if the connection tries to cancel the deletion.
      */
-    force?:boolean;
+    force?:boolean
     /**
      * If false, an event won't be fired. Otherwise a `connectionDetached` event will be fired.
      */
-    fireEvent?:boolean;
+    fireEvent?:boolean
     /**
      * Optional original event that resulted in the connection being deleted.
      */
-    originalEvent?:Event;
+    originalEvent?:Event
 
     /**
      * internally when a connection is deleted, it may be because the endpoint it was on is being deleted.
      * in that case we want to ignore that endpoint.
      */
-    endpointToIgnore?:Endpoint;
+    endpointToIgnore?:Endpoint
 }
 
 function _setOperation (list:Array<any>, func:string, args?:any, selector?:any):any {
     for (let i = 0, j = list.length; i < j; i++) {
-        list[i][func].apply(list[i], args);
+        list[i][func].apply(list[i], args)
     }
-    return selector(list);
+    return selector(list)
 }
 
 function  _getOperation (list:Array<any>, func:string, args?:any):Array<any> {
-    let out = [];
+    let out = []
     for (let i = 0, j = list.length; i < j; i++) {
-        out.push([ list[i][func].apply(list[i], args), list[i] ]);
+        out.push([ list[i][func].apply(list[i], args), list[i] ])
     }
-    return out;
+    return out
 }
 
 function setter (list:Array<any>, func:string, selector:any) {
     return function () {
-        return _setOperation(list, func, arguments, selector);
-    };
+        return _setOperation(list, func, arguments, selector)
+    }
 }
 
 function getter (list:Array<any>, func:string) {
     return function () {
-        return _getOperation(list, func, arguments);
-    };
+        return _getOperation(list, func, arguments)
+    }
 }
 
 function prepareList(instance:jsPlumbInstance, input:any, doNotGetIds?:boolean):any {
-    let r = [];
+    let r = []
     if (input) {
         if (typeof input === 'string') {
             if (input === "*") {
-                return input;
+                return input
             }
-            r.push(input);
+            r.push(input)
         }
         else {
             if (doNotGetIds) {
-                r = input;
+                r = input
             }
             else {
                 if (input.length != null) {
                     for (let i = 0, j = input.length; i < j; i++) {
-                        r.push(instance._info(input[i]).id);
+                        r.push(instance._info(input[i]).id)
                     }
                 }
                 else {
-                    r.push(instance._info(input).id);
+                    r.push(instance._info(input).id)
                 }
             }
         }
     }
-    return r;
+    return r
 }
 
 function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolean):boolean {
     if (list === "*") {
-        return true;
+        return true
     }
-    return (<any>list).length > 0 ? (<any>list).indexOf(value) !== -1 : !missingIsFalse;
+    return (<any>list).length > 0 ? (<any>list).indexOf(value) !== -1 : !missingIsFalse
 }
 
 /**
  * creates a timestamp, using milliseconds since 1970, but as a string.
  */
 export function  _timestamp ():Timestamp {
-    return "" + (new Date()).getTime();
+    return "" + (new Date()).getTime()
 }
 
 export function extend<T>(o1:T, o2:T, keys?:string[]):T {
-    let i;
+    let i
     let _o1 = o1 as any,
-        _o2 = o2 as any;
+        _o2 = o2 as any
 
     if (keys) {
         for (i = 0; i < keys.length; i++) {
-            _o1[keys[i]] = _o2[keys[i]];
+            _o1[keys[i]] = _o2[keys[i]]
         }
     }
     else {
         for (i in _o2) {
-            _o1[i] = _o2[i];
+            _o1[i] = _o2[i]
         }
     }
 
-    return o1;
+    return o1
 }
 
 function _curryEach (list:any[], executor:(l:any[]) => void) {
     return function (f:Function) {
         for (let i = 0, ii = list.length; i < ii; i++) {
-            f(list[i]);
+            f(list[i])
         }
-        return executor(list);
-    };
+        return executor(list)
+    }
 }
 function _curryGet<T>(list:Array<T>) {
     return function (idx:number):T {
-        return list[idx];
+        return list[idx]
     }
 }
 
-type ContainerDelegation = [ string, Function ];
+type ContainerDelegation = [ string, Function ]
 type ManagedElement = {
     el:any,
     info?:{o:Offset, s:Size},
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>
-};
+}
 
 export abstract class jsPlumbInstance extends EventGenerator {
 
-    Defaults:jsPlumbDefaults;
-    private _initialDefaults:jsPlumbDefaults = {};
+    Defaults:jsPlumbDefaults
+    private _initialDefaults:jsPlumbDefaults = {}
 
-    _containerDelegations:ContainerDelegation[] = [];
+    _containerDelegations:ContainerDelegation[] = []
 
-    isConnectionBeingDragged:boolean = false;
-    currentlyDragging:boolean = false;
-    hoverSuspended:boolean = false;
-    _suspendDrawing:boolean = false;
-    _suspendedAt:string = null;
+    isConnectionBeingDragged:boolean = false
+    currentlyDragging:boolean = false
+    hoverSuspended:boolean = false
+    _suspendDrawing:boolean = false
+    _suspendedAt:string = null
 
-    connectorClass = "jtk-connector";
-    connectorOutlineClass = "jtk-connector-outline";
-    connectedClass = "jtk-connected";
-    hoverClass = "jtk-hover";
-    endpointClass = "jtk-endpoint";
-    endpointConnectedClass = "jtk-endpoint-connected";
-    endpointFullClass = "jtk-endpoint-full";
-    endpointDropAllowedClass = "jtk-endpoint-drop-allowed";
-    endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden";
-    overlayClass = "jtk-overlay";
-    draggingClass = "jtk-dragging";
-    elementDraggingClass = "jtk-element-dragging";
-    sourceElementDraggingClass = "jtk-source-element-dragging";
-    endpointAnchorClassPrefix = "jtk-endpoint-anchor";
-    targetElementDraggingClass = "jtk-target-element-dragging";
-    hoverSourceClass = "jtk-source-hover";
-    hoverTargetClass = "jtk-target-hover";
-    dragSelectClass = "jtk-drag-select";
+    connectorClass = "jtk-connector"
+    connectorOutlineClass = "jtk-connector-outline"
+    connectedClass = "jtk-connected"
+    hoverClass = "jtk-hover"
+    endpointClass = "jtk-endpoint"
+    endpointConnectedClass = "jtk-endpoint-connected"
+    endpointFullClass = "jtk-endpoint-full"
+    endpointDropAllowedClass = "jtk-endpoint-drop-allowed"
+    endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden"
+    overlayClass = "jtk-overlay"
+    draggingClass = "jtk-dragging"
+    elementDraggingClass = "jtk-element-dragging"
+    sourceElementDraggingClass = "jtk-source-element-dragging"
+    endpointAnchorClassPrefix = "jtk-endpoint-anchor"
+    targetElementDraggingClass = "jtk-target-element-dragging"
+    hoverSourceClass = "jtk-source-hover"
+    hoverTargetClass = "jtk-target-hover"
+    dragSelectClass = "jtk-drag-select"
 
-    connections:Array<Connection> = [];
-    endpointsByElement:Dictionary<Array<Endpoint>> = {};
-    endpointsByUUID:Dictionary<Endpoint> = {};
+    connections:Array<Connection> = []
+    endpointsByElement:Dictionary<Array<Endpoint>> = {}
+    endpointsByUUID:Dictionary<Endpoint> = {}
 
-    _allowNestedGroups:boolean;
+    _allowNestedGroups:boolean
 
-    private _curIdStamp :number = 1;
-    private _offsetTimestamps:Dictionary<string> = {};
-    private _offsets:Dictionary<ExtendedOffset> = {};
-    private _sizes:Dictionary<Size> = {};
+    private _curIdStamp :number = 1
+    private _offsetTimestamps:Dictionary<string> = {}
+    private _offsets:Dictionary<ExtendedOffset> = {}
+    private _sizes:Dictionary<Size> = {}
 
-    anchorManager:AnchorManager;
-    groupManager:GroupManager;
-    _connectionTypes:Dictionary<TypeDescriptor> = {};
-    _endpointTypes:Dictionary<TypeDescriptor> = {};
-    _container:any;
+    anchorManager:AnchorManager
+    groupManager:GroupManager
+    _connectionTypes:Dictionary<TypeDescriptor> = {}
+    _endpointTypes:Dictionary<TypeDescriptor> = {}
+    _container:any
 
-    _managedElements:Dictionary<ManagedElement> = {};
-    _floatingConnections:Dictionary<Connection> = {};
+    _managedElements:Dictionary<ManagedElement> = {}
+    _floatingConnections:Dictionary<Connection> = {}
 
-    DEFAULT_SCOPE:string;
+    DEFAULT_SCOPE:string
 
-    _helpers:jsPlumbHelperFunctions;
-    geometry:jsPlumbGeometryHelpers;
+    _helpers:jsPlumbHelperFunctions
+    geometry:jsPlumbGeometryHelpers
 
-    _zoom:number = 1;
+    _zoom:number = 1
 
-    abstract getElement(el:any|string):any;
-    abstract getElementById(el:string):any;
-    abstract removeElement(el:any|string):void;
-    abstract appendElement (el:any, parent:any):void;
+    abstract getElement(el:any|string):any
+    abstract getElementById(el:string):any
+    abstract removeElement(el:any|string):void
+    abstract appendElement (el:any, parent:any):void
 
-    abstract removeClass(el:any, clazz:string):void;
-    abstract addClass(el:any, clazz:string):void;
-    abstract toggleClass(el:any, clazz:string):void;
-    abstract getClass(el:any):string;
-    abstract hasClass(el:any, clazz:string):boolean;
+    abstract removeClass(el:any, clazz:string):void
+    abstract addClass(el:any, clazz:string):void
+    abstract toggleClass(el:any, clazz:string):void
+    abstract getClass(el:any):string
+    abstract hasClass(el:any, clazz:string):boolean
 
-    abstract setAttribute(el:any, name:string, value:string):void;
-    abstract getAttribute(el:any, name:string):string;
+    abstract setAttribute(el:any, name:string, value:string):void
+    abstract getAttribute(el:any, name:string):string
     abstract setAttributes(el:any, atts:Dictionary<string>):void
-    abstract removeAttribute(el:any, attName:string):void;
+    abstract removeAttribute(el:any, attName:string):void
 
-    abstract getSelector(ctx:string | any, spec?:string):NodeListOf<any>;
-    abstract getStyle(el:any, prop:string):any;
+    abstract getSelector(ctx:string | any, spec?:string):NodeListOf<any>
+    abstract getStyle(el:any, prop:string):any
 
-    abstract _getSize(el:any):Size;
-    abstract _getOffset(el:any|string, relativeToRoot?:boolean, container?:any):Offset;
-    abstract setPosition(el:any, p:Offset):void;
-    abstract getUIPosition(eventArgs:any):Offset;
+    abstract _getSize(el:any):Size
+    abstract _getOffset(el:any|string, relativeToRoot?:boolean, container?:any):Offset
+    abstract setPosition(el:any, p:Offset):void
+    abstract getUIPosition(eventArgs:any):Offset
 
-    abstract on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void;
-    abstract off (el:any, event:string, callback:Function):void;
-    abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void;
+    abstract on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void
+    abstract off (el:any, event:string, callback:Function):void
+    abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void
 
     constructor(public readonly _instanceIndex:number, public readonly renderer:Renderer, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
 
-        super();
+        super()
 
-        this._helpers = helpers || {};
+        this._helpers = helpers || {}
 
-        this.geometry = new jsPlumbGeometry();
+        this.geometry = new jsPlumbGeometry()
 
         this.Defaults = {
             anchor: "Bottom",
@@ -485,122 +485,122 @@ export abstract class jsPlumbInstance extends EventGenerator {
             reattachConnections: false,
             scope: "jsplumb_defaultscope",
             allowNestedGroups:true
-        };
-
-        if (defaults) {
-            extend(this.Defaults, defaults);
         }
 
-        extend(this._initialDefaults, this.Defaults);
-        this.DEFAULT_SCOPE = this.Defaults.scope;
+        if (defaults) {
+            extend(this.Defaults, defaults)
+        }
 
-        this._allowNestedGroups = this._initialDefaults.allowNestedGroups !== false;
+        extend(this._initialDefaults, this.Defaults)
+        this.DEFAULT_SCOPE = this.Defaults.scope
 
-        this.anchorManager = new AnchorManager(this);
-        this.groupManager = new GroupManager(this);
+        this._allowNestedGroups = this._initialDefaults.allowNestedGroups !== false
 
-        this.setContainer(this._initialDefaults.container);
+        this.anchorManager = new AnchorManager(this)
+        this.groupManager = new GroupManager(this)
+
+        this.setContainer(this._initialDefaults.container)
     }
 
     getSize(el:any) {
-        return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el);
+        return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el)
     }
 
     getOffset(el:any|string, relativeToRoot?:boolean, container?:any) {
-        return this._helpers.getOffset ? this._helpers.getOffset(el, relativeToRoot, container) : this._getOffset(el, relativeToRoot, container);
+        return this._helpers.getOffset ? this._helpers.getOffset(el, relativeToRoot, container) : this._getOffset(el, relativeToRoot, container)
     }
 
     getContainer():any { return this._container; }
 
     setZoom (z:number, repaintEverything?:boolean):boolean {
-        this._zoom = z;
-        this.fire("zoom", this._zoom);
+        this._zoom = z
+        this.fire("zoom", this._zoom)
         if (repaintEverything) {
-            this.repaintEverything();
+            this.repaintEverything()
         }
-        return true;
+        return true
     }
 
     getZoom ():number {
-        return this._zoom;
+        return this._zoom
     }
 
     _info (el:string | any):{el:any, text?:boolean, id?:string} {
         if (el == null) {
-            return null;
+            return null
         }
         else if ((<any>el).nodeType === 3 || (<any>el).nodeType === 8) {
-            return { el:el, text:true };
+            return { el:el, text:true }
         }
         else {
-            let _el = this.getElement(el);
-            return { el: _el, id: (isString(el) && _el == null) ? el as string : this.getId(_el) };
+            let _el = this.getElement(el)
+            return { el: _el, id: (isString(el) && _el == null) ? el as string : this.getId(_el) }
         }
     }
 
     _idstamp ():string {
-        return "" + this._curIdStamp++;
+        return "" + this._curIdStamp++
     }
 
     convertToFullOverlaySpec(spec:string | OverlaySpec):FullOverlaySpec {
-        let o:FullOverlaySpec = null;
+        let o:FullOverlaySpec = null
         if (isString(spec)) {
-            o = [ spec as OverlayId, { } ];
+            o = [ spec as OverlayId, { } ]
         } else {
-            o = spec as FullOverlaySpec;
+            o = spec as FullOverlaySpec
         }
-        o[1].id = o[1].id || uuid();
-        return o;
+        o[1].id = o[1].id || uuid()
+        return o
     }
 
     checkCondition(conditionName:string, args?:any):boolean {
         let l = this.getListener(conditionName),
-            r = true;
+            r = true
 
         if (l && l.length > 0) {
-            let values = Array.prototype.slice.call(arguments, 1);
+            let values = Array.prototype.slice.call(arguments, 1)
             try {
                 for (let i = 0, j = l.length; i < j; i++) {
-                    r = r && l[i].apply(l[i], values);
+                    r = r && l[i].apply(l[i], values)
                 }
             }
             catch (e) {
-                log("cannot check condition [" + conditionName + "]" + e);
+                log("cannot check condition [" + conditionName + "]" + e)
             }
         }
-        return r;
+        return r
     }
 
-    getInternalId(element:any):string {
-        let id = (element as any)._jsplumbid;
+    getInternalId(element:jsPlumbDOMElement):string {
+        let id = (element as any)._jsplumbid
         if (id == null) {
-            id = "jsplumb_" + this._instanceIndex + "_" + this._idstamp();
-            (element as any)._jsplumbid = id;
+            id = "jsplumb_" + this._instanceIndex + "_" + this._idstamp()
+            element._jsplumbid = id
         }
-        return id;
+        return id
     }
 
     getId (element:string | any, uuid?:string):string {
         if (isString(element)) {
-            return element as string;
+            return element as string
         }
         if (element == null) {
-            return null;
+            return null
         }
 
-        let id:string = this.getAttribute(element, "id");
+        let id:string = this.getAttribute(element, "id")
         if (!id || id === "undefined") {
             // check if fixed uuid parameter is given
             if (arguments.length === 2 && arguments[1] !== undefined) {
-                id = uuid;
+                id = uuid
             }
             else if (arguments.length === 1 || (arguments.length === 3 && !arguments[2])) {
-                id = "jsPlumb_" + this._instanceIndex + "_" + this._idstamp();
+                id = "jsPlumb_" + this._instanceIndex + "_" + this._idstamp()
             }
 
-            this.setAttribute(element, "id", id);
+            this.setAttribute(element, "id", id)
         }
-        return id;
+        return id
     }
 
     /**
@@ -611,64 +611,64 @@ export abstract class jsPlumbInstance extends EventGenerator {
      */
     setId (el:any, newId:string, doNotSetAttribute?:boolean):void {
         //
-        let id:string, _el:any;
+        let id:string, _el:any
 
         if (isString(el)) {
-            id = el as string;
+            id = el as string
         }
         else {
-            _el = this.getElement(el);
-            id = this.getId(_el);
+            _el = this.getElement(el)
+            id = this.getId(_el)
         }
 
         let sConns = this.getConnections({source: id, scope: '*'}, true) as Array<Connection>,
-            tConns = this.getConnections({target: id, scope: '*'}, true) as Array<Connection>;
+            tConns = this.getConnections({target: id, scope: '*'}, true) as Array<Connection>
 
-        newId = "" + newId;
+        newId = "" + newId
 
         if (!doNotSetAttribute) {
-            _el = this.getElement(id);
-            this.setAttribute(_el, "id", newId);
+            _el = this.getElement(id)
+            this.setAttribute(_el, "id", newId)
         }
         else {
-            _el = this.getElement(newId);
+            _el = this.getElement(newId)
         }
 
-        this.endpointsByElement[newId] = this.endpointsByElement[id] || [];
+        this.endpointsByElement[newId] = this.endpointsByElement[id] || []
         for (let i = 0, ii = this.endpointsByElement[newId].length; i < ii; i++) {
-            this.endpointsByElement[newId][i].setElementId(newId);
-            this.endpointsByElement[newId][i].setReferenceElement(_el);
+            this.endpointsByElement[newId][i].setElementId(newId)
+            this.endpointsByElement[newId][i].setReferenceElement(_el)
         }
-        delete this.endpointsByElement[id];
-        this._managedElements[newId] = this._managedElements[id];
-        delete this._managedElements[id];
+        delete this.endpointsByElement[id]
+        this._managedElements[newId] = this._managedElements[id]
+        delete this._managedElements[id]
 
         const _conns = (list:Array<Connection>, epIdx:number, type:string) => {
             for (let i = 0, ii = list.length; i < ii; i++) {
-                list[i].endpoints[epIdx].setElementId(newId);
-                list[i].endpoints[epIdx].setReferenceElement(_el);
-                list[i][type + "Id"] = newId;
-                list[i][type] = _el;
+                list[i].endpoints[epIdx].setElementId(newId)
+                list[i].endpoints[epIdx].setReferenceElement(_el)
+                list[i][type + "Id"] = newId
+                list[i][type] = _el
             }
-        };
-        _conns(sConns, 0, Constants.SOURCE);
-        _conns(tConns, 1, Constants.TARGET);
+        }
+        _conns(sConns, 0, Constants.SOURCE)
+        _conns(tConns, 1, Constants.TARGET)
 
-        this.repaint(newId);
+        this.repaint(newId)
     }
 
     setIdChanged(oldId:string, newId:string) {
-        this.setId(oldId, newId, true);
+        this.setId(oldId, newId, true)
     }
 
     getCachedData(elId:string):{o:Offset, s:Size} {
 
-        let o = this._offsets[elId];
+        let o = this._offsets[elId]
         if (!o) {
-            return this.updateOffset({elId: elId});
+            return this.updateOffset({elId: elId})
         }
         else {
-            return {o: o, s: this._sizes[elId]};
+            return {o: o, s: this._sizes[elId]}
         }
     }
 
@@ -678,9 +678,9 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
     getConnections(options?:SelectOptions, flat?:boolean):Dictionary<Connection> | Array<Connection> {
         if (!options) {
-            options = {};
+            options = {}
         } else if (options.constructor === String) {
-            options = { "scope": options } as SelectOptions;
+            options = { "scope": options } as SelectOptions
         }
         let scope = options.scope || this.getDefaultScope(),
             scopes = prepareList(this, scope, true),
@@ -689,27 +689,27 @@ export abstract class jsPlumbInstance extends EventGenerator {
             results = (!flat && scopes.length > 1) ? {} : [],
             _addOne = (scope:string, obj:any) => {
                 if (!flat && scopes.length > 1) {
-                    let ss = results[scope];
+                    let ss = results[scope]
                     if (ss == null) {
-                        ss = results[scope] = [];
+                        ss = results[scope] = []
                     }
-                    ss.push(obj);
+                    ss.push(obj)
                 } else {
-                    (<Array<any>>results).push(obj);
+                    (<Array<any>>results).push(obj)
                 }
-            };
+            }
 
         for (let j = 0, jj = this.connections.length; j < jj; j++) {
             let c = this.connections[j],
                 sourceId = c.proxies && c.proxies[0] ? c.proxies[0].originalEp.elementId : c.sourceId,
-                targetId = c.proxies && c.proxies[1] ? c.proxies[1].originalEp.elementId : c.targetId;
+                targetId = c.proxies && c.proxies[1] ? c.proxies[1].originalEp.elementId : c.targetId
 
             if (filterList(scopes, c.scope) && filterList(sources, sourceId) && filterList(targets, targetId)) {
-                _addOne(c.scope, c);
+                _addOne(c.scope, c)
             }
         }
 
-        return results;
+        return results
     }
 
     private _makeCommonSelectHandler<T> (list:any[], executor:(l:any[]) => void):AbstractSelection<T> {
@@ -725,32 +725,32 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
         getters = ["getLabel", "getOverlay", "isHover", "getParameter", "getParameters", "getPaintStyle",
             "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ],
-        i, ii;
+        i, ii
 
         for (i = 0, ii = setters.length; i < ii; i++) {
-            out[setters[i]] = setter(list, setters[i], executor);
+            out[setters[i]] = setter(list, setters[i], executor)
         }
 
         for (i = 0, ii = getters.length; i < ii; i++) {
-            out[getters[i]] = getter(list, getters[i]);
+            out[getters[i]] = getter(list, getters[i])
         }
 
         out["setHover"] = (hover:boolean) => {
-            list.forEach((c:Component) => this.renderer.setHover(c, hover));
-            return out;
-        };
+            list.forEach((c:Component) => this.renderer.setHover(c, hover))
+            return out
+        }
 
         // for backwards compat, map `repaint` to the `paint` method
         out["repaint"] = () => {
-            list.forEach((c:Component) => c.paint());
-            return out;
-        };
+            list.forEach((c:Component) => c.paint())
+            return out
+        }
 
-        return out as AbstractSelection<T>;
+        return out as AbstractSelection<T>
     }
 
     private _makeConnectionSelectHandler (list:Connection[]):ConnectionSelection {
-        let common = this._makeCommonSelectHandler<Connection>(list, this._makeConnectionSelectHandler.bind(this))  as ConnectionSelection;
+        let common = this._makeCommonSelectHandler<Connection>(list, this._makeConnectionSelectHandler.bind(this))  as ConnectionSelection
 
         let connectionFunctions:any = {
             // setters
@@ -759,94 +759,94 @@ export abstract class jsPlumbInstance extends EventGenerator {
             setConnector: setter(list, "setConnector", this._makeConnectionSelectHandler.bind(this)),
             delete: () => {
                 for (let i = 0, ii = list.length; i < ii; i++) {
-                    this.deleteConnection(list[i]);
+                    this.deleteConnection(list[i])
                 }
             },
             // getters
             isDetachable: getter(list, "isDetachable"),
             isReattach: getter(list, "isReattach")
-        };
+        }
 
-        return extend(common, connectionFunctions);
+        return extend(common, connectionFunctions)
     }
 
     private _makeEndpointSelectHandler (list:Array<Endpoint>):EndpointSelection {
-        let common = this._makeCommonSelectHandler(list, this._makeEndpointSelectHandler.bind(this)) as EndpointSelection;
+        let common = this._makeCommonSelectHandler(list, this._makeEndpointSelectHandler.bind(this)) as EndpointSelection
         let endpointFunctions:any = {
             setEnabled: (e:boolean) => {
                 for (let i = 0, ii = list.length; i < ii; i++) {
-                    list[i].enabled = e;
+                    list[i].enabled = e
                 }
             },
             setAnchor: setter(list, "setAnchor", this._makeEndpointSelectHandler.bind(this)),
             isEnabled: () => list.map(e => [ e.enabled, e ]),
             deleteEveryConnection: () => {
                 for (let i = 0, ii = list.length; i < ii; i++) {
-                    list[i].deleteEveryConnection();
+                    list[i].deleteEveryConnection()
                 }
             },
             "delete": () => {
                 for (let i = 0, ii = list.length; i < ii; i++) {
-                    this.deleteEndpoint(list[i]);
+                    this.deleteEndpoint(list[i])
                 }
             }
-        };
-        return extend(common, endpointFunctions);
+        }
+        return extend(common, endpointFunctions)
     }
 
     select (params?:SelectOptions):ConnectionSelection {
-        params = params || {};
-        params.scope = params.scope || "*";
-        return this._makeConnectionSelectHandler(params.connections || (this.getConnections(params, true) as Array<Connection>));
+        params = params || {}
+        params.scope = params.scope || "*"
+        return this._makeConnectionSelectHandler(params.connections || (this.getConnections(params, true) as Array<Connection>))
     }
 
     selectEndpoints(params?:SelectEndpointOptions):EndpointSelection {
-        params = params || {};
-        params.scope = params.scope || "*";
+        params = params || {}
+        params.scope = params.scope || "*"
 
         let noElementFilters = !params.element && !params.source && !params.target,
             elements = noElementFilters ? "*" : prepareList(this, params.element),
             sources = noElementFilters ? "*" : prepareList(this, params.source),
             targets = noElementFilters ? "*" : prepareList(this, params.target),
-            scopes = prepareList(this, params.scope, true);
+            scopes = prepareList(this, params.scope, true)
 
-        let ep:Array<Endpoint> = [];
+        let ep:Array<Endpoint> = []
 
         for (let el in this.endpointsByElement) {
             let either = filterList(elements, el, true),
                 source = filterList(sources, el, true),
                 sourceMatchExact = sources !== "*",
                 target = filterList(targets, el, true),
-                targetMatchExact = targets !== "*";
+                targetMatchExact = targets !== "*"
 
             // if they requested 'either' then just match scope. otherwise if they requested 'source' (not as a wildcard) then we have to match only endpoints that have isSource set to to true, and the same thing with isTarget.
             if (either || source || target) {
                 inner:
                     for (let i = 0, ii = this.endpointsByElement[el].length; i < ii; i++) {
-                        let _ep = this.endpointsByElement[el][i];
+                        let _ep = this.endpointsByElement[el][i]
                         if (filterList(scopes, _ep.scope, true)) {
 
                             let noMatchSource = (sourceMatchExact && sources.length > 0 && !_ep.isSource),
-                                noMatchTarget = (targetMatchExact && targets.length > 0 && !_ep.isTarget);
+                                noMatchTarget = (targetMatchExact && targets.length > 0 && !_ep.isTarget)
 
                             if (noMatchSource || noMatchTarget) {
-                                continue inner;
+                                continue inner
                             }
 
-                            ep.push(_ep);
+                            ep.push(_ep)
                         }
                     }
             }
         }
 
-        return this._makeEndpointSelectHandler(ep);
+        return this._makeEndpointSelectHandler(ep)
     }
 
     setContainer(c:any|string):void {
         // get container as element and set container.
-        this._container = this.getElement(c);;
+        this._container = this.getElement(c);
         // tell people.
-        this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container);
+        this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 
     private _set (c:Connection, el:any|Endpoint, idx:number, doNotRepaint?:boolean):any {
@@ -854,10 +854,10 @@ export abstract class jsPlumbInstance extends EventGenerator {
         const stTypes = [
             { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
             { el: "target", elId: "targetId", epDefs: Constants.TARGET_DEFINITION_LIST }
-        ];
+        ]
 
         let ep, _st = stTypes[idx], cId = c[_st.elId], /*cEl = c[_st.el],*/ sid, sep,
-            oldEndpoint = c.endpoints[idx];
+            oldEndpoint = c.endpoints[idx]
 
         let evtParams = {
             index: idx,
@@ -866,16 +866,16 @@ export abstract class jsPlumbInstance extends EventGenerator {
             originalTargetId: idx === 1 ? cId : c.targetId,
             newTargetId: c.targetId,
             connection: c
-        };
+        }
 
         if (el instanceof Endpoint) {
             ep = el;
-            (<Endpoint>ep).addConnection(c);
-            el = (<Endpoint>ep).element;
+            (<Endpoint>ep).addConnection(c)
+            el = (<Endpoint>ep).element
         }
         else {
-            sid = this.getId(el);
-            sep = el[_st.epDefs] ? el[_st.epDefs][0] : null;
+            sid = this.getId(el)
+            sep = el[_st.epDefs] ? el[_st.epDefs][0] : null
 
             if (sid === c[_st.elId]) {
                 ep = null; // dont change source/target if the element is already the one given.
@@ -883,47 +883,47 @@ export abstract class jsPlumbInstance extends EventGenerator {
             else if (sep) {
 
                 if (!sep.enabled) {
-                    return;
+                    return
                 }
-                ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
+                ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def)
                 if (sep.uniqueEndpoint) {
-                    sep.endpoint = ep;
+                    sep.endpoint = ep
                 }
-                ep.addConnection(c);
+                ep.addConnection(c)
             }
             else {
-                ep = c.makeEndpoint(idx === 0, el, sid);
+                ep = c.makeEndpoint(idx === 0, el, sid)
             }
         }
 
         if (ep != null) {
-            oldEndpoint.detachFromConnection(c);
-            c.endpoints[idx] = ep;
-            c[_st.el] = ep.element;
-            c[_st.elId] = ep.elementId;
-            evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+            oldEndpoint.detachFromConnection(c)
+            c.endpoints[idx] = ep
+            c[_st.el] = ep.element
+            c[_st.elId] = ep.elementId
+            evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId
 
-            this.fireMoveEvent(evtParams);
+            this.fireMoveEvent(evtParams)
 
             if (!doNotRepaint) {
-                c.paint();
+                c.paint()
             }
         }
 
-        (<any>evtParams).element = el;
-        return evtParams;
+        (<any>evtParams).element = el
+        return evtParams
 
     }
 
     setSource (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
-        let p = this._set(connection, el, 0, doNotRepaint);
-        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
+        let p = this._set(connection, el, 0, doNotRepaint)
+        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0)
     }
 
     setTarget (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
-        let p = this._set(connection, el, 1, doNotRepaint);
-        connection.updateConnectedClass();
-    };
+        let p = this._set(connection, el, 1, doNotRepaint)
+        connection.updateConnectedClass()
+    }
 
     /**
      * Returns whether or not hover is currently suspended.
@@ -936,22 +936,22 @@ export abstract class jsPlumbInstance extends EventGenerator {
      * @param repaintAfterwards If true, repaint everything afterwards.
      */
     setSuspendDrawing (val?:boolean, repaintAfterwards?:boolean):boolean {
-        let curVal = this._suspendDrawing;
-        this._suspendDrawing = val;
+        let curVal = this._suspendDrawing
+        this._suspendDrawing = val
         if (val) {
-            this._suspendedAt = "" + new Date().getTime();
+            this._suspendedAt = "" + new Date().getTime()
         } else {
-            this._suspendedAt = null;
+            this._suspendedAt = null
         }
         if (repaintAfterwards) {
-            this.repaintEverything();
+            this.repaintEverything()
         }
-        return curVal;
+        return curVal
     }
 
     // return time for when drawing was suspended.
     getSuspendedAt ():string {
-        return this._suspendedAt;
+        return this._suspendedAt
     }
 
     /**
@@ -960,23 +960,23 @@ export abstract class jsPlumbInstance extends EventGenerator {
      * @param doNotRepaintAfterwards Whether or not to repaint everything after drawing is re-enabled.
      */
     batch (fn:Function, doNotRepaintAfterwards?:boolean):void {
-        const _wasSuspended = this._suspendDrawing === true;
+        const _wasSuspended = this._suspendDrawing === true
         if (!_wasSuspended) {
-            this.setSuspendDrawing(true);
+            this.setSuspendDrawing(true)
         }
         try {
-            fn();
+            fn()
         }
         catch (e) {
-            log("Function run while suspended failed", e);
+            log("Function run while suspended failed", e)
         }
         if (!_wasSuspended) {
-            this.setSuspendDrawing(false, !doNotRepaintAfterwards);
+            this.setSuspendDrawing(false, !doNotRepaintAfterwards)
         }
     }
 
     getDefaultScope ():string {
-        return this.DEFAULT_SCOPE;
+        return this.DEFAULT_SCOPE
     }
 
     /**
@@ -986,21 +986,21 @@ export abstract class jsPlumbInstance extends EventGenerator {
      */
     each(spec:ElementSpec, fn:(e:any) => any):jsPlumbInstance {
         if (spec == null) {
-            return;
+            return
         }
         if (typeof spec === "string") {
-            fn(this.getElement(spec));
+            fn(this.getElement(spec))
         }
         else if ((<any>spec).length != null) {
             for (let i = 0; i < (<Array<any>>spec).length; i++) {
-                fn(this.getElement(spec[i]));
+                fn(this.getElement(spec[i]))
             }
         }
         else {
-            fn(spec);
+            fn(spec)
         } // assume it's an element.
 
-        return this;
+        return this
     }
 
     /**
@@ -1014,46 +1014,46 @@ export abstract class jsPlumbInstance extends EventGenerator {
             recalc = params.recalc,
             offset = params.offset,
             elId = params.elId,
-            s;
+            s
 
         if (this._suspendDrawing && !timestamp) {
-            timestamp = this._suspendedAt;
+            timestamp = this._suspendedAt
         }
         if (!recalc) {
             if (timestamp && timestamp === this._offsetTimestamps[elId]) {
-                return {o: params.offset || this._offsets[elId], s: this._sizes[elId]};
+                return {o: params.offset || this._offsets[elId], s: this._sizes[elId]}
             }
         }
         if (recalc || (!offset && this._offsets[elId] == null)) { // if forced repaint or no offset available, we recalculate.
 
             // get the current size and offset, and store them
-            s = this._managedElements[elId] ? this._managedElements[elId].el : null;
+            s = this._managedElements[elId] ? this._managedElements[elId].el : null
             if (s != null) {
-                this._sizes[elId] = this.getSize(s);
-                this._offsets[elId] = this.getOffset(s);
-                this._offsetTimestamps[elId] = timestamp;
+                this._sizes[elId] = this.getSize(s)
+                this._offsets[elId] = this.getOffset(s)
+                this._offsetTimestamps[elId] = timestamp
             }
         } else {
-            this._offsets[elId] = offset || this._offsets[elId];
+            this._offsets[elId] = offset || this._offsets[elId]
             if (this._sizes[elId] == null) {
-                s = this._managedElements[elId].el;
+                s = this._managedElements[elId].el
                 if (s != null) {
-                    this._sizes[elId] = this.getSize(s);
+                    this._sizes[elId] = this.getSize(s)
                 }
             }
-            this._offsetTimestamps[elId] = timestamp;
+            this._offsetTimestamps[elId] = timestamp
         }
 
         if (this._offsets[elId] && !this._offsets[elId].right) {
-            this._offsets[elId].right = this._offsets[elId].left + this._sizes[elId][0];
-            this._offsets[elId].bottom = this._offsets[elId].top + this._sizes[elId][1];
-            this._offsets[elId].width = this._sizes[elId][0];
-            this._offsets[elId].height = this._sizes[elId][1];
-            this._offsets[elId].centerx = this._offsets[elId].left + (this._offsets[elId].width / 2);
-            this._offsets[elId].centery = this._offsets[elId].top + (this._offsets[elId].height / 2);
+            this._offsets[elId].right = this._offsets[elId].left + this._sizes[elId][0]
+            this._offsets[elId].bottom = this._offsets[elId].top + this._sizes[elId][1]
+            this._offsets[elId].width = this._sizes[elId][0]
+            this._offsets[elId].height = this._sizes[elId][1]
+            this._offsets[elId].centerx = this._offsets[elId].left + (this._offsets[elId].width / 2)
+            this._offsets[elId].centery = this._offsets[elId].top + (this._offsets[elId].height / 2)
         }
 
-        return {o: this._offsets[elId], s: this._sizes[elId]};
+        return {o: this._offsets[elId], s: this._sizes[elId]}
     }
 
     /**
@@ -1064,7 +1064,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     deleteConnection (connection:Connection, params?:DeleteConnectionOptions):boolean {
 
         if (connection != null) {
-            params = params || {};
+            params = params || {}
 
             if (params.force || functionChain(true, false, [
                     [ connection.endpoints[0], Constants.IS_DETACH_ALLOWED, [ connection ] ],
@@ -1073,60 +1073,60 @@ export abstract class jsPlumbInstance extends EventGenerator {
                     [ this, Constants.CHECK_CONDITION, [ Constants.BEFORE_DETACH, connection ] ]
                 ])) {
 
-                this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
+                this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent)
 
-                const sourceEndpoint = connection.endpoints[0];
-                const targetEndpoint = connection.endpoints[1];
+                const sourceEndpoint = connection.endpoints[0]
+                const targetEndpoint = connection.endpoints[1]
 
                 if (sourceEndpoint !== params.endpointToIgnore) {
-                    sourceEndpoint.detachFromConnection(connection, null, true);
+                    sourceEndpoint.detachFromConnection(connection, null, true)
                 }
 
                 if (targetEndpoint !== params.endpointToIgnore) {
-                    targetEndpoint.detachFromConnection(connection, null, true);
+                    targetEndpoint.detachFromConnection(connection, null, true)
                 }
 
                 removeWithFunction(this.connections, (_c:Connection) => {
-                    return connection.id === _c.id;
-                });
+                    return connection.id === _c.id
+                })
 
-                connection.destroy();
+                connection.destroy()
 
                 if (sourceEndpoint !== params.endpointToIgnore && sourceEndpoint.deleteOnEmpty && sourceEndpoint.connections.length === 0) {
-                    this.deleteEndpoint(sourceEndpoint);
+                    this.deleteEndpoint(sourceEndpoint)
                 }
 
                 if (targetEndpoint !== params.endpointToIgnore && targetEndpoint.deleteOnEmpty && targetEndpoint.connections.length === 0) {
-                    this.deleteEndpoint(targetEndpoint);
+                    this.deleteEndpoint(targetEndpoint)
                 }
 
-                return true;
+                return true
             }
         }
-        return false;
+        return false
     }
 
     deleteEveryConnection (params?:DeleteConnectionOptions):number {
-        params = params || {};
-        let count = this.connections.length, deletedCount = 0;
+        params = params || {}
+        let count = this.connections.length, deletedCount = 0
         this.batch(() => {
             for (let i = 0; i < count; i++) {
-                deletedCount += this.deleteConnection(this.connections[0], params) ? 1 : 0;
+                deletedCount += this.deleteConnection(this.connections[0], params) ? 1 : 0
             }
-        });
-        return deletedCount;
+        })
+        return deletedCount
     }
 
     deleteConnectionsForElement(el:any|string, params?:DeleteConnectionOptions):jsPlumbInstance {
-        params = params || {};
-        let _el = this.getElement(el);
-        let id = this.getId(_el), endpoints = this.endpointsByElement[id];
+        params = params || {}
+        let _el = this.getElement(el)
+        let id = this.getId(_el), endpoints = this.endpointsByElement[id]
         if (endpoints && endpoints.length) {
             for (let i = 0, j = endpoints.length; i < j; i++) {
-                endpoints[i].deleteEveryConnection(params);
+                endpoints[i].deleteEveryConnection(params)
             }
         }
-        return this;
+        return this
     }
 
     private fireDetachEvent (jpc:Connection | any, doFireEvent?:boolean, originalEvent?:Event):void {
@@ -1137,20 +1137,20 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 source: jpc.source, target: jpc.target,
                 sourceId: jpc.sourceId, targetId: jpc.targetId,
                 sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
-            } : jpc;
+            } : jpc
 
         if (doFireEvent) {
-            this.fire(Constants.EVENT_CONNECTION_DETACHED, params, originalEvent);
+            this.fire(Constants.EVENT_CONNECTION_DETACHED, params, originalEvent)
         }
 
         // always fire this. used by internal jsplumb stuff.
-        this.fire(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent);
+        this.fire(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent)
 
-        this.anchorManager.connectionDetached(params.connection);
-    };
+        this.anchorManager.connectionDetached(params.connection)
+    }
 
     fireMoveEvent (params?:any, evt?:Event):void {
-        this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt);
+        this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt)
     }
 
     /**
@@ -1160,7 +1160,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
      */
     manageAll (elements:any, recalc?:boolean):void {
         for (let i = 0; i < elements.length; i++) {
-            this.manage(elements[i], recalc);
+            this.manage(elements[i], recalc)
         }
     }
 
@@ -1171,27 +1171,27 @@ export abstract class jsPlumbInstance extends EventGenerator {
      */
     manage (element:ElementSpec, recalc?:boolean):void {
 
-        const el:any = IS.aString(element) ? this.getElementById(element as string) : element;
-        const elId = this.getId(el);
+        const el:any = IS.aString(element) ? this.getElementById(element as string) : element
+        const elId = this.getId(el)
         if (!this._managedElements[elId]) {
             this._managedElements[elId] = {
                 el:el,
                 endpoints:[],
                 connections:[]
-            };
-
-            if (this._suspendDrawing) {
-                this._sizes[elId] = [0,0];
-                this._offsets[elId] = {left:0,top:0};
-                this._managedElements[elId].info = {o:this._offsets[elId], s:this._sizes[elId]};
-            } else {
-                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: this._suspendedAt});
             }
 
-            this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "");
+            if (this._suspendDrawing) {
+                this._sizes[elId] = [0,0]
+                this._offsets[elId] = {left:0,top:0}
+                this._managedElements[elId].info = {o:this._offsets[elId], s:this._sizes[elId]}
+            } else {
+                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: this._suspendedAt})
+            }
+
+            this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "")
         } else {
             if (recalc) {
-                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: null,  recalc:true });
+                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: null,  recalc:true })
             }
         }
     }
@@ -1202,62 +1202,62 @@ export abstract class jsPlumbInstance extends EventGenerator {
      */
     unmanage (id:string):void {
         if (this._managedElements[id]) {
-            this.removeAttribute(this._managedElements[id].el, Constants.ATTRIBUTE_MANAGED);
-            delete this._managedElements[id];
+            this.removeAttribute(this._managedElements[id].el, Constants.ATTRIBUTE_MANAGED)
+            delete this._managedElements[id]
         }
     }
 
     newEndpoint(params:any, id?:string):Endpoint {
-        let _p = extend({}, params);
-        _p._jsPlumb = this;
-        _p.elementId = id || this.getId(_p.source);
+        let _p = extend({}, params)
+        _p._jsPlumb = this
+        _p.elementId = id || this.getId(_p.source)
 
-        let ep = new Endpoint(this, _p);
-        ep.id = "ep_" + this._idstamp();
-        this.manage(_p.source);
+        let ep = new Endpoint(this, _p)
+        ep.id = "ep_" + this._idstamp()
+        this.manage(_p.source)
 
-        return ep;
+        return ep
     }
 
     deriveEndpointAndAnchorSpec(type:string, dontPrependDefault?:boolean):any {
-        let bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/), eps = null, ep = null, a = null, as = null;
+        let bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/), eps = null, ep = null, a = null, as = null
         for (let i = 0; i < bits.length; i++) {
-            let _t = this.getType(bits[i], "connection");
+            let _t = this.getType(bits[i], "connection")
             if (_t) {
                 if (_t.endpoints) {
-                    eps = _t.endpoints;
+                    eps = _t.endpoints
                 }
                 if (_t.endpoint) {
-                    ep = _t.endpoint;
+                    ep = _t.endpoint
                 }
                 if (_t.anchors) {
-                    as = _t.anchors;
+                    as = _t.anchors
                 }
                 if (_t.anchor) {
-                    a = _t.anchor;
+                    a = _t.anchor
                 }
             }
         }
-        return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]};
+        return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]}
     }
 
     getAllConnections ():Array<Connection> {
-        return this.connections;
+        return this.connections
     }
 
     // repaint some element's endpoints and connections
     repaint (el:string | any | Array<string | any>, ui?:any, timestamp?:string):jsPlumbInstance {
         return this.each(el, (_el:any | string) => {
-            this._draw(_el, ui, timestamp);
-        });
+            this._draw(_el, ui, timestamp)
+        })
     }
 
     revalidate (el:string | any | Array<string | any>, timestamp?:string, isIdAlready?:boolean):jsPlumbInstance {
         return this.each(el, (_el:any | string) => {
-            let elId = isIdAlready ? _el as string : this.getId(_el);
-            this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
-            this.repaint(_el);
-        });
+            let elId = isIdAlready ? _el as string : this.getId(_el)
+            this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp })
+            this.repaint(_el)
+        })
     }
 
     // repaint every endpoint and connection.
@@ -1265,17 +1265,17 @@ export abstract class jsPlumbInstance extends EventGenerator {
         // TODO this timestamp causes continuous anchors to not repaint properly.
         // fix this. do not just take out the timestamp. it runs a lot faster with
         // the timestamp included.
-        let timestamp = _timestamp(), elId:string;
+        let timestamp = _timestamp(), elId:string
 
         for (elId in this.endpointsByElement) {
-            this.updateOffset({ elId: elId, recalc: true, timestamp: timestamp });
+            this.updateOffset({ elId: elId, recalc: true, timestamp: timestamp })
         }
 
         for (elId in this.endpointsByElement) {
-            this._draw(elId, null, timestamp, true);
+            this._draw(elId, null, timestamp, true)
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -1284,45 +1284,45 @@ export abstract class jsPlumbInstance extends EventGenerator {
      * @param el
      * @private
      */
-    abstract _getAssociatedElements(el:any):Array<any>;
+    abstract _getAssociatedElements(el:any):Array<any>
 
     _draw(element:string | any, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean) {
 
         if (!this._suspendDrawing) {
 
             let id = typeof element === "string" ? element as string : this.getId(element),
-                el = typeof element === "string" ? this.getElementById(element as string) : element;
+                el = typeof element === "string" ? this.getElementById(element as string) : element
 
             if (el != null) {
                 let repaintEls = this._getAssociatedElements(el),
-                    repaintOffsets:Array<ExtendedOffset> = [];
+                    repaintOffsets:Array<ExtendedOffset> = []
 
                 if (timestamp == null) {
-                    timestamp = _timestamp();
+                    timestamp = _timestamp()
                 }
 
                 if (!offsetsWereJustCalculated) {
                     // update the offset of everything _before_ we try to draw anything.
-                    this.updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp});
+                    this.updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp})
                     for (let i = 0; i < repaintEls.length; i++) {
                         repaintOffsets.push(this.updateOffset({
                             elId: this.getId(repaintEls[i]),
                             recalc: true,
                             timestamp: timestamp
-                        }).o);
+                        }).o)
                     }
                 } else {
                     for (let i = 0; i < repaintEls.length; i++) {
-                        const reId = this.getId(repaintEls[i]);
-                        repaintOffsets.push(this._offsets[reId]);
+                        const reId = this.getId(repaintEls[i])
+                        repaintOffsets.push(this._offsets[reId])
                     }
                 }
 
-                this.anchorManager.redraw(id, ui, timestamp, null);
+                this.anchorManager.redraw(id, ui, timestamp, null)
 
                 if (repaintEls.length > 0) {
                     for (let j = 0; j < repaintEls.length; j++) {
-                        this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null);
+                        this.anchorManager.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null)
                     }
                 }
             }
@@ -1330,227 +1330,227 @@ export abstract class jsPlumbInstance extends EventGenerator {
     }
 
     unregisterEndpoint(endpoint:Endpoint) {
-        const uuid = endpoint.getUuid();
+        const uuid = endpoint.getUuid()
         if (uuid) {
-            delete this.endpointsByUUID[uuid];
+            delete this.endpointsByUUID[uuid]
         }
-        this.anchorManager.deleteEndpoint(endpoint);
+        this.anchorManager.deleteEndpoint(endpoint)
 
         // TODO at least replace this with a removeWithFunction call.
         for (let e in this.endpointsByElement) {
-            let endpoints = this.endpointsByElement[e];
+            let endpoints = this.endpointsByElement[e]
             if (endpoints) {
-                let newEndpoints = [];
+                let newEndpoints = []
                 for (let i = 0, j = endpoints.length; i < j; i++) {
                     if (endpoints[i] !== endpoint) {
-                        newEndpoints.push(endpoints[i]);
+                        newEndpoints.push(endpoints[i])
                     }
                 }
 
-                this.endpointsByElement[e] = newEndpoints;
+                this.endpointsByElement[e] = newEndpoints
             }
             if (this.endpointsByElement[e].length < 1) {
-                delete this.endpointsByElement[e];
+                delete this.endpointsByElement[e]
             }
         }
     }
 
     maybePruneEndpoint(endpoint:Endpoint):boolean {
         if (endpoint.deleteOnEmpty && endpoint.connections.length === 0) {
-            this.deleteEndpoint(endpoint);
-            return true;
+            this.deleteEndpoint(endpoint)
+            return true
         } else {
-            return false;
+            return false
         }
     }
 
     deleteEndpoint(object:string | Endpoint):jsPlumbInstance {
-        let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint;
+        let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint
         if (endpoint) {
 
             // find all connections for the endpoint
-            const connectionsToDelete = endpoint.connections.slice();
+            const connectionsToDelete = endpoint.connections.slice()
             connectionsToDelete.forEach((connection) => {
                 // detach this endpoint from each of these connections.
-                endpoint.detachFromConnection(connection, null, true);
-            });
+                endpoint.detachFromConnection(connection, null, true)
+            })
 
             // delete the endpoint
-            this.unregisterEndpoint(endpoint);
-            endpoint.destroy(true);
+            this.unregisterEndpoint(endpoint)
+            endpoint.destroy(true)
 
             // then delete the connections. each of these connections only has one endpoint at the moment
             connectionsToDelete.forEach((connection) => {
                 // detach this endpoint from each of these connections.
-                this.deleteConnection(connection, {force:true, endpointToIgnore:endpoint});
-            });
+                this.deleteConnection(connection, {force:true, endpointToIgnore:endpoint})
+            })
         }
-        return this;
+        return this
     }
 
     addEndpoint(el:string|any, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
-        referenceParams = referenceParams || {} as EndpointOptions;
-        let p:EndpointOptions = extend({}, referenceParams);
-        extend(p, params);
-        p.endpoint = p.endpoint || this.Defaults.endpoint;
-        p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
-        let _p = extend({source:el}, p);
-        let id = this.getId(_p.source);
-        this.manage(el, !this._suspendDrawing);
-        let e = this.newEndpoint(_p, id);
+        referenceParams = referenceParams || {} as EndpointOptions
+        let p:EndpointOptions = extend({}, referenceParams)
+        extend(p, params)
+        p.endpoint = p.endpoint || this.Defaults.endpoint
+        p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
+        let _p = extend({source:el}, p)
+        let id = this.getId(_p.source)
+        this.manage(el, !this._suspendDrawing)
+        let e = this.newEndpoint(_p, id)
 
-        addToList(this.endpointsByElement, id, e);
+        addToList(this.endpointsByElement, id, e)
 
         if (!this._suspendDrawing) {
-            let myOffset = this._managedElements[id].info.o;
+            let myOffset = this._managedElements[id].info.o
             e.paint({
                 anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: this._sizes[id], element: e, timestamp: this._suspendedAt }),
                 timestamp: this._suspendedAt
-            });
+            })
         }
 
-        return e;
+        return e
     }
 
     addEndpoints(el:any, endpoints:Array<EndpointOptions>, referenceParams?:any):Array<Endpoint> {
-        let results:Array<Endpoint> = [];
+        let results:Array<Endpoint> = []
         for (let i = 0, j = endpoints.length; i < j; i++) {
-            results.push(this.addEndpoint(el, endpoints[i], referenceParams));
+            results.push(this.addEndpoint(el, endpoints[i], referenceParams))
         }
-        return results;
+        return results
     }
 
     // clears all endpoints and connections from the instance of jsplumb, optionally without firing any events
     // subclasses should take care of cleaning up the rendering.
     reset (silently?:boolean):void {
         this.silently(() => {
-            this.endpointsByElement = {};
-            this._managedElements = {};
-            this.endpointsByUUID = {};
-            this._offsets = {};
-            this._offsetTimestamps = {};
-            this.anchorManager.reset();
-            this.groupManager.reset();
-            this._connectionTypes = {};
-            this._endpointTypes = {};
-            this.connections.length = 0;
-        });
+            this.endpointsByElement = {}
+            this._managedElements = {}
+            this.endpointsByUUID = {}
+            this._offsets = {}
+            this._offsetTimestamps = {}
+            this.anchorManager.reset()
+            this.groupManager.reset()
+            this._connectionTypes = {}
+            this._endpointTypes = {}
+            this.connections.length = 0
+        })
     }
 
     uuid(): string {
-        return uuid();
+        return uuid()
     }
 
     // clears the instance (without firing any events) and unbinds any listeners on the instance.
     destroy():void {
-        this.reset(true);
-        this.unbind();
+        this.reset(true)
+        this.unbind()
     }
 
     getEndpoints(el:string|any):Array<Endpoint> {
-        return this.endpointsByElement[this._info(el).id] || [];
+        return this.endpointsByElement[this._info(el).id] || []
     }
 
     getEndpoint(id:string):Endpoint {
-        return this.endpointsByUUID[id];
+        return this.endpointsByUUID[id]
     }
 
     connect (params:ConnectParams, referenceParams?:ConnectParams):Connection {
 
         // prepare a final set of parameters to create connection with
 
-        let _p = this._prepareConnectionParams(params, referenceParams), jpc:Connection;
+        let _p = this._prepareConnectionParams(params, referenceParams), jpc:Connection
         // TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
         // will return null (and log something) if either endpoint was full.  what would be nicer is to
         // create a dedicated 'error' object.
         if (_p) {
             if (_p.source == null && _p.sourceEndpoint == null) {
-                log("Cannot establish connection - source does not exist");
-                return;
+                log("Cannot establish connection - source does not exist")
+                return
             }
             if (_p.target == null && _p.targetEndpoint == null) {
-                log("Cannot establish connection - target does not exist");
-                return;
+                log("Cannot establish connection - target does not exist")
+                return
             }
 
             // create the connection.  it is not yet registered
-            jpc = this._newConnection(_p);
+            jpc = this._newConnection(_p)
 
             // now add it the model, fire an event, and redraw
 
-            this._finaliseConnection(jpc, _p);
+            this._finaliseConnection(jpc, _p)
         }
 
 
-        return jpc;
+        return jpc
     }
 
     private _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):InternalConnectParams {
 
-        let _p:InternalConnectParams = extend({ }, params);
+        let _p:InternalConnectParams = extend({ }, params)
         if (referenceParams) {
-            extend(_p, referenceParams);
+            extend(_p, referenceParams)
         }
 
         // wire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
         if (_p.source) {
             if ((_p.source as Endpoint).endpoint) {
-                _p.sourceEndpoint = (_p.source as Endpoint);
+                _p.sourceEndpoint = (_p.source as Endpoint)
             }
             else {
-                _p.source = this.getElement(_p.source as any);
+                _p.source = this.getElement(_p.source as any)
             }
         }
         if (_p.target) {
             if ((_p.target as Endpoint).endpoint) {
-                _p.targetEndpoint = (_p.target as Endpoint);
+                _p.targetEndpoint = (_p.target as Endpoint)
             }
             else {
-                _p.target = this.getElement(_p.target as any);
+                _p.target = this.getElement(_p.target as any)
             }
         }
 
         // test for endpoint uuids to connect
         if (params.uuids) {
-            _p.sourceEndpoint = this.getEndpoint(params.uuids[0]);
-            _p.targetEndpoint = this.getEndpoint(params.uuids[1]);
+            _p.sourceEndpoint = this.getEndpoint(params.uuids[0])
+            _p.targetEndpoint = this.getEndpoint(params.uuids[1])
         }
 
         // now ensure that if we do have Endpoints already, they're not full.
         // source:
         if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
-            log("could not add connection; source endpoint is full");
-            return;
+            log("could not add connection; source endpoint is full")
+            return
         }
 
         // target:
         if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
-            log("could not add connection; target endpoint is full");
-            return;
+            log("could not add connection; target endpoint is full")
+            return
         }
 
         // if source endpoint mandates connection type and nothing specified in our params, use it.
         if (!_p.type && _p.sourceEndpoint) {
-            _p.type = _p.sourceEndpoint.connectionType;
+            _p.type = _p.sourceEndpoint.connectionType
         }
 
         // copy in any connectorOverlays that were specified on the source endpoint.
         // it doesnt copy target endpoint overlays.  i'm not sure if we want it to or not.
         if (_p.sourceEndpoint && _p.sourceEndpoint.connectorOverlays) {
-            _p.overlays = _p.overlays || [];
+            _p.overlays = _p.overlays || []
             for (let i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
-                _p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
+                _p.overlays.push(_p.sourceEndpoint.connectorOverlays[i])
             }
         }
 
         // scope
         if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
-            _p.scope = _p.sourceEndpoint.scope;
+            _p.scope = _p.sourceEndpoint.scope
         }
 
         // pointer events
         if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents) {
-            _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
+            _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents
         }
 
         let _addEndpoint = (el:any, def?:any, idx?:number):Endpoint | Array<Endpoint> => {
@@ -1560,9 +1560,9 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
                 hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle,
                 portId: _p.ports ? _p.ports[idx] : null
-            });
-            return this.addEndpoint(el, params);
-        };
+            })
+            return this.addEndpoint(el, params)
+        }
 
         // check for makeSource/makeTarget specs.
 
@@ -1570,82 +1570,82 @@ export abstract class jsPlumbInstance extends EventGenerator {
             // `type` is "source" or "target". Check that it exists, and is not already an Endpoint.
             if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
 
-                let elDefs = _p[type][type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST];
+                let elDefs = _p[type][type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST]
                 if (elDefs) {
                     let defIdx = findWithFunction(elDefs, (d:any) => {
 
-                        //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId);
+                        //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId)
 
-                        return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId);
-                        //return (d.def.portId == null || d.def.portId == portId);
-                    });
+                        return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId)
+                        //return (d.def.portId == null || d.def.portId == portId)
+                    })
                     if (defIdx >= 0) {
 
-                        let tep = elDefs[defIdx];
+                        let tep = elDefs[defIdx]
 
                         if (tep) {
                             // if not enabled, return.
                             if (!tep.enabled) {
-                                return false;
+                                return false
                             }
 
-                            const epDef = extend({}, tep.def);
-                            delete epDef.label;
+                            const epDef = extend({}, tep.def)
+                            delete epDef.label
 
-                            let newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], epDef, idx);
+                            let newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], epDef, idx)
                             if (newEndpoint.isFull()) {
-                                return false;
+                                return false
                             }
-                            _p[type + "Endpoint"] = newEndpoint;
+                            _p[type + "Endpoint"] = newEndpoint
                             if (!_p.scope && epDef.scope) {
-                                _p.scope = epDef.scope;
+                                _p.scope = epDef.scope
                             } // provide scope if not already provided and endpoint def has one.
                             if (tep.uniqueEndpoint) {
                                 if (!tep.endpoint) {
-                                    tep.endpoint = newEndpoint;
-                                    newEndpoint.deleteOnEmpty = false;
+                                    tep.endpoint = newEndpoint
+                                    newEndpoint.deleteOnEmpty = false
                                 }
                                 else {
-                                    newEndpoint.finalEndpoint = tep.endpoint;
+                                    newEndpoint.finalEndpoint = tep.endpoint
                                 }
                             } else {
-                                newEndpoint.deleteOnEmpty = true;
+                                newEndpoint.deleteOnEmpty = true
                             }
 
                             //
                             // copy in connector overlays if present on the source definition.
                             //
                             if (idx === 0 && epDef.connectorOverlays) {
-                                _p.overlays = _p.overlays || [];
-                                Array.prototype.push.apply(_p.overlays, epDef.connectorOverlays);
+                                _p.overlays = _p.overlays || []
+                                Array.prototype.push.apply(_p.overlays, epDef.connectorOverlays)
                             }
                         }
                     }
                 }
             }
-        };
+        }
 
         if (_oneElementDef(Constants.SOURCE, 0, _p.type || Constants.DEFAULT, _p.ports ? _p.ports[0] : null) === false) {
-            return;
+            return
         }
         if (_oneElementDef(Constants.TARGET, 1, _p.type || Constants.DEFAULT, _p.ports ? _p.ports[1] : null) === false) {
-            return;
+            return
         }
 
         // last, ensure scopes match
         if (_p.sourceEndpoint && _p.targetEndpoint) {
             if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) {
-                _p = null;
+                _p = null
             }
         }
-        return _p;
+        return _p
     }
 
     _newConnection (params:any):Connection {
-        params.id = "con_" + this._idstamp();
-        const c = new Connection(this, params);
-        c.paint();
-        return c;
+        params.id = "con_" + this._idstamp()
+        const c = new Connection(this, params)
+        c.paint()
+        return c
     }
 
     //
@@ -1653,27 +1653,27 @@ export abstract class jsPlumbInstance extends EventGenerator {
     //
     _finaliseConnection(jpc:Connection, params?:any, originalEvent?:Event, doInformAnchorManager?:boolean):void {
 
-        params = params || {};
+        params = params || {}
         // add to list of connections (by scope).
         if (!jpc.suspendedEndpoint) {
-            this.connections.push(jpc);
+            this.connections.push(jpc)
         }
 
-        jpc.pending = null;
+        jpc.pending = null
 
         // turn off isTemporarySource on the source endpoint (only viable on first draw)
-        jpc.endpoints[0].isTemporarySource = false;
+        jpc.endpoints[0].isTemporarySource = false
 
         // always inform the anchor manager
         // except that if jpc has a suspended endpoint it's not true to say the
         // connection is new; it has just (possibly) moved. the question is whether
         // to make that call here or in the anchor manager.  i think perhaps here.
         if (doInformAnchorManager !== false) {
-            this.anchorManager.newConnection(jpc);
+            this.anchorManager.newConnection(jpc)
         }
 
         // force a paint
-        this._draw(jpc.source);
+        this._draw(jpc.source)
 
         // fire an event
         if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
@@ -1683,264 +1683,264 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 source: jpc.source, target: jpc.target,
                 sourceId: jpc.sourceId, targetId: jpc.targetId,
                 sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
-            };
+            }
 
-            this.fire(Constants.EVENT_CONNECTION, eventArgs, originalEvent);
+            this.fire(Constants.EVENT_CONNECTION, eventArgs, originalEvent)
         }
     }
 
     private _doRemove(info:{el:any, text?:boolean, id?:string}, affectedElements:Array<{el:any, text?:boolean, id?:string}>):void {
-        this.removeAllEndpoints(info.id, true, affectedElements);
+        this.removeAllEndpoints(info.id, true, affectedElements)
         let _one = (_info:{el:any, text?:boolean, id?:string}) => {
 
             if (info.el != null) {
-                this.anchorManager.clearFor(_info.id);
-                this.anchorManager.removeFloatingConnection(_info.id);
+                this.anchorManager.clearFor(_info.id)
+                this.anchorManager.removeFloatingConnection(_info.id)
 
                 if (this.isSource(_info.el)) {
-                    this.unmakeSource(_info.el);
+                    this.unmakeSource(_info.el)
                 }
                 if (this.isTarget(_info.el)) {
-                    this.unmakeTarget(_info.el);
+                    this.unmakeTarget(_info.el)
                 }
 
-                delete this._floatingConnections[_info.id];
-                delete this._managedElements[_info.id];
-                delete this._offsets[_info.id];
+                delete this._floatingConnections[_info.id]
+                delete this._managedElements[_info.id]
+                delete this._offsets[_info.id]
                 if (_info.el) {
-                    this.removeElement(_info.el);
+                    this.removeElement(_info.el)
                 }
             }
-        };
+        }
 
         // remove all affected child elements
         for (let ae = 1; ae < affectedElements.length; ae++) {
-            _one(affectedElements[ae]);
+            _one(affectedElements[ae])
         }
         // and always remove the requested one from the dom.
-        _one(info);
+        _one(info)
     }
 
     //
     // TODO this method performs DOM operations, and shouldnt.
     remove(el:string|any, doNotRepaint?:boolean):jsPlumbInstance {
-        let info = this._info(el), affectedElements:Array<any> = [];
+        let info = this._info(el), affectedElements:Array<any> = []
         if (info.text && (info.el as any).parentNode) {
-            (info.el as any).parentNode.removeChild(info.el);
+            (info.el as any).parentNode.removeChild(info.el)
         }
         else if (info.id) {
             this.batch(() => {
-                this._doRemove(info, affectedElements);
-            }, doNotRepaint === true);
+                this._doRemove(info, affectedElements)
+            }, doNotRepaint === true)
         }
-        return this;
+        return this
     }
 
     removeAllEndpoints(el:string | any, recurse?:boolean, affectedElements?:Array<any>):jsPlumbInstance {
-        affectedElements = affectedElements || [];
+        affectedElements = affectedElements || []
         let _one = (_el:string | any) => {
             let info = this._info(_el),
                 ebe = this.endpointsByElement[info.id],
-                i, ii;
+                i, ii
 
             if (ebe) {
-                affectedElements.push(info);
+                affectedElements.push(info)
                 for (i = 0, ii = ebe.length; i < ii; i++) {
                     // TODO check this logic. was the second arg a "do not repaint now" argument?
-                    //this.deleteEndpoint(ebe[i], false);
-                    this.deleteEndpoint(ebe[i]);
+                    //this.deleteEndpoint(ebe[i], false)
+                    this.deleteEndpoint(ebe[i])
                 }
             }
-            delete this.endpointsByElement[info.id];
+            delete this.endpointsByElement[info.id]
 
             // TODO DOM specific
             if (recurse) {
                 if (info.el && (<any>info.el).nodeType !== 3 && (<any>info.el).nodeType !== 8) {
                     for (i = 0, ii = (<any>info.el).childNodes.length; i < ii; i++) {
-                        _one((<any>info.el).childNodes[i]);
+                        _one((<any>info.el).childNodes[i])
                     }
                 }
             }
 
-        };
-        _one(el);
-        return this;
+        }
+        _one(el)
+        return this
     }
 
     private _setEnabled (type:string, el:ElementSpec, state:boolean, toggle?:boolean, connectionType?:string):any {
-        let originalState:Array<any> = [], newState, os;
+        let originalState:Array<any> = [], newState, os
 
-        connectionType = connectionType || Constants.DEFAULT;
+        connectionType = connectionType || Constants.DEFAULT
 
         this.each(el, (_el:any) => {
-            let defs = _el[type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST];
+            let defs = _el[type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST]
             if (defs) {
                 this.each(defs, (def:SourceOrTargetDefinition) =>{
                     if (def.def.connectionType == null || def.def.connectionType === connectionType) {
-                        os = def.enabled;
-                        originalState.push(os);
-                        newState = toggle ? !os : state;
-                        def.enabled = newState;
-                        this[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
+                        os = def.enabled
+                        originalState.push(os)
+                        newState = toggle ? !os : state
+                        def.enabled = newState
+                        this[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled")
                     }
-                });
+                })
             }
-        });
+        })
 
-        return originalState.length > 1 ? originalState : originalState[0];
+        return originalState.length > 1 ? originalState : originalState[0]
 
     }
 
     toggleSourceEnabled (el:any, connectionType?:string):any {
-        this._setEnabled(Constants.SOURCE, el, null, true, connectionType);
-        return this.isSourceEnabled(el, connectionType);
+        this._setEnabled(Constants.SOURCE, el, null, true, connectionType)
+        return this.isSourceEnabled(el, connectionType)
     }
 
     setSourceEnabled (el:ElementSpec, state:boolean, connectionType?:string):any {
-        return this._setEnabled(Constants.SOURCE, el, state, null, connectionType);
+        return this._setEnabled(Constants.SOURCE, el, state, null, connectionType)
     }
 
     findFirstSourceDefinition(el:any, connectionType?:string):SourceDefinition {
-        return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType);
+        return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
     findFirstTargetDefinition(el:any, connectionType?:string):TargetDefinition {
-        return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType);
+        return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
     private findFirstDefinition<T>(key:string, el:any, connectionType?:string):T {
         if (el == null) {
-            return null;
+            return null
         } else {
-            const eldefs = el[key];
+            const eldefs = el[key]
             if (eldefs && eldefs.length > 0) {
                 let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d: any) => {
-                    return d.def.connectionType === connectionType;
-                });
+                    return d.def.connectionType === connectionType
+                })
                 if (idx >= 0) {
-                    return eldefs[0];
+                    return eldefs[0]
                 }
             }
         }
     }
 
     isSource (el:any, connectionType?:string):any {
-        return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null;
+        return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null
     }
 
     isSourceEnabled (el:any, connectionType?:string):boolean {
-        let def = this.findFirstSourceDefinition(el, connectionType);
-        return def != null && def.enabled !== false;
+        let def = this.findFirstSourceDefinition(el, connectionType)
+        return def != null && def.enabled !== false
     }
 
     toggleTargetEnabled(el:any, connectionType?:string):any {
-        this._setEnabled(Constants.TARGET, el, null, true, connectionType);
-        return this.isTargetEnabled(el, connectionType);
-    };
+        this._setEnabled(Constants.TARGET, el, null, true, connectionType)
+        return this.isTargetEnabled(el, connectionType)
+    }
 
     isTarget(el:any, connectionType?:string):boolean {
-        return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null;
+        return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null
     }
 
     isTargetEnabled (el:any, connectionType?:string):boolean {
-        let def = this.findFirstTargetDefinition(el, connectionType);
-        return def != null && def.enabled !== false;
+        let def = this.findFirstTargetDefinition(el, connectionType)
+        return def != null && def.enabled !== false
     }
 
     setTargetEnabled(el:any, state:boolean, connectionType?:string):any {
-        return this._setEnabled(Constants.TARGET, el, state, null, connectionType);
+        return this._setEnabled(Constants.TARGET, el, state, null, connectionType)
     }
 
     // really just exposed for testing
     makeAnchor(spec:AnchorSpec, elementId?:string):Anchor {
-        return makeAnchorFromSpec(this, spec, elementId);
+        return makeAnchorFromSpec(this, spec, elementId)
     }
 
     private _unmake (type:string, key:string, el:ElementSpec, connectionType?:string) {
 
-        connectionType = connectionType || "*";
+        connectionType = connectionType || "*"
 
         this.each(el, (_el:any) => {
             if (_el[key]) {
                 if (connectionType === "*") {
-                    delete _el[key];
-                    this.removeAttribute(_el, "jtk-" + type);
+                    delete _el[key]
+                    this.removeAttribute(_el, "jtk-" + type)
                 } else {
-                    let t:Array<any> = [];
+                    let t:Array<any> = []
                     _el[key].forEach((def:any) => {
                         if (connectionType !== def.def.connectionType) {
-                            t.push(def);
+                            t.push(def)
                         }
-                    });
+                    })
 
                     if (t.length > 0) {
-                        _el[key] = t;
+                        _el[key] = t
                     } else {
-                        delete _el[key];
-                        this.removeAttribute(_el, "jtk-" + type);
+                        delete _el[key]
+                        this.removeAttribute(_el, "jtk-" + type)
                     }
                 }
             }
-        });
+        })
     }
 
     private _unmakeEvery (type:string, key:string, connectionType?:string) {
-        let els = this.getSelector("[jtk-" + type + "]");
+        let els = this.getSelector("[jtk-" + type + "]")
         for (let i = 0; i < els.length; i++) {
-            this._unmake(type, key, els[i], connectionType);
+            this._unmake(type, key, els[i], connectionType)
         }
     }
 
     // see api docs
     unmakeTarget (el:any, connectionType?:string) {
-        return this._unmake(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, el, connectionType);
+        return this._unmake(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
     // see api docs
     unmakeSource (el:any, connectionType?:string) {
-        return this._unmake(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, el, connectionType);
+        return this._unmake(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
     // see api docs
     unmakeEverySource (connectionType?:string) {
-        this._unmakeEvery(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, connectionType || "*");
+        this._unmakeEvery(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, connectionType || "*")
     }
 
     // see api docs
     unmakeEveryTarget (connectionType?:string) {
-        this._unmakeEvery(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, connectionType || "*");
+        this._unmakeEvery(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, connectionType || "*")
     }
 
     private _writeScopeAttribute (el:any, scope:string):void {
-        let scopes = scope.split(/\s/);
+        let scopes = scope.split(/\s/)
         for (let i = 0; i < scopes.length; i++) {
-            this.setAttribute(el, "jtk-scope-" + scopes[i], "");
+            this.setAttribute(el, "jtk-scope-" + scopes[i], "")
         }
     }
 
     // TODO knows about the DOM
     makeSource(el:ElementSpec, params?:BehaviouralTypeDescriptor, referenceParams?:any):jsPlumbInstance {
-        let p = extend({_jsPlumb: this}, referenceParams);
-        extend(p, params);
-        p.connectionType = p.connectionType || Constants.DEFAULT;
-        let aae = this.deriveEndpointAndAnchorSpec(p.connectionType);
-        p.endpoint = p.endpoint || aae.endpoints[0];
-        p.anchor = p.anchor || aae.anchors[0];
-        let maxConnections = p.maxConnections || -1;
+        let p = extend({_jsPlumb: this}, referenceParams)
+        extend(p, params)
+        p.connectionType = p.connectionType || Constants.DEFAULT
+        let aae = this.deriveEndpointAndAnchorSpec(p.connectionType)
+        p.endpoint = p.endpoint || aae.endpoints[0]
+        p.anchor = p.anchor || aae.anchors[0]
+        let maxConnections = p.maxConnections || -1
 
         const _one = (_el:any) => {
 
-            let elInfo = this._info(_el);
+            let elInfo = this._info(_el)
             // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
             // and use the endpoint definition if found.
-            let _del = elInfo.el;
+            let _del = elInfo.el
 
-            this.manage(_del);
-            this.setAttribute(_del, Constants.ATTRIBUTE_SOURCE, "");
-            this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope));
-            this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
+            this.manage(_del)
+            this.setAttribute(_del, Constants.ATTRIBUTE_SOURCE, "")
+            this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
+            this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
 
-            (elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions = (elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions || [];
+            ;(elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions = (elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions || []
 
             let _def:SourceDefinition = {
                 def:extend({}, p),
@@ -1948,71 +1948,71 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 maxConnections: maxConnections,
                 enabled: true,
                 endpoint:null as Endpoint
-            };
-
-            if (p.createEndpoint) {
-                _def.uniqueEndpoint = true;
-                _def.endpoint = this.addEndpoint(_del, _def.def);
-                _def.endpoint.deleteOnEmpty = false;
             }
 
-            (<any>elInfo).def = _def;
-            (elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions.push(_def);
+            if (p.createEndpoint) {
+                _def.uniqueEndpoint = true
+                _def.endpoint = this.addEndpoint(_del, _def.def)
+                _def.endpoint.deleteOnEmpty = false
+            }
 
-        };
+            (<any>elInfo).def = _def
+            ;(elInfo.el as jsPlumbDOMElement)._jsPlumbSourceDefinitions.push(_def)
 
-        this.each(el, _one);
+        }
 
-        return this;
+        this.each(el, _one)
+
+        return this
     }
 
     private _getScope(el:any|string, defKey:string):string {
-        let elInfo = this._info(el);
+        let elInfo = this._info(el)
         if (elInfo.el && elInfo.el[defKey] && elInfo.el[defKey].length > 0) {
-            return elInfo.el[defKey][0].def.scope;
+            return elInfo.el[defKey][0].def.scope
         } else {
-            return null;
+            return null
         }
     }
 
     getSourceScope(el:any|string):string {
-        return this._getScope(el, Constants.SOURCE_DEFINITION_LIST);
+        return this._getScope(el, Constants.SOURCE_DEFINITION_LIST)
     }
 
     getTargetScope(el:any|string):string {
-        return this._getScope(el, Constants.TARGET_DEFINITION_LIST);
+        return this._getScope(el, Constants.TARGET_DEFINITION_LIST)
     }
 
     getScope(el:any|string):string {
-        return this.getSourceScope(el) || this.getTargetScope(el);
+        return this.getSourceScope(el) || this.getTargetScope(el)
     }
 
     private _setScope(el:any|string, scope:string, defKey:string):void {
-        let elInfo = this._info(el);
+        let elInfo = this._info(el)
         if (elInfo.el && elInfo.el[defKey]) {
-            elInfo.el[defKey].forEach((def:any) => def.def.scope = scope);
+            elInfo.el[defKey].forEach((def:any) => def.def.scope = scope)
         }
     }
 
     setSourceScope(el:any|string, scope:string):void {
-        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST);
+        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
     }
 
     setTargetScope(el:any|string, scope:string):void {
-        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST);
+        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
     setScope(el:any|string, scope:string):void {
-        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST);
-        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST);
+        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
+        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
     makeTarget (el:ElementSpec, params:BehaviouralTypeDescriptor, referenceParams?:any):jsPlumbInstance {
 
         // put jsplumb ref into params without altering the params passed in
-        let p = extend({_jsPlumb: this}, referenceParams);
-        extend(p, params);
-        p.connectionType  = p.connectionType || Constants.DEFAULT;
+        let p = extend({_jsPlumb: this}, referenceParams)
+        extend(p, params)
+        p.connectionType  = p.connectionType || Constants.DEFAULT
 
         let maxConnections = p.maxConnections || -1;//,
 
@@ -2022,19 +2022,19 @@ export abstract class jsPlumbInstance extends EventGenerator {
             // and use the endpoint definition if found.
             // decode the info for this element (id and element)
             let elInfo = this._info(_el),
-                dropOptions = extend({}, p.dropOptions || {});
+                dropOptions = extend({}, p.dropOptions || {})
 
-            this.manage(elInfo.el);
-            this.setAttribute(elInfo.el, Constants.ATTRIBUTE_TARGET, "");
-            this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope));
-            this.setAttribute(elInfo.el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
+            this.manage(elInfo.el)
+            this.setAttribute(elInfo.el, Constants.ATTRIBUTE_TARGET, "")
+            this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
+            this.setAttribute(elInfo.el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
 
-            (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions = (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions || [];
+            ;(elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions = (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions || []
 
             // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
             // precedence.
             if ((<any>elInfo.el)._isJsPlumbGroup && dropOptions.rank == null) {
-                dropOptions.rank = -1;
+                dropOptions.rank = -1
             }
 
             // store the definition
@@ -2044,156 +2044,155 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 maxConnections: maxConnections,
                 enabled: true,
                 endpoint:null as Endpoint
-            };
-
-            if (p.createEndpoint) {
-                _def.uniqueEndpoint = true;
-                _def.endpoint = this.addEndpoint(elInfo.el, _def.def);
-                _def.endpoint.deleteOnEmpty = false;
             }
 
-            (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions.push(_def);
-        };
+            if (p.createEndpoint) {
+                _def.uniqueEndpoint = true
+                _def.endpoint = this.addEndpoint(elInfo.el, _def.def)
+                _def.endpoint.deleteOnEmpty = false
+            }
 
-        this.each(el, _one);
+            (elInfo.el as jsPlumbDOMElement)._jsPlumbTargetDefinitions.push(_def)
+        }
 
-        return this;
+        this.each(el, _one)
+
+        return this
     }
 
     show (el:string|any, changeEndpoints?:boolean):jsPlumbInstance {
-        this._setVisible(el, Constants.BLOCK, changeEndpoints);
-        return this;
+        this._setVisible(el, Constants.BLOCK, changeEndpoints)
+        return this
     }
 
     hide (el:string|any, changeEndpoints?:boolean):jsPlumbInstance {
-        this._setVisible(el, Constants.NONE, changeEndpoints);
-        return this;
+        this._setVisible(el, Constants.NONE, changeEndpoints)
+        return this
     }
 
     private _setVisible (el:string|any, state:string, alsoChangeEndpoints?:boolean) {
-        let visible = state === Constants.BLOCK;
-        let endpointFunc = null;
+        let visible = state === Constants.BLOCK
+        let endpointFunc = null
         if (alsoChangeEndpoints) {
             endpointFunc = (ep:Endpoint) => {
-                ep.setVisible(visible, true, true);
-            };
+                ep.setVisible(visible, true, true)
+            }
         }
-        let info = this._info(el);
+        let info = this._info(el)
         this._operation(info.id, (jpc:Connection) => {
             if (visible && alsoChangeEndpoints) {
                 // this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
                 // this block will only set a connection to be visible if the other endpoint in the connection is also visible.
-                let oidx = jpc.sourceId === info.id ? 1 : 0;
+                let oidx = jpc.sourceId === info.id ? 1 : 0
                 if (jpc.endpoints[oidx].isVisible()) {
-                    jpc.setVisible(true);
+                    jpc.setVisible(true)
                 }
             }
             else { // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
-                jpc.setVisible(visible);
+                jpc.setVisible(visible)
             }
-        }, endpointFunc);
+        }, endpointFunc)
     }
 
     /**
      * private method to do the business of toggling hiding/showing.
      */
     toggleVisible (elId:string, changeEndpoints?:boolean) {
-        let endpointFunc = null;
+        let endpointFunc = null
         if (changeEndpoints) {
             endpointFunc = (ep:Endpoint) => {
-                let state = ep.isVisible();
-                ep.setVisible(!state);
-            };
+                let state = ep.isVisible()
+                ep.setVisible(!state)
+            }
         }
         this._operation(elId,  (jpc:Connection) => {
-            let state = jpc.isVisible();
-            jpc.setVisible(!state);
-        }, endpointFunc);
+            let state = jpc.isVisible()
+            jpc.setVisible(!state)
+        }, endpointFunc)
     }
 
     private _operation (elId:string, func:(c:Connection) => any, endpointFunc?:(e:Endpoint) => any) {
-        let endpoints = this.endpointsByElement[elId];
+        let endpoints = this.endpointsByElement[elId]
         if (endpoints && endpoints.length) {
             for (let i = 0, ii = endpoints.length; i < ii; i++) {
                 for (let j = 0, jj = endpoints[i].connections.length; j < jj; j++) {
-                    let retVal = func(endpoints[i].connections[j]);
+                    let retVal = func(endpoints[i].connections[j])
                     // if the function passed in returns true, we exit.
                     // most functions return false.
                     if (retVal) {
-                        return;
+                        return
                     }
                 }
                 if (endpointFunc) {
-                    endpointFunc(endpoints[i]);
+                    endpointFunc(endpoints[i])
                 }
             }
         }
     }
 
     registerConnectionType(id:string, type:TypeDescriptor):void {
-        this._connectionTypes[id] = extend({}, type);
+        this._connectionTypes[id] = extend({}, type)
         if (type.overlays) {
-            let to:Dictionary<FullOverlaySpec> = {};
+            let to:Dictionary<FullOverlaySpec> = {}
             for (let i = 0; i < type.overlays.length; i++) {
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
-                let fo = this.convertToFullOverlaySpec(type.overlays[i]);
-                to[fo[1].id] = fo;
+                let fo = this.convertToFullOverlaySpec(type.overlays[i])
+                to[fo[1].id] = fo
             }
-            //this._connectionTypes[id].overlayMap = to;
-            this._connectionTypes[id].overlays = to as any;
+            //this._connectionTypes[id].overlayMap = to
+            this._connectionTypes[id].overlays = to as any
         }
     }
 
     registerConnectionTypes(types:Dictionary<TypeDescriptor>) {
         for (let i in types) {
-            this.registerConnectionType(i, types[i]);
+            this.registerConnectionType(i, types[i])
         }
     }
 
     registerEndpointType(id:string, type:TypeDescriptor) {
-        this._endpointTypes[id] = extend({}, type);
+        this._endpointTypes[id] = extend({}, type)
         if (type.overlays) {
-            let to:Dictionary<FullOverlaySpec> = {};
+            let to:Dictionary<FullOverlaySpec> = {}
             for (let i = 0; i < type.overlays.length; i++) {
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
-                let fo = this.convertToFullOverlaySpec(type.overlays[i]);
-                to[fo[1].id] = fo;
+                let fo = this.convertToFullOverlaySpec(type.overlays[i])
+                to[fo[1].id] = fo
             }
-            //this._endpointTypes[id].overlayMap = to;
-            this._endpointTypes[id].overlays = to as any;
+            this._endpointTypes[id].overlays = to as any
         }
     }
 
     registerEndpointTypes(types:Dictionary<TypeDescriptor>) {
         for (let i in types) {
-            this.registerEndpointType(i, types[i]);
+            this.registerEndpointType(i, types[i])
         }
     }
 
     getType(id:string, typeDescriptor:string):TypeDescriptor {
-        return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
+        return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id]
     }
 
     importDefaults(d:jsPlumbDefaults):jsPlumbInstance {
         for (let i in d) {
-            this.Defaults[i] = d[i];
+            this.Defaults[i] = d[i]
         }
         if (d.container) {
-            this.setContainer(d.container);
+            this.setContainer(d.container)
         }
 
-        return this;
+        return this
     }
 
     restoreDefaults ():jsPlumbInstance {
-        this.Defaults = extend({}, this._initialDefaults);
-        return this;
+        this.Defaults = extend({}, this._initialDefaults)
+        return this
     }
 
     getManagedElements():Dictionary<ManagedElement> {
-        return this._managedElements;
+        return this._managedElements
     }
 
 // ----------------------------- proxy connections -----------------------
@@ -2205,23 +2204,23 @@ export abstract class jsPlumbInstance extends EventGenerator {
         let alreadyProxied = connection.proxies[index] != null,
             proxyEp,
             originalElementId = alreadyProxied ? connection.proxies[index].originalEp.elementId : connection.endpoints[index].elementId,
-            originalEndpoint = alreadyProxied ? connection.proxies[index].originalEp : connection.endpoints[index];
+            originalEndpoint = alreadyProxied ? connection.proxies[index].originalEp : connection.endpoints[index]
 
         // if proxies exist for this end of the connection
         if(connection.proxies[index]) {
             // and the endpoint is for the element we're going to proxy to, just use it.
             if (connection.proxies[index].ep.elementId === proxyElId) {
-                proxyEp = connection.proxies[index].ep;
+                proxyEp = connection.proxies[index].ep
             } else {
                 // otherwise detach that previous endpoint; it will delete itself
-                connection.proxies[index].ep.detachFromConnection(connection, index);
+                connection.proxies[index].ep.detachFromConnection(connection, index)
                 proxyEp = this.addEndpoint(proxyEl, {
                     endpoint:endpointGenerator(connection, index),
                     anchor:anchorGenerator(connection, index),
                     parameters:{
                         isProxyEndpoint:true
                     }
-                });
+                })
             }
         }else {
             proxyEp = this.addEndpoint(proxyEl, {
@@ -2230,71 +2229,71 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 parameters:{
                     isProxyEndpoint:true
                 }
-            });
+            })
         }
-        proxyEp.deleteOnEmpty = true;
+        proxyEp.deleteOnEmpty = true
 
         // for this index, stash proxy info: the new EP, the original EP.
-        connection.proxies[index] = { ep:proxyEp, originalEp: originalEndpoint };
+        connection.proxies[index] = { ep:proxyEp, originalEp: originalEndpoint }
 
         // and advise the anchor manager
-        this.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, index);
+        this.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, index)
 
         // detach the original EP from the connection, but mark as a transient detach.
-        originalEndpoint.detachFromConnection(connection, null, true);
+        originalEndpoint.detachFromConnection(connection, null, true)
 
         // set the proxy as the new ep
-        proxyEp.connections = [ connection ];
-        connection.endpoints[index] = proxyEp;
+        proxyEp.connections = [ connection ]
+        connection.endpoints[index] = proxyEp
 
-        originalEndpoint.setVisible(false);
+        originalEndpoint.setVisible(false)
 
-        connection.setVisible(true);
+        connection.setVisible(true)
 
-        this.revalidate(proxyEl);
+        this.revalidate(proxyEl)
     }
 
     unproxyConnection(connection:Connection, index:number, proxyElId:string) {
         // if connection cleaned up, no proxies, or none for this end of the connection, abort.
         if (connection.proxies == null || connection.proxies[index] == null) {
-            return;
+            return
         }
 
         let originalElement = connection.proxies[index].originalEp.element,
-            originalElementId = connection.proxies[index].originalEp.elementId;
+            originalElementId = connection.proxies[index].originalEp.elementId
 
-        connection.endpoints[index] = connection.proxies[index].originalEp;
+        connection.endpoints[index] = connection.proxies[index].originalEp
 
-        this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index);
+        this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index)
 
         // detach the proxy EP from the connection (which will cause it to be removed as we no longer need it)
-        connection.proxies[index].ep.detachFromConnection(connection, null);
+        connection.proxies[index].ep.detachFromConnection(connection, null)
 
-        connection.proxies[index].originalEp.addConnection(connection);
+        connection.proxies[index].originalEp.addConnection(connection)
         if(connection.isVisible()) {
-            connection.proxies[index].originalEp.setVisible(true);
+            connection.proxies[index].originalEp.setVisible(true)
         }
 
         // cleanup
-        connection.proxies[index] = null;
+        connection.proxies[index] = null
 
         // if both empty, set length to 0.
         if (connection.proxies.find(p => p != null) == null) {
-            connection.proxies.length = 0;
+            connection.proxies.length = 0
         }
     }
 
     sourceOrTargetChanged (originalId:string, newId:string, connection:any, newElement:any, index:number):void {
         if (index === 0) {
             if (originalId !== newId) {
-                connection.sourceId = newId;
-                connection.source = newElement;
-                connection.updateConnectedClass();
+                connection.sourceId = newId
+                connection.source = newElement
+                connection.updateConnectedClass()
             }
         } else if (index === 1) {
-            connection.targetId = newId;
-            connection.target = newElement;
-            connection.updateConnectedClass();
+            connection.targetId = newId
+            connection.target = newElement
+            connection.updateConnectedClass()
         }
     }
 
@@ -2310,15 +2309,15 @@ export abstract class jsPlumbInstance extends EventGenerator {
     toggleGroup (group:string | UIGroup) { this.groupManager.toggleGroup(group); }
 
     removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
-        this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
+        this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent)
     }
 
     removeAllGroups(deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
-        this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
+        this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent)
     }
     removeFromGroup (group:string | UIGroup, el:any, doNotFireEvent?:boolean):void {
-        this.groupManager.removeFromGroup(group, el, doNotFireEvent);
-        this.appendElement(el, this.getContainer());
+        this.groupManager.removeFromGroup(group, el, doNotFireEvent)
+        this.appendElement(el, this.getContainer())
     }
 
 }

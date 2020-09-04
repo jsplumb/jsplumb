@@ -1,22 +1,22 @@
-import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector";
-import {jsPlumbInstance} from "../core";
-import {BezierSegment} from "./bezier-segment";
-import {Connectors} from "./connectors";
-import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector";
-import {Connection} from "./connection-impl";
-import {AnchorPlacement} from "../anchor-manager";
+import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector"
+import {jsPlumbInstance} from "../core"
+import {BezierSegment} from "./bezier-segment"
+import {Connectors} from "./connectors"
+import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
+import {Connection} from "./connection-impl"
+import {AnchorPlacement} from "../anchor-manager"
 
 function _segment (x1:number, y1:number, x2:number, y2:number):number {
     if (x1 <= x2 && y2 <= y1) {
-        return 1;
+        return 1
     }
     else if (x1 <= x2 && y1 <= y2) {
-        return 2;
+        return 2
     }
     else if (x2 <= x1 && y2 >= y1) {
-        return 3;
+        return 3
     }
-    return 4;
+    return 4
 }
 
 // the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
@@ -37,51 +37,51 @@ function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge
     // TODO (maybe)
     // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
     if (distance <= proximityLimit) {
-        return [midx, midy];
+        return [midx, midy]
     }
 
     if (segment === 1) {
         if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
         }
         else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
         }
         else {
-            return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+            return [ midx + (-1 * dx) , midy + (-1 * dy) ]
         }
     }
     else if (segment === 2) {
         if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
         }
         else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
         }
         else {
-            return [ midx + dx, midy + (-1 * dy) ];
+            return [ midx + dx, midy + (-1 * dy) ]
         }
     }
     else if (segment === 3) {
         if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
         }
         else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
         }
         else {
-            return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+            return [ midx + (-1 * dx) , midy + (-1 * dy) ]
         }
     }
     else if (segment === 4) {
         if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
         }
         else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
         }
         else {
-            return [ midx + dx , midy + (-1 * dy) ];
+            return [ midx + dx , midy + (-1 * dy) ]
         }
     }
 }
@@ -90,50 +90,50 @@ export interface StateMachineOptions extends AbstractBezierOptions  { }
 
 export class StateMachine extends AbstractBezierConnector {
 
-    type = "StateMachine";
+    type = "StateMachine"
 
-    _controlPoint:[ number, number ];
-    proximityLimit:number;
+    _controlPoint:[ number, number ]
+    proximityLimit:number
 
     constructor(instance:jsPlumbInstance, public connection:Connection, params:StateMachineOptions) {
-        super(instance, connection, params);
+        super(instance, connection, params)
 
-        this.curviness = params.curviness || 10;
-        this.margin = params.margin || 5;
-        this.proximityLimit = params.proximityLimit || 80;
-        this.clockwise = params.orientation && params.orientation === "clockwise";
+        this.curviness = params.curviness || 10
+        this.margin = params.margin || 5
+        this.proximityLimit = params.proximityLimit || 80
+        this.clockwise = params.orientation && params.orientation === "clockwise"
     }
 
     _computeBezier (paintInfo:PaintGeometry, params:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, w:number, h:number):void {
         let _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
             _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
             _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
-            _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
+            _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0
 
         // now adjust for the margin
         if (params.sourcePos[2] === 0) {
-            _sx -= this.margin;
+            _sx -= this.margin
         }
         if (params.sourcePos[2] === 1) {
-            _sx += this.margin;
+            _sx += this.margin
         }
         if (params.sourcePos[3] === 0) {
-            _sy -= this.margin;
+            _sy -= this.margin
         }
         if (params.sourcePos[3] === 1) {
-            _sy += this.margin;
+            _sy += this.margin
         }
         if (params.targetPos[2] === 0) {
-            _tx -= this.margin;
+            _tx -= this.margin
         }
         if (params.targetPos[2] === 1) {
-            _tx += this.margin;
+            _tx += this.margin
         }
         if (params.targetPos[3] === 0) {
-            _ty -= this.margin;
+            _ty -= this.margin
         }
         if (params.targetPos[3] === 1) {
-            _ty += this.margin;
+            _ty += this.margin
         }
 
         //
@@ -161,7 +161,7 @@ export class StateMachine extends AbstractBezierConnector {
             let _midx = (_sx + _tx) / 2,
                 _midy = (_sy + _ty) / 2,
                 segment = _segment(_sx, _sy, _tx, _ty),
-                distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
+                distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2))
 
 
             // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
@@ -173,31 +173,31 @@ export class StateMachine extends AbstractBezierConnector {
                 params.targetPos,
                 this.curviness, this.curviness,
                 distance,
-                this.proximityLimit);
+                this.proximityLimit)
         } else {
-            this._controlPoint = this.geometry.controlPoints[0];
+            this._controlPoint = this.geometry.controlPoints[0]
         }
 
-        let cp1x, cp2x, cp1y, cp2y;
+        let cp1x, cp2x, cp1y, cp2y
 
-        cp1x = this._controlPoint[0];
-        cp2x = this._controlPoint[0];
-        cp1y = this._controlPoint[1];
-        cp2y = this._controlPoint[1];
+        cp1x = this._controlPoint[0]
+        cp2x = this._controlPoint[0]
+        cp1y = this._controlPoint[1]
+        cp2y = this._controlPoint[1]
 
         this.geometry = {
             controlPoints:[this._controlPoint, this._controlPoint],
             source:params.sourcePos,
             target:params.targetPos
-        };
+        }
 
         this._addSegment(BezierSegment, {
             x1: _tx, y1: _ty, x2: _sx, y2: _sy,
             cp1x: cp1x, cp1y: cp1y,
             cp2x: cp2x, cp2y: cp2y
-        });
+        })
     }
 
 }
 
-Connectors.register("StateMachine", StateMachine);
+Connectors.register("StateMachine", StateMachine)

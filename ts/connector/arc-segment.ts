@@ -1,78 +1,78 @@
-import {AbstractSegment} from "./abstract-segment";
-import {jsPlumbInstance, PointXY} from "../core";
-import {TWO_PI} from "../geom";
+import {AbstractSegment} from "./abstract-segment"
+import {jsPlumbInstance, PointXY} from "../core"
+import {TWO_PI} from "../geom"
 
-const VERY_SMALL_VALUE = 0.0000000001;
+const VERY_SMALL_VALUE = 0.0000000001
 
 function gentleRound (n:number):number {
-    let f = Math.floor(n), r = Math.ceil(n);
+    let f = Math.floor(n), r = Math.ceil(n)
     if (n - f < VERY_SMALL_VALUE) {
-        return f;
+        return f
     }
     else if (r - n < VERY_SMALL_VALUE) {
-        return r;
+        return r
     }
-    return n;
+    return n
 }
 
 export class ArcSegment extends AbstractSegment {
 
-    static segmentType:string = "Arc";
-    type = ArcSegment.segmentType;
+    static segmentType:string = "Arc"
+    type = ArcSegment.segmentType
 
-    cx:number;
-    cy:number;
+    cx:number
+    cy:number
 
-    radius:number;
-    anticlockwise:boolean;
-    startAngle:number;
-    endAngle:number;
+    radius:number
+    anticlockwise:boolean
+    startAngle:number
+    endAngle:number
 
-    sweep:number;
-    length:number;
-    circumference:number;
-    frac:number;
+    sweep:number
+    length:number
+    circumference:number
+    frac:number
 
     constructor(private instance:jsPlumbInstance, params:any) {
 
-        super(params);
+        super(params)
 
-        this.cx = params.cx;
-        this.cy = params.cy;
-        this.radius = params.r;
-        this.anticlockwise = params.ac;
+        this.cx = params.cx
+        this.cy = params.cy
+        this.radius = params.r
+        this.anticlockwise = params.ac
 
         if (params.startAngle && params.endAngle) {
 
-            this.startAngle = params.startAngle;
-            this.endAngle = params.endAngle;
+            this.startAngle = params.startAngle
+            this.endAngle = params.endAngle
 
-            this.x1 = this.cx + (this.radius * Math.cos(this.startAngle));
-            this.y1 = this.cy + (this.radius * Math.sin(this.startAngle));
-            this.x2 = this.cx + (this.radius * Math.cos(this.endAngle));
-            this.y2 = this.cy + (this.radius * Math.sin(this.endAngle));
+            this.x1 = this.cx + (this.radius * Math.cos(this.startAngle))
+            this.y1 = this.cy + (this.radius * Math.sin(this.startAngle))
+            this.x2 = this.cx + (this.radius * Math.cos(this.endAngle))
+            this.y2 = this.cy + (this.radius * Math.sin(this.endAngle))
         }
         else {
-            this.startAngle = this._calcAngle(this.x1, this.y1);
-            this.endAngle = this._calcAngle(this.x2, this.y2);
+            this.startAngle = this._calcAngle(this.x1, this.y1)
+            this.endAngle = this._calcAngle(this.x2, this.y2)
         }
 
         if (this.endAngle < 0) {
-            this.endAngle += TWO_PI;
+            this.endAngle += TWO_PI
         }
         if (this.startAngle < 0) {
-            this.startAngle += TWO_PI;
+            this.startAngle += TWO_PI
         }
 
-        let ea = this.endAngle < this.startAngle ? this.endAngle + TWO_PI : this.endAngle;
-        this.sweep = Math.abs(ea - this.startAngle);
+        let ea = this.endAngle < this.startAngle ? this.endAngle + TWO_PI : this.endAngle
+        this.sweep = Math.abs(ea - this.startAngle)
         if (this.anticlockwise) {
-            this.sweep = TWO_PI - this.sweep;
+            this.sweep = TWO_PI - this.sweep
         }
 
-        this.circumference = 2 * Math.PI * this.radius;
-        this.frac = this.sweep / TWO_PI;
-        this.length = this.circumference * this.frac;
+        this.circumference = 2 * Math.PI * this.radius
+        this.frac = this.sweep / TWO_PI
+        this.length = this.circumference * this.frac
 
         this.bounds = {
             minX: this.cx - this.radius,
@@ -84,25 +84,25 @@ export class ArcSegment extends AbstractSegment {
 
 
     private _calcAngle (_x:number, _y:number):number {
-        return this.instance.geometry.theta({x:this.cx, y:this.cy}, {x:_x, y:_y});
+        return this.instance.geometry.theta({x:this.cx, y:this.cy}, {x:_x, y:_y})
     }
 
     private _calcAngleForLocation (segment:ArcSegment, location:number):number {
         if (segment.anticlockwise) {
             let sa = segment.startAngle < segment.endAngle ? segment.startAngle + TWO_PI : segment.startAngle,
-                s = Math.abs(sa - segment.endAngle);
-            return sa - (s * location);
+                s = Math.abs(sa - segment.endAngle)
+            return sa - (s * location)
         }
         else {
             let ea = segment.endAngle < segment.startAngle ? segment.endAngle + TWO_PI : segment.endAngle,
-                ss = Math.abs(ea - segment.startAngle);
+                ss = Math.abs(ea - segment.startAngle)
 
-            return segment.startAngle + (ss * location);
+            return segment.startAngle + (ss * location)
         }
     }
 
     getLength ():number {
-        return this.length;
+        return this.length
     }
 
     /**
@@ -112,33 +112,33 @@ export class ArcSegment extends AbstractSegment {
     pointOnPath(location:number, absolute?:boolean):PointXY {
 
         if (location === 0) {
-            return { x: this.x1, y: this.y1, theta: this.startAngle };
+            return { x: this.x1, y: this.y1, theta: this.startAngle }
         }
         else if (location === 1) {
-            return { x: this.x2, y: this.y2, theta: this.endAngle };
+            return { x: this.x2, y: this.y2, theta: this.endAngle }
         }
 
         if (absolute) {
-            location = location / length;
+            location = location / length
         }
 
         let angle = this._calcAngleForLocation(this, location),
             _x = this.cx + (this.radius * Math.cos(angle)),
-            _y = this.cy + (this.radius * Math.sin(angle));
+            _y = this.cy + (this.radius * Math.sin(angle))
 
-        return { x: gentleRound(_x), y: gentleRound(_y), theta: angle };
-    };
+        return { x: gentleRound(_x), y: gentleRound(_y), theta: angle }
+    }
 
     /**
      * returns the gradient of the segment at the given point.
      */
     gradientAtPoint (location:number, absolute?:boolean):number {
-        let p = this.pointOnPath(location, absolute);
-        let m = this.instance.geometry.normal({x:this.cx, y:this.cy }, p);
+        let p = this.pointOnPath(location, absolute)
+        let m = this.instance.geometry.normal({x:this.cx, y:this.cy }, p)
         if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
-            m *= -1;
+            m *= -1
         }
-        return m;
+        return m
     }
 
     pointAlongPathFrom (location:number, distance:number, absolute?:boolean):PointXY {
@@ -147,10 +147,10 @@ export class ArcSegment extends AbstractSegment {
             dir = this.anticlockwise ? -1 : 1,
             startAngle = p.theta + (dir * arcSpan),
             startX = this.cx + (this.radius * Math.cos(startAngle)),
-            startY = this.cy + (this.radius * Math.sin(startAngle));
+            startY = this.cy + (this.radius * Math.sin(startAngle))
 
-        return {x: startX, y: startY};
-    };
+        return {x: startX, y: startY}
+    }
 
     // TODO: lineIntersection
 }

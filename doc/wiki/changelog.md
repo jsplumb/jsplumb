@@ -1,3 +1,7 @@
+## 4.0.0-RC20
+
+- Removed all unnecessary semicolons from the source. No functional change.
+
 ## 4.0.0-RC19
 
 25th August 2019

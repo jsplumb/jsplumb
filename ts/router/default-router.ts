@@ -1,5 +1,5 @@
-import {Router} from "./router";
-import {AnchorManager} from "../anchor-manager";
+import {Router} from "./router"
+import {AnchorManager} from "../anchor-manager"
 
 /*
  * Default router. Defers to an AnchorManager for placement of anchors, and connector paint routines for paths.
@@ -23,27 +23,27 @@ export class DefaultRouter implements Router {
 /*
 
 
-;
+
 (function () {
 
-    "use strict";
+    "use strict"
 
     var root = this,
         _ju = root.jsPlumbUtil,
-        _jp = root.jsPlumb;
+        _jp = root.jsPlumb
 
     _jp.DefaultRouter = function(jsPlumbInstance) {
-        this.jsPlumbInstance = jsPlumbInstance;
-        this.anchorManager = new _jp.AnchorManager({jsPlumbInstance:jsPlumbInstance});
+        this.jsPlumbInstance = jsPlumbInstance
+        this.anchorManager = new _jp.AnchorManager({jsPlumbInstance:jsPlumbInstance})
 
         this.sourceOrTargetChanged = function (originalId, newId, connection, newElement, anchorIndex) {
-            this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex);
-        };
-    };
+            this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex)
+        }
+    }
 
 
 
-}).call(typeof window !== 'undefined' ? window : this);
+}).call(typeof window !== 'undefined' ? window : this)
 
 
 

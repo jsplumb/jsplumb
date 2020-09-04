@@ -1,40 +1,40 @@
 
-import {LabelOverlayOptions, Overlay} from "./overlay";
-import {isFunction} from "../util";
-import {Component} from "../component/component";
-import {jsPlumbInstance, PointArray} from "../core";
-import {OverlayFactory} from "../factory/overlay-factory";
+import {LabelOverlayOptions, Overlay} from "./overlay"
+import {isFunction} from "../util"
+import {Component} from "../component/component"
+import {jsPlumbInstance, PointArray} from "../core"
+import {OverlayFactory} from "../factory/overlay-factory"
 
 export class LabelOverlay extends Overlay {
 
-    label:string | Function;
-    labelText:string;
+    label:string | Function
+    labelText:string
 
-    static labelType = "Label";
-    type:string = LabelOverlay.labelType;
+    static labelType = "Label"
+    type:string = LabelOverlay.labelType
 
-    cachedDimensions:PointArray;
+    cachedDimensions:PointArray
 
     constructor(public instance:jsPlumbInstance, public component:Component,
                 p:LabelOverlayOptions) {
 
-        super(instance, component, p);
-        p = p || { label:""};
-        this.setLabel(p.label);
+        super(instance, component, p)
+        p = p || { label:""}
+        this.setLabel(p.label)
     }
 
     getLabel(): string {
         if (isFunction(this.label)) {
-            return (this.label as Function)(this);
+            return (this.label as Function)(this)
         } else {
-            return this.labelText;
+            return this.labelText
         }
     }
 
     setLabel(l: string | Function): void {
-        this.label = l;
-        this.labelText = null;
-        this.instance.renderer.updateLabel(this);
+        this.label = l
+        this.labelText = null
+        this.instance.renderer.updateLabel(this)
     }
 
     getDimensions():PointArray { return [1,1];}
@@ -42,14 +42,14 @@ export class LabelOverlay extends Overlay {
 
     updateFrom(d: any): void {
         if(d.label != null){
-            this.setLabel(d.label);
+            this.setLabel(d.label)
         }
     }
 }
 
 export function isLabelOverlay(o:Overlay):o is LabelOverlay {
-    return o.type === LabelOverlay.labelType;
+    return o.type === LabelOverlay.labelType
 }
 
 
-OverlayFactory.register("Label", LabelOverlay);
+OverlayFactory.register("Label", LabelOverlay)

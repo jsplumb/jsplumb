@@ -1,43 +1,43 @@
-import {_appendAtIndex, _attr, _node, Connection, Endpoint, Overlay} from "..";
+import {_appendAtIndex, _attr, _node, Connection, Endpoint, Overlay} from ".."
 
 export abstract class SVGElementOverlay {
 
     static ensurePath(o:any):HTMLElement {
         if (o.path == null) {
-            o.path = _node(o.instance, "path", {});
-            let parent:SVGElement = null;
+            o.path = _node(o.instance, "path", {})
+            let parent:SVGElement = null
 
             if (o.component instanceof Connection) {
-                let connector = (o.component as Connection).getConnector();
-                parent = connector != null ? (connector as any).canvas : null;
+                let connector = (o.component as Connection).getConnector()
+                parent = connector != null ? (connector as any).canvas : null
             } else if (o.component instanceof Endpoint) {
-                let endpoint = (o.component as Endpoint).endpoint;
-                parent = endpoint != null ? (endpoint as any).svg : endpoint;
+                let endpoint = (o.component as Endpoint).endpoint
+                parent = endpoint != null ? (endpoint as any).svg : endpoint
             }
 
             if (parent != null) {
-                _appendAtIndex(parent, o.path, 1);
+                _appendAtIndex(parent, o.path, 1)
             }
 
             o.instance.addClass(<any>o.path, o.instance.overlayClass);
 
-            (<any>o.path).jtk = { overlay:o };
+            (<any>o.path).jtk = { overlay:o }
         }
 
-        return o.path;
+        return o.path
     }
 
     static paint(o:any, path:string, params:any, extents:any):void {
 
-        this.ensurePath(o);
+        this.ensurePath(o)
 
-        let offset = [0, 0];
+        let offset = [0, 0]
 
         if (extents.xmin < 0) {
-            offset[0] = -extents.xmin;
+            offset[0] = -extents.xmin
         }
         if (extents.ymin < 0) {
-            offset[1] = -extents.ymin;
+            offset[1] = -extents.ymin
         }
 
         let a = {
@@ -46,25 +46,25 @@ export abstract class SVGElementOverlay {
             fill: params.fill ? params.fill : null,
             transform: "translate(" + offset[0] + "," + offset[1] + ")",
             "pointer-events": "visibleStroke"
-        };
+        }
 
-        _attr(o.path, a);
+        _attr(o.path, a)
     }
 
     static destroy(o:Overlay, force?:boolean) {
 
-        let _o = o as any;
+        let _o = o as any
 
         if (_o.path != null && _o.path.parentNode != null) {
-            _o.path.parentNode.removeChild(_o.path);
+            _o.path.parentNode.removeChild(_o.path)
         }
 
         if (_o.bgPath != null && _o.bgPath.parentNode != null) {
-            _o.bgPath.parentNode.removeChild(_o.bgPath);
+            _o.bgPath.parentNode.removeChild(_o.bgPath)
         }
 
-        delete _o.path;
-        delete _o.bgPath;
+        delete _o.path
+        delete _o.bgPath
 
 
     }

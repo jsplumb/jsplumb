@@ -1,35 +1,35 @@
-import {ArrowOverlayOptions, Overlay} from "./overlay";
-import {jsPlumbInstance, PointArray} from "../core";
-import {AbstractConnector, Component, LabelOverlay, OverlayFactory, PaintStyle} from "..";
+import {ArrowOverlayOptions, Overlay} from "./overlay"
+import {jsPlumbInstance, PointArray} from "../core"
+import {AbstractConnector, Component, LabelOverlay, OverlayFactory, PaintStyle} from ".."
 
-const DEFAULT_WIDTH = 20;
-const DEFAULT_LENGTH = 20;
+const DEFAULT_WIDTH = 20
+const DEFAULT_LENGTH = 20
 
 export class ArrowOverlay extends Overlay {
 
-    width:number;
-    length:number;
-    foldback:number;
-    direction:number;
+    width:number
+    length:number
+    foldback:number
+    direction:number
 
-    paintStyle:PaintStyle;
+    paintStyle:PaintStyle
 
-    static arrowType = "Arrow";
-    type:string = ArrowOverlay.arrowType;
+    static arrowType = "Arrow"
+    type:string = ArrowOverlay.arrowType
 
-    cachedDimensions:PointArray;
+    cachedDimensions:PointArray
 
     constructor(public instance:jsPlumbInstance, public component:Component,
                 p:ArrowOverlayOptions) {
 
-        super(instance, component, p);
-        p = p || {};
+        super(instance, component, p)
+        p = p || {}
 
-        this.width = p.width || DEFAULT_WIDTH;
-        this.length = p.length || DEFAULT_LENGTH;
-        this.direction = (p.direction || 1) < 0 ? -1 : 1;
-        this.foldback = p.foldback || 0.623;
-        this.paintStyle = p.paintStyle || { "strokeWidth": 1 };
+        this.width = p.width || DEFAULT_WIDTH
+        this.length = p.length || DEFAULT_LENGTH
+        this.direction = (p.direction || 1) < 0 ? -1 : 1
+        this.foldback = p.foldback || 0.623
+        this.paintStyle = p.paintStyle || { "strokeWidth": 1 }
     }
 
 
@@ -37,47 +37,47 @@ export class ArrowOverlay extends Overlay {
 
         if (component instanceof AbstractConnector) {
 
-            let connector = component as AbstractConnector;
+            let connector = component as AbstractConnector
 
-            let hxy, mid, txy, tail, cxy;
+            let hxy, mid, txy, tail, cxy
 
             if (this.location > 1 || this.location < 0) {
-                let fromLoc = this.location < 0 ? 1 : 0;
-                hxy = connector.pointAlongPathFrom(fromLoc, this.location, false);
-                mid = connector.pointAlongPathFrom(fromLoc, this.location - (this.direction * this.length / 2), false);
-                txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+                let fromLoc = this.location < 0 ? 1 : 0
+                hxy = connector.pointAlongPathFrom(fromLoc, this.location, false)
+                mid = connector.pointAlongPathFrom(fromLoc, this.location - (this.direction * this.length / 2), false)
+                txy = this.instance.geometry.pointOnLine(hxy, mid, this.length)
             } else if (this.location === 1) {
-                hxy = connector.pointOnPath(this.location);
-                mid = connector.pointAlongPathFrom(this.location, -(this.length));
-                txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+                hxy = connector.pointOnPath(this.location)
+                mid = connector.pointAlongPathFrom(this.location, -(this.length))
+                txy = this.instance.geometry.pointOnLine(hxy, mid, this.length)
 
                 if (this.direction === -1) {
-                    const _ = txy;
-                    txy = hxy;
-                    hxy = _;
+                    const _ = txy
+                    txy = hxy
+                    hxy = _
                 }
             } else if (this.location === 0) {
-                txy = connector.pointOnPath(this.location);
-                mid = connector.pointAlongPathFrom(this.location, this.length);
-                hxy = this.instance.geometry.pointOnLine(txy, mid, this.length);
+                txy = connector.pointOnPath(this.location)
+                mid = connector.pointAlongPathFrom(this.location, this.length)
+                hxy = this.instance.geometry.pointOnLine(txy, mid, this.length)
                 if (this.direction === -1) {
-                    const __ = txy;
-                    txy = hxy;
-                    hxy = __;
+                    const __ = txy
+                    txy = hxy
+                    hxy = __
                 }
             } else {
-                hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2);
-                mid = connector.pointOnPath(this.location);
-                txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+                hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2)
+                mid = connector.pointOnPath(this.location)
+                txy = this.instance.geometry.pointOnLine(hxy, mid, this.length)
             }
 
-            tail = this.instance.geometry.perpendicularLineTo(hxy, txy, this.width);
-            cxy = this.instance.geometry.pointOnLine(hxy, txy, this.foldback * this.length);
+            tail = this.instance.geometry.perpendicularLineTo(hxy, txy, this.width)
+            cxy = this.instance.geometry.pointOnLine(hxy, txy, this.foldback * this.length)
 
             let d = {hxy: hxy, tail: tail, cxy: cxy},
                 stroke = this.paintStyle.stroke || currentConnectionPaintStyle.stroke,
                 fill = this.paintStyle.fill || currentConnectionPaintStyle.stroke,
-                lineWidth = this.paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
+                lineWidth = this.paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth
 
             return {
                 component: component,
@@ -89,7 +89,7 @@ export class ArrowOverlay extends Overlay {
                 maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
                 minY: Math.min(hxy.y, tail[0].y, tail[1].y),
                 maxY: Math.max(hxy.y, tail[0].y, tail[1].y)
-            };
+            }
         }
     }
 
@@ -98,7 +98,7 @@ export class ArrowOverlay extends Overlay {
 }
 
 export function isArrowOverlay(o:Overlay):o is ArrowOverlay {
-    return o.type === ArrowOverlay.arrowType;
+    return o.type === ArrowOverlay.arrowType
 }
 
-OverlayFactory.register("Arrow", ArrowOverlay);
+OverlayFactory.register("Arrow", ArrowOverlay)

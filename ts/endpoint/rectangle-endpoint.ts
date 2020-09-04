@@ -1,23 +1,23 @@
-import {EndpointRepresentation} from "./endpoints";
-import {Orientation} from "../factory/anchor-factory";
-import {EndpointFactory} from "../factory/endpoint-factory";
-import {Endpoint} from "./endpoint-impl";
-import {AnchorPlacement} from "../anchor-manager";
+import {EndpointRepresentation} from "./endpoints"
+import {Orientation} from "../factory/anchor-factory"
+import {EndpointFactory} from "../factory/endpoint-factory"
+import {Endpoint} from "./endpoint-impl"
+import {AnchorPlacement} from "../anchor-manager"
 
-export type ComputedRectangleEndpoint = [ number, number, number, number ];
+export type ComputedRectangleEndpoint = [ number, number, number, number ]
 
 export class RectangleEndpoint<E> extends EndpointRepresentation<ComputedRectangleEndpoint> {
 
-    width:number;
-    height:number;
+    width:number
+    height:number
 
     constructor(endpoint:Endpoint, params?:any) {
 
-        super(endpoint);
+        super(endpoint)
 
-        params = params || {};
-        this.width = params.width || 10;
-        this.height = params.height || 10;
+        params = params || {}
+        this.width = params.width || 10
+        this.height = params.height || 10
     }
 
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
@@ -26,20 +26,20 @@ export class RectangleEndpoint<E> extends EndpointRepresentation<ComputedRectang
         let width = endpointStyle.width || this.width,
             height = endpointStyle.height || this.height,
             x = anchorPoint[0] - (width / 2),
-            y = anchorPoint[1] - (height / 2);
+            y = anchorPoint[1] - (height / 2)
 
-        this.x = x;
-        this.y = y;
-        this.w = width;
-        this.h = height;
+        this.x = x
+        this.y = y
+        this.w = width
+        this.h = height
 
-        return [ x, y, width, height];
+        return [ x, y, width, height]
     }
 
     getType(): string {
-        return "Rectangle";
+        return "Rectangle"
     }
 }
 
-EndpointFactory.register("Rectangle", RectangleEndpoint);
+EndpointFactory.register("Rectangle", RectangleEndpoint)
 

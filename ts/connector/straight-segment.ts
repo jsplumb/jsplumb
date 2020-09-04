@@ -1,46 +1,46 @@
-import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment";
-import {jsPlumbInstance, PointArray, PointXY} from "../core";
+import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment"
+import {jsPlumbInstance, PointArray, PointXY} from "../core"
 
 export type StraightSegmentCoordinates = { x1:number, y1:number, x2:number, y2:number}
 
 export class StraightSegment extends AbstractSegment {
 
-    length:number;
-    m:number;
-    m2:number;
-    x1:number;
-    x2:number;
-    y1:number;
-    y2:number;
+    length:number
+    m:number
+    m2:number
+    x1:number
+    x2:number
+    y1:number
+    y2:number
 
     constructor(private instance:jsPlumbInstance, params:any) {
-        super(params);
-        this._setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2});
+        super(params)
+        this._setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2})
     }
 
     private _recalc ():void {
-        this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
-        this.m = this.instance.geometry.gradient({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2});
-        this.m2 = -1 / this.m;
+        this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2))
+        this.m = this.instance.geometry.gradient({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2})
+        this.m2 = -1 / this.m
     }
 
-    static segmentType:string = "Straight";
-    type = StraightSegment.segmentType;
+    static segmentType:string = "Straight"
+    type = StraightSegment.segmentType
 
     getLength ():number {
-        return this.length;
+        return this.length
     }
 
     getGradient ():number {
-        return this.m;
+        return this.m
     }
 
     private _setCoordinates (coords:StraightSegmentCoordinates):void {
-        this.x1 = coords.x1;
-        this.y1 = coords.y1;
-        this.x2 = coords.x2;
-        this.y2 = coords.y2;
-        this._recalc();
+        this.x1 = coords.x1
+        this.y1 = coords.y1
+        this.x2 = coords.x2
+        this.y2 = coords.y2
+        this._recalc()
     }
 
 
@@ -50,7 +50,7 @@ export class StraightSegment extends AbstractSegment {
             minY: Math.min(this.y1, this.y2),
             maxX: Math.max(this.x1, this.x2),
             maxY: Math.max(this.y1, this.y2)
-        };
+        }
     }
 
     /**
@@ -59,14 +59,14 @@ export class StraightSegment extends AbstractSegment {
      */
     pointOnPath(location:number, absolute?:boolean):PointXY {
         if (location === 0 && !absolute) {
-            return { x: this.x1, y: this.y1 };
+            return { x: this.x1, y: this.y1 }
         }
         else if (location === 1 && !absolute) {
-            return { x: this.x2, y: this.y2 };
+            return { x: this.x2, y: this.y2 }
         }
         else {
-            let l = absolute ? location > 0 ? location : this.length + location : location * this.length;
-            return this.instance.geometry.pointOnLine({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2}, l);
+            let l = absolute ? location > 0 ? location : this.length + location : location * this.length
+            return this.instance.geometry.pointOnLine({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2}, l)
         }
     }
 
@@ -74,7 +74,7 @@ export class StraightSegment extends AbstractSegment {
      * returns the gradient of the segment at the given point - which for us is constant.
      */
     gradientAtPoint (location:number, absolute?:boolean):number {
-        return this.m;
+        return this.m
     }
 
     /**
@@ -84,7 +84,7 @@ export class StraightSegment extends AbstractSegment {
      */
     pointAlongPathFrom (location:number, distance:number, absolute?:boolean):PointXY {
         let p = this.pointOnPath(location, absolute),
-            farAwayPoint = distance <= 0 ? {x: this.x1, y: this.y1} : {x: this.x2, y: this.y2 };
+            farAwayPoint = distance <= 0 ? {x: this.x1, y: this.y1} : {x: this.x2, y: this.y2 }
 
         /*
          location == 1 ? {
@@ -94,20 +94,20 @@ export class StraightSegment extends AbstractSegment {
          */
 
         if (distance <= 0 && Math.abs(distance) > 1) {
-            distance *= -1;
+            distance *= -1
         }
 
-        return this.instance.geometry.pointOnLine(p, farAwayPoint, distance);
+        return this.instance.geometry.pointOnLine(p, farAwayPoint, distance)
     }
 
     // is c between a and b?
     private within (a:number, b:number, c:number):boolean {
-        return c >= Math.min(a, b) && c <= Math.max(a, b);
+        return c >= Math.min(a, b) && c <= Math.max(a, b)
     }
 
     // find which of a and b is closest to c
     private closest (a:number, b:number, c:number):number {
-        return Math.abs(c - a) < Math.abs(c - b) ? a : b;
+        return Math.abs(c - a) < Math.abs(c - b) ? a : b
     }
 
     /**
@@ -125,15 +125,15 @@ export class StraightSegment extends AbstractSegment {
             x2: this.x2,
             y1: this.y1,
             y2: this.y2
-        };
+        }
 
         if (this.m === 0) {
-            out.y = this.y1;
-            out.x = this.within(this.x1, this.x2, x) ? x : this.closest(this.x1, this.x2, x);
+            out.y = this.y1
+            out.x = this.within(this.x1, this.x2, x) ? x : this.closest(this.x1, this.x2, x)
         }
         else if (this.m === Infinity || this.m === -Infinity) {
-            out.x = this.x1;
-            out.y = this.within(this.y1, this.y2, y) ? y : this.closest(this.y1, this.y2, y);
+            out.x = this.x1
+            out.y = this.within(this.y1, this.y2, y) ? y : this.closest(this.y1, this.y2, y)
         }
         else {
             // closest point lies on normal from given point to this line.
@@ -144,20 +144,20 @@ export class StraightSegment extends AbstractSegment {
                 // x1(m - m2) = b2 - b
                 // x1 = (b2 - b) / (m - m2)
                 _x1 = (b2 - b) / (this.m - this.m2),
-                _y1 = (this.m * _x1) + b;
+                _y1 = (this.m * _x1) + b
 
-            out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1);//_x1;
-            out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1);//_y1;
+            out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1);//_x1
+            out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1);//_y1
         }
 
-        let fractionInSegment = this.instance.geometry.lineLength({x:out.x, y:out.y }, { x:this.x1, y:this.y1 });
-        out.d = this.instance.geometry.lineLength({x:x, y:y}, out);
-        out.l = fractionInSegment / length;
-        return out;
-    };
+        let fractionInSegment = this.instance.geometry.lineLength({x:out.x, y:out.y }, { x:this.x1, y:this.y1 })
+        out.d = this.instance.geometry.lineLength({x:x, y:y}, out)
+        out.l = fractionInSegment / length
+        return out
+    }
 
     private _pointLiesBetween (q:number, p1:number, p2:number):boolean {
-        return (p2 > p1) ? (p1 <= q && q <= p2) : (p1 >= q && q >= p2);
+        return (p2 > p1) ? (p1 <= q && q <= p2) : (p1 >= q && q >= p2)
     }
 
     /**
@@ -173,7 +173,7 @@ export class StraightSegment extends AbstractSegment {
             m1 = Math.abs(this.m),
             b = m1 === Infinity ? this.x1 : this.y1 - (m1 * this.x1),
             out:Array<PointArray> = [],
-            b2 = m2 === Infinity ? _x1 : _y1 - (m2 * _x1);
+            b2 = m2 === Infinity ? _x1 : _y1 - (m2 * _x1)
 
         // if lines parallel, no intersection
         if  (m2 !== m1) {
@@ -188,23 +188,23 @@ export class StraightSegment extends AbstractSegment {
                     out.push([this.x1, _y1]);  // we return X on the segment and Y from the incident line
                 }
             } else {
-                let X, Y;
+                let X, Y
                 if (m2 === Infinity) {
                     // test line is a vertical line. where does it cross the segment?
-                    X = _x1;
+                    X = _x1
                     if (this._pointLiesBetween(X, this.x1, this.x2)) {
-                        Y = (m1 * _x1) + b;
+                        Y = (m1 * _x1) + b
                         if (this._pointLiesBetween(Y, _y1, _y2)) {
-                            out.push([ X, Y ]);
+                            out.push([ X, Y ])
                         }
                     }
                 } else if (m2 === 0) {
-                    Y = _y1;
+                    Y = _y1
                     // test line is a horizontal line. where does it cross the segment?
                     if (this._pointLiesBetween(Y, this.y1, this.y2)) {
-                        X = (_y1 - b) / m1;
+                        X = (_y1 - b) / m1
                         if (this._pointLiesBetween(X, _x1, _x2)) {
-                            out.push([ X, Y ]);
+                            out.push([ X, Y ])
                         }
                     }
                 } else {
@@ -213,16 +213,16 @@ export class StraightSegment extends AbstractSegment {
                     // X(m - m2) = b2 - b
                     // X = (b2 - b) / (m - m2)
                     // Y = mX + b
-                    X = (b2 - b) / (m1 - m2);
-                    Y = (m1 * X) + b;
+                    X = (b2 - b) / (m1 - m2)
+                    Y = (m1 * X) + b
                     if(this._pointLiesBetween(X, this.x1, this.x2) && this._pointLiesBetween(Y, this.y1, this.y2)) {
-                        out.push([ X,  Y]);
+                        out.push([ X,  Y])
                     }
                 }
             }
         }
 
-        return out;
+        return out
     }
 
     /**
@@ -235,11 +235,11 @@ export class StraightSegment extends AbstractSegment {
      * @returns {Array}
      */
     boxIntersection (x:number, y:number, w:number, h:number):Array<PointArray> {
-        let a:Array<PointArray> = [];
-        a.push.apply(a, this.lineIntersection(x, y, x + w, y));
-        a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
-        a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
-        a.push.apply(a, this.lineIntersection(x, y + h, x, y));
-        return a;
+        let a:Array<PointArray> = []
+        a.push.apply(a, this.lineIntersection(x, y, x + w, y))
+        a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h))
+        a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h))
+        a.push.apply(a, this.lineIntersection(x, y + h, x, y))
+        return a
     }
 }

@@ -1,25 +1,25 @@
 import {
     AbstractConnector, ConnectorOptions, ConnectorComputeParams, PaintGeometry
-} from "./abstract-connector";
-import {Dictionary, jsPlumbInstance} from "../core";
-import {StraightSegment} from "./straight-segment";
-import {ArcSegment} from "./arc-segment";
-import {Connectors} from "./connectors";
-import {Connection} from "./connection-impl";
+} from "./abstract-connector"
+import {Dictionary, jsPlumbInstance} from "../core"
+import {StraightSegment} from "./straight-segment"
+import {ArcSegment} from "./arc-segment"
+import {Connectors} from "./connectors"
+import {Connection} from "./connection-impl"
 
 export interface FlowchartConnectorOptions extends ConnectorOptions {
-    alwaysRespectStubs?:boolean;
-    midpoint?:number;
-    cornerRadius?:number;
-    loopbackRadius?:number;
+    alwaysRespectStubs?:boolean
+    midpoint?:number
+    cornerRadius?:number
+    loopbackRadius?:number
 }
 
-type SegmentDirection = -1 | 0 | 1;
-type FlowchartSegment = [ number, number, number, number, string ];
+type SegmentDirection = -1 | 0 | 1
+type FlowchartSegment = [ number, number, number, number, string ]
 type StubPositions = [number, number, number, number]
 
 function sgn (n:number):SegmentDirection {
-    return n < 0 ? -1 : n === 0 ? 0 : 1;
+    return n < 0 ? -1 : n === 0 ? 0 : 1
 }
 
 function segmentDirections (segment:FlowchartSegment):[number, number] {
@@ -30,81 +30,81 @@ function segmentDirections (segment:FlowchartSegment):[number, number] {
 }
 
 function segLength (s:FlowchartSegment):number {
-    return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
+    return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2))
 }
 
 function _cloneArray (a:Array<any>):Array<any> {
-    let _a:Array<any> = [];
-    _a.push.apply(_a, a);
-    return _a;
+    let _a:Array<any> = []
+    _a.push.apply(_a, a)
+    return _a
 }
 
 export class FlowchartConnector extends AbstractConnector {
 
-    type = "Flowchart";
+    type = "Flowchart"
 
-    internalSegments:Array<FlowchartSegment> = [];
-    midpoint:number;
-    alwaysRespectStubs:boolean;
-    cornerRadius:number;
-    lastx:number;
-    lasty:number;
-    lastOrientation:any;
-    loopbackRadius:number;
-    isLoopbackCurrently:boolean;
+    internalSegments:Array<FlowchartSegment> = []
+    midpoint:number
+    alwaysRespectStubs:boolean
+    cornerRadius:number
+    lastx:number
+    lasty:number
+    lastOrientation:any
+    loopbackRadius:number
+    isLoopbackCurrently:boolean
 
     getDefaultStubs(): [number, number] {
-        return [30, 30];
+        return [30, 30]
     }
 
     constructor(public instance:jsPlumbInstance, public connection:Connection, params:FlowchartConnectorOptions) {
-        super(instance, connection, params);
+        super(instance, connection, params)
 
-        this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;
-        this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0;
-        this.alwaysRespectStubs = params.alwaysRespectStubs === true;
+        this.midpoint = params.midpoint == null ? 0.5 : params.midpoint
+        this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0
+        this.alwaysRespectStubs = params.alwaysRespectStubs === true
 
-        this.lastx = null;
-        this.lasty = null;
-        this.lastOrientation = null;
+        this.lastx = null
+        this.lasty = null
+        this.lastOrientation = null
 
         // TODO now common between this and AbstractBezierEditor; refactor into superclass?
-        this.loopbackRadius = params.loopbackRadius || 25;
-        this.isLoopbackCurrently = false;
+        this.loopbackRadius = params.loopbackRadius || 25
+        this.isLoopbackCurrently = false
     }
 
     private addASegment(x:number, y:number, paintInfo:PaintGeometry) {
         if (this.lastx === x && this.lasty === y) {
-            return;
+            return
         }
         let lx = this.lastx == null ? paintInfo.sx : this.lastx,
             ly = this.lasty == null ? paintInfo.sy : this.lasty,
-            o = lx === x ? "v" : "h";
+            o = lx === x ? "v" : "h"
 
-        this.lastx = x;
-        this.lasty = y;
-        this.internalSegments.push([ lx, ly, x, y, o ]);
+        this.lastx = x
+        this.lasty = y
+        this.internalSegments.push([ lx, ly, x, y, o ])
     }
 
     private writeSegments (paintInfo:PaintGeometry):void {
-        let current:FlowchartSegment = null, next:FlowchartSegment, currentDirection:[number,number], nextDirection:[number, number];
+        let current:FlowchartSegment = null, next:FlowchartSegment, currentDirection:[number,number], nextDirection:[number, number]
         for (let i = 0; i < this.internalSegments.length - 1; i++) {
 
-            current = current || _cloneArray(this.internalSegments[i]) as FlowchartSegment;
-            next = _cloneArray(this.internalSegments[i + 1]) as FlowchartSegment;
+            current = current || _cloneArray(this.internalSegments[i]) as FlowchartSegment
+            next = _cloneArray(this.internalSegments[i + 1]) as FlowchartSegment
 
-            currentDirection = segmentDirections(current);
-            nextDirection = segmentDirections(next);
+            currentDirection = segmentDirections(current)
+            nextDirection = segmentDirections(next)
 
             if (this.cornerRadius > 0 && current[4] !== next[4]) {
 
-                let minSegLength = Math.min(segLength(current), segLength(next));
-                let radiusToUse = Math.min(this.cornerRadius, minSegLength / 2);
+                let minSegLength = Math.min(segLength(current), segLength(next))
+                let radiusToUse = Math.min(this.cornerRadius, minSegLength / 2)
 
-                current[2] -= currentDirection[0] * radiusToUse;
-                current[3] -= currentDirection[1] * radiusToUse;
-                next[0] += nextDirection[0] * radiusToUse;
-                next[1] += nextDirection[1] * radiusToUse;
+                current[2] -= currentDirection[0] * radiusToUse
+                current[3] -= currentDirection[1] * radiusToUse
+                next[0] += nextDirection[0] * radiusToUse
+                next[1] += nextDirection[1] * radiusToUse
 
                 let ac = (currentDirection[1] === nextDirection[0] && nextDirection[0] === 1) ||
                         ((currentDirection[1] === nextDirection[0] && nextDirection[0] === 0) && currentDirection[0] !== nextDirection[1]) ||
@@ -113,11 +113,11 @@ export class FlowchartConnector extends AbstractConnector {
                     sgnx = next[0] > current[2] ? 1 : -1,
                     sgnEqual = sgny === sgnx,
                     cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
-                    cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];
+                    cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1]
 
                 this._addSegment(StraightSegment, {
                     x1: current[0], y1: current[1], x2: current[2], y2: current[3]
-                });
+                })
 
                 this._addSegment(ArcSegment, {
                     r: radiusToUse,
@@ -128,36 +128,36 @@ export class FlowchartConnector extends AbstractConnector {
                     cx: cx,
                     cy: cy,
                     ac: ac
-                });
+                })
             }
             else {
                 // dx + dy are used to adjust for line width.
                 let dx = (current[2] === current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
-                    dy = (current[3] === current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
+                    dy = (current[3] === current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2)
 
                 this._addSegment(StraightSegment, {
                     x1: current[0] - dx, y1: current[1] - dy, x2: current[2] + dx, y2: current[3] + dy
-                });
+                })
             }
-            current = next;
+            current = next
         }
         if (next != null) {
             // last segment
             this._addSegment(StraightSegment, {
                 x1: next[0], y1: next[1], x2: next[2], y2: next[3]
-            });
+            })
         }
     }
 
     _compute (paintInfo:PaintGeometry, params:ConnectorComputeParams):void {
 
-        this.internalSegments.length = 0;
-        this.lastx = null;
-        this.lasty = null;
-        this.lastOrientation = null;
+        this.internalSegments.length = 0
+        this.lastx = null
+        this.lasty = null
+        this.lastOrientation = null
 
         let commonStubCalculator = (axis:string):StubPositions => {
-                return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
+                return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY]
             },
             stubCalculators:Dictionary<(axis:string) => StubPositions> = {
                 perpendicular: commonStubCalculator,
@@ -173,7 +173,7 @@ export class FlowchartConnector extends AbstractConnector {
 
                                     ( (pi.so[idx] === -1 && (
                                     ( (pi.startStubX < pi.endStubX) && (pi.tx < pi.startStubX) ) ||
-                                    ( (pi.sx < pi.endStubX) && (pi.tx < pi.sx)))));
+                                    ( (pi.sx < pi.endStubX) && (pi.tx < pi.sx)))))
                             },
                             "y": function () {
                                 return ( (pi.so[idx] === 1 && (
@@ -182,21 +182,21 @@ export class FlowchartConnector extends AbstractConnector {
 
                                     ( (pi.so[idx] === -1 && (
                                     ( (pi.startStubY < pi.endStubY) && (pi.ty < pi.startStubY) ) ||
-                                    ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))));
+                                    ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))))
                             }
-                        };
+                        }
 
                     if (!this.alwaysRespectStubs && areInProximity[axis]()) {
                         return {
                             "x": [(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
                             "y": [paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
-                        }[axis];
+                        }[axis]
                     }
                     else {
-                        return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
+                        return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY]
                     }
                 }
-            };
+            }
 
         // calculate Stubs.
         let stubs:StubPositions = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
@@ -205,11 +205,11 @@ export class FlowchartConnector extends AbstractConnector {
             ss = stubs[idx],
             oss = stubs[oidx],
             es = stubs[idx + 2],
-            oes = stubs[oidx + 2];
+            oes = stubs[oidx + 2]
 
         // add the start stub segment. use stubs for loopback as it will look better, with the loop spaced
         // away from the element.
-        this.addASegment(stubs[0], stubs[1], paintInfo);
+        this.addASegment(stubs[0], stubs[1], paintInfo)
 
         // if its a loopback and we should treat it differently.
         // if (false && params.sourcePos[0] === params.targetPos[0] && params.sourcePos[1] === params.targetPos[1]) {
@@ -217,18 +217,18 @@ export class FlowchartConnector extends AbstractConnector {
         //     // we use loopbackRadius here, as statemachine connectors do.
         //     // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
         //     // down by 2*radius, left by radius.
-        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo);
-        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
-        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
-        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo);
-        //     addSegment(segments, stubs[0], stubs[1], paintInfo);
+        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo)
+        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo)
+        //     addSegment(segments, stubs[0], stubs[1], paintInfo)
         //
         // }
         // else {
 
 
         let midx = paintInfo.startStubX + ((paintInfo.endStubX - paintInfo.startStubX) * this.midpoint),
-            midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * this.midpoint);
+            midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * this.midpoint)
 
         let orientations = {x: [0, 1], y: [1, 0]},
             lineCalculators:Dictionary<(axis:string, ss:number, oss:number, es:number, oes:number) => any> = {
@@ -276,19 +276,19 @@ export class FlowchartConnector extends AbstractConnector {
                         otherFlipped = (pi.to[toIdx] === -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (pi.to[toIdx] === 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
                         stub1 = stubs[axis][_so][0],
                         stub2 = stubs[axis][_so][1],
-                        segmentIndexes = sis[axis][_so][_to];
+                        segmentIndexes = sis[axis][_so][_to]
 
                     if (pi.segment === segmentIndexes[3] || (pi.segment === segmentIndexes[2] && otherFlipped)) {
-                        return midLines[axis];
+                        return midLines[axis]
                     }
                     else if (pi.segment === segmentIndexes[2] && stub2 < stub1) {
-                        return linesToEnd[axis];
+                        return linesToEnd[axis]
                     }
                     else if ((pi.segment === segmentIndexes[2] && stub2 >= stub1) || (pi.segment === segmentIndexes[1] && !otherFlipped)) {
-                        return startToMidToEnd[axis];
+                        return startToMidToEnd[axis]
                     }
                     else if (pi.segment === segmentIndexes[0] || (pi.segment === segmentIndexes[1] && otherFlipped)) {
-                        return startToEnd[axis];
+                        return startToEnd[axis]
                     }
                 },
                 orthogonal: (axis:string, startStub:number, otherStartStub:number, endStub:number, otherEndStub:number) => {
@@ -296,7 +296,7 @@ export class FlowchartConnector extends AbstractConnector {
                         extent = {
                             "x": pi.so[0] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
                             "y": pi.so[1] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
-                        }[axis];
+                        }[axis]
 
                     return {
                         "x": [
@@ -309,16 +309,16 @@ export class FlowchartConnector extends AbstractConnector {
                             [otherEndStub, extent],
                             [otherEndStub, endStub]
                         ]
-                    }[axis];
+                    }[axis]
                 },
                 opposite: function (axis:string, ss:number, oss:number, es:number, oes:number):any {
                     let pi = paintInfo,
                         otherAxis = {"x": "y", "y": "x"}[axis],
                         dim = {"x": "height", "y": "width"}[axis],
-                        comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
+                        comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"]
 
                     if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-                        let _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub;
+                        let _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub
                         return {
                             "x": [
                                 [ss, _val],
@@ -328,7 +328,7 @@ export class FlowchartConnector extends AbstractConnector {
                                 [_val, ss],
                                 [_val, es]
                             ]
-                        }[axis];
+                        }[axis]
 
                     }
                     else if (!comparator || (pi.so[idx] === 1 && ss > es) || (pi.so[idx] === -1 && ss < es)) {
@@ -341,7 +341,7 @@ export class FlowchartConnector extends AbstractConnector {
                                 [midx, ss],
                                 [midx, es]
                             ]
-                        }[axis];
+                        }[axis]
                     }
                     else if ((pi.so[idx] === 1 && ss < es) || (pi.so[idx] === -1 && ss > es)) {
                         return {
@@ -353,28 +353,28 @@ export class FlowchartConnector extends AbstractConnector {
                                 [pi.sx, midy],
                                 [pi.tx, midy]
                             ]
-                        }[axis];
+                        }[axis]
                     }
                 }
-            };
+            }
 
         // compute the rest of the line
-        let p:any = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);
+        let p:any = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes)
         if (p) {
             for (let i = 0; i < p.length; i++) {
-                this.addASegment(p[i][0], p[i][1], paintInfo);
+                this.addASegment(p[i][0], p[i][1], paintInfo)
             }
         }
 
         // line to end stub
-        this.addASegment(stubs[2], stubs[3], paintInfo);
+        this.addASegment(stubs[2], stubs[3], paintInfo)
 
         // end stub to end (common)
-        this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo);
+        this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo)
 
         // write out the segments.
-        this.writeSegments(paintInfo);
+        this.writeSegments(paintInfo)
     }
 }
 
-Connectors.register("Flowchart", FlowchartConnector);
+Connectors.register("Flowchart", FlowchartConnector)

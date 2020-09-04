@@ -1,15 +1,15 @@
-import {EndpointRepresentation} from "./endpoints";
-import {Orientation} from "../factory/anchor-factory";
-import {EndpointFactory} from "../factory/endpoint-factory";
-import {Endpoint} from "./endpoint-impl";
-import {AnchorPlacement} from "../anchor-manager";
+import {EndpointRepresentation} from "./endpoints"
+import {Orientation} from "../factory/anchor-factory"
+import {EndpointFactory} from "../factory/endpoint-factory"
+import {Endpoint} from "./endpoint-impl"
+import {AnchorPlacement} from "../anchor-manager"
 
-export type ComputedBlankEndpoint = [ number, number, number, number  ];
+export type ComputedBlankEndpoint = [ number, number, number, number  ]
 
 export class BlankEndpoint<E> extends EndpointRepresentation<ComputedBlankEndpoint> {
 
     constructor(endpoint:Endpoint, params?:any) {
-        super(endpoint);
+        super(endpoint)
     }
 
     //
@@ -17,19 +17,19 @@ export class BlankEndpoint<E> extends EndpointRepresentation<ComputedBlankEndpoi
     // it would be much more lightweight as we'd not need to create a class for each one.
     _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedBlankEndpoint {
 
-        this.x = anchorPoint[0];
-        this.y = anchorPoint[1];
-        this.w = 10;
-        this.h = 0;
+        this.x = anchorPoint[0]
+        this.y = anchorPoint[1]
+        this.w = 10
+        this.h = 0
 
-        return [anchorPoint[0], anchorPoint[1], 10, 0];
+        return [anchorPoint[0], anchorPoint[1], 10, 0]
     }
 
     getType(): string {
-        return "Blank";
+        return "Blank"
     }
 }
 
-EndpointFactory.register("Blank", BlankEndpoint);
+EndpointFactory.register("Blank", BlankEndpoint)
 
 

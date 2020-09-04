@@ -1786,10 +1786,10 @@
         if (!dontUpdateOverlays) {
           for (var i in this.overlays) {
             if (action === "add") {
-              //this.overlays[i].addClass(clazz);
+              //this.overlays[i].addClass(clazz)
               this.instance.renderer.addOverlayClass(this.overlays[i], clazz);
             } else if (action === "remove") {
-              //this.overlays[i].removeClass(clazz);
+              //this.overlays[i].removeClass(clazz)
               this.instance.renderer.removeOverlayClass(this.overlays[i], clazz);
             }
           }
@@ -3156,7 +3156,7 @@
           // and we havent passed in `true` for "force" here.
 
           if (this.connector != null) {
-            previous = this.connector; //previousClasses = previous.getClass();
+            previous = this.connector; //previousClasses = previous.getClass()
 
             previousClasses = this.instance.renderer.getConnectorClass(this.connector);
             this.instance.renderer.destroyConnection(this);
@@ -3245,9 +3245,10 @@
               minX: Infinity,
               minY: Infinity,
               maxX: -Infinity,
-              maxY: -Infinity
-            }; // compute overlays. we do this first so we can get their placements, and adjust the
-            // container if needs be (if an overlay would be clipped)
+              maxY: -Infinity // compute overlays. we do this first so we can get their placements, and adjust the
+              // container if needs be (if an overlay would be clipped)
+
+            };
 
             for (var i in this.overlays) {
               if (this.overlays.hasOwnProperty(i)) {
@@ -3450,7 +3451,7 @@
        * returning both the x and y of the point plus its distance from
        * the supplied point, and its location along the length of the
        * path inscribed by the segment.  This implementation returns
-       * Infinity for distance and null values for everything else;
+       * Infinity for distance and null values for everything else
        * subclasses are expected to override.
        */
 
@@ -4120,7 +4121,7 @@
               ap = this.anchor.compute(anchorParams);
             }
 
-            this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse); //this.endpoint.paint(this.paintStyleInUse);
+            this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse); //this.endpoint.paint(this.paintStyleInUse)
 
             this.instance.renderer.paintEndpoint(this, this.paintStyleInUse);
             this.timestamp = timestamp; // paint overlays
@@ -4164,7 +4165,7 @@
         // and the clone is left in its place while the original one goes off on a magical journey.
         // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
         // the whole world.
-        //var argsForClone = jsPlumb.extend({}, endpointArgs);
+        //var argsForClone = jsPlumb.extend({}, endpointArgs)
 
 
         endpoint.clone = function () {
@@ -4443,14 +4444,14 @@
       value: function clearFor(elementId) {
         delete this._amEndpoints[elementId];
         this._amEndpoints[elementId] = [];
-      }
-    }, {
-      key: "_updateAnchorList",
-      // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
+      } // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
       // also removes the anchor from its previous list, if the edge it is on has changed.
       // all connections found along the way (those that are connected to one of the faces this function
       // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
       // them wthout having to calculate anything else about them.
+
+    }, {
+      key: "_updateAnchorList",
       value: function _updateAnchorList(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, connsToPaint, endpointsToPaint) {
         // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
         var endpoint = conn.endpoints[idx],
@@ -4493,10 +4494,7 @@
 
 
         endpoint._continuousAnchorEdge = edgeId;
-      }
-    }, {
-      key: "rehomeEndpoint",
-      //
+      } //
       // moves the given endpoint from `currentId` to `element`.
       // This involves:
       //
@@ -4505,6 +4503,9 @@
       // 3. changing the array in connectionsByElementId in which the endpoint's connections
       //    are stored (done by either sourceChanged or updateOtherEndpoint)
       //
+
+    }, {
+      key: "rehomeEndpoint",
       value: function rehomeEndpoint(ep, currentId, element) {
         var eps = this._amEndpoints[currentId] || [],
             elementId = this.instance.getId(element);
@@ -4687,7 +4688,7 @@
                   }
                 }
               }
-            } // now place all the continuous anchors we need to;
+            } // now place all the continuous anchors we need to
 
           } catch (err) {
             _didIteratorError = true;
@@ -4913,7 +4914,7 @@
     }
 
     return className.map(function (cn) {
-      return "." + className;
+      return "." + cn;
     }).join(",");
   }
   function classList() {
@@ -5240,7 +5241,7 @@
           var elpos = this.instance.getOffset(group.el, true);
           var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
           group.el[PARENT_GROUP_KEY] = this;
-          this.childGroups.push(group); //group.el.parentNode && group.el.parentNode.removeChild(group.el);
+          this.childGroups.push(group); //group.el.parentNode && group.el.parentNode.removeChild(group.el)
 
           this.instance.appendElement(group.el, this.getDragArea());
           group.group = this;
@@ -5680,8 +5681,8 @@
           return true;
         } else {
           return false;
-        } // let groupEl = group.el, groupElId = this.instance.getId(groupEl);
-        // this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); });
+        } // let groupEl = group.el, groupElId = this.instance.getId(groupEl)
+        // this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); })
 
       }
     }, {
@@ -7038,7 +7039,7 @@
       key: "setContainer",
       value: function setContainer(c) {
         // get container as element and set container.
-        this._container = this.getElement(c);
+        this._container = this.getElement(c); // tell people.
 
         this.fire(EVENT_CONTAINER_CHANGE, this._container);
       }
@@ -7128,12 +7129,12 @@
 
         connection.updateConnectedClass();
       }
-    }, {
-      key: "isHoverSuspended",
-
       /**
        * Returns whether or not hover is currently suspended.
        */
+
+    }, {
+      key: "isHoverSuspended",
       value: function isHoverSuspended() {
         return this.hoverSuspended;
       }
@@ -7906,8 +7907,8 @@
 
             if (elDefs) {
               var defIdx = findWithFunction(elDefs, function (d) {
-                //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId);
-                return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId); //return (d.def.portId == null || d.def.portId == portId);
+                //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId)
+                return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId); //return (d.def.portId == null || d.def.portId == portId)
               });
 
               if (defIdx >= 0) {
@@ -8100,7 +8101,7 @@
 
             for (i = 0, ii = ebe.length; i < ii; i++) {
               // TODO check this logic. was the second arg a "do not repaint now" argument?
-              //this.deleteEndpoint(ebe[i], false);
+              //this.deleteEndpoint(ebe[i], false)
               _this13.deleteEndpoint(ebe[i]);
             }
           }
@@ -8565,7 +8566,7 @@
             // also assign an id.
             var fo = this.convertToFullOverlaySpec(type.overlays[i]);
             to[fo[1].id] = fo;
-          } //this._connectionTypes[id].overlayMap = to;
+          } //this._connectionTypes[id].overlayMap = to
 
 
           this._connectionTypes[id].overlays = to;
@@ -8591,8 +8592,7 @@
             // also assign an id.
             var fo = this.convertToFullOverlaySpec(type.overlays[i]);
             to[fo[1].id] = fo;
-          } //this._endpointTypes[id].overlayMap = to;
-
+          }
 
           this._endpointTypes[id].overlays = to;
         }
@@ -8671,9 +8671,9 @@
 
         connection.proxies[index] = {
           ep: proxyEp,
-          originalEp: originalEndpoint
-        }; // and advise the anchor manager
+          originalEp: originalEndpoint // and advise the anchor manager
 
+        };
         this.sourceOrTargetChanged(originalElementId, proxyElId, connection, proxyEl, index); // detach the original EP from the connection, but mark as a transient detach.
 
         originalEndpoint.detachFromConnection(connection, null, true); // set the proxy as the new ep
@@ -9155,7 +9155,7 @@
 
           if (!ep.instance._suspendDrawing) {
             sizeElement(canvas, 0, 0, 1, 1);
-          } //(ep as any).canvas = svg;
+          } //(ep as any).canvas = svg
 
 
           ep.instance.appendElement(canvas, ep.instance.getContainer());
@@ -9652,7 +9652,7 @@
       value: function drawOverlay(o, component, paintStyle, absolutePosition) {
         if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
           //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
-          var td = HTMLElementOverlay._getDimensions(o); //._getDimensions();
+          var td = HTMLElementOverlay._getDimensions(o); //._getDimensions()
 
 
           if (td != null && td.length === 2) {
@@ -9923,7 +9923,7 @@
             endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
 
             if (!this.instance._suspendDrawing) {
-              //endpoint.paint(endpoint.endpoint.paintStyleInUse);
+              //endpoint.paint(endpoint.endpoint.paintStyleInUse)
               this.paintEndpoint(endpoint, endpoint.paintStyleInUse);
             }
           }
@@ -10249,7 +10249,7 @@
         });
 
         if (this._currentPosse != null) {
-          this._currentPosse.members.forEach(function (member) {//console.log("posse element drag end");
+          this._currentPosse.members.forEach(function (member) {//console.log("posse element drag end")
           });
         } // do the contents of the drag selection
 
@@ -11268,9 +11268,9 @@
           };
           var d = {
             el: candidate,
-            r: boundingRect
-          }; // look for at least one target definition that is not disabled on the given element.
+            r: boundingRect // look for at least one target definition that is not disabled on the given element.
 
+          };
           var targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
             return tdef.enabled !== false;
           }); // look for at least one target definition that is not disabled on the given element.
@@ -11366,7 +11366,7 @@
           this.floatingEndpoint.addConnection(this.jpc); // store the original scope (issue 57)
 
           var dragScope = this.instance.getDragScope(canvasElement); //TODO: investigate if original drag scope needs to be retained
-          //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope);
+          //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope)
           // fire an event that informs that a connection is being dragged. we do this before
           // replacing the original target with the floating element info.
 
@@ -11785,25 +11785,25 @@
       key: "_doForceReattach",
       value: function _doForceReattach(idx) {
         // TODO check this logic. why in this case is this a transient detach?
-        //this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true);
+        //this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true)
         this.floatingEndpoint.detachFromConnection(this.jpc, null, true);
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
         this.instance.renderer.setHover(this.jpc, false);
         this.jpc._forceDetach = true; // if (idx === 0) {
-        //     this.jpc.source = this.jpc.suspendedEndpoint.element;
-        //     this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId;
+        //     this.jpc.source = this.jpc.suspendedEndpoint.element
+        //     this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId
         // } else {
-        //     this.jpc.target = this.jpc.suspendedEndpoint.element;
-        //     this.jpc.targetId = this.jpc.suspendedEndpoint.elementId;
+        //     this.jpc.target = this.jpc.suspendedEndpoint.element
+        //     this.jpc.targetId = this.jpc.suspendedEndpoint.elementId
         // }
-        // this.jpc.suspendedEndpoint.addConnection(this.jpc);
+        // this.jpc.suspendedEndpoint.addConnection(this.jpc)
         //
         // // TODO checkSanity
         // if (idx === 1) {
-        //     this.jpc.updateConnectedClass();
+        //     this.jpc.updateConnectedClass()
         // }
         // else {
-        //     this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source);
+        //     this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source)
         // }
 
         this.jpc.suspendedEndpoint.addConnection(this.jpc);
@@ -11836,7 +11836,7 @@
             this.jpc._forceDetach = false;
           }
         } else {
-          this.instance.deleteEndpoint(this.jpc.endpoints[idx]); //, originalEvent:originalEvent});
+          this.instance.deleteEndpoint(this.jpc.endpoints[idx]); //, originalEvent:originalEvent})
 
           if (this.jpc.pending) {
             this.instance.fire("connectionAborted", this.jpc, originalEvent);
@@ -12590,8 +12590,9 @@
             obj.__tamee = {
               over: false,
               mouseenter: [],
-              mouseexit: []
-            }; // register over and out functions
+              mouseexit: [] // register over and out functions
+
+            };
 
             var over = function over(e) {
               var t = _t(e);
@@ -13763,7 +13764,7 @@
   /**
    * jsBezier
    *
-   * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+   * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
    *
    * licensed under the MIT license.
    *
@@ -15125,12 +15126,12 @@
           theta: angle
         };
       }
-    }, {
-      key: "gradientAtPoint",
-
       /**
        * returns the gradient of the segment at the given point.
        */
+
+    }, {
+      key: "gradientAtPoint",
       value: function gradientAtPoint(location, absolute) {
         var p = this.pointOnPath(location, absolute);
         var m = this.instance.geometry.normal({
@@ -15157,7 +15158,8 @@
           x: startX,
           y: startY
         };
-      }
+      } // TODO: lineIntersection
+
     }]);
 
     return ArcSegment;
@@ -15712,13 +15714,14 @@
         } : {
           x: this.x2,
           y: this.y2
+          /*
+           location == 1 ? {
+           x:x1 + ((x2 - x1) * 10),
+           y:y1 + ((y1 - y2) * 10)
+           } :
+           */
+
         };
-        /*
-         location == 1 ? {
-         x:x1 + ((x2 - x1) * 10),
-         y:y1 + ((y1 - y2) * 10)
-         } :
-         */
 
         if (distance <= 0 && Math.abs(distance) > 1) {
           distance *= -1;
@@ -15775,9 +15778,9 @@
           _x1 = (b2 - b) / (this.m - this.m2),
               _y1 = this.m * _x1 + b;
 
-          out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1); //_x1;
+          out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1); //_x1
 
-          out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1); //_y1;
+          out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1); //_y1
         }
 
         var fractionInSegment = this.instance.geometry.lineLength({
@@ -16097,9 +16100,9 @@
             } else {
               return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
             }
-          }
-        }; // calculate Stubs.
+          } // calculate Stubs.
 
+        };
 
         var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
             idx = paintInfo.sourceAxis === "x" ? 0 : 1,
@@ -16116,11 +16119,11 @@
         //     // we use loopbackRadius here, as statemachine connectors do.
         //     // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
         //     // down by 2*radius, left by radius.
-        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo);
-        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
-        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo);
-        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo);
-        //     addSegment(segments, stubs[0], stubs[1], paintInfo);
+        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo)
+        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo)
+        //     addSegment(segments, stubs[0], stubs[1], paintInfo)
         //
         // }
         // else {
@@ -16222,9 +16225,9 @@
                 "y": [[pi.sx, midy], [pi.tx, midy]]
               }[axis];
             }
-          }
-        }; // compute the rest of the line
+          } // compute the rest of the line
 
+        };
         var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);
 
         if (p) {
@@ -16534,7 +16537,7 @@
     _createClass(DotEndpoint, [{
       key: "_compute",
       value: function _compute(anchorPoint, orientation, endpointStyle) {
-        //this.radius = endpointStyle.radius || this.radius;
+        //this.radius = endpointStyle.radius || this.radius
         var x = anchorPoint[0] - this.radius,
             y = anchorPoint[1] - this.radius,
             w = this.radius * 2,
@@ -17348,7 +17351,7 @@
 
 
             this.k.eventManager.on(document, "mousemove", this.moveListener);
-            this.k.eventManager.on(document, "mouseup", this.upListener); //k.markSelection(this);
+            this.k.eventManager.on(document, "mouseup", this.upListener); //k.markSelection(this)
 
             addClass(document.body, _classes.noSelect);
 
@@ -17458,8 +17461,8 @@
 
               if (this._ghostProxyParent) {
                 this._ghostProxyParent.appendChild(gp); // find offset between drag el's parent the ghost parent
-                // this._currentParentPosition = _getPosition(this._elementToDrag.parentNode, true);
-                // this._ghostParentPosition = _getPosition(this._ghostProxyParent, true);
+                // this._currentParentPosition = _getPosition(this._elementToDrag.parentNode, true)
+                // this._ghostParentPosition = _getPosition(this._ghostProxyParent, true)
 
 
                 this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode);
@@ -17519,8 +17522,8 @@
         });
         /* test to see if the parent needs to be scrolled (future)
          if (scroll) {
-         var pnsl = dragEl.parentNode.scrollLeft, pnst = dragEl.parentNode.scrollTop;
-         console.log("scroll!", pnsl, pnst);
+         var pnsl = dragEl.parentNode.scrollLeft, pnst = dragEl.parentNode.scrollTop
+         console.log("scroll!", pnsl, pnst)
          }*/
 
       }
@@ -17867,15 +17870,15 @@
       value: function getInputFilterSelector() {
         return this.inputFilterSelector;
       }
-    }, {
-      key: "setInputFilterSelector",
-
       /**
        * Sets the selector identifying which input elements to filter from drag events.
        * @method setInputFilterSelector
        * @param {String} selector Input filter selector to set.
        * @return {Collicat} Current instance; method may be chained.
        */
+
+    }, {
+      key: "setInputFilterSelector",
       value: function setInputFilterSelector(selector) {
         this.inputFilterSelector = selector;
         return this;
@@ -17980,10 +17983,7 @@
   }
 
   /**
-   *
-   * Entry point.
-   *
-   *
+   * Entry point(s)
    */
   if (typeof window !== "undefined") {
     window.jsPlumb = {

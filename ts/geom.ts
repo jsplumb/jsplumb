@@ -26,32 +26,32 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import {LineXY, PointXY, RectangleXY} from "./core";
+import {LineXY, PointXY, RectangleXY} from "./core"
 
-export type Quadrant = 1 | 2 | 3 | 4;
+export type Quadrant = 1 | 2 | 3 | 4
 
-const segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ];
-const inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ];
+const segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ]
+const inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ]
 
-export const TWO_PI = 2 * Math.PI;
+export const TWO_PI = 2 * Math.PI
 
 export interface jsPlumbGeometryHelpers {
-    pointXYFromArray(a:Array<number>):PointXY;
-    gradient (p1:PointXY, p2:PointXY):number;
-    normal(p1:PointXY, p2:PointXY):number;
-    lineLength (p1:PointXY, p2:PointXY):number;
-    quadrant(p1: PointXY, p2: PointXY): Quadrant;
-    theta(p1: PointXY, p2: PointXY): number;
-    intersects(r1: RectangleXY, r2: RectangleXY): boolean;
-    encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: boolean): boolean;
-    pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: number): PointXY;
-    perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY;
+    pointXYFromArray(a:Array<number>):PointXY
+    gradient (p1:PointXY, p2:PointXY):number
+    normal(p1:PointXY, p2:PointXY):number
+    lineLength (p1:PointXY, p2:PointXY):number
+    quadrant(p1: PointXY, p2: PointXY): Quadrant
+    theta(p1: PointXY, p2: PointXY): number
+    intersects(r1: RectangleXY, r2: RectangleXY): boolean
+    encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: boolean): boolean
+    pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: number): PointXY
+    perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY
 }
 
 export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
 
     pointXYFromArray(a: Array<number>): PointXY {
-        return {x: a[0], y: a[1]};
+        return {x: a[0], y: a[1]}
     }
 
     /**
@@ -64,11 +64,11 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
      */
     gradient(p1: PointXY, p2: PointXY): number {
         if (p2.x === p1.x)
-            return p2.y > p1.y ? Infinity : -Infinity;
+            return p2.y > p1.y ? Infinity : -Infinity
         else if (p2.y === p1.y)
-            return p2.x > p1.x ? 0 : -0;
+            return p2.x > p1.x ? 0 : -0
         else
-            return (p2.y - p1.y) / (p2.x - p1.x);
+            return (p2.y - p1.y) / (p2.x - p1.x)
     }
 
     /**
@@ -80,7 +80,7 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
      * @return {number} The gradient of a normal to a line between the two points.
      */
     normal(p1: PointXY, p2: PointXY): number {
-        return -1 / this.gradient(p1, p2);
+        return -1 / this.gradient(p1, p2)
     }
 
     /**
@@ -92,7 +92,7 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
      * @return {number} The length of a line between the two points.
      */
     lineLength(p1: PointXY, p2: PointXY): number {
-        return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
+        return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2))
     }
 
     /**
@@ -106,11 +106,11 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
     quadrant(p1: PointXY, p2: PointXY): Quadrant {
 
         if (p2.x > p1.x) {
-            return (p2.y > p1.y) ? 2 : 1;
+            return (p2.y > p1.y) ? 2 : 1
         } else if (p2.x == p1.x) {
-            return p2.y > p1.y ? 2 : 1;
+            return p2.y > p1.y ? 2 : 1
         } else {
-            return (p2.y > p1.y) ? 3 : 4;
+            return (p2.y > p1.y) ? 3 : 4
         }
     }
 
@@ -126,12 +126,12 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
 
         let m = this.gradient(p1, p2),
             t = Math.atan(m),
-            s = this.quadrant(p1, p2);
+            s = this.quadrant(p1, p2)
 
-        if ((s == 4 || s == 3)) t += Math.PI;
-        if (t < 0) t += (2 * Math.PI);
+        if ((s == 4 || s == 3)) t += Math.PI
+        if (t < 0) t += (2 * Math.PI)
 
-        return t;
+        return t
 
     }
 
@@ -145,7 +145,7 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
      */
     intersects(r1: RectangleXY, r2: RectangleXY): boolean {
         let x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
-            a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h;
+            a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h
 
         return ((x1 <= a1 && a1 <= x2) && (y1 <= b1 && b1 <= y2)) ||
             ((x1 <= a2 && a2 <= x2) && (y1 <= b1 && b1 <= y2)) ||
@@ -154,7 +154,7 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
             ((a1 <= x1 && x1 <= a2) && (b1 <= y1 && y1 <= b2)) ||
             ((a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2)) ||
             ((a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2)) ||
-            ((a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2));
+            ((a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2))
     }
 
     /**
@@ -170,10 +170,10 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
         const x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
             a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h,
             c = (v1: number, v2: number, v3: number, v4: number) => {
-                return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
-            };
+                return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4
+            }
 
-        return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
+        return c(x1, a1, x2, a2) && c(y1, b1, y2, b2)
     }
 
     /**
@@ -191,8 +191,8 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
             segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
             theta = Math.atan(m),
             y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-            x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-        return {x: fromPoint.x + x, y: fromPoint.y + y};
+            x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0]
+        return {x: fromPoint.x + x, y: fromPoint.y + y}
     }
 
     /**
@@ -208,7 +208,7 @@ export class jsPlumbGeometry implements jsPlumbGeometryHelpers {
         const m = this.gradient(fromPoint, toPoint),
             theta2 = Math.atan(-1 / m),
             y = length / 2 * Math.sin(theta2),
-            x = length / 2 * Math.cos(theta2);
-        return [{x: toPoint.x + x, y: toPoint.y + y}, {x: toPoint.x - x, y: toPoint.y - y}];
+            x = length / 2 * Math.cos(theta2)
+        return [{x: toPoint.x + x, y: toPoint.y + y}, {x: toPoint.x - x, y: toPoint.y - y}]
     }
 }
