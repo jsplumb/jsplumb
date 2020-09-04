@@ -1,13 +1,16 @@
 ## 4.0.0-RC20
 
+4th September 2020
+
 - Removed all unnecessary semicolons from the source. No functional change.
+- Internal refactoring related to the introduction of a Router for paths. No functional change.
 
 ## 4.0.0-RC19
 
-25th August 2019
+25th August 2020
 
-- setEnabled/isEnabled on Endpoint replaced with `enabled` property
-- setConnectionCost/getConnectionCost on Endpoint replaced with `connectionCost` property
+- `setEnabled`/`isEnabled` on Endpoint replaced with `enabled` property
+- `setConnectionCost`/`getConnectionCost` on Endpoint replaced with `connectionCost` property
 - added support for optional `portId` on `makeSource`/`makeTarget` calls
 - added support for optional `ports` array on `connect` calls
 
