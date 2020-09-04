@@ -746,11 +746,11 @@
                             });
                         }
 
-                        _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+                        _currentInstance.router.redraw(id, ui, timestamp, null, clearEdits);
 
                         if (repaintEls) {
                             for (var j = 0; j < repaintEls.length; j++) {
-                                _currentInstance.anchorManager.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
+                                _currentInstance.router.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
                             }
                         }
                     }
@@ -1458,7 +1458,7 @@
             if (endpoint._jsPlumb.uuid) {
                 endpointsByUUID[endpoint._jsPlumb.uuid] = null;
             }
-            _currentInstance.anchorManager.deleteEndpoint(endpoint);
+            _currentInstance.router.deleteEndpoint(endpoint);
             // TODO at least replace this with a removeWithFunction call.
             for (var e in endpointsByElement) {
                 var endpoints = endpointsByElement[e];
