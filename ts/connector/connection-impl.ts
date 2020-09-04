@@ -164,7 +164,7 @@ export class Connection extends OverlayCapableComponent {
             "pointer-events": params["pointer-events"],
             overlays: params.overlays
         }
-        this._jsPlumb.lastPaintedAt = null
+        this.lastPaintedAt = null
 
         if (params.type) {
             params.endpoints = params.endpoints || this.instance.deriveEndpointAndAnchorSpec(params.type).endpoints
@@ -526,36 +526,13 @@ export class Connection extends OverlayCapableComponent {
 
             params = params || {}
             let timestamp = params.timestamp
-            if (timestamp != null && timestamp === this._jsPlumb.lastPaintedAt) {
+            if (timestamp != null && timestamp === this.lastPaintedAt) {
                 return
             }
 
-            // if the moving object is not the source we must transpose the two references.
-            let    swap = false,
-                tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
-                tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0
+            if (timestamp == null || timestamp !== this.lastPaintedAt) {
 
-            if (timestamp == null || timestamp !== this._jsPlumb.lastPaintedAt) {
-                let sourceInfo = this.instance.updateOffset({elId:sId}).o,
-                    targetInfo = this.instance.updateOffset({elId:tId}).o,
-                    sE = this.endpoints[sIdx], tE = this.endpoints[tIdx]
-
-                let sAnchorP = sE.anchor.getCurrentLocation({xy: [sourceInfo.left, sourceInfo.top], wh: [sourceInfo.width, sourceInfo.height], element: sE, timestamp: timestamp}),
-                    tAnchorP = tE.anchor.getCurrentLocation({xy: [targetInfo.left, targetInfo.top], wh: [targetInfo.width, targetInfo.height], element: tE, timestamp: timestamp})
-
-                this.connector.resetBounds()
-
-                this.connector.compute({
-                    sourcePos: sAnchorP,
-                    targetPos: tAnchorP,
-                    sourceOrientation:sE.anchor.getOrientation(sE),
-                    targetOrientation:tE.anchor.getOrientation(tE),
-                    sourceEndpoint: this.endpoints[sIdx],
-                    targetEndpoint: this.endpoints[tIdx],
-                    strokeWidth: this.paintStyleInUse.strokeWidth,
-                    sourceInfo: sourceInfo,
-                    targetInfo: targetInfo
-                })
+                this.instance.router.computePath(this, timestamp);
 
                 let overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
 
@@ -597,7 +574,7 @@ export class Connection extends OverlayCapableComponent {
                     }
                 }
             }
-            this._jsPlumb.lastPaintedAt = timestamp
+            this.lastPaintedAt = timestamp
         }
     }
 
