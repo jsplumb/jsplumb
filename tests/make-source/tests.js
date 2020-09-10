@@ -561,7 +561,8 @@ var testSuite = function () {
 
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
         _jsPlumb.makeTarget(d18, {
-            endpoint: "Rectangle"
+            endpoint: "Rectangle",
+            cssClass:"CHANGED"
         });
 
         var c = _jsPlumb.connect({source: "d16", target: d17});
@@ -571,6 +572,7 @@ var testSuite = function () {
         _jsPlumb.setTarget(c, d18);
         equal(c.targetId, "d18", "source is now d18");
         equal(c.endpoints[1].endpoint.getType(), "Rectangle", "endpoint is type Rectangle");
+        ok(_jsPlumb.hasClass(c.endpoints[1].endpoint.canvas, "CHANGED"), "endpoint CSS class has 'CHANGED'");
 
         equal(sc, true, "connectionMoved event fired");
 
