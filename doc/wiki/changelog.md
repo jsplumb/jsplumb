@@ -1,3 +1,9 @@
+## 2.14.7
+
+- additional unit testing for the setTarget method
+- added `destroy` method to jsPlumb class, which performs a reset and also sets a bunch of closure-wide variables to null.
+- switched a few functions from using closures to using members on the Anchor class
+
 ## 2.14.6
 
 September 4th 2020
