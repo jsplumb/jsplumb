@@ -782,16 +782,16 @@
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
 
-        var relocatable = params.relocatable !== false;
-        this.isRelocatable = function() { return relocatable; };
-        this.setRelocatable = function(_relocatable) { relocatable = _relocatable; };
-        var snapOnRelocate = params.snapOnRelocate !== false;
-        this.isSnapOnRelocate = function() { return snapOnRelocate; };
+        this.relocatable = params.relocatable !== false;
+        // this.isRelocatable = function() { return relocatable; };
+        // this.setRelocatable = function(_relocatable) { relocatable = _relocatable; };
+        this.snapOnRelocate = params.snapOnRelocate !== false;
+        //this.isSnapOnRelocate = function() { return snapOnRelocate; };
 
-        var locked = false;
-        this.lock = function() { locked = true; };
-        this.unlock = function() { locked = false; };
-        this.isLocked = function() { return locked; };
+        this.locked = false;
+        // this.lock = function() { locked = true; };
+        // this.unlock = function() { locked = false; };
+        // this.isLocked = function() { return locked; };
 
         _ju.EventGenerator.apply(this);
 
@@ -1015,7 +1015,7 @@
             // if anchor is locked or an opposite element was not given, we
             // maintain our state. anchor will be locked
             // if it is the source of a drag and drop.
-            if (this.isLocked() || txy == null || twh == null) {
+            if (this.locked || txy == null || twh == null) {
                 return _curAnchor.compute(params);
             }
             else {
