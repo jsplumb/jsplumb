@@ -4359,7 +4359,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.14.6";
+        this.version = "2.14.7";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -6812,6 +6812,11 @@
                     this.doReset();
                 }
             }.bind(this));
+        };
+
+        this.destroy = function() {
+            this.reset();
+            _container = null;
         };
 
         var _clearObject = function (obj) {
@@ -10217,16 +10222,10 @@
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
 
-        var relocatable = params.relocatable !== false;
-        this.isRelocatable = function() { return relocatable; };
-        this.setRelocatable = function(_relocatable) { relocatable = _relocatable; };
-        var snapOnRelocate = params.snapOnRelocate !== false;
-        this.isSnapOnRelocate = function() { return snapOnRelocate; };
+        this.relocatable = params.relocatable !== false;
+        this.snapOnRelocate = params.snapOnRelocate !== false;
 
-        var locked = false;
-        this.lock = function() { locked = true; };
-        this.unlock = function() { locked = false; };
-        this.isLocked = function() { return locked; };
+        this.locked = false;
 
         _ju.EventGenerator.apply(this);
 
@@ -10259,7 +10258,7 @@
         };
 
         this.setPosition = function(x, y, ox, oy, overrideLock) {
-            if (!locked || overrideLock) {
+            if (!this.locked || overrideLock) {
                 this.x = x;
                 this.y = y;
                 this.orientation = [ ox, oy ];
@@ -10450,7 +10449,7 @@
             // if anchor is locked or an opposite element was not given, we
             // maintain our state. anchor will be locked
             // if it is the source of a drag and drop.
-            if (this.isLocked() || txy == null || twh == null) {
+            if (this.locked || txy == null || twh == null) {
                 return _curAnchor.compute(params);
             }
             else {
