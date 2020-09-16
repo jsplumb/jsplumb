@@ -783,15 +783,9 @@
         this.timestamp = null;
 
         this.relocatable = params.relocatable !== false;
-        // this.isRelocatable = function() { return relocatable; };
-        // this.setRelocatable = function(_relocatable) { relocatable = _relocatable; };
         this.snapOnRelocate = params.snapOnRelocate !== false;
-        //this.isSnapOnRelocate = function() { return snapOnRelocate; };
 
         this.locked = false;
-        // this.lock = function() { locked = true; };
-        // this.unlock = function() { locked = false; };
-        // this.isLocked = function() { return locked; };
 
         _ju.EventGenerator.apply(this);
 
@@ -824,7 +818,7 @@
         };
 
         this.setPosition = function(x, y, ox, oy, overrideLock) {
-            if (!locked || overrideLock) {
+            if (!this.locked || overrideLock) {
                 this.x = x;
                 this.y = y;
                 this.orientation = [ ox, oy ];
