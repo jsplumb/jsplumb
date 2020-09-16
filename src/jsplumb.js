@@ -2929,6 +2929,11 @@
             }.bind(this));
         };
 
+        this.destroy = function() {
+            this.reset();
+            _container = null;
+        };
+
         var _clearObject = function (obj) {
             if (obj.canvas && obj.canvas.parentNode) {
                 obj.canvas.parentNode.removeChild(obj.canvas);
