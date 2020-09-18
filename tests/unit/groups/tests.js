@@ -1170,8 +1170,6 @@ var testSuite = function (_jsPlumb) {
         equal(g2.connections.target.length, 0, "0 connections in group target connections");
         equal(c2_1.parentNode, _jsPlumb.getContainer(), "container is parent node of c2_1");
 
-        debugger;
-
         var groupConns = _jsPlumb.getConnections({target:c2, scope:'*'});
         equal(0, groupConns.length, "no connections registered for the group element");
 
