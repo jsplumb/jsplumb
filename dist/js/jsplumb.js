@@ -6061,7 +6061,7 @@
                 },
                 onDrop: function (jpc) {
                     var source = jpc.endpoints[0];
-                    source.anchor.unlock();
+                    source.anchor.locked = false;
                 },
                 isDropAllowed: function () {
                     return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
@@ -8193,7 +8193,7 @@
                         var originalEvent = _jsPlumb.getDropEvent(arguments);
                         // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                         var idx = _jsPlumb.getFloatingAnchorIndex(jpc);
-                        jpc.endpoints[idx === 0 ? 1 : 0].anchor.unlock();
+                        jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
                         jpc.removeClass(_jsPlumb.draggingClass);
                         // if we have the floating endpoint then the connection has not been dropped
                         // on another endpoint.  If it is a new connection we throw it away. If it is an
@@ -8291,7 +8291,7 @@
                         // make our canvas visible (TODO: hand off to library; we should not know about DOM)
                         this.canvas.style.visibility = "visible";
                         // unlock our anchor
-                        this.anchor.unlock();
+                        this.anchor.locked = false;
                         // clear floating anchor.
                         this._jsPlumb.floatingEndpoint = null;
                     }
