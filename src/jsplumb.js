@@ -2176,7 +2176,7 @@
                 },
                 onDrop: function (jpc) {
                     var source = jpc.endpoints[0];
-                    source.anchor.unlock();
+                    source.anchor.locked = false;
                 },
                 isDropAllowed: function () {
                     return proxyComponent.isDropAllowed.apply(proxyComponent, arguments);
@@ -2932,6 +2932,7 @@
         this.destroy = function() {
             this.reset();
             _container = null;
+            _containerDelegations = null;
         };
 
         var _clearObject = function (obj) {
