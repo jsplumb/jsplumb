@@ -183,7 +183,7 @@ function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     return false
 }
 
-interface AbstractSelection<T> {
+export interface AbstractSelection<T> {
     length:number
     each:( handler:(arg0:T) => void ) => void
     get(index:number):T
@@ -364,7 +364,7 @@ function _curryGet<T>(list:Array<T>) {
 }
 
 type ContainerDelegation = [ string, Function ]
-type ManagedElement = {
+export type ManagedElement = {
     el:any,
     info?:{o:Offset, s:Size},
     endpoints?:Array<Endpoint>,
@@ -376,7 +376,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     Defaults:jsPlumbDefaults
     private _initialDefaults:jsPlumbDefaults = {}
 
-    _containerDelegations:ContainerDelegation[] = []
+    private _containerDelegations:ContainerDelegation[] = []
 
     isConnectionBeingDragged:boolean = false
     currentlyDragging:boolean = false
@@ -407,7 +407,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     endpointsByElement:Dictionary<Array<Endpoint>> = {}
     endpointsByUUID:Dictionary<Endpoint> = {}
 
-    _allowNestedGroups:boolean
+    public allowNestedGroups:boolean
 
     private _curIdStamp :number = 1
     private _offsetTimestamps:Dictionary<string> = {}
@@ -417,19 +417,19 @@ export abstract class jsPlumbInstance extends EventGenerator {
     router: Router
     anchorManager:AnchorManager
     groupManager:GroupManager
-    _connectionTypes:Dictionary<TypeDescriptor> = {}
-    _endpointTypes:Dictionary<TypeDescriptor> = {}
-    _container:any
+    private _connectionTypes:Dictionary<TypeDescriptor> = {}
+    private _endpointTypes:Dictionary<TypeDescriptor> = {}
+    private _container:any
 
-    _managedElements:Dictionary<ManagedElement> = {}
-    _floatingConnections:Dictionary<Connection> = {}
+    private _managedElements:Dictionary<ManagedElement> = {}
+    private _floatingConnections:Dictionary<Connection> = {}
 
     DEFAULT_SCOPE:string
 
-    _helpers:jsPlumbHelperFunctions
-    geometry:jsPlumbGeometryHelpers
+    private _helpers:jsPlumbHelperFunctions
+    public geometry:jsPlumbGeometryHelpers
 
-    _zoom:number = 1
+    private _zoom:number = 1
 
     abstract getElement(el:any|string):any
     abstract getElementById(el:string):any
@@ -497,7 +497,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         extend(this._initialDefaults, this.Defaults)
         this.DEFAULT_SCOPE = this.Defaults.scope
 
-        this._allowNestedGroups = this._initialDefaults.allowNestedGroups !== false
+        this.allowNestedGroups = this._initialDefaults.allowNestedGroups !== false
 
         this.router = new DefaultRouter(this)
 
