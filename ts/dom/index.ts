@@ -1,4 +1,4 @@
-export * from "../browser/browser-util"
+export * from "./browser-util"
 export * from './collicat'
 export * from "./browser-renderer"
 export * from "./browser-jsplumb-instance"
