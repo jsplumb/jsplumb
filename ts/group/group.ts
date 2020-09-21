@@ -198,7 +198,7 @@ export class UIGroup extends UINode {
 
     addGroup(group:UIGroup):boolean {
 
-        if (this.instance._allowNestedGroups && group !== this) {
+        if (this.instance.allowNestedGroups && group !== this) {
 
             if (this.instance.groupManager.isAncestor(this, group)) {
                 return false; // cannot add a group as a child to this group if it is an ancestor of this group.
