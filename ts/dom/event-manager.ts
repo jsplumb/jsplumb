@@ -474,8 +474,8 @@ export class EventManager {
 
     clickThreshold:number
     dblClickThreshold:number
-    tapHandler:Handler
-    mouseEnterExitHandler: Handler
+    private tapHandler:Handler
+    private mouseEnterExitHandler: Handler
     smartClicks:boolean
 
     constructor(params?:EventManagerOptions) {
