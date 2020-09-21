@@ -8,14 +8,14 @@ import {EndpointDragHandler} from "./endpoint-drag-handler"
 import {GroupDragHandler} from "./group-drag-handler"
 import {
     addClass,
-    consume, createElementNS,
+    consume,
     findParent,
     getClass,
     getEventSource,
     hasClass,
     removeClass,
     toggleClass
-} from "../browser/browser-util"
+} from "./browser-util"
 import * as Constants from "../constants"
 import { UIGroup } from "../group/group"
 import {EventManager} from "./event-manager"
