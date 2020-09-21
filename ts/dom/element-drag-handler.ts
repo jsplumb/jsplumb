@@ -32,15 +32,15 @@ type Posse = { id:string, members:Set<PosseMemberSpec>}
 export class ElementDragHandler implements DragHandler {
 
     selector: string = "> [jtk-managed]"
-    _dragOffset:Offset = null
-    _groupLocations:Array<GroupLocation> = []
-    _intersectingGroups:Array<IntersectingGroup> = []
-    _currentDragParentGroup:UIGroup = null
+    private _dragOffset:Offset = null
+    private _groupLocations:Array<GroupLocation> = []
+    private _intersectingGroups:Array<IntersectingGroup> = []
+    private _currentDragParentGroup:UIGroup = null
 
-    _posseByElementIdMap:Dictionary<Posse> = {}
-    _posseMap:Dictionary<Posse> = {}
+    private _posseByElementIdMap:Dictionary<Posse> = {}
+    private _posseMap:Dictionary<Posse> = {}
 
-    _currentPosse:Posse = null
+    private _currentPosse:Posse = null
     private _currentPosseOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
     private _currentPosseSizes:Map<string, [number, number]> = new Map()
 
@@ -252,7 +252,7 @@ export class ElementDragHandler implements DragHandler {
             const _one = (_el:any):any => {
 
                 // if drag el not a group
-                if (!_el._isJsPlumbGroup || this.instance._allowNestedGroups) {
+                if (!_el._isJsPlumbGroup || this.instance.allowNestedGroups) {
 
                     const isNotInAGroup = !_el[Constants.PARENT_GROUP_KEY]
                     const membersAreDroppable = isNotInAGroup || _el[Constants.PARENT_GROUP_KEY].dropOverride !== true
