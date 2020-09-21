@@ -43,7 +43,7 @@ export class FlowchartConnector extends AbstractConnector {
 
     type = "Flowchart"
 
-    internalSegments:Array<FlowchartSegment> = []
+    private internalSegments:Array<FlowchartSegment> = []
     midpoint:number
     alwaysRespectStubs:boolean
     cornerRadius:number
