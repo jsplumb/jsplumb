@@ -1,7 +1,6 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
 import {Connectors} from "./connectors"
 import {StraightSegment} from "./straight-segment"
-import {AnchorPlacement} from "../anchor-manager"
 
 
 export class StraightConnector extends AbstractConnector {
