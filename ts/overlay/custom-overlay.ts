@@ -1,6 +1,6 @@
 import {CustomOverlayOptions, Overlay} from "./overlay"
 import { jsPlumbInstance } from "../core"
-import {Component, LabelOverlay, OverlayFactory} from ".."
+import {Component, OverlayFactory} from ".."
 
 export class CustomOverlay extends Overlay {
 
