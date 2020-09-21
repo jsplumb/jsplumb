@@ -4,6 +4,13 @@
 
 - Removed all unnecessary semicolons from the source. No functional change.
 - Internal refactoring related to the introduction of a Router for paths. No functional change.
+- Internal refactor to use a class for EndpointSelection and ConnectionSelection
+
+Breaking backwards changes: 
+
+- all getters removed from the `ConnectionSelection` and `EndpointSelection` classes (the return values of `select()` and `selectEndpoints()` respectively). If you need access to an array of values you can use the `map` function on `SelectionBase` (the parent of `ConnectionSelection` and `EndpointSelection`)
+- `isEnabled()` method removed from `EndpointSelection` (the return value of selectEndpoints)
+- `delete()` method renamed to `deleteAll()` in `EndpointSelection` (delete is a reserved word so cannot be used as a class method)
 
 ## 4.0.0-RC19
 

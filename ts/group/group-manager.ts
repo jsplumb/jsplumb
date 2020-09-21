@@ -1,7 +1,6 @@
 import {
     ConnectionDetachedParams,
     ConnectionEstablishedParams,
-    ConnectionSelection,
     Dictionary,
     jsPlumbInstance,
     Offset
@@ -11,6 +10,7 @@ import * as Constants from "../constants"
 import {IS, removeWithFunction, suggest} from "../util"
 import {Connection, jsPlumbDOMElement} from ".."
 import {ConnectionMovedParams} from "../dom/endpoint-drag-handler"
+import {ConnectionSelection} from "../selection/connection-selection"
 
 interface GroupMemberEventParams {
     el:jsPlumbDOMElement
@@ -617,7 +617,6 @@ export class GroupManager {
                         const oidx = index === 0 ? 1 : 0
                         list.each( (c:Connection) => {
                             c.setVisible(false)
-                            //if (c.endpoints[oidx].element[Constants.PARENT_GROUP_KEY] === actualGroup) {
                             if (c.endpoints[oidx].element[Constants.GROUP_KEY] === actualGroup) {
                                 c.endpoints[oidx].setVisible(false)
                                 this._expandConnection(c, oidx, actualGroup)

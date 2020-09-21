@@ -78,6 +78,8 @@ export const EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded"
 
 export const EVENT_MAX_CONNECTIONS = "maxConnections"
 
+export const EVENT_ZOOM = "zoom"
+
 export const CLASS_CONNECTOR = "jtk-connector"
 export const CLASS_ENDPOINT = "jtk-endpoint"
 export const CLASS_OVERLAY = "jtk-overlay"

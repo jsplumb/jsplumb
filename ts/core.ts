@@ -29,6 +29,8 @@ import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom"
 import {jsPlumbDOMElement} from "./dom"
 import {DefaultRouter} from "./router/default-router"
 import {Router} from "./router/router"
+import {EndpointSelection} from "./selection/endpoint-selection"
+import {ConnectionSelection} from "./selection/connection-selection"
 
 export type UUID = string
 export type ElementId = string
@@ -115,22 +117,6 @@ export interface SourceOrTargetDefinition {
 export interface SourceDefinition extends SourceOrTargetDefinition { }
 export interface TargetDefinition extends SourceOrTargetDefinition { }
 
-export interface DeleteOptions {
-    connection?:Connection
-    endpoint?:Endpoint
-    dontUpdateHover?:boolean
-    deleteAttachedObjects?:boolean
-    originalEvent?:Event
-    fireEvent?:boolean
-}
-
-export interface DeleteResult {
-    endpoints:Dictionary<Endpoint>
-    connections:Dictionary<Connection>
-    endpointCount:number
-    connectionCount:number
-}
-
 export interface Offset {left:number, top:number}
 export type Size = [ number, number ]
 export interface OffsetAndSize { o:Offset, s:Size }
@@ -183,29 +169,6 @@ function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     return false
 }
 
-export interface AbstractSelection<T> {
-    length:number
-    each:( handler:(arg0:T) => void ) => void
-    get(index:number):T
-
-    getLabel:() => string
-    getOverlay:(id:string) => Overlay
-    isHover:() => boolean
-    getParameter:(key:string) => any
-    getParameters:() => ComponentParameters
-    getPaintStyle:() => PaintStyle
-    getHoverPaintStyle:() => PaintStyle
-    isVisible:() => boolean
-    hasType:(id:string) => boolean
-    getType:() => any
-    isSuspendEvents:() => boolean
-
-    "delete": () => void
-
-    addClass:(clazz:string, updateAttachedElements?:boolean) => void
-    removeClass:(clazz:string, updateAttachedElements?:boolean) => void
-}
-
 export interface AbstractSelectOptions {
     scope?:string
     source?:string | any | Array<string | any>
@@ -217,24 +180,6 @@ export interface SelectOptions extends AbstractSelectOptions {
 
 export interface SelectEndpointOptions extends AbstractSelectOptions {
     element?:string | any | Array<string | any>
-}
-
-export interface ConnectionSelection extends AbstractSelection<Connection> {
-
-    setDetachable: (d:boolean) => void
-    setReattach: (d:boolean) => void
-    setConnector: (d:ConnectorSpec) => void
-
-    isDetachable:() => any
-    isReattach: () => any
-
-}
-
-export interface EndpointSelection extends AbstractSelection<Endpoint> {
-    setEnabled:(e:boolean) => void
-    setAnchor:(a:AnchorSpec) => void
-    isEnabled:() => any[]
-    deleteEveryConnection:() => void
 }
 
 /**
@@ -259,33 +204,6 @@ export type DeleteConnectionOptions = {
      * in that case we want to ignore that endpoint.
      */
     endpointToIgnore?:Endpoint
-}
-
-function _setOperation (list:Array<any>, func:string, args?:any, selector?:any):any {
-    for (let i = 0, j = list.length; i < j; i++) {
-        list[i][func].apply(list[i], args)
-    }
-    return selector(list)
-}
-
-function  _getOperation (list:Array<any>, func:string, args?:any):Array<any> {
-    let out = []
-    for (let i = 0, j = list.length; i < j; i++) {
-        out.push([ list[i][func].apply(list[i], args), list[i] ])
-    }
-    return out
-}
-
-function setter (list:Array<any>, func:string, selector:any) {
-    return function () {
-        return _setOperation(list, func, arguments, selector)
-    }
-}
-
-function getter (list:Array<any>, func:string) {
-    return function () {
-        return _getOperation(list, func, arguments)
-    }
 }
 
 function prepareList(instance:jsPlumbInstance, input:any, doNotGetIds?:boolean):any {
@@ -349,21 +267,6 @@ export function extend<T>(o1:T, o2:T, keys?:string[]):T {
     return o1
 }
 
-function _curryEach (list:any[], executor:(l:any[]) => void) {
-    return function (f:Function) {
-        for (let i = 0, ii = list.length; i < ii; i++) {
-            f(list[i])
-        }
-        return executor(list)
-    }
-}
-function _curryGet<T>(list:Array<T>) {
-    return function (idx:number):T {
-        return list[idx]
-    }
-}
-
-type ContainerDelegation = [ string, Function ]
 export type ManagedElement = {
     el:any,
     info?:{o:Offset, s:Size},
@@ -375,8 +278,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
     Defaults:jsPlumbDefaults
     private _initialDefaults:jsPlumbDefaults = {}
-
-    private _containerDelegations:ContainerDelegation[] = []
 
     isConnectionBeingDragged:boolean = false
     currentlyDragging:boolean = false
@@ -522,7 +423,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
     setZoom (z:number, repaintEverything?:boolean):boolean {
         this._zoom = z
-        this.fire("zoom", this._zoom)
+        this.fire(Constants.EVENT_ZOOM, this._zoom)
         if (repaintEverything) {
             this.repaintEverything()
         }
@@ -612,7 +513,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     }
 
     /**
-     * Set the id of the given element. Changes all the refs etc. Why is this ene
+     * Set the id of the given element. Changes all the refs etc.
      * @param el
      * @param newId
      * @param doNotSetAttribute
@@ -720,92 +621,10 @@ export abstract class jsPlumbInstance extends EventGenerator {
         return results
     }
 
-    private _makeCommonSelectHandler<T> (list:any[], executor:(l:any[]) => void):AbstractSelection<T> {
-        let out = {
-            length: list.length,
-            each: _curryEach(list, executor),
-            get: _curryGet(list)
-        },
-        setters = ["removeAllOverlays", "setLabel", "addClass", "addOverlay", "removeOverlay",
-            "removeOverlays", "showOverlay", "hideOverlay", "showOverlays", "hideOverlays", "setPaintStyle",
-            "setHoverPaintStyle", "setSuspendEvents", "setParameter", "setParameters", "setVisible",
-            "addType", "toggleType", "removeType", "removeClass", "setType", "bind", "unbind" ],
-
-        getters = ["getLabel", "getOverlay", "isHover", "getParameter", "getParameters", "getPaintStyle",
-            "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ],
-        i, ii
-
-        for (i = 0, ii = setters.length; i < ii; i++) {
-            out[setters[i]] = setter(list, setters[i], executor)
-        }
-
-        for (i = 0, ii = getters.length; i < ii; i++) {
-            out[getters[i]] = getter(list, getters[i])
-        }
-
-        out["setHover"] = (hover:boolean) => {
-            list.forEach((c:Component) => this.renderer.setHover(c, hover))
-            return out
-        }
-
-        // for backwards compat, map `repaint` to the `paint` method
-        out["repaint"] = () => {
-            list.forEach((c:Component) => c.paint())
-            return out
-        }
-
-        return out as AbstractSelection<T>
-    }
-
-    private _makeConnectionSelectHandler (list:Connection[]):ConnectionSelection {
-        let common = this._makeCommonSelectHandler<Connection>(list, this._makeConnectionSelectHandler.bind(this))  as ConnectionSelection
-
-        let connectionFunctions:any = {
-            // setters
-            setDetachable: setter(list, "setDetachable", this._makeConnectionSelectHandler.bind(this)),
-            setReattach: setter(list, "setReattach", this._makeConnectionSelectHandler.bind(this)),
-            setConnector: setter(list, "setConnector", this._makeConnectionSelectHandler.bind(this)),
-            delete: () => {
-                for (let i = 0, ii = list.length; i < ii; i++) {
-                    this.deleteConnection(list[i])
-                }
-            },
-            // getters
-            isDetachable: getter(list, "isDetachable"),
-            isReattach: getter(list, "isReattach")
-        }
-
-        return extend(common, connectionFunctions)
-    }
-
-    private _makeEndpointSelectHandler (list:Array<Endpoint>):EndpointSelection {
-        let common = this._makeCommonSelectHandler(list, this._makeEndpointSelectHandler.bind(this)) as EndpointSelection
-        let endpointFunctions:any = {
-            setEnabled: (e:boolean) => {
-                for (let i = 0, ii = list.length; i < ii; i++) {
-                    list[i].enabled = e
-                }
-            },
-            setAnchor: setter(list, "setAnchor", this._makeEndpointSelectHandler.bind(this)),
-            isEnabled: () => list.map(e => [ e.enabled, e ]),
-            deleteEveryConnection: () => {
-                for (let i = 0, ii = list.length; i < ii; i++) {
-                    list[i].deleteEveryConnection()
-                }
-            },
-            "delete": () => {
-                for (let i = 0, ii = list.length; i < ii; i++) {
-                    this.deleteEndpoint(list[i])
-                }
-            }
-        }
-        return extend(common, endpointFunctions)
-    }
-
     select (params?:SelectOptions):ConnectionSelection {
         params = params || {}
         params.scope = params.scope || "*"
-        return this._makeConnectionSelectHandler(params.connections || (this.getConnections(params, true) as Array<Connection>))
+        return new ConnectionSelection(this, params.connections || (this.getConnections(params, true) as Array<Connection>))
     }
 
     selectEndpoints(params?:SelectEndpointOptions):EndpointSelection {
@@ -847,7 +666,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             }
         }
 
-        return this._makeEndpointSelectHandler(ep)
+        return new EndpointSelection(this, ep)
     }
 
     setContainer(c:any|string):void {
