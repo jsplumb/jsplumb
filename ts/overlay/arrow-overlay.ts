@@ -1,6 +1,6 @@
 import {ArrowOverlayOptions, Overlay} from "./overlay"
 import {jsPlumbInstance, PointArray} from "../core"
-import {AbstractConnector, Component, LabelOverlay, OverlayFactory, PaintStyle} from ".."
+import {AbstractConnector, Component, OverlayFactory, PaintStyle} from ".."
 
 const DEFAULT_WIDTH = 20
 const DEFAULT_LENGTH = 20
