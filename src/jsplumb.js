@@ -1939,7 +1939,8 @@
                 managedElements[id] = {
                     el: element,
                     endpoints: [],
-                    connections: []
+                    connections: [],
+                    rotation: 0
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
@@ -1957,13 +1958,30 @@
             return managedElements[id];
         };
 
-        var _unmanage = _currentInstance.unmanage = function(id) {
+        this.unmanage = function(id) {
             if (managedElements[id]) {
                 var el = managedElements[id].el;
                _currentInstance.removeClass(el, "jtk-managed");
                 delete managedElements[id];
                 _currentInstance.fire("unmanageElement", {id:id, el:el});
             }
+        };
+
+        this.rotate = function(elId, amountInDegrees, doNotRedraw) {
+            if (managedElements[elId]) {
+                managedElements[elId].rotation = amountInDegrees;
+
+                managedElements[elId].el.style.transform="rotate(" + amountInDegrees + "deg)";
+                managedElements[elId].el.style.transformOrigin="center center";
+
+                if (doNotRedraw !== true) {
+                    this.revalidate(elId);
+                }
+            }
+        };
+
+        this.getRotation = function(elementId) {
+            return managedElements[elementId] ? managedElements[elementId].rotation || 0 : 0;
         };
 
         /**
