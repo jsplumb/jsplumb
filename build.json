@@ -10,7 +10,7 @@
             "p": "node_modules/mottle/js/mottle.js"
         },
         "KATAVORIO": {
-            "p": "node_modules/katavorio/src/katavorio.js"
+            "p": "node_modules/@jsplumb/katavorio/src/katavorio.js"
         }
     },
     "coreLibs": [
