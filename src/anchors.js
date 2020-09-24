@@ -782,6 +782,11 @@
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
 
+        this._unrotatedOrientation = [
+            this.orientation[0],
+            this.orientation[1]
+        ];
+
         this.relocatable = params.relocatable !== false;
         this.snapOnRelocate = params.snapOnRelocate !== false;
 
@@ -805,7 +810,38 @@
                 this.lastReturnValue = this.userDefinedLocation;
             }
             else {
-                this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
+                // unrotated position
+                var candidate = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
+
+                // if rotation set, adjust position.
+                var rotation = params.rotation;
+                if (rotation != null && rotation !== 0) {
+                    var center = [
+                            xy[0] + (wh[0] / 2),
+                            xy[1] + (wh[1] / 2)
+                        ],
+                        radial = [
+                            candidate[0] - center[0],
+                            candidate[1] - center[1]
+                        ],
+                        cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2),
+                        c2 = [
+                            (radial[0] * cr) - (radial[1] * sr),
+                            (radial[1] * cr) + (radial[0] * sr)
+                        ];
+
+                    // rotate the orientation values too. for rotations that are not multiples of 90 degrees, this will result in values that are not in the set
+                    // [0, -1, 1 ], and in that case the connector paint may not be perfect. need some evidence from real world usage.
+                    this.orientation[0] = Math.round((this._unrotatedOrientation[0] * cr) - (this._unrotatedOrientation[1] * sr));
+                    this.orientation[1] = Math.round((this._unrotatedOrientation[1] * cr) + (this._unrotatedOrientation[0] * sr));
+
+                    this.lastReturnValue = [center[0] + c2[0], center[1] + c2[1]];
+                } else {
+                    // if rotation not set (or 0), ensure orientation is original value
+                    this.orientation[0] = this._unrotatedOrientation[0];
+                    this.orientation[1] = this._unrotatedOrientation[1];
+                    this.lastReturnValue = candidate;
+                }
             }
 
             this.timestamp = timestamp;
