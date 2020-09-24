@@ -330,7 +330,7 @@
         this.elementRemoved = function (elementId) {
             var elId = _draggablesForElements[elementId];
             if (elId) {
-                delete _delements[elId][elementId];
+                _delements[elId] && delete _delements[elId][elementId];
                 delete _draggablesForElements[elementId];
             }
         };
