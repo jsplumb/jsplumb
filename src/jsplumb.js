@@ -16,14 +16,6 @@
 
     var _ju = root.jsPlumbUtil,
 
-        /**
-         * creates a unique key. this was originally a timestamp but it was never compared, and so in some testing scenarios on a fast computer this
-         * was throwing errors with repainting.  `uuid()` is what this should have been from the start.
-         */
-        _timestamp = function () {
-            return jsPlumbUtil.uuid();
-        },
-
         // helper method to update the hover style whenever it, or paintStyle, changes.
         // we use paintStyle as the foundation and merge hoverPaintStyle over the
         // top.
@@ -451,14 +443,14 @@
                 if (this._jsPlumb.hoverPaintStyle != null) {
                     this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
                     if (!this._jsPlumb.instance.isSuspendDrawing()) {
-                        timestamp = timestamp || _timestamp();
+                        timestamp = timestamp || jsPlumbUtil.uuid();
                         this.repaint({timestamp: timestamp, recalc: false});
                     }
                 }
                 // get the list of other affected elements, if supported by this component.
                 // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
                 if (this.getAttachedElements && !ignoreAttachedElements) {
-                    _updateAttachedElements(this, hover, _timestamp(), this);
+                    _updateAttachedElements(this, hover, jsPlumbUtil.uuid(), this);
                 }
             }
         }
@@ -729,7 +721,7 @@
                             repaintEls = element.querySelectorAll(".jtk-managed");
 
                         if (timestamp == null) {
-                            timestamp = _timestamp();
+                            timestamp = jsPlumbUtil.uuid();
                         }
 
                         // update the offset of everything _before_ we try to draw anything.
@@ -2817,7 +2809,7 @@
             // TODO this timestamp causes continuous anchors to not repaint properly.
             // fix this. do not just take out the timestamp. it runs a lot faster with
             // the timestamp included.
-            var timestamp = _timestamp(), elId;
+            var timestamp = jsPlumbUtil.uuid(), elId;
 
             for (elId in endpointsByElement) {
                 _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp: timestamp });
@@ -3111,7 +3103,6 @@
         this.doWhileSuspended = this.batch;
 
         this.getCachedData = _getCachedData;
-        this.timestamp = _timestamp;
         this.show = function (el, changeEndpoints) {
             _setVisible(el, "block", changeEndpoints);
             return _currentInstance;

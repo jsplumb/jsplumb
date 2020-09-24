@@ -3944,13 +3944,6 @@
 
     var _ju = root.jsPlumbUtil,
 
-        /**
-         * creates a timestamp, using milliseconds since 1970, but as a string.
-         */
-        _timestamp = function () {
-            return "" + (new Date()).getTime();
-        },
-
         // helper method to update the hover style whenever it, or paintStyle, changes.
         // we use paintStyle as the foundation and merge hoverPaintStyle over the
         // top.
@@ -4378,14 +4371,14 @@
                 if (this._jsPlumb.hoverPaintStyle != null) {
                     this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
                     if (!this._jsPlumb.instance.isSuspendDrawing()) {
-                        timestamp = timestamp || _timestamp();
+                        timestamp = timestamp || jsPlumbUtil.uuid();
                         this.repaint({timestamp: timestamp, recalc: false});
                     }
                 }
                 // get the list of other affected elements, if supported by this component.
                 // for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
                 if (this.getAttachedElements && !ignoreAttachedElements) {
-                    _updateAttachedElements(this, hover, _timestamp(), this);
+                    _updateAttachedElements(this, hover, jsPlumbUtil.uuid(), this);
                 }
             }
         }
@@ -4656,7 +4649,7 @@
                             repaintEls = element.querySelectorAll(".jtk-managed");
 
                         if (timestamp == null) {
-                            timestamp = _timestamp();
+                            timestamp = jsPlumbUtil.uuid();
                         }
 
                         // update the offset of everything _before_ we try to draw anything.
@@ -5151,7 +5144,13 @@
 
                 if (!_suspendDrawing) {
                     e.paint({
-                        anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: sizes[id], element: e, timestamp: _suspendedAt }),
+                        anchorLoc: e.anchor.compute(
+                            { xy: [ myOffset.left, myOffset.top ],
+                                wh: sizes[id],
+                                element: e,
+                                timestamp: _suspendedAt,
+                                rotation:this.getRotation(id)
+                            }),
                         timestamp: _suspendedAt
                     });
                 }
@@ -6638,11 +6637,12 @@
         }.bind(this);
 
         var _first = function (el, fn) {
-            if (_ju.isString(el) || !el.length) {
-                return fn.apply(this, [ el ]);
-            }
-            else if (el.length) {
-                return fn.apply(this, [ el[0] ]);
+            if (el != null) {
+                if (_ju.isString(el) || !el.length) {
+                    return fn.apply(this, [el]);
+                } else if (el.length) {
+                    return fn.apply(this, [el[0]]);
+                }
             }
 
         }.bind(this);
@@ -6737,7 +6737,7 @@
             // TODO this timestamp causes continuous anchors to not repaint properly.
             // fix this. do not just take out the timestamp. it runs a lot faster with
             // the timestamp included.
-            var timestamp = _timestamp(), elId;
+            var timestamp = jsPlumbUtil.uuid(), elId;
 
             for (elId in endpointsByElement) {
                 _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp: timestamp });
@@ -7031,7 +7031,6 @@
         this.doWhileSuspended = this.batch;
 
         this.getCachedData = _getCachedData;
-        this.timestamp = _timestamp;
         this.show = function (el, changeEndpoints) {
             _setVisible(el, "block", changeEndpoints);
             return _currentInstance;
@@ -9041,12 +9040,13 @@
                 otherInfo = _jsPlumb.getCachedData(this.targetId),
                 otherOffset = otherInfo.o,
                 otherWH = otherInfo.s,
-                initialTimestamp = _suspendedAt || _jsPlumb.timestamp(),
+                initialTimestamp = _suspendedAt || jsPlumbUtil.uuid(),
                 anchorLoc = this.endpoints[0].anchor.compute({
                     xy: [ myOffset.left, myOffset.top ], wh: myWH, element: this.endpoints[0],
                     elementId: this.endpoints[0].elementId,
                     txy: [ otherOffset.left, otherOffset.top ], twh: otherWH, tElement: this.endpoints[1],
-                    timestamp: initialTimestamp
+                    timestamp: initialTimestamp,
+                    rotation:_jsPlumb.getRotation(this.endpoints[0].elementId)
                 });
 
             this.endpoints[0].paint({ anchorLoc: anchorLoc, timestamp: initialTimestamp });
@@ -9055,7 +9055,8 @@
                 xy: [ otherOffset.left, otherOffset.top ], wh: otherWH, element: this.endpoints[1],
                 elementId: this.endpoints[1].elementId,
                 txy: [ myOffset.left, myOffset.top ], twh: myWH, tElement: this.endpoints[0],
-                timestamp: initialTimestamp
+                timestamp: initialTimestamp,
+                rotation:_jsPlumb.getRotation(this.endpoints[1].elementId)
             });
             this.endpoints[1].paint({ anchorLoc: anchorLoc, timestamp: initialTimestamp });
         }
@@ -9352,8 +9353,21 @@
                         targetInfo = this._jsPlumb.instance.updateOffset({elId:tId}).o,
                         sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
 
-                    var sAnchorP = sE.anchor.getCurrentLocation({xy: [sourceInfo.left, sourceInfo.top], wh: [sourceInfo.width, sourceInfo.height], element: sE, timestamp: timestamp}),
-                        tAnchorP = tE.anchor.getCurrentLocation({xy: [targetInfo.left, targetInfo.top], wh: [targetInfo.width, targetInfo.height], element: tE, timestamp: timestamp});
+                    var sAnchorP = sE.anchor.getCurrentLocation(
+                        {
+                            xy: [sourceInfo.left, sourceInfo.top],
+                            wh: [sourceInfo.width, sourceInfo.height],
+                            element: sE,
+                            timestamp: timestamp,
+                            rotation:this._jsPlumb.instance.getRotation(this.sourceId)
+                        }),
+                        tAnchorP = tE.anchor.getCurrentLocation({
+                            xy: [targetInfo.left, targetInfo.top],
+                            wh: [targetInfo.width, targetInfo.height],
+                            element: tE,
+                            timestamp: timestamp,
+                            rotation:this._jsPlumb.instance.getRotation(this.targetId)
+                        });
 
                     this.connector.resetBounds();
 
@@ -9894,7 +9908,7 @@
                     endpointsToPaint = [],
                     anchorsToUpdate = [];
 
-                timestamp = timestamp || jsPlumbInstance.timestamp();
+                timestamp = timestamp || jsPlumbUtil.uuid();
                 // offsetToUI are values that would have been calculated in the dragManager when registering
                 // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
                 // registered as draggable.
@@ -15365,7 +15379,7 @@
         this.elementRemoved = function (elementId) {
             var elId = _draggablesForElements[elementId];
             if (elId) {
-                delete _delements[elId][elementId];
+                _delements[elId] && delete _delements[elId][elementId];
                 delete _draggablesForElements[elementId];
             }
         };

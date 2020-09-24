@@ -6538,8 +6538,8 @@ var testSuite = function (_jsPlumb) {
         assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 
         equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
-        var e16Loc = e16.anchor.lastReturnValue,
-            e17Loc = e17.anchor.lastReturnValue;
+        var e16Loc = e16.anchor.lastReturnValue.slice(),
+            e17Loc = e17.anchor.lastReturnValue.slice();
 
         equal(e16Loc[0], 100, "e16 x position is correct initially");
         equal(e16Loc[1], 200, "e16 y position is correct initially");
@@ -6551,34 +6551,35 @@ var testSuite = function (_jsPlumb) {
         equal(e17.anchor.getOrientation()[0], 0, "e17 x orientation is correct initially");
         equal(e17.anchor.getOrientation()[1], -1, "e17 y orientation is correct initially");
 
+
         // now rotate e16 by 90 degrees
         _jsPlumb.rotate("d16", 90);
 
-        e16Loc = e16.anchor.lastReturnValue;
-        e17Loc = e17.anchor.lastReturnValue;
-
+        var e16Loc2 = e16.anchor.lastReturnValue.slice();
+        var e17Loc2 = e17.anchor.lastReturnValue.slice();
 
         equal("center center", d16.style.transformOrigin, "transform origin was set");
         equal(d16.style.transform, "rotate(90deg)", "rotate transform was set");
-        equal(e16Loc[0], 25, "e16 x position is correct after rotation of d16");
-        equal(e16Loc[1], 125, "e16 y position is correct after rotation of d16");
+
+        equal(e16Loc2[0], 25, "e16 x position is correct after rotation of d16");
+        equal(e16Loc2[1], 125, "e16 y position is correct after rotation of d16");
         // these unchanged currently
-        equal(e17Loc[0], 300, "e17 x position is unchanged after rotation of d16");
-        equal(e17Loc[1], 250, "e17 y position is unchanged after rotation of d16");
+        equal(e17Loc2[0], 300, "e17 x position is unchanged after rotation of d16");
+        equal(e17Loc2[1], 250, "e17 y position is unchanged after rotation of d16");
 
         // rotate d17 by 180 degrees
         _jsPlumb.rotate("d17", 90);
 
-        e16Loc = e16.anchor.lastReturnValue;
-        e17Loc = e17.anchor.lastReturnValue;
+        var e16Loc3 = e16.anchor.lastReturnValue.slice();
+        var e17Loc3 = e17.anchor.lastReturnValue.slice();
 
         equal("center center", d17.style.transformOrigin, "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
-        equal(e16Loc[0], 25, "e16 x position is correct after rotation of 1d7");
-        equal(e16Loc[1], 125, "e16 y position is correct after rotation of d17");
+        equal(e16Loc3[0], 25, "e16 x position is correct after rotation of 1d7");
+        equal(e16Loc3[1], 125, "e16 y position is correct after rotation of d17");
         // these unchanged currently
-        equal(e17Loc[0], 375, "e17 x position is correct after rotation of d17");
-        equal(e17Loc[1], 325, "e17 y position is correct after rotation of d17");
+        equal(e17Loc3[0], 375, "e17 x position is correct after rotation of d17");
+        equal(e17Loc3[1], 325, "e17 y position is correct after rotation of d17");
     });
 
 };

@@ -391,7 +391,7 @@
                     endpointsToPaint = [],
                     anchorsToUpdate = [];
 
-                timestamp = timestamp || jsPlumbInstance.timestamp();
+                timestamp = timestamp || jsPlumbUtil.uuid();
                 // offsetToUI are values that would have been calculated in the dragManager when registering
                 // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
                 // registered as draggable.

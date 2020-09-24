@@ -194,7 +194,7 @@
                 otherInfo = _jsPlumb.getCachedData(this.targetId),
                 otherOffset = otherInfo.o,
                 otherWH = otherInfo.s,
-                initialTimestamp = _suspendedAt || _jsPlumb.timestamp(),
+                initialTimestamp = _suspendedAt || jsPlumbUtil.uuid(),
                 anchorLoc = this.endpoints[0].anchor.compute({
                     xy: [ myOffset.left, myOffset.top ], wh: myWH, element: this.endpoints[0],
                     elementId: this.endpoints[0].elementId,
