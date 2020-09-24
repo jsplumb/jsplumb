@@ -97,6 +97,13 @@ declare module jsPlumb {
 
         getEndpoints(element:string|Element):Array<Endpoint>;
 
+        /**
+         * Gets the current rotation, if any, for the element with the given id. If no specific rotation has been applied this method will return 0, never null or undefined.
+         * @param elementId ID of the element to retrieve rotation for.
+         * @returns The element's current rotation, 0 if no rotation applied.
+         */
+        getRotation(elementId:string):number;
+
         getScope(Element: Element | string): string;
 
         getSelector(context?: Element | Selector, spec?: string): void;
@@ -160,6 +167,15 @@ declare module jsPlumb {
         restoreDefaults(): jsPlumbInstance;
 
         revalidate(el: string | Element | Selector): void;
+
+        /**
+         * Rotates the element with the given id by the given amount in degrees. This method sets two properties on the element's style: `transform:rotate(<amount>deg)` and `transform-origin:center center`.
+         * Transform origins other than `center center` are not supported. To reset the rotation for some element, call `rotate(elId, 0)`.
+         * @param elId
+         * @param amountInDegrees
+         * @param doNotRedraw
+         */
+        rotate(elId:string, amountInDegrees:number, doNotRedraw?:boolean):void;
 
         select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Connection[]): { each(fn: (conn: Connection) => void): void };
 
