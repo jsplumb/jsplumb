@@ -17,10 +17,11 @@
     var _ju = root.jsPlumbUtil,
 
         /**
-         * creates a timestamp, using milliseconds since 1970, but as a string.
+         * creates a unique key. this was originally a timestamp but it was never compared, and so in some testing scenarios on a fast computer this
+         * was throwing errors with repainting.  `uuid()` is what this should have been from the start.
          */
         _timestamp = function () {
-            return "" + (new Date()).getTime();
+            return jsPlumbUtil.uuid();
         },
 
         // helper method to update the hover style whenever it, or paintStyle, changes.
@@ -1223,7 +1224,13 @@
 
                 if (!_suspendDrawing) {
                     e.paint({
-                        anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: sizes[id], element: e, timestamp: _suspendedAt }),
+                        anchorLoc: e.anchor.compute(
+                            { xy: [ myOffset.left, myOffset.top ],
+                                wh: sizes[id],
+                                element: e,
+                                timestamp: _suspendedAt,
+                                rotation:this.getRotation(id)
+                            }),
                         timestamp: _suspendedAt
                     });
                 }
@@ -2710,11 +2717,12 @@
         }.bind(this);
 
         var _first = function (el, fn) {
-            if (_ju.isString(el) || !el.length) {
-                return fn.apply(this, [ el ]);
-            }
-            else if (el.length) {
-                return fn.apply(this, [ el[0] ]);
+            if (el != null) {
+                if (_ju.isString(el) || !el.length) {
+                    return fn.apply(this, [el]);
+                } else if (el.length) {
+                    return fn.apply(this, [el[0]]);
+                }
             }
 
         }.bind(this);
