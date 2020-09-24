@@ -3,6 +3,7 @@
 - additional unit testing for the setTarget method
 - added `destroy` method to jsPlumb class, which performs a reset and also sets a bunch of closure-wide variables to null.
 - switched a few functions from using closures to using members on the Anchor class
+- added support for rotating elements, using the `rotate(degrees:number)` method of jsPlumb. Currently does not work when you are using Continuous or Dynamic anchors, only fixed anchors. 
 
 ## 2.14.6
 
