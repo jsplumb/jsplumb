@@ -425,6 +425,7 @@
                         } else if (this.connections.length > 0) {
                             anchorParams.connection = this.connections[0];
                         }
+                        anchorParams.rotation = _jsPlumb.getRotation(this.elementId);
                         ap = this.anchor.compute(anchorParams);
                     }
 
