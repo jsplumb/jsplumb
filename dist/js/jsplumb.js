@@ -1744,8 +1744,9 @@
             scroll = this.params.scroll,
             _multipleDrop = params.multipleDrop !== false,
             isConstrained = false,
-            useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
-            ghostProxy = function(el) { return el.cloneNode(true); },
+            //useGhostProxy = params.ghostProxy === true ? TRUE : params.ghostProxy && typeof params.ghostProxy === "function" ? params.ghostProxy : FALSE,
+            useGhostProxy,
+            ghostProxy,// = function(el) { return el.cloneNode(true); },
             elementToDrag = null,
             availableSelectors = [],
             activeSelectorParams = null, // which, if any, selector config is currently active.
@@ -1754,6 +1755,36 @@
             ghostParentPosition,
             ghostDx,
             ghostDy;
+
+        if (params.ghostProxy === true) {
+            useGhostProxy = TRUE;
+        } else {
+            if (params.ghostProxy && typeof params.ghostProxy === "function") {
+                useGhostProxy = params.ghostProxy;
+            } else {
+                useGhostProxy = function(container, dragEl) {
+                    if (activeSelectorParams && activeSelectorParams.useGhostProxy) {
+                        return activeSelectorParams.useGhostProxy(container, dragEl);
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (params.makeGhostProxy) {
+            ghostProxy = params.makeGhostProxy;
+        } else {
+
+            ghostProxy = function(el) {
+                if (activeSelectorParams && activeSelectorParams.makeGhostProxy) {
+                    return activeSelectorParams.makeGhostProxy(el);
+                } else {
+                    return el.cloneNode(true);
+                }
+            };
+
+        }
 
         // if an initial selector was provided, push the entire set of params as a selector config.
         if (params.selector) {
@@ -1837,6 +1868,14 @@
          */
         this.setConstrain = function(value) {
             _setConstrain(value);
+        };
+
+        /* private */ var _doConstrain = function(pos, dragEl, _constrainRect, _size) {
+            if (activeSelectorParams != null && activeSelectorParams.constrain && typeof activeSelectorParams.constrain === "function") {
+                return activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size);
+            } else {
+                return constrain(pos, dragEl, _constrainRect, _size);
+            }
         };
 
         var revertFunction;
@@ -2199,7 +2238,7 @@
             intersectingDroppables.length = 0;
 
             var desiredLoc = this.toGrid([posAtDown[0] + dx, posAtDown[1] + dy]),
-                cPos = constrain(desiredLoc, dragEl, constrainRect, this.size);
+                cPos = _doConstrain(desiredLoc, dragEl, constrainRect, this.size);
 
             // if we should use a ghost proxy...
             if (useGhostProxy(this.el, dragEl)) {
@@ -2692,8 +2731,12 @@
         };
 
         this.elementRemoved = function(el) {
-            this.destroyDraggable(el);
-            this.destroyDroppable(el);
+            if (el["_katavorioDrag"]) {
+                this.destroyDraggable(el);
+            }
+            if (el["_katavorioDrop"]) {
+                this.destroyDroppable(el);
+            }
         };
 
         /**
@@ -5824,7 +5867,8 @@
                 managedElements[id] = {
                     el: element,
                     endpoints: [],
-                    connections: []
+                    connections: [],
+                    rotation: 0
                 };
 
                 managedElements[id].info = _updateOffset({ elId: id, timestamp: _suspendedAt });
@@ -5842,13 +5886,30 @@
             return managedElements[id];
         };
 
-        var _unmanage = _currentInstance.unmanage = function(id) {
+        this.unmanage = function(id) {
             if (managedElements[id]) {
                 var el = managedElements[id].el;
                _currentInstance.removeClass(el, "jtk-managed");
                 delete managedElements[id];
                 _currentInstance.fire("unmanageElement", {id:id, el:el});
             }
+        };
+
+        this.rotate = function(elId, amountInDegrees, doNotRedraw) {
+            if (managedElements[elId]) {
+                managedElements[elId].rotation = amountInDegrees;
+
+                managedElements[elId].el.style.transform="rotate(" + amountInDegrees + "deg)";
+                managedElements[elId].el.style.transformOrigin="center center";
+
+                if (doNotRedraw !== true) {
+                    this.revalidate(elId);
+                }
+            }
+        };
+
+        this.getRotation = function(elementId) {
+            return managedElements[elementId] ? managedElements[elementId].rotation || 0 : 0;
         };
 
         /**
@@ -6817,6 +6878,7 @@
         this.destroy = function() {
             this.reset();
             _container = null;
+            _containerDelegations = null;
         };
 
         var _clearObject = function (obj) {
@@ -7936,6 +7998,7 @@
                         } else if (this.connections.length > 0) {
                             anchorParams.connection = this.connections[0];
                         }
+                        anchorParams.rotation = _jsPlumb.getRotation(this.elementId);
                         ap = this.anchor.compute(anchorParams);
                     }
 
@@ -10222,6 +10285,11 @@
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;
 
+        this._unrotatedOrientation = [
+            this.orientation[0],
+            this.orientation[1]
+        ];
+
         this.relocatable = params.relocatable !== false;
         this.snapOnRelocate = params.snapOnRelocate !== false;
 
@@ -10245,7 +10313,38 @@
                 this.lastReturnValue = this.userDefinedLocation;
             }
             else {
-                this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
+                // unrotated position
+                var candidate = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
+
+                // if rotation set, adjust position.
+                var rotation = params.rotation;
+                if (rotation != null && rotation !== 0) {
+                    var center = [
+                            xy[0] + (wh[0] / 2),
+                            xy[1] + (wh[1] / 2)
+                        ],
+                        radial = [
+                            candidate[0] - center[0],
+                            candidate[1] - center[1]
+                        ],
+                        cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2),
+                        c2 = [
+                            (radial[0] * cr) - (radial[1] * sr),
+                            (radial[1] * cr) + (radial[0] * sr)
+                        ];
+
+                    // rotate the orientation values too. for rotations that are not multiples of 90 degrees, this will result in values that are not in the set
+                    // [0, -1, 1 ], and in that case the connector paint may not be perfect. need some evidence from real world usage.
+                    this.orientation[0] = Math.round((this._unrotatedOrientation[0] * cr) - (this._unrotatedOrientation[1] * sr));
+                    this.orientation[1] = Math.round((this._unrotatedOrientation[1] * cr) + (this._unrotatedOrientation[0] * sr));
+
+                    this.lastReturnValue = [center[0] + c2[0], center[1] + c2[1]];
+                } else {
+                    // if rotation not set (or 0), ensure orientation is original value
+                    this.orientation[0] = this._unrotatedOrientation[0];
+                    this.orientation[1] = this._unrotatedOrientation[1];
+                    this.lastReturnValue = candidate;
+                }
             }
 
             this.timestamp = timestamp;
