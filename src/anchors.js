@@ -1006,24 +1006,39 @@
             self = this,
 
             // helper method to calculate the distance between the centers of the two elements.
-            _distance = function (anchor, cx, cy, xy, wh) {
+            _distance = function (anchor, cx, cy, xy, wh, r, tr) {
                 var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]),
                     acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2);
+
+                if(r != null && r !== 0) {
+
+                    //console.log("radius ", r, "; rotating anchor from ", ax, ay);
+
+                    var radial = [ ax - acx, ay - acy ],
+                        cr = Math.cos(r / 360 * Math.PI * 2), sr = Math.sin(r / 360 * Math.PI * 2);
+                    ax = (radial[0] * cr) - (radial[1] * sr) + acx;
+                    ay = (radial[1] * cr) + (radial[0] * sr) + acy;
+
+                    //console.log("  rotated values ", ax, ay);
+                }
+
                 return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) +
                 Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)));
             },
             // default method uses distance between element centers.  you can provide your own method in the dynamic anchor
-            // constructor (and also to jsPlumb.makeDynamicAnchor). the arguments to it are four arrays:
+            // constructor (and also to jsPlumb.makeDynamicAnchor). the arguments to it are:
             // xy - xy loc of the anchor's element
             // wh - anchor's element's dimensions
             // txy - xy loc of the element of the other anchor in the connection
             // twh - dimensions of the element of the other anchor in the connection.
+            // r - the rotation of the anchor's element
+            // tr - the rotation of the target anchor's element. currently unused;  a placeholder for possible future refactoring.
             // anchors - the list of selectable anchors
-            _anchorSelector = params.selector || function (xy, wh, txy, twh, anchors) {
+            _anchorSelector = params.selector || function (xy, wh, txy, twh, r, tr, anchors) {
                     var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
                     var minIdx = -1, minDist = Infinity;
                     for (var i = 0; i < anchors.length; i++) {
-                        var d = _distance(anchors[i], cx, cy, xy, wh);
+                        var d = _distance(anchors[i], cx, cy, xy, wh, r, tr);
                         if (d < minDist) {
                             minIdx = i + 0;
                             minDist = d;
@@ -1033,7 +1048,7 @@
                 };
 
         this.compute = function (params) {
-            var xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh;
+            var xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh, r = params.rotation, tr = params.tRotation;
 
             this.timestamp = params.timestamp;
 
@@ -1046,13 +1061,14 @@
             // maintain our state. anchor will be locked
             // if it is the source of a drag and drop.
             if (this.locked || txy == null || twh == null) {
-                return _curAnchor.compute(params);
+                this.lastReturnValue = _curAnchor.compute(params);
+                return this.lastReturnValue;
             }
             else {
                 params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
             }
 
-            _curAnchor = _anchorSelector(xy, wh, txy, twh, this.anchors);
+            _curAnchor = _anchorSelector(xy, wh, txy, twh, r, tr, this.anchors);
             this.x = _curAnchor.x;
             this.y = _curAnchor.y;
 
@@ -1062,7 +1078,8 @@
 
             _lastAnchor = _curAnchor;
 
-            return _curAnchor.compute(params);
+            this.lastReturnValue = _curAnchor.compute(params);
+            return this.lastReturnValue;
         };
 
         this.getCurrentLocation = function (params) {
