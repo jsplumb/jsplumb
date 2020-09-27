@@ -4,7 +4,7 @@ import {PaintStyle} from "./styles"
 import {Connection} from "./connector/connection-impl"
 import {Endpoint} from "./endpoint/endpoint-impl"
 import {FullOverlaySpec, Overlay, OverlayId, OverlaySpec} from "./overlay/overlay"
-import {AnchorManager} from "./anchor-manager"
+import {AnchorManager, AnchorPlacement} from "./anchor-manager"
 import {
     _mergeOverrides,
     addToList,
@@ -119,6 +119,7 @@ export interface TargetDefinition extends SourceOrTargetDefinition { }
 
 export interface Offset {left:number, top:number}
 export type Size = [ number, number ]
+export type Rotation = number
 export interface OffsetAndSize { o:Offset, s:Size }
 export type PointArray = [ number, number ]
 export type PointXY = { x:number, y:number, theta?:number }
@@ -133,7 +134,7 @@ export interface UpdateOffsetOptions {
     elId?:string
 }
 
-export type UpdateOffsetResult = {o:ExtendedOffset, s:Size}
+export type UpdateOffsetResult = {o:ExtendedOffset, s:Size, r:Rotation}
 
 export interface ExtendedOffset extends Offset {
     width?:number
@@ -241,13 +242,6 @@ function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolea
     return (<any>list).length > 0 ? (<any>list).indexOf(value) !== -1 : !missingIsFalse
 }
 
-/**
- * creates a timestamp, using milliseconds since 1970, but as a string.
- */
-export function  _timestamp ():Timestamp {
-    return "" + (new Date()).getTime()
-}
-
 export function extend<T>(o1:T, o2:T, keys?:string[]):T {
     let i
     let _o1 = o1 as any,
@@ -268,10 +262,11 @@ export function extend<T>(o1:T, o2:T, keys?:string[]):T {
 }
 
 export type ManagedElement = {
-    el:any,
+    el:jsPlumbDOMElement,
     info?:{o:Offset, s:Size},
     endpoints?:Array<Endpoint>,
-    connections?:Array<Connection>
+    connections?:Array<Connection>,
+    rotation?:number
 }
 
 export abstract class jsPlumbInstance extends EventGenerator {
@@ -322,7 +317,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
     private _endpointTypes:Dictionary<TypeDescriptor> = {}
     private _container:any
 
-    private _managedElements:Dictionary<ManagedElement> = {}
+    protected _managedElements:Dictionary<ManagedElement> = {}
     private _floatingConnections:Dictionary<Connection> = {}
 
     DEFAULT_SCOPE:string
@@ -570,14 +565,14 @@ export abstract class jsPlumbInstance extends EventGenerator {
         this.setId(oldId, newId, true)
     }
 
-    getCachedData(elId:string):{o:Offset, s:Size} {
+    getCachedData(elId:string):{o:Offset, s:Size, r:Rotation} {
 
         let o = this._offsets[elId]
         if (!o) {
             return this.updateOffset({elId: elId})
         }
         else {
-            return {o: o, s: this._sizes[elId]}
+            return {o: o, s: this._sizes[elId], r:this.getRotation(elId)}
         }
     }
 
@@ -776,6 +771,20 @@ export abstract class jsPlumbInstance extends EventGenerator {
         return curVal
     }
 
+    computeAnchorLoc(endpoint:Endpoint, timestamp?:string):AnchorPlacement {
+
+        const myOffset = this._managedElements[endpoint.elementId].info.o
+        const anchorLoc = endpoint.anchor.compute({
+            xy: [ myOffset.left, myOffset.top ],
+            wh: this._sizes[endpoint.elementId],
+            element: endpoint,
+            timestamp: timestamp || this._suspendedAt,
+            rotation:this._managedElements[endpoint.elementId].rotation
+        })
+        return anchorLoc
+
+    }
+
     // return time for when drawing was suspended.
     getSuspendedAt ():string {
         return this._suspendedAt
@@ -848,7 +857,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         }
         if (!recalc) {
             if (timestamp && timestamp === this._offsetTimestamps[elId]) {
-                return {o: params.offset || this._offsets[elId], s: this._sizes[elId]}
+                return {o: params.offset || this._offsets[elId], s: this._sizes[elId], r:this.getRotation(elId)}
             }
         }
         if (recalc || (!offset && this._offsets[elId] == null)) { // if forced repaint or no offset available, we recalculate.
@@ -880,7 +889,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
             this._offsets[elId].centery = this._offsets[elId].top + (this._offsets[elId].height / 2)
         }
 
-        return {o: this._offsets[elId], s: this._sizes[elId]}
+        return {o: this._offsets[elId], s: this._sizes[elId], r:this.getRotation(elId)}
     }
 
     /**
@@ -996,15 +1005,19 @@ export abstract class jsPlumbInstance extends EventGenerator {
      * @param element String, or DOM element.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage (element:ElementSpec, recalc?:boolean):void {
+    manage (element:ElementSpec, recalc?:boolean):ManagedElement {
 
         const el:any = IS.aString(element) ? this.getElementById(element as string) : element
         const elId = this.getId(el)
         if (!this._managedElements[elId]) {
+
+            this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "")
+
             this._managedElements[elId] = {
                 el:el,
                 endpoints:[],
-                connections:[]
+                connections:[],
+                rotation:0
             }
 
             if (this._suspendDrawing) {
@@ -1015,12 +1028,21 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: this._suspendedAt})
             }
 
-            this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "")
+            // write context into the element. we want to use this moving forward and get rid of endpointsByElement and the sizes, offsets and info stuff
+            // from above. it should suffice to put the context on the elements themselves.
+            el._jspContext = {
+                ep:[],
+                o:this._offsets[elId],
+                s:this._sizes[elId]
+            }
+
         } else {
             if (recalc) {
                 this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: null,  recalc:true })
             }
         }
+
+        return this._managedElements[elId]
     }
 
     /**
@@ -1032,6 +1054,19 @@ export abstract class jsPlumbInstance extends EventGenerator {
             this.removeAttribute(this._managedElements[id].el, Constants.ATTRIBUTE_MANAGED)
             delete this._managedElements[id]
         }
+    }
+
+    rotate(elementId:string, rotation:number, doNotRepaint?:boolean) {
+        if (this._managedElements[elementId]) {
+            this._managedElements[elementId].rotation = rotation
+            if (doNotRepaint !== true) {
+                this.revalidate(elementId)
+            }
+        }
+    }
+
+    getRotation(elementId:string):number {
+        return this._managedElements[elementId] ? (this._managedElements[elementId].rotation || 0) : 0
     }
 
     newEndpoint(params:any, id?:string):Endpoint {
@@ -1092,7 +1127,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
         // TODO this timestamp causes continuous anchors to not repaint properly.
         // fix this. do not just take out the timestamp. it runs a lot faster with
         // the timestamp included.
-        let timestamp = _timestamp(), elId:string
+        let timestamp = uuid(), elId:string
 
         for (elId in this.endpointsByElement) {
             this.updateOffset({ elId: elId, recalc: true, timestamp: timestamp })
@@ -1125,7 +1160,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
                     repaintOffsets:Array<ExtendedOffset> = []
 
                 if (timestamp == null) {
-                    timestamp = _timestamp()
+                    timestamp = uuid()
                 }
 
                 if (!offsetsWereJustCalculated) {
@@ -1223,15 +1258,23 @@ export abstract class jsPlumbInstance extends EventGenerator {
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
         let _p = extend({source:el}, p)
         let id = this.getId(_p.source)
-        this.manage(el, !this._suspendDrawing)
+        const mel:ManagedElement = this.manage(el, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
 
         addToList(this.endpointsByElement, id, e)
 
+        // store the endpoint directly on the element.
+        mel.el._jspContext.ep.push(e)
+
         if (!this._suspendDrawing) {
-            let myOffset = this._managedElements[id].info.o
+
+            // why not just a full renderer.paintEndpoint method here?
+
+            //this.renderer.paintEndpoint()  // but why does this method expect a paintStyle?
+
+            const anchorLoc = this.computeAnchorLoc(e)
             e.paint({
-                anchorLoc: e.anchor.compute({ xy: [ myOffset.left, myOffset.top ], wh: this._sizes[id], element: e, timestamp: this._suspendedAt }),
+                anchorLoc: anchorLoc,
                 timestamp: this._suspendedAt
             })
         }
