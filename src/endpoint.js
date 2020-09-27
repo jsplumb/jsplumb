@@ -422,6 +422,7 @@
                             anchorParams.txy = [ oOffset.left, oOffset.top ];
                             anchorParams.twh = oWH;
                             anchorParams.tElement = c.endpoints[oIdx];
+                            anchorParams.tRotation = _jsPlumb.getRotation(oId);
                         } else if (this.connections.length > 0) {
                             anchorParams.connection = this.connections[0];
                         }
