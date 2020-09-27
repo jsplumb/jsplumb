@@ -1,6 +1,5 @@
 import {Endpoint} from "./endpoint/endpoint-impl"
 import {
-    _timestamp,
     Dictionary,
     ExtendedOffset,
     jsPlumbInstance,
@@ -12,7 +11,7 @@ import {
 import {Connection} from "./connector/connection-impl"
 import {Face, Orientation} from "./factory/anchor-factory"
 import { DynamicAnchor } from "./anchor/dynamic-anchor"
-import {addToList, findWithFunction, removeWithFunction, sortHelper} from "./util"
+import {addToList, findWithFunction, removeWithFunction, sortHelper, uuid} from "./util"
 import {ContinuousAnchor, ContinuousAnchorOptions} from "./anchor/continuous-anchor"
 import {Anchor} from "./anchor/anchor"
 
@@ -319,7 +318,7 @@ export class AnchorManager {
             // get all the endpoints for this element
             let ep = this._amEndpoints[elementId] || []
 
-            timestamp = timestamp || _timestamp()
+            timestamp = timestamp || uuid()
             // offsetToUI are values that would have been calculated in the dragManager when registering
             // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
             // registered as draggable.
@@ -454,7 +453,7 @@ export class AnchorManager {
             // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
             for (let ep of endpointsToPaint) {
                 let cd = this.instance.getCachedData(ep.elementId)
-                ep.paint({ timestamp: timestamp, offset: cd, dimensions: cd.s })
+                ep.paint({ timestamp: timestamp, offset: cd, dimensions: cd.s, rotation:cd.r })
             }
 
             // paint current floating connection for this element, if there is one.
