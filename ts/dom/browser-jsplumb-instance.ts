@@ -78,6 +78,7 @@ export interface jsPlumbDOMElement extends HTMLElement {
     _jsPlumbList:any
     _jsPlumbScrollHandler?:Function
     _katavorioDrag?:Drag
+    _jspContext?:any
 }
 
 export type PosseSpec = string | { id:string, active:boolean }
@@ -681,6 +682,16 @@ export class BrowserJsPlumbInstance extends jsPlumbInstance {
      */
     createDragManager(options:CollicatOptions):Collicat {
         return new Collicat(options)
+    }
+
+
+    rotate(elementId: string, rotation: number, doNotRepaint?: boolean) {
+        if (this._managedElements[elementId]) {
+            this._managedElements[elementId].el.style.transform = "rotate(" + rotation + "deg)"
+            this._managedElements[elementId].el.style.transformOrigin = "center center"
+            super.rotate(elementId, rotation, doNotRepaint)
+        }
+
     }
 
     svg = {
