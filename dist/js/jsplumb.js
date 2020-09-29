@@ -7994,6 +7994,7 @@
                             anchorParams.txy = [ oOffset.left, oOffset.top ];
                             anchorParams.twh = oWH;
                             anchorParams.tElement = c.endpoints[oIdx];
+                            anchorParams.tRotation = _jsPlumb.getRotation(oId);
                         } else if (this.connections.length > 0) {
                             anchorParams.connection = this.connections[0];
                         }
@@ -9547,7 +9548,7 @@
             jsPlumbInstance = params.jsPlumbInstance,
             floatingConnections = {},
             // used by placeAnchors function
-            placeAnchorsOnLine = function (desc, elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse) {
+            placeAnchorsOnLine = function (desc, elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse, rotation) {
                 var a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
 
                 for (var i = 0; i < connections.length; i++) {
@@ -9556,8 +9557,15 @@
                         val = elementDimensions[horizontal ? 0 : 1] - val;
                     }
 
-                    var dx = (horizontal ? val : other), x = elementPosition[0] + dx, xp = dx / elementDimensions[0],
-                        dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
+                    var dx = (horizontal ? val : other), x = elementPosition.left + dx, xp = dx / elementDimensions[0],
+                        dy = (horizontal ? other : val), y = elementPosition.top + dy, yp = dy / elementDimensions[1];
+
+                    if (rotation !== 0) {
+                        var rotated = rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
+                        x = rotated[0];
+                        y = rotated[1];
+
+                    }
 
                     a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ]);
                 }
@@ -9592,9 +9600,10 @@
                         if (unsortedConnections.length > 0) {
                             var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
                                 reverse = desc === "right" || desc === "top",
+                                rotation = jsPlumbInstance.getRotation(elementId),
                                 anchors = placeAnchorsOnLine(desc, elementDimensions,
                                     elementPosition, sc,
-                                    isHorizontal, otherMultiplier, reverse);
+                                    isHorizontal, otherMultiplier, reverse, rotation);
 
                             // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
                             var _setAnchorLocation = function (endpoint, anchorPos) {
@@ -9614,10 +9623,14 @@
                         }
                     };
 
-                placeSomeAnchors("bottom", sS, [sO.left, sO.top], _anchorLists.bottom, true, 1, [0, 1]);
-                placeSomeAnchors("top", sS, [sO.left, sO.top], _anchorLists.top, true, 0, [0, -1]);
-                placeSomeAnchors("left", sS, [sO.left, sO.top], _anchorLists.left, false, 0, [-1, 0]);
-                placeSomeAnchors("right", sS, [sO.left, sO.top], _anchorLists.right, false, 1, [1, 0]);
+                // placeSomeAnchors("bottom", sS, [sO.left, sO.top], _anchorLists.bottom, true, 1, [0, 1]);
+                // placeSomeAnchors("top", sS, [sO.left, sO.top], _anchorLists.top, true, 0, [0, -1]);
+                // placeSomeAnchors("left", sS, [sO.left, sO.top], _anchorLists.left, false, 0, [-1, 0]);
+                // placeSomeAnchors("right", sS, [sO.left, sO.top], _anchorLists.right, false, 1, [1, 0]);
+                placeSomeAnchors("bottom", sS, sO, _anchorLists.bottom, true, 1, [0, 1]);
+                placeSomeAnchors("top", sS, sO, _anchorLists.top, true, 0, [0, -1]);
+                placeSomeAnchors("left", sS, sO, _anchorLists.left, false, 0, [-1, 0]);
+                placeSomeAnchors("right", sS, sO, _anchorLists.right, false, 1, [1, 0]);
             };
 
         this.reset = function () {
@@ -9906,7 +9919,8 @@
                     endpointConnections = connectionsByElementId[elementId] || [],
                     connectionsToPaint = [],
                     endpointsToPaint = [],
-                    anchorsToUpdate = [];
+                    anchorsToUpdate = [],
+                    rotation = jsPlumbInstance.getRotation(elementId);
 
                 timestamp = timestamp || jsPlumbUtil.uuid();
                 // offsetToUI are values that would have been calculated in the dragManager when registering
@@ -9938,7 +9952,9 @@
                     if (sourceContinuous || targetContinuous) {
                         var oKey = sourceId + "_" + targetId,
                             o = orientationCache[oKey],
-                            oIdx = conn.sourceId === elementId ? 1 : 0;
+                            oIdx = conn.sourceId === elementId ? 1 : 0,
+                            targetRotation = jsPlumbInstance.getRotation(targetId),
+                            sourceRotation = jsPlumbInstance.getRotation(sourceId);
 
                         if (sourceContinuous && !anchorLists[sourceId]) {
                             anchorLists[sourceId] = { top: [], right: [], bottom: [], left: [] };
@@ -9967,7 +9983,7 @@
                         }
                         else {
                             if (!o) {
-                                o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor, conn);
+                                o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor, conn, sourceRotation, targetRotation);
                                 orientationCache[oKey] = o;
                                 // this would be a performance enhancement, but the computed angles need to be clamped to
                                 //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
@@ -10195,7 +10211,32 @@
         };
     };
 
-    _jp.AnchorManager.prototype.calculateOrientation = function (sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
+    function rotatePoint(point, center, rotation) {
+        var radial = [ point[0] - center[0], point[1]- center[1]],
+            cr = Math.cos(rotation / 360 * Math.PI * 2),
+            sr = Math.sin(rotation / 360 * Math.PI * 2);
+
+        return [
+            (radial[0] * cr) - (radial[1] * sr) + center[0],
+            (radial[1] * cr) + (radial[0] * sr) + center[1],
+            cr,
+            sr
+        ];
+    }
+
+    function rotateBoundingBox(box, rotation) {
+
+    }
+
+    _jp.AnchorManager.prototype.calculateOrientation = function (sourceId,
+                                                                 targetId,
+                                                                 sd,
+                                                                 td,
+                                                                 sourceAnchor,
+                                                                 targetAnchor,
+                                                                 connection,
+                                                                 sourceRotation,
+                                                                 targetRotation) {
 
         var Orientation = { HORIZONTAL: "horizontal", VERTICAL: "vertical", DIAGONAL: "diagonal", IDENTITY: "identity" },
             axes = ["left", "top", "right", "bottom"];
@@ -10207,6 +10248,8 @@
             };
         }
 
+        // since we only support rotation around the center of an element these two lines don't have to take rotation
+        // into account.
         var theta = Math.atan2((td.centery - sd.centery), (td.centerx - sd.centerx)),
             theta2 = Math.atan2((sd.centery - td.centery), (sd.centerx - td.centerx));
 
@@ -10216,16 +10259,22 @@
         // source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can
         // go through the array one by one until we find an entry in which each requested face is supported.
         var candidates = [], midpoints = { };
+
         (function (types, dim) {
             for (var i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
-                    "left": [ dim[i].left, dim[i].centery ],
-                    "right": [ dim[i].right, dim[i].centery ],
-                    "top": [ dim[i].centerx, dim[i].top ],
-                    "bottom": [ dim[i].centerx , dim[i].bottom]
+                    "left": [ dim[i][0].left, dim[i][0].centery ],
+                    "right": [ dim[i][0].right, dim[i][0].centery ],
+                    "top": [ dim[i][0].centerx, dim[i][0].top ],
+                    "bottom": [ dim[i][0].centerx , dim[i][0].bottom]
                 };
+                if (dim[i][1] !== 0) {
+                    for (var axis in midpoints[types[i]]) {
+                        midpoints[types[i]][axis] = rotatePoint(midpoints[types[i]][axis], [dim[i][0].centerx, dim[i][0].centery], dim[i][1]);
+                    }
+                }
             }
-        })([ "source", "target" ], [ sd, td ]);
+        })([ "source", "target" ], [ [sd, sourceRotation], [td, targetRotation] ]);
 
         for (var sf = 0; sf < axes.length; sf++) {
             for (var tf = 0; tf < axes.length; tf++) {
@@ -10333,26 +10382,28 @@
                 // if rotation set, adjust position.
                 var rotation = params.rotation;
                 if (rotation != null && rotation !== 0) {
-                    var center = [
-                            xy[0] + (wh[0] / 2),
-                            xy[1] + (wh[1] / 2)
-                        ],
-                        radial = [
-                            candidate[0] - center[0],
-                            candidate[1] - center[1]
-                        ],
-                        cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2),
-                        c2 = [
-                            (radial[0] * cr) - (radial[1] * sr),
-                            (radial[1] * cr) + (radial[0] * sr)
-                        ];
+                    // var center = [
+                    //         xy[0] + (wh[0] / 2),
+                    //         xy[1] + (wh[1] / 2)
+                    //     ]
+                    //     radial = [
+                    //         candidate[0] - center[0],
+                    //         candidate[1] - center[1]
+                    //     ],
+                    //     cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2),
+                    //     c2 = [
+                    //         0,//(radial[0] * cr) - (radial[1] * sr),
+                    //         (radial[1] * cr) + (radial[0] * sr)
+                    //     ];
+
+                    var c2 = rotatePoint(candidate, [xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2) ], rotation);
 
                     // rotate the orientation values too. for rotations that are not multiples of 90 degrees, this will result in values that are not in the set
                     // [0, -1, 1 ], and in that case the connector paint may not be perfect. need some evidence from real world usage.
-                    this.orientation[0] = Math.round((this._unrotatedOrientation[0] * cr) - (this._unrotatedOrientation[1] * sr));
-                    this.orientation[1] = Math.round((this._unrotatedOrientation[1] * cr) + (this._unrotatedOrientation[0] * sr));
+                    this.orientation[0] = Math.round((this._unrotatedOrientation[0] * c2[2]) - (this._unrotatedOrientation[1] * c2[3]));
+                    this.orientation[1] = Math.round((this._unrotatedOrientation[1] * c2[2]) + (this._unrotatedOrientation[0] * c2[3]));
 
-                    this.lastReturnValue = [center[0] + c2[0], center[1] + c2[1]];
+                    this.lastReturnValue = c2;//[center[0] + c2[0], center[1] + c2[1]];
                 } else {
                     // if rotation not set (or 0), ensure orientation is original value
                     this.orientation[0] = this._unrotatedOrientation[0];
@@ -10523,24 +10574,43 @@
             self = this,
 
             // helper method to calculate the distance between the centers of the two elements.
-            _distance = function (anchor, cx, cy, xy, wh) {
+            _distance = function (anchor, cx, cy, xy, wh, r, tr) {
                 var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]),
                     acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2);
+
+                if(r != null && r !== 0) {
+
+                    //console.log("radius ", r, "; rotating anchor from ", ax, ay);
+
+                    // var radial = [ ax - acx, ay - acy ],
+                    //     cr = Math.cos(r / 360 * Math.PI * 2), sr = Math.sin(r / 360 * Math.PI * 2);
+                    //
+                    // ax = (radial[0] * cr) - (radial[1] * sr) + acx;
+                    // ay = (radial[1] * cr) + (radial[0] * sr) + acy;
+                    var rotated = rotatePoint([ax,ay], [acx, acy], r);
+                    ax = rotated[0];
+                    ay = rotated[1];
+
+                    //console.log("  rotated values ", ax, ay);
+                }
+
                 return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) +
-                Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)));
+                        Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)));
             },
             // default method uses distance between element centers.  you can provide your own method in the dynamic anchor
-            // constructor (and also to jsPlumb.makeDynamicAnchor). the arguments to it are four arrays:
+            // constructor (and also to jsPlumb.makeDynamicAnchor). the arguments to it are:
             // xy - xy loc of the anchor's element
             // wh - anchor's element's dimensions
             // txy - xy loc of the element of the other anchor in the connection
             // twh - dimensions of the element of the other anchor in the connection.
+            // r - the rotation of the anchor's element
+            // tr - the rotation of the target anchor's element. currently unused;  a placeholder for possible future refactoring.
             // anchors - the list of selectable anchors
-            _anchorSelector = params.selector || function (xy, wh, txy, twh, anchors) {
+            _anchorSelector = params.selector || function (xy, wh, txy, twh, r, tr, anchors) {
                     var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
                     var minIdx = -1, minDist = Infinity;
                     for (var i = 0; i < anchors.length; i++) {
-                        var d = _distance(anchors[i], cx, cy, xy, wh);
+                        var d = _distance(anchors[i], cx, cy, xy, wh, r, tr);
                         if (d < minDist) {
                             minIdx = i + 0;
                             minDist = d;
@@ -10550,7 +10620,7 @@
                 };
 
         this.compute = function (params) {
-            var xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh;
+            var xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh, r = params.rotation, tr = params.tRotation;
 
             this.timestamp = params.timestamp;
 
@@ -10563,13 +10633,14 @@
             // maintain our state. anchor will be locked
             // if it is the source of a drag and drop.
             if (this.locked || txy == null || twh == null) {
-                return _curAnchor.compute(params);
+                this.lastReturnValue = _curAnchor.compute(params);
+                return this.lastReturnValue;
             }
             else {
                 params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
             }
 
-            _curAnchor = _anchorSelector(xy, wh, txy, twh, this.anchors);
+            _curAnchor = _anchorSelector(xy, wh, txy, twh, r, tr, this.anchors);
             this.x = _curAnchor.x;
             this.y = _curAnchor.y;
 
@@ -10579,7 +10650,8 @@
 
             _lastAnchor = _curAnchor;
 
-            return _curAnchor.compute(params);
+            this.lastReturnValue = _curAnchor.compute(params);
+            return this.lastReturnValue;
         };
 
         this.getCurrentLocation = function (params) {
