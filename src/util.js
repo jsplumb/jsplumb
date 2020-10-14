@@ -1,13 +1,4 @@
-/*
- * Utility functions.
- *
- * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
- *
- * https://jsplumbtoolkit.com
- * https://github.com/jsplumb/jsplumb
- *
- * Dual licensed under the MIT and GPL2 licenses.
- */
+
 (function() {
 
     var root = this;
@@ -420,15 +411,6 @@
         return child;
     }
     jsPlumbUtil.extend = extend;
-    /**
-     * Generate a UUID.
-     */
-        // export function uuid(): string {
-        //     return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        //         let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        //         return v.toString(16);
-        //     }));
-        // }
     var lut = [];
     for (var i = 0; i < 256; i++) {
         lut[i] = (i < 16 ? '0' : '') + (i).toString(16);
@@ -692,5 +674,23 @@
         return EventGenerator;
     }());
     jsPlumbUtil.EventGenerator = EventGenerator;
+    function rotatePoint(point, center, rotation) {
+        var radial = [point[0] - center[0], point[1] - center[1]], cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2);
+        return [
+            (radial[0] * cr) - (radial[1] * sr) + center[0],
+            (radial[1] * cr) + (radial[0] * sr) + center[1],
+            cr,
+            sr
+        ];
+    }
+    jsPlumbUtil.rotatePoint = rotatePoint;
+    function rotateAnchorOrientation(orientation, rotation) {
+        var r = rotatePoint(orientation, [0, 0], rotation);
+        return [
+            Math.round(r[0]),
+            Math.round(r[1])
+        ];
+    }
+    jsPlumbUtil.rotateAnchorOrientation = rotateAnchorOrientation;
 
 }).call(typeof window !== 'undefined' ? window : this);
