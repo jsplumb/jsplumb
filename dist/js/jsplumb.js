@@ -2926,16 +2926,7 @@
 
 }).call(typeof window !== 'undefined' ? window : this);
 
-/*
- * Utility functions.
- *
- * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
- *
- * https://jsplumbtoolkit.com
- * https://github.com/jsplumb/jsplumb
- *
- * Dual licensed under the MIT and GPL2 licenses.
- */
+
 (function() {
 
     var root = this;
@@ -3348,15 +3339,6 @@
         return child;
     }
     jsPlumbUtil.extend = extend;
-    /**
-     * Generate a UUID.
-     */
-        // export function uuid(): string {
-        //     return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        //         let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        //         return v.toString(16);
-        //     }));
-        // }
     var lut = [];
     for (var i = 0; i < 256; i++) {
         lut[i] = (i < 16 ? '0' : '') + (i).toString(16);
@@ -3620,6 +3602,24 @@
         return EventGenerator;
     }());
     jsPlumbUtil.EventGenerator = EventGenerator;
+    function rotatePoint(point, center, rotation) {
+        var radial = [point[0] - center[0], point[1] - center[1]], cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2);
+        return [
+            (radial[0] * cr) - (radial[1] * sr) + center[0],
+            (radial[1] * cr) + (radial[0] * sr) + center[1],
+            cr,
+            sr
+        ];
+    }
+    jsPlumbUtil.rotatePoint = rotatePoint;
+    function rotateAnchorOrientation(orientation, rotation) {
+        var r = rotatePoint(orientation, [0, 0], rotation);
+        return [
+            Math.round(r[0]),
+            Math.round(r[1])
+        ];
+    }
+    jsPlumbUtil.rotateAnchorOrientation = rotateAnchorOrientation;
 
 }).call(typeof window !== 'undefined' ? window : this);
 
@@ -9561,10 +9561,9 @@
                         dy = (horizontal ? other : val), y = elementPosition.top + dy, yp = dy / elementDimensions[1];
 
                     if (rotation !== 0) {
-                        var rotated = rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
+                        var rotated = jsPlumbUtil.rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
                         x = rotated[0];
                         y = rotated[1];
-
                     }
 
                     a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ]);
@@ -9623,10 +9622,6 @@
                         }
                     };
 
-                // placeSomeAnchors("bottom", sS, [sO.left, sO.top], _anchorLists.bottom, true, 1, [0, 1]);
-                // placeSomeAnchors("top", sS, [sO.left, sO.top], _anchorLists.top, true, 0, [0, -1]);
-                // placeSomeAnchors("left", sS, [sO.left, sO.top], _anchorLists.left, false, 0, [-1, 0]);
-                // placeSomeAnchors("right", sS, [sO.left, sO.top], _anchorLists.right, false, 1, [1, 0]);
                 placeSomeAnchors("bottom", sS, sO, _anchorLists.bottom, true, 1, [0, 1]);
                 placeSomeAnchors("top", sS, sO, _anchorLists.top, true, 0, [0, -1]);
                 placeSomeAnchors("left", sS, sO, _anchorLists.left, false, 0, [-1, 0]);
@@ -10211,23 +10206,6 @@
         };
     };
 
-    function rotatePoint(point, center, rotation) {
-        var radial = [ point[0] - center[0], point[1]- center[1]],
-            cr = Math.cos(rotation / 360 * Math.PI * 2),
-            sr = Math.sin(rotation / 360 * Math.PI * 2);
-
-        return [
-            (radial[0] * cr) - (radial[1] * sr) + center[0],
-            (radial[1] * cr) + (radial[0] * sr) + center[1],
-            cr,
-            sr
-        ];
-    }
-
-    function rotateBoundingBox(box, rotation) {
-
-    }
-
     _jp.AnchorManager.prototype.calculateOrientation = function (sourceId,
                                                                  targetId,
                                                                  sd,
@@ -10270,7 +10248,7 @@
                 };
                 if (dim[i][1] !== 0) {
                     for (var axis in midpoints[types[i]]) {
-                        midpoints[types[i]][axis] = rotatePoint(midpoints[types[i]][axis], [dim[i][0].centerx, dim[i][0].centery], dim[i][1]);
+                        midpoints[types[i]][axis] = jsPlumbUtil.rotatePoint(midpoints[types[i]][axis], [dim[i][0].centerx, dim[i][0].centery], dim[i][1]);
                     }
                 }
             }
@@ -10295,14 +10273,20 @@
         var sourceEdge = candidates[0].source, targetEdge = candidates[0].target;
         for (var i = 0; i < candidates.length; i++) {
 
-            if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
+            if (sourceAnchor.isContinuous && sourceAnchor.locked) {
+                sourceEdge = sourceAnchor.getCurrentFace();
+            }
+            else if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
                 sourceEdge = candidates[i].source;
             }
             else {
                 sourceEdge = null;
             }
 
-            if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
+            if (targetAnchor.isContinuous && targetAnchor.locked) {
+                targetEdge = targetAnchor.getCurrentFace();
+            }
+            else if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
                 targetEdge = candidates[i].target;
             }
             else {
@@ -10382,28 +10366,15 @@
                 // if rotation set, adjust position.
                 var rotation = params.rotation;
                 if (rotation != null && rotation !== 0) {
-                    // var center = [
-                    //         xy[0] + (wh[0] / 2),
-                    //         xy[1] + (wh[1] / 2)
-                    //     ]
-                    //     radial = [
-                    //         candidate[0] - center[0],
-                    //         candidate[1] - center[1]
-                    //     ],
-                    //     cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2),
-                    //     c2 = [
-                    //         0,//(radial[0] * cr) - (radial[1] * sr),
-                    //         (radial[1] * cr) + (radial[0] * sr)
-                    //     ];
 
-                    var c2 = rotatePoint(candidate, [xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2) ], rotation);
+                    var c2 = jsPlumbUtil.rotatePoint(candidate, [xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2) ], rotation);
 
                     // rotate the orientation values too. for rotations that are not multiples of 90 degrees, this will result in values that are not in the set
                     // [0, -1, 1 ], and in that case the connector paint may not be perfect. need some evidence from real world usage.
                     this.orientation[0] = Math.round((this._unrotatedOrientation[0] * c2[2]) - (this._unrotatedOrientation[1] * c2[3]));
                     this.orientation[1] = Math.round((this._unrotatedOrientation[1] * c2[2]) + (this._unrotatedOrientation[0] * c2[3]));
 
-                    this.lastReturnValue = c2;//[center[0] + c2[0], center[1] + c2[1]];
+                    this.lastReturnValue = c2;
                 } else {
                     // if rotation not set (or 0), ensure orientation is original value
                     this.orientation[0] = this._unrotatedOrientation[0];
@@ -10579,19 +10550,9 @@
                     acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2);
 
                 if(r != null && r !== 0) {
-
-                    //console.log("radius ", r, "; rotating anchor from ", ax, ay);
-
-                    // var radial = [ ax - acx, ay - acy ],
-                    //     cr = Math.cos(r / 360 * Math.PI * 2), sr = Math.sin(r / 360 * Math.PI * 2);
-                    //
-                    // ax = (radial[0] * cr) - (radial[1] * sr) + acx;
-                    // ay = (radial[1] * cr) + (radial[0] * sr) + acy;
-                    var rotated = rotatePoint([ax,ay], [acx, acy], r);
+                    var rotated = jsPlumbUtil.rotatePoint([ax,ay], [acx, acy], r);
                     ax = rotated[0];
                     ay = rotated[1];
-
-                    //console.log("  rotated values ", ax, ay);
                 }
 
                 return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) +
