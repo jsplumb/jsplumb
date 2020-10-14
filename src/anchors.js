@@ -43,7 +43,7 @@
                         dy = (horizontal ? other : val), y = elementPosition.top + dy, yp = dy / elementDimensions[1];
 
                     if (rotation !== 0) {
-                        var rotated = rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
+                        var rotated = jsPlumbUtil.rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
                         x = rotated[0];
                         y = rotated[1];
                     }
@@ -688,19 +688,6 @@
         };
     };
 
-    function rotatePoint(point, center, rotation) {
-        var radial = [ point[0] - center[0], point[1]- center[1]],
-            cr = Math.cos(rotation / 360 * Math.PI * 2),
-            sr = Math.sin(rotation / 360 * Math.PI * 2);
-
-        return [
-            (radial[0] * cr) - (radial[1] * sr) + center[0],
-            (radial[1] * cr) + (radial[0] * sr) + center[1],
-            cr,
-            sr
-        ];
-    }
-
     _jp.AnchorManager.prototype.calculateOrientation = function (sourceId,
                                                                  targetId,
                                                                  sd,
@@ -743,7 +730,7 @@
                 };
                 if (dim[i][1] !== 0) {
                     for (var axis in midpoints[types[i]]) {
-                        midpoints[types[i]][axis] = rotatePoint(midpoints[types[i]][axis], [dim[i][0].centerx, dim[i][0].centery], dim[i][1]);
+                        midpoints[types[i]][axis] = jsPlumbUtil.rotatePoint(midpoints[types[i]][axis], [dim[i][0].centerx, dim[i][0].centery], dim[i][1]);
                     }
                 }
             }
@@ -768,14 +755,20 @@
         var sourceEdge = candidates[0].source, targetEdge = candidates[0].target;
         for (var i = 0; i < candidates.length; i++) {
 
-            if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
+            if (sourceAnchor.isContinuous && sourceAnchor.locked) {
+                sourceEdge = sourceAnchor.getCurrentFace();
+            }
+            else if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
                 sourceEdge = candidates[i].source;
             }
             else {
                 sourceEdge = null;
             }
 
-            if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
+            if (targetAnchor.isContinuous && targetAnchor.locked) {
+                targetEdge = targetAnchor.getCurrentFace();
+            }
+            else if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
                 targetEdge = candidates[i].target;
             }
             else {
@@ -856,7 +849,7 @@
                 var rotation = params.rotation;
                 if (rotation != null && rotation !== 0) {
 
-                    var c2 = rotatePoint(candidate, [xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2) ], rotation);
+                    var c2 = jsPlumbUtil.rotatePoint(candidate, [xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2) ], rotation);
 
                     // rotate the orientation values too. for rotations that are not multiples of 90 degrees, this will result in values that are not in the set
                     // [0, -1, 1 ], and in that case the connector paint may not be perfect. need some evidence from real world usage.
@@ -1039,7 +1032,7 @@
                     acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2);
 
                 if(r != null && r !== 0) {
-                    var rotated = rotatePoint([ax,ay], [acx, acy], r);
+                    var rotated = jsPlumbUtil.rotatePoint([ax,ay], [acx, acy], r);
                     ax = rotated[0];
                     ay = rotated[1];
                 }
