@@ -3,6 +3,7 @@ import {EventGenerator} from "../event-generator"
 import {Endpoint} from "../endpoint/endpoint-impl"
 import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory"
 import {AnchorPlacement} from "../anchor-manager"
+import {rotatePoint} from "../util"
 
 export class Anchor extends EventGenerator {
 
@@ -73,24 +74,12 @@ export class Anchor extends EventGenerator {
 
         const rotation = params.rotation;
         if (rotation != null && rotation !== 0) {
-            const center = [
-                    xy[0] + (wh[0] / 2),
-                    xy[1] + (wh[1] / 2)
-                ],
-                radial = [
-                    candidate[0] - center[0],
-                    candidate[1] - center[1]
-                ],
-                cr = Math.cos(rotation / 360 * Math.PI * 2), sr = Math.sin(rotation / 360 * Math.PI * 2),
-                c2 = [
-                    (radial[0] * cr) - (radial[1] * sr),
-                    (radial[1] * cr) + (radial[0] * sr)
-                ];
+           const c2 = rotatePoint(candidate, [ xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2)], rotation)
 
-            this.orientation[0] = Math.round((this._unrotatedOrientation[0] * cr) - (this._unrotatedOrientation[1] * sr));
-            this.orientation[1] = Math.round((this._unrotatedOrientation[1] * cr) + (this._unrotatedOrientation[0] * sr));
+            this.orientation[0] = Math.round((this._unrotatedOrientation[0] * c2[2]) - (this._unrotatedOrientation[1] * c2[3]));
+            this.orientation[1] = Math.round((this._unrotatedOrientation[1] * c2[2]) + (this._unrotatedOrientation[0] * c2[3]));
 
-            this.lastReturnValue = [center[0] + c2[0], center[1] + c2[1], this.x, this.y];
+            this.lastReturnValue = c2
         } else {
             this.orientation[0] = this._unrotatedOrientation[0];
             this.orientation[1] = this._unrotatedOrientation[1];
