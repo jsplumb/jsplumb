@@ -1,76 +1,12 @@
 import {PaintStyle} from "../styles"
-import {extend, Dictionary, jsPlumbInstance, Timestamp, TypeDescriptor, PointArray, PointXY} from "../core"
+import {extend, Dictionary, jsPlumbInstance, Timestamp, TypeDescriptor, PointXY} from "../core"
 import {log, merge, populate} from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint-impl"
-import {Overlay, OverlaySpec} from "../overlay/overlay"
-import {EndpointSpec} from "../endpoint/endpoint"
-import {ConnectorSpec} from "../connector/abstract-connector"
+import {OverlaySpec} from "../overlay/overlay"
 
-export type ComponentConfig = {
-    paintStyle?:PaintStyle
-    hoverPaintStyle?:PaintStyle
-    types:string[]
-    instance:jsPlumbInstance
-    paintStyleInUse?:PaintStyle
-
-    cssClass?:string
-    hoverClass?:string
-
-    parameters:ComponentParameters
-    typeCache:{}
-
-    overlays?:Dictionary<Overlay>
-    overlayPlacements?: Dictionary<any>
-    overlayPositions?:Dictionary<PointArray>
-
-    hover?: boolean
-    beforeDetach?:Function
-    beforeDrop?:Function
-
-    params?:any
-
-    directed?:boolean
-    cost?:number
-    connectionCost?:number
-    connectionsDirected?:boolean
-
-    visible?:boolean
-
-    detachable?:boolean
-    reattach?:boolean
-    maxConnections?:number
-
-    uuids?:[string, string]
-
-    endpoint?:EndpointSpec
-    endpoints?:[EndpointSpec, EndpointSpec]
-    endpointStyle?:PaintStyle
-    endpointHoverStyle?:PaintStyle
-    endpointStyles?:[PaintStyle, PaintStyle]
-    endpointHoverStyles?:[PaintStyle, PaintStyle]
-
-
-    //enabled?:boolean
-
-    currentAnchorClass?:string
-
-    floatingEndpoint?:Endpoint
-
-    events?:any
-
-    connectorStyle?:PaintStyle
-    connectorHoverStyle?:PaintStyle
-
-    connector?:ConnectorSpec
-    connectorOverlays?:Array<OverlaySpec>
-
-    scope?:string
-
-}
-
-export type ComponentParameters = Dictionary<any>
+export type ComponentParameters = Record<string, any>
 
 function _splitType (t:string):string[] {
     return t == null ? null : t.split(" ")
@@ -97,8 +33,8 @@ function _applyTypes<E>(component:Component, params?:any, doNotRepaint?:boolean)
         let o = extend({}, defType)
 
         _mapType(map, defType, DEFAULT_TYPE_KEY)
-        for (let i = 0, j = component._jsPlumb.types.length; i < j; i++) {
-            let tid = component._jsPlumb.types[i]
+        for (let i = 0, j = component._types.length; i < j; i++) {
+            let tid = component._types[i]
             if (tid !== DEFAULT_TYPE_KEY) {
                 let _t = component.instance.getType(tid, td)
                 if (_t != null) {
@@ -128,7 +64,7 @@ function _applyTypes<E>(component:Component, params?:any, doNotRepaint?:boolean)
 }
 
 export function _removeTypeCssHelper<E>(component:Component, typeIndex:number) {
-    let typeId = component._jsPlumb.types[typeIndex],
+    let typeId = component._types[typeIndex],
         type = component.instance.getType(typeId, component.getTypeDescriptor())
 
      if (type != null && type.cssClass) {
@@ -185,9 +121,13 @@ export abstract class Component extends EventGenerator {
     
     typeId:string
 
+    params:Dictionary<any> = {}
+
     paintStyle:PaintStyle
     hoverPaintStyle:PaintStyle
     paintStyleInUse:PaintStyle
+
+    _hover:boolean = false
 
     lastPaintedAt:string
 
@@ -195,9 +135,17 @@ export abstract class Component extends EventGenerator {
 
     _defaultType:any
 
-    _jsPlumb:ComponentConfig
+    events:any
+
+    parameters:ComponentParameters
+
+    _types:string[]
+    _typeCache:{}
 
     cssClass:string
+    hoverClass:string
+    beforeDetach:Function
+    beforeDrop:Function
 
     constructor(public instance:jsPlumbInstance, params?:ComponentOptions) {
 
@@ -206,21 +154,15 @@ export abstract class Component extends EventGenerator {
         params = params || ({} as ComponentOptions)
 
         this.cssClass = params.cssClass || ""
+        this.hoverClass = params.hoverClass || instance.Defaults.hoverClass
 
-        this._jsPlumb = {
-            instance: instance,
-            parameters: params.parameters || {},
-            paintStyle: null,
-            hoverPaintStyle: null,
-            paintStyleInUse: null,
-            hover: false,
-            beforeDetach: params.beforeDetach,
-            beforeDrop: params.beforeDrop,
-            overlayPlacements: [],
-            hoverClass: params.hoverClass || instance.Defaults.hoverClass,
-            types: [],
-            typeCache:{}
-        }
+        this.beforeDetach = params.beforeDetach
+        this.beforeDrop = params.beforeDrop
+
+        this._types = []
+        this._typeCache = {}
+
+        this.parameters = params.parameters || {}
 
         this.id = this.getIdPrefix() + (new Date()).getTime()
 
@@ -264,9 +206,9 @@ export abstract class Component extends EventGenerator {
 
     isDetachAllowed(connection:Connection):boolean {
         let r = true
-        if (this._jsPlumb.beforeDetach) {
+        if (this.beforeDetach) {
             try {
-                r = this._jsPlumb.beforeDetach(connection)
+                r = this.beforeDetach(connection)
             }
             catch (e) {
                 log("jsPlumb: beforeDetach callback failed", e)
@@ -276,7 +218,7 @@ export abstract class Component extends EventGenerator {
     }
 
     isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint, source?:any, target?:any):any {
-        let r = this._jsPlumb.instance.checkCondition("beforeDrop", {
+        let r = this.instance.checkCondition("beforeDrop", {
             sourceId: sourceId,
             targetId: targetId,
             scope: scope,
@@ -284,9 +226,9 @@ export abstract class Component extends EventGenerator {
             dropEndpoint: dropEndpoint,
             source: source, target: target
         })
-        if (this._jsPlumb.beforeDrop) {
+        if (this.beforeDrop) {
             try {
-                r = this._jsPlumb.beforeDrop({
+                r = this.beforeDrop({
                     sourceId: sourceId,
                     targetId: targetId,
                     scope: scope,
@@ -315,22 +257,22 @@ export abstract class Component extends EventGenerator {
     getId():string { return this.id; }
 
     cacheTypeItem(key:string, item:any, typeId:string) {
-        this._jsPlumb.typeCache[typeId] = this._jsPlumb.typeCache[typeId] || {}
-        this._jsPlumb.typeCache[typeId][key] = item
+        this._typeCache[typeId] = this._typeCache[typeId] || {}
+        this._typeCache[typeId][key] = item
     }
 
     getCachedTypeItem (key:string, typeId:string):any {
-        return this._jsPlumb.typeCache[typeId] ? this._jsPlumb.typeCache[typeId][key] : null
+        return this._typeCache[typeId] ? this._typeCache[typeId][key] : null
     }
 
     setType(typeId:string, params?:any, doNotRepaint?:boolean) {
         this.clearTypes()
-        this._jsPlumb.types = _splitType(typeId) || []
+        this._types = _splitType(typeId) || []
         _applyTypes(this, params, doNotRepaint)
     }
 
     getType():string[] {
-        return this._jsPlumb.types
+        return this._types
     }
 
     reapplyTypes(params?:any, doNotRepaint?:boolean) {
@@ -338,7 +280,7 @@ export abstract class Component extends EventGenerator {
     }
 
     hasType(typeId:string):boolean {
-        return this._jsPlumb.types.indexOf(typeId) !== -1
+        return this._types.indexOf(typeId) !== -1
     }
 
     addType(typeId:string, params?:any, doNotRepaint?:boolean):void {
@@ -346,7 +288,7 @@ export abstract class Component extends EventGenerator {
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
                 if (!this.hasType(t[i])) {
-                    this._jsPlumb.types.push(t[i])
+                    this._types.push(t[i])
                     _somethingAdded = true
                 }
             }
@@ -358,11 +300,11 @@ export abstract class Component extends EventGenerator {
 
     removeType(typeId:string, params?:any, doNotRepaint?:boolean) {
         let t = _splitType(typeId), _cont = false, _one = (tt:string) =>{
-            let idx = this._jsPlumb.types.indexOf(tt)
+            let idx = this._types.indexOf(tt)
             if (idx !== -1) {
                 // remove css class if necessary
                 _removeTypeCssHelper(this, idx)
-                this._jsPlumb.types.splice(idx, 1)
+                this._types.splice(idx, 1)
                 return true
             }
             return false
@@ -379,10 +321,10 @@ export abstract class Component extends EventGenerator {
     }
 
     clearTypes(params?:any, doNotRepaint?:boolean):void {
-        let i = this._jsPlumb.types.length
+        let i = this._types.length
         for (let j = 0; j < i; j++) {
             _removeTypeCssHelper(this, 0)
-            this._jsPlumb.types.splice(0, 1)
+            this._types.splice(0, 1)
         }
         _applyTypes(this, params, doNotRepaint)
     }
@@ -391,13 +333,13 @@ export abstract class Component extends EventGenerator {
         let t = _splitType(typeId)
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
-                let idx = this._jsPlumb.types.indexOf(t[i])
+                let idx = this._types.indexOf(t[i])
                 if (idx !== -1) {
                     _removeTypeCssHelper(this, idx)
-                    this._jsPlumb.types.splice(idx, 1)
+                    this._types.splice(idx, 1)
                 }
                 else {
-                    this._jsPlumb.types.push(t[i])
+                    this._types.push(t[i])
                 }
             }
 
@@ -446,28 +388,27 @@ export abstract class Component extends EventGenerator {
         if (force || this.typeId == null) {
             this.cleanupListeners(); // this is on EventGenerator
             this.clone = null
-            this._jsPlumb = null
         }
     }
 
     isHover():boolean {
-        return this._jsPlumb.hover
+        return this._hover
     }
 
     getParameter(name:string):any {
-        return this._jsPlumb.parameters[name]
+        return this.parameters[name]
     }
 
     setParameter(name:string, value:any) {
-        this._jsPlumb.parameters[name] = value
+        this.parameters[name] = value
     }
 
     getParameters():ComponentParameters {
-        return this._jsPlumb.parameters
+        return this.parameters
     }
 
     setParameters(p:ComponentParameters) {
-        this._jsPlumb.parameters = p
+        this.parameters = p
     }
 
     setVisible(v:boolean) {
