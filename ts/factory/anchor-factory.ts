@@ -9,7 +9,7 @@ import {ContinuousAnchor, ContinuousAnchorOptions} from "../anchor/continuous-an
 import {AnchorPlacement} from "../anchor-manager"
 
 export type AnchorOrientationHint = -1 | 0 | 1
-export type Orientation = [ AnchorOrientationHint, AnchorOrientationHint ]
+export type Orientation = [  number, number ]
 
 export type Face = "top" | "right" | "bottom" | "left"
 export type Axis = [ Face, Face ]
@@ -28,6 +28,8 @@ export type AnchorComputeParams = {
     tElement?:Endpoint
     connection?:Connection
     elementId?:string
+    rotation?:number
+    tRotation?:number
 }
 
 export interface AnchorOptions {
@@ -83,7 +85,7 @@ function _makeAnchor(instance:jsPlumbInstance, x:number, y:number, ox:AnchorOrie
     let a = new Anchor(instance)
     a.x = x
     a.y = y
-    a.orientation = [ ox, oy ]
+    a.setInitialOrientation(ox, oy)
     a.offsets = [ offsetX, offsetY ]
     if (elementId != null) {
         a.elementId = elementId
@@ -106,7 +108,7 @@ function getAnchorWithValues(instance:jsPlumbInstance,
     let a = new Anchor(instance)
     a.x = x
     a.y = y
-    a.orientation = orientation
+    a.setInitialOrientation(orientation[0], orientation[1])
     a.offsets = offsets
     a.elementId = elementId
     a.cssClass = cssClass || ""
