@@ -54,12 +54,26 @@ export class DefaultRouter implements Router {
     }
 
     computePath(connection: Connection, timestamp:string): void {
-        let sourceInfo = this.instance.updateOffset({elId:connection.sourceId}).o,
-            targetInfo = this.instance.updateOffset({elId:connection.targetId}).o,
+        let sourceInfo = this.instance.updateOffset({elId:connection.sourceId}),
+            sourceOffset = sourceInfo.o,
+            targetInfo = this.instance.updateOffset({elId:connection.targetId}),
+            targetOffset = targetInfo.o,
             sE = connection.endpoints[0], tE = connection.endpoints[1]
 
-        let sAnchorP = sE.anchor.getCurrentLocation({xy: [sourceInfo.left, sourceInfo.top], wh: [sourceInfo.width, sourceInfo.height], element: sE, timestamp: timestamp}),
-            tAnchorP = tE.anchor.getCurrentLocation({xy: [targetInfo.left, targetInfo.top], wh: [targetInfo.width, targetInfo.height], element: tE, timestamp: timestamp})
+        let sAnchorP = sE.anchor.getCurrentLocation({
+                    xy: [sourceOffset.left, sourceOffset.top],
+                    wh: [sourceOffset.width, sourceOffset.height],
+                    element: sE,
+                    timestamp: timestamp,
+                    rotation:sourceInfo.r
+            }),
+            tAnchorP = tE.anchor.getCurrentLocation({
+                xy: [targetOffset.left, targetOffset.top],
+                wh: [targetOffset.width, targetOffset.height],
+                element: tE,
+                timestamp: timestamp,
+                rotation:targetInfo.r
+            })
 
         connection.connector.resetBounds()
 
@@ -71,8 +85,8 @@ export class DefaultRouter implements Router {
             sourceEndpoint: connection.endpoints[0],
             targetEndpoint: connection.endpoints[1],
             strokeWidth: connection.paintStyleInUse.strokeWidth,
-            sourceInfo: sourceInfo,
-            targetInfo: targetInfo
+            sourceInfo: sourceOffset,
+            targetInfo: targetOffset
         })
     }
 
