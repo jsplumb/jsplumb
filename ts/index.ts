@@ -34,11 +34,15 @@ export * from "./connector/statemachine-connector"
 export * from "./connector/straight-connector"
 export * from "./connector/straight-segment"
 
+export * from "./selection/connection-selection"
+
 export * from "./endpoint/endpoint-impl"
 export * from "./endpoint/endpoints"
 export * from "./endpoint/dot-endpoint"
 export * from "./endpoint/rectangle-endpoint"
 export * from "./endpoint/blank-endpoint"
+
+export * from "./selection/endpoint-selection"
 
 export * from "./overlay/overlay"
 export * from "./overlay/label-overlay"
