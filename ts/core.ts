@@ -13,7 +13,7 @@ import {
     IS,
     isString,
     log,
-    removeWithFunction,
+    removeWithFunction, rotateAnchorOrientation, rotatePoint,
     uuid
 } from "./util"
 import { EventGenerator } from "./event-generator"
@@ -122,7 +122,7 @@ export type Size = [ number, number ]
 export type Rotation = number
 export interface OffsetAndSize { o:Offset, s:Size }
 export type PointArray = [ number, number ]
-export type PointXY = { x:number, y:number, theta?:number }
+export interface PointXY { x:number, y:number, theta?:number }
 export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
 export type RectangleXY = BoundingBox
 export type LineXY = [ PointXY, PointXY ]
@@ -707,7 +707,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
                 if (!sep.enabled) {
                     return
                 }
-                ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def)
+                ep = sep.endpoint != null ? sep.endpoint : this.addEndpoint(el, sep.def)
                 if (sep.uniqueEndpoint) {
                     sep.endpoint = ep
                 }
@@ -1071,7 +1071,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
     newEndpoint(params:any, id?:string):Endpoint {
         let _p = extend({}, params)
-        _p._jsPlumb = this
         _p.elementId = id || this.getId(_p.source)
 
         let ep = new Endpoint(this, _p)
@@ -1124,9 +1123,6 @@ export abstract class jsPlumbInstance extends EventGenerator {
 
     // repaint every endpoint and connection.
     repaintEverything ():jsPlumbInstance {
-        // TODO this timestamp causes continuous anchors to not repaint properly.
-        // fix this. do not just take out the timestamp. it runs a lot faster with
-        // the timestamp included.
         let timestamp = uuid(), elId:string
 
         for (elId in this.endpointsByElement) {
@@ -1307,9 +1303,20 @@ export abstract class jsPlumbInstance extends EventGenerator {
         })
     }
 
+// ------ these are exposed for library packages to use; it allows them to be built without needing to include the utils --------
     uuid(): string {
         return uuid()
     }
+
+    rotatePoint(point:Array<number>, center:PointArray, rotation:number):[number, number, number, number] {
+        return rotatePoint(point, center, rotation)
+    }
+
+    rotateAnchorOrientation(orientation:[number, number], rotation:any):[number, number] {
+        return rotateAnchorOrientation(orientation, rotation)
+    }
+
+// ---------------------------------------------------------------------------------
 
     // clears the instance (without firing any events) and unbinds any listeners on the instance.
     destroy():void {
@@ -1462,7 +1469,7 @@ export abstract class jsPlumbInstance extends EventGenerator {
                             const epDef = extend({}, tep.def)
                             delete epDef.label
 
-                            let newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], epDef, idx)
+                            let newEndpoint = tep.endpoint != null ? tep.endpoint : _addEndpoint(_p[type], epDef, idx)
                             if (newEndpoint.isFull()) {
                                 return false
                             }
