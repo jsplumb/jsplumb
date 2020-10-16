@@ -52,6 +52,8 @@ export class Endpoint extends OverlayCapableComponent {
 
     portId:string
 
+    floatingEndpoint:EndpointRepresentation<any>
+
     maxConnections:number
 
     connectorClass:string
@@ -71,6 +73,8 @@ export class Endpoint extends OverlayCapableComponent {
     connectionsDirected:boolean
     connectionsDetachable:boolean
     reattachConnections:boolean
+
+    currentAnchorClass:string
 
     referenceEndpoint:Endpoint
 
@@ -114,7 +118,7 @@ export class Endpoint extends OverlayCapableComponent {
         this.uuid = params.uuid
 
         this.portId = params.portId
-        this._jsPlumb.floatingEndpoint = null
+        this.floatingEndpoint = null
         if (this.uuid) {
             this.instance.endpointsByUUID[this.uuid] = this
         }
@@ -123,11 +127,10 @@ export class Endpoint extends OverlayCapableComponent {
 
         this.connectionCost = params.connectionCost == null ? 1 : params.connectionCost
         this.connectionsDirected = params.connectionsDirected
-        this._jsPlumb.currentAnchorClass = ""
-        this._jsPlumb.events = {}
+        this.currentAnchorClass = ""
+        this.events = {}
 
         this.connectorOverlays = params.connectorOverlays
-        this._jsPlumb.scope = params.scope
 
         this.connectionsDetachable = params.connectionsDetachable
         this.reattachConnections = params.reattachConnections
@@ -181,9 +184,9 @@ export class Endpoint extends OverlayCapableComponent {
         const ac = this.anchor.getCssClass()
         if (ac != null && ac.length > 0) {
             // stash old, get new
-            let oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this._jsPlumb.currentAnchorClass
-            this._jsPlumb.currentAnchorClass = ac
-            let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "")
+            let oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this.currentAnchorClass
+            this.currentAnchorClass = ac
+            let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
 
             if (oldAnchorClass !== anchorClass) {
                 this.removeClass(oldAnchorClass)
@@ -322,13 +325,13 @@ export class Endpoint extends OverlayCapableComponent {
 
     destroy(force?:boolean):void {
         // TODO i feel like this anchor class stuff should be in the renderer
-        let anchorClass = this.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "")
+        let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
         this.instance.removeClass(this.element, anchorClass)
         this.anchor = null
         if(this.endpoint != null) {
             this.instance.renderer.destroyEndpoint(this)
         }
-        this.endpoint = null
+        //this.endpoint = null
 
         super.destroy(force)
     }
@@ -375,10 +378,6 @@ export class Endpoint extends OverlayCapableComponent {
         return this.uuid
     }
 
-    computeAnchor(params:any):AnchorPlacement {
-        return this.anchor.compute(params)
-    }
-
     setElement (el:any):Endpoint {
         let parentId = this.instance.getId(el),
             curId = this.elementId
@@ -400,7 +399,8 @@ export class Endpoint extends OverlayCapableComponent {
     paint(params:{ timestamp?: string, offset?: OffsetAndSize, dimensions?: Size,
         recalc?:boolean, elementWithPrecedence?:string,
         connectorPaintStyle?:PaintStyle,
-        anchorLoc?:AnchorPlacement }):void {
+        anchorLoc?:AnchorPlacement,
+        rotation?:number }):void {
 
         params = params || {}
         let timestamp = params.timestamp, recalc = !(params.recalc === false)
@@ -409,7 +409,7 @@ export class Endpoint extends OverlayCapableComponent {
             let info = this.instance.updateOffset({ elId: this.elementId, timestamp: timestamp })
             let xy = params.offset ? params.offset.o : info.o
             if (xy != null) {
-                let ap = params.anchorLoc, connectorPaintStyle = params.connectorPaintStyle
+                let ap = params.anchorLoc
                 if (ap == null) {
                     let wh = params.dimensions || info.s,
                         anchorParams:AnchorComputeParams = { xy: [ xy.left, xy.top ], wh: wh, element: this, timestamp: timestamp }
@@ -425,9 +425,12 @@ export class Endpoint extends OverlayCapableComponent {
                         anchorParams.txy = [ oOffset.left, oOffset.top ]
                         anchorParams.twh = oWH
                         anchorParams.tElement = c.endpoints[oIdx]
+                        anchorParams.tRotation = this.instance.getRotation(oId)
                     } else if (this.connections.length > 0) {
                         anchorParams.connection = this.connections[0]
                     }
+
+                    anchorParams.rotation = this.instance.getRotation(this.elementId)
                     ap = this.anchor.compute(anchorParams)
                 }
 
@@ -454,7 +457,7 @@ export class Endpoint extends OverlayCapableComponent {
 
         let endpointArgs = {
             _jsPlumb: this.instance,
-            cssClass: this._jsPlumb.cssClass,
+            cssClass: this.cssClass,
             endpoint: this
         }
 
@@ -507,11 +510,15 @@ export class Endpoint extends OverlayCapableComponent {
 
     addClass(clazz: string, dontUpdateOverlays?: boolean): void {
         super.addClass(clazz, dontUpdateOverlays)
-        this.endpoint.addClass(clazz)
+        if (this.endpoint != null) {
+            this.endpoint.addClass(clazz)
+        }
     }
 
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void {
         super.removeClass(clazz, dontUpdateOverlays)
-        this.endpoint.removeClass(clazz)
+        if (this.endpoint != null) {
+            this.endpoint.removeClass(clazz)
+        }
     }
 }
