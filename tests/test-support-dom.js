@@ -187,7 +187,7 @@
         events.beforeMouseMove && events.beforeMouseMove();
         _jsPlumb.trigger(document, "mousemove", e2);
         events.beforeMouseUp && events.beforeMouseUp();
-        _jsPlumb.trigger(document, "mouseup", e2);
+         _jsPlumb.trigger(document, "mouseup", e2);
 
         events.after && events.after();
     };
@@ -209,8 +209,6 @@
 
             var _divs = [];
             var _addDiv = function (id, parent, className, x, y, w, h) {
-                w = w || 50;
-                h = h || 50;
                 var d1 = document.createElement("div");
                 d1.style.position = "absolute";
                 d1.innerHTML = id;
