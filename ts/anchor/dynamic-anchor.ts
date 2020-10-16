@@ -10,27 +10,38 @@ import {
 import {jsPlumbInstance, PointArray} from "../core"
 import {Endpoint} from "../endpoint/endpoint-impl"
 import {AnchorPlacement} from "../anchor-manager"
+import {rotatePoint} from "../util"
 
 export interface DynamicAnchorOptions extends AnchorOptions {
-    selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => Anchor
+    selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:number, targetRotation:number, anchors:Array<Anchor>) => Anchor
     elementId?:string
     anchors:Array<Anchor>
 }
 
 // helper method to calculate the distance between the centers of the two elements.
-function _distance(anchor:Anchor, cx:number, cy:number, xy:PointArray, wh:PointArray):number {
+function _distance(anchor:Anchor, cx:number, cy:number, xy:PointArray, wh:PointArray, rotation:number, targetRotation:number):number {
 
     let ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]),
         acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2)
 
+    if(rotation != null && rotation !== 0) {
+        const rotated = rotatePoint([ax,ay], [acx, acy], rotation)
+        ax = rotated[0]
+        ay = rotated[1]
+    }
+
     return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)))
 }
 
-const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => {
+const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray,
+                                 rotation:number,
+                                 targetRotation:number,
+                                 anchors:Array<Anchor>) => {
+
     let cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2)
     let minIdx = -1, minDist = Infinity
     for (let i = 0; i < anchors.length; i++) {
-        let d = _distance(anchors[i], cx, cy, xy, wh)
+        let d = _distance(anchors[i], cx, cy, xy, wh, rotation, targetRotation)
         if (d < minDist) {
             minIdx = i + 0
             minDist = d
@@ -49,7 +60,7 @@ export class DynamicAnchor extends Anchor {
     private _curAnchor:Anchor
     private _lastAnchor:Anchor
 
-    private _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, anchors:Array<Anchor>) => Anchor = null
+    private _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:number, targetRotation:number, anchors:Array<Anchor>) => Anchor = null
 
     constructor(public instance:jsPlumbInstance, options:DynamicAnchorOptions) {
         super(instance, options)
@@ -89,13 +100,14 @@ export class DynamicAnchor extends Anchor {
         // maintain our state. anchor will be locked
         // if it is the source of a drag and drop.
         if (this.isLocked() || txy == null || twh == null) {
-            return this._curAnchor.compute(params)
+            this.lastReturnValue = this._curAnchor.compute(params)
+            return this.lastReturnValue
         }
         else {
             params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
         }
 
-        this._curAnchor = this._anchorSelector(xy, wh, txy, twh, this.anchors)
+        this._curAnchor = this._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, this.anchors)
         this.x = this._curAnchor.x
         this.y = this._curAnchor.y
 
@@ -105,7 +117,8 @@ export class DynamicAnchor extends Anchor {
 
         this._lastAnchor = this._curAnchor
 
-        return this._curAnchor.compute(params)
+        this.lastReturnValue = this._curAnchor.compute(params)
+        return this.lastReturnValue
     }
 
     getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
