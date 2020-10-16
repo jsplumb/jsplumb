@@ -218,7 +218,7 @@ export class EndpointDragHandler implements DragHandler {
     private _mouseupHandler(e:MouseEvent) {
         let el:any = e.currentTarget || e.srcElement
         if (el._jsPlumbOrphanedEndpoints) {
-            each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint)
+            each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint.bind(this.instance))
             el._jsPlumbOrphanedEndpoints.length = 0
         }
     }
@@ -401,7 +401,7 @@ export class EndpointDragHandler implements DragHandler {
         this.floatingEndpoint.deleteOnEmpty = true
         this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas
         
-        const scope = this.ep._jsPlumb.scope
+        const scope = this.ep.scope
         
         let boundingRect
         // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
@@ -798,7 +798,6 @@ export class EndpointDragHandler implements DragHandler {
 
             this._cleanupDraggablePlaceholder()
 
-
             this.jpc.removeClass(this.instance.draggingClass)
 
             delete this.jpc.suspendedEndpoint
@@ -821,12 +820,9 @@ export class EndpointDragHandler implements DragHandler {
                     this.instance.deleteEndpoint(dropEndpoint)
                 }
                 else {
-                    if (dropEndpoint._jsPlumb) {
-                        dropEndpoint.paint({recalc: false})
-                    }
+                    dropEndpoint.paint({ recalc: false })
                 }
             }
-
         }
     }
 
