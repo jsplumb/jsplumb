@@ -3,36 +3,39 @@ import {Dictionary, OverlayCapableComponent, OverlaySpec, PaintStyle} from ".."
 
 export class SelectionBase<T extends OverlayCapableComponent>{
 
-    constructor(protected instance:jsPlumbInstance, protected entries:Array<T>) {
-
-    }
+    constructor(protected instance:jsPlumbInstance, protected entries:Array<T>) { }
 
     get length():number {
         return this.entries.length
     }
 
-    each( handler:(arg0:T) => void ) {
+    each( handler:(arg0:T) => void ):SelectionBase<T> {
         this.entries.forEach( (e:T) => handler(e) )
+        return this
     }
 
     get(index:number) {
         return this.entries[index]
     }
 
-    addClass(clazz:string, updateAttachedElements?:boolean) {
+    addClass(clazz:string, updateAttachedElements?:boolean):SelectionBase<T> {
         this.each((c:T) => c.addClass(clazz, updateAttachedElements))
+        return this
     }
 
-    removeClass(clazz:string, updateAttachedElements?:boolean) {
+    removeClass(clazz:string, updateAttachedElements?:boolean):SelectionBase<T> {
         this.each((c:T) => c.removeClass(clazz, updateAttachedElements))
+        return this
     }
 
-    removeAllOverlays() {
+    removeAllOverlays():SelectionBase<T> {
         this.each((c:T) => c.removeAllOverlays())
+        return this
     }
 
-    setLabel(label:string) {
+    setLabel(label:string):SelectionBase<T> {
         this.each((c:T) => c.setLabel(label))
+        return this
     }
 
     clear() {
@@ -45,65 +48,88 @@ export class SelectionBase<T extends OverlayCapableComponent>{
         return a
     }
 
-    addOverlay(spec:OverlaySpec) {
+    addOverlay(spec:OverlaySpec):SelectionBase<T> {
         this.each((c:T) => c.addOverlay(spec))
+        return this
     }
 
-    removeOverlay(id:string) {
+    removeOverlay(id:string):SelectionBase<T> {
         this.each((c:T) => c.removeOverlay(id))
+        return this
     }
 
-    removeOverlays() {
+    removeOverlays():SelectionBase<T> {
         this.each((c:T) => c.removeOverlays())
+        return this
     }
 
-    showOverlay(id:string) {
+    showOverlay(id:string):SelectionBase<T> {
         this.each((c:T) => c.showOverlay(id))
+        return this
     }
 
-    hideOverlay(id:string) {
+    hideOverlay(id:string):SelectionBase<T> {
         this.each((c:T) => c.hideOverlay(id))
+        return this
     }
 
-    setPaintStyle(style:PaintStyle) {
+    setPaintStyle(style:PaintStyle):SelectionBase<T> {
         this.each((c:T) => c.setPaintStyle(style))
+        return this
     }
 
-    setHoverPaintStyle(style:PaintStyle) {
+    setHoverPaintStyle(style:PaintStyle):SelectionBase<T> {
         this.each((c:T) => c.setHoverPaintStyle(style))
+        return this
     }
 
-    setSuspendEvents(suspend:boolean) {
+    setSuspendEvents(suspend:boolean):SelectionBase<T> {
         this.each((c:T) => c.setSuspendEvents(suspend))
+        return this
     }
 
-    setParameter(name:string, value:string) {
+    setParameter(name:string, value:string):SelectionBase<T> {
         this.each((c:T) => c.setParameter(name, value))
+        return this
     }
 
-    setParameters(p:Dictionary<string>) {
+    setParameters(p:Dictionary<string>):SelectionBase<T> {
         this.each((c:T) => c.setParameters(p))
+        return this
     }
 
-    setVisible(v:boolean) {
+    setVisible(v:boolean):SelectionBase<T> {
         this.each((c:T) => c.setVisible(v))
+        return this
     }
 
-    addType(name:string) {
+    addType(name:string):SelectionBase<T> {
         this.each((c:T) => c.addType(name))
+        return this
     }
-    toggleType(name:string) {
+
+    toggleType(name:string):SelectionBase<T> {
         this.each((c:T) => c.toggleType(name))
+        return this
     }
-    removeType(name:string) {
+
+    removeType(name:string):SelectionBase<T> {
         this.each((c:T) => c.removeType(name))
+        return this
     }
 
-    bind(evt:string, handler:Function) {
+    bind(evt:string, handler:Function):SelectionBase<T> {
         this.each((c:T) => c.bind(evt, handler))
+        return this
     }
 
-    unbind(evt:string, handler:Function) {
+    unbind(evt:string, handler:Function):SelectionBase<T> {
         this.each((c:T) => c.unbind(evt, handler))
+        return this
+    }
+
+    setHover(h:boolean):SelectionBase<T> {
+        this.each((c:T) => this.instance.renderer.setHover(c, h))
+        return this
     }
 }
