@@ -302,7 +302,7 @@ export class BrowserRenderer implements Renderer {
     }
 
     setHover(component: Component, hover: boolean): void {
-        component._jsPlumb.hover = hover
+        component._hover = hover
         if (component instanceof Endpoint && (component as Endpoint).endpoint != null) {
             this.setEndpointHover((component as Endpoint), hover)
         } else if (component instanceof Connection && (component as Connection).connector != null) {
