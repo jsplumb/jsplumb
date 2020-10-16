@@ -1,4 +1,4 @@
-import {extend, SortFunction} from "./core"
+import {extend, PointArray, PointXY, SortFunction} from "./core"
 
 export function isArray(a: any): boolean {
     return Array.isArray(a)
@@ -329,6 +329,42 @@ export function uuid():string {
         lut[d3&0xff]+lut[d3>>8&0xff]+lut[d3>>16&0xff]+lut[d3>>24&0xff]
 }
 
+export function rotatePoint(point:Array<number>, center:PointArray, rotation:number):[number, number, number, number] {
+    const radial = [ point[0] - center[0], point[1]- center[1]],
+        cr = Math.cos(rotation / 360 * Math.PI * 2),
+        sr = Math.sin(rotation / 360 * Math.PI * 2)
+
+    return [
+        (radial[0] * cr) - (radial[1] * sr) + center[0],
+        (radial[1] * cr) + (radial[0] * sr) + center[1],
+        cr,
+        sr
+    ]
+}
+
+export interface RotatedPointXY extends PointXY {
+    cr:number
+    sr:number
+}
+
+export function rotatePointXY(point:PointXY, center:PointXY, rotation:number):RotatedPointXY {
+    const r = rotatePoint([point.x, point.y], [center.x, center.y], rotation)
+    return {
+        x:r[0],
+        y:r[1],
+        cr:r[2],
+        sr:r[3]
+    }
+}
+
+export function rotateAnchorOrientation(orientation:[number, number], rotation:any):[number, number] {
+    const r = rotatePoint(orientation, [0,0], rotation)
+    return [
+        Math.round(r[0]),
+        Math.round(r[1])
+    ]
+}
+
 export function fastTrim(s: string): string {
     if (s == null) {
         return null
@@ -500,5 +536,4 @@ export function optional<T>(obj:T):Optional<T> {
         }
     }
 }
-
 
