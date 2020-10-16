@@ -11,7 +11,7 @@ import {
 import {Connection} from "./connector/connection-impl"
 import {Face, Orientation} from "./factory/anchor-factory"
 import { DynamicAnchor } from "./anchor/dynamic-anchor"
-import {addToList, findWithFunction, removeWithFunction, sortHelper, uuid} from "./util"
+import {addToList, findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "./util"
 import {ContinuousAnchor, ContinuousAnchorOptions} from "./anchor/continuous-anchor"
 import {Anchor} from "./anchor/anchor"
 
@@ -19,7 +19,7 @@ export type AnchorPlacement = [ number, number, number, number ]
 export type ContinuousAnchorPlacement = [ number, number, number, number, Connection, Connection ]
 export type AnchorFace = "top" | "right" | "bottom" | "left"
 
-function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:PointArray, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
+function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:ExtendedOffset, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean, rotation:number):Array<ContinuousAnchorPlacement> {
     let a:Array<ContinuousAnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1)
 
     for (let i = 0; i < connections.length; i++) {
@@ -28,8 +28,14 @@ function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:PointA
             val = elementDimensions[horizontal ? 0 : 1] - val
         }
 
-        const dx = (horizontal ? val : other), x = elementPosition[0] + dx, xp = dx / elementDimensions[0]
-        const dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1]
+        let dx = (horizontal ? val : other), x = elementPosition.left + dx, xp = dx / elementDimensions[0]
+        let dy = (horizontal ? other : val), y = elementPosition.top + dy, yp = dy / elementDimensions[1]
+
+        if (rotation !== 0) {
+            const rotated = rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
+            x = rotated[0];
+            y = rotated[1];
+        }
 
         a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ])
     }
@@ -114,13 +120,17 @@ export class AnchorManager {
 
     private placeAnchors (instance:jsPlumbInstance, elementId:string, _anchorLists:AnchorLists):void {
         let cd = instance.getCachedData(elementId), sS = cd.s, sO = cd.o,
-            placeSomeAnchors = (desc:string, elementDimensions:PointArray, elementPosition:PointArray, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
+            placeSomeAnchors = (desc:string, elementDimensions:PointArray, elementPosition:ExtendedOffset, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {
                     let sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
                         reverse = desc === "right" || desc === "top",
+                        rotation = instance.getRotation(elementId),
                         anchors = placeAnchorsOnLine(elementDimensions,
                             elementPosition, sc,
-                            isHorizontal, otherMultiplier, reverse)
+                            isHorizontal,
+                            otherMultiplier,
+                            reverse,
+                            rotation)
 
                     // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
                     let _setAnchorLocation = (endpoint:Endpoint, anchorPos:ContinuousAnchorPlacement) => {
@@ -140,10 +150,10 @@ export class AnchorManager {
                 }
             }
 
-        placeSomeAnchors("bottom", sS, [sO.left, sO.top], _anchorLists.bottom, true, 1, [0, 1])
-        placeSomeAnchors("top", sS, [sO.left, sO.top], _anchorLists.top, true, 0, [0, -1])
-        placeSomeAnchors("left", sS, [sO.left, sO.top], _anchorLists.left, false, 0, [-1, 0])
-        placeSomeAnchors("right", sS, [sO.left, sO.top], _anchorLists.right, false, 1, [1, 0])
+        placeSomeAnchors("bottom", sS, sO, _anchorLists.bottom, true, 1, [0, 1])
+        placeSomeAnchors("top", sS, sO, _anchorLists.top, true, 0, [0, -1])
+        placeSomeAnchors("left", sS, sO, _anchorLists.left, false, 0, [-1, 0])
+        placeSomeAnchors("right", sS, sO, _anchorLists.right, false, 1, [1, 0])
     }
 
     addFloatingConnection (key:string, conn:Connection) {
@@ -397,8 +407,15 @@ export class AnchorManager {
                                 this._updateAnchorList( this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint)
                             }
                             else {
+                                const sourceRotation = this.instance.getRotation(sourceId);
+                                const targetRotation = this.instance.getRotation(targetId);
+
                                 if (!o) {
-                                    o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, (conn.endpoints[0].anchor as ContinuousAnchor), (conn.endpoints[1].anchor as ContinuousAnchor))
+                                    o = this.calculateOrientation(sourceId, targetId, sd.o, td.o,
+                                        (conn.endpoints[0].anchor as ContinuousAnchor),
+                                        (conn.endpoints[1].anchor as ContinuousAnchor),
+                                        sourceRotation,
+                                        targetRotation)
                                     orientationCache[oKey] = o
                                 }
                                 if (sourceContinuous) {
@@ -470,7 +487,12 @@ export class AnchorManager {
     }
 
 
-    calculateOrientation (sourceId:string, targetId:string, sd:ExtendedOffset, td:ExtendedOffset, sourceAnchor:ContinuousAnchor, targetAnchor:ContinuousAnchor):OrientationResult {
+    calculateOrientation (sourceId:string, targetId:string,
+                          sd:ExtendedOffset, td:ExtendedOffset,
+                          sourceAnchor:ContinuousAnchor,
+                          targetAnchor:ContinuousAnchor,
+                          sourceRotation:number,
+                          targetRotation:number):OrientationResult {
 
         let Orientation = { HORIZONTAL: "horizontal", VERTICAL: "vertical", DIAGONAL: "diagonal", IDENTITY: "identity" }
 
@@ -481,6 +503,8 @@ export class AnchorManager {
             }
         }
 
+        // since we only support rotation around the center of an element these two lines don't have to take rotation
+        // into account.
         let theta = Math.atan2((td.centery - sd.centery), (td.centerx - sd.centerx)),
             theta2 = Math.atan2((sd.centery - td.centery), (sd.centerx - td.centerx))
 
@@ -495,16 +519,23 @@ export class AnchorManager {
             right:PointXY,
             bottom:PointXY
         }> = { }
-        ;(function (types:Array<string>, dim:Array<ExtendedOffset>) {
+        ;(function (types:Array<string>, dim:Array<[ExtendedOffset, number]>) {
             for (let i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
-                    "left": {x:dim[i].left, y:dim[i].centery },
-                    "right": {x:dim[i].right, y:dim[i].centery },
-                    "top": {x:dim[i].centerx, y:dim[i].top },
-                    "bottom": {x:dim[i].centerx , y:dim[i].bottom}
+                    "left": {x:dim[i][0].left, y:dim[i][0].centery },
+                    "right": {x:dim[i][0].right, y:dim[i][0].centery },
+                    "top": {x:dim[i][0].centerx, y:dim[i][0].top },
+                    "bottom": {x:dim[i][0].centerx , y:dim[i][0].bottom}
                 }
+
+                if (dim[i][1] !== 0) {
+                    for (let axis in midpoints[types[i]]) {
+                        midpoints[types[i]][axis] = rotatePointXY(midpoints[types[i]][axis], {x:dim[i][0].centerx, y:dim[i][0].centery}, dim[i][1]);
+                    }
+                }
+
             }
-        })([ "source", "target" ], [ sd, td ])
+        })([ "source", "target" ], [ [ sd, sourceRotation], [td, targetRotation] ])
 
         let FACES:Array<Face> = [ "top", "right", "left", "bottom" ]
 
@@ -519,7 +550,24 @@ export class AnchorManager {
         }
 
         candidates.sort(function (a, b) {
-            return a.dist < b.dist ? -1 : a.dist > b.dist ? 1 : 0
+            if (a.dist < b.dist) {
+                return -1
+            } else if (b.dist < a.dist) {
+                return 1
+            } else {
+                const axisIndices = {
+                    "left":0,
+                    "top":1,
+                    "right":2,
+                    "bottom":3
+                },
+                    ais = axisIndices[a.source],
+                    bis = axisIndices[b.source],
+                    ait = axisIndices[a.target],
+                    bit = axisIndices[b.target]
+
+                return ais < bis ? -1 : bis < ais ? 1 : ait < bit ? -1 : bit < ait ? 1 : 0
+            }
         })
 
         // now go through this list and try to get an entry that satisfies both (there will be one, unless one of the anchors
@@ -527,14 +575,20 @@ export class AnchorManager {
         let sourceEdge = candidates[0].source, targetEdge = candidates[0].target
         for (let i = 0; i < candidates.length; i++) {
 
-            if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
+            if (sourceAnchor.isContinuous && sourceAnchor.locked) {
+                sourceEdge = sourceAnchor.getCurrentFace()
+            }
+            else if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
                 sourceEdge = candidates[i].source
             }
             else {
                 sourceEdge = null
             }
 
-            if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
+            if (targetAnchor.isContinuous && targetAnchor.locked) {
+                targetEdge = targetAnchor.getCurrentFace()
+            }
+            else if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
                 targetEdge = candidates[i].target
             }
             else {
