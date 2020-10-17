@@ -151,7 +151,7 @@ export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
 export declare type Timestamp = string;
-interface AbstractSelection<T> {
+export interface AbstractSelection<T> {
     length: number;
     each: (handler: (arg0: T) => void) => void;
     get(index: number): T;
@@ -221,8 +221,7 @@ export declare type DeleteConnectionOptions = {
  */
 export declare function _timestamp(): Timestamp;
 export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
-declare type ContainerDelegation = [string, Function];
-declare type ManagedElement = {
+export declare type ManagedElement = {
     el: any;
     info?: {
         o: Offset;
@@ -236,7 +235,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     readonly renderer: Renderer;
     Defaults: jsPlumbDefaults;
     private _initialDefaults;
-    _containerDelegations: ContainerDelegation[];
+    private _containerDelegations;
     isConnectionBeingDragged: boolean;
     currentlyDragging: boolean;
     hoverSuspended: boolean;
@@ -263,7 +262,7 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     connections: Array<Connection>;
     endpointsByElement: Dictionary<Array<Endpoint>>;
     endpointsByUUID: Dictionary<Endpoint>;
-    _allowNestedGroups: boolean;
+    allowNestedGroups: boolean;
     private _curIdStamp;
     private _offsetTimestamps;
     private _offsets;
@@ -271,15 +270,15 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     router: Router;
     anchorManager: AnchorManager;
     groupManager: GroupManager;
-    _connectionTypes: Dictionary<TypeDescriptor>;
-    _endpointTypes: Dictionary<TypeDescriptor>;
-    _container: any;
-    _managedElements: Dictionary<ManagedElement>;
-    _floatingConnections: Dictionary<Connection>;
+    private _connectionTypes;
+    private _endpointTypes;
+    private _container;
+    private _managedElements;
+    private _floatingConnections;
     DEFAULT_SCOPE: string;
-    _helpers: jsPlumbHelperFunctions;
+    private _helpers;
     geometry: jsPlumbGeometryHelpers;
-    _zoom: number;
+    private _zoom;
     abstract getElement(el: any | string): any;
     abstract getElementById(el: string): any;
     abstract removeElement(el: any | string): void;
@@ -488,4 +487,3 @@ export declare abstract class jsPlumbInstance extends EventGenerator {
     removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     removeFromGroup(group: string | UIGroup, el: any, doNotFireEvent?: boolean): void;
 }
-export {};

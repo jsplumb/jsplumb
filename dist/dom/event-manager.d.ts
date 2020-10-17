@@ -1,12 +1,5 @@
 import { PointArray } from "../core";
 export declare function pageLocation(e: Event): PointArray;
-interface FunctionFacade {
-    __tauid: number;
-    __taExtra: Array<any>;
-    __taUnstore?: Function;
-    apply: (obj: any, ...args: Array<any>) => any;
-}
-declare type Handler = (obj: any, evt: string, fn: FunctionFacade, children?: string) => void;
 export interface EventManagerOptions {
     clickThreshold?: number;
     dblClickThreshold?: number;
@@ -15,8 +8,8 @@ export interface EventManagerOptions {
 export declare class EventManager {
     clickThreshold: number;
     dblClickThreshold: number;
-    tapHandler: Handler;
-    mouseEnterExitHandler: Handler;
+    private tapHandler;
+    private mouseEnterExitHandler;
     smartClicks: boolean;
     constructor(params?: EventManagerOptions);
     private _doBind;
@@ -27,4 +20,3 @@ export declare class EventManager {
 }
 export declare function setForceTouchEvents(value: boolean): void;
 export declare function setForceMouseEvents(value: boolean): void;
-export {};

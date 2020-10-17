@@ -7,12 +7,11 @@ export interface FlowchartConnectorOptions extends ConnectorOptions {
     cornerRadius?: number;
     loopbackRadius?: number;
 }
-declare type FlowchartSegment = [number, number, number, number, string];
 export declare class FlowchartConnector extends AbstractConnector {
     instance: jsPlumbInstance;
     connection: Connection;
     type: string;
-    internalSegments: Array<FlowchartSegment>;
+    private internalSegments;
     midpoint: number;
     alwaysRespectStubs: boolean;
     cornerRadius: number;
@@ -27,4 +26,3 @@ export declare class FlowchartConnector extends AbstractConnector {
     private writeSegments;
     _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;
 }
-export {};
