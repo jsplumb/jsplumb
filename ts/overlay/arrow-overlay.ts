@@ -32,8 +32,7 @@ export class ArrowOverlay extends Overlay {
         this.paintStyle = p.paintStyle || { "strokeWidth": 1 }
     }
 
-
-    draw(component:Component, currentConnectionPaintStyle:PaintStyle, absolutePosition?:PointArray): any {
+    draw(component:Component, currentConnectionPaintStyle:PaintStyle, absolutePosition?: [number, number]): any {
 
         if (component instanceof AbstractConnector) {
 
