@@ -14,7 +14,7 @@ var testSuite = function () {
         support.detachConnection(c.endpoints[1], idx);
     };
 
-    var _addDiv = function(id, x, y) {
+    var _addDiv = function(id, x, y, w, h) {
         if (!x) {
             _jsPlumb.testx = _jsPlumb.testx || 0;
             _jsPlumb.testx += 100;
@@ -27,7 +27,7 @@ var testSuite = function () {
             y = _jsPlumb.testy;
         }
 
-        return support.addDiv(id, _jsPlumb.getContainer(), "", x, y);
+        return support.addDiv(id, _jsPlumb.getContainer(), "", x, y, w, h);
     };
 
     module("Drag", {
@@ -83,7 +83,7 @@ var testSuite = function () {
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
 
-        _jsPlumb.select().delete();
+        _jsPlumb.select().deleteAll();
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
         equal(e2.connections.length, 0, "zero connections on endpoint 2 after connection removed");
 
@@ -166,9 +166,11 @@ var testSuite = function () {
     // https://github.com/jsplumb/jsPlumb/issues/415
     test("issue 415: spurious endpoints after dragging", function() {
 
-        
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
 
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
         [d1,d2,d3,d4].forEach(function(el) {
             _jsPlumb.makeSource(el, {
                 maxConnections:-1
@@ -205,7 +207,10 @@ var testSuite = function () {
     });
 
     test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target not continuous anchor so not hidden (issue 419)", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
 
         [d1,d2,d3,d4].forEach(function(el) {
             _jsPlumb.makeSource(el, {
@@ -237,7 +242,10 @@ var testSuite = function () {
     });
 
     test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target is continuous anchor so is hidden. (issue 419)", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
 
         [d1,d2,d3,d4].forEach(function(el) {
             _jsPlumb.makeSource(el, {
@@ -773,7 +781,11 @@ var testSuite = function () {
 
     // DRAG TARGET and redrop on original
     test("connection dragging, redrop on original target", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
@@ -789,7 +801,10 @@ var testSuite = function () {
 
     // DRAG SOURCE AND REDROP ON ORIGINAL
     test("connection dragging, redrop on original source", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
@@ -806,7 +821,10 @@ var testSuite = function () {
 
     // DRAG SOURCE TO AN ELEMENT NOT CONFIGURED AS SOURCE (SHOULD DETACH)
     test("connection dragging, move source to element not configured as drag source", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
@@ -824,7 +842,11 @@ var testSuite = function () {
 
     // DRAG SOURCE TO AN ELEMENT NO CONFIGURED AS SOURCE BUT DETACH DISABLED (SHOULDNT CARE)
     test("connection dragging, move source to element not configured as drag source, beforeDetach cancels connection", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         _jsPlumb.bind("beforeDetach", function() { return false; });
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
@@ -842,7 +864,11 @@ var testSuite = function () {
 
     // DRAG SOURCE TO ELEMENT NOT CONFIGURED AS SOURCE BUT BEFORE DROP SAYS NO SO ITS IRRELEVANT
     test("connection dragging, move source to element not configured as drag source, beforeDrop cancels connection", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         _jsPlumb.bind("beforedrop", function() { return false; });
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
@@ -860,7 +886,11 @@ var testSuite = function () {
 
     // DRAG TARGET TO ANOTHER SOURCE (BUT NOT A TARGET); SHOULD DETACH
     test("connection dragging, move target to element not configured as drag target", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
@@ -885,7 +915,11 @@ var testSuite = function () {
 
     // DRAG TARGET TO ANOTHER SOURCE (BUT NOT A TARGET), BUT DETACH DISABLED. SHOULDNT CARE.
     test("connection dragging, move source to element not configured as drag source, beforeDetach cancels connection", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         _jsPlumb.bind("beforeDetach", function() { return false; });
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
@@ -907,7 +941,11 @@ var testSuite = function () {
      * but has the makeSource override the anchor.
      */
     test("connection dragging, makeSource sets source endpoint and anchor", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { endpoint:"Rectangle", anchor:"Left"}));
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
@@ -926,7 +964,11 @@ var testSuite = function () {
      * from an applied type.
      */
     test("connection dragging, makeSource overrides source endpoint and anchor", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         _jsPlumb.registerConnectionType("basic", {
             endpoint:"Dot",
             anchor:"Right"
@@ -962,7 +1004,11 @@ var testSuite = function () {
 
         equal(_jsPlumb.select().length, 0, "0 connections in jsplumb instance.");
 
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         _jsPlumb.registerConnectionType("basic", {
             endpoint:"Dot",
             anchor:"Right"
@@ -990,7 +1036,11 @@ var testSuite = function () {
     });
 
     test("connection dragging, makeTarget overrides endpoint and anchor", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { endpoint:"Rectangle", anchor:"Top"}));
 
@@ -1012,7 +1062,12 @@ var testSuite = function () {
 
 
     test("connection dragging", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
         [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
         /*
