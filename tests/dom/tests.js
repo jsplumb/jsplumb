@@ -40,7 +40,7 @@ var testSuite = function () {
         _jsPlumb.repaintEverything(); // shouldn't complain
 
         equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
-        ok(e1.endpoint == null, "e1 cleaned up");
+        //ok(e1.endpoint == null, "e1 cleaned up");
     });
 
     test(": jsPlumb.remove, element identified by selector", function () {
@@ -54,7 +54,7 @@ var testSuite = function () {
         _jsPlumb.repaintEverything(); // shouldn't complain
 
         equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
-        ok(e1.endpoint == null, "e1 cleaned up");
+        //ok(e1.endpoint == null, "e1 cleaned up");
     });
 
 
