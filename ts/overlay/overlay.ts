@@ -6,7 +6,7 @@ import {Component} from "../component/component"
 import {uuid} from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from ".."
-
+import * as Constants from "../constants"
 
 export interface OverlayOptions extends Record<string, any> {
     id?:string
@@ -22,7 +22,6 @@ export interface ArrowOverlayOptions extends OverlayOptions {
     direction?: number; // 1
     foldback?: number; // 0.623
     paintStyle?: PaintStyle
-
 }
 
 export interface LabelOverlayOptions extends OverlayOptions {
@@ -90,14 +89,14 @@ export abstract class Overlay extends EventGenerator {
     }
 
     click(e:Event) {
-        this.fire("click", e)
-        let eventName = this.component instanceof Connection ? "click" : "endpointClick"
+        this.fire(Constants.EVENT_CLICK, e)
+        let eventName = this.component instanceof Connection ? Constants.EVENT_CLICK : Constants.EVENT_ENDPOINT_CLICK
         this._postComponentEvent(eventName, e)
     }
 
     dblClick(e:Event) {
-        this.fire("dblClick", e)
-        let eventName = this.component instanceof Connection ? "dblclick" : "endpointDblClick"
+        this.fire(Constants.EVENT_DBL_CLICK, e)
+        let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_CLICK : Constants.EVENT_ENDPOINT_DBL_CLICK
         this._postComponentEvent(eventName, e)
     }
 
