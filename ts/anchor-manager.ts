@@ -63,23 +63,6 @@ const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
     "left": leftAndTopSort
 }
 
-export class ContinuousAnchorFactory {
-
-    private continuousAnchorLocations:Dictionary<AnchorPlacement> = {}
-
-    clear(endpointId:string) {
-        delete this.continuousAnchorLocations[endpointId]
-    }
-
-    set(endpointId:string, pos:AnchorPlacement) {
-        this.continuousAnchorLocations[endpointId] = pos
-    }
-
-    get(instance:jsPlumbInstance, params?:ContinuousAnchorOptions):ContinuousAnchor {
-        return new ContinuousAnchor(instance, params)
-    }
-}
-
 interface ConnectionFacade {
     endpoints: [ Endpoint, Endpoint ],
     paint:() => any
@@ -107,11 +90,7 @@ export class AnchorManager {
 
     private floatingConnections:Dictionary<Connection> = {}
 
-    continuousAnchorFactory:ContinuousAnchorFactory
-
-    constructor(private instance:jsPlumbInstance) {
-        this.continuousAnchorFactory = new ContinuousAnchorFactory()
-    }
+    constructor(private instance:jsPlumbInstance) { }
 
     reset () {
         this._amEndpoints = {}
@@ -154,6 +133,10 @@ export class AnchorManager {
         placeSomeAnchors("top", sS, sO, _anchorLists.top, true, 0, [0, -1])
         placeSomeAnchors("left", sS, sO, _anchorLists.left, false, 0, [-1, 0])
         placeSomeAnchors("right", sS, sO, _anchorLists.right, false, 1, [1, 0])
+    }
+
+    clearContinuousAnchorPlacement(endpointId:string) {
+        delete this.continuousAnchorLocations[endpointId]
     }
 
     addFloatingConnection (key:string, conn:Connection) {
