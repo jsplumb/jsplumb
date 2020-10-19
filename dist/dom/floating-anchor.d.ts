@@ -1,21 +1,22 @@
-import { AnchorComputeParams, AnchorOptions, Orientation } from "../factory/anchor-factory";
-import { Anchor } from "../anchor/anchor";
-import { jsPlumbInstance, Size } from "../core";
-import { Endpoint } from "../endpoint/endpoint-impl";
-import { AnchorPlacement } from "../anchor-manager";
+import { Endpoint } from '../core/endpoint/endpoint-impl';
+import { AnchorPlacement } from '../core/anchor-manager';
+import { Anchor } from '../core/anchor/anchor';
+import { AnchorComputeParams, AnchorOptions, Orientation } from '../core/factory/anchor-factory';
+import { JsPlumbInstance } from '../core/core';
+import { Size } from '../core/common';
 export interface FloatingAnchorOptions extends AnchorOptions {
     reference: Anchor;
     referenceCanvas: HTMLElement;
 }
 export declare class FloatingAnchor extends Anchor {
-    instance: jsPlumbInstance;
+    instance: JsPlumbInstance;
     ref: Anchor;
     refCanvas: HTMLElement;
     size: Size;
     xDir: number;
     yDir: number;
     _lastResult: AnchorPlacement;
-    constructor(instance: jsPlumbInstance, params: FloatingAnchorOptions);
+    constructor(instance: JsPlumbInstance, params: FloatingAnchorOptions);
     compute(params: AnchorComputeParams): AnchorPlacement;
     getOrientation(_endpoint: Endpoint): Orientation;
     /**

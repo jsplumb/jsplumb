@@ -1,31 +1,36 @@
-import {Renderer} from "../renderer"
-import {Segment} from "../connector/abstract-segment"
-import {BezierSegment} from "../connector/bezier-segment"
-import {ArcSegment} from "../connector/arc-segment"
-import {Component, RepaintOptions} from "../component/component"
-import {EndpointRepresentation} from "../endpoint/endpoints"
-import {SvgEndpoint} from "./svg-element-endpoint"
-import {Dictionary, jsPlumbInstance, TypeDescriptor} from "../core"
-import {Overlay} from "../overlay/overlay"
-import {HTMLElementOverlay} from "./html-element-overlay"
-import {SVGElementOverlay} from "./svg-element-overlay"
-import {SvgElementConnector} from "./svg-element-connector"
-import {AbstractConnector} from "../connector/abstract-connector"
-import {isLabelOverlay, LabelOverlay} from "../overlay/label-overlay"
+import { Component, RepaintOptions } from '../core/component/component'
+import { Renderer } from '../core/renderer'
+import { Segment } from '../core/connector/abstract-segment'
+import { BezierSegment } from '../core/connector/bezier-segment'
+import { ArcSegment } from '../core/connector/arc-segment'
+import { isArrowOverlay } from '../core/overlay/arrow-overlay'
+import { Overlay } from '../core/overlay/overlay'
+import { LabelOverlay, isLabelOverlay } from '../core/overlay/label-overlay'
+import { AbstractConnector } from '../core/connector/abstract-connector'
+import { Dictionary, TypeDescriptor } from '../core/common'
+import {isDiamondOverlay, isPlainArrowOverlay, JsPlumbInstance} from "../core"
+import { Connection } from '../core/connector/connection-impl'
+import { EndpointRepresentation } from '../core/endpoint/endpoints'
+import { Endpoint } from '../core/endpoint/endpoint-impl'
+import { IS, isFunction } from '../core/util'
+import { OverlayCapableComponent } from '../core/component/overlay-capable-component'
+import { PaintStyle} from '../core/styles'
+import { CustomOverlay, isCustomOverlay } from '../core/overlay/custom-overlay'
+
+import { SvgEndpoint } from "./svg-element-endpoint"
+import { HTMLElementOverlay } from "./html-element-overlay"
+import { SVGElementOverlay } from "./svg-element-overlay"
+import { SvgElementConnector } from "./svg-element-connector"
+
 import {
     addClass,
-    BrowserJsPlumbInstance,
-    Connection,
-    Endpoint,
-    IS, isArrowOverlay, isCustomOverlay,
-    isFunction,
-    OverlayCapableComponent,
-    PaintStyle, removeClass
-} from ".."
-import {CustomOverlay} from "../overlay/custom-overlay"
+    removeClass
+} from './browser-util'
+
+import { BrowserJsPlumbInstance } from './browser-jsplumb-instance'
 
 export type EndpointHelperFunctions = {
-    makeNode:(instance:jsPlumbInstance, ep:any, paintStyle:PaintStyle) => void,
+    makeNode:(instance:JsPlumbInstance, ep:any, paintStyle:PaintStyle) => void,
     updateNode: (ep:any, node:SVGElement) => void
 }
 
@@ -101,7 +106,7 @@ export class BrowserRenderer implements Renderer {
 
         if (isLabelOverlay(o)) {
             o.instance.addClass(BrowserRenderer.getLabelElement(o), clazz)
-        } else if (isArrowOverlay(o)) {
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
             o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz)
         } else if (isCustomOverlay(o)) {
             o.instance.addClass(BrowserRenderer.getCustomElement(o), clazz)
@@ -114,7 +119,7 @@ export class BrowserRenderer implements Renderer {
     removeOverlayClass(o: Overlay, clazz: string): void {
         if (isLabelOverlay(o)) {
             o.instance.removeClass(BrowserRenderer.getLabelElement(o), clazz)
-        } else if (isArrowOverlay(o)) {
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
             o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz)
         } else if (isCustomOverlay(o)) {
             o.instance.removeClass(BrowserRenderer.getCustomElement(o), clazz)
@@ -135,7 +140,7 @@ export class BrowserRenderer implements Renderer {
             (o as any).canvas.style.left = XY.x + params.d.minx + "px";
             (o as any).canvas.style.top = XY.y + params.d.miny + "px"
 
-        } else if (isArrowOverlay(o)) {
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
 
             const path = (isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y)) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y +
                 " L" + params.d.tail[0].x + "," + params.d.tail[0].y +
@@ -164,7 +169,7 @@ export class BrowserRenderer implements Renderer {
         }
         else if (isCustomOverlay(o)) {
             BrowserRenderer.getCustomElement(o).style.display = visible ? "block" : "none"
-        } else if (isArrowOverlay(o)) {
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
             (o as any).path.style.display = visible ? "block" : "none"
         }
     }
@@ -175,9 +180,9 @@ export class BrowserRenderer implements Renderer {
         } else if (isCustomOverlay(o)) {
             o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer())
         }
-        else if (isArrowOverlay(o)){
-            // dont need to do anything with other types. seemingly. but why not.
-        }
+        // else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
+        //     // dont need to do anything with other types. seemingly. but why not.
+        // }
     }
 
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): any {
@@ -186,7 +191,7 @@ export class BrowserRenderer implements Renderer {
         } else if (isCustomOverlay(o)) {
             o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer())
         }
-        else if (isArrowOverlay(o)){
+        else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
             this.instance.appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas)
         }
     }
@@ -201,7 +206,7 @@ export class BrowserRenderer implements Renderer {
         } else if (isCustomOverlay(o)) {
             canvas = BrowserRenderer.getCustomElement(o)
         }
-        else if (isArrowOverlay(o)){
+        else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
             canvas = SVGElementOverlay.ensurePath(o)
         }
 
@@ -220,7 +225,7 @@ export class BrowserRenderer implements Renderer {
             el.parentNode.removeChild(el)
             delete (o as any).canvas
             delete (o as any).cachedDimensions
-        } else if (isArrowOverlay(o)){
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
             SVGElementOverlay.destroy(o)
         } else if (isCustomOverlay(o)) {
             const el = BrowserRenderer.getCustomElement(o)
@@ -272,7 +277,7 @@ export class BrowserRenderer implements Renderer {
                 return {minX: 0, maxX: 0, minY: 0, maxY: 0}
             }
 
-        } else if (isArrowOverlay(o)) {
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
             return o.draw(component, paintStyle, absolutePosition)
         } else {
             throw "Could not draw overlay of type [" + o.type + "]"

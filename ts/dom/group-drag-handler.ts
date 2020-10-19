@@ -1,10 +1,13 @@
+
+import { PointArray } from '../core/common'
+import {UIGroup} from "../core/group/group"
+import { PARENT_GROUP_KEY } from '../core/constants'
+
 import {ElementDragHandler} from "./element-drag-handler"
-import * as Constants from "../constants"
-import {PointArray} from "../core"
 import {DragEventParams, EVT_REVERT, GhostProxyingDragHandler, DragStopEventParams} from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import { UIGroup } from "../group/group"
 import {Drag} from "./collicat"
+
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
 
@@ -54,9 +57,9 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
         const originalElement = params.drag.getDragElement(true)
 
-        let originalGroup:UIGroup = params.el[Constants.PARENT_GROUP_KEY],
+        let originalGroup:UIGroup = params.el[PARENT_GROUP_KEY],
             out = super.onStop(params),
-            currentGroup:UIGroup = params.el[Constants.PARENT_GROUP_KEY]
+            currentGroup:UIGroup = params.el[PARENT_GROUP_KEY]
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params)
@@ -91,7 +94,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
         let orphanedPosition = null
         if (!this._isInsideParent(params.el, params.pos)) {
-            let group = params.el[Constants.PARENT_GROUP_KEY]
+            let group = params.el[PARENT_GROUP_KEY]
             if (group.prune) {
                 if (params.el._isJsPlumbGroup) {
                     // remove the group from the instance

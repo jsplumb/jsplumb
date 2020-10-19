@@ -1,6 +1,6 @@
-import { EndpointRepresentation } from "../endpoint/endpoints";
-import { PaintStyle } from "../styles";
 import { EndpointHelperFunctions } from "./browser-renderer";
+import { EndpointRepresentation } from '../core/endpoint/endpoints';
+import { PaintStyle } from '../core/styles';
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
  * Type specific subclasses are expected to implement a `makeNode` and `updateNode` method,

@@ -1,4 +1,4 @@
-import { PointArray } from "../core";
+import { PointArray } from '../core/common';
 export declare function pageLocation(e: Event): PointArray;
 export interface EventManagerOptions {
     clickThreshold?: number;

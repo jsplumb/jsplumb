@@ -1,11 +1,12 @@
 import {registerEndpointRenderer} from "./browser-renderer"
-import {_attr, _node} from "../svg/svg-util"
-import {PaintStyle} from "../styles"
-import {jsPlumbInstance} from "../core"
+import { _attr, _node } from './svg-util'
+import {JsPlumbInstance} from '../core/core'
+import { PaintStyle } from '../core/styles'
 
 registerEndpointRenderer("Dot", {
-    makeNode : (instance:jsPlumbInstance, ep:any, style:PaintStyle) => {
-        return _node(instance, "circle", {
+    // TODO `instance` not needed here
+    makeNode : (instance:JsPlumbInstance, ep:any, style:PaintStyle) => {
+        return _node("circle", {
             "cx": ep.w / 2,
             "cy": ep.h / 2,
             "r": ep.radius

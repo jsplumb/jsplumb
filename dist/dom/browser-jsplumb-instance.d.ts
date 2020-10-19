@@ -1,9 +1,14 @@
-import { jsPlumbDefaults, jsPlumbHelperFunctions } from "../defaults";
-import { Dictionary, jsPlumbInstance, Offset, PointArray, Size, SourceDefinition, TargetDefinition } from "../core";
+import { jsPlumbDefaults, jsPlumbHelperFunctions } from '../core/defaults';
+import { Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size } from '../core/common';
+import { JsPlumbInstance } from '../core/core';
+import { UIGroup } from '../core/group/group';
+import { AbstractConnector } from '../core/connector/abstract-connector';
+import { Endpoint } from '../core/endpoint/endpoint-impl';
+import { Overlay } from '../core/overlay/overlay';
+import { ElementAttributes } from './svg-util';
 import { DragManager } from "./drag-manager";
-import { UIGroup } from "../group/group";
 import { EventManager } from "./event-manager";
-import { AbstractConnector, Collicat, CollicatOptions, Drag, ElementAttributes, Endpoint, Overlay } from "..";
+import { CollicatOptions, Collicat, Drag } from './collicat';
 import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
 export interface DragEventCallbackOptions {
     drag: {
@@ -45,12 +50,13 @@ export interface jsPlumbDOMElement extends HTMLElement {
     _jsPlumbList: any;
     _jsPlumbScrollHandler?: Function;
     _katavorioDrag?: Drag;
+    _jspContext?: any;
 }
 export declare type PosseSpec = string | {
     id: string;
     active: boolean;
 };
-export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
+export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     _instanceIndex: number;
     dragManager: DragManager;
     _connectorClick: Function;
@@ -150,6 +156,7 @@ export declare class BrowserJsPlumbInstance extends jsPlumbInstance {
      * @param options
      */
     createDragManager(options: CollicatOptions): Collicat;
+    rotate(elementId: string, rotation: number, doNotRepaint?: boolean): void;
     svg: {
         node: (name: string, attributes?: ElementAttributes) => jsPlumbDOMElement;
         attr: (node: SVGElement, attributes: ElementAttributes) => void;

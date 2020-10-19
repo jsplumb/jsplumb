@@ -1,15 +1,16 @@
-import { Overlay } from "../overlay/overlay";
-import { jsPlumbInstance, PointArray } from "../core";
-import { Component } from "../component/component";
+import { PointArray } from '../core/common';
+import { JsPlumbInstance } from "../core";
+import { Overlay } from '../core/overlay/overlay';
+import { Component } from '../core/component/component';
 interface HTMLElementOverlayHolder extends Overlay {
     canvas: HTMLElement;
     cachedDimensions: PointArray;
 }
 export declare class HTMLElementOverlay {
-    instance: jsPlumbInstance;
+    instance: JsPlumbInstance;
     overlay: Overlay;
     protected htmlElementOverlay: HTMLElementOverlayHolder;
-    constructor(instance: jsPlumbInstance, overlay: Overlay);
+    constructor(instance: JsPlumbInstance, overlay: Overlay);
     static createElement(o: HTMLElementOverlayHolder): HTMLElement;
     static getElement(o: HTMLElementOverlayHolder, component?: Component, elementCreator?: (c: Component) => HTMLElement): HTMLElement;
     static destroy(o: HTMLElementOverlayHolder): void;

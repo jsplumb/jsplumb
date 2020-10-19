@@ -1,6 +1,6 @@
-import {fastTrim, isArray, log} from "../util"
-import {jsPlumbDOMElement} from "../dom"
-import {Dictionary} from "../core"
+import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {Dictionary} from '../core/common'
+import { fastTrim, isArray, log } from '../core/util'
 
 // These are utility functions for use inside a Browser.
 

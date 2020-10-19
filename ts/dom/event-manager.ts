@@ -1,5 +1,4 @@
 
-import {uuid} from "../util"
 import {
     ATTRIBUTE_TABINDEX,
     EVENT_CLICK, EVENT_CONTEXTMENU,
@@ -9,8 +8,10 @@ import {
     EVENT_MOUSEOUT,
     EVENT_MOUSEOVER, EVENT_MOUSEUP,
     EVENT_TAP
-} from "../constants"
-import {PointArray} from "../core"
+} from '../core/constants'
+
+import { PointArray } from '../core/common'
+import { uuid } from '../core/util'
 
 /**
  * Creates a Touch object.

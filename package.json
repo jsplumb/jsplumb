@@ -1,6 +1,8 @@
 {
-  "name": "@jsplumb/community-core",
-  "version": "4.0.0-RC20",
+  "private": true,
+  "workspaces": [
+    "ts/*"
+  ],
   "description": "Visual connectivity for webapps",
   "main": "dist/js/jsplumb-cjs.js",
   "module": "dist/js/jsplumb-es.js",
@@ -8,22 +10,17 @@
     "doc": "doc",
     "test": "tests"
   },
-  "files": [
-    "dist/**/*.d.ts",
-    "dist/js/jsplumb.js",
-    "dist/js/jsplumb-cjs.js",
-    "dist/js/jsplumb-es.js",
-    "css/jsplumbtoolkit.css"
-  ],
-  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init": "node ./install.js",
     "build": "set -e;tsc",
     "babel": "./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
-    "package": "set -e;npm run build;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs;",
-    "copy-defs": "npm pack;node ./scripts/copy-typescript-defs.js",
-    "create-package": "node ./scripts/create-package.js",
+    "package": "set -e;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs;npm run copy-package-json;npm run copy-css",
+    "copy-css": "node ./scripts/copy-css.js",
+    "copy-package-json": "node ./scripts/copy-package-json.js",
+    "copy-defs": "node ./scripts/copy-typescript-defs.js",
+    "create-package": "node ./scripts/create-packages.js",
+    "create-packages": "cd dist/dom;npm pack;cd ../core;npm pack",
     "rollup": "rollup -c",
     "rollup-dev": "rollup -c -w"
   },
@@ -48,10 +45,10 @@
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-typescript": "^7.3.3",
     "babel-loader": "^8.0.6",
-    "rollup": "^1.12.0",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.0.0",
+    "rollup": "^2.26.11",
+    "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
     "typescript": "3.8.3"
   }
 }

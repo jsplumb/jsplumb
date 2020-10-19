@@ -1,22 +1,10 @@
 import { DragEventParams, DragHandler, DragStartEventParams, DragStopEventParams } from "./drag-manager";
 import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { Connection } from "../connector/connection-impl";
-import { Endpoint } from "../endpoint/endpoint-impl";
-import { BoundingBox, Dictionary } from "../core";
-import { EndpointRepresentation } from "../endpoint/endpoints";
+import { Connection } from '../core/connector/connection-impl';
+import { Endpoint } from '../core/endpoint/endpoint-impl';
+import { EndpointRepresentation } from '../core/endpoint/endpoints';
+import { BoundingBox, Dictionary } from '../core/common';
 import { Drag } from "./collicat";
-export interface ConnectionMovedParams {
-    connection: Connection;
-    index: number;
-    originalSourceId: string;
-    newSourceId: string;
-    originalTargetId: string;
-    newTargetId: string;
-    originalSourceEndpoint: Endpoint;
-    newSourceEndpoint: Endpoint;
-    originalTargetEndpoint: Endpoint;
-    newTargetEndpoint: Endpoint;
-}
 export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;

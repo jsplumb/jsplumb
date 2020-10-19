@@ -1,9 +1,9 @@
-import {AnchorOrientationHint, AnchorComputeParams, AnchorOptions, Orientation} from "../factory/anchor-factory"
-import { Anchor } from "../anchor/anchor"
-import {jsPlumbInstance, Size} from "../core"
-import {Endpoint} from "../endpoint/endpoint-impl"
-import {AnchorPlacement} from "../anchor-manager"
-
+import { Endpoint } from '../core/endpoint/endpoint-impl'
+import { AnchorPlacement } from '../core/anchor-manager'
+import { Anchor } from '../core/anchor/anchor'
+import { AnchorOrientationHint, AnchorComputeParams, AnchorOptions, Orientation } from '../core/factory/anchor-factory'
+import { JsPlumbInstance} from '../core/core'
+import { Size } from '../core/common'
 
 export interface FloatingAnchorOptions extends AnchorOptions {
     reference:Anchor
@@ -19,7 +19,7 @@ export class FloatingAnchor extends Anchor {
     yDir:number
     _lastResult:AnchorPlacement
 
-    constructor(public instance:jsPlumbInstance,  params:FloatingAnchorOptions) {
+    constructor(public instance:JsPlumbInstance,  params:FloatingAnchorOptions) {
         super(instance, params)
 
         // this is the anchor that this floating anchor is referenced to for

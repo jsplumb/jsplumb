@@ -7,25 +7,51 @@ import {
     DragStopEventParams
 } from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Connection} from "../connector/connection-impl"
-import {Endpoint} from "../endpoint/endpoint-impl"
-import {addToList, each, findWithFunction, functionChain, IS, isString} from "../util"
+
+import { Connection } from '../core/connector/connection-impl'
+import { Endpoint } from '../core/endpoint/endpoint-impl'
+import { addToList,
+    each,
+    findWithFunction,
+    functionChain,
+    IS,
+    isString } from '../core/util'
+
+import { Anchor } from '../core/anchor/anchor'
+import { PaintStyle } from '../core/styles'
+import { EndpointRepresentation } from '../core/endpoint/endpoints'
+
+import {
+
+    extend
+
+} from '../core/core'
+
 import {
     BoundingBox,
     Dictionary,
-    extend,
-    jsPlumbInstance,
-    PointArray,
     SourceDefinition,
     TargetDefinition
-} from "../core"
-import {Anchor} from "../anchor/anchor"
-import {PaintStyle} from "../styles"
-import { FloatingAnchor } from "./floating-anchor"
-import {EndpointRepresentation} from "../endpoint/endpoints"
+} from '../core/common'
+
+import { JsPlumbInstance } from "../core/core"
+
+import { EVENT_CONNECTION_DRAG,
+    EVENT_MAX_CONNECTIONS,
+    IS_GROUP_KEY,
+    SOURCE,
+    TARGET,
+    CHECK_DROP_ALLOWED,
+    IS_DETACH_ALLOWED,
+    BEFORE_DETACH,
+    CHECK_CONDITION,
+    classList,
+    cls
+} from '../core/constants'
+
+import { FloatingAnchor  } from "./floating-anchor"
 import {consume, createElement, findParent} from "./browser-util"
-import * as Constants from "../constants"
-import {classList, cls, EVENT_CONNECTION_DRAG, EVENT_MAX_CONNECTIONS} from "../constants"
+
 import {Drag} from "./collicat"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
@@ -44,7 +70,7 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, e
     return ep
 }
 
-function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:jsPlumbInstance, negate?:boolean):boolean {
+function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:JsPlumbInstance, negate?:boolean):boolean {
     let t = evt.target || evt.srcElement,
         ok = false,
         sel = _instance.getSelector(_el, selector)
@@ -59,19 +85,6 @@ function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:
 }
 
 const DRAG_ACTIVE_OR_HOVER_SELECTOR = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER)
-
-export interface ConnectionMovedParams {
-    connection:Connection,
-    index:number,
-    originalSourceId:string,
-    newSourceId:string,
-    originalTargetId:string,
-    newTargetId:string,
-    originalSourceEndpoint:Endpoint,
-    newSourceEndpoint:Endpoint,
-    originalTargetEndpoint:Endpoint,
-    newTargetEndpoint:Endpoint
-}
 
 export class EndpointDragHandler implements DragHandler {
 
@@ -462,9 +475,9 @@ export class EndpointDragHandler implements DragHandler {
 
         this.endpointDropTargets.sort((a:any, b:any) =>{
 
-            if (a.el[Constants.IS_GROUP_KEY] && !b.el[Constants.IS_GROUP_KEY]) {
+            if (a.el[IS_GROUP_KEY] && !b.el[IS_GROUP_KEY]) {
                 return 1
-            } else if (!a.el[Constants.IS_GROUP_KEY] && b.el[Constants.IS_GROUP_KEY]) {
+            } else if (!a.el[IS_GROUP_KEY] && b.el[IS_GROUP_KEY]) {
                 return -1
             } else {
                 if (a.rank != null && b.rank != null) {
@@ -556,7 +569,7 @@ export class EndpointDragHandler implements DragHandler {
             // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
             this.jpc.suspendedElement = this.jpc.endpoints[anchorIdx].element
             this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId
-            this.jpc.suspendedElementType = anchorIdx === 0 ? Constants.SOURCE : Constants.TARGET
+            this.jpc.suspendedElementType = anchorIdx === 0 ? SOURCE : TARGET
         
             this.instance.renderer.setHover(this.jpc.suspendedEndpoint, false)
 
@@ -627,7 +640,7 @@ export class EndpointDragHandler implements DragHandler {
 
                     _cont = (newDropTarget.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id)
                     if (_cont) {
-                        let bb = this.instance.checkCondition(Constants.CHECK_DROP_ALLOWED, {
+                        let bb = this.instance.checkCondition(CHECK_DROP_ALLOWED, {
                             sourceEndpoint: this.jpc.endpoints[idx],
                             targetEndpoint: newDropTarget.endpoint.endpoint,
                             connection: this.jpc
@@ -989,10 +1002,10 @@ export class EndpointDragHandler implements DragHandler {
 
     private _shouldReattach(originalEvent?:Event):boolean {
         return this.jpc.isReattach() || this.jpc._forceReattach || !functionChain(true, false, [
-            [ this.jpc.endpoints[0], Constants.IS_DETACH_ALLOWED, [ this.jpc ] ],
-            [ this.jpc.endpoints[1], Constants.IS_DETACH_ALLOWED, [ this.jpc ] ],
-            [ this.jpc, Constants.IS_DETACH_ALLOWED, [ this.jpc ] ],
-            [ this.instance, Constants.CHECK_CONDITION, [ Constants.BEFORE_DETACH, this.jpc ] ]
+            [ this.jpc.endpoints[0], IS_DETACH_ALLOWED, [ this.jpc ] ],
+            [ this.jpc.endpoints[1], IS_DETACH_ALLOWED, [ this.jpc ] ],
+            [ this.jpc, IS_DETACH_ALLOWED, [ this.jpc ] ],
+            [ this.instance, CHECK_CONDITION, [ BEFORE_DETACH, this.jpc ] ]
         ])
     }
 

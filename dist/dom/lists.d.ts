@@ -1,6 +1,10 @@
-import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
-import { Dictionary } from "../core";
-import { Anchor, AnchorSpec, Connection, Endpoint, EndpointSpec, jsPlumbDOMElement } from "..";
+import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { Dictionary } from '../core/common';
+import { Anchor } from '../core/anchor/anchor';
+import { AnchorSpec } from '../core/factory/anchor-factory';
+import { Connection } from '../core/connector/connection-impl';
+import { Endpoint } from '../core/endpoint/endpoint-impl';
+import { EndpointSpec } from '../core/endpoint/endpoint';
 export interface ListManagerOptions {
 }
 export interface jsPlumbListOptions {

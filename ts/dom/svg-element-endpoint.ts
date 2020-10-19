@@ -1,10 +1,12 @@
-import {EndpointRepresentation} from "../endpoint/endpoints"
-import {SvgComponent} from "../dom/svg-component"
-import {PaintStyle} from "../styles"
-import {_applyStyles, _node} from "../svg/svg-util"
+import {SvgComponent} from "./svg-component"
 import {EndpointHelperFunctions} from "./browser-renderer"
-import {extend} from "../core"
-import {createElement, sizeElement} from ".."
+import { createElement, sizeElement } from './browser-util'
+
+import {  extend } from '../core/core'
+import { EndpointRepresentation } from '../core/endpoint/endpoints'
+import { PaintStyle } from '../core/styles'
+
+import { _node, _applyStyles } from './svg-util'
 
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
@@ -17,7 +19,7 @@ export abstract class SvgEndpoint<C> {
         if ((ep as any).canvas != null) {
             return (ep as any).canvas
         } else {
-            const svg:any = _node(ep.instance, "svg", {
+            const svg:any = _node("svg", {
                 "style": "",
                 "width": "0",
                 "height": "0",

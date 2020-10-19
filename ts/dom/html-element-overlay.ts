@@ -1,8 +1,9 @@
 
-import {Overlay} from "../overlay/overlay"
-import {jsPlumbInstance, PointArray} from "../core"
-import {Component} from "../component/component"
-import {createElement} from ".."
+import {createElement} from './browser-util'
+import { PointArray } from '../core/common'
+import { JsPlumbInstance } from "../core"
+import { Overlay } from '../core/overlay/overlay'
+import { Component } from '../core/component/component'
 
 interface HTMLElementOverlayHolder extends Overlay {
     canvas:HTMLElement
@@ -13,7 +14,7 @@ export class HTMLElementOverlay {
 
     protected htmlElementOverlay:HTMLElementOverlayHolder
 
-    constructor(public instance:jsPlumbInstance, public overlay: Overlay) {
+    constructor(public instance:JsPlumbInstance, public overlay: Overlay) {
         this.htmlElementOverlay = overlay as HTMLElementOverlayHolder
     }
 

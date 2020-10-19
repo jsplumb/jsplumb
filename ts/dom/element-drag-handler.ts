@@ -7,12 +7,23 @@ import {
     EVT_DRAG_MOVE, EVT_DRAG_START,
     EVT_DRAG_STOP, DragStopEventParams
 } from "./drag-manager"
+
 import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance"
-import {UIGroup} from "../group/group"
-import {BoundingBox, Dictionary, Offset, PointArray} from "../core"
-import {isString, optional} from "../util"
+
+import { PARENT_GROUP_KEY, GROUP_KEY } from '../core/constants'
+import { UIGroup } from '../core/group/group'
+
+import {
+    BoundingBox,
+    Dictionary,
+    Offset,
+    PointArray,
+
+} from '../core/common'
+
+import { isString, optional } from '../core/util'
+
 import {Drag} from "./collicat"
-import * as Constants from "../constants"
 
 type IntersectingGroup = {
     group:UIGroup
@@ -102,7 +113,7 @@ export class ElementDragHandler implements DragHandler {
             let targetGroup = this._intersectingGroups[0].group
             let intersectingElement = this._intersectingGroups[0].intersectingElement
 
-            let currentGroup = (<any>intersectingElement)[Constants.PARENT_GROUP_KEY]
+            let currentGroup = (<any>intersectingElement)[PARENT_GROUP_KEY]
 
             if (currentGroup !== targetGroup) {
                 if (currentGroup != null) {
@@ -254,9 +265,9 @@ export class ElementDragHandler implements DragHandler {
                 // if drag el not a group
                 if (!_el._isJsPlumbGroup || this.instance.allowNestedGroups) {
 
-                    const isNotInAGroup = !_el[Constants.PARENT_GROUP_KEY]
-                    const membersAreDroppable = isNotInAGroup || _el[Constants.PARENT_GROUP_KEY].dropOverride !== true
-                    const isGhostOrNotConstrained = !isNotInAGroup && (_el[Constants.PARENT_GROUP_KEY].ghost || _el[Constants.PARENT_GROUP_KEY].constrain !== true)
+                    const isNotInAGroup = !_el[PARENT_GROUP_KEY]
+                    const membersAreDroppable = isNotInAGroup || _el[PARENT_GROUP_KEY].dropOverride !== true
+                    const isGhostOrNotConstrained = !isNotInAGroup && (_el[PARENT_GROUP_KEY].ghost || _el[PARENT_GROUP_KEY].constrain !== true)
 
                     // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
                     // it's not in a group, OR
@@ -268,9 +279,9 @@ export class ElementDragHandler implements DragHandler {
                             // prepare a list of potential droppable groups.
 
                             // get the group pertaining to the dragged element. this is null if the element being dragged is not a UIGroup.
-                            const elementGroup = _el[Constants.GROUP_KEY] as UIGroup
+                            const elementGroup = _el[GROUP_KEY] as UIGroup
 
-                            if (group.droppable !== false && group.enabled !== false && _el[Constants.GROUP_KEY] !== group && !this.instance.groupManager.isDescendant(group, elementGroup)) {
+                            if (group.droppable !== false && group.enabled !== false && _el[GROUP_KEY] !== group && !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),

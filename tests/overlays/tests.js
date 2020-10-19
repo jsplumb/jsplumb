@@ -20,7 +20,7 @@ var testSuite = function () {
     document.body.appendChild(container);
 
 
-    test(": _jsPlumb.connect (overlays, long-hand version)", function () {
+    test(": _jsPlumb.connect (overlays, long-hand version, label and arrow)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         var imageEventListener = function () {
         };
@@ -41,6 +41,26 @@ var testSuite = function () {
         equal(0.7, connection1.getOverlays()["a"].location);
         equal(40, connection1.getOverlays()["a"].width);
         equal(40, connection1.getOverlays()["a"].length);
+    });
+
+    test(": _jsPlumb.connect (overlays, long-hand version, diamond and arrow)", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
+        var imageEventListener = function () {
+        };
+        var arrowSpec = {width: 40, length: 40, location: 0.7, foldback: 0, paintStyle: {strokeWidth: 1, stroke: "#000000"}, id:"a"};
+        var connection1 = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            overlays: [
+                ["Diamond", { id:"d"} ],
+                [ "PlainArrow", { id:"a"} ]
+            ]
+        });
+        equal(support.length(connection1.overlays), 2);
+        equal("Diamond", connection1.getOverlays()["d"].type);
+
+        equal("PlainArrow", connection1.getOverlays()["a"].type);
     });
 
     test(": _jsPlumb.connect (overlays, long-hand version, IDs specified)", function () {

@@ -1,13 +1,18 @@
-import { Renderer } from "../renderer";
-import { Segment } from "../connector/abstract-segment";
-import { Component, RepaintOptions } from "../component/component";
-import { jsPlumbInstance, TypeDescriptor } from "../core";
-import { Overlay } from "../overlay/overlay";
-import { AbstractConnector } from "../connector/abstract-connector";
-import { LabelOverlay } from "../overlay/label-overlay";
-import { BrowserJsPlumbInstance, Connection, Endpoint, OverlayCapableComponent, PaintStyle } from "..";
+import { Component, RepaintOptions } from '../core/component/component';
+import { Renderer } from '../core/renderer';
+import { Segment } from '../core/connector/abstract-segment';
+import { Overlay } from '../core/overlay/overlay';
+import { LabelOverlay } from '../core/overlay/label-overlay';
+import { AbstractConnector } from '../core/connector/abstract-connector';
+import { TypeDescriptor } from '../core/common';
+import { JsPlumbInstance } from "../core";
+import { Connection } from '../core/connector/connection-impl';
+import { Endpoint } from '../core/endpoint/endpoint-impl';
+import { OverlayCapableComponent } from '../core/component/overlay-capable-component';
+import { PaintStyle } from '../core/styles';
+import { BrowserJsPlumbInstance } from './browser-jsplumb-instance';
 export declare type EndpointHelperFunctions = {
-    makeNode: (instance: jsPlumbInstance, ep: any, paintStyle: PaintStyle) => void;
+    makeNode: (instance: JsPlumbInstance, ep: any, paintStyle: PaintStyle) => void;
     updateNode: (ep: any, node: SVGElement) => void;
 };
 export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions): void;

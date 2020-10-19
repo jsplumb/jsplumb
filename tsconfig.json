@@ -1,19 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "es2015",
+    "target": "esnext",
+    "module": "esnext",
     "outDir": "_build_es6",
     "moduleResolution": "node",
     "sourceMap": false,
     "declaration":true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
-    "lib": [ "es2015", "dom" ],
+    "lib": [ "esnext", "dom" ],
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
-    "allowJs":false
-
+    "allowJs":false,
+    "rootDir": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": "./ts",
+    "paths": {
+      "@jsplumb/*": ["*"]
+    }
   },
-  "include": ["ts/**/*.ts"],
+  "include": ["ts/*/*"],
   "exclude":["node_modules", "**/*.d.ts"]
 }

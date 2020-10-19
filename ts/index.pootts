@@ -1,0 +1,130 @@
+import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./dom/browser-jsplumb-instance"
+import {Constructable, extend} from "./core/core"
+
+import {jsPlumbHelperFunctions} from "./core/defaults"
+import {EventManager} from "./dom/event-manager"
+import {uuid} from "./core/util"
+import {Connectors} from "./connector/connectors"
+import {AbstractConnector} from "./connector/abstract-connector"
+
+export * from "./core/constants"
+export * from "./core/core"
+export * from "./core/defaults"
+export * from "./core/event-generator"
+
+export * from "./core/group/group"
+export * from "./core/group/group-manager"
+
+export * from "./core/component/component"
+export * from "./core/component/overlay-capable-component"
+
+export * from "./core/geom"
+export * from "./core/bezier"
+
+export * from "./connector/abstract-bezier-connector"
+export * from "./connector/abstract-connector"
+export * from "./connector/abstract-segment"
+export * from "./connector/arc-segment"
+export * from "./connector/bezier-connector"
+export * from "./connector/bezier-segment"
+export * from "./connector/connection-impl"
+export * from "./connector/connectors"
+export * from "./connector/flowchart-connector"
+export * from "./connector/statemachine-connector"
+export * from "./connector/straight-connector"
+export * from "./connector/straight-segment"
+
+export * from "./core/selection/connection-selection"
+
+export * from "./core/endpoint/endpoint-impl"
+export * from "./core/endpoint/endpoints"
+export * from "./core/endpoint/dot-endpoint"
+export * from "./core/endpoint/rectangle-endpoint"
+export * from "./core/endpoint/blank-endpoint"
+
+export * from "./core/selection/endpoint-selection"
+
+export * from "./core/overlay/overlay"
+export * from "./core/overlay/label-overlay"
+export * from "./core/overlay/arrow-overlay"
+export * from "./core/overlay/plain-arrow-overlay"
+export * from "./core/overlay/diamond-overlay"
+export * from "./core/overlay/custom-overlay"
+export * from "./core/factory/overlay-factory"
+
+export * from "./anchor/anchor"
+export * from "./anchor/dynamic-anchor"
+export * from "./anchor/continuous-anchor"
+export * from "./core/factory/anchor-factory"
+export * from "./core/anchor-manager"
+
+export * from "./core/connection"
+
+export * from "./core/endpoint/endpoint"
+export * from "./core/factory/endpoint-factory"
+
+export * from "./core/renderer"
+export * from "./core/styles"
+export * from "./core/util"
+
+// -------------------- BrowserJsPlumbInstance includes ----------------------
+
+export * from './dom/index'
+
+// ---------------------- window stuff ----------------------------------
+
+let _jsPlumbInstanceIndex = 0
+
+function getInstanceIndex ():number {
+    let i = _jsPlumbInstanceIndex + 1
+    _jsPlumbInstanceIndex++
+    return i
+}
+
+export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance {
+    return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers)
+}
+
+export function ready(f:Function) {
+    const _do = function () {
+        if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) !== "undefined" && document.body != null) {
+            f()
+        }
+        else {
+            setTimeout(_do, 9)
+        }
+    }
+
+    _do()
+}
+
+export interface jsPlumbGlobal {
+    newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance
+    ready(f:Function):void
+    extend<T>(o1:T, o2:T, keys?:string[]):T
+    uuid():string
+    Connectors:{
+        register:(name:string, conn:Constructable<AbstractConnector>) => void
+    }
+}
+
+/**
+ * Entry point(s)
+ */
+if(typeof window !== "undefined") {
+
+    (<any>window).jsPlumb = {
+        newInstance:newInstance,
+        ready:ready,
+        extend:extend,
+        uuid:uuid,
+        Connectors:{
+            register:(name:string, conn:Constructable<AbstractConnector>) => {
+                Connectors.register(name, conn)
+            }
+        }
+    } as jsPlumbGlobal
+
+    (<any>window).Mottle = EventManager
+
+}

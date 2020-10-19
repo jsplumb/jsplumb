@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const sourceDir = "./_build_es6";
+const sourceDir = "./_build_es6/ts";
 const targetDir = "./dist";
 
 function isDirectory(path) {

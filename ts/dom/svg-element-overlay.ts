@@ -1,10 +1,14 @@
-import {_appendAtIndex, _attr, _node, Connection, Endpoint, Overlay} from ".."
+import {Connection } from '../core/connector/connection-impl'
+import { Endpoint } from '../core/endpoint/endpoint-impl'
+import { Overlay } from '../core/overlay/overlay'
+
+import { _attr, _node, _appendAtIndex } from './svg-util'
 
 export abstract class SVGElementOverlay {
 
     static ensurePath(o:any):HTMLElement {
         if (o.path == null) {
-            o.path = _node(o.instance, "path", {})
+            o.path = _node("path", {})
             let parent:SVGElement = null
 
             if (o.component instanceof Connection) {

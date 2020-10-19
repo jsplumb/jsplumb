@@ -1,7 +1,8 @@
 
-import {_attr, _pos} from "../svg/svg-util"
-import {PaintStyle} from "../styles"
+import { PaintStyle } from '@jsplumb/core'
+
 import {sizeElement} from "./browser-util"
+import { _attr, _pos  } from './svg-util'
 
 export class SvgComponent {
 

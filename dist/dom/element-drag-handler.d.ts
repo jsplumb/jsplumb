@@ -1,6 +1,6 @@
 import { DragEventParams, DragHandler, DragStopEventParams } from "./drag-manager";
 import { BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec } from "./browser-jsplumb-instance";
-import { PointArray } from "../core";
+import { PointArray } from '../core/common';
 import { Drag } from "./collicat";
 export declare class ElementDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;

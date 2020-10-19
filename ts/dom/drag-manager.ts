@@ -1,8 +1,11 @@
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {BoundingBox, Dictionary, extend, PointArray} from "../core"
-import {wrap} from "../util"
+
+import { extend } from '../core/core'
+import { BoundingBox, Dictionary, PointArray } from '../core/common'
+import { PARENT_GROUP_KEY } from '../core/constants'
+import { wrap } from '../core/util'
+
 import {Collicat, Drag, DragHandlerOptions, GhostProxyGenerator} from "./collicat"
-import * as Constants from "../constants"
 
 function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointArray):boolean {
     const p = <any>_el.parentNode,
@@ -106,7 +109,7 @@ export class DragManager {
             constrain: (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray):PointArray => {
                 let x = desiredLoc[0], y = desiredLoc[1]
 
-                if ((<any>dragEl)[Constants.PARENT_GROUP_KEY] && (<any>dragEl)[Constants.PARENT_GROUP_KEY].constrain) {
+                if ((<any>dragEl)[PARENT_GROUP_KEY] && (<any>dragEl)[PARENT_GROUP_KEY].constrain) {
                     x = Math.max(desiredLoc[0], 0)
                     y = Math.max(desiredLoc[1], 0)
                     x = Math.min(x, constrainRect.w - size[0])
@@ -119,7 +122,7 @@ export class DragManager {
             revert: (dragEl:HTMLElement, pos:PointArray):boolean => {
                 const _el = <any>dragEl
                 // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
-                return _el.parentNode != null && _el[Constants.PARENT_GROUP_KEY] && _el[Constants.PARENT_GROUP_KEY].revert ? !_isInsideParent(this.instance, _el, pos) : false
+                return _el.parentNode != null && _el[PARENT_GROUP_KEY] && _el[PARENT_GROUP_KEY].revert ? !_isInsideParent(this.instance, _el, pos) : false
             }
         })
 

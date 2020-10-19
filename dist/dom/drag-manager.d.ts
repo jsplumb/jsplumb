@@ -1,5 +1,5 @@
 import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { Dictionary, PointArray } from "../core";
+import { Dictionary, PointArray } from '../core/common';
 import { Drag, DragHandlerOptions, GhostProxyGenerator } from "./collicat";
 export declare const CLASS_DRAG_SELECTED = "jtk-drag-selected";
 export declare const CLASS_DRAG_ACTIVE = "jtk-drag-active";

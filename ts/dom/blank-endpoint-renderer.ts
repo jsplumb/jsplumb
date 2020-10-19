@@ -1,7 +1,8 @@
 import {registerEndpointRenderer} from "./browser-renderer"
-import {_attr, _node, ElementAttributes} from "../svg/svg-util"
-import {PaintStyle} from "../styles"
-import {jsPlumbInstance} from "../core"
+import { _attr, _node, ElementAttributes } from './svg-util'
+
+import { JsPlumbInstance } from '../core/core'
+import { PaintStyle } from '../core/styles'
 
 const BLANK_ATTRIBUTES:ElementAttributes = {
     "width": 10,
@@ -11,8 +12,8 @@ const BLANK_ATTRIBUTES:ElementAttributes = {
 }
 
 registerEndpointRenderer("Blank", {
-    makeNode : (instance:jsPlumbInstance, ep:any, style:PaintStyle) => {
-        return _node(instance, "rect", BLANK_ATTRIBUTES)
+    makeNode : (instance:JsPlumbInstance, ep:any, style:PaintStyle) => {
+        return _node("rect", BLANK_ATTRIBUTES)
     },
 
     updateNode : (ep:any, node:SVGElement) => {

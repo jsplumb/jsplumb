@@ -1,5 +1,5 @@
-import { PaintStyle } from "../styles";
-import { AbstractConnector } from "../connector/abstract-connector";
+import { AbstractConnector } from '../core/connector/abstract-connector';
+import { PaintStyle } from '../core/styles';
 /**
  * Renderer for a connector that uses an `svg` element in the DOM.
  */

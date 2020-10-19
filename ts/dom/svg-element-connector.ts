@@ -1,8 +1,10 @@
-import {extend} from "../core"
-import {PaintStyle} from "../styles"
-import {SvgComponent} from "../dom/svg-component"
-import {AbstractConnector} from "../connector/abstract-connector"
-import {_appendAtIndex, _applyStyles, _attr, _node} from "../svg/svg-util"
+import {  extend } from '../core/core'
+import { AbstractConnector } from '../core/connector/abstract-connector'
+import { PaintStyle } from '../core/styles'
+
+import {SvgComponent} from "./svg-component"
+
+import {_appendAtIndex, _applyStyles, _attr, _node } from './svg-util'
 
 /**
  * Renderer for a connector that uses an `svg` element in the DOM.
@@ -46,7 +48,7 @@ export class SvgElementConnector {
                 outlineStyle.strokeWidth = outlineStrokeWidth
 
                 if ((connector as any).bgPath == null) {
-                    (connector as any).bgPath = _node(connector.instance, "path", a)
+                    (connector as any).bgPath = _node("path", a)
                     connector.instance.addClass((connector as any).bgPath as any, connector.instance.connectorOutlineClass)
                     _appendAtIndex((connector as any).canvas, (connector as any).bgPath, 0)
                 }
@@ -58,7 +60,7 @@ export class SvgElementConnector {
             }
 
             if ((connector as any).path == null) {
-                (connector as any).path = _node(connector.instance, "path", a)
+                (connector as any).path = _node("path", a)
                 _appendAtIndex((connector as any).canvas, (connector as any).path, paintStyle.outlineStroke ? 1 : 0)
             }
             else {
@@ -73,7 +75,7 @@ export class SvgElementConnector {
         if ((c as any).canvas != null) {
             return (c as any).canvas
         } else {
-            const svg:any = _node(c.instance, "svg", {
+            const svg:any = _node("svg", {
                 "style": "",
                 "width": "0",
                 "height": "0",
