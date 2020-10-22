@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/core",
-  "version": "4.0.0-RC20",
+  "version": "4.0.0-RC21",
   "description": "Visual connectivity for webapps",
   "main": "index.js",
   "module": "dist/js/jsplumb-es.js",
