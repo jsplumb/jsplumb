@@ -603,8 +603,8 @@ export class GroupManager {
                 let currentGroup = el[Constants.PARENT_GROUP_KEY]
                 // if already a member of this group, do nothing
                 if (currentGroup !== actualGroup) {
-                    const elpos = this.instance.getOffset(el, true)
-                    const cpos = actualGroup.collapsed ? this.instance.getOffset(groupEl, true) : this.instance.getOffset(actualGroup.getDragArea(), true)
+                    const elpos = this.instance.getOffset(el)
+                    const cpos = actualGroup.collapsed ? this.instance.getOffset(groupEl, true) : this.instance.getOffset(actualGroup.getDragArea())
 
                     // otherwise, transfer to this group.
                     if (currentGroup != null) {
