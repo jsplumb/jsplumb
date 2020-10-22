@@ -3,8 +3,6 @@ import {
     Dictionary
 } from '../core/common'
 
-import { JsPlumbInstance } from "../core"
-
 import { Component } from '../core/component/component'
 import { NONE } from '../core/constants'
 
