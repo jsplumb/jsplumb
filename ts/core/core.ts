@@ -21,11 +21,9 @@ import {
 import {
     Dictionary,
     ElementSpec,
-    ExtendedOffset,
     UpdateOffsetOptions,
     Offset,
     Size,
-    Rotation,
     jsPlumbElement,
     PointArray,
     ConnectParams,  // <--
@@ -33,7 +31,6 @@ import {
     TargetDefinition,
     SourceOrTargetDefinition,
     BehaviouralTypeDescriptor,  // <--
-    UpdateOffsetResult, //<--
     InternalConnectParams,
     TypeDescriptor
 } from './common'
@@ -52,6 +49,7 @@ import {DefaultRouter} from "./router/default-router"
 import {Router} from "./router/router"
 import {EndpointSelection} from "./selection/endpoint-selection"
 import {ConnectionSelection} from "./selection/connection-selection"
+import {Viewport, ViewportElement} from "./viewport"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -133,7 +131,7 @@ function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):
 
 export type ManagedElement = {
     el:jsPlumbElement,
-    info?:{o:Offset, s:Size},
+    info?:ViewportElement,
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>,
     rotation?:number
@@ -177,8 +175,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     private _curIdStamp :number = 1
     private _offsetTimestamps:Dictionary<string> = {}
-    private _offsets:Dictionary<ExtendedOffset> = {}
-    private _sizes:Dictionary<Size> = {}
+    private viewport:Viewport = new Viewport()
 
     router: Router
     anchorManager:AnchorManager
@@ -435,14 +432,14 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.setId(oldId, newId, true)
     }
 
-    getCachedData(elId:string):{o:Offset, s:Size, r:Rotation} {
+    getCachedData(elId:string):ViewportElement {
 
-        let o = this._offsets[elId]
+        let o = this.viewport.getPosition(elId)
         if (!o) {
             return this.updateOffset({elId: elId})
         }
         else {
-            return {o: o, s: this._sizes[elId], r:this.getRotation(elId)}
+            return o
         }
     }
 
@@ -643,10 +640,10 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     computeAnchorLoc(endpoint:Endpoint, timestamp?:string):AnchorPlacement {
 
-        const myOffset = this._managedElements[endpoint.elementId].info.o
+        const myOffset = this._managedElements[endpoint.elementId].info
         const anchorLoc = endpoint.anchor.compute({
-            xy: [ myOffset.left, myOffset.top ],
-            wh: this._sizes[endpoint.elementId],
+            xy: [ myOffset.x, myOffset.y ],
+            wh : [myOffset.w, myOffset.h],
             element: endpoint,
             timestamp: timestamp || this._suspendedAt,
             rotation:this._managedElements[endpoint.elementId].rotation
@@ -709,7 +706,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param params
      * @return an UpdateOffsetResult containing the offset information for the given element.
      */
-    updateOffset(params?:UpdateOffsetOptions):UpdateOffsetResult {
+    updateOffset(params?:UpdateOffsetOptions):ViewportElement {
 
         let timestamp = params.timestamp,
             recalc = params.recalc,
@@ -722,39 +719,30 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
         if (!recalc) {
             if (timestamp && timestamp === this._offsetTimestamps[elId]) {
-                return {o: params.offset || this._offsets[elId], s: this._sizes[elId], r:this.getRotation(elId)}
+                return this.viewport.getPosition(elId)
             }
         }
-        if (recalc || (!offset && this._offsets[elId] == null)) { // if forced repaint or no offset available, we recalculate.
+        if (recalc || (!offset && this.viewport.getPosition(elId) == null)) { // if forced repaint or no offset available, we recalculate.
 
             // get the current size and offset, and store them
             s = this._managedElements[elId] ? this._managedElements[elId].el : null
             if (s != null) {
-                this._sizes[elId] = this.getSize(s)
-                this._offsets[elId] = this.getOffset(s)
+
+                const size = this.getSize(s)
+                const offset = this.getOffset(s)
+
+                this.viewport.updateElement(elId, offset.left, offset.top, size[0], size[1], 0)
                 this._offsetTimestamps[elId] = timestamp
             }
         } else {
-            this._offsets[elId] = offset || this._offsets[elId]
-            if (this._sizes[elId] == null) {
-                s = this._managedElements[elId].el
-                if (s != null) {
-                    this._sizes[elId] = this.getSize(s)
-                }
+            // if offset available, update the viewport
+            if (offset != null) {
+                this.viewport.setPosition(elId, offset.left, offset.top)
             }
             this._offsetTimestamps[elId] = timestamp
         }
 
-        if (this._offsets[elId] && !this._offsets[elId].right) {
-            this._offsets[elId].right = this._offsets[elId].left + this._sizes[elId][0]
-            this._offsets[elId].bottom = this._offsets[elId].top + this._sizes[elId][1]
-            this._offsets[elId].width = this._sizes[elId][0]
-            this._offsets[elId].height = this._sizes[elId][1]
-            this._offsets[elId].centerx = this._offsets[elId].left + (this._offsets[elId].width / 2)
-            this._offsets[elId].centery = this._offsets[elId].top + (this._offsets[elId].height / 2)
-        }
-
-        return {o: this._offsets[elId], s: this._sizes[elId], r:this.getRotation(elId)}
+        return this.viewport.getPosition(elId)
     }
 
     /**
@@ -886,19 +874,19 @@ export abstract class JsPlumbInstance extends EventGenerator {
             }
 
             if (this._suspendDrawing) {
-                this._sizes[elId] = [0,0]
-                this._offsets[elId] = {left:0,top:0}
-                this._managedElements[elId].info = {o:this._offsets[elId], s:this._sizes[elId]}
+                this._managedElements[elId].info = this.viewport.registerElement(elId)
+
             } else {
-                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: this._suspendedAt})
+                this._managedElements[elId].info = this.updateOffset({elId: elId, recalc:true})
             }
 
             // write context into the element. we want to use this moving forward and get rid of endpointsByElement and the sizes, offsets and info stuff
             // from above. it should suffice to put the context on the elements themselves.
             el._jspContext = {
                 ep:[],
-                o:this._offsets[elId],
-                s:this._sizes[elId]
+                // o:this._offsets[elId],
+                // s:this._sizes[elId]
+
             }
 
         } else {
@@ -917,6 +905,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     unmanage (id:string):void {
         if (this._managedElements[id]) {
             this.removeAttribute(this._managedElements[id].el, Constants.ATTRIBUTE_MANAGED)
+            this.viewport.remove(id)
             delete this._managedElements[id]
         }
     }
@@ -1018,7 +1007,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
             if (el != null) {
                 let repaintEls = this._getAssociatedElements(el),
-                    repaintOffsets:Array<ExtendedOffset> = []
+                    repaintOffsets:Array<ViewportElement> = []
 
                 if (timestamp == null) {
                     timestamp = uuid()
@@ -1032,12 +1021,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
                             elId: this.getId(repaintEls[i]),
                             recalc: true,
                             timestamp: timestamp
-                        }).o)
+                        }))
                     }
                 } else {
                     for (let i = 0; i < repaintEls.length; i++) {
                         const reId = this.getId(repaintEls[i])
-                        repaintOffsets.push(this._offsets[reId])
+                        repaintOffsets.push(this.viewport.getPosition(reId))
                     }
                 }
 
@@ -1158,7 +1147,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
             this.endpointsByElement = {}
             this._managedElements = {}
             this.endpointsByUUID = {}
-            this._offsets = {}
+            this.viewport.reset()
             this._offsetTimestamps = {}
             this.router.reset()
             this.groupManager.reset()
@@ -1448,7 +1437,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
                 delete this._floatingConnections[_info.id]
                 delete this._managedElements[_info.id]
-                delete this._offsets[_info.id]
+
+                this.viewport.remove(_info.id)
+
                 if (_info.el) {
                     this.removeElement(_info.el)
                 }
