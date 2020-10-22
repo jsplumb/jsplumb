@@ -30,6 +30,8 @@ export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint>
     }
 }
 
-EndpointFactory.register("Blank", BlankEndpoint)
+export function register() {
+    EndpointFactory.register("Blank", BlankEndpoint)
+}
 
 

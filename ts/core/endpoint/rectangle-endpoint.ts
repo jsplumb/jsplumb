@@ -41,5 +41,7 @@ export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleE
     }
 }
 
-EndpointFactory.register("Rectangle", RectangleEndpoint)
+export function register() {
+    EndpointFactory.register("Rectangle", RectangleEndpoint)
+}
 

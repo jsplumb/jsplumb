@@ -54,4 +54,6 @@ export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
     }
 }
 
-EndpointFactory.register("Dot", DotEndpoint)
+export function register() {
+    EndpointFactory.register("Dot", DotEndpoint)
+}
