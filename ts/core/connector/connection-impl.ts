@@ -1,5 +1,4 @@
 
-import {extend } from "../core"
 import { JsPlumbInstance } from "../core"
 import { Dictionary, TypeDescriptor} from '../common'
 import {AbstractConnector} from "./abstract-connector"
@@ -7,7 +6,7 @@ import {Endpoint} from "../endpoint/endpoint-impl"
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
-import {addToList, isArray, isEmpty, IS, isString, merge, uuid} from "../util"
+import {extend, addToList, isArray, isEmpty, IS, isString, merge, uuid} from "../util"
 import {Overlay, OverlaySpec} from "../overlay/overlay"
 import {Connectors} from "./connectors"
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
