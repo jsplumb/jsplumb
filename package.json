@@ -13,15 +13,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init": "node ./install.js",
-    "build": "set -e;tsc",
-    "babel": "./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
-    "package": "set -e;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs;npm run copy-package-json;npm run copy-css",
+    "build": "set -e;echo \"\n--- Running Typescript build\";tsc",
+    "babel": "echo \"--- Running Babel. This build target is just for debugging any build issues, and not part of the normal build\n\";./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
+    "package": "echo \"\n--- Building and packaging...\n\"; set -e;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs;npm run copy-package-json;npm run copy-css",
     "copy-css": "node ./scripts/copy-css.js",
-    "copy-package-json": "node ./scripts/copy-package-json.js",
-    "copy-defs": "node ./scripts/copy-typescript-defs.js",
-    "create-package": "node ./scripts/create-packages.js",
-    "create-packages": "cd dist/dom;npm pack;cd ../core;npm pack",
-    "rollup": "rollup -c",
+    "copy-package-json": "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
+    "copy-defs": "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
+    "create-packages": "npm run package;echo \"\n--- Running npm pack...\n\";  cd dist/dom; npm pack; cd ../core; npm pack",
+    "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev": "rollup -c -w"
   },
   "repository": {
