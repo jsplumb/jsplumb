@@ -2,29 +2,35 @@
 import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import {jsPlumbHelperFunctions} from '../core/defaults'
 
-export * from "./dot-endpoint-renderer"
-export * from "./rectangle-endpoint-renderer"
-export * from "./blank-endpoint-renderer"
+import * as DotEndpointRenderer from './dot-endpoint-renderer'
+import * as RectangleEndpointRenderer from './rectangle-endpoint-renderer'
+import * as BlankEndpointRenderer from './blank-endpoint-renderer'
 
-export * from '../core/endpoint/blank-endpoint'
-export * from '../core/endpoint/rectangle-endpoint'
-export * from '../core/endpoint/dot-endpoint'
+import * as StraightConnector from '../core/connector/straight-connector'
+import * as BezierConnector from '../core/connector/bezier-connector'
+import * as FlowchartConnector from '../core/connector/flowchart-connector'
+import * as StateMachineConnector from '../core/connector/statemachine-connector'
 
-export * from '../core/connector/bezier-connector'
-export * from '../core/connector/straight-connector'
-export * from '../core/connector/flowchart-connector'
-export * from '../core/connector/statemachine-connector'
+BezierConnector.register()
+StraightConnector.register()
+FlowchartConnector.register()
+StateMachineConnector.register()
+
+DotEndpointRenderer.register()
+BlankEndpointRenderer.register()
+RectangleEndpointRenderer.register()
 
 let _jsPlumbInstanceIndex = 0
-
 function getInstanceIndex ():number {
     let i = _jsPlumbInstanceIndex + 1
     _jsPlumbInstanceIndex++
     return i
 }
 
+export { JsPlumbInstance } from '../core/core'
+export { BrowserJsPlumbInstance } from './browser-jsplumb-instance'
 export { EventManager } from './event-manager'
-export { extend } from '../core/util'
+export { uuid, extend } from '../core/util'
 
 export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers)
