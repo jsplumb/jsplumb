@@ -8,7 +8,8 @@ import { Overlay } from '../core/overlay/overlay'
 import { LabelOverlay, isLabelOverlay } from '../core/overlay/label-overlay'
 import { AbstractConnector } from '../core/connector/abstract-connector'
 import { Dictionary, TypeDescriptor } from '../core/common'
-import {isDiamondOverlay, isPlainArrowOverlay, JsPlumbInstance} from "../core"
+import { JsPlumbInstance} from "../core/core"
+import { isDiamondOverlay} from "../core/overlay/diamond-overlay"
 import { Connection } from '../core/connector/connection-impl'
 import { EndpointRepresentation } from '../core/endpoint/endpoints'
 import { Endpoint } from '../core/endpoint/endpoint-impl'
@@ -28,6 +29,7 @@ import {
 } from './browser-util'
 
 import { BrowserJsPlumbInstance } from './browser-jsplumb-instance'
+import {isPlainArrowOverlay} from "../core/overlay/plain-arrow-overlay"
 
 export type EndpointHelperFunctions = {
     makeNode:(instance:JsPlumbInstance, ep:any, paintStyle:PaintStyle) => void,
