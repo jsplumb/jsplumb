@@ -13,7 +13,9 @@ import {
     isString,
     log,
     removeWithFunction, rotateAnchorOrientation, rotatePoint,
-    uuid
+    uuid,
+    extend,
+    filterList
 } from "./util"
 
 import {
@@ -127,32 +129,6 @@ function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):
         }
     }
     return r
-}
-
-function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolean):boolean {
-    if (list === "*") {
-        return true
-    }
-    return (<any>list).length > 0 ? (<any>list).indexOf(value) !== -1 : !missingIsFalse
-}
-
-export function extend<T>(o1:T, o2:T, keys?:string[]):T {
-    let i
-    let _o1 = o1 as any,
-        _o2 = o2 as any
-
-    if (keys) {
-        for (i = 0; i < keys.length; i++) {
-            _o1[keys[i]] = _o2[keys[i]]
-        }
-    }
-    else {
-        for (i in _o2) {
-            _o1[i] = _o2[i]
-        }
-    }
-
-    return o1
 }
 
 export type ManagedElement = {
