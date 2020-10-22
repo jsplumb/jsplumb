@@ -157,17 +157,17 @@ var testSuite = function (_jsPlumb) {
         equal(e16.anchor.getCurrentFace(), "right", "e16's anchor face is 'right'") ;
         equal(e17.anchor.getCurrentFace(), "top", "e17's anchor face is 'top'");
 
-        // now rotate e16 by 90 degrees
-        _jsPlumb.rotate("d16", 90);
+        // now rotate e16 by 180 degrees
+        _jsPlumb.rotate("d16", 180);
 
-        equal(e16.anchor.getCurrentFace(), "top", "e16's anchor face is 'top'") ;
+        equal(e16.anchor.getCurrentFace(), "left", "e16's anchor face is 'left'") ;
         equal(e17.anchor.getCurrentFace(), "top", "e17's anchor face is 'top'");
 
         // rotate d17 by 90 degrees
         _jsPlumb.rotate("d17", 90);
 
         equal(e16.anchor.getCurrentFace(), "top", "e16's anchor face is 'top'") ;
-        equal(e17.anchor.getCurrentFace(), "left", "e17's anchor face is 'left'");
+        equal(e17.anchor.getCurrentFace(), "bottom", "e17's anchor face is 'bottom'");
 
         equal("center center", d17.style.transformOrigin, "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
