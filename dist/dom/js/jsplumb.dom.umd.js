@@ -4662,12 +4662,6 @@
           _this._updateConnectionsForGroup(newGroup);
         }
       });
-      instance.bind(EVENT_GROUP_MEMBER_ADDED, function (p) {
-        console.log("group member added", p);
-      });
-      instance.bind(EVENT_GROUP_MEMBER_REMOVED, function (p) {
-        console.log("group member removed", p);
-      });
     }
 
     _createClass(GroupManager, [{
@@ -4706,11 +4700,11 @@
       value: function addGroup(params) {
         //addGroup(params:{id:string, el:jsPlumbDOMElement, collapsed?:boolean}) {
         if (this.groupMap[params.id] != null) {
-          throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists");
+          throw new Error("cannot create Group [" + params.id + "]; a Group with that ID exists");
         }
 
         if (params.el[IS_GROUP_KEY] != null) {
-          throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group");
+          throw new Error("cannot create Group [" + params.id + "]; the given element is already a Group");
         }
 
         var group = new UIGroup(this.instance, params.el, params);
@@ -13493,12 +13487,7 @@
 
             _one(v[1], pp);
           }
-        });
-
-        if (this._currentPosse != null) {
-          this._currentPosse.members.forEach(function (member) {//console.log("posse element drag end")
-          });
-        } // do the contents of the drag selection
+        }); // do the contents of the drag selection
 
 
         if (this._intersectingGroups.length > 0) {
@@ -14132,8 +14121,6 @@
 
       _defineProperty(this, "endpointRepresentation", void 0);
 
-      _defineProperty(this, "existingJpcParams", void 0);
-
       _defineProperty(this, "placeholderInfo", {
         id: null,
         element: null
@@ -14610,21 +14597,10 @@
 
           this.ep.detachFromConnection(this.jpc, null, true); // attach the connection to the floating endpoint.
 
-          this.floatingEndpoint.addConnection(this.jpc); // store the original scope (issue 57)
-
-          var dragScope = this.instance.getDragScope(canvasElement); //TODO: investigate if original drag scope needs to be retained
-          //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope)
-          // fire an event that informs that a connection is being dragged. we do this before
+          this.floatingEndpoint.addConnection(this.jpc); // fire an event that informs that a connection is being dragged. we do this before
           // replacing the original target with the floating element info.
 
-          this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
-
-          if (anchorIdx === 0) {
-            this.existingJpcParams = [this.jpc.source, this.jpc.sourceId, canvasElement, dragScope];
-          } else {
-            this.existingJpcParams = [this.jpc.target, this.jpc.targetId, canvasElement, dragScope];
-          } // now we replace ourselves with the temporary div we created above
-
+          this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc); // now we replace ourselves with the temporary div we created above
 
           this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx); // store the original endpoint and assign the new floating endpoint for the drag.
 
@@ -17790,12 +17766,6 @@
         }
 
         return p;
-      }
-    }, {
-      key: "getDragScope",
-      value: function getDragScope(el) {
-        console.log("REGRESSION: getDragScope will not work now that individual elements are not configured as draggables");
-        return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
       }
     }, {
       key: "setDraggable",

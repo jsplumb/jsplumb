@@ -11,7 +11,6 @@ export declare class EndpointDragHandler implements DragHandler {
     existingJpc: boolean;
     ep: Endpoint;
     endpointRepresentation: EndpointRepresentation<any>;
-    existingJpcParams: any;
     placeholderInfo: {
         id?: string;
         element?: jsPlumbDOMElement;

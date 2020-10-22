@@ -4801,12 +4801,6 @@ function () {
         _this._updateConnectionsForGroup(newGroup);
       }
     });
-    instance.bind(EVENT_GROUP_MEMBER_ADDED, function (p) {
-      console.log("group member added", p);
-    });
-    instance.bind(EVENT_GROUP_MEMBER_REMOVED, function (p) {
-      console.log("group member removed", p);
-    });
   }
 
   _createClass(GroupManager, [{
@@ -4845,11 +4839,11 @@ function () {
     value: function addGroup(params) {
       //addGroup(params:{id:string, el:jsPlumbDOMElement, collapsed?:boolean}) {
       if (this.groupMap[params.id] != null) {
-        throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists");
+        throw new Error("cannot create Group [" + params.id + "]; a Group with that ID exists");
       }
 
       if (params.el[IS_GROUP_KEY] != null) {
-        throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group");
+        throw new Error("cannot create Group [" + params.id + "]; the given element is already a Group");
       }
 
       var group = new UIGroup(this.instance, params.el, params);

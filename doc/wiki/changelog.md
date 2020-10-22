@@ -1,3 +1,11 @@
+## 4.0.0-RC21
+
+22nd October 2020
+
+- Internal changes to split out the core parts of the code, which do not know about the DOM, from the parts that do know about the DOM. This will provide the foundation for both "headless" use cases and also alternative renderers
+- Updated packaging to include umd, cjs and es builds. 
+- General cleanup of unused code.
+
 ## 4.0.0-RC20
 
 4th September 2020

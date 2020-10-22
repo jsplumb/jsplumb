@@ -105,7 +105,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     getSelector(ctx: string | HTMLElement, spec: string): NodeListOf<any>;
     setPosition(el: HTMLElement, p: Offset): void;
     getUIPosition(eventArgs: any): Offset;
-    getDragScope(el: any): string;
     static getPositionOnElement(evt: Event, el: HTMLElement, zoom: number): PointArray;
     setDraggable(element: HTMLElement, draggable: boolean): void;
     isDraggable(el: HTMLElement): boolean;
