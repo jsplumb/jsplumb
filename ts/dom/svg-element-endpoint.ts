@@ -2,7 +2,7 @@ import {SvgComponent} from "./svg-component"
 import {EndpointHelperFunctions} from "./browser-renderer"
 import { createElement, sizeElement } from './browser-util'
 
-import {  extend } from '../core/core'
+import {  extend } from '../core/util'
 import { EndpointRepresentation } from '../core/endpoint/endpoints'
 import { PaintStyle } from '../core/styles'
 
