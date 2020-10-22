@@ -670,12 +670,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         if (!_wasSuspended) {
             this.setSuspendDrawing(true)
         }
-        try {
-            fn()
-        }
-        catch (e) {
-            log("Function run while suspended failed", e)
-        }
+        fn()
         if (!_wasSuspended) {
             this.setSuspendDrawing(false, !doNotRepaintAfterwards)
         }
