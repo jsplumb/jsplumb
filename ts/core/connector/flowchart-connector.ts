@@ -380,4 +380,7 @@ export class FlowchartConnector extends AbstractConnector {
     }
 }
 
-Connectors.register("Flowchart", FlowchartConnector)
+export function register() {
+    Connectors.register("Flowchart", FlowchartConnector)
+}
+

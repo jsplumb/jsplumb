@@ -200,4 +200,7 @@ export class StateMachine extends AbstractBezierConnector {
 
 }
 
-Connectors.register("StateMachine", StateMachine)
+export function register() {
+    Connectors.register("StateMachine", StateMachine)
+}
+

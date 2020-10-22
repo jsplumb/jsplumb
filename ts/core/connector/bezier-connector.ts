@@ -96,4 +96,6 @@ export class Bezier extends AbstractBezierConnector {
 
 }
 
-Connectors.register("Bezier", Bezier)
+export function register() {
+    Connectors.register("Bezier", Bezier)
+}

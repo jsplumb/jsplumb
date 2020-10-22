@@ -2,7 +2,6 @@ import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstra
 import {Connectors} from "./connectors"
 import {StraightSegment} from "./straight-segment"
 
-
 export class StraightConnector extends AbstractConnector {
 
     type = "Straight"
@@ -20,4 +19,7 @@ export class StraightConnector extends AbstractConnector {
     }
 }
 
-Connectors.register("Straight", StraightConnector)
+export function register() {
+    Connectors.register("Straight", StraightConnector)
+}
+
