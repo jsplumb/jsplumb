@@ -414,7 +414,7 @@ export class BrowserRenderer implements Renderer {
         if (renderer != null) {
             SvgEndpoint.paint(ep.endpoint, renderer, paintStyle)
         } else {
-            console.log("JSPLUMB: no endpoint renderer found for type [" + ep.typeId  + "]")
+            console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.getType() + "]")
         }
     }
 
