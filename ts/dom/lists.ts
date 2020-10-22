@@ -1,6 +1,6 @@
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 import {Dictionary} from '../core/common'
-import { extend } from '../core/core'
+import { extend } from '../core/util'
 import { Anchor } from '../core/anchor/anchor'
 import { AnchorSpec } from '../core/factory/anchor-factory'
 import { Connection } from '../core/connector/connection-impl'
