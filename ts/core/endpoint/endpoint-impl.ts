@@ -1,11 +1,10 @@
 import {EndpointOptions, EndpointSpec} from "../endpoint/endpoint"
-import {extend} from "../core"
 import { OffsetAndSize, Size } from '../common'
 import { JsPlumbInstance } from "../core"
 import {makeAnchorFromSpec} from "../factory/anchor-factory"
 import {Anchor} from "../anchor/anchor"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
-import {addToList, isArray, isString, merge, removeWithFunction} from "../util"
+import {addToList, isArray, isString, merge, removeWithFunction, extend} from "../util"
 import {AnchorComputeParams} from "../factory/anchor-factory"
 import {Connection} from "../connector/connection-impl"
 import {PaintStyle} from "../styles"
