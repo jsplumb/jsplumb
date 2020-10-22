@@ -15,17 +15,13 @@ import { addToList,
     findWithFunction,
     functionChain,
     IS,
-    isString } from '../core/util'
+    isString,
+    extend
+} from '../core/util'
 
 import { Anchor } from '../core/anchor/anchor'
 import { PaintStyle } from '../core/styles'
 import { EndpointRepresentation } from '../core/endpoint/endpoints'
-
-import {
-
-    extend
-
-} from '../core/core'
 
 import {
     BoundingBox,
