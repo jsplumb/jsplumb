@@ -1,10 +1,9 @@
 import {Component, ComponentOptions} from "./component"
 import {LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay"
-import { extend} from "../core"
 import { Dictionary, PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
 import {LabelOverlay} from "../overlay/label-overlay"
-import {isArray, isFunction, isString, uuid} from "../util"
+import {extend, isArray, isFunction, isString, uuid} from "../util"
 import {OverlayFactory} from "../factory/overlay-factory"
 
 const _internalLabelOverlayId = "__label"
