@@ -1,9 +1,8 @@
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
-import { extend } from '../core/core'
 import { BoundingBox, Dictionary, PointArray } from '../core/common'
 import { PARENT_GROUP_KEY } from '../core/constants'
-import { wrap } from '../core/util'
+import { extend, wrap } from '../core/util'
 
 import {Collicat, Drag, DragHandlerOptions, GhostProxyGenerator} from "./collicat"
 
