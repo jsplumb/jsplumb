@@ -90,7 +90,6 @@ export class EndpointDragHandler implements DragHandler {
     ep:Endpoint
     endpointRepresentation:EndpointRepresentation<any>
 
-    existingJpcParams:any
     placeholderInfo:{ id?:string, element?:jsPlumbDOMElement } = { id: null, element: null }
     floatingElement:HTMLElement
     floatingEndpoint:Endpoint
@@ -540,21 +539,10 @@ export class EndpointDragHandler implements DragHandler {
 
             // attach the connection to the floating endpoint.
             this.floatingEndpoint.addConnection(this.jpc)
-
-            // store the original scope (issue 57)
-            const dragScope = this.instance.getDragScope(canvasElement)
-            //TODO: investigate if original drag scope needs to be retained
-            //this.instance.setAttribute(this.ep.endpoint.renderer.getElement(), "originalScope", dragScope)
         
             // fire an event that informs that a connection is being dragged. we do this before
             // replacing the original target with the floating element info.
             this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc)
-
-            if (anchorIdx === 0) {
-                this.existingJpcParams = [ this.jpc.source, this.jpc.sourceId, canvasElement, dragScope ]
-            } else {
-                this.existingJpcParams = [ this.jpc.target, this.jpc.targetId, canvasElement, dragScope ]
-            }
 
             // now we replace ourselves with the temporary div we created above
             this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx)
