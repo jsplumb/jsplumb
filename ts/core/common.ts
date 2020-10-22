@@ -6,11 +6,6 @@ import {ConnectorSpec} from "./connector/abstract-connector"
 import {FullOverlaySpec, OverlaySpec} from "./overlay/overlay"
 import {PaintStyle} from "./styles"
 import {Connection} from "./connector/connection-impl"
-import {EventGenerator} from "./event-generator"
-import {AnchorManager} from "@jsplumb/core/anchor-manager"
-import {jsPlumbDefaults} from "@jsplumb/core/defaults"
-import {Renderer} from "@jsplumb/core/renderer"
-import {jsPlumbGeometryHelpers} from "@jsplumb/core/geom"
 
 export type UUID = string
 export type ElementId = string
