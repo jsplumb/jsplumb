@@ -1,5 +1,5 @@
 
-import { PaintStyle } from '@jsplumb/core'
+import { PaintStyle } from '../core/styles'
 
 import {sizeElement} from "./browser-util"
 import { _attr, _pos  } from './svg-util'
