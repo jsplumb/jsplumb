@@ -24,7 +24,7 @@ function getInstanceIndex ():number {
 }
 
 export { EventManager } from './event-manager'
-export { extend } from '../core/core'
+export { extend } from '../core/util'
 
 export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers)
