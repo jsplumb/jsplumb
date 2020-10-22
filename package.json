@@ -4,8 +4,6 @@
     "ts/*"
   ],
   "description": "Visual connectivity for webapps",
-  "main": "dist/js/jsplumb-cjs.js",
-  "module": "dist/js/jsplumb-es.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
