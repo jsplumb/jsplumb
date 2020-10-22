@@ -14,18 +14,14 @@ export * from "./component/overlay-capable-component"
 export * from "./geom"
 export * from "./bezier"
 
-export * from "./connector/abstract-bezier-connector"
 export * from "./connector/abstract-connector"
 export * from "./connector/abstract-segment"
 export * from "./connector/arc-segment"
-export * from "./connector/bezier-connector"
 export * from "./connector/bezier-segment"
 export * from "./connector/connection-impl"
 export * from "./connector/connectors"
-export * from "./connector/flowchart-connector"
-export * from "./connector/statemachine-connector"
-export * from "./connector/straight-connector"
 export * from "./connector/straight-segment"
+// todo strictly speaking we probably should ensure Bezier connector is bundled here, as it is the default...
 
 export * from "./selection/connection-selection"
 
