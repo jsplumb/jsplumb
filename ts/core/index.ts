@@ -27,9 +27,6 @@ export * from "./selection/connection-selection"
 
 export * from "./endpoint/endpoint-impl"
 export * from "./endpoint/endpoints"
-export * from "./endpoint/dot-endpoint"
-export * from "./endpoint/rectangle-endpoint"
-export * from "./endpoint/blank-endpoint"
 
 export * from "./selection/endpoint-selection"
 
