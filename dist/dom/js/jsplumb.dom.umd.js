@@ -7455,11 +7455,7 @@
           this.setSuspendDrawing(true);
         }
 
-        try {
-          fn();
-        } catch (e) {
-          log("Function run while suspended failed", e);
-        }
+        fn();
 
         if (!_wasSuspended) {
           this.setSuspendDrawing(false, !doNotRepaintAfterwards);
@@ -10817,160 +10813,6 @@
 
   _defineProperty(ArcSegment, "segmentType", "Arc");
 
-  var AbstractBezierConnector =
-  /*#__PURE__*/
-  function (_AbstractConnector) {
-    _inherits(AbstractBezierConnector, _AbstractConnector);
-
-    _createClass(AbstractBezierConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [0, 0];
-      }
-    }]);
-
-    function AbstractBezierConnector(instance, connection, params) {
-      var _this;
-
-      _classCallCheck(this, AbstractBezierConnector);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(AbstractBezierConnector).call(this, instance, connection, params));
-      _this.connection = connection;
-
-      _defineProperty(_assertThisInitialized(_this), "showLoopback", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "curviness", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "margin", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "orientation", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
-
-      params = params || {};
-      _this.showLoopback = params.showLoopback !== false;
-      _this.curviness = params.curviness || 10;
-      _this.margin = params.margin || 5;
-      _this.proximityLimit = params.proximityLimit || 80;
-      _this.clockwise = params.orientation && params.orientation === "clockwise";
-      _this.loopbackRadius = params.loopbackRadius || 25;
-      _this.isLoopbackCurrently = false;
-      return _this;
-    }
-
-    _createClass(AbstractBezierConnector, [{
-      key: "_compute",
-      value: function _compute(paintInfo, p) {
-        var sp = p.sourcePos,
-            tp = p.targetPos,
-            _w = Math.abs(sp[0] - tp[0]),
-            _h = Math.abs(sp[1] - tp[1]);
-
-        if (!this.showLoopback || p.sourceEndpoint.elementId !== p.targetEndpoint.elementId) {
-          this.isLoopbackCurrently = false;
-
-          this._computeBezier(paintInfo, p, sp, tp, _w, _h);
-        } else {
-          this.isLoopbackCurrently = true; // a loopback connector.  draw an arc from one anchor to the other.
-
-          var x1 = p.sourcePos[0],
-              y1 = p.sourcePos[1] - this.margin,
-              cx = x1,
-              cy = y1 - this.loopbackRadius,
-              // canvas sizing stuff, to ensure the whole painted area is visible.
-          _x = cx - this.loopbackRadius,
-              _y = cy - this.loopbackRadius;
-
-          _w = 2 * this.loopbackRadius;
-          _h = 2 * this.loopbackRadius;
-          paintInfo.points[0] = _x;
-          paintInfo.points[1] = _y;
-          paintInfo.points[2] = _w;
-          paintInfo.points[3] = _h; // ADD AN ARC SEGMENT.
-
-          this._addSegment(ArcSegment, {
-            loopback: true,
-            x1: x1 - _x + 4,
-            y1: y1 - _y,
-            startAngle: 0,
-            endAngle: 2 * Math.PI,
-            r: this.loopbackRadius,
-            ac: !this.clockwise,
-            x2: x1 - _x - 4,
-            y2: y1 - _y,
-            cx: cx - _x,
-            cy: cy - _y
-          });
-        }
-      }
-    }, {
-      key: "exportGeometry",
-      value: function exportGeometry() {
-        if (this.geometry == null) {
-          return null;
-        } else {
-          var s = [],
-              t = [],
-              cp1 = [],
-              cp2 = [];
-          Array.prototype.push.apply(s, this.geometry.source);
-          Array.prototype.push.apply(t, this.geometry.target);
-          Array.prototype.push.apply(cp1, this.geometry.controlPoints[0]);
-          Array.prototype.push.apply(cp2, this.geometry.controlPoints[1]);
-          return {
-            source: s,
-            target: t,
-            controlPoints: [cp1, cp2]
-          };
-        }
-      }
-    }, {
-      key: "importGeometry",
-      value: function importGeometry(geometry) {
-        if (geometry != null) {
-          if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
-            console.log("Bezier: cannot import geometry; controlPoints missing or does not have length 2");
-            this.setGeometry(null, true);
-            return false;
-          }
-
-          if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
-            console.log("Bezier: cannot import geometry; controlPoints malformed");
-            this.setGeometry(null, true);
-            return false;
-          }
-
-          if (geometry.source == null || geometry.source.length != 4) {
-            console.log("Bezier: cannot import geometry; source missing or malformed");
-            this.setGeometry(null, true);
-            return false;
-          }
-
-          if (geometry.target == null || geometry.target.length != 4) {
-            console.log("Bezier: cannot import geometry; target missing or malformed");
-            this.setGeometry(null, true);
-            return false;
-          }
-
-          this.setGeometry(geometry, false);
-          return true;
-        } else {
-          return false;
-        }
-      }
-    }]);
-
-    return AbstractBezierConnector;
-  }(AbstractConnector);
-
   var BezierSegment =
   /*#__PURE__*/
   function (_AbstractSegment) {
@@ -11120,113 +10962,6 @@
   }(AbstractSegment);
 
   _defineProperty(BezierSegment, "segmentType", "Bezier");
-
-  var Bezier =
-  /*#__PURE__*/
-  function (_AbstractBezierConnec) {
-    _inherits(Bezier, _AbstractBezierConnec);
-
-    function Bezier(instance, connection, params) {
-      var _this;
-
-      _classCallCheck(this, Bezier);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Bezier).call(this, instance, connection, params));
-      _this.connection = connection;
-
-      _defineProperty(_assertThisInitialized(_this), "type", "Bezier");
-
-      _defineProperty(_assertThisInitialized(_this), "majorAnchor", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "minorAnchor", void 0);
-
-      params = params || {};
-      _this.majorAnchor = params.curviness || 150;
-      _this.minorAnchor = 10;
-      return _this;
-    }
-
-    _createClass(Bezier, [{
-      key: "getCurviness",
-      value: function getCurviness() {
-        return this.majorAnchor;
-      }
-    }, {
-      key: "_findControlPoint",
-      value: function _findControlPoint(point, sourceAnchorPosition, targetAnchorPosition, soo, too) {
-        // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
-        // points around if so (code could be tightened up)
-        var perpendicular = soo[0] !== too[0] || soo[1] === too[1],
-            p = [];
-
-        if (!perpendicular) {
-          if (soo[0] === 0) {
-            p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
-          } else {
-            p.push(point[0] - this.majorAnchor * soo[0]);
-          }
-
-          if (soo[1] === 0) {
-            p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
-          } else {
-            p.push(point[1] + this.majorAnchor * too[1]);
-          }
-        } else {
-          if (too[0] === 0) {
-            p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
-          } else {
-            p.push(point[0] + this.majorAnchor * too[0]);
-          }
-
-          if (too[1] === 0) {
-            p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
-          } else {
-            p.push(point[1] + this.majorAnchor * soo[1]);
-          }
-        }
-
-        return p;
-      }
-    }, {
-      key: "_computeBezier",
-      value: function _computeBezier(paintInfo, p, sp, tp, _w, _h) {
-        var _CP,
-            _CP2,
-            _sx = sp[0] < tp[0] ? _w : 0,
-            _sy = sp[1] < tp[1] ? _h : 0,
-            _tx = sp[0] < tp[0] ? 0 : _w,
-            _ty = sp[1] < tp[1] ? 0 : _h;
-
-        if (this.edited !== true) {
-          _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
-          _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
-        } else {
-          _CP = this.geometry.controlPoints[0];
-          _CP2 = this.geometry.controlPoints[1];
-        }
-
-        this.geometry = {
-          controlPoints: [_CP, _CP2],
-          source: p.sourcePos,
-          target: p.targetPos
-        };
-
-        this._addSegment(BezierSegment, {
-          x1: _sx,
-          y1: _sy,
-          x2: _tx,
-          y2: _ty,
-          cp1x: _CP[0],
-          cp1y: _CP[1],
-          cp2x: _CP2[0],
-          cp2y: _CP2[1]
-        });
-      }
-    }]);
-
-    return Bezier;
-  }(AbstractBezierConnector);
-  Connectors.register("Bezier", Bezier);
 
   var StraightSegment =
   /*#__PURE__*/
@@ -11555,607 +11290,6 @@
   }(AbstractSegment);
 
   _defineProperty(StraightSegment, "segmentType", "Straight");
-
-  function sgn$1(n) {
-    return n < 0 ? -1 : n === 0 ? 0 : 1;
-  }
-
-  function segmentDirections(segment) {
-    return [sgn$1(segment[2] - segment[0]), sgn$1(segment[3] - segment[1])];
-  }
-
-  function segLength(s) {
-    return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
-  }
-
-  function _cloneArray(a) {
-    var _a = [];
-
-    _a.push.apply(_a, a);
-
-    return _a;
-  }
-
-  var FlowchartConnector =
-  /*#__PURE__*/
-  function (_AbstractConnector) {
-    _inherits(FlowchartConnector, _AbstractConnector);
-
-    _createClass(FlowchartConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [30, 30];
-      }
-    }]);
-
-    function FlowchartConnector(instance, connection, params) {
-      var _this;
-
-      _classCallCheck(this, FlowchartConnector);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, instance, connection, params));
-      _this.instance = instance;
-      _this.connection = connection;
-
-      _defineProperty(_assertThisInitialized(_this), "type", "Flowchart");
-
-      _defineProperty(_assertThisInitialized(_this), "internalSegments", []);
-
-      _defineProperty(_assertThisInitialized(_this), "midpoint", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "alwaysRespectStubs", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "cornerRadius", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "lastx", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "lasty", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "lastOrientation", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
-
-      _this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;
-      _this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0;
-      _this.alwaysRespectStubs = params.alwaysRespectStubs === true;
-      _this.lastx = null;
-      _this.lasty = null;
-      _this.lastOrientation = null; // TODO now common between this and AbstractBezierEditor; refactor into superclass?
-
-      _this.loopbackRadius = params.loopbackRadius || 25;
-      _this.isLoopbackCurrently = false;
-      return _this;
-    }
-
-    _createClass(FlowchartConnector, [{
-      key: "addASegment",
-      value: function addASegment(x, y, paintInfo) {
-        if (this.lastx === x && this.lasty === y) {
-          return;
-        }
-
-        var lx = this.lastx == null ? paintInfo.sx : this.lastx,
-            ly = this.lasty == null ? paintInfo.sy : this.lasty,
-            o = lx === x ? "v" : "h";
-        this.lastx = x;
-        this.lasty = y;
-        this.internalSegments.push([lx, ly, x, y, o]);
-      }
-    }, {
-      key: "writeSegments",
-      value: function writeSegments(paintInfo) {
-        var current = null,
-            next,
-            currentDirection,
-            nextDirection;
-
-        for (var i = 0; i < this.internalSegments.length - 1; i++) {
-          current = current || _cloneArray(this.internalSegments[i]);
-          next = _cloneArray(this.internalSegments[i + 1]);
-          currentDirection = segmentDirections(current);
-          nextDirection = segmentDirections(next);
-
-          if (this.cornerRadius > 0 && current[4] !== next[4]) {
-            var minSegLength = Math.min(segLength(current), segLength(next));
-            var radiusToUse = Math.min(this.cornerRadius, minSegLength / 2);
-            current[2] -= currentDirection[0] * radiusToUse;
-            current[3] -= currentDirection[1] * radiusToUse;
-            next[0] += nextDirection[0] * radiusToUse;
-            next[1] += nextDirection[1] * radiusToUse;
-            var ac = currentDirection[1] === nextDirection[0] && nextDirection[0] === 1 || currentDirection[1] === nextDirection[0] && nextDirection[0] === 0 && currentDirection[0] !== nextDirection[1] || currentDirection[1] === nextDirection[0] && nextDirection[0] === -1,
-                sgny = next[1] > current[3] ? 1 : -1,
-                sgnx = next[0] > current[2] ? 1 : -1,
-                sgnEqual = sgny === sgnx,
-                cx = sgnEqual && ac || !sgnEqual && !ac ? next[0] : current[2],
-                cy = sgnEqual && ac || !sgnEqual && !ac ? current[3] : next[1];
-
-            this._addSegment(StraightSegment, {
-              x1: current[0],
-              y1: current[1],
-              x2: current[2],
-              y2: current[3]
-            });
-
-            this._addSegment(ArcSegment, {
-              r: radiusToUse,
-              x1: current[2],
-              y1: current[3],
-              x2: next[0],
-              y2: next[1],
-              cx: cx,
-              cy: cy,
-              ac: ac
-            });
-          } else {
-            // dx + dy are used to adjust for line width.
-            var dx = current[2] === current[0] ? 0 : current[2] > current[0] ? paintInfo.lw / 2 : -(paintInfo.lw / 2),
-                dy = current[3] === current[1] ? 0 : current[3] > current[1] ? paintInfo.lw / 2 : -(paintInfo.lw / 2);
-
-            this._addSegment(StraightSegment, {
-              x1: current[0] - dx,
-              y1: current[1] - dy,
-              x2: current[2] + dx,
-              y2: current[3] + dy
-            });
-          }
-
-          current = next;
-        }
-
-        if (next != null) {
-          // last segment
-          this._addSegment(StraightSegment, {
-            x1: next[0],
-            y1: next[1],
-            x2: next[2],
-            y2: next[3]
-          });
-        }
-      }
-    }, {
-      key: "_compute",
-      value: function _compute(paintInfo, params) {
-        var _this2 = this;
-
-        this.internalSegments.length = 0;
-        this.lastx = null;
-        this.lasty = null;
-        this.lastOrientation = null;
-
-        var commonStubCalculator = function commonStubCalculator(axis) {
-          return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
-        },
-            stubCalculators = {
-          perpendicular: commonStubCalculator,
-          orthogonal: commonStubCalculator,
-          opposite: function opposite(axis) {
-            var pi = paintInfo,
-                idx = axis === "x" ? 0 : 1,
-                areInProximity = {
-              "x": function x() {
-                return pi.so[idx] === 1 && (pi.startStubX > pi.endStubX && pi.tx > pi.startStubX || pi.sx > pi.endStubX && pi.tx > pi.sx) || pi.so[idx] === -1 && (pi.startStubX < pi.endStubX && pi.tx < pi.startStubX || pi.sx < pi.endStubX && pi.tx < pi.sx);
-              },
-              "y": function y() {
-                return pi.so[idx] === 1 && (pi.startStubY > pi.endStubY && pi.ty > pi.startStubY || pi.sy > pi.endStubY && pi.ty > pi.sy) || pi.so[idx] === -1 && (pi.startStubY < pi.endStubY && pi.ty < pi.startStubY || pi.sy < pi.endStubY && pi.ty < pi.sy);
-              }
-            };
-
-            if (!_this2.alwaysRespectStubs && areInProximity[axis]()) {
-              return {
-                "x": [(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
-                "y": [paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
-              }[axis];
-            } else {
-              return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
-            }
-          } // calculate Stubs.
-
-        };
-
-        var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
-            idx = paintInfo.sourceAxis === "x" ? 0 : 1,
-            oidx = paintInfo.sourceAxis === "x" ? 1 : 0,
-            ss = stubs[idx],
-            oss = stubs[oidx],
-            es = stubs[idx + 2],
-            oes = stubs[oidx + 2]; // add the start stub segment. use stubs for loopback as it will look better, with the loop spaced
-        // away from the element.
-
-        this.addASegment(stubs[0], stubs[1], paintInfo); // if its a loopback and we should treat it differently.
-        // if (false && params.sourcePos[0] === params.targetPos[0] && params.sourcePos[1] === params.targetPos[1]) {
-        //
-        //     // we use loopbackRadius here, as statemachine connectors do.
-        //     // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
-        //     // down by 2*radius, left by radius.
-        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo)
-        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
-        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
-        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo)
-        //     addSegment(segments, stubs[0], stubs[1], paintInfo)
-        //
-        // }
-        // else {
-
-        var midx = paintInfo.startStubX + (paintInfo.endStubX - paintInfo.startStubX) * this.midpoint,
-            midy = paintInfo.startStubY + (paintInfo.endStubY - paintInfo.startStubY) * this.midpoint;
-        var orientations = {
-          x: [0, 1],
-          y: [1, 0]
-        },
-            lineCalculators = {
-          perpendicular: function perpendicular(axis, ss, oss, es, oes) {
-            var pi = paintInfo,
-                sis = {
-              x: [[[1, 2, 3, 4], null, [2, 1, 4, 3]], null, [[4, 3, 2, 1], null, [3, 4, 1, 2]]],
-              y: [[[3, 2, 1, 4], null, [2, 3, 4, 1]], null, [[4, 1, 2, 3], null, [1, 4, 3, 2]]]
-            },
-                stubs = {
-              x: [[pi.startStubX, pi.endStubX], null, [pi.endStubX, pi.startStubX]],
-              y: [[pi.startStubY, pi.endStubY], null, [pi.endStubY, pi.startStubY]]
-            },
-                midLines = {
-              x: [[midx, pi.startStubY], [midx, pi.endStubY]],
-              y: [[pi.startStubX, midy], [pi.endStubX, midy]]
-            },
-                linesToEnd = {
-              x: [[pi.endStubX, pi.startStubY]],
-              y: [[pi.startStubX, pi.endStubY]]
-            },
-                startToEnd = {
-              x: [[pi.startStubX, pi.endStubY], [pi.endStubX, pi.endStubY]],
-              y: [[pi.endStubX, pi.startStubY], [pi.endStubX, pi.endStubY]]
-            },
-                startToMidToEnd = {
-              x: [[pi.startStubX, midy], [pi.endStubX, midy], [pi.endStubX, pi.endStubY]],
-              y: [[midx, pi.startStubY], [midx, pi.endStubY], [pi.endStubX, pi.endStubY]]
-            },
-                otherStubs = {
-              x: [pi.startStubY, pi.endStubY],
-              y: [pi.startStubX, pi.endStubX]
-            },
-                soIdx = orientations[axis][0],
-                toIdx = orientations[axis][1],
-                _so = pi.so[soIdx] + 1,
-                _to = pi.to[toIdx] + 1,
-                otherFlipped = pi.to[toIdx] === -1 && otherStubs[axis][1] < otherStubs[axis][0] || pi.to[toIdx] === 1 && otherStubs[axis][1] > otherStubs[axis][0],
-                stub1 = stubs[axis][_so][0],
-                stub2 = stubs[axis][_so][1],
-                segmentIndexes = sis[axis][_so][_to];
-
-            if (pi.segment === segmentIndexes[3] || pi.segment === segmentIndexes[2] && otherFlipped) {
-              return midLines[axis];
-            } else if (pi.segment === segmentIndexes[2] && stub2 < stub1) {
-              return linesToEnd[axis];
-            } else if (pi.segment === segmentIndexes[2] && stub2 >= stub1 || pi.segment === segmentIndexes[1] && !otherFlipped) {
-              return startToMidToEnd[axis];
-            } else if (pi.segment === segmentIndexes[0] || pi.segment === segmentIndexes[1] && otherFlipped) {
-              return startToEnd[axis];
-            }
-          },
-          orthogonal: function orthogonal(axis, startStub, otherStartStub, endStub, otherEndStub) {
-            var pi = paintInfo,
-                extent = {
-              "x": pi.so[0] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
-              "y": pi.so[1] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
-            }[axis];
-            return {
-              "x": [[extent, otherStartStub], [extent, otherEndStub], [endStub, otherEndStub]],
-              "y": [[otherStartStub, extent], [otherEndStub, extent], [otherEndStub, endStub]]
-            }[axis];
-          },
-          opposite: function opposite(axis, ss, oss, es, oes) {
-            var pi = paintInfo,
-                otherAxis = {
-              "x": "y",
-              "y": "x"
-            }[axis],
-                dim = {
-              "x": "height",
-              "y": "width"
-            }[axis],
-                comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
-
-            if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-              var _val = oss + (1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim] + this.maxStub;
-
-              return {
-                "x": [[ss, _val], [es, _val]],
-                "y": [[_val, ss], [_val, es]]
-              }[axis];
-            } else if (!comparator || pi.so[idx] === 1 && ss > es || pi.so[idx] === -1 && ss < es) {
-              return {
-                "x": [[ss, midy], [es, midy]],
-                "y": [[midx, ss], [midx, es]]
-              }[axis];
-            } else if (pi.so[idx] === 1 && ss < es || pi.so[idx] === -1 && ss > es) {
-              return {
-                "x": [[midx, pi.sy], [midx, pi.ty]],
-                "y": [[pi.sx, midy], [pi.tx, midy]]
-              }[axis];
-            }
-          } // compute the rest of the line
-
-        };
-        var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);
-
-        if (p) {
-          for (var i = 0; i < p.length; i++) {
-            this.addASegment(p[i][0], p[i][1], paintInfo);
-          }
-        } // line to end stub
-
-
-        this.addASegment(stubs[2], stubs[3], paintInfo); // end stub to end (common)
-
-        this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo); // write out the segments.
-
-        this.writeSegments(paintInfo);
-      }
-    }]);
-
-    return FlowchartConnector;
-  }(AbstractConnector);
-  Connectors.register("Flowchart", FlowchartConnector);
-
-  function _segment(x1, y1, x2, y2) {
-    if (x1 <= x2 && y2 <= y1) {
-      return 1;
-    } else if (x1 <= x2 && y1 <= y2) {
-      return 2;
-    } else if (x2 <= x1 && y2 >= y1) {
-      return 3;
-    }
-
-    return 4;
-  } // the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
-  // two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
-  // are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
-  // center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
-  // direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
-  // lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
-  //
-  // sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
-  //
-  // 0 - absolute x
-  // 1 - absolute y
-  // 2 - proportional x in element (0 is left edge, 1 is right edge)
-  // 3 - proportional y in element (0 is top edge, 1 is bottom edge)
-  //
-
-
-  function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
-    // TODO (maybe)
-    // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
-    if (distance <= proximityLimit) {
-      return [midx, midy];
-    }
-
-    if (segment === 1) {
-      if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
-      } else {
-        return [midx + -1 * dx, midy + -1 * dy];
-      }
-    } else if (segment === 2) {
-      if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
-      } else {
-        return [midx + dx, midy + -1 * dy];
-      }
-    } else if (segment === 3) {
-      if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
-      } else {
-        return [midx + -1 * dx, midy + -1 * dy];
-      }
-    } else if (segment === 4) {
-      if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
-      } else {
-        return [midx + dx, midy + -1 * dy];
-      }
-    }
-  }
-
-  var StateMachine =
-  /*#__PURE__*/
-  function (_AbstractBezierConnec) {
-    _inherits(StateMachine, _AbstractBezierConnec);
-
-    function StateMachine(instance, connection, params) {
-      var _this;
-
-      _classCallCheck(this, StateMachine);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachine).call(this, instance, connection, params));
-      _this.connection = connection;
-
-      _defineProperty(_assertThisInitialized(_this), "type", "StateMachine");
-
-      _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
-
-      _this.curviness = params.curviness || 10;
-      _this.margin = params.margin || 5;
-      _this.proximityLimit = params.proximityLimit || 80;
-      _this.clockwise = params.orientation && params.orientation === "clockwise";
-      return _this;
-    }
-
-    _createClass(StateMachine, [{
-      key: "_computeBezier",
-      value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
-        var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
-            _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
-            _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
-            _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0; // now adjust for the margin
-
-
-        if (params.sourcePos[2] === 0) {
-          _sx -= this.margin;
-        }
-
-        if (params.sourcePos[2] === 1) {
-          _sx += this.margin;
-        }
-
-        if (params.sourcePos[3] === 0) {
-          _sy -= this.margin;
-        }
-
-        if (params.sourcePos[3] === 1) {
-          _sy += this.margin;
-        }
-
-        if (params.targetPos[2] === 0) {
-          _tx -= this.margin;
-        }
-
-        if (params.targetPos[2] === 1) {
-          _tx += this.margin;
-        }
-
-        if (params.targetPos[3] === 0) {
-          _ty -= this.margin;
-        }
-
-        if (params.targetPos[3] === 1) {
-          _ty += this.margin;
-        } //
-        // these connectors are quadratic bezier curves, having a single control point. if both anchors
-        // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
-        // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
-        // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
-        // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
-        //
-        // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
-        // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
-        // for example, we might increase the distance the control point is away from the midpoint in a bid to
-        // steer it around that node.  this will work within limits, but i think those limits would also be the likely
-        // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
-        //
-        // the second possible change is actually two possible changes: firstly, it is possible we should gradually
-        // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
-        // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
-        // with respect to how far their anchor is from the center of its respective face. this could either look cool,
-        // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
-        //
-
-
-        if (this.edited !== true) {
-          var _midx = (_sx + _tx) / 2,
-              _midy = (_sy + _ty) / 2,
-              segment = _segment(_sx, _sy, _tx, _ty),
-              distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)); // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-          // will work by extending the control point to force the curve to be, um, curvier.
-
-
-          this._controlPoint = _findControlPoint(_midx, _midy, segment, params.sourcePos, params.targetPos, this.curviness, this.curviness, distance, this.proximityLimit);
-        } else {
-          this._controlPoint = this.geometry.controlPoints[0];
-        }
-
-        var cp1x, cp2x, cp1y, cp2y;
-        cp1x = this._controlPoint[0];
-        cp2x = this._controlPoint[0];
-        cp1y = this._controlPoint[1];
-        cp2y = this._controlPoint[1];
-        this.geometry = {
-          controlPoints: [this._controlPoint, this._controlPoint],
-          source: params.sourcePos,
-          target: params.targetPos
-        };
-
-        this._addSegment(BezierSegment, {
-          x1: _tx,
-          y1: _ty,
-          x2: _sx,
-          y2: _sy,
-          cp1x: cp1x,
-          cp1y: cp1y,
-          cp2x: cp2x,
-          cp2y: cp2y
-        });
-      }
-    }]);
-
-    return StateMachine;
-  }(AbstractBezierConnector);
-  Connectors.register("StateMachine", StateMachine);
-
-  var StraightConnector =
-  /*#__PURE__*/
-  function (_AbstractConnector) {
-    _inherits(StraightConnector, _AbstractConnector);
-
-    function StraightConnector() {
-      var _getPrototypeOf2;
-
-      var _this;
-
-      _classCallCheck(this, StraightConnector);
-
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(StraightConnector)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-      _defineProperty(_assertThisInitialized(_this), "type", "Straight");
-
-      return _this;
-    }
-
-    _createClass(StraightConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [0, 0];
-      }
-    }, {
-      key: "_compute",
-      value: function _compute(paintInfo, p) {
-        this._addSegment(StraightSegment, {
-          x1: paintInfo.sx,
-          y1: paintInfo.sy,
-          x2: paintInfo.startStubX,
-          y2: paintInfo.startStubY
-        });
-
-        this._addSegment(StraightSegment, {
-          x1: paintInfo.startStubX,
-          y1: paintInfo.startStubY,
-          x2: paintInfo.endStubX,
-          y2: paintInfo.endStubY
-        });
-
-        this._addSegment(StraightSegment, {
-          x1: paintInfo.endStubX,
-          y1: paintInfo.endStubY,
-          x2: paintInfo.tx,
-          y2: paintInfo.ty
-        });
-
-        this.geometry = {
-          source: p.sourcePos,
-          target: p.targetPos
-        };
-      }
-    }]);
-
-    return StraightConnector;
-  }(AbstractConnector);
-  Connectors.register("Straight", StraightConnector);
 
   var RectangleEndpoint =
   /*#__PURE__*/
@@ -13105,7 +12239,7 @@
         if (renderer != null) {
           SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
         } else {
-          console.log("JSPLUMB: no endpoint renderer found for type [" + ep.typeId + "]");
+          console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.getType() + "]");
         }
       }
     }, {
@@ -18082,38 +17216,42 @@
     return BrowserJsPlumbInstance;
   }(JsPlumbInstance);
 
-  registerEndpointRenderer("Dot", {
-    // TODO `instance` not needed here
-    makeNode: function makeNode(instance, ep, style) {
-      return _node("circle", {
-        "cx": ep.w / 2,
-        "cy": ep.h / 2,
-        "r": ep.radius
-      });
-    },
-    updateNode: function updateNode(ep, node) {
-      _attr(node, {
-        "cx": "" + ep.w / 2,
-        "cy": "" + ep.h / 2,
-        "r": "" + ep.radius
-      });
-    }
-  });
+  var register = function register() {
+    registerEndpointRenderer("Dot", {
+      // TODO `instance` not needed here
+      makeNode: function makeNode(instance, ep, style) {
+        return _node("circle", {
+          "cx": ep.w / 2,
+          "cy": ep.h / 2,
+          "r": ep.radius
+        });
+      },
+      updateNode: function updateNode(ep, node) {
+        _attr(node, {
+          "cx": "" + ep.w / 2,
+          "cy": "" + ep.h / 2,
+          "r": "" + ep.radius
+        });
+      }
+    });
+  };
 
-  registerEndpointRenderer("Rectangle", {
-    makeNode: function makeNode(instance, ep, style) {
-      return _node("rect", {
-        "width": ep.w,
-        "height": ep.h
-      });
-    },
-    updateNode: function updateNode(ep, node) {
-      _attr(node, {
-        "width": ep.w,
-        "height": ep.h
-      });
-    }
-  });
+  var register$1 = function register() {
+    registerEndpointRenderer("Rectangle", {
+      makeNode: function makeNode(instance, ep, style) {
+        return _node("rect", {
+          "width": ep.w,
+          "height": ep.h
+        });
+      },
+      updateNode: function updateNode(ep, node) {
+        _attr(node, {
+          "width": ep.w,
+          "height": ep.h
+        });
+      }
+    });
+  };
 
   var BLANK_ATTRIBUTES = {
     "width": 10,
@@ -18121,16 +17259,899 @@
     "fill": "transparent",
     "stroke": "transparent"
   };
-  registerEndpointRenderer("Blank", {
-    makeNode: function makeNode(instance, ep, style) {
-      return _node("rect", BLANK_ATTRIBUTES);
-    },
-    updateNode: function updateNode(ep, node) {
-      _attr(node, BLANK_ATTRIBUTES);
+  var register$2 = function register() {
+    registerEndpointRenderer("Blank", {
+      makeNode: function makeNode(instance, ep, style) {
+        return _node("rect", BLANK_ATTRIBUTES);
+      },
+      updateNode: function updateNode(ep, node) {
+        _attr(node, BLANK_ATTRIBUTES);
+      }
+    });
+  };
+
+  var StraightConnector =
+  /*#__PURE__*/
+  function (_AbstractConnector) {
+    _inherits(StraightConnector, _AbstractConnector);
+
+    function StraightConnector() {
+      var _getPrototypeOf2;
+
+      var _this;
+
+      _classCallCheck(this, StraightConnector);
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(StraightConnector)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+      _defineProperty(_assertThisInitialized(_this), "type", "Straight");
+
+      return _this;
     }
-  });
+
+    _createClass(StraightConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [0, 0];
+      }
+    }, {
+      key: "_compute",
+      value: function _compute(paintInfo, p) {
+        this._addSegment(StraightSegment, {
+          x1: paintInfo.sx,
+          y1: paintInfo.sy,
+          x2: paintInfo.startStubX,
+          y2: paintInfo.startStubY
+        });
+
+        this._addSegment(StraightSegment, {
+          x1: paintInfo.startStubX,
+          y1: paintInfo.startStubY,
+          x2: paintInfo.endStubX,
+          y2: paintInfo.endStubY
+        });
+
+        this._addSegment(StraightSegment, {
+          x1: paintInfo.endStubX,
+          y1: paintInfo.endStubY,
+          x2: paintInfo.tx,
+          y2: paintInfo.ty
+        });
+
+        this.geometry = {
+          source: p.sourcePos,
+          target: p.targetPos
+        };
+      }
+    }]);
+
+    return StraightConnector;
+  }(AbstractConnector);
+  function register$3() {
+    Connectors.register("Straight", StraightConnector);
+  }
+
+  var AbstractBezierConnector =
+  /*#__PURE__*/
+  function (_AbstractConnector) {
+    _inherits(AbstractBezierConnector, _AbstractConnector);
+
+    _createClass(AbstractBezierConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [0, 0];
+      }
+    }]);
+
+    function AbstractBezierConnector(instance, connection, params) {
+      var _this;
+
+      _classCallCheck(this, AbstractBezierConnector);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(AbstractBezierConnector).call(this, instance, connection, params));
+      _this.connection = connection;
+
+      _defineProperty(_assertThisInitialized(_this), "showLoopback", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "curviness", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "margin", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "orientation", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
+
+      params = params || {};
+      _this.showLoopback = params.showLoopback !== false;
+      _this.curviness = params.curviness || 10;
+      _this.margin = params.margin || 5;
+      _this.proximityLimit = params.proximityLimit || 80;
+      _this.clockwise = params.orientation && params.orientation === "clockwise";
+      _this.loopbackRadius = params.loopbackRadius || 25;
+      _this.isLoopbackCurrently = false;
+      return _this;
+    }
+
+    _createClass(AbstractBezierConnector, [{
+      key: "_compute",
+      value: function _compute(paintInfo, p) {
+        var sp = p.sourcePos,
+            tp = p.targetPos,
+            _w = Math.abs(sp[0] - tp[0]),
+            _h = Math.abs(sp[1] - tp[1]);
+
+        if (!this.showLoopback || p.sourceEndpoint.elementId !== p.targetEndpoint.elementId) {
+          this.isLoopbackCurrently = false;
+
+          this._computeBezier(paintInfo, p, sp, tp, _w, _h);
+        } else {
+          this.isLoopbackCurrently = true; // a loopback connector.  draw an arc from one anchor to the other.
+
+          var x1 = p.sourcePos[0],
+              y1 = p.sourcePos[1] - this.margin,
+              cx = x1,
+              cy = y1 - this.loopbackRadius,
+              // canvas sizing stuff, to ensure the whole painted area is visible.
+          _x = cx - this.loopbackRadius,
+              _y = cy - this.loopbackRadius;
+
+          _w = 2 * this.loopbackRadius;
+          _h = 2 * this.loopbackRadius;
+          paintInfo.points[0] = _x;
+          paintInfo.points[1] = _y;
+          paintInfo.points[2] = _w;
+          paintInfo.points[3] = _h; // ADD AN ARC SEGMENT.
+
+          this._addSegment(ArcSegment, {
+            loopback: true,
+            x1: x1 - _x + 4,
+            y1: y1 - _y,
+            startAngle: 0,
+            endAngle: 2 * Math.PI,
+            r: this.loopbackRadius,
+            ac: !this.clockwise,
+            x2: x1 - _x - 4,
+            y2: y1 - _y,
+            cx: cx - _x,
+            cy: cy - _y
+          });
+        }
+      }
+    }, {
+      key: "exportGeometry",
+      value: function exportGeometry() {
+        if (this.geometry == null) {
+          return null;
+        } else {
+          var s = [],
+              t = [],
+              cp1 = [],
+              cp2 = [];
+          Array.prototype.push.apply(s, this.geometry.source);
+          Array.prototype.push.apply(t, this.geometry.target);
+          Array.prototype.push.apply(cp1, this.geometry.controlPoints[0]);
+          Array.prototype.push.apply(cp2, this.geometry.controlPoints[1]);
+          return {
+            source: s,
+            target: t,
+            controlPoints: [cp1, cp2]
+          };
+        }
+      }
+    }, {
+      key: "importGeometry",
+      value: function importGeometry(geometry) {
+        if (geometry != null) {
+          if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
+            console.log("Bezier: cannot import geometry; controlPoints missing or does not have length 2");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
+            console.log("Bezier: cannot import geometry; controlPoints malformed");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          if (geometry.source == null || geometry.source.length != 4) {
+            console.log("Bezier: cannot import geometry; source missing or malformed");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          if (geometry.target == null || geometry.target.length != 4) {
+            console.log("Bezier: cannot import geometry; target missing or malformed");
+            this.setGeometry(null, true);
+            return false;
+          }
+
+          this.setGeometry(geometry, false);
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }]);
+
+    return AbstractBezierConnector;
+  }(AbstractConnector);
+
+  var Bezier =
+  /*#__PURE__*/
+  function (_AbstractBezierConnec) {
+    _inherits(Bezier, _AbstractBezierConnec);
+
+    function Bezier(instance, connection, params) {
+      var _this;
+
+      _classCallCheck(this, Bezier);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Bezier).call(this, instance, connection, params));
+      _this.connection = connection;
+
+      _defineProperty(_assertThisInitialized(_this), "type", "Bezier");
+
+      _defineProperty(_assertThisInitialized(_this), "majorAnchor", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "minorAnchor", void 0);
+
+      params = params || {};
+      _this.majorAnchor = params.curviness || 150;
+      _this.minorAnchor = 10;
+      return _this;
+    }
+
+    _createClass(Bezier, [{
+      key: "getCurviness",
+      value: function getCurviness() {
+        return this.majorAnchor;
+      }
+    }, {
+      key: "_findControlPoint",
+      value: function _findControlPoint(point, sourceAnchorPosition, targetAnchorPosition, soo, too) {
+        // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
+        // points around if so (code could be tightened up)
+        var perpendicular = soo[0] !== too[0] || soo[1] === too[1],
+            p = [];
+
+        if (!perpendicular) {
+          if (soo[0] === 0) {
+            p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
+          } else {
+            p.push(point[0] - this.majorAnchor * soo[0]);
+          }
+
+          if (soo[1] === 0) {
+            p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
+          } else {
+            p.push(point[1] + this.majorAnchor * too[1]);
+          }
+        } else {
+          if (too[0] === 0) {
+            p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
+          } else {
+            p.push(point[0] + this.majorAnchor * too[0]);
+          }
+
+          if (too[1] === 0) {
+            p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
+          } else {
+            p.push(point[1] + this.majorAnchor * soo[1]);
+          }
+        }
+
+        return p;
+      }
+    }, {
+      key: "_computeBezier",
+      value: function _computeBezier(paintInfo, p, sp, tp, _w, _h) {
+        var _CP,
+            _CP2,
+            _sx = sp[0] < tp[0] ? _w : 0,
+            _sy = sp[1] < tp[1] ? _h : 0,
+            _tx = sp[0] < tp[0] ? 0 : _w,
+            _ty = sp[1] < tp[1] ? 0 : _h;
+
+        if (this.edited !== true) {
+          _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
+          _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+        } else {
+          _CP = this.geometry.controlPoints[0];
+          _CP2 = this.geometry.controlPoints[1];
+        }
+
+        this.geometry = {
+          controlPoints: [_CP, _CP2],
+          source: p.sourcePos,
+          target: p.targetPos
+        };
+
+        this._addSegment(BezierSegment, {
+          x1: _sx,
+          y1: _sy,
+          x2: _tx,
+          y2: _ty,
+          cp1x: _CP[0],
+          cp1y: _CP[1],
+          cp2x: _CP2[0],
+          cp2y: _CP2[1]
+        });
+      }
+    }]);
+
+    return Bezier;
+  }(AbstractBezierConnector);
+  function register$4() {
+    Connectors.register("Bezier", Bezier);
+  }
+
+  function sgn$1(n) {
+    return n < 0 ? -1 : n === 0 ? 0 : 1;
+  }
+
+  function segmentDirections(segment) {
+    return [sgn$1(segment[2] - segment[0]), sgn$1(segment[3] - segment[1])];
+  }
+
+  function segLength(s) {
+    return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
+  }
+
+  function _cloneArray(a) {
+    var _a = [];
+
+    _a.push.apply(_a, a);
+
+    return _a;
+  }
+
+  var FlowchartConnector =
+  /*#__PURE__*/
+  function (_AbstractConnector) {
+    _inherits(FlowchartConnector, _AbstractConnector);
+
+    _createClass(FlowchartConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [30, 30];
+      }
+    }]);
+
+    function FlowchartConnector(instance, connection, params) {
+      var _this;
+
+      _classCallCheck(this, FlowchartConnector);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, instance, connection, params));
+      _this.instance = instance;
+      _this.connection = connection;
+
+      _defineProperty(_assertThisInitialized(_this), "type", "Flowchart");
+
+      _defineProperty(_assertThisInitialized(_this), "internalSegments", []);
+
+      _defineProperty(_assertThisInitialized(_this), "midpoint", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "alwaysRespectStubs", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "cornerRadius", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "lastx", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "lasty", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "lastOrientation", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
+
+      _this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;
+      _this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0;
+      _this.alwaysRespectStubs = params.alwaysRespectStubs === true;
+      _this.lastx = null;
+      _this.lasty = null;
+      _this.lastOrientation = null; // TODO now common between this and AbstractBezierEditor; refactor into superclass?
+
+      _this.loopbackRadius = params.loopbackRadius || 25;
+      _this.isLoopbackCurrently = false;
+      return _this;
+    }
+
+    _createClass(FlowchartConnector, [{
+      key: "addASegment",
+      value: function addASegment(x, y, paintInfo) {
+        if (this.lastx === x && this.lasty === y) {
+          return;
+        }
+
+        var lx = this.lastx == null ? paintInfo.sx : this.lastx,
+            ly = this.lasty == null ? paintInfo.sy : this.lasty,
+            o = lx === x ? "v" : "h";
+        this.lastx = x;
+        this.lasty = y;
+        this.internalSegments.push([lx, ly, x, y, o]);
+      }
+    }, {
+      key: "writeSegments",
+      value: function writeSegments(paintInfo) {
+        var current = null,
+            next,
+            currentDirection,
+            nextDirection;
+
+        for (var i = 0; i < this.internalSegments.length - 1; i++) {
+          current = current || _cloneArray(this.internalSegments[i]);
+          next = _cloneArray(this.internalSegments[i + 1]);
+          currentDirection = segmentDirections(current);
+          nextDirection = segmentDirections(next);
+
+          if (this.cornerRadius > 0 && current[4] !== next[4]) {
+            var minSegLength = Math.min(segLength(current), segLength(next));
+            var radiusToUse = Math.min(this.cornerRadius, minSegLength / 2);
+            current[2] -= currentDirection[0] * radiusToUse;
+            current[3] -= currentDirection[1] * radiusToUse;
+            next[0] += nextDirection[0] * radiusToUse;
+            next[1] += nextDirection[1] * radiusToUse;
+            var ac = currentDirection[1] === nextDirection[0] && nextDirection[0] === 1 || currentDirection[1] === nextDirection[0] && nextDirection[0] === 0 && currentDirection[0] !== nextDirection[1] || currentDirection[1] === nextDirection[0] && nextDirection[0] === -1,
+                sgny = next[1] > current[3] ? 1 : -1,
+                sgnx = next[0] > current[2] ? 1 : -1,
+                sgnEqual = sgny === sgnx,
+                cx = sgnEqual && ac || !sgnEqual && !ac ? next[0] : current[2],
+                cy = sgnEqual && ac || !sgnEqual && !ac ? current[3] : next[1];
+
+            this._addSegment(StraightSegment, {
+              x1: current[0],
+              y1: current[1],
+              x2: current[2],
+              y2: current[3]
+            });
+
+            this._addSegment(ArcSegment, {
+              r: radiusToUse,
+              x1: current[2],
+              y1: current[3],
+              x2: next[0],
+              y2: next[1],
+              cx: cx,
+              cy: cy,
+              ac: ac
+            });
+          } else {
+            // dx + dy are used to adjust for line width.
+            var dx = current[2] === current[0] ? 0 : current[2] > current[0] ? paintInfo.lw / 2 : -(paintInfo.lw / 2),
+                dy = current[3] === current[1] ? 0 : current[3] > current[1] ? paintInfo.lw / 2 : -(paintInfo.lw / 2);
+
+            this._addSegment(StraightSegment, {
+              x1: current[0] - dx,
+              y1: current[1] - dy,
+              x2: current[2] + dx,
+              y2: current[3] + dy
+            });
+          }
+
+          current = next;
+        }
+
+        if (next != null) {
+          // last segment
+          this._addSegment(StraightSegment, {
+            x1: next[0],
+            y1: next[1],
+            x2: next[2],
+            y2: next[3]
+          });
+        }
+      }
+    }, {
+      key: "_compute",
+      value: function _compute(paintInfo, params) {
+        var _this2 = this;
+
+        this.internalSegments.length = 0;
+        this.lastx = null;
+        this.lasty = null;
+        this.lastOrientation = null;
+
+        var commonStubCalculator = function commonStubCalculator(axis) {
+          return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
+        },
+            stubCalculators = {
+          perpendicular: commonStubCalculator,
+          orthogonal: commonStubCalculator,
+          opposite: function opposite(axis) {
+            var pi = paintInfo,
+                idx = axis === "x" ? 0 : 1,
+                areInProximity = {
+              "x": function x() {
+                return pi.so[idx] === 1 && (pi.startStubX > pi.endStubX && pi.tx > pi.startStubX || pi.sx > pi.endStubX && pi.tx > pi.sx) || pi.so[idx] === -1 && (pi.startStubX < pi.endStubX && pi.tx < pi.startStubX || pi.sx < pi.endStubX && pi.tx < pi.sx);
+              },
+              "y": function y() {
+                return pi.so[idx] === 1 && (pi.startStubY > pi.endStubY && pi.ty > pi.startStubY || pi.sy > pi.endStubY && pi.ty > pi.sy) || pi.so[idx] === -1 && (pi.startStubY < pi.endStubY && pi.ty < pi.startStubY || pi.sy < pi.endStubY && pi.ty < pi.sy);
+              }
+            };
+
+            if (!_this2.alwaysRespectStubs && areInProximity[axis]()) {
+              return {
+                "x": [(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
+                "y": [paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
+              }[axis];
+            } else {
+              return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
+            }
+          } // calculate Stubs.
+
+        };
+
+        var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
+            idx = paintInfo.sourceAxis === "x" ? 0 : 1,
+            oidx = paintInfo.sourceAxis === "x" ? 1 : 0,
+            ss = stubs[idx],
+            oss = stubs[oidx],
+            es = stubs[idx + 2],
+            oes = stubs[oidx + 2]; // add the start stub segment. use stubs for loopback as it will look better, with the loop spaced
+        // away from the element.
+
+        this.addASegment(stubs[0], stubs[1], paintInfo); // if its a loopback and we should treat it differently.
+        // if (false && params.sourcePos[0] === params.targetPos[0] && params.sourcePos[1] === params.targetPos[1]) {
+        //
+        //     // we use loopbackRadius here, as statemachine connectors do.
+        //     // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
+        //     // down by 2*radius, left by radius.
+        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo)
+        //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+        //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo)
+        //     addSegment(segments, stubs[0], stubs[1], paintInfo)
+        //
+        // }
+        // else {
+
+        var midx = paintInfo.startStubX + (paintInfo.endStubX - paintInfo.startStubX) * this.midpoint,
+            midy = paintInfo.startStubY + (paintInfo.endStubY - paintInfo.startStubY) * this.midpoint;
+        var orientations = {
+          x: [0, 1],
+          y: [1, 0]
+        },
+            lineCalculators = {
+          perpendicular: function perpendicular(axis, ss, oss, es, oes) {
+            var pi = paintInfo,
+                sis = {
+              x: [[[1, 2, 3, 4], null, [2, 1, 4, 3]], null, [[4, 3, 2, 1], null, [3, 4, 1, 2]]],
+              y: [[[3, 2, 1, 4], null, [2, 3, 4, 1]], null, [[4, 1, 2, 3], null, [1, 4, 3, 2]]]
+            },
+                stubs = {
+              x: [[pi.startStubX, pi.endStubX], null, [pi.endStubX, pi.startStubX]],
+              y: [[pi.startStubY, pi.endStubY], null, [pi.endStubY, pi.startStubY]]
+            },
+                midLines = {
+              x: [[midx, pi.startStubY], [midx, pi.endStubY]],
+              y: [[pi.startStubX, midy], [pi.endStubX, midy]]
+            },
+                linesToEnd = {
+              x: [[pi.endStubX, pi.startStubY]],
+              y: [[pi.startStubX, pi.endStubY]]
+            },
+                startToEnd = {
+              x: [[pi.startStubX, pi.endStubY], [pi.endStubX, pi.endStubY]],
+              y: [[pi.endStubX, pi.startStubY], [pi.endStubX, pi.endStubY]]
+            },
+                startToMidToEnd = {
+              x: [[pi.startStubX, midy], [pi.endStubX, midy], [pi.endStubX, pi.endStubY]],
+              y: [[midx, pi.startStubY], [midx, pi.endStubY], [pi.endStubX, pi.endStubY]]
+            },
+                otherStubs = {
+              x: [pi.startStubY, pi.endStubY],
+              y: [pi.startStubX, pi.endStubX]
+            },
+                soIdx = orientations[axis][0],
+                toIdx = orientations[axis][1],
+                _so = pi.so[soIdx] + 1,
+                _to = pi.to[toIdx] + 1,
+                otherFlipped = pi.to[toIdx] === -1 && otherStubs[axis][1] < otherStubs[axis][0] || pi.to[toIdx] === 1 && otherStubs[axis][1] > otherStubs[axis][0],
+                stub1 = stubs[axis][_so][0],
+                stub2 = stubs[axis][_so][1],
+                segmentIndexes = sis[axis][_so][_to];
+
+            if (pi.segment === segmentIndexes[3] || pi.segment === segmentIndexes[2] && otherFlipped) {
+              return midLines[axis];
+            } else if (pi.segment === segmentIndexes[2] && stub2 < stub1) {
+              return linesToEnd[axis];
+            } else if (pi.segment === segmentIndexes[2] && stub2 >= stub1 || pi.segment === segmentIndexes[1] && !otherFlipped) {
+              return startToMidToEnd[axis];
+            } else if (pi.segment === segmentIndexes[0] || pi.segment === segmentIndexes[1] && otherFlipped) {
+              return startToEnd[axis];
+            }
+          },
+          orthogonal: function orthogonal(axis, startStub, otherStartStub, endStub, otherEndStub) {
+            var pi = paintInfo,
+                extent = {
+              "x": pi.so[0] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
+              "y": pi.so[1] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
+            }[axis];
+            return {
+              "x": [[extent, otherStartStub], [extent, otherEndStub], [endStub, otherEndStub]],
+              "y": [[otherStartStub, extent], [otherEndStub, extent], [otherEndStub, endStub]]
+            }[axis];
+          },
+          opposite: function opposite(axis, ss, oss, es, oes) {
+            var pi = paintInfo,
+                otherAxis = {
+              "x": "y",
+              "y": "x"
+            }[axis],
+                dim = {
+              "x": "height",
+              "y": "width"
+            }[axis],
+                comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
+
+            if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
+              var _val = oss + (1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim] + this.maxStub;
+
+              return {
+                "x": [[ss, _val], [es, _val]],
+                "y": [[_val, ss], [_val, es]]
+              }[axis];
+            } else if (!comparator || pi.so[idx] === 1 && ss > es || pi.so[idx] === -1 && ss < es) {
+              return {
+                "x": [[ss, midy], [es, midy]],
+                "y": [[midx, ss], [midx, es]]
+              }[axis];
+            } else if (pi.so[idx] === 1 && ss < es || pi.so[idx] === -1 && ss > es) {
+              return {
+                "x": [[midx, pi.sy], [midx, pi.ty]],
+                "y": [[pi.sx, midy], [pi.tx, midy]]
+              }[axis];
+            }
+          } // compute the rest of the line
+
+        };
+        var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);
+
+        if (p) {
+          for (var i = 0; i < p.length; i++) {
+            this.addASegment(p[i][0], p[i][1], paintInfo);
+          }
+        } // line to end stub
+
+
+        this.addASegment(stubs[2], stubs[3], paintInfo); // end stub to end (common)
+
+        this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo); // write out the segments.
+
+        this.writeSegments(paintInfo);
+      }
+    }]);
+
+    return FlowchartConnector;
+  }(AbstractConnector);
+  function register$5() {
+    Connectors.register("Flowchart", FlowchartConnector);
+  }
+
+  function _segment(x1, y1, x2, y2) {
+    if (x1 <= x2 && y2 <= y1) {
+      return 1;
+    } else if (x1 <= x2 && y1 <= y2) {
+      return 2;
+    } else if (x2 <= x1 && y2 >= y1) {
+      return 3;
+    }
+
+    return 4;
+  } // the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
+  // two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
+  // are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
+  // center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
+  // direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
+  // lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
+  //
+  // sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
+  //
+  // 0 - absolute x
+  // 1 - absolute y
+  // 2 - proportional x in element (0 is left edge, 1 is right edge)
+  // 3 - proportional y in element (0 is top edge, 1 is bottom edge)
+  //
+
+
+  function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
+    // TODO (maybe)
+    // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
+    if (distance <= proximityLimit) {
+      return [midx, midy];
+    }
+
+    if (segment === 1) {
+      if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
+        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
+        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      } else {
+        return [midx + -1 * dx, midy + -1 * dy];
+      }
+    } else if (segment === 2) {
+      if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
+        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
+        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      } else {
+        return [midx + dx, midy + -1 * dy];
+      }
+    } else if (segment === 3) {
+      if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
+        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
+        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      } else {
+        return [midx + -1 * dx, midy + -1 * dy];
+      }
+    } else if (segment === 4) {
+      if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
+        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
+        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      } else {
+        return [midx + dx, midy + -1 * dy];
+      }
+    }
+  }
+
+  var StateMachine =
+  /*#__PURE__*/
+  function (_AbstractBezierConnec) {
+    _inherits(StateMachine, _AbstractBezierConnec);
+
+    function StateMachine(instance, connection, params) {
+      var _this;
+
+      _classCallCheck(this, StateMachine);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachine).call(this, instance, connection, params));
+      _this.connection = connection;
+
+      _defineProperty(_assertThisInitialized(_this), "type", "StateMachine");
+
+      _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
+
+      _this.curviness = params.curviness || 10;
+      _this.margin = params.margin || 5;
+      _this.proximityLimit = params.proximityLimit || 80;
+      _this.clockwise = params.orientation && params.orientation === "clockwise";
+      return _this;
+    }
+
+    _createClass(StateMachine, [{
+      key: "_computeBezier",
+      value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
+        var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
+            _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
+            _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
+            _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0; // now adjust for the margin
+
+
+        if (params.sourcePos[2] === 0) {
+          _sx -= this.margin;
+        }
+
+        if (params.sourcePos[2] === 1) {
+          _sx += this.margin;
+        }
+
+        if (params.sourcePos[3] === 0) {
+          _sy -= this.margin;
+        }
+
+        if (params.sourcePos[3] === 1) {
+          _sy += this.margin;
+        }
+
+        if (params.targetPos[2] === 0) {
+          _tx -= this.margin;
+        }
+
+        if (params.targetPos[2] === 1) {
+          _tx += this.margin;
+        }
+
+        if (params.targetPos[3] === 0) {
+          _ty -= this.margin;
+        }
+
+        if (params.targetPos[3] === 1) {
+          _ty += this.margin;
+        } //
+        // these connectors are quadratic bezier curves, having a single control point. if both anchors
+        // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
+        // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
+        // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
+        // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
+        //
+        // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
+        // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
+        // for example, we might increase the distance the control point is away from the midpoint in a bid to
+        // steer it around that node.  this will work within limits, but i think those limits would also be the likely
+        // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
+        //
+        // the second possible change is actually two possible changes: firstly, it is possible we should gradually
+        // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
+        // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
+        // with respect to how far their anchor is from the center of its respective face. this could either look cool,
+        // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
+        //
+
+
+        if (this.edited !== true) {
+          var _midx = (_sx + _tx) / 2,
+              _midy = (_sy + _ty) / 2,
+              segment = _segment(_sx, _sy, _tx, _ty),
+              distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)); // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+          // will work by extending the control point to force the curve to be, um, curvier.
+
+
+          this._controlPoint = _findControlPoint(_midx, _midy, segment, params.sourcePos, params.targetPos, this.curviness, this.curviness, distance, this.proximityLimit);
+        } else {
+          this._controlPoint = this.geometry.controlPoints[0];
+        }
+
+        var cp1x, cp2x, cp1y, cp2y;
+        cp1x = this._controlPoint[0];
+        cp2x = this._controlPoint[0];
+        cp1y = this._controlPoint[1];
+        cp2y = this._controlPoint[1];
+        this.geometry = {
+          controlPoints: [this._controlPoint, this._controlPoint],
+          source: params.sourcePos,
+          target: params.targetPos
+        };
+
+        this._addSegment(BezierSegment, {
+          x1: _tx,
+          y1: _ty,
+          x2: _sx,
+          y2: _sy,
+          cp1x: cp1x,
+          cp1y: cp1y,
+          cp2x: cp2x,
+          cp2y: cp2y
+        });
+      }
+    }]);
+
+    return StateMachine;
+  }(AbstractBezierConnector);
+  function register$6() {
+    Connectors.register("StateMachine", StateMachine);
+  }
+
+  register$4();
+  register$3();
+  register$5();
+  register$6(); // export * from '../core/connector/bezier-connector'
+  // export * from '../core/connector/straight-connector'
+  // export * from '../core/connector/flowchart-connector'
+  // export * from '../core/connector/statemachine-connector'
 
   var _jsPlumbInstanceIndex = 0;
+  register();
+  register$2();
+  register$1();
 
   function getInstanceIndex() {
     var i = _jsPlumbInstanceIndex + 1;
@@ -18152,17 +18173,13 @@
     _do();
   }
 
-  exports.Bezier = Bezier;
-  exports.BlankEndpoint = BlankEndpoint;
-  exports.DotEndpoint = DotEndpoint;
+  exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
   exports.EventManager = EventManager;
-  exports.FlowchartConnector = FlowchartConnector;
-  exports.RectangleEndpoint = RectangleEndpoint;
-  exports.StateMachine = StateMachine;
-  exports.StraightConnector = StraightConnector;
+  exports.JsPlumbInstance = JsPlumbInstance;
   exports.extend = extend;
   exports.newInstance = newInstance;
   exports.ready = ready;
+  exports.uuid = uuid;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -3,7 +3,7 @@ import { Orientation } from "../factory/anchor-factory";
 import { Endpoint } from "./endpoint-impl";
 import { AnchorPlacement } from "../anchor-manager";
 export declare type ComputedDotEndpoint = [number, number, number, number, number];
-export declare class DotEndpoint<E> extends EndpointRepresentation<ComputedDotEndpoint> {
+export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
     radius: number;
     defaultOffset: number;
     defaultInnerRadius: number;
