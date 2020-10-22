@@ -1,5 +1,5 @@
 import {EndpointOptions, EndpointSpec} from "../endpoint/endpoint"
-import { OffsetAndSize, Size } from '../common'
+import {PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
 import {makeAnchorFromSpec} from "../factory/anchor-factory"
 import {Anchor} from "../anchor/anchor"
@@ -13,6 +13,7 @@ import {EndpointRepresentation} from "./endpoints"
 import {EndpointFactory} from "../factory/endpoint-factory"
 import {AnchorPlacement} from "../anchor-manager"
 import { OverlaySpec } from '../overlay/overlay'
+import {ViewportElement} from "../viewport"
 
 function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint, elementWithPrecedence?:string):Connection {
     let idx = 0
@@ -326,14 +327,14 @@ export class Endpoint extends OverlayCapableComponent {
     }
 
     destroy(force?:boolean):void {
-        // TODO i feel like this anchor class stuff should be in the renderer
+
+        // TODO i feel like this anchor class stuff should be in the renderer? is it DOM specific?
         let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
         this.instance.removeClass(this.element, anchorClass)
         this.anchor = null
         if(this.endpoint != null) {
             this.instance.renderer.destroyEndpoint(this)
         }
-        //this.endpoint = null
 
         super.destroy(force)
     }
@@ -398,34 +399,33 @@ export class Endpoint extends OverlayCapableComponent {
         return this.connections[0]
     }
 
-    paint(params:{ timestamp?: string, offset?: OffsetAndSize, dimensions?: Size,
+    paint(params:{ timestamp?: string, offset?: ViewportElement,
         recalc?:boolean, elementWithPrecedence?:string,
         connectorPaintStyle?:PaintStyle,
-        anchorLoc?:AnchorPlacement,
-        rotation?:number }):void {
+        anchorLoc?:AnchorPlacement
+        }):void {
 
         params = params || {}
         let timestamp = params.timestamp, recalc = !(params.recalc === false)
         if (!timestamp || this.timestamp !== timestamp) {
 
             let info = this.instance.updateOffset({ elId: this.elementId, timestamp: timestamp })
-            let xy = params.offset ? params.offset.o : info.o
+            let xy = params.offset ? {left:params.offset.x, top:params.offset.y} : {left:info.x, top:info.y }
             if (xy != null) {
                 let ap = params.anchorLoc
                 if (ap == null) {
-                    let wh = params.dimensions || info.s,
+                    let wh:PointArray = [info.w, info.h],
                         anchorParams:AnchorComputeParams = { xy: [ xy.left, xy.top ], wh: wh, element: this, timestamp: timestamp }
                     if (recalc && this.anchor.isDynamic && this.connections.length > 0) {
                         let c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
                             oIdx = c.endpoints[0] === this ? 1 : 0,
                             oId = oIdx === 0 ? c.sourceId : c.targetId,
-                            oInfo = this.instance.getCachedData(oId),
-                            oOffset = oInfo.o, oWH = oInfo.s
+                            oInfo = this.instance.getCachedData(oId)
 
                         anchorParams.index = oIdx === 0 ? 1 : 0
                         anchorParams.connection = c
-                        anchorParams.txy = [ oOffset.left, oOffset.top ]
-                        anchorParams.twh = oWH
+                        anchorParams.txy = [ oInfo.x, oInfo.y]
+                        anchorParams.twh = [oInfo.w, oInfo.h]
                         anchorParams.tElement = c.endpoints[oIdx]
                         anchorParams.tRotation = this.instance.getRotation(oId)
                     } else if (this.connections.length > 0) {
@@ -437,7 +437,6 @@ export class Endpoint extends OverlayCapableComponent {
                 }
 
                 this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse)
-                //this.endpoint.paint(this.paintStyleInUse)
                 this.instance.renderer.paintEndpoint(this, this.paintStyleInUse)
                 this.timestamp = timestamp
 
