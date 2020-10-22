@@ -2,8 +2,7 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import {IS, uuid } from '../core/util'
-import { extend} from '../core/core'
+import { extend, IS, uuid } from '../core/util'
 import { BoundingBox, Dictionary, PointArray } from '../core/common'
 import {addClass, consume, matchesSelector, removeClass} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
