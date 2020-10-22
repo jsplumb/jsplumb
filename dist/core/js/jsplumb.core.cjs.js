@@ -4404,8 +4404,6 @@ function (_EndpointRepresentati) {
 
 _defineProperty(DotEndpoint, "dotEndpointType", "Dot");
 
-EndpointFactory.register("Dot", DotEndpoint);
-
 var UINode = function UINode(instance, el) {
   _classCallCheck(this, UINode);
 
@@ -11111,88 +11109,6 @@ function (_AbstractSegment) {
 
 _defineProperty(StraightSegment, "segmentType", "Straight");
 
-var RectangleEndpoint =
-/*#__PURE__*/
-function (_EndpointRepresentati) {
-  _inherits(RectangleEndpoint, _EndpointRepresentati);
-
-  function RectangleEndpoint(endpoint, params) {
-    var _this;
-
-    _classCallCheck(this, RectangleEndpoint);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(RectangleEndpoint).call(this, endpoint));
-
-    _defineProperty(_assertThisInitialized(_this), "width", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "height", void 0);
-
-    params = params || {};
-    _this.width = params.width || 10;
-    _this.height = params.height || 10;
-    return _this;
-  } // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-  // it would be much more lightweight as we'd not need to create a class for each one.
-
-
-  _createClass(RectangleEndpoint, [{
-    key: "_compute",
-    value: function _compute(anchorPoint, orientation, endpointStyle) {
-      var width = endpointStyle.width || this.width,
-          height = endpointStyle.height || this.height,
-          x = anchorPoint[0] - width / 2,
-          y = anchorPoint[1] - height / 2;
-      this.x = x;
-      this.y = y;
-      this.w = width;
-      this.h = height;
-      return [x, y, width, height];
-    }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return "Rectangle";
-    }
-  }]);
-
-  return RectangleEndpoint;
-}(EndpointRepresentation);
-EndpointFactory.register("Rectangle", RectangleEndpoint);
-
-var BlankEndpoint =
-/*#__PURE__*/
-function (_EndpointRepresentati) {
-  _inherits(BlankEndpoint, _EndpointRepresentati);
-
-  function BlankEndpoint(endpoint, params) {
-    _classCallCheck(this, BlankEndpoint);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint));
-  } //
-  // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-  // it would be much more lightweight as we'd not need to create a class for each one.
-
-
-  _createClass(BlankEndpoint, [{
-    key: "_compute",
-    value: function _compute(anchorPoint, orientation, endpointStyle) {
-      this.x = anchorPoint[0];
-      this.y = anchorPoint[1];
-      this.w = 10;
-      this.h = 0;
-      return [anchorPoint[0], anchorPoint[1], 10, 0];
-    }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return "Blank";
-    }
-  }]);
-
-  return BlankEndpoint;
-}(EndpointRepresentation);
-EndpointFactory.register("Blank", BlankEndpoint);
-
 var DEFAULT_WIDTH = 20;
 var DEFAULT_LENGTH = 20;
 var ArrowOverlay =
@@ -11423,7 +11339,6 @@ exports.ArrowOverlay = ArrowOverlay;
 exports.BEFORE_DETACH = BEFORE_DETACH;
 exports.BLOCK = BLOCK;
 exports.BezierSegment = BezierSegment;
-exports.BlankEndpoint = BlankEndpoint;
 exports.CHECK_CONDITION = CHECK_CONDITION;
 exports.CHECK_DROP_ALLOWED = CHECK_DROP_ALLOWED;
 exports.CLASS_CONNECTOR = CLASS_CONNECTOR;
@@ -11441,7 +11356,6 @@ exports.ContinuousAnchor = ContinuousAnchor;
 exports.CustomOverlay = CustomOverlay;
 exports.DEFAULT = DEFAULT;
 exports.DiamondOverlay = DiamondOverlay;
-exports.DotEndpoint = DotEndpoint;
 exports.DynamicAnchor = DynamicAnchor;
 exports.EMPTY_BOUNDS = EMPTY_BOUNDS;
 exports.EVENT_CLICK = EVENT_CLICK;
@@ -11506,7 +11420,6 @@ exports.OverlayCapableComponent = OverlayCapableComponent;
 exports.OverlayFactory = OverlayFactory;
 exports.PARENT_GROUP_KEY = PARENT_GROUP_KEY;
 exports.PlainArrowOverlay = PlainArrowOverlay;
-exports.RectangleEndpoint = RectangleEndpoint;
 exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
 exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
 exports.SELECTOR_GROUP_CONTAINER = SELECTOR_GROUP_CONTAINER;

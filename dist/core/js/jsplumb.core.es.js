@@ -4400,8 +4400,6 @@ function (_EndpointRepresentati) {
 
 _defineProperty(DotEndpoint, "dotEndpointType", "Dot");
 
-EndpointFactory.register("Dot", DotEndpoint);
-
 var UINode = function UINode(instance, el) {
   _classCallCheck(this, UINode);
 
@@ -11107,88 +11105,6 @@ function (_AbstractSegment) {
 
 _defineProperty(StraightSegment, "segmentType", "Straight");
 
-var RectangleEndpoint =
-/*#__PURE__*/
-function (_EndpointRepresentati) {
-  _inherits(RectangleEndpoint, _EndpointRepresentati);
-
-  function RectangleEndpoint(endpoint, params) {
-    var _this;
-
-    _classCallCheck(this, RectangleEndpoint);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(RectangleEndpoint).call(this, endpoint));
-
-    _defineProperty(_assertThisInitialized(_this), "width", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "height", void 0);
-
-    params = params || {};
-    _this.width = params.width || 10;
-    _this.height = params.height || 10;
-    return _this;
-  } // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-  // it would be much more lightweight as we'd not need to create a class for each one.
-
-
-  _createClass(RectangleEndpoint, [{
-    key: "_compute",
-    value: function _compute(anchorPoint, orientation, endpointStyle) {
-      var width = endpointStyle.width || this.width,
-          height = endpointStyle.height || this.height,
-          x = anchorPoint[0] - width / 2,
-          y = anchorPoint[1] - height / 2;
-      this.x = x;
-      this.y = y;
-      this.w = width;
-      this.h = height;
-      return [x, y, width, height];
-    }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return "Rectangle";
-    }
-  }]);
-
-  return RectangleEndpoint;
-}(EndpointRepresentation);
-EndpointFactory.register("Rectangle", RectangleEndpoint);
-
-var BlankEndpoint =
-/*#__PURE__*/
-function (_EndpointRepresentati) {
-  _inherits(BlankEndpoint, _EndpointRepresentati);
-
-  function BlankEndpoint(endpoint, params) {
-    _classCallCheck(this, BlankEndpoint);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint));
-  } //
-  // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-  // it would be much more lightweight as we'd not need to create a class for each one.
-
-
-  _createClass(BlankEndpoint, [{
-    key: "_compute",
-    value: function _compute(anchorPoint, orientation, endpointStyle) {
-      this.x = anchorPoint[0];
-      this.y = anchorPoint[1];
-      this.w = 10;
-      this.h = 0;
-      return [anchorPoint[0], anchorPoint[1], 10, 0];
-    }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return "Blank";
-    }
-  }]);
-
-  return BlankEndpoint;
-}(EndpointRepresentation);
-EndpointFactory.register("Blank", BlankEndpoint);
-
 var DEFAULT_WIDTH = 20;
 var DEFAULT_LENGTH = 20;
 var ArrowOverlay =
@@ -11402,4 +11318,4 @@ function isCustomOverlay(o) {
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
-export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, GROUP_COLLAPSED_CLASS, GROUP_EXPANDED_CLASS, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PlainArrowOverlay, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TWO_PI, UIGroup, UINode, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, GROUP_COLLAPSED_CLASS, GROUP_EXPANDED_CLASS, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PlainArrowOverlay, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TWO_PI, UIGroup, UINode, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
