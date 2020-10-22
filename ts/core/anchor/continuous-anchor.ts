@@ -110,14 +110,12 @@ export class ContinuousAnchor extends Anchor {
 
     lock () {
         this._lockedFace = this._currentFace
+        super.lock()
     }
 
     unlock ():void {
         this._lockedFace = null
-    }
-
-    isLocked ():boolean {
-        return this._lockedFace != null
+        super.unlock()
     }
 
     lockCurrentAxis () {
