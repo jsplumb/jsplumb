@@ -1,4 +1,4 @@
-import {  extend } from '../core/core'
+import {  extend } from '../core/util'
 import { AbstractConnector } from '../core/connector/abstract-connector'
 import { PaintStyle } from '../core/styles'
 
