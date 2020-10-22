@@ -6,7 +6,7 @@ import {AnchorPlacement} from "../anchor-manager"
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ]
 
-export class BlankEndpoint<E> extends EndpointRepresentation<ComputedBlankEndpoint> {
+export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint> {
 
     constructor(endpoint:Endpoint, params?:any) {
         super(endpoint)

@@ -6,7 +6,7 @@ import {AnchorPlacement} from "../anchor-manager"
 
 export type ComputedDotEndpoint = [ number, number, number, number, number ]
 
-export class DotEndpoint<E> extends EndpointRepresentation<ComputedDotEndpoint> {
+export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
 
     radius:number
     defaultOffset:number

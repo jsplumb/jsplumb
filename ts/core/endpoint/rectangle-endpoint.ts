@@ -6,7 +6,7 @@ import {AnchorPlacement} from "../anchor-manager"
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ]
 
-export class RectangleEndpoint<E> extends EndpointRepresentation<ComputedRectangleEndpoint> {
+export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleEndpoint> {
 
     width:number
     height:number
