@@ -1,8 +1,7 @@
 import {PaintStyle} from "../styles"
-import {extend} from "../core"
 import  { Dictionary, Timestamp, TypeDescriptor, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
-import {log, merge, populate} from "../util"
+import { extend, log, merge, populate } from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint-impl"
