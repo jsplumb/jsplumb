@@ -50,7 +50,6 @@ export declare type DeleteConnectionOptions = {
      */
     endpointToIgnore?: Endpoint;
 };
-export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
 export declare type ManagedElement = {
     el: jsPlumbElement;
     info?: {

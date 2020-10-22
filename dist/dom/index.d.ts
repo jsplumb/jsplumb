@@ -11,6 +11,6 @@ export * from '../core/connector/straight-connector';
 export * from '../core/connector/flowchart-connector';
 export * from '../core/connector/statemachine-connector';
 export { EventManager } from './event-manager';
-export { extend } from '../core/core';
+export { extend } from '../core/util';
 export declare function newInstance(defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions): BrowserJsPlumbInstance;
 export declare function ready(f: Function): void;

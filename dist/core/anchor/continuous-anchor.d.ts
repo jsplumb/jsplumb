@@ -32,7 +32,6 @@ export declare class ContinuousAnchor extends Anchor {
     getSupportedFaces(): Array<Face>;
     lock(): void;
     unlock(): void;
-    isLocked(): boolean;
     lockCurrentAxis(): void;
     unlockCurrentAxis(): void;
     compute(params: AnchorComputeParams): AnchorPlacement;

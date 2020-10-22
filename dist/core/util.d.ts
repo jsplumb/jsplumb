@@ -1,4 +1,6 @@
 import { PointArray, PointXY, SortFunction } from './common';
+export declare function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
+export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
 export declare function isArray(a: any): boolean;
 export declare function isNumber(n: any): boolean;
 export declare function isString(s: any): boolean;
