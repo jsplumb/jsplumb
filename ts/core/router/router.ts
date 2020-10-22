@@ -1,6 +1,7 @@
 import {Connection} from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint-impl'
 import { Offset } from '../common'
+import {ViewportElement} from "../viewport"
 
 
 export interface Router {
@@ -13,7 +14,7 @@ export interface Router {
 
     connectionDetached (connInfo:any):void
 
-    redraw (elementId:string, ui?:Offset, timestamp?:string, offsetToUI?:Offset):void
+    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):void
 
     deleteEndpoint (endpoint:Endpoint):void
 
