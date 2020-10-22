@@ -477,13 +477,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return p
     }
 
-    getDragScope(el:any):string {
-
-        console.log("REGRESSION: getDragScope will not work now that individual elements are not configured as draggables")
-
-        return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || ""
-    }
-
     static getPositionOnElement(evt:Event, el:HTMLElement, zoom:number):PointArray {
         let box:any = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
             body = document.body,
