@@ -17,7 +17,6 @@ function ON_WARN(warning, rollupWarn) {
     }
 }
 
-
 export default [
     {
         input: './ts/core/index.ts',
