@@ -234,6 +234,30 @@
       throw new TypeError("Invalid attempt to spread non-iterable instance");
     }
 
+    function filterList(list, value, missingIsFalse) {
+      if (list === "*") {
+        return true;
+      }
+
+      return list.length > 0 ? list.indexOf(value) !== -1 : !missingIsFalse;
+    }
+    function extend(o1, o2, keys) {
+      var i;
+      var _o1 = o1,
+          _o2 = o2;
+
+      if (keys) {
+        for (i = 0; i < keys.length; i++) {
+          _o1[keys[i]] = _o2[keys[i]];
+        }
+      } else {
+        for (i in _o2) {
+          _o1[i] = _o2[i];
+        }
+      }
+
+      return o1;
+    }
     function isArray(a) {
       return Array.isArray(a);
     }
@@ -2439,16 +2463,15 @@
         key: "lock",
         value: function lock() {
           this._lockedFace = this._currentFace;
+
+          _get(_getPrototypeOf(ContinuousAnchor.prototype), "lock", this).call(this);
         }
       }, {
         key: "unlock",
         value: function unlock() {
           this._lockedFace = null;
-        }
-      }, {
-        key: "isLocked",
-        value: function isLocked() {
-          return this._lockedFace != null;
+
+          _get(_getPrototypeOf(ContinuousAnchor.prototype), "unlock", this).call(this);
         }
       }, {
         key: "lockCurrentAxis",
@@ -5353,9 +5376,9 @@
               var currentGroup = el[PARENT_GROUP_KEY]; // if already a member of this group, do nothing
 
               if (currentGroup !== actualGroup) {
-                var elpos = _this8.instance.getOffset(el, true);
+                var elpos = _this8.instance.getOffset(el);
 
-                var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getDragArea(), true); // otherwise, transfer to this group.
+                var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getDragArea()); // otherwise, transfer to this group.
 
                 if (currentGroup != null) {
                   currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
@@ -6961,31 +6984,6 @@
       return r;
     }
 
-    function filterList(list, value, missingIsFalse) {
-      if (list === "*") {
-        return true;
-      }
-
-      return list.length > 0 ? list.indexOf(value) !== -1 : !missingIsFalse;
-    }
-
-    function extend(o1, o2, keys) {
-      var i;
-      var _o1 = o1,
-          _o2 = o2;
-
-      if (keys) {
-        for (i = 0; i < keys.length; i++) {
-          _o1[keys[i]] = _o2[keys[i]];
-        }
-      } else {
-        for (i in _o2) {
-          _o1[i] = _o2[i];
-        }
-      }
-
-      return o1;
-    }
     var JsPlumbInstance =
     /*#__PURE__*/
     function (_EventGenerator) {
@@ -12422,6 +12420,7 @@
     exports.each = each;
     exports.extend = extend;
     exports.fastTrim = fastTrim;
+    exports.filterList = filterList;
     exports.findWithFunction = findWithFunction;
     exports.functionChain = functionChain;
     exports.gradientAtPoint = gradientAtPoint;
