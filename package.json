@@ -19,7 +19,7 @@
     "copy-css": "node ./scripts/copy-css.js",
     "copy-package-json": "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
     "copy-defs": "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
-    "create-packages": "npm run package;echo \"\n--- Running npm pack...\n\";  cd dist/dom; npm pack; cd ../core; npm pack",
+    "create-distribution": "npm run package;echo \"\n--- Running npm pack...\n\";  cd dist/dom; npm pack; cd ../core; npm pack",
     "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev": "rollup -c -w"
   },
