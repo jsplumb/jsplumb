@@ -105,14 +105,6 @@ export class GroupManager {
                 this._updateConnectionsForGroup(newGroup)
             }
         })
-
-        instance.bind(Constants.EVENT_GROUP_MEMBER_ADDED, (p:GroupMemberAddedParams) => {
-            console.log("group member added", p)
-        })
-
-        instance.bind(Constants.EVENT_GROUP_MEMBER_REMOVED, (p:GroupMemberRemovedParams) => {
-            console.log("group member removed", p)
-        })
     }
 
     private _cleanupDetachedConnection(conn:Connection) {
@@ -142,10 +134,10 @@ export class GroupManager {
     //addGroup(params:{id:string, el:jsPlumbDOMElement, collapsed?:boolean}) {
 
         if (this.groupMap[params.id] != null) {
-            throw new TypeError("cannot create Group [" + params.id + "]; a Group with that ID exists")
+            throw new Error("cannot create Group [" + params.id + "]; a Group with that ID exists")
         }
         if (params.el[Constants.IS_GROUP_KEY] != null) {
-            throw new TypeError("cannot create Group [" + params.id + "]; the given element is already a Group")
+            throw new Error("cannot create Group [" + params.id + "]; the given element is already a Group")
         }
         let group = new UIGroup(this.instance, params.el, params)
         this.groupMap[group.id] = group
