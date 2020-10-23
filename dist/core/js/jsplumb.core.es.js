@@ -769,6 +769,13 @@ function optional(obj) {
     }
   };
 }
+function getsert(map, key, valueGenerator) {
+  if (!map.has(key)) {
+    map.set(key, valueGenerator());
+  }
+
+  return map.get(key);
+}
 
 var EventGenerator =
 /*#__PURE__*/
@@ -4104,15 +4111,14 @@ function (_OverlayCapableCompon) {
   }, {
     key: "destroy",
     value: function destroy(force) {
-      // TODO i feel like this anchor class stuff should be in the renderer
+      // TODO i feel like this anchor class stuff should be in the renderer? is it DOM specific?
       var anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "");
       this.instance.removeClass(this.element, anchorClass);
       this.anchor = null;
 
       if (this.endpoint != null) {
         this.instance.renderer.destroyEndpoint(this);
-      } //this.endpoint = null
-
+      }
 
       _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this, force);
     }
@@ -4226,9 +4232,7 @@ function (_OverlayCapableCompon) {
               var c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
                   oIdx = c.endpoints[0] === this ? 1 : 0,
                   oId = oIdx === 0 ? c.sourceId : c.targetId,
-                  oInfo = this.instance.getCachedData(oId); //,
-              //oOffset = oInfo.o, oWH = oInfo.s
-
+                  oInfo = this.instance.getCachedData(oId);
               anchorParams.index = oIdx === 0 ? 1 : 0;
               anchorParams.connection = c;
               anchorParams.txy = [oInfo.x, oInfo.y];
@@ -4243,8 +4247,7 @@ function (_OverlayCapableCompon) {
             ap = this.anchor.compute(anchorParams);
           }
 
-          this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse); //this.endpoint.paint(this.paintStyleInUse)
-
+          this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse);
           this.instance.renderer.paintEndpoint(this, this.paintStyleInUse);
           this.timestamp = timestamp; // paint overlays
 
@@ -6591,34 +6594,6 @@ function () {
 
   return DefaultRouter;
 }();
-/*
-
-
-
-(function () {
-
-    "use strict"
-
-    var root = this,
-        _ju = root.jsPlumbUtil,
-        _jp = root.jsPlumb
-
-    _jp.DefaultRouter = function(jsPlumbInstance) {
-        this.jsPlumbInstance = jsPlumbInstance
-        this.anchorManager = new _jp.AnchorManager({jsPlumbInstance:jsPlumbInstance})
-
-        this.sourceOrTargetChanged = function (originalId, newId, connection, newElement, anchorIndex) {
-            this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex)
-        }
-    }
-
-
-
-}).call(typeof window !== 'undefined' ? window : this)
-
-
-
-*/
 
 var SelectionBase =
 /*#__PURE__*/
@@ -7063,9 +7038,9 @@ function (_EventGenerator) {
       ymax: []
     });
 
-    _defineProperty(_assertThisInitialized(_this), "_elementMap", {});
+    _defineProperty(_assertThisInitialized(_this), "_elementMap", new Map());
 
-    _defineProperty(_assertThisInitialized(_this), "_transformedElementMap", {});
+    _defineProperty(_assertThisInitialized(_this), "_transformedElementMap", new Map());
 
     _defineProperty(_assertThisInitialized(_this), "_bounds", {
       minx: 0,
@@ -7089,12 +7064,6 @@ function (_EventGenerator) {
       }
     }
   }, {
-    key: "_updateElementIndex",
-    value: function _updateElementIndex(id, value, array, sortDescending) {
-      //if (!this._suspendMap[id]) {
-      insertSorted([id, value], array, entryComparator, sortDescending); //}
-    }
-  }, {
     key: "_fireUpdate",
     value: function _fireUpdate(payload) {
       this.fire("update", payload || {});
@@ -7111,13 +7080,13 @@ function (_EventGenerator) {
 
         this._clearElementIndex(id, this._sortedElements.ymax);
 
-        this._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false);
+        Viewport._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false);
 
-        this._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
+        Viewport._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
 
-        this._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
+        Viewport._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
 
-        this._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
+        Viewport._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
 
         this._recalculateBounds();
       }
@@ -7134,7 +7103,8 @@ function (_EventGenerator) {
     key: "_finaliseUpdate",
     value: function _finaliseUpdate(id, e) {
       e.t = rotate(e.x, e.y, e.w, e.h, e.r);
-      this._transformedElementMap[id] = e.t;
+
+      this._transformedElementMap.set(id, e.t);
 
       this._updateBounds(id, e);
     }
@@ -7172,8 +7142,7 @@ function (_EventGenerator) {
   }, {
     key: "updateElement",
     value: function updateElement(id, x, y, width, height, rotation) {
-      this._elementMap[id] = this._elementMap[id] || EMPTY_POSITION();
-      var e = this._elementMap[id];
+      var e = getsert(this._elementMap, id, EMPTY_POSITION);
 
       if (x != null) {
         e.x = x;
@@ -7217,8 +7186,7 @@ function (_EventGenerator) {
   }, {
     key: "rotateElement",
     value: function rotateElement(id, rotation) {
-      this._elementMap[id] = this._elementMap[id] || EMPTY_POSITION();
-      var e = this._elementMap[id];
+      var e = getsert(this._elementMap, id, EMPTY_POSITION);
       e.r = rotation || 0;
 
       this._finaliseUpdate(id, e); //this._fireUpdate({type:"rotate", id:id, rotation:e.r})
@@ -7249,14 +7217,14 @@ function (_EventGenerator) {
   }, {
     key: "setSize",
     value: function setSize(id, w, h) {
-      if (this._elementMap[id] != null) {
+      if (this._elementMap.has(id)) {
         return this.updateElement(id, null, null, w, h, null);
       }
     }
   }, {
     key: "setPosition",
     value: function setPosition(id, x, y) {
-      if (this._elementMap[id] != null) {
+      if (this._elementMap.has(id)) {
         return this.updateElement(id, x, y, null, null, null);
       }
     }
@@ -7267,20 +7235,13 @@ function (_EventGenerator) {
       this._sortedElements.xmax.length = 0;
       this._sortedElements.ymin.length = 0;
       this._sortedElements.ymax.length = 0;
-      this._elementMap = {};
-      this._transformedElementMap = {}; //this._suspendMap = {}
+
+      this._elementMap.clear();
+
+      this._transformedElementMap.clear();
 
       this._recalculateBounds();
-    } // suspend(id:string) {
-    //     this._suspendMap[id] = true
-    //     this._updateBounds(id, this._elementMap[id])
-    // }
-    //
-    // restore(id:string) {
-    //     delete this._suspendMap[id]
-    //     this._updateBounds(id, this._elementMap[id])
-    // }
-
+    }
   }, {
     key: "remove",
     value: function remove(id) {
@@ -7292,16 +7253,17 @@ function (_EventGenerator) {
 
       this._clearElementIndex(id, this._sortedElements.ymax);
 
-      delete this._elementMap[id];
-      delete this._transformedElementMap[id]; //delete this._suspendMap[id]
+      this._elementMap["delete"](id);
+
+      this._transformedElementMap["delete"](id);
 
       this._recalculateBounds();
     }
   }, {
     key: "getPosition",
     value: function getPosition(id) {
-      //return this._transformedElementMap[id] ? this._transformedElementMap[id] : EMPTY_POSITION()
-      return this._transformedElementMap[id];
+      //return this._transformedElementMap.get(id)
+      return this._elementMap.get(id);
     }
   }, {
     key: "getElements",
@@ -7311,11 +7273,12 @@ function (_EventGenerator) {
   }, {
     key: "isEmpty",
     value: function isEmpty() {
-      for (var i in this._elementMap) {
-        return false;
-      }
-
-      return true;
+      return this._elementMap.size === 0;
+    }
+  }], [{
+    key: "_updateElementIndex",
+    value: function _updateElementIndex(id, value, array, sortDescending) {
+      insertSorted([id, value], array, entryComparator, sortDescending);
     }
   }]);
 
@@ -7717,7 +7680,7 @@ function (_EventGenerator) {
   }, {
     key: "getCachedData",
     value: function getCachedData(elId) {
-      var o = this.viewport.getPosition(elId); //this._offsets[elId]
+      var o = this.viewport.getPosition(elId);
 
       if (!o) {
         return this.updateOffset({
@@ -7946,11 +7909,9 @@ function (_EventGenerator) {
   }, {
     key: "computeAnchorLoc",
     value: function computeAnchorLoc(endpoint, timestamp) {
-      var myOffset = this._managedElements[endpoint.elementId].info; //.o
-
+      var myOffset = this._managedElements[endpoint.elementId].info;
       var anchorLoc = endpoint.anchor.compute({
         xy: [myOffset.x, myOffset.y],
-        //wh: this._sizes[endpoint.elementId],
         wh: [myOffset.w, myOffset.h],
         element: endpoint,
         timestamp: timestamp || this._suspendedAt,
@@ -8037,7 +7998,7 @@ function (_EventGenerator) {
 
       if (!recalc) {
         if (timestamp && timestamp === this._offsetTimestamps[elId]) {
-          return this.viewport.getPosition(elId); //{o: params.offset || /*this._offsets[elId]*/, s: this._sizes[elId], r:this.getRotation(elId)}
+          return this.viewport.getPosition(elId);
         }
       }
 
@@ -8051,9 +8012,7 @@ function (_EventGenerator) {
 
           var _offset = this.getOffset(s);
 
-          this.viewport.updateElement(elId, _offset.left, _offset.top, size[0], size[1], 0); // this._sizes[elId] = this.getSize(s)
-          // this._offsets[elId] = this.getOffset(s)
-
+          this.viewport.updateElement(elId, _offset.left, _offset.top, size[0], size[1], null);
           this._offsetTimestamps[elId] = timestamp;
         }
       } else {
@@ -8063,16 +8022,7 @@ function (_EventGenerator) {
         }
 
         this._offsetTimestamps[elId] = timestamp;
-      } // if (this._offsets[elId] && !this._offsets[elId].right) {
-      //     this._offsets[elId].right = this._offsets[elId].left + this._sizes[elId][0]
-      //     this._offsets[elId].bottom = this._offsets[elId].top + this._sizes[elId][1]
-      //     this._offsets[elId].width = this._sizes[elId][0]
-      //     this._offsets[elId].height = this._sizes[elId][1]
-      //     this._offsets[elId].centerx = this._offsets[elId].left + (this._offsets[elId].width / 2)
-      //     this._offsets[elId].centery = this._offsets[elId].top + (this._offsets[elId].height / 2)
-      // }
-      //return {o: this.viewport.getPosition(elId), s: this._sizes[elId], r:this.getRotation(elId)}
-
+      }
 
       return this.viewport.getPosition(elId);
     }
@@ -8216,9 +8166,7 @@ function (_EventGenerator) {
         };
 
         if (this._suspendDrawing) {
-          // this._sizes[elId] = [0,0]
-          // this._offsets[elId] = {left:0,top:0}
-          this._managedElements[elId].info = this.viewport.registerElement(elId); //this._managedElements[elId].info =   {o:this._offsets[elId], s:this._sizes[elId]}
+          this._managedElements[elId].info = this.viewport.registerElement(elId);
         } else {
           this._managedElements[elId].info = this.updateOffset({
             elId: elId,
@@ -8264,6 +8212,7 @@ function (_EventGenerator) {
     value: function rotate(elementId, rotation, doNotRepaint) {
       if (this._managedElements[elementId]) {
         this._managedElements[elementId].rotation = rotation;
+        this.viewport.rotateElement(elementId, rotation);
 
         if (doNotRepaint !== true) {
           this.revalidate(elementId);
@@ -8862,7 +8811,7 @@ function (_EventGenerator) {
           }
 
           delete _this8._floatingConnections[_info.id];
-          delete _this8._managedElements[_info.id]; //delete this._offsets[_info.id]
+          delete _this8._managedElements[_info.id];
 
           _this8.viewport.remove(_info.id);
 
@@ -11699,4 +11648,4 @@ function isCustomOverlay(o) {
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
-export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, GROUP_COLLAPSED_CLASS, GROUP_EXPANDED_CLASS, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PlainArrowOverlay, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TWO_PI, UIGroup, UINode, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, GROUP_COLLAPSED_CLASS, GROUP_EXPANDED_CLASS, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PlainArrowOverlay, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TWO_PI, UIGroup, UINode, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
