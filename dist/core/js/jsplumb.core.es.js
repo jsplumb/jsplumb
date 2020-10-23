@@ -4202,13 +4202,19 @@ function (_OverlayCapableCompon) {
           elId: this.elementId,
           timestamp: timestamp
         });
-        var xy = params.offset ? params.offset.o : info.o;
+        var xy = params.offset ? {
+          left: params.offset.x,
+          top: params.offset.y
+        } : {
+          left: info.x,
+          top: info.y
+        };
 
         if (xy != null) {
           var ap = params.anchorLoc;
 
           if (ap == null) {
-            var wh = params.dimensions || info.s,
+            var wh = [info.w, info.h],
                 anchorParams = {
               xy: [xy.left, xy.top],
               wh: wh,
@@ -4220,13 +4226,13 @@ function (_OverlayCapableCompon) {
               var c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
                   oIdx = c.endpoints[0] === this ? 1 : 0,
                   oId = oIdx === 0 ? c.sourceId : c.targetId,
-                  oInfo = this.instance.getCachedData(oId),
-                  oOffset = oInfo.o,
-                  oWH = oInfo.s;
+                  oInfo = this.instance.getCachedData(oId); //,
+              //oOffset = oInfo.o, oWH = oInfo.s
+
               anchorParams.index = oIdx === 0 ? 1 : 0;
               anchorParams.connection = c;
-              anchorParams.txy = [oOffset.left, oOffset.top];
-              anchorParams.twh = oWH;
+              anchorParams.txy = [oInfo.x, oInfo.y];
+              anchorParams.twh = [oInfo.w, oInfo.h];
               anchorParams.tElement = c.endpoints[oIdx];
               anchorParams.tRotation = this.instance.getRotation(oId);
             } else if (this.connections.length > 0) {
@@ -5841,8 +5847,11 @@ function () {
       var _this = this;
 
       var cd = instance.getCachedData(elementId),
-          sS = cd.s,
-          sO = cd.o,
+          sS = [cd.w, cd.h],
+          sO = {
+        left: cd.x,
+        top: cd.y
+      },
           placeSomeAnchors = function placeSomeAnchors(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
         if (unsortedConnections.length > 0) {
           var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
@@ -6064,18 +6073,19 @@ function () {
           left: 0,
           top: 0
         };
+        var offsetToUse = null; // TODO updateOffset should take an OffsetAndSize object, not a ViewportElement.
 
         if (ui) {
-          ui = {
-            left: ui.left + offsetToUI.left,
-            top: ui.top + offsetToUI.top
+          offsetToUse = {
+            left: ui.x + offsetToUI.left,
+            top: ui.y + offsetToUI.top
           };
         } // valid for one paint cycle.
 
 
         var myOffset = this.instance.updateOffset({
           elId: elementId,
-          offset: ui,
+          offset: offsetToUse,
           recalc: false,
           timestamp: timestamp
         }),
@@ -6168,7 +6178,7 @@ function () {
                     var targetRotation = this.instance.getRotation(targetId);
 
                     if (!o) {
-                      o = this.calculateOrientation(sourceId, targetId, sd.o, td.o, conn.endpoints[0].anchor, conn.endpoints[1].anchor, sourceRotation, targetRotation);
+                      o = this.calculateOrientation(sourceId, targetId, sd, td, conn.endpoints[0].anchor, conn.endpoints[1].anchor, sourceRotation, targetRotation);
                       orientationCache[oKey] = o;
                     }
 
@@ -6268,9 +6278,7 @@ function () {
 
             _ep2.paint({
               timestamp: timestamp,
-              offset: cd,
-              dimensions: cd.s,
-              rotation: cd.r
+              offset: cd
             });
           } // paint current floating connection for this element, if there is one.
 
@@ -6348,8 +6356,8 @@ function () {
       // into account.
 
 
-      var theta = Math.atan2(td.centery - sd.centery, td.centerx - sd.centerx),
-          theta2 = Math.atan2(sd.centery - td.centery, sd.centerx - td.centerx); // --------------------------------------------------------------------------------------
+      var theta = Math.atan2(td.c[1] - sd.c[1], td.c[0] - sd.c[0]),
+          theta2 = Math.atan2(sd.c[1] - td.c[1], sd.c[0] - td.c[0]); // --------------------------------------------------------------------------------------
       // improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
       // source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can
       // go through the array one by one until we find an entry in which each requested face is supported.
@@ -6361,28 +6369,28 @@ function () {
         for (var i = 0; i < types.length; i++) {
           midpoints[types[i]] = {
             "left": {
-              x: dim[i][0].left,
-              y: dim[i][0].centery
+              x: dim[i][0].x,
+              y: dim[i][0].c[1]
             },
             "right": {
-              x: dim[i][0].right,
-              y: dim[i][0].centery
+              x: dim[i][0].x + dim[i][0].w,
+              y: dim[i][0].c[1]
             },
             "top": {
-              x: dim[i][0].centerx,
-              y: dim[i][0].top
+              x: dim[i][0].c[0],
+              y: dim[i][0].y
             },
             "bottom": {
-              x: dim[i][0].centerx,
-              y: dim[i][0].bottom
+              x: dim[i][0].c[0],
+              y: dim[i][0].y + dim[i][0].h
             }
           };
 
           if (dim[i][1] !== 0) {
             for (var axis in midpoints[types[i]]) {
               midpoints[types[i]][axis] = rotatePointXY(midpoints[types[i]][axis], {
-                x: dim[i][0].centerx,
-                y: dim[i][0].centery
+                x: dim[i][0].c[0],
+                y: dim[i][0].c[1]
               }, dim[i][1]);
             }
           }
@@ -6538,23 +6546,30 @@ function () {
       var sourceInfo = this.instance.updateOffset({
         elId: connection.sourceId
       }),
-          sourceOffset = sourceInfo.o,
+          // TODO dont create these intermediate sourceOffset/targetOffset objects, just use the ViewportElements.
+      sourceOffset = {
+        left: sourceInfo.x,
+        top: sourceInfo.y
+      },
           targetInfo = this.instance.updateOffset({
         elId: connection.targetId
       }),
-          targetOffset = targetInfo.o,
+          targetOffset = {
+        left: targetInfo.x,
+        top: targetInfo.y
+      },
           sE = connection.endpoints[0],
           tE = connection.endpoints[1];
       var sAnchorP = sE.anchor.getCurrentLocation({
-        xy: [sourceOffset.left, sourceOffset.top],
-        wh: [sourceOffset.width, sourceOffset.height],
+        xy: [sourceInfo.x, sourceInfo.y],
+        wh: [sourceInfo.w, sourceInfo.h],
         element: sE,
         timestamp: timestamp,
         rotation: sourceInfo.r
       }),
           tAnchorP = tE.anchor.getCurrentLocation({
-        xy: [targetOffset.left, targetOffset.top],
-        wh: [targetOffset.width, targetOffset.height],
+        xy: [targetInfo.x, targetInfo.y],
+        wh: [targetInfo.w, targetInfo.h],
         element: tE,
         timestamp: timestamp,
         rotation: targetInfo.r
@@ -6927,6 +6942,386 @@ function (_SelectionBase) {
   return ConnectionSelection;
 }(SelectionBase);
 
+function EMPTY_POSITION() {
+  return {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    r: 0,
+    c: [0, 0],
+    x2: 0,
+    y2: 0,
+    t: {
+      x: 0,
+      y: 0,
+      c: [0, 0],
+      w: 0,
+      h: 0,
+      r: 0,
+      x2: 0,
+      y2: 0
+    }
+  };
+} //
+// rotate the given rectangle around its center, and return the new bounds, plus new center.
+//
+
+
+function rotate(x, y, w, h, r) {
+  var center = [x + w / 2, y + h / 2],
+      cr = Math.cos(r / 360 * Math.PI * 2),
+      sr = Math.sin(r / 360 * Math.PI * 2),
+      _point = function _point(x, y) {
+    return [center[0] + Math.round((x - center[0]) * cr - (y - center[1]) * sr), center[1] + Math.round((y - center[1]) * cr - (x - center[0]) * sr)];
+  };
+
+  var p1 = _point(x, y),
+      p2 = _point(x + w, y),
+      p3 = _point(x + w, y + h),
+      p4 = _point(x, y + h),
+      c = _point(x + w / 2, y + h / 2);
+
+  var xmin = Math.min(p1[0], p2[0], p3[0], p4[0]),
+      xmax = Math.max(p1[0], p2[0], p3[0], p4[0]),
+      ymin = Math.min(p1[1], p2[1], p3[1], p4[1]),
+      ymax = Math.max(p1[1], p2[1], p3[1], p4[1]);
+  return {
+    x: xmin,
+    y: ymin,
+    w: xmax - xmin,
+    h: ymax - ymin,
+    c: c,
+    r: r,
+    x2: xmax,
+    y2: ymax
+  };
+}
+
+var entryComparator = function entryComparator(value, arrayEntry, sortDescending) {
+  var c = 0;
+
+  if (arrayEntry[1] > value[1]) {
+    c = -1;
+  } else if (arrayEntry[1] < value[1]) {
+    c = 1;
+  }
+
+  if (sortDescending) {
+    c *= -1;
+  }
+
+  return c;
+};
+
+function insertSorted(value, array, comparator, sortDescending) {
+  if (array.length === 0) {
+    array.push(value);
+  } else {
+    var min = 0;
+    var max = array.length;
+    var index = Math.floor((min + max) / 2);
+
+    while (max > min) {
+      if (comparator(value, array[index], sortDescending) < 0) {
+        max = index;
+      } else {
+        min = index + 1;
+      }
+
+      index = Math.floor((min + max) / 2);
+    }
+
+    array.splice(index, 0, value);
+  }
+}
+
+var Viewport =
+/*#__PURE__*/
+function (_EventGenerator) {
+  _inherits(Viewport, _EventGenerator);
+
+  function Viewport() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, Viewport);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Viewport)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "_eventsSuspended", false);
+
+    _defineProperty(_assertThisInitialized(_this), "_sortedElements", {
+      xmin: [],
+      xmax: [],
+      ymin: [],
+      ymax: []
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "_elementMap", {});
+
+    _defineProperty(_assertThisInitialized(_this), "_transformedElementMap", {});
+
+    _defineProperty(_assertThisInitialized(_this), "_bounds", {
+      minx: 0,
+      maxx: 0,
+      miny: 0,
+      maxy: 0
+    });
+
+    return _this;
+  }
+
+  _createClass(Viewport, [{
+    key: "_clearElementIndex",
+    value: function _clearElementIndex(id, array) {
+      var idx = array.findIndex(function (entry) {
+        return entry[0] === id;
+      });
+
+      if (idx > -1) {
+        array.splice(idx, 1);
+      }
+    }
+  }, {
+    key: "_updateElementIndex",
+    value: function _updateElementIndex(id, value, array, sortDescending) {
+      //if (!this._suspendMap[id]) {
+      insertSorted([id, value], array, entryComparator, sortDescending); //}
+    }
+  }, {
+    key: "_fireUpdate",
+    value: function _fireUpdate(payload) {
+      this.fire("update", payload || {});
+    }
+  }, {
+    key: "_updateBounds",
+    value: function _updateBounds(id, updatedElement) {
+      if (updatedElement != null) {
+        this._clearElementIndex(id, this._sortedElements.xmin);
+
+        this._clearElementIndex(id, this._sortedElements.xmax);
+
+        this._clearElementIndex(id, this._sortedElements.ymin);
+
+        this._clearElementIndex(id, this._sortedElements.ymax);
+
+        this._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false);
+
+        this._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
+
+        this._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
+
+        this._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
+
+        this._recalculateBounds();
+      }
+    }
+  }, {
+    key: "_recalculateBounds",
+    value: function _recalculateBounds() {
+      this._bounds.minx = this._sortedElements.xmin.length > 0 ? this._sortedElements.xmin[0][1] : 0;
+      this._bounds.maxx = this._sortedElements.xmax.length > 0 ? this._sortedElements.xmax[0][1] : 0;
+      this._bounds.miny = this._sortedElements.ymin.length > 0 ? this._sortedElements.ymin[0][1] : 0;
+      this._bounds.maxy = this._sortedElements.ymax.length > 0 ? this._sortedElements.ymax[0][1] : 0;
+    }
+  }, {
+    key: "_finaliseUpdate",
+    value: function _finaliseUpdate(id, e) {
+      e.t = rotate(e.x, e.y, e.w, e.h, e.r);
+      this._transformedElementMap[id] = e.t;
+
+      this._updateBounds(id, e);
+    }
+  }, {
+    key: "shouldFireEvent",
+    value: function shouldFireEvent(event, value, originalEvent) {
+      return !this._eventsSuspended;
+    } // ---------------------- PUBLIC -----------------------------
+
+  }, {
+    key: "startTransaction",
+    value: function startTransaction() {
+      this._eventsSuspended = true;
+    }
+  }, {
+    key: "endTransaction",
+    value: function endTransaction(doNotFireUpdate) {
+      this._eventsSuspended = false;
+
+      if (!doNotFireUpdate) {
+        this._fireUpdate();
+      }
+    }
+  }, {
+    key: "updateElements",
+    value: function updateElements(entries) {
+      var _this2 = this;
+
+      this.startTransaction();
+      entries.forEach(function (e) {
+        return _this2.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
+      });
+      this.endTransaction();
+    }
+  }, {
+    key: "updateElement",
+    value: function updateElement(id, x, y, width, height, rotation) {
+      this._elementMap[id] = this._elementMap[id] || EMPTY_POSITION();
+      var e = this._elementMap[id];
+
+      if (x != null) {
+        e.x = x;
+      }
+
+      if (y != null) {
+        e.y = y;
+      }
+
+      if (width != null) {
+        e.w = width;
+      }
+
+      if (height != null) {
+        e.h = height;
+      }
+
+      if (rotation != null) {
+        e.r = rotation || 0;
+      }
+
+      e.c[0] = e.x + e.w / 2;
+      e.c[1] = e.y + e.h / 2;
+      e.x2 = e.x + e.w;
+      e.y2 = e.y + e.h;
+
+      this._finaliseUpdate(id, e);
+
+      return e.t;
+    }
+  }, {
+    key: "registerElement",
+    value: function registerElement(id) {
+      return this.updateElement(id, 0, 0, 0, 0, 0);
+    }
+  }, {
+    key: "addElement",
+    value: function addElement(id, x, y, width, height, rotation) {
+      return this.updateElement(id, x, y, width, height, rotation);
+    }
+  }, {
+    key: "rotateElement",
+    value: function rotateElement(id, rotation) {
+      this._elementMap[id] = this._elementMap[id] || EMPTY_POSITION();
+      var e = this._elementMap[id];
+      e.r = rotation || 0;
+
+      this._finaliseUpdate(id, e); //this._fireUpdate({type:"rotate", id:id, rotation:e.r})
+
+
+      return e.t;
+    }
+  }, {
+    key: "getBoundsWidth",
+    value: function getBoundsWidth() {
+      return this._bounds.maxx - this._bounds.minx;
+    }
+  }, {
+    key: "getBoundsHeight",
+    value: function getBoundsHeight() {
+      return this._bounds.maxy - this._bounds.miny;
+    }
+  }, {
+    key: "getX",
+    value: function getX() {
+      return this._bounds.minx;
+    }
+  }, {
+    key: "getY",
+    value: function getY() {
+      return this._bounds.miny;
+    }
+  }, {
+    key: "setSize",
+    value: function setSize(id, w, h) {
+      if (this._elementMap[id] != null) {
+        return this.updateElement(id, null, null, w, h, null);
+      }
+    }
+  }, {
+    key: "setPosition",
+    value: function setPosition(id, x, y) {
+      if (this._elementMap[id] != null) {
+        return this.updateElement(id, x, y, null, null, null);
+      }
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      this._sortedElements.xmin.length = 0;
+      this._sortedElements.xmax.length = 0;
+      this._sortedElements.ymin.length = 0;
+      this._sortedElements.ymax.length = 0;
+      this._elementMap = {};
+      this._transformedElementMap = {}; //this._suspendMap = {}
+
+      this._recalculateBounds();
+    } // suspend(id:string) {
+    //     this._suspendMap[id] = true
+    //     this._updateBounds(id, this._elementMap[id])
+    // }
+    //
+    // restore(id:string) {
+    //     delete this._suspendMap[id]
+    //     this._updateBounds(id, this._elementMap[id])
+    // }
+
+  }, {
+    key: "remove",
+    value: function remove(id) {
+      this._clearElementIndex(id, this._sortedElements.xmin);
+
+      this._clearElementIndex(id, this._sortedElements.xmax);
+
+      this._clearElementIndex(id, this._sortedElements.ymin);
+
+      this._clearElementIndex(id, this._sortedElements.ymax);
+
+      delete this._elementMap[id];
+      delete this._transformedElementMap[id]; //delete this._suspendMap[id]
+
+      this._recalculateBounds();
+    }
+  }, {
+    key: "getPosition",
+    value: function getPosition(id) {
+      //return this._transformedElementMap[id] ? this._transformedElementMap[id] : EMPTY_POSITION()
+      return this._transformedElementMap[id];
+    }
+  }, {
+    key: "getElements",
+    value: function getElements() {
+      return this._transformedElementMap;
+    }
+  }, {
+    key: "isEmpty",
+    value: function isEmpty() {
+      for (var i in this._elementMap) {
+        return false;
+      }
+
+      return true;
+    }
+  }]);
+
+  return Viewport;
+}(EventGenerator);
+
 function _scopeMatch(e1, e2) {
   var s1 = e1.scope.split(/\s/),
       s2 = e2.scope.split(/\s/);
@@ -7046,9 +7441,7 @@ function (_EventGenerator) {
 
     _defineProperty(_assertThisInitialized(_this), "_offsetTimestamps", {});
 
-    _defineProperty(_assertThisInitialized(_this), "_offsets", {});
-
-    _defineProperty(_assertThisInitialized(_this), "_sizes", {});
+    _defineProperty(_assertThisInitialized(_this), "viewport", new Viewport());
 
     _defineProperty(_assertThisInitialized(_this), "router", void 0);
 
@@ -7324,18 +7717,14 @@ function (_EventGenerator) {
   }, {
     key: "getCachedData",
     value: function getCachedData(elId) {
-      var o = this._offsets[elId];
+      var o = this.viewport.getPosition(elId); //this._offsets[elId]
 
       if (!o) {
         return this.updateOffset({
           elId: elId
         });
       } else {
-        return {
-          o: o,
-          s: this._sizes[elId],
-          r: this.getRotation(elId)
-        };
+        return o;
       }
     } // ------------------  element selection ------------------------
 
@@ -7557,10 +7946,12 @@ function (_EventGenerator) {
   }, {
     key: "computeAnchorLoc",
     value: function computeAnchorLoc(endpoint, timestamp) {
-      var myOffset = this._managedElements[endpoint.elementId].info.o;
+      var myOffset = this._managedElements[endpoint.elementId].info; //.o
+
       var anchorLoc = endpoint.anchor.compute({
-        xy: [myOffset.left, myOffset.top],
-        wh: this._sizes[endpoint.elementId],
+        xy: [myOffset.x, myOffset.y],
+        //wh: this._sizes[endpoint.elementId],
+        wh: [myOffset.w, myOffset.h],
         element: endpoint,
         timestamp: timestamp || this._suspendedAt,
         rotation: this._managedElements[endpoint.elementId].rotation
@@ -7646,52 +8037,44 @@ function (_EventGenerator) {
 
       if (!recalc) {
         if (timestamp && timestamp === this._offsetTimestamps[elId]) {
-          return {
-            o: params.offset || this._offsets[elId],
-            s: this._sizes[elId],
-            r: this.getRotation(elId)
-          };
+          return this.viewport.getPosition(elId); //{o: params.offset || /*this._offsets[elId]*/, s: this._sizes[elId], r:this.getRotation(elId)}
         }
       }
 
-      if (recalc || !offset && this._offsets[elId] == null) {
+      if (recalc || !offset && this.viewport.getPosition(elId) == null) {
         // if forced repaint or no offset available, we recalculate.
         // get the current size and offset, and store them
         s = this._managedElements[elId] ? this._managedElements[elId].el : null;
 
         if (s != null) {
-          this._sizes[elId] = this.getSize(s);
-          this._offsets[elId] = this.getOffset(s);
+          var size = this.getSize(s);
+
+          var _offset = this.getOffset(s);
+
+          this.viewport.updateElement(elId, _offset.left, _offset.top, size[0], size[1], 0); // this._sizes[elId] = this.getSize(s)
+          // this._offsets[elId] = this.getOffset(s)
+
           this._offsetTimestamps[elId] = timestamp;
         }
       } else {
-        this._offsets[elId] = offset || this._offsets[elId];
-
-        if (this._sizes[elId] == null) {
-          s = this._managedElements[elId].el;
-
-          if (s != null) {
-            this._sizes[elId] = this.getSize(s);
-          }
+        // if offset available, update the viewport
+        if (offset != null) {
+          this.viewport.setPosition(elId, offset.left, offset.top);
         }
 
         this._offsetTimestamps[elId] = timestamp;
-      }
+      } // if (this._offsets[elId] && !this._offsets[elId].right) {
+      //     this._offsets[elId].right = this._offsets[elId].left + this._sizes[elId][0]
+      //     this._offsets[elId].bottom = this._offsets[elId].top + this._sizes[elId][1]
+      //     this._offsets[elId].width = this._sizes[elId][0]
+      //     this._offsets[elId].height = this._sizes[elId][1]
+      //     this._offsets[elId].centerx = this._offsets[elId].left + (this._offsets[elId].width / 2)
+      //     this._offsets[elId].centery = this._offsets[elId].top + (this._offsets[elId].height / 2)
+      // }
+      //return {o: this.viewport.getPosition(elId), s: this._sizes[elId], r:this.getRotation(elId)}
 
-      if (this._offsets[elId] && !this._offsets[elId].right) {
-        this._offsets[elId].right = this._offsets[elId].left + this._sizes[elId][0];
-        this._offsets[elId].bottom = this._offsets[elId].top + this._sizes[elId][1];
-        this._offsets[elId].width = this._sizes[elId][0];
-        this._offsets[elId].height = this._sizes[elId][1];
-        this._offsets[elId].centerx = this._offsets[elId].left + this._offsets[elId].width / 2;
-        this._offsets[elId].centery = this._offsets[elId].top + this._offsets[elId].height / 2;
-      }
 
-      return {
-        o: this._offsets[elId],
-        s: this._sizes[elId],
-        r: this.getRotation(elId)
-      };
+      return this.viewport.getPosition(elId);
     }
     /**
      * Delete the given connection.
@@ -7833,28 +8216,22 @@ function (_EventGenerator) {
         };
 
         if (this._suspendDrawing) {
-          this._sizes[elId] = [0, 0];
-          this._offsets[elId] = {
-            left: 0,
-            top: 0
-          };
-          this._managedElements[elId].info = {
-            o: this._offsets[elId],
-            s: this._sizes[elId]
-          };
+          // this._sizes[elId] = [0,0]
+          // this._offsets[elId] = {left:0,top:0}
+          this._managedElements[elId].info = this.viewport.registerElement(elId); //this._managedElements[elId].info =   {o:this._offsets[elId], s:this._sizes[elId]}
         } else {
           this._managedElements[elId].info = this.updateOffset({
             elId: elId,
-            timestamp: this._suspendedAt
+            recalc: true
           });
         } // write context into the element. we want to use this moving forward and get rid of endpointsByElement and the sizes, offsets and info stuff
         // from above. it should suffice to put the context on the elements themselves.
 
 
         el._jspContext = {
-          ep: [],
-          o: this._offsets[elId],
-          s: this._sizes[elId]
+          ep: [] // o:this._offsets[elId],
+          // s:this._sizes[elId]
+
         };
       } else {
         if (recalc) {
@@ -7878,6 +8255,7 @@ function (_EventGenerator) {
     value: function unmanage(id) {
       if (this._managedElements[id]) {
         this.removeAttribute(this._managedElements[id].el, ATTRIBUTE_MANAGED);
+        this.viewport.remove(id);
         delete this._managedElements[id];
       }
     }
@@ -8033,12 +8411,12 @@ function (_EventGenerator) {
                 elId: this.getId(repaintEls[i]),
                 recalc: true,
                 timestamp: timestamp
-              }).o);
+              }));
             }
           } else {
             for (var _i2 = 0; _i2 < repaintEls.length; _i2++) {
               var reId = this.getId(repaintEls[_i2]);
-              repaintOffsets.push(this._offsets[reId]);
+              repaintOffsets.push(this.viewport.getPosition(reId));
             }
           }
 
@@ -8176,7 +8554,9 @@ function (_EventGenerator) {
         _this6.endpointsByElement = {};
         _this6._managedElements = {};
         _this6.endpointsByUUID = {};
-        _this6._offsets = {};
+
+        _this6.viewport.reset();
+
         _this6._offsetTimestamps = {};
 
         _this6.router.reset();
@@ -8482,8 +8862,9 @@ function (_EventGenerator) {
           }
 
           delete _this8._floatingConnections[_info.id];
-          delete _this8._managedElements[_info.id];
-          delete _this8._offsets[_info.id];
+          delete _this8._managedElements[_info.id]; //delete this._offsets[_info.id]
+
+          _this8.viewport.remove(_info.id);
 
           if (_info.el) {
             _this8.removeElement(_info.el);
