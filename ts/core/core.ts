@@ -731,7 +731,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 const size = this.getSize(s)
                 const offset = this.getOffset(s)
 
-                this.viewport.updateElement(elId, offset.left, offset.top, size[0], size[1], 0)
+                this.viewport.updateElement(elId, offset.left, offset.top, size[0], size[1], null)
                 this._offsetTimestamps[elId] = timestamp
             }
         } else {
@@ -913,6 +913,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     rotate(elementId:string, rotation:number, doNotRepaint?:boolean) {
         if (this._managedElements[elementId]) {
             this._managedElements[elementId].rotation = rotation
+            this.viewport.rotateElement(elementId, rotation)
             if (doNotRepaint !== true) {
                 this.revalidate(elementId)
             }
