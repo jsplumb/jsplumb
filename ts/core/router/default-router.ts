@@ -4,6 +4,7 @@ import { JsPlumbInstance } from "../core"
 import { Offset } from '../common'
 import { Connection } from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint-impl'
+import {ViewportElement} from "../viewport"
 
 /*
  * Default router. Defers to an AnchorManager for placement of anchors, and connector paint routines for paths.
@@ -40,7 +41,7 @@ export class DefaultRouter implements Router {
         this.anchorManager.connectionDetached(connInfo)
     }
 
-    redraw (elementId:string, ui?:Offset, timestamp?:string, offsetToUI?:Offset):void {
+    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):void {
         this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI)
     }
 
@@ -58,21 +59,22 @@ export class DefaultRouter implements Router {
 
     computePath(connection: Connection, timestamp:string): void {
         let sourceInfo = this.instance.updateOffset({elId:connection.sourceId}),
-            sourceOffset = sourceInfo.o,
+            // TODO dont create these intermediate sourceOffset/targetOffset objects, just use the ViewportElements.
+            sourceOffset = {left:sourceInfo.x, top:sourceInfo.y},
             targetInfo = this.instance.updateOffset({elId:connection.targetId}),
-            targetOffset = targetInfo.o,
+            targetOffset = {left:targetInfo.x, top:targetInfo.y},
             sE = connection.endpoints[0], tE = connection.endpoints[1]
 
         let sAnchorP = sE.anchor.getCurrentLocation({
-                    xy: [sourceOffset.left, sourceOffset.top],
-                    wh: [sourceOffset.width, sourceOffset.height],
+                    xy: [sourceInfo.x, sourceInfo.y],
+                    wh: [sourceInfo.w, sourceInfo.h],
                     element: sE,
                     timestamp: timestamp,
                     rotation:sourceInfo.r
             }),
             tAnchorP = tE.anchor.getCurrentLocation({
-                xy: [targetOffset.left, targetOffset.top],
-                wh: [targetOffset.width, targetOffset.height],
+                xy: [targetInfo.x, targetInfo.y],
+                wh: [targetInfo.w, targetInfo.h],
                 element: tE,
                 timestamp: timestamp,
                 rotation:targetInfo.r
@@ -92,35 +94,4 @@ export class DefaultRouter implements Router {
             targetInfo: targetOffset
         })
     }
-
-
 }
-
-/*
-
-
-
-(function () {
-
-    "use strict"
-
-    var root = this,
-        _ju = root.jsPlumbUtil,
-        _jp = root.jsPlumb
-
-    _jp.DefaultRouter = function(jsPlumbInstance) {
-        this.jsPlumbInstance = jsPlumbInstance
-        this.anchorManager = new _jp.AnchorManager({jsPlumbInstance:jsPlumbInstance})
-
-        this.sourceOrTargetChanged = function (originalId, newId, connection, newElement, anchorIndex) {
-            this.anchorManager.sourceOrTargetChanged(originalId, newId, connection, newElement, anchorIndex)
-        }
-    }
-
-
-
-}).call(typeof window !== 'undefined' ? window : this)
-
-
-
-*/
