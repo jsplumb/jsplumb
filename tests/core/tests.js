@@ -5329,17 +5329,17 @@ var testSuite = function () {
        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         _jsPlumb.connect({source:d1, target:d2});
         var cd = _jsPlumb.getCachedData("d1");
-       ok(cd.o != null, "d1 is cached");
+       ok(cd != null, "d1 is cached");
 
         // reset and then move d1. get cached data and offset should have been updated.
         _jsPlumb.reset();
         d1.style.position = "absolute";
         d1.style.left = "5000px";
         var cd2 = _jsPlumb.getCachedData("d1");
-        ok(cd2.o == null, "cache data cleared");
+        ok(cd2 == null, "cache data cleared");
         _jsPlumb.connect({source:d1, target:d2});
         var cd3 = _jsPlumb.getCachedData("d1");
-        ok(cd3.o != null, "d1 is cached");
+        ok(cd3 != null, "d1 is cached");
 
 
     });
