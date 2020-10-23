@@ -7,13 +7,14 @@ import {
     PointXY,
     SortFunction
 } from "./common"
-import { JsPlumbInstance } from "../core"
+import { JsPlumbInstance } from "./core"
 import {Connection} from "./connector/connection-impl"
 import {Face, Orientation} from "./factory/anchor-factory"
 import { DynamicAnchor } from "./anchor/dynamic-anchor"
 import {addToList, findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "./util"
 import {ContinuousAnchor} from "./anchor/continuous-anchor"
 import {Anchor} from "./anchor/anchor"
+import {ViewportElement} from "./viewport"
 
 export type AnchorPlacement = [ number, number, number, number ]
 export type ContinuousAnchorPlacement = [ number, number, number, number, Connection, Connection ]
@@ -98,7 +99,7 @@ export class AnchorManager {
     }
 
     private placeAnchors (instance:JsPlumbInstance, elementId:string, _anchorLists:AnchorLists):void {
-        let cd = instance.getCachedData(elementId), sS = cd.s, sO = cd.o,
+        let cd = instance.getCachedData(elementId), sS:PointArray = [cd.w, cd.h], sO:Offset = {left:cd.x, top:cd.y},
             placeSomeAnchors = (desc:string, elementDimensions:PointArray, elementPosition:ExtendedOffset, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {
                     let sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
@@ -300,7 +301,7 @@ export class AnchorManager {
         }
     }
 
-    redraw (elementId:string, ui?:Offset, timestamp?:string, offsetToUI?:Offset) {
+    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset) {
 
         if (!this.instance._suspendDrawing) {
 
@@ -316,15 +317,17 @@ export class AnchorManager {
             // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
             // registered as draggable.
             offsetToUI = offsetToUI || {left: 0, top: 0}
+            let offsetToUse = null
+            // TODO updateOffset should take an OffsetAndSize object, not a ViewportElement.
             if (ui) {
-                ui = {
-                    left: ui.left + offsetToUI.left,
-                    top: ui.top + offsetToUI.top
+                offsetToUse = {
+                    left: ui.x + offsetToUI.left,
+                    top: ui.y + offsetToUI.top
                 }
             }
 
             // valid for one paint cycle.
-            let myOffset = this.instance.updateOffset({ elId: elementId, offset: ui, recalc: false, timestamp: timestamp }),
+            let myOffset = this.instance.updateOffset({ elId: elementId, offset: offsetToUse, recalc: false, timestamp: timestamp }),
                 orientationCache = {}
 
             for(let anEndpoint of ep) {
@@ -394,7 +397,7 @@ export class AnchorManager {
                                 const targetRotation = this.instance.getRotation(targetId);
 
                                 if (!o) {
-                                    o = this.calculateOrientation(sourceId, targetId, sd.o, td.o,
+                                    o = this.calculateOrientation(sourceId, targetId, sd, td,
                                         (conn.endpoints[0].anchor as ContinuousAnchor),
                                         (conn.endpoints[1].anchor as ContinuousAnchor),
                                         sourceRotation,
@@ -453,7 +456,7 @@ export class AnchorManager {
             // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
             for (let ep of endpointsToPaint) {
                 let cd = this.instance.getCachedData(ep.elementId)
-                ep.paint({ timestamp: timestamp, offset: cd, dimensions: cd.s, rotation:cd.r })
+                ep.paint({ timestamp: timestamp, offset: cd })
             }
 
             // paint current floating connection for this element, if there is one.
@@ -471,7 +474,7 @@ export class AnchorManager {
 
 
     calculateOrientation (sourceId:string, targetId:string,
-                          sd:ExtendedOffset, td:ExtendedOffset,
+                          sd:ViewportElement, td:ViewportElement,
                           sourceAnchor:ContinuousAnchor,
                           targetAnchor:ContinuousAnchor,
                           sourceRotation:number,
@@ -488,8 +491,8 @@ export class AnchorManager {
 
         // since we only support rotation around the center of an element these two lines don't have to take rotation
         // into account.
-        let theta = Math.atan2((td.centery - sd.centery), (td.centerx - sd.centerx)),
-            theta2 = Math.atan2((sd.centery - td.centery), (sd.centerx - td.centerx))
+        let theta = Math.atan2((td.c[1] - sd.c[1]), (td.c[0]- sd.c[0])),
+            theta2 = Math.atan2((sd.c[1] - td.c[1]), (sd.c[0] - td.c[0]))
 
 // --------------------------------------------------------------------------------------
 
@@ -502,18 +505,18 @@ export class AnchorManager {
             right:PointXY,
             bottom:PointXY
         }> = { }
-        ;(function (types:Array<string>, dim:Array<[ExtendedOffset, number]>) {
+        ;(function (types:Array<string>, dim:Array<[ViewportElement, number]>) {
             for (let i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
-                    "left": {x:dim[i][0].left, y:dim[i][0].centery },
-                    "right": {x:dim[i][0].right, y:dim[i][0].centery },
-                    "top": {x:dim[i][0].centerx, y:dim[i][0].top },
-                    "bottom": {x:dim[i][0].centerx , y:dim[i][0].bottom}
+                    "left": {x:dim[i][0].x, y:dim[i][0].c[1] },
+                    "right": {x:dim[i][0].x + dim[i][0].w, y:dim[i][0].c[1] },
+                    "top": {x:dim[i][0].c[0], y:dim[i][0].y },
+                    "bottom": {x:dim[i][0].c[0], y:dim[i][0].y + dim[i][0].h}
                 }
 
                 if (dim[i][1] !== 0) {
                     for (let axis in midpoints[types[i]]) {
-                        midpoints[types[i]][axis] = rotatePointXY(midpoints[types[i]][axis], {x:dim[i][0].centerx, y:dim[i][0].centery}, dim[i][1]);
+                        midpoints[types[i]][axis] = rotatePointXY(midpoints[types[i]][axis], {x:dim[i][0].c[0], y:dim[i][0].c[1]}, dim[i][1]);
                     }
                 }
 
