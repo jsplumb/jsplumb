@@ -4,6 +4,7 @@ export * from './common'
 export * from "./core"
 export * from "./defaults"
 export * from "./event-generator"
+export * from './viewport'
 
 export * from "./group/group"
 export * from "./group/group-manager"
