@@ -563,3 +563,10 @@ export function optional<T>(obj:T):Optional<T> {
     }
 }
 
+export function getsert<K,V>(map:Map<K,V>, key:K, valueGenerator:() => V):V {
+    if (!map.has(key)) {
+        map.set(key, valueGenerator())
+    }
+    return map.get(key)
+}
+
