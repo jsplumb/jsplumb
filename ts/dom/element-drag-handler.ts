@@ -10,6 +10,7 @@ import {
 
 import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance"
 
+import { Connection } from '../core/connector/connection-impl'
 import { PARENT_GROUP_KEY, GROUP_KEY } from '../core/constants'
 import { UIGroup } from '../core/group/group'
 
@@ -24,6 +25,7 @@ import {
 import { isString, optional } from '../core/util'
 
 import {Drag} from "./collicat"
+import {RedrawResult} from '../core/anchor-manager'
 
 type IntersectingGroup = {
     group:UIGroup
@@ -39,6 +41,13 @@ type GroupLocation = {
 
 type PosseMemberSpec = { el:HTMLElement, elId:string, active:boolean }
 type Posse = { id:string, members:Set<PosseMemberSpec>}
+
+export interface DragStopPayload {
+    el:jsPlumbDOMElement
+    e:MouseEvent
+    pos:Offset
+    r:RedrawResult
+}
 
 export class ElementDragHandler implements DragHandler {
 
@@ -73,12 +82,13 @@ export class ElementDragHandler implements DragHandler {
 
         const _one = (_el:jsPlumbDOMElement, pos:Offset) => {
 
-            this.instance._draw(_el, pos)
+            const redrawResult = this.instance._draw(_el, pos)
 
-            this.instance.fire(EVT_DRAG_STOP, {
+            this.instance.fire<DragStopPayload>(EVT_DRAG_STOP, {
                 el:_el,
                 e:params.e,
-                pos:pos
+                pos:pos,
+                r:redrawResult
             })
 
             this.instance.removeClass(_el, CLASS_DRAGGED)
