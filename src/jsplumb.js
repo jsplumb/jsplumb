@@ -711,6 +711,8 @@
             ///
             _draw = function (element, ui, timestamp, clearEdits) {
 
+                var drawResult = { c:[], e:[] };
+
                 if (!_suspendDrawing) {
 
                     element = _currentInstance.getElement(element);
@@ -739,15 +741,21 @@
                             });
                         }
 
-                        _currentInstance.router.redraw(id, ui, timestamp, null, clearEdits);
+                        var d2 = _currentInstance.router.redraw(id, ui, timestamp, null, clearEdits);
+                        Array.prototype.push.apply(drawResult.c, d2.c);
+                        Array.prototype.push.apply(drawResult.e, d2.e);
 
                         if (repaintEls) {
                             for (var j = 0; j < repaintEls.length; j++) {
-                                _currentInstance.router.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
+                                d2 = _currentInstance.router.redraw(repaintEls[j].getAttribute("id"), null, timestamp, null, clearEdits, true);
+                                Array.prototype.push.apply(drawResult.c, d2.c);
+                                Array.prototype.push.apply(drawResult.e, d2.e);
                             }
                         }
                     }
                 }
+
+                return drawResult;
             },
 
             //
@@ -1974,9 +1982,13 @@
                 managedElements[elId].el.style.transformOrigin="center center";
 
                 if (doNotRedraw !== true) {
-                    this.revalidate(elId);
+                    return this.revalidate(elId);
                 }
             }
+
+            return {
+                c:[], e:[]
+            };
         };
 
         this.getRotation = function(elementId) {
@@ -2793,15 +2805,13 @@
         };
 
         this.revalidate = function (el, timestamp, isIdAlready) {
-            return _elEach(el, function(_el) {
-                var elId = isIdAlready ? _el : _currentInstance.getId(_el);
-                _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
-                var dm = _currentInstance.getDragManager();
-                if (dm) {
-                    dm.updateOffsets(elId);
-                }
-                _currentInstance.repaint(_el);
-            });
+            var elId = isIdAlready ? el : _currentInstance.getId(el);
+            _currentInstance.updateOffset({ elId: elId, recalc: true, timestamp:timestamp });
+            var dm = _currentInstance.getDragManager();
+            if (dm) {
+                dm.updateOffsets(elId);
+            }
+            return _draw(el, null, timestamp);
         };
 
         // repaint every endpoint and connection.
