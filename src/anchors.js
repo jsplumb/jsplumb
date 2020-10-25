@@ -390,14 +390,14 @@
 
         this.redraw = function (elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 
+            var connectionsToPaint = [],
+                endpointsToPaint = [],
+                anchorsToUpdate = [];
+
             if (!jsPlumbInstance.isSuspendDrawing()) {
                 // get all the endpoints for this element
                 var ep = _amEndpoints[elementId] || [],
-                    endpointConnections = connectionsByElementId[elementId] || [],
-                    connectionsToPaint = [],
-                    endpointsToPaint = [],
-                    anchorsToUpdate = [],
-                    rotation = jsPlumbInstance.getRotation(elementId);
+                    endpointConnections = connectionsByElementId[elementId] || [];
 
                 timestamp = timestamp || jsPlumbUtil.uuid();
                 // offsetToUI are values that would have been calculated in the dragManager when registering
@@ -568,6 +568,11 @@
                     connectionsToPaint[i].paint({elId: elementId, timestamp: null, recalc: false, clearEdits: clearEdits});
                 }
             }
+
+            return {
+                c:connectionsToPaint,
+                e:endpointsToPaint
+            };
         };
 
         var ContinuousAnchor = function (anchorParams) {
@@ -808,7 +813,6 @@
         this.y = params.y || 0;
         this.elementId = params.elementId;
         this.cssClass = params.cssClass || "";
-        this.userDefinedLocation = null;
         this.orientation = params.orientation || [ 0, 0 ];
         this.lastReturnValue = null;
         this.offsets = params.offsets || [ 0, 0 ];
@@ -830,39 +834,30 @@
 
             var xy = params.xy, wh = params.wh, timestamp = params.timestamp;
 
-            if (params.clearUserDefinedLocation) {
-                this.userDefinedLocation = null;
-            }
-
             if (timestamp && timestamp === this.timestamp) {
                 return this.lastReturnValue;
             }
 
-            if (this.userDefinedLocation != null) {
-                this.lastReturnValue = this.userDefinedLocation;
-            }
-            else {
-                // unrotated position
-                var candidate = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
+            // unrotated position
+            var candidate = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ];
 
-                // if rotation set, adjust position.
-                var rotation = params.rotation;
-                if (rotation != null && rotation !== 0) {
+            // if rotation set, adjust position.
+            var rotation = params.rotation;
+            if (rotation != null && rotation !== 0) {
 
-                    var c2 = jsPlumbUtil.rotatePoint(candidate, [xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2) ], rotation);
+                var c2 = jsPlumbUtil.rotatePoint(candidate, [xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2) ], rotation);
 
-                    // rotate the orientation values too. for rotations that are not multiples of 90 degrees, this will result in values that are not in the set
-                    // [0, -1, 1 ], and in that case the connector paint may not be perfect. need some evidence from real world usage.
-                    this.orientation[0] = Math.round((this._unrotatedOrientation[0] * c2[2]) - (this._unrotatedOrientation[1] * c2[3]));
-                    this.orientation[1] = Math.round((this._unrotatedOrientation[1] * c2[2]) + (this._unrotatedOrientation[0] * c2[3]));
+                // rotate the orientation values too. for rotations that are not multiples of 90 degrees, this will result in values that are not in the set
+                // [0, -1, 1 ], and in that case the connector paint may not be perfect. need some evidence from real world usage.
+                this.orientation[0] = Math.round((this._unrotatedOrientation[0] * c2[2]) - (this._unrotatedOrientation[1] * c2[3]));
+                this.orientation[1] = Math.round((this._unrotatedOrientation[1] * c2[2]) + (this._unrotatedOrientation[0] * c2[3]));
 
-                    this.lastReturnValue = c2;
-                } else {
-                    // if rotation not set (or 0), ensure orientation is original value
-                    this.orientation[0] = this._unrotatedOrientation[0];
-                    this.orientation[1] = this._unrotatedOrientation[1];
-                    this.lastReturnValue = candidate;
-                }
+                this.lastReturnValue = [c2[0], c2[1], this.x, this.y];
+            } else {
+                // if rotation not set (or 0), ensure orientation is original value
+                this.orientation[0] = this._unrotatedOrientation[0];
+                this.orientation[1] = this._unrotatedOrientation[1];
+                this.lastReturnValue = candidate;
             }
 
             this.timestamp = timestamp;
@@ -891,15 +886,6 @@
             var ao = anchor.getOrientation(),
                 o = this.getOrientation();
             return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1];
-        },
-        getUserDefinedLocation: function () {
-            return this.userDefinedLocation;
-        },
-        setUserDefinedLocation: function (l) {
-            this.userDefinedLocation = l;
-        },
-        clearUserDefinedLocation: function () {
-            this.userDefinedLocation = null;
         },
         getOrientation: function () {
             return this.orientation;
@@ -1067,11 +1053,6 @@
 
             this.timestamp = params.timestamp;
 
-            var udl = self.getUserDefinedLocation();
-            if (udl != null) {
-                return udl;
-            }
-
             // if anchor is locked or an opposite element was not given, we
             // maintain our state. anchor will be locked
             // if it is the source of a drag and drop.
@@ -1098,7 +1079,7 @@
         };
 
         this.getCurrentLocation = function (params) {
-            return this.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation(params) : null);
+            return _curAnchor != null ? _curAnchor.getCurrentLocation(params) : null;
         };
 
         this.getOrientation = function (_endpoint) {
