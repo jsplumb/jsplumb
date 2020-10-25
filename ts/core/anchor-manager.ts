@@ -20,6 +20,11 @@ export type AnchorPlacement = [ number, number, number, number ]
 export type ContinuousAnchorPlacement = [ number, number, number, number, Connection, Connection ]
 export type AnchorFace = "top" | "right" | "bottom" | "left"
 
+export interface RedrawResult {
+    c:Set<Connection>
+    e:Set<Endpoint>
+}
+
 function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:ExtendedOffset, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean, rotation:number):Array<ContinuousAnchorPlacement> {
     let a:Array<ContinuousAnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1)
 
@@ -301,13 +306,13 @@ export class AnchorManager {
         }
     }
 
-    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset) {
+    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult {
+
+        let connectionsToPaint:Set<Connection> = new Set(),
+            endpointsToPaint:Set<Endpoint> = new Set(),
+            anchorsToUpdate:Set<string> = new Set()
 
         if (!this.instance._suspendDrawing) {
-
-            let connectionsToPaint:Set<Connection> = new Set(),
-                endpointsToPaint:Set<Endpoint> = new Set(),
-                anchorsToUpdate:Set<string> = new Set()
 
             // get all the endpoints for this element
             let ep = this._amEndpoints[elementId] || []
@@ -469,6 +474,11 @@ export class AnchorManager {
             for (let c of connectionsToPaint) {
                 c.paint({elId: elementId, timestamp: timestamp, recalc: false})
             }
+        }
+
+        return {
+            c:connectionsToPaint,
+            e:endpointsToPaint
         }
     }
 
