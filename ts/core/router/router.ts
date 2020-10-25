@@ -2,6 +2,7 @@ import {Connection} from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint-impl'
 import { Offset } from '../common'
 import {ViewportElement} from "../viewport"
+import {RedrawResult} from "../anchor-manager"
 
 
 export interface Router {
@@ -14,7 +15,7 @@ export interface Router {
 
     connectionDetached (connInfo:any):void
 
-    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):void
+    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult
 
     deleteEndpoint (endpoint:Endpoint):void
 
