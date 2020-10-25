@@ -1,5 +1,5 @@
 import {Router} from "./router"
-import {AnchorManager} from "../anchor-manager"
+import {AnchorManager, RedrawResult} from "../anchor-manager"
 import { JsPlumbInstance } from "../core"
 import { Offset } from '../common'
 import { Connection } from '../connector/connection-impl'
@@ -41,8 +41,8 @@ export class DefaultRouter implements Router {
         this.anchorManager.connectionDetached(connInfo)
     }
 
-    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):void {
-        this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI)
+    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult {
+        return this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI)
     }
 
     deleteEndpoint (endpoint:Endpoint):void {
