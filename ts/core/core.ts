@@ -3,7 +3,7 @@ import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults"
 import {Connection} from "./connector/connection-impl"
 import {Endpoint} from "./endpoint/endpoint-impl"
 import {FullOverlaySpec, OverlayId, OverlaySpec} from "./overlay/overlay"
-import {AnchorManager, AnchorPlacement} from "./anchor-manager"
+import {AnchorManager, AnchorPlacement, RedrawResult} from "./anchor-manager"
 import {
     _mergeOverrides,
     addToList,
@@ -175,7 +175,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     private _curIdStamp :number = 1
     private _offsetTimestamps:Dictionary<string> = {}
-    private viewport:Viewport = new Viewport()
+    readonly viewport:Viewport = new Viewport()
 
     router: Router
     anchorManager:AnchorManager
@@ -962,18 +962,15 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     // repaint some element's endpoints and connections
-    repaint (el:string | any | Array<string | any>, ui?:any, timestamp?:string):JsPlumbInstance {
-        return this.each(el, (_el:any | string) => {
-            this._draw(_el, ui, timestamp)
-        })
+    repaint (el:string | any, ui?:any, timestamp?:string):RedrawResult {
+        return this._draw(el, ui, timestamp)
     }
 
-    revalidate (el:string | any | Array<string | any>, timestamp?:string, isIdAlready?:boolean):JsPlumbInstance {
-        return this.each(el, (_el:any | string) => {
-            let elId = isIdAlready ? _el as string : this.getId(_el)
-            this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp })
-            this.repaint(_el)
-        })
+    revalidate (el:string | any, timestamp?:string, isIdAlready?:boolean):RedrawResult {
+
+        let elId = isIdAlready ? el as string : this.getId(el)
+        this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp })
+        return this.repaint(el)
     }
 
     // repaint every endpoint and connection.
@@ -999,7 +996,18 @@ export abstract class JsPlumbInstance extends EventGenerator {
      */
     abstract _getAssociatedElements(el:any):Array<any>
 
-    _draw(element:string | any, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean) {
+    _draw(element:string | any, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
+
+        let r:RedrawResult = {
+            c:new Set<Connection>(),
+            e:new Set<Endpoint>()
+        }
+
+        const _mergeRedraw = (r2:RedrawResult) => {
+            // merge in r2 to r
+            r2.c.forEach((c) => r.c.add(c))
+            r2.e.forEach((e) => r.e.add(e))
+        }
 
         if (!this._suspendDrawing) {
 
@@ -1031,15 +1039,17 @@ export abstract class JsPlumbInstance extends EventGenerator {
                     }
                 }
 
-                this.router.redraw(id, ui, timestamp, null)
+                _mergeRedraw(this.router.redraw(id, ui, timestamp, null))
 
                 if (repaintEls.length > 0) {
                     for (let j = 0; j < repaintEls.length; j++) {
-                        this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null)
+                        _mergeRedraw(this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null))
                     }
                 }
             }
         }
+
+        return r
     }
 
     unregisterEndpoint(endpoint:Endpoint) {
