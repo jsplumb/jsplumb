@@ -13,7 +13,7 @@ export abstract class EventGenerator {
 
     constructor() { }
 
-    fire (event: string, value?: any, originalEvent?: Event): any {
+    fire<T>(event: string, value?: T, originalEvent?: Event): any {
         let ret = null
         if (!this.tick) {
             this.tick = true
@@ -91,7 +91,7 @@ export abstract class EventGenerator {
         this.eventsSuspended = val
     }
 
-    bind (event: string | Array<String>, listener: Function, insertAtStart?: boolean): EventGenerator {
+    bind(event: string | Array<String>, listener: Function, insertAtStart?: boolean): EventGenerator {
         const _one = (evt: string) => {
             addToList(this._listeners, evt, listener, insertAtStart)
             ;(<any>listener).__jsPlumb = (<any>listener).__jsPlumb || {}
