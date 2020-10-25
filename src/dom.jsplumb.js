@@ -101,6 +101,7 @@
         var elements = params.selection, uip;
 
         var _one = function (_e) {
+            var drawResult;
             if (_e[1] != null) {
                 // run the reported offset through the code that takes parent containers
                 // into account, to adjust if necessary (issue 554)
@@ -108,7 +109,7 @@
                     el:_e[2].el,
                     pos:[_e[1].left, _e[1].top]
                 }]);
-                this.draw(_e[2].el, uip);
+                drawResult = this.draw(_e[2].el, uip);
             }
 
             if (_e[0]._jsPlumbDragOptions != null) {
@@ -118,7 +119,14 @@
             this.removeClass(_e[0], "jtk-dragged");
             this.select({source: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.sourceElementDraggingClass, true);
             this.select({target: _e[2].el}).removeClass(this.elementDraggingClass + " " + this.targetElementDraggingClass, true);
+
+            params.e._drawResult = params.e._drawResult || {c:[],e:[], a:[]};
+            Array.prototype.push.apply(params.e._drawResult.c, drawResult.c);
+            Array.prototype.push.apply(params.e._drawResult.e, drawResult.e);
+            Array.prototype.push.apply(params.e._drawResult.a, drawResult.a);
+
             this.getDragManager().dragEnded(_e[2].el);
+
         }.bind(this);
 
         for (var i = 0; i < elements.length; i++) {
