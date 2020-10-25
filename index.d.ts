@@ -166,7 +166,7 @@ declare module jsPlumb {
 
         restoreDefaults(): jsPlumbInstance;
 
-        revalidate(el: string | Element | Selector): void;
+        revalidate(el: string | Element): RedrawResult;
 
         /**
          * Rotates the element with the given id by the given amount in degrees. This method sets two properties on the element's style: `transform:rotate(<amount>deg)` and `transform-origin:center center`.
@@ -174,8 +174,9 @@ declare module jsPlumb {
          * @param elId
          * @param amountInDegrees
          * @param doNotRedraw
+         * @returns a RedrawResult, which is empty if no redraw was requested (or an element with the given id is not being managed)
          */
-        rotate(elId:string, amountInDegrees:number, doNotRedraw?:boolean):void;
+        rotate(elId:string, amountInDegrees:number, doNotRedraw?:boolean):RedrawResult;
 
         select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Connection[]): { each(fn: (conn: Connection) => void): void };
 
@@ -521,6 +522,11 @@ declare module jsPlumb {
          AnchorPerimeterSpec |
          AnchorContinuousSpec
     ;
+
+    interface RedrawResult {
+        c:Array<Connection>
+        e:Array<Endpoint>
+    }
 
     /* --------------------------------------- OVERLAYS ------------------------------------------------------------- */
 
