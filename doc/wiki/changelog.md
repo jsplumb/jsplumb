@@ -1,3 +1,15 @@
+## 2.15.0
+
+### Breaking
+
+- `revalidate` now supports only a single element as argument, and returns a `RedrawResult` object, which contains a list of Connections
+and Endpoints that were repainted as a result of the call.
+
+### Non-breaking
+
+- When element rotated, fix issue where the original x/y locations for an anchor were being overwritten
+
+
 ## 2.14.7
 
 October 15th 2020
