@@ -116,7 +116,7 @@ export abstract class AbstractConnector implements Connector {
 
     abstract getDefaultStubs():[number, number]
 
-    protected geometry:Geometry
+    geometry:Geometry
 
     constructor(public instance:JsPlumbInstance, public connection:Connection, params:ConnectorOptions) {
         this.stub = params.stub || this.getDefaultStubs()
