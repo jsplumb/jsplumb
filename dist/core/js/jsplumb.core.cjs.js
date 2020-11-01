@@ -2121,7 +2121,7 @@ function (_EventGenerator) {
         var c2 = rotatePoint(candidate, [xy[0] + wh[0] / 2, xy[1] + wh[1] / 2], rotation);
         this.orientation[0] = Math.round(this._unrotatedOrientation[0] * c2[2] - this._unrotatedOrientation[1] * c2[3]);
         this.orientation[1] = Math.round(this._unrotatedOrientation[1] * c2[2] + this._unrotatedOrientation[0] * c2[3]);
-        this.lastReturnValue = c2;
+        this.lastReturnValue = [c2[0], c2[1], this.x, this.y];
       } else {
         this.orientation[0] = this._unrotatedOrientation[0];
         this.orientation[1] = this._unrotatedOrientation[1];
@@ -5774,27 +5774,29 @@ function () {
   return jsPlumbGeometry;
 }();
 
-function placeAnchorsOnLine(elementDimensions, elementPosition, connections, horizontal, otherMultiplier, reverse, rotation) {
+function placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, reverse) {
+  var sizeInAxis = horizontal ? element.w : element.h;
+  var sizeInOtherAxis = horizontal ? element.h : element.w;
   var a = [],
-      step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+      step = sizeInAxis / (connections.length + 1);
 
   for (var i = 0; i < connections.length; i++) {
     var val = (i + 1) * step,
-        other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
+        other = otherMultiplier * sizeInOtherAxis;
 
     if (reverse) {
-      val = elementDimensions[horizontal ? 0 : 1] - val;
+      val = sizeInAxis - val;
     }
 
     var dx = horizontal ? val : other,
-        x = elementPosition.left + dx,
-        xp = dx / elementDimensions[0];
+        x = element.x + dx,
+        xp = dx / element.w;
     var dy = horizontal ? other : val,
-        y = elementPosition.top + dy,
-        yp = dy / elementDimensions[1];
+        y = element.y + dy,
+        yp = dy / element.h;
 
-    if (rotation !== 0) {
-      var rotated = rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
+    if (element.r !== 0 && element.r != null) {
+      var rotated = rotatePoint([x, y], element.c, element.r);
       x = rotated[0];
       y = rotated[1];
     }
@@ -5854,18 +5856,12 @@ function () {
       var _this = this;
 
       var cd = instance.getCachedData(elementId),
-          sS = [cd.w, cd.h],
-          sO = {
-        left: cd.x,
-        top: cd.y
-      },
-          placeSomeAnchors = function placeSomeAnchors(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
+          placeSomeAnchors = function placeSomeAnchors(desc, element, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
         if (unsortedConnections.length > 0) {
           var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
               // puts them in order based on the target element's pos on screen
           reverse = desc === "right" || desc === "top",
-              rotation = instance.getRotation(elementId),
-              anchors = placeAnchorsOnLine(elementDimensions, elementPosition, sc, isHorizontal, otherMultiplier, reverse, rotation); // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
+              anchors = placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse); // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
 
           var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
             _this.continuousAnchorLocations[endpoint.id] = [anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3]];
@@ -5888,10 +5884,10 @@ function () {
         }
       };
 
-      placeSomeAnchors("bottom", sS, sO, _anchorLists.bottom, true, 1, [0, 1]);
-      placeSomeAnchors("top", sS, sO, _anchorLists.top, true, 0, [0, -1]);
-      placeSomeAnchors("left", sS, sO, _anchorLists.left, false, 0, [-1, 0]);
-      placeSomeAnchors("right", sS, sO, _anchorLists.right, false, 1, [1, 0]);
+      placeSomeAnchors("bottom", cd, _anchorLists.bottom, true, 1, [0, 1]);
+      placeSomeAnchors("top", cd, _anchorLists.top, true, 0, [0, -1]);
+      placeSomeAnchors("left", cd, _anchorLists.left, false, 0, [-1, 0]);
+      placeSomeAnchors("right", cd, _anchorLists.right, false, 1, [1, 0]);
     }
   }, {
     key: "clearContinuousAnchorPlacement",
@@ -6066,11 +6062,12 @@ function () {
   }, {
     key: "redraw",
     value: function redraw(elementId, ui, timestamp, offsetToUI) {
-      if (!this.instance._suspendDrawing) {
-        var connectionsToPaint = new Set(),
-            endpointsToPaint = new Set(),
-            anchorsToUpdate = new Set(); // get all the endpoints for this element
+      var connectionsToPaint = new Set(),
+          endpointsToPaint = new Set(),
+          anchorsToUpdate = new Set();
 
+      if (!this.instance._suspendDrawing) {
+        // get all the endpoints for this element
         var ep = this._amEndpoints[elementId] || [];
         timestamp = timestamp || uuid(); // offsetToUI are values that would have been calculated in the dragManager when registering
         // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
@@ -6343,6 +6340,11 @@ function () {
           }
         }
       }
+
+      return {
+        c: connectionsToPaint,
+        e: endpointsToPaint
+      };
     }
   }, {
     key: "calculateOrientation",
@@ -6530,7 +6532,7 @@ function () {
   }, {
     key: "redraw",
     value: function redraw(elementId, ui, timestamp, offsetToUI) {
-      this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI);
+      return this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI);
     }
   }, {
     key: "deleteEndpoint",
@@ -6939,7 +6941,9 @@ function EMPTY_POSITION() {
       h: 0,
       r: 0,
       x2: 0,
-      y2: 0
+      y2: 0,
+      cr: 0,
+      sr: 0
     }
   };
 } //
@@ -6973,7 +6977,9 @@ function rotate(x, y, w, h, r) {
     c: c,
     r: r,
     x2: xmax,
-    y2: ymax
+    y2: ymax,
+    cr: cr,
+    sr: sr
   };
 }
 
@@ -7143,6 +7149,17 @@ function (_EventGenerator) {
       });
       this.endTransaction();
     }
+    /**
+     * Updates the element with the given id. Any of the provided values may be null, in which case they are ignored (we never overwrite an
+     * existing value with null).
+     * @param id
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param rotation
+     */
+
   }, {
     key: "updateElement",
     value: function updateElement(id, x, y, width, height, rotation) {
@@ -7175,18 +7192,39 @@ function (_EventGenerator) {
 
       this._finaliseUpdate(id, e);
 
-      return e.t;
+      return e;
     }
+    /**
+     * Creates an empty entry for an element with the given ID.
+     * @param id
+     */
+
   }, {
     key: "registerElement",
     value: function registerElement(id) {
       return this.updateElement(id, 0, 0, 0, 0, 0);
     }
+    /**
+     * Adds the element with the given id, with the given values for x, y, width, height and rotation. Any of these may be null.
+     * @param id
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param rotation
+     */
+
   }, {
     key: "addElement",
     value: function addElement(id, x, y, width, height, rotation) {
       return this.updateElement(id, x, y, width, height, rotation);
     }
+    /**
+     * Rotates the element with the given id, recalculating bounds afterwards.
+     * @param id
+     * @param rotation
+     */
+
   }, {
     key: "rotateElement",
     value: function rotateElement(id, rotation) {
@@ -7196,28 +7234,51 @@ function (_EventGenerator) {
       this._finaliseUpdate(id, e); //this._fireUpdate({type:"rotate", id:id, rotation:e.r})
 
 
-      return e.t;
+      return e;
     }
+    /**
+     * Gets the width of the content managed by the viewport, taking any rotated elements into account.
+     */
+
   }, {
     key: "getBoundsWidth",
     value: function getBoundsWidth() {
       return this._bounds.maxx - this._bounds.minx;
     }
+    /**
+     * Gets the height of the content managed by the viewport, taking any rotated elements into account.
+     */
+
   }, {
     key: "getBoundsHeight",
     value: function getBoundsHeight() {
       return this._bounds.maxy - this._bounds.miny;
     }
+    /**
+     * Gets the leftmost point of the content managed by the viewport, taking any rotated elements into account.
+     */
+
   }, {
     key: "getX",
     value: function getX() {
       return this._bounds.minx;
     }
+    /**
+     * Gets the topmost of the content managed by the viewport, taking any rotated elements into account.
+     */
+
   }, {
     key: "getY",
     value: function getY() {
       return this._bounds.miny;
     }
+    /**
+     * Sets the size of the element with the given ID, recalculating bounds.
+     * @param id
+     * @param w
+     * @param h
+     */
+
   }, {
     key: "setSize",
     value: function setSize(id, w, h) {
@@ -7225,6 +7286,13 @@ function (_EventGenerator) {
         return this.updateElement(id, null, null, w, h, null);
       }
     }
+    /**
+     * Sets the [x,y] position of the element with the given ID, recalculating bounds.
+     * @param id
+     * @param x
+     * @param y
+     */
+
   }, {
     key: "setPosition",
     value: function setPosition(id, x, y) {
@@ -7232,6 +7300,10 @@ function (_EventGenerator) {
         return this.updateElement(id, x, y, null, null, null);
       }
     }
+    /**
+     * Clears the internal state of the viewport, removing all elements.
+     */
+
   }, {
     key: "reset",
     value: function reset() {
@@ -7246,6 +7318,11 @@ function (_EventGenerator) {
 
       this._recalculateBounds();
     }
+    /**
+     * Remove the element with the given ID from the viewport.
+     * @param id
+     */
+
   }, {
     key: "remove",
     value: function remove(id) {
@@ -7263,17 +7340,31 @@ function (_EventGenerator) {
 
       this._recalculateBounds();
     }
+    /**
+     * Gets the position of the element. This returns both the original position, and also the translated position of the element. Certain internal methods, such as the anchor
+     * calculation code, use the unrotated position and then subsequently apply the element's rotation to any calculated positions.
+     * Other parts of the codebase - the Toolkit's magnetizer or pan/zoom widget, for instance - are interested in the rotated position.
+     * @param id
+     */
+
   }, {
     key: "getPosition",
     value: function getPosition(id) {
-      //return this._transformedElementMap.get(id)
       return this._elementMap.get(id);
     }
+    /**
+     * Get all elements managed by the Viewport.
+     */
+
   }, {
     key: "getElements",
     value: function getElements() {
-      return this._transformedElementMap;
+      return this._elementMap;
     }
+    /**
+     * Returns whether or not the viewport is empty.
+     */
+
   }, {
     key: "isEmpty",
     value: function isEmpty() {
@@ -8219,9 +8310,14 @@ function (_EventGenerator) {
         this.viewport.rotateElement(elementId, rotation);
 
         if (doNotRepaint !== true) {
-          this.revalidate(elementId);
+          return this.revalidate(elementId);
         }
       }
+
+      return {
+        c: new Set(),
+        e: new Set()
+      };
     }
   }, {
     key: "getRotation",
@@ -8284,28 +8380,18 @@ function (_EventGenerator) {
   }, {
     key: "repaint",
     value: function repaint(el, ui, timestamp) {
-      var _this3 = this;
-
-      return this.each(el, function (_el) {
-        _this3._draw(_el, ui, timestamp);
-      });
+      return this._draw(el, ui, timestamp);
     }
   }, {
     key: "revalidate",
     value: function revalidate(el, timestamp, isIdAlready) {
-      var _this4 = this;
-
-      return this.each(el, function (_el) {
-        var elId = isIdAlready ? _el : _this4.getId(_el);
-
-        _this4.updateOffset({
-          elId: elId,
-          recalc: true,
-          timestamp: timestamp
-        });
-
-        _this4.repaint(_el);
+      var elId = isIdAlready ? el : this.getId(el);
+      this.updateOffset({
+        elId: elId,
+        recalc: true,
+        timestamp: timestamp
       });
+      return this.repaint(el);
     } // repaint every endpoint and connection.
 
   }, {
@@ -8338,6 +8424,21 @@ function (_EventGenerator) {
   }, {
     key: "_draw",
     value: function _draw(element, ui, timestamp, offsetsWereJustCalculated) {
+      var r = {
+        c: new Set(),
+        e: new Set()
+      };
+
+      var _mergeRedraw = function _mergeRedraw(r2) {
+        // merge in r2 to r
+        r2.c.forEach(function (c) {
+          return r.c.add(c);
+        });
+        r2.e.forEach(function (e) {
+          return r.e.add(e);
+        });
+      };
+
       if (!this._suspendDrawing) {
         var id = typeof element === "string" ? element : this.getId(element),
             _el3 = typeof element === "string" ? this.getElementById(element) : element;
@@ -8373,15 +8474,17 @@ function (_EventGenerator) {
             }
           }
 
-          this.router.redraw(id, ui, timestamp, null);
+          _mergeRedraw(this.router.redraw(id, ui, timestamp, null));
 
           if (repaintEls.length > 0) {
             for (var j = 0; j < repaintEls.length; j++) {
-              this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null);
+              _mergeRedraw(this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null));
             }
           }
         }
       }
+
+      return r;
     }
   }, {
     key: "unregisterEndpoint",
@@ -8427,7 +8530,7 @@ function (_EventGenerator) {
   }, {
     key: "deleteEndpoint",
     value: function deleteEndpoint(object) {
-      var _this5 = this;
+      var _this3 = this;
 
       var endpoint = typeof object === "string" ? this.endpointsByUUID[object] : object;
 
@@ -8444,7 +8547,7 @@ function (_EventGenerator) {
 
         connectionsToDelete.forEach(function (connection) {
           // detach this endpoint from each of these connections.
-          _this5.deleteConnection(connection, {
+          _this3.deleteConnection(connection, {
             force: true,
             endpointToIgnore: endpoint
           });
@@ -8501,24 +8604,24 @@ function (_EventGenerator) {
   }, {
     key: "reset",
     value: function reset(silently) {
-      var _this6 = this;
+      var _this4 = this;
 
       this.silently(function () {
-        _this6.endpointsByElement = {};
-        _this6._managedElements = {};
-        _this6.endpointsByUUID = {};
+        _this4.endpointsByElement = {};
+        _this4._managedElements = {};
+        _this4.endpointsByUUID = {};
 
-        _this6.viewport.reset();
+        _this4.viewport.reset();
 
-        _this6._offsetTimestamps = {};
+        _this4._offsetTimestamps = {};
 
-        _this6.router.reset();
+        _this4.router.reset();
 
-        _this6.groupManager.reset();
+        _this4.groupManager.reset();
 
-        _this6._connectionTypes = {};
-        _this6._endpointTypes = {};
-        _this6.connections.length = 0;
+        _this4._connectionTypes = {};
+        _this4._endpointTypes = {};
+        _this4.connections.length = 0;
       });
     } // ------ these are exposed for library packages to use; it allows them to be built without needing to include the utils --------
 
@@ -8587,7 +8690,7 @@ function (_EventGenerator) {
   }, {
     key: "_prepareConnectionParams",
     value: function _prepareConnectionParams(params, referenceParams) {
-      var _this7 = this;
+      var _this5 = this;
 
       var _p = extend({}, params);
 
@@ -8665,7 +8768,7 @@ function (_EventGenerator) {
           portId: _p.ports ? _p.ports[idx] : null
         });
 
-        return _this7.addEndpoint(el, params);
+        return _this5.addEndpoint(el, params);
       }; // check for makeSource/makeTarget specs.
 
 
@@ -8796,31 +8899,31 @@ function (_EventGenerator) {
   }, {
     key: "_doRemove",
     value: function _doRemove(info, affectedElements) {
-      var _this8 = this;
+      var _this6 = this;
 
       this.removeAllEndpoints(info.id, true, affectedElements);
 
       var _one = function _one(_info) {
         if (info.el != null) {
-          _this8.anchorManager.clearFor(_info.id);
+          _this6.anchorManager.clearFor(_info.id);
 
-          _this8.anchorManager.removeFloatingConnection(_info.id);
+          _this6.anchorManager.removeFloatingConnection(_info.id);
 
-          if (_this8.isSource(_info.el)) {
-            _this8.unmakeSource(_info.el);
+          if (_this6.isSource(_info.el)) {
+            _this6.unmakeSource(_info.el);
           }
 
-          if (_this8.isTarget(_info.el)) {
-            _this8.unmakeTarget(_info.el);
+          if (_this6.isTarget(_info.el)) {
+            _this6.unmakeTarget(_info.el);
           }
 
-          delete _this8._floatingConnections[_info.id];
-          delete _this8._managedElements[_info.id];
+          delete _this6._floatingConnections[_info.id];
+          delete _this6._managedElements[_info.id];
 
-          _this8.viewport.remove(_info.id);
+          _this6.viewport.remove(_info.id);
 
           if (_info.el) {
-            _this8.removeElement(_info.el);
+            _this6.removeElement(_info.el);
           }
         }
       }; // remove all affected child elements
@@ -8838,7 +8941,7 @@ function (_EventGenerator) {
   }, {
     key: "remove",
     value: function remove(el, doNotRepaint) {
-      var _this9 = this;
+      var _this7 = this;
 
       var info = this.info(el),
           affectedElements = [];
@@ -8847,7 +8950,7 @@ function (_EventGenerator) {
         info.el.parentNode.removeChild(info.el);
       } else if (info.id) {
         this.batch(function () {
-          _this9._doRemove(info, affectedElements);
+          _this7._doRemove(info, affectedElements);
         }, doNotRepaint === true);
       }
 
@@ -8856,13 +8959,13 @@ function (_EventGenerator) {
   }, {
     key: "removeAllEndpoints",
     value: function removeAllEndpoints(el, recurse, affectedElements) {
-      var _this10 = this;
+      var _this8 = this;
 
       affectedElements = affectedElements || [];
 
       var _one = function _one(_el) {
-        var info = _this10.info(_el),
-            ebe = _this10.endpointsByElement[info.id],
+        var info = _this8.info(_el),
+            ebe = _this8.endpointsByElement[info.id],
             i,
             ii;
 
@@ -8872,11 +8975,11 @@ function (_EventGenerator) {
           for (i = 0, ii = ebe.length; i < ii; i++) {
             // TODO check this logic. was the second arg a "do not repaint now" argument?
             //this.deleteEndpoint(ebe[i], false)
-            _this10.deleteEndpoint(ebe[i]);
+            _this8.deleteEndpoint(ebe[i]);
           }
         }
 
-        delete _this10.endpointsByElement[info.id]; // TODO DOM specific
+        delete _this8.endpointsByElement[info.id]; // TODO DOM specific
 
         if (recurse) {
           if (info.el && info.el.nodeType !== 3 && info.el.nodeType !== 8) {
@@ -8894,7 +8997,7 @@ function (_EventGenerator) {
   }, {
     key: "_setEnabled",
     value: function _setEnabled(type, el, state, toggle, connectionType) {
-      var _this11 = this;
+      var _this9 = this;
 
       var originalState = [],
           newState,
@@ -8904,14 +9007,14 @@ function (_EventGenerator) {
         var defs = _el[type === SOURCE ? SOURCE_DEFINITION_LIST : TARGET_DEFINITION_LIST];
 
         if (defs) {
-          _this11.each(defs, function (def) {
+          _this9.each(defs, function (def) {
             if (def.def.connectionType == null || def.def.connectionType === connectionType) {
               os = def.enabled;
               originalState.push(os);
               newState = toggle ? !os : state;
               def.enabled = newState;
 
-              _this11[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
+              _this9[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
             }
           });
         }
@@ -9002,7 +9105,7 @@ function (_EventGenerator) {
   }, {
     key: "_unmake",
     value: function _unmake(type, key, el, connectionType) {
-      var _this12 = this;
+      var _this10 = this;
 
       connectionType = connectionType || "*";
       this.each(el, function (_el) {
@@ -9010,7 +9113,7 @@ function (_EventGenerator) {
           if (connectionType === "*") {
             delete _el[key];
 
-            _this12.removeAttribute(_el, "jtk-" + type);
+            _this10.removeAttribute(_el, "jtk-" + type);
           } else {
             var t = [];
 
@@ -9025,7 +9128,7 @@ function (_EventGenerator) {
             } else {
               delete _el[key];
 
-              _this12.removeAttribute(_el, "jtk-" + type);
+              _this10.removeAttribute(_el, "jtk-" + type);
             }
           }
         }
@@ -9077,7 +9180,7 @@ function (_EventGenerator) {
   }, {
     key: "makeSource",
     value: function makeSource(el, params, referenceParams) {
-      var _this13 = this;
+      var _this11 = this;
 
       var p = extend({
         _jsPlumb: this
@@ -9090,19 +9193,19 @@ function (_EventGenerator) {
       var maxConnections = p.maxConnections || -1;
 
       var _one = function _one(_el) {
-        var elInfo = _this13.info(_el); // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+        var elInfo = _this11.info(_el); // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
         // and use the endpoint definition if found.
 
 
         var _del = elInfo.el;
 
-        _this13.manage(_del);
+        _this11.manage(_del);
 
-        _this13.setAttribute(_del, ATTRIBUTE_SOURCE, "");
+        _this11.setAttribute(_del, ATTRIBUTE_SOURCE, "");
 
-        _this13._writeScopeAttribute(elInfo.el, p.scope || _this13.Defaults.scope);
+        _this11._writeScopeAttribute(elInfo.el, p.scope || _this11.Defaults.scope);
 
-        _this13.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
+        _this11.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
 
         elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || [];
         var _def = {
@@ -9115,7 +9218,7 @@ function (_EventGenerator) {
 
         if (p.createEndpoint) {
           _def.uniqueEndpoint = true;
-          _def.endpoint = _this13.addEndpoint(_del, _def.def);
+          _def.endpoint = _this11.addEndpoint(_del, _def.def);
           _def.endpoint.deleteOnEmpty = false;
         }
 
@@ -9184,7 +9287,7 @@ function (_EventGenerator) {
   }, {
     key: "makeTarget",
     value: function makeTarget(el, params, referenceParams) {
-      var _this14 = this;
+      var _this12 = this;
 
       // put jsplumb ref into params without altering the params passed in
       var p = extend({
@@ -9198,16 +9301,16 @@ function (_EventGenerator) {
         // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
         // and use the endpoint definition if found.
         // decode the info for this element (id and element)
-        var elInfo = _this14.info(_el),
+        var elInfo = _this12.info(_el),
             dropOptions = extend({}, p.dropOptions || {});
 
-        _this14.manage(elInfo.el);
+        _this12.manage(elInfo.el);
 
-        _this14.setAttribute(elInfo.el, ATTRIBUTE_TARGET, "");
+        _this12.setAttribute(elInfo.el, ATTRIBUTE_TARGET, "");
 
-        _this14._writeScopeAttribute(elInfo.el, p.scope || _this14.Defaults.scope);
+        _this12._writeScopeAttribute(elInfo.el, p.scope || _this12.Defaults.scope);
 
-        _this14.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
+        _this12.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
 
         elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
         // precedence.
@@ -9227,7 +9330,7 @@ function (_EventGenerator) {
 
         if (p.createEndpoint) {
           _def.uniqueEndpoint = true;
-          _def.endpoint = _this14.addEndpoint(elInfo.el, _def.def);
+          _def.endpoint = _this12.addEndpoint(elInfo.el, _def.def);
           _def.endpoint.deleteOnEmpty = false;
         }
 
@@ -9549,6 +9652,10 @@ function (_EventGenerator) {
     value: function removeFromGroup(group, el, doNotFireEvent) {
       this.groupManager.removeFromGroup(group, el, doNotFireEvent);
       this.appendElement(el, this.getContainer());
+      this.updateOffset({
+        recalc: true,
+        elId: this.getId(el)
+      });
     }
   }]);
 
@@ -11765,6 +11872,7 @@ exports.TARGET_INDEX = TARGET_INDEX;
 exports.TWO_PI = TWO_PI;
 exports.UIGroup = UIGroup;
 exports.UINode = UINode;
+exports.Viewport = Viewport;
 exports.WILDCARD = WILDCARD;
 exports.X_AXIS_FACES = X_AXIS_FACES;
 exports.Y_AXIS_FACES = Y_AXIS_FACES;
