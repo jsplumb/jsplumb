@@ -126,7 +126,7 @@ console.cTimeSummary = function() {
                 div.className = "jspLoad";
                 div.setAttribute("id", "div-" + i);
 
-                jsPlumb.draggable(div);
+                instance.manage(div);
 
                 x += jsPlumbLoadTest.spacing;
                 if (x > ww) {
