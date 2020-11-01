@@ -25,20 +25,23 @@ export interface RedrawResult {
     e:Set<Endpoint>
 }
 
-function placeAnchorsOnLine(elementDimensions:PointArray, elementPosition:ExtendedOffset, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean, rotation:number):Array<ContinuousAnchorPlacement> {
-    let a:Array<ContinuousAnchorPlacement> = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1)
+function placeAnchorsOnLine(element:ViewportElement, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
+
+    const sizeInAxis = horizontal ? element.w : element.h
+    const sizeInOtherAxis = horizontal ? element.h : element.w
+    let a:Array<ContinuousAnchorPlacement> = [], step = sizeInAxis / (connections.length + 1)
 
     for (let i = 0; i < connections.length; i++) {
-        let val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0]
+        let val = (i + 1) * step, other = otherMultiplier * sizeInOtherAxis
         if (reverse) {
-            val = elementDimensions[horizontal ? 0 : 1] - val
+            val = sizeInAxis - val
         }
 
-        let dx = (horizontal ? val : other), x = elementPosition.left + dx, xp = dx / elementDimensions[0]
-        let dy = (horizontal ? other : val), y = elementPosition.top + dy, yp = dy / elementDimensions[1]
+        let dx = (horizontal ? val : other), x = element.x + dx, xp = dx / element.w
+        let dy = (horizontal ? other : val), y = element.y + dy, yp = dy / element.h
 
-        if (rotation !== 0) {
-            const rotated = rotatePoint([x, y], [elementPosition.centerx, elementPosition.centery], rotation);
+        if (element.r !== 0 && element.r != null) {
+            const rotated = rotatePoint([x, y], element.c, element.r);
             x = rotated[0];
             y = rotated[1];
         }
@@ -104,18 +107,15 @@ export class AnchorManager {
     }
 
     private placeAnchors (instance:JsPlumbInstance, elementId:string, _anchorLists:AnchorLists):void {
-        let cd = instance.getCachedData(elementId), sS:PointArray = [cd.w, cd.h], sO:Offset = {left:cd.x, top:cd.y},
-            placeSomeAnchors = (desc:string, elementDimensions:PointArray, elementPosition:ExtendedOffset, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
+        let cd:ViewportElement = instance.getCachedData(elementId),
+            placeSomeAnchors = (desc:string, element:ViewportElement, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {
                     let sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
                         reverse = desc === "right" || desc === "top",
-                        rotation = instance.getRotation(elementId),
-                        anchors = placeAnchorsOnLine(elementDimensions,
-                            elementPosition, sc,
+                        anchors = placeAnchorsOnLine(cd, sc,
                             isHorizontal,
                             otherMultiplier,
-                            reverse,
-                            rotation)
+                            reverse)
 
                     // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
                     let _setAnchorLocation = (endpoint:Endpoint, anchorPos:ContinuousAnchorPlacement) => {
@@ -135,10 +135,10 @@ export class AnchorManager {
                 }
             }
 
-        placeSomeAnchors("bottom", sS, sO, _anchorLists.bottom, true, 1, [0, 1])
-        placeSomeAnchors("top", sS, sO, _anchorLists.top, true, 0, [0, -1])
-        placeSomeAnchors("left", sS, sO, _anchorLists.left, false, 0, [-1, 0])
-        placeSomeAnchors("right", sS, sO, _anchorLists.right, false, 1, [1, 0])
+        placeSomeAnchors("bottom", cd, _anchorLists.bottom, true, 1, [0, 1])
+        placeSomeAnchors("top", cd, _anchorLists.top, true, 0, [0, -1])
+        placeSomeAnchors("left", cd, _anchorLists.left, false, 0, [-1, 0])
+        placeSomeAnchors("right", cd, _anchorLists.right, false, 1, [1, 0])
     }
 
     clearContinuousAnchorPlacement(endpointId:string) {
