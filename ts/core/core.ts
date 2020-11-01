@@ -910,14 +910,16 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    rotate(elementId:string, rotation:number, doNotRepaint?:boolean) {
+    rotate(elementId:string, rotation:number, doNotRepaint?:boolean):RedrawResult {
         if (this._managedElements[elementId]) {
             this._managedElements[elementId].rotation = rotation
             this.viewport.rotateElement(elementId, rotation)
             if (doNotRepaint !== true) {
-                this.revalidate(elementId)
+                return this.revalidate(elementId)
             }
         }
+
+        return { c:new Set(), e:new Set() }
     }
 
     getRotation(elementId:string):number {
@@ -2062,6 +2064,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     removeFromGroup (group:string | UIGroup, el:any, doNotFireEvent?:boolean):void {
         this.groupManager.removeFromGroup(group, el, doNotFireEvent)
         this.appendElement(el, this.getContainer())
+        this.updateOffset({recalc:true, elId:this.getId(el)})
     }
 
 }
