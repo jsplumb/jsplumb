@@ -80,7 +80,7 @@ export class Anchor extends EventGenerator {
             this.orientation[0] = Math.round((this._unrotatedOrientation[0] * c2[2]) - (this._unrotatedOrientation[1] * c2[3]));
             this.orientation[1] = Math.round((this._unrotatedOrientation[1] * c2[2]) + (this._unrotatedOrientation[0] * c2[3]));
 
-            this.lastReturnValue = c2
+            this.lastReturnValue = [ c2[0], c2[1], this.x, this.y ]
         } else {
             this.orientation[0] = this._unrotatedOrientation[0];
             this.orientation[1] = this._unrotatedOrientation[1];
