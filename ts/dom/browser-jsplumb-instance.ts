@@ -67,6 +67,7 @@ import {
     toggleClass
 } from "./browser-util"
 import {EventManager} from "./event-manager"
+import { RedrawResult } from '../core/anchor-manager'
 
 import {CollicatOptions, Collicat, Drag} from './collicat'
 
@@ -717,13 +718,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     }
 
 
-    rotate(elementId: string, rotation: number, doNotRepaint?: boolean) {
+    rotate(elementId: string, rotation: number, doNotRepaint?: boolean):RedrawResult {
         if (this._managedElements[elementId]) {
             (this._managedElements[elementId].el as jsPlumbDOMElement).style.transform = "rotate(" + rotation + "deg)";
             (this._managedElements[elementId].el as jsPlumbDOMElement).style.transformOrigin = "center center"
-            super.rotate(elementId, rotation, doNotRepaint)
+            return super.rotate(elementId, rotation, doNotRepaint)
         }
 
+        return { c:new Set(), e:new Set() }
     }
 
     svg = {
