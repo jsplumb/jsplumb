@@ -298,7 +298,7 @@
                         epElCount = container.querySelectorAll(".jtk-endpoint").length,
                         connElCount = container.querySelectorAll(".jtk-connector").length;
 
-                    console.log(container.__ta);
+                    //console.log(container.__ta);
                     for (var k in container.__ta) {
                         for (var kk in container.__ta[k]) {
                             throw "Container event bindings not empty for key " + k;
