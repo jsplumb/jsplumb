@@ -60,6 +60,11 @@ var testSuite = function () {
         equal(e17Loc[0], 300, "e17 x position is correct initially");
         equal(e17Loc[1], 250, "e17 y position is correct initially");
 
+        equal(e16Loc[2], 0.5, "e16 x position is middle");
+        equal(e16Loc[3], 1, "e16 y position is bottom");
+        equal(e17Loc[2], 0.5, "e17 x position is middle");
+        equal(e17Loc[3], 0, "e17 y position is top");
+
         equal(e16.anchor.getOrientation()[0], 0, "e16 x orientation is correct initially");
         equal(e16.anchor.getOrientation()[1], 1, "e16 y orientation is correct initially");
         equal(e17.anchor.getOrientation()[0], 0, "e17 x orientation is correct initially");
@@ -67,6 +72,14 @@ var testSuite = function () {
 
         // now rotate e16 by 90 degrees
         _jsPlumb.rotate("d16", 90);
+
+        e16Loc = e16.anchor.lastReturnValue.slice();
+        e17Loc = e17.anchor.lastReturnValue.slice();
+
+        equal(e16Loc[2], 0.5, "e16 x position is still middle after rotation");
+        equal(e16Loc[3], 1, "e16 y position is still bottom after rotation");
+        equal(e17Loc[2], 0.5, "e17 x position is still middle after rotation");
+        equal(e17Loc[3], 0, "e17 y position is still top after rotation");
 
         var e16Loc2 = e16.anchor.lastReturnValue.slice();
         var e17Loc2 = e17.anchor.lastReturnValue.slice();
