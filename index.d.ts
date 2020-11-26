@@ -59,7 +59,7 @@ declare module jsPlumb {
 
         addGroup(params: GroupOptions): Group
 
-        addToGroup(group: string, el: ElementRef, doNotFireEvent?: boolean): void;
+        addToGroup(group: Group|string, el: ElementRef, doNotFireEvent?: boolean): void;
 
         animate(el: ElementRef, properties?: Object, options?: Object): void;
 
@@ -71,7 +71,7 @@ declare module jsPlumb {
 
         cleanupListeners(): void;
 
-        collapseGroup(group: string): void;
+        collapseGroup(group: Group|string): void;
 
         connect(params: ConnectParams, referenceParams?: Object): Connection;
 
@@ -89,7 +89,7 @@ declare module jsPlumb {
 
         empty(el: string | Element | Selector): void;
 
-        expandGroup(group: string, doNotFireEvent?: boolean): void
+        expandGroup(group: Group|string, doNotFireEvent?: boolean): void
 
         fire(event: string, value: Object, originalEvent: Event): void;
 
@@ -105,9 +105,9 @@ declare module jsPlumb {
 
         getEndpoints(element:string|Element):Array<Endpoint>;
 
-        getGroup(groupId: string): Group
+        getGroup(groupId: Group|string): Group
 
-        getGroups(groupId: string): Group[]
+        getGroups(): Array<Group>
 
         /**
          * Gets the current rotation, if any, for the element with the given id. If no specific rotation has been applied this method will return 0, never null or undefined.
@@ -174,15 +174,15 @@ declare module jsPlumb {
 
         removeAllGroups(deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean)
 
-        removeGroup(group: string, deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean)
+        removeGroup(group: Group|string, deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean)
         
-        removeFromGroup(group: string, el: ElementRef, doNotFireEvent?: boolean): void;
+        removeFromGroup(group: Group|string, el: ElementRef, doNotFireEvent?: boolean): void;
 
         repaint(el: string | Element | Selector): jsPlumbInstance;
 
         repaintEverything(clearEdits?: boolean/* =false */): jsPlumbInstance;
 
-        repaintGroup(group: string): void
+        repaintGroup(group: Group|string): void
 
         reset(doNotUnbindInstanceEventListeners?: boolean): void;
 
@@ -199,7 +199,7 @@ declare module jsPlumb {
          */
         rotate(elId:string, amountInDegrees:number, doNotRedraw?:boolean):void;
 
-        select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Connection[]): { each(fn: (conn: Connection) => void): void };
+        select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Array<Connection>): { each(fn: (conn: Connection) => void): void };
 
         getHoverPaintStyle(params?: Object, scope?: string | string/* =jsPlumb.DefaultScope */, source?: string | Element | Selector | Array<any>, target?: string | Element | Selector | Array<any>, element?: string | Element | Selector | Array<any>): Selection;
 
@@ -382,23 +382,23 @@ declare module jsPlumb {
 
     interface Group {
         id: string
-        connections: Connection
+        connections: Connections
         collapsed: boolean
         add(el: ElementRef, doNotFireEvent?: boolean): void
         getEl(): ElementRef
         getDragArea(): ElementRef
-        getAnchor(): string
+        getAnchor(): AnchorSpec
         getEndpoint(): EndpointSpec 
-        overrideDrop(): boolean
+        overrideDrop(el?: ElementRef, targetGroup?: Group): boolean
         remove(el: ElementRef, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: Group): void
         removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void
         orphanAll(): OrphanedPositions
-        getMembers(): ElementGroupRef
+        getMembers(): Array<ElementRef>
     }
 
     interface GroupOptions {
         el: ElementRef
-        id: string
+        id?: string
         anchor?: string
         constrain?: boolean
         collapsed?: boolean
@@ -417,6 +417,8 @@ declare module jsPlumb {
     type Position = {left: number, top: number}
 
     type OrphanedPositions = Record<string, Position>
+
+    type Connections = {source: Array<Connection>, target: Array<Connection>, internal: Array<Connection>}
 
     /* -------------------------------------------- ENDPOINTS ------------------------------------------------------ */
 
