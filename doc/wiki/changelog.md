@@ -6,6 +6,8 @@ November 27th 2020
 
 ## 2.15.0
 
+October 26th 2020
+
 ### Breaking
 
 - `revalidate` now supports only a single element as argument, and returns a `RedrawResult` object, which contains a list of Connections
