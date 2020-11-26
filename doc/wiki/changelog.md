@@ -1,3 +1,9 @@
+## 2.15.1
+
+November 27th 2020
+
+- A minor release that includes updates to index.d.ts to include methods/types for working with Groups
+
 ## 2.15.0
 
 ### Breaking
