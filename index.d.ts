@@ -57,6 +57,10 @@ declare module jsPlumb {
 
         addEndpoints(target: ElementGroupRef, endpoints: Array<EndpointOptions>, referenceParams?: EndpointOptions): Array<Endpoint>;
 
+        addGroup(params: GroupOptions): Group
+
+        addToGroup(group: Group|string, el: ElementRef, doNotFireEvent?: boolean): void;
+
         animate(el: ElementRef, properties?: Object, options?: Object): void;
 
         batch(fn: Function, doNotRepaintAfterwards?: boolean/* =false */): void;
@@ -66,6 +70,8 @@ declare module jsPlumb {
         bind(event: string, callback: (info: OnConnectionBindInfo, originalEvent: Event) => void, insertAtStart?: boolean/* =false */): void;
 
         cleanupListeners(): void;
+
+        collapseGroup(group: Group|string): void;
 
         connect(params: ConnectParams, referenceParams?: Object): Connection;
 
@@ -83,6 +89,8 @@ declare module jsPlumb {
 
         empty(el: string | Element | Selector): void;
 
+        expandGroup(group: Group|string, doNotFireEvent?: boolean): void
+
         fire(event: string, value: Object, originalEvent: Event): void;
 
         getAllConnections(): Array<Connection>;
@@ -96,6 +104,10 @@ declare module jsPlumb {
         getEndpoint(uuid: string): Endpoint;
 
         getEndpoints(element:string|Element):Array<Endpoint>;
+
+        getGroup(groupId: Group|string): Group
+
+        getGroups(): Array<Group>
 
         /**
          * Gets the current rotation, if any, for the element with the given id. If no specific rotation has been applied this method will return 0, never null or undefined.
@@ -146,6 +158,8 @@ declare module jsPlumb {
 
         recalculateOffsets(el: string | Element | Selector): void;
 
+        refreshAllGroups(): void
+
         registerConnectionType(typeId: string, type: Object): void;
 
         registerConnectionTypes(types: Object): void;
@@ -158,9 +172,17 @@ declare module jsPlumb {
 
         removeAllEndpoints(el: string | Element | Selector, recurse?: boolean/* =false */): jsPlumbInstance;
 
+        removeAllGroups(deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean)
+
+        removeGroup(group: Group|string, deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean)
+        
+        removeFromGroup(group: Group|string, el: ElementRef, doNotFireEvent?: boolean): void;
+
         repaint(el: string | Element | Selector): jsPlumbInstance;
 
         repaintEverything(clearEdits?: boolean/* =false */): jsPlumbInstance;
+
+        repaintGroup(group: Group|string): void
 
         reset(doNotUnbindInstanceEventListeners?: boolean): void;
 
@@ -177,7 +199,7 @@ declare module jsPlumb {
          */
         rotate(elId:string, amountInDegrees:number, doNotRedraw?:boolean):void;
 
-        select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Connection[]): { each(fn: (conn: Connection) => void): void };
+        select(params?: Object, scope?: string | string, source?: string | string, target?: string | string, connections?: Array<Connection>): { each(fn: (conn: Connection) => void): void };
 
         getHoverPaintStyle(params?: Object, scope?: string | string/* =jsPlumb.DefaultScope */, source?: string | Element | Selector | Array<any>, target?: string | Element | Selector | Array<any>, element?: string | Element | Selector | Array<any>): Selection;
 
@@ -355,6 +377,48 @@ declare module jsPlumb {
     type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
     type ConnectorSpec = ConnectorId | [ConnectorId, ConnectorOptions];
 
+
+    /* -------------------------------------------- Group ---------------------------------------------------- */
+
+    interface Group {
+        id: string
+        connections: Connections
+        collapsed: boolean
+        add(el: ElementRef, doNotFireEvent?: boolean): void
+        getEl(): ElementRef
+        getDragArea(): ElementRef
+        getAnchor(): AnchorSpec
+        getEndpoint(): EndpointSpec 
+        overrideDrop(el?: ElementRef, targetGroup?: Group): boolean
+        remove(el: ElementRef, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: Group): void
+        removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void
+        orphanAll(): OrphanedPositions
+        getMembers(): Array<ElementRef>
+    }
+
+    interface GroupOptions {
+        el: ElementRef
+        id?: string
+        anchor?: string
+        constrain?: boolean
+        collapsed?: boolean
+        draggable?: boolean
+        dragOptions?: DragOptions
+        droppable?: boolean
+        dropOverride?: boolean
+        endpoint?: EndpointSpec
+        ghost?: boolean
+        orphan?: boolean
+        prune?: boolean
+        proxied?: boolean
+        revert?: boolean
+    }
+
+    type Position = {left: number, top: number}
+
+    type OrphanedPositions = Record<string, Position>
+
+    type Connections = {source: Array<Connection>, target: Array<Connection>, internal: Array<Connection>}
 
     /* -------------------------------------------- ENDPOINTS ------------------------------------------------------ */
 
