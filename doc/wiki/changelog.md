@@ -1,3 +1,9 @@
+## 2.15.2
+
+December 1st 2020
+
+- Further minor updates to index.d.ts, specifically the addition of a couple of missing return types.
+
 ## 2.15.1
 
 November 27th 2020
