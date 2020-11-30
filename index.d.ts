@@ -172,9 +172,9 @@ declare module jsPlumb {
 
         removeAllEndpoints(el: string | Element | Selector, recurse?: boolean/* =false */): jsPlumbInstance
 
-        removeAllGroups(deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean)
+        removeAllGroups(deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean):void
 
-        removeGroup(group: Group|string, deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean)
+        removeGroup(group: Group|string, deleteMembers: string, manipulateDOM?: boolean, doNotFireEvent?: boolean):OrphanedPositions|void
         
         removeFromGroup(group: Group|string, el: ElementRef, doNotFireEvent?: boolean): void
 
