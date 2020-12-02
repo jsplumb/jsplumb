@@ -25,8 +25,8 @@ import { EndpointRepresentation } from '../core/endpoint/endpoints'
 
 import {
     BoundingBox,
-    Dictionary,
-    SourceDefinition,
+    Dictionary, jsPlumbElement,
+    SourceDefinition, SourceOrTargetDefinition,
     TargetDefinition
 } from '../core/common'
 
@@ -89,6 +89,7 @@ export class EndpointDragHandler implements DragHandler {
 
     ep:Endpoint
     endpointRepresentation:EndpointRepresentation<any>
+    private _activeDefinition:SourceOrTargetDefinition
 
     placeholderInfo:{ id?:string, element?:jsPlumbDOMElement } = { id: null, element: null }
     floatingElement:HTMLElement
@@ -140,6 +141,8 @@ export class EndpointDragHandler implements DragHandler {
         if (sourceDef) {
 
             consume(e)
+
+            this._activeDefinition = sourceDef
 
             // at this point we have a mousedown event on an element that is configured as a drag source.
 
@@ -229,6 +232,8 @@ export class EndpointDragHandler implements DragHandler {
             each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint.bind(this.instance))
             el._jsPlumbOrphanedEndpoints.length = 0
         }
+
+        this._activeDefinition = null
     }
 
     /**
@@ -440,13 +445,13 @@ export class EndpointDragHandler implements DragHandler {
             let d: any = {el: candidate, r: boundingRect}
 
             // look for at least one target definition that is not disabled on the given element.
-            let targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction(candidate._jsPlumbTargetDefinitions, (tdef: any) => {
-                return tdef.enabled !== false
+            let targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction((candidate  as jsPlumbElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
+                return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
             })
 
-            // look for at least one target definition that is not disabled on the given element.
-            let sourceDefinitionIdx = isSourceDrag ? findWithFunction(candidate._jsPlumbSourceDefinitions, (tdef: any) => {
-                return tdef.enabled !== false
+            // look for at least one source definition that is not disabled on the given element.
+            let sourceDefinitionIdx = isSourceDrag ? findWithFunction((candidate  as jsPlumbElement)._jsPlumbSourceDefinitions, (sdef: SourceDefinition) => {
+                return sdef.enabled !== false  && (sdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
             }) : -1
 
             // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
