@@ -900,6 +900,66 @@ var testSuite = function () {
         equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint type derived from the port2 target spec");
     });
 
+    test("makeTarget allowLoopback false", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250);
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle"
+        });
+
+        _jsPlumb.makeTarget(d16, {
+            // allowLooopback defaults to true
+        });
+
+        var c = support.dragConnection(d16, d16, true);
+        ok(c != null, "connection established on d16 - the target config allows, by default, loopback connections");
+
+        _jsPlumb.makeSource(d17, {
+            isSource: true,
+            anchor: "LeftMiddle"
+        });
+
+        _jsPlumb.makeTarget(d17, {
+            allowLoopback:false
+        });
+
+        c = support.dragConnection(d17, d17, true);
+        ok(c == null, "connection not established - the target config does not allow loopback connections");
+    });
+
+    test("makeSource allowLoopback false", function () {
+        var d16 = support.addDiv("d16", null, "", 50, 50, 250, 250),
+            d17 = support.addDiv("d17", null, "", 350, 350, 250, 250);
+
+        _jsPlumb.makeSource(d16, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            // allowLooopback defaults to true
+        });
+
+        _jsPlumb.makeTarget(d16, {
+
+        });
+
+        var c = support.dragConnection(d16, d16, true);
+        ok(c != null, "connection established on d16 - the source config allows, by default, loopback connections");
+
+        _jsPlumb.makeSource(d17, {
+            isSource: true,
+            anchor: "LeftMiddle",
+            allowLoopback:false
+        });
+
+        _jsPlumb.makeTarget(d17, {
+
+        });
+
+        c = support.dragConnection(d17, d17, true);
+        ok(c == null, "connection not established - the source config does not allow loopback connections");
+    });
+
     // 1. two sources on one element, single target, mouse
 
     // 2. two sources on one element, two target zones on target element, mouse
