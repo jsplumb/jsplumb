@@ -101,6 +101,7 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     onMaxConnections?:Function
     connectionType?:string
     portId?:string
+    allowLoopback?:boolean
 }
 
 export interface SourceOrTargetDefinition {
@@ -154,50 +155,3 @@ export type Constructable<T> = { new(...args: any[]): T }
 
 export type Timestamp = string
 
-
-// export interface JsPlumbInstance {
-//
-//     anchorManager:AnchorManager
-//     Defaults:jsPlumbDefaults
-//     renderer:Renderer
-//     geometry:jsPlumbGeometryHelpers
-//
-//     convertToFullOverlaySpec(spec:string | OverlaySpec):FullOverlaySpec
-//
-//     info (el:string | any):{el:any, text?:boolean, id?:string}
-//     bind (event: string | Array<String>, listener: Function, insertAtStart?: boolean): EventGenerator
-//     getElement(el:any|string):any
-//     getElementById(el:string):any
-//     removeElement(el:any|string):void
-//     appendElement (el:any, parent:any):void
-//
-//     removeClass(el:any, clazz:string):void
-//     addClass(el:any, clazz:string):void
-//     toggleClass(el:any, clazz:string):void
-//     getClass(el:any):string
-//     hasClass(el:any, clazz:string):boolean
-//
-//     setAttribute(el:any, name:string, value:string):void
-//     getAttribute(el:any, name:string):string
-//     setAttributes(el:any, atts:Dictionary<string>):void
-//     removeAttribute(el:any, attName:string):void
-//
-//     getSelector(ctx:string | any, spec?:string):NodeListOf<any>
-//     getStyle(el:any, prop:string):any
-//
-//     updateOffset(params?:UpdateOffsetOptions):UpdateOffsetResult
-//
-//     getSize(el:any):Size
-//     _getOffset(el:any|string, relativeToRoot?:boolean, container?:any):Offset
-//     setPosition(el:any, p:Offset):void
-//     getUIPosition(eventArgs:any):Offset
-//
-//     on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void
-//     off (el:any, event:string, callback:Function):void
-//     trigger(el:any, event:string, originalEvent?:Event, payload?:any):void
-//
-//     getDefaultScope ():string
-//
-//     deleteEndpoint(object:string | Endpoint):JsPlumbInstance
-//
-// }
