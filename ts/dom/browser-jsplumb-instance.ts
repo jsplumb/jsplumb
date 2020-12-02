@@ -74,13 +74,25 @@ import {CollicatOptions, Collicat, Drag} from './collicat'
 import {jsPlumbList, jsPlumbListManager, jsPlumbListOptions} from "./lists"
 
 export interface DragEventCallbackOptions {
+    /**
+     * Associated Drag instance
+     */
     drag: {
         _size: [ number, number ]
         getDragElement:() => jsPlumbDOMElement
-    }; // The associated Drag instance
+    }
+    /**
+     * Current mouse event for the drag
+     */
     e: MouseEvent
-    el: jsPlumbDOMElement; // element being dragged
-    pos: [number, number]; // x,y location of the element. drag event only.
+    /**
+     * Element being dragged
+     */
+    el: jsPlumbDOMElement
+    /**
+     * x,y location of the element. provided on the `drag` event only.
+     */
+    pos?: [number, number]
 
 }
 
@@ -94,6 +106,13 @@ export interface DragOptions {
 }
 
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
+    /**
+     * Whether or not elements should be draggable. Default value is `true`.
+     */
+    elementsDraggable?: boolean
+    /**
+     * Options for dragging - containment, grid, callbacks etc.
+     */
     dragOptions?: DragOptions
 }
 
@@ -172,12 +191,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     eventManager:EventManager
     listManager:jsPlumbListManager
 
+    /**
+     * Whether or not elements should be draggable. This can be provided in the constructor arguments, or simply toggled on the
+     * class. The default value is `true`.
+     */
+    elementsDraggable:boolean
+
     private elementDragHandler :ElementDragHandler
 
     constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
         super(_instanceIndex, new BrowserRenderer(), defaults, helpers);
         // not very clean: cant pass this in to BrowserRenderer as we're in the constructor of this class. this should be cleaned up.
         (this.renderer as BrowserRenderer).instance = this
+
+        // by default, elements are draggable
+        this.elementsDraggable = defaults && defaults.elementsDraggable !== false
 
         this.eventManager = new EventManager()
         this.dragManager = new DragManager(this)
