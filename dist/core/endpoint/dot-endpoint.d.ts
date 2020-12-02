@@ -12,3 +12,4 @@ export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpo
     static dotEndpointType: string;
     getType(): string;
 }
+export declare function register(): void;

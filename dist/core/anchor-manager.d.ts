@@ -1,12 +1,17 @@
 import { Endpoint } from "./endpoint/endpoint-impl";
-import { Dictionary, ExtendedOffset, Offset } from "./common";
-import { JsPlumbInstance } from "../core";
+import { Dictionary, Offset } from "./common";
+import { JsPlumbInstance } from "./core";
 import { Connection } from "./connector/connection-impl";
 import { Face, Orientation } from "./factory/anchor-factory";
 import { ContinuousAnchor } from "./anchor/continuous-anchor";
+import { ViewportElement } from "./viewport";
 export declare type AnchorPlacement = [number, number, number, number];
 export declare type ContinuousAnchorPlacement = [number, number, number, number, Connection, Connection];
 export declare type AnchorFace = "top" | "right" | "bottom" | "left";
+export interface RedrawResult {
+    c: Set<Connection>;
+    e: Set<Endpoint>;
+}
 interface OrientationResult {
     orientation?: string;
     a: [Face, Face];
@@ -35,7 +40,7 @@ export declare class AnchorManager {
     clearFor(elementId: string): void;
     private _updateAnchorList;
     rehomeEndpoint(ep: Endpoint, currentId: string, element: any): void;
-    redraw(elementId: string, ui?: Offset, timestamp?: string, offsetToUI?: Offset): void;
-    calculateOrientation(sourceId: string, targetId: string, sd: ExtendedOffset, td: ExtendedOffset, sourceAnchor: ContinuousAnchor, targetAnchor: ContinuousAnchor, sourceRotation: number, targetRotation: number): OrientationResult;
+    redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
+    calculateOrientation(sourceId: string, targetId: string, sd: ViewportElement, td: ViewportElement, sourceAnchor: ContinuousAnchor, targetAnchor: ContinuousAnchor, sourceRotation: number, targetRotation: number): OrientationResult;
 }
 export {};

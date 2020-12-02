@@ -13,3 +13,4 @@ export declare class StateMachine extends AbstractBezierConnector {
     constructor(instance: JsPlumbInstance, connection: Connection, params: StateMachineOptions);
     _computeBezier(paintInfo: PaintGeometry, params: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, w: number, h: number): void;
 }
+export declare function register(): void;

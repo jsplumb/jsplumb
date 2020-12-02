@@ -10,3 +10,4 @@ export declare class RectangleEndpoint extends EndpointRepresentation<ComputedRe
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedRectangleEndpoint;
     getType(): string;
 }
+export declare function register(): void;

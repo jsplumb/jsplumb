@@ -4,3 +4,4 @@ export declare class StraightConnector extends AbstractConnector {
     getDefaultStubs(): [number, number];
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
 }
+export declare function register(): void;

@@ -8,6 +8,7 @@ import { Overlay } from '../core/overlay/overlay';
 import { ElementAttributes } from './svg-util';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
+import { RedrawResult } from '../core/anchor-manager';
 import { CollicatOptions, Collicat, Drag } from './collicat';
 import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
 export interface DragEventCallbackOptions {
@@ -155,7 +156,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
      * @param options
      */
     createDragManager(options: CollicatOptions): Collicat;
-    rotate(elementId: string, rotation: number, doNotRepaint?: boolean): void;
+    rotate(elementId: string, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
         node: (name: string, attributes?: ElementAttributes) => jsPlumbDOMElement;
         attr: (node: SVGElement, attributes: ElementAttributes) => void;

@@ -9149,10 +9149,10 @@ function (_EventGenerator) {
       var _this12 = this;
 
       // put jsplumb ref into params without altering the params passed in
-      var p = extend({
+      var p = Object.assign({
         _jsPlumb: this
       }, referenceParams);
-      extend(p, params);
+      Object.assign(p, params);
       p.connectionType = p.connectionType || DEFAULT;
       var maxConnections = p.maxConnections || -1; //,
 
@@ -10133,7 +10133,6 @@ function () {
         sy: sy,
         tx: tx,
         ty: ty,
-        lw: lw,
         xSpan: Math.abs(tx - sx),
         ySpan: Math.abs(ty - sy),
         mx: (sx + tx) / 2,
@@ -12245,6 +12244,8 @@ function () {
 
     _defineProperty(this, "endpointRepresentation", void 0);
 
+    _defineProperty(this, "_activeDefinition", void 0);
+
     _defineProperty(this, "placeholderInfo", {
       id: null,
       element: null
@@ -12302,7 +12303,8 @@ function () {
           def;
 
       if (sourceDef) {
-        consume(e); // at this point we have a mousedown event on an element that is configured as a drag source.
+        consume(e);
+        this._activeDefinition = sourceDef; // at this point we have a mousedown event on an element that is configured as a drag source.
 
         def = sourceDef.def; // if maxConnections reached
 
@@ -12396,6 +12398,8 @@ function () {
         each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint.bind(this.instance));
         el._jsPlumbOrphanedEndpoints.length = 0;
       }
+
+      this._activeDefinition = null;
     }
     /**
      * At the beginning of a drag, this method can be used to perform some setup in a handler, and if it returns a DOM
@@ -12630,11 +12634,11 @@ function () {
 
         };
         var targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
-          return tdef.enabled !== false;
-        }); // look for at least one target definition that is not disabled on the given element.
+          return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
+        }); // look for at least one source definition that is not disabled on the given element.
 
-        var sourceDefinitionIdx = isSourceDrag ? findWithFunction(candidate._jsPlumbSourceDefinitions, function (tdef) {
-          return tdef.enabled !== false;
+        var sourceDefinitionIdx = isSourceDrag ? findWithFunction(candidate._jsPlumbSourceDefinitions, function (sdef) {
+          return sdef.enabled !== false && (sdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
         }) : -1; // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
 
         if (targetDefinitionIdx !== -1) {
@@ -18173,15 +18177,11 @@ function (_AbstractConnector) {
             ac: ac
           });
         } else {
-          // dx + dy are used to adjust for line width.
-          var dx = current[2] === current[0] ? 0 : current[2] > current[0] ? paintInfo.lw / 2 : -(paintInfo.lw / 2),
-              dy = current[3] === current[1] ? 0 : current[3] > current[1] ? paintInfo.lw / 2 : -(paintInfo.lw / 2);
-
           this._addSegment(StraightSegment, {
-            x1: current[0] - dx,
-            y1: current[1] - dy,
-            x2: current[2] + dx,
-            y2: current[3] + dy
+            x1: current[0],
+            y1: current[1],
+            x2: current[2],
+            y2: current[3]
           });
         }
 

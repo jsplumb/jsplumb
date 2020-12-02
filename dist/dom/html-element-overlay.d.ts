@@ -1,5 +1,5 @@
 import { PointArray } from '../core/common';
-import { JsPlumbInstance } from "../core";
+import { JsPlumbInstance } from "../core/core";
 import { Overlay } from '../core/overlay/overlay';
 import { Component } from '../core/component/component';
 interface HTMLElementOverlayHolder extends Overlay {

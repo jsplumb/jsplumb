@@ -26,3 +26,4 @@ export declare class FlowchartConnector extends AbstractConnector {
     private writeSegments;
     _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;
 }
+export declare function register(): void;

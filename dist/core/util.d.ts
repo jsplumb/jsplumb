@@ -76,3 +76,4 @@ export interface Optional<T> {
     map: (fn: MapFunction<T, any>) => any;
 }
 export declare function optional<T>(obj: T): Optional<T>;
+export declare function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: () => V): V;

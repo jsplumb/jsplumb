@@ -5,7 +5,7 @@ import { Overlay } from '../core/overlay/overlay';
 import { LabelOverlay } from '../core/overlay/label-overlay';
 import { AbstractConnector } from '../core/connector/abstract-connector';
 import { TypeDescriptor } from '../core/common';
-import { JsPlumbInstance } from "../core";
+import { JsPlumbInstance } from "../core/core";
 import { Connection } from '../core/connector/connection-impl';
 import { Endpoint } from '../core/endpoint/endpoint-impl';
 import { OverlayCapableComponent } from '../core/component/overlay-capable-component';

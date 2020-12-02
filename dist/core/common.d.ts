@@ -91,6 +91,7 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     onMaxConnections?: Function;
     connectionType?: string;
     portId?: string;
+    allowLoopback?: boolean;
 }
 export interface SourceOrTargetDefinition {
     enabled?: boolean;

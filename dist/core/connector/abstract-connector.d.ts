@@ -42,7 +42,6 @@ export interface PaintGeometry {
     sy: number;
     tx: number;
     ty: number;
-    lw: number;
     xSpan: number;
     ySpan: number;
     mx: number;
@@ -105,7 +104,7 @@ export declare abstract class AbstractConnector implements Connector {
     bounds: SegmentBounds;
     cssClass: string;
     abstract getDefaultStubs(): [number, number];
-    protected geometry: Geometry;
+    geometry: Geometry;
     constructor(instance: JsPlumbInstance, connection: Connection, params: ConnectorOptions);
     getTypeDescriptor(): string;
     getIdPrefix(): string;

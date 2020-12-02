@@ -8,3 +8,4 @@ export declare class BlankEndpoint extends EndpointRepresentation<ComputedBlankE
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedBlankEndpoint;
     getType(): string;
 }
+export declare function register(): void;

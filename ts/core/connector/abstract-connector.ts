@@ -43,7 +43,6 @@ export interface PaintGeometry {
     sy: number
     tx: number
     ty: number
-    lw: number
     xSpan: number
     ySpan: number
     mx: number
@@ -355,7 +354,7 @@ export abstract class AbstractConnector implements Connector {
             oProduct = ((so[0] * to[0]) + (so[1] * to[1]))
 
         let result:PaintGeometry = {
-            sx: sx, sy: sy, tx: tx, ty: ty, lw: lw,
+            sx: sx, sy: sy, tx: tx, ty: ty,
             xSpan: Math.abs(tx - sx),
             ySpan: Math.abs(ty - sy),
             mx: (sx + tx) / 2,

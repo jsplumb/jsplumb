@@ -9292,10 +9292,10 @@
           var _this12 = this;
 
           // put jsplumb ref into params without altering the params passed in
-          var p = extend({
+          var p = Object.assign({
             _jsPlumb: this
           }, referenceParams);
-          extend(p, params);
+          Object.assign(p, params);
           p.connectionType = p.connectionType || DEFAULT;
           var maxConnections = p.maxConnections || -1; //,
 
@@ -10758,7 +10758,6 @@
             sy: sy,
             tx: tx,
             ty: ty,
-            lw: lw,
             xSpan: Math.abs(tx - sx),
             ySpan: Math.abs(ty - sy),
             mx: (sx + tx) / 2,

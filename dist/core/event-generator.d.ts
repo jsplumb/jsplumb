@@ -6,7 +6,7 @@ export declare abstract class EventGenerator {
     private queue;
     abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     constructor();
-    fire(event: string, value?: any, originalEvent?: Event): any;
+    fire<T>(event: string, value?: T, originalEvent?: Event): any;
     private _drain;
     unbind(eventOrListener?: string | Function, listener?: Function): EventGenerator;
     getListener(forEvent: string): Array<any>;

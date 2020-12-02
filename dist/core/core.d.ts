@@ -2,10 +2,9 @@ import { jsPlumbDefaults, jsPlumbHelperFunctions } from "./defaults";
 import { Connection } from "./connector/connection-impl";
 import { Endpoint } from "./endpoint/endpoint-impl";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
-import { AnchorManager, AnchorPlacement } from "./anchor-manager";
-import { Dictionary, ElementSpec, UpdateOffsetOptions, Offset, Size, Rotation, jsPlumbElement, PointArray, ConnectParams, // <--
-SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, // <--
-UpdateOffsetResult, TypeDescriptor } from './common';
+import { AnchorManager, AnchorPlacement, RedrawResult } from "./anchor-manager";
+import { Dictionary, ElementSpec, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
+SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";
 import { Renderer } from "./renderer";
 import { AnchorSpec } from "./factory/anchor-factory";
@@ -17,6 +16,7 @@ import { jsPlumbGeometryHelpers } from "./geom";
 import { Router } from "./router/router";
 import { EndpointSelection } from "./selection/endpoint-selection";
 import { ConnectionSelection } from "./selection/connection-selection";
+import { Viewport, ViewportElement } from "./viewport";
 export interface AbstractSelectOptions {
     scope?: string;
     source?: string | any | Array<string | any>;
@@ -52,10 +52,7 @@ export declare type DeleteConnectionOptions = {
 };
 export declare type ManagedElement = {
     el: jsPlumbElement;
-    info?: {
-        o: Offset;
-        s: Size;
-    };
+    info?: ViewportElement;
     endpoints?: Array<Endpoint>;
     connections?: Array<Connection>;
     rotation?: number;
@@ -94,8 +91,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     allowNestedGroups: boolean;
     private _curIdStamp;
     private _offsetTimestamps;
-    private _offsets;
-    private _sizes;
+    readonly viewport: Viewport;
     router: Router;
     anchorManager: AnchorManager;
     groupManager: GroupManager;
@@ -154,11 +150,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      */
     setId(el: any, newId: string, doNotSetAttribute?: boolean): void;
     setIdChanged(oldId: string, newId: string): void;
-    getCachedData(elId: string): {
-        o: Offset;
-        s: Size;
-        r: Rotation;
-    };
+    getCachedData(elId: string): ViewportElement;
     getConnections(options?: SelectOptions, flat?: boolean): Dictionary<Connection> | Array<Connection>;
     select(params?: SelectOptions): ConnectionSelection;
     selectEndpoints(params?: SelectEndpointOptions): EndpointSelection;
@@ -196,7 +188,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param params
      * @return an UpdateOffsetResult containing the offset information for the given element.
      */
-    updateOffset(params?: UpdateOffsetOptions): UpdateOffsetResult;
+    updateOffset(params?: UpdateOffsetOptions): ViewportElement;
     /**
      * Delete the given connection.
      * @param connection Connection to delete.
@@ -224,13 +216,13 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param id ID of the element to stop managing.
      */
     unmanage(id: string): void;
-    rotate(elementId: string, rotation: number, doNotRepaint?: boolean): void;
+    rotate(elementId: string, rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
     newEndpoint(params: any, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
     getAllConnections(): Array<Connection>;
-    repaint(el: string | any | Array<string | any>, ui?: any, timestamp?: string): JsPlumbInstance;
-    revalidate(el: string | any | Array<string | any>, timestamp?: string, isIdAlready?: boolean): JsPlumbInstance;
+    repaint(el: string | any, ui?: any, timestamp?: string): RedrawResult;
+    revalidate(el: string | any, timestamp?: string, isIdAlready?: boolean): RedrawResult;
     repaintEverything(): JsPlumbInstance;
     /**
      * for some given element, find any other elements we want to draw whenever that element
@@ -239,7 +231,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @private
      */
     abstract _getAssociatedElements(el: any): Array<any>;
-    _draw(element: string | any, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): void;
+    _draw(element: string | any, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;

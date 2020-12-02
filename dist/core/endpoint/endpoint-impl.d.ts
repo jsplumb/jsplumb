@@ -1,5 +1,4 @@
 import { EndpointOptions, EndpointSpec } from "../endpoint/endpoint";
-import { OffsetAndSize, Size } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Anchor } from "../anchor/anchor";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
@@ -9,6 +8,7 @@ import { ConnectorSpec } from "../connector/abstract-connector";
 import { EndpointRepresentation } from "./endpoints";
 import { AnchorPlacement } from "../anchor-manager";
 import { OverlaySpec } from '../overlay/overlay';
+import { ViewportElement } from "../viewport";
 export declare class Endpoint extends OverlayCapableComponent {
     instance: JsPlumbInstance;
     getIdPrefix(): string;
@@ -84,13 +84,11 @@ export declare class Endpoint extends OverlayCapableComponent {
     connectorSelector(): Connection;
     paint(params: {
         timestamp?: string;
-        offset?: OffsetAndSize;
-        dimensions?: Size;
+        offset?: ViewportElement;
         recalc?: boolean;
         elementWithPrecedence?: string;
         connectorPaintStyle?: PaintStyle;
         anchorLoc?: AnchorPlacement;
-        rotation?: number;
     }): void;
     prepareEndpoint<C>(ep: EndpointSpec | EndpointRepresentation<C>, typeId?: string): EndpointRepresentation<C>;
     setEndpoint(ep: EndpointSpec): void;

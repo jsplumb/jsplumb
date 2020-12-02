@@ -2,8 +2,8 @@
   "name": "@jsplumb/core",
   "version": "4.0.0-RC21",
   "description": "Visual connectivity for webapps",
-  "main": "index.js",
-  "module": "dist/js/jsplumb-es.js",
+  "main": "js/jsplumb.core.cjs.js",
+  "module": "js/jsplumb.core.es.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
