@@ -79,7 +79,6 @@ export class ElementDragHandler implements DragHandler {
 
     onStop(params:DragStopEventParams):void {
 
-
         const _one = (_el:jsPlumbDOMElement, pos:Offset) => {
 
             const redrawResult = this.instance._draw(_el, pos)
@@ -244,7 +243,7 @@ export class ElementDragHandler implements DragHandler {
 
         let cont = true
         let nd = el.getAttribute(ATTR_NOT_DRAGGABLE)
-        if (nd != null && nd !== "false" ) {
+        if (this.instance.elementsDraggable === false || (nd != null && nd !== "false")) {
             cont = false
         }
 
