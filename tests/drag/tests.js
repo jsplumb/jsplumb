@@ -1526,6 +1526,66 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 150);
     });
 
+    test("dragging does not happen when jsplumb instance created with `elementsDraggable:false`", function() {
+
+        support.cleanup()
+
+        _jsPlumb = jsPlumb.newInstance(({container:container, elementsDraggable:false}));
+        support = jsPlumbTestSupport.getInstance(_jsPlumb);
+        defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        support.dragNodeBy(d, 100, 100);
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+
+    });
+
+    test("dragging does not happen when jsplumb instance has `elementsDraggable` set to false", function() {
+
+        _jsPlumb.elementsDraggable = false;
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        support.dragNodeBy(d, 100, 100);
+
+        equal(parseInt(d.style.left, 10), 50, "drag element has not moved in x axis");
+        equal(parseInt(d.style.top, 10), 50, "drag element has not moved in y axis");
+
+        // now set elements to be draggable and test again
+        _jsPlumb.elementsDraggable = true;
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element during drag");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class not set on element after drag");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 150, "drag element has moved in x axis");
+        equal(parseInt(d.style.top, 10), 150, "drag element has moved in y axis");
+    });
+
     //*
     test("dragging a posse works, elements as argument", function() {
 
