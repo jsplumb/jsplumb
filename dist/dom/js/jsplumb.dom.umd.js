@@ -11789,7 +11789,7 @@
         var cont = true;
         var nd = el.getAttribute(ATTR_NOT_DRAGGABLE);
 
-        if (nd != null && nd !== "false") {
+        if (this.instance.elementsDraggable === false || nd != null && nd !== "false") {
           cont = false;
         }
 
@@ -15499,6 +15499,10 @@
   function (_JsPlumbInstance) {
     _inherits(BrowserJsPlumbInstance, _JsPlumbInstance);
 
+    /**
+     * Whether or not elements should be draggable. This can be provided in the constructor arguments, or simply toggled on the
+     * class. The default value is `true`.
+     */
     function BrowserJsPlumbInstance(_instanceIndex, defaults, helpers) {
       var _this;
 
@@ -15546,6 +15550,8 @@
 
       _defineProperty(_assertThisInitialized(_this), "listManager", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "elementsDraggable", void 0);
+
       _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "svg", {
@@ -15560,7 +15566,9 @@
         }
       });
 
-      _this.renderer.instance = _assertThisInitialized(_this);
+      _this.renderer.instance = _assertThisInitialized(_this); // by default, elements are draggable
+
+      _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
       _this.eventManager = new EventManager();
       _this.dragManager = new DragManager(_assertThisInitialized(_this));
       _this.listManager = new jsPlumbListManager(_assertThisInitialized(_this));

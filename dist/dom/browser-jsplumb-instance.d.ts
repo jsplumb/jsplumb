@@ -12,13 +12,25 @@ import { RedrawResult } from '../core/anchor-manager';
 import { CollicatOptions, Collicat, Drag } from './collicat';
 import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
 export interface DragEventCallbackOptions {
+    /**
+     * Associated Drag instance
+     */
     drag: {
         _size: [number, number];
         getDragElement: () => jsPlumbDOMElement;
     };
+    /**
+     * Current mouse event for the drag
+     */
     e: MouseEvent;
+    /**
+     * Element being dragged
+     */
     el: jsPlumbDOMElement;
-    pos: [number, number];
+    /**
+     * x,y location of the element. provided on the `drag` event only.
+     */
+    pos?: [number, number];
 }
 export interface DragOptions {
     containment?: string;
@@ -29,6 +41,13 @@ export interface DragOptions {
     zIndex?: number;
 }
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
+    /**
+     * Whether or not elements should be draggable. Default value is `true`.
+     */
+    elementsDraggable?: boolean;
+    /**
+     * Options for dragging - containment, grid, callbacks etc.
+     */
     dragOptions?: DragOptions;
 }
 export interface jsPlumbDOMInformation {
@@ -78,6 +97,11 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     _elementMousemove: Function;
     eventManager: EventManager;
     listManager: jsPlumbListManager;
+    /**
+     * Whether or not elements should be draggable. This can be provided in the constructor arguments, or simply toggled on the
+     * class. The default value is `true`.
+     */
+    elementsDraggable: boolean;
     private elementDragHandler;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     addDragFilter(filter: Function | string, exclude?: boolean): void;
