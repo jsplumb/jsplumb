@@ -5,7 +5,7 @@ import { JsPlumbInstance } from "../core"
 
 import {Anchor} from "../anchor/anchor"
 import {DynamicAnchor} from "../anchor/dynamic-anchor"
-import {IS, isArray, isNumber, isString} from "../util"
+import {extend, IS, isArray, isNumber, isString} from "../util"
 import {ContinuousAnchor, ContinuousAnchorOptions} from "../anchor/continuous-anchor"
 import {AnchorPlacement} from "../anchor-manager"
 
@@ -328,7 +328,7 @@ anchorMap["Perimeter"] = function(instance:JsPlumbInstance, params:any):Anchor {
 function _curryContinuousAnchor (type:AnchorId, faces?:Array<Face>) {
     anchorMap[type] = function(instance:JsPlumbInstance, params:any):Anchor {
         let o:ContinuousAnchorOptions = {}
-        Object.assign(o, params || {})
+        extend(o, params || {})
         if (faces) {
             o.faces = faces;
         }

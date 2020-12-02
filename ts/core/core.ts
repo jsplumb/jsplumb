@@ -1756,8 +1756,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
     makeTarget (el:ElementSpec, params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
 
         // put jsplumb ref into params without altering the params passed in
-        let p = Object.assign({_jsPlumb: this}, referenceParams)
-        Object.assign(p, params)
+        let p = extend({_jsPlumb: this}, referenceParams)
+        extend(p, params)
         p.connectionType  = p.connectionType || Constants.DEFAULT
 
         let maxConnections = p.maxConnections || -1;//,

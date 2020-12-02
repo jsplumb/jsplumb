@@ -2783,7 +2783,7 @@ anchorMap["Perimeter"] = function (instance, params) {
 function _curryContinuousAnchor(type, faces) {
   anchorMap[type] = function (instance, params) {
     var o = {};
-    Object.assign(o, params || {});
+    extend(o, params || {});
 
     if (faces) {
       o.faces = faces;
@@ -9290,10 +9290,10 @@ function (_EventGenerator) {
       var _this12 = this;
 
       // put jsplumb ref into params without altering the params passed in
-      var p = Object.assign({
+      var p = extend({
         _jsPlumb: this
       }, referenceParams);
-      Object.assign(p, params);
+      extend(p, params);
       p.connectionType = p.connectionType || DEFAULT;
       var maxConnections = p.maxConnections || -1; //,
 
