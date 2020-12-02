@@ -182,6 +182,25 @@ var testSuite = function () {
         equal("center center", d17.style.transformOrigin, "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
     });
+
+    test("group rotation, group contains nodes, node inside group is rotated", function() {
+        var d16 = support.addDiv("d16", null, null, 550, 550),
+            d17 = support.addDiv("d17", null, null, 250, 250),
+            g1El = support.addDiv("g1", null, null, 500, 500, 600, 600);
+
+        var g1 = _jsPlumb.addGroup({id:"g1", el:g1El});
+        _jsPlumb.addToGroup(g1, d16);
+
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
+        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
+
+        _jsPlumb.rotate("d16", 90);
+
+        console.log("hey")
+
+
+    })
 };
 
 
