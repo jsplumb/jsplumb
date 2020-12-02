@@ -94,7 +94,9 @@ suffix `jtk-endpoint-anchor` was just a shadow of `jtk-endpoint` - use `jtk-endp
 
 ### New Functionality
 
-- `elementsDraggable` added to `Defaults`, with a default value of true.
+- `elementsDraggable` added to `Defaults`, with a default value of true. When `false`, prevents nodes/groups from being dragged.
+
+- `elementsDraggable` member exposed on `BrowserJsPlumbInstance`, defaulting to `true`. When `false`, prevents nodes/groups from being dragged.
 
 - Added `drag:start`, `drag:move` and `drag:stop` events to the `JsPlumbInstance` class. These replace the `start`, `drag` and `stop` event handlers that used to be supported on individual `draggable(..)` method calls.
 
@@ -106,7 +108,7 @@ suffix `jtk-endpoint-anchor` was just a shadow of `jtk-endpoint` - use `jtk-endp
 ##### Imports
 
 ```
-<script src="../../dist/js/jsplumb.js"></script>
+<script src="../../dist/dom/js/jsplumb.dom.umd.js"></script>
 ```
 
 
@@ -144,12 +146,13 @@ NOTE: jsPlumb does not follow strict semantic versioning.  It is not at all reco
 
 jsPlumb does not follow strict semantic versioning largely because of the stipulation that breaking changes must result in the major version being bumped. A major version implies something fundamental has occurred. The bump from 1.7.10 to 2.0.0 in jsPlumb was caused by the removal of the VML renderer, meaning IE6 and IE8 were no longer supported. You may say, a-ha! A breaking change! And you would be right; that was a breaking change. But a new major version might also occur when a new capability is added that doesn't affect existing functionality. And not every breaking change constitutes a fundamental change in the library itself. This note about semver was added to jsPlumb, for example, due to a discussion about how the `stop` event behaviour in the underlying drag library - Katavorio - had changed. Semver would say that the major version should have been bumped. But the change was not something fundamental. No capabilities had been added or removed...just some variables had been shuffled around.
 
-Maybe you agree with this viewpoint. Maybe you don't.
+Maybe you agree with this viewpoint. Maybe you don't. Maybe it was you who tweeted this and hashtagged it '#devlife'.
 
 We recommend including the `jsplumbtoolkit.css` file to begin with, as it provides some sane default values.
 
 
 ## Issues
+
 jsPlumb uses GitHub's issue tracker for enhancements and bugs.  A losing battle was fought against the usage of Github for questions; now it seems to be the default, and the Google group is no longer in use.
 
 ## Requirements
@@ -168,7 +171,9 @@ There is a full suite of unit tests checked in to the `test` and `dist/test` dir
 Please don't.
 
 ## Mailing List
+
 Sign up for the jsPlumb announcements mailing list [here](http://eepurl.com/bMuD9).
 
 ## License
+
 All 1.x.x, 2.x.x and 4.x.x versions of jsPlumb Community edition are dual-licensed under both MIT and GPLv2. 
