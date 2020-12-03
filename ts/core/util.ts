@@ -9,6 +9,8 @@ export function filterList (list:Array<any> | string, value:any, missingIsFalse?
 
 export function extend<T>(o1:T, o2:T, keys?:string[]):T {
     let i
+    o1 = o1 || {} as T
+    o2 = o2 || {} as T
     let _o1 = o1 as any,
         _o2 = o2 as any
 
