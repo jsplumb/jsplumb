@@ -104,20 +104,6 @@ export class DragManager {
                 hover: "jtk-drag-hover",
                 ghostProxy: "jtk-ghost-proxy"
             },
-            // TODO this should move to the specific drag handler for elements.
-            constrain: (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray):PointArray => {
-                let x = desiredLoc[0], y = desiredLoc[1]
-
-                if ((<any>dragEl)[PARENT_GROUP_KEY] && (<any>dragEl)[PARENT_GROUP_KEY].constrain) {
-                    x = Math.max(desiredLoc[0], 0)
-                    y = Math.max(desiredLoc[1], 0)
-                    x = Math.min(x, constrainRect.w - size[0])
-                    y = Math.min(y, constrainRect.h - size[1])
-
-                }
-
-                return [x, y]
-            },
             revert: (dragEl:HTMLElement, pos:PointArray):boolean => {
                 const _el = <any>dragEl
                 // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
