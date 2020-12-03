@@ -3,14 +3,16 @@ import {
     jsPlumbHelperFunctions
 } from '../core/defaults'
 
-import { Dictionary,
-     SourceDefinition, TargetDefinition, Offset,
+import {
+    Dictionary,
+    SourceDefinition, TargetDefinition, Offset,
     PointArray,
-    Size } from '../core/common'
+    Size, BoundingBox
+} from '../core/common'
 
 import { JsPlumbInstance } from '../core/core'
 
-import { isString, uuid } from '../core/util'
+import {extend, isString, uuid} from '../core/util'
 import { UIGroup } from '../core/group/group'
 import { AbstractConnector } from '../core/connector/abstract-connector'
 import { Endpoint } from '../core/endpoint/endpoint-impl'
@@ -42,7 +44,7 @@ import {
     EVENT_MOUSEENTER,
     ATTRIBUTE_CONTAINER,
     CLASS_CONNECTOR,
-    CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED
+    CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, PARENT_GROUP_KEY
 } from '../core/constants'
 
 
@@ -69,7 +71,7 @@ import {
 import {EventManager} from "./event-manager"
 import { RedrawResult } from '../core/anchor-manager'
 
-import {CollicatOptions, Collicat, Drag} from './collicat'
+import {CollicatOptions, Collicat, Drag, DragHandlerOptions} from './collicat'
 
 import {jsPlumbList, jsPlumbListManager, jsPlumbListOptions} from "./lists"
 
@@ -214,7 +216,24 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         this.dragManager.addHandler(new EndpointDragHandler(this))
         this.dragManager.addHandler(new GroupDragHandler(this))
         this.elementDragHandler = new ElementDragHandler(this)
-        this.dragManager.addHandler(this.elementDragHandler)
+
+        const elementDragOptions:DragHandlerOptions = extend<DragHandlerOptions>({
+            constrain: (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray):PointArray => {
+                let x = desiredLoc[0], y = desiredLoc[1]
+
+                if ((<any>dragEl)[PARENT_GROUP_KEY] && (<any>dragEl)[PARENT_GROUP_KEY].constrain) {
+                    x = Math.max(desiredLoc[0], 0)
+                    y = Math.max(desiredLoc[1], 0)
+                    x = Math.min(x, constrainRect.w - size[0])
+                    y = Math.min(y, constrainRect.h - size[1])
+
+                }
+
+                return [x, y]
+            }
+        }, defaults && defaults.dragOptions)
+
+        this.dragManager.addHandler(this.elementDragHandler, elementDragOptions)
 
         // ---
 
