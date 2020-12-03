@@ -214,10 +214,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         this.listManager = new jsPlumbListManager(this)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
-        this.dragManager.addHandler(new GroupDragHandler(this))
-        this.elementDragHandler = new ElementDragHandler(this)
-
-        const elementDragOptions:DragHandlerOptions = extend<DragHandlerOptions>({
+        const groupDragOptions:DragHandlerOptions = {
             constrain: (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray):PointArray => {
                 let x = desiredLoc[0], y = desiredLoc[1]
 
@@ -231,9 +228,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
                 return [x, y]
             }
-        }, defaults && defaults.dragOptions)
+        }
+        this.dragManager.addHandler(new GroupDragHandler(this), groupDragOptions)
 
-        this.dragManager.addHandler(this.elementDragHandler, elementDragOptions)
+        this.elementDragHandler = new ElementDragHandler(this)
+
+        this.dragManager.addHandler(this.elementDragHandler, defaults && defaults.dragOptions)
 
         // ---
 
