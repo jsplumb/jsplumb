@@ -715,33 +715,53 @@ export class Drag extends Base {
         return [ _x, _y]
     }
 
+    private resolveGrid():[ PointArray, number, number ] {
+        let out:[ PointArray, number, number ] = [ this._grid, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2 ]
+        if(this._activeSelectorParams != null && this._activeSelectorParams.grid != null) {
+            out[0] = this._activeSelectorParams.grid
+            if (this._activeSelectorParams.snapThreshold != null) {
+                out[1] = this._activeSelectorParams.snapThreshold
+                out[2] = this._activeSelectorParams.snapThreshold
+            }
+        }
+        return out
+    }
+
     toGrid (pos:PointArray):PointArray {
-        if (this._grid == null) {
+
+        const [grid, thresholdX, thresholdY] = this.resolveGrid()
+
+        if (grid == null) {
+            // if there's no grid, return the desired position.
             return pos
         }
         else {
-            const tx = this._grid ? this._grid[0] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2,
-                ty = this._grid ? this._grid[1] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2
 
-            return this._snap(pos, this._grid[0], this._grid[1], tx, ty)
+            const tx = grid ? grid[0] / 2 : thresholdX,
+                ty = grid ? grid[1] / 2 : thresholdY
+
+            return this._snap(pos, grid[0], grid[1], tx, ty)
         }
     }
 
-    snap (x:number, y:number):PointArray {
-        if (this._dragEl == null) {
-            return
-        }
-        x = x || (this._grid ? this._grid[0] : DEFAULT_GRID_X)
-        y = y || (this._grid ? this._grid[1] : DEFAULT_GRID_Y)
-
-        const p = _getPosition(this._dragEl),
-            tx = this._grid ? this._grid[0] / 2 : this._snapThreshold,
-            ty = this._grid ? this._grid[1] / 2 : this._snapThreshold,
-            snapped = this._snap(p, x, y, tx, ty)
-
-        _setPosition(this._dragEl, snapped)
-        return snapped
-    }
+    // snap (x:number, y:number):PointArray {
+    //
+    //     const [grid, thresholdX, thresholdY] = this.resolveGrid()
+    //
+    //     if (this._dragEl == null) {
+    //         return
+    //     }
+    //     x = x || (grid ? grid[0] : DEFAULT_GRID_X)
+    //     y = y || (grid ? grid[1] : DEFAULT_GRID_Y)
+    //
+    //     const p = _getPosition(this._dragEl),
+    //         tx = grid ? grid[0] / 2 : thresholdX,
+    //         ty = grid ? grid[1] / 2 : thresholdY,
+    //         snapped = this._snap(p, x, y, tx, ty)
+    //
+    //     _setPosition(this._dragEl, snapped)
+    //     return snapped
+    // }
 
     setUseGhostProxy (val:boolean) {
         this._useGhostProxy = val ? TRUE : FALSE
