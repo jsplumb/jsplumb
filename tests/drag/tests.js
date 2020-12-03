@@ -2,6 +2,15 @@ QUnit.config.reorder = false;
 
 var defaults = null, support, _jsPlumb;
 
+var reinit = function(defaults) {
+    var d = Object.assign({container:container}, defaults || {});
+    support.cleanup()
+
+    _jsPlumb = jsPlumb.newInstance((d));
+    support = jsPlumbTestSupport.getInstance(_jsPlumb);
+    defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+}
+
 /**
  * Tests for dragging
  * @param _jsPlumb
@@ -1323,127 +1332,6 @@ var testSuite = function () {
         ok(!_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class removed from element");
     });
 
-    //
-    // 3.0.0 has stopped supporting individual node drag events. We could re-introduce a form of this, but for now it
-    // is not supported. This test, and the one below, commented pending some long term decision.
-    //
-    // test("node drag events", function() {
-    //
-    //     var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-    //     var started = false, dragged = false, stopped = false;
-    //
-    //     _jsPlumb.draggable(d1, {
-    //         start:function() { started = true; },
-    //         drag:function() { dragged = true; },
-    //         stop:function() { stopped = true; }
-    //     });
-    //
-    //     support.dragANodeAround(d1, function() {
-    //         return _jsPlumb.isConnectionBeingDragged()  && _jsPlumb.isHoverSuspended();
-    //     }, "isConnectionBeingDragged and isHoverSuspended return true while node is being dragged");
-    //
-    //     ok(started, "start event fired");
-    //     ok(dragged, "drag event fired");
-    //     ok(stopped, "stop event fired");
-    //
-    //     started = false; dragged = false; stopped = false;
-    //     var started2 = false, dragged2 = false, stopped2 = false;
-    //
-    //     _jsPlumb.draggable(d1, {
-    //         start:function() { started2 = true; },
-    //         drag:function() { dragged2 = true; },
-    //         stop:function() { stopped2 = true; },
-    //         force:true
-    //     });
-    //
-    //     support.dragANodeAround(d1);
-    //
-    //     ok(started, "start event fired");
-    //     ok(dragged, "drag event fired");
-    //     ok(stopped, "stop event fired");
-    //     ok(started2, "2nd start event fired");
-    //     ok(dragged2, "2nd drag event fired");
-    //     ok(stopped2, "2nd stop event fired");
-    // });
-    //
-    // test("node drag events, drag disabled", function() {
-    //
-    //     var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-    //     var started = false, dragged = false, stopped = false;
-    //
-    //     _jsPlumb.draggable(d1, {
-    //         start:function() { started = true; },
-    //         drag:function() { dragged = true; },
-    //         stop:function() { stopped = true; },
-    //         canDrag:function() { return false; }
-    //     });
-    //
-    //     support.dragANodeAround(d1, function() {
-    //         return !_jsPlumb.isConnectionBeingDragged() && !_jsPlumb.isHoverSuspended();
-    //     }, "isConnectionBeingDragged returns false because node cannot be dragged");
-    //
-    //     ok(!started, "start event fired");
-    //     ok(!dragged, "drag event fired");
-    //     ok(!stopped, "stop event fired");
-    //
-    //
-    // });
-
-    // test("recalculateOffsets", function() {
-    //     var d1 = _addDiv("d1");
-    //
-    //     var d2 = support.addDiv("d2", d1);
-    //     d2.style.left = "250px";
-    //     d2.style.top = "120px";
-    //
-    //     var d3 = support.addDiv("d3", d1);
-    //     d3.style.left = "150px";
-    //     d3.style.top = "220px";
-    //
-    //     _jsPlumb.connect({source:d2, target:d3});
-    //     _jsPlumb.manage(d1);
-    //
-    //     var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
-    //     equal(250, o.offsetLeft, "d2 is at left=250");
-    //
-    //     d2.style.left = "1250px";
-    //     var o = _jsPlumb.getDragManager().getElementsForDraggable("d1")[0];
-    //     equal(1250, o.offsetLeft, "d2 is at left=1250");
-    //
-    // });
-
-    // -----------------issue 383, setDraggable doesnt work with list-like arguments
-
-    // test("setDraggable with array", function() {
-    //     var d1 = support.addDiv("d1", null, "aTest");
-    //     var d2 = support.addDiv("d2", null, "aTest");
-    //
-    //     ok(!_jsPlumb.isAlreadyDraggable(d1), "d1 is not draggable");
-    //     ok(!_jsPlumb.isAlreadyDraggable(d2), "d2 is not draggable");
-    //     var d = document.getElementsByClassName("aTest");
-    //
-    //     // first make them draggable
-    //     if(typeof d === "function") {
-    //         expect(2);
-    //     }
-    //     else
-    //     {
-    //         _jsPlumb.draggable(d);
-    //         ok(_jsPlumb.isElementDraggable(d1), "d1 is now draggable");
-    //         ok(_jsPlumb.isElementDraggable(d2), "d2 is now draggable");
-    //
-    //         // now disable
-    //         _jsPlumb.setDraggable(d, false);
-    //         ok(!_jsPlumb.isElementDraggable(d1), "d1 is not draggable");
-    //         ok(!_jsPlumb.isElementDraggable(d2), "d2 is not draggable");
-    //
-    //         // and enable
-    //         _jsPlumb.toggleDraggable(d);
-    //         ok(_jsPlumb.isElementDraggable(d1), "d1 is draggable after toggle ");
-    //         ok(_jsPlumb.isElementDraggable(d2), "d2 is draggable after toggle");
-    //     }
-    // });
-
     // ----------------------- draggables and posses ----------------------------------------------------
 
     test("dragging works", function() {
@@ -1528,11 +1416,7 @@ var testSuite = function () {
 
     test("dragging does not happen when jsplumb instance created with `elementsDraggable:false`", function() {
 
-        support.cleanup()
-
-        _jsPlumb = jsPlumb.newInstance(({container:container, elementsDraggable:false}));
-        support = jsPlumbTestSupport.getInstance(_jsPlumb);
-        defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+        reinit({elementsDraggable:false});
 
         var d = _addDiv("d1");
         d.style.position = "absolute";
@@ -1585,6 +1469,97 @@ var testSuite = function () {
         equal(parseInt(d.style.left, 10), 150, "drag element has moved in x axis");
         equal(parseInt(d.style.top, 10), 150, "drag element has moved in y axis");
     });
+
+    test("dragging, grid", function() {
+
+        reinit({
+            dragOptions:{
+                grid:[50,50]
+            }
+        });
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by 26, 26. it should be snapped to 50,50 by the grid, because the default snap threshold is
+        // > half of the grid size in each axis.
+        support.dragNodeBy(d, 26, 26);
+
+        equal(parseInt(d.style.left, 10), 100);
+        equal(parseInt(d.style.top, 10), 100);
+    });
+
+    // test("snap elements, default threshold", function() {
+    //
+    //     var d = _addDiv("d1");
+    //     d.style.position = "absolute";
+    //     d.style.left = "23px";
+    //     d.style.top = "23px";
+    //     d.style.width = "100px";
+    //     d.style.height = "100px";
+    //
+    //     // should not be necessary
+    //     _jsPlumb.manage(d);
+    //
+    //     // snap the element to the snapThreshold given above. it's currently at 23, 23; it should be snaped to 0,0
+    //     _jsPlumb.snap(d)
+    //
+    //     equal(parseInt(d.style.left, 10), 0);
+    //     equal(parseInt(d.style.top, 10), 0);
+    //
+    //     // drag to 76, 76
+    //     support.dragNodeBy(d, 76, 76);
+    //
+    //     // snap again. should move to 100,100 now
+    //     _jsPlumb.snap(d)
+    //
+    //     equal(parseInt(d.style.left, 10), 100);
+    //     equal(parseInt(d.style.top, 10), 100);
+    //
+    // });
+    //
+    // test("dragging, snap, snapThreshold", function() {
+    //
+    //     reinit({
+    //         dragOptions:{
+    //             snapThreshold:5
+    //         }
+    //     });
+    //
+    //     var d = _addDiv("d1");
+    //     d.style.position = "absolute";
+    //     d.style.left = "23px";
+    //     d.style.top = "23px";
+    //     d.style.width = "100px";
+    //     d.style.height = "100px";
+    //
+    //     // should not be necessary
+    //     _jsPlumb.manage(d);
+    //
+    //     // snap the element to the snapThreshold given above. it's currently at 23, 23; it should be snaped to 25,25
+    //     _jsPlumb.snap(d)
+    //
+    //     equal(parseInt(d.style.left, 10), 0);
+    //     equal(parseInt(d.style.top, 10), 0);
+    //
+    //     // drag to 86, 86
+    //     support.dragNodeBy(d, 51, 51);
+    //
+    //     // snap again. should move to 85, 85 now
+    //     _jsPlumb.snap(d)
+    //
+    //     equal(parseInt(d.style.left, 10), 85);
+    //     equal(parseInt(d.style.top, 10), 85);
+    // });
+
+/* ------------------------------------ POSSES --------------------------------------------- */
 
     //*
     test("dragging a posse works, elements as argument", function() {
