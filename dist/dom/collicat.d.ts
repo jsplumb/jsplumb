@@ -118,8 +118,8 @@ export declare class Drag extends Base {
     private notifyStart;
     private _dispatch;
     private _snap;
+    private resolveGrid;
     toGrid(pos: PointArray): PointArray;
-    snap(x: number, y: number): PointArray;
     setUseGhostProxy(val: boolean): void;
     private _negativeFilter;
     private _setConstrain;

@@ -132,6 +132,10 @@
     return _get(target, property, receiver || target);
   }
 
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -144,12 +148,46 @@
     }
   }
 
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
   function _iterableToArray(iter) {
     if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
   }
 
+  function _iterableToArrayLimit(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
   function _nonIterableSpread() {
     throw new TypeError("Invalid attempt to spread non-iterable instance");
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }
 
   function filterList(list, value, missingIsFalse) {
@@ -161,6 +199,8 @@
   }
   function extend(o1, o2, keys) {
     var i;
+    o1 = o1 || {};
+    o2 = o2 || {};
     var _o1 = o1,
         _o2 = o2;
 
@@ -11418,20 +11458,6 @@
           hover: "jtk-drag-hover",
           ghostProxy: "jtk-ghost-proxy"
         },
-        // TODO this should move to the specific drag handler for elements.
-        constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {
-          var x = desiredLoc[0],
-              y = desiredLoc[1];
-
-          if (dragEl[PARENT_GROUP_KEY] && dragEl[PARENT_GROUP_KEY].constrain) {
-            x = Math.max(desiredLoc[0], 0);
-            y = Math.max(desiredLoc[1], 0);
-            x = Math.min(x, constrainRect.w - size[0]);
-            y = Math.min(y, constrainRect.h - size[1]);
-          }
-
-          return [x, y];
-        },
         revert: function revert(dragEl, pos) {
           var _el = dragEl; // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
 
@@ -14938,35 +14964,57 @@
         return [_x, _y];
       }
     }, {
-      key: "toGrid",
-      value: function toGrid(pos) {
-        if (this._grid == null) {
-          return pos;
-        } else {
-          var tx = this._grid ? this._grid[0] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2,
-              ty = this._grid ? this._grid[1] / 2 : this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2;
-          return this._snap(pos, this._grid[0], this._grid[1], tx, ty);
+      key: "resolveGrid",
+      value: function resolveGrid() {
+        var out = [this._grid, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2];
+
+        if (this._activeSelectorParams != null && this._activeSelectorParams.grid != null) {
+          out[0] = this._activeSelectorParams.grid;
+
+          if (this._activeSelectorParams.snapThreshold != null) {
+            out[1] = this._activeSelectorParams.snapThreshold;
+            out[2] = this._activeSelectorParams.snapThreshold;
+          }
         }
+
+        return out;
       }
     }, {
-      key: "snap",
-      value: function snap(x, y) {
-        if (this._dragEl == null) {
-          return;
+      key: "toGrid",
+      value: function toGrid(pos) {
+        var _this$resolveGrid = this.resolveGrid(),
+            _this$resolveGrid2 = _slicedToArray(_this$resolveGrid, 3),
+            grid = _this$resolveGrid2[0],
+            thresholdX = _this$resolveGrid2[1],
+            thresholdY = _this$resolveGrid2[2];
+
+        if (grid == null) {
+          // if there's no grid, return the desired position.
+          return pos;
+        } else {
+          var tx = grid ? grid[0] / 2 : thresholdX,
+              ty = grid ? grid[1] / 2 : thresholdY;
+          return this._snap(pos, grid[0], grid[1], tx, ty);
         }
+      } // snap (x:number, y:number):PointArray {
+      //
+      //     const [grid, thresholdX, thresholdY] = this.resolveGrid()
+      //
+      //     if (this._dragEl == null) {
+      //         return
+      //     }
+      //     x = x || (grid ? grid[0] : DEFAULT_GRID_X)
+      //     y = y || (grid ? grid[1] : DEFAULT_GRID_Y)
+      //
+      //     const p = _getPosition(this._dragEl),
+      //         tx = grid ? grid[0] / 2 : thresholdX,
+      //         ty = grid ? grid[1] / 2 : thresholdY,
+      //         snapped = this._snap(p, x, y, tx, ty)
+      //
+      //     _setPosition(this._dragEl, snapped)
+      //     return snapped
+      // }
 
-        x = x || (this._grid ? this._grid[0] : DEFAULT_GRID_X);
-        y = y || (this._grid ? this._grid[1] : DEFAULT_GRID_Y);
-
-        var p = _getPosition(this._dragEl),
-            tx = this._grid ? this._grid[0] / 2 : this._snapThreshold,
-            ty = this._grid ? this._grid[1] / 2 : this._snapThreshold,
-            snapped = this._snap(p, x, y, tx, ty);
-
-        _setPosition(this._dragEl, snapped);
-
-        return snapped;
-      }
     }, {
       key: "setUseGhostProxy",
       value: function setUseGhostProxy(val) {
@@ -15575,11 +15623,27 @@
 
       _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
 
-      _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)));
+      var groupDragOptions = {
+        constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {
+          var x = desiredLoc[0],
+              y = desiredLoc[1];
+
+          if (dragEl[PARENT_GROUP_KEY] && dragEl[PARENT_GROUP_KEY].constrain) {
+            x = Math.max(desiredLoc[0], 0);
+            y = Math.max(desiredLoc[1], 0);
+            x = Math.min(x, constrainRect.w - size[0]);
+            y = Math.min(y, constrainRect.h - size[1]);
+          }
+
+          return [x, y];
+        }
+      };
+
+      _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)), groupDragOptions);
 
       _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this));
 
-      _this.dragManager.addHandler(_this.elementDragHandler); // ---
+      _this.dragManager.addHandler(_this.elementDragHandler, defaults && defaults.dragOptions); // ---
 
 
       var _connClick = function _connClick(event, e) {

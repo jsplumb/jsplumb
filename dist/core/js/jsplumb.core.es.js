@@ -237,6 +237,8 @@ function filterList(list, value, missingIsFalse) {
 }
 function extend(o1, o2, keys) {
   var i;
+  o1 = o1 || {};
+  o2 = o2 || {};
   var _o1 = o1,
       _o2 = o2;
 
