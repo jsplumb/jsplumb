@@ -43,6 +43,7 @@ export class SelectionBase<T extends OverlayCapableComponent>{
 
     clear() {
         this.entries.length = 0
+        return this
     }
 
     map<Q>(fn:(entry:T) => Q):Array<Q> {
