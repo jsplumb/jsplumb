@@ -1,9 +1,14 @@
+## 4.0.0-RC23
+
+- `EndpointSelection` now returns `this` from all methods.
+
 ## 4.0.0-RC22
 
 3rd December 2020
 
 - Reinstated `grid` option for `dragOptions`
 - Added support for `elementsDraggable` default and instance class member
+- Reinstated `allowLoopback` option in `makeTarget`, and added it to `makeSource`
 
 ## 4.0.0-RC21
 
