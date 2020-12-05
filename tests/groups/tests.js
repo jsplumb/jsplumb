@@ -1736,7 +1736,7 @@ var testSuite = function () {
 
     });
 
-    test("nested groups, remove a group that has child groups, with deleteMembers false - should not remove child groups from the instance", function() {
+    test("nested groups, remove a group that has child groups and nodes, with deleteMembers false - should not remove child groups from the instance. The group children should become children of the parent of the deleted group", function() {
         // also check that the 'parent group' flag has been removed.
         var groupA = _addGroupAndContainer(100,100),
             groupB = _addGroupAndContainer(400,400),
