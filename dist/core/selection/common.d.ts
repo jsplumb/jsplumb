@@ -14,7 +14,7 @@ export declare class SelectionBase<T extends OverlayCapableComponent> {
     removeClass(clazz: string, updateAttachedElements?: boolean): SelectionBase<T>;
     removeAllOverlays(): SelectionBase<T>;
     setLabel(label: string): SelectionBase<T>;
-    clear(): void;
+    clear(): this;
     map<Q>(fn: (entry: T) => Q): Array<Q>;
     addOverlay(spec: OverlaySpec): SelectionBase<T>;
     removeOverlay(id: string): SelectionBase<T>;

@@ -1,8 +1,9 @@
-import { SelectionBase } from "./common";
-import { AnchorSpec, Endpoint } from "..";
+import { SelectionBase } from './common';
+import { AnchorSpec } from '../factory/anchor-factory';
+import { Endpoint } from '../endpoint/endpoint-impl';
 export declare class EndpointSelection extends SelectionBase<Endpoint> {
-    setEnabled(e: boolean): void;
-    setAnchor(a: AnchorSpec): void;
-    deleteEveryConnection(): void;
-    deleteAll(): void;
+    setEnabled(e: boolean): EndpointSelection;
+    setAnchor(a: AnchorSpec): EndpointSelection;
+    deleteEveryConnection(): EndpointSelection;
+    deleteAll(): EndpointSelection;
 }

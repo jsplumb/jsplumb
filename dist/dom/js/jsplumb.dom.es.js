@@ -6559,6 +6559,7 @@ function () {
     key: "clear",
     value: function clear() {
       this.entries.length = 0;
+      return this;
     }
   }, {
     key: "map",
@@ -6734,6 +6735,7 @@ function (_SelectionBase) {
       this.each(function (ep) {
         return ep.enabled = e;
       });
+      return this;
     }
   }, {
     key: "setAnchor",
@@ -6741,6 +6743,7 @@ function (_SelectionBase) {
       this.each(function (ep) {
         return ep.setAnchor(a);
       });
+      return this;
     }
   }, {
     key: "deleteEveryConnection",
@@ -6748,6 +6751,7 @@ function (_SelectionBase) {
       this.each(function (ep) {
         return ep.deleteEveryConnection();
       });
+      return this;
     }
   }, {
     key: "deleteAll",
@@ -6758,6 +6762,7 @@ function (_SelectionBase) {
         return _this.instance.deleteEndpoint(ep);
       });
       this.clear();
+      return this;
     }
   }]);
 
