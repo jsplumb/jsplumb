@@ -672,6 +672,58 @@ var testSuite = function () {
 
     });
 
+    test(" connection type tests, two types, mergeStrategy:\"override\"", function () {
+        var basicType = {
+            overlays:[
+                [ "Arrow", { location: 1, id:"basicArrow" }],
+                [ "Label", { location:0.2, id:"basicLabel" }]
+            ]
+        };
+
+        var otherType = {
+            overlays:[
+                [ "Arrow", { location: 0.5, id:"otherArrow" }]
+            ],
+            mergeStrategy:"override"
+
+        };
+
+        var anotherType = {
+            overlays:[
+                [ "Label", { location: 0.5, id:"anotherLabel" }]
+            ]
+
+        };
+
+        _jsPlumb.registerConnectionTypes({
+            "basic": basicType,
+            "other": otherType,
+            "another":anotherType
+        });
+
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"),
+            c = _jsPlumb.connect({source: d1, target: d2}),
+            c2 = _jsPlumb.connect({source: d2, target: d3});
+
+        // add the 'basic' type and observe it has two overlays.
+        c.setType("basic");
+        ok(c.getOverlays().basicArrow != null, "first connection has Arrow overlay from the basicType");
+        ok(c.getOverlays().basicLabel != null, "first connection has Label overlay from the basicType");
+
+        // add - not set - the `other` type, and observe it has only the overlay from that type due to the mergeStrategy.
+        c.addType("other");
+
+        ok(c.getOverlays().basicArrow == null, "first connection has no basicArrow overlay because otherType overrides basicType");
+        ok(c.getOverlays().basicLabel == null, "first connection has no basicLabel overlay, because otherType overrides basicType");
+        ok(c.getOverlays().otherArrow != null, "first connection has otherArrow overlay, because otherType overrides basicType");
+
+        c.addType("another");
+        ok(c.getOverlays().otherArrow != null, "first connection still has otherArrow overlay; anotherType merges normally");
+        ok(c.getOverlays().anotherLabel != null, "first connection does not have anotherLabel overlay; type added afterwards is not overridden by `other` type's mergeStrategy");
+
+
+    });
+
     test(" setType when null", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"),
             c = _jsPlumb.connect({source: d1, target: d2});
