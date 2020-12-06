@@ -8,7 +8,7 @@ There are a few integration issues that you should be aware of: z-index needs sp
 This project is the 'Community Edition' of jsPlumb. The 'Toolkit Edition' is a commercially-licensed wrapper around this. **This project is not the correct place to report issues for the Toolkit edition**. The Toolkit is not a public project. Issues reported for the Toolkit edition in this issue tracker will be deleted.
 
 
-There are currently two versions of the Community Edition available - the `master` branch, which is 2.x.x, and which is the continuation of the original Javascript code from the first release of jsPlumb back in 2009, and the `dev/4.x` branch, which is a rewrite in Typescript, at the time of writing on release 4.0.0-RC2. New users of jsPlumb should use this version, as 2.x will be deprecated at some point in the not so distant future and then ultimately retired. 
+There are currently two versions of the Community Edition available - the `master` branch, which is 2.x.x, and which is the continuation of the original Javascript code from the first release of jsPlumb back in 2009, and the `dev/4.x` branch, which is a rewrite in Typescript, at the time of writing on release 4.0.0-RC24. New users of jsPlumb should use this version, as 2.15.3 is going to be the final release in the 2.x branch, after which that branch will be in maintenance mode and will have no new features added to it.
 
 ## Installation
 
