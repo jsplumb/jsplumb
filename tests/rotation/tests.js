@@ -183,7 +183,32 @@ var testSuite = function () {
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
     });
 
-    test("group rotation, group contains nodes, node inside group is rotated", function() {
+    test("group contains nodes, node inside group is rotated", function() {
+        var d16 = support.addDiv("d16", null, null, 550, 550),
+            d17 = support.addDiv("d17", null, null, 250, 250),
+            g1El = support.addDiv("g1", null, null, 500, 500, 600, 600);
+
+        var g1 = _jsPlumb.addGroup({id:"g1", el:g1El});
+        _jsPlumb.addToGroup(g1, d16);
+
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
+        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
+        var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
+
+        _jsPlumb.rotate("d16", 90);
+
+        var e16LocRotated = e16.anchor.lastReturnValue.slice();
+
+        console.log("hey")
+
+    });
+
+    /**
+     * Here we test what happens when you rotate an entire group that has nodes. Although the nodes don't need a transform applied,
+     * they should behave as if they are rotated
+     */
+    test("group contains nodes, group itself is rotated", function() {
         var d16 = support.addDiv("d16", null, null, 550, 550),
             d17 = support.addDiv("d17", null, null, 250, 250),
             g1El = support.addDiv("g1", null, null, 500, 500, 600, 600);
@@ -195,12 +220,20 @@ var testSuite = function () {
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
         _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
 
-        _jsPlumb.rotate("d16", 90);
+        var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
+        console.log(e16Loc);
+
+        _jsPlumb.rotate("g1", 90);
+
+        var e16LocRotated = e16.anchor.lastReturnValue.slice();
+        console.log(e16LocRotated);
+
+        // the anchor value should be different.
 
         console.log("hey")
 
 
-    })
+    });
 };
 
 
