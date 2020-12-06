@@ -214,9 +214,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
     abstract getStyle(el:any, prop:string):any
 
     abstract _getSize(el:any):Size
-    abstract _getOffset(el:any|string, relativeToRoot?:boolean, container?:any):Offset
+
+    abstract _getOffset(el:any|string):Offset
+    abstract _getOffsetRelativeToRoot(el:any|string):Offset
+
     abstract setPosition(el:any, p:Offset):void
-    abstract getUIPosition(eventArgs:any):Offset
 
     abstract on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void
     abstract off (el:any, event:string, callback:Function):void
@@ -277,8 +279,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el)
     }
 
-    getOffset(el:any|string, relativeToRoot?:boolean, container?:any) {
-        return this._helpers.getOffset ? this._helpers.getOffset(el, relativeToRoot, container) : this._getOffset(el, relativeToRoot, container)
+    getOffset(el:any|string, relativeToRoot?:boolean):Offset {
+        if (relativeToRoot) {
+            return this._helpers.getOffsetRelativeToRoot ? this._helpers.getOffsetRelativeToRoot(el) : this._getOffsetRelativeToRoot(el)
+        } else {
+            return this._helpers.getOffset ? this._helpers.getOffset(el) : this._getOffset(el)
+        }
     }
 
     getContainer():any { return this._container; }
