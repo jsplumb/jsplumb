@@ -1,5 +1,5 @@
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Dictionary} from '../core/common'
+import {Dictionary, Offset} from '../core/common'
 import { fastTrim, isArray, log } from '../core/util'
 
 // These are utility functions for use inside a Browser.
@@ -204,5 +204,25 @@ export function createElementNS(ns:string, tag:string, style?:Dictionary<any>, c
     }
 
     return e
+}
+
+export function offsetRelativeToRoot(el:any):Offset {
+    const box = el.getBoundingClientRect(),
+        body = document.body,
+        docElem = document.documentElement,
+        // (2)
+        scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+        scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+        // (3)
+        clientTop = docElem.clientTop || body.clientTop || 0,
+        clientLeft = docElem.clientLeft || body.clientLeft || 0,
+        // (4)
+        top  = box.top +  scrollTop - clientTop,
+        left = box.left + scrollLeft - clientLeft
+
+    return {
+        left:Math.round(left),
+        top:Math.round(top)
+    }
 }
 
