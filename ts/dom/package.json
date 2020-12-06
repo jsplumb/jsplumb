@@ -15,7 +15,7 @@
     "js/jsplumb.dom.es.js",
     "css/jsplumbtoolkit.css"
   ],
-  "types": "index.d.ts",
+  "types": "types/dom/index.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",
