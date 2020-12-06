@@ -99,7 +99,7 @@ var testSuite = function () {
     var npointer = 0;
     var _addNodeToGroup = function(g, x, y, w, h ) {
         var cId = "node_" + npointer;
-        var c = support.addDiv(cId, g.getDragArea(), "w", x || 30, y || 30, w || NODE_WIDTH, h || NODE_HEIGHT);
+        var c = support.addDiv(cId, g.getContentArea(), "w", x || 30, y || 30, w || NODE_WIDTH, h || NODE_HEIGHT);
         _jsPlumb.manage(c);
         _jsPlumb.addToGroup(g, c);
 
@@ -1415,7 +1415,7 @@ var testSuite = function () {
 
         equal(1, g1.getGroups().length, "g1 has one child group");
 
-        var g1DragArea = g1.getDragArea();
+        var g1DragArea = g1.getContentArea();
         equal(g1DragArea, g2.el.parentNode, "g2 has been set as a child of g1's drag area");
 
         equal(0, g2.getGroups().length, "g2 initially has one child group");
@@ -1427,7 +1427,7 @@ var testSuite = function () {
         g2.addGroup(g3);
 
         equal(1, g2.getGroups().length, "g2 now has one child group");
-        equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
+        equal(g2.getContentArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
 
     });
 
@@ -1533,7 +1533,7 @@ var testSuite = function () {
 
         // STATE 1: g3 is a child of g2. both g3 and g2 expanded. connection goes from n3 (child of g3) to n4 (not a group child)
         equal(1, g2.getGroups().length, "g2 now has one child group");
-        equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
+        equal(g2.getContentArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
         equal(c.endpoints[0].element, n3_1, "source element is n3_1");
         equal(c.endpoints[1].element, n4, "source element is n4");
 
@@ -1560,7 +1560,7 @@ var testSuite = function () {
         // STATE 1: g3 is a child of g2. both g3 and g2 expanded. connection goes from n3 (child of g3) to n4 (not a group child)
         _jsPlumb.expandGroup(g2);
         equal(1, g2.getGroups().length, "g2 now has one child group");
-        equal(g2.getDragArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
+        equal(g2.getContentArea(), g3.el.parentNode, "g3 has been set as a child of g2's drag area");
         equal(c.endpoints[0].element, n3_1, "source element is n3_1");
         equal(c.endpoints[1].element, n4, "source element is n4");
 
@@ -1651,7 +1651,7 @@ var testSuite = function () {
         equal(groupB.childGroups.length, 2, "groupB has two child groups");
         equal(groupA.childGroups.length, 0, "groupA has zero child groups");
         equal(groupC.childGroups.length, 0, "groupC has zero child groups");
-        equal(groupB.getDragArea(), groupC.el.parentNode, "groupC is child of groupB in the DOM");
+        equal(groupB.getContentArea(), groupC.el.parentNode, "groupC is child of groupB in the DOM");
     });
 
     test("nested groups, one group can be dropped on another", function() {
@@ -1660,7 +1660,7 @@ var testSuite = function () {
 
         _dragToGroup(_jsPlumb, groupB.el, groupA);
 
-        equal(groupA.getDragArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.getContentArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
         equal(groupA.childGroups.length, 1, "groupA has one child group");
 
     });
@@ -1673,7 +1673,7 @@ var testSuite = function () {
 
         _dragToGroup(_jsPlumb, groupB.el, groupA);
 
-        equal(groupA.getDragArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.getContentArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
         equal(groupA.childGroups.length, 1, "groupA has one child group");
 
         support.dragtoDistantLand(groupB.el);
@@ -1756,12 +1756,12 @@ var testSuite = function () {
 
         // n1_1, which was a child of groupA, should now be a child of groupB
         equal(groupB.children.length, 2, "groupB reports two child nodes");
-        equal(n1_1.parentNode, groupB.getDragArea(), "n1_1 is a child of groupB in the DOM");
+        equal(n1_1.parentNode, groupB.getContentArea(), "n1_1 is a child of groupB in the DOM");
         // it should be positioned at exactly the same place it was before wrt the origin of the group it is now a child of.
         // so we need the offset groupA and also n1_1
 
         // groupC should be a child of groupB
-        equal(groupC.el.parentNode, groupB.getDragArea(), "groupC is a child of groupB in the DOM");
+        equal(groupC.el.parentNode, groupB.getContentArea(), "groupC is a child of groupB in the DOM");
     });
 
 
