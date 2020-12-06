@@ -15,7 +15,6 @@ import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
 
 interface GroupMemberEventParams {
-    //el:jsPlumbDOMElement
     el:jsPlumbElement,
     group:UIGroup
 }
@@ -160,7 +159,7 @@ export class GroupManager {
         if (IS.aString(groupId)) {
             group = this.groupMap[groupId as string]
             if (group == null) {
-                throw new TypeError("No such group [" + groupId + "]")
+                throw new Error("No such group [" + groupId + "]")
             }
         }
         return group as UIGroup
@@ -227,9 +226,9 @@ export class GroupManager {
         return newPositions; // this will be null in the case or remove, but be a map of {id->[x,y]} in the case of orphan
     }
 
-    removeAllGroups (deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
+    removeAllGroups (deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean) {
         for (let g in this.groupMap) {
-            this.removeGroup(this.groupMap[g], deleteMembers, manipulateDOM, doNotFireEvent)
+            this.removeGroup(this.groupMap[g], deleteMembers, manipulateView, doNotFireEvent)
         }
     }
 
@@ -239,13 +238,24 @@ export class GroupManager {
         }
     }
 
-    // orphan(_el:jsPlumbDOMElement):[string, Offset] {
+    // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
+    // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.)
     orphan(_el:any):[string, Offset] {
-        if (_el._jsPlumbParentGroup) {
-            let id = this.instance.getId(_el)
-            let pos = this.instance.getOffset(_el)
+        if ((_el as jsPlumbElement)._jsPlumbParentGroup) {
+            const group = (_el as jsPlumbElement)._jsPlumbParentGroup
+            const groupPos = this.instance.getOffset(_el)
+            const id = this.instance.getId(_el)
+            const pos = this.instance.getOffset(_el)
             _el.parentNode.removeChild(_el)
-            this.instance.appendElement(_el, this.instance.getContainer())
+
+            if (group.group) {
+                pos.left += groupPos.left
+                pos.top += groupPos.top
+                group.group.getContentArea().appendChild(_el); // set as child of parent group, if there is one.
+            } else {
+                this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
+            }
+
             this.instance.setPosition(_el, pos)
             delete _el._jsPlumbParentGroup
             return [id, pos]
@@ -253,7 +263,7 @@ export class GroupManager {
     }
 
     private _setGroupVisible(group:UIGroup, state:boolean) {
-        let m = (group.el as any).querySelectorAll("[jtk-managed]")
+        let m = (group.el as any).querySelectorAll(Constants.SELECTOR_MANAGED_ELEMENT)
         for (let i = 0; i < m.length; i++) {
             this.instance[state ? Constants.CMD_SHOW : Constants.CMD_HIDE](m[i], true)
         }
@@ -523,7 +533,6 @@ export class GroupManager {
             this.instance.addClass(groupEl, Constants.GROUP_EXPANDED_CLASS)
             this.instance.removeClass(groupEl, Constants.GROUP_COLLAPSED_CLASS)
         }
-
     }
 
     /**
@@ -596,7 +605,7 @@ export class GroupManager {
                 // if already a member of this group, do nothing
                 if (currentGroup !== actualGroup) {
                     const elpos = this.instance.getOffset(el)
-                    const cpos = actualGroup.collapsed ? this.instance.getOffset(groupEl, true) : this.instance.getOffset(actualGroup.getDragArea())
+                    const cpos = actualGroup.collapsed ? this.instance.getOffset(groupEl, true) : this.instance.getOffset(actualGroup.getContentArea())
 
                     // otherwise, transfer to this group.
                     if (currentGroup != null) {
@@ -608,7 +617,6 @@ export class GroupManager {
                     } else {
                         actualGroup.add(el, doNotFireEvent)
                     }
-
 
                     const handleDroppedConnections = (list:ConnectionSelection, index:number) => {
                         const oidx = index === 0 ? 1 : 0
@@ -676,7 +684,6 @@ export class GroupManager {
                                         this._expandConnection(c, index, actualGroup)
                                     }
                                 }
-
                             }
                         }
                     }

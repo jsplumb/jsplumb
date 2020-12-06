@@ -84,7 +84,7 @@ export class UIGroup extends UINode {
         return this.dropOverride && (this.revert || this.prune || this.orphan)
     }
 
-    getDragArea():any {
+    getContentArea():any {
         let da = this.instance.getSelector(this.el, Constants.SELECTOR_GROUP_CONTAINER)
         return da && da.length > 0 ? da[0] : this.el
     }
@@ -100,7 +100,7 @@ export class UIGroup extends UINode {
     }
 
     add(_el:any, doNotFireEvent?:boolean):void {
-        const dragArea = this.getDragArea()
+        const dragArea = this.getContentArea()
         this.instance.each(_el, (__el:any) => {
 
             if (__el[Constants.PARENT_GROUP_KEY] != null) {
@@ -128,7 +128,7 @@ export class UIGroup extends UINode {
             })
 
             if (manipulateDOM) {
-                try { (<any>this.getDragArea()).removeChild(__el); }
+                try { (<any>this.getContentArea()).removeChild(__el); }
                 catch (e) {
                     log("Could not remove element from Group " + e)
                 }
@@ -156,39 +156,18 @@ export class UIGroup extends UINode {
         this.manager._updateConnectionsForGroup(this)
     }
 
-    // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
-    // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.
-    private _orphan(_el:any):[string, Offset] {
-        const groupPos = this.manager.instance.getOffset(this.el)
-        const id = this.manager.instance.getId(_el)
-        const pos = this.manager.instance.getOffset(_el)
-        _el.parentNode.removeChild(_el)
-
-        if (this.group) {
-            pos.left += groupPos.left
-            pos.top += groupPos.top
-            this.group.getDragArea().appendChild(_el); // set as child of parent group, if there is one.
-        } else {
-            this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
-        }
-
-        this.instance.setPosition(_el, pos)
-        delete _el._jsPlumbParentGroup
-        return [id, pos]
-    }
-
     orphanAll ():Dictionary<Offset> {
 
         let orphanedPositions:Dictionary<Offset> = {}
 
         for (let i = 0; i < this.children.length; i++) {
-            let newPosition = this._orphan(this.children[i])
+            let newPosition = this.manager.orphan(this.children[i])
             orphanedPositions[newPosition[0]] = newPosition[1]
         }
         this.children.length = 0
 
         for (let i = 0; i < this.childGroups.length; i++) {
-            let newPosition = this._orphan(this.childGroups[i].el)
+            let newPosition = this.manager.orphan(this.childGroups[i].el)
             orphanedPositions[newPosition[0]] = newPosition[1]
         }
 
@@ -207,19 +186,17 @@ export class UIGroup extends UINode {
 
             // TODO what happens if the group is a member of another group?
             if (group.group != null) {
-
                 group.group.removeGroup(group)
             }
 
             const elpos = this.instance.getOffset(group.el, true)
-            const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true)
+            const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getContentArea(), true)
 
             group.el[Constants.PARENT_GROUP_KEY] = this
 
             this.childGroups.push(group)
 
-            //group.el.parentNode && group.el.parentNode.removeChild(group.el)
-            this.instance.appendElement(group.el, this.getDragArea())
+            this.instance.appendElement(group.el, this.getContentArea())
 
             group.group = this
             let newPosition = {left: elpos.left - cpos.left, top: elpos.top - cpos.top}
@@ -240,7 +217,7 @@ export class UIGroup extends UINode {
 
     removeGroup(group:UIGroup):void {
         if (group.group === this) {
-            const d = this.getDragArea()
+            const d = this.getContentArea()
             if (d === group.el.parentNode) {
                 d.removeChild(group.el)
             }
