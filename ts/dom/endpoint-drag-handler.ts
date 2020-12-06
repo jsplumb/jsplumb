@@ -926,10 +926,13 @@ export class EndpointDragHandler implements DragHandler {
             dropEndpoint.deleteOnEmpty = true
 
             if (dropEndpoint.anchor.positionFinder != null) {
-                let dropPosition = this.instance.getUIPosition(arguments),
-                    elPosition = this.instance.getOffset(this.currentDropTarget.el),
+
+                let finalPos:any = p.finalPos || p.pos
+                let dropPosition = { left:finalPos[0], top:finalPos[1] }
+
+                let elPosition = this.instance.getOffset(this.currentDropTarget.el),
                     elSize = this.instance.getSize(this.currentDropTarget.el),
-                    ap = dropPosition == null ? [0,0] : dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, (<any>dropEndpoint.anchor).constructorParams)
+                    ap = dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, (<any>dropEndpoint.anchor).constructorParams)
 
                 dropEndpoint.anchor.x = ap[0]
                 dropEndpoint.anchor.y = ap[1]
