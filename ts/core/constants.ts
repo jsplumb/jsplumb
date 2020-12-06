@@ -17,6 +17,15 @@ export const NONE = "none"
 export const SOURCE_INDEX = 0
 export const TARGET_INDEX = 1
 
+export const TRUE = "true"
+export const FALSE = "false"
+
+export const UNDEFINED = "undefined"
+
+export const ABSOLUTE = "absolute"
+export const FIXED = "fixed"
+export const STATIC = "static"
+
 export const GROUP_KEY = "_jsPlumbGroup"
 export const PARENT_GROUP_KEY = "_jsPlumbParentGroup"
 export const IS_GROUP_KEY = "_isJsPlumbGroup"
@@ -40,7 +49,9 @@ export const EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached"
 export const EVENT_CONNECTION_MOVED = "connectionMoved"
 export const EVENT_CONTAINER_CHANGE = "container:change"
 export const EVENT_CLICK = "click"
+
 export const EVENT_DBL_CLICK = "dblclick"
+
 export const EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver"
 export const EVENT_CONNECTION_MOUSEOUT = "connectionMouseOut"
 export const EVENT_ENDPOINT_CLICK = "endpointClick"
@@ -96,5 +107,7 @@ export const SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT)
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY)
 export const SELECTOR_GROUP_CONTAINER = "[jtk-group-content]"
 export const SELECTOR_MANAGED_ELEMENT = "[jtk-managed]"
+
+export const PROPERTY_POSITION = "position"
 
 
