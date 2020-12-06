@@ -1303,6 +1303,12 @@ var SOURCE = "source";
 var TARGET = "target";
 var BLOCK = "block";
 var NONE = "none";
+var TRUE = "true";
+var FALSE = "false";
+var UNDEFINED = "undefined";
+var ABSOLUTE = "absolute";
+var FIXED = "fixed";
+var STATIC = "static";
 var GROUP_KEY = "_jsPlumbGroup";
 var PARENT_GROUP_KEY = "_jsPlumbParentGroup";
 var IS_GROUP_KEY = "_isJsPlumbGroup";
@@ -1369,6 +1375,7 @@ var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
 var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
 var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
+var PROPERTY_POSITION = "position";
 
 var Overlay =
 /*#__PURE__*/
@@ -4402,8 +4409,8 @@ function (_UINode) {
       return this.dropOverride && (this.revert || this.prune || this.orphan);
     }
   }, {
-    key: "getDragArea",
-    value: function getDragArea() {
+    key: "getContentArea",
+    value: function getContentArea() {
       var da = this.instance.getSelector(this.el, SELECTOR_GROUP_CONTAINER);
       return da && da.length > 0 ? da[0] : this.el;
     } // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
@@ -4426,7 +4433,7 @@ function (_UINode) {
     value: function add(_el, doNotFireEvent) {
       var _this2 = this;
 
-      var dragArea = this.getDragArea();
+      var dragArea = this.getContentArea();
       this.instance.each(_el, function (__el) {
         if (__el[PARENT_GROUP_KEY] != null) {
           if (__el[PARENT_GROUP_KEY] === _this2) {
@@ -4458,7 +4465,7 @@ function (_UINode) {
 
         if (manipulateDOM) {
           try {
-            _this3.getDragArea().removeChild(__el);
+            _this3.getContentArea().removeChild(__el);
           } catch (e) {
             log("Could not remove element from Group " + e);
           }
@@ -4494,29 +4501,6 @@ function (_UINode) {
       this.children.length = 0;
 
       this.manager._updateConnectionsForGroup(this);
-    } // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
-    // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.
-
-  }, {
-    key: "_orphan",
-    value: function _orphan(_el) {
-      var groupPos = this.manager.instance.getOffset(this.el);
-      var id = this.manager.instance.getId(_el);
-      var pos = this.manager.instance.getOffset(_el);
-
-      _el.parentNode.removeChild(_el);
-
-      if (this.group) {
-        pos.left += groupPos.left;
-        pos.top += groupPos.top;
-        this.group.getDragArea().appendChild(_el); // set as child of parent group, if there is one.
-      } else {
-        this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
-      }
-
-      this.instance.setPosition(_el, pos);
-      delete _el._jsPlumbParentGroup;
-      return [id, pos];
     }
   }, {
     key: "orphanAll",
@@ -4524,15 +4508,14 @@ function (_UINode) {
       var orphanedPositions = {};
 
       for (var i = 0; i < this.children.length; i++) {
-        var newPosition = this._orphan(this.children[i]);
-
+        var newPosition = this.manager.orphan(this.children[i]);
         orphanedPositions[newPosition[0]] = newPosition[1];
       }
 
       this.children.length = 0;
 
       for (var _i = 0; _i < this.childGroups.length; _i++) {
-        var _newPosition = this._orphan(this.childGroups[_i].el);
+        var _newPosition = this.manager.orphan(this.childGroups[_i].el);
 
         orphanedPositions[_newPosition[0]] = _newPosition[1];
       }
@@ -4554,11 +4537,10 @@ function (_UINode) {
         }
 
         var elpos = this.instance.getOffset(group.el, true);
-        var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+        var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getContentArea(), true);
         group.el[PARENT_GROUP_KEY] = this;
-        this.childGroups.push(group); //group.el.parentNode && group.el.parentNode.removeChild(group.el)
-
-        this.instance.appendElement(group.el, this.getDragArea());
+        this.childGroups.push(group);
+        this.instance.appendElement(group.el, this.getContentArea());
         group.group = this;
         var newPosition = {
           left: elpos.left - cpos.left,
@@ -4579,7 +4561,7 @@ function (_UINode) {
     key: "removeGroup",
     value: function removeGroup(group) {
       if (group.group === this) {
-        var d = this.getDragArea();
+        var d = this.getContentArea();
 
         if (d === group.el.parentNode) {
           d.removeChild(group.el);
@@ -4783,7 +4765,7 @@ function () {
         group = this.groupMap[groupId];
 
         if (group == null) {
-          throw new TypeError("No such group [" + groupId + "]");
+          throw new Error("No such group [" + groupId + "]");
         }
       }
 
@@ -4869,9 +4851,9 @@ function () {
     }
   }, {
     key: "removeAllGroups",
-    value: function removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent) {
+    value: function removeAllGroups(deleteMembers, manipulateView, doNotFireEvent) {
       for (var _g2 in this.groupMap) {
-        this.removeGroup(this.groupMap[_g2], deleteMembers, manipulateDOM, doNotFireEvent);
+        this.removeGroup(this.groupMap[_g2], deleteMembers, manipulateView, doNotFireEvent);
       }
     }
   }, {
@@ -4880,18 +4862,28 @@ function () {
       for (var key in this.groupMap) {
         f(this.groupMap[key]);
       }
-    } // orphan(_el:jsPlumbDOMElement):[string, Offset] {
+    } // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
+    // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.)
 
   }, {
     key: "orphan",
     value: function orphan(_el) {
       if (_el._jsPlumbParentGroup) {
+        var group = _el._jsPlumbParentGroup;
+        var groupPos = this.instance.getOffset(_el);
         var id = this.instance.getId(_el);
         var pos = this.instance.getOffset(_el);
 
         _el.parentNode.removeChild(_el);
 
-        this.instance.appendElement(_el, this.instance.getContainer());
+        if (group.group) {
+          pos.left += groupPos.left;
+          pos.top += groupPos.top;
+          group.group.getContentArea().appendChild(_el); // set as child of parent group, if there is one.
+        } else {
+          this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
+        }
+
         this.instance.setPosition(_el, pos);
         delete _el._jsPlumbParentGroup;
         return [id, pos];
@@ -4900,7 +4892,7 @@ function () {
   }, {
     key: "_setGroupVisible",
     value: function _setGroupVisible(group, state) {
-      var m = group.el.querySelectorAll("[jtk-managed]");
+      var m = group.el.querySelectorAll(SELECTOR_MANAGED_ELEMENT);
 
       for (var i = 0; i < m.length; i++) {
         this.instance[state ? CMD_SHOW : CMD_HIDE](m[i], true);
@@ -5280,7 +5272,7 @@ function () {
           if (currentGroup !== actualGroup) {
             var elpos = _this8.instance.getOffset(el);
 
-            var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getDragArea()); // otherwise, transfer to this group.
+            var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getContentArea()); // otherwise, transfer to this group.
 
             if (currentGroup != null) {
               currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
@@ -7489,8 +7481,12 @@ function (_EventGenerator) {
     }
   }, {
     key: "getOffset",
-    value: function getOffset(el, relativeToRoot, container) {
-      return this._helpers.getOffset ? this._helpers.getOffset(el, relativeToRoot, container) : this._getOffset(el, relativeToRoot, container);
+    value: function getOffset(el, relativeToRoot) {
+      if (relativeToRoot) {
+        return this._helpers.getOffsetRelativeToRoot ? this._helpers.getOffsetRelativeToRoot(el) : this._getOffsetRelativeToRoot(el);
+      } else {
+        return this._helpers.getOffset ? this._helpers.getOffset(el) : this._getOffset(el);
+      }
     }
   }, {
     key: "getContainer",
@@ -8792,7 +8788,7 @@ function (_EventGenerator) {
 
 
       if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
-        var _eventArgs = {
+        var eventArgs = {
           connection: jpc,
           source: jpc.source,
           target: jpc.target,
@@ -8801,7 +8797,7 @@ function (_EventGenerator) {
           sourceEndpoint: jpc.endpoints[0],
           targetEndpoint: jpc.endpoints[1]
         };
-        this.fire(EVENT_CONNECTION, _eventArgs, originalEvent);
+        this.fire(EVENT_CONNECTION, eventArgs, originalEvent);
       }
     }
   }, {
@@ -9766,6 +9762,24 @@ function createElementNS(ns, tag, style, clazz, atts) {
   }
 
   return e;
+}
+function offsetRelativeToRoot(el) {
+  var box = el.getBoundingClientRect(),
+      body = document.body,
+      docElem = document.documentElement,
+      // (2)
+  scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+      scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+      // (3)
+  clientTop = docElem.clientTop || body.clientTop || 0,
+      clientLeft = docElem.clientLeft || body.clientLeft || 0,
+      // (4)
+  top = box.top + scrollTop - clientTop,
+      left = box.left + scrollLeft - clientLeft;
+  return {
+    left: Math.round(left),
+    top: Math.round(top)
+  };
 }
 
 var svgAttributeMap = {
@@ -13143,10 +13157,14 @@ function () {
         dropEndpoint.deleteOnEmpty = true;
 
         if (dropEndpoint.anchor.positionFinder != null) {
-          var dropPosition = this.instance.getUIPosition(arguments),
-              elPosition = this.instance.getOffset(this.currentDropTarget.el),
+          var finalPos = p.finalPos || p.pos;
+          var dropPosition = {
+            left: finalPos[0],
+            top: finalPos[1]
+          };
+          var elPosition = this.instance.getOffset(this.currentDropTarget.el),
               elSize = this.instance.getSize(this.currentDropTarget.el),
-              ap = dropPosition == null ? [0, 0] : dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
+              ap = dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
           dropEndpoint.anchor.x = ap[0];
           dropEndpoint.anchor.y = ap[1]; // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
           // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
@@ -13421,8 +13439,8 @@ function (_ElementDragHandler) {
         this._pruneOrOrphan(params);
       } else {
         if (originalGroup.ghost) {
-          var o1 = this.instance.getOffset(currentGroup.getDragArea());
-          var o2 = this.instance.getOffset(originalGroup.getDragArea());
+          var o1 = this.instance.getOffset(currentGroup.getContentArea());
+          var o2 = this.instance.getOffset(originalGroup.getContentArea());
           var o = {
             left: o2.left + params.pos[0] - o1.left,
             top: o2.top + params.pos[1] - o1.top
@@ -14157,20 +14175,8 @@ function () {
 }();
 
 function getOffsetRect(elem) {
-  // (1)
-  var box = elem.getBoundingClientRect(),
-      body = document.body,
-      docElem = document.documentElement,
-      // (2)
-  scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-      scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-      // (3)
-  clientTop = docElem.clientTop || body.clientTop || 0,
-      clientLeft = docElem.clientLeft || body.clientLeft || 0,
-      // (4)
-  top = box.top + scrollTop - clientTop,
-      left = box.left + scrollLeft - clientLeft;
-  return [Math.round(left), Math.round(top)];
+  var o = offsetRelativeToRoot(elem);
+  return [o.left, o.top];
 }
 
 function findDelegateElement(parentElement, childElement, selector) {
@@ -14243,11 +14249,11 @@ function findMatchingSelector(availableSelectors, parentElement, childElement) {
 var DEFAULT_GRID_X = 10;
 var DEFAULT_GRID_Y = 10;
 
-var TRUE = function TRUE() {
+var TRUE$1 = function TRUE() {
   return true;
 };
 
-var FALSE = function FALSE() {
+var FALSE$1 = function FALSE() {
   return false;
 };
 
@@ -14515,14 +14521,14 @@ function (_Base) {
     _this._grid = params.grid;
     _this._allowNegative = params.allowNegative;
     _this._revertFunction = params.revert;
-    _this._canDrag = params.canDrag || TRUE;
+    _this._canDrag = params.canDrag || TRUE$1;
     _this._consumeFilteredEvents = params.consumeFilteredEvents;
     _this._parent = params.parent;
     _this._ignoreZoom = params.ignoreZoom === true;
     _this._ghostProxyParent = params.ghostProxyParent;
 
     if (params.ghostProxy === true) {
-      _this._useGhostProxy = TRUE;
+      _this._useGhostProxy = TRUE$1;
     } else {
       if (params.ghostProxy && typeof params.ghostProxy === "function") {
         _this._useGhostProxy = params.ghostProxy;
@@ -14675,7 +14681,7 @@ function (_Base) {
             } else {
               // the clone node is added to the body; getOffsetRect gives us a value
               // relative to the body.
-              var b = getOffsetRect(this._elementToDrag);
+              var b = offsetRelativeToRoot(this._elementToDrag);
               this._dragEl.style.left = b[0] + "px";
               this._dragEl.style.top = b[1] + "px";
               document.body.appendChild(this._dragEl);
@@ -15021,7 +15027,7 @@ function (_Base) {
   }, {
     key: "setUseGhostProxy",
     value: function setUseGhostProxy(val) {
-      this._useGhostProxy = val ? TRUE : FALSE;
+      this._useGhostProxy = val ? TRUE$1 : FALSE$1;
     }
   }, {
     key: "_negativeFilter",
@@ -15544,6 +15550,11 @@ function _touches$1(e) {
   return _e.touches && _e.touches.length > 0 ? _e.touches : _e.changedTouches && _e.changedTouches.length > 0 ? _e.changedTouches : _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches : [_e];
 } // ------------------------------------------------------------------------------------------------------------
 
+/**
+ * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
+ *
+ */
+
 
 var BrowserJsPlumbInstance =
 /*#__PURE__*/
@@ -15703,8 +15714,8 @@ function (_JsPlumbInstance) {
       }
     };
 
-    _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), "click");
-    _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), "dblClick");
+    _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), EVENT_CLICK);
+    _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), EVENT_DBL_CLICK);
 
     var _overlayHover = function _overlayHover(state, e) {
       var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer());
@@ -15735,7 +15746,7 @@ function (_JsPlumbInstance) {
 
     var _elementMousemove = function _elementMousemove(e) {
       if (!e.defaultPrevented) {
-        var element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer());
+        var element = findParent(getEventSource(e), SELECTOR_MANAGED_ELEMENT, this.getContainer());
         this.fire(EVENT_ELEMENT_MOUSE_MOVE, element, e);
       }
     };
@@ -15788,7 +15799,7 @@ function (_JsPlumbInstance) {
   }, {
     key: "_getAssociatedElements",
     value: function _getAssociatedElements(el) {
-      var els = el.querySelectorAll("[jtk-managed]");
+      var els = el.querySelectorAll(SELECTOR_MANAGED_ELEMENT);
       var a = [];
       Array.prototype.push.apply(a, els);
       return a;
@@ -15868,15 +15879,20 @@ function (_JsPlumbInstance) {
       this.eventManager.trigger(el, event, originalEvent, payload);
     }
   }, {
+    key: "_getOffsetRelativeToRoot",
+    value: function _getOffsetRelativeToRoot(el) {
+      return offsetRelativeToRoot(el);
+    }
+  }, {
     key: "_getOffset",
-    value: function _getOffset(el, relativeToRoot, container) {
-      container = container || this.getContainer();
+    value: function _getOffset(el) {
+      var container = this.getContainer();
 
       var out = {
         left: el.offsetLeft,
         top: el.offsetTop
       },
-          op = relativeToRoot || container != null && el !== container && el.offsetParent !== container ? el.offsetParent : null,
+          op = el !== container && el.offsetParent !== container ? el.offsetParent : null,
           _maybeAdjustScroll = function _maybeAdjustScroll(offsetParent) {
         if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
           out.left -= offsetParent.scrollLeft;
@@ -15890,15 +15906,15 @@ function (_JsPlumbInstance) {
 
         _maybeAdjustScroll(op);
 
-        op = relativeToRoot ? op.offsetParent : op.offsetParent === container ? null : op.offsetParent;
+        op = op.offsetParent === container ? null : op.offsetParent;
       } // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
 
 
-      if (container != null && !relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
-        var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, "position") : "static",
-            p = this.getStyle(el, "position");
+      if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+        var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, PROPERTY_POSITION) : STATIC,
+            p = this.getStyle(el, PROPERTY_POSITION);
 
-        if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp !== "fixed") {
+        if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
           out.left -= container.scrollLeft;
           out.top -= container.scrollTop;
         }
@@ -15914,7 +15930,7 @@ function (_JsPlumbInstance) {
   }, {
     key: "getStyle",
     value: function getStyle(el, prop) {
-      if (typeof window.getComputedStyle !== 'undefined') {
+      if (_typeof(window.getComputedStyle) !== UNDEFINED) {
         return getComputedStyle(el, null).getPropertyValue(prop);
       } else {
         return el.currentStyle[prop];
@@ -15944,37 +15960,6 @@ function (_JsPlumbInstance) {
     value: function setPosition(el, p) {
       el.style.left = p.left + "px";
       el.style.top = p.top + "px";
-    } //
-    // TODO investigate if this is still entirely necessary, since its only used by the drag stuff yet is declared as abstract on the jsPlumbInstance class.
-    //
-
-  }, {
-    key: "getUIPosition",
-    value: function getUIPosition(eventArgs) {
-      // here the position reported to us by Katavorio is relative to the element's offsetParent. For top
-      // level nodes that is fine, but if we have a nested draggable then its offsetParent is actually
-      // not going to be the jsplumb container; it's going to be some child of that element. In that case
-      // we want to adjust the UI position to account for the offsetParent's position relative to the Container
-      // origin.
-      var el = eventArgs[0].el;
-
-      if (el.offsetParent == null) {
-        return null;
-      }
-
-      var finalPos = eventArgs[0].finalPos || eventArgs[0].pos;
-      var p = {
-        left: finalPos[0],
-        top: finalPos[1]
-      };
-
-      if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
-        var oc = this.getOffset(el.offsetParent);
-        p.left += oc.left;
-        p.top += oc.top;
-      }
-
-      return p;
     }
   }, {
     key: "setDraggable",
@@ -15982,14 +15967,14 @@ function (_JsPlumbInstance) {
       if (draggable) {
         this.removeAttribute(element, ATTRIBUTE_NOT_DRAGGABLE);
       } else {
-        this.setAttribute(element, ATTRIBUTE_NOT_DRAGGABLE, "true");
+        this.setAttribute(element, ATTRIBUTE_NOT_DRAGGABLE, TRUE);
       }
     }
   }, {
     key: "isDraggable",
     value: function isDraggable(el) {
       var d = this.getAttribute(el, ATTRIBUTE_NOT_DRAGGABLE);
-      return d == null || d === "false";
+      return d == null || d === FALSE;
     }
     /*
      * toggles the draggable state of the given element(s).
@@ -16092,7 +16077,7 @@ function (_JsPlumbInstance) {
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this, silently);
 
       var container = this.getContainer();
-      var els = container.querySelectorAll("[jtk-managed], .jtk-endpoint, .jtk-connector, .jtk-overlay");
+      var els = container.querySelectorAll([SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","));
       els.forEach(function (el) {
         return el.parentNode && el.parentNode.removeChild(el);
       });
@@ -16266,7 +16251,7 @@ function (_JsPlumbInstance) {
   }], [{
     key: "getPositionOnElement",
     value: function getPositionOnElement(evt, el, zoom) {
-      var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : {
+      var box = _typeof(el.getBoundingClientRect) !== UNDEFINED ? el.getBoundingClientRect() : {
         left: 0,
         top: 0,
         width: 0,

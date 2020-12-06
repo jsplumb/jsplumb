@@ -28,6 +28,12 @@ var BLOCK = "block";
 var NONE = "none";
 var SOURCE_INDEX = 0;
 var TARGET_INDEX = 1;
+var TRUE = "true";
+var FALSE = "false";
+var UNDEFINED = "undefined";
+var ABSOLUTE = "absolute";
+var FIXED = "fixed";
+var STATIC = "static";
 var GROUP_KEY = "_jsPlumbGroup";
 var PARENT_GROUP_KEY = "_jsPlumbParentGroup";
 var IS_GROUP_KEY = "_isJsPlumbGroup";
@@ -97,6 +103,7 @@ var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
 var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
 var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
+var PROPERTY_POSITION = "position";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -4501,8 +4508,8 @@ function (_UINode) {
       return this.dropOverride && (this.revert || this.prune || this.orphan);
     }
   }, {
-    key: "getDragArea",
-    value: function getDragArea() {
+    key: "getContentArea",
+    value: function getContentArea() {
       var da = this.instance.getSelector(this.el, SELECTOR_GROUP_CONTAINER);
       return da && da.length > 0 ? da[0] : this.el;
     } // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
@@ -4525,7 +4532,7 @@ function (_UINode) {
     value: function add(_el, doNotFireEvent) {
       var _this2 = this;
 
-      var dragArea = this.getDragArea();
+      var dragArea = this.getContentArea();
       this.instance.each(_el, function (__el) {
         if (__el[PARENT_GROUP_KEY] != null) {
           if (__el[PARENT_GROUP_KEY] === _this2) {
@@ -4557,7 +4564,7 @@ function (_UINode) {
 
         if (manipulateDOM) {
           try {
-            _this3.getDragArea().removeChild(__el);
+            _this3.getContentArea().removeChild(__el);
           } catch (e) {
             log("Could not remove element from Group " + e);
           }
@@ -4593,29 +4600,6 @@ function (_UINode) {
       this.children.length = 0;
 
       this.manager._updateConnectionsForGroup(this);
-    } // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
-    // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.
-
-  }, {
-    key: "_orphan",
-    value: function _orphan(_el) {
-      var groupPos = this.manager.instance.getOffset(this.el);
-      var id = this.manager.instance.getId(_el);
-      var pos = this.manager.instance.getOffset(_el);
-
-      _el.parentNode.removeChild(_el);
-
-      if (this.group) {
-        pos.left += groupPos.left;
-        pos.top += groupPos.top;
-        this.group.getDragArea().appendChild(_el); // set as child of parent group, if there is one.
-      } else {
-        this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
-      }
-
-      this.instance.setPosition(_el, pos);
-      delete _el._jsPlumbParentGroup;
-      return [id, pos];
     }
   }, {
     key: "orphanAll",
@@ -4623,15 +4607,14 @@ function (_UINode) {
       var orphanedPositions = {};
 
       for (var i = 0; i < this.children.length; i++) {
-        var newPosition = this._orphan(this.children[i]);
-
+        var newPosition = this.manager.orphan(this.children[i]);
         orphanedPositions[newPosition[0]] = newPosition[1];
       }
 
       this.children.length = 0;
 
       for (var _i = 0; _i < this.childGroups.length; _i++) {
-        var _newPosition = this._orphan(this.childGroups[_i].el);
+        var _newPosition = this.manager.orphan(this.childGroups[_i].el);
 
         orphanedPositions[_newPosition[0]] = _newPosition[1];
       }
@@ -4653,11 +4636,10 @@ function (_UINode) {
         }
 
         var elpos = this.instance.getOffset(group.el, true);
-        var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getDragArea(), true);
+        var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getContentArea(), true);
         group.el[PARENT_GROUP_KEY] = this;
-        this.childGroups.push(group); //group.el.parentNode && group.el.parentNode.removeChild(group.el)
-
-        this.instance.appendElement(group.el, this.getDragArea());
+        this.childGroups.push(group);
+        this.instance.appendElement(group.el, this.getContentArea());
         group.group = this;
         var newPosition = {
           left: elpos.left - cpos.left,
@@ -4678,7 +4660,7 @@ function (_UINode) {
     key: "removeGroup",
     value: function removeGroup(group) {
       if (group.group === this) {
-        var d = this.getDragArea();
+        var d = this.getContentArea();
 
         if (d === group.el.parentNode) {
           d.removeChild(group.el);
@@ -4882,7 +4864,7 @@ function () {
         group = this.groupMap[groupId];
 
         if (group == null) {
-          throw new TypeError("No such group [" + groupId + "]");
+          throw new Error("No such group [" + groupId + "]");
         }
       }
 
@@ -4968,9 +4950,9 @@ function () {
     }
   }, {
     key: "removeAllGroups",
-    value: function removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent) {
+    value: function removeAllGroups(deleteMembers, manipulateView, doNotFireEvent) {
       for (var _g2 in this.groupMap) {
-        this.removeGroup(this.groupMap[_g2], deleteMembers, manipulateDOM, doNotFireEvent);
+        this.removeGroup(this.groupMap[_g2], deleteMembers, manipulateView, doNotFireEvent);
       }
     }
   }, {
@@ -4979,18 +4961,28 @@ function () {
       for (var key in this.groupMap) {
         f(this.groupMap[key]);
       }
-    } // orphan(_el:jsPlumbDOMElement):[string, Offset] {
+    } // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
+    // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.)
 
   }, {
     key: "orphan",
     value: function orphan(_el) {
       if (_el._jsPlumbParentGroup) {
+        var group = _el._jsPlumbParentGroup;
+        var groupPos = this.instance.getOffset(_el);
         var id = this.instance.getId(_el);
         var pos = this.instance.getOffset(_el);
 
         _el.parentNode.removeChild(_el);
 
-        this.instance.appendElement(_el, this.instance.getContainer());
+        if (group.group) {
+          pos.left += groupPos.left;
+          pos.top += groupPos.top;
+          group.group.getContentArea().appendChild(_el); // set as child of parent group, if there is one.
+        } else {
+          this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
+        }
+
         this.instance.setPosition(_el, pos);
         delete _el._jsPlumbParentGroup;
         return [id, pos];
@@ -4999,7 +4991,7 @@ function () {
   }, {
     key: "_setGroupVisible",
     value: function _setGroupVisible(group, state) {
-      var m = group.el.querySelectorAll("[jtk-managed]");
+      var m = group.el.querySelectorAll(SELECTOR_MANAGED_ELEMENT);
 
       for (var i = 0; i < m.length; i++) {
         this.instance[state ? CMD_SHOW : CMD_HIDE](m[i], true);
@@ -5379,7 +5371,7 @@ function () {
           if (currentGroup !== actualGroup) {
             var elpos = _this8.instance.getOffset(el);
 
-            var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getDragArea()); // otherwise, transfer to this group.
+            var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getContentArea()); // otherwise, transfer to this group.
 
             if (currentGroup != null) {
               currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
@@ -7588,8 +7580,12 @@ function (_EventGenerator) {
     }
   }, {
     key: "getOffset",
-    value: function getOffset(el, relativeToRoot, container) {
-      return this._helpers.getOffset ? this._helpers.getOffset(el, relativeToRoot, container) : this._getOffset(el, relativeToRoot, container);
+    value: function getOffset(el, relativeToRoot) {
+      if (relativeToRoot) {
+        return this._helpers.getOffsetRelativeToRoot ? this._helpers.getOffsetRelativeToRoot(el) : this._getOffsetRelativeToRoot(el);
+      } else {
+        return this._helpers.getOffset ? this._helpers.getOffset(el) : this._getOffset(el);
+      }
     }
   }, {
     key: "getContainer",
@@ -8891,7 +8887,7 @@ function (_EventGenerator) {
 
 
       if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
-        var _eventArgs = {
+        var eventArgs = {
           connection: jpc,
           source: jpc.source,
           target: jpc.target,
@@ -8900,7 +8896,7 @@ function (_EventGenerator) {
           sourceEndpoint: jpc.endpoints[0],
           targetEndpoint: jpc.endpoints[1]
         };
-        this.fire(EVENT_CONNECTION, _eventArgs, originalEvent);
+        this.fire(EVENT_CONNECTION, eventArgs, originalEvent);
       }
     }
   }, {
@@ -11765,6 +11761,7 @@ function isCustomOverlay(o) {
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
+exports.ABSOLUTE = ABSOLUTE;
 exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
 exports.ATTRIBUTE_GROUP = ATTRIBUTE_GROUP;
 exports.ATTRIBUTE_MANAGED = ATTRIBUTE_MANAGED;
@@ -11847,6 +11844,8 @@ exports.EndpointFactory = EndpointFactory;
 exports.EndpointRepresentation = EndpointRepresentation;
 exports.EndpointSelection = EndpointSelection;
 exports.EventGenerator = EventGenerator;
+exports.FALSE = FALSE;
+exports.FIXED = FIXED;
 exports.GROUP_COLLAPSED_CLASS = GROUP_COLLAPSED_CLASS;
 exports.GROUP_EXPANDED_CLASS = GROUP_EXPANDED_CLASS;
 exports.GROUP_KEY = GROUP_KEY;
@@ -11862,6 +11861,7 @@ exports.Overlay = Overlay;
 exports.OverlayCapableComponent = OverlayCapableComponent;
 exports.OverlayFactory = OverlayFactory;
 exports.PARENT_GROUP_KEY = PARENT_GROUP_KEY;
+exports.PROPERTY_POSITION = PROPERTY_POSITION;
 exports.PlainArrowOverlay = PlainArrowOverlay;
 exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
 exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
@@ -11871,13 +11871,16 @@ exports.SELECTOR_OVERLAY = SELECTOR_OVERLAY;
 exports.SOURCE = SOURCE;
 exports.SOURCE_DEFINITION_LIST = SOURCE_DEFINITION_LIST;
 exports.SOURCE_INDEX = SOURCE_INDEX;
+exports.STATIC = STATIC;
 exports.StraightSegment = StraightSegment;
 exports.TARGET = TARGET;
 exports.TARGET_DEFINITION_LIST = TARGET_DEFINITION_LIST;
 exports.TARGET_INDEX = TARGET_INDEX;
+exports.TRUE = TRUE;
 exports.TWO_PI = TWO_PI;
 exports.UIGroup = UIGroup;
 exports.UINode = UINode;
+exports.UNDEFINED = UNDEFINED;
 exports.Viewport = Viewport;
 exports.WILDCARD = WILDCARD;
 exports.X_AXIS_FACES = X_AXIS_FACES;

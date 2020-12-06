@@ -17,7 +17,7 @@ export declare class GroupManager {
     getGroupFor(el: any | string): UIGroup;
     getGroups(): Array<UIGroup>;
     removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
-    removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
+    removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup) => any): void;
     orphan(_el: any): [string, Offset];
     private _setGroupVisible;

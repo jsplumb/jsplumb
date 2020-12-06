@@ -32,5 +32,6 @@ export interface jsPlumbDefaults {
 }
 export interface jsPlumbHelperFunctions {
     getSize?: (el: any) => Size;
-    getOffset?: (el: any | string, relativeToRoot?: boolean, container?: any) => Offset;
+    getOffset?: (el: any | string) => Offset;
+    getOffsetRelativeToRoot?: (el: any | string) => Offset;
 }

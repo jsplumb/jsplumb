@@ -76,6 +76,10 @@ export declare type PosseSpec = string | {
     id: string;
     active: boolean;
 };
+/**
+ * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
+ *
+ */
 export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     _instanceIndex: number;
     dragManager: DragManager;
@@ -124,12 +128,12 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     on(el: HTMLElement, event: string, callbackOrSelector: Function | string, callback?: Function): this;
     off(el: HTMLElement, event: string, callback: Function): this;
     trigger(el: HTMLElement, event: string, originalEvent?: Event, payload?: any): void;
-    _getOffset(el: HTMLElement, relativeToRoot?: boolean, container?: HTMLElement): Offset;
+    _getOffsetRelativeToRoot(el: HTMLElement): Offset;
+    _getOffset(el: HTMLElement): Offset;
     _getSize(el: HTMLElement): Size;
     getStyle(el: HTMLElement, prop: string): any;
     getSelector(ctx: string | HTMLElement, spec: string): NodeListOf<any>;
     setPosition(el: HTMLElement, p: Offset): void;
-    getUIPosition(eventArgs: any): Offset;
     static getPositionOnElement(evt: Event, el: HTMLElement, zoom: number): PointArray;
     setDraggable(element: HTMLElement, draggable: boolean): void;
     isDraggable(el: HTMLElement): boolean;

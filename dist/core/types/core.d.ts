@@ -120,15 +120,15 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     abstract getSelector(ctx: string | any, spec?: string): NodeListOf<any>;
     abstract getStyle(el: any, prop: string): any;
     abstract _getSize(el: any): Size;
-    abstract _getOffset(el: any | string, relativeToRoot?: boolean, container?: any): Offset;
+    abstract _getOffset(el: any | string): Offset;
+    abstract _getOffsetRelativeToRoot(el: any | string): Offset;
     abstract setPosition(el: any, p: Offset): void;
-    abstract getUIPosition(eventArgs: any): Offset;
     abstract on(el: any, event: string, callbackOrSelector: Function | string, callback?: Function): void;
     abstract off(el: any, event: string, callback: Function): void;
     abstract trigger(el: any, event: string, originalEvent?: Event, payload?: any): void;
     constructor(_instanceIndex: number, renderer: Renderer, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     getSize(el: any): Size;
-    getOffset(el: any | string, relativeToRoot?: boolean, container?: any): Offset;
+    getOffset(el: any | string, relativeToRoot?: boolean): Offset;
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     getZoom(): number;

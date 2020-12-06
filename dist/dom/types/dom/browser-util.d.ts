@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { Dictionary } from '../core/common';
+import { Dictionary, Offset } from '../core/common';
 export declare function matchesSelector(el: HTMLElement, selector: string, ctx?: HTMLElement): boolean;
 export declare function consume(e: Event, doNotPreventDefault?: boolean): void;
 export declare function sizeElement(el: HTMLElement, x: number, y: number, w: number, h: number): void;
@@ -12,3 +12,4 @@ export declare function removeClass(el: HTMLElement, clazz: string): void;
 export declare function toggleClass(el: HTMLElement, clazz: string): void;
 export declare function createElement(tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string>): HTMLElement;
 export declare function createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): HTMLElement;
+export declare function offsetRelativeToRoot(el: any): Offset;

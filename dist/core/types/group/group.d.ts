@@ -50,13 +50,12 @@ export declare class UIGroup extends UINode {
     id: string;
     constructor(instance: JsPlumbInstance, el: any, options: GroupOptions);
     overrideDrop(el: any, targetGroup: UIGroup): boolean;
-    getDragArea(): any;
+    getContentArea(): any;
     getAnchor(conn: Connection, endpointIndex: number): AnchorSpec;
     getEndpoint(conn: Connection, endpointIndex: number): EndpointSpec;
     add(_el: any, doNotFireEvent?: boolean): void;
     remove(el: any | Array<any>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup): void;
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
-    private _orphan;
     orphanAll(): Dictionary<Offset>;
     addGroup(group: UIGroup): boolean;
     removeGroup(group: UIGroup): void;
