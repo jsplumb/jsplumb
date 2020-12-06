@@ -4,27 +4,14 @@
 */
 import { extend, IS, uuid } from '../core/util'
 import { BoundingBox, Dictionary, PointArray } from '../core/common'
-import {addClass, consume, matchesSelector, removeClass} from "./browser-util"
+import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
 function getOffsetRect (elem:HTMLElement):PointArray {
-    // (1)
-    const box = elem.getBoundingClientRect(),
-        body = document.body,
-        docElem = document.documentElement,
-        // (2)
-        scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-        scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-        // (3)
-        clientTop = docElem.clientTop || body.clientTop || 0,
-        clientLeft = docElem.clientLeft || body.clientLeft || 0,
-        // (4)
-        top  = box.top +  scrollTop - clientTop,
-        left = box.left + scrollLeft - clientLeft
-
-    return [ Math.round(left), Math.round(top) ]
+    const o = offsetRelativeToRoot(elem)
+    return [ o.left, o.top ]
 }
 
 function findDelegateElement(parentElement:HTMLElement, childElement:HTMLElement, selector:string) {
@@ -121,13 +108,6 @@ const _classes:Dictionary<string> = {
 
 const _events = [ "stop", "start", "drag", "drop", "over", "out", "beforeStart" ]
 const _devNull = function() {}
-
-const _foreach = function(l:Array<any>, fn:Function, from?:any) {
-    for (let i = 0; i < l.length; i++) {
-        if (l[i] != from)
-            fn(l[i])
-    }
-}
 
 const _each = function(obj:any, fn:any) {
     if (obj == null) return
@@ -465,7 +445,7 @@ export class Drag extends Base {
                     } else {
                         // the clone node is added to the body; getOffsetRect gives us a value
                         // relative to the body.
-                        const b = getOffsetRect(this._elementToDrag)
+                        const b = offsetRelativeToRoot(this._elementToDrag)
                         this._dragEl.style.left = b[0] + "px"
                         this._dragEl.style.top = b[1] + "px"
 
