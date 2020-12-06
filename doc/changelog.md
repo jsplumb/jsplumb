@@ -1,6 +1,12 @@
 ## 4.0.0-RC23
 
+7th December 2020
+
 - `EndpointSelection` now returns `this` from all methods.
+- `getDragArea` renamed to `getContentArea` in `UIGroup`
+- Fixed issue with the `.d.ts` files from core not being packaged in the browser build
+- Removed a bunch of unused old doc stuff and kept just the `.md` files
+- Removed `_orphan` method from Group and updated GroupManager's `orphan` method to work for all cases.
 
 ## 4.0.0-RC22
 
