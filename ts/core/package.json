@@ -1,5 +1,5 @@
 {
-  "name": "@jsplumb/core",
+  "name": "@jsplumb/community-core",
   "version": "4.0.0-RC23",
   "description": "Visual connectivity for webapps",
   "main": "js/jsplumb.core.cjs.js",
@@ -12,10 +12,9 @@
     "**/*.d.ts",
     "js/jsplumb.core.umd.js",
     "js/jsplumb.core.cjs.js",
-    "js/jsplumb.core.es.js",
-    "css/jsplumbtoolkit.css"
+    "js/jsplumb.core.es.js"
   ],
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "scripts": { },
   "repository": {
     "type": "git",
