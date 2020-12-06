@@ -46,5 +46,5 @@ export declare abstract class Overlay extends EventGenerator {
     abstract updateFrom(d: any): void;
     private _postComponentEvent;
     click(e: Event): void;
-    dblClick(e: Event): void;
+    dblclick(e: Event): void;
 }

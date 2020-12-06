@@ -1453,8 +1453,8 @@ function (_EventGenerator) {
       this._postComponentEvent(eventName, e);
     }
   }, {
-    key: "dblClick",
-    value: function dblClick(e) {
+    key: "dblclick",
+    value: function dblclick(e) {
       this.fire(EVENT_DBL_CLICK, e);
       var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
 

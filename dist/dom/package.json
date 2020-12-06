@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/community",
-  "version": "4.0.0-RC23",
+  "version": "4.0.0-RC24",
   "description": "Visual connectivity for webapps",
   "main": "js/jsplumb.dom.cjs.js",
   "module": "js/jsplumb.dom.es.js",
