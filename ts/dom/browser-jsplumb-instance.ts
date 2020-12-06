@@ -12,7 +12,7 @@ import {
 
 import { JsPlumbInstance } from '../core/core'
 
-import {extend, isString, uuid} from '../core/util'
+import {isString, uuid} from '../core/util'
 import { UIGroup } from '../core/group/group'
 import { AbstractConnector } from '../core/connector/abstract-connector'
 import { Endpoint } from '../core/endpoint/endpoint-impl'
@@ -44,7 +44,15 @@ import {
     EVENT_MOUSEENTER,
     ATTRIBUTE_CONTAINER,
     CLASS_CONNECTOR,
-    CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, PARENT_GROUP_KEY
+    CLASS_ENDPOINT,
+    CLASS_OVERLAY,
+    ATTRIBUTE_MANAGED,
+    PARENT_GROUP_KEY,
+    TRUE,
+    FALSE,
+    ABSOLUTE,
+    FIXED,
+    STATIC, PROPERTY_POSITION, UNDEFINED
 } from '../core/constants'
 
 
@@ -64,7 +72,7 @@ import {
     findParent,
     getClass,
     getEventSource,
-    hasClass,
+    hasClass, offsetRelativeToRoot,
     removeClass,
     toggleClass
 } from "./browser-util"
@@ -167,6 +175,10 @@ function _touches (e:Event):Array<Touch> {
 
 // ------------------------------------------------------------------------------------------------------------
 
+/**
+ * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
+ *
+ */
 export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
     dragManager:DragManager
@@ -223,7 +235,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
                     y = Math.max(desiredLoc[1], 0)
                     x = Math.min(x, constrainRect.w - size[0])
                     y = Math.min(y, constrainRect.h - size[1])
-
                 }
 
                 return [x, y]
@@ -289,8 +300,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
             }
         }
 
-        this._overlayClick = _oClick.bind(this, "click")
-        this._overlayDblClick = _oClick.bind(this, "dblClick")
+        this._overlayClick = _oClick.bind(this, EVENT_CLICK)
+        this._overlayDblClick = _oClick.bind(this, EVENT_DBL_CLICK)
 
         const _overlayHover = function(state:boolean, e:MouseEvent) {
             let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer())
@@ -321,7 +332,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
         const _elementMousemove = function(e:MouseEvent) {
             if (!e.defaultPrevented) {
-                let element = findParent(getEventSource(e), "[jtk-managed]", this.getContainer())
+                let element = findParent(getEventSource(e), SELECTOR_MANAGED_ELEMENT, this.getContainer())
                 this.fire(EVENT_ELEMENT_MOUSE_MOVE, element, e)
             }
         }
@@ -366,7 +377,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     }
 
     _getAssociatedElements(el: HTMLElement): Array<HTMLElement> {
-        let els = el.querySelectorAll("[jtk-managed]")
+        let els = el.querySelectorAll(SELECTOR_MANAGED_ELEMENT)
         let a:Array<HTMLElement> = []
         Array.prototype.push.apply(a, els)
         return a
@@ -430,14 +441,18 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         this.eventManager.trigger(el, event, originalEvent, payload)
     }
 
-    _getOffset(el:HTMLElement, relativeToRoot?:boolean, container?:HTMLElement):Offset {
-        container = container || this.getContainer()
-        let out:Offset = {
+    _getOffsetRelativeToRoot(el:HTMLElement) {
+        return offsetRelativeToRoot(el)
+    }
+
+    _getOffset(el:HTMLElement):Offset {
+        const container = this.getContainer()
+        let out: Offset = {
                 left: el.offsetLeft,
                 top: el.offsetTop
             },
-            op = ( (relativeToRoot  || (container != null && (el !== container && el.offsetParent !== container))) ?  el.offsetParent : null ) as HTMLElement,
-            _maybeAdjustScroll = (offsetParent:HTMLElement) => {
+            op = ((el !== container && el.offsetParent !== container) ? el.offsetParent : null) as HTMLElement,
+            _maybeAdjustScroll = (offsetParent: HTMLElement) => {
                 if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                     out.left -= offsetParent.scrollLeft
                     out.top -= offsetParent.scrollTop
@@ -448,15 +463,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
             out.left += op.offsetLeft
             out.top += op.offsetTop
             _maybeAdjustScroll(op)
-            op = (relativeToRoot ? op.offsetParent :
-                op.offsetParent === container ? null : op.offsetParent) as HTMLElement
+            op = (op.offsetParent === container ? null : op.offsetParent) as HTMLElement
         }
 
         // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
-        if (container != null && !relativeToRoot && (container.scrollTop > 0 || container.scrollLeft > 0)) {
-            let pp = el.offsetParent != null ? this.getStyle(el.offsetParent as HTMLElement, "position") : "static",
-                p = this.getStyle(el, "position")
-            if (p !== "absolute" && p !== "fixed" && pp !== "absolute" && pp !== "fixed") {
+        if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+            let pp = el.offsetParent != null ? this.getStyle(el.offsetParent as HTMLElement, PROPERTY_POSITION) : STATIC,
+                p = this.getStyle(el, PROPERTY_POSITION)
+            if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
                 out.left -= container.scrollLeft
                 out.top -= container.scrollTop
             }
@@ -470,7 +484,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     }
 
     getStyle(el:HTMLElement, prop:string):any {
-        if (typeof window.getComputedStyle !== 'undefined') {
+        if (typeof window.getComputedStyle !== UNDEFINED) {
             return getComputedStyle(el, null).getPropertyValue(prop)
         } else {
             return (<any>el).currentStyle[prop]
@@ -502,31 +516,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         el.style.top = p.top + "px"
     }
 
-    //
-    // TODO investigate if this is still entirely necessary, since its only used by the drag stuff yet is declared as abstract on the jsPlumbInstance class.
-    //
-    getUIPosition(eventArgs:any):Offset {
-        // here the position reported to us by Katavorio is relative to the element's offsetParent. For top
-        // level nodes that is fine, but if we have a nested draggable then its offsetParent is actually
-        // not going to be the jsplumb container; it's going to be some child of that element. In that case
-        // we want to adjust the UI position to account for the offsetParent's position relative to the Container
-        // origin.
-        let el = eventArgs[0].el
-        if (el.offsetParent == null) {
-            return null
-        }
-        let finalPos = eventArgs[0].finalPos || eventArgs[0].pos
-        let p = { left:finalPos[0], top:finalPos[1] }
-        if (el._katavorioDrag && el.offsetParent !== this.getContainer()) {
-            let oc = this.getOffset(el.offsetParent)
-            p.left += oc.left
-            p.top += oc.top
-        }
-        return p
-    }
-
     static getPositionOnElement(evt:Event, el:HTMLElement, zoom:number):PointArray {
-        let box:any = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
+        let box:any = typeof el.getBoundingClientRect !== UNDEFINED ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
             body = document.body,
             docElem = document.documentElement,
             scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
@@ -550,13 +541,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         if (draggable) {
             this.removeAttribute(element, ATTRIBUTE_NOT_DRAGGABLE)
         } else {
-            this.setAttribute(element, ATTRIBUTE_NOT_DRAGGABLE, "true")
+            this.setAttribute(element, ATTRIBUTE_NOT_DRAGGABLE, TRUE)
         }
     }
 
     isDraggable(el:HTMLElement):boolean {
         let d = this.getAttribute(el, ATTRIBUTE_NOT_DRAGGABLE)
-        return d == null || d === "false"
+        return d == null || d === FALSE
     }
 
     /*
@@ -664,7 +655,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     reset(silently?:boolean) {
         super.reset(silently)
         const container = this.getContainer()
-        const els = container.querySelectorAll("[jtk-managed], .jtk-endpoint, .jtk-connector, .jtk-overlay")
+        const els = container.querySelectorAll([SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","))
         els.forEach((el:any) => el.parentNode && el.parentNode.removeChild(el))
     }
 
