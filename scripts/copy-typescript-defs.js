@@ -6,13 +6,15 @@ function isDirectory(path) {
     return fs.lstatSync(path).isDirectory()
 }
 
+const targetDir = "./_build_es6/ts";
+
 const _one = (dir, subdir, targetBase) => {
 
     const path = subdir == null ? dir : dir + "/" + subdir;
 
     if (subdir != null) {
         try {
-            fs.mkdirSync(targetBase + "/" + subdir);
+            g.mkdirs(targetBase + "/" + subdir);
         }
         catch (e) {
             // dir exists, no problem.
@@ -36,10 +38,9 @@ const _one = (dir, subdir, targetBase) => {
 
 };
 
-g.mkdirs(targetDir + "/core/types");
-g.mkdirs(targetDir + "/dom/types/core");
-g.mkdirs(targetDir + "/dom/types/dom");
-
 _one("./_build_es6/ts/core",null, "./dist/core/types");
-_one("./_build_es6/ts/dom",null, "./dist/dom/types/dom");
+
+g.mkdirs("./dist/dom/types/core");
+g.mkdirs("./dist/dom/types/dom");
 _one("./_build_es6/ts/core",null, "./dist/dom/types/core");
+_one("./_build_es6/ts/dom",null, "./dist/dom/types/dom");
