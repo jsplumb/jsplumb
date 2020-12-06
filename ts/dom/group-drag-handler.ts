@@ -65,8 +65,8 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
             this._pruneOrOrphan(params)
         } else {
             if (originalGroup.ghost) {
-                const o1 = this.instance.getOffset(currentGroup.getDragArea())
-                const o2 = this.instance.getOffset(originalGroup.getDragArea())
+                const o1 = this.instance.getOffset(currentGroup.getContentArea())
+                const o2 = this.instance.getOffset(originalGroup.getContentArea())
                 const o = { left:o2.left + params.pos[0] - o1.left, top:o2.top + params.pos[1]-o1.top}
                 originalElement.style.left = o.left + "px"
                 originalElement.style.top = o.top + "px"
