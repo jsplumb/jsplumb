@@ -1,3 +1,9 @@
+## 2.15.3
+
+December 8th 2020
+
+- Fix for infinite loop in `empty()` method (issue #997)
+
 ## 2.15.2
 
 December 1st 2020
