@@ -18681,6 +18681,8 @@ function ready(f) {
 }
 
 exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
+exports.Collicat = Collicat;
+exports.Drag = Drag;
 exports.EventManager = EventManager;
 exports.JsPlumbInstance = JsPlumbInstance;
 exports.extend = extend;

@@ -18676,4 +18676,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, EventManager, JsPlumbInstance, extend, newInstance, ready, uuid };
+export { BrowserJsPlumbInstance, Collicat, Drag, EventManager, JsPlumbInstance, extend, newInstance, ready, uuid };
