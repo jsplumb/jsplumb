@@ -36,7 +36,8 @@ function getInstanceIndex ():number {
 }
 
 export { JsPlumbInstance } from '../core/core'
-export { BrowserJsPlumbInstance } from './browser-jsplumb-instance'
+export * from './browser-jsplumb-instance'
+export * from './collicat'
 export { EventManager } from './event-manager'
 export { uuid, extend } from '../core/util'
 
