@@ -1,3 +1,14 @@
+## 4.0.0-RC26
+
+### Breaking
+
+- removed the `remove` method from `JsPlumbInstance`. 
+- `unmanage` in JsPlumbInstance now removes all endpoints/connections for an element
+
+### Non-breaking
+
+- `unmanage` in `JsPlumbInstance` optionally removes the element from the view (replacement for the now deleted `remove` method)
+  
 ## 4.0.0-RC25
 
 - Minor export updates, for the Toolkit edition to use.
