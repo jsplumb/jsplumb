@@ -196,7 +196,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     abstract getElement(el:any|string):any
     abstract getElementById(el:string):any
-    abstract removeElement(el:any|string):void
+    abstract removeElement(el:any):void
     abstract appendElement (el:any, parent:any):void
 
     abstract removeClass(el:any, clazz:string):void
@@ -906,14 +906,50 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     /**
      * Stops managing the given element.
-     * @param id ID of the element to stop managing.
+     * @param el Element, or ID of the element to stop managing.
      */
-    unmanage (id:string):void {
-        if (this._managedElements[id]) {
-            this.removeAttribute(this._managedElements[id].el, Constants.ATTRIBUTE_MANAGED)
-            this.viewport.remove(id)
-            delete this._managedElements[id]
+    unmanage (el:any|string, removeElement?:boolean):void {
+
+        let info = this.info(el), affectedElements:Array<any> = []
+        if (info.id) {
+
+            this.removeAllEndpoints(info.id, true, affectedElements)
+            let _one = (_info:{el:any, text?:boolean, id?:string}) => {
+
+                if (info.el != null) {
+                    this.anchorManager.clearFor(_info.id)
+                    this.anchorManager.removeFloatingConnection(_info.id)
+
+                    if (this.isSource(_info.el)) {
+                        this.unmakeSource(_info.el)
+                    }
+                    if (this.isTarget(_info.el)) {
+                        this.unmakeTarget(_info.el)
+                    }
+
+                    delete this._floatingConnections[_info.id]
+
+                    this.removeAttribute(info.el, Constants.ATTRIBUTE_MANAGED)
+                    delete this._managedElements[_info.id]
+
+                    this.viewport.remove(_info.id)
+
+                    if (_info.el && removeElement) {
+                        this.removeElement(_info.el)
+                    }
+                }
+            }
+
+            // remove all affected child elements
+            for (let ae = 1; ae < affectedElements.length; ae++) {
+                _one(affectedElements[ae])
+            }
+            // and always remove the requested one from the dom.
+            _one(info)
+
         }
+
+
     }
 
     rotate(elementId:string, rotation:number, doNotRepaint?:boolean):RedrawResult {
@@ -1437,55 +1473,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
             this.fire(Constants.EVENT_CONNECTION, eventArgs, originalEvent)
         }
-    }
-
-    private _doRemove(info:{el:any, text?:boolean, id?:string}, affectedElements:Array<{el:any, text?:boolean, id?:string}>):void {
-        this.removeAllEndpoints(info.id, true, affectedElements)
-        let _one = (_info:{el:any, text?:boolean, id?:string}) => {
-
-            if (info.el != null) {
-                this.anchorManager.clearFor(_info.id)
-                this.anchorManager.removeFloatingConnection(_info.id)
-
-                if (this.isSource(_info.el)) {
-                    this.unmakeSource(_info.el)
-                }
-                if (this.isTarget(_info.el)) {
-                    this.unmakeTarget(_info.el)
-                }
-
-                delete this._floatingConnections[_info.id]
-                delete this._managedElements[_info.id]
-
-                this.viewport.remove(_info.id)
-
-                if (_info.el) {
-                    this.removeElement(_info.el)
-                }
-            }
-        }
-
-        // remove all affected child elements
-        for (let ae = 1; ae < affectedElements.length; ae++) {
-            _one(affectedElements[ae])
-        }
-        // and always remove the requested one from the dom.
-        _one(info)
-    }
-
-    //
-    // TODO this method performs DOM operations, and shouldnt.
-    remove(el:string|any, doNotRepaint?:boolean):JsPlumbInstance {
-        let info = this.info(el), affectedElements:Array<any> = []
-        if (info.text && (info.el as any).parentNode) {
-            (info.el as any).parentNode.removeChild(info.el)
-        }
-        else if (info.id) {
-            this.batch(() => {
-                this._doRemove(info, affectedElements)
-            }, doNotRepaint === true)
-        }
-        return this
     }
 
     removeAllEndpoints(el:string | any, recurse?:boolean, affectedElements?:Array<any>):JsPlumbInstance {
