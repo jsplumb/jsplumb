@@ -312,6 +312,8 @@ declare module jsPlumb {
         getLabelOverlay(): Overlay;
         getOverlays(): Object;
         getOverlay(s: string): Overlay;
+        removeOverlay(string: string): void;
+        addOverlay(spec: OverlaySpec): Overlay;
         showOverlay(s: string): void;
         hideOverlay(s: string): void;
         setLabel(s: string): void;
