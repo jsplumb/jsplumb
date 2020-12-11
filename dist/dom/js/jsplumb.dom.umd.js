@@ -4496,8 +4496,9 @@
       value: function removeAll(manipulateDOM, doNotFireEvent) {
         for (var i = 0, l = this.children.length; i < l; i++) {
           var _el2 = this.children[0];
-          this.remove(_el2, manipulateDOM, doNotFireEvent, true);
-          this.manager.instance.remove(_el2, true);
+          this.remove(_el2, manipulateDOM, doNotFireEvent, true); //this.manager.instance.removeElement(el, true)
+
+          this.manager.instance.removeElement(_el2);
         }
 
         this.children.length = 0;
@@ -4842,7 +4843,7 @@
         if (actualGroup.group) {
           actualGroup.group.removeGroup(actualGroup);
         } else {
-          this.instance.remove(actualGroup.el);
+          this.instance.removeElement(actualGroup.el);
         }
 
         delete this.groupMap[actualGroup.id];
@@ -8196,16 +8197,66 @@
       }
       /**
        * Stops managing the given element.
-       * @param id ID of the element to stop managing.
+       * @param el Element, or ID of the element to stop managing.
        */
 
     }, {
       key: "unmanage",
-      value: function unmanage(id) {
-        if (this._managedElements[id]) {
-          this.removeAttribute(this._managedElements[id].el, ATTRIBUTE_MANAGED);
-          this.viewport.remove(id);
-          delete this._managedElements[id];
+      value: function unmanage(el, removeElement) {
+        var _this3 = this;
+
+        var info = this.info(el),
+            affectedElements = [];
+
+        if (info.id) {
+          this.removeAllEndpoints(info.id, true, affectedElements);
+
+          var _one = function _one(_info) {
+            if (info.el != null) {
+              _this3.anchorManager.clearFor(_info.id);
+
+              _this3.anchorManager.removeFloatingConnection(_info.id);
+
+              if (_this3.isSource(_info.el)) {
+                _this3.unmakeSource(_info.el);
+              }
+
+              if (_this3.isTarget(_info.el)) {
+                _this3.unmakeTarget(_info.el);
+              }
+
+              delete _this3._floatingConnections[_info.id];
+
+              _this3.removeAttribute(info.el, ATTRIBUTE_MANAGED);
+
+              delete _this3._managedElements[_info.id];
+
+              _this3.viewport.remove(_info.id);
+
+              if (_info.el && removeElement) {
+                _this3.removeElement(_info.el);
+              }
+            }
+          }; // remove all affected child elements
+
+
+          for (var ae = 1; ae < affectedElements.length; ae++) {
+            _one(affectedElements[ae]);
+          } // and always remove the requested one from the dom.
+
+
+          _one(info); // this._doRemove(info, affectedElements, removeElement)
+          //
+          // if (this._managedElements[info.id]) {
+          //
+          //     this.removeAttribute(this._managedElements[info.id].el, Constants.ATTRIBUTE_MANAGED)
+          //     this.viewport.remove(info.id)
+          //     if (removeElement) {
+          //         this.removeElement(this._managedElements[info.id].el)
+          //     }
+          //     delete this._managedElements[info.id]
+          // }
+
         }
       }
     }, {
@@ -8436,7 +8487,7 @@
     }, {
       key: "deleteEndpoint",
       value: function deleteEndpoint(object) {
-        var _this3 = this;
+        var _this4 = this;
 
         var endpoint = typeof object === "string" ? this.endpointsByUUID[object] : object;
 
@@ -8453,7 +8504,7 @@
 
           connectionsToDelete.forEach(function (connection) {
             // detach this endpoint from each of these connections.
-            _this3.deleteConnection(connection, {
+            _this4.deleteConnection(connection, {
               force: true,
               endpointToIgnore: endpoint
             });
@@ -8510,24 +8561,24 @@
     }, {
       key: "reset",
       value: function reset(silently) {
-        var _this4 = this;
+        var _this5 = this;
 
         this.silently(function () {
-          _this4.endpointsByElement = {};
-          _this4._managedElements = {};
-          _this4.endpointsByUUID = {};
+          _this5.endpointsByElement = {};
+          _this5._managedElements = {};
+          _this5.endpointsByUUID = {};
 
-          _this4.viewport.reset();
+          _this5.viewport.reset();
 
-          _this4._offsetTimestamps = {};
+          _this5._offsetTimestamps = {};
 
-          _this4.router.reset();
+          _this5.router.reset();
 
-          _this4.groupManager.reset();
+          _this5.groupManager.reset();
 
-          _this4._connectionTypes = {};
-          _this4._endpointTypes = {};
-          _this4.connections.length = 0;
+          _this5._connectionTypes = {};
+          _this5._endpointTypes = {};
+          _this5.connections.length = 0;
         });
       } // ------ these are exposed for library packages to use; it allows them to be built without needing to include the utils --------
 
@@ -8596,7 +8647,7 @@
     }, {
       key: "_prepareConnectionParams",
       value: function _prepareConnectionParams(params, referenceParams) {
-        var _this5 = this;
+        var _this6 = this;
 
         var _p = extend({}, params);
 
@@ -8674,7 +8725,7 @@
             portId: _p.ports ? _p.ports[idx] : null
           });
 
-          return _this5.addEndpoint(el, params);
+          return _this6.addEndpoint(el, params);
         }; // check for makeSource/makeTarget specs.
 
 
@@ -8804,32 +8855,32 @@
       }
     }, {
       key: "_doRemove",
-      value: function _doRemove(info, affectedElements) {
-        var _this6 = this;
+      value: function _doRemove(info, affectedElements, removeFromDOM) {
+        var _this7 = this;
 
         this.removeAllEndpoints(info.id, true, affectedElements);
 
         var _one = function _one(_info) {
           if (info.el != null) {
-            _this6.anchorManager.clearFor(_info.id);
+            _this7.anchorManager.clearFor(_info.id);
 
-            _this6.anchorManager.removeFloatingConnection(_info.id);
+            _this7.anchorManager.removeFloatingConnection(_info.id);
 
-            if (_this6.isSource(_info.el)) {
-              _this6.unmakeSource(_info.el);
+            if (_this7.isSource(_info.el)) {
+              _this7.unmakeSource(_info.el);
             }
 
-            if (_this6.isTarget(_info.el)) {
-              _this6.unmakeTarget(_info.el);
+            if (_this7.isTarget(_info.el)) {
+              _this7.unmakeTarget(_info.el);
             }
 
-            delete _this6._floatingConnections[_info.id];
-            delete _this6._managedElements[_info.id];
+            delete _this7._floatingConnections[_info.id];
+            delete _this7._managedElements[_info.id];
 
-            _this6.viewport.remove(_info.id);
+            _this7.viewport.remove(_info.id);
 
-            if (_info.el) {
-              _this6.removeElement(_info.el);
+            if (_info.el && removeFromDOM) {
+              _this7.removeElement(_info.el);
             }
           }
         }; // remove all affected child elements
@@ -8843,25 +8894,19 @@
         _one(info);
       } //
       // TODO this method performs DOM operations, and shouldnt.
+      // remove(el:string|any, doNotRepaint?:boolean):JsPlumbInstance {
+      //     let info = this.info(el), affectedElements:Array<any> = []
+      //     if (info.text && (info.el as any).parentNode) {
+      //         (info.el as any).parentNode.removeChild(info.el)
+      //     }
+      //     else if (info.id) {
+      //         this.batch(() => {
+      //             this._doRemove(info, affectedElements)
+      //         }, doNotRepaint === true)
+      //     }
+      //     return this
+      // }
 
-    }, {
-      key: "remove",
-      value: function remove(el, doNotRepaint) {
-        var _this7 = this;
-
-        var info = this.info(el),
-            affectedElements = [];
-
-        if (info.text && info.el.parentNode) {
-          info.el.parentNode.removeChild(info.el);
-        } else if (info.id) {
-          this.batch(function () {
-            _this7._doRemove(info, affectedElements);
-          }, doNotRepaint === true);
-        }
-
-        return this;
-      }
     }, {
       key: "removeAllEndpoints",
       value: function removeAllEndpoints(el, recurse, affectedElements) {
@@ -14080,28 +14125,24 @@
             _this2.tapHandler(_el, evt, fn, children);
           } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) _this2.mouseEnterExitHandler(_el, evt, fn, children);else DefaultHandler(_el, evt, fn, children);
         });
-      }
-    }, {
-      key: "remove",
-      value: function remove(el) {
-        _each(el, function (__el) {
-          var _el = _gel(__el);
+      } // remove (el:any) {
+      //     _each(el, (__el:any) => {
+      //         const _el:any = _gel(__el)
+      //         if (_el.__ta) {
+      //             for (let evt in _el.__ta) {
+      //                 if (_el.__ta.hasOwnProperty(evt)) {
+      //                     for (let h in _el.__ta[evt]) {
+      //                         if (_el.__ta[evt].hasOwnProperty(h))
+      //                             _unbind(_el, evt, _el.__ta[evt][h])
+      //                     }
+      //                 }
+      //             }
+      //         }
+      //         _el.parentNode && _el.parentNode.removeChild(_el)
+      //     })
+      //     return this
+      // }
 
-          if (_el.__ta) {
-            for (var _evt2 in _el.__ta) {
-              if (_el.__ta.hasOwnProperty(_evt2)) {
-                for (var h in _el.__ta[_evt2]) {
-                  if (_el.__ta[_evt2].hasOwnProperty(h)) _unbind(_el, _evt2, _el.__ta[_evt2][h]);
-                }
-              }
-            }
-          }
-
-          _el.parentNode && _el.parentNode.removeChild(_el);
-        });
-
-        return this;
-      }
     }, {
       key: "on",
       value: function on(el, event, children, fn) {
@@ -15789,7 +15830,8 @@
       value: function removeElement(element) {
         // seems to barf at the moment due to scoping. might need to produce a new
         // version of mottle.
-        this.eventManager.remove(element);
+        //this.eventManager.remove(element)
+        element.parentNode && element.parentNode.removeChild(element);
       }
     }, {
       key: "appendElement",
@@ -16099,10 +16141,10 @@
       }
     }, {
       key: "unmanage",
-      value: function unmanage(id) {
-        this.removeFromDragSelection(id);
+      value: function unmanage(el, removeElement) {
+        this.removeFromDragSelection(el);
 
-        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "unmanage", this).call(this, id);
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "unmanage", this).call(this, el, removeElement);
       }
     }, {
       key: "addToDragSelection",
