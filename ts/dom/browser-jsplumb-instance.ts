@@ -364,10 +364,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return document.getElementById(elId)
     }
 
-    removeElement(element:HTMLElement | string):void {
-        // seems to barf at the moment due to scoping. might need to produce a new
-        // version of mottle.
-        this.eventManager.remove(element)
+    removeElement(element:any):void {
+        element.parentNode && element.parentNode.removeChild(element)
     }
 
     appendElement(el:HTMLElement, parent:HTMLElement):void {
@@ -387,7 +385,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return true
     }
 
-    getClass(el:HTMLElement):string { return getClass(el); }
+    getClass(el:HTMLElement):string { return getClass(el) }
 
     addClass(el:HTMLElement, clazz:string):void {
         addClass(el, clazz)
@@ -672,9 +670,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         super.destroy()
     }
 
-    unmanage (id:string):void {
-        this.removeFromDragSelection(id)
-        super.unmanage(id)
+    unmanage (el:any|string, removeElement?:boolean):void {
+        this.removeFromDragSelection(el)
+        super.unmanage(el, removeElement)
     }
 
     addToDragSelection(...el:Array<string|HTMLElement>) {
