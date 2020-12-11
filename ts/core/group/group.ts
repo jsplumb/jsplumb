@@ -150,7 +150,7 @@ export class UIGroup extends UINode {
         for (let i = 0, l = this.children.length; i < l; i++) {
             let el = this.children[0]
             this.remove(el, manipulateDOM, doNotFireEvent, true)
-            this.manager.instance.remove(el, true)
+            this.manager.instance.removeElement(el)
         }
         this.children.length = 0
         this.manager._updateConnectionsForGroup(this)
