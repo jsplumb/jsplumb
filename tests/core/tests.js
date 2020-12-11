@@ -162,7 +162,8 @@ var testSuite = function () {
         op.parentNode.removeChild(op);
 
         // but you can tell jsPlumb about it after the fact
-        _jsPlumb.remove("output");
+        _jsPlumb.unmanage("output", true)
+        //_jsPlumb.removeElement("output");
 
 
         equal(_jsPlumb.selectEndpoints({element: "output"}).length, 0, "no endpoints registered for in1");
@@ -1594,7 +1595,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1");
         var e1 = _jsPlumb.addEndpoint(d1);
 
-        _jsPlumb.remove("d1");
+        _jsPlumb.unmanage("d1");
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
@@ -1602,18 +1603,34 @@ var testSuite = function () {
         //equal(e1.endpoint, null, "e1 cleaned up");
     });
 
-    test(": jsPlumb.remove, element identified by selector", function () {
+    test(": jsPlumb.remove, element provided as DOM element", function () {
         var d1 = support.addDiv("d1");
         var e1 = _jsPlumb.addEndpoint(d1);
         _jsPlumb.addEndpoint(d1);
         _jsPlumb.addEndpoint(d1);
 
-        _jsPlumb.remove(d1);
+        _jsPlumb.unmanage(d1);
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
         equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
-        //equal(e1.endpoint, null, "e1 cleaned up");
+
+        ok(d1.parentNode != null, "d1 is still in the DOM")
+    });
+
+    test(": jsPlumb.remove, element provided as DOM element, also remove from DOM", function () {
+        var d1 = support.addDiv("d1");
+        var e1 = _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+
+        _jsPlumb.unmanage(d1, true);
+
+        _jsPlumb.repaintEverything(); // shouldn't complain
+
+        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
+
+        ok(d1.parentNode == null, "d1 is no longer in the DOM")
     });
 
     test(": jsPlumb.remove, element identified by string, nested endpoints", function () {
@@ -1631,7 +1648,7 @@ var testSuite = function () {
         equal(_jsPlumb.getEndpoints("d2").length, 2, " 2 endpoints exist for the first nested div");
         equal(_jsPlumb.getEndpoints("d3").length, 1, " 1 endpoint exists for the first nested div");
 
-        _jsPlumb.remove("d1");
+        _jsPlumb.unmanage("d1");
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
@@ -1648,7 +1665,7 @@ var testSuite = function () {
         _jsPlumb.addEndpoint(d2);
         _jsPlumb.addEndpoint(d2);
 
-        _jsPlumb.remove("d2");
+        _jsPlumb.unmanage("d2");
 
         _jsPlumb.repaint("d1"); // shouldn't complain
 
@@ -1669,7 +1686,7 @@ var testSuite = function () {
             o++;
         });
 
-        _jsPlumb.remove(d1);
+        _jsPlumb.unmanage(d1);
         equal(o, 2, "connectionDetached event was fired twice.");
 
     });
