@@ -217,7 +217,7 @@ export class GroupManager {
         if (actualGroup.group) {
             actualGroup.group.removeGroup(actualGroup)
         } else {
-            this.instance.remove(actualGroup.el)
+            this.instance.removeElement(actualGroup.el)
         }
 
 
