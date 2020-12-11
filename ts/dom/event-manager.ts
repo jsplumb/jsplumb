@@ -475,8 +475,8 @@ export class EventManager {
 
     clickThreshold:number
     dblClickThreshold:number
-    private tapHandler:Handler
-    private mouseEnterExitHandler: Handler
+    private readonly tapHandler:Handler
+    private readonly mouseEnterExitHandler: Handler
     smartClicks:boolean
 
     constructor(params?:EventManagerOptions) {
@@ -502,24 +502,6 @@ export class EventManager {
             else
                 DefaultHandler(_el, evt, fn, children)
         })
-    }
-
-    remove (el:any) {
-        _each(el, (__el:any) => {
-            const _el:any = _gel(__el)
-            if (_el.__ta) {
-                for (let evt in _el.__ta) {
-                    if (_el.__ta.hasOwnProperty(evt)) {
-                        for (let h in _el.__ta[evt]) {
-                            if (_el.__ta[evt].hasOwnProperty(h))
-                                _unbind(_el, evt, _el.__ta[evt][h])
-                        }
-                    }
-                }
-            }
-            _el.parentNode && _el.parentNode.removeChild(_el)
-        })
-        return this
     }
 
     on (el:any, event:string, children?:string|Function, fn?:Function) {
