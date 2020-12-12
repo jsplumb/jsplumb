@@ -1,3 +1,9 @@
+## 2.15.4
+
+December 12th 2020
+
+- Added missing `addOverlay` and `removeOverlay` methods on Connection in index.d.ts
+
 ## 2.15.3
 
 December 8th 2020
