@@ -4395,7 +4395,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.15.3";
+        this.version = "2.15.4";
 
         this.Defaults = {
             Anchor: "Bottom",
