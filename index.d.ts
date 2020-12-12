@@ -352,21 +352,23 @@ declare module jsPlumb {
     }
 
     interface Connection extends UIComponent {
-        id: ConnectionId
+        readonly id: ConnectionId
         setDetachable(detachable: boolean): void
-        endpoints: [Endpoint, Endpoint]
+        readonly endpoints: [Endpoint, Endpoint]
         getLabelOverlay(): Overlay
         getOverlays(): Object
-        getOverlay(s: string): Overlay
-        showOverlay(s: string): void
-        hideOverlay(s: string): void
+        getOverlay(id: string): Overlay
+        showOverlay(id: string): void
+        hideOverlay(id: string): void
+        removeOverlay(id: string): void
+        addOverlay(spec: OverlaySpec): Overlay
         setLabel(s: string): void
         getElement(): Connection
         repaint():void
-        source: Element
-        target: Element
-        sourceId: string
-        targetId: string
+        readonly source: Element
+        readonly target: Element
+        readonly sourceId: string
+        readonly targetId: string
     }
 
 
