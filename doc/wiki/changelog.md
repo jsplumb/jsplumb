@@ -1,3 +1,9 @@
+## 2.15.5
+
+December 14th 2020
+
+- Extra piece of cleanup for Endpoint/Connection canvases to avoid leaking memory via element refs.
+
 ## 2.15.4
 
 December 12th 2020
