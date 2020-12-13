@@ -4395,7 +4395,7 @@
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.version = "2.15.4";
+        this.version = "2.15.5";
 
         this.Defaults = {
             Anchor: "Bottom",
@@ -14718,6 +14718,7 @@
                 this.canvas = null;
                 this.path = null;
                 this.group = null;
+                this._jsPlumb = null;
             }
             else {
                 // if not a forced cleanup, just detach from DOM for now.
@@ -15840,7 +15841,8 @@
         },
         destroyDraggable: function (el, category) {
             _getDragManager(this, category).destroyDraggable(el);
-            delete el._jsPlumbDragOptions;
+            el._jsPlumbDragOptions = null;
+            el._jsPlumbRelatedElement = null;
         },
         unbindDraggable: function (el, evt, fn, category) {
             _getDragManager(this, category).destroyDraggable(el, evt, fn);
