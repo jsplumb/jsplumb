@@ -767,7 +767,8 @@
         },
         destroyDraggable: function (el, category) {
             _getDragManager(this, category).destroyDraggable(el);
-            delete el._jsPlumbDragOptions;
+            el._jsPlumbDragOptions = null;
+            el._jsPlumbRelatedElement = null;
         },
         unbindDraggable: function (el, evt, fn, category) {
             _getDragManager(this, category).destroyDraggable(el, evt, fn);

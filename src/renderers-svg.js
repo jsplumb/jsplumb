@@ -270,6 +270,7 @@
                 this.canvas = null;
                 this.path = null;
                 this.group = null;
+                this._jsPlumb = null;
             }
             else {
                 // if not a forced cleanup, just detach from DOM for now.
