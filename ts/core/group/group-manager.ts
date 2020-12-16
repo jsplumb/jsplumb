@@ -217,13 +217,12 @@ export class GroupManager {
         if (actualGroup.group) {
             actualGroup.group.removeGroup(actualGroup)
         } else {
-            this.instance.removeElement(actualGroup.el)
+            this.instance.unmanage(actualGroup.el, true)
         }
-
 
         delete this.groupMap[actualGroup.id]
         this.instance.fire(Constants.EVENT_GROUP_REMOVED, { group:actualGroup })
-        return newPositions; // this will be null in the case or remove, but be a map of {id->[x,y]} in the case of orphan
+        return newPositions; // this will be null in the case of remove, but be a map of {id->[x,y]} in the case of orphan
     }
 
     removeAllGroups (deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean) {
