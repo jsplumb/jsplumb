@@ -4494,8 +4494,7 @@ function (_UINode) {
     value: function removeAll(manipulateDOM, doNotFireEvent) {
       for (var i = 0, l = this.children.length; i < l; i++) {
         var _el2 = this.children[0];
-        this.remove(_el2, manipulateDOM, doNotFireEvent, true); //this.manager.instance.removeElement(el, true)
-
+        this.remove(_el2, manipulateDOM, doNotFireEvent, true);
         this.manager.instance.removeElement(_el2);
       }
 
@@ -4841,14 +4840,14 @@ function () {
       if (actualGroup.group) {
         actualGroup.group.removeGroup(actualGroup);
       } else {
-        this.instance.removeElement(actualGroup.el);
+        this.instance.unmanage(actualGroup.el, true);
       }
 
       delete this.groupMap[actualGroup.id];
       this.instance.fire(EVENT_GROUP_REMOVED, {
         group: actualGroup
       });
-      return newPositions; // this will be null in the case or remove, but be a map of {id->[x,y]} in the case of orphan
+      return newPositions; // this will be null in the case of remove, but be a map of {id->[x,y]} in the case of orphan
     }
   }, {
     key: "removeAllGroups",
@@ -8243,18 +8242,7 @@ function (_EventGenerator) {
         } // and always remove the requested one from the dom.
 
 
-        _one(info); // this._doRemove(info, affectedElements, removeElement)
-        //
-        // if (this._managedElements[info.id]) {
-        //
-        //     this.removeAttribute(this._managedElements[info.id].el, Constants.ATTRIBUTE_MANAGED)
-        //     this.viewport.remove(info.id)
-        //     if (removeElement) {
-        //         this.removeElement(this._managedElements[info.id].el)
-        //     }
-        //     delete this._managedElements[info.id]
-        // }
-
+        _one(info);
       }
     }
   }, {
@@ -8852,69 +8840,15 @@ function (_EventGenerator) {
       }
     }
   }, {
-    key: "_doRemove",
-    value: function _doRemove(info, affectedElements, removeFromDOM) {
-      var _this7 = this;
-
-      this.removeAllEndpoints(info.id, true, affectedElements);
-
-      var _one = function _one(_info) {
-        if (info.el != null) {
-          _this7.anchorManager.clearFor(_info.id);
-
-          _this7.anchorManager.removeFloatingConnection(_info.id);
-
-          if (_this7.isSource(_info.el)) {
-            _this7.unmakeSource(_info.el);
-          }
-
-          if (_this7.isTarget(_info.el)) {
-            _this7.unmakeTarget(_info.el);
-          }
-
-          delete _this7._floatingConnections[_info.id];
-          delete _this7._managedElements[_info.id];
-
-          _this7.viewport.remove(_info.id);
-
-          if (_info.el && removeFromDOM) {
-            _this7.removeElement(_info.el);
-          }
-        }
-      }; // remove all affected child elements
-
-
-      for (var ae = 1; ae < affectedElements.length; ae++) {
-        _one(affectedElements[ae]);
-      } // and always remove the requested one from the dom.
-
-
-      _one(info);
-    } //
-    // TODO this method performs DOM operations, and shouldnt.
-    // remove(el:string|any, doNotRepaint?:boolean):JsPlumbInstance {
-    //     let info = this.info(el), affectedElements:Array<any> = []
-    //     if (info.text && (info.el as any).parentNode) {
-    //         (info.el as any).parentNode.removeChild(info.el)
-    //     }
-    //     else if (info.id) {
-    //         this.batch(() => {
-    //             this._doRemove(info, affectedElements)
-    //         }, doNotRepaint === true)
-    //     }
-    //     return this
-    // }
-
-  }, {
     key: "removeAllEndpoints",
     value: function removeAllEndpoints(el, recurse, affectedElements) {
-      var _this8 = this;
+      var _this7 = this;
 
       affectedElements = affectedElements || [];
 
       var _one = function _one(_el) {
-        var info = _this8.info(_el),
-            ebe = _this8.endpointsByElement[info.id],
+        var info = _this7.info(_el),
+            ebe = _this7.endpointsByElement[info.id],
             i,
             ii;
 
@@ -8924,11 +8858,11 @@ function (_EventGenerator) {
           for (i = 0, ii = ebe.length; i < ii; i++) {
             // TODO check this logic. was the second arg a "do not repaint now" argument?
             //this.deleteEndpoint(ebe[i], false)
-            _this8.deleteEndpoint(ebe[i]);
+            _this7.deleteEndpoint(ebe[i]);
           }
         }
 
-        delete _this8.endpointsByElement[info.id]; // TODO DOM specific
+        delete _this7.endpointsByElement[info.id]; // TODO DOM specific
 
         if (recurse) {
           if (info.el && info.el.nodeType !== 3 && info.el.nodeType !== 8) {
@@ -8946,7 +8880,7 @@ function (_EventGenerator) {
   }, {
     key: "_setEnabled",
     value: function _setEnabled(type, el, state, toggle, connectionType) {
-      var _this9 = this;
+      var _this8 = this;
 
       var originalState = [],
           newState,
@@ -8956,14 +8890,14 @@ function (_EventGenerator) {
         var defs = _el[type === SOURCE ? SOURCE_DEFINITION_LIST : TARGET_DEFINITION_LIST];
 
         if (defs) {
-          _this9.each(defs, function (def) {
+          _this8.each(defs, function (def) {
             if (def.def.connectionType == null || def.def.connectionType === connectionType) {
               os = def.enabled;
               originalState.push(os);
               newState = toggle ? !os : state;
               def.enabled = newState;
 
-              _this9[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
+              _this8[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
             }
           });
         }
@@ -9054,7 +8988,7 @@ function (_EventGenerator) {
   }, {
     key: "_unmake",
     value: function _unmake(type, key, el, connectionType) {
-      var _this10 = this;
+      var _this9 = this;
 
       connectionType = connectionType || "*";
       this.each(el, function (_el) {
@@ -9062,7 +8996,7 @@ function (_EventGenerator) {
           if (connectionType === "*") {
             delete _el[key];
 
-            _this10.removeAttribute(_el, "jtk-" + type);
+            _this9.removeAttribute(_el, "jtk-" + type);
           } else {
             var t = [];
 
@@ -9077,7 +9011,7 @@ function (_EventGenerator) {
             } else {
               delete _el[key];
 
-              _this10.removeAttribute(_el, "jtk-" + type);
+              _this9.removeAttribute(_el, "jtk-" + type);
             }
           }
         }
@@ -9129,7 +9063,7 @@ function (_EventGenerator) {
   }, {
     key: "makeSource",
     value: function makeSource(el, params, referenceParams) {
-      var _this11 = this;
+      var _this10 = this;
 
       var p = extend({
         _jsPlumb: this
@@ -9142,19 +9076,19 @@ function (_EventGenerator) {
       var maxConnections = p.maxConnections || -1;
 
       var _one = function _one(_el) {
-        var elInfo = _this11.info(_el); // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+        var elInfo = _this10.info(_el); // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
         // and use the endpoint definition if found.
 
 
         var _del = elInfo.el;
 
-        _this11.manage(_del);
+        _this10.manage(_del);
 
-        _this11.setAttribute(_del, ATTRIBUTE_SOURCE, "");
+        _this10.setAttribute(_del, ATTRIBUTE_SOURCE, "");
 
-        _this11._writeScopeAttribute(elInfo.el, p.scope || _this11.Defaults.scope);
+        _this10._writeScopeAttribute(elInfo.el, p.scope || _this10.Defaults.scope);
 
-        _this11.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
+        _this10.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
 
         elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || [];
         var _def = {
@@ -9167,7 +9101,7 @@ function (_EventGenerator) {
 
         if (p.createEndpoint) {
           _def.uniqueEndpoint = true;
-          _def.endpoint = _this11.addEndpoint(_del, _def.def);
+          _def.endpoint = _this10.addEndpoint(_del, _def.def);
           _def.endpoint.deleteOnEmpty = false;
         }
 
@@ -9236,7 +9170,7 @@ function (_EventGenerator) {
   }, {
     key: "makeTarget",
     value: function makeTarget(el, params, referenceParams) {
-      var _this12 = this;
+      var _this11 = this;
 
       // put jsplumb ref into params without altering the params passed in
       var p = extend({
@@ -9250,16 +9184,16 @@ function (_EventGenerator) {
         // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
         // and use the endpoint definition if found.
         // decode the info for this element (id and element)
-        var elInfo = _this12.info(_el),
+        var elInfo = _this11.info(_el),
             dropOptions = extend({}, p.dropOptions || {});
 
-        _this12.manage(elInfo.el);
+        _this11.manage(elInfo.el);
 
-        _this12.setAttribute(elInfo.el, ATTRIBUTE_TARGET, "");
+        _this11.setAttribute(elInfo.el, ATTRIBUTE_TARGET, "");
 
-        _this12._writeScopeAttribute(elInfo.el, p.scope || _this12.Defaults.scope);
+        _this11._writeScopeAttribute(elInfo.el, p.scope || _this11.Defaults.scope);
 
-        _this12.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
+        _this11.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
 
         elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
         // precedence.
@@ -9279,7 +9213,7 @@ function (_EventGenerator) {
 
         if (p.createEndpoint) {
           _def.uniqueEndpoint = true;
-          _def.endpoint = _this12.addEndpoint(elInfo.el, _def.def);
+          _def.endpoint = _this11.addEndpoint(elInfo.el, _def.def);
           _def.endpoint.deleteOnEmpty = false;
         }
 
@@ -14123,24 +14057,7 @@ function () {
           _this2.tapHandler(_el, evt, fn, children);
         } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) _this2.mouseEnterExitHandler(_el, evt, fn, children);else DefaultHandler(_el, evt, fn, children);
       });
-    } // remove (el:any) {
-    //     _each(el, (__el:any) => {
-    //         const _el:any = _gel(__el)
-    //         if (_el.__ta) {
-    //             for (let evt in _el.__ta) {
-    //                 if (_el.__ta.hasOwnProperty(evt)) {
-    //                     for (let h in _el.__ta[evt]) {
-    //                         if (_el.__ta[evt].hasOwnProperty(h))
-    //                             _unbind(_el, evt, _el.__ta[evt][h])
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         _el.parentNode && _el.parentNode.removeChild(_el)
-    //     })
-    //     return this
-    // }
-
+    }
   }, {
     key: "on",
     value: function on(el, event, children, fn) {
@@ -15826,9 +15743,6 @@ function (_JsPlumbInstance) {
   }, {
     key: "removeElement",
     value: function removeElement(element) {
-      // seems to barf at the moment due to scoping. might need to produce a new
-      // version of mottle.
-      //this.eventManager.remove(element)
       element.parentNode && element.parentNode.removeChild(element);
     }
   }, {

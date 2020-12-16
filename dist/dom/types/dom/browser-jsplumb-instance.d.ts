@@ -112,7 +112,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     removeDragFilter(filter: Function | string): void;
     getElement(el: HTMLElement | string): HTMLElement;
     getElementById(elId: string): HTMLElement;
-    removeElement(element: HTMLElement | string): void;
+    removeElement(element: any): void;
     appendElement(el: HTMLElement, parent: HTMLElement): void;
     _getAssociatedElements(el: HTMLElement): Array<HTMLElement>;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
@@ -143,7 +143,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     setContainer(c: string | HTMLElement): void;
     reset(silently?: boolean): void;
     destroy(): void;
-    unmanage(id: string): void;
+    unmanage(el: any | string, removeElement?: boolean): void;
     addToDragSelection(...el: Array<string | HTMLElement>): void;
     clearDragSelection(): void;
     removeFromDragSelection(...el: Array<string | HTMLElement>): void;

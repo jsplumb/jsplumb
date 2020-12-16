@@ -106,7 +106,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     private _zoom;
     abstract getElement(el: any | string): any;
     abstract getElementById(el: string): any;
-    abstract removeElement(el: any | string): void;
+    abstract removeElement(el: any): void;
     abstract appendElement(el: any, parent: any): void;
     abstract removeClass(el: any, clazz: string): void;
     abstract addClass(el: any, clazz: string): void;
@@ -213,9 +213,9 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     manage(element: ElementSpec, recalc?: boolean): ManagedElement;
     /**
      * Stops managing the given element.
-     * @param id ID of the element to stop managing.
+     * @param el Element, or ID of the element to stop managing.
      */
-    unmanage(id: string): void;
+    unmanage(el: any | string, removeElement?: boolean): void;
     rotate(elementId: string, rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
     newEndpoint(params: any, id?: string): Endpoint;
@@ -248,8 +248,6 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     private _prepareConnectionParams;
     _newConnection(params: any): Connection;
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event, doInformAnchorManager?: boolean): void;
-    private _doRemove;
-    remove(el: string | any, doNotRepaint?: boolean): JsPlumbInstance;
     removeAllEndpoints(el: string | any, recurse?: boolean, affectedElements?: Array<any>): JsPlumbInstance;
     private _setEnabled;
     toggleSourceEnabled(el: any, connectionType?: string): any;
