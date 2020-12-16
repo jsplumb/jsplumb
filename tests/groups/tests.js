@@ -176,70 +176,75 @@ var testSuite = function () {
         }
     };
 
-    // test("groups, simple access", function() {
-    //
-    //     _setupGroups();
-    //
-    //     // check a group has members
-    //     equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four");
-    //     equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
-    //     // check an unknown group throws an error
-    //     try {
-    //         _jsPlumb.getGroup("unknown");
-    //         ok(false, "should not have been able to retrieve unknown group");
-    //     }
-    //     catch (e) {
-    //         ok(true, "unknown group retrieve threw exception");
-    //     }
-    //
-    //     // group4 is at [1000, 400]
-    //     // its children are
-    //
-    //     equal(parseInt(c4.style.left), 1000, "c4 at 1000 left");
-    //     equal(parseInt(c4.style.top), 400, "c4 at 400 top");
-    //     equal(parseInt(c4_1.style.left), 30, "c4_1 at 30 left");
-    //     equal(parseInt(c4_1.style.top), 30, "c4_1 at 30 top");
-    //     equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
-    //     equal(parseInt(c4_2.style.top), 130, "c4_2 at 130 top");
-    //
-    //
-    //     _jsPlumb.removeGroup("four", false);
-    //     try {
-    //         _jsPlumb.getGroup("four");
-    //         ok(false, "should not have been able to retrieve removed group");
-    //     }
-    //     catch (e) {
-    //         ok(true, "removed group subsequent retrieve threw exception");
-    //     }
-    //     ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
-    //     // check positions of child nodes; they should have been adjusted.
-    //     equal(parseInt(c4_1.style.left), 1030, "c4_1 at 1030 left");
-    //     equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
-    //     equal(parseInt(c4_2.style.left), 1180, "c4_2 at 1180 left");
-    //     equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
-    //
-    //
-    //     _jsPlumb.removeGroup("five", true);
-    //     try {
-    //         _jsPlumb.getGroup("five");
-    //         ok(false, "should not have been able to retrieve removed group");
-    //     }
-    //     catch (e) {
-    //         ok(true, "removed group subsequent retrieve threw exception");
-    //     }
-    //     ok(c5_1.parentNode == null, "c5_1 removed from DOM because group 5 also removes its children on group removal");
-    //
-    //     // reset: all groups should be removed
-    //     _jsPlumb.reset();
-    //     try {
-    //         _jsPlumb.getGroup("three");
-    //         ok(false, "should not have been able to retrieve group after reset");
-    //     }
-    //     catch (e) {
-    //         ok(true, "retrieve group after reset threw exception");
-    //     }
-    //
-    // });
+    test("groups, simple access", function() {
+
+        _setupGroups();
+
+        // check a group has members
+        equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four");
+        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
+        // check an unknown group throws an error
+        try {
+            _jsPlumb.getGroup("unknown");
+            ok(false, "should not have been able to retrieve unknown group");
+        }
+        catch (e) {
+            ok(true, "unknown group retrieve threw exception");
+        }
+
+        // group4 is at [1000, 400]
+        // its children are
+
+        equal(parseInt(c4.style.left), 0, "c4 at 0 left");
+        equal(parseInt(c4.style.top), 400, "c4 at 400 top");
+        equal(parseInt(c4_1.style.left), 30, "c4_1 at 30 left");
+        equal(parseInt(c4_1.style.top), 30, "c4_1 at 30 top");
+        equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
+        equal(parseInt(c4_2.style.top), 130, "c4_2 at 130 top");
+
+        ok(_jsPlumb._managedElements.container4 != null, "container4 is being managed");
+
+        _jsPlumb.removeGroup("four", false);
+
+        ok(_jsPlumb._managedElements.container4 == null, "container4 is not being managed after group removed");
+
+        try {
+            _jsPlumb.getGroup("four");
+            ok(false, "should not have been able to retrieve removed group");
+        }
+        catch (e) {
+            ok(true, "removed group subsequent retrieve threw exception");
+        }
+        ok(c4_1.parentNode != null, "c4_1 not removed from DOM even though group was removed");
+        // check positions of child nodes; they should have been adjusted.
+        equal(parseInt(c4_1.style.left), 30, "c4_1 at 30 left");
+        equal(parseInt(c4_1.style.top), 430, "c4_1 at 430 top");
+        equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
+        equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
+
+        ok(_jsPlumb._managedElements.container5 != null, "container5 is being managed");
+        _jsPlumb.removeGroup("five", true);
+        ok(_jsPlumb._managedElements.container5 == null, "container5 is not being managed after group removed");
+        try {
+            _jsPlumb.getGroup("five");
+            ok(false, "should not have been able to retrieve removed group");
+        }
+        catch (e) {
+            ok(true, "removed group subsequent retrieve threw exception");
+        }
+        ok(c5_1.parentNode == null, "c5_1 removed from DOM because group 5 also removes its children on group removal");
+
+        // reset: all groups should be removed
+        _jsPlumb.reset();
+        try {
+            _jsPlumb.getGroup("three");
+            ok(false, "should not have been able to retrieve group after reset");
+        }
+        catch (e) {
+            ok(true, "retrieve group after reset threw exception");
+        }
+
+    });
 
     // test("simple adding to group", function() {
     //     var g = _addGroupAndDomElement(_jsPlumb, "g1");
