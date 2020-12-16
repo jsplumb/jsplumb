@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/community-core",
-  "version": "4.0.0-RC27",
+  "version": "4.0.0-RC28",
   "description": "Visual connectivity for webapps",
   "main": "js/jsplumb.core.cjs.js",
   "module": "js/jsplumb.core.es.js",
