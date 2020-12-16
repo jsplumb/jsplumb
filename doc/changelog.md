@@ -1,3 +1,9 @@
+## 4.0.0-RC28
+
+16th December 2020
+
+- Fixed packaging issue that caused RC26 and RC27 to be empty.
+
 ## 4.0.0-RC27
 
 16th December 2020
