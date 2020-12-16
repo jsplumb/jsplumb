@@ -1,4 +1,12 @@
+## 4.0.0-RC27
+
+16th December 2020
+
+- GroupManager calls `unmanage` when removing a group now, which cleans it up properly (previously only the element was removed)
+
 ## 4.0.0-RC26
+
+7th December 2020
 
 ### Breaking
 
@@ -10,6 +18,8 @@
 - `unmanage` in `JsPlumbInstance` optionally removes the element from the view (replacement for the now deleted `remove` method)
   
 ## 4.0.0-RC25
+
+7th December 2020
 
 - Minor export updates, for the Toolkit edition to use.
 
