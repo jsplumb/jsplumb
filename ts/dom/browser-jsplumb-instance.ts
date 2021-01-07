@@ -7,7 +7,9 @@ import {
     Dictionary,
     SourceDefinition, TargetDefinition, Offset,
     PointArray,
-    Size, BoundingBox
+    Size,
+    BoundingBox,
+    jsPlumbElement
 } from '../core/common'
 
 import { JsPlumbInstance } from '../core/core'
@@ -132,8 +134,7 @@ export interface jsPlumbDOMInformation {
     overlay?:Overlay
 }
 
-export interface jsPlumbDOMElement extends HTMLElement {
-    _jsplumbid?:string
+export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement {
     _jsPlumbGroup: UIGroup
     _jsPlumbParentGroup:UIGroup
     _isJsPlumbGroup: boolean
