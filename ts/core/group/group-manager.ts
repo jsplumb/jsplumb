@@ -145,7 +145,7 @@ export class GroupManager {
         }
 
         this.instance.manage(group.el)
-        this.instance.addClass(group.el, Constants.GROUP_EXPANDED_CLASS)
+        this.instance.addClass(group.el, Constants.CLASS_GROUP_EXPANDED)
         group.manager = this
         this._updateConnectionsForGroup(group)
 
@@ -386,8 +386,8 @@ export class GroupManager {
 
             if (actualGroup.proxied) {
 
-                this.instance.removeClass(groupEl, Constants.GROUP_EXPANDED_CLASS)
-                this.instance.addClass(groupEl, Constants.GROUP_COLLAPSED_CLASS)
+                this.instance.removeClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
+                this.instance.addClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
 
                 const collapsedConnectionIds = new Set<string>()
 
@@ -418,8 +418,8 @@ export class GroupManager {
 
         } else {
             actualGroup.collapsed = true
-            this.instance.removeClass(groupEl, Constants.GROUP_EXPANDED_CLASS)
-            this.instance.addClass(groupEl, Constants.GROUP_COLLAPSED_CLASS)
+            this.instance.removeClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
+            this.instance.addClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
         }
     }
 
@@ -471,8 +471,8 @@ export class GroupManager {
             actualGroup.collapsed = false
 
             if (actualGroup.proxied) {
-                this.instance.addClass(groupEl, Constants.GROUP_EXPANDED_CLASS)
-                this.instance.removeClass(groupEl, Constants.GROUP_COLLAPSED_CLASS)
+                this.instance.addClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
+                this.instance.removeClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
 
                 // collapses all connections in a group.
                 const _expandSet = (conns: Array<Connection>, index: number) => {
@@ -529,8 +529,8 @@ export class GroupManager {
             }
         } else {
             actualGroup.collapsed = false
-            this.instance.addClass(groupEl, Constants.GROUP_EXPANDED_CLASS)
-            this.instance.removeClass(groupEl, Constants.GROUP_COLLAPSED_CLASS)
+            this.instance.addClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
+            this.instance.removeClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
         }
     }
 
