@@ -1,5 +1,5 @@
 import { jsPlumbDefaults, jsPlumbHelperFunctions } from '../core/defaults';
-import { Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size } from '../core/common';
+import { Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size, jsPlumbElement } from '../core/common';
 import { JsPlumbInstance } from '../core/core';
 import { UIGroup } from '../core/group/group';
 import { AbstractConnector } from '../core/connector/abstract-connector';
@@ -55,8 +55,7 @@ export interface jsPlumbDOMInformation {
     endpoint?: Endpoint;
     overlay?: Overlay;
 }
-export interface jsPlumbDOMElement extends HTMLElement {
-    _jsplumbid?: string;
+export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement {
     _jsPlumbGroup: UIGroup;
     _jsPlumbParentGroup: UIGroup;
     _isJsPlumbGroup: boolean;

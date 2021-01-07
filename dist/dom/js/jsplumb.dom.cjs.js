@@ -1311,71 +1311,71 @@ var FIXED = "fixed";
 var STATIC = "static";
 var GROUP_KEY = "_jsPlumbGroup";
 var PARENT_GROUP_KEY = "_jsPlumbParentGroup";
-var IS_GROUP_KEY = "_isJsPlumbGroup";
-var ATTRIBUTE_MANAGED = "jtk-managed";
-var ATTRIBUTE_GROUP = "jtk-group";
-var ATTRIBUTE_SOURCE = "jtk-source";
-var ATTRIBUTE_TARGET = "jtk-target";
 var ATTRIBUTE_CONTAINER = "jtk-container";
+var ATTRIBUTE_GROUP = "jtk-group";
+var ATTRIBUTE_MANAGED = "jtk-managed";
 var ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
+var ATTRIBUTE_SOURCE = "jtk-source";
 var ATTRIBUTE_TABINDEX = "tabindex";
-var CHECK_DROP_ALLOWED = "checkDropAllowed";
-var IS_DETACH_ALLOWED = "isDetachAllowed";
+var ATTRIBUTE_TARGET = "jtk-target";
 var BEFORE_DETACH = "beforeDetach";
 var CHECK_CONDITION = "checkCondition";
+var CHECK_DROP_ALLOWED = "checkDropAllowed";
+var CLASS_CONNECTOR = "jtk-connector";
+var CLASS_ENDPOINT = "jtk-endpoint";
+var CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
+var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
+var CLASS_OVERLAY = "jtk-overlay";
+var CMD_HIDE = "hide";
+var CMD_SHOW = "show";
+var EVENT_CLICK = "click";
+var EVENT_COLLAPSE = "group:collapse";
 var EVENT_CONNECTION = "connection";
 var EVENT_CONNECTION_DETACHED = "connectionDetached";
-var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
+var EVENT_CONNECTION_DRAG = "connectionDrag";
 var EVENT_CONNECTION_MOVED = "connectionMoved";
-var EVENT_CONTAINER_CHANGE = "container:change";
-var EVENT_CLICK = "click";
-var EVENT_DBL_CLICK = "dblclick";
-var EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver";
 var EVENT_CONNECTION_MOUSEOUT = "connectionMouseOut";
-var EVENT_ENDPOINT_CLICK = "endpointClick";
-var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
-var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
-var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
+var EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver";
+var EVENT_CONTAINER_CHANGE = "container:change";
+var EVENT_CONTEXTMENU = "contextmenu";
+var EVENT_DBL_CLICK = "dblclick";
+var EVENT_DBL_TAP = "dbltap";
 var EVENT_ELEMENT_CLICK = "elementClick";
 var EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
 var EVENT_ELEMENT_MOUSE_MOVE = "elementMousemove";
-var EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
 var EVENT_ELEMENT_MOUSE_OUT = "elementMouseout";
+var EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
+var EVENT_ENDPOINT_CLICK = "endpointClick";
+var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
+var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
 var EVENT_FOCUS = "focus";
-var EVENT_MOUSEOVER = "mouseover";
-var EVENT_MOUSEOUT = "mouseout";
-var EVENT_MOUSEMOVE = "mousemove";
+var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
+var EVENT_MOUSEDOWN = "mousedown";
 var EVENT_MOUSEENTER = "mouseenter";
 var EVENT_MOUSEEXIT = "mouseexit";
-var EVENT_TAP = "tap";
-var EVENT_DBL_TAP = "dbltap";
-var EVENT_CONTEXTMENU = "contextmenu";
+var EVENT_MOUSEMOVE = "mousemove";
+var EVENT_MOUSEOUT = "mouseout";
+var EVENT_MOUSEOVER = "mouseover";
 var EVENT_MOUSEUP = "mouseup";
-var EVENT_MOUSEDOWN = "mousedown";
-var EVENT_CONNECTION_DRAG = "connectionDrag";
+var EVENT_EXPAND = "group:expand";
+var EVENT_GROUP_ADDED = "group:add";
 var EVENT_GROUP_MEMBER_ADDED = "group:addMember";
 var EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
-var EVENT_GROUP_ADDED = "group:add";
 var EVENT_GROUP_REMOVED = "group:remove";
-var EVENT_EXPAND = "group:expand";
-var EVENT_COLLAPSE = "group:collapse";
-var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
-var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
 var EVENT_MAX_CONNECTIONS = "maxConnections";
+var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
+var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
+var EVENT_TAP = "tap";
 var EVENT_ZOOM = "zoom";
-var CLASS_CONNECTOR = "jtk-connector";
-var CLASS_ENDPOINT = "jtk-endpoint";
-var CLASS_OVERLAY = "jtk-overlay";
-var GROUP_COLLAPSED_CLASS = "jtk-group-collapsed";
-var GROUP_EXPANDED_CLASS = "jtk-group-expanded";
-var CMD_SHOW = "show";
-var CMD_HIDE = "hide";
+var IS_DETACH_ALLOWED = "isDetachAllowed";
+var IS_GROUP_KEY = "_isJsPlumbGroup";
+var PROPERTY_POSITION = "position";
 var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
 var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
-var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
 var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
-var PROPERTY_POSITION = "position";
+var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 
 var Overlay =
 /*#__PURE__*/
@@ -4746,7 +4746,7 @@ function () {
       }
 
       this.instance.manage(group.el);
-      this.instance.addClass(group.el, GROUP_EXPANDED_CLASS);
+      this.instance.addClass(group.el, CLASS_GROUP_EXPANDED);
       group.manager = this;
 
       this._updateConnectionsForGroup(group);
@@ -5031,8 +5031,8 @@ function () {
         actualGroup.collapsed = true;
 
         if (actualGroup.proxied) {
-          this.instance.removeClass(groupEl, GROUP_EXPANDED_CLASS);
-          this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS);
+          this.instance.removeClass(groupEl, CLASS_GROUP_EXPANDED);
+          this.instance.addClass(groupEl, CLASS_GROUP_COLLAPSED);
           var collapsedConnectionIds = new Set(); // collapses all connections in a group.
 
           var _collapseSet = function _collapseSet(conns, index) {
@@ -5062,8 +5062,8 @@ function () {
         });
       } else {
         actualGroup.collapsed = true;
-        this.instance.removeClass(groupEl, GROUP_EXPANDED_CLASS);
-        this.instance.addClass(groupEl, GROUP_COLLAPSED_CLASS);
+        this.instance.removeClass(groupEl, CLASS_GROUP_EXPANDED);
+        this.instance.addClass(groupEl, CLASS_GROUP_COLLAPSED);
       }
     }
     /**
@@ -5123,8 +5123,8 @@ function () {
         actualGroup.collapsed = false;
 
         if (actualGroup.proxied) {
-          this.instance.addClass(groupEl, GROUP_EXPANDED_CLASS);
-          this.instance.removeClass(groupEl, GROUP_COLLAPSED_CLASS); // collapses all connections in a group.
+          this.instance.addClass(groupEl, CLASS_GROUP_EXPANDED);
+          this.instance.removeClass(groupEl, CLASS_GROUP_COLLAPSED); // collapses all connections in a group.
 
           var _expandSet = function _expandSet(conns, index) {
             for (var i = 0; i < conns.length; i++) {
@@ -5184,8 +5184,8 @@ function () {
         }
       } else {
         actualGroup.collapsed = false;
-        this.instance.addClass(groupEl, GROUP_EXPANDED_CLASS);
-        this.instance.removeClass(groupEl, GROUP_COLLAPSED_CLASS);
+        this.instance.addClass(groupEl, CLASS_GROUP_EXPANDED);
+        this.instance.removeClass(groupEl, CLASS_GROUP_COLLAPSED);
       }
     }
     /**
