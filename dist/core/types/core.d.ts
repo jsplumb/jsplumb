@@ -16,7 +16,7 @@ import { Router } from "./router/router";
 import { EndpointSelection } from "./selection/endpoint-selection";
 import { ConnectionSelection } from "./selection/connection-selection";
 import { Viewport, ViewportElement } from "./viewport";
-import { Component, RepaintOptions } from '../core/component/component';
+import { Component } from '../core/component/component';
 import { Segment } from '../core/connector/abstract-segment';
 import { Overlay } from '../core/overlay/overlay';
 import { LabelOverlay } from '../core/overlay/label-overlay';
@@ -306,7 +306,6 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     removeFromGroup(group: string | UIGroup, el: any, doNotFireEvent?: boolean): void;
     abstract getPath(segment: Segment, isFirstSegment: boolean): string;
-    abstract doRepaint(component: Component, typeDescriptor: string, options?: RepaintOptions): void;
     abstract paintOverlay(o: Overlay, params: any, extents: any): void;
     abstract addOverlayClass(o: Overlay, clazz: string): void;
     abstract removeOverlayClass(o: Overlay, clazz: string): void;

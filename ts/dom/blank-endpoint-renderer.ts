@@ -1,7 +1,6 @@
 import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 import { _attr, _node, ElementAttributes } from './svg-util'
 
-import { JsPlumbInstance } from '../core/core'
 import { PaintStyle } from '../core/styles'
 import { BlankEndpoint } from '../core/endpoint/blank-endpoint'
 
@@ -15,11 +14,11 @@ const BLANK_ATTRIBUTES:ElementAttributes = {
 export const register = () => {
 
     registerEndpointRenderer<BlankEndpoint>("Blank", {
-        makeNode: (instance: JsPlumbInstance, ep: any, style: PaintStyle) => {
+        makeNode: (ep: BlankEndpoint, style: PaintStyle) => {
             return _node("rect", BLANK_ATTRIBUTES)
         },
 
-        updateNode: (ep: any, node: SVGElement) => {
+        updateNode: (ep: BlankEndpoint, node: SVGElement) => {
             _attr(node, BLANK_ATTRIBUTES)
         }
     })

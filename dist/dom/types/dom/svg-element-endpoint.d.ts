@@ -1,4 +1,4 @@
-import { EndpointHelperFunctions } from "./browser-renderer";
+import { EndpointHelperFunctions } from "./browser-jsplumb-instance";
 import { EndpointRepresentation } from '../core/endpoint/endpoints';
 import { PaintStyle } from '../core/styles';
 /**

@@ -14959,7 +14959,7 @@
 
 
         if (ep.node == null) {
-          ep.node = handlers.makeNode(ep.instance, ep, s);
+          ep.node = handlers.makeNode(ep, s);
           ep.svg.appendChild(ep.node);
         } else if (handlers.updateNode != null) {
           handlers.updateNode(ep, ep.node);
@@ -15729,11 +15729,6 @@
         }[segment.type](isFirstSegment);
       }
     }, {
-      key: "doRepaint",
-      value: function doRepaint(component, typeDescriptor, options) {
-        component.paint();
-      }
-    }, {
       key: "addOverlayClass",
       value: function addOverlayClass(o, clazz) {
         if (isLabelOverlay(o)) {
@@ -16310,7 +16305,7 @@
   var register$3 = function register() {
     registerEndpointRenderer("Dot", {
       // TODO `instance` not needed here
-      makeNode: function makeNode(instance, ep, style) {
+      makeNode: function makeNode(ep, style) {
         return _node("circle", {
           "cx": ep.w / 2,
           "cy": ep.h / 2,
@@ -16329,7 +16324,7 @@
 
   var register$4 = function register() {
     registerEndpointRenderer("Rectangle", {
-      makeNode: function makeNode(instance, ep, style) {
+      makeNode: function makeNode(ep, style) {
         return _node("rect", {
           "width": ep.w,
           "height": ep.h
@@ -16352,7 +16347,7 @@
   };
   var register$5 = function register() {
     registerEndpointRenderer("Blank", {
-      makeNode: function makeNode(instance, ep, style) {
+      makeNode: function makeNode(ep, style) {
         return _node("rect", BLANK_ATTRIBUTES);
       },
       updateNode: function updateNode(ep, node) {

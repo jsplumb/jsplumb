@@ -62,7 +62,7 @@ export abstract class SvgEndpoint<C> {
         }
     }
 
-    static paint<C>(ep:EndpointRepresentation<C>, handlers:EndpointHelperFunctions,  paintStyle: PaintStyle): void {
+    static paint<C>(ep:EndpointRepresentation<C>, handlers:EndpointHelperFunctions<any>,  paintStyle: PaintStyle): void {
 
         this.getEndpointElement(ep)
 
@@ -74,7 +74,7 @@ export abstract class SvgEndpoint<C> {
         }
         //
         if ((ep as any).node == null) {
-            (ep as any).node = handlers.makeNode(ep.instance, ep, s);
+            (ep as any).node = handlers.makeNode(ep, s);
             (ep as any).svg.appendChild((ep as any).node)
         }
         else if (handlers.updateNode != null) {

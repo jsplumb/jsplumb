@@ -107,13 +107,13 @@ export interface UIComponent {
     svg:SVGElement
 }
 
-export type EndpointHelperFunctions = {
-    makeNode:(instance:JsPlumbInstance, ep:any, paintStyle:PaintStyle) => void,
-    updateNode: (ep:any, node:SVGElement) => void
+export type EndpointHelperFunctions<E> = {
+    makeNode:(ep:E, paintStyle:PaintStyle) => void,
+    updateNode: (ep:E, node:SVGElement) => void
 }
 
-const endpointMap:Dictionary<EndpointHelperFunctions> = {}
-export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunctions) {
+const endpointMap:Dictionary<EndpointHelperFunctions<any>> = {}
+export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunctions<C>) {
     endpointMap[name] = fns
 }
 
@@ -204,6 +204,37 @@ function _touches (e:Event):Array<Touch> {
         _e.changedTouches && _e.changedTouches.length > 0 ? _e.changedTouches :
             _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches :
                 [ _e ]
+}
+
+function setVisible(component: UIComponent, v:boolean) {
+    if (component.canvas) {
+        component.canvas.style.display = v ? "block" : "none"
+    }
+}
+
+function cleanup(component: UIComponent) {
+    if (component.canvas) {
+        component.canvas.parentNode.removeChild(component.canvas)
+    }
+
+    delete component.canvas
+    delete component.svg
+}
+
+function getEndpointCanvas<C>(ep:EndpointRepresentation<C>):any {
+    return (ep as any).canvas
+}
+
+function getLabelElement(o:LabelOverlay):HTMLElement {
+    return HTMLElementOverlay.getElement(o as any)
+}
+
+function getCustomElement(o:CustomOverlay):HTMLElement {
+    return HTMLElementOverlay.getElement(o as any, o.component, (c:Component) => {
+        const el = o.create(c)
+        o.instance.addClass(el, o.instance.overlayClass)
+        return el
+    })
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -815,59 +846,32 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
     getPath(segment:Segment, isFirstSegment:boolean):string {
         return ({
-            "Straight": (isFirstSegment:boolean) => {
+            "Straight": (isFirstSegment: boolean) => {
                 return (isFirstSegment ? "M " + segment.x1 + " " + segment.y1 + " " : "") + "L " + segment.x2 + " " + segment.y2
             },
-            "Bezier": (isFirstSegment:boolean) => {
+            "Bezier": (isFirstSegment: boolean) => {
                 let b = segment as BezierSegment
                 return (isFirstSegment ? "M " + b.x2 + " " + b.y2 + " " : "") +
                     "C " + b.cp2x + " " + b.cp2y + " " + b.cp1x + " " + b.cp1y + " " + b.x1 + " " + b.y1
             },
-            "Arc": (isFirstSegment:boolean) => {
+            "Arc": (isFirstSegment: boolean) => {
                 let a = segment as ArcSegment
                 let laf = a.sweep > Math.PI ? 1 : 0,
                     sf = a.anticlockwise ? 0 : 1
 
-                return  (isFirstSegment ? "M" + a.x1 + " " + a.y1  + " " : "")  + "A " + a.radius + " " + a.radius + " 0 " + laf + "," + sf + " " + a.x2 + " " + a.y2
+                return (isFirstSegment ? "M" + a.x1 + " " + a.y1 + " " : "") + "A " + a.radius + " " + a.radius + " 0 " + laf + "," + sf + " " + a.x2 + " " + a.y2
             }
         })[segment.type](isFirstSegment)
-    }
-
-    private static getLabelElement(o:LabelOverlay):HTMLElement {
-        return HTMLElementOverlay.getElement(o as any)
-    }
-
-    private static getCustomElement(o:CustomOverlay):HTMLElement {
-        return HTMLElementOverlay.getElement(o as any, o.component, (c:Component) => {
-            const el = o.create(c)
-            o.instance.addClass(el, o.instance.overlayClass)
-            return el
-        })
-    }
-
-    private static cleanup(component: UIComponent) {
-        if (component.canvas) {
-            component.canvas.parentNode.removeChild(component.canvas)
-        }
-
-        delete component.canvas
-        delete component.svg
-    }
-
-    private static setVisible(component: UIComponent, v:boolean) {
-        if (component.canvas) {
-            component.canvas.style.display = v ? "block" : "none"
-        }
     }
 
     addOverlayClass(o: Overlay, clazz: string): void {
 
         if (isLabelOverlay(o)) {
-            o.instance.addClass(BrowserJsPlumbInstance.getLabelElement(o), clazz)
+            o.instance.addClass(getLabelElement(o), clazz)
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
             o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz)
         } else if (isCustomOverlay(o)) {
-            o.instance.addClass(BrowserJsPlumbInstance.getCustomElement(o), clazz)
+            o.instance.addClass(getCustomElement(o), clazz)
         } else {
             throw "Could not add class to overlay of type [" + o.type + "]"
         }
@@ -876,11 +880,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     //
     removeOverlayClass(o: Overlay, clazz: string): void {
         if (isLabelOverlay(o)) {
-            o.instance.removeClass(BrowserJsPlumbInstance.getLabelElement(o), clazz)
+            o.instance.removeClass(getLabelElement(o), clazz)
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
             o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz)
         } else if (isCustomOverlay(o)) {
-            o.instance.removeClass(BrowserJsPlumbInstance.getCustomElement(o), clazz)
+            o.instance.removeClass(getCustomElement(o), clazz)
         } else {
             throw "Could not remove class from overlay of type [" + o.type + "]"
         }
@@ -891,7 +895,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         //
         if (isLabelOverlay(o)) {
 
-            BrowserJsPlumbInstance.getLabelElement(o)
+            getLabelElement(o)
 
             const XY = o.component.getXY();
 
@@ -909,7 +913,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
             SVGElementOverlay.paint(o, path, params, extents)
 
         } else if (isCustomOverlay(o)) {
-            BrowserJsPlumbInstance.getCustomElement(o)
+            getCustomElement(o)
 
             const XY = o.component.getXY();
 
@@ -923,10 +927,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     setOverlayVisible(o: Overlay, visible:boolean):void {
 
         if (isLabelOverlay(o)) {
-            BrowserJsPlumbInstance.getLabelElement(o).style.display = visible ? "block" : "none"
+            getLabelElement(o).style.display = visible ? "block" : "none"
         }
         else if (isCustomOverlay(o)) {
-            BrowserJsPlumbInstance.getCustomElement(o).style.display = visible ? "block" : "none"
+            getCustomElement(o).style.display = visible ? "block" : "none"
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
             (o as any).path.style.display = visible ? "block" : "none"
         }
@@ -934,9 +938,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
     moveOverlayParent(o: Overlay, newParent: HTMLElement): void {
         if (isLabelOverlay(o)) {
-            o.instance.appendElement(BrowserJsPlumbInstance.getLabelElement(o), this.getContainer())
+            o.instance.appendElement(getLabelElement(o), this.getContainer())
         } else if (isCustomOverlay(o)) {
-            o.instance.appendElement(BrowserJsPlumbInstance.getCustomElement(o), this.getContainer())
+            o.instance.appendElement(getCustomElement(o), this.getContainer())
         }
         // else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
         //     // dont need to do anything with other types. seemingly. but why not.
@@ -945,9 +949,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): any {
         if (isLabelOverlay(o)) {
-            o.instance.appendElement(BrowserJsPlumbInstance.getLabelElement(o), this.getContainer())
+            o.instance.appendElement(getLabelElement(o), this.getContainer())
         } else if (isCustomOverlay(o)) {
-            o.instance.appendElement(BrowserJsPlumbInstance.getCustomElement(o), this.getContainer())
+            o.instance.appendElement(getCustomElement(o), this.getContainer())
         }
         else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
             this.appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas)
@@ -960,9 +964,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         let canvas
 
         if (isLabelOverlay(o)) {
-            canvas = BrowserJsPlumbInstance.getLabelElement(o)
+            canvas = getLabelElement(o)
         } else if (isCustomOverlay(o)) {
-            canvas = BrowserJsPlumbInstance.getCustomElement(o)
+            canvas = getCustomElement(o)
         }
         else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
             canvas = SVGElementOverlay.ensurePath(o)
@@ -979,14 +983,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
     destroyOverlay(o: Overlay):void {
         if (isLabelOverlay(o)) {
-            const el = BrowserJsPlumbInstance.getLabelElement(o)
+            const el = getLabelElement(o)
             el.parentNode.removeChild(el)
             delete (o as any).canvas
             delete (o as any).cachedDimensions
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
             SVGElementOverlay.destroy(o)
         } else if (isCustomOverlay(o)) {
-            const el = BrowserJsPlumbInstance.getCustomElement(o)
+            const el = getCustomElement(o)
             el.parentNode.removeChild(el)
             delete (o as any).canvas
             delete (o as any).cachedDimensions
@@ -1047,18 +1051,18 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         if (isFunction(o.label)) {
             let lt = (o.label)(this)
             if (lt != null) {
-                BrowserJsPlumbInstance.getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>")
+                getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>")
             } else {
-                BrowserJsPlumbInstance.getLabelElement(o).innerHTML = ""
+                getLabelElement(o).innerHTML = ""
             }
         }
         else {
             if (o.labelText == null) {
                 o.labelText = o.label as string
                 if (o.labelText != null) {
-                    BrowserJsPlumbInstance.getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>")
+                    getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>")
                 } else {
-                    BrowserJsPlumbInstance.getLabelElement(o).innerHTML = ""
+                    getLabelElement(o).innerHTML = ""
                 }
             }
         }
@@ -1107,7 +1111,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
     destroyConnection(connection:Connection):void {
         if (connection.connector != null) {
-            BrowserJsPlumbInstance.cleanup(connection.connector as any)
+            cleanup(connection.connector as any)
         }
     }
 
@@ -1132,7 +1136,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     }
 
     setConnectorVisible(connector:AbstractConnector, v:boolean):void {
-        BrowserJsPlumbInstance.setVisible(connector as any, v)
+        setVisible(connector as any, v)
     }
 
     applyConnectorType(connector:AbstractConnector, t:TypeDescriptor):void {
@@ -1143,7 +1147,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     }
 
     addEndpointClass(ep: Endpoint, c: string): void {
-        const canvas = this.getEndpointCanvas(ep)
+        const canvas = getEndpointCanvas(ep.endpoint)
         if (canvas != null) {
             this.addClass(canvas, c)
         }
@@ -1151,7 +1155,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void {
         if(t.cssClass) {
-            const canvas = this.getEndpointCanvas(ep)
+            const canvas = getEndpointCanvas(ep.endpoint)
             if (canvas) {
                 const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [t.cssClass]
                 this.addClass(canvas, classes.join(" "))
@@ -1159,12 +1163,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    private getEndpointCanvas(ep:Endpoint):HTMLElement {
-        return (ep.endpoint as any).canvas
-    }
-
     destroyEndpoint(ep: Endpoint): void {
-        BrowserJsPlumbInstance.cleanup(ep.endpoint as any)
+        cleanup(ep.endpoint as any)
     }
 
     paintEndpoint<C>(ep: Endpoint, paintStyle: PaintStyle): void {
@@ -1177,14 +1177,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     }
 
     removeEndpointClass<C>(ep: Endpoint, c: string): void {
-        const canvas = this.getEndpointCanvas(ep)
+        const canvas = getEndpointCanvas(ep.endpoint)
         if (canvas != null) {
             this.removeClass(canvas, c)
         }
     }
 
     getEndpointClass(ep: Endpoint): string {
-        const canvas = this.getEndpointCanvas(ep)
+        const canvas = getEndpointCanvas(ep.endpoint)
         if (canvas != null) {
             return canvas.className
         } else {
@@ -1192,13 +1192,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    private static getEndpointCanvas<C>(ep:EndpointRepresentation<C>):any {
-        return (ep as any).canvas
-    }
-
     refreshEndpoint(endpoint: Endpoint): void {
         if (endpoint.endpoint != null) {
-            const c = BrowserJsPlumbInstance.getEndpointCanvas(endpoint.endpoint)
+            const c = getEndpointCanvas(endpoint.endpoint)
             if (c != null) {
 
                 if (endpoint.connections.length > 0) {
@@ -1221,7 +1217,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         if (endpoint != null && (h === false || (!this.currentlyDragging && !this.isHoverSuspended()))) {
 
             const method = h ? "addClass" : "removeClass"
-            const canvas = this.getEndpointCanvas(endpoint)
+            const canvas = getEndpointCanvas(endpoint.endpoint)
 
             if (canvas != null) {
                 if (this.hoverClass != null) {
@@ -1231,7 +1227,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
             if (endpoint.hoverPaintStyle != null) {
                 endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle
                 if (!this._suspendDrawing) {
-                    //endpoint.paint(endpoint.endpoint.paintStyleInUse)
                     this.paintEndpoint(endpoint, endpoint.paintStyleInUse)
                 }
             }
@@ -1246,6 +1241,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     }
 
     setEndpointVisible<C>(ep: Endpoint, v: boolean): void {
-        BrowserJsPlumbInstance.setVisible(ep.endpoint as any, v)
+        setVisible(ep.endpoint as any, v)
     }
 }

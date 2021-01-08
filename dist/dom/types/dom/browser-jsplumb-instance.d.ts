@@ -11,7 +11,16 @@ import { EventManager } from "./event-manager";
 import { RedrawResult } from '../core/anchor-manager';
 import { CollicatOptions, Collicat, Drag } from './collicat';
 import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
-import { Component, Connection, LabelOverlay, OverlayCapableComponent, PaintStyle, RepaintOptions, Segment } from "@jsplumb/core";
+import { Component } from '../core/component/component';
+import { Segment } from '../core/connector/abstract-segment';
+import { LabelOverlay } from '../core/overlay/label-overlay';
+import { Connection } from '../core/connector/connection-impl';
+import { OverlayCapableComponent } from '../core/component/overlay-capable-component';
+import { PaintStyle } from '../core/styles';
+export interface UIComponent {
+    canvas: HTMLElement;
+    svg: SVGElement;
+}
 export declare type EndpointHelperFunctions = {
     makeNode: (instance: JsPlumbInstance, ep: any, paintStyle: PaintStyle) => void;
     updateNode: (ep: any, node: SVGElement) => void;
@@ -204,7 +213,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
         pos: (d: [number, number]) => string;
     };
     getPath(segment: Segment, isFirstSegment: boolean): string;
-    doRepaint(component: Component, typeDescriptor: string, options?: RepaintOptions): void;
     private static getLabelElement;
     private static getCustomElement;
     private static cleanup;
