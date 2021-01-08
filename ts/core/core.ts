@@ -37,7 +37,6 @@ import {
 
 import { EventGenerator } from "./event-generator"
 import * as Constants from "./constants"
-import {Renderer} from "./renderer"
 import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory"
 import { Anchor } from "./anchor/anchor"
 import {EndpointOptions} from "./endpoint/endpoint"
@@ -50,6 +49,14 @@ import {Router} from "./router/router"
 import {EndpointSelection} from "./selection/endpoint-selection"
 import {ConnectionSelection} from "./selection/connection-selection"
 import {Viewport, ViewportElement} from "./viewport"
+
+import { Component, RepaintOptions } from '../core/component/component'
+import { Segment } from '../core/connector/abstract-segment'
+import { Overlay } from '../core/overlay/overlay'
+import { LabelOverlay } from '../core/overlay/label-overlay'
+import { AbstractConnector } from '../core/connector/abstract-connector'
+import { OverlayCapableComponent } from '../core/component/overlay-capable-component'
+import { PaintStyle} from '../core/styles'
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -151,21 +158,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
     connectorClass = "jtk-connector"
     connectorOutlineClass = "jtk-connector-outline"
     connectedClass = "jtk-connected"
-    hoverClass = "jtk-hover"
     endpointClass = "jtk-endpoint"
     endpointConnectedClass = "jtk-endpoint-connected"
     endpointFullClass = "jtk-endpoint-full"
     endpointDropAllowedClass = "jtk-endpoint-drop-allowed"
     endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden"
-    overlayClass = "jtk-overlay"
-    draggingClass = "jtk-dragging"
-    elementDraggingClass = "jtk-element-dragging"
-    sourceElementDraggingClass = "jtk-source-element-dragging"
     endpointAnchorClassPrefix = "jtk-endpoint-anchor"
-    targetElementDraggingClass = "jtk-target-element-dragging"
-    hoverSourceClass = "jtk-source-hover"
-    hoverTargetClass = "jtk-target-hover"
-    dragSelectClass = "jtk-drag-select"
+    overlayClass = "jtk-overlay"
 
     connections:Array<Connection> = []
     endpointsByElement:Dictionary<Array<Endpoint>> = {}
@@ -224,7 +223,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     abstract off (el:any, event:string, callback:Function):void
     abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void
 
-    constructor(public readonly _instanceIndex:number, public readonly renderer:Renderer, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
+    constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
 
         super()
 
@@ -448,7 +447,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
             return o
         }
     }
-
 
 
 // ------------------  element selection ------------------------
@@ -2059,5 +2057,41 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.appendElement(el, this.getContainer())
         this.updateOffset({recalc:true, elId:this.getId(el)})
     }
+
+    abstract getPath(segment:Segment, isFirstSegment:boolean):string
+
+    abstract doRepaint(component:Component, typeDescriptor:string, options?:RepaintOptions):void
+
+    abstract paintOverlay(o: Overlay, params:any, extents:any):void
+    abstract addOverlayClass(o:Overlay, clazz:string):void
+    abstract removeOverlayClass(o:Overlay, clazz:string):void
+    abstract setOverlayVisible(o: Overlay, visible:boolean):void
+    abstract destroyOverlay(o: Overlay, force?:boolean):void
+    abstract updateLabel(o:LabelOverlay):void
+    abstract drawOverlay(overlay:Overlay, component:any, paintStyle:PaintStyle, absolutePosition?:PointArray):any
+    abstract moveOverlayParent(o:Overlay, newParent:any):void
+    abstract reattachOverlay(o:Overlay, c:OverlayCapableComponent):any
+    abstract setOverlayHover(o:Overlay, hover:boolean):any
+
+    abstract setHover(component:Component, hover:boolean):void
+
+    abstract paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:any):void
+    abstract destroyConnection(connection:Connection, force?:boolean):void
+    abstract setConnectorHover(connector:AbstractConnector, h:boolean, doNotCascade?:boolean):void
+    abstract addConnectorClass(connector:AbstractConnector, clazz:string):void
+    abstract removeConnectorClass(connector:AbstractConnector, clazz:string):void
+    abstract getConnectorClass(connector:AbstractConnector):string
+    abstract setConnectorVisible(connector:AbstractConnector, v:boolean):void
+    abstract applyConnectorType(connector:AbstractConnector, t:TypeDescriptor):void
+
+    abstract applyEndpointType(ep:Endpoint, t:TypeDescriptor):void
+    abstract setEndpointVisible(ep:Endpoint, v:boolean):void
+    abstract destroyEndpoint(ep:Endpoint):void
+    abstract paintEndpoint(ep:Endpoint, paintStyle:PaintStyle):void
+    abstract addEndpointClass(ep:Endpoint, c:string):void
+    abstract removeEndpointClass(ep:Endpoint, c:string):void
+    abstract getEndpointClass(ep:Endpoint):string
+    abstract setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?:boolean): void
+    abstract refreshEndpoint(endpoint:Endpoint):void
 
 }
