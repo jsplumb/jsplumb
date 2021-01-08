@@ -833,11 +833,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         })[segment.type](isFirstSegment)
     }
 
-
-    doRepaint(component: Component, typeDescriptor: string, options?: RepaintOptions): void {
-        component.paint()
-    }
-
     private static getLabelElement(o:LabelOverlay):HTMLElement {
         return HTMLElementOverlay.getElement(o as any)
     }
