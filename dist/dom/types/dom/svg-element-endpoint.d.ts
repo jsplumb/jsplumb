@@ -8,5 +8,5 @@ import { PaintStyle } from '../core/styles';
  */
 export declare abstract class SvgEndpoint<C> {
     static getEndpointElement<C>(ep: EndpointRepresentation<C>): HTMLElement;
-    static paint<C>(ep: EndpointRepresentation<C>, handlers: EndpointHelperFunctions, paintStyle: PaintStyle): void;
+    static paint<C>(ep: EndpointRepresentation<C>, handlers: EndpointHelperFunctions<any>, paintStyle: PaintStyle): void;
 }

@@ -14997,6 +14997,37 @@
   function _touches$1(e) {
     var _e = e;
     return _e.touches && _e.touches.length > 0 ? _e.touches : _e.changedTouches && _e.changedTouches.length > 0 ? _e.changedTouches : _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches : [_e];
+  }
+
+  function setVisible(component, v) {
+    if (component.canvas) {
+      component.canvas.style.display = v ? "block" : "none";
+    }
+  }
+
+  function cleanup(component) {
+    if (component.canvas) {
+      component.canvas.parentNode.removeChild(component.canvas);
+    }
+
+    delete component.canvas;
+    delete component.svg;
+  }
+
+  function getEndpointCanvas(ep) {
+    return ep.canvas;
+  }
+
+  function getLabelElement(o) {
+    return HTMLElementOverlay.getElement(o);
+  }
+
+  function getCustomElement(o) {
+    return HTMLElementOverlay.getElement(o, o.component, function (c) {
+      var el = o.create(c);
+      o.instance.addClass(el, o.instance.overlayClass);
+      return el;
+    });
   } // ------------------------------------------------------------------------------------------------------------
 
   /**
@@ -15732,11 +15763,11 @@
       key: "addOverlayClass",
       value: function addOverlayClass(o, clazz) {
         if (isLabelOverlay(o)) {
-          o.instance.addClass(BrowserJsPlumbInstance.getLabelElement(o), clazz);
+          o.instance.addClass(getLabelElement(o), clazz);
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
           o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (isCustomOverlay(o)) {
-          o.instance.addClass(BrowserJsPlumbInstance.getCustomElement(o), clazz);
+          o.instance.addClass(getCustomElement(o), clazz);
         } else {
           throw "Could not add class to overlay of type [" + o.type + "]";
         }
@@ -15746,11 +15777,11 @@
       key: "removeOverlayClass",
       value: function removeOverlayClass(o, clazz) {
         if (isLabelOverlay(o)) {
-          o.instance.removeClass(BrowserJsPlumbInstance.getLabelElement(o), clazz);
+          o.instance.removeClass(getLabelElement(o), clazz);
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
           o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
         } else if (isCustomOverlay(o)) {
-          o.instance.removeClass(BrowserJsPlumbInstance.getCustomElement(o), clazz);
+          o.instance.removeClass(getCustomElement(o), clazz);
         } else {
           throw "Could not remove class from overlay of type [" + o.type + "]";
         }
@@ -15760,7 +15791,7 @@
       value: function paintOverlay(o, params, extents) {
         //
         if (isLabelOverlay(o)) {
-          BrowserJsPlumbInstance.getLabelElement(o);
+          getLabelElement(o);
           var XY = o.component.getXY();
           o.canvas.style.left = XY.x + params.d.minx + "px";
           o.canvas.style.top = XY.y + params.d.miny + "px";
@@ -15768,7 +15799,7 @@
           var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
           SVGElementOverlay.paint(o, path, params, extents);
         } else if (isCustomOverlay(o)) {
-          BrowserJsPlumbInstance.getCustomElement(o);
+          getCustomElement(o);
 
           var _XY = o.component.getXY();
 
@@ -15783,9 +15814,9 @@
       key: "setOverlayVisible",
       value: function setOverlayVisible(o, visible) {
         if (isLabelOverlay(o)) {
-          BrowserJsPlumbInstance.getLabelElement(o).style.display = visible ? "block" : "none";
+          getLabelElement(o).style.display = visible ? "block" : "none";
         } else if (isCustomOverlay(o)) {
-          BrowserJsPlumbInstance.getCustomElement(o).style.display = visible ? "block" : "none";
+          getCustomElement(o).style.display = visible ? "block" : "none";
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
           o.path.style.display = visible ? "block" : "none";
         }
@@ -15794,9 +15825,9 @@
       key: "moveOverlayParent",
       value: function moveOverlayParent(o, newParent) {
         if (isLabelOverlay(o)) {
-          o.instance.appendElement(BrowserJsPlumbInstance.getLabelElement(o), this.getContainer());
+          o.instance.appendElement(getLabelElement(o), this.getContainer());
         } else if (isCustomOverlay(o)) {
-          o.instance.appendElement(BrowserJsPlumbInstance.getCustomElement(o), this.getContainer());
+          o.instance.appendElement(getCustomElement(o), this.getContainer());
         } // else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
         //     // dont need to do anything with other types. seemingly. but why not.
         // }
@@ -15806,9 +15837,9 @@
       key: "reattachOverlay",
       value: function reattachOverlay(o, c) {
         if (isLabelOverlay(o)) {
-          o.instance.appendElement(BrowserJsPlumbInstance.getLabelElement(o), this.getContainer());
+          o.instance.appendElement(getLabelElement(o), this.getContainer());
         } else if (isCustomOverlay(o)) {
-          o.instance.appendElement(BrowserJsPlumbInstance.getCustomElement(o), this.getContainer());
+          o.instance.appendElement(getCustomElement(o), this.getContainer());
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
           this.appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
         }
@@ -15820,9 +15851,9 @@
         var canvas;
 
         if (isLabelOverlay(o)) {
-          canvas = BrowserJsPlumbInstance.getLabelElement(o);
+          canvas = getLabelElement(o);
         } else if (isCustomOverlay(o)) {
-          canvas = BrowserJsPlumbInstance.getCustomElement(o);
+          canvas = getCustomElement(o);
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
           canvas = SVGElementOverlay.ensurePath(o);
         }
@@ -15839,14 +15870,14 @@
       key: "destroyOverlay",
       value: function destroyOverlay(o) {
         if (isLabelOverlay(o)) {
-          var el = BrowserJsPlumbInstance.getLabelElement(o);
+          var el = getLabelElement(o);
           el.parentNode.removeChild(el);
           delete o.canvas;
           delete o.cachedDimensions;
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
           SVGElementOverlay.destroy(o);
         } else if (isCustomOverlay(o)) {
-          var _el2 = BrowserJsPlumbInstance.getCustomElement(o);
+          var _el2 = getCustomElement(o);
 
           _el2.parentNode.removeChild(_el2);
 
@@ -15927,18 +15958,18 @@
           var lt = o.label(this);
 
           if (lt != null) {
-            BrowserJsPlumbInstance.getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
+            getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
           } else {
-            BrowserJsPlumbInstance.getLabelElement(o).innerHTML = "";
+            getLabelElement(o).innerHTML = "";
           }
         } else {
           if (o.labelText == null) {
             o.labelText = o.label;
 
             if (o.labelText != null) {
-              BrowserJsPlumbInstance.getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>");
+              getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>");
             } else {
-              BrowserJsPlumbInstance.getLabelElement(o).innerHTML = "";
+              getLabelElement(o).innerHTML = "";
             }
           }
         }
@@ -15991,7 +16022,7 @@
       key: "destroyConnection",
       value: function destroyConnection(connection) {
         if (connection.connector != null) {
-          BrowserJsPlumbInstance.cleanup(connection.connector);
+          cleanup(connection.connector);
         }
       }
     }, {
@@ -16020,7 +16051,7 @@
     }, {
       key: "setConnectorVisible",
       value: function setConnectorVisible(connector, v) {
-        BrowserJsPlumbInstance.setVisible(connector, v);
+        setVisible(connector, v);
       }
     }, {
       key: "applyConnectorType",
@@ -16033,7 +16064,7 @@
     }, {
       key: "addEndpointClass",
       value: function addEndpointClass(ep, c) {
-        var canvas = this.getEndpointCanvas(ep);
+        var canvas = getEndpointCanvas(ep.endpoint);
 
         if (canvas != null) {
           this.addClass(canvas, c);
@@ -16043,7 +16074,7 @@
       key: "applyEndpointType",
       value: function applyEndpointType(ep, t) {
         if (t.cssClass) {
-          var canvas = this.getEndpointCanvas(ep);
+          var canvas = getEndpointCanvas(ep.endpoint);
 
           if (canvas) {
             var classes = Array.isArray(t.cssClass) ? t.cssClass : [t.cssClass];
@@ -16052,14 +16083,9 @@
         }
       }
     }, {
-      key: "getEndpointCanvas",
-      value: function getEndpointCanvas(ep) {
-        return ep.endpoint.canvas;
-      }
-    }, {
       key: "destroyEndpoint",
       value: function destroyEndpoint(ep) {
-        BrowserJsPlumbInstance.cleanup(ep.endpoint);
+        cleanup(ep.endpoint);
       }
     }, {
       key: "paintEndpoint",
@@ -16075,7 +16101,7 @@
     }, {
       key: "removeEndpointClass",
       value: function removeEndpointClass(ep, c) {
-        var canvas = this.getEndpointCanvas(ep);
+        var canvas = getEndpointCanvas(ep.endpoint);
 
         if (canvas != null) {
           this.removeClass(canvas, c);
@@ -16084,7 +16110,7 @@
     }, {
       key: "getEndpointClass",
       value: function getEndpointClass(ep) {
-        var canvas = this.getEndpointCanvas(ep);
+        var canvas = getEndpointCanvas(ep.endpoint);
 
         if (canvas != null) {
           return canvas.className;
@@ -16096,7 +16122,7 @@
       key: "refreshEndpoint",
       value: function refreshEndpoint(endpoint) {
         if (endpoint.endpoint != null) {
-          var c = BrowserJsPlumbInstance.getEndpointCanvas(endpoint.endpoint);
+          var c = getEndpointCanvas(endpoint.endpoint);
 
           if (c != null) {
             if (endpoint.connections.length > 0) {
@@ -16118,7 +16144,7 @@
       value: function setEndpointHover(endpoint, h, doNotCascade) {
         if (endpoint != null && (h === false || !this.currentlyDragging && !this.isHoverSuspended())) {
           var method = h ? "addClass" : "removeClass";
-          var canvas = this.getEndpointCanvas(endpoint);
+          var canvas = getEndpointCanvas(endpoint.endpoint);
 
           if (canvas != null) {
             if (this.hoverClass != null) {
@@ -16130,7 +16156,6 @@
             endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
 
             if (!this._suspendDrawing) {
-              //endpoint.paint(endpoint.endpoint.paintStyleInUse)
               this.paintEndpoint(endpoint, endpoint.paintStyleInUse);
             }
           }
@@ -16146,7 +16171,7 @@
     }, {
       key: "setEndpointVisible",
       value: function setEndpointVisible(ep, v) {
-        BrowserJsPlumbInstance.setVisible(ep.endpoint, v);
+        setVisible(ep.endpoint, v);
       }
     }], [{
       key: "getPositionOnElement",
@@ -16174,42 +16199,6 @@
             y = (cl[1] - top) / h;
 
         return [x, y];
-      }
-    }, {
-      key: "getLabelElement",
-      value: function getLabelElement(o) {
-        return HTMLElementOverlay.getElement(o);
-      }
-    }, {
-      key: "getCustomElement",
-      value: function getCustomElement(o) {
-        return HTMLElementOverlay.getElement(o, o.component, function (c) {
-          var el = o.create(c);
-          o.instance.addClass(el, o.instance.overlayClass);
-          return el;
-        });
-      }
-    }, {
-      key: "cleanup",
-      value: function cleanup(component) {
-        if (component.canvas) {
-          component.canvas.parentNode.removeChild(component.canvas);
-        }
-
-        delete component.canvas;
-        delete component.svg;
-      }
-    }, {
-      key: "setVisible",
-      value: function setVisible(component, v) {
-        if (component.canvas) {
-          component.canvas.style.display = v ? "block" : "none";
-        }
-      }
-    }, {
-      key: "getEndpointCanvas",
-      value: function getEndpointCanvas(ep) {
-        return ep.canvas;
       }
     }]);
 

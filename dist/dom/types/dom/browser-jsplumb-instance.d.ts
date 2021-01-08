@@ -21,11 +21,11 @@ export interface UIComponent {
     canvas: HTMLElement;
     svg: SVGElement;
 }
-export declare type EndpointHelperFunctions = {
-    makeNode: (instance: JsPlumbInstance, ep: any, paintStyle: PaintStyle) => void;
-    updateNode: (ep: any, node: SVGElement) => void;
+export declare type EndpointHelperFunctions<E> = {
+    makeNode: (ep: E, paintStyle: PaintStyle) => void;
+    updateNode: (ep: E, node: SVGElement) => void;
 };
-export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions): void;
+export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions<C>): void;
 export interface DragEventCallbackOptions {
     /**
      * Associated Drag instance
@@ -213,10 +213,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
         pos: (d: [number, number]) => string;
     };
     getPath(segment: Segment, isFirstSegment: boolean): string;
-    private static getLabelElement;
-    private static getCustomElement;
-    private static cleanup;
-    private static setVisible;
     addOverlayClass(o: Overlay, clazz: string): void;
     removeOverlayClass(o: Overlay, clazz: string): void;
     paintOverlay(o: Overlay, params: any, extents: any): void;
@@ -238,12 +234,10 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     addEndpointClass(ep: Endpoint, c: string): void;
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
-    private getEndpointCanvas;
     destroyEndpoint(ep: Endpoint): void;
     paintEndpoint<C>(ep: Endpoint, paintStyle: PaintStyle): void;
     removeEndpointClass<C>(ep: Endpoint, c: string): void;
     getEndpointClass(ep: Endpoint): string;
-    private static getEndpointCanvas;
     refreshEndpoint(endpoint: Endpoint): void;
     setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
     setEndpointVisible<C>(ep: Endpoint, v: boolean): void;
