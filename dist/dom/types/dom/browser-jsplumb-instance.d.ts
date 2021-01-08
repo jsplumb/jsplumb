@@ -1,5 +1,5 @@
 import { jsPlumbDefaults, jsPlumbHelperFunctions } from '../core/defaults';
-import { Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size, jsPlumbElement } from '../core/common';
+import { Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor } from '../core/common';
 import { JsPlumbInstance } from '../core/core';
 import { UIGroup } from '../core/group/group';
 import { AbstractConnector } from '../core/connector/abstract-connector';
@@ -11,6 +11,12 @@ import { EventManager } from "./event-manager";
 import { RedrawResult } from '../core/anchor-manager';
 import { CollicatOptions, Collicat, Drag } from './collicat';
 import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
+import { Component, Connection, LabelOverlay, OverlayCapableComponent, PaintStyle, RepaintOptions, Segment } from "@jsplumb/core";
+export declare type EndpointHelperFunctions = {
+    makeNode: (instance: JsPlumbInstance, ep: any, paintStyle: PaintStyle) => void;
+    updateNode: (ep: any, node: SVGElement) => void;
+};
+export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions): void;
 export interface DragEventCallbackOptions {
     /**
      * Associated Drag instance
@@ -100,6 +106,14 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     _elementMousemove: Function;
     eventManager: EventManager;
     listManager: jsPlumbListManager;
+    draggingClass: string;
+    elementDraggingClass: string;
+    hoverClass: string;
+    sourceElementDraggingClass: string;
+    targetElementDraggingClass: string;
+    hoverSourceClass: string;
+    hoverTargetClass: string;
+    dragSelectClass: string;
     /**
      * Whether or not elements should be draggable. This can be provided in the constructor arguments, or simply toggled on the
      * class. The default value is `true`.
@@ -189,4 +203,40 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
         attr: (node: SVGElement, attributes: ElementAttributes) => void;
         pos: (d: [number, number]) => string;
     };
+    getPath(segment: Segment, isFirstSegment: boolean): string;
+    doRepaint(component: Component, typeDescriptor: string, options?: RepaintOptions): void;
+    private static getLabelElement;
+    private static getCustomElement;
+    private static cleanup;
+    private static setVisible;
+    addOverlayClass(o: Overlay, clazz: string): void;
+    removeOverlayClass(o: Overlay, clazz: string): void;
+    paintOverlay(o: Overlay, params: any, extents: any): void;
+    setOverlayVisible(o: Overlay, visible: boolean): void;
+    moveOverlayParent(o: Overlay, newParent: HTMLElement): void;
+    reattachOverlay(o: Overlay, c: OverlayCapableComponent): any;
+    setOverlayHover(o: Overlay, hover: boolean): any;
+    destroyOverlay(o: Overlay): void;
+    drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any;
+    updateLabel(o: LabelOverlay): void;
+    setHover(component: Component, hover: boolean): void;
+    paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: any): void;
+    setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
+    destroyConnection(connection: Connection): void;
+    addConnectorClass(connector: AbstractConnector, clazz: string): void;
+    removeConnectorClass(connector: AbstractConnector, clazz: string): void;
+    getConnectorClass(connector: AbstractConnector): string;
+    setConnectorVisible(connector: AbstractConnector, v: boolean): void;
+    applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
+    addEndpointClass(ep: Endpoint, c: string): void;
+    applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
+    private getEndpointCanvas;
+    destroyEndpoint(ep: Endpoint): void;
+    paintEndpoint<C>(ep: Endpoint, paintStyle: PaintStyle): void;
+    removeEndpointClass<C>(ep: Endpoint, c: string): void;
+    getEndpointClass(ep: Endpoint): string;
+    private static getEndpointCanvas;
+    refreshEndpoint(endpoint: Endpoint): void;
+    setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
+    setEndpointVisible<C>(ep: Endpoint, v: boolean): void;
 }

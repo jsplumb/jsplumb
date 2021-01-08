@@ -1527,7 +1527,7 @@ function (_EventGenerator) {
     key: "setVisible",
     value: function setVisible(v) {
       this.visible = v;
-      this.instance.renderer.setOverlayVisible(this, v);
+      this.instance.setOverlayVisible(this, v);
     }
   }, {
     key: "isVisible",
@@ -1537,7 +1537,7 @@ function (_EventGenerator) {
   }, {
     key: "destroy",
     value: function destroy(force) {
-      this.instance.renderer.destroyOverlay(this, force);
+      this.instance.destroyOverlay(this, force);
     }
   }, {
     key: "_postComponentEvent",
@@ -1628,7 +1628,7 @@ function (_Overlay) {
     value: function setLabel(l) {
       this.label = l;
       this.labelText = null;
-      this.instance.renderer.updateLabel(this);
+      this.instance.updateLabel(this);
     }
   }, {
     key: "getDimensions",
@@ -1932,10 +1932,10 @@ function (_Component) {
         for (var i in this.overlays) {
           if (action === "add") {
             //this.overlays[i].addClass(clazz)
-            this.instance.renderer.addOverlayClass(this.overlays[i], clazz);
+            this.instance.addOverlayClass(this.overlays[i], clazz);
           } else if (action === "remove") {
             //this.overlays[i].removeClass(clazz)
-            this.instance.renderer.removeOverlayClass(this.overlays[i], clazz);
+            this.instance.removeOverlayClass(this.overlays[i], clazz);
           }
         }
       }
@@ -1973,12 +1973,12 @@ function (_Component) {
             // maybe update from data, if there were parameterised values for instance.
             existing.updateFrom(t.overlays[i][1]);
             keep[t.overlays[i][1].id] = true;
-            this.instance.renderer.reattachOverlay(existing, this);
+            this.instance.reattachOverlay(existing, this);
           } else {
             var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
 
             if (c != null) {
-              this.instance.renderer.reattachOverlay(c, this);
+              this.instance.reattachOverlay(c, this);
               c.setVisible(true); // maybe update from data, if there were parameterised values for instance.
 
               c.updateFrom(t.overlays[i][1]);
@@ -3198,7 +3198,7 @@ function (_OverlayCapableCompon) {
         }
       }
 
-      this.instance.renderer.applyConnectorType(this.connector, t);
+      this.instance.applyConnectorType(this.connector, t);
     }
   }, {
     key: "addClass",
@@ -3215,7 +3215,7 @@ function (_OverlayCapableCompon) {
       }
 
       if (this.connector) {
-        this.instance.renderer.addConnectorClass(this.connector, c);
+        this.instance.addConnectorClass(this.connector, c);
       }
     }
   }, {
@@ -3233,7 +3233,7 @@ function (_OverlayCapableCompon) {
       }
 
       if (this.connector) {
-        this.instance.renderer.removeConnectorClass(this.connector, c);
+        this.instance.removeConnectorClass(this.connector, c);
       }
     }
   }, {
@@ -3242,7 +3242,7 @@ function (_OverlayCapableCompon) {
       _get(_getPrototypeOf(Connection.prototype), "setVisible", this).call(this, v);
 
       if (this.connector) {
-        this.instance.renderer.setConnectorVisible(this.connector, v);
+        this.instance.setConnectorVisible(this.connector, v);
       }
 
       this.paint();
@@ -3255,7 +3255,7 @@ function (_OverlayCapableCompon) {
       this.source = null;
       this.target = null; // TODO stop hover?
 
-      this.instance.renderer.destroyConnection(this);
+      this.instance.destroyConnection(this);
       this.connector = null;
 
       _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this, force);
@@ -3336,8 +3336,8 @@ function (_OverlayCapableCompon) {
         if (this.connector != null) {
           previous = this.connector; //previousClasses = previous.getClass()
 
-          previousClasses = this.instance.renderer.getConnectorClass(this.connector);
-          this.instance.renderer.destroyConnection(this);
+          previousClasses = this.instance.getConnectorClass(this.connector);
+          this.instance.destroyConnection(this);
         }
 
         this.connector = connector;
@@ -3353,7 +3353,7 @@ function (_OverlayCapableCompon) {
           var o = this.getOverlays();
 
           for (var i in o) {
-            this.instance.renderer.reattachOverlay(o[i], this);
+            this.instance.reattachOverlay(o[i], this);
           }
         }
 
@@ -3395,7 +3395,7 @@ function (_OverlayCapableCompon) {
               var o = this.overlays[i];
 
               if (o.isVisible()) {
-                this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                this.overlayPlacements[i] = this.instance.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
                 overlayExtents.minX = Math.min(overlayExtents.minX, this.overlayPlacements[i].minX);
                 overlayExtents.maxX = Math.max(overlayExtents.maxX, this.overlayPlacements[i].maxX);
                 overlayExtents.minY = Math.min(overlayExtents.minY, this.overlayPlacements[i].minY);
@@ -3412,14 +3412,14 @@ function (_OverlayCapableCompon) {
             xmax: Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
             ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
           };
-          this.instance.renderer.paintConnector(this.connector, this.paintStyleInUse, extents); // and then the overlays
+          this.instance.paintConnector(this.connector, this.paintStyleInUse, extents); // and then the overlays
 
           for (var j in this.overlays) {
             if (this.overlays.hasOwnProperty(j)) {
               var p = this.overlays[j];
 
               if (p.isVisible()) {
-                this.instance.renderer.paintOverlay(p, this.overlayPlacements[j], extents);
+                this.instance.paintOverlay(p, this.overlayPlacements[j], extents);
               }
             }
           }
@@ -3687,7 +3687,7 @@ function () {
     key: "addClass",
     value: function addClass(c) {
       this.classes.push(c);
-      this.instance.renderer.addEndpointClass(this.endpoint, c);
+      this.instance.addEndpointClass(this.endpoint, c);
     }
   }, {
     key: "removeClass",
@@ -3695,7 +3695,7 @@ function () {
       this.classes = this.classes.filter(function (_c) {
         return _c !== c;
       });
-      this.instance.renderer.removeEndpointClass(this.endpoint, c);
+      this.instance.removeEndpointClass(this.endpoint, c);
     }
   }, {
     key: "clone",
@@ -3716,7 +3716,7 @@ function () {
   }, {
     key: "setVisible",
     value: function setVisible(v) {
-      this.instance.renderer.setEndpointVisible(this.endpoint, v);
+      this.instance.setEndpointVisible(this.endpoint, v);
     }
   }]);
 
@@ -4039,7 +4039,7 @@ function (_OverlayCapableCompon) {
 
       if (idx >= 0) {
         this.connections.splice(idx, 1);
-        this.instance.renderer.refreshEndpoint(this);
+        this.instance.refreshEndpoint(this);
       }
 
       if (!transientDetach && this.deleteOnEmpty && this.connections.length === 0) {
@@ -4116,7 +4116,7 @@ function (_OverlayCapableCompon) {
       }
 
       extend(t, typeParameters);
-      this.instance.renderer.applyEndpointType(this, t);
+      this.instance.applyEndpointType(this, t);
     }
   }, {
     key: "destroy",
@@ -4127,7 +4127,7 @@ function (_OverlayCapableCompon) {
       this.anchor = null;
 
       if (this.endpoint != null) {
-        this.instance.renderer.destroyEndpoint(this);
+        this.instance.destroyEndpoint(this);
       }
 
       _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this, force);
@@ -4258,7 +4258,7 @@ function (_OverlayCapableCompon) {
           }
 
           this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse);
-          this.instance.renderer.paintEndpoint(this, this.paintStyleInUse);
+          this.instance.paintEndpoint(this, this.paintStyleInUse);
           this.timestamp = timestamp; // paint overlays
 
           for (var i in this.overlays) {
@@ -4266,8 +4266,8 @@ function (_OverlayCapableCompon) {
               var o = this.overlays[i];
 
               if (o.isVisible()) {
-                this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                this.instance.renderer.paintOverlay(o, this.overlayPlacements[i], {
+                this.overlayPlacements[i] = this.instance.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                this.instance.paintOverlay(o, this.overlayPlacements[i], {
                   xmin: 0,
                   ymin: 0
                 });
@@ -4329,7 +4329,7 @@ function (_OverlayCapableCompon) {
     key: "setPreparedEndpoint",
     value: function setPreparedEndpoint(ep) {
       if (this.endpoint != null) {
-        this.instance.renderer.destroyEndpoint(this);
+        this.instance.destroyEndpoint(this);
       }
 
       this.endpoint = ep;
@@ -5907,7 +5907,7 @@ function () {
           registerConnection = function registerConnection(otherIndex, otherEndpoint, otherAnchor) {
         if (sourceId === targetId && otherAnchor.isContinuous) {
           // remove the target endpoint's canvas.  we dont need it.
-          _this2.instance.renderer.destroyEndpoint(ep[1]);
+          _this2.instance.destroyEndpoint(ep[1]);
 
           doRegisterTarget = false;
         }
@@ -6796,7 +6796,7 @@ function () {
       var _this = this;
 
       this.each(function (c) {
-        return _this.instance.renderer.setHover(c, h);
+        return _this.instance.setHover(c, h);
       });
       return this;
     }
@@ -7424,14 +7424,13 @@ var JsPlumbInstance =
 function (_EventGenerator) {
   _inherits(JsPlumbInstance, _EventGenerator);
 
-  function JsPlumbInstance(_instanceIndex, renderer, defaults, helpers) {
+  function JsPlumbInstance(_instanceIndex, defaults, helpers) {
     var _this;
 
     _classCallCheck(this, JsPlumbInstance);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(JsPlumbInstance).call(this));
     _this._instanceIndex = _instanceIndex;
-    _this.renderer = renderer;
 
     _defineProperty(_assertThisInitialized(_this), "Defaults", void 0);
 
@@ -7453,8 +7452,6 @@ function (_EventGenerator) {
 
     _defineProperty(_assertThisInitialized(_this), "connectedClass", "jtk-connected");
 
-    _defineProperty(_assertThisInitialized(_this), "hoverClass", "jtk-hover");
-
     _defineProperty(_assertThisInitialized(_this), "endpointClass", "jtk-endpoint");
 
     _defineProperty(_assertThisInitialized(_this), "endpointConnectedClass", "jtk-endpoint-connected");
@@ -7465,23 +7462,9 @@ function (_EventGenerator) {
 
     _defineProperty(_assertThisInitialized(_this), "endpointDropForbiddenClass", "jtk-endpoint-drop-forbidden");
 
-    _defineProperty(_assertThisInitialized(_this), "overlayClass", "jtk-overlay");
-
-    _defineProperty(_assertThisInitialized(_this), "draggingClass", "jtk-dragging");
-
-    _defineProperty(_assertThisInitialized(_this), "elementDraggingClass", "jtk-element-dragging");
-
-    _defineProperty(_assertThisInitialized(_this), "sourceElementDraggingClass", "jtk-source-element-dragging");
-
     _defineProperty(_assertThisInitialized(_this), "endpointAnchorClassPrefix", "jtk-endpoint-anchor");
 
-    _defineProperty(_assertThisInitialized(_this), "targetElementDraggingClass", "jtk-target-element-dragging");
-
-    _defineProperty(_assertThisInitialized(_this), "hoverSourceClass", "jtk-source-hover");
-
-    _defineProperty(_assertThisInitialized(_this), "hoverTargetClass", "jtk-target-hover");
-
-    _defineProperty(_assertThisInitialized(_this), "dragSelectClass", "jtk-drag-select");
+    _defineProperty(_assertThisInitialized(_this), "overlayClass", "jtk-overlay");
 
     _defineProperty(_assertThisInitialized(_this), "connections", []);
 
@@ -9094,16 +9077,16 @@ function (_EventGenerator) {
 
             _this9.removeAttribute(_el, "jtk-" + type);
           } else {
-            var t = [];
+            var _t2 = [];
 
             _el[key].forEach(function (def) {
               if (connectionType !== def.def.connectionType) {
-                t.push(def);
+                _t2.push(def);
               }
             });
 
-            if (t.length > 0) {
-              _el[key] = t;
+            if (_t2.length > 0) {
+              _el[key] = _t2;
             } else {
               delete _el[key];
 
@@ -10511,7 +10494,7 @@ function () {
       var p = "";
 
       for (var i = 0; i < this.segments.length; i++) {
-        p += this.instance.renderer.getPath(this.segments[i], i === 0);
+        p += this.instance.getPath(this.segments[i], i === 0);
         p += " ";
       }
 
@@ -10833,7 +10816,7 @@ function () {
   }, {
     key: "applyType",
     value: function applyType(t) {
-      this.instance.renderer.applyConnectorType(this, t);
+      this.instance.applyConnectorType(this, t);
     } //
     // a dummy implementation for subclasses to override if they want to.
     //

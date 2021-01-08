@@ -1429,7 +1429,7 @@
       key: "setVisible",
       value: function setVisible(v) {
         this.visible = v;
-        this.instance.renderer.setOverlayVisible(this, v);
+        this.instance.setOverlayVisible(this, v);
       }
     }, {
       key: "isVisible",
@@ -1439,7 +1439,7 @@
     }, {
       key: "destroy",
       value: function destroy(force) {
-        this.instance.renderer.destroyOverlay(this, force);
+        this.instance.destroyOverlay(this, force);
       }
     }, {
       key: "_postComponentEvent",
@@ -1530,7 +1530,7 @@
       value: function setLabel(l) {
         this.label = l;
         this.labelText = null;
-        this.instance.renderer.updateLabel(this);
+        this.instance.updateLabel(this);
       }
     }, {
       key: "getDimensions",
@@ -1834,10 +1834,10 @@
           for (var i in this.overlays) {
             if (action === "add") {
               //this.overlays[i].addClass(clazz)
-              this.instance.renderer.addOverlayClass(this.overlays[i], clazz);
+              this.instance.addOverlayClass(this.overlays[i], clazz);
             } else if (action === "remove") {
               //this.overlays[i].removeClass(clazz)
-              this.instance.renderer.removeOverlayClass(this.overlays[i], clazz);
+              this.instance.removeOverlayClass(this.overlays[i], clazz);
             }
           }
         }
@@ -1875,12 +1875,12 @@
               // maybe update from data, if there were parameterised values for instance.
               existing.updateFrom(t.overlays[i][1]);
               keep[t.overlays[i][1].id] = true;
-              this.instance.renderer.reattachOverlay(existing, this);
+              this.instance.reattachOverlay(existing, this);
             } else {
               var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
 
               if (c != null) {
-                this.instance.renderer.reattachOverlay(c, this);
+                this.instance.reattachOverlay(c, this);
                 c.setVisible(true); // maybe update from data, if there were parameterised values for instance.
 
                 c.updateFrom(t.overlays[i][1]);
@@ -3100,7 +3100,7 @@
           }
         }
 
-        this.instance.renderer.applyConnectorType(this.connector, t);
+        this.instance.applyConnectorType(this.connector, t);
       }
     }, {
       key: "addClass",
@@ -3117,7 +3117,7 @@
         }
 
         if (this.connector) {
-          this.instance.renderer.addConnectorClass(this.connector, c);
+          this.instance.addConnectorClass(this.connector, c);
         }
       }
     }, {
@@ -3135,7 +3135,7 @@
         }
 
         if (this.connector) {
-          this.instance.renderer.removeConnectorClass(this.connector, c);
+          this.instance.removeConnectorClass(this.connector, c);
         }
       }
     }, {
@@ -3144,7 +3144,7 @@
         _get(_getPrototypeOf(Connection.prototype), "setVisible", this).call(this, v);
 
         if (this.connector) {
-          this.instance.renderer.setConnectorVisible(this.connector, v);
+          this.instance.setConnectorVisible(this.connector, v);
         }
 
         this.paint();
@@ -3157,7 +3157,7 @@
         this.source = null;
         this.target = null; // TODO stop hover?
 
-        this.instance.renderer.destroyConnection(this);
+        this.instance.destroyConnection(this);
         this.connector = null;
 
         _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this, force);
@@ -3238,8 +3238,8 @@
           if (this.connector != null) {
             previous = this.connector; //previousClasses = previous.getClass()
 
-            previousClasses = this.instance.renderer.getConnectorClass(this.connector);
-            this.instance.renderer.destroyConnection(this);
+            previousClasses = this.instance.getConnectorClass(this.connector);
+            this.instance.destroyConnection(this);
           }
 
           this.connector = connector;
@@ -3255,7 +3255,7 @@
             var o = this.getOverlays();
 
             for (var i in o) {
-              this.instance.renderer.reattachOverlay(o[i], this);
+              this.instance.reattachOverlay(o[i], this);
             }
           }
 
@@ -3297,7 +3297,7 @@
                 var o = this.overlays[i];
 
                 if (o.isVisible()) {
-                  this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                  this.overlayPlacements[i] = this.instance.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
                   overlayExtents.minX = Math.min(overlayExtents.minX, this.overlayPlacements[i].minX);
                   overlayExtents.maxX = Math.max(overlayExtents.maxX, this.overlayPlacements[i].maxX);
                   overlayExtents.minY = Math.min(overlayExtents.minY, this.overlayPlacements[i].minY);
@@ -3314,14 +3314,14 @@
               xmax: Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
               ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
             };
-            this.instance.renderer.paintConnector(this.connector, this.paintStyleInUse, extents); // and then the overlays
+            this.instance.paintConnector(this.connector, this.paintStyleInUse, extents); // and then the overlays
 
             for (var j in this.overlays) {
               if (this.overlays.hasOwnProperty(j)) {
                 var p = this.overlays[j];
 
                 if (p.isVisible()) {
-                  this.instance.renderer.paintOverlay(p, this.overlayPlacements[j], extents);
+                  this.instance.paintOverlay(p, this.overlayPlacements[j], extents);
                 }
               }
             }
@@ -3589,7 +3589,7 @@
       key: "addClass",
       value: function addClass(c) {
         this.classes.push(c);
-        this.instance.renderer.addEndpointClass(this.endpoint, c);
+        this.instance.addEndpointClass(this.endpoint, c);
       }
     }, {
       key: "removeClass",
@@ -3597,7 +3597,7 @@
         this.classes = this.classes.filter(function (_c) {
           return _c !== c;
         });
-        this.instance.renderer.removeEndpointClass(this.endpoint, c);
+        this.instance.removeEndpointClass(this.endpoint, c);
       }
     }, {
       key: "clone",
@@ -3618,7 +3618,7 @@
     }, {
       key: "setVisible",
       value: function setVisible(v) {
-        this.instance.renderer.setEndpointVisible(this.endpoint, v);
+        this.instance.setEndpointVisible(this.endpoint, v);
       }
     }]);
 
@@ -3941,7 +3941,7 @@
 
         if (idx >= 0) {
           this.connections.splice(idx, 1);
-          this.instance.renderer.refreshEndpoint(this);
+          this.instance.refreshEndpoint(this);
         }
 
         if (!transientDetach && this.deleteOnEmpty && this.connections.length === 0) {
@@ -4018,7 +4018,7 @@
         }
 
         extend(t, typeParameters);
-        this.instance.renderer.applyEndpointType(this, t);
+        this.instance.applyEndpointType(this, t);
       }
     }, {
       key: "destroy",
@@ -4029,7 +4029,7 @@
         this.anchor = null;
 
         if (this.endpoint != null) {
-          this.instance.renderer.destroyEndpoint(this);
+          this.instance.destroyEndpoint(this);
         }
 
         _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this, force);
@@ -4160,7 +4160,7 @@
             }
 
             this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse);
-            this.instance.renderer.paintEndpoint(this, this.paintStyleInUse);
+            this.instance.paintEndpoint(this, this.paintStyleInUse);
             this.timestamp = timestamp; // paint overlays
 
             for (var i in this.overlays) {
@@ -4168,8 +4168,8 @@
                 var o = this.overlays[i];
 
                 if (o.isVisible()) {
-                  this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                  this.instance.renderer.paintOverlay(o, this.overlayPlacements[i], {
+                  this.overlayPlacements[i] = this.instance.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
+                  this.instance.paintOverlay(o, this.overlayPlacements[i], {
                     xmin: 0,
                     ymin: 0
                   });
@@ -4231,7 +4231,7 @@
       key: "setPreparedEndpoint",
       value: function setPreparedEndpoint(ep) {
         if (this.endpoint != null) {
-          this.instance.renderer.destroyEndpoint(this);
+          this.instance.destroyEndpoint(this);
         }
 
         this.endpoint = ep;
@@ -5813,7 +5813,7 @@
             registerConnection = function registerConnection(otherIndex, otherEndpoint, otherAnchor) {
           if (sourceId === targetId && otherAnchor.isContinuous) {
             // remove the target endpoint's canvas.  we dont need it.
-            _this2.instance.renderer.destroyEndpoint(ep[1]);
+            _this2.instance.destroyEndpoint(ep[1]);
 
             doRegisterTarget = false;
           }
@@ -6702,7 +6702,7 @@
         var _this = this;
 
         this.each(function (c) {
-          return _this.instance.renderer.setHover(c, h);
+          return _this.instance.setHover(c, h);
         });
         return this;
       }
@@ -7330,14 +7330,13 @@
   function (_EventGenerator) {
     _inherits(JsPlumbInstance, _EventGenerator);
 
-    function JsPlumbInstance(_instanceIndex, renderer, defaults, helpers) {
+    function JsPlumbInstance(_instanceIndex, defaults, helpers) {
       var _this;
 
       _classCallCheck(this, JsPlumbInstance);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(JsPlumbInstance).call(this));
       _this._instanceIndex = _instanceIndex;
-      _this.renderer = renderer;
 
       _defineProperty(_assertThisInitialized(_this), "Defaults", void 0);
 
@@ -7359,8 +7358,6 @@
 
       _defineProperty(_assertThisInitialized(_this), "connectedClass", "jtk-connected");
 
-      _defineProperty(_assertThisInitialized(_this), "hoverClass", "jtk-hover");
-
       _defineProperty(_assertThisInitialized(_this), "endpointClass", "jtk-endpoint");
 
       _defineProperty(_assertThisInitialized(_this), "endpointConnectedClass", "jtk-endpoint-connected");
@@ -7371,23 +7368,9 @@
 
       _defineProperty(_assertThisInitialized(_this), "endpointDropForbiddenClass", "jtk-endpoint-drop-forbidden");
 
-      _defineProperty(_assertThisInitialized(_this), "overlayClass", "jtk-overlay");
-
-      _defineProperty(_assertThisInitialized(_this), "draggingClass", "jtk-dragging");
-
-      _defineProperty(_assertThisInitialized(_this), "elementDraggingClass", "jtk-element-dragging");
-
-      _defineProperty(_assertThisInitialized(_this), "sourceElementDraggingClass", "jtk-source-element-dragging");
-
       _defineProperty(_assertThisInitialized(_this), "endpointAnchorClassPrefix", "jtk-endpoint-anchor");
 
-      _defineProperty(_assertThisInitialized(_this), "targetElementDraggingClass", "jtk-target-element-dragging");
-
-      _defineProperty(_assertThisInitialized(_this), "hoverSourceClass", "jtk-source-hover");
-
-      _defineProperty(_assertThisInitialized(_this), "hoverTargetClass", "jtk-target-hover");
-
-      _defineProperty(_assertThisInitialized(_this), "dragSelectClass", "jtk-drag-select");
+      _defineProperty(_assertThisInitialized(_this), "overlayClass", "jtk-overlay");
 
       _defineProperty(_assertThisInitialized(_this), "connections", []);
 
@@ -9000,16 +8983,16 @@
 
               _this9.removeAttribute(_el, "jtk-" + type);
             } else {
-              var t = [];
+              var _t2 = [];
 
               _el[key].forEach(function (def) {
                 if (connectionType !== def.def.connectionType) {
-                  t.push(def);
+                  _t2.push(def);
                 }
               });
 
-              if (t.length > 0) {
-                _el[key] = t;
+              if (_t2.length > 0) {
+                _el[key] = _t2;
               } else {
                 delete _el[key];
 
@@ -9833,1564 +9816,6 @@
       svg.appendChild(path);
     }
   }
-
-  var AbstractConnector =
-  /*#__PURE__*/
-  function () {
-    function AbstractConnector(instance, connection, params) {
-      _classCallCheck(this, AbstractConnector);
-
-      this.instance = instance;
-      this.connection = connection;
-
-      _defineProperty(this, "type", void 0);
-
-      _defineProperty(this, "edited", false);
-
-      _defineProperty(this, "stub", void 0);
-
-      _defineProperty(this, "sourceStub", void 0);
-
-      _defineProperty(this, "targetStub", void 0);
-
-      _defineProperty(this, "maxStub", void 0);
-
-      _defineProperty(this, "typeId", void 0);
-
-      _defineProperty(this, "gap", void 0);
-
-      _defineProperty(this, "sourceGap", void 0);
-
-      _defineProperty(this, "targetGap", void 0);
-
-      _defineProperty(this, "segments", []);
-
-      _defineProperty(this, "totalLength", 0);
-
-      _defineProperty(this, "segmentProportions", []);
-
-      _defineProperty(this, "segmentProportionalLengths", []);
-
-      _defineProperty(this, "paintInfo", null);
-
-      _defineProperty(this, "strokeWidth", void 0);
-
-      _defineProperty(this, "x", void 0);
-
-      _defineProperty(this, "y", void 0);
-
-      _defineProperty(this, "w", void 0);
-
-      _defineProperty(this, "h", void 0);
-
-      _defineProperty(this, "segment", void 0);
-
-      _defineProperty(this, "bounds", EMPTY_BOUNDS());
-
-      _defineProperty(this, "cssClass", void 0);
-
-      _defineProperty(this, "geometry", void 0);
-
-      this.stub = params.stub || this.getDefaultStubs();
-      this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
-      this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
-      this.gap = params.gap || 0;
-      this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
-      this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
-      this.maxStub = Math.max(this.sourceStub, this.targetStub);
-      this.cssClass = params.cssClass || "";
-    }
-
-    _createClass(AbstractConnector, [{
-      key: "getTypeDescriptor",
-      value: function getTypeDescriptor() {
-        return "connector";
-      }
-    }, {
-      key: "getIdPrefix",
-      value: function getIdPrefix() {
-        return "_jsplumb_connector";
-      }
-    }, {
-      key: "setGeometry",
-      value: function setGeometry(g, internal) {
-        this.geometry = g;
-        this.edited = g != null && !internal;
-      }
-      /**
-       * Subclasses can override this. By default we just pass back the geometry we are using internally.
-       */
-
-    }, {
-      key: "exportGeometry",
-      value: function exportGeometry() {
-        return this.geometry;
-      }
-      /**
-       * Subclasses can override this. By default we just set the given geometry as our internal representation.
-       */
-
-    }, {
-      key: "importGeometry",
-      value: function importGeometry(g) {
-        this.geometry = g;
-        return true;
-      }
-    }, {
-      key: "resetGeometry",
-      value: function resetGeometry() {
-        this.geometry = null;
-        this.edited = false;
-      }
-    }, {
-      key: "resetBounds",
-      value: function resetBounds() {
-        this.bounds = EMPTY_BOUNDS();
-      }
-    }, {
-      key: "getPathData",
-      value: function getPathData() {
-        var p = "";
-
-        for (var i = 0; i < this.segments.length; i++) {
-          p += this.instance.renderer.getPath(this.segments[i], i === 0);
-          p += " ";
-        }
-
-        return p;
-      }
-      /**
-       * Function: findSegmentForPoint
-       * Returns the segment that is closest to the given [x,y],
-       * null if nothing found.  This function returns a JS
-       * object with:
-       *
-       *   d   -   distance from segment
-       *   l   -   proportional location in segment
-       *   x   -   x point on the segment
-       *   y   -   y point on the segment
-       *   s   -   the segment itself.
-       */
-
-    }, {
-      key: "findSegmentForPoint",
-      value: function findSegmentForPoint(x, y) {
-        var out = {
-          d: Infinity,
-          s: null,
-          x: null,
-          y: null,
-          l: null,
-          x1: null,
-          y1: null,
-          x2: null,
-          y2: null,
-          index: null,
-          connectorLocation: null
-        };
-
-        for (var i = 0; i < this.segments.length; i++) {
-          var _s = this.segments[i].findClosestPointOnPath(x, y);
-
-          if (_s.d < out.d) {
-            out.d = _s.d;
-            out.l = _s.l;
-            out.x = _s.x;
-            out.y = _s.y;
-            out.s = this.segments[i];
-            out.x1 = _s.x1;
-            out.x2 = _s.x2;
-            out.y1 = _s.y1;
-            out.y2 = _s.y2;
-            out.index = i;
-            out.connectorLocation = this.segmentProportions[i][0] + _s.l * (this.segmentProportions[i][1] - this.segmentProportions[i][0]);
-          }
-        }
-
-        return out;
-      }
-    }, {
-      key: "lineIntersection",
-      value: function lineIntersection(x1, y1, x2, y2) {
-        var out = [];
-
-        for (var i = 0; i < this.segments.length; i++) {
-          out.push.apply(out, this.segments[i].lineIntersection(x1, y1, x2, y2));
-        }
-
-        return out;
-      }
-    }, {
-      key: "boxIntersection",
-      value: function boxIntersection(x, y, w, h) {
-        var out = [];
-
-        for (var i = 0; i < this.segments.length; i++) {
-          out.push.apply(out, this.segments[i].boxIntersection(x, y, w, h));
-        }
-
-        return out;
-      }
-    }, {
-      key: "boundingBoxIntersection",
-      value: function boundingBoxIntersection(box) {
-        var out = [];
-
-        for (var i = 0; i < this.segments.length; i++) {
-          out.push.apply(out, this.segments[i].boundingBoxIntersection(box));
-        }
-
-        return out;
-      }
-    }, {
-      key: "_updateSegmentProportions",
-      value: function _updateSegmentProportions() {
-        var curLoc = 0;
-
-        for (var i = 0; i < this.segments.length; i++) {
-          var sl = this.segments[i].getLength();
-          this.segmentProportionalLengths[i] = sl / this.totalLength;
-          this.segmentProportions[i] = [curLoc, curLoc += sl / this.totalLength];
-        }
-      }
-      /**
-       * returns [segment, proportion of travel in segment, segment index] for the segment
-       * that contains the point which is 'location' distance along the entire path, where
-       * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths
-       * are made up of a list of segments, each of which contributes some fraction to
-       * the total length.
-       * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
-       * as the absolute distance in pixels, rather than a proportion of the total path.
-       */
-
-    }, {
-      key: "_findSegmentForLocation",
-      value: function _findSegmentForLocation(location, absolute) {
-        var idx, i, inSegmentProportion;
-
-        if (absolute) {
-          location = location > 0 ? location / this.totalLength : (this.totalLength + location) / this.totalLength;
-        } // if location 1 we know its the last segment
-
-
-        if (location === 1) {
-          idx = this.segments.length - 1;
-          inSegmentProportion = 1;
-        } else if (location === 0) {
-          // if location 0 we know its the first segment
-          inSegmentProportion = 0;
-          idx = 0;
-        } else {
-          // if location >= 0.5, traverse backwards (of course not exact, who knows the segment proportions. but
-          // an educated guess at least)
-          if (location >= 0.5) {
-            idx = 0;
-            inSegmentProportion = 0;
-
-            for (i = this.segmentProportions.length - 1; i > -1; i--) {
-              if (this.segmentProportions[i][1] >= location && this.segmentProportions[i][0] <= location) {
-                idx = i;
-                inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
-                break;
-              }
-            }
-          } else {
-            idx = this.segmentProportions.length - 1;
-            inSegmentProportion = 1;
-
-            for (i = 0; i < this.segmentProportions.length; i++) {
-              if (this.segmentProportions[i][1] >= location) {
-                idx = i;
-                inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
-                break;
-              }
-            }
-          }
-        }
-
-        return {
-          segment: this.segments[idx],
-          proportion: inSegmentProportion,
-          index: idx
-        };
-      }
-    }, {
-      key: "_addSegment",
-      value: function _addSegment(clazz, params) {
-        if (params.x1 === params.x2 && params.y1 === params.y2) {
-          return;
-        }
-
-        var s = new clazz(this.instance, params);
-        this.segments.push(s);
-        this.totalLength += s.getLength();
-        this.updateBounds(s);
-      }
-    }, {
-      key: "_clearSegments",
-      value: function _clearSegments() {
-        this.totalLength = 0;
-        this.segments.length = 0;
-        this.segmentProportions.length = 0;
-        this.segmentProportionalLengths.length = 0;
-      }
-    }, {
-      key: "getLength",
-      value: function getLength() {
-        return this.totalLength;
-      }
-    }, {
-      key: "_prepareCompute",
-      value: function _prepareCompute(params) {
-        this.strokeWidth = params.strokeWidth;
-        var segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
-            swapX = params.targetPos[0] < params.sourcePos[0],
-            swapY = params.targetPos[1] < params.sourcePos[1],
-            lw = params.strokeWidth || 1,
-            so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
-            to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
-            x = swapX ? params.targetPos[0] : params.sourcePos[0],
-            y = swapY ? params.targetPos[1] : params.sourcePos[1],
-            w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
-            h = Math.abs(params.targetPos[1] - params.sourcePos[1]); // if either anchor does not have an orientation set, we derive one from their relative
-        // positions.  we fix the axis to be the one in which the two elements are further apart, and
-        // point each anchor at the other element.  this is also used when dragging a new connection.
-
-        if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
-          var index = w > h ? 0 : 1,
-              oIndex = [1, 0][index];
-          so = [0, 0];
-          to = [0, 0];
-          so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
-          to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1;
-          so[oIndex] = 0;
-          to[oIndex] = 0;
-        }
-
-        var sx = swapX ? w + this.sourceGap * so[0] : this.sourceGap * so[0],
-            sy = swapY ? h + this.sourceGap * so[1] : this.sourceGap * so[1],
-            tx = swapX ? this.targetGap * to[0] : w + this.targetGap * to[0],
-            ty = swapY ? this.targetGap * to[1] : h + this.targetGap * to[1],
-            oProduct = so[0] * to[0] + so[1] * to[1];
-        var result = {
-          sx: sx,
-          sy: sy,
-          tx: tx,
-          ty: ty,
-          xSpan: Math.abs(tx - sx),
-          ySpan: Math.abs(ty - sy),
-          mx: (sx + tx) / 2,
-          my: (sy + ty) / 2,
-          so: so,
-          to: to,
-          x: x,
-          y: y,
-          w: w,
-          h: h,
-          segment: segment,
-          startStubX: sx + so[0] * this.sourceStub,
-          startStubY: sy + so[1] * this.sourceStub,
-          endStubX: tx + to[0] * this.targetStub,
-          endStubY: ty + to[1] * this.targetStub,
-          isXGreaterThanStubTimes2: Math.abs(sx - tx) > this.sourceStub + this.targetStub,
-          isYGreaterThanStubTimes2: Math.abs(sy - ty) > this.sourceStub + this.targetStub,
-          opposite: oProduct === -1,
-          perpendicular: oProduct === 0,
-          orthogonal: oProduct === 1,
-          sourceAxis: so[0] === 0 ? "y" : "x",
-          points: [x, y, w, h, sx, sy, tx, ty],
-          stubs: [this.sourceStub, this.targetStub]
-        };
-        result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
-        return result;
-      }
-    }, {
-      key: "getSegments",
-      value: function getSegments() {
-        return this.segments;
-      }
-    }, {
-      key: "updateBounds",
-      value: function updateBounds(segment) {
-        var segBounds = segment.getBounds();
-        this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
-        this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
-        this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
-        this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
-      }
-    }, {
-      key: "dumpSegmentsToConsole",
-      value: function dumpSegmentsToConsole() {
-        log("SEGMENTS:");
-
-        for (var i = 0; i < this.segments.length; i++) {
-          log(this.segments[i].type, "" + this.segments[i].getLength(), "" + this.segmentProportions[i]);
-        }
-      }
-    }, {
-      key: "pointOnPath",
-      value: function pointOnPath(location, absolute) {
-        var seg = this._findSegmentForLocation(location, absolute);
-
-        return seg.segment && seg.segment.pointOnPath(seg.proportion, false) || {
-          x: 0,
-          y: 0
-        };
-      }
-    }, {
-      key: "gradientAtPoint",
-      value: function gradientAtPoint(location, absolute) {
-        var seg = this._findSegmentForLocation(location, absolute);
-
-        return seg.segment && seg.segment.gradientAtPoint(seg.proportion, false) || 0;
-      }
-    }, {
-      key: "pointAlongPathFrom",
-      value: function pointAlongPathFrom(location, distance, absolute) {
-        var seg = this._findSegmentForLocation(location, absolute); // TODO what happens if this crosses to the next segment?
-
-
-        return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || {
-          x: 0,
-          y: 0
-        };
-      }
-    }, {
-      key: "compute",
-      value: function compute(params) {
-        this.paintInfo = this._prepareCompute(params);
-
-        this._clearSegments();
-
-        this._compute(this.paintInfo, params);
-
-        this.x = this.paintInfo.points[0];
-        this.y = this.paintInfo.points[1];
-        this.w = this.paintInfo.points[2];
-        this.h = this.paintInfo.points[3];
-        this.segment = this.paintInfo.segment;
-
-        this._updateSegmentProportions();
-      }
-    }, {
-      key: "applyType",
-      value: function applyType(t) {
-        this.instance.renderer.applyConnectorType(this, t);
-      } //
-      // a dummy implementation for subclasses to override if they want to.
-      //
-
-    }, {
-      key: "setAnchorOrientation",
-      value: function setAnchorOrientation(idx, orientation) {}
-    }]);
-
-    return AbstractConnector;
-  }();
-
-  var DEFAULT_WIDTH = 20;
-  var DEFAULT_LENGTH = 20;
-  var ArrowOverlay =
-  /*#__PURE__*/
-  function (_Overlay) {
-    _inherits(ArrowOverlay, _Overlay);
-
-    function ArrowOverlay(instance, component, p) {
-      var _this;
-
-      _classCallCheck(this, ArrowOverlay);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(ArrowOverlay).call(this, instance, component, p));
-      _this.instance = instance;
-      _this.component = component;
-
-      _defineProperty(_assertThisInitialized(_this), "width", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "length", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "foldback", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "direction", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.arrowType);
-
-      _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
-
-      p = p || {};
-      _this.width = p.width || DEFAULT_WIDTH;
-      _this.length = p.length || DEFAULT_LENGTH;
-      _this.direction = (p.direction || 1) < 0 ? -1 : 1;
-      _this.foldback = p.foldback || 0.623;
-      _this.paintStyle = p.paintStyle || {
-        "strokeWidth": 1
-      };
-      return _this;
-    }
-
-    _createClass(ArrowOverlay, [{
-      key: "draw",
-      value: function draw(component, currentConnectionPaintStyle, absolutePosition) {
-        if (component instanceof AbstractConnector) {
-          var connector = component;
-          var hxy, mid, txy, tail, cxy;
-
-          if (this.location > 1 || this.location < 0) {
-            var fromLoc = this.location < 0 ? 1 : 0;
-            hxy = connector.pointAlongPathFrom(fromLoc, this.location, false);
-            mid = connector.pointAlongPathFrom(fromLoc, this.location - this.direction * this.length / 2, false);
-            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
-          } else if (this.location === 1) {
-            hxy = connector.pointOnPath(this.location);
-            mid = connector.pointAlongPathFrom(this.location, -this.length);
-            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
-
-            if (this.direction === -1) {
-              var _ = txy;
-              txy = hxy;
-              hxy = _;
-            }
-          } else if (this.location === 0) {
-            txy = connector.pointOnPath(this.location);
-            mid = connector.pointAlongPathFrom(this.location, this.length);
-            hxy = this.instance.geometry.pointOnLine(txy, mid, this.length);
-
-            if (this.direction === -1) {
-              var __ = txy;
-              txy = hxy;
-              hxy = __;
-            }
-          } else {
-            hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2);
-            mid = connector.pointOnPath(this.location);
-            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
-          }
-
-          tail = this.instance.geometry.perpendicularLineTo(hxy, txy, this.width);
-          cxy = this.instance.geometry.pointOnLine(hxy, txy, this.foldback * this.length);
-          var d = {
-            hxy: hxy,
-            tail: tail,
-            cxy: cxy
-          },
-              stroke = this.paintStyle.stroke || currentConnectionPaintStyle.stroke,
-              fill = this.paintStyle.fill || currentConnectionPaintStyle.stroke,
-              lineWidth = this.paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
-          return {
-            component: component,
-            d: d,
-            "stroke-width": lineWidth,
-            stroke: stroke,
-            fill: fill,
-            minX: Math.min(hxy.x, tail[0].x, tail[1].x),
-            maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
-            minY: Math.min(hxy.y, tail[0].y, tail[1].y),
-            maxY: Math.max(hxy.y, tail[0].y, tail[1].y)
-          };
-        }
-      }
-    }, {
-      key: "updateFrom",
-      value: function updateFrom(d) {}
-    }]);
-
-    return ArrowOverlay;
-  }(Overlay);
-
-  _defineProperty(ArrowOverlay, "arrowType", "Arrow");
-
-  function isArrowOverlay(o) {
-    return o.type === ArrowOverlay.arrowType;
-  }
-  OverlayFactory.register("Arrow", ArrowOverlay);
-
-  var DiamondOverlay =
-  /*#__PURE__*/
-  function (_ArrowOverlay) {
-    _inherits(DiamondOverlay, _ArrowOverlay);
-
-    function DiamondOverlay(instance, component, p) {
-      var _this;
-
-      _classCallCheck(this, DiamondOverlay);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(DiamondOverlay).call(this, instance, component, p));
-      _this.instance = instance;
-
-      _defineProperty(_assertThisInitialized(_this), "type", DiamondOverlay.arrowType);
-
-      _this.length = _this.length / 2;
-      _this.foldback = 2;
-      return _this;
-    }
-
-    return DiamondOverlay;
-  }(ArrowOverlay);
-
-  _defineProperty(DiamondOverlay, "arrowType", "Diamond");
-
-  function isDiamondOverlay(o) {
-    return o.type === DiamondOverlay.arrowType;
-  }
-  OverlayFactory.register("Diamond", DiamondOverlay);
-
-  var CustomOverlay =
-  /*#__PURE__*/
-  function (_Overlay) {
-    _inherits(CustomOverlay, _Overlay);
-
-    function CustomOverlay(instance, component, p) {
-      var _this;
-
-      _classCallCheck(this, CustomOverlay);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomOverlay).call(this, instance, component, p));
-      _this.instance = instance;
-      _this.component = component;
-
-      _defineProperty(_assertThisInitialized(_this), "create", void 0);
-
-      _defineProperty(_assertThisInitialized(_this), "type", CustomOverlay.customType);
-
-      _this.create = p.create;
-      return _this;
-    }
-
-    _createClass(CustomOverlay, [{
-      key: "updateFrom",
-      value: function updateFrom(d) {}
-    }]);
-
-    return CustomOverlay;
-  }(Overlay);
-
-  _defineProperty(CustomOverlay, "customType", "Custom");
-
-  function isCustomOverlay(o) {
-    return o.type === CustomOverlay.customType;
-  }
-  OverlayFactory.register("Custom", CustomOverlay);
-
-  var SvgComponent =
-  /*#__PURE__*/
-  function () {
-    function SvgComponent() {
-      _classCallCheck(this, SvgComponent);
-    }
-
-    _createClass(SvgComponent, null, [{
-      key: "paint",
-      value: function paint(connector, useDivWrapper, paintStyle, extents) {
-        if (paintStyle != null) {
-          var xy = [connector.x, connector.y],
-              wh = [connector.w, connector.h],
-              p;
-
-          if (extents != null) {
-            if (extents.xmin < 0) {
-              xy[0] += extents.xmin;
-            }
-
-            if (extents.ymin < 0) {
-              xy[1] += extents.ymin;
-            }
-
-            wh[0] = extents.xmax + (extents.xmin < 0 ? -extents.xmin : 0);
-            wh[1] = extents.ymax + (extents.ymin < 0 ? -extents.ymin : 0);
-          }
-
-          if (useDivWrapper) {
-            sizeElement(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
-            xy[0] = 0;
-            xy[1] = 0;
-            p = _pos([0, 0]);
-
-            _attr(connector.svg, {
-              "style": p,
-              "width": "" + (wh[0] || 0),
-              "height": "" + (wh[1] || 0)
-            });
-          } else {
-            p = _pos([xy[0], xy[1]]);
-
-            _attr(connector.canvas, {
-              "style": p,
-              "width": "" + (wh[0] || 0),
-              "height": "" + (wh[1] || 0)
-            });
-          }
-        }
-      }
-    }]);
-
-    return SvgComponent;
-  }();
-
-  /**
-   * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
-   * Type specific subclasses are expected to implement a `makeNode` and `updateNode` method,
-   * which respectively create the type-specific elements, and update them at paint time.
-   */
-
-  var SvgEndpoint =
-  /*#__PURE__*/
-  function () {
-    function SvgEndpoint() {
-      _classCallCheck(this, SvgEndpoint);
-    }
-
-    _createClass(SvgEndpoint, null, [{
-      key: "getEndpointElement",
-      value: function getEndpointElement(ep) {
-        if (ep.canvas != null) {
-          return ep.canvas;
-        } else {
-          var svg = _node("svg", {
-            "style": "",
-            "width": "0",
-            "height": "0",
-            "pointer-events": "none",
-            "position": "absolute"
-          });
-
-          ep.svg = svg;
-          var canvas = createElement("div", {
-            position: "absolute"
-          });
-          ep.canvas = canvas;
-          var classes = ep.classes.join(" ");
-          ep.instance.addClass(canvas, classes);
-          var scopes = ep.endpoint.scope.split(/\s/);
-
-          for (var i = 0; i < scopes.length; i++) {
-            ep.instance.setAttribute(canvas, "jtk-scope-" + scopes[i], "true");
-          }
-
-          if (!ep.instance._suspendDrawing) {
-            sizeElement(canvas, 0, 0, 1, 1);
-          } //(ep as any).canvas = svg
-
-
-          ep.instance.appendElement(canvas, ep.instance.getContainer());
-          canvas.appendChild(svg); // TODO BG CANVAS! does it even need to be a canvas? i suppose not.
-
-          if (ep.cssClass != null) {
-            ep.instance.addClass(canvas, ep.cssClass);
-          }
-
-          ep.instance.addClass(canvas, ep.instance.endpointClass);
-          canvas.jtk = canvas.jtk || {};
-          canvas.jtk.endpoint = ep.endpoint;
-          return canvas;
-        }
-      }
-    }, {
-      key: "paint",
-      value: function paint(ep, handlers, paintStyle) {
-        this.getEndpointElement(ep);
-        SvgComponent.paint(ep, true, paintStyle); //
-
-        var s = extend({}, paintStyle);
-
-        if (s.outlineStroke) {
-          s.stroke = s.outlineStroke;
-        } //
-
-
-        if (ep.node == null) {
-          ep.node = handlers.makeNode(ep.instance, ep, s);
-          ep.svg.appendChild(ep.node);
-        } else if (handlers.updateNode != null) {
-          handlers.updateNode(ep, ep.node);
-        }
-
-        _applyStyles(ep.canvas, ep.node, s, [ep.x, ep.y, ep.w, ep.h]);
-      }
-    }]);
-
-    return SvgEndpoint;
-  }();
-
-  var HTMLElementOverlay =
-  /*#__PURE__*/
-  function () {
-    function HTMLElementOverlay(instance, overlay) {
-      _classCallCheck(this, HTMLElementOverlay);
-
-      this.instance = instance;
-      this.overlay = overlay;
-
-      _defineProperty(this, "htmlElementOverlay", void 0);
-
-      this.htmlElementOverlay = overlay;
-    }
-
-    _createClass(HTMLElementOverlay, null, [{
-      key: "createElement",
-      value: function createElement$1(o) {
-        return createElement("div", {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
-      }
-    }, {
-      key: "getElement",
-      value: function getElement(o, component, elementCreator) {
-        if (o.canvas == null) {
-          if (elementCreator && component) {
-            o.canvas = elementCreator(component);
-          } else {
-            o.canvas = HTMLElementOverlay.createElement(o);
-          }
-
-          o.canvas.style.position = "absolute";
-          o.instance.appendElement(o.canvas, o.instance.getContainer());
-          o.instance.getId(o.canvas);
-          var ts = "translate(-50%, -50%)";
-          o.canvas.style.webkitTransform = ts;
-          o.canvas.style.mozTransform = ts;
-          o.canvas.style.msTransform = ts;
-          o.canvas.style.oTransform = ts;
-          o.canvas.style.transform = ts;
-
-          if (!o.isVisible()) {
-            o.canvas.style.display = "none";
-          }
-
-          o.canvas.jtk = {
-            overlay: o
-          };
-        }
-
-        return o.canvas;
-      }
-    }, {
-      key: "destroy",
-      value: function destroy(o) {
-        var el = HTMLElementOverlay.getElement(o);
-        el.parentNode.removeChild(el);
-        delete o.canvas;
-        delete o.cachedDimensions;
-      }
-    }, {
-      key: "_getDimensions",
-      value: function _getDimensions(o, forceRefresh) {
-        if (o.cachedDimensions == null || forceRefresh) {
-          o.cachedDimensions = [1, 1];
-        }
-
-        return o.cachedDimensions;
-      }
-    }]);
-
-    return HTMLElementOverlay;
-  }();
-
-  var SVGElementOverlay =
-  /*#__PURE__*/
-  function () {
-    function SVGElementOverlay() {
-      _classCallCheck(this, SVGElementOverlay);
-    }
-
-    _createClass(SVGElementOverlay, null, [{
-      key: "ensurePath",
-      value: function ensurePath(o) {
-        if (o.path == null) {
-          o.path = _node("path", {});
-          var parent = null;
-
-          if (o.component instanceof Connection) {
-            var connector = o.component.getConnector();
-            parent = connector != null ? connector.canvas : null;
-          } else if (o.component instanceof Endpoint) {
-            var endpoint = o.component.endpoint;
-            parent = endpoint != null ? endpoint.svg : endpoint;
-          }
-
-          if (parent != null) {
-            _appendAtIndex(parent, o.path, 1);
-          }
-
-          o.instance.addClass(o.path, o.instance.overlayClass);
-          o.path.jtk = {
-            overlay: o
-          };
-        }
-
-        return o.path;
-      }
-    }, {
-      key: "paint",
-      value: function paint(o, path, params, extents) {
-        this.ensurePath(o);
-        var offset = [0, 0];
-
-        if (extents.xmin < 0) {
-          offset[0] = -extents.xmin;
-        }
-
-        if (extents.ymin < 0) {
-          offset[1] = -extents.ymin;
-        }
-
-        var a = {
-          "d": path,
-          //this.makePath(params.d),
-          stroke: params.stroke ? params.stroke : null,
-          fill: params.fill ? params.fill : null,
-          transform: "translate(" + offset[0] + "," + offset[1] + ")",
-          "pointer-events": "visibleStroke"
-        };
-
-        _attr(o.path, a);
-      }
-    }, {
-      key: "destroy",
-      value: function destroy(o, force) {
-        var _o = o;
-
-        if (_o.path != null && _o.path.parentNode != null) {
-          _o.path.parentNode.removeChild(_o.path);
-        }
-
-        if (_o.bgPath != null && _o.bgPath.parentNode != null) {
-          _o.bgPath.parentNode.removeChild(_o.bgPath);
-        }
-
-        delete _o.path;
-        delete _o.bgPath;
-      }
-    }]);
-
-    return SVGElementOverlay;
-  }();
-
-  /**
-   * Renderer for a connector that uses an `svg` element in the DOM.
-   */
-
-  var SvgElementConnector =
-  /*#__PURE__*/
-  function () {
-    function SvgElementConnector() {
-      _classCallCheck(this, SvgElementConnector);
-    }
-
-    _createClass(SvgElementConnector, null, [{
-      key: "paint",
-      value: function paint(connector, paintStyle, extents) {
-        this.getConnectorElement(connector);
-        SvgComponent.paint(connector, false, paintStyle, extents);
-        var segments = connector.getSegments();
-        var p = "",
-            offset = [0, 0];
-
-        if (extents.xmin < 0) {
-          offset[0] = -extents.xmin;
-        }
-
-        if (extents.ymin < 0) {
-          offset[1] = -extents.ymin;
-        }
-
-        if (segments.length > 0) {
-          p = connector.getPathData();
-          var a = {
-            d: p,
-            transform: "translate(" + offset[0] + "," + offset[1] + ")",
-            "pointer-events": "visibleStroke"
-          },
-              outlineStyle = null,
-              d = [connector.x, connector.y, connector.w, connector.h]; // outline style.  actually means drawing an svg object underneath the main one.
-
-          if (paintStyle.outlineStroke) {
-            var outlineWidth = paintStyle.outlineWidth || 1,
-                outlineStrokeWidth = paintStyle.strokeWidth + 2 * outlineWidth;
-            outlineStyle = extend({}, paintStyle);
-            outlineStyle.stroke = paintStyle.outlineStroke;
-            outlineStyle.strokeWidth = outlineStrokeWidth;
-
-            if (connector.bgPath == null) {
-              connector.bgPath = _node("path", a);
-              connector.instance.addClass(connector.bgPath, connector.instance.connectorOutlineClass);
-
-              _appendAtIndex(connector.canvas, connector.bgPath, 0);
-            } else {
-              _attr(connector.bgPath, a);
-            }
-
-            _applyStyles(connector.canvas, connector.bgPath, outlineStyle);
-          }
-
-          if (connector.path == null) {
-            connector.path = _node("path", a);
-
-            _appendAtIndex(connector.canvas, connector.path, paintStyle.outlineStroke ? 1 : 0);
-          } else {
-            _attr(connector.path, a);
-          }
-
-          _applyStyles(connector.canvas, connector.path, paintStyle);
-        }
-      }
-    }, {
-      key: "getConnectorElement",
-      value: function getConnectorElement(c) {
-        if (c.canvas != null) {
-          return c.canvas;
-        } else {
-          var svg = _node("svg", {
-            "style": "",
-            "width": "0",
-            "height": "0",
-            "pointer-events": "none",
-            "position": "absolute"
-          });
-
-          c.canvas = svg;
-          c.instance.appendElement(c.canvas, c.instance.getContainer()); // TODO BG CANVAS! does it even need to be a canvas? i suppose not.
-
-          if (c.cssClass != null) {
-            c.instance.addClass(svg, c.cssClass);
-          }
-
-          c.instance.addClass(svg, c.instance.connectorClass);
-          svg.jtk = svg.jtk || {};
-          svg.jtk.connector = c;
-          return svg;
-        }
-      }
-    }]);
-
-    return SvgElementConnector;
-  }();
-
-  var PlainArrowOverlay =
-  /*#__PURE__*/
-  function (_ArrowOverlay) {
-    _inherits(PlainArrowOverlay, _ArrowOverlay);
-
-    function PlainArrowOverlay(instance, component, p) {
-      var _this;
-
-      _classCallCheck(this, PlainArrowOverlay);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(PlainArrowOverlay).call(this, instance, component, p));
-      _this.instance = instance;
-
-      _defineProperty(_assertThisInitialized(_this), "type", PlainArrowOverlay.arrowType);
-
-      _this.foldback = 1;
-      return _this;
-    }
-
-    return PlainArrowOverlay;
-  }(ArrowOverlay);
-
-  _defineProperty(PlainArrowOverlay, "arrowType", "PlainArrow");
-
-  function isPlainArrowOverlay(o) {
-    return o.type === PlainArrowOverlay.arrowType;
-  }
-  OverlayFactory.register("PlainArrow", PlainArrowOverlay);
-
-  var endpointMap$1 = {};
-  function registerEndpointRenderer(name, fns) {
-    endpointMap$1[name] = fns;
-  }
-  var BrowserRenderer =
-  /*#__PURE__*/
-  function () {
-    function BrowserRenderer() {
-      _classCallCheck(this, BrowserRenderer);
-
-      _defineProperty(this, "instance", void 0);
-    }
-
-    _createClass(BrowserRenderer, [{
-      key: "getPath",
-      value: function getPath(segment, isFirstSegment) {
-        return {
-          "Straight": function Straight(isFirstSegment) {
-            return (isFirstSegment ? "M " + segment.x1 + " " + segment.y1 + " " : "") + "L " + segment.x2 + " " + segment.y2;
-          },
-          "Bezier": function Bezier(isFirstSegment) {
-            var b = segment;
-            return (isFirstSegment ? "M " + b.x2 + " " + b.y2 + " " : "") + "C " + b.cp2x + " " + b.cp2y + " " + b.cp1x + " " + b.cp1y + " " + b.x1 + " " + b.y1;
-          },
-          "Arc": function Arc(isFirstSegment) {
-            var a = segment;
-            var laf = a.sweep > Math.PI ? 1 : 0,
-                sf = a.anticlockwise ? 0 : 1;
-            return (isFirstSegment ? "M" + a.x1 + " " + a.y1 + " " : "") + "A " + a.radius + " " + a.radius + " 0 " + laf + "," + sf + " " + a.x2 + " " + a.y2;
-          }
-        }[segment.type](isFirstSegment);
-      }
-    }, {
-      key: "repaint",
-      value: function repaint(component, typeDescriptor, options) {
-        component.paint();
-      }
-    }, {
-      key: "addOverlayClass",
-      value: function addOverlayClass(o, clazz) {
-        if (isLabelOverlay(o)) {
-          o.instance.addClass(BrowserRenderer.getLabelElement(o), clazz);
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
-        } else if (isCustomOverlay(o)) {
-          o.instance.addClass(BrowserRenderer.getCustomElement(o), clazz);
-        } else {
-          throw "Could not add class to overlay of type [" + o.type + "]";
-        }
-      } //
-
-    }, {
-      key: "removeOverlayClass",
-      value: function removeOverlayClass(o, clazz) {
-        if (isLabelOverlay(o)) {
-          o.instance.removeClass(BrowserRenderer.getLabelElement(o), clazz);
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
-        } else if (isCustomOverlay(o)) {
-          o.instance.removeClass(BrowserRenderer.getCustomElement(o), clazz);
-        } else {
-          throw "Could not remove class from overlay of type [" + o.type + "]";
-        }
-      }
-    }, {
-      key: "paintOverlay",
-      value: function paintOverlay(o, params, extents) {
-        //
-        if (isLabelOverlay(o)) {
-          BrowserRenderer.getLabelElement(o);
-          var XY = o.component.getXY();
-          o.canvas.style.left = XY.x + params.d.minx + "px";
-          o.canvas.style.top = XY.y + params.d.miny + "px";
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
-          SVGElementOverlay.paint(o, path, params, extents);
-        } else if (isCustomOverlay(o)) {
-          BrowserRenderer.getCustomElement(o);
-
-          var _XY = o.component.getXY();
-
-          o.canvas.style.left = _XY.x + params.d.minx + "px"; // wont work for endpoint. abstracts
-
-          o.canvas.style.top = _XY.y + params.d.miny + "px";
-        } else {
-          throw "Could not paint overlay of type [" + o.type + "]";
-        }
-      }
-    }, {
-      key: "setOverlayVisible",
-      value: function setOverlayVisible(o, visible) {
-        if (isLabelOverlay(o)) {
-          BrowserRenderer.getLabelElement(o).style.display = visible ? "block" : "none";
-        } else if (isCustomOverlay(o)) {
-          BrowserRenderer.getCustomElement(o).style.display = visible ? "block" : "none";
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          o.path.style.display = visible ? "block" : "none";
-        }
-      }
-    }, {
-      key: "moveOverlayParent",
-      value: function moveOverlayParent(o, newParent) {
-        if (isLabelOverlay(o)) {
-          o.instance.appendElement(BrowserRenderer.getLabelElement(o), this.instance.getContainer());
-        } else if (isCustomOverlay(o)) {
-          o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer());
-        } // else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
-        //     // dont need to do anything with other types. seemingly. but why not.
-        // }
-
-      }
-    }, {
-      key: "reattachOverlay",
-      value: function reattachOverlay(o, c) {
-        if (isLabelOverlay(o)) {
-          o.instance.appendElement(BrowserRenderer.getLabelElement(o), this.instance.getContainer());
-        } else if (isCustomOverlay(o)) {
-          o.instance.appendElement(BrowserRenderer.getCustomElement(o), this.instance.getContainer());
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          this.instance.appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
-        }
-      }
-    }, {
-      key: "setOverlayHover",
-      value: function setOverlayHover(o, hover) {
-        var method = hover ? "addClass" : "removeClass";
-        var canvas;
-
-        if (isLabelOverlay(o)) {
-          canvas = BrowserRenderer.getLabelElement(o);
-        } else if (isCustomOverlay(o)) {
-          canvas = BrowserRenderer.getCustomElement(o);
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          canvas = SVGElementOverlay.ensurePath(o);
-        }
-
-        if (canvas != null) {
-          if (this.instance.hoverClass != null) {
-            this.instance[method](canvas, this.instance.hoverClass);
-          }
-
-          this.setHover(o.component, hover);
-        }
-      }
-    }, {
-      key: "destroyOverlay",
-      value: function destroyOverlay(o) {
-        if (isLabelOverlay(o)) {
-          var el = BrowserRenderer.getLabelElement(o);
-          el.parentNode.removeChild(el);
-          delete o.canvas;
-          delete o.cachedDimensions;
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          SVGElementOverlay.destroy(o);
-        } else if (isCustomOverlay(o)) {
-          var _el = BrowserRenderer.getCustomElement(o);
-
-          _el.parentNode.removeChild(_el);
-
-          delete o.canvas;
-          delete o.cachedDimensions;
-        }
-      }
-    }, {
-      key: "drawOverlay",
-      value: function drawOverlay(o, component, paintStyle, absolutePosition) {
-        if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
-          //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
-          var td = HTMLElementOverlay._getDimensions(o); //._getDimensions()
-
-
-          if (td != null && td.length === 2) {
-            var cxy = {
-              x: 0,
-              y: 0
-            };
-
-            if (absolutePosition) {
-              cxy = {
-                x: absolutePosition[0],
-                y: absolutePosition[1]
-              };
-            } else if (component instanceof EndpointRepresentation) {
-              var locToUse = o.location.constructor === Array ? o.location : o.endpointLocation || [o.location, o.location];
-              cxy = {
-                x: locToUse[0] * component.w,
-                y: locToUse[1] * component.h
-              };
-            } else {
-              var loc = o.location,
-                  absolute = false;
-
-              if (IS.aString(o.location) || o.location < 0 || o.location > 1) {
-                loc = parseInt("" + o.location, 10);
-                absolute = true;
-              }
-
-              cxy = component.pointOnPath(loc, absolute); // a connection
-            }
-
-            var minx = cxy.x - td[0] / 2,
-                miny = cxy.y - td[1] / 2;
-            return {
-              component: o,
-              d: {
-                minx: minx,
-                miny: miny,
-                td: td,
-                cxy: cxy
-              },
-              minX: minx,
-              maxX: minx + td[0],
-              minY: miny,
-              maxY: miny + td[1]
-            };
-          } else {
-            return {
-              minX: 0,
-              maxX: 0,
-              minY: 0,
-              maxY: 0
-            };
-          }
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          return o.draw(component, paintStyle, absolutePosition);
-        } else {
-          throw "Could not draw overlay of type [" + o.type + "]";
-        }
-      }
-    }, {
-      key: "updateLabel",
-      value: function updateLabel(o) {
-        if (isFunction(o.label)) {
-          var lt = o.label(this);
-
-          if (lt != null) {
-            BrowserRenderer.getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
-          } else {
-            BrowserRenderer.getLabelElement(o).innerHTML = "";
-          }
-        } else {
-          if (o.labelText == null) {
-            o.labelText = o.label;
-
-            if (o.labelText != null) {
-              BrowserRenderer.getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>");
-            } else {
-              BrowserRenderer.getLabelElement(o).innerHTML = "";
-            }
-          }
-        }
-      }
-    }, {
-      key: "setHover",
-      value: function setHover(component, hover) {
-        component._hover = hover;
-
-        if (component instanceof Endpoint && component.endpoint != null) {
-          this.setEndpointHover(component, hover);
-        } else if (component instanceof Connection && component.connector != null) {
-          this.setConnectorHover(component.connector, hover);
-        }
-      } // ------------------------------- connectors ---------------------------------------------------------
-
-    }, {
-      key: "paintConnector",
-      value: function paintConnector(connector, paintStyle, extents) {
-        SvgElementConnector.paint(connector, paintStyle, extents);
-      }
-    }, {
-      key: "setConnectorHover",
-      value: function setConnectorHover(connector, h, doNotCascade) {
-        if (h === false || !this.instance.currentlyDragging && !this.instance.isHoverSuspended()) {
-          var method = h ? "addClass" : "removeClass";
-          var canvas = connector.canvas;
-
-          if (canvas != null) {
-            if (this.instance.hoverClass != null) {
-              this.instance[method](canvas, this.instance.hoverClass);
-            }
-          }
-
-          if (connector.connection.hoverPaintStyle != null) {
-            connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
-
-            if (!this.instance._suspendDrawing) {
-              connector.connection.paint(connector.connection.paintStyleInUse);
-            }
-          }
-
-          if (!doNotCascade) {
-            this.setEndpointHover(connector.connection.endpoints[0], h, true);
-            this.setEndpointHover(connector.connection.endpoints[1], h, true);
-          }
-        }
-      }
-    }, {
-      key: "destroyConnection",
-      value: function destroyConnection(connection) {
-        if (connection.connector != null) {
-          BrowserRenderer.cleanup(connection.connector);
-        }
-      }
-    }, {
-      key: "addConnectorClass",
-      value: function addConnectorClass(connector, clazz) {
-        if (connector.canvas) {
-          this.instance.addClass(connector.canvas, clazz);
-        }
-      }
-    }, {
-      key: "removeConnectorClass",
-      value: function removeConnectorClass(connector, clazz) {
-        if (connector.canvas) {
-          this.instance.removeClass(connector.canvas, clazz);
-        }
-      }
-    }, {
-      key: "getConnectorClass",
-      value: function getConnectorClass(connector) {
-        if (connector.canvas) {
-          return connector.canvas.className.baseVal;
-        } else {
-          return "";
-        }
-      }
-    }, {
-      key: "setConnectorVisible",
-      value: function setConnectorVisible(connector, v) {
-        BrowserRenderer.setVisible(connector, v);
-      }
-    }, {
-      key: "applyConnectorType",
-      value: function applyConnectorType(connector, t) {
-        if (connector.canvas && t.cssClass) {
-          var classes = Array.isArray(t.cssClass) ? t.cssClass : [t.cssClass];
-          this.instance.addClass(connector.canvas, classes.join(" "));
-        }
-      }
-    }, {
-      key: "addEndpointClass",
-      value: function addEndpointClass(ep, c) {
-        var canvas = this.getEndpointCanvas(ep);
-
-        if (canvas != null) {
-          this.instance.addClass(canvas, c);
-        }
-      }
-    }, {
-      key: "applyEndpointType",
-      value: function applyEndpointType(ep, t) {
-        if (t.cssClass) {
-          var canvas = this.getEndpointCanvas(ep);
-
-          if (canvas) {
-            var classes = Array.isArray(t.cssClass) ? t.cssClass : [t.cssClass];
-            this.instance.addClass(canvas, classes.join(" "));
-          }
-        }
-      }
-    }, {
-      key: "getEndpointCanvas",
-      value: function getEndpointCanvas(ep) {
-        return ep.endpoint.canvas;
-      }
-    }, {
-      key: "destroyEndpoint",
-      value: function destroyEndpoint(ep) {
-        BrowserRenderer.cleanup(ep.endpoint);
-      }
-    }, {
-      key: "paintEndpoint",
-      value: function paintEndpoint(ep, paintStyle) {
-        var renderer = endpointMap$1[ep.endpoint.getType()];
-
-        if (renderer != null) {
-          SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
-        } else {
-          console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.getType() + "]");
-        }
-      }
-    }, {
-      key: "removeEndpointClass",
-      value: function removeEndpointClass(ep, c) {
-        var canvas = this.getEndpointCanvas(ep);
-
-        if (canvas != null) {
-          this.instance.removeClass(canvas, c);
-        }
-      }
-    }, {
-      key: "getEndpointClass",
-      value: function getEndpointClass(ep) {
-        var canvas = this.getEndpointCanvas(ep);
-
-        if (canvas != null) {
-          return canvas.className;
-        } else {
-          return "";
-        }
-      }
-    }, {
-      key: "refreshEndpoint",
-      value: function refreshEndpoint(endpoint) {
-        if (endpoint.endpoint != null) {
-          var c = BrowserRenderer.getEndpointCanvas(endpoint.endpoint);
-
-          if (c != null) {
-            if (endpoint.connections.length > 0) {
-              addClass(c, this.instance.endpointConnectedClass);
-            } else {
-              removeClass(c, this.instance.endpointConnectedClass);
-            }
-
-            if (endpoint.isFull()) {
-              addClass(c, this.instance.endpointFullClass);
-            } else {
-              removeClass(c, this.instance.endpointFullClass);
-            }
-          }
-        }
-      }
-    }, {
-      key: "setEndpointHover",
-      value: function setEndpointHover(endpoint, h, doNotCascade) {
-        if (endpoint != null && (h === false || !this.instance.currentlyDragging && !this.instance.isHoverSuspended())) {
-          var method = h ? "addClass" : "removeClass";
-          var canvas = this.getEndpointCanvas(endpoint);
-
-          if (canvas != null) {
-            if (this.instance.hoverClass != null) {
-              this.instance[method](canvas, this.instance.hoverClass);
-            }
-          }
-
-          if (endpoint.hoverPaintStyle != null) {
-            endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
-
-            if (!this.instance._suspendDrawing) {
-              //endpoint.paint(endpoint.endpoint.paintStyleInUse)
-              this.paintEndpoint(endpoint, endpoint.paintStyleInUse);
-            }
-          }
-
-          if (!doNotCascade) {
-            // instruct attached connections to set hover, unless doNotCascade was true.
-            for (var i = 0; i < endpoint.connections.length; i++) {
-              this.setConnectorHover(endpoint.connections[i].connector, h, true);
-            }
-          }
-        }
-      }
-    }, {
-      key: "setEndpointVisible",
-      value: function setEndpointVisible(ep, v) {
-        BrowserRenderer.setVisible(ep.endpoint, v);
-      } // -------------------------------------------------- endpoints -------------------------------------
-
-    }], [{
-      key: "getLabelElement",
-      value: function getLabelElement(o) {
-        return HTMLElementOverlay.getElement(o);
-      }
-    }, {
-      key: "getCustomElement",
-      value: function getCustomElement(o) {
-        return HTMLElementOverlay.getElement(o, o.component, function (c) {
-          var el = o.create(c);
-          o.instance.addClass(el, o.instance.overlayClass);
-          return el;
-        });
-      }
-    }, {
-      key: "cleanup",
-      value: function cleanup(component) {
-        if (component.canvas) {
-          component.canvas.parentNode.removeChild(component.canvas);
-        }
-
-        delete component.canvas;
-        delete component.svg;
-      }
-    }, {
-      key: "setVisible",
-      value: function setVisible(component, v) {
-        if (component.canvas) {
-          component.canvas.style.display = v ? "block" : "none";
-        }
-      }
-    }, {
-      key: "getEndpointCanvas",
-      value: function getEndpointCanvas(ep) {
-        return ep.canvas;
-      }
-    }]);
-
-    return BrowserRenderer;
-  }();
 
   function _isInsideParent(instance, _el, pos) {
     var p = _el.parentNode,
@@ -12574,7 +10999,7 @@
 
 
         for (var i = 0; i < this.ep.connections.length; i++) {
-          this.instance.renderer.setHover(this.ep, false);
+          this.instance.setHover(this.ep, false);
         } // clear this list. we'll reconstruct it based on whether its an existing or new connection.s
 
 
@@ -12711,7 +11136,7 @@
             }
           }
         });
-        this.instance.renderer.setHover(this.ep, false);
+        this.instance.setHover(this.ep, false);
 
         if (this.jpc == null) {
           // create a connection. one end is this endpoint, the other is a floating endpoint.
@@ -12748,7 +11173,7 @@
           this.instance.router.newConnection(this.jpc);
         } else {
           this.existingJpc = true;
-          this.instance.renderer.setHover(this.jpc, false); // new anchor idx
+          this.instance.setHover(this.jpc, false); // new anchor idx
 
           var anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1; // detach from the connection while dragging is occurring. mark as a 'transient' detach, ie. dont delete
           // the endpoint if there are no other connections and it would otherwise have been cleaned up.
@@ -12767,7 +11192,7 @@
           this.jpc.suspendedElement = this.jpc.endpoints[anchorIdx].element;
           this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId;
           this.jpc.suspendedElementType = anchorIdx === 0 ? SOURCE : TARGET;
-          this.instance.renderer.setHover(this.jpc.suspendedEndpoint, false);
+          this.instance.setHover(this.jpc.suspendedEndpoint, false);
           this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint;
           this.jpc.endpoints[anchorIdx] = this.floatingEndpoint;
           this.jpc.addClass(this.instance.draggingClass);
@@ -12997,7 +11422,7 @@
           //if (!discarded) {
 
 
-          this.instance.renderer.refreshEndpoint(this.ep);
+          this.instance.refreshEndpoint(this.ep);
           this.ep.removeClass("endpointDrag");
           this.ep.removeClass(this.instance.draggingClass); //}
           // common clean up
@@ -13171,7 +11596,7 @@
         //this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true)
         this.floatingEndpoint.detachFromConnection(this.jpc, null, true);
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
-        this.instance.renderer.setHover(this.jpc, false);
+        this.instance.setHover(this.jpc, false);
         this.jpc._forceDetach = true; // if (idx === 0) {
         //     this.jpc.source = this.jpc.suspendedEndpoint.element
         //     this.jpc.sourceId = this.jpc.suspendedEndpoint.elementId
@@ -13203,7 +11628,7 @@
     }, {
       key: "_maybeReattach",
       value: function _maybeReattach(idx, originalEvent) {
-        this.instance.renderer.setHover(this.jpc, false);
+        this.instance.setHover(this.jpc, false);
 
         if (this.jpc.suspendedEndpoint) {
           // this.jpc._forceDetach ||  <-- why was this one of the tests in the line below?
@@ -13211,7 +11636,7 @@
             originalEvent: originalEvent
           })) {
             this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint;
-            this.instance.renderer.setHover(this.jpc, false);
+            this.instance.setHover(this.jpc, false);
             this.jpc._forceDetach = true;
             this.jpc.suspendedEndpoint.addConnection(this.jpc);
             this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx);
@@ -13325,7 +11750,7 @@
 
         this.instance._finaliseConnection(this.jpc, null, originalEvent, false);
 
-        this.instance.renderer.setHover(this.jpc, false); // SP continuous anchor flush
+        this.instance.setHover(this.jpc, false); // SP continuous anchor flush
 
         this.instance.revalidate(this.jpc.endpoints[0].element);
       }
@@ -15488,6 +13913,1070 @@
     return jsPlumbList;
   }();
 
+  var AbstractConnector =
+  /*#__PURE__*/
+  function () {
+    function AbstractConnector(instance, connection, params) {
+      _classCallCheck(this, AbstractConnector);
+
+      this.instance = instance;
+      this.connection = connection;
+
+      _defineProperty(this, "type", void 0);
+
+      _defineProperty(this, "edited", false);
+
+      _defineProperty(this, "stub", void 0);
+
+      _defineProperty(this, "sourceStub", void 0);
+
+      _defineProperty(this, "targetStub", void 0);
+
+      _defineProperty(this, "maxStub", void 0);
+
+      _defineProperty(this, "typeId", void 0);
+
+      _defineProperty(this, "gap", void 0);
+
+      _defineProperty(this, "sourceGap", void 0);
+
+      _defineProperty(this, "targetGap", void 0);
+
+      _defineProperty(this, "segments", []);
+
+      _defineProperty(this, "totalLength", 0);
+
+      _defineProperty(this, "segmentProportions", []);
+
+      _defineProperty(this, "segmentProportionalLengths", []);
+
+      _defineProperty(this, "paintInfo", null);
+
+      _defineProperty(this, "strokeWidth", void 0);
+
+      _defineProperty(this, "x", void 0);
+
+      _defineProperty(this, "y", void 0);
+
+      _defineProperty(this, "w", void 0);
+
+      _defineProperty(this, "h", void 0);
+
+      _defineProperty(this, "segment", void 0);
+
+      _defineProperty(this, "bounds", EMPTY_BOUNDS());
+
+      _defineProperty(this, "cssClass", void 0);
+
+      _defineProperty(this, "geometry", void 0);
+
+      this.stub = params.stub || this.getDefaultStubs();
+      this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
+      this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
+      this.gap = params.gap || 0;
+      this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
+      this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
+      this.maxStub = Math.max(this.sourceStub, this.targetStub);
+      this.cssClass = params.cssClass || "";
+    }
+
+    _createClass(AbstractConnector, [{
+      key: "getTypeDescriptor",
+      value: function getTypeDescriptor() {
+        return "connector";
+      }
+    }, {
+      key: "getIdPrefix",
+      value: function getIdPrefix() {
+        return "_jsplumb_connector";
+      }
+    }, {
+      key: "setGeometry",
+      value: function setGeometry(g, internal) {
+        this.geometry = g;
+        this.edited = g != null && !internal;
+      }
+      /**
+       * Subclasses can override this. By default we just pass back the geometry we are using internally.
+       */
+
+    }, {
+      key: "exportGeometry",
+      value: function exportGeometry() {
+        return this.geometry;
+      }
+      /**
+       * Subclasses can override this. By default we just set the given geometry as our internal representation.
+       */
+
+    }, {
+      key: "importGeometry",
+      value: function importGeometry(g) {
+        this.geometry = g;
+        return true;
+      }
+    }, {
+      key: "resetGeometry",
+      value: function resetGeometry() {
+        this.geometry = null;
+        this.edited = false;
+      }
+    }, {
+      key: "resetBounds",
+      value: function resetBounds() {
+        this.bounds = EMPTY_BOUNDS();
+      }
+    }, {
+      key: "getPathData",
+      value: function getPathData() {
+        var p = "";
+
+        for (var i = 0; i < this.segments.length; i++) {
+          p += this.instance.getPath(this.segments[i], i === 0);
+          p += " ";
+        }
+
+        return p;
+      }
+      /**
+       * Function: findSegmentForPoint
+       * Returns the segment that is closest to the given [x,y],
+       * null if nothing found.  This function returns a JS
+       * object with:
+       *
+       *   d   -   distance from segment
+       *   l   -   proportional location in segment
+       *   x   -   x point on the segment
+       *   y   -   y point on the segment
+       *   s   -   the segment itself.
+       */
+
+    }, {
+      key: "findSegmentForPoint",
+      value: function findSegmentForPoint(x, y) {
+        var out = {
+          d: Infinity,
+          s: null,
+          x: null,
+          y: null,
+          l: null,
+          x1: null,
+          y1: null,
+          x2: null,
+          y2: null,
+          index: null,
+          connectorLocation: null
+        };
+
+        for (var i = 0; i < this.segments.length; i++) {
+          var _s = this.segments[i].findClosestPointOnPath(x, y);
+
+          if (_s.d < out.d) {
+            out.d = _s.d;
+            out.l = _s.l;
+            out.x = _s.x;
+            out.y = _s.y;
+            out.s = this.segments[i];
+            out.x1 = _s.x1;
+            out.x2 = _s.x2;
+            out.y1 = _s.y1;
+            out.y2 = _s.y2;
+            out.index = i;
+            out.connectorLocation = this.segmentProportions[i][0] + _s.l * (this.segmentProportions[i][1] - this.segmentProportions[i][0]);
+          }
+        }
+
+        return out;
+      }
+    }, {
+      key: "lineIntersection",
+      value: function lineIntersection(x1, y1, x2, y2) {
+        var out = [];
+
+        for (var i = 0; i < this.segments.length; i++) {
+          out.push.apply(out, this.segments[i].lineIntersection(x1, y1, x2, y2));
+        }
+
+        return out;
+      }
+    }, {
+      key: "boxIntersection",
+      value: function boxIntersection(x, y, w, h) {
+        var out = [];
+
+        for (var i = 0; i < this.segments.length; i++) {
+          out.push.apply(out, this.segments[i].boxIntersection(x, y, w, h));
+        }
+
+        return out;
+      }
+    }, {
+      key: "boundingBoxIntersection",
+      value: function boundingBoxIntersection(box) {
+        var out = [];
+
+        for (var i = 0; i < this.segments.length; i++) {
+          out.push.apply(out, this.segments[i].boundingBoxIntersection(box));
+        }
+
+        return out;
+      }
+    }, {
+      key: "_updateSegmentProportions",
+      value: function _updateSegmentProportions() {
+        var curLoc = 0;
+
+        for (var i = 0; i < this.segments.length; i++) {
+          var sl = this.segments[i].getLength();
+          this.segmentProportionalLengths[i] = sl / this.totalLength;
+          this.segmentProportions[i] = [curLoc, curLoc += sl / this.totalLength];
+        }
+      }
+      /**
+       * returns [segment, proportion of travel in segment, segment index] for the segment
+       * that contains the point which is 'location' distance along the entire path, where
+       * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths
+       * are made up of a list of segments, each of which contributes some fraction to
+       * the total length.
+       * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
+       * as the absolute distance in pixels, rather than a proportion of the total path.
+       */
+
+    }, {
+      key: "_findSegmentForLocation",
+      value: function _findSegmentForLocation(location, absolute) {
+        var idx, i, inSegmentProportion;
+
+        if (absolute) {
+          location = location > 0 ? location / this.totalLength : (this.totalLength + location) / this.totalLength;
+        } // if location 1 we know its the last segment
+
+
+        if (location === 1) {
+          idx = this.segments.length - 1;
+          inSegmentProportion = 1;
+        } else if (location === 0) {
+          // if location 0 we know its the first segment
+          inSegmentProportion = 0;
+          idx = 0;
+        } else {
+          // if location >= 0.5, traverse backwards (of course not exact, who knows the segment proportions. but
+          // an educated guess at least)
+          if (location >= 0.5) {
+            idx = 0;
+            inSegmentProportion = 0;
+
+            for (i = this.segmentProportions.length - 1; i > -1; i--) {
+              if (this.segmentProportions[i][1] >= location && this.segmentProportions[i][0] <= location) {
+                idx = i;
+                inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
+                break;
+              }
+            }
+          } else {
+            idx = this.segmentProportions.length - 1;
+            inSegmentProportion = 1;
+
+            for (i = 0; i < this.segmentProportions.length; i++) {
+              if (this.segmentProportions[i][1] >= location) {
+                idx = i;
+                inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
+                break;
+              }
+            }
+          }
+        }
+
+        return {
+          segment: this.segments[idx],
+          proportion: inSegmentProportion,
+          index: idx
+        };
+      }
+    }, {
+      key: "_addSegment",
+      value: function _addSegment(clazz, params) {
+        if (params.x1 === params.x2 && params.y1 === params.y2) {
+          return;
+        }
+
+        var s = new clazz(this.instance, params);
+        this.segments.push(s);
+        this.totalLength += s.getLength();
+        this.updateBounds(s);
+      }
+    }, {
+      key: "_clearSegments",
+      value: function _clearSegments() {
+        this.totalLength = 0;
+        this.segments.length = 0;
+        this.segmentProportions.length = 0;
+        this.segmentProportionalLengths.length = 0;
+      }
+    }, {
+      key: "getLength",
+      value: function getLength() {
+        return this.totalLength;
+      }
+    }, {
+      key: "_prepareCompute",
+      value: function _prepareCompute(params) {
+        this.strokeWidth = params.strokeWidth;
+        var segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
+            swapX = params.targetPos[0] < params.sourcePos[0],
+            swapY = params.targetPos[1] < params.sourcePos[1],
+            lw = params.strokeWidth || 1,
+            so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
+            to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
+            x = swapX ? params.targetPos[0] : params.sourcePos[0],
+            y = swapY ? params.targetPos[1] : params.sourcePos[1],
+            w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
+            h = Math.abs(params.targetPos[1] - params.sourcePos[1]); // if either anchor does not have an orientation set, we derive one from their relative
+        // positions.  we fix the axis to be the one in which the two elements are further apart, and
+        // point each anchor at the other element.  this is also used when dragging a new connection.
+
+        if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
+          var index = w > h ? 0 : 1,
+              oIndex = [1, 0][index];
+          so = [0, 0];
+          to = [0, 0];
+          so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
+          to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1;
+          so[oIndex] = 0;
+          to[oIndex] = 0;
+        }
+
+        var sx = swapX ? w + this.sourceGap * so[0] : this.sourceGap * so[0],
+            sy = swapY ? h + this.sourceGap * so[1] : this.sourceGap * so[1],
+            tx = swapX ? this.targetGap * to[0] : w + this.targetGap * to[0],
+            ty = swapY ? this.targetGap * to[1] : h + this.targetGap * to[1],
+            oProduct = so[0] * to[0] + so[1] * to[1];
+        var result = {
+          sx: sx,
+          sy: sy,
+          tx: tx,
+          ty: ty,
+          xSpan: Math.abs(tx - sx),
+          ySpan: Math.abs(ty - sy),
+          mx: (sx + tx) / 2,
+          my: (sy + ty) / 2,
+          so: so,
+          to: to,
+          x: x,
+          y: y,
+          w: w,
+          h: h,
+          segment: segment,
+          startStubX: sx + so[0] * this.sourceStub,
+          startStubY: sy + so[1] * this.sourceStub,
+          endStubX: tx + to[0] * this.targetStub,
+          endStubY: ty + to[1] * this.targetStub,
+          isXGreaterThanStubTimes2: Math.abs(sx - tx) > this.sourceStub + this.targetStub,
+          isYGreaterThanStubTimes2: Math.abs(sy - ty) > this.sourceStub + this.targetStub,
+          opposite: oProduct === -1,
+          perpendicular: oProduct === 0,
+          orthogonal: oProduct === 1,
+          sourceAxis: so[0] === 0 ? "y" : "x",
+          points: [x, y, w, h, sx, sy, tx, ty],
+          stubs: [this.sourceStub, this.targetStub]
+        };
+        result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
+        return result;
+      }
+    }, {
+      key: "getSegments",
+      value: function getSegments() {
+        return this.segments;
+      }
+    }, {
+      key: "updateBounds",
+      value: function updateBounds(segment) {
+        var segBounds = segment.getBounds();
+        this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
+        this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
+        this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
+        this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
+      }
+    }, {
+      key: "dumpSegmentsToConsole",
+      value: function dumpSegmentsToConsole() {
+        log("SEGMENTS:");
+
+        for (var i = 0; i < this.segments.length; i++) {
+          log(this.segments[i].type, "" + this.segments[i].getLength(), "" + this.segmentProportions[i]);
+        }
+      }
+    }, {
+      key: "pointOnPath",
+      value: function pointOnPath(location, absolute) {
+        var seg = this._findSegmentForLocation(location, absolute);
+
+        return seg.segment && seg.segment.pointOnPath(seg.proportion, false) || {
+          x: 0,
+          y: 0
+        };
+      }
+    }, {
+      key: "gradientAtPoint",
+      value: function gradientAtPoint(location, absolute) {
+        var seg = this._findSegmentForLocation(location, absolute);
+
+        return seg.segment && seg.segment.gradientAtPoint(seg.proportion, false) || 0;
+      }
+    }, {
+      key: "pointAlongPathFrom",
+      value: function pointAlongPathFrom(location, distance, absolute) {
+        var seg = this._findSegmentForLocation(location, absolute); // TODO what happens if this crosses to the next segment?
+
+
+        return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || {
+          x: 0,
+          y: 0
+        };
+      }
+    }, {
+      key: "compute",
+      value: function compute(params) {
+        this.paintInfo = this._prepareCompute(params);
+
+        this._clearSegments();
+
+        this._compute(this.paintInfo, params);
+
+        this.x = this.paintInfo.points[0];
+        this.y = this.paintInfo.points[1];
+        this.w = this.paintInfo.points[2];
+        this.h = this.paintInfo.points[3];
+        this.segment = this.paintInfo.segment;
+
+        this._updateSegmentProportions();
+      }
+    }, {
+      key: "applyType",
+      value: function applyType(t) {
+        this.instance.applyConnectorType(this, t);
+      } //
+      // a dummy implementation for subclasses to override if they want to.
+      //
+
+    }, {
+      key: "setAnchorOrientation",
+      value: function setAnchorOrientation(idx, orientation) {}
+    }]);
+
+    return AbstractConnector;
+  }();
+
+  var DEFAULT_WIDTH = 20;
+  var DEFAULT_LENGTH = 20;
+  var ArrowOverlay =
+  /*#__PURE__*/
+  function (_Overlay) {
+    _inherits(ArrowOverlay, _Overlay);
+
+    function ArrowOverlay(instance, component, p) {
+      var _this;
+
+      _classCallCheck(this, ArrowOverlay);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(ArrowOverlay).call(this, instance, component, p));
+      _this.instance = instance;
+      _this.component = component;
+
+      _defineProperty(_assertThisInitialized(_this), "width", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "length", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "foldback", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "direction", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.arrowType);
+
+      _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
+
+      p = p || {};
+      _this.width = p.width || DEFAULT_WIDTH;
+      _this.length = p.length || DEFAULT_LENGTH;
+      _this.direction = (p.direction || 1) < 0 ? -1 : 1;
+      _this.foldback = p.foldback || 0.623;
+      _this.paintStyle = p.paintStyle || {
+        "strokeWidth": 1
+      };
+      return _this;
+    }
+
+    _createClass(ArrowOverlay, [{
+      key: "draw",
+      value: function draw(component, currentConnectionPaintStyle, absolutePosition) {
+        if (component instanceof AbstractConnector) {
+          var connector = component;
+          var hxy, mid, txy, tail, cxy;
+
+          if (this.location > 1 || this.location < 0) {
+            var fromLoc = this.location < 0 ? 1 : 0;
+            hxy = connector.pointAlongPathFrom(fromLoc, this.location, false);
+            mid = connector.pointAlongPathFrom(fromLoc, this.location - this.direction * this.length / 2, false);
+            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+          } else if (this.location === 1) {
+            hxy = connector.pointOnPath(this.location);
+            mid = connector.pointAlongPathFrom(this.location, -this.length);
+            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+
+            if (this.direction === -1) {
+              var _ = txy;
+              txy = hxy;
+              hxy = _;
+            }
+          } else if (this.location === 0) {
+            txy = connector.pointOnPath(this.location);
+            mid = connector.pointAlongPathFrom(this.location, this.length);
+            hxy = this.instance.geometry.pointOnLine(txy, mid, this.length);
+
+            if (this.direction === -1) {
+              var __ = txy;
+              txy = hxy;
+              hxy = __;
+            }
+          } else {
+            hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2);
+            mid = connector.pointOnPath(this.location);
+            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+          }
+
+          tail = this.instance.geometry.perpendicularLineTo(hxy, txy, this.width);
+          cxy = this.instance.geometry.pointOnLine(hxy, txy, this.foldback * this.length);
+          var d = {
+            hxy: hxy,
+            tail: tail,
+            cxy: cxy
+          },
+              stroke = this.paintStyle.stroke || currentConnectionPaintStyle.stroke,
+              fill = this.paintStyle.fill || currentConnectionPaintStyle.stroke,
+              lineWidth = this.paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
+          return {
+            component: component,
+            d: d,
+            "stroke-width": lineWidth,
+            stroke: stroke,
+            fill: fill,
+            minX: Math.min(hxy.x, tail[0].x, tail[1].x),
+            maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
+            minY: Math.min(hxy.y, tail[0].y, tail[1].y),
+            maxY: Math.max(hxy.y, tail[0].y, tail[1].y)
+          };
+        }
+      }
+    }, {
+      key: "updateFrom",
+      value: function updateFrom(d) {}
+    }]);
+
+    return ArrowOverlay;
+  }(Overlay);
+
+  _defineProperty(ArrowOverlay, "arrowType", "Arrow");
+
+  function isArrowOverlay(o) {
+    return o.type === ArrowOverlay.arrowType;
+  }
+  OverlayFactory.register("Arrow", ArrowOverlay);
+
+  var PlainArrowOverlay =
+  /*#__PURE__*/
+  function (_ArrowOverlay) {
+    _inherits(PlainArrowOverlay, _ArrowOverlay);
+
+    function PlainArrowOverlay(instance, component, p) {
+      var _this;
+
+      _classCallCheck(this, PlainArrowOverlay);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(PlainArrowOverlay).call(this, instance, component, p));
+      _this.instance = instance;
+
+      _defineProperty(_assertThisInitialized(_this), "type", PlainArrowOverlay.arrowType);
+
+      _this.foldback = 1;
+      return _this;
+    }
+
+    return PlainArrowOverlay;
+  }(ArrowOverlay);
+
+  _defineProperty(PlainArrowOverlay, "arrowType", "PlainArrow");
+
+  function isPlainArrowOverlay(o) {
+    return o.type === PlainArrowOverlay.arrowType;
+  }
+  OverlayFactory.register("PlainArrow", PlainArrowOverlay);
+
+  var DiamondOverlay =
+  /*#__PURE__*/
+  function (_ArrowOverlay) {
+    _inherits(DiamondOverlay, _ArrowOverlay);
+
+    function DiamondOverlay(instance, component, p) {
+      var _this;
+
+      _classCallCheck(this, DiamondOverlay);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(DiamondOverlay).call(this, instance, component, p));
+      _this.instance = instance;
+
+      _defineProperty(_assertThisInitialized(_this), "type", DiamondOverlay.arrowType);
+
+      _this.length = _this.length / 2;
+      _this.foldback = 2;
+      return _this;
+    }
+
+    return DiamondOverlay;
+  }(ArrowOverlay);
+
+  _defineProperty(DiamondOverlay, "arrowType", "Diamond");
+
+  function isDiamondOverlay(o) {
+    return o.type === DiamondOverlay.arrowType;
+  }
+  OverlayFactory.register("Diamond", DiamondOverlay);
+
+  var CustomOverlay =
+  /*#__PURE__*/
+  function (_Overlay) {
+    _inherits(CustomOverlay, _Overlay);
+
+    function CustomOverlay(instance, component, p) {
+      var _this;
+
+      _classCallCheck(this, CustomOverlay);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomOverlay).call(this, instance, component, p));
+      _this.instance = instance;
+      _this.component = component;
+
+      _defineProperty(_assertThisInitialized(_this), "create", void 0);
+
+      _defineProperty(_assertThisInitialized(_this), "type", CustomOverlay.customType);
+
+      _this.create = p.create;
+      return _this;
+    }
+
+    _createClass(CustomOverlay, [{
+      key: "updateFrom",
+      value: function updateFrom(d) {}
+    }]);
+
+    return CustomOverlay;
+  }(Overlay);
+
+  _defineProperty(CustomOverlay, "customType", "Custom");
+
+  function isCustomOverlay(o) {
+    return o.type === CustomOverlay.customType;
+  }
+  OverlayFactory.register("Custom", CustomOverlay);
+
+  var HTMLElementOverlay =
+  /*#__PURE__*/
+  function () {
+    function HTMLElementOverlay(instance, overlay) {
+      _classCallCheck(this, HTMLElementOverlay);
+
+      this.instance = instance;
+      this.overlay = overlay;
+
+      _defineProperty(this, "htmlElementOverlay", void 0);
+
+      this.htmlElementOverlay = overlay;
+    }
+
+    _createClass(HTMLElementOverlay, null, [{
+      key: "createElement",
+      value: function createElement$1(o) {
+        return createElement("div", {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
+      }
+    }, {
+      key: "getElement",
+      value: function getElement(o, component, elementCreator) {
+        if (o.canvas == null) {
+          if (elementCreator && component) {
+            o.canvas = elementCreator(component);
+          } else {
+            o.canvas = HTMLElementOverlay.createElement(o);
+          }
+
+          o.canvas.style.position = "absolute";
+          o.instance.appendElement(o.canvas, o.instance.getContainer());
+          o.instance.getId(o.canvas);
+          var ts = "translate(-50%, -50%)";
+          o.canvas.style.webkitTransform = ts;
+          o.canvas.style.mozTransform = ts;
+          o.canvas.style.msTransform = ts;
+          o.canvas.style.oTransform = ts;
+          o.canvas.style.transform = ts;
+
+          if (!o.isVisible()) {
+            o.canvas.style.display = "none";
+          }
+
+          o.canvas.jtk = {
+            overlay: o
+          };
+        }
+
+        return o.canvas;
+      }
+    }, {
+      key: "destroy",
+      value: function destroy(o) {
+        var el = HTMLElementOverlay.getElement(o);
+        el.parentNode.removeChild(el);
+        delete o.canvas;
+        delete o.cachedDimensions;
+      }
+    }, {
+      key: "_getDimensions",
+      value: function _getDimensions(o, forceRefresh) {
+        if (o.cachedDimensions == null || forceRefresh) {
+          o.cachedDimensions = [1, 1];
+        }
+
+        return o.cachedDimensions;
+      }
+    }]);
+
+    return HTMLElementOverlay;
+  }();
+
+  var SVGElementOverlay =
+  /*#__PURE__*/
+  function () {
+    function SVGElementOverlay() {
+      _classCallCheck(this, SVGElementOverlay);
+    }
+
+    _createClass(SVGElementOverlay, null, [{
+      key: "ensurePath",
+      value: function ensurePath(o) {
+        if (o.path == null) {
+          o.path = _node("path", {});
+          var parent = null;
+
+          if (o.component instanceof Connection) {
+            var connector = o.component.getConnector();
+            parent = connector != null ? connector.canvas : null;
+          } else if (o.component instanceof Endpoint) {
+            var endpoint = o.component.endpoint;
+            parent = endpoint != null ? endpoint.svg : endpoint;
+          }
+
+          if (parent != null) {
+            _appendAtIndex(parent, o.path, 1);
+          }
+
+          o.instance.addClass(o.path, o.instance.overlayClass);
+          o.path.jtk = {
+            overlay: o
+          };
+        }
+
+        return o.path;
+      }
+    }, {
+      key: "paint",
+      value: function paint(o, path, params, extents) {
+        this.ensurePath(o);
+        var offset = [0, 0];
+
+        if (extents.xmin < 0) {
+          offset[0] = -extents.xmin;
+        }
+
+        if (extents.ymin < 0) {
+          offset[1] = -extents.ymin;
+        }
+
+        var a = {
+          "d": path,
+          //this.makePath(params.d),
+          stroke: params.stroke ? params.stroke : null,
+          fill: params.fill ? params.fill : null,
+          transform: "translate(" + offset[0] + "," + offset[1] + ")",
+          "pointer-events": "visibleStroke"
+        };
+
+        _attr(o.path, a);
+      }
+    }, {
+      key: "destroy",
+      value: function destroy(o, force) {
+        var _o = o;
+
+        if (_o.path != null && _o.path.parentNode != null) {
+          _o.path.parentNode.removeChild(_o.path);
+        }
+
+        if (_o.bgPath != null && _o.bgPath.parentNode != null) {
+          _o.bgPath.parentNode.removeChild(_o.bgPath);
+        }
+
+        delete _o.path;
+        delete _o.bgPath;
+      }
+    }]);
+
+    return SVGElementOverlay;
+  }();
+
+  var SvgComponent =
+  /*#__PURE__*/
+  function () {
+    function SvgComponent() {
+      _classCallCheck(this, SvgComponent);
+    }
+
+    _createClass(SvgComponent, null, [{
+      key: "paint",
+      value: function paint(connector, useDivWrapper, paintStyle, extents) {
+        if (paintStyle != null) {
+          var xy = [connector.x, connector.y],
+              wh = [connector.w, connector.h],
+              p;
+
+          if (extents != null) {
+            if (extents.xmin < 0) {
+              xy[0] += extents.xmin;
+            }
+
+            if (extents.ymin < 0) {
+              xy[1] += extents.ymin;
+            }
+
+            wh[0] = extents.xmax + (extents.xmin < 0 ? -extents.xmin : 0);
+            wh[1] = extents.ymax + (extents.ymin < 0 ? -extents.ymin : 0);
+          }
+
+          if (useDivWrapper) {
+            sizeElement(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
+            xy[0] = 0;
+            xy[1] = 0;
+            p = _pos([0, 0]);
+
+            _attr(connector.svg, {
+              "style": p,
+              "width": "" + (wh[0] || 0),
+              "height": "" + (wh[1] || 0)
+            });
+          } else {
+            p = _pos([xy[0], xy[1]]);
+
+            _attr(connector.canvas, {
+              "style": p,
+              "width": "" + (wh[0] || 0),
+              "height": "" + (wh[1] || 0)
+            });
+          }
+        }
+      }
+    }]);
+
+    return SvgComponent;
+  }();
+
+  /**
+   * Renderer for a connector that uses an `svg` element in the DOM.
+   */
+
+  var SvgElementConnector =
+  /*#__PURE__*/
+  function () {
+    function SvgElementConnector() {
+      _classCallCheck(this, SvgElementConnector);
+    }
+
+    _createClass(SvgElementConnector, null, [{
+      key: "paint",
+      value: function paint(connector, paintStyle, extents) {
+        this.getConnectorElement(connector);
+        SvgComponent.paint(connector, false, paintStyle, extents);
+        var segments = connector.getSegments();
+        var p = "",
+            offset = [0, 0];
+
+        if (extents.xmin < 0) {
+          offset[0] = -extents.xmin;
+        }
+
+        if (extents.ymin < 0) {
+          offset[1] = -extents.ymin;
+        }
+
+        if (segments.length > 0) {
+          p = connector.getPathData();
+          var a = {
+            d: p,
+            transform: "translate(" + offset[0] + "," + offset[1] + ")",
+            "pointer-events": "visibleStroke"
+          },
+              outlineStyle = null,
+              d = [connector.x, connector.y, connector.w, connector.h]; // outline style.  actually means drawing an svg object underneath the main one.
+
+          if (paintStyle.outlineStroke) {
+            var outlineWidth = paintStyle.outlineWidth || 1,
+                outlineStrokeWidth = paintStyle.strokeWidth + 2 * outlineWidth;
+            outlineStyle = extend({}, paintStyle);
+            outlineStyle.stroke = paintStyle.outlineStroke;
+            outlineStyle.strokeWidth = outlineStrokeWidth;
+
+            if (connector.bgPath == null) {
+              connector.bgPath = _node("path", a);
+              connector.instance.addClass(connector.bgPath, connector.instance.connectorOutlineClass);
+
+              _appendAtIndex(connector.canvas, connector.bgPath, 0);
+            } else {
+              _attr(connector.bgPath, a);
+            }
+
+            _applyStyles(connector.canvas, connector.bgPath, outlineStyle);
+          }
+
+          if (connector.path == null) {
+            connector.path = _node("path", a);
+
+            _appendAtIndex(connector.canvas, connector.path, paintStyle.outlineStroke ? 1 : 0);
+          } else {
+            _attr(connector.path, a);
+          }
+
+          _applyStyles(connector.canvas, connector.path, paintStyle);
+        }
+      }
+    }, {
+      key: "getConnectorElement",
+      value: function getConnectorElement(c) {
+        if (c.canvas != null) {
+          return c.canvas;
+        } else {
+          var svg = _node("svg", {
+            "style": "",
+            "width": "0",
+            "height": "0",
+            "pointer-events": "none",
+            "position": "absolute"
+          });
+
+          c.canvas = svg;
+          c.instance.appendElement(c.canvas, c.instance.getContainer()); // TODO BG CANVAS! does it even need to be a canvas? i suppose not.
+
+          if (c.cssClass != null) {
+            c.instance.addClass(svg, c.cssClass);
+          }
+
+          c.instance.addClass(svg, c.instance.connectorClass);
+          svg.jtk = svg.jtk || {};
+          svg.jtk.connector = c;
+          return svg;
+        }
+      }
+    }]);
+
+    return SvgElementConnector;
+  }();
+
+  /**
+   * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
+   * Type specific subclasses are expected to implement a `makeNode` and `updateNode` method,
+   * which respectively create the type-specific elements, and update them at paint time.
+   */
+
+  var SvgEndpoint =
+  /*#__PURE__*/
+  function () {
+    function SvgEndpoint() {
+      _classCallCheck(this, SvgEndpoint);
+    }
+
+    _createClass(SvgEndpoint, null, [{
+      key: "getEndpointElement",
+      value: function getEndpointElement(ep) {
+        if (ep.canvas != null) {
+          return ep.canvas;
+        } else {
+          var svg = _node("svg", {
+            "style": "",
+            "width": "0",
+            "height": "0",
+            "pointer-events": "none",
+            "position": "absolute"
+          });
+
+          ep.svg = svg;
+          var canvas = createElement("div", {
+            position: "absolute"
+          });
+          ep.canvas = canvas;
+          var classes = ep.classes.join(" ");
+          ep.instance.addClass(canvas, classes);
+          var scopes = ep.endpoint.scope.split(/\s/);
+
+          for (var i = 0; i < scopes.length; i++) {
+            ep.instance.setAttribute(canvas, "jtk-scope-" + scopes[i], "true");
+          }
+
+          if (!ep.instance._suspendDrawing) {
+            sizeElement(canvas, 0, 0, 1, 1);
+          } //(ep as any).canvas = svg
+
+
+          ep.instance.appendElement(canvas, ep.instance.getContainer());
+          canvas.appendChild(svg); // TODO BG CANVAS! does it even need to be a canvas? i suppose not.
+
+          if (ep.cssClass != null) {
+            ep.instance.addClass(canvas, ep.cssClass);
+          }
+
+          ep.instance.addClass(canvas, ep.instance.endpointClass);
+          canvas.jtk = canvas.jtk || {};
+          canvas.jtk.endpoint = ep.endpoint;
+          return canvas;
+        }
+      }
+    }, {
+      key: "paint",
+      value: function paint(ep, handlers, paintStyle) {
+        this.getEndpointElement(ep);
+        SvgComponent.paint(ep, true, paintStyle); //
+
+        var s = extend({}, paintStyle);
+
+        if (s.outlineStroke) {
+          s.stroke = s.outlineStroke;
+        } //
+
+
+        if (ep.node == null) {
+          ep.node = handlers.makeNode(ep.instance, ep, s);
+          ep.svg.appendChild(ep.node);
+        } else if (handlers.updateNode != null) {
+          handlers.updateNode(ep, ep.node);
+        }
+
+        _applyStyles(ep.canvas, ep.node, s, [ep.x, ep.y, ep.w, ep.h]);
+      }
+    }]);
+
+    return SvgEndpoint;
+  }();
+
+  var endpointMap$1 = {};
+  function registerEndpointRenderer(name, fns) {
+    endpointMap$1[name] = fns;
+  }
+
   function _genLoc$1(prefix, e) {
     if (e == null) {
       return [0, 0];
@@ -15530,7 +15019,7 @@
 
       _classCallCheck(this, BrowserJsPlumbInstance);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(BrowserJsPlumbInstance).call(this, _instanceIndex, new BrowserRenderer(), defaults, helpers)); // not very clean: cant pass this in to BrowserRenderer as we're in the constructor of this class. this should be cleaned up.
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(BrowserJsPlumbInstance).call(this, _instanceIndex, defaults, helpers)); // by default, elements are draggable
 
       _this._instanceIndex = _instanceIndex;
 
@@ -15572,6 +15061,22 @@
 
       _defineProperty(_assertThisInitialized(_this), "listManager", void 0);
 
+      _defineProperty(_assertThisInitialized(_this), "draggingClass", "jtk-dragging");
+
+      _defineProperty(_assertThisInitialized(_this), "elementDraggingClass", "jtk-element-dragging");
+
+      _defineProperty(_assertThisInitialized(_this), "hoverClass", "jtk-hover");
+
+      _defineProperty(_assertThisInitialized(_this), "sourceElementDraggingClass", "jtk-source-element-dragging");
+
+      _defineProperty(_assertThisInitialized(_this), "targetElementDraggingClass", "jtk-target-element-dragging");
+
+      _defineProperty(_assertThisInitialized(_this), "hoverSourceClass", "jtk-source-hover");
+
+      _defineProperty(_assertThisInitialized(_this), "hoverTargetClass", "jtk-target-hover");
+
+      _defineProperty(_assertThisInitialized(_this), "dragSelectClass", "jtk-drag-select");
+
       _defineProperty(_assertThisInitialized(_this), "elementsDraggable", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
@@ -15587,8 +15092,6 @@
           return _pos(d);
         }
       });
-
-      _this.renderer.instance = _assertThisInitialized(_this); // by default, elements are draggable
 
       _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
       _this.eventManager = new EventManager();
@@ -15634,7 +15137,7 @@
         var el = getEventSource(e).parentNode;
 
         if (el.jtk && el.jtk.connector) {
-          this.renderer.setConnectorHover(el.jtk.connector, state);
+          this.setConnectorHover(el.jtk.connector, state);
           this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
         }
       };
@@ -15655,7 +15158,7 @@
         var el = getEventSource(e);
 
         if (el.jtk && el.jtk.endpoint) {
-          this.renderer.setEndpointHover(el.jtk.endpoint, state);
+          this.setEndpointHover(el.jtk.endpoint, state);
           this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
         }
       };
@@ -15682,7 +15185,7 @@
         var overlay = overlayElement.jtk.overlay;
 
         if (overlay) {
-          this.renderer.setOverlayHover(overlay, state);
+          this.setOverlayHover(overlay, state);
         }
       };
 
@@ -16206,6 +15709,450 @@
           e: new Set()
         };
       }
+    }, {
+      key: "getPath",
+      value: function getPath(segment, isFirstSegment) {
+        return {
+          "Straight": function Straight(isFirstSegment) {
+            return (isFirstSegment ? "M " + segment.x1 + " " + segment.y1 + " " : "") + "L " + segment.x2 + " " + segment.y2;
+          },
+          "Bezier": function Bezier(isFirstSegment) {
+            var b = segment;
+            return (isFirstSegment ? "M " + b.x2 + " " + b.y2 + " " : "") + "C " + b.cp2x + " " + b.cp2y + " " + b.cp1x + " " + b.cp1y + " " + b.x1 + " " + b.y1;
+          },
+          "Arc": function Arc(isFirstSegment) {
+            var a = segment;
+            var laf = a.sweep > Math.PI ? 1 : 0,
+                sf = a.anticlockwise ? 0 : 1;
+            return (isFirstSegment ? "M" + a.x1 + " " + a.y1 + " " : "") + "A " + a.radius + " " + a.radius + " 0 " + laf + "," + sf + " " + a.x2 + " " + a.y2;
+          }
+        }[segment.type](isFirstSegment);
+      }
+    }, {
+      key: "doRepaint",
+      value: function doRepaint(component, typeDescriptor, options) {
+        component.paint();
+      }
+    }, {
+      key: "addOverlayClass",
+      value: function addOverlayClass(o, clazz) {
+        if (isLabelOverlay(o)) {
+          o.instance.addClass(BrowserJsPlumbInstance.getLabelElement(o), clazz);
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
+        } else if (isCustomOverlay(o)) {
+          o.instance.addClass(BrowserJsPlumbInstance.getCustomElement(o), clazz);
+        } else {
+          throw "Could not add class to overlay of type [" + o.type + "]";
+        }
+      } //
+
+    }, {
+      key: "removeOverlayClass",
+      value: function removeOverlayClass(o, clazz) {
+        if (isLabelOverlay(o)) {
+          o.instance.removeClass(BrowserJsPlumbInstance.getLabelElement(o), clazz);
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
+        } else if (isCustomOverlay(o)) {
+          o.instance.removeClass(BrowserJsPlumbInstance.getCustomElement(o), clazz);
+        } else {
+          throw "Could not remove class from overlay of type [" + o.type + "]";
+        }
+      }
+    }, {
+      key: "paintOverlay",
+      value: function paintOverlay(o, params, extents) {
+        //
+        if (isLabelOverlay(o)) {
+          BrowserJsPlumbInstance.getLabelElement(o);
+          var XY = o.component.getXY();
+          o.canvas.style.left = XY.x + params.d.minx + "px";
+          o.canvas.style.top = XY.y + params.d.miny + "px";
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
+          SVGElementOverlay.paint(o, path, params, extents);
+        } else if (isCustomOverlay(o)) {
+          BrowserJsPlumbInstance.getCustomElement(o);
+
+          var _XY = o.component.getXY();
+
+          o.canvas.style.left = _XY.x + params.d.minx + "px"; // wont work for endpoint. abstracts
+
+          o.canvas.style.top = _XY.y + params.d.miny + "px";
+        } else {
+          throw "Could not paint overlay of type [" + o.type + "]";
+        }
+      }
+    }, {
+      key: "setOverlayVisible",
+      value: function setOverlayVisible(o, visible) {
+        if (isLabelOverlay(o)) {
+          BrowserJsPlumbInstance.getLabelElement(o).style.display = visible ? "block" : "none";
+        } else if (isCustomOverlay(o)) {
+          BrowserJsPlumbInstance.getCustomElement(o).style.display = visible ? "block" : "none";
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          o.path.style.display = visible ? "block" : "none";
+        }
+      }
+    }, {
+      key: "moveOverlayParent",
+      value: function moveOverlayParent(o, newParent) {
+        if (isLabelOverlay(o)) {
+          o.instance.appendElement(BrowserJsPlumbInstance.getLabelElement(o), this.getContainer());
+        } else if (isCustomOverlay(o)) {
+          o.instance.appendElement(BrowserJsPlumbInstance.getCustomElement(o), this.getContainer());
+        } // else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
+        //     // dont need to do anything with other types. seemingly. but why not.
+        // }
+
+      }
+    }, {
+      key: "reattachOverlay",
+      value: function reattachOverlay(o, c) {
+        if (isLabelOverlay(o)) {
+          o.instance.appendElement(BrowserJsPlumbInstance.getLabelElement(o), this.getContainer());
+        } else if (isCustomOverlay(o)) {
+          o.instance.appendElement(BrowserJsPlumbInstance.getCustomElement(o), this.getContainer());
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          this.appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
+        }
+      }
+    }, {
+      key: "setOverlayHover",
+      value: function setOverlayHover(o, hover) {
+        var method = hover ? "addClass" : "removeClass";
+        var canvas;
+
+        if (isLabelOverlay(o)) {
+          canvas = BrowserJsPlumbInstance.getLabelElement(o);
+        } else if (isCustomOverlay(o)) {
+          canvas = BrowserJsPlumbInstance.getCustomElement(o);
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          canvas = SVGElementOverlay.ensurePath(o);
+        }
+
+        if (canvas != null) {
+          if (this.hoverClass != null) {
+            this[method](canvas, this.hoverClass);
+          }
+
+          this.setHover(o.component, hover);
+        }
+      }
+    }, {
+      key: "destroyOverlay",
+      value: function destroyOverlay(o) {
+        if (isLabelOverlay(o)) {
+          var el = BrowserJsPlumbInstance.getLabelElement(o);
+          el.parentNode.removeChild(el);
+          delete o.canvas;
+          delete o.cachedDimensions;
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          SVGElementOverlay.destroy(o);
+        } else if (isCustomOverlay(o)) {
+          var _el2 = BrowserJsPlumbInstance.getCustomElement(o);
+
+          _el2.parentNode.removeChild(_el2);
+
+          delete o.canvas;
+          delete o.cachedDimensions;
+        }
+      }
+    }, {
+      key: "drawOverlay",
+      value: function drawOverlay(o, component, paintStyle, absolutePosition) {
+        if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
+          //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
+          var td = HTMLElementOverlay._getDimensions(o); //._getDimensions()
+
+
+          if (td != null && td.length === 2) {
+            var cxy = {
+              x: 0,
+              y: 0
+            };
+
+            if (absolutePosition) {
+              cxy = {
+                x: absolutePosition[0],
+                y: absolutePosition[1]
+              };
+            } else if (component instanceof EndpointRepresentation) {
+              var locToUse = o.location.constructor === Array ? o.location : o.endpointLocation || [o.location, o.location];
+              cxy = {
+                x: locToUse[0] * component.w,
+                y: locToUse[1] * component.h
+              };
+            } else {
+              var loc = o.location,
+                  absolute = false;
+
+              if (IS.aString(o.location) || o.location < 0 || o.location > 1) {
+                loc = parseInt("" + o.location, 10);
+                absolute = true;
+              }
+
+              cxy = component.pointOnPath(loc, absolute); // a connection
+            }
+
+            var minx = cxy.x - td[0] / 2,
+                miny = cxy.y - td[1] / 2;
+            return {
+              component: o,
+              d: {
+                minx: minx,
+                miny: miny,
+                td: td,
+                cxy: cxy
+              },
+              minX: minx,
+              maxX: minx + td[0],
+              minY: miny,
+              maxY: miny + td[1]
+            };
+          } else {
+            return {
+              minX: 0,
+              maxX: 0,
+              minY: 0,
+              maxY: 0
+            };
+          }
+        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+          return o.draw(component, paintStyle, absolutePosition);
+        } else {
+          throw "Could not draw overlay of type [" + o.type + "]";
+        }
+      }
+    }, {
+      key: "updateLabel",
+      value: function updateLabel(o) {
+        if (isFunction(o.label)) {
+          var lt = o.label(this);
+
+          if (lt != null) {
+            BrowserJsPlumbInstance.getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
+          } else {
+            BrowserJsPlumbInstance.getLabelElement(o).innerHTML = "";
+          }
+        } else {
+          if (o.labelText == null) {
+            o.labelText = o.label;
+
+            if (o.labelText != null) {
+              BrowserJsPlumbInstance.getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>");
+            } else {
+              BrowserJsPlumbInstance.getLabelElement(o).innerHTML = "";
+            }
+          }
+        }
+      }
+    }, {
+      key: "setHover",
+      value: function setHover(component, hover) {
+        component._hover = hover;
+
+        if (component instanceof Endpoint && component.endpoint != null) {
+          this.setEndpointHover(component, hover);
+        } else if (component instanceof Connection && component.connector != null) {
+          this.setConnectorHover(component.connector, hover);
+        }
+      } // ------------------------------- connectors ---------------------------------------------------------
+
+    }, {
+      key: "paintConnector",
+      value: function paintConnector(connector, paintStyle, extents) {
+        SvgElementConnector.paint(connector, paintStyle, extents);
+      }
+    }, {
+      key: "setConnectorHover",
+      value: function setConnectorHover(connector, h, doNotCascade) {
+        if (h === false || !this.currentlyDragging && !this.isHoverSuspended()) {
+          var method = h ? "addClass" : "removeClass";
+          var canvas = connector.canvas;
+
+          if (canvas != null) {
+            if (this.hoverClass != null) {
+              this[method](canvas, this.hoverClass);
+            }
+          }
+
+          if (connector.connection.hoverPaintStyle != null) {
+            connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
+
+            if (!this._suspendDrawing) {
+              connector.connection.paint(connector.connection.paintStyleInUse);
+            }
+          }
+
+          if (!doNotCascade) {
+            this.setEndpointHover(connector.connection.endpoints[0], h, true);
+            this.setEndpointHover(connector.connection.endpoints[1], h, true);
+          }
+        }
+      }
+    }, {
+      key: "destroyConnection",
+      value: function destroyConnection(connection) {
+        if (connection.connector != null) {
+          BrowserJsPlumbInstance.cleanup(connection.connector);
+        }
+      }
+    }, {
+      key: "addConnectorClass",
+      value: function addConnectorClass(connector, clazz) {
+        if (connector.canvas) {
+          this.addClass(connector.canvas, clazz);
+        }
+      }
+    }, {
+      key: "removeConnectorClass",
+      value: function removeConnectorClass(connector, clazz) {
+        if (connector.canvas) {
+          this.removeClass(connector.canvas, clazz);
+        }
+      }
+    }, {
+      key: "getConnectorClass",
+      value: function getConnectorClass(connector) {
+        if (connector.canvas) {
+          return connector.canvas.className.baseVal;
+        } else {
+          return "";
+        }
+      }
+    }, {
+      key: "setConnectorVisible",
+      value: function setConnectorVisible(connector, v) {
+        BrowserJsPlumbInstance.setVisible(connector, v);
+      }
+    }, {
+      key: "applyConnectorType",
+      value: function applyConnectorType(connector, t) {
+        if (connector.canvas && t.cssClass) {
+          var classes = Array.isArray(t.cssClass) ? t.cssClass : [t.cssClass];
+          this.addClass(connector.canvas, classes.join(" "));
+        }
+      }
+    }, {
+      key: "addEndpointClass",
+      value: function addEndpointClass(ep, c) {
+        var canvas = this.getEndpointCanvas(ep);
+
+        if (canvas != null) {
+          this.addClass(canvas, c);
+        }
+      }
+    }, {
+      key: "applyEndpointType",
+      value: function applyEndpointType(ep, t) {
+        if (t.cssClass) {
+          var canvas = this.getEndpointCanvas(ep);
+
+          if (canvas) {
+            var classes = Array.isArray(t.cssClass) ? t.cssClass : [t.cssClass];
+            this.addClass(canvas, classes.join(" "));
+          }
+        }
+      }
+    }, {
+      key: "getEndpointCanvas",
+      value: function getEndpointCanvas(ep) {
+        return ep.endpoint.canvas;
+      }
+    }, {
+      key: "destroyEndpoint",
+      value: function destroyEndpoint(ep) {
+        BrowserJsPlumbInstance.cleanup(ep.endpoint);
+      }
+    }, {
+      key: "paintEndpoint",
+      value: function paintEndpoint(ep, paintStyle) {
+        var renderer = endpointMap$1[ep.endpoint.getType()];
+
+        if (renderer != null) {
+          SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
+        } else {
+          console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.getType() + "]");
+        }
+      }
+    }, {
+      key: "removeEndpointClass",
+      value: function removeEndpointClass(ep, c) {
+        var canvas = this.getEndpointCanvas(ep);
+
+        if (canvas != null) {
+          this.removeClass(canvas, c);
+        }
+      }
+    }, {
+      key: "getEndpointClass",
+      value: function getEndpointClass(ep) {
+        var canvas = this.getEndpointCanvas(ep);
+
+        if (canvas != null) {
+          return canvas.className;
+        } else {
+          return "";
+        }
+      }
+    }, {
+      key: "refreshEndpoint",
+      value: function refreshEndpoint(endpoint) {
+        if (endpoint.endpoint != null) {
+          var c = BrowserJsPlumbInstance.getEndpointCanvas(endpoint.endpoint);
+
+          if (c != null) {
+            if (endpoint.connections.length > 0) {
+              addClass(c, this.endpointConnectedClass);
+            } else {
+              removeClass(c, this.endpointConnectedClass);
+            }
+
+            if (endpoint.isFull()) {
+              addClass(c, this.endpointFullClass);
+            } else {
+              removeClass(c, this.endpointFullClass);
+            }
+          }
+        }
+      }
+    }, {
+      key: "setEndpointHover",
+      value: function setEndpointHover(endpoint, h, doNotCascade) {
+        if (endpoint != null && (h === false || !this.currentlyDragging && !this.isHoverSuspended())) {
+          var method = h ? "addClass" : "removeClass";
+          var canvas = this.getEndpointCanvas(endpoint);
+
+          if (canvas != null) {
+            if (this.hoverClass != null) {
+              this[method](canvas, this.hoverClass);
+            }
+          }
+
+          if (endpoint.hoverPaintStyle != null) {
+            endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
+
+            if (!this._suspendDrawing) {
+              //endpoint.paint(endpoint.endpoint.paintStyleInUse)
+              this.paintEndpoint(endpoint, endpoint.paintStyleInUse);
+            }
+          }
+
+          if (!doNotCascade) {
+            // instruct attached connections to set hover, unless doNotCascade was true.
+            for (var i = 0; i < endpoint.connections.length; i++) {
+              this.setConnectorHover(endpoint.connections[i].connector, h, true);
+            }
+          }
+        }
+      }
+    }, {
+      key: "setEndpointVisible",
+      value: function setEndpointVisible(ep, v) {
+        BrowserJsPlumbInstance.setVisible(ep.endpoint, v);
+      }
     }], [{
       key: "getPositionOnElement",
       value: function getPositionOnElement(evt, el, zoom) {
@@ -16232,6 +16179,42 @@
             y = (cl[1] - top) / h;
 
         return [x, y];
+      }
+    }, {
+      key: "getLabelElement",
+      value: function getLabelElement(o) {
+        return HTMLElementOverlay.getElement(o);
+      }
+    }, {
+      key: "getCustomElement",
+      value: function getCustomElement(o) {
+        return HTMLElementOverlay.getElement(o, o.component, function (c) {
+          var el = o.create(c);
+          o.instance.addClass(el, o.instance.overlayClass);
+          return el;
+        });
+      }
+    }, {
+      key: "cleanup",
+      value: function cleanup(component) {
+        if (component.canvas) {
+          component.canvas.parentNode.removeChild(component.canvas);
+        }
+
+        delete component.canvas;
+        delete component.svg;
+      }
+    }, {
+      key: "setVisible",
+      value: function setVisible(component, v) {
+        if (component.canvas) {
+          component.canvas.style.display = v ? "block" : "none";
+        }
+      }
+    }, {
+      key: "getEndpointCanvas",
+      value: function getEndpointCanvas(ep) {
+        return ep.canvas;
       }
     }]);
 
@@ -18646,6 +18629,7 @@
   exports.extend = extend;
   exports.newInstance = newInstance;
   exports.ready = ready;
+  exports.registerEndpointRenderer = registerEndpointRenderer;
   exports.uuid = uuid;
 
   Object.defineProperty(exports, '__esModule', { value: true });
