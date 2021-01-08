@@ -4777,7 +4777,7 @@ var testSuite = function () {
         c.setHoverPaintStyle({stroke: "BAZ", strokeWidth: 444});
 
         //c.setHover(true);
-        _jsPlumb.renderer.setHover(c, true);
+        _jsPlumb.setHover(c, true);
 
         equal(c.paintStyleInUse.stroke, "BAZ", "stroke was set");
         equal(c.paintStyleInUse.strokeWidth, 444, "strokeWidth was set");

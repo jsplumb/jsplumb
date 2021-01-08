@@ -1,4 +1,4 @@
-import {registerEndpointRenderer} from "./browser-renderer"
+import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 import { _attr, _node, ElementAttributes } from './svg-util'
 
 import { JsPlumbInstance } from '../core/core'

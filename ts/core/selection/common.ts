@@ -133,7 +133,7 @@ export class SelectionBase<T extends OverlayCapableComponent>{
     }
 
     setHover(h:boolean):SelectionBase<T> {
-        this.each((c:T) => this.instance.renderer.setHover(c, h))
+        this.each((c:T) => this.instance.setHover(c, h))
         return this
     }
 }

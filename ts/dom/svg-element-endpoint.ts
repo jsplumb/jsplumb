@@ -1,5 +1,5 @@
 import {SvgComponent} from "./svg-component"
-import {EndpointHelperFunctions} from "./browser-renderer"
+import {EndpointHelperFunctions} from "./browser-jsplumb-instance"
 import { createElement, sizeElement } from './browser-util'
 
 import {  extend } from '../core/util'

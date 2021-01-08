@@ -252,7 +252,7 @@ export class Endpoint extends OverlayCapableComponent {
         idx = idx == null ? this.connections.indexOf(connection) : idx
         if (idx >= 0) {
             this.connections.splice(idx, 1)
-            this.instance.renderer.refreshEndpoint(this)
+            this.instance.refreshEndpoint(this)
         }
 
         if (!transientDetach  && this.deleteOnEmpty && this.connections.length === 0) {
@@ -322,7 +322,7 @@ export class Endpoint extends OverlayCapableComponent {
         }
         extend(t, typeParameters)
 
-        this.instance.renderer.applyEndpointType(this, t)
+        this.instance.applyEndpointType(this, t)
 
     }
 
@@ -333,7 +333,7 @@ export class Endpoint extends OverlayCapableComponent {
         this.instance.removeClass(this.element, anchorClass)
         this.anchor = null
         if(this.endpoint != null) {
-            this.instance.renderer.destroyEndpoint(this)
+            this.instance.destroyEndpoint(this)
         }
 
         super.destroy(force)
@@ -437,7 +437,7 @@ export class Endpoint extends OverlayCapableComponent {
                 }
 
                 this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse)
-                this.instance.renderer.paintEndpoint(this, this.paintStyleInUse)
+                this.instance.paintEndpoint(this, this.paintStyleInUse)
                 this.timestamp = timestamp
 
                 // paint overlays
@@ -445,8 +445,8 @@ export class Endpoint extends OverlayCapableComponent {
                     if (this.overlays.hasOwnProperty(i)) {
                         let o = this.overlays[i]
                         if (o.isVisible()) {
-                            this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o))
-                            this.instance.renderer.paintOverlay(o, this.overlayPlacements[i], {xmin:0, ymin:0})
+                            this.overlayPlacements[i] = this.instance.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o))
+                            this.instance.paintOverlay(o, this.overlayPlacements[i], {xmin:0, ymin:0})
                         }
                     }
                 }
@@ -503,7 +503,7 @@ export class Endpoint extends OverlayCapableComponent {
 
     setPreparedEndpoint<C>(ep:EndpointRepresentation<C>) {
         if (this.endpoint != null) {
-            this.instance.renderer.destroyEndpoint(this)
+            this.instance.destroyEndpoint(this)
         }
         this.endpoint = ep
     }

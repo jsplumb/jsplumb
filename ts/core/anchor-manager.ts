@@ -159,7 +159,7 @@ export class AnchorManager {
             registerConnection = (otherIndex:number, otherEndpoint:Endpoint, otherAnchor:Anchor) => {
                 if ((sourceId === targetId) && otherAnchor.isContinuous) {
                     // remove the target endpoint's canvas.  we dont need it.
-                    this.instance.renderer.destroyEndpoint(ep[1])
+                    this.instance.destroyEndpoint(ep[1])
                     doRegisterTarget = false
                 }
             }

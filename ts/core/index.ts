@@ -50,7 +50,6 @@ export * from "./connection"
 export * from "./endpoint/endpoint"
 export * from "./factory/endpoint-factory"
 
-export * from "./renderer"
 export * from "./styles"
 export * from "./util"
 

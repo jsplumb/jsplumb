@@ -240,10 +240,10 @@ export abstract class OverlayCapableComponent extends Component {
             for (let i in this.overlays) {
                 if (action === "add") {
                     //this.overlays[i].addClass(clazz)
-                    this.instance.renderer.addOverlayClass(this.overlays[i], clazz)
+                    this.instance.addOverlayClass(this.overlays[i], clazz)
                 } else if (action === "remove") {
                     //this.overlays[i].removeClass(clazz)
-                    this.instance.renderer.removeOverlayClass(this.overlays[i], clazz)
+                    this.instance.removeOverlayClass(this.overlays[i], clazz)
                 }
             }
         }
@@ -275,13 +275,13 @@ export abstract class OverlayCapableComponent extends Component {
                     // maybe update from data, if there were parameterised values for instance.
                     existing.updateFrom(t.overlays[i][1])
                     keep[t.overlays[i][1].id] = true
-                    this.instance.renderer.reattachOverlay(existing, this)
+                    this.instance.reattachOverlay(existing, this)
 
                 }
                 else {
                     let c:Overlay = this.getCachedTypeItem("overlay", t.overlays[i][1].id)
                     if (c != null) {
-                        this.instance.renderer.reattachOverlay(c, this)
+                        this.instance.reattachOverlay(c, this)
                         c.setVisible(true)
                         // maybe update from data, if there were parameterised values for instance.
                         c.updateFrom(t.overlays[i][1])

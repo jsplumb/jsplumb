@@ -168,7 +168,7 @@ export abstract class AbstractConnector implements Connector {
     getPathData ():any {
         let p = ""
         for (let i = 0; i < this.segments.length; i++) {
-            p += this.instance.renderer.getPath(this.segments[i], i === 0)
+            p += this.instance.getPath(this.segments[i], i === 0)
             p += " "
         }
         return p
@@ -426,7 +426,7 @@ export abstract class AbstractConnector implements Connector {
     }
 
     applyType(t:TypeDescriptor) {
-        this.instance.renderer.applyConnectorType(this, t)
+        this.instance.applyConnectorType(this, t)
     }
 
     //

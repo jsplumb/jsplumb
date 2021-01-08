@@ -35,7 +35,7 @@ export class LabelOverlay extends Overlay {
     setLabel(l: string | Function): void {
         this.label = l
         this.labelText = null
-        this.instance.renderer.updateLabel(this)
+        this.instance.updateLabel(this)
     }
 
     getDimensions():PointArray { return [1,1];}

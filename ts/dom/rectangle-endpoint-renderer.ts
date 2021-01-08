@@ -1,4 +1,4 @@
-import {registerEndpointRenderer} from "./browser-renderer"
+import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 
 import { JsPlumbInstance} from '../core/core'
 import { PaintStyle } from '../core/styles'

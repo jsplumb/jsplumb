@@ -371,7 +371,7 @@ export class EndpointDragHandler implements DragHandler {
         
         // clear hover for all connections for this endpoint before continuing.
         for (let i = 0; i < this.ep.connections.length; i++) {
-            this.instance.renderer.setHover(this.ep, false)
+            this.instance.setHover(this.ep, false)
         }
         
         // clear this list. we'll reconstruct it based on whether its an existing or new connection.s
@@ -494,7 +494,7 @@ export class EndpointDragHandler implements DragHandler {
             }
         })
         
-        this.instance.renderer.setHover(this.ep, false)
+        this.instance.setHover(this.ep, false)
         
         if (this.jpc == null) {
             
@@ -533,7 +533,7 @@ export class EndpointDragHandler implements DragHandler {
         } else {
         
             this.existingJpc = true
-            this.instance.renderer.setHover(this.jpc, false)
+            this.instance.setHover(this.jpc, false)
 
             // new anchor idx
             const anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1
@@ -560,7 +560,7 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId
             this.jpc.suspendedElementType = anchorIdx === 0 ? SOURCE : TARGET
         
-            this.instance.renderer.setHover(this.jpc.suspendedEndpoint, false)
+            this.instance.setHover(this.jpc.suspendedEndpoint, false)
 
             this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint
             this.jpc.endpoints[anchorIdx] = this.floatingEndpoint
@@ -791,7 +791,7 @@ export class EndpointDragHandler implements DragHandler {
             // originally, the rewrite had this test. but in the case that a connection was detached via the mouse and the endpoint remained in place,
             // that endpoint's classes were not cleaned up.
             //if (!discarded) {
-            this.instance.renderer.refreshEndpoint(this.ep)
+            this.instance.refreshEndpoint(this.ep)
             this.ep.removeClass("endpointDrag")
             this.ep.removeClass(this.instance.draggingClass)
             //}
@@ -961,7 +961,7 @@ export class EndpointDragHandler implements DragHandler {
         this.floatingEndpoint.detachFromConnection(this.jpc, null, true)
 
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint
-        this.instance.renderer.setHover(this.jpc, false)
+        this.instance.setHover(this.jpc, false)
 
         this.jpc._forceDetach = true
 
@@ -1003,7 +1003,7 @@ export class EndpointDragHandler implements DragHandler {
 
     private _maybeReattach(idx:number, originalEvent?:Event):void {
 
-        this.instance.renderer.setHover(this.jpc, false)
+        this.instance.setHover(this.jpc, false)
 
         if (this.jpc.suspendedEndpoint) {
 
@@ -1011,7 +1011,7 @@ export class EndpointDragHandler implements DragHandler {
             if (this.jpc.isReattach() || this.jpc._forceReattach || !this.instance.deleteConnection(this.jpc, {originalEvent: originalEvent})) {
 
                 this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint
-                this.instance.renderer.setHover(this.jpc, false)
+                this.instance.setHover(this.jpc, false)
                 this.jpc._forceDetach = true
                 this.jpc.suspendedEndpoint.addConnection(this.jpc)
                 this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx)
@@ -1125,7 +1125,7 @@ export class EndpointDragHandler implements DragHandler {
         // finalise will inform the anchor manager and also add to
         // connectionsByScope if necessary.
         this.instance._finaliseConnection(this.jpc, null, originalEvent, false)
-        this.instance.renderer.setHover(this.jpc, false)
+        this.instance.setHover(this.jpc, false)
 
         // SP continuous anchor flush
         this.instance.revalidate(this.jpc.endpoints[0].element)

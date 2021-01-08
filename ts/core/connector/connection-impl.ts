@@ -365,7 +365,7 @@ export class Connection extends OverlayCapableComponent {
             }
         }
 
-        this.instance.renderer.applyConnectorType(this.connector, t)
+        this.instance.applyConnectorType(this.connector, t)
     }
 
     addClass(c:string, informEndpoints?:boolean) {
@@ -379,7 +379,7 @@ export class Connection extends OverlayCapableComponent {
             }
         }
         if (this.connector) {
-            this.instance.renderer.addConnectorClass(this.connector, c)
+            this.instance.addConnectorClass(this.connector, c)
         }
     }
 
@@ -394,14 +394,14 @@ export class Connection extends OverlayCapableComponent {
             }
         }
         if (this.connector) {
-            this.instance.renderer.removeConnectorClass(this.connector, c)
+            this.instance.removeConnectorClass(this.connector, c)
         }
     }
 
     setVisible(v:boolean) {
         super.setVisible(v)
         if (this.connector) {
-            this.instance.renderer.setConnectorVisible(this.connector, v)
+            this.instance.setConnectorVisible(this.connector, v)
         }
         this.paint()
     }
@@ -414,8 +414,7 @@ export class Connection extends OverlayCapableComponent {
 
         // TODO stop hover?
 
-
-        this.instance.renderer.destroyConnection(this)
+        this.instance.destroyConnection(this)
 
         this.connector = null
         super.destroy(force)
@@ -486,8 +485,8 @@ export class Connection extends OverlayCapableComponent {
             if (this.connector != null) {
                 previous = this.connector
                 //previousClasses = previous.getClass()
-                previousClasses = this.instance.renderer.getConnectorClass(this.connector)
-                this.instance.renderer.destroyConnection(this)
+                previousClasses = this.instance.getConnectorClass(this.connector)
+                this.instance.destroyConnection(this)
             }
 
             this.connector = connector
@@ -501,7 +500,7 @@ export class Connection extends OverlayCapableComponent {
             if (previous != null) {
                 let o:Dictionary<Overlay> = this.getOverlays()
                 for (let i in o) {
-                    this.instance.renderer.reattachOverlay(o[i], this)
+                    this.instance.reattachOverlay(o[i], this)
                 }
             }
 
@@ -539,7 +538,7 @@ export class Connection extends OverlayCapableComponent {
                         let o:Overlay = this.overlays[i]
                         if (o.isVisible()) {
 
-                            this.overlayPlacements[i] = this.instance.renderer.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o))
+                            this.overlayPlacements[i] = this.instance.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o))
 
                             overlayExtents.minX = Math.min(overlayExtents.minX, this.overlayPlacements[i].minX)
                             overlayExtents.maxX = Math.max(overlayExtents.maxX, this.overlayPlacements[i].maxX)
@@ -558,14 +557,14 @@ export class Connection extends OverlayCapableComponent {
                         ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                     }
 
-                this.instance.renderer.paintConnector(this.connector, this.paintStyleInUse, extents)
+                this.instance.paintConnector(this.connector, this.paintStyleInUse, extents)
 
                 // and then the overlays
                 for (let j in this.overlays) {
                     if (this.overlays.hasOwnProperty(j)) {
                         let p = this.overlays[j]
                         if (p.isVisible()) {
-                            this.instance.renderer.paintOverlay(p, this.overlayPlacements[j], extents)
+                            this.instance.paintOverlay(p, this.overlayPlacements[j], extents)
                         }
                     }
                 }

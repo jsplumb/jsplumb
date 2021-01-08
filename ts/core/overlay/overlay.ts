@@ -72,7 +72,7 @@ export abstract class Overlay extends EventGenerator {
 
     setVisible(v: boolean): void {
         this.visible = v
-        this.instance.renderer.setOverlayVisible(this, v)
+        this.instance.setOverlayVisible(this, v)
     }
 
     isVisible(): boolean {
@@ -80,7 +80,7 @@ export abstract class Overlay extends EventGenerator {
     }
 
     destroy(force?: boolean): void {
-        this.instance.renderer.destroyOverlay(this, force)
+        this.instance.destroyOverlay(this, force)
     }
 
     abstract updateFrom(d:any):void
