@@ -1169,7 +1169,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return e
     }
 
-    addEndpoints(el:any, endpoints:Array<EndpointOptions>, referenceParams?:any):Array<Endpoint> {
+    addEndpoints(el:jsPlumbElement, endpoints:Array<EndpointOptions>, referenceParams?:any):Array<Endpoint> {
         let results:Array<Endpoint> = []
         for (let i = 0, j = endpoints.length; i < j; i++) {
             results.push(this.addEndpoint(el, endpoints[i], referenceParams))
@@ -1649,8 +1649,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    // TODO knows about the DOM
-    makeSource(el:string|jsPlumbElement, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
+    // TODO knows about the DOM (? does it?)
+    makeSource(el:jsPlumbElement, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
         let p = extend({_jsPlumb: this}, referenceParams)
         extend(p, params)
         p.connectionType = p.connectionType || Constants.DEFAULT
@@ -1659,17 +1659,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
         p.anchor = p.anchor || aae.anchors[0]
         let maxConnections = p.maxConnections || -1
 
-        let elInfo = this.info(el)
-        // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-        // and use the endpoint definition if found.
-        let _del = elInfo.el
+        this.manage(el)
+        this.setAttribute(el, Constants.ATTRIBUTE_SOURCE, "")
+        this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
+        this.setAttribute(el, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
 
-        this.manage(_del)
-        this.setAttribute(_del, Constants.ATTRIBUTE_SOURCE, "")
-        this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
-        this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
-
-        elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || []
+        el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || []
 
         let _def:SourceDefinition = {
             def:extend({}, p),
@@ -1681,11 +1676,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         if (p.createEndpoint) {
             _def.uniqueEndpoint = true
-            _def.endpoint = this.addEndpoint(_del, _def.def)
+            _def.endpoint = this.addEndpoint(el, _def.def)
             _def.endpoint.deleteOnEmpty = false
         }
 
-        elInfo.el._jsPlumbSourceDefinitions.push(_def)
+        el._jsPlumbSourceDefinitions.push(_def)
 
         return this
     }
