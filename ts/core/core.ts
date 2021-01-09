@@ -1208,8 +1208,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.unbind()
     }
 
-    getEndpoints(el:string|any):Array<Endpoint> {
-        return this.endpointsByElement[this.info(el).id] || []
+    getEndpoints(el:jsPlumbElement):Array<Endpoint> {
+        return this.endpointsByElement[this.getId(el)] || []
     }
 
     getEndpoint(id:string):Endpoint {
@@ -1619,7 +1619,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this._unmakeEvery(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, connectionType || "*")
     }
 
-    private _writeScopeAttribute (el:any, scope:string):void {
+    private _writeScopeAttribute (el:jsPlumbElement, scope:string):void {
         let scopes = scope.split(/\s/)
         for (let i = 0; i < scopes.length; i++) {
             this.setAttribute(el, "jtk-scope-" + scopes[i], "")
@@ -1762,7 +1762,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
             }
         }
         let id = this.getId(el)
-        this._operation(id, (jpc:Connection) => {
+        this._operation(el, (jpc:Connection) => {
             if (visible && alsoChangeEndpoints) {
                 // this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
                 // this block will only set a connection to be visible if the other endpoint in the connection is also visible.
@@ -1782,7 +1782,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     /**
      * private method to do the business of toggling hiding/showing.
      */
-    toggleVisible (elId:string, changeEndpoints?:boolean) {
+    toggleVisible (el:jsPlumbElement, changeEndpoints?:boolean) {
         let endpointFunc = null
         if (changeEndpoints) {
             endpointFunc = (ep:Endpoint) => {
@@ -1790,13 +1790,14 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 ep.setVisible(!state)
             }
         }
-        this._operation(elId,  (jpc:Connection) => {
+        this._operation(el,  (jpc:Connection) => {
             let state = jpc.isVisible()
             jpc.setVisible(!state)
         }, endpointFunc)
     }
 
-    private _operation (elId:string, func:(c:Connection) => any, endpointFunc?:(e:Endpoint) => any) {
+    private _operation (el:jsPlumbElement, func:(c:Connection) => any, endpointFunc?:(e:Endpoint) => any) {
+        let elId = this.getId(el)
         let endpoints = this.endpointsByElement[elId]
         if (endpoints && endpoints.length) {
             for (let i = 0, ii = endpoints.length; i < ii; i++) {
@@ -1883,7 +1884,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 // ----------------------------- proxy connections -----------------------
 
     proxyConnection(connection:Connection, index:number,
-                    proxyEl:any, proxyElId:string,
+                    proxyEl:jsPlumbElement, proxyElId:string,
                     endpointGenerator:any, anchorGenerator:any) {
 
         let alreadyProxied = connection.proxies[index] != null,
@@ -1985,7 +1986,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 // ------------------------ GROUPS --------------
 
     getGroup(groupId:string) { return this.groupManager.getGroup(groupId); }
-    getGroupFor(el:jsPlumbElement|string) { return this.groupManager.getGroupFor(el); }
+    getGroupFor(el:jsPlumbElement) { return this.groupManager.getGroupFor(el); }
     addGroup(params:AddGroupOptions) { return this.groupManager.addGroup(params); }
     addToGroup(group:string | UIGroup, el:any | Array<any>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
 
