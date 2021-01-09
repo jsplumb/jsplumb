@@ -1480,7 +1480,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    private _setEnabled (type:string, el:string|jsPlumbElement, state:boolean, toggle?:boolean, connectionType?:string):any {
+    private _setEnabled (type:string, el:jsPlumbElement, state:boolean, toggle?:boolean, connectionType?:string):any {
         let originalState:Array<any> = [], newState, os
 
         connectionType = connectionType || Constants.DEFAULT
@@ -1510,24 +1510,24 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     }
 
-    toggleSourceEnabled (el:string|jsPlumbElement, connectionType?:string):any {
+    toggleSourceEnabled (el:jsPlumbElement, connectionType?:string):any {
         this._setEnabled(Constants.SOURCE, el, null, true, connectionType)
         return this.isSourceEnabled(el, connectionType)
     }
 
-    setSourceEnabled (el:string|jsPlumbElement, state:boolean, connectionType?:string):any {
+    setSourceEnabled (el:jsPlumbElement, state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.SOURCE, el, state, null, connectionType)
     }
 
-    findFirstSourceDefinition(el:string | jsPlumbElement, connectionType?:string):SourceDefinition {
+    findFirstSourceDefinition(el:jsPlumbElement, connectionType?:string):SourceDefinition {
         return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
-    findFirstTargetDefinition(el:string | jsPlumbElement, connectionType?:string):TargetDefinition {
+    findFirstTargetDefinition(el:jsPlumbElement, connectionType?:string):TargetDefinition {
         return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
-    private findFirstDefinition<T>(key:string, el:string | jsPlumbElement, connectionType?:string):T {
+    private findFirstDefinition<T>(key:string, el:jsPlumbElement, connectionType?:string):T {
         if (el == null) {
             return null
         } else {
@@ -1548,30 +1548,30 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    isSource (el:string|jsPlumbElement, connectionType?:string):any {
+    isSource (el:jsPlumbElement, connectionType?:string):any {
         return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null
     }
 
-    isSourceEnabled (el:string|jsPlumbElement, connectionType?:string):boolean {
+    isSourceEnabled (el:jsPlumbElement, connectionType?:string):boolean {
         let def = this.findFirstSourceDefinition(el, connectionType)
         return def != null && def.enabled !== false
     }
 
-    toggleTargetEnabled(el:string|jsPlumbElement, connectionType?:string):any {
+    toggleTargetEnabled(el:jsPlumbElement, connectionType?:string):any {
         this._setEnabled(Constants.TARGET, el, null, true, connectionType)
         return this.isTargetEnabled(el, connectionType)
     }
 
-    isTarget(el:string|jsPlumbElement, connectionType?:string):boolean {
+    isTarget(el:jsPlumbElement, connectionType?:string):boolean {
         return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null
     }
 
-    isTargetEnabled (el:string|jsPlumbElement, connectionType?:string):boolean {
+    isTargetEnabled (el:jsPlumbElement, connectionType?:string):boolean {
         let def = this.findFirstTargetDefinition(el, connectionType)
         return def != null && def.enabled !== false
     }
 
-    setTargetEnabled(el:string|jsPlumbElement, state:boolean, connectionType?:string):any {
+    setTargetEnabled(el:jsPlumbElement, state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.TARGET, el, state, null, connectionType)
     }
 
