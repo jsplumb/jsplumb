@@ -27,6 +27,12 @@ interface GroupMemberRemovedParams extends GroupMemberEventParams {
     targetGroup?:UIGroup
 }
 
+export interface AddGroupOptions {
+    id:string,
+    el:any,
+    collapsed?:boolean
+}
+
 export class GroupManager {
 
     groupMap:Dictionary<UIGroup> = {}
@@ -129,8 +135,7 @@ export class GroupManager {
         }
     }
 
-    addGroup(params:{id:string, el:any, collapsed?:boolean}) {
-    //addGroup(params:{id:string, el:jsPlumbDOMElement, collapsed?:boolean}) {
+    addGroup(params:AddGroupOptions) {
 
         if (this.groupMap[params.id] != null) {
             throw new Error("cannot create Group [" + params.id + "]; a Group with that ID exists")
@@ -165,17 +170,18 @@ export class GroupManager {
         return group as UIGroup
     }
 
-    getGroupFor(el:any|string):UIGroup {
-        let _el = this.instance.getElement(el)
-        if (_el != null) {
+    getGroupFor(el:jsPlumbElement|string):UIGroup {
+        const info = this.instance.info(el)
+        if (info.el != null) {
+            let _el = info.el
             const c = this.instance.getContainer()
             let abort = false, g = null
             while (!abort) {
                 if (_el == null || _el === c) {
                     abort = true
                 } else {
-                    if (_el[Constants.PARENT_GROUP_KEY]) {
-                        g = _el[Constants.PARENT_GROUP_KEY]
+                    if (_el._jsPlumbParentGroup) {
+                        g = _el._jsPlumbParentGroup
                         abort = true
                     } else {
                         _el = (_el as any).parentNode
@@ -203,7 +209,6 @@ export class GroupManager {
             actualGroup.childGroups.forEach((cg:UIGroup) => this.removeGroup(cg, deleteMembers, manipulateDOM))
             // remove all child nodes
             actualGroup.removeAll(manipulateDOM, doNotFireEvent)
-
         } else {
             // if we want to retain the child nodes then we need to test if there is a group that the parent of actualGroup.
             // if so, transfer the nodes to that group
@@ -211,7 +216,6 @@ export class GroupManager {
                 actualGroup.children.forEach((c:any) => actualGroup.group.add(c))
             }
             newPositions = actualGroup.orphanAll()
-
         }
 
         if (actualGroup.group) {
