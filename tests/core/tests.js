@@ -3992,8 +3992,9 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: e2, target: e1});
 
         _jsPlumb.setId("d1", "d3");
-        support.assertEndpointCount(d3, 2, _jsPlumb);
-        support.assertEndpointCount(d1, 0, _jsPlumb);
+        // the endpoint count hasnt changed, and this illustrates why setId is now pointless.
+        support.assertEndpointCount(d1, 2, _jsPlumb);
+        //support.assertEndpointCount(d1, 0, _jsPlumb);
 
         equal(e1.elementId, "d3", "endpoint has correct element id");
         equal(e3.elementId, "d3", "endpoint has correct element id");
@@ -4027,8 +4028,8 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: e2, target: e1});
 
         _jsPlumb.setId(document.getElementById("d1"), "d3");
-        support.assertEndpointCount(d3, 2, _jsPlumb);
-        support.assertEndpointCount(d1, 0, _jsPlumb);
+        //support.assertEndpointCount(d3, 2, _jsPlumb);
+        support.assertEndpointCount(d1, 2, _jsPlumb);
 
         equal(e1.elementId, "d3", "endpoint has correct element id");
         equal(e3.elementId, "d3", "endpoint has correct element id");
@@ -4060,8 +4061,8 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: e2, target: e1});
 
         _jsPlumb.setId("d1", "d3");
-        support.assertEndpointCount(d3, 2, _jsPlumb);
-        support.assertEndpointCount(d1, 0, _jsPlumb);
+        support.assertEndpointCount(d1, 2, _jsPlumb);
+        //support.assertEndpointCount(d1, 0, _jsPlumb);
 
         equal(e1.elementId, "d3", "endpoint has correct element id");
         equal(e3.elementId, "d3", "endpoint has correct element id");
@@ -4093,8 +4094,8 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: e2, target: e1});
 
         _jsPlumb.setId(_jsPlumb.getSelector("#d1")[0], "d3");
-        support.assertEndpointCount(d3, 2, _jsPlumb);
-        support.assertEndpointCount(d1, 0, _jsPlumb);
+        support.assertEndpointCount(d1, 2, _jsPlumb);
+        //support.assertEndpointCount(d1, 0, _jsPlumb);
 
         equal(e1.elementId, "d3", "endpoint has correct element id");
         equal(e3.elementId, "d3", "endpoint has correct element id");
@@ -4129,8 +4130,8 @@ var testSuite = function () {
 
         _jsPlumb.setIdChanged("d1", "d3");
 
-        support.assertEndpointCount(d3, 2, _jsPlumb);
-        support.assertEndpointCount(d1, 0, _jsPlumb);
+        support.assertEndpointCount(d1, 2, _jsPlumb);
+        //support.assertEndpointCount(d1, 0, _jsPlumb);
 
         equal(e1.elementId, "d3", "endpoint has correct element id");
         equal(e3.elementId, "d3", "endpoint has correct element id");
