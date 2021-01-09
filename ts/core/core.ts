@@ -892,44 +892,43 @@ export abstract class JsPlumbInstance extends EventGenerator {
      */
     unmanage (el:jsPlumbElement, removeElement?:boolean):void {
 
-        let info = this.info(el), affectedElements:Array<any> = []
-        if (info.id) {
+        let affectedElements:Array<jsPlumbElement> = []
 
-            this.removeAllEndpoints(el, true, affectedElements)
-            let _one = (_info:{el:any, text?:boolean, id?:string}) => {
+        this.removeAllEndpoints(el, true, affectedElements)
 
-                if (info.el != null) {
-                    this.anchorManager.clearFor(_info.id)
-                    this.anchorManager.removeFloatingConnection(_info.id)
+        let _one = (_el:jsPlumbElement) => {
 
-                    if (this.isSource(_info.el)) {
-                        this.unmakeSource(_info.el)
-                    }
-                    if (this.isTarget(_info.el)) {
-                        this.unmakeTarget(_info.el)
-                    }
+            let id = this.getId(_el)
 
-                    delete this._floatingConnections[_info.id]
+            this.anchorManager.clearFor(id)
+            this.anchorManager.removeFloatingConnection(id)
 
-                    this.removeAttribute(info.el, Constants.ATTRIBUTE_MANAGED)
-                    delete this._managedElements[_info.id]
-
-                    this.viewport.remove(_info.id)
-
-                    if (_info.el && removeElement) {
-                        this.removeElement(_info.el)
-                    }
-                }
+            if (this.isSource(_el)) {
+                this.unmakeSource(_el)
+            }
+            if (this.isTarget(_el)) {
+                this.unmakeTarget(_el)
             }
 
-            // remove all affected child elements
-            for (let ae = 1; ae < affectedElements.length; ae++) {
-                _one(affectedElements[ae])
-            }
-            // and always remove the requested one from the dom.
-            _one(info)
+            delete this._floatingConnections[id]
 
+            this.removeAttribute(_el, Constants.ATTRIBUTE_MANAGED)
+            delete this._managedElements[id]
+
+            this.viewport.remove(id)
+
+            if (_el && removeElement) {
+                this.removeElement(_el)
+            }
         }
+
+        // remove all affected child elements
+        for (let ae = 1; ae < affectedElements.length; ae++) {
+            _one(affectedElements[ae])
+        }
+
+        // and always remove the requested one from the dom.
+        _one(el)
     }
 
     rotate(elementId:string, rotation:number, doNotRepaint?:boolean):RedrawResult {
@@ -1445,15 +1444,15 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    removeAllEndpoints(el:jsPlumbElement, recurse?:boolean, affectedElements?:Array<any>):JsPlumbInstance {
+    removeAllEndpoints(el:jsPlumbElement, recurse?:boolean, affectedElements?:Array<jsPlumbElement>):JsPlumbInstance {
         affectedElements = affectedElements || []
         let _one = (_el:jsPlumbElement) => {
-            let id = this.getId(_el),//this.info(_el),
+            let id = this.getId(_el),
                 ebe = this.endpointsByElement[id],
                 i, ii
 
             if (ebe) {
-                affectedElements.push({id, el:_el})
+                affectedElements.push(_el)
                 for (i = 0, ii = ebe.length; i < ii; i++) {
                     this.deleteEndpoint(ebe[i])
                 }
@@ -1480,25 +1479,22 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         connectionType = connectionType || Constants.DEFAULT
 
-        const info = this.info(el)
-        if (info.el) {
-            let defs = type === Constants.SOURCE ? info.el._jsPlumbSourceDefinitions : info.el._jsPlumbTargetDefinitions
-            if (defs) {
-                defs.forEach((def: SourceOrTargetDefinition) => {
-                    if (def.def.connectionType == null || def.def.connectionType === connectionType) {
-                        os = def.enabled
-                        originalState.push(os)
-                        newState = toggle ? !os : state
-                        def.enabled = newState
-                        const cls = ["jtk", type, "disabled"].join("-")
-                        if (newState) {
-                            this.removeClass(info.el, cls)
-                        } else {
-                            this.addClass(info.el, cls)
-                        }
+        let defs = type === Constants.SOURCE ? el._jsPlumbSourceDefinitions : el._jsPlumbTargetDefinitions
+        if (defs) {
+            defs.forEach((def: SourceOrTargetDefinition) => {
+                if (def.def.connectionType == null || def.def.connectionType === connectionType) {
+                    os = def.enabled
+                    originalState.push(os)
+                    newState = toggle ? !os : state
+                    def.enabled = newState
+                    const cls = ["jtk", type, "disabled"].join("-")
+                    if (newState) {
+                        this.removeClass(el, cls)
+                    } else {
+                        this.addClass(el, cls)
                     }
-                })
-            }
+                }
+            })
         }
 
         return originalState.length > 1 ? originalState : originalState[0]
@@ -1526,19 +1522,14 @@ export abstract class JsPlumbInstance extends EventGenerator {
         if (el == null) {
             return null
         } else {
-            const info = this.info(el)
-            if (info.el) {
-                const eldefs = info.el[key]
-                if (eldefs && eldefs.length > 0) {
-                    let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d: any) => {
-                        return d.def.connectionType === connectionType
-                    })
-                    if (idx >= 0) {
-                        return eldefs[0]
-                    }
+            const eldefs = el[key]
+            if (eldefs && eldefs.length > 0) {
+                let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d: any) => {
+                    return d.def.connectionType === connectionType
+                })
+                if (idx >= 0) {
+                    return eldefs[0]
                 }
-            } else {
-                return null
             }
         }
     }
@@ -1671,43 +1662,41 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    private _getScope(el:any|string, defKey:string):string {
-        let elInfo = this.info(el)
-        if (elInfo.el && elInfo.el[defKey] && elInfo.el[defKey].length > 0) {
-            return elInfo.el[defKey][0].def.scope
+    private _getScope(el:jsPlumbElement, defKey:string):string {
+        if (el[defKey] && el[defKey].length > 0) {
+            return el[defKey][0].def.scope
         } else {
             return null
         }
     }
 
-    getSourceScope(el:any|string):string {
+    getSourceScope(el:jsPlumbElement):string {
         return this._getScope(el, Constants.SOURCE_DEFINITION_LIST)
     }
 
-    getTargetScope(el:any|string):string {
+    getTargetScope(el:jsPlumbElement):string {
         return this._getScope(el, Constants.TARGET_DEFINITION_LIST)
     }
 
-    getScope(el:any|string):string {
+    getScope(el:jsPlumbElement):string {
         return this.getSourceScope(el) || this.getTargetScope(el)
     }
 
-    private _setScope(el:any|string, scope:string, defKey:string):void {
-        let elInfo = this.info(el)
-        if (elInfo.el && elInfo.el[defKey]) {
-            elInfo.el[defKey].forEach((def:any) => def.def.scope = scope)
+    private _setScope(el:jsPlumbElement, scope:string, defKey:string):void {
+        if (el[defKey]) {
+            el[defKey].forEach((def:any) => def.def.scope = scope)
         }
     }
 
-    setSourceScope(el:any|string, scope:string):void {
+    setSourceScope(el:jsPlumbElement, scope:string):void {
         this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
     }
 
-    setTargetScope(el:any|string, scope:string):void {
+    setTargetScope(el:jsPlumbElement, scope:string):void {
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
-    setScope(el:any|string, scope:string):void {
+    setScope(el:jsPlumbElement, scope:string):void {
         this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
@@ -1756,17 +1745,15 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    show (el:string|any, changeEndpoints?:boolean):JsPlumbInstance {
-        this._setVisible(el, Constants.BLOCK, changeEndpoints)
-        return this
+    show (el:jsPlumbElement, changeEndpoints?:boolean):JsPlumbInstance {
+        return this._setVisible(el, Constants.BLOCK, changeEndpoints)
     }
 
-    hide (el:string|any, changeEndpoints?:boolean):JsPlumbInstance {
-        this._setVisible(el, Constants.NONE, changeEndpoints)
-        return this
+    hide (el:jsPlumbElement, changeEndpoints?:boolean):JsPlumbInstance {
+        return this._setVisible(el, Constants.NONE, changeEndpoints)
     }
 
-    private _setVisible (el:string|any, state:string, alsoChangeEndpoints?:boolean) {
+    private _setVisible (el:jsPlumbElement, state:string, alsoChangeEndpoints?:boolean) {
         let visible = state === Constants.BLOCK
         let endpointFunc = null
         if (alsoChangeEndpoints) {
@@ -1774,12 +1761,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 ep.setVisible(visible, true, true)
             }
         }
-        let info = this.info(el)
-        this._operation(info.id, (jpc:Connection) => {
+        let id = this.getId(el)
+        this._operation(id, (jpc:Connection) => {
             if (visible && alsoChangeEndpoints) {
                 // this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
                 // this block will only set a connection to be visible if the other endpoint in the connection is also visible.
-                let oidx = jpc.sourceId === info.id ? 1 : 0
+                let oidx = jpc.sourceId === id ? 1 : 0
                 if (jpc.endpoints[oidx].isVisible()) {
                     jpc.setVisible(true)
                 }
@@ -1788,6 +1775,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 jpc.setVisible(visible)
             }
         }, endpointFunc)
+
+        return this
     }
 
     /**
