@@ -180,7 +180,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // add an endpoint to the element that is the connection source, using the anchor that will position it where
             // the mousedown event occurred.
-            this.ep = this.instance.addEndpoint(elid, tempEndpointParams)
+            this.ep = this.instance.addEndpoint(targetEl, tempEndpointParams)
             // mark delete on empty
             this.ep.deleteOnEmpty = true
             // keep a reference to the anchor we want to use if the connection is finalised.
