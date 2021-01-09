@@ -18,7 +18,14 @@
     - `removeAllEndpoints` 
     - `revalidate`
     - `getEndpoints`
-
+    - `deleteConnectionsForElement`
+    - `setContainer`
+    - `addEndpoint`
+    - `addEndpoints`
+    - `connect`
+    - `getEndpoints`
+    - `addToPosse`
+    - `removeFromPosse`
 
 ## 4.0.0-RC29
 
