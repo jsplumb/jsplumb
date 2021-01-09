@@ -686,11 +686,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    setContainer(newContainer: jsPlumbDOMElement): void {
+    setContainer(c: string|jsPlumbDOMElement): void {
         this._detachEventDelegates()
         if (this.dragManager != null) {
             this.dragManager.reset()
         }
+
+        const newContainer = this.getElement(c)
 
         this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", ""))
 
@@ -710,7 +712,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
             })
         }
 
-        super.setContainer(newContainer)
+        super.setContainer(newContainer as jsPlumbDOMElement)
         if (this.eventManager != null) {
             this._attachEventDelegates()
         }

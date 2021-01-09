@@ -393,7 +393,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         _conns(sConns, 0, Constants.SOURCE)
         _conns(tConns, 1, Constants.TARGET)
 
-        this.repaint(newId)
+        this.repaint(_el)
     }
 
     setIdChanged(oldId:string, newId:string) {
@@ -498,9 +498,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return new EndpointSelection(this, ep)
     }
 
-    setContainer(c:jsPlumbElement):void {
+    setContainer(c:string | jsPlumbElement):void {
         // get container as element and set container.
-        this._container = c
+        this._container = this.getElement(c)
         // tell people.
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
