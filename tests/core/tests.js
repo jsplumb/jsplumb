@@ -151,6 +151,7 @@ var testSuite = function () {
         d.innerHTML = '<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>';
         var container = d.firstChild;
         document.body.appendChild(_jsPlumb.getElement(container));
+        var output = document.getElementById("output")
         var e1 = _jsPlumb.addEndpoint(document.getElementById("in1"), { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
             e2 = _jsPlumb.addEndpoint(document.getElementById("in2"), { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
             e3 = _jsPlumb.addEndpoint(document.getElementById("output"), { isSource: true, isTarget: false, anchor: [ 1, 0.4, 1, 0 ] });
@@ -162,7 +163,7 @@ var testSuite = function () {
         op.parentNode.removeChild(op);
 
         // but you can tell jsPlumb about it after the fact
-        _jsPlumb.unmanage("output", true)
+        _jsPlumb.unmanage(output, true)
         //_jsPlumb.removeElement("output");
 
 
@@ -1591,17 +1592,17 @@ var testSuite = function () {
      //expect(0);
     // });
 
-    test(": jsPlumb.remove, element identified by string", function () {
-        var d1 = support.addDiv("d1");
-        var e1 = _jsPlumb.addEndpoint(d1);
-
-        _jsPlumb.unmanage("d1");
-
-        _jsPlumb.repaintEverything(); // shouldn't complain
-
-        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
-        //equal(e1.endpoint, null, "e1 cleaned up");
-    });
+    // test(": jsPlumb.remove, element identified by string", function () {
+    //     var d1 = support.addDiv("d1");
+    //     var e1 = _jsPlumb.addEndpoint(d1);
+    //
+    //     _jsPlumb.unmanage(d1);
+    //
+    //     _jsPlumb.repaintEverything(); // shouldn't complain
+    //
+    //     equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
+    //     //equal(e1.endpoint, null, "e1 cleaned up");
+    // });
 
     test(": jsPlumb.remove, element provided as DOM element", function () {
         var d1 = support.addDiv("d1");
@@ -1648,7 +1649,7 @@ var testSuite = function () {
         equal(_jsPlumb.getEndpoints("d2").length, 2, " 2 endpoints exist for the first nested div");
         equal(_jsPlumb.getEndpoints("d3").length, 1, " 1 endpoint exists for the first nested div");
 
-        _jsPlumb.unmanage("d1");
+        _jsPlumb.unmanage(d1);
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
@@ -1665,7 +1666,7 @@ var testSuite = function () {
         _jsPlumb.addEndpoint(d2);
         _jsPlumb.addEndpoint(d2);
 
-        _jsPlumb.unmanage("d2");
+        _jsPlumb.unmanage(d2);
 
         _jsPlumb.repaint("d1"); // shouldn't complain
 
@@ -4826,9 +4827,7 @@ var testSuite = function () {
 
         _jsPlumb.manage(d1);
         ok(d1.getAttribute("jtk-managed") != null, "d1 is marked jtk-managed");
-
-
-        _jsPlumb.unmanage("d1");
+        _jsPlumb.unmanage(d1);
         ok(d1.getAttribute("jtk-managed") == null, "d1 is no longer marked jtk-managed");
     });
 

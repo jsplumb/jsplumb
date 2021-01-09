@@ -35,7 +35,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1");
         var e1 = _jsPlumb.addEndpoint(d1);
 
-        _jsPlumb.unmanage("d1");
+        _jsPlumb.unmanage(d1);
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
