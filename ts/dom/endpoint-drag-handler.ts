@@ -66,7 +66,7 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, e
     return ep
 }
 
-function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:JsPlumbInstance, negate?:boolean):boolean {
+function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:BrowserJsPlumbInstance, negate?:boolean):boolean {
     let t = evt.target || evt.srcElement,
         ok = false,
         sel = _instance.getSelector(_el, selector)
