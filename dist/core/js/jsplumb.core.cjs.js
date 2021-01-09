@@ -4829,7 +4829,6 @@ function () {
   }, {
     key: "addGroup",
     value: function addGroup(params) {
-      //addGroup(params:{id:string, el:jsPlumbDOMElement, collapsed?:boolean}) {
       if (this.groupMap[params.id] != null) {
         throw new Error("cannot create Group [" + params.id + "]; a Group with that ID exists");
       }
@@ -4874,9 +4873,10 @@ function () {
   }, {
     key: "getGroupFor",
     value: function getGroupFor(el) {
-      var _el = this.instance.getElement(el);
+      var info = this.instance.info(el);
 
-      if (_el != null) {
+      if (info.el != null) {
+        var _el = info.el;
         var c = this.instance.getContainer();
         var abort = false,
             _g = null;
@@ -4885,8 +4885,8 @@ function () {
           if (_el == null || _el === c) {
             abort = true;
           } else {
-            if (_el[PARENT_GROUP_KEY]) {
-              _g = _el[PARENT_GROUP_KEY];
+            if (_el._jsPlumbParentGroup) {
+              _g = _el._jsPlumbParentGroup;
               abort = true;
             } else {
               _el = _el.parentNode;
@@ -7598,19 +7598,20 @@ function (_EventGenerator) {
     value: function info(el) {
       if (el == null) {
         return null;
-      } else if (el.nodeType === 3 || el.nodeType === 8) {
-        return {
-          el: el,
-          text: true
-        };
-      } else {
-        var _el = this.getElement(el);
+      } // this is DOM specific, we dont want this in this class.
+      else if (el.nodeType === 3 || el.nodeType === 8) {
+          return {
+            el: el,
+            text: true
+          };
+        } else {
+          var _el = this.getElement(el);
 
-        return {
-          el: _el,
-          id: isString(el) && _el == null ? el : this.getId(_el)
-        };
-      }
+          return {
+            el: _el,
+            id: isString(el) && _el == null ? el : this.getId(_el)
+          };
+        }
     }
   }, {
     key: "_idstamp",
@@ -7652,18 +7653,6 @@ function (_EventGenerator) {
       return r;
     }
   }, {
-    key: "getInternalId",
-    value: function getInternalId(element) {
-      var id = element._jsplumbid;
-
-      if (id == null) {
-        id = "jsplumb_" + this._instanceIndex + "_" + this._idstamp();
-        element._jsplumbid = id;
-      }
-
-      return id;
-    }
-  }, {
     key: "getId",
     value: function getId(element, uuid) {
       if (isString(element)) {
@@ -7681,7 +7670,7 @@ function (_EventGenerator) {
         if (arguments.length === 2 && arguments[1] !== undefined) {
           id = uuid;
         } else if (arguments.length === 1 || arguments.length === 3 && !arguments[2]) {
-          id = "jsPlumb_" + this._instanceIndex + "_" + this._idstamp();
+          id = "jsplumb-" + this._instanceIndex + "-" + this._idstamp();
         }
 
         this.setAttribute(element, "id", id);
@@ -8223,7 +8212,7 @@ function (_EventGenerator) {
     key: "manageAll",
     value: function manageAll(elements, recalc) {
       for (var i = 0; i < elements.length; i++) {
-        this.manage(elements[i], recalc);
+        this.manage(elements[i], null, recalc);
       }
     }
     /**
@@ -8234,14 +8223,18 @@ function (_EventGenerator) {
 
   }, {
     key: "manage",
-    value: function manage(element, recalc) {
-      var el = IS.aString(element) ? this.getElementById(element) : element;
-      var elId = this.getId(el);
+    value: function manage(element, internalId, recalc) {
+      if (this.getAttribute(element, "jsplumb-id") == null) {
+        internalId = internalId || uuid();
+        this.setAttribute(element, "jsplumb-id", internalId);
+      }
+
+      var elId = this.getId(element);
 
       if (!this._managedElements[elId]) {
-        this.setAttribute(el, ATTRIBUTE_MANAGED, "");
+        this.setAttribute(element, ATTRIBUTE_MANAGED, "");
         this._managedElements[elId] = {
-          el: el,
+          el: element,
           endpoints: [],
           connections: [],
           rotation: 0
@@ -8254,15 +8247,7 @@ function (_EventGenerator) {
             elId: elId,
             recalc: true
           });
-        } // write context into the element. we want to use this moving forward and get rid of endpointsByElement and the sizes, offsets and info stuff
-        // from above. it should suffice to put the context on the elements themselves.
-
-
-        el._jspContext = {
-          ep: [] // o:this._offsets[elId],
-          // s:this._sizes[elId]
-
-        };
+        }
       } else {
         if (recalc) {
           this._managedElements[elId].info = this.updateOffset({
@@ -8358,7 +8343,7 @@ function (_EventGenerator) {
       _p.elementId = id || this.getId(_p.source);
       var ep = new Endpoint(this, _p);
       ep.id = "ep_" + this._idstamp();
-      this.manage(_p.source);
+      this.manage(this.getElement(_p.source));
       return ep;
     }
   }, {
@@ -8596,11 +8581,9 @@ function (_EventGenerator) {
       }, p);
 
       var id = this.getId(_p.source);
-      var mel = this.manage(el, !this._suspendDrawing);
+      var mel = this.manage(this.getElement(el), null, !this._suspendDrawing);
       var e = this.newEndpoint(_p, id);
-      addToList(this.endpointsByElement, id, e); // store the endpoint directly on the element.
-
-      mel.el._jspContext.ep.push(e);
+      addToList(this.endpointsByElement, id, e);
 
       if (!this._suspendDrawing) {
         // why not just a full renderer.paintEndpoint method here?
@@ -8939,8 +8922,6 @@ function (_EventGenerator) {
           affectedElements.push(info);
 
           for (i = 0, ii = ebe.length; i < ii; i++) {
-            // TODO check this logic. was the second arg a "do not repaint now" argument?
-            //this.deleteEndpoint(ebe[i], false)
             _this7.deleteEndpoint(ebe[i]);
           }
         }
@@ -8969,22 +8950,30 @@ function (_EventGenerator) {
           newState,
           os;
       connectionType = connectionType || DEFAULT;
-      this.each(el, function (_el) {
-        var defs = _el[type === SOURCE ? SOURCE_DEFINITION_LIST : TARGET_DEFINITION_LIST];
+      var info = this.info(el);
+
+      if (info.el) {
+        var defs = type === SOURCE ? info.el._jsPlumbSourceDefinitions : info.el._jsPlumbTargetDefinitions;
 
         if (defs) {
-          _this8.each(defs, function (def) {
+          defs.forEach(function (def) {
             if (def.def.connectionType == null || def.def.connectionType === connectionType) {
               os = def.enabled;
               originalState.push(os);
               newState = toggle ? !os : state;
               def.enabled = newState;
+              var cls = ["jtk", type, "disabled"].join("-");
 
-              _this8[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled");
+              if (newState) {
+                _this8.removeClass(info.el, cls);
+              } else {
+                _this8.addClass(info.el, cls);
+              }
             }
           });
         }
-      });
+      }
+
       return originalState.length > 1 ? originalState : originalState[0];
     }
   }, {
@@ -9015,16 +9004,22 @@ function (_EventGenerator) {
       if (el == null) {
         return null;
       } else {
-        var eldefs = el[key];
+        var info = this.info(el);
 
-        if (eldefs && eldefs.length > 0) {
-          var idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
-            return d.def.connectionType === connectionType;
-          });
+        if (info.el) {
+          var eldefs = info.el[key];
 
-          if (idx >= 0) {
-            return eldefs[0];
+          if (eldefs && eldefs.length > 0) {
+            var idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
+              return d.def.connectionType === connectionType;
+            });
+
+            if (idx >= 0) {
+              return eldefs[0];
+            }
           }
+        } else {
+          return null;
         }
       }
     }
@@ -9071,34 +9066,31 @@ function (_EventGenerator) {
   }, {
     key: "_unmake",
     value: function _unmake(type, key, el, connectionType) {
-      var _this9 = this;
-
       connectionType = connectionType || "*";
-      this.each(el, function (_el) {
-        if (_el[key]) {
-          if (connectionType === "*") {
-            delete _el[key];
+      var info = this.info(el);
 
-            _this9.removeAttribute(_el, "jtk-" + type);
+      if (info.el) {
+        if (info.el[key]) {
+          if (connectionType === "*") {
+            delete info.el[key];
+            this.removeAttribute(info.el, "jtk-" + type);
           } else {
             var _t2 = [];
-
-            _el[key].forEach(function (def) {
+            info.el[key].forEach(function (def) {
               if (connectionType !== def.def.connectionType) {
                 _t2.push(def);
               }
             });
 
             if (_t2.length > 0) {
-              _el[key] = _t2;
+              info.el[key] = _t2;
             } else {
-              delete _el[key];
-
-              _this9.removeAttribute(_el, "jtk-" + type);
+              delete info.el[key];
+              this.removeAttribute(info.el, "jtk-" + type);
             }
           }
         }
-      });
+      }
     }
   }, {
     key: "_unmakeEvery",
@@ -9146,8 +9138,6 @@ function (_EventGenerator) {
   }, {
     key: "makeSource",
     value: function makeSource(el, params, referenceParams) {
-      var _this10 = this;
-
       var p = extend({
         _jsPlumb: this
       }, referenceParams);
@@ -9157,43 +9147,33 @@ function (_EventGenerator) {
       p.endpoint = p.endpoint || aae.endpoints[0];
       p.anchor = p.anchor || aae.anchors[0];
       var maxConnections = p.maxConnections || -1;
+      var elInfo = this.info(el); // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+      // and use the endpoint definition if found.
 
-      var _one = function _one(_el) {
-        var elInfo = _this10.info(_el); // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-        // and use the endpoint definition if found.
+      var _del = elInfo.el;
+      this.manage(_del);
+      this.setAttribute(_del, ATTRIBUTE_SOURCE, "");
 
+      this._writeScopeAttribute(elInfo.el, p.scope || this.Defaults.scope);
 
-        var _del = elInfo.el;
-
-        _this10.manage(_del);
-
-        _this10.setAttribute(_del, ATTRIBUTE_SOURCE, "");
-
-        _this10._writeScopeAttribute(elInfo.el, p.scope || _this10.Defaults.scope);
-
-        _this10.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
-
-        elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || [];
-        var _def = {
-          def: extend({}, p),
-          uniqueEndpoint: p.uniqueEndpoint,
-          maxConnections: maxConnections,
-          enabled: true,
-          endpoint: null
-        };
-
-        if (p.createEndpoint) {
-          _def.uniqueEndpoint = true;
-          _def.endpoint = _this10.addEndpoint(_del, _def.def);
-          _def.endpoint.deleteOnEmpty = false;
-        }
-
-        elInfo.def = _def;
-
-        elInfo.el._jsPlumbSourceDefinitions.push(_def);
+      this.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
+      elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || [];
+      var _def = {
+        def: extend({}, p),
+        uniqueEndpoint: p.uniqueEndpoint,
+        maxConnections: maxConnections,
+        enabled: true,
+        endpoint: null
       };
 
-      this.each(el, _one);
+      if (p.createEndpoint) {
+        _def.uniqueEndpoint = true;
+        _def.endpoint = this.addEndpoint(_del, _def.def);
+        _def.endpoint.deleteOnEmpty = false;
+      }
+
+      elInfo.el._jsPlumbSourceDefinitions.push(_def);
+
       return this;
     }
   }, {
@@ -9253,8 +9233,6 @@ function (_EventGenerator) {
   }, {
     key: "makeTarget",
     value: function makeTarget(el, params, referenceParams) {
-      var _this11 = this;
-
       // put jsplumb ref into params without altering the params passed in
       var p = extend({
         _jsPlumb: this
@@ -9262,48 +9240,42 @@ function (_EventGenerator) {
       extend(p, params);
       p.connectionType = p.connectionType || DEFAULT;
       var maxConnections = p.maxConnections || -1; //,
+      // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+      // and use the endpoint definition if found.
+      // decode the info for this element (id and element)
 
-      var _one = function _one(_el) {
-        // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-        // and use the endpoint definition if found.
-        // decode the info for this element (id and element)
-        var elInfo = _this11.info(_el),
-            dropOptions = extend({}, p.dropOptions || {});
+      var elInfo = this.info(el),
+          dropOptions = extend({}, p.dropOptions || {});
+      this.manage(elInfo.el);
+      this.setAttribute(elInfo.el, ATTRIBUTE_TARGET, "");
 
-        _this11.manage(elInfo.el);
+      this._writeScopeAttribute(elInfo.el, p.scope || this.Defaults.scope);
 
-        _this11.setAttribute(elInfo.el, ATTRIBUTE_TARGET, "");
+      this.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
+      elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
+      // precedence.
 
-        _this11._writeScopeAttribute(elInfo.el, p.scope || _this11.Defaults.scope);
-
-        _this11.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
-
-        elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
-        // precedence.
-
-        if (elInfo.el._isJsPlumbGroup && dropOptions.rank == null) {
-          dropOptions.rank = -1;
-        } // store the definition
+      if (elInfo.el._jsPlumbGroup && dropOptions.rank == null) {
+        dropOptions.rank = -1;
+      } // store the definition
 
 
-        var _def = {
-          def: extend({}, p),
-          uniqueEndpoint: p.uniqueEndpoint,
-          maxConnections: maxConnections,
-          enabled: true,
-          endpoint: null
-        };
-
-        if (p.createEndpoint) {
-          _def.uniqueEndpoint = true;
-          _def.endpoint = _this11.addEndpoint(elInfo.el, _def.def);
-          _def.endpoint.deleteOnEmpty = false;
-        }
-
-        elInfo.el._jsPlumbTargetDefinitions.push(_def);
+      var _def = {
+        def: extend({}, p),
+        uniqueEndpoint: p.uniqueEndpoint,
+        maxConnections: maxConnections,
+        enabled: true,
+        endpoint: null
       };
 
-      this.each(el, _one);
+      if (p.createEndpoint) {
+        _def.uniqueEndpoint = true;
+        _def.endpoint = this.addEndpoint(elInfo.el, _def.def);
+        _def.endpoint.deleteOnEmpty = false;
+      }
+
+      elInfo.el._jsPlumbTargetDefinitions.push(_def);
+
       return this;
     }
   }, {
@@ -9570,8 +9542,8 @@ function (_EventGenerator) {
 
   }, {
     key: "getGroup",
-    value: function getGroup(id) {
-      return this.groupManager.getGroup(id);
+    value: function getGroup(groupId) {
+      return this.groupManager.getGroup(groupId);
     }
   }, {
     key: "getGroupFor",
