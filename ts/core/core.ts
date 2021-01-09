@@ -300,10 +300,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this._zoom
     }
 
-    info (el:string | any):{el:any, text?:boolean, id?:string} {
+    info (el:string | any):{el:jsPlumbElement, text?:boolean, id?:string} {
         if (el == null) {
             return null
         }
+        // this is DOM specific, we dont want this in this class.
         else if ((<any>el).nodeType === 3 || (<any>el).nodeType === 8) {
             return { el:el, text:true }
         }
@@ -346,15 +347,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return r
     }
 
-    getInternalId(element:jsPlumbElement):string {
-        let id = (element as any)._jsplumbid
-        if (id == null) {
-            id = "jsplumb_" + this._instanceIndex + "_" + this._idstamp()
-            element._jsplumbid = id
-        }
-        return id
-    }
-
     getId (element:string | any, uuid?:string):string {
         if (isString(element)) {
             return element as string
@@ -370,7 +362,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 id = uuid
             }
             else if (arguments.length === 1 || (arguments.length === 3 && !arguments[2])) {
-                id = "jsPlumb_" + this._instanceIndex + "_" + this._idstamp()
+                id = "jsplumb-" + this._instanceIndex + "-" + this._idstamp()
             }
 
             this.setAttribute(element, "id", id)
@@ -1483,8 +1475,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
             if (ebe) {
                 affectedElements.push(info)
                 for (i = 0, ii = ebe.length; i < ii; i++) {
-                    // TODO check this logic. was the second arg a "do not repaint now" argument?
-                    //this.deleteEndpoint(ebe[i], false)
                     this.deleteEndpoint(ebe[i])
                 }
             }
@@ -1511,15 +1501,20 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         const info = this.info(el)
         if (info.el) {
-            let defs = info.el[type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST]
+            let defs = type === Constants.SOURCE ? info.el._jsPlumbSourceDefinitions : info.el._jsPlumbTargetDefinitions
             if (defs) {
-                this.each(defs, (def: SourceOrTargetDefinition) => {
+                defs.forEach((def: SourceOrTargetDefinition) => {
                     if (def.def.connectionType == null || def.def.connectionType === connectionType) {
                         os = def.enabled
                         originalState.push(os)
                         newState = toggle ? !os : state
                         def.enabled = newState
-                        this[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled")
+                        const cls = ["jtk", type, "disabled"].join("-")
+                        if (newState) {
+                            this.removeClass(info.el, cls)
+                        } else {
+                            this.addClass(info.el, cls)
+                        }
                     }
                 })
             }
