@@ -3,7 +3,22 @@
 ### Breaking
 
 - `manage` does not accept an element id as argument. It only accepts elements.
-- `setSourceEnabled`, `toggleSourceEnabled`, `unmakeSource`, `unmakeTarget`, `makeSource` , `makeTarget`, `setTargetEnabled`, `toggleTargetEnabled` no longer accept an array-like first argument, only an element ID or element
+
+-  These methods no longer accept an array-like argument, only an element ID or element
+
+    - `setSourceEnabled`, 
+    - `toggleSourceEnabled`
+    - `unmakeSource`-
+    - `unmakeTarget`
+    - `makeSource` 
+    - `makeTarget`
+    - `setTargetEnabled`
+    - `toggleTargetEnabled`
+    - `unmanage`
+    - `removeAllEndpoints` 
+    - `revalidate`
+    - `getEndpoints`
+
 
 ## 4.0.0-RC29
 
