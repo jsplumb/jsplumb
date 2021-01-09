@@ -192,36 +192,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     private _zoom:number = 1
 
-    abstract getElement(el:any|string):any
-    abstract getElementById(el:string):any
-    abstract removeElement(el:any):void
-    abstract appendElement (el:any, parent:any):void
-
-    abstract removeClass(el:any, clazz:string):void
-    abstract addClass(el:any, clazz:string):void
-    abstract toggleClass(el:any, clazz:string):void
-    abstract getClass(el:any):string
-    abstract hasClass(el:any, clazz:string):boolean
-
-    abstract setAttribute(el:any, name:string, value:string):void
-    abstract getAttribute(el:any, name:string):string
-    abstract setAttributes(el:any, atts:Dictionary<string>):void
-    abstract removeAttribute(el:any, attName:string):void
-
-    abstract getSelector(ctx:string | any, spec?:string):NodeListOf<any>
-    abstract getStyle(el:any, prop:string):any
-
-    abstract _getSize(el:any):Size
-
-    abstract _getOffset(el:any|string):Offset
-    abstract _getOffsetRelativeToRoot(el:any|string):Offset
-
-    abstract setPosition(el:any, p:Offset):void
-
-    abstract on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void
-    abstract off (el:any, event:string, callback:Function):void
-    abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void
-
     constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
 
         super()
@@ -347,10 +317,10 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return r
     }
 
-    getId (element:string | any, uuid?:string):string {
-        if (isString(element)) {
-            return element as string
-        }
+    getId (element:jsPlumbElement, uuid?:string):string {
+        // if (isString(element)) {
+        //     return element as string
+        // }
         if (element == null) {
             return null
         }
@@ -371,7 +341,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     /**
-     * Set the id of the given element. Changes all the refs etc.
+     * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
+     * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
+     * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
      * @param el
      * @param newId
      * @param doNotSetAttribute
@@ -526,9 +498,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return new EndpointSelection(this, ep)
     }
 
-    setContainer(c:any|string):void {
+    setContainer(c:jsPlumbElement):void {
         // get container as element and set container.
-        this._container = this.getElement(c);
+        this._container = c
         // tell people.
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
@@ -798,10 +770,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return deletedCount
     }
 
-    deleteConnectionsForElement(el:any|string, params?:DeleteConnectionOptions):JsPlumbInstance {
+    deleteConnectionsForElement(el:jsPlumbElement, params?:DeleteConnectionOptions):JsPlumbInstance {
         params = params || {}
-        let _el = this.getElement(el)
-        let id = this.getId(_el), endpoints = this.endpointsByElement[id]
+        let id = this.getId(el), endpoints = this.endpointsByElement[id]
         if (endpoints && endpoints.length) {
             for (let i = 0, j = endpoints.length; i < j; i++) {
                 endpoints[i].deleteEveryConnection(params)
@@ -953,7 +924,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         let ep = new Endpoint(this, _p)
         ep.id = "ep_" + this._idstamp()
-        this.manage(this.getElement(_p.source))
+        this.manage(_p.source)
 
         return ep
     }
@@ -1535,7 +1506,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     isSource (el:jsPlumbElement, connectionType?:string):any {
-        return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null
+        return this.findFirstSourceDefinition(el, connectionType) != null
     }
 
     isSourceEnabled (el:jsPlumbElement, connectionType?:string):boolean {
@@ -1549,7 +1520,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     isTarget(el:jsPlumbElement, connectionType?:string):boolean {
-        return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null
+        return this.findFirstTargetDefinition(el, connectionType) != null
     }
 
     isTargetEnabled (el:jsPlumbElement, connectionType?:string):boolean {
@@ -2006,6 +1977,36 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.appendElement(el, this.getContainer())
         this.updateOffset({recalc:true, elId:this.getId(el)})
     }
+
+    abstract getElement(el:any|string):any
+    abstract getElementById(el:string):any
+    abstract removeElement(el:any):void
+    abstract appendElement (el:any, parent:any):void
+
+    abstract removeClass(el:any, clazz:string):void
+    abstract addClass(el:any, clazz:string):void
+    abstract toggleClass(el:any, clazz:string):void
+    abstract getClass(el:any):string
+    abstract hasClass(el:any, clazz:string):boolean
+
+    abstract setAttribute(el:any, name:string, value:string):void
+    abstract getAttribute(el:any, name:string):string
+    abstract setAttributes(el:any, atts:Dictionary<string>):void
+    abstract removeAttribute(el:any, attName:string):void
+
+    abstract getSelector(ctx:string | any, spec?:string):NodeListOf<any>
+    abstract getStyle(el:any, prop:string):any
+
+    abstract _getSize(el:any):Size
+
+    abstract _getOffset(el:any|string):Offset
+    abstract _getOffsetRelativeToRoot(el:any|string):Offset
+
+    abstract setPosition(el:any, p:Offset):void
+
+    abstract on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void
+    abstract off (el:any, event:string, callback:Function):void
+    abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void
 
     abstract getPath(segment:Segment, isFirstSegment:boolean):string
 
