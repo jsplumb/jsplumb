@@ -1,6 +1,6 @@
 
 import { JsPlumbInstance } from "../core"
-import { Dictionary, TypeDescriptor} from '../common'
+import {Dictionary, jsPlumbElement, TypeDescriptor} from '../common'
 import {AbstractConnector} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint-impl"
 import {PaintStyle} from "../styles"
@@ -15,9 +15,10 @@ import {ConnectorSpec} from "./abstract-connector"
 import {EndpointSpec} from "../endpoint/endpoint"
 
 export interface ConnectionParams {
+
     id?:string
-    source?:string | any
-    target?:string | any
+    source?:jsPlumbElement
+    target?:jsPlumbElement
     sourceEndpoint?:Endpoint
     targetEndpoint?:Endpoint
     scope?:string
@@ -148,8 +149,8 @@ export class Connection extends OverlayCapableComponent {
         // member and take action if they need to.
         this.previousConnection = params.previousConnection
 
-        this.source = instance.getElement(params.source)
-        this.target = instance.getElement(params.target)
+        this.source = params.source
+        this.target = params.target
 
         if (params.sourceEndpoint) {
             this.source = params.sourceEndpoint.element
