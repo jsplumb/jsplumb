@@ -39,7 +39,7 @@ var testSuite = function () {
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
-        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
+        equal(_jsPlumb.getEndpoints(d1).length, 0, "no endpoints for the given element");
         //ok(e1.endpoint == null, "e1 cleaned up");
     });
 
@@ -53,7 +53,7 @@ var testSuite = function () {
 
         _jsPlumb.repaintEverything(); // shouldn't complain
 
-        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");
+        equal(_jsPlumb.getEndpoints(d1).length, 0, "no endpoints for the given element");
         //ok(e1.endpoint == null, "e1 cleaned up");
     });
 
@@ -62,7 +62,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1");
         var e = _jsPlumb.addEndpoint(d1, { scope:"one"});
         ok(e, 'endpoint exists');
-        support.assertEndpointCount("d1", 1);
+        support.assertEndpointCount(d1, 1);
         ok(e.id != null, "endpoint has had an id assigned");
         ok(support.getEndpointCanvas(e).getAttribute("jtk-scope-one") != null, "scope was written to the element");
     });

@@ -508,14 +508,14 @@ var testSuite = function () {
         });
 
         var con1 = jpInstance.connect({
-            source: 'd1',
-            target: 'd1',
+            source: d1,
+            target: d1,
             type: 'loopback'
         });
 
         var con2 = jpInstance.connect({
-            source: 'd2',
-            target: 'd2',
+            source: d2,
+            target: d2,
             type: 'default'
         });
 
@@ -1308,14 +1308,14 @@ var testSuite = function () {
         });
 
         var con1 = jpInstance.connect({
-            source: 'd1',
-            target: 'd1',
+            source: d1,
+            target: d1,
             type: 'loopback'
         });
 
         var con2 = jpInstance.connect({
-            source: 'd2',
-            target: 'd2',
+            source: d2,
+            target: d2,
             type: 'default'
         });
 

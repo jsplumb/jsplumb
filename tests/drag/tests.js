@@ -1595,7 +1595,7 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10), "d2 has moved left by 100");
         equal(550, parseInt(d2.style.top, 10), "d2 has moved top by 100");
 
-        _jsPlumb.removeFromPosse(d2, "posse");
+        _jsPlumb.removeFromPosse(d2);
         support.dragNodeBy(d, -100, -100);
 
         equal(50, parseInt(d.style.left, 10));
@@ -1686,8 +1686,7 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10));
         equal(550, parseInt(d2.style.top, 10));
 
-
-        _jsPlumb.removeFromPosse(d2, "posse");
+        _jsPlumb.removeFromPosse(d2);
         support.dragNodeBy(d, -100, -100);
 
         equal(50, parseInt(d.style.left, 10));

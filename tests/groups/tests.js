@@ -1371,7 +1371,7 @@ var testSuite = function () {
         var g1 = _addGroup(_jsPlumb, "one", c1, [c1_1]);
         var g2 = _addGroup(_jsPlumb, "two", c2, [c2_1]);
 
-        var conn = _jsPlumb.connect({source:"c1_1", target:"c2_1"});
+        var conn = _jsPlumb.connect({source:c1_1, target:c2_1});
 
         equal(conn.endpoints[0].element, c1_1, "c1_1 is connection source");
         equal(conn.endpoints[1].element, c2_1, "c2_1 is connection target");

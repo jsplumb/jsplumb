@@ -27,9 +27,9 @@ var testSuite = function () {
         ]});
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 1);
-        var e = _jsPlumb.getEndpoints("d17");
+        support.assertEndpointCount(d16, 1);
+        support.assertEndpointCount(d17, 1);
+        var e = _jsPlumb.getEndpoints(d17);
         equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
     });
@@ -44,9 +44,9 @@ var testSuite = function () {
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 2);
-        var e = _jsPlumb.getEndpoints("d17");
+        support.assertEndpointCount(d16, 1);
+        support.assertEndpointCount(d17, 2);
+        var e = _jsPlumb.getEndpoints(d17);
         equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
     });
@@ -106,9 +106,9 @@ var testSuite = function () {
         ]});
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", parameters: { foo: "bar"}  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 1);
-        var e = _jsPlumb.getEndpoints("d17");
+        support.assertEndpointCount(d16, 1);
+        support.assertEndpointCount(d17, 1);
+        var e = _jsPlumb.getEndpoints(d17);
         equal(e[0].getParameter("foo"), "bar", "parameter was set on endpoint made from makeSource call");
     });
 
@@ -121,9 +121,9 @@ var testSuite = function () {
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", uniqueEndpoint: true, maxConnections: -1  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 1);
-        var e = _jsPlumb.getEndpoints("d17");
+        support.assertEndpointCount(d16, 1);
+        support.assertEndpointCount(d17, 1);
+        var e = _jsPlumb.getEndpoints(d17);
         equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].connections.length, 2, "endpoint on d17 has two connections");
@@ -139,17 +139,17 @@ var testSuite = function () {
         // support.assertEndpointCount("d16", 1, _jsPlumb);
 
         // even though there has been no connections made the endpoint should exist.
-        support.assertEndpointCount("d17", 1);
+        support.assertEndpointCount(d17, 1);
         // but not for d16
-        support.assertEndpointCount("d16", 0);
+        support.assertEndpointCount(d16, 0);
 
         // now connect d17 twice to d16, there should still be only one endpoint for 17, and now two for 16
         _jsPlumb.connect({source: d17, target: d16});
         _jsPlumb.connect({source: d17, target: d16});
-        support.assertEndpointCount("d17", 1);
-        support.assertEndpointCount("d16", 2);
+        support.assertEndpointCount(d17, 1);
+        support.assertEndpointCount(d16, 2);
 
-        var e = _jsPlumb.getEndpoints("d17");
+        var e = _jsPlumb.getEndpoints(d17);
         equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].connections.length, 2, "endpoint on d17 has two connections");
@@ -162,15 +162,15 @@ var testSuite = function () {
 
 
         // even though there has been no connections made the endpoint should exist.
-        support.assertEndpointCount("d16", 1);
+        support.assertEndpointCount(d16, 1);
         // but not for d17
-        support.assertEndpointCount("d17", 0);
+        support.assertEndpointCount(d17, 0);
 
         // now connect d17 twice to d16, there should still be only one endpoint for 16, and now two for 17
         _jsPlumb.connect({source: d17, target: d16});
         _jsPlumb.connect({source: d17, target: d16});
-        support.assertEndpointCount("d17", 2);
-        support.assertEndpointCount("d16", 1);
+        support.assertEndpointCount(d17, 2);
+        support.assertEndpointCount(d16, 1);
     });
 
     test(": makeSource/makeTarget, create endpoint immediately", function () {
@@ -180,23 +180,23 @@ var testSuite = function () {
 
 
         // even though there has been no connections made the endpoint should exist.
-        support.assertEndpointCount("d16", 1);
+        support.assertEndpointCount(d16, 1);
         // and for d17
-        support.assertEndpointCount("d17", 1);
+        support.assertEndpointCount(d17, 1);
 
         // now connect d17 twice to d16, there should still be only one endpoint for 16 and 17
         var c1 = _jsPlumb.connect({source: d17, target: d16});
         var c2 = _jsPlumb.connect({source: d17, target: d16});
-        support.assertEndpointCount("d17", 1);
-        support.assertEndpointCount("d16", 1);
+        support.assertEndpointCount(d17, 1);
+        support.assertEndpointCount(d16, 1);
 
         // disconnect the connections. the endpoints should stick around.
         _jsPlumb.deleteConnection(c1);
         _jsPlumb.deleteConnection(c2);
         equal(0, _jsPlumb.select().length, "no connections left in instance");
 
-        support.assertEndpointCount("d17", 1);
-        support.assertEndpointCount("d16", 1);
+        support.assertEndpointCount(d17, 1);
+        support.assertEndpointCount(d16, 1);
     });
 
     test(": _jsPlumb.connect after makeTarget (newConnection:true specified)", function () {
@@ -207,9 +207,9 @@ var testSuite = function () {
         ]});
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16, newConnection: true});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
-        var e = _jsPlumb.getEndpoints("d17");
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 1, _jsPlumb);
+        var e = _jsPlumb.getEndpoints(d17);
         equal(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
         equal(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
     });
@@ -224,8 +224,8 @@ var testSuite = function () {
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.setSourceEnabled(d17, false);
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
     });
 
     // makeSource, then disable it. should not be able to make a connection from it.
@@ -238,8 +238,8 @@ var testSuite = function () {
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.setSourceEnabled(d17, false);
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
     });
 
     // makeSource, then toggle its enabled state. should not be able to make a connection from it.
@@ -252,13 +252,13 @@ var testSuite = function () {
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleSourceEnabled(d17);
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
 
         _jsPlumb.toggleSourceEnabled(d17);
-        _jsPlumb.connect({source: "d17", target: e16});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
+        _jsPlumb.connect({source: d17, target: e16});
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 1, _jsPlumb);
     });
 
     // makeSource, then disable it. should not be able to make a connection from it.
@@ -271,12 +271,12 @@ var testSuite = function () {
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleSourceEnabled(d17);
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
         _jsPlumb.toggleSourceEnabled(d17);
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 1, _jsPlumb);
     });
 
     test(": jsPlumb.isSource and jsPlumb.isSourceEnabled", function () {
@@ -291,7 +291,7 @@ var testSuite = function () {
         _jsPlumb.setSourceEnabled(d17, false);
         ok(_jsPlumb.isSourceEnabled(d17) == false, "d17 is recognised as disabled");
 
-        equal(_jsPlumb.isSource("d17"), true, "d17 is recognised as a source when provided as a string");
+        equal(_jsPlumb.isSource(d17), true, "d17 is recognised as a source when provided as a string");
 
         try {
             _jsPlumb.isSource(null);
@@ -311,8 +311,8 @@ var testSuite = function () {
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         var originallyEnabled = _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: d17});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
 
         // tests for css class for disabled target
         ok(_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class added");
@@ -334,8 +334,8 @@ var testSuite = function () {
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         var originallyEnabled = _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: d17});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
 
 
         // tests for css class for disabled target
@@ -358,8 +358,8 @@ var testSuite = function () {
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: d17});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
     });
 
     // makeTarget, then toggle its enabled state. should not be able to make a connection to it.
@@ -372,13 +372,13 @@ var testSuite = function () {
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleTargetEnabled(d17);
         _jsPlumb.connect({source: e16, target: d17});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
 
         _jsPlumb.toggleTargetEnabled(d17);
-        _jsPlumb.connect({source: e16, target: "d17"});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
+        _jsPlumb.connect({source: e16, target: d17});
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 1, _jsPlumb);
     });
 
     // makeTarget, then disable it. should not be able to make a connection to it.
@@ -391,12 +391,12 @@ var testSuite = function () {
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleTargetEnabled(d17);
         _jsPlumb.connect({source: e16, target: d17});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
         _jsPlumb.toggleTargetEnabled(d17);
-        _jsPlumb.connect({source: e16, target: "d17"});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
+        _jsPlumb.connect({source: e16, target: d17});
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 1, _jsPlumb);
     });
 
     test(": jsPlumb.isTarget and jsPlumb.isTargetEnabled", function () {
@@ -407,7 +407,7 @@ var testSuite = function () {
         _jsPlumb.setTargetEnabled(d17, false);
         ok(_jsPlumb.isTargetEnabled(d17) === false, "d17 is recognised as disabled");
 
-        equal(_jsPlumb.isTarget("d17"), true, "d17 is recognised as a target when provided as a string");
+        equal(_jsPlumb.isTarget(d17), true, "d17 is recognised as a target when provided as a string");
 
         try {
             _jsPlumb.isTarget(null);
@@ -423,11 +423,11 @@ var testSuite = function () {
         _jsPlumb.makeTarget(d17);
 
         var c = _jsPlumb.connect({source: d16, target: d17});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 1, _jsPlumb);
         _jsPlumb.deleteConnection(c);
-        support.assertEndpointCount("d16", 0, _jsPlumb);
-        support.assertEndpointCount("d17", 0, _jsPlumb);
+        support.assertEndpointCount(d16, 0, _jsPlumb);
+        support.assertEndpointCount(d17, 0, _jsPlumb);
     });
 
 // setSource/setTarget methods.
@@ -486,7 +486,7 @@ var testSuite = function () {
             endpoint: "Rectangle"
         });
 
-        var c = _jsPlumb.connect({source: "d16", target: d17});
+        var c = _jsPlumb.connect({source: d16, target: d17});
         equal(c.sourceId, "d16");
         equal(c.targetId, "d17");
 
@@ -510,7 +510,7 @@ var testSuite = function () {
 
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
 
-        var c = _jsPlumb.connect({source: "d16", target: d17, endpoint: "Rectangle"});
+        var c = _jsPlumb.connect({source: d16, target: d17, endpoint: "Rectangle"});
         equal(c.sourceId, "d16");
         equal(c.targetId, "d17");
 
@@ -537,7 +537,7 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
         var ep = _jsPlumb.addEndpoint(d18), ep2 = _jsPlumb.addEndpoint(d18);
 
-        var c = _jsPlumb.connect({source: "d16", target: d17});
+        var c = _jsPlumb.connect({source: d16, target: d17});
         equal(c.sourceId, "d16");
         equal(c.targetId, "d17");
 
@@ -564,7 +564,7 @@ var testSuite = function () {
             cssClass:"CHANGED"
         });
 
-        var c = _jsPlumb.connect({source: "d16", target: d17});
+        var c = _jsPlumb.connect({source: d16, target: d17});
         equal(c.sourceId, "d16");
         equal(c.targetId, "d17");
 
@@ -595,9 +595,9 @@ var testSuite = function () {
         });
 
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 1);
-        var e = _jsPlumb.getEndpoints("d17");
+        support.assertEndpointCount(d16, 1);
+        support.assertEndpointCount(d17, 1);
+        var e = _jsPlumb.getEndpoints(d17);
         equal(e[0].getParameter("foo"), "foo", "makeSource created endpoint has parameters");
         equal(e16.getParameter("foo"), "foo", "normally created endpoint has parameters");
     });
@@ -618,8 +618,8 @@ var testSuite = function () {
 
         // this should succeed, because d17 is no longer a source and so jsPlumb will just create and add a new endpoint to d17.
         _jsPlumb.connect({source: d17, target: e16});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 1);
+        support.assertEndpointCount(d16, 1);
+        support.assertEndpointCount(d17, 1);
     });
 
     // maketarget, then unmake it. should not be able to make a connection to it.
@@ -636,9 +636,9 @@ var testSuite = function () {
         ok(_jsPlumb.isTarget(d17) === false, "d17 is no longer a target");
 
         // this should succeed, because d17 is no longer a target and so jsPlumb will just create and add a new endpoint to d17.
-        _jsPlumb.connect({source: e16, target: "d17"});
-        support.assertEndpointCount("d16", 1);
-        support.assertEndpointCount("d17", 1);
+        _jsPlumb.connect({source: e16, target: d17});
+        support.assertEndpointCount(d16, 1);
+        support.assertEndpointCount(d17, 1);
     });
 
 
@@ -665,8 +665,8 @@ var testSuite = function () {
         ]  });
 
         var c = _jsPlumb.connect({source: d17, target: d16});
-        support.assertEndpointCount("d16", 1, _jsPlumb);
-        support.assertEndpointCount("d17", 1, _jsPlumb);
+        support.assertEndpointCount(d16, 1, _jsPlumb);
+        support.assertEndpointCount(d17, 1, _jsPlumb);
 
         ok(c.getOverlay("overlay") != null);
     });

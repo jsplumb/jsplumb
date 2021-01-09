@@ -723,8 +723,8 @@ var testSuite = function () {
         support.addDiv("d2");
         var count = 0;
         var c = _jsPlumb.connect({
-            source: "d1",
-            target: "d2",
+            source: d1,
+            target: d2,
             overlays:[
                 [ "Label", {
                     id:"label",
