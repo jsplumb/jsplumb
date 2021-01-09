@@ -2,7 +2,8 @@
 
 ### Breaking
 
-- `manage`, `setSourceEnabled`, `toggleSourceEnabled`, `unmakeSource`, `unmakeTarget`, `makeSource` , `makeTarget`, `setTargetEnabled`, `toggleTargetEnabled` no longer accept an array-like first argument, only an element ID or element
+- `manage` does not accept an element id as argument. It only accepts elements.
+- `setSourceEnabled`, `toggleSourceEnabled`, `unmakeSource`, `unmakeTarget`, `makeSource` , `makeTarget`, `setTargetEnabled`, `toggleTargetEnabled` no longer accept an array-like first argument, only an element ID or element
 
 ## 4.0.0-RC29
 
