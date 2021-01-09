@@ -125,10 +125,10 @@ var testSuite = function () {
     test("connections via mouse between elements configured with makeSource/makeTarget", function() {
 
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
-        _jsPlumb.makeSource("d1");
-        _jsPlumb.makeSource("d4");
-        _jsPlumb.makeTarget("d2");
-        _jsPlumb.makeTarget("d3");
+        _jsPlumb.makeSource(d1);
+        _jsPlumb.makeSource(d4);
+        _jsPlumb.makeTarget(d2);
+        _jsPlumb.makeTarget(d3);
 
         _jsPlumb.Defaults.maxConnections = -1;
 

@@ -4147,14 +4147,14 @@ var testSuite = function () {
         var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
 
         // setup d1 as a source
-        _jsPlumb.makeSource("d1", {
+        _jsPlumb.makeSource(d1, {
             endpoint:"Rectangle",
             parameters:{
                 foo:"foo"
             }
         });
         // and d2 as a target
-        _jsPlumb.makeTarget("d2", {
+        _jsPlumb.makeTarget(d2, {
             endpoint:"Rectangle"
         });
 
@@ -4178,14 +4178,14 @@ var testSuite = function () {
         var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
 
         // setup d1 as a source
-        _jsPlumb.makeSource("d1", {
+        _jsPlumb.makeSource(d1, {
             endpoint:"Rectangle",
             parameters:{
                 foo:"foo"
             }
         });
         // and d2 as a target
-        _jsPlumb.makeTarget("d2", {
+        _jsPlumb.makeTarget(d2, {
             endpoint:"Rectangle"
         });
 
@@ -4213,14 +4213,14 @@ var testSuite = function () {
         var d2 = support.addDiv("d2",null, null, 250,250,100,100);
 
         // setup d1 as a source
-        _jsPlumb.makeSource("d1", {
+        _jsPlumb.makeSource(d1, {
             endpoint:"Rectangle",
             parameters:{
                 foo:"foo"
             }
         });
         // and d2 as a target
-        _jsPlumb.makeTarget("d2", {
+        _jsPlumb.makeTarget(d2, {
             endpoint:"Rectangle"
         });
 
@@ -4248,14 +4248,14 @@ var testSuite = function () {
         var d2 = support.addDiv("d2",null, null, 250,250,100,100);
 
         // setup d1 as a source
-        _jsPlumb.makeSource("d1", {
+        _jsPlumb.makeSource(d1, {
             endpoint:"Rectangle",
             parameters:{
                 foo:"foo"
             }
         });
         // and d2 as a target
-        _jsPlumb.makeTarget("d2", {
+        _jsPlumb.makeTarget(d2, {
             endpoint:"Rectangle"
         });
 
@@ -5214,7 +5214,7 @@ var testSuite = function () {
 
     test("endpointStyle on connect method, with makeSource prepared element", function () {
         support.addDivs(["d1", "d2"]);
-        _jsPlumb.makeSource("d1");
+        _jsPlumb.makeSource(d1);
 
         var c = _jsPlumb.connect({
             source: "d1",
