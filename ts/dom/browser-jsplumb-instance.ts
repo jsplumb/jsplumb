@@ -744,7 +744,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         super.destroy()
     }
 
-    unmanage (el:any|string, removeElement?:boolean):void {
+    unmanage (el:jsPlumbDOMElement, removeElement?:boolean):void {
         this.removeFromDragSelection(el)
         super.unmanage(el, removeElement)
     }
@@ -757,7 +757,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         this.elementDragHandler.clearDragSelection()
     }
 
-    removeFromDragSelection(...el:Array<string|HTMLElement>) {
+    removeFromDragSelection(...el:Array<jsPlumbDOMElement>) {
         el.forEach((_el) => this.elementDragHandler.removeFromDragSelection(_el))
     }
 
