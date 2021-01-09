@@ -302,27 +302,26 @@ var testSuite = function () {
     });
 
     // makeSource, then disable it. should not be able to make a connection to it.
-    test(": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (string id as argument)", function () {
+    test(": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (elements as argument)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        var originallyEnabled = _jsPlumb.setTargetEnabled("d17", false);
+        var originallyEnabled = _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: d17});
         support.assertEndpointCount("d16", 1, _jsPlumb);
         support.assertEndpointCount("d17", 0, _jsPlumb);
-
 
         // tests for css class for disabled target
         ok(_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class added");
 
         ok(originallyEnabled, "setTargetEnabled returned the original enabled value of true when setting to false");
-        originallyEnabled = _jsPlumb.setTargetEnabled("d17", true);
+        originallyEnabled = _jsPlumb.setTargetEnabled(d17, true);
         ok(!originallyEnabled, "setTargetEnabled returned the previous enabled value of false when setting to true");
 
-        ok(!_jsPlumb.hasClass(d17, "jtk-target-disabled"), "disabled class removed");
+        ok(!d17.classList.contains("jtk-target-disabled"), "disabled class removed")
     });
 
     // makeSource, then disable it. should not be able to make a connection to it.
