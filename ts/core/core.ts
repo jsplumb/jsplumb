@@ -1265,16 +1265,10 @@ export abstract class JsPlumbInstance extends EventGenerator {
             if ((_p.source as Endpoint).endpoint) {
                 _p.sourceEndpoint = (_p.source as Endpoint)
             }
-            else {
-                _p.source = this.getElement(_p.source as any)
-            }
         }
         if (_p.target) {
             if ((_p.target as Endpoint).endpoint) {
                 _p.targetEndpoint = (_p.target as Endpoint)
-            }
-            else {
-                _p.target = this.getElement(_p.target as any)
             }
         }
 

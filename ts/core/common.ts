@@ -22,8 +22,8 @@ export interface jsPlumbElement {
 
 export interface ConnectParams {
     uuids?: [UUID, UUID]
-    source?: ElementRef | Endpoint
-    target?: ElementRef | Endpoint
+    source?: jsPlumbElement | Endpoint
+    target?: jsPlumbElement | Endpoint
     detachable?: boolean
     deleteEndpointsOnDetach?: boolean
     endpoint?: EndpointSpec
