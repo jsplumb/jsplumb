@@ -890,12 +890,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * Stops managing the given element.
      * @param el Element, or ID of the element to stop managing.
      */
-    unmanage (el:any|string, removeElement?:boolean):void {
+    unmanage (el:jsPlumbElement, removeElement?:boolean):void {
 
         let info = this.info(el), affectedElements:Array<any> = []
         if (info.id) {
 
-            this.removeAllEndpoints(info.id, true, affectedElements)
+            this.removeAllEndpoints(el, true, affectedElements)
             let _one = (_info:{el:any, text?:boolean, id?:string}) => {
 
                 if (info.el != null) {
@@ -930,8 +930,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
             _one(info)
 
         }
-
-
     }
 
     rotate(elementId:string, rotation:number, doNotRepaint?:boolean):RedrawResult {
@@ -1448,26 +1446,27 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    removeAllEndpoints(el:string | any, recurse?:boolean, affectedElements?:Array<any>):JsPlumbInstance {
+    removeAllEndpoints(el:jsPlumbElement, recurse?:boolean, affectedElements?:Array<any>):JsPlumbInstance {
         affectedElements = affectedElements || []
-        let _one = (_el:string | any) => {
-            let info = this.info(_el),
-                ebe = this.endpointsByElement[info.id],
+        let _one = (_el:jsPlumbElement) => {
+            let id = this.getId(_el),//this.info(_el),
+                ebe = this.endpointsByElement[id],
                 i, ii
 
             if (ebe) {
-                affectedElements.push(info)
+                affectedElements.push({id, el:_el})
                 for (i = 0, ii = ebe.length; i < ii; i++) {
                     this.deleteEndpoint(ebe[i])
                 }
             }
-            delete this.endpointsByElement[info.id]
+            delete this.endpointsByElement[id]
 
             // TODO DOM specific
             if (recurse) {
-                if (info.el && (<any>info.el).nodeType !== 3 && (<any>info.el).nodeType !== 8) {
-                    for (i = 0, ii = (<any>info.el).childNodes.length; i < ii; i++) {
-                        _one((<any>info.el).childNodes[i])
+                if (_el && (<any>_el).nodeType !== 3 && (<any>_el).nodeType !== 8) {
+                    for (i = 0, ii = (<any>_el).childNodes.length; i < ii; i++) {
+                        if ((<any>_el).childNodes[i].nodeType !== 3 && (<any>_el).childNodes[i].nodeType !== 8)
+                        _one((<any>_el).childNodes[i])
                     }
                 }
             }
