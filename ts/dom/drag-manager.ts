@@ -137,7 +137,7 @@ export class DragManager {
             this.drag = this.collicat.draggable(this.instance.getContainer(), o)
             this._filtersToAdd.forEach((filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]))
 
-            this.drag.on(EVT_REVERT, (el:HTMLElement) => {
+            this.drag.on(EVT_REVERT, (el:jsPlumbDOMElement) => {
                 this.instance.revalidate(el)
             })
 
