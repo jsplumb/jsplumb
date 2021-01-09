@@ -229,14 +229,14 @@ var testSuite = function () {
     });
 
     // makeSource, then disable it. should not be able to make a connection from it.
-    test(": _jsPlumb.connect after makeSource and setSourceEnabled(false) (selector as argument)", function () {
+    test(": _jsPlumb.connect after makeSource and setSourceEnabled(false) (div as argument)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: false, isTarget: true}, {anchors: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        _jsPlumb.setSourceEnabled(document.querySelectorAll("div"), false);
+        _jsPlumb.setSourceEnabled(d17, false);
         _jsPlumb.connect({source: "d17", target: e16});
         support.assertEndpointCount("d16", 1, _jsPlumb);
         support.assertEndpointCount("d17", 0, _jsPlumb);
@@ -262,18 +262,18 @@ var testSuite = function () {
     });
 
     // makeSource, then disable it. should not be able to make a connection from it.
-    test(": _jsPlumb.connect after makeSource and toggleSourceEnabled() (selector as argument)", function () {
+    test(": _jsPlumb.connect after makeSource and toggleSourceEnabled() (div as argument)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: false, isTarget: true}, {anchors: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        _jsPlumb.toggleSourceEnabled(document.querySelectorAll("#d17"));
+        _jsPlumb.toggleSourceEnabled(d17);
         _jsPlumb.connect({source: "d17", target: e16});
         support.assertEndpointCount("d16", 1, _jsPlumb);
         support.assertEndpointCount("d17", 0, _jsPlumb);
-        _jsPlumb.toggleSourceEnabled(document.querySelectorAll("#d17"));
+        _jsPlumb.toggleSourceEnabled(d17);
         _jsPlumb.connect({source: "d17", target: e16});
         support.assertEndpointCount("d16", 1, _jsPlumb);
         support.assertEndpointCount("d17", 1, _jsPlumb);
@@ -350,14 +350,14 @@ var testSuite = function () {
     });
 
     // makeTarget, then disable it. should not be able to make a connection to it.
-    test(": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (selector as argument)", function () {
+    test(": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (div as argument)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        _jsPlumb.setTargetEnabled(document.querySelectorAll("div"), false);
+        _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: "d17"});
         support.assertEndpointCount("d16", 1, _jsPlumb);
         support.assertEndpointCount("d17", 0, _jsPlumb);
@@ -383,18 +383,18 @@ var testSuite = function () {
     });
 
     // makeTarget, then disable it. should not be able to make a connection to it.
-    test(": _jsPlumb.connect after makeTarget and toggleTargetEnabled() (selector as argument)", function () {
+    test(": _jsPlumb.connect after makeTarget and toggleTargetEnabled() (div as argument)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchors: [
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
         _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-        _jsPlumb.toggleTargetEnabled(document.querySelectorAll("div"));
+        _jsPlumb.toggleTargetEnabled(d17);
         _jsPlumb.connect({source: e16, target: "d17"});
         support.assertEndpointCount("d16", 1, _jsPlumb);
         support.assertEndpointCount("d17", 0, _jsPlumb);
-        _jsPlumb.toggleTargetEnabled(document.querySelectorAll("div"));
+        _jsPlumb.toggleTargetEnabled(d17);
         _jsPlumb.connect({source: e16, target: "d17"});
         support.assertEndpointCount("d16", 1, _jsPlumb);
         support.assertEndpointCount("d17", 1, _jsPlumb);
