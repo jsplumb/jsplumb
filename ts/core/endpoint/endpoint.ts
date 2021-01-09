@@ -1,9 +1,12 @@
 import {AnchorSpec} from "../factory/anchor-factory"
+import { Anchor} from "../anchor/anchor"
 import {PaintStyle} from "../styles"
 import {OverlaySpec} from "../overlay/overlay"
 import {ComponentOptions} from "../component/component"
 import {ConnectorSpec} from "../connector/abstract-connector"
 import {Connection} from "../connector/connection-impl"
+import {jsPlumbElement} from "../common"
+import { Endpoint } from "./endpoint-impl"
 
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
 export type UserDefinedEndpointId = string
@@ -11,9 +14,9 @@ export type EndpointParams = any
 export type EndpointSpec = EndpointId | [EndpointId, EndpointParams]
 
 export interface EndpointOptions extends ComponentOptions {
-    anchor?: AnchorSpec
+    anchor?: AnchorSpec | Anchor
     anchors?:[ AnchorSpec, AnchorSpec ]
-    endpoint?: EndpointSpec
+    endpoint?: EndpointSpec | Endpoint
     enabled?: boolean;//= true
     paintStyle?: PaintStyle
     hoverPaintStyle?: PaintStyle
@@ -46,7 +49,7 @@ export interface EndpointOptions extends ComponentOptions {
 
     portId?:string
     uuid?:string
-    source?:string|any
+    source?:string|jsPlumbElement
 
     connections?:Array<Connection>
 

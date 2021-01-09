@@ -174,7 +174,7 @@ export class Endpoint extends OverlayCapableComponent {
         }
 
         let ep = params.endpoint || instance.Defaults.endpoint
-        this.setEndpoint(ep)
+        this.setEndpoint(ep as any)
         let anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (instance.Defaults.anchor || "Top")
         this.setAnchor(anchorParamsToUse, true)
 

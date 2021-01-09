@@ -50,7 +50,7 @@ import {consume, createElement, findParent} from "./browser-util"
 
 import {Drag} from "./collicat"
 
-function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint, referenceCanvas:HTMLElement, sourceElement:HTMLElement, instance:BrowserJsPlumbInstance, scope?:string) {
+function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint, referenceCanvas:HTMLElement, sourceElement:jsPlumbDOMElement, instance:BrowserJsPlumbInstance, scope?:string) {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas })
     //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
     // adding the floating endpoint as a droppable.  that makes more sense anyway!

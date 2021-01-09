@@ -842,7 +842,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param elements Array-like object of strings or DOM elements.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manageAll (elements:Array<string|jsPlumbElement>, recalc?:boolean):void {
+    manageAll (elements:Array<jsPlumbElement>, recalc?:boolean):void {
         for (let i = 0; i < elements.length; i++) {
             this.manage(elements[i], null, recalc)
         }
@@ -853,17 +853,21 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param element String, or DOM element.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage (element:string|jsPlumbElement, internalId?:string, recalc?:boolean):ManagedElement {
+    manage (element:jsPlumbElement, internalId?:string, recalc?:boolean):ManagedElement {
 
-        const el:any = IS.aString(element) ? this.getElementById(element as string) : element
-        const elId = this.getId(el)
+        if (this.getAttribute(element, "jsplumb-id") == null) {
+            internalId = internalId || uuid()
+            this.setAttribute(element, "jsplumb-id", internalId)
+        }
+
+        const elId = this.getId(element)
 
         if (!this._managedElements[elId]) {
 
-            this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "")
+            this.setAttribute(element, Constants.ATTRIBUTE_MANAGED, "")
 
             this._managedElements[elId] = {
-                el:el,
+                el:element,
                 endpoints:[],
                 connections:[],
                 rotation:0
@@ -874,15 +878,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
             } else {
                 this._managedElements[elId].info = this.updateOffset({elId: elId, recalc:true})
-            }
-
-            // write context into the element. we want to use this moving forward and get rid of endpointsByElement and the sizes, offsets and info stuff
-            // from above. it should suffice to put the context on the elements themselves.
-            el._jspContext = {
-                ep:[],
-                // o:this._offsets[elId],
-                // s:this._sizes[elId]
-
             }
 
         } else {
@@ -958,13 +953,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this._managedElements[elementId] ? (this._managedElements[elementId].rotation || 0) : 0
     }
 
-    newEndpoint(params:any, id?:string):Endpoint {
+    newEndpoint(params:EndpointOptions, id?:string):Endpoint {
         let _p = extend({}, params)
         _p.elementId = id || this.getId(_p.source)
 
         let ep = new Endpoint(this, _p)
         ep.id = "ep_" + this._idstamp()
-        this.manage(_p.source)
+        this.manage(this.getElement(_p.source))
 
         return ep
     }
@@ -1145,21 +1140,18 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    addEndpoint(el:string|any, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
+    addEndpoint(el:string|jsPlumbElement, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
         referenceParams = referenceParams || {} as EndpointOptions
         let p:EndpointOptions = extend({}, referenceParams)
         extend(p, params)
         p.endpoint = p.endpoint || this.Defaults.endpoint
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
-        let _p = extend({source:el}, p)
+        let _p:EndpointOptions = extend({source:el}, p)
         let id = this.getId(_p.source)
-        const mel:ManagedElement = this.manage(el, null, !this._suspendDrawing)
+        const mel:ManagedElement = this.manage(this.getElement(el), null, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
 
         addToList(this.endpointsByElement, id, e)
-
-        // store the endpoint directly on the element.
-        mel.el._jspContext.ep.push(e)
 
         if (!this._suspendDrawing) {
 

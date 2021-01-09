@@ -3276,7 +3276,7 @@ var testSuite = function () {
         equal(c.childNodes.length, 0, "container has no nodes");
         var d1 = support.addDiv("d1", c);
         equal(c.childNodes.length, 1, "container has one node");
-        _jsPlumb.manage("d1", d1);
+        _jsPlumb.manage(d1);
 
         // d2 has d1 as the parent so it should not end up having the container as its parent.
         var d2 = support.addDiv("d2", d1);
@@ -4823,7 +4823,7 @@ var testSuite = function () {
     test("Manage adds jtk-managed attribute", function() {
         var d1 = support.addDiv("d1"), f1 = false;
 
-        _jsPlumb.manage("d1", d1);
+        _jsPlumb.manage(d1);
         ok(d1.getAttribute("jtk-managed") != null, "d1 is marked jtk-managed");
 
 
