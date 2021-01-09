@@ -1,5 +1,5 @@
 import {EndpointOptions, EndpointSpec} from "../endpoint/endpoint"
-import {PointArray} from '../common'
+import {jsPlumbElement, PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
 import {makeAnchorFromSpec} from "../factory/anchor-factory"
 import {Anchor} from "../anchor/anchor"
@@ -47,7 +47,7 @@ export class Endpoint extends OverlayCapableComponent {
     connectorPointerEvents:string
     anchor:Anchor
     endpoint:EndpointRepresentation<any>
-    element:any
+    element:jsPlumbElement
     elementId:string
     dragAllowedWhenFull:boolean = true
     scope:string
