@@ -677,20 +677,17 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param spec An Element, or an element id, or an array of elements/element ids.
      * @param fn The function to run on each element.
      */
-    each(spec:string | Array<string|jsPlumbElement>, fn:(e:any) => any):JsPlumbInstance {
+    each(spec:jsPlumbElement | Array<jsPlumbElement>, fn:(e:jsPlumbElement) => any):JsPlumbInstance {
         if (spec == null) {
             return
         }
-        if (typeof spec === "string") {
-            fn(this.getElement(spec))
-        }
-        else if ((<any>spec).length != null) {
+        if ((<any>spec).length != null) {
             for (let i = 0; i < (<Array<any>>spec).length; i++) {
-                fn(this.getElement(spec[i]))
+                fn(spec[i])
             }
         }
         else {
-            fn(spec)
+            fn(spec as jsPlumbElement)
         } // assume it's an element.
 
         return this
