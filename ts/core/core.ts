@@ -1726,7 +1726,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
-    makeTarget (el:string|jsPlumbElement, params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
+    makeTarget (el:jsPlumbElement, params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
 
         // put jsplumb ref into params without altering the params passed in
         let p = extend({_jsPlumb: this}, referenceParams)
@@ -1735,22 +1735,18 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         let maxConnections = p.maxConnections || -1;//,
 
-        // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-        // and use the endpoint definition if found.
-        // decode the info for this element (id and element)
-        let elInfo = this.info(el),
-            dropOptions = extend({}, p.dropOptions || {})
+        let dropOptions = extend({}, p.dropOptions || {})
 
-        this.manage(elInfo.el)
-        this.setAttribute(elInfo.el, Constants.ATTRIBUTE_TARGET, "")
-        this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
-        this.setAttribute(elInfo.el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
+        this.manage(el)
+        this.setAttribute(el, Constants.ATTRIBUTE_TARGET, "")
+        this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
+        this.setAttribute(el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
 
-        elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []
+        el._jsPlumbTargetDefinitions = el._jsPlumbTargetDefinitions || []
 
         // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
         // precedence.
-        if (elInfo.el._jsPlumbGroup && dropOptions.rank == null) {
+        if (el._jsPlumbGroup && dropOptions.rank == null) {
             dropOptions.rank = -1
         }
 
@@ -1765,12 +1761,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         if (p.createEndpoint) {
             _def.uniqueEndpoint = true
-            _def.endpoint = this.addEndpoint(elInfo.el, _def.def)
+            _def.endpoint = this.addEndpoint(el, _def.def)
             _def.endpoint.deleteOnEmpty = false
         }
 
-        (elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions.push(_def)
-
+        el._jsPlumbTargetDefinitions.push(_def)
 
         return this
     }
