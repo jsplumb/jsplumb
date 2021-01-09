@@ -280,8 +280,7 @@ export class EndpointDragHandler implements DragHandler {
 
     private _cleanupDraggablePlaceholder() {
         if (this.placeholderInfo.element) {
-            this.instance.unmanage(this.placeholderInfo.id)
-            this.instance.removeElement(this.placeholderInfo.element)
+            this.instance.unmanage(this.placeholderInfo.element, true)
             delete this.placeholderInfo.element
             delete this.placeholderInfo.id
         }
