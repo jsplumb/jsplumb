@@ -588,7 +588,7 @@ var testSuite = function () {
     test(": _jsPlumb.makeSource (parameters)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"),
             params = { "foo": "foo" },
-            e16 = _jsPlumb.addEndpoint("d16", { parameters: params });
+            e16 = _jsPlumb.addEndpoint(d16, { parameters: params });
 
         _jsPlumb.makeSource(d17, {
             isSource: true,

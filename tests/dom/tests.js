@@ -60,7 +60,7 @@ var testSuite = function () {
 
     test(': create a simple endpoint with a scope and ensure the scope is written to the DOM', function () {
         var d1 = support.addDiv("d1");
-        var e = _jsPlumb.addEndpoint("d1", { scope:"one"});
+        var e = _jsPlumb.addEndpoint(d1, { scope:"one"});
         ok(e, 'endpoint exists');
         support.assertEndpointCount("d1", 1);
         ok(e.id != null, "endpoint has had an id assigned");
