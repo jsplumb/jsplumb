@@ -39,7 +39,7 @@ import * as Constants from "./constants"
 import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory"
 import { Anchor } from "./anchor/anchor"
 import {EndpointOptions} from "./endpoint/endpoint"
-import {GroupManager} from "./group/group-manager"
+import {AddGroupOptions, GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
 import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom"
 
@@ -1677,7 +1677,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
         this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
 
-        ;(elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions = (elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions || []
+        elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || []
 
         let _def:SourceDefinition = {
             def:extend({}, p),
@@ -1693,8 +1693,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
             _def.endpoint.deleteOnEmpty = false
         }
 
-        (<any>elInfo).def = _def
-        ;(elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions.push(_def)
+        elInfo.el._jsPlumbSourceDefinitions.push(_def)
 
         return this
     }
@@ -1760,11 +1759,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
         this.setAttribute(elInfo.el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
 
-        ;(elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions = (elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions || []
+        elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []
 
         // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
         // precedence.
-        if ((<any>elInfo.el)._isJsPlumbGroup && dropOptions.rank == null) {
+        if (elInfo.el._jsPlumbGroup && dropOptions.rank == null) {
             dropOptions.rank = -1
         }
 
@@ -2028,9 +2027,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
 // ------------------------ GROUPS --------------
 
-    getGroup(id:string) { return this.groupManager.getGroup(id); }
-    getGroupFor(el:any|string) { return this.groupManager.getGroupFor(el); }
-    addGroup(params:any) { return this.groupManager.addGroup(params); }
+    getGroup(groupId:string) { return this.groupManager.getGroup(groupId); }
+    getGroupFor(el:jsPlumbElement|string) { return this.groupManager.getGroupFor(el); }
+    addGroup(params:AddGroupOptions) { return this.groupManager.addGroup(params); }
     addToGroup(group:string | UIGroup, el:any | Array<any>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
 
     collapseGroup (group:string | UIGroup) { this.groupManager.collapseGroup(group); }
