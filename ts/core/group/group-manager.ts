@@ -648,7 +648,7 @@ export class GroupManager {
 
                     this._updateConnectionsForGroup(actualGroup)
 
-                    this.instance.revalidate(elId)
+                    this.instance.revalidate(el)
 
                     if (!doNotFireEvent) {
 
