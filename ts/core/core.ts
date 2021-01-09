@@ -1580,30 +1580,27 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return makeAnchorFromSpec(this, spec, elementId)
     }
 
-    private _unmake (type:string, key:string, el:string|jsPlumbElement, connectionType?:string) {
+    private _unmake (type:string, key:string, el:jsPlumbElement, connectionType?:string) {
 
         connectionType = connectionType || "*"
 
-        const info = this.info(el)
-        if (info.el) {
-            if (info.el[key]) {
-                if (connectionType === "*") {
-                    delete info.el[key]
-                    this.removeAttribute(info.el, "jtk-" + type)
-                } else {
-                    let t: Array<any> = []
-                    info.el[key].forEach((def: any) => {
-                        if (connectionType !== def.def.connectionType) {
-                            t.push(def)
-                        }
-                    })
-
-                    if (t.length > 0) {
-                        info.el[key] = t
-                    } else {
-                        delete info.el[key]
-                        this.removeAttribute(info.el, "jtk-" + type)
+        if (el[key]) {
+            if (connectionType === "*") {
+                delete el[key]
+                this.removeAttribute(el, "jtk-" + type)
+            } else {
+                let t: Array<any> = []
+                el[key].forEach((def: any) => {
+                    if (connectionType !== def.def.connectionType) {
+                        t.push(def)
                     }
+                })
+
+                if (t.length > 0) {
+                    el[key] = t
+                } else {
+                    delete el[key]
+                    this.removeAttribute(el, "jtk-" + type)
                 }
             }
         }
@@ -1617,12 +1614,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     // see api docs
-    unmakeTarget (el:string|jsPlumbElement, connectionType?:string) {
+    unmakeTarget (el:jsPlumbElement, connectionType?:string) {
         return this._unmake(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
     // see api docs
-    unmakeSource (el:string|jsPlumbElement, connectionType?:string) {
+    unmakeSource (el:jsPlumbElement, connectionType?:string) {
         return this._unmake(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
