@@ -147,8 +147,6 @@ export interface Dictionary<T> {
     [Key: string]: T
 }
 
-export type ElementSpec = string | any | Array<string | any>
-
 export type SortFunction<T> = (a:T,b:T) => number
 
 export type Constructable<T> = { new(...args: any[]): T }
