@@ -686,13 +686,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    setContainer(c: string | HTMLElement): void {
+    setContainer(newContainer: jsPlumbDOMElement): void {
         this._detachEventDelegates()
         if (this.dragManager != null) {
             this.dragManager.reset()
         }
-
-        const newContainer = this.getElement(c)
 
         this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", ""))
 
@@ -749,7 +747,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         super.unmanage(el, removeElement)
     }
 
-    addToDragSelection(...el:Array<string|HTMLElement>) {
+    addToDragSelection(...el:Array<string|jsPlumbDOMElement>) {
         el.forEach((_el) => this.elementDragHandler.addToDragSelection(_el))
     }
 
@@ -761,11 +759,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         el.forEach((_el) => this.elementDragHandler.removeFromDragSelection(_el))
     }
 
-    toggleDragSelection(...el:Array<string|HTMLElement>) {
+    toggleDragSelection(...el:Array<string|jsPlumbDOMElement>) {
         el.forEach((_el) => this.elementDragHandler.toggleDragSelection(_el))
     }
 
-    getDragSelection():Array<HTMLElement> {
+    getDragSelection():Array<jsPlumbDOMElement> {
         return this.elementDragHandler.getDragSelection()
     }
 
@@ -779,7 +777,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * given element(s) is "passive" and should only move when an active member of the posse is dragged.
      * @param els Elements to add to the posse.
      */
-    addToPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
+    addToPosse(spec:PosseSpec, ...els:Array<jsPlumbDOMElement>) {
         this.elementDragHandler.addToPosse(spec, ...els)
     }
 
@@ -788,7 +786,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * can only be in one posse anyway.
      * @param els Elements to remove from posses.
      */
-    removeFromPosse(...els:Array<HTMLElement>) {
+    removeFromPosse(...els:Array<jsPlumbDOMElement>) {
         this.elementDragHandler.removeFromPosse(...els)
     }
 
@@ -798,7 +796,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * @param state true for active, false for passive.
      * @param els
      */
-    setPosseState (state:boolean, ...els:Array<HTMLElement>) {
+    setPosseState (state:boolean, ...els:Array<jsPlumbDOMElement>) {
         this.elementDragHandler.setPosseState(state, ...els)
     }
 
@@ -826,7 +824,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     createDragManager(options:CollicatOptions):Collicat {
         return new Collicat(options)
     }
-
 
     rotate(elementId: string, rotation: number, doNotRepaint?: boolean):RedrawResult {
         if (this._managedElements[elementId]) {
