@@ -1140,7 +1140,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    addEndpoint(el:string|jsPlumbElement, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
+    addEndpoint(el:jsPlumbElement, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
         referenceParams = referenceParams || {} as EndpointOptions
         let p:EndpointOptions = extend({}, referenceParams)
         extend(p, params)
@@ -1148,7 +1148,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
         let _p:EndpointOptions = extend({source:el}, p)
         let id = this.getId(_p.source)
-        const mel:ManagedElement = this.manage(this.getElement(el), null, !this._suspendDrawing)
+        const mel:ManagedElement = this.manage(el, null, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
 
         addToList(this.endpointsByElement, id, e)
