@@ -49,7 +49,7 @@ export interface EndpointOptions extends ComponentOptions {
 
     portId?:string
     uuid?:string
-    source?:string|jsPlumbElement
+    source?:jsPlumbElement
 
     connections?:Array<Connection>
 
