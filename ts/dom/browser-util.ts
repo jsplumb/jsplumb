@@ -180,12 +180,12 @@ export function toggleClass(el:HTMLElement, clazz:string):void {
     }
 }
 
-export function createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string>):HTMLElement {
+export function createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string>):jsPlumbDOMElement {
     return createElementNS(null, tag, style, clazz, atts)
 }
 
-export function createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string|number>):HTMLElement {
-    let e = (ns == null ? document.createElement(tag) : document.createElementNS(ns, tag)) as HTMLElement
+export function createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string|number>):jsPlumbDOMElement{
+    let e = (ns == null ? document.createElement(tag) : document.createElementNS(ns, tag)) as jsPlumbDOMElement
     let i
 
     style = style || {}
