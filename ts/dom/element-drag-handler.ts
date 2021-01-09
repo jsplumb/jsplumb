@@ -349,7 +349,7 @@ export class ElementDragHandler implements DragHandler {
         return cont
     }
 
-    addToDragSelection(el:string|HTMLElement) {
+    addToDragSelection(el:string|jsPlumbDOMElement) {
 
         const candidate = (<unknown>this.instance.getElement(el)) as jsPlumbDOMElement
         if (this._dragSelection.indexOf(candidate) === -1) {
@@ -374,7 +374,7 @@ export class ElementDragHandler implements DragHandler {
         })
     }
 
-    toggleDragSelection(el:string|HTMLElement) {
+    toggleDragSelection(el:string|jsPlumbDOMElement) {
         const domElement = (<unknown>this.instance.getElement(el)) as jsPlumbDOMElement
         const isInSelection = this._dragSelection.indexOf(domElement) !== -1
         if (isInSelection) {
@@ -384,7 +384,7 @@ export class ElementDragHandler implements DragHandler {
         }
     }
 
-    getDragSelection():Array<HTMLElement> {
+    getDragSelection():Array<jsPlumbDOMElement> {
         return this._dragSelection
     }
 
@@ -400,7 +400,7 @@ export class ElementDragHandler implements DragHandler {
         }
     }
 
-    addToPosse(spec:PosseSpec, ...els:Array<HTMLElement>) {
+    addToPosse(spec:PosseSpec, ...els:Array<jsPlumbDOMElement>) {
 
         const details = ElementDragHandler.decodePosseSpec(spec)
         let posse = this._posseMap[details.id]
@@ -419,8 +419,8 @@ export class ElementDragHandler implements DragHandler {
         })
     }
 
-    removeFromPosse(...els:Array<HTMLElement>) {
-        els.forEach((el:HTMLElement) => {
+    removeFromPosse(...els:Array<jsPlumbDOMElement>) {
+        els.forEach((el:jsPlumbDOMElement) => {
             const id = this.instance.getId(el)
             const posse = this._posseByElementIdMap[id]
             if (posse != null) {
@@ -439,7 +439,7 @@ export class ElementDragHandler implements DragHandler {
         })
     }
 
-    setPosseState (state:boolean, ...els:Array<HTMLElement>) {
+    setPosseState (state:boolean, ...els:Array<jsPlumbDOMElement>) {
         const elementIds = els.map(el => el.getAttribute("id"))
         elementIds.forEach((id:string) => {
             optional<Posse>(this._posseByElementIdMap[id]).map(posse => {
