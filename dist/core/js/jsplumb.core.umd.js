@@ -3512,7 +3512,7 @@
         value: function replaceEndpoint(idx, endpointDef) {
           var current = this.endpoints[idx],
               elId = current.elementId,
-              ebe = this.instance.getEndpoints(elId),
+              ebe = this.instance.getEndpoints(current.element),
               _idx = ebe.indexOf(current),
               _new = this.prepareEndpoint(null, idx, current.element, elId, {
             endpoint: endpointDef
@@ -4875,29 +4875,25 @@
       }, {
         key: "getGroupFor",
         value: function getGroupFor(el) {
-          var info = this.instance.info(el);
+          var c = this.instance.getContainer();
+          var abort = false,
+              g = null;
 
-          if (info.el != null) {
-            var _el = info.el;
-            var c = this.instance.getContainer();
-            var abort = false,
-                _g = null;
-
-            while (!abort) {
-              if (_el == null || _el === c) {
+          while (!abort) {
+            if (el == null || el === c) {
+              abort = true;
+            } else {
+              if (el._jsPlumbParentGroup) {
+                g = el._jsPlumbParentGroup;
                 abort = true;
               } else {
-                if (_el._jsPlumbParentGroup) {
-                  _g = _el._jsPlumbParentGroup;
-                  abort = true;
-                } else {
-                  _el = _el.parentNode;
-                }
+                // TODO knows about the DOM.
+                el = el.parentNode;
               }
             }
-
-            return _g;
           }
+
+          return g;
         }
       }, {
         key: "getGroups",
@@ -4954,8 +4950,8 @@
       }, {
         key: "removeAllGroups",
         value: function removeAllGroups(deleteMembers, manipulateView, doNotFireEvent) {
-          for (var _g2 in this.groupMap) {
-            this.removeGroup(this.groupMap[_g2], deleteMembers, manipulateView, doNotFireEvent);
+          for (var _g in this.groupMap) {
+            this.removeGroup(this.groupMap[_g], deleteMembers, manipulateView, doNotFireEvent);
           }
         }
       }, {
@@ -5086,9 +5082,7 @@
             return true;
           } else {
             return false;
-          } // let groupEl = group.el, groupElId = this.instance.getId(groupEl)
-          // this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); })
-
+          }
         }
       }, {
         key: "_expandConnection",
@@ -5425,7 +5419,7 @@
 
                 _this8._updateConnectionsForGroup(actualGroup);
 
-                _this8.instance.revalidate(elId);
+                _this8.instance.revalidate(el);
 
                 if (!doNotFireEvent) {
                   // TODO fire a "child group added" event in that case?
@@ -8037,11 +8031,9 @@
             return;
           }
 
-          if (typeof spec === "string") {
-            fn(this.getElement(spec));
-          } else if (spec.length != null) {
+          if (spec.length != null) {
             for (var i = 0; i < spec.length; i++) {
-              fn(this.getElement(spec[i]));
+              fn(spec[i]);
             }
           } else {
             fn(spec);
@@ -8272,48 +8264,44 @@
         value: function unmanage(el, removeElement) {
           var _this3 = this;
 
-          var info = this.info(el),
-              affectedElements = [];
+          var affectedElements = [];
+          this.removeAllEndpoints(el, true, affectedElements);
 
-          if (info.id) {
-            this.removeAllEndpoints(info.id, true, affectedElements);
+          var _one = function _one(_el) {
+            var id = _this3.getId(_el);
 
-            var _one = function _one(_info) {
-              if (info.el != null) {
-                _this3.anchorManager.clearFor(_info.id);
+            _this3.anchorManager.clearFor(id);
 
-                _this3.anchorManager.removeFloatingConnection(_info.id);
+            _this3.anchorManager.removeFloatingConnection(id);
 
-                if (_this3.isSource(_info.el)) {
-                  _this3.unmakeSource(_info.el);
-                }
+            if (_this3.isSource(_el)) {
+              _this3.unmakeSource(_el);
+            }
 
-                if (_this3.isTarget(_info.el)) {
-                  _this3.unmakeTarget(_info.el);
-                }
+            if (_this3.isTarget(_el)) {
+              _this3.unmakeTarget(_el);
+            }
 
-                delete _this3._floatingConnections[_info.id];
+            delete _this3._floatingConnections[id];
 
-                _this3.removeAttribute(info.el, ATTRIBUTE_MANAGED);
+            _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
 
-                delete _this3._managedElements[_info.id];
+            delete _this3._managedElements[id];
 
-                _this3.viewport.remove(_info.id);
+            _this3.viewport.remove(id);
 
-                if (_info.el && removeElement) {
-                  _this3.removeElement(_info.el);
-                }
-              }
-            }; // remove all affected child elements
+            if (_el && removeElement) {
+              _this3.removeElement(_el);
+            }
+          }; // remove all affected child elements
 
 
-            for (var ae = 1; ae < affectedElements.length; ae++) {
-              _one(affectedElements[ae]);
-            } // and always remove the requested one from the dom.
+          for (var ae = 1; ae < affectedElements.length; ae++) {
+            _one(affectedElements[ae]);
+          } // and always remove the requested one from the dom.
 
 
-            _one(info);
-          }
+          _one(el);
         }
       }, {
         key: "rotate",
@@ -8323,7 +8311,7 @@
             this.viewport.rotateElement(elementId, rotation);
 
             if (doNotRepaint !== true) {
-              return this.revalidate(elementId);
+              return this.revalidate(this._managedElements[elementId].el);
             }
           }
 
@@ -8397,8 +8385,8 @@
         }
       }, {
         key: "revalidate",
-        value: function revalidate(el, timestamp, isIdAlready) {
-          var elId = isIdAlready ? el : this.getId(el);
+        value: function revalidate(el, timestamp) {
+          var elId = this.getId(el);
           this.updateOffset({
             elId: elId,
             recalc: true,
@@ -8583,7 +8571,7 @@
           }, p);
 
           var id = this.getId(_p.source);
-          var mel = this.manage(this.getElement(el), null, !this._suspendDrawing);
+          var mel = this.manage(el, null, !this._suspendDrawing);
           var e = this.newEndpoint(_p, id);
           addToList(this.endpointsByElement, id, e);
 
@@ -8662,7 +8650,7 @@
       }, {
         key: "getEndpoints",
         value: function getEndpoints(el) {
-          return this.endpointsByElement[this.info(el).id] || [];
+          return this.endpointsByElement[this.getId(el)] || [];
         }
       }, {
         key: "getEndpoint",
@@ -8713,16 +8701,12 @@
           if (_p.source) {
             if (_p.source.endpoint) {
               _p.sourceEndpoint = _p.source;
-            } else {
-              _p.source = this.getElement(_p.source);
             }
           }
 
           if (_p.target) {
             if (_p.target.endpoint) {
               _p.targetEndpoint = _p.target;
-            } else {
-              _p.target = this.getElement(_p.target);
             }
           } // test for endpoint uuids to connect
 
@@ -8915,25 +8899,25 @@
           affectedElements = affectedElements || [];
 
           var _one = function _one(_el) {
-            var info = _this7.info(_el),
-                ebe = _this7.endpointsByElement[info.id],
+            var id = _this7.getId(_el),
+                ebe = _this7.endpointsByElement[id],
                 i,
                 ii;
 
             if (ebe) {
-              affectedElements.push(info);
+              affectedElements.push(_el);
 
               for (i = 0, ii = ebe.length; i < ii; i++) {
                 _this7.deleteEndpoint(ebe[i]);
               }
             }
 
-            delete _this7.endpointsByElement[info.id]; // TODO DOM specific
+            delete _this7.endpointsByElement[id]; // TODO DOM specific
 
             if (recurse) {
-              if (info.el && info.el.nodeType !== 3 && info.el.nodeType !== 8) {
-                for (i = 0, ii = info.el.childNodes.length; i < ii; i++) {
-                  _one(info.el.childNodes[i]);
+              if (_el && _el.nodeType !== 3 && _el.nodeType !== 8) {
+                for (i = 0, ii = _el.childNodes.length; i < ii; i++) {
+                  if (_el.childNodes[i].nodeType !== 3 && _el.childNodes[i].nodeType !== 8) _one(_el.childNodes[i]);
                 }
               }
             }
@@ -8952,28 +8936,24 @@
               newState,
               os;
           connectionType = connectionType || DEFAULT;
-          var info = this.info(el);
+          var defs = type === SOURCE ? el._jsPlumbSourceDefinitions : el._jsPlumbTargetDefinitions;
 
-          if (info.el) {
-            var defs = type === SOURCE ? info.el._jsPlumbSourceDefinitions : info.el._jsPlumbTargetDefinitions;
+          if (defs) {
+            defs.forEach(function (def) {
+              if (def.def.connectionType == null || def.def.connectionType === connectionType) {
+                os = def.enabled;
+                originalState.push(os);
+                newState = toggle ? !os : state;
+                def.enabled = newState;
+                var cls = ["jtk", type, "disabled"].join("-");
 
-            if (defs) {
-              defs.forEach(function (def) {
-                if (def.def.connectionType == null || def.def.connectionType === connectionType) {
-                  os = def.enabled;
-                  originalState.push(os);
-                  newState = toggle ? !os : state;
-                  def.enabled = newState;
-                  var cls = ["jtk", type, "disabled"].join("-");
-
-                  if (newState) {
-                    _this8.removeClass(info.el, cls);
-                  } else {
-                    _this8.addClass(info.el, cls);
-                  }
+                if (newState) {
+                  _this8.removeClass(el, cls);
+                } else {
+                  _this8.addClass(el, cls);
                 }
-              });
-            }
+              }
+            });
           }
 
           return originalState.length > 1 ? originalState : originalState[0];
@@ -9006,22 +8986,16 @@
           if (el == null) {
             return null;
           } else {
-            var info = this.info(el);
+            var eldefs = el[key];
 
-            if (info.el) {
-              var eldefs = info.el[key];
+            if (eldefs && eldefs.length > 0) {
+              var idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
+                return d.def.connectionType === connectionType;
+              });
 
-              if (eldefs && eldefs.length > 0) {
-                var idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
-                  return d.def.connectionType === connectionType;
-                });
-
-                if (idx >= 0) {
-                  return eldefs[0];
-                }
+              if (idx >= 0) {
+                return eldefs[0];
               }
-            } else {
-              return null;
             }
           }
         }
@@ -9069,27 +9043,24 @@
         key: "_unmake",
         value: function _unmake(type, key, el, connectionType) {
           connectionType = connectionType || "*";
-          var info = this.info(el);
 
-          if (info.el) {
-            if (info.el[key]) {
-              if (connectionType === "*") {
-                delete info.el[key];
-                this.removeAttribute(info.el, "jtk-" + type);
-              } else {
-                var _t2 = [];
-                info.el[key].forEach(function (def) {
-                  if (connectionType !== def.def.connectionType) {
-                    _t2.push(def);
-                  }
-                });
-
-                if (_t2.length > 0) {
-                  info.el[key] = _t2;
-                } else {
-                  delete info.el[key];
-                  this.removeAttribute(info.el, "jtk-" + type);
+          if (el[key]) {
+            if (connectionType === "*") {
+              delete el[key];
+              this.removeAttribute(el, "jtk-" + type);
+            } else {
+              var _t2 = [];
+              el[key].forEach(function (def) {
+                if (connectionType !== def.def.connectionType) {
+                  _t2.push(def);
                 }
+              });
+
+              if (_t2.length > 0) {
+                el[key] = _t2;
+              } else {
+                delete el[key];
+                this.removeAttribute(el, "jtk-" + type);
               }
             }
           }
@@ -9135,7 +9106,7 @@
           for (var i = 0; i < scopes.length; i++) {
             this.setAttribute(el, "jtk-scope-" + scopes[i], "");
           }
-        } // TODO knows about the DOM
+        } // TODO knows about the DOM (? does it?)
 
       }, {
         key: "makeSource",
@@ -9149,17 +9120,13 @@
           p.endpoint = p.endpoint || aae.endpoints[0];
           p.anchor = p.anchor || aae.anchors[0];
           var maxConnections = p.maxConnections || -1;
-          var elInfo = this.info(el); // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-          // and use the endpoint definition if found.
+          this.manage(el);
+          this.setAttribute(el, ATTRIBUTE_SOURCE, "");
 
-          var _del = elInfo.el;
-          this.manage(_del);
-          this.setAttribute(_del, ATTRIBUTE_SOURCE, "");
+          this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
 
-          this._writeScopeAttribute(elInfo.el, p.scope || this.Defaults.scope);
-
-          this.setAttribute(_del, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
-          elInfo.el._jsPlumbSourceDefinitions = elInfo.el._jsPlumbSourceDefinitions || [];
+          this.setAttribute(el, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
+          el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || [];
           var _def = {
             def: extend({}, p),
             uniqueEndpoint: p.uniqueEndpoint,
@@ -9170,21 +9137,19 @@
 
           if (p.createEndpoint) {
             _def.uniqueEndpoint = true;
-            _def.endpoint = this.addEndpoint(_del, _def.def);
+            _def.endpoint = this.addEndpoint(el, _def.def);
             _def.endpoint.deleteOnEmpty = false;
           }
 
-          elInfo.el._jsPlumbSourceDefinitions.push(_def);
+          el._jsPlumbSourceDefinitions.push(_def);
 
           return this;
         }
       }, {
         key: "_getScope",
         value: function _getScope(el, defKey) {
-          var elInfo = this.info(el);
-
-          if (elInfo.el && elInfo.el[defKey] && elInfo.el[defKey].length > 0) {
-            return elInfo.el[defKey][0].def.scope;
+          if (el[defKey] && el[defKey].length > 0) {
+            return el[defKey][0].def.scope;
           } else {
             return null;
           }
@@ -9207,10 +9172,8 @@
       }, {
         key: "_setScope",
         value: function _setScope(el, scope, defKey) {
-          var elInfo = this.info(el);
-
-          if (elInfo.el && elInfo.el[defKey]) {
-            elInfo.el[defKey].forEach(function (def) {
+          if (el[defKey]) {
+            el[defKey].forEach(function (def) {
               return def.def.scope = scope;
             });
           }
@@ -9242,22 +9205,18 @@
           extend(p, params);
           p.connectionType = p.connectionType || DEFAULT;
           var maxConnections = p.maxConnections || -1; //,
-          // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-          // and use the endpoint definition if found.
-          // decode the info for this element (id and element)
 
-          var elInfo = this.info(el),
-              dropOptions = extend({}, p.dropOptions || {});
-          this.manage(elInfo.el);
-          this.setAttribute(elInfo.el, ATTRIBUTE_TARGET, "");
+          var dropOptions = extend({}, p.dropOptions || {});
+          this.manage(el);
+          this.setAttribute(el, ATTRIBUTE_TARGET, "");
 
-          this._writeScopeAttribute(elInfo.el, p.scope || this.Defaults.scope);
+          this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
 
-          this.setAttribute(elInfo.el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
-          elInfo.el._jsPlumbTargetDefinitions = elInfo.el._jsPlumbTargetDefinitions || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
+          this.setAttribute(el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
+          el._jsPlumbTargetDefinitions = el._jsPlumbTargetDefinitions || []; // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
           // precedence.
 
-          if (elInfo.el._jsPlumbGroup && dropOptions.rank == null) {
+          if (el._jsPlumbGroup && dropOptions.rank == null) {
             dropOptions.rank = -1;
           } // store the definition
 
@@ -9272,27 +9231,23 @@
 
           if (p.createEndpoint) {
             _def.uniqueEndpoint = true;
-            _def.endpoint = this.addEndpoint(elInfo.el, _def.def);
+            _def.endpoint = this.addEndpoint(el, _def.def);
             _def.endpoint.deleteOnEmpty = false;
           }
 
-          elInfo.el._jsPlumbTargetDefinitions.push(_def);
+          el._jsPlumbTargetDefinitions.push(_def);
 
           return this;
         }
       }, {
         key: "show",
         value: function show(el, changeEndpoints) {
-          this._setVisible(el, BLOCK, changeEndpoints);
-
-          return this;
+          return this._setVisible(el, BLOCK, changeEndpoints);
         }
       }, {
         key: "hide",
         value: function hide(el, changeEndpoints) {
-          this._setVisible(el, NONE, changeEndpoints);
-
-          return this;
+          return this._setVisible(el, NONE, changeEndpoints);
         }
       }, {
         key: "_setVisible",
@@ -9306,13 +9261,13 @@
             };
           }
 
-          var info = this.info(el);
+          var id = this.getId(el);
 
-          this._operation(info.id, function (jpc) {
+          this._operation(el, function (jpc) {
             if (visible && alsoChangeEndpoints) {
               // this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
               // this block will only set a connection to be visible if the other endpoint in the connection is also visible.
-              var oidx = jpc.sourceId === info.id ? 1 : 0;
+              var oidx = jpc.sourceId === id ? 1 : 0;
 
               if (jpc.endpoints[oidx].isVisible()) {
                 jpc.setVisible(true);
@@ -9322,6 +9277,8 @@
               jpc.setVisible(visible);
             }
           }, endpointFunc);
+
+          return this;
         }
         /**
          * private method to do the business of toggling hiding/showing.
@@ -9329,7 +9286,7 @@
 
       }, {
         key: "toggleVisible",
-        value: function toggleVisible(elId, changeEndpoints) {
+        value: function toggleVisible(el, changeEndpoints) {
           var endpointFunc = null;
 
           if (changeEndpoints) {
@@ -9339,14 +9296,15 @@
             };
           }
 
-          this._operation(elId, function (jpc) {
+          this._operation(el, function (jpc) {
             var state = jpc.isVisible();
             jpc.setVisible(!state);
           }, endpointFunc);
         }
       }, {
         key: "_operation",
-        value: function _operation(elId, func, endpointFunc) {
+        value: function _operation(el, func, endpointFunc) {
+          var elId = this.getId(el);
           var endpoints = this.endpointsByElement[elId];
 
           if (endpoints && endpoints.length) {

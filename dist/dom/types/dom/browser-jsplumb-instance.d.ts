@@ -165,10 +165,10 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     setContainer(c: string | HTMLElement): void;
     reset(silently?: boolean): void;
     destroy(): void;
-    unmanage(el: any | string, removeElement?: boolean): void;
+    unmanage(el: jsPlumbDOMElement, removeElement?: boolean): void;
     addToDragSelection(...el: Array<string | HTMLElement>): void;
     clearDragSelection(): void;
-    removeFromDragSelection(...el: Array<string | HTMLElement>): void;
+    removeFromDragSelection(...el: Array<jsPlumbDOMElement>): void;
     toggleDragSelection(...el: Array<string | HTMLElement>): void;
     getDragSelection(): Array<HTMLElement>;
     /**

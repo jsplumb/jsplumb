@@ -1,4 +1,5 @@
 import { EndpointOptions, EndpointSpec } from "../endpoint/endpoint";
+import { jsPlumbElement } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Anchor } from "../anchor/anchor";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
@@ -21,7 +22,7 @@ export declare class Endpoint extends OverlayCapableComponent {
     connectorPointerEvents: string;
     anchor: Anchor;
     endpoint: EndpointRepresentation<any>;
-    element: any;
+    element: jsPlumbElement;
     elementId: string;
     dragAllowedWhenFull: boolean;
     scope: string;

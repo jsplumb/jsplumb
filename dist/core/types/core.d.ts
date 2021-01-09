@@ -3,13 +3,13 @@ import { Connection } from "./connector/connection-impl";
 import { Endpoint } from "./endpoint/endpoint-impl";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorManager, AnchorPlacement, RedrawResult } from "./anchor-manager";
-import { Dictionary, ElementSpec, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
+import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
 SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";
 import { AnchorSpec } from "./factory/anchor-factory";
 import { Anchor } from "./anchor/anchor";
 import { EndpointOptions } from "./endpoint/endpoint";
-import { GroupManager } from "./group/group-manager";
+import { AddGroupOptions, GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
 import { jsPlumbGeometryHelpers } from "./geom";
 import { Router } from "./router/router";
@@ -130,14 +130,13 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     setZoom(z: number, repaintEverything?: boolean): boolean;
     getZoom(): number;
     info(el: string | any): {
-        el: any;
+        el: jsPlumbElement;
         text?: boolean;
         id?: string;
     };
     _idstamp(): string;
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
-    getInternalId(element: jsPlumbElement): string;
     getId(element: string | any, uuid?: string): string;
     /**
      * Set the id of the given element. Changes all the refs etc.
@@ -179,7 +178,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param spec An Element, or an element id, or an array of elements/element ids.
      * @param fn The function to run on each element.
      */
-    each(spec: ElementSpec, fn: (e: any) => any): JsPlumbInstance;
+    each(spec: jsPlumbElement | Array<jsPlumbElement>, fn: (e: jsPlumbElement) => any): JsPlumbInstance;
     /**
      * Update the cached offset information for some element.
      * @param params
@@ -201,25 +200,25 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param elements Array-like object of strings or DOM elements.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manageAll(elements: any, recalc?: boolean): void;
+    manageAll(elements: Array<jsPlumbElement>, recalc?: boolean): void;
     /**
      * Manage an element.
      * @param element String, or DOM element.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage(element: ElementSpec, recalc?: boolean): ManagedElement;
+    manage(element: jsPlumbElement, internalId?: string, recalc?: boolean): ManagedElement;
     /**
      * Stops managing the given element.
      * @param el Element, or ID of the element to stop managing.
      */
-    unmanage(el: any | string, removeElement?: boolean): void;
+    unmanage(el: jsPlumbElement, removeElement?: boolean): void;
     rotate(elementId: string, rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
-    newEndpoint(params: any, id?: string): Endpoint;
+    newEndpoint(params: EndpointOptions, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
     getAllConnections(): Array<Connection>;
     repaint(el: string | any, ui?: any, timestamp?: string): RedrawResult;
-    revalidate(el: string | any, timestamp?: string, isIdAlready?: boolean): RedrawResult;
+    revalidate(el: jsPlumbElement, timestamp?: string): RedrawResult;
     repaintEverything(): JsPlumbInstance;
     /**
      * for some given element, find any other elements we want to draw whenever that element
@@ -232,57 +231,57 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
-    addEndpoint(el: string | any, params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
-    addEndpoints(el: any, endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;
+    addEndpoint(el: jsPlumbElement, params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
+    addEndpoints(el: jsPlumbElement, endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;
     reset(silently?: boolean): void;
     uuid(): string;
     rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];
     rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
     destroy(): void;
-    getEndpoints(el: string | any): Array<Endpoint>;
+    getEndpoints(el: jsPlumbElement): Array<Endpoint>;
     getEndpoint(id: string): Endpoint;
     connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
     private _prepareConnectionParams;
     _newConnection(params: any): Connection;
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event, doInformAnchorManager?: boolean): void;
-    removeAllEndpoints(el: string | any, recurse?: boolean, affectedElements?: Array<any>): JsPlumbInstance;
+    removeAllEndpoints(el: jsPlumbElement, recurse?: boolean, affectedElements?: Array<jsPlumbElement>): JsPlumbInstance;
     private _setEnabled;
-    toggleSourceEnabled(el: any, connectionType?: string): any;
-    setSourceEnabled(el: ElementSpec, state: boolean, connectionType?: string): any;
-    findFirstSourceDefinition(el: any, connectionType?: string): SourceDefinition;
-    findFirstTargetDefinition(el: any, connectionType?: string): TargetDefinition;
+    toggleSourceEnabled(el: jsPlumbElement, connectionType?: string): any;
+    setSourceEnabled(el: jsPlumbElement, state: boolean, connectionType?: string): any;
+    findFirstSourceDefinition(el: jsPlumbElement, connectionType?: string): SourceDefinition;
+    findFirstTargetDefinition(el: jsPlumbElement, connectionType?: string): TargetDefinition;
     private findFirstDefinition;
-    isSource(el: any, connectionType?: string): any;
-    isSourceEnabled(el: any, connectionType?: string): boolean;
-    toggleTargetEnabled(el: any, connectionType?: string): any;
-    isTarget(el: any, connectionType?: string): boolean;
-    isTargetEnabled(el: any, connectionType?: string): boolean;
-    setTargetEnabled(el: any, state: boolean, connectionType?: string): any;
+    isSource(el: jsPlumbElement, connectionType?: string): any;
+    isSourceEnabled(el: jsPlumbElement, connectionType?: string): boolean;
+    toggleTargetEnabled(el: jsPlumbElement, connectionType?: string): any;
+    isTarget(el: jsPlumbElement, connectionType?: string): boolean;
+    isTargetEnabled(el: jsPlumbElement, connectionType?: string): boolean;
+    setTargetEnabled(el: jsPlumbElement, state: boolean, connectionType?: string): any;
     makeAnchor(spec: AnchorSpec, elementId?: string): Anchor;
     private _unmake;
     private _unmakeEvery;
-    unmakeTarget(el: any, connectionType?: string): void;
-    unmakeSource(el: any, connectionType?: string): void;
+    unmakeTarget(el: jsPlumbElement, connectionType?: string): void;
+    unmakeSource(el: jsPlumbElement, connectionType?: string): void;
     unmakeEverySource(connectionType?: string): void;
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
-    makeSource(el: ElementSpec, params?: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
+    makeSource(el: jsPlumbElement, params?: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
     private _getScope;
-    getSourceScope(el: any | string): string;
-    getTargetScope(el: any | string): string;
-    getScope(el: any | string): string;
+    getSourceScope(el: jsPlumbElement): string;
+    getTargetScope(el: jsPlumbElement): string;
+    getScope(el: jsPlumbElement): string;
     private _setScope;
-    setSourceScope(el: any | string, scope: string): void;
-    setTargetScope(el: any | string, scope: string): void;
-    setScope(el: any | string, scope: string): void;
-    makeTarget(el: ElementSpec, params: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
-    show(el: string | any, changeEndpoints?: boolean): JsPlumbInstance;
-    hide(el: string | any, changeEndpoints?: boolean): JsPlumbInstance;
+    setSourceScope(el: jsPlumbElement, scope: string): void;
+    setTargetScope(el: jsPlumbElement, scope: string): void;
+    setScope(el: jsPlumbElement, scope: string): void;
+    makeTarget(el: jsPlumbElement, params: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
+    show(el: jsPlumbElement, changeEndpoints?: boolean): JsPlumbInstance;
+    hide(el: jsPlumbElement, changeEndpoints?: boolean): JsPlumbInstance;
     private _setVisible;
     /**
      * private method to do the business of toggling hiding/showing.
      */
-    toggleVisible(elId: string, changeEndpoints?: boolean): void;
+    toggleVisible(el: jsPlumbElement, changeEndpoints?: boolean): void;
     private _operation;
     registerConnectionType(id: string, type: TypeDescriptor): void;
     registerConnectionTypes(types: Dictionary<TypeDescriptor>): void;
@@ -292,12 +291,12 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     importDefaults(d: jsPlumbDefaults): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;
     getManagedElements(): Dictionary<ManagedElement>;
-    proxyConnection(connection: Connection, index: number, proxyEl: any, proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
+    proxyConnection(connection: Connection, index: number, proxyEl: jsPlumbElement, proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
     unproxyConnection(connection: Connection, index: number, proxyElId: string): void;
     sourceOrTargetChanged(originalId: string, newId: string, connection: any, newElement: any, index: number): void;
-    getGroup(id: string): UIGroup;
-    getGroupFor(el: any | string): UIGroup;
-    addGroup(params: any): UIGroup;
+    getGroup(groupId: string): UIGroup;
+    getGroupFor(el: jsPlumbElement): UIGroup;
+    addGroup(params: AddGroupOptions): UIGroup;
     addToGroup(group: string | UIGroup, el: any | Array<any>, doNotFireEvent?: boolean): void;
     collapseGroup(group: string | UIGroup): void;
     expandGroup(group: string | UIGroup): void;

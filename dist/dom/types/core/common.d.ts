@@ -19,8 +19,8 @@ export interface jsPlumbElement {
 }
 export interface ConnectParams {
     uuids?: [UUID, UUID];
-    source?: ElementRef | Endpoint;
-    target?: ElementRef | Endpoint;
+    source?: jsPlumbElement | Endpoint;
+    target?: jsPlumbElement | Endpoint;
     detachable?: boolean;
     deleteEndpointsOnDetach?: boolean;
     endpoint?: EndpointSpec;
@@ -151,7 +151,6 @@ export interface ExtendedOffset extends Offset {
 export interface Dictionary<T> {
     [Key: string]: T;
 }
-export declare type ElementSpec = string | any | Array<string | any>;
 export declare type SortFunction<T> = (a: T, b: T) => number;
 export declare type Constructable<T> = {
     new (...args: any[]): T;

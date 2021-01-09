@@ -170,26 +170,25 @@ export class GroupManager {
         return group as UIGroup
     }
 
-    getGroupFor(el:jsPlumbElement|string):UIGroup {
-        const info = this.instance.info(el)
-        if (info.el != null) {
-            let _el = info.el
-            const c = this.instance.getContainer()
-            let abort = false, g = null
-            while (!abort) {
-                if (_el == null || _el === c) {
+    getGroupFor(el:jsPlumbElement):UIGroup {
+
+        const c = this.instance.getContainer()
+        let abort = false, g = null
+        while (!abort) {
+            if (el == null || el === c) {
+                abort = true
+            } else {
+                if (el._jsPlumbParentGroup) {
+                    g = el._jsPlumbParentGroup
                     abort = true
                 } else {
-                    if (_el._jsPlumbParentGroup) {
-                        g = _el._jsPlumbParentGroup
-                        abort = true
-                    } else {
-                        _el = (_el as any).parentNode
-                    }
+                    // TODO knows about the DOM.
+                    el = (el as any).parentNode
                 }
             }
-            return g
         }
+        return g
+
     }
 
     getGroups():Array<UIGroup> {
@@ -348,9 +347,6 @@ export class GroupManager {
         } else {
             return false
         }
-
-        // let groupEl = group.el, groupElId = this.instance.getId(groupEl)
-        // this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); })
     }
 
     private _expandConnection(c:Connection, index:number, group:UIGroup) {

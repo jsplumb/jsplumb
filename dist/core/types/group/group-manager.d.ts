@@ -1,6 +1,11 @@
-import { Dictionary, Offset } from '../common';
+import { Dictionary, jsPlumbElement, Offset } from '../common';
 import { JsPlumbInstance } from "../core";
 import { UIGroup } from "./group";
+export interface AddGroupOptions {
+    id: string;
+    el: any;
+    collapsed?: boolean;
+}
 export declare class GroupManager {
     instance: JsPlumbInstance;
     groupMap: Dictionary<UIGroup>;
@@ -8,13 +13,9 @@ export declare class GroupManager {
     _connectionTargetMap: Dictionary<UIGroup>;
     constructor(instance: JsPlumbInstance);
     private _cleanupDetachedConnection;
-    addGroup(params: {
-        id: string;
-        el: any;
-        collapsed?: boolean;
-    }): UIGroup;
+    addGroup(params: AddGroupOptions): UIGroup;
     getGroup(groupId: string | UIGroup): UIGroup;
-    getGroupFor(el: any | string): UIGroup;
+    getGroupFor(el: jsPlumbElement): UIGroup;
     getGroups(): Array<UIGroup>;
     removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
