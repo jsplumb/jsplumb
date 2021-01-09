@@ -937,7 +937,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
             this._managedElements[elementId].rotation = rotation
             this.viewport.rotateElement(elementId, rotation)
             if (doNotRepaint !== true) {
-                return this.revalidate(elementId)
+                return this.revalidate(this._managedElements[elementId].el)
             }
         }
 
@@ -990,9 +990,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this._draw(el, ui, timestamp)
     }
 
-    revalidate (el:string | any, timestamp?:string, isIdAlready?:boolean):RedrawResult {
-
-        let elId = isIdAlready ? el as string : this.getId(el)
+    revalidate (el:jsPlumbElement, timestamp?:string):RedrawResult {
+        let elId = this.getId(el)
         this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp })
         return this.repaint(el)
     }
