@@ -20,7 +20,6 @@ import {
 
 import {
     Dictionary,
-    ElementSpec,
     UpdateOffsetOptions,
     Offset,
     Size,
@@ -686,7 +685,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param spec An Element, or an element id, or an array of elements/element ids.
      * @param fn The function to run on each element.
      */
-    each(spec:ElementSpec, fn:(e:any) => any):JsPlumbInstance {
+    each(spec:string | Array<string|jsPlumbElement>, fn:(e:any) => any):JsPlumbInstance {
         if (spec == null) {
             return
         }
@@ -851,9 +850,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param elements Array-like object of strings or DOM elements.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manageAll (elements:any, recalc?:boolean):void {
+    manageAll (elements:Array<string|jsPlumbElement>, recalc?:boolean):void {
         for (let i = 0; i < elements.length; i++) {
-            this.manage(elements[i], recalc)
+            this.manage(elements[i], null, recalc)
         }
     }
 
@@ -862,10 +861,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param element String, or DOM element.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage (element:ElementSpec, recalc?:boolean):ManagedElement {
+    manage (element:string|jsPlumbElement, internalId?:string, recalc?:boolean):ManagedElement {
 
         const el:any = IS.aString(element) ? this.getElementById(element as string) : element
         const elId = this.getId(el)
+
         if (!this._managedElements[elId]) {
 
             this.setAttribute(el, Constants.ATTRIBUTE_MANAGED, "")
@@ -1161,7 +1161,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
         let _p = extend({source:el}, p)
         let id = this.getId(_p.source)
-        const mel:ManagedElement = this.manage(el, !this._suspendDrawing)
+        const mel:ManagedElement = this.manage(el, null, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
 
         addToList(this.endpointsByElement, id, e)
@@ -1504,87 +1504,93 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    private _setEnabled (type:string, el:ElementSpec, state:boolean, toggle?:boolean, connectionType?:string):any {
+    private _setEnabled (type:string, el:string|jsPlumbElement, state:boolean, toggle?:boolean, connectionType?:string):any {
         let originalState:Array<any> = [], newState, os
 
         connectionType = connectionType || Constants.DEFAULT
 
-        this.each(el, (_el:any) => {
-            let defs = _el[type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST]
+        const info = this.info(el)
+        if (info.el) {
+            let defs = info.el[type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST]
             if (defs) {
-                this.each(defs, (def:SourceOrTargetDefinition) =>{
+                this.each(defs, (def: SourceOrTargetDefinition) => {
                     if (def.def.connectionType == null || def.def.connectionType === connectionType) {
                         os = def.enabled
                         originalState.push(os)
                         newState = toggle ? !os : state
                         def.enabled = newState
-                        this[newState ? "removeClass" : "addClass"](_el, "jtk-" + type + "-disabled")
+                        this[newState ? "removeClass" : "addClass"](info.el, "jtk-" + type + "-disabled")
                     }
                 })
             }
-        })
+        }
 
         return originalState.length > 1 ? originalState : originalState[0]
 
     }
 
-    toggleSourceEnabled (el:any, connectionType?:string):any {
+    toggleSourceEnabled (el:string|jsPlumbElement, connectionType?:string):any {
         this._setEnabled(Constants.SOURCE, el, null, true, connectionType)
         return this.isSourceEnabled(el, connectionType)
     }
 
-    setSourceEnabled (el:ElementSpec, state:boolean, connectionType?:string):any {
+    setSourceEnabled (el:string|jsPlumbElement, state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.SOURCE, el, state, null, connectionType)
     }
 
-    findFirstSourceDefinition(el:any, connectionType?:string):SourceDefinition {
+    findFirstSourceDefinition(el:string | jsPlumbElement, connectionType?:string):SourceDefinition {
         return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
-    findFirstTargetDefinition(el:any, connectionType?:string):TargetDefinition {
+    findFirstTargetDefinition(el:string | jsPlumbElement, connectionType?:string):TargetDefinition {
         return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
-    private findFirstDefinition<T>(key:string, el:any, connectionType?:string):T {
+    private findFirstDefinition<T>(key:string, el:string | jsPlumbElement, connectionType?:string):T {
         if (el == null) {
             return null
         } else {
-            const eldefs = el[key]
-            if (eldefs && eldefs.length > 0) {
-                let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d: any) => {
-                    return d.def.connectionType === connectionType
-                })
-                if (idx >= 0) {
-                    return eldefs[0]
+            const info = this.info(el)
+            if (info.el) {
+                const eldefs = info.el[key]
+                if (eldefs && eldefs.length > 0) {
+                    let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d: any) => {
+                        return d.def.connectionType === connectionType
+                    })
+                    if (idx >= 0) {
+                        return eldefs[0]
+                    }
                 }
+            } else {
+                return null
             }
         }
     }
 
-    isSource (el:any, connectionType?:string):any {
+    isSource (el:string|jsPlumbElement, connectionType?:string):any {
         return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null
     }
 
-    isSourceEnabled (el:any, connectionType?:string):boolean {
+    isSourceEnabled (el:string|jsPlumbElement, connectionType?:string):boolean {
         let def = this.findFirstSourceDefinition(el, connectionType)
         return def != null && def.enabled !== false
     }
 
-    toggleTargetEnabled(el:any, connectionType?:string):any {
+    toggleTargetEnabled(el:string|jsPlumbElement, connectionType?:string):any {
         this._setEnabled(Constants.TARGET, el, null, true, connectionType)
         return this.isTargetEnabled(el, connectionType)
     }
 
-    isTarget(el:any, connectionType?:string):boolean {
+    isTarget(el:string|jsPlumbElement, connectionType?:string):boolean {
         return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null
     }
 
-    isTargetEnabled (el:any, connectionType?:string):boolean {
+    isTargetEnabled (el:string|jsPlumbElement, connectionType?:string):boolean {
         let def = this.findFirstTargetDefinition(el, connectionType)
         return def != null && def.enabled !== false
     }
 
-    setTargetEnabled(el:any, state:boolean, connectionType?:string):any {
+    setTargetEnabled(el:string|jsPlumbElement, state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.TARGET, el, state, null, connectionType)
     }
 
@@ -1593,32 +1599,33 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return makeAnchorFromSpec(this, spec, elementId)
     }
 
-    private _unmake (type:string, key:string, el:ElementSpec, connectionType?:string) {
+    private _unmake (type:string, key:string, el:string|jsPlumbElement, connectionType?:string) {
 
         connectionType = connectionType || "*"
 
-        this.each(el, (_el:any) => {
-            if (_el[key]) {
+        const info = this.info(el)
+        if (info.el) {
+            if (info.el[key]) {
                 if (connectionType === "*") {
-                    delete _el[key]
-                    this.removeAttribute(_el, "jtk-" + type)
+                    delete info.el[key]
+                    this.removeAttribute(info.el, "jtk-" + type)
                 } else {
-                    let t:Array<any> = []
-                    _el[key].forEach((def:any) => {
+                    let t: Array<any> = []
+                    info.el[key].forEach((def: any) => {
                         if (connectionType !== def.def.connectionType) {
                             t.push(def)
                         }
                     })
 
                     if (t.length > 0) {
-                        _el[key] = t
+                        info.el[key] = t
                     } else {
-                        delete _el[key]
-                        this.removeAttribute(_el, "jtk-" + type)
+                        delete info.el[key]
+                        this.removeAttribute(info.el, "jtk-" + type)
                     }
                 }
             }
-        })
+        }
     }
 
     private _unmakeEvery (type:string, key:string, connectionType?:string) {
@@ -1629,12 +1636,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     // see api docs
-    unmakeTarget (el:any, connectionType?:string) {
+    unmakeTarget (el:string|jsPlumbElement, connectionType?:string) {
         return this._unmake(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
     // see api docs
-    unmakeSource (el:any, connectionType?:string) {
+    unmakeSource (el:string|jsPlumbElement, connectionType?:string) {
         return this._unmake(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
@@ -1656,7 +1663,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     // TODO knows about the DOM
-    makeSource(el:ElementSpec, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
+    makeSource(el:string|jsPlumbElement, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
         let p = extend({_jsPlumb: this}, referenceParams)
         extend(p, params)
         p.connectionType = p.connectionType || Constants.DEFAULT
@@ -1665,40 +1672,34 @@ export abstract class JsPlumbInstance extends EventGenerator {
         p.anchor = p.anchor || aae.anchors[0]
         let maxConnections = p.maxConnections || -1
 
-        const _one = (_el:any) => {
+        let elInfo = this.info(el)
+        // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+        // and use the endpoint definition if found.
+        let _del = elInfo.el
 
-            let elInfo = this.info(_el)
-            // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-            // and use the endpoint definition if found.
-            let _del = elInfo.el
+        this.manage(_del)
+        this.setAttribute(_del, Constants.ATTRIBUTE_SOURCE, "")
+        this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
+        this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
 
-            this.manage(_del)
-            this.setAttribute(_del, Constants.ATTRIBUTE_SOURCE, "")
-            this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
-            this.setAttribute(_del, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
+        ;(elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions = (elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions || []
 
-            ;(elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions = (elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions || []
-
-            let _def:SourceDefinition = {
-                def:extend({}, p),
-                uniqueEndpoint: p.uniqueEndpoint,
-                maxConnections: maxConnections,
-                enabled: true,
-                endpoint:null as Endpoint
-            }
-
-            if (p.createEndpoint) {
-                _def.uniqueEndpoint = true
-                _def.endpoint = this.addEndpoint(_del, _def.def)
-                _def.endpoint.deleteOnEmpty = false
-            }
-
-            (<any>elInfo).def = _def
-            ;(elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions.push(_def)
-
+        let _def:SourceDefinition = {
+            def:extend({}, p),
+            uniqueEndpoint: p.uniqueEndpoint,
+            maxConnections: maxConnections,
+            enabled: true,
+            endpoint:null as Endpoint
         }
 
-        this.each(el, _one)
+        if (p.createEndpoint) {
+            _def.uniqueEndpoint = true
+            _def.endpoint = this.addEndpoint(_del, _def.def)
+            _def.endpoint.deleteOnEmpty = false
+        }
+
+        (<any>elInfo).def = _def
+        ;(elInfo.el as jsPlumbElement)._jsPlumbSourceDefinitions.push(_def)
 
         return this
     }
@@ -1744,7 +1745,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
-    makeTarget (el:ElementSpec, params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
+    makeTarget (el:string|jsPlumbElement, params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
 
         // put jsplumb ref into params without altering the params passed in
         let p = extend({_jsPlumb: this}, referenceParams)
@@ -1753,46 +1754,42 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         let maxConnections = p.maxConnections || -1;//,
 
-        const _one = (_el:any) => {
+        // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+        // and use the endpoint definition if found.
+        // decode the info for this element (id and element)
+        let elInfo = this.info(el),
+            dropOptions = extend({}, p.dropOptions || {})
 
-            // get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-            // and use the endpoint definition if found.
-            // decode the info for this element (id and element)
-            let elInfo = this.info(_el),
-                dropOptions = extend({}, p.dropOptions || {})
+        this.manage(elInfo.el)
+        this.setAttribute(elInfo.el, Constants.ATTRIBUTE_TARGET, "")
+        this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
+        this.setAttribute(elInfo.el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
 
-            this.manage(elInfo.el)
-            this.setAttribute(elInfo.el, Constants.ATTRIBUTE_TARGET, "")
-            this._writeScopeAttribute(elInfo.el, (p.scope || this.Defaults.scope))
-            this.setAttribute(elInfo.el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
+        ;(elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions = (elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions || []
 
-            ;(elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions = (elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions || []
-
-            // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
-            // precedence.
-            if ((<any>elInfo.el)._isJsPlumbGroup && dropOptions.rank == null) {
-                dropOptions.rank = -1
-            }
-
-            // store the definition
-            let _def = {
-                def: extend({}, p),
-                uniqueEndpoint: p.uniqueEndpoint,
-                maxConnections: maxConnections,
-                enabled: true,
-                endpoint:null as Endpoint
-            }
-
-            if (p.createEndpoint) {
-                _def.uniqueEndpoint = true
-                _def.endpoint = this.addEndpoint(elInfo.el, _def.def)
-                _def.endpoint.deleteOnEmpty = false
-            }
-
-            (elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions.push(_def)
+        // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
+        // precedence.
+        if ((<any>elInfo.el)._isJsPlumbGroup && dropOptions.rank == null) {
+            dropOptions.rank = -1
         }
 
-        this.each(el, _one)
+        // store the definition
+        let _def = {
+            def: extend({}, p),
+            uniqueEndpoint: p.uniqueEndpoint,
+            maxConnections: maxConnections,
+            enabled: true,
+            endpoint:null as Endpoint
+        }
+
+        if (p.createEndpoint) {
+            _def.uniqueEndpoint = true
+            _def.endpoint = this.addEndpoint(elInfo.el, _def.def)
+            _def.endpoint.deleteOnEmpty = false
+        }
+
+        (elInfo.el as jsPlumbElement)._jsPlumbTargetDefinitions.push(_def)
+
 
         return this
     }
