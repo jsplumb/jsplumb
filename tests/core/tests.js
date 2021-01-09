@@ -3891,8 +3891,8 @@ var testSuite = function () {
         var id1 = d1.getAttribute("id"),
             id2 = d2.getAttribute("id");
 
-        var idx = id1.indexOf("_"), idx2 = id1.lastIndexOf("_"), v1 = id1.substring(idx, idx2);
-        var idx3 = id2.indexOf("_"), idx4 = id2.lastIndexOf("_"), v2 = id2.substring(idx3, idx4);
+        var idx = id1.indexOf("-"), idx2 = id1.lastIndexOf("-"), v1 = id1.substring(idx, idx2);
+        var idx3 = id2.indexOf("-"), idx4 = id2.lastIndexOf("-"), v2 = id2.substring(idx3, idx4);
 
         ok(v1 != v2, "instance versions are different : " + v1 + " : " + v2);
 
