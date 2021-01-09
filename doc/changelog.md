@@ -1,3 +1,9 @@
+## 4.0.0-RC30
+
+### Breaking
+
+- `manage`, `setSourceEnabled`, `toggleSourceEnabled`, `unmakeSource`, `unmakeTarget`, `makeSource` , `makeTarget`, `setTargetEnabled`, `toggleTargetEnabled` no longer accept an array-like first argument, only an element ID or element
+
 ## 4.0.0-RC29
 
 8th January 2021
