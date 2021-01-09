@@ -647,7 +647,7 @@ export class Connection extends OverlayCapableComponent {
 
         let current = this.endpoints[idx],
             elId = current.elementId,
-            ebe = this.instance.getEndpoints(elId),
+            ebe = this.instance.getEndpoints(current.element),
             _idx = ebe.indexOf(current),
             _new = this.prepareEndpoint(null, idx, current.element, elId, {endpoint:endpointDef})
 
