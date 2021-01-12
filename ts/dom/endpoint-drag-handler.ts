@@ -30,7 +30,7 @@ import {
     TargetDefinition
 } from '../core/common'
 
-import { JsPlumbInstance } from "../core/core"
+import {makeAnchorFromSpec} from "../core/factory/anchor-factory"
 
 import { EVENT_CONNECTION_DRAG,
     EVENT_MAX_CONNECTIONS,
@@ -405,7 +405,7 @@ export class EndpointDragHandler implements DragHandler {
                 endpointToFloat = aae.endpoints[1]
             }
         }
-        const centerAnchor = this.instance.makeAnchor("Center")
+        const centerAnchor = makeAnchorFromSpec(this.instance, "Center")
         centerAnchor.isFloating = true
 
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
@@ -986,7 +986,7 @@ export class EndpointDragHandler implements DragHandler {
 
         this.instance.deleteEndpoint(this.floatingEndpoint)
 
-        this.instance.repaint(this.jpc.sourceId)
+        this.instance.repaint(this.jpc.source)
 
         delete this.jpc._forceDetach
     }
@@ -1014,7 +1014,7 @@ export class EndpointDragHandler implements DragHandler {
                 this.jpc._forceDetach = true
                 this.jpc.suspendedEndpoint.addConnection(this.jpc)
                 this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx)
-                this.instance.repaint(this.jpc.sourceId)
+                this.instance.repaint(this.jpc.source)
                 this.jpc._forceDetach = false
             }
             else {
@@ -1116,7 +1116,7 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         if (this.jpc.endpoints[0]._originalAnchor) {
-            let newSourceAnchor = this.instance.makeAnchor(this.jpc.endpoints[0]._originalAnchor, this.jpc.endpoints[0].elementId)
+            let newSourceAnchor = makeAnchorFromSpec(this.instance, this.jpc.endpoints[0]._originalAnchor, this.jpc.endpoints[0].elementId)
             this.jpc.endpoints[0].setAnchor(newSourceAnchor, true)
             delete this.jpc.endpoints[0]._originalAnchor
         }
