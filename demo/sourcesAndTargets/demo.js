@@ -51,14 +51,14 @@ jsPlumb.ready(function () {
     // get the list of ".smallWindow" elements.            
     var smallWindows = document.querySelectorAll(".smallWindow");
 
-    smallWindows.forEach(function(el) { instance.manage(el.getAttribute("id"), el); });
+    smallWindows.forEach(function(el) { instance.manage(el); });
 
     // suspend drawing and initialise.
     instance.batch(function () {
 
         // make 'window1' a connection source. notice the filter and filterExclude parameters: they tell jsPlumb to ignore drags
         // that started on the 'enable/disable' link on the blue window.
-        instance.makeSource("sourceWindow1", {
+        instance.makeSource(document.getElementById("sourceWindow1"), {
             filter:"a",
             filterExclude:true,
             maxConnections: -1,
@@ -67,15 +67,17 @@ jsPlumb.ready(function () {
         });
 
         // configure the .smallWindows as targets.
-        instance.makeTarget(smallWindows, {
-            dropOptions: { hoverClass: "hover" },
-            anchor:"Top",
-            endpoint:[ "Dot", { radius: 11, cssClass:"large-green" } ]
+        smallWindows.forEach(function(el) {
+            instance.makeTarget(el, {
+                dropOptions: { hoverClass: "hover" },
+                anchor:"Top",
+                endpoint:[ "Dot", { radius: 11, cssClass:"large-green" } ]
+            });
         });
 
         // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           
-        instance.connect({ source: "sourceWindow1", target: "targetWindow5" });
-        instance.connect({ source: "sourceWindow1", target: "targetWindow2" });
+        instance.connect({ source: document.getElementById("sourceWindow1"), target: document.getElementById("targetWindow5") });
+        instance.connect({ source: document.getElementById("sourceWindow1"), target: document.getElementById("targetWindow2") });
     });
 
    // jsPlumb.fire("jsPlumbDemoLoaded", instance);
