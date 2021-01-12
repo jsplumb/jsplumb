@@ -77,8 +77,8 @@ jsPlumb.ready(function () {
             var id = instance.getId(divsWithWindowClass[i]);
             endpoints[id] = [
                 // note the three-arg version of addEndpoint; lets you re-use some common settings easily.
-                instance.addEndpoint(id, anEndpoint, {anchor: sourceAnchors}),
-                instance.addEndpoint(id, anEndpoint, {anchor: targetAnchors})
+                instance.addEndpoint(document.getElementById(id), anEndpoint, {anchor: sourceAnchors}),
+                instance.addEndpoint(document.getElementById(id), anEndpoint, {anchor: targetAnchors})
             ];
         }
         // then connect everything using the connections map declared above.
@@ -95,7 +95,7 @@ jsPlumb.ready(function () {
 
         // bind click listener; delete connections on click
         instance.bind("click", function (conn) {
-            instance.detach(conn);
+            instance.deleteConnection(conn);
         });
 
         // bind beforeDetach interceptor: will be fired when the click handler above calls detach, and the user
@@ -103,7 +103,5 @@ jsPlumb.ready(function () {
         instance.bind("beforeDetach", function (conn) {
             return confirm("Delete connection?");
         });
-
-       // jsPlumb.fire("jsPlumbDemoLoaded", instance);
     });
 });
