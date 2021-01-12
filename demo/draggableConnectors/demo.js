@@ -16,12 +16,12 @@
             else {
                 var idx = -1;
                 for (var i = 0; i < connections.length; i++) {
-                    if (connections[i] == conn) {
+                    if (connections[i] === conn) {
                         idx = i;
                         break;
                     }
                 }
-                if (idx != -1) connections.splice(idx, 1);
+                if (idx !== -1) connections.splice(idx, 1);
             }
             if (connections.length > 0) {
                 var s = "<span><strong>Connections</strong></span><br/><br/><table><tr><th>Scope</th><th>Source</th><th>Target</th></tr>";
@@ -160,9 +160,14 @@
                 }
             };
 
+            var dd1 = document.getElementById('dragDropWindow1'),
+                dd2 = document.getElementById('dragDropWindow2'),
+                dd3 = document.getElementById('dragDropWindow3'),
+                dd4 = document.getElementById('dragDropWindow4');
+
             // setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
             // of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
-            instance.addEndpoint('dragDropWindow1', { anchor: [0.5, 1, 0, 1] }, exampleEndpoint2);
+            instance.addEndpoint(dd1, { anchor: [0.5, 1, 0, 1] }, exampleEndpoint2);
 
             // setup some DynamicAnchors for use with the blue endpoints
             // and a function to set as the maxConnections callback.
@@ -176,22 +181,22 @@
                     alert("Cannot drop connection " + info.connection.id + " : maxConnections has been reached on Endpoint " + info.endpoint.id);
                 };
 
-            var e1 = instance.addEndpoint("dragDropWindow1", { anchor: anchors }, exampleEndpoint);
+            var e1 = instance.addEndpoint(dd1, { anchor: anchors }, exampleEndpoint);
             // you can bind for a maxConnections callback using a standard bind call, but you can also supply 'onMaxConnections' in an Endpoint definition - see exampleEndpoint3 above.
             e1.bind("maxConnections", maxConnectionsCallback);
 
-            var e2 = instance.addEndpoint('dragDropWindow2', { anchor: [0.5, 1, 0, 1] }, exampleEndpoint);
+            var e2 = instance.addEndpoint(dd2, { anchor: [0.5, 1, 0, 1] }, exampleEndpoint);
             // again we bind manually. it's starting to get tedious.  but now that i've done one of the blue endpoints this way, i have to do them all...
             e2.bind("maxConnections", maxConnectionsCallback);
-            instance.addEndpoint('dragDropWindow2', { anchor: "RightMiddle" }, exampleEndpoint2);
+            instance.addEndpoint(dd2, { anchor: "RightMiddle" }, exampleEndpoint2);
 
-            var e3 = instance.addEndpoint("dragDropWindow3", { anchor: [0.25, 0, 0, -1] }, exampleEndpoint);
+            var e3 = instance.addEndpoint(dd3, { anchor: [0.25, 0, 0, -1] }, exampleEndpoint);
             e3.bind("maxConnections", maxConnectionsCallback);
-            instance.addEndpoint("dragDropWindow3", { anchor: [0.75, 0, 0, -1] }, exampleEndpoint2);
+            instance.addEndpoint(dd3, { anchor: [0.75, 0, 0, -1] }, exampleEndpoint2);
 
-            var e4 = instance.addEndpoint("dragDropWindow4", { anchor: [1, 0.5, 1, 0] }, exampleEndpoint);
+            var e4 = instance.addEndpoint(dd4, { anchor: [1, 0.5, 1, 0] }, exampleEndpoint);
             e4.bind("maxConnections", maxConnectionsCallback);
-            instance.addEndpoint("dragDropWindow4", { anchor: [0.25, 0, 0, -1] }, exampleEndpoint2);
+            instance.addEndpoint(dd4, { anchor: [0.25, 0, 0, -1] }, exampleEndpoint2);
 
 
             var windows = document.querySelectorAll(".drag-drop-demo .window");
@@ -201,7 +206,7 @@
 
             var hideLinks = document.querySelectorAll(".drag-drop-demo .hide");
             instance.on(hideLinks, "click", function (e) {
-                instance.toggleVisible(this.getAttribute("rel"));
+                instance.toggleVisible(instance.getElement(this.getAttribute("rel")));
                 instance.consume(e);
             });
 
@@ -214,12 +219,12 @@
 
             var detachLinks = document.querySelectorAll(".drag-drop-demo .detach");
             instance.on(detachLinks, "click", function (e) {
-                instance.deleteConnectionsForElement(this.getAttribute("rel"));
+                instance.deleteConnectionsForElement(instance.getElement(this.getAttribute("rel")));
                 instance.consume(e);
             });
 
             instance.on(document.getElementById("clear"), "click", function (e) {
-                instance.detachEveryConnection();
+                instance.deleteEveryConnection();
                 showConnectionInfo("");
                 instance.consume(e);
             });
