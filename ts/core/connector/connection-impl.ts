@@ -362,7 +362,7 @@ export class Connection extends OverlayCapableComponent {
             this.endpoints[0].anchor = _anchors[0]
             this.endpoints[1].anchor = _anchors[1]
             if (this.endpoints[1].anchor.isDynamic) {
-                this.instance.repaint(this.endpoints[1].elementId)
+                this.instance.repaint(this.endpoints[1].element)
             }
         }
 
