@@ -102,7 +102,7 @@ jsPlumb.ready(function () {
     j.addToGroup("seven", [c7_1, c7_2]);
 
     // the independent element that demonstrates the fact that it can be dropped onto a group
-    j.manage("standalone");
+    j.manage(document.getElementById("standalone"));
 
     //... and connect others afterwards.
     j.connect({source:c3_1,target:c3_2});
@@ -121,7 +121,8 @@ jsPlumb.ready(function () {
 
     // collapse/expand group button
     j.on(canvas, "click", ".node-collapse", function() {
-        var g = this.parentNode.getAttribute("group"), collapsed = j.hasClass(this.parentNode, "collapsed");
+        var g = this.parentNode.getAttribute("group"),
+            collapsed = j.hasClass(this.parentNode, "collapsed");
 
         j[collapsed ? "removeClass" : "addClass"](this.parentNode, "collapsed");
         j[collapsed ? "expandGroup" : "collapseGroup"](g);
