@@ -216,7 +216,7 @@ export class Endpoint extends OverlayCapableComponent {
         this._updateAnchorClass()
 
         if (!doNotRepaint) {
-            this.instance.repaint(this.elementId)
+            this.instance.repaint(this.element)
         }
 
         return this
