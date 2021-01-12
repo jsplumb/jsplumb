@@ -956,7 +956,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     // repaint some element's endpoints and connections
-    repaint (el:string | any, ui?:any, timestamp?:string):RedrawResult {
+    repaint (el:jsPlumbElement, ui?:any, timestamp?:string):RedrawResult {
         return this._draw(el, ui, timestamp)
     }
 
@@ -975,7 +975,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
 
         for (elId in this.endpointsByElement) {
-            this._draw(elId, null, timestamp, true)
+            this._draw(this.getElement(elId), null, timestamp, true)
         }
 
         return this
@@ -989,7 +989,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      */
     abstract _getAssociatedElements(el:any):Array<any>
 
-    _draw(element:string | any, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
+    _draw(el:jsPlumbElement, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
 
         let r:RedrawResult = {
             c:new Set<Connection>(),
@@ -1004,8 +1004,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         if (!this._suspendDrawing) {
 
-            let id = typeof element === "string" ? element as string : this.getId(element),
-                el = typeof element === "string" ? this.getElementById(element as string) : element
+            const id = this.getId(el)
 
             if (el != null) {
                 let repaintEls = this._getAssociatedElements(el),
@@ -1299,16 +1298,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 let elDefs = _p[type][type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST]
                 if (elDefs) {
                     let defIdx = findWithFunction(elDefs, (d:any) => {
-
-                        //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId)
-
-                        return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId)
-                        //return (d.def.portId == null || d.def.portId == portId)
+                            return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId)
                     })
                     if (defIdx >= 0) {
 
                         let tep = elDefs[defIdx]
-
                         if (tep) {
                             // if not enabled, return.
                             if (!tep.enabled) {
@@ -1530,11 +1524,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     setTargetEnabled(el:jsPlumbElement, state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.TARGET, el, state, null, connectionType)
-    }
-
-    // really just exposed for testing
-    makeAnchor(spec:AnchorSpec, elementId?:string):Anchor {
-        return makeAnchorFromSpec(this, spec, elementId)
     }
 
     private _unmake (type:string, key:string, el:jsPlumbElement, connectionType?:string) {
