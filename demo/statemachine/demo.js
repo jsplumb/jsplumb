@@ -94,17 +94,15 @@ jsPlumb.ready(function () {
             initNode(windows[i], true);
         }
         // and finally, make a few connections
-        instance.connect({ source: "opened", target: "phone1", type:"basic" });
-        instance.connect({ source: "phone1", target: "phone1", type:"basic" });
-        instance.connect({ source: "phone1", target: "inperson", type:"basic" });
+        instance.connect({ source: document.getElementById("opened"), target: document.getElementById("phone1"), type:"basic" });
+        instance.connect({ source: document.getElementById("phone1"), target: document.getElementById("phone1"), type:"basic" });
+        instance.connect({ source: document.getElementById("phone1"), target: document.getElementById("inperson"), type:"basic" });
 
         instance.connect({
-            source:"phone2",
-            target:"rejected",
+            source:document.getElementById("phone2"),
+            target:document.getElementById("rejected"),
             type:"basic"
         });
     });
-
-    //jsPlumb.fire("jsPlumbDemoLoaded", instance);
 
 });
