@@ -1,14 +1,15 @@
 ## 4.0.0-RC30
 
+12th January 2021
+
 ### Breaking
 
-- `manage` does not accept an element id as argument. It only accepts elements.
+All of these methods only accept a single element as argument, where they previously will have accepted (depending on the method) an element, element id, or an array of elements of element ids.
 
--  These methods no longer accept an array-like argument, only an element ID or element
-
+    - `manage`
     - `setSourceEnabled`, 
     - `toggleSourceEnabled`
-    - `unmakeSource`-
+    - `unmakeSource`
     - `unmakeTarget`
     - `makeSource` 
     - `makeTarget`
@@ -19,13 +20,16 @@
     - `revalidate`
     - `getEndpoints`
     - `deleteConnectionsForElement`
-    - `setContainer`
     - `addEndpoint`
     - `addEndpoints`
     - `connect`
     - `getEndpoints`
     - `addToPosse`
     - `removeFromPosse`
+    
+A telltale sign that you need to migrate one of these methods is when you see "el.getAttribute is not a function" in your console.
+    
+- `makeAnchor` has been removed from `JsPlumbInstance`. It was only ever exposed for testing and was not a method that users of the API would need to access.
 
 ## 4.0.0-RC29
 
