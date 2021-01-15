@@ -59,9 +59,7 @@ jsPlumb.ready(function () {
         },
 
         prepare = function (elId) {
-            //initAnimation(elId);
-
-            return instance.addEndpoint(elId, endpoint);
+            return instance.addEndpoint(document.getElementById(elId), endpoint);
         },
 
     // this is overridden by the YUI demo.
@@ -110,5 +108,4 @@ jsPlumb.ready(function () {
         instance.on(addBtn, 'click', addDisc);
     });
 
-    //jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });
