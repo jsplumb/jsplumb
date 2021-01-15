@@ -1,5 +1,5 @@
 import { JsPlumbInstance } from "../core";
-import { TypeDescriptor } from '../common';
+import { jsPlumbElement, TypeDescriptor } from '../common';
 import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint-impl";
 import { PaintStyle } from "../styles";
@@ -11,8 +11,8 @@ import { ConnectorSpec } from "./abstract-connector";
 import { EndpointSpec } from "../endpoint/endpoint";
 export interface ConnectionParams {
     id?: string;
-    source?: string | any;
-    target?: string | any;
+    source?: jsPlumbElement;
+    target?: jsPlumbElement;
     sourceEndpoint?: Endpoint;
     targetEndpoint?: Endpoint;
     scope?: string;

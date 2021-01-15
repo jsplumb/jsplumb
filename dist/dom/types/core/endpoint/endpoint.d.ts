@@ -43,7 +43,7 @@ export interface EndpointOptions extends ComponentOptions {
     connectorTooltip?: string;
     portId?: string;
     uuid?: string;
-    source?: string | jsPlumbElement;
+    source?: jsPlumbElement;
     connections?: Array<Connection>;
     "connector-pointer-events"?: string;
     detachable?: boolean;

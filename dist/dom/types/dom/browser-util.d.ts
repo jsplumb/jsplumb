@@ -10,6 +10,6 @@ export declare function addClass(el: HTMLElement, clazz: string): void;
 export declare function hasClass(el: HTMLElement, clazz: string): boolean;
 export declare function removeClass(el: HTMLElement, clazz: string): void;
 export declare function toggleClass(el: HTMLElement, clazz: string): void;
-export declare function createElement(tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string>): HTMLElement;
-export declare function createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): HTMLElement;
+export declare function createElement(tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string>): jsPlumbDOMElement;
+export declare function createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): jsPlumbDOMElement;
 export declare function offsetRelativeToRoot(el: any): Offset;

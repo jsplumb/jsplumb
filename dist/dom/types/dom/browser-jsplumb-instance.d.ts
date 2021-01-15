@@ -162,15 +162,15 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     toggleDraggable(el: HTMLElement): boolean;
     private _attachEventDelegates;
     private _detachEventDelegates;
-    setContainer(c: string | HTMLElement): void;
+    setContainer(c: string | jsPlumbDOMElement): void;
     reset(silently?: boolean): void;
     destroy(): void;
     unmanage(el: jsPlumbDOMElement, removeElement?: boolean): void;
-    addToDragSelection(...el: Array<string | HTMLElement>): void;
+    addToDragSelection(...el: Array<string | jsPlumbDOMElement>): void;
     clearDragSelection(): void;
     removeFromDragSelection(...el: Array<jsPlumbDOMElement>): void;
-    toggleDragSelection(...el: Array<string | HTMLElement>): void;
-    getDragSelection(): Array<HTMLElement>;
+    toggleDragSelection(...el: Array<string | jsPlumbDOMElement>): void;
+    getDragSelection(): Array<jsPlumbDOMElement>;
     /**
      * Adds the given element(s) to the given posse.
      * @param spec Either the ID of some posse, in which case the elements are all added as 'active', or an object of the form
@@ -179,20 +179,20 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
      * given element(s) is "passive" and should only move when an active member of the posse is dragged.
      * @param els Elements to add to the posse.
      */
-    addToPosse(spec: PosseSpec, ...els: Array<HTMLElement>): void;
+    addToPosse(spec: PosseSpec, ...els: Array<jsPlumbDOMElement>): void;
     /**
      * Removes the given element(s) from any posse they may be in. You don't need to supply the posse id, as elements
      * can only be in one posse anyway.
      * @param els Elements to remove from posses.
      */
-    removeFromPosse(...els: Array<HTMLElement>): void;
+    removeFromPosse(...els: Array<jsPlumbDOMElement>): void;
     /**
      * Sets the active/passive state for the given element(s).You don't need to supply the posse id, as elements
      * can only be in one posse anyway.
      * @param state true for active, false for passive.
      * @param els
      */
-    setPosseState(state: boolean, ...els: Array<HTMLElement>): void;
+    setPosseState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
     /**
      * Consumes the given event.
      * @param e

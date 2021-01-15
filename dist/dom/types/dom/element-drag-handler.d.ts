@@ -39,14 +39,14 @@ export declare class ElementDragHandler implements DragHandler {
         finalPos: PointArray;
         drag: Drag;
     }): boolean;
-    addToDragSelection(el: string | HTMLElement): void;
+    addToDragSelection(el: string | jsPlumbDOMElement): void;
     clearDragSelection(): void;
     removeFromDragSelection(el: string | HTMLElement): void;
-    toggleDragSelection(el: string | HTMLElement): void;
-    getDragSelection(): Array<HTMLElement>;
+    toggleDragSelection(el: string | jsPlumbDOMElement): void;
+    getDragSelection(): Array<jsPlumbDOMElement>;
     private static decodePosseSpec;
-    addToPosse(spec: PosseSpec, ...els: Array<HTMLElement>): void;
-    removeFromPosse(...els: Array<HTMLElement>): void;
-    setPosseState(state: boolean, ...els: Array<HTMLElement>): void;
+    addToPosse(spec: PosseSpec, ...els: Array<jsPlumbDOMElement>): void;
+    removeFromPosse(...els: Array<jsPlumbDOMElement>): void;
+    setPosseState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
     private isActivePosseMember;
 }

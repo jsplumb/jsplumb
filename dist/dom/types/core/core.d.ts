@@ -6,8 +6,6 @@ import { AnchorManager, AnchorPlacement, RedrawResult } from "./anchor-manager";
 import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
 SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";
-import { AnchorSpec } from "./factory/anchor-factory";
-import { Anchor } from "./anchor/anchor";
 import { EndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
@@ -101,28 +99,6 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     private _helpers;
     geometry: jsPlumbGeometryHelpers;
     private _zoom;
-    abstract getElement(el: any | string): any;
-    abstract getElementById(el: string): any;
-    abstract removeElement(el: any): void;
-    abstract appendElement(el: any, parent: any): void;
-    abstract removeClass(el: any, clazz: string): void;
-    abstract addClass(el: any, clazz: string): void;
-    abstract toggleClass(el: any, clazz: string): void;
-    abstract getClass(el: any): string;
-    abstract hasClass(el: any, clazz: string): boolean;
-    abstract setAttribute(el: any, name: string, value: string): void;
-    abstract getAttribute(el: any, name: string): string;
-    abstract setAttributes(el: any, atts: Dictionary<string>): void;
-    abstract removeAttribute(el: any, attName: string): void;
-    abstract getSelector(ctx: string | any, spec?: string): NodeListOf<any>;
-    abstract getStyle(el: any, prop: string): any;
-    abstract _getSize(el: any): Size;
-    abstract _getOffset(el: any | string): Offset;
-    abstract _getOffsetRelativeToRoot(el: any | string): Offset;
-    abstract setPosition(el: any, p: Offset): void;
-    abstract on(el: any, event: string, callbackOrSelector: Function | string, callback?: Function): void;
-    abstract off(el: any, event: string, callback: Function): void;
-    abstract trigger(el: any, event: string, originalEvent?: Event, payload?: any): void;
     constructor(_instanceIndex: number, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     getSize(el: any): Size;
     getOffset(el: any | string, relativeToRoot?: boolean): Offset;
@@ -137,9 +113,11 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     _idstamp(): string;
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
-    getId(element: string | any, uuid?: string): string;
+    getId(element: jsPlumbElement, uuid?: string): string;
     /**
-     * Set the id of the given element. Changes all the refs etc.
+     * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
+     * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
+     * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
      * @param el
      * @param newId
      * @param doNotSetAttribute
@@ -150,7 +128,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     getConnections(options?: SelectOptions, flat?: boolean): Dictionary<Connection> | Array<Connection>;
     select(params?: SelectOptions): ConnectionSelection;
     selectEndpoints(params?: SelectEndpointOptions): EndpointSelection;
-    setContainer(c: any | string): void;
+    setContainer(c: string | jsPlumbElement): void;
     private _set;
     setSource(connection: Connection, el: any | Endpoint, doNotRepaint?: boolean): void;
     setTarget(connection: Connection, el: any | Endpoint, doNotRepaint?: boolean): void;
@@ -192,7 +170,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
     deleteEveryConnection(params?: DeleteConnectionOptions): number;
-    deleteConnectionsForElement(el: any | string, params?: DeleteConnectionOptions): JsPlumbInstance;
+    deleteConnectionsForElement(el: jsPlumbElement, params?: DeleteConnectionOptions): JsPlumbInstance;
     private fireDetachEvent;
     fireMoveEvent(params?: any, evt?: Event): void;
     /**
@@ -217,7 +195,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     newEndpoint(params: EndpointOptions, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
     getAllConnections(): Array<Connection>;
-    repaint(el: string | any, ui?: any, timestamp?: string): RedrawResult;
+    repaint(el: jsPlumbElement, ui?: any, timestamp?: string): RedrawResult;
     revalidate(el: jsPlumbElement, timestamp?: string): RedrawResult;
     repaintEverything(): JsPlumbInstance;
     /**
@@ -227,7 +205,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @private
      */
     abstract _getAssociatedElements(el: any): Array<any>;
-    _draw(element: string | any, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
+    _draw(el: jsPlumbElement, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
@@ -257,7 +235,6 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     isTarget(el: jsPlumbElement, connectionType?: string): boolean;
     isTargetEnabled(el: jsPlumbElement, connectionType?: string): boolean;
     setTargetEnabled(el: jsPlumbElement, state: boolean, connectionType?: string): any;
-    makeAnchor(spec: AnchorSpec, elementId?: string): Anchor;
     private _unmake;
     private _unmakeEvery;
     unmakeTarget(el: jsPlumbElement, connectionType?: string): void;
@@ -304,6 +281,28 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     removeFromGroup(group: string | UIGroup, el: any, doNotFireEvent?: boolean): void;
+    abstract getElement(el: any | string): any;
+    abstract getElementById(el: string): any;
+    abstract removeElement(el: any): void;
+    abstract appendElement(el: any, parent: any): void;
+    abstract removeClass(el: any, clazz: string): void;
+    abstract addClass(el: any, clazz: string): void;
+    abstract toggleClass(el: any, clazz: string): void;
+    abstract getClass(el: any): string;
+    abstract hasClass(el: any, clazz: string): boolean;
+    abstract setAttribute(el: any, name: string, value: string): void;
+    abstract getAttribute(el: any, name: string): string;
+    abstract setAttributes(el: any, atts: Dictionary<string>): void;
+    abstract removeAttribute(el: any, attName: string): void;
+    abstract getSelector(ctx: string | any, spec?: string): NodeListOf<any>;
+    abstract getStyle(el: any, prop: string): any;
+    abstract _getSize(el: any): Size;
+    abstract _getOffset(el: any | string): Offset;
+    abstract _getOffsetRelativeToRoot(el: any | string): Offset;
+    abstract setPosition(el: any, p: Offset): void;
+    abstract on(el: any, event: string, callbackOrSelector: Function | string, callback?: Function): void;
+    abstract off(el: any, event: string, callback: Function): void;
+    abstract trigger(el: any, event: string, originalEvent?: Event, payload?: any): void;
     abstract getPath(segment: Segment, isFirstSegment: boolean): string;
     abstract paintOverlay(o: Overlay, params: any, extents: any): void;
     abstract addOverlayClass(o: Overlay, clazz: string): void;

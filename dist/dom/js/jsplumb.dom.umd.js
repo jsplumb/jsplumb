@@ -2855,8 +2855,8 @@
       // member and take action if they need to.
 
       _this.previousConnection = params.previousConnection;
-      _this.source = instance.getElement(params.source);
-      _this.target = instance.getElement(params.target);
+      _this.source = params.source;
+      _this.target = params.target;
 
       if (params.sourceEndpoint) {
         _this.source = params.sourceEndpoint.element;
@@ -3096,7 +3096,7 @@
           this.endpoints[1].anchor = _anchors[1];
 
           if (this.endpoints[1].anchor.isDynamic) {
-            this.instance.repaint(this.endpoints[1].elementId);
+            this.instance.repaint(this.endpoints[1].element);
           }
         }
 
@@ -3900,7 +3900,7 @@
         this._updateAnchorClass();
 
         if (!doNotRepaint) {
-          this.instance.repaint(this.elementId);
+          this.instance.repaint(this.element);
         }
 
         return this;
@@ -7551,10 +7551,9 @@
     }, {
       key: "getId",
       value: function getId(element, uuid) {
-        if (isString(element)) {
-          return element;
-        }
-
+        // if (isString(element)) {
+        //     return element as string
+        // }
         if (element == null) {
           return null;
         }
@@ -7575,7 +7574,9 @@
         return id;
       }
       /**
-       * Set the id of the given element. Changes all the refs etc.
+       * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
+       * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
+       * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
        * @param el
        * @param newId
        * @param doNotSetAttribute
@@ -7637,7 +7638,7 @@
 
         _conns(tConns, 1, TARGET);
 
-        this.repaint(newId);
+        this.repaint(_el);
       }
     }, {
       key: "setIdChanged",
@@ -8054,10 +8055,7 @@
       key: "deleteConnectionsForElement",
       value: function deleteConnectionsForElement(el, params) {
         params = params || {};
-
-        var _el = this.getElement(el);
-
-        var id = this.getId(_el),
+        var id = this.getId(el),
             endpoints = this.endpointsByElement[id];
 
         if (endpoints && endpoints.length) {
@@ -8233,7 +8231,7 @@
         _p.elementId = id || this.getId(_p.source);
         var ep = new Endpoint(this, _p);
         ep.id = "ep_" + this._idstamp();
-        this.manage(this.getElement(_p.source));
+        this.manage(_p.source);
         return ep;
       }
     }, {
@@ -8310,7 +8308,7 @@
         }
 
         for (elId in this.endpointsByElement) {
-          this._draw(elId, null, timestamp, true);
+          this._draw(this.getElement(elId), null, timestamp, true);
         }
 
         return this;
@@ -8324,7 +8322,7 @@
 
     }, {
       key: "_draw",
-      value: function _draw(element, ui, timestamp, offsetsWereJustCalculated) {
+      value: function _draw(el, ui, timestamp, offsetsWereJustCalculated) {
         var r = {
           c: new Set(),
           e: new Set()
@@ -8341,11 +8339,10 @@
         };
 
         if (!this._suspendDrawing) {
-          var id = typeof element === "string" ? element : this.getId(element),
-              _el3 = typeof element === "string" ? this.getElementById(element) : element;
+          var id = this.getId(el);
 
-          if (_el3 != null) {
-            var repaintEls = this._getAssociatedElements(_el3),
+          if (el != null) {
+            var repaintEls = this._getAssociatedElements(el),
                 repaintOffsets = [];
 
             if (timestamp == null) {
@@ -8674,8 +8671,7 @@
 
             if (elDefs) {
               var defIdx = findWithFunction(elDefs, function (d) {
-                //return (d.def.connectionType == null || d.def.connectionType === matchType) && (portId == null || d.def.portId === portId)
-                return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId); //return (d.def.portId == null || d.def.portId == portId)
+                return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId);
               });
 
               if (defIdx >= 0) {
@@ -8902,7 +8898,7 @@
     }, {
       key: "isSource",
       value: function isSource(el, connectionType) {
-        return this.findFirstSourceDefinition(this.getElement(el), connectionType) != null;
+        return this.findFirstSourceDefinition(el, connectionType) != null;
       }
     }, {
       key: "isSourceEnabled",
@@ -8920,7 +8916,7 @@
     }, {
       key: "isTarget",
       value: function isTarget(el, connectionType) {
-        return this.findFirstTargetDefinition(this.getElement(el), connectionType) != null;
+        return this.findFirstTargetDefinition(el, connectionType) != null;
       }
     }, {
       key: "isTargetEnabled",
@@ -8932,12 +8928,6 @@
       key: "setTargetEnabled",
       value: function setTargetEnabled(el, state, connectionType) {
         return this._setEnabled(TARGET, el, state, null, connectionType);
-      } // really just exposed for testing
-
-    }, {
-      key: "makeAnchor",
-      value: function makeAnchor(spec, elementId) {
-        return makeAnchorFromSpec(this, spec, elementId);
       }
     }, {
       key: "_unmake",
@@ -10961,7 +10951,7 @@
           }
         }
 
-        var centerAnchor = this.instance.makeAnchor("Center");
+        var centerAnchor = makeAnchorFromSpec(this.instance, "Center");
         centerAnchor.isFloating = true;
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
         var _savedAnchor = this.floatingEndpoint.anchor;
@@ -11546,7 +11536,7 @@
         this.jpc.suspendedEndpoint.addConnection(this.jpc);
         this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx);
         this.instance.deleteEndpoint(this.floatingEndpoint);
-        this.instance.repaint(this.jpc.sourceId);
+        this.instance.repaint(this.jpc.source);
         delete this.jpc._forceDetach;
       }
     }, {
@@ -11569,7 +11559,7 @@
             this.jpc._forceDetach = true;
             this.jpc.suspendedEndpoint.addConnection(this.jpc);
             this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx);
-            this.instance.repaint(this.jpc.sourceId);
+            this.instance.repaint(this.jpc.source);
             this.jpc._forceDetach = false;
           }
         } else {
@@ -11670,7 +11660,7 @@
         }
 
         if (this.jpc.endpoints[0]._originalAnchor) {
-          var newSourceAnchor = this.instance.makeAnchor(this.jpc.endpoints[0]._originalAnchor, this.jpc.endpoints[0].elementId);
+          var newSourceAnchor = makeAnchorFromSpec(this.instance, this.jpc.endpoints[0]._originalAnchor, this.jpc.endpoints[0].elementId);
           this.jpc.endpoints[0].setAnchor(newSourceAnchor, true);
           delete this.jpc.endpoints[0]._originalAnchor;
         } // finalise will inform the anchor manager and also add to
