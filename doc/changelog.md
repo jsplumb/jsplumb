@@ -1,4 +1,4 @@
-## 4.0.0-RC31
+## 4.0.0-RC32
 
 16th January 2021
 
@@ -30,6 +30,18 @@ All of these methods only accept a single element as argument, where they previo
 A telltale sign that you need to migrate one of these methods is when you see "el.getAttribute is not a function" in your console.
     
 - `makeAnchor` has been removed from `JsPlumbInstance`. It was only ever exposed for testing and was not a method that users of the API would need to access.
+
+## 4.0.0-RC31
+
+16th January 2021
+
+- Re-release of RC29/RC30, which had an empty package.
+
+## 4.0.0-RC30
+
+16th January 2021
+
+- Re-release of RC29, which had an empty package.
 
 ## 4.0.0-RC29
 
