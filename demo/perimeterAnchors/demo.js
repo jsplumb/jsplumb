@@ -29,6 +29,4 @@ jsPlumb.ready(function () {
             }
         }
     });
-
-    //jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });
