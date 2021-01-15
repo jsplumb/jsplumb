@@ -1,3 +1,9 @@
+## 4.0.0-RC30
+
+16th January 2021
+
+- Re-release of RC29, which had an empty package.
+
 ## 4.0.0-RC29
 
 8th January 2021
