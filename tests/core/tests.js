@@ -285,39 +285,47 @@ var testSuite = function () {
 // ************** ANCHORS ********************************************	
 
     test(': anchors equal', function () {
-        var a1 = _jsPlumb.makeAnchor([0, 1, 1, 1], null, _jsPlumb);
-        var a2 = _jsPlumb.makeAnchor([0, 1, 1, 1], null, _jsPlumb);
-        ok(a1.equals(a2), "anchors are the same");
+        var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+        var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
+                [0, 1, 1, 1], [0, 1, 1, 1]
+            ]});
+        ok(c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are the same according to their equals method")
     });
 
     test(': anchors equal with offsets', function () {
-        var a1 = _jsPlumb.makeAnchor([0, 1, 1, 1, 10, 13], null, _jsPlumb);
-        var a2 = _jsPlumb.makeAnchor([0, 1, 1, 1, 10, 13], null, _jsPlumb);
-        ok(a1.equals(a2), "anchors are the same");
+        var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+        var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
+                [0, 1, 1, 1, 10, 13], [0, 1, 1, 1, 10, 13]
+            ]});
+        ok(c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are the same according to their equals method")
     });
 
     test(': anchors not equal', function () {
-        var a1 = _jsPlumb.makeAnchor([0, 1, 0, 1], null, _jsPlumb);
-        var a2 = _jsPlumb.makeAnchor([0, 1, 1, 1], null, _jsPlumb);
-        ok(!a1.equals(a2), "anchors are different");
+        var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+        var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
+                [0, 1, 0, 1], [0, 1, 1, 1]
+            ]});
+        ok(!c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are different, according to their equals method")
     });
 
     test(': anchor not equal with offsets', function () {
-        var a1 = _jsPlumb.makeAnchor([0, 1, 1, 1, 10, 13], null, _jsPlumb);
-        var a2 = _jsPlumb.makeAnchor([0, 1, 1, 1], null, _jsPlumb);
-        ok(!a1.equals(a2), "anchors are different");
+        var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
+        var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
+                [0, 1, 1, 1, 10, 13], [0, 1, 1, 1]
+            ]});
+        ok(!c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are different, according to their equals method")
     });
 
-    test('simple makeAnchor, dynamicAnchors', function () {
-        expect(0);
-        var spec = [
-            [0.2, 0, 0, -1],
-            [1, 0.2, 1, 0],
-            [0.8, 1, 0, 1],
-            [0, 0.8, -1, 0]
-        ];
-        _jsPlumb.makeAnchor(spec);
-    });
+    // test('simple makeAnchor, dynamicAnchors', function () {
+    //     expect(0);
+    //     var spec = [
+    //         [0.2, 0, 0, -1],
+    //         [1, 0.2, 1, 0],
+    //         [0.8, 1, 0, 1],
+    //         [0, 0.8, -1, 0]
+    //     ];
+    //     _jsPlumb.makeAnchor(spec);
+    // });
 
     test(": unknown anchor type should throw Error", function () {
         try {
@@ -3160,23 +3168,13 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.makeDynamicAnchors (longhand)", function () {
-        var anchors = [_jsPlumb.makeAnchor([0.2, 0, 0, -1], null, _jsPlumb), _jsPlumb.makeAnchor([1, 0.2, 1, 0], null, _jsPlumb),
-            _jsPlumb.makeAnchor([0.8, 1, 0, 1], null, _jsPlumb), _jsPlumb.makeAnchor([0, 0.8, -1, 0], null, _jsPlumb) ];
-        var dynamicAnchor = _jsPlumb.makeAnchor(anchors);
-        var a = dynamicAnchor.getAnchors();
-        equal(a.length, 4, "Dynamic Anchors has four anchors");
-        for (var i = 0; i < a.length; i++)
-            ok(a[i].compute.constructor == Function, "anchor " + i + " well formed");
-    });
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var ep = _jsPlumb.addEndpoint(d1, {
+            anchor:[[0.2, 0, 0, -1], [1, 0.2, 1, 0],[0.8, 1, 0, 1], [0, 0.8, -1, 0]]
+        })
 
-    test(": _jsPlumb.makeDynamicAnchors (shorthand)", function () {
-        var anchors = [
-            [0.2, 0, 0, -1],
-            [1, 0.2, 1, 0],
-            [0.8, 1, 0, 1],
-            [0, 0.8, -1, 0]
-        ];
-        var dynamicAnchor = _jsPlumb.makeAnchor(anchors);
+        var dynamicAnchor = ep.anchor;
+
         var a = dynamicAnchor.getAnchors();
         equal(a.length, 4, "Dynamic Anchors has four anchors");
         for (var i = 0; i < a.length; i++)
