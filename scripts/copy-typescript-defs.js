@@ -40,7 +40,12 @@ const _one = (dir, subdir, targetBase) => {
 
 _one("./_build_es6/ts/core",null, "./dist/core/types");
 
-g.mkdirs("./dist/dom/types/core");
-g.mkdirs("./dist/dom/types/dom");
-_one("./_build_es6/ts/core",null, "./dist/dom/types/core");
-_one("./_build_es6/ts/dom",null, "./dist/dom/types/dom");
+g.mkdirs("./dist/browser-ui/types/core");
+g.mkdirs("./dist/browser-ui/types/browser-ui");
+_one("./_build_es6/ts/core",null, "./dist/browser-ui/types/core");
+_one("./_build_es6/ts/dom",null, "./dist/browser-ui/types/browser-ui");
+
+g.mkdirs("./dist/community/types/core");
+g.mkdirs("./dist/community/types/browser-ui");
+_one("./_build_es6/ts/core",null, "./dist/community/types/core");
+_one("./_build_es6/ts/dom",null, "./dist/community/types/browser-ui");
