@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/community-core",
-  "version": "4.0.0-RC32",
+  "version": "4.0.0-RC33",
   "description": "Visual connectivity for webapps",
   "main": "js/jsplumb.core.cjs.js",
   "module": "js/jsplumb.core.es.js",
@@ -15,7 +15,7 @@
     "js/jsplumb.core.es.js"
   ],
   "types": "types/index.d.ts",
-  "scripts": { },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/jsplumb/jsplumb.git",
@@ -30,5 +30,5 @@
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {},
-  "devDependencies": { }
+  "devDependencies": {}
 }
