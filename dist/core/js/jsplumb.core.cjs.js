@@ -2,110 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function cls() {
-  for (var _len = arguments.length, className = new Array(_len), _key = 0; _key < _len; _key++) {
-    className[_key] = arguments[_key];
-  }
-
-  return className.map(function (cn) {
-    return "." + cn;
-  }).join(",");
-}
-function classList() {
-  for (var _len2 = arguments.length, className = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-    className[_key2] = arguments[_key2];
-  }
-
-  return className.join(" ");
-}
-var SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions";
-var TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions";
-var DEFAULT = "default";
-var WILDCARD = "*";
-var SOURCE = "source";
-var TARGET = "target";
-var BLOCK = "block";
-var NONE = "none";
-var SOURCE_INDEX = 0;
-var TARGET_INDEX = 1;
-var TRUE = "true";
-var FALSE = "false";
-var UNDEFINED = "undefined";
-var ABSOLUTE = "absolute";
-var FIXED = "fixed";
-var STATIC = "static";
-var GROUP_KEY = "_jsPlumbGroup";
-var PARENT_GROUP_KEY = "_jsPlumbParentGroup";
-var ATTRIBUTE_CONTAINER = "jtk-container";
-var ATTRIBUTE_GROUP = "jtk-group";
-var ATTRIBUTE_MANAGED = "jtk-managed";
-var ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
-var ATTRIBUTE_SOURCE = "jtk-source";
-var ATTRIBUTE_TABINDEX = "tabindex";
-var ATTRIBUTE_TARGET = "jtk-target";
-var BEFORE_DETACH = "beforeDetach";
-var CHECK_CONDITION = "checkCondition";
-var CHECK_DROP_ALLOWED = "checkDropAllowed";
-var CLASS_CONNECTOR = "jtk-connector";
-var CLASS_ENDPOINT = "jtk-endpoint";
-var CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
-var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
-var CLASS_OVERLAY = "jtk-overlay";
-var CMD_ORPHAN_ALL = "orphanAll";
-var CMD_HIDE = "hide";
-var CMD_REMOVE_ALL = "removeAll";
-var CMD_SHOW = "show";
-var EVENT_CLICK = "click";
-var EVENT_COLLAPSE = "group:collapse";
-var EVENT_CONNECTION = "connection";
-var EVENT_CONNECTION_DETACHED = "connectionDetached";
-var EVENT_CONNECTION_DRAG = "connectionDrag";
-var EVENT_CONNECTION_MOVED = "connectionMoved";
-var EVENT_CONNECTION_MOUSEOUT = "connectionMouseOut";
-var EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver";
-var EVENT_CONTAINER_CHANGE = "container:change";
-var EVENT_CONTEXTMENU = "contextmenu";
-var EVENT_DBL_CLICK = "dblclick";
-var EVENT_DBL_TAP = "dbltap";
-var EVENT_ELEMENT_CLICK = "elementClick";
-var EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
-var EVENT_ELEMENT_MOUSE_MOVE = "elementMousemove";
-var EVENT_ELEMENT_MOUSE_OUT = "elementMouseout";
-var EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
-var EVENT_ENDPOINT_CLICK = "endpointClick";
-var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
-var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
-var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
-var EVENT_FOCUS = "focus";
-var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
-var EVENT_MOUSEDOWN = "mousedown";
-var EVENT_MOUSEENTER = "mouseenter";
-var EVENT_MOUSEEXIT = "mouseexit";
-var EVENT_MOUSEMOVE = "mousemove";
-var EVENT_MOUSEOUT = "mouseout";
-var EVENT_MOUSEOVER = "mouseover";
-var EVENT_MOUSEUP = "mouseup";
-var EVENT_EXPAND = "group:expand";
-var EVENT_GROUP_ADDED = "group:add";
-var EVENT_GROUP_DRAG_STOP = "groupDragStop";
-var EVENT_GROUP_MEMBER_ADDED = "group:addMember";
-var EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
-var EVENT_GROUP_REMOVED = "group:remove";
-var EVENT_MAX_CONNECTIONS = "maxConnections";
-var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
-var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
-var EVENT_TAP = "tap";
-var EVENT_ZOOM = "zoom";
-var IS_DETACH_ALLOWED = "isDetachAllowed";
-var IS_GROUP_KEY = "_isJsPlumbGroup";
-var JTK_ID = "jtk-id";
-var PROPERTY_POSITION = "position";
-var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
-var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
-var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
-var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
-var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
-
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -238,6 +134,372 @@ function _iterableToArray(iter) {
 
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+
+function noSuchPoint() {
+  return {
+    d: Infinity,
+    x: null,
+    y: null,
+    l: null,
+    x1: null,
+    y1: null,
+    x2: null,
+    y2: null
+  };
+}
+
+function EMPTY_BOUNDS() {
+  return {
+    minX: Infinity,
+    maxX: -Infinity,
+    minY: Infinity,
+    maxY: -Infinity
+  };
+}
+var AbstractSegment =
+/*#__PURE__*/
+function () {
+  function AbstractSegment(params) {
+    _classCallCheck(this, AbstractSegment);
+
+    this.params = params;
+
+    _defineProperty(this, "x1", void 0);
+
+    _defineProperty(this, "x2", void 0);
+
+    _defineProperty(this, "y1", void 0);
+
+    _defineProperty(this, "y2", void 0);
+
+    _defineProperty(this, "bounds", void 0);
+
+    _defineProperty(this, "type", void 0);
+
+    this.x1 = params.x1;
+    this.y1 = params.y1;
+    this.x2 = params.x2;
+    this.y2 = params.y2;
+  }
+
+  _createClass(AbstractSegment, [{
+    key: "getBounds",
+    value: function getBounds() {
+      return this.bounds;
+    }
+    /**
+     * Function: findClosestPointOnPath
+     * Finds the closest point on this segment to the given [x, y],
+     * returning both the x and y of the point plus its distance from
+     * the supplied point, and its location along the length of the
+     * path inscribed by the segment.  This implementation returns
+     * Infinity for distance and null values for everything else
+     * subclasses are expected to override.
+     */
+
+  }, {
+    key: "findClosestPointOnPath",
+    value: function findClosestPointOnPath(x, y) {
+      return noSuchPoint();
+    }
+    /**
+     * Computes the list of points on the segment that intersect the given line.
+     * @method lineIntersection
+     * @param {number} x1
+     * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
+     * @returns {Array<PointArray>}
+     */
+
+  }, {
+    key: "lineIntersection",
+    value: function lineIntersection(x1, y1, x2, y2) {
+      return [];
+    }
+    /**
+     * Computes the list of points on the segment that intersect the box with the given origin and size.
+     * @method boxIntersection
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @returns {Array<PointArray>}
+     */
+
+  }, {
+    key: "boxIntersection",
+    value: function boxIntersection(x, y, w, h) {
+      var a = [];
+      a.push.apply(a, this.lineIntersection(x, y, x + w, y));
+      a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
+      a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
+      a.push.apply(a, this.lineIntersection(x, y + h, x, y));
+      return a;
+    }
+    /**
+     * Computes the list of points on the segment that intersect the given bounding box, which is an object of the form { x:.., y:.., w:.., h:.. }.
+     * @method lineIntersection
+     * @param {BoundingBox} box
+     * @returns {Array<[number, number]>}
+     */
+
+  }, {
+    key: "boundingBoxIntersection",
+    value: function boundingBoxIntersection(box) {
+      return this.boxIntersection(box.x, box.y, box.w, box.h);
+    }
+  }]);
+
+  return AbstractSegment;
+}();
+
+/**
+ * Superclass for all types of Endpoint. This class is renderer
+ * agnostic, as are any subclasses of it.
+ */
+var EndpointRepresentation =
+/*#__PURE__*/
+function () {
+  function EndpointRepresentation(endpoint) {
+    _classCallCheck(this, EndpointRepresentation);
+
+    this.endpoint = endpoint;
+
+    _defineProperty(this, "typeId", void 0);
+
+    _defineProperty(this, "x", void 0);
+
+    _defineProperty(this, "y", void 0);
+
+    _defineProperty(this, "w", void 0);
+
+    _defineProperty(this, "h", void 0);
+
+    _defineProperty(this, "computedValue", void 0);
+
+    _defineProperty(this, "bounds", EMPTY_BOUNDS());
+
+    _defineProperty(this, "classes", []);
+
+    _defineProperty(this, "instance", void 0);
+
+    this.instance = endpoint.instance;
+
+    if (endpoint.cssClass) {
+      this.classes.push(endpoint.cssClass);
+    }
+  }
+
+  _createClass(EndpointRepresentation, [{
+    key: "addClass",
+    value: function addClass(c) {
+      this.classes.push(c);
+      this.instance.addEndpointClass(this.endpoint, c);
+    }
+  }, {
+    key: "removeClass",
+    value: function removeClass(c) {
+      this.classes = this.classes.filter(function (_c) {
+        return _c !== c;
+      });
+      this.instance.removeEndpointClass(this.endpoint, c);
+    }
+  }, {
+    key: "clone",
+    value: function clone() {
+      return null;
+    }
+  }, {
+    key: "compute",
+    value: function compute(anchorPoint, orientation, endpointStyle) {
+      // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+      // it would be much more lightweight as we'd not need to create a class for each one.
+      this.computedValue = this._compute(anchorPoint, orientation, endpointStyle);
+      this.bounds.minX = this.x;
+      this.bounds.minY = this.y;
+      this.bounds.maxX = this.x + this.w;
+      this.bounds.maxY = this.y + this.h;
+    }
+  }, {
+    key: "setVisible",
+    value: function setVisible(v) {
+      this.instance.setEndpointVisible(this.endpoint, v);
+    }
+  }]);
+
+  return EndpointRepresentation;
+}();
+
+var endpointMap = {};
+var EndpointFactory = {
+  get: function get(ep, name, params) {
+    var e = endpointMap[name];
+
+    if (!e) {
+      throw {
+        message: "jsPlumb: unknown endpoint type '" + name + "'"
+      };
+    } else {
+      return new e(ep, params);
+    }
+  },
+  register: function register(name, ep) {
+    endpointMap[name] = ep;
+  }
+};
+
+var DotEndpoint =
+/*#__PURE__*/
+function (_EndpointRepresentati) {
+  _inherits(DotEndpoint, _EndpointRepresentati);
+
+  function DotEndpoint(endpoint, params) {
+    var _this;
+
+    _classCallCheck(this, DotEndpoint);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DotEndpoint).call(this, endpoint));
+
+    _defineProperty(_assertThisInitialized(_this), "radius", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "defaultOffset", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "defaultInnerRadius", void 0);
+
+    params = params || {};
+    _this.radius = params.radius || 5;
+    _this.defaultOffset = 0.5 * _this.radius;
+    _this.defaultInnerRadius = _this.radius / 3;
+    return _this;
+  } // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+  // it would be much more lightweight as we'd not need to create a class for each one.
+
+
+  _createClass(DotEndpoint, [{
+    key: "_compute",
+    value: function _compute(anchorPoint, orientation, endpointStyle) {
+      //this.radius = endpointStyle.radius || this.radius
+      var x = anchorPoint[0] - this.radius,
+          y = anchorPoint[1] - this.radius,
+          w = this.radius * 2,
+          h = this.radius * 2;
+
+      if (endpointStyle && endpointStyle.stroke) {
+        var lw = endpointStyle.strokeWidth || 1;
+        x -= lw;
+        y -= lw;
+        w += lw * 2;
+        h += lw * 2;
+      }
+
+      this.x = x;
+      this.y = y;
+      this.w = w;
+      this.h = h;
+      return [x, y, w, h, this.radius];
+    }
+  }, {
+    key: "getType",
+    value: function getType() {
+      return DotEndpoint.dotEndpointType;
+    }
+  }]);
+
+  return DotEndpoint;
+}(EndpointRepresentation);
+
+_defineProperty(DotEndpoint, "dotEndpointType", "Dot");
+
+function register() {
+  EndpointFactory.register("Dot", DotEndpoint);
+}
+
+var BlankEndpoint =
+/*#__PURE__*/
+function (_EndpointRepresentati) {
+  _inherits(BlankEndpoint, _EndpointRepresentati);
+
+  function BlankEndpoint(endpoint, params) {
+    _classCallCheck(this, BlankEndpoint);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint));
+  } //
+  // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+  // it would be much more lightweight as we'd not need to create a class for each one.
+
+
+  _createClass(BlankEndpoint, [{
+    key: "_compute",
+    value: function _compute(anchorPoint, orientation, endpointStyle) {
+      this.x = anchorPoint[0];
+      this.y = anchorPoint[1];
+      this.w = 10;
+      this.h = 0;
+      return [anchorPoint[0], anchorPoint[1], 10, 0];
+    }
+  }, {
+    key: "getType",
+    value: function getType() {
+      return "Blank";
+    }
+  }]);
+
+  return BlankEndpoint;
+}(EndpointRepresentation);
+function register$1() {
+  EndpointFactory.register("Blank", BlankEndpoint);
+}
+
+var RectangleEndpoint =
+/*#__PURE__*/
+function (_EndpointRepresentati) {
+  _inherits(RectangleEndpoint, _EndpointRepresentati);
+
+  function RectangleEndpoint(endpoint, params) {
+    var _this;
+
+    _classCallCheck(this, RectangleEndpoint);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(RectangleEndpoint).call(this, endpoint));
+
+    _defineProperty(_assertThisInitialized(_this), "width", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "height", void 0);
+
+    params = params || {};
+    _this.width = params.width || 10;
+    _this.height = params.height || 10;
+    return _this;
+  } // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
+  // it would be much more lightweight as we'd not need to create a class for each one.
+
+
+  _createClass(RectangleEndpoint, [{
+    key: "_compute",
+    value: function _compute(anchorPoint, orientation, endpointStyle) {
+      var width = endpointStyle.width || this.width,
+          height = endpointStyle.height || this.height,
+          x = anchorPoint[0] - width / 2,
+          y = anchorPoint[1] - height / 2;
+      this.x = x;
+      this.y = y;
+      this.w = width;
+      this.h = height;
+      return [x, y, width, height];
+    }
+  }, {
+    key: "getType",
+    value: function getType() {
+      return "Rectangle";
+    }
+  }]);
+
+  return RectangleEndpoint;
+}(EndpointRepresentation);
+function register$2() {
+  EndpointFactory.register("Rectangle", RectangleEndpoint);
 }
 
 function filterList(list, value, missingIsFalse) {
@@ -790,6 +1052,3106 @@ function getsert(map, key, valueGenerator) {
 
   return map.get(key);
 }
+
+var AbstractConnector =
+/*#__PURE__*/
+function () {
+  function AbstractConnector(instance, connection, params) {
+    _classCallCheck(this, AbstractConnector);
+
+    this.instance = instance;
+    this.connection = connection;
+
+    _defineProperty(this, "type", void 0);
+
+    _defineProperty(this, "edited", false);
+
+    _defineProperty(this, "stub", void 0);
+
+    _defineProperty(this, "sourceStub", void 0);
+
+    _defineProperty(this, "targetStub", void 0);
+
+    _defineProperty(this, "maxStub", void 0);
+
+    _defineProperty(this, "typeId", void 0);
+
+    _defineProperty(this, "gap", void 0);
+
+    _defineProperty(this, "sourceGap", void 0);
+
+    _defineProperty(this, "targetGap", void 0);
+
+    _defineProperty(this, "segments", []);
+
+    _defineProperty(this, "totalLength", 0);
+
+    _defineProperty(this, "segmentProportions", []);
+
+    _defineProperty(this, "segmentProportionalLengths", []);
+
+    _defineProperty(this, "paintInfo", null);
+
+    _defineProperty(this, "strokeWidth", void 0);
+
+    _defineProperty(this, "x", void 0);
+
+    _defineProperty(this, "y", void 0);
+
+    _defineProperty(this, "w", void 0);
+
+    _defineProperty(this, "h", void 0);
+
+    _defineProperty(this, "segment", void 0);
+
+    _defineProperty(this, "bounds", EMPTY_BOUNDS());
+
+    _defineProperty(this, "cssClass", void 0);
+
+    _defineProperty(this, "geometry", void 0);
+
+    this.stub = params.stub || this.getDefaultStubs();
+    this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
+    this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
+    this.gap = params.gap || 0;
+    this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
+    this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
+    this.maxStub = Math.max(this.sourceStub, this.targetStub);
+    this.cssClass = params.cssClass || "";
+  }
+
+  _createClass(AbstractConnector, [{
+    key: "getTypeDescriptor",
+    value: function getTypeDescriptor() {
+      return "connector";
+    }
+  }, {
+    key: "getIdPrefix",
+    value: function getIdPrefix() {
+      return "_jsplumb_connector";
+    }
+  }, {
+    key: "setGeometry",
+    value: function setGeometry(g, internal) {
+      this.geometry = g;
+      this.edited = g != null && !internal;
+    }
+    /**
+     * Subclasses can override this. By default we just pass back the geometry we are using internally.
+     */
+
+  }, {
+    key: "exportGeometry",
+    value: function exportGeometry() {
+      return this.geometry;
+    }
+    /**
+     * Subclasses can override this. By default we just set the given geometry as our internal representation.
+     */
+
+  }, {
+    key: "importGeometry",
+    value: function importGeometry(g) {
+      this.geometry = g;
+      return true;
+    }
+  }, {
+    key: "resetGeometry",
+    value: function resetGeometry() {
+      this.geometry = null;
+      this.edited = false;
+    }
+  }, {
+    key: "resetBounds",
+    value: function resetBounds() {
+      this.bounds = EMPTY_BOUNDS();
+    }
+  }, {
+    key: "getPathData",
+    value: function getPathData() {
+      var p = "";
+
+      for (var i = 0; i < this.segments.length; i++) {
+        p += this.instance.getPath(this.segments[i], i === 0);
+        p += " ";
+      }
+
+      return p;
+    }
+    /**
+     * Function: findSegmentForPoint
+     * Returns the segment that is closest to the given [x,y],
+     * null if nothing found.  This function returns a JS
+     * object with:
+     *
+     *   d   -   distance from segment
+     *   l   -   proportional location in segment
+     *   x   -   x point on the segment
+     *   y   -   y point on the segment
+     *   s   -   the segment itself.
+     */
+
+  }, {
+    key: "findSegmentForPoint",
+    value: function findSegmentForPoint(x, y) {
+      var out = {
+        d: Infinity,
+        s: null,
+        x: null,
+        y: null,
+        l: null,
+        x1: null,
+        y1: null,
+        x2: null,
+        y2: null,
+        index: null,
+        connectorLocation: null
+      };
+
+      for (var i = 0; i < this.segments.length; i++) {
+        var _s = this.segments[i].findClosestPointOnPath(x, y);
+
+        if (_s.d < out.d) {
+          out.d = _s.d;
+          out.l = _s.l;
+          out.x = _s.x;
+          out.y = _s.y;
+          out.s = this.segments[i];
+          out.x1 = _s.x1;
+          out.x2 = _s.x2;
+          out.y1 = _s.y1;
+          out.y2 = _s.y2;
+          out.index = i;
+          out.connectorLocation = this.segmentProportions[i][0] + _s.l * (this.segmentProportions[i][1] - this.segmentProportions[i][0]);
+        }
+      }
+
+      return out;
+    }
+  }, {
+    key: "lineIntersection",
+    value: function lineIntersection(x1, y1, x2, y2) {
+      var out = [];
+
+      for (var i = 0; i < this.segments.length; i++) {
+        out.push.apply(out, this.segments[i].lineIntersection(x1, y1, x2, y2));
+      }
+
+      return out;
+    }
+  }, {
+    key: "boxIntersection",
+    value: function boxIntersection(x, y, w, h) {
+      var out = [];
+
+      for (var i = 0; i < this.segments.length; i++) {
+        out.push.apply(out, this.segments[i].boxIntersection(x, y, w, h));
+      }
+
+      return out;
+    }
+  }, {
+    key: "boundingBoxIntersection",
+    value: function boundingBoxIntersection(box) {
+      var out = [];
+
+      for (var i = 0; i < this.segments.length; i++) {
+        out.push.apply(out, this.segments[i].boundingBoxIntersection(box));
+      }
+
+      return out;
+    }
+  }, {
+    key: "_updateSegmentProportions",
+    value: function _updateSegmentProportions() {
+      var curLoc = 0;
+
+      for (var i = 0; i < this.segments.length; i++) {
+        var sl = this.segments[i].getLength();
+        this.segmentProportionalLengths[i] = sl / this.totalLength;
+        this.segmentProportions[i] = [curLoc, curLoc += sl / this.totalLength];
+      }
+    }
+    /**
+     * returns [segment, proportion of travel in segment, segment index] for the segment
+     * that contains the point which is 'location' distance along the entire path, where
+     * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths
+     * are made up of a list of segments, each of which contributes some fraction to
+     * the total length.
+     * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
+     * as the absolute distance in pixels, rather than a proportion of the total path.
+     */
+
+  }, {
+    key: "_findSegmentForLocation",
+    value: function _findSegmentForLocation(location, absolute) {
+      var idx, i, inSegmentProportion;
+
+      if (absolute) {
+        location = location > 0 ? location / this.totalLength : (this.totalLength + location) / this.totalLength;
+      } // if location 1 we know its the last segment
+
+
+      if (location === 1) {
+        idx = this.segments.length - 1;
+        inSegmentProportion = 1;
+      } else if (location === 0) {
+        // if location 0 we know its the first segment
+        inSegmentProportion = 0;
+        idx = 0;
+      } else {
+        // if location >= 0.5, traverse backwards (of course not exact, who knows the segment proportions. but
+        // an educated guess at least)
+        if (location >= 0.5) {
+          idx = 0;
+          inSegmentProportion = 0;
+
+          for (i = this.segmentProportions.length - 1; i > -1; i--) {
+            if (this.segmentProportions[i][1] >= location && this.segmentProportions[i][0] <= location) {
+              idx = i;
+              inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
+              break;
+            }
+          }
+        } else {
+          idx = this.segmentProportions.length - 1;
+          inSegmentProportion = 1;
+
+          for (i = 0; i < this.segmentProportions.length; i++) {
+            if (this.segmentProportions[i][1] >= location) {
+              idx = i;
+              inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
+              break;
+            }
+          }
+        }
+      }
+
+      return {
+        segment: this.segments[idx],
+        proportion: inSegmentProportion,
+        index: idx
+      };
+    }
+  }, {
+    key: "_addSegment",
+    value: function _addSegment(clazz, params) {
+      if (params.x1 === params.x2 && params.y1 === params.y2) {
+        return;
+      }
+
+      var s = new clazz(this.instance, params);
+      this.segments.push(s);
+      this.totalLength += s.getLength();
+      this.updateBounds(s);
+    }
+  }, {
+    key: "_clearSegments",
+    value: function _clearSegments() {
+      this.totalLength = 0;
+      this.segments.length = 0;
+      this.segmentProportions.length = 0;
+      this.segmentProportionalLengths.length = 0;
+    }
+  }, {
+    key: "getLength",
+    value: function getLength() {
+      return this.totalLength;
+    }
+  }, {
+    key: "_prepareCompute",
+    value: function _prepareCompute(params) {
+      this.strokeWidth = params.strokeWidth;
+      var segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
+          swapX = params.targetPos[0] < params.sourcePos[0],
+          swapY = params.targetPos[1] < params.sourcePos[1],
+          lw = params.strokeWidth || 1,
+          so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
+          to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
+          x = swapX ? params.targetPos[0] : params.sourcePos[0],
+          y = swapY ? params.targetPos[1] : params.sourcePos[1],
+          w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
+          h = Math.abs(params.targetPos[1] - params.sourcePos[1]); // if either anchor does not have an orientation set, we derive one from their relative
+      // positions.  we fix the axis to be the one in which the two elements are further apart, and
+      // point each anchor at the other element.  this is also used when dragging a new connection.
+
+      if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
+        var index = w > h ? 0 : 1,
+            oIndex = [1, 0][index];
+        so = [0, 0];
+        to = [0, 0];
+        so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
+        to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1;
+        so[oIndex] = 0;
+        to[oIndex] = 0;
+      }
+
+      var sx = swapX ? w + this.sourceGap * so[0] : this.sourceGap * so[0],
+          sy = swapY ? h + this.sourceGap * so[1] : this.sourceGap * so[1],
+          tx = swapX ? this.targetGap * to[0] : w + this.targetGap * to[0],
+          ty = swapY ? this.targetGap * to[1] : h + this.targetGap * to[1],
+          oProduct = so[0] * to[0] + so[1] * to[1];
+      var result = {
+        sx: sx,
+        sy: sy,
+        tx: tx,
+        ty: ty,
+        xSpan: Math.abs(tx - sx),
+        ySpan: Math.abs(ty - sy),
+        mx: (sx + tx) / 2,
+        my: (sy + ty) / 2,
+        so: so,
+        to: to,
+        x: x,
+        y: y,
+        w: w,
+        h: h,
+        segment: segment,
+        startStubX: sx + so[0] * this.sourceStub,
+        startStubY: sy + so[1] * this.sourceStub,
+        endStubX: tx + to[0] * this.targetStub,
+        endStubY: ty + to[1] * this.targetStub,
+        isXGreaterThanStubTimes2: Math.abs(sx - tx) > this.sourceStub + this.targetStub,
+        isYGreaterThanStubTimes2: Math.abs(sy - ty) > this.sourceStub + this.targetStub,
+        opposite: oProduct === -1,
+        perpendicular: oProduct === 0,
+        orthogonal: oProduct === 1,
+        sourceAxis: so[0] === 0 ? "y" : "x",
+        points: [x, y, w, h, sx, sy, tx, ty],
+        stubs: [this.sourceStub, this.targetStub]
+      };
+      result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
+      return result;
+    }
+  }, {
+    key: "getSegments",
+    value: function getSegments() {
+      return this.segments;
+    }
+  }, {
+    key: "updateBounds",
+    value: function updateBounds(segment) {
+      var segBounds = segment.getBounds();
+      this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
+      this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
+      this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
+      this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
+    }
+  }, {
+    key: "dumpSegmentsToConsole",
+    value: function dumpSegmentsToConsole() {
+      log("SEGMENTS:");
+
+      for (var i = 0; i < this.segments.length; i++) {
+        log(this.segments[i].type, "" + this.segments[i].getLength(), "" + this.segmentProportions[i]);
+      }
+    }
+  }, {
+    key: "pointOnPath",
+    value: function pointOnPath(location, absolute) {
+      var seg = this._findSegmentForLocation(location, absolute);
+
+      return seg.segment && seg.segment.pointOnPath(seg.proportion, false) || {
+        x: 0,
+        y: 0
+      };
+    }
+  }, {
+    key: "gradientAtPoint",
+    value: function gradientAtPoint(location, absolute) {
+      var seg = this._findSegmentForLocation(location, absolute);
+
+      return seg.segment && seg.segment.gradientAtPoint(seg.proportion, false) || 0;
+    }
+  }, {
+    key: "pointAlongPathFrom",
+    value: function pointAlongPathFrom(location, distance, absolute) {
+      var seg = this._findSegmentForLocation(location, absolute); // TODO what happens if this crosses to the next segment?
+
+
+      return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || {
+        x: 0,
+        y: 0
+      };
+    }
+  }, {
+    key: "compute",
+    value: function compute(params) {
+      this.paintInfo = this._prepareCompute(params);
+
+      this._clearSegments();
+
+      this._compute(this.paintInfo, params);
+
+      this.x = this.paintInfo.points[0];
+      this.y = this.paintInfo.points[1];
+      this.w = this.paintInfo.points[2];
+      this.h = this.paintInfo.points[3];
+      this.segment = this.paintInfo.segment;
+
+      this._updateSegmentProportions();
+    }
+  }, {
+    key: "applyType",
+    value: function applyType(t) {
+      this.instance.applyConnectorType(this, t);
+    } //
+    // a dummy implementation for subclasses to override if they want to.
+    //
+
+  }, {
+    key: "setAnchorOrientation",
+    value: function setAnchorOrientation(idx, orientation) {}
+  }]);
+
+  return AbstractConnector;
+}();
+
+var connectorMap = {};
+var Connectors = {
+  get: function get(instance, connection, name, params) {
+    var c = connectorMap[name];
+
+    if (!c) {
+      throw {
+        message: "jsPlumb: unknown connector type '" + name + "'"
+      };
+    } else {
+      return new c(instance, connection, params);
+    }
+  },
+  register: function register(name, conn) {
+    connectorMap[name] = conn;
+  }
+};
+
+var StraightSegment =
+/*#__PURE__*/
+function (_AbstractSegment) {
+  _inherits(StraightSegment, _AbstractSegment);
+
+  function StraightSegment(instance, params) {
+    var _this;
+
+    _classCallCheck(this, StraightSegment);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(StraightSegment).call(this, params));
+    _this.instance = instance;
+
+    _defineProperty(_assertThisInitialized(_this), "length", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "m", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "m2", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "x1", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "x2", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "y1", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "y2", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "type", StraightSegment.segmentType);
+
+    _this._setCoordinates({
+      x1: params.x1,
+      y1: params.y1,
+      x2: params.x2,
+      y2: params.y2
+    });
+
+    return _this;
+  }
+
+  _createClass(StraightSegment, [{
+    key: "_recalc",
+    value: function _recalc() {
+      this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
+      this.m = this.instance.geometry.gradient({
+        x: this.x1,
+        y: this.y1
+      }, {
+        x: this.x2,
+        y: this.y2
+      });
+      this.m2 = -1 / this.m;
+    }
+  }, {
+    key: "getLength",
+    value: function getLength() {
+      return this.length;
+    }
+  }, {
+    key: "getGradient",
+    value: function getGradient() {
+      return this.m;
+    }
+  }, {
+    key: "_setCoordinates",
+    value: function _setCoordinates(coords) {
+      this.x1 = coords.x1;
+      this.y1 = coords.y1;
+      this.x2 = coords.x2;
+      this.y2 = coords.y2;
+
+      this._recalc();
+    }
+  }, {
+    key: "getBounds",
+    value: function getBounds() {
+      return {
+        minX: Math.min(this.x1, this.x2),
+        minY: Math.min(this.y1, this.y2),
+        maxX: Math.max(this.x1, this.x2),
+        maxY: Math.max(this.y1, this.y2)
+      };
+    }
+    /**
+     * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
+     * 0 to 1 inclusive. for the straight line segment this is simple maths.
+     */
+
+  }, {
+    key: "pointOnPath",
+    value: function pointOnPath(location, absolute) {
+      if (location === 0 && !absolute) {
+        return {
+          x: this.x1,
+          y: this.y1
+        };
+      } else if (location === 1 && !absolute) {
+        return {
+          x: this.x2,
+          y: this.y2
+        };
+      } else {
+        var l = absolute ? location > 0 ? location : this.length + location : location * this.length;
+        return this.instance.geometry.pointOnLine({
+          x: this.x1,
+          y: this.y1
+        }, {
+          x: this.x2,
+          y: this.y2
+        }, l);
+      }
+    }
+    /**
+     * returns the gradient of the segment at the given point - which for us is constant.
+     */
+
+  }, {
+    key: "gradientAtPoint",
+    value: function gradientAtPoint(location, absolute) {
+      return this.m;
+    }
+    /**
+     * returns the point on the segment's path that is 'distance' along the length of the path from 'location', where
+     * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
+     * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
+     */
+
+  }, {
+    key: "pointAlongPathFrom",
+    value: function pointAlongPathFrom(location, distance, absolute) {
+      var p = this.pointOnPath(location, absolute),
+          farAwayPoint = distance <= 0 ? {
+        x: this.x1,
+        y: this.y1
+      } : {
+        x: this.x2,
+        y: this.y2
+        /*
+         location == 1 ? {
+         x:x1 + ((x2 - x1) * 10),
+         y:y1 + ((y1 - y2) * 10)
+         } :
+         */
+
+      };
+
+      if (distance <= 0 && Math.abs(distance) > 1) {
+        distance *= -1;
+      }
+
+      return this.instance.geometry.pointOnLine(p, farAwayPoint, distance);
+    } // is c between a and b?
+
+  }, {
+    key: "within",
+    value: function within(a, b, c) {
+      return c >= Math.min(a, b) && c <= Math.max(a, b);
+    } // find which of a and b is closest to c
+
+  }, {
+    key: "closest",
+    value: function closest(a, b, c) {
+      return Math.abs(c - a) < Math.abs(c - b) ? a : b;
+    }
+    /**
+     Function: findClosestPointOnPath
+     Finds the closest point on this segment to [x,y]. See
+     notes on this method in AbstractSegment.
+     */
+
+  }, {
+    key: "findClosestPointOnPath",
+    value: function findClosestPointOnPath(x, y) {
+      var out = {
+        d: Infinity,
+        x: null,
+        y: null,
+        l: null,
+        x1: this.x1,
+        x2: this.x2,
+        y1: this.y1,
+        y2: this.y2
+      };
+
+      if (this.m === 0) {
+        out.y = this.y1;
+        out.x = this.within(this.x1, this.x2, x) ? x : this.closest(this.x1, this.x2, x);
+      } else if (this.m === Infinity || this.m === -Infinity) {
+        out.x = this.x1;
+        out.y = this.within(this.y1, this.y2, y) ? y : this.closest(this.y1, this.y2, y);
+      } else {
+        // closest point lies on normal from given point to this line.
+        var b = this.y1 - this.m * this.x1,
+            b2 = y - this.m2 * x,
+            // y1 = m.x1 + b and y1 = m2.x1 + b2
+        // so m.x1 + b = m2.x1 + b2
+        // x1(m - m2) = b2 - b
+        // x1 = (b2 - b) / (m - m2)
+        _x1 = (b2 - b) / (this.m - this.m2),
+            _y1 = this.m * _x1 + b;
+
+        out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1); //_x1
+
+        out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1); //_y1
+      }
+
+      var fractionInSegment = this.instance.geometry.lineLength({
+        x: out.x,
+        y: out.y
+      }, {
+        x: this.x1,
+        y: this.y1
+      });
+      out.d = this.instance.geometry.lineLength({
+        x: x,
+        y: y
+      }, out);
+      out.l = fractionInSegment / length;
+      return out;
+    }
+  }, {
+    key: "_pointLiesBetween",
+    value: function _pointLiesBetween(q, p1, p2) {
+      return p2 > p1 ? p1 <= q && q <= p2 : p1 >= q && q >= p2;
+    }
+    /**
+     * Calculates all intersections of the given line with this segment.
+     * @param _x1
+     * @param _y1
+     * @param _x2
+     * @param _y2
+     * @returns {Array}
+     */
+
+  }, {
+    key: "lineIntersection",
+    value: function lineIntersection(_x1, _y1, _x2, _y2) {
+      var m2 = Math.abs(this.instance.geometry.gradient({
+        x: _x1,
+        y: _y1
+      }, {
+        x: _x2,
+        y: _y2
+      })),
+          m1 = Math.abs(this.m),
+          b = m1 === Infinity ? this.x1 : this.y1 - m1 * this.x1,
+          out = [],
+          b2 = m2 === Infinity ? _x1 : _y1 - m2 * _x1; // if lines parallel, no intersection
+
+      if (m2 !== m1) {
+        // perpendicular, segment horizontal
+        if (m2 === Infinity && m1 === 0) {
+          if (this._pointLiesBetween(_x1, this.x1, this.x2) && this._pointLiesBetween(this.y1, _y1, _y2)) {
+            out.push([_x1, this.y1]); // we return X on the incident line and Y from the segment
+          }
+        } else if (m2 === 0 && m1 === Infinity) {
+          // perpendicular, segment vertical
+          if (this._pointLiesBetween(_y1, this.y1, this.y2) && this._pointLiesBetween(this.x1, _x1, _x2)) {
+            out.push([this.x1, _y1]); // we return X on the segment and Y from the incident line
+          }
+        } else {
+          var X, Y;
+
+          if (m2 === Infinity) {
+            // test line is a vertical line. where does it cross the segment?
+            X = _x1;
+
+            if (this._pointLiesBetween(X, this.x1, this.x2)) {
+              Y = m1 * _x1 + b;
+
+              if (this._pointLiesBetween(Y, _y1, _y2)) {
+                out.push([X, Y]);
+              }
+            }
+          } else if (m2 === 0) {
+            Y = _y1; // test line is a horizontal line. where does it cross the segment?
+
+            if (this._pointLiesBetween(Y, this.y1, this.y2)) {
+              X = (_y1 - b) / m1;
+
+              if (this._pointLiesBetween(X, _x1, _x2)) {
+                out.push([X, Y]);
+              }
+            }
+          } else {
+            // mX + b = m2X + b2
+            // mX - m2X = b2 - b
+            // X(m - m2) = b2 - b
+            // X = (b2 - b) / (m - m2)
+            // Y = mX + b
+            X = (b2 - b) / (m1 - m2);
+            Y = m1 * X + b;
+
+            if (this._pointLiesBetween(X, this.x1, this.x2) && this._pointLiesBetween(Y, this.y1, this.y2)) {
+              out.push([X, Y]);
+            }
+          }
+        }
+      }
+
+      return out;
+    }
+    /**
+     * Calculates all intersections of the given box with this segment. By default this method simply calls `lineIntersection` with each of the four
+     * faces of the box; subclasses can override this if they think there's a faster way to compute the entire box at once.
+     * @param x X position of top left corner of box
+     * @param y Y position of top left corner of box
+     * @param w width of box
+     * @param h height of box
+     * @returns {Array}
+     */
+
+  }, {
+    key: "boxIntersection",
+    value: function boxIntersection(x, y, w, h) {
+      var a = [];
+      a.push.apply(a, this.lineIntersection(x, y, x + w, y));
+      a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
+      a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
+      a.push.apply(a, this.lineIntersection(x, y + h, x, y));
+      return a;
+    }
+  }]);
+
+  return StraightSegment;
+}(AbstractSegment);
+
+_defineProperty(StraightSegment, "segmentType", "Straight");
+
+var StraightConnector =
+/*#__PURE__*/
+function (_AbstractConnector) {
+  _inherits(StraightConnector, _AbstractConnector);
+
+  function StraightConnector() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, StraightConnector);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(StraightConnector)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "type", "Straight");
+
+    return _this;
+  }
+
+  _createClass(StraightConnector, [{
+    key: "getDefaultStubs",
+    value: function getDefaultStubs() {
+      return [0, 0];
+    }
+  }, {
+    key: "_compute",
+    value: function _compute(paintInfo, p) {
+      this._addSegment(StraightSegment, {
+        x1: paintInfo.sx,
+        y1: paintInfo.sy,
+        x2: paintInfo.startStubX,
+        y2: paintInfo.startStubY
+      });
+
+      this._addSegment(StraightSegment, {
+        x1: paintInfo.startStubX,
+        y1: paintInfo.startStubY,
+        x2: paintInfo.endStubX,
+        y2: paintInfo.endStubY
+      });
+
+      this._addSegment(StraightSegment, {
+        x1: paintInfo.endStubX,
+        y1: paintInfo.endStubY,
+        x2: paintInfo.tx,
+        y2: paintInfo.ty
+      });
+
+      this.geometry = {
+        source: p.sourcePos,
+        target: p.targetPos
+      };
+    }
+  }]);
+
+  return StraightConnector;
+}(AbstractConnector);
+function register$3() {
+  Connectors.register("Straight", StraightConnector);
+}
+
+/**
+ * Various geometry functions
+ *
+ * Copyright (c) 2020 jsPlumb Pty Ltd
+ * https://jsplumbtoolkit.com
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
+var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
+var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
+var TWO_PI = 2 * Math.PI;
+var jsPlumbGeometry =
+/*#__PURE__*/
+function () {
+  function jsPlumbGeometry() {
+    _classCallCheck(this, jsPlumbGeometry);
+  }
+
+  _createClass(jsPlumbGeometry, [{
+    key: "pointXYFromArray",
+    value: function pointXYFromArray(a) {
+      return {
+        x: a[0],
+        y: a[1]
+      };
+    }
+    /**
+     * @name gradient
+     * @function
+     * @desc Calculates the gradient of a line between the two points.
+     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+     * @return {number} The gradient of a line between the two points.
+     */
+
+  }, {
+    key: "gradient",
+    value: function gradient(p1, p2) {
+      if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
+    }
+    /**
+     * @name normal
+     * @function
+     * @desc Calculates the gradient of a normal to a line between the two points.
+     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+     * @return {number} The gradient of a normal to a line between the two points.
+     */
+
+  }, {
+    key: "normal",
+    value: function normal(p1, p2) {
+      return -1 / this.gradient(p1, p2);
+    }
+    /**
+     * @name lineLength
+     * @function
+     * @desc Calculates the length of a line between the two points.
+     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+     * @return {number} The length of a line between the two points.
+     */
+
+  }, {
+    key: "lineLength",
+    value: function lineLength(p1, p2) {
+      return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
+    }
+    /**
+     * @name quadrant
+     * @function
+     * @desc Calculates the quadrant in which the angle between the two points lies.
+     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+     * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+     */
+
+  }, {
+    key: "quadrant",
+    value: function quadrant(p1, p2) {
+      if (p2.x > p1.x) {
+        return p2.y > p1.y ? 2 : 1;
+      } else if (p2.x == p1.x) {
+        return p2.y > p1.y ? 2 : 1;
+      } else {
+        return p2.y > p1.y ? 3 : 4;
+      }
+    }
+    /**
+     * @name theta
+     * @function
+     * @desc Calculates the angle between the two points.
+     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+     * @return {number} The angle between the two points.
+     */
+
+  }, {
+    key: "theta",
+    value: function theta(p1, p2) {
+      var m = this.gradient(p1, p2),
+          t = Math.atan(m),
+          s = this.quadrant(p1, p2);
+      if (s == 4 || s == 3) t += Math.PI;
+      if (t < 0) t += 2 * Math.PI;
+      return t;
+    }
+    /**
+     * @name intersects
+     * @function
+     * @desc Calculates whether or not the two rectangles intersect.
+     * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+     * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+     * @return {boolean} True if the rectangles intersect, false otherwise.
+     */
+
+  }, {
+    key: "intersects",
+    value: function intersects(r1, r2) {
+      var x1 = r1.x,
+          x2 = r1.x + r1.w,
+          y1 = r1.y,
+          y2 = r1.y + r1.h,
+          a1 = r2.x,
+          a2 = r2.x + r2.w,
+          b1 = r2.y,
+          b2 = r2.y + r2.h;
+      return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
+    }
+    /**
+     * @name encloses
+     * @function
+     * @desc Calculates whether or not r2 is completely enclosed by r1.
+     * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+     * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+     * @param {boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
+     * @return {boolean} True if r1 encloses r2, false otherwise.
+     */
+
+  }, {
+    key: "encloses",
+    value: function encloses(r1, r2, allowSharedEdges) {
+      var x1 = r1.x,
+          x2 = r1.x + r1.w,
+          y1 = r1.y,
+          y2 = r1.y + r1.h,
+          a1 = r2.x,
+          a2 = r2.x + r2.w,
+          b1 = r2.y,
+          b2 = r2.y + r2.h,
+          c = function c(v1, v2, v3, v4) {
+        return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
+      };
+
+      return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
+    }
+    /**
+     * @name pointOnLine
+     * @function
+     * @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
+     * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {number} distance Distance along the length that the point should be located.
+     * @return {PointXY} Point on the line, in the form `{ x:..., y:... }`.
+     */
+
+  }, {
+    key: "pointOnLine",
+    value: function pointOnLine(fromPoint, toPoint, distance) {
+      var m = this.gradient(fromPoint, toPoint),
+          s = this.quadrant(fromPoint, toPoint),
+          segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
+          theta = Math.atan(m),
+          y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+          x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+      return {
+        x: fromPoint.x + x,
+        y: fromPoint.y + y
+      };
+    }
+    /**
+     * @name perpendicularLineTo
+     * @function
+     * @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
+     * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
+     * @param {number} length Length of the line to generate
+     * @return {LineXY} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
+     */
+
+  }, {
+    key: "perpendicularLineTo",
+    value: function perpendicularLineTo(fromPoint, toPoint, length) {
+      var m = this.gradient(fromPoint, toPoint),
+          theta2 = Math.atan(-1 / m),
+          y = length / 2 * Math.sin(theta2),
+          x = length / 2 * Math.cos(theta2);
+      return [{
+        x: toPoint.x + x,
+        y: toPoint.y + y
+      }, {
+        x: toPoint.x - x,
+        y: toPoint.y - y
+      }];
+    }
+  }]);
+
+  return jsPlumbGeometry;
+}();
+
+var VERY_SMALL_VALUE = 0.0000000001;
+
+function gentleRound(n) {
+  var f = Math.floor(n),
+      r = Math.ceil(n);
+
+  if (n - f < VERY_SMALL_VALUE) {
+    return f;
+  } else if (r - n < VERY_SMALL_VALUE) {
+    return r;
+  }
+
+  return n;
+}
+
+var ArcSegment =
+/*#__PURE__*/
+function (_AbstractSegment) {
+  _inherits(ArcSegment, _AbstractSegment);
+
+  function ArcSegment(instance, params) {
+    var _this;
+
+    _classCallCheck(this, ArcSegment);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
+    _this.instance = instance;
+
+    _defineProperty(_assertThisInitialized(_this), "type", ArcSegment.segmentType);
+
+    _defineProperty(_assertThisInitialized(_this), "cx", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "cy", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "radius", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "anticlockwise", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "startAngle", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "endAngle", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "sweep", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "length", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "circumference", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "frac", void 0);
+
+    _this.cx = params.cx;
+    _this.cy = params.cy;
+    _this.radius = params.r;
+    _this.anticlockwise = params.ac;
+
+    if (params.startAngle && params.endAngle) {
+      _this.startAngle = params.startAngle;
+      _this.endAngle = params.endAngle;
+      _this.x1 = _this.cx + _this.radius * Math.cos(_this.startAngle);
+      _this.y1 = _this.cy + _this.radius * Math.sin(_this.startAngle);
+      _this.x2 = _this.cx + _this.radius * Math.cos(_this.endAngle);
+      _this.y2 = _this.cy + _this.radius * Math.sin(_this.endAngle);
+    } else {
+      _this.startAngle = _this._calcAngle(_this.x1, _this.y1);
+      _this.endAngle = _this._calcAngle(_this.x2, _this.y2);
+    }
+
+    if (_this.endAngle < 0) {
+      _this.endAngle += TWO_PI;
+    }
+
+    if (_this.startAngle < 0) {
+      _this.startAngle += TWO_PI;
+    }
+
+    var ea = _this.endAngle < _this.startAngle ? _this.endAngle + TWO_PI : _this.endAngle;
+    _this.sweep = Math.abs(ea - _this.startAngle);
+
+    if (_this.anticlockwise) {
+      _this.sweep = TWO_PI - _this.sweep;
+    }
+
+    _this.circumference = 2 * Math.PI * _this.radius;
+    _this.frac = _this.sweep / TWO_PI;
+    _this.length = _this.circumference * _this.frac;
+    _this.bounds = {
+      minX: _this.cx - _this.radius,
+      maxX: _this.cx + _this.radius,
+      minY: _this.cy - _this.radius,
+      maxY: _this.cy + _this.radius
+    };
+    return _this;
+  }
+
+  _createClass(ArcSegment, [{
+    key: "_calcAngle",
+    value: function _calcAngle(_x, _y) {
+      return this.instance.geometry.theta({
+        x: this.cx,
+        y: this.cy
+      }, {
+        x: _x,
+        y: _y
+      });
+    }
+  }, {
+    key: "_calcAngleForLocation",
+    value: function _calcAngleForLocation(segment, location) {
+      if (segment.anticlockwise) {
+        var sa = segment.startAngle < segment.endAngle ? segment.startAngle + TWO_PI : segment.startAngle,
+            s = Math.abs(sa - segment.endAngle);
+        return sa - s * location;
+      } else {
+        var ea = segment.endAngle < segment.startAngle ? segment.endAngle + TWO_PI : segment.endAngle,
+            ss = Math.abs(ea - segment.startAngle);
+        return segment.startAngle + ss * location;
+      }
+    }
+  }, {
+    key: "getLength",
+    value: function getLength() {
+      return this.length;
+    }
+    /**
+     * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
+     * 0 to 1 inclusive.
+     */
+
+  }, {
+    key: "pointOnPath",
+    value: function pointOnPath(location, absolute) {
+      if (location === 0) {
+        return {
+          x: this.x1,
+          y: this.y1,
+          theta: this.startAngle
+        };
+      } else if (location === 1) {
+        return {
+          x: this.x2,
+          y: this.y2,
+          theta: this.endAngle
+        };
+      }
+
+      if (absolute) {
+        location = location / length;
+      }
+
+      var angle = this._calcAngleForLocation(this, location),
+          _x = this.cx + this.radius * Math.cos(angle),
+          _y = this.cy + this.radius * Math.sin(angle);
+
+      return {
+        x: gentleRound(_x),
+        y: gentleRound(_y),
+        theta: angle
+      };
+    }
+    /**
+     * returns the gradient of the segment at the given point.
+     */
+
+  }, {
+    key: "gradientAtPoint",
+    value: function gradientAtPoint(location, absolute) {
+      var p = this.pointOnPath(location, absolute);
+      var m = this.instance.geometry.normal({
+        x: this.cx,
+        y: this.cy
+      }, p);
+
+      if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
+        m *= -1;
+      }
+
+      return m;
+    }
+  }, {
+    key: "pointAlongPathFrom",
+    value: function pointAlongPathFrom(location, distance, absolute) {
+      var p = this.pointOnPath(location, absolute),
+          arcSpan = distance / this.circumference * 2 * Math.PI,
+          dir = this.anticlockwise ? -1 : 1,
+          startAngle = p.theta + dir * arcSpan,
+          startX = this.cx + this.radius * Math.cos(startAngle),
+          startY = this.cy + this.radius * Math.sin(startAngle);
+      return {
+        x: startX,
+        y: startY
+      };
+    } // TODO: lineIntersection
+
+  }]);
+
+  return ArcSegment;
+}(AbstractSegment);
+
+_defineProperty(ArcSegment, "segmentType", "Arc");
+
+function sgn(n) {
+  return n < 0 ? -1 : n === 0 ? 0 : 1;
+}
+
+function segmentDirections(segment) {
+  return [sgn(segment[2] - segment[0]), sgn(segment[3] - segment[1])];
+}
+
+function segLength(s) {
+  return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
+}
+
+function _cloneArray(a) {
+  var _a = [];
+
+  _a.push.apply(_a, a);
+
+  return _a;
+}
+
+var FlowchartConnector =
+/*#__PURE__*/
+function (_AbstractConnector) {
+  _inherits(FlowchartConnector, _AbstractConnector);
+
+  _createClass(FlowchartConnector, [{
+    key: "getDefaultStubs",
+    value: function getDefaultStubs() {
+      return [30, 30];
+    }
+  }]);
+
+  function FlowchartConnector(instance, connection, params) {
+    var _this;
+
+    _classCallCheck(this, FlowchartConnector);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, instance, connection, params));
+    _this.instance = instance;
+    _this.connection = connection;
+
+    _defineProperty(_assertThisInitialized(_this), "type", "Flowchart");
+
+    _defineProperty(_assertThisInitialized(_this), "internalSegments", []);
+
+    _defineProperty(_assertThisInitialized(_this), "midpoint", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "alwaysRespectStubs", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "cornerRadius", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "lastx", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "lasty", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "lastOrientation", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
+
+    _this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;
+    _this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0;
+    _this.alwaysRespectStubs = params.alwaysRespectStubs === true;
+    _this.lastx = null;
+    _this.lasty = null;
+    _this.lastOrientation = null; // TODO now common between this and AbstractBezierEditor; refactor into superclass?
+
+    _this.loopbackRadius = params.loopbackRadius || 25;
+    _this.isLoopbackCurrently = false;
+    return _this;
+  }
+
+  _createClass(FlowchartConnector, [{
+    key: "addASegment",
+    value: function addASegment(x, y, paintInfo) {
+      if (this.lastx === x && this.lasty === y) {
+        return;
+      }
+
+      var lx = this.lastx == null ? paintInfo.sx : this.lastx,
+          ly = this.lasty == null ? paintInfo.sy : this.lasty,
+          o = lx === x ? "v" : "h";
+      this.lastx = x;
+      this.lasty = y;
+      this.internalSegments.push([lx, ly, x, y, o]);
+    }
+  }, {
+    key: "writeSegments",
+    value: function writeSegments(paintInfo) {
+      var current = null,
+          next,
+          currentDirection,
+          nextDirection;
+
+      for (var i = 0; i < this.internalSegments.length - 1; i++) {
+        current = current || _cloneArray(this.internalSegments[i]);
+        next = _cloneArray(this.internalSegments[i + 1]);
+        currentDirection = segmentDirections(current);
+        nextDirection = segmentDirections(next);
+
+        if (this.cornerRadius > 0 && current[4] !== next[4]) {
+          var minSegLength = Math.min(segLength(current), segLength(next));
+          var radiusToUse = Math.min(this.cornerRadius, minSegLength / 2);
+          current[2] -= currentDirection[0] * radiusToUse;
+          current[3] -= currentDirection[1] * radiusToUse;
+          next[0] += nextDirection[0] * radiusToUse;
+          next[1] += nextDirection[1] * radiusToUse;
+          var ac = currentDirection[1] === nextDirection[0] && nextDirection[0] === 1 || currentDirection[1] === nextDirection[0] && nextDirection[0] === 0 && currentDirection[0] !== nextDirection[1] || currentDirection[1] === nextDirection[0] && nextDirection[0] === -1,
+              sgny = next[1] > current[3] ? 1 : -1,
+              sgnx = next[0] > current[2] ? 1 : -1,
+              sgnEqual = sgny === sgnx,
+              cx = sgnEqual && ac || !sgnEqual && !ac ? next[0] : current[2],
+              cy = sgnEqual && ac || !sgnEqual && !ac ? current[3] : next[1];
+
+          this._addSegment(StraightSegment, {
+            x1: current[0],
+            y1: current[1],
+            x2: current[2],
+            y2: current[3]
+          });
+
+          this._addSegment(ArcSegment, {
+            r: radiusToUse,
+            x1: current[2],
+            y1: current[3],
+            x2: next[0],
+            y2: next[1],
+            cx: cx,
+            cy: cy,
+            ac: ac
+          });
+        } else {
+          this._addSegment(StraightSegment, {
+            x1: current[0],
+            y1: current[1],
+            x2: current[2],
+            y2: current[3]
+          });
+        }
+
+        current = next;
+      }
+
+      if (next != null) {
+        // last segment
+        this._addSegment(StraightSegment, {
+          x1: next[0],
+          y1: next[1],
+          x2: next[2],
+          y2: next[3]
+        });
+      }
+    }
+  }, {
+    key: "_compute",
+    value: function _compute(paintInfo, params) {
+      var _this2 = this;
+
+      this.internalSegments.length = 0;
+      this.lastx = null;
+      this.lasty = null;
+      this.lastOrientation = null;
+
+      var commonStubCalculator = function commonStubCalculator(axis) {
+        return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
+      },
+          stubCalculators = {
+        perpendicular: commonStubCalculator,
+        orthogonal: commonStubCalculator,
+        opposite: function opposite(axis) {
+          var pi = paintInfo,
+              idx = axis === "x" ? 0 : 1,
+              areInProximity = {
+            "x": function x() {
+              return pi.so[idx] === 1 && (pi.startStubX > pi.endStubX && pi.tx > pi.startStubX || pi.sx > pi.endStubX && pi.tx > pi.sx) || pi.so[idx] === -1 && (pi.startStubX < pi.endStubX && pi.tx < pi.startStubX || pi.sx < pi.endStubX && pi.tx < pi.sx);
+            },
+            "y": function y() {
+              return pi.so[idx] === 1 && (pi.startStubY > pi.endStubY && pi.ty > pi.startStubY || pi.sy > pi.endStubY && pi.ty > pi.sy) || pi.so[idx] === -1 && (pi.startStubY < pi.endStubY && pi.ty < pi.startStubY || pi.sy < pi.endStubY && pi.ty < pi.sy);
+            }
+          };
+
+          if (!_this2.alwaysRespectStubs && areInProximity[axis]()) {
+            return {
+              "x": [(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
+              "y": [paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
+            }[axis];
+          } else {
+            return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
+          }
+        } // calculate Stubs.
+
+      };
+
+      var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
+          idx = paintInfo.sourceAxis === "x" ? 0 : 1,
+          oidx = paintInfo.sourceAxis === "x" ? 1 : 0,
+          ss = stubs[idx],
+          oss = stubs[oidx],
+          es = stubs[idx + 2],
+          oes = stubs[oidx + 2]; // add the start stub segment. use stubs for loopback as it will look better, with the loop spaced
+      // away from the element.
+
+      this.addASegment(stubs[0], stubs[1], paintInfo); // if its a loopback and we should treat it differently.
+      // if (false && params.sourcePos[0] === params.targetPos[0] && params.sourcePos[1] === params.targetPos[1]) {
+      //
+      //     // we use loopbackRadius here, as statemachine connectors do.
+      //     // so we go radius to the left from stubs[0], then upwards by 2*radius, to the right by 2*radius,
+      //     // down by 2*radius, left by radius.
+      //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1], paintInfo)
+      //     addSegment(segments, stubs[0] - loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+      //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1] - (2 * loopbackRadius), paintInfo)
+      //     addSegment(segments, stubs[0] + loopbackRadius, stubs[1], paintInfo)
+      //     addSegment(segments, stubs[0], stubs[1], paintInfo)
+      //
+      // }
+      // else {
+
+      var midx = paintInfo.startStubX + (paintInfo.endStubX - paintInfo.startStubX) * this.midpoint,
+          midy = paintInfo.startStubY + (paintInfo.endStubY - paintInfo.startStubY) * this.midpoint;
+      var orientations = {
+        x: [0, 1],
+        y: [1, 0]
+      },
+          lineCalculators = {
+        perpendicular: function perpendicular(axis, ss, oss, es, oes) {
+          var pi = paintInfo,
+              sis = {
+            x: [[[1, 2, 3, 4], null, [2, 1, 4, 3]], null, [[4, 3, 2, 1], null, [3, 4, 1, 2]]],
+            y: [[[3, 2, 1, 4], null, [2, 3, 4, 1]], null, [[4, 1, 2, 3], null, [1, 4, 3, 2]]]
+          },
+              stubs = {
+            x: [[pi.startStubX, pi.endStubX], null, [pi.endStubX, pi.startStubX]],
+            y: [[pi.startStubY, pi.endStubY], null, [pi.endStubY, pi.startStubY]]
+          },
+              midLines = {
+            x: [[midx, pi.startStubY], [midx, pi.endStubY]],
+            y: [[pi.startStubX, midy], [pi.endStubX, midy]]
+          },
+              linesToEnd = {
+            x: [[pi.endStubX, pi.startStubY]],
+            y: [[pi.startStubX, pi.endStubY]]
+          },
+              startToEnd = {
+            x: [[pi.startStubX, pi.endStubY], [pi.endStubX, pi.endStubY]],
+            y: [[pi.endStubX, pi.startStubY], [pi.endStubX, pi.endStubY]]
+          },
+              startToMidToEnd = {
+            x: [[pi.startStubX, midy], [pi.endStubX, midy], [pi.endStubX, pi.endStubY]],
+            y: [[midx, pi.startStubY], [midx, pi.endStubY], [pi.endStubX, pi.endStubY]]
+          },
+              otherStubs = {
+            x: [pi.startStubY, pi.endStubY],
+            y: [pi.startStubX, pi.endStubX]
+          },
+              soIdx = orientations[axis][0],
+              toIdx = orientations[axis][1],
+              _so = pi.so[soIdx] + 1,
+              _to = pi.to[toIdx] + 1,
+              otherFlipped = pi.to[toIdx] === -1 && otherStubs[axis][1] < otherStubs[axis][0] || pi.to[toIdx] === 1 && otherStubs[axis][1] > otherStubs[axis][0],
+              stub1 = stubs[axis][_so][0],
+              stub2 = stubs[axis][_so][1],
+              segmentIndexes = sis[axis][_so][_to];
+
+          if (pi.segment === segmentIndexes[3] || pi.segment === segmentIndexes[2] && otherFlipped) {
+            return midLines[axis];
+          } else if (pi.segment === segmentIndexes[2] && stub2 < stub1) {
+            return linesToEnd[axis];
+          } else if (pi.segment === segmentIndexes[2] && stub2 >= stub1 || pi.segment === segmentIndexes[1] && !otherFlipped) {
+            return startToMidToEnd[axis];
+          } else if (pi.segment === segmentIndexes[0] || pi.segment === segmentIndexes[1] && otherFlipped) {
+            return startToEnd[axis];
+          }
+        },
+        orthogonal: function orthogonal(axis, startStub, otherStartStub, endStub, otherEndStub) {
+          var pi = paintInfo,
+              extent = {
+            "x": pi.so[0] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
+            "y": pi.so[1] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
+          }[axis];
+          return {
+            "x": [[extent, otherStartStub], [extent, otherEndStub], [endStub, otherEndStub]],
+            "y": [[otherStartStub, extent], [otherEndStub, extent], [otherEndStub, endStub]]
+          }[axis];
+        },
+        opposite: function opposite(axis, ss, oss, es, oes) {
+          var pi = paintInfo,
+              otherAxis = {
+            "x": "y",
+            "y": "x"
+          }[axis],
+              dim = {
+            "x": "height",
+            "y": "width"
+          }[axis],
+              comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
+
+          if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
+            var _val = oss + (1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim] + this.maxStub;
+
+            return {
+              "x": [[ss, _val], [es, _val]],
+              "y": [[_val, ss], [_val, es]]
+            }[axis];
+          } else if (!comparator || pi.so[idx] === 1 && ss > es || pi.so[idx] === -1 && ss < es) {
+            return {
+              "x": [[ss, midy], [es, midy]],
+              "y": [[midx, ss], [midx, es]]
+            }[axis];
+          } else if (pi.so[idx] === 1 && ss < es || pi.so[idx] === -1 && ss > es) {
+            return {
+              "x": [[midx, pi.sy], [midx, pi.ty]],
+              "y": [[pi.sx, midy], [pi.tx, midy]]
+            }[axis];
+          }
+        } // compute the rest of the line
+
+      };
+      var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);
+
+      if (p) {
+        for (var i = 0; i < p.length; i++) {
+          this.addASegment(p[i][0], p[i][1], paintInfo);
+        }
+      } // line to end stub
+
+
+      this.addASegment(stubs[2], stubs[3], paintInfo); // end stub to end (common)
+
+      this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo); // write out the segments.
+
+      this.writeSegments(paintInfo);
+    }
+  }]);
+
+  return FlowchartConnector;
+}(AbstractConnector);
+function register$4() {
+  Connectors.register("Flowchart", FlowchartConnector);
+}
+
+var AbstractBezierConnector =
+/*#__PURE__*/
+function (_AbstractConnector) {
+  _inherits(AbstractBezierConnector, _AbstractConnector);
+
+  _createClass(AbstractBezierConnector, [{
+    key: "getDefaultStubs",
+    value: function getDefaultStubs() {
+      return [0, 0];
+    }
+  }]);
+
+  function AbstractBezierConnector(instance, connection, params) {
+    var _this;
+
+    _classCallCheck(this, AbstractBezierConnector);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(AbstractBezierConnector).call(this, instance, connection, params));
+    _this.connection = connection;
+
+    _defineProperty(_assertThisInitialized(_this), "showLoopback", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "curviness", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "margin", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "orientation", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
+
+    params = params || {};
+    _this.showLoopback = params.showLoopback !== false;
+    _this.curviness = params.curviness || 10;
+    _this.margin = params.margin || 5;
+    _this.proximityLimit = params.proximityLimit || 80;
+    _this.clockwise = params.orientation && params.orientation === "clockwise";
+    _this.loopbackRadius = params.loopbackRadius || 25;
+    _this.isLoopbackCurrently = false;
+    return _this;
+  }
+
+  _createClass(AbstractBezierConnector, [{
+    key: "_compute",
+    value: function _compute(paintInfo, p) {
+      var sp = p.sourcePos,
+          tp = p.targetPos,
+          _w = Math.abs(sp[0] - tp[0]),
+          _h = Math.abs(sp[1] - tp[1]);
+
+      if (!this.showLoopback || p.sourceEndpoint.elementId !== p.targetEndpoint.elementId) {
+        this.isLoopbackCurrently = false;
+
+        this._computeBezier(paintInfo, p, sp, tp, _w, _h);
+      } else {
+        this.isLoopbackCurrently = true; // a loopback connector.  draw an arc from one anchor to the other.
+
+        var x1 = p.sourcePos[0],
+            y1 = p.sourcePos[1] - this.margin,
+            cx = x1,
+            cy = y1 - this.loopbackRadius,
+            // canvas sizing stuff, to ensure the whole painted area is visible.
+        _x = cx - this.loopbackRadius,
+            _y = cy - this.loopbackRadius;
+
+        _w = 2 * this.loopbackRadius;
+        _h = 2 * this.loopbackRadius;
+        paintInfo.points[0] = _x;
+        paintInfo.points[1] = _y;
+        paintInfo.points[2] = _w;
+        paintInfo.points[3] = _h; // ADD AN ARC SEGMENT.
+
+        this._addSegment(ArcSegment, {
+          loopback: true,
+          x1: x1 - _x + 4,
+          y1: y1 - _y,
+          startAngle: 0,
+          endAngle: 2 * Math.PI,
+          r: this.loopbackRadius,
+          ac: !this.clockwise,
+          x2: x1 - _x - 4,
+          y2: y1 - _y,
+          cx: cx - _x,
+          cy: cy - _y
+        });
+      }
+    }
+  }, {
+    key: "exportGeometry",
+    value: function exportGeometry() {
+      if (this.geometry == null) {
+        return null;
+      } else {
+        var s = [],
+            t = [],
+            cp1 = [],
+            cp2 = [];
+        Array.prototype.push.apply(s, this.geometry.source);
+        Array.prototype.push.apply(t, this.geometry.target);
+        Array.prototype.push.apply(cp1, this.geometry.controlPoints[0]);
+        Array.prototype.push.apply(cp2, this.geometry.controlPoints[1]);
+        return {
+          source: s,
+          target: t,
+          controlPoints: [cp1, cp2]
+        };
+      }
+    }
+  }, {
+    key: "importGeometry",
+    value: function importGeometry(geometry) {
+      if (geometry != null) {
+        if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
+          console.log("Bezier: cannot import geometry; controlPoints missing or does not have length 2");
+          this.setGeometry(null, true);
+          return false;
+        }
+
+        if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
+          console.log("Bezier: cannot import geometry; controlPoints malformed");
+          this.setGeometry(null, true);
+          return false;
+        }
+
+        if (geometry.source == null || geometry.source.length != 4) {
+          console.log("Bezier: cannot import geometry; source missing or malformed");
+          this.setGeometry(null, true);
+          return false;
+        }
+
+        if (geometry.target == null || geometry.target.length != 4) {
+          console.log("Bezier: cannot import geometry; target missing or malformed");
+          this.setGeometry(null, true);
+          return false;
+        }
+
+        this.setGeometry(geometry, false);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }]);
+
+  return AbstractBezierConnector;
+}(AbstractConnector);
+
+/**
+ * jsBezier
+ *
+ * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * licensed under the MIT license.
+ *
+ * a set of Bezier curve functions that deal with Beziers, used by jsPlumb, and perhaps useful for other people.  These functions work with Bezier
+ * curves of arbitrary degree.
+ *
+ * - functions are all in the 'jsBezier' namespace.
+ *
+ * - all input points should be in the format {x:.., y:..}. all output points are in this format too.
+ *
+ * - all input curves should be in the format [ {x:.., y:..}, {x:.., y:..}, {x:.., y:..}, {x:.., y:..} ]
+ *
+ * - 'location' as used as an input here refers to a decimal in the range 0-1 inclusive, which indicates a point some proportion along the length
+ * of the curve.  location as output has the same format and meaning.
+ *
+ *
+ * Function List:
+ * --------------
+ *
+ * distanceFromCurve(point, curve)
+ *
+ * 	Calculates the distance that the given point lies from the given Bezier.  Note that it is computed relative to the center of the Bezier,
+ * so if you have stroked the curve with a wide pen you may wish to take that into account!  The distance returned is relative to the values
+ * of the curve and the point - it will most likely be pixels.
+ *
+ * gradientAtPoint(curve, location)
+ *
+ * 	Calculates the gradient to the curve at the given location, as a decimal between 0 and 1 inclusive.
+ *
+ * gradientAtPointAlongCurveFrom (curve, location)
+ *
+ *	Calculates the gradient at the point on the given curve that is 'distance' units from location.
+ *
+ * nearestPointOnCurve(point, curve)
+ *
+ *	Calculates the nearest point to the given point on the given curve.  The return value of this is a JS object literal, containing both the
+ *point's coordinates and also the 'location' of the point (see above), for example:  { point:{x:551,y:150}, location:0.263365 }.
+ *
+ * pointOnCurve(curve, location)
+ *
+ * 	Calculates the coordinates of the point on the given Bezier curve at the given location.
+ *
+ * pointAlongCurveFrom(curve, location, distance)
+ *
+ * 	Calculates the coordinates of the point on the given curve that is 'distance' units from location.  'distance' should be in the same coordinate
+ * space as that used to construct the Bezier curve.  For an HTML Canvas usage, for example, distance would be a measure of pixels.
+ *
+ * locationAlongCurveFrom(curve, location, distance)
+ *
+ * 	Calculates the location on the given curve that is 'distance' units from location.  'distance' should be in the same coordinate
+ * space as that used to construct the Bezier curve.  For an HTML Canvas usage, for example, distance would be a measure of pixels.
+ *
+ * perpendicularToCurveAt(curve, location, length, distance)
+ *
+ * 	Calculates the perpendicular to the given curve at the given location.  length is the length of the line you wish for (it will be centered
+ * on the point at 'location'). distance is optional, and allows you to specify a point along the path from the given location as the center of
+ * the perpendicular returned.  The return value of this is an array of two points: [ {x:...,y:...}, {x:...,y:...} ].
+ *
+ *
+ */
+var Vectors = {
+  subtract: function subtract(v1, v2) {
+    return {
+      x: v1.x - v2.x,
+      y: v1.y - v2.y
+    };
+  },
+  dotProduct: function dotProduct(v1, v2) {
+    return v1.x * v2.x + v1.y * v2.y;
+  },
+  square: function square(v) {
+    return Math.sqrt(v.x * v.x + v.y * v.y);
+  },
+  scale: function scale(v, s) {
+    return {
+      x: v.x * s,
+      y: v.y * s
+    };
+  }
+};
+var maxRecursion = 64;
+var flatnessTolerance = Math.pow(2.0, -maxRecursion - 1);
+/**
+ * Calculates the distance that the point lies from the curve.
+ *
+ * @param point a point in the form {x:567, y:3342}
+ * @param curve a Bezier curve in the form [{x:..., y:...}, {x:..., y:...}, {x:..., y:...}, {x:..., y:...}].  note that this is currently
+ * hardcoded to assume cubiz beziers, but would be better off supporting any degree.
+ * @return a JS object literal containing location and distance, for example: {location:0.35, distance:10}.  Location is analogous to the location
+ * argument you pass to the pointOnPath function: it is a ratio of distance travelled along the curve.  Distance is the distance in pixels from
+ * the point to the curve.
+ */
+
+function distanceFromCurve(point, curve) {
+  var candidates = [],
+      w = _convertToBezier(point, curve),
+      degree = curve.length - 1,
+      higherDegree = 2 * degree - 1,
+      numSolutions = _findRoots(w, higherDegree, candidates, 0),
+      v = Vectors.subtract(point, curve[0]),
+      dist = Vectors.square(v),
+      t = 0.0,
+      newDist;
+
+  for (var i = 0; i < numSolutions; i++) {
+    v = Vectors.subtract(point, _bezier(curve, degree, candidates[i], null, null));
+    newDist = Vectors.square(v);
+
+    if (newDist < dist) {
+      dist = newDist;
+      t = candidates[i];
+    }
+  }
+
+  v = Vectors.subtract(point, curve[degree]);
+  newDist = Vectors.square(v);
+
+  if (newDist < dist) {
+    dist = newDist;
+    t = 1.0;
+  }
+
+  return {
+    location: t,
+    distance: dist
+  };
+}
+/**
+ * finds the nearest point on the curve to the given point.
+ */
+
+function nearestPointOnCurve(point, curve) {
+  var td = distanceFromCurve(point, curve);
+  return {
+    point: _bezier(curve, curve.length - 1, td.location, null, null),
+    location: td.location
+  };
+}
+
+function _convertToBezier(point, curve) {
+  var degree = curve.length - 1,
+      higherDegree = 2 * degree - 1,
+      c = [],
+      d = [],
+      cdTable = [],
+      w = [],
+      z = [[1.0, 0.6, 0.3, 0.1], [0.4, 0.6, 0.6, 0.4], [0.1, 0.3, 0.6, 1.0]];
+
+  for (var i = 0; i <= degree; i++) {
+    c[i] = Vectors.subtract(curve[i], point);
+  }
+
+  for (var _i = 0; _i <= degree - 1; _i++) {
+    d[_i] = Vectors.subtract(curve[_i + 1], curve[_i]);
+    d[_i] = Vectors.scale(d[_i], 3.0);
+  }
+
+  for (var row = 0; row <= degree - 1; row++) {
+    for (var column = 0; column <= degree; column++) {
+      if (!cdTable[row]) cdTable[row] = [];
+      cdTable[row][column] = Vectors.dotProduct(d[row], c[column]);
+    }
+  }
+
+  for (var _i2 = 0; _i2 <= higherDegree; _i2++) {
+    if (!w[_i2]) {
+      w[_i2] = [];
+    }
+
+    w[_i2].y = 0.0;
+    w[_i2].x = parseFloat("" + _i2) / higherDegree;
+  }
+
+  var n = degree,
+      m = degree - 1;
+
+  for (var k = 0; k <= n + m; k++) {
+    var lb = Math.max(0, k - m),
+        ub = Math.min(k, n);
+
+    for (var _i3 = lb; _i3 <= ub; _i3++) {
+      var j = k - _i3;
+      w[_i3 + j].y += cdTable[j][_i3] * z[j][_i3];
+    }
+  }
+
+  return w;
+}
+/**
+ * counts how many roots there are.
+ */
+
+
+function _findRoots(w, degree, t, depth) {
+  var left = [],
+      right = [],
+      left_count,
+      right_count,
+      left_t = [],
+      right_t = [];
+
+  switch (_getCrossingCount(w, degree)) {
+    case 0:
+      {
+        return 0;
+      }
+
+    case 1:
+      {
+        if (depth >= maxRecursion) {
+          t[0] = (w[0].x + w[degree].x) / 2.0;
+          return 1;
+        }
+
+        if (_isFlatEnough(w, degree)) {
+          t[0] = _computeXIntercept(w, degree);
+          return 1;
+        }
+
+        break;
+      }
+  }
+
+  _bezier(w, degree, 0.5, left, right);
+
+  left_count = _findRoots(left, degree, left_t, depth + 1);
+  right_count = _findRoots(right, degree, right_t, depth + 1);
+
+  for (var i = 0; i < left_count; i++) {
+    t[i] = left_t[i];
+  }
+
+  for (var _i4 = 0; _i4 < right_count; _i4++) {
+    t[_i4 + left_count] = right_t[_i4];
+  }
+
+  return left_count + right_count;
+}
+
+function _getCrossingCount(curve, degree) {
+  var n_crossings = 0,
+      sign,
+      old_sign;
+  sign = old_sign = sgn$1(curve[0].y);
+
+  for (var i = 1; i <= degree; i++) {
+    sign = sgn$1(curve[i].y);
+    if (sign != old_sign) n_crossings++;
+    old_sign = sign;
+  }
+
+  return n_crossings;
+}
+
+function _isFlatEnough(curve, degree) {
+  var error, intercept_1, intercept_2, left_intercept, right_intercept, a, b, c, det, dInv, a1, b1, c1, a2, b2, c2;
+  a = curve[0].y - curve[degree].y;
+  b = curve[degree].x - curve[0].x;
+  c = curve[0].x * curve[degree].y - curve[degree].x * curve[0].y;
+  var max_distance_above, max_distance_below;
+  max_distance_above = max_distance_below = 0.0;
+
+  for (var i = 1; i < degree; i++) {
+    var value = a * curve[i].x + b * curve[i].y + c;
+
+    if (value > max_distance_above) {
+      max_distance_above = value;
+    } else if (value < max_distance_below) {
+      max_distance_below = value;
+    }
+  }
+
+  a1 = 0.0;
+  b1 = 1.0;
+  c1 = 0.0;
+  a2 = a;
+  b2 = b;
+  c2 = c - max_distance_above;
+  det = a1 * b2 - a2 * b1;
+  dInv = 1.0 / det;
+  intercept_1 = (b1 * c2 - b2 * c1) * dInv;
+  a2 = a;
+  b2 = b;
+  c2 = c - max_distance_below;
+  det = a1 * b2 - a2 * b1;
+  dInv = 1.0 / det;
+  intercept_2 = (b1 * c2 - b2 * c1) * dInv;
+  left_intercept = Math.min(intercept_1, intercept_2);
+  right_intercept = Math.max(intercept_1, intercept_2);
+  error = right_intercept - left_intercept;
+  return error < flatnessTolerance ? 1 : 0;
+}
+
+function _computeXIntercept(curve, degree) {
+  var XLK = 1.0,
+      YLK = 0.0,
+      XNM = curve[degree].x - curve[0].x,
+      YNM = curve[degree].y - curve[0].y,
+      XMK = curve[0].x - 0.0,
+      YMK = curve[0].y - 0.0,
+      det = XNM * YLK - YNM * XLK,
+      detInv = 1.0 / det,
+      S = (XNM * YMK - YNM * XMK) * detInv;
+  return 0.0 + XLK * S;
+}
+
+function _bezier(curve, degree, t, left, right) {
+  var temp = [[]];
+
+  for (var j = 0; j <= degree; j++) {
+    temp[0][j] = curve[j];
+  }
+
+  for (var i = 1; i <= degree; i++) {
+    for (var _j = 0; _j <= degree - i; _j++) {
+      if (!temp[i]) temp[i] = [];
+      if (!temp[i][_j]) temp[i][_j] = {};
+      temp[i][_j].x = (1.0 - t) * temp[i - 1][_j].x + t * temp[i - 1][_j + 1].x;
+      temp[i][_j].y = (1.0 - t) * temp[i - 1][_j].y + t * temp[i - 1][_j + 1].y;
+    }
+  }
+
+  if (left != null) {
+    for (var _j2 = 0; _j2 <= degree; _j2++) {
+      left[_j2] = temp[_j2][0];
+    }
+  }
+
+  if (right != null) {
+    for (var _j3 = 0; _j3 <= degree; _j3++) {
+      right[_j3] = temp[degree - _j3][_j3];
+    }
+  }
+
+  return temp[degree][0];
+}
+
+function _getLUT(steps, curve) {
+  var out = [];
+  steps--;
+
+  for (var n = 0; n <= steps; n++) {
+    out.push(_computeLookup(n / steps, curve));
+  }
+
+  return out;
+}
+
+function _computeLookup(e, curve) {
+  var EMPTY_POINT = {
+    x: 0,
+    y: 0
+  };
+
+  if (e === 0) {
+    return curve[0];
+  }
+
+  var degree = curve.length - 1;
+
+  if (e === 1) {
+    return curve[degree];
+  }
+
+  var o = curve;
+  var s = 1 - e;
+
+  if (degree === 0) {
+    return curve[0];
+  }
+
+  if (degree === 1) {
+    return {
+      x: s * o[0].x + e * o[1].x,
+      y: s * o[0].y + e * o[1].y
+    };
+  }
+
+  if (4 > degree) {
+    var l = s * s,
+        h = e * e,
+        u = 0,
+        m,
+        g,
+        f;
+
+    if (degree === 2) {
+      o = [o[0], o[1], o[2], EMPTY_POINT];
+      m = l;
+      g = 2 * (s * e);
+      f = h;
+    } else if (degree === 3) {
+      m = l * s;
+      g = 3 * (l * e);
+      f = 3 * (s * h);
+      u = e * h;
+    }
+
+    return {
+      x: m * o[0].x + g * o[1].x + f * o[2].x + u * o[3].x,
+      y: m * o[0].y + g * o[1].y + f * o[2].y + u * o[3].y
+    };
+  } else {
+    return EMPTY_POINT; // not supported.
+  }
+}
+
+function computeBezierLength(curve) {
+  var length = 0;
+
+  if (!isPoint(curve)) {
+    var steps = 16;
+
+    var lut = _getLUT(steps, curve);
+
+    for (var i = 0; i < steps - 1; i++) {
+      var a = lut[i],
+          b = lut[i + 1];
+      length += dist(a, b);
+    }
+  }
+
+  return length;
+}
+
+var _curveFunctionCache = new Map();
+
+function _getCurveFunctions(order) {
+  var fns = _curveFunctionCache.get(order);
+
+  if (!fns) {
+    fns = [];
+
+    var f_term = function f_term() {
+      return function (t) {
+        return Math.pow(t, order);
+      };
+    },
+        l_term = function l_term() {
+      return function (t) {
+        return Math.pow(1 - t, order);
+      };
+    },
+        c_term = function c_term(c) {
+      return function (t) {
+        return c;
+      };
+    },
+        t_term = function t_term() {
+      return function (t) {
+        return t;
+      };
+    },
+        one_minus_t_term = function one_minus_t_term() {
+      return function (t) {
+        return 1 - t;
+      };
+    },
+        _termFunc = function _termFunc(terms) {
+      return function (t) {
+        var p = 1;
+
+        for (var i = 0; i < terms.length; i++) {
+          p = p * terms[i](t);
+        }
+
+        return p;
+      };
+    };
+
+    fns.push(f_term()); // first is t to the power of the curve order
+
+    for (var i = 1; i < order; i++) {
+      var terms = [c_term(order)];
+
+      for (var j = 0; j < order - i; j++) {
+        terms.push(t_term());
+      }
+
+      for (var _j4 = 0; _j4 < i; _j4++) {
+        terms.push(one_minus_t_term());
+      }
+
+      fns.push(_termFunc(terms));
+    }
+
+    fns.push(l_term()); // last is (1-t) to the power of the curve order
+
+    _curveFunctionCache.set(order, fns);
+  }
+
+  return fns;
+}
+/**
+ * calculates a point on the curve, for a Bezier of arbitrary order.
+ * @param curve an array of control points, eg [{x:10,y:20}, {x:50,y:50}, {x:100,y:100}, {x:120,y:100}].  For a cubic bezier this should have four points.
+ * @param location a decimal indicating the distance along the curve the point should be located at.  this is the distance along the curve as it travels, taking the way it bends into account.  should be a number from 0 to 1, inclusive.
+ */
+
+
+function pointOnCurve(curve, location) {
+  var cc = _getCurveFunctions(curve.length - 1),
+      _x = 0,
+      _y = 0;
+
+  for (var i = 0; i < curve.length; i++) {
+    _x = _x + curve[i].x * cc[i](location);
+    _y = _y + curve[i].y * cc[i](location);
+  }
+
+  return {
+    x: _x,
+    y: _y
+  };
+}
+function dist(p1, p2) {
+  return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+}
+function isPoint(curve) {
+  return curve[0].x === curve[1].x && curve[0].y === curve[1].y;
+}
+/**
+ * finds the point that is 'distance' along the path from 'location'.  this method returns both the x,y location of the point and also
+ * its 'location' (proportion of travel along the path); the method below - _pointAlongPathFrom - calls this method and just returns the
+ * point.
+ *
+ * TODO The compute length functionality was made much faster recently, using a lookup table. is it possible to use that lookup table find
+ * a value for the point some distance along the curve from somewhere?
+ */
+
+function pointAlongPath(curve, location, distance) {
+  if (isPoint(curve)) {
+    return {
+      point: curve[0],
+      location: location
+    };
+  }
+
+  var prev = pointOnCurve(curve, location),
+      tally = 0,
+      curLoc = location,
+      direction = distance > 0 ? 1 : -1,
+      cur = null;
+
+  while (tally < Math.abs(distance)) {
+    curLoc += 0.005 * direction;
+    cur = pointOnCurve(curve, curLoc);
+    tally += dist(cur, prev);
+    prev = cur;
+  }
+
+  return {
+    point: cur,
+    location: curLoc
+  };
+}
+/**
+ * finds the point that is 'distance' along the path from 'location'.
+ */
+
+function pointAlongCurveFrom(curve, location, distance) {
+  return pointAlongPath(curve, location, distance).point;
+}
+/**
+ * finds the location that is 'distance' along the path from 'location'.
+ */
+
+function locationAlongCurveFrom(curve, location, distance) {
+  return pointAlongPath(curve, location, distance).location;
+}
+/**
+ * returns the gradient of the curve at the given location, which is a decimal between 0 and 1 inclusive.
+ *
+ * thanks // http://bimixual.org/AnimationLibrary/beziertangents.html
+ */
+
+function gradientAtPoint(curve, location) {
+  var p1 = pointOnCurve(curve, location),
+      p2 = pointOnCurve(curve.slice(0, curve.length - 1), location),
+      dy = p2.y - p1.y,
+      dx = p2.x - p1.x;
+  return dy === 0 ? Infinity : Math.atan(dy / dx);
+}
+/**
+ returns the gradient of the curve at the point which is 'distance' from the given location.
+ if this point is greater than location 1, the gradient at location 1 is returned.
+ if this point is less than location 0, the gradient at location 0 is returned.
+ */
+
+function gradientAtPointAlongPathFrom(curve, location, distance) {
+  var p = pointAlongPath(curve, location, distance);
+  if (p.location > 1) p.location = 1;
+  if (p.location < 0) p.location = 0;
+  return gradientAtPoint(curve, p.location);
+}
+/**
+ * calculates a line that is 'length' pixels long, perpendicular to, and centered on, the path at 'distance' pixels from the given location.
+ * if distance is not supplied, the perpendicular for the given location is computed (ie. we set distance to zero).
+ */
+
+function perpendicularToPathAt(curve, location, length, distance) {
+  distance = distance == null ? 0 : distance;
+
+  var p = pointAlongPath(curve, location, distance),
+      m = gradientAtPoint(curve, p.location),
+      _theta2 = Math.atan(-1 / m),
+      y = length / 2 * Math.sin(_theta2),
+      x = length / 2 * Math.cos(_theta2);
+
+  return [{
+    x: p.point.x + x,
+    y: p.point.y + y
+  }, {
+    x: p.point.x - x,
+    y: p.point.y - y
+  }];
+}
+/**
+ * Calculates all intersections of the given line with the given curve.
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @param curve
+ * @returns {Array}
+ */
+
+function lineIntersection(x1, y1, x2, y2, curve) {
+  var a = y2 - y1,
+      b = x1 - x2,
+      c = x1 * (y1 - y2) + y1 * (x2 - x1),
+      coeffs = _computeCoefficients(curve),
+      p = [a * coeffs[0][0] + b * coeffs[1][0], a * coeffs[0][1] + b * coeffs[1][1], a * coeffs[0][2] + b * coeffs[1][2], a * coeffs[0][3] + b * coeffs[1][3] + c],
+      r = _cubicRoots.apply(null, p),
+      intersections = [];
+
+  if (r != null) {
+    for (var i = 0; i < 3; i++) {
+      var _t = r[i],
+          t2 = Math.pow(_t, 2),
+          t3 = Math.pow(_t, 3),
+          x = [coeffs[0][0] * t3 + coeffs[0][1] * t2 + coeffs[0][2] * _t + coeffs[0][3], coeffs[1][0] * t3 + coeffs[1][1] * t2 + coeffs[1][2] * _t + coeffs[1][3]]; // check bounds of the line
+
+      var s = void 0;
+
+      if (x2 - x1 !== 0) {
+        s = (x[0] - x1) / (x2 - x1);
+      } else {
+        s = (x[1] - y1) / (y2 - y1);
+      }
+
+      if (_t >= 0 && _t <= 1.0 && s >= 0 && s <= 1.0) {
+        intersections.push(x);
+      }
+    }
+  }
+
+  return intersections;
+}
+/**
+ * Calculates all intersections of the given box with the given curve.
+ * @param x X position of top left corner of box
+ * @param y Y position of top left corner of box
+ * @param w width of box
+ * @param h height of box
+ * @param curve
+ * @returns {Array}
+ */
+
+function boxIntersection(x, y, w, h, curve) {
+  var i = [];
+  i.push.apply(i, lineIntersection(x, y, x + w, y, curve));
+  i.push.apply(i, lineIntersection(x + w, y, x + w, y + h, curve));
+  i.push.apply(i, lineIntersection(x + w, y + h, x, y + h, curve));
+  i.push.apply(i, lineIntersection(x, y + h, x, y, curve));
+  return i;
+}
+/**
+ * Calculates all intersections of the given bounding box with the given curve.
+ * @param boundingBox Bounding box, in { x:.., y:..., w:..., h:... } format.
+ * @param curve
+ * @returns {Array}
+ */
+
+function boundingBoxIntersection(boundingBox, curve) {
+  var i = [];
+  i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve));
+  i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve));
+  i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve));
+  i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y, curve));
+  return i;
+}
+
+function _computeCoefficientsForAxis(curve, axis) {
+  return [-curve[0][axis] + 3 * curve[1][axis] + -3 * curve[2][axis] + curve[3][axis], 3 * curve[0][axis] - 6 * curve[1][axis] + 3 * curve[2][axis], -3 * curve[0][axis] + 3 * curve[1][axis], curve[0][axis]];
+}
+
+function _computeCoefficients(curve) {
+  return [_computeCoefficientsForAxis(curve, "x"), _computeCoefficientsForAxis(curve, "y")];
+}
+
+function sgn$1(x) {
+  return x < 0 ? -1 : x > 0 ? 1 : 0;
+}
+
+function _cubicRoots(a, b, c, d) {
+  var A = b / a,
+      B = c / a,
+      C = d / a,
+      Q = (3 * B - Math.pow(A, 2)) / 9,
+      R = (9 * A * B - 27 * C - 2 * Math.pow(A, 3)) / 54,
+      D = Math.pow(Q, 3) + Math.pow(R, 2),
+      S,
+      T,
+      t = [0, 0, 0];
+
+  if (D >= 0) // complex or duplicate roots
+    {
+      S = sgn$1(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
+      T = sgn$1(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
+      t[0] = -A / 3 + (S + T);
+      t[1] = -A / 3 - (S + T) / 2;
+      t[2] = -A / 3 - (S + T) / 2;
+      /*discard complex roots*/
+
+      if (Math.abs(Math.sqrt(3) * (S - T) / 2) !== 0) {
+        t[1] = -1;
+        t[2] = -1;
+      }
+    } else // distinct real roots
+    {
+      var th = Math.acos(R / Math.sqrt(-Math.pow(Q, 3)));
+      t[0] = 2 * Math.sqrt(-Q) * Math.cos(th / 3) - A / 3;
+      t[1] = 2 * Math.sqrt(-Q) * Math.cos((th + 2 * Math.PI) / 3) - A / 3;
+      t[2] = 2 * Math.sqrt(-Q) * Math.cos((th + 4 * Math.PI) / 3) - A / 3;
+    } // discard out of spec roots
+
+
+  for (var i = 0; i < 3; i++) {
+    if (t[i] < 0 || t[i] > 1.0) {
+      t[i] = -1;
+    }
+  }
+
+  return t;
+}
+
+var BezierSegment =
+/*#__PURE__*/
+function (_AbstractSegment) {
+  _inherits(BezierSegment, _AbstractSegment);
+
+  function BezierSegment(instance, params) {
+    var _this;
+
+    _classCallCheck(this, BezierSegment);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierSegment).call(this, params));
+
+    _defineProperty(_assertThisInitialized(_this), "curve", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "cp1x", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "cp1y", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "cp2x", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "cp2y", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "bounds", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "x1", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "x2", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "y1", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "y2", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "length", 0);
+
+    _defineProperty(_assertThisInitialized(_this), "type", BezierSegment.segmentType);
+
+    _this.cp1x = params.cp1x;
+    _this.cp1y = params.cp1y;
+    _this.cp2x = params.cp2x;
+    _this.cp2y = params.cp2y;
+    _this.x1 = params.x1;
+    _this.x2 = params.x2;
+    _this.y1 = params.y1;
+    _this.y2 = params.y2;
+    _this.curve = [{
+      x: _this.x1,
+      y: _this.y1
+    }, {
+      x: _this.cp1x,
+      y: _this.cp1y
+    }, {
+      x: _this.cp2x,
+      y: _this.cp2y
+    }, {
+      x: _this.x2,
+      y: _this.y2
+    }]; // although this is not a strictly rigorous determination of bounds
+    // of a bezier curve, it works for the types of curves that this segment
+    // type produces.
+
+    _this.bounds = {
+      minX: Math.min(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
+      minY: Math.min(_this.y1, _this.y2, _this.cp1y, _this.cp2y),
+      maxX: Math.max(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
+      maxY: Math.max(_this.y1, _this.y2, _this.cp1y, _this.cp2y)
+    };
+    return _this;
+  }
+
+  _createClass(BezierSegment, [{
+    key: "pointOnPath",
+
+    /**
+     * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
+     * 0 to 1 inclusive.
+     */
+    value: function pointOnPath(location, absolute) {
+      location = BezierSegment._translateLocation(this.curve, location, absolute);
+      return pointOnCurve(this.curve, location);
+    }
+    /**
+     * returns the gradient of the segment at the given point.
+     */
+
+  }, {
+    key: "gradientAtPoint",
+    value: function gradientAtPoint$1(location, absolute) {
+      location = BezierSegment._translateLocation(this.curve, location, absolute);
+      return gradientAtPoint(this.curve, location);
+    }
+  }, {
+    key: "pointAlongPathFrom",
+    value: function pointAlongPathFrom(location, distance, absolute) {
+      location = BezierSegment._translateLocation(this.curve, location, absolute);
+      return pointAlongCurveFrom(this.curve, location, distance);
+    }
+  }, {
+    key: "getLength",
+    value: function getLength() {
+      if (this.length == null || this.length === 0) {
+        this.length = computeBezierLength(this.curve);
+      }
+
+      return this.length;
+    }
+  }, {
+    key: "getBounds",
+    value: function getBounds() {
+      return this.bounds;
+    }
+  }, {
+    key: "findClosestPointOnPath",
+    value: function findClosestPointOnPath(x, y) {
+      var p = nearestPointOnCurve({
+        x: x,
+        y: y
+      }, this.curve);
+      return {
+        d: Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
+        x: p.point.x,
+        y: p.point.y,
+        l: 1 - p.location,
+        s: this,
+        x1: null,
+        y1: null,
+        x2: null,
+        y2: null
+      };
+    }
+  }, {
+    key: "lineIntersection",
+    value: function lineIntersection$1(x1, y1, x2, y2) {
+      return lineIntersection(x1, y1, x2, y2, this.curve);
+    }
+  }], [{
+    key: "_translateLocation",
+    value: function _translateLocation(_curve, location, absolute) {
+      if (absolute) {
+        location = locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
+      }
+
+      return location;
+    }
+  }]);
+
+  return BezierSegment;
+}(AbstractSegment);
+
+_defineProperty(BezierSegment, "segmentType", "Bezier");
+
+var Bezier =
+/*#__PURE__*/
+function (_AbstractBezierConnec) {
+  _inherits(Bezier, _AbstractBezierConnec);
+
+  function Bezier(instance, connection, params) {
+    var _this;
+
+    _classCallCheck(this, Bezier);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Bezier).call(this, instance, connection, params));
+    _this.connection = connection;
+
+    _defineProperty(_assertThisInitialized(_this), "type", "Bezier");
+
+    _defineProperty(_assertThisInitialized(_this), "majorAnchor", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "minorAnchor", void 0);
+
+    params = params || {};
+    _this.majorAnchor = params.curviness || 150;
+    _this.minorAnchor = 10;
+    return _this;
+  }
+
+  _createClass(Bezier, [{
+    key: "getCurviness",
+    value: function getCurviness() {
+      return this.majorAnchor;
+    }
+  }, {
+    key: "_findControlPoint",
+    value: function _findControlPoint(point, sourceAnchorPosition, targetAnchorPosition, soo, too) {
+      // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
+      // points around if so (code could be tightened up)
+      var perpendicular = soo[0] !== too[0] || soo[1] === too[1],
+          p = [];
+
+      if (!perpendicular) {
+        if (soo[0] === 0) {
+          p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
+        } else {
+          p.push(point[0] - this.majorAnchor * soo[0]);
+        }
+
+        if (soo[1] === 0) {
+          p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
+        } else {
+          p.push(point[1] + this.majorAnchor * too[1]);
+        }
+      } else {
+        if (too[0] === 0) {
+          p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
+        } else {
+          p.push(point[0] + this.majorAnchor * too[0]);
+        }
+
+        if (too[1] === 0) {
+          p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
+        } else {
+          p.push(point[1] + this.majorAnchor * soo[1]);
+        }
+      }
+
+      return p;
+    }
+  }, {
+    key: "_computeBezier",
+    value: function _computeBezier(paintInfo, p, sp, tp, _w, _h) {
+      var _CP,
+          _CP2,
+          _sx = sp[0] < tp[0] ? _w : 0,
+          _sy = sp[1] < tp[1] ? _h : 0,
+          _tx = sp[0] < tp[0] ? 0 : _w,
+          _ty = sp[1] < tp[1] ? 0 : _h;
+
+      if (this.edited !== true) {
+        _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
+        _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+      } else {
+        _CP = this.geometry.controlPoints[0];
+        _CP2 = this.geometry.controlPoints[1];
+      }
+
+      this.geometry = {
+        controlPoints: [_CP, _CP2],
+        source: p.sourcePos,
+        target: p.targetPos
+      };
+
+      this._addSegment(BezierSegment, {
+        x1: _sx,
+        y1: _sy,
+        x2: _tx,
+        y2: _ty,
+        cp1x: _CP[0],
+        cp1y: _CP[1],
+        cp2x: _CP2[0],
+        cp2y: _CP2[1]
+      });
+    }
+  }]);
+
+  return Bezier;
+}(AbstractBezierConnector);
+function register$5() {
+  Connectors.register("Bezier", Bezier);
+}
+
+function _segment(x1, y1, x2, y2) {
+  if (x1 <= x2 && y2 <= y1) {
+    return 1;
+  } else if (x1 <= x2 && y1 <= y2) {
+    return 2;
+  } else if (x2 <= x1 && y2 >= y1) {
+    return 3;
+  }
+
+  return 4;
+} // the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
+// two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
+// are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
+// center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
+// direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
+// lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
+//
+// sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
+//
+// 0 - absolute x
+// 1 - absolute y
+// 2 - proportional x in element (0 is left edge, 1 is right edge)
+// 3 - proportional y in element (0 is top edge, 1 is bottom edge)
+//
+
+
+function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
+  // TODO (maybe)
+  // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
+  if (distance <= proximityLimit) {
+    return [midx, midy];
+  }
+
+  if (segment === 1) {
+    if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
+      return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+    } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
+      return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+    } else {
+      return [midx + -1 * dx, midy + -1 * dy];
+    }
+  } else if (segment === 2) {
+    if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
+      return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+    } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
+      return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+    } else {
+      return [midx + dx, midy + -1 * dy];
+    }
+  } else if (segment === 3) {
+    if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
+      return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+    } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
+      return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+    } else {
+      return [midx + -1 * dx, midy + -1 * dy];
+    }
+  } else if (segment === 4) {
+    if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
+      return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
+    } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
+      return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+    } else {
+      return [midx + dx, midy + -1 * dy];
+    }
+  }
+}
+
+var StateMachine =
+/*#__PURE__*/
+function (_AbstractBezierConnec) {
+  _inherits(StateMachine, _AbstractBezierConnec);
+
+  function StateMachine(instance, connection, params) {
+    var _this;
+
+    _classCallCheck(this, StateMachine);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachine).call(this, instance, connection, params));
+    _this.connection = connection;
+
+    _defineProperty(_assertThisInitialized(_this), "type", "StateMachine");
+
+    _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
+
+    _this.curviness = params.curviness || 10;
+    _this.margin = params.margin || 5;
+    _this.proximityLimit = params.proximityLimit || 80;
+    _this.clockwise = params.orientation && params.orientation === "clockwise";
+    return _this;
+  }
+
+  _createClass(StateMachine, [{
+    key: "_computeBezier",
+    value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
+      var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
+          _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
+          _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
+          _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0; // now adjust for the margin
+
+
+      if (params.sourcePos[2] === 0) {
+        _sx -= this.margin;
+      }
+
+      if (params.sourcePos[2] === 1) {
+        _sx += this.margin;
+      }
+
+      if (params.sourcePos[3] === 0) {
+        _sy -= this.margin;
+      }
+
+      if (params.sourcePos[3] === 1) {
+        _sy += this.margin;
+      }
+
+      if (params.targetPos[2] === 0) {
+        _tx -= this.margin;
+      }
+
+      if (params.targetPos[2] === 1) {
+        _tx += this.margin;
+      }
+
+      if (params.targetPos[3] === 0) {
+        _ty -= this.margin;
+      }
+
+      if (params.targetPos[3] === 1) {
+        _ty += this.margin;
+      } //
+      // these connectors are quadratic bezier curves, having a single control point. if both anchors
+      // are located at 0.5 on their respective faces, the control point is set to the midpoint and you
+      // get a straight line.  this is also the case if the two anchors are within 'proximityLimit', since
+      // it seems to make good aesthetic sense to do that. outside of that, the control point is positioned
+      // at 'curviness' pixels away along the normal to the straight line connecting the two anchors.
+      //
+      // there may be two improvements to this.  firstly, we might actually support the notion of avoiding nodes
+      // in the UI, or at least making a good effort at doing so.  if a connection would pass underneath some node,
+      // for example, we might increase the distance the control point is away from the midpoint in a bid to
+      // steer it around that node.  this will work within limits, but i think those limits would also be the likely
+      // limits for, once again, aesthetic good sense in the layout of a chart using these connectors.
+      //
+      // the second possible change is actually two possible changes: firstly, it is possible we should gradually
+      // decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
+      // point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
+      // with respect to how far their anchor is from the center of its respective face. this could either look cool,
+      // or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
+      //
+
+
+      if (this.edited !== true) {
+        var _midx = (_sx + _tx) / 2,
+            _midy = (_sy + _ty) / 2,
+            segment = _segment(_sx, _sy, _tx, _ty),
+            distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)); // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+        // will work by extending the control point to force the curve to be, um, curvier.
+
+
+        this._controlPoint = _findControlPoint(_midx, _midy, segment, params.sourcePos, params.targetPos, this.curviness, this.curviness, distance, this.proximityLimit);
+      } else {
+        this._controlPoint = this.geometry.controlPoints[0];
+      }
+
+      var cp1x, cp2x, cp1y, cp2y;
+      cp1x = this._controlPoint[0];
+      cp2x = this._controlPoint[0];
+      cp1y = this._controlPoint[1];
+      cp2y = this._controlPoint[1];
+      this.geometry = {
+        controlPoints: [this._controlPoint, this._controlPoint],
+        source: params.sourcePos,
+        target: params.targetPos
+      };
+
+      this._addSegment(BezierSegment, {
+        x1: _tx,
+        y1: _ty,
+        x2: _sx,
+        y2: _sy,
+        cp1x: cp1x,
+        cp1y: cp1y,
+        cp2x: cp2x,
+        cp2y: cp2y
+      });
+    }
+  }]);
+
+  return StateMachine;
+}(AbstractBezierConnector);
+function register$6() {
+  Connectors.register("StateMachine", StateMachine);
+}
+
+function cls() {
+  for (var _len = arguments.length, className = new Array(_len), _key = 0; _key < _len; _key++) {
+    className[_key] = arguments[_key];
+  }
+
+  return className.map(function (cn) {
+    return "." + cn;
+  }).join(",");
+}
+function classList() {
+  for (var _len2 = arguments.length, className = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    className[_key2] = arguments[_key2];
+  }
+
+  return className.join(" ");
+}
+var SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions";
+var TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions";
+var DEFAULT = "default";
+var WILDCARD = "*";
+var SOURCE = "source";
+var TARGET = "target";
+var BLOCK = "block";
+var NONE = "none";
+var SOURCE_INDEX = 0;
+var TARGET_INDEX = 1;
+var TRUE = "true";
+var FALSE = "false";
+var UNDEFINED = "undefined";
+var ABSOLUTE = "absolute";
+var FIXED = "fixed";
+var STATIC = "static";
+var GROUP_KEY = "_jsPlumbGroup";
+var PARENT_GROUP_KEY = "_jsPlumbParentGroup";
+var ATTRIBUTE_CONTAINER = "jtk-container";
+var ATTRIBUTE_GROUP = "jtk-group";
+var ATTRIBUTE_MANAGED = "jtk-managed";
+var ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
+var ATTRIBUTE_SOURCE = "jtk-source";
+var ATTRIBUTE_TABINDEX = "tabindex";
+var ATTRIBUTE_TARGET = "jtk-target";
+var BEFORE_DETACH = "beforeDetach";
+var CHECK_CONDITION = "checkCondition";
+var CHECK_DROP_ALLOWED = "checkDropAllowed";
+var CLASS_CONNECTOR = "jtk-connector";
+var CLASS_ENDPOINT = "jtk-endpoint";
+var CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
+var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
+var CLASS_OVERLAY = "jtk-overlay";
+var CMD_ORPHAN_ALL = "orphanAll";
+var CMD_HIDE = "hide";
+var CMD_REMOVE_ALL = "removeAll";
+var CMD_SHOW = "show";
+var EVENT_CLICK = "click";
+var EVENT_COLLAPSE = "group:collapse";
+var EVENT_CONNECTION = "connection";
+var EVENT_CONNECTION_DETACHED = "connectionDetached";
+var EVENT_CONNECTION_DRAG = "connectionDrag";
+var EVENT_CONNECTION_MOVED = "connectionMoved";
+var EVENT_CONNECTION_MOUSEOUT = "connectionMouseOut";
+var EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver";
+var EVENT_CONTAINER_CHANGE = "container:change";
+var EVENT_CONTEXTMENU = "contextmenu";
+var EVENT_DBL_CLICK = "dblclick";
+var EVENT_DBL_TAP = "dbltap";
+var EVENT_ELEMENT_CLICK = "elementClick";
+var EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
+var EVENT_ELEMENT_MOUSE_MOVE = "elementMousemove";
+var EVENT_ELEMENT_MOUSE_OUT = "elementMouseout";
+var EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
+var EVENT_ENDPOINT_CLICK = "endpointClick";
+var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
+var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
+var EVENT_FOCUS = "focus";
+var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
+var EVENT_MOUSEDOWN = "mousedown";
+var EVENT_MOUSEENTER = "mouseenter";
+var EVENT_MOUSEEXIT = "mouseexit";
+var EVENT_MOUSEMOVE = "mousemove";
+var EVENT_MOUSEOUT = "mouseout";
+var EVENT_MOUSEOVER = "mouseover";
+var EVENT_MOUSEUP = "mouseup";
+var EVENT_EXPAND = "group:expand";
+var EVENT_GROUP_ADDED = "group:add";
+var EVENT_GROUP_DRAG_STOP = "groupDragStop";
+var EVENT_GROUP_MEMBER_ADDED = "group:addMember";
+var EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
+var EVENT_GROUP_REMOVED = "group:remove";
+var EVENT_MAX_CONNECTIONS = "maxConnections";
+var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
+var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
+var EVENT_TAP = "tap";
+var EVENT_ZOOM = "zoom";
+var IS_DETACH_ALLOWED = "isDetachAllowed";
+var IS_GROUP_KEY = "_isJsPlumbGroup";
+var JTK_ID = "jtk-id";
+var PROPERTY_POSITION = "position";
+var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
+var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
+var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
+var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
+var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 
 var EventGenerator =
 /*#__PURE__*/
@@ -2009,24 +5371,6 @@ function (_Component) {
 
   return OverlayCapableComponent;
 }(Component);
-
-var connectorMap = {};
-var Connectors = {
-  get: function get(instance, connection, name, params) {
-    var c = connectorMap[name];
-
-    if (!c) {
-      throw {
-        message: "jsPlumb: unknown connector type '" + name + "'"
-      };
-    } else {
-      return new c(instance, connection, params);
-    }
-  },
-  register: function register(name, conn) {
-    connectorMap[name] = conn;
-  }
-};
 
 var Anchor =
 /*#__PURE__*/
@@ -3531,220 +6875,6 @@ function (_OverlayCapableCompon) {
   return Connection;
 }(OverlayCapableComponent);
 
-function noSuchPoint() {
-  return {
-    d: Infinity,
-    x: null,
-    y: null,
-    l: null,
-    x1: null,
-    y1: null,
-    x2: null,
-    y2: null
-  };
-}
-
-function EMPTY_BOUNDS() {
-  return {
-    minX: Infinity,
-    maxX: -Infinity,
-    minY: Infinity,
-    maxY: -Infinity
-  };
-}
-var AbstractSegment =
-/*#__PURE__*/
-function () {
-  function AbstractSegment(params) {
-    _classCallCheck(this, AbstractSegment);
-
-    this.params = params;
-
-    _defineProperty(this, "x1", void 0);
-
-    _defineProperty(this, "x2", void 0);
-
-    _defineProperty(this, "y1", void 0);
-
-    _defineProperty(this, "y2", void 0);
-
-    _defineProperty(this, "bounds", void 0);
-
-    _defineProperty(this, "type", void 0);
-
-    this.x1 = params.x1;
-    this.y1 = params.y1;
-    this.x2 = params.x2;
-    this.y2 = params.y2;
-  }
-
-  _createClass(AbstractSegment, [{
-    key: "getBounds",
-    value: function getBounds() {
-      return this.bounds;
-    }
-    /**
-     * Function: findClosestPointOnPath
-     * Finds the closest point on this segment to the given [x, y],
-     * returning both the x and y of the point plus its distance from
-     * the supplied point, and its location along the length of the
-     * path inscribed by the segment.  This implementation returns
-     * Infinity for distance and null values for everything else
-     * subclasses are expected to override.
-     */
-
-  }, {
-    key: "findClosestPointOnPath",
-    value: function findClosestPointOnPath(x, y) {
-      return noSuchPoint();
-    }
-    /**
-     * Computes the list of points on the segment that intersect the given line.
-     * @method lineIntersection
-     * @param {number} x1
-     * @param {number} y1
-     * @param {number} x2
-     * @param {number} y2
-     * @returns {Array<PointArray>}
-     */
-
-  }, {
-    key: "lineIntersection",
-    value: function lineIntersection(x1, y1, x2, y2) {
-      return [];
-    }
-    /**
-     * Computes the list of points on the segment that intersect the box with the given origin and size.
-     * @method boxIntersection
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @returns {Array<PointArray>}
-     */
-
-  }, {
-    key: "boxIntersection",
-    value: function boxIntersection(x, y, w, h) {
-      var a = [];
-      a.push.apply(a, this.lineIntersection(x, y, x + w, y));
-      a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
-      a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
-      a.push.apply(a, this.lineIntersection(x, y + h, x, y));
-      return a;
-    }
-    /**
-     * Computes the list of points on the segment that intersect the given bounding box, which is an object of the form { x:.., y:.., w:.., h:.. }.
-     * @method lineIntersection
-     * @param {BoundingBox} box
-     * @returns {Array<[number, number]>}
-     */
-
-  }, {
-    key: "boundingBoxIntersection",
-    value: function boundingBoxIntersection(box) {
-      return this.boxIntersection(box.x, box.y, box.w, box.h);
-    }
-  }]);
-
-  return AbstractSegment;
-}();
-
-/**
- * Superclass for all types of Endpoint. This class is renderer
- * agnostic, as are any subclasses of it.
- */
-var EndpointRepresentation =
-/*#__PURE__*/
-function () {
-  function EndpointRepresentation(endpoint) {
-    _classCallCheck(this, EndpointRepresentation);
-
-    this.endpoint = endpoint;
-
-    _defineProperty(this, "typeId", void 0);
-
-    _defineProperty(this, "x", void 0);
-
-    _defineProperty(this, "y", void 0);
-
-    _defineProperty(this, "w", void 0);
-
-    _defineProperty(this, "h", void 0);
-
-    _defineProperty(this, "computedValue", void 0);
-
-    _defineProperty(this, "bounds", EMPTY_BOUNDS());
-
-    _defineProperty(this, "classes", []);
-
-    _defineProperty(this, "instance", void 0);
-
-    this.instance = endpoint.instance;
-
-    if (endpoint.cssClass) {
-      this.classes.push(endpoint.cssClass);
-    }
-  }
-
-  _createClass(EndpointRepresentation, [{
-    key: "addClass",
-    value: function addClass(c) {
-      this.classes.push(c);
-      this.instance.addEndpointClass(this.endpoint, c);
-    }
-  }, {
-    key: "removeClass",
-    value: function removeClass(c) {
-      this.classes = this.classes.filter(function (_c) {
-        return _c !== c;
-      });
-      this.instance.removeEndpointClass(this.endpoint, c);
-    }
-  }, {
-    key: "clone",
-    value: function clone() {
-      return null;
-    }
-  }, {
-    key: "compute",
-    value: function compute(anchorPoint, orientation, endpointStyle) {
-      // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-      // it would be much more lightweight as we'd not need to create a class for each one.
-      this.computedValue = this._compute(anchorPoint, orientation, endpointStyle);
-      this.bounds.minX = this.x;
-      this.bounds.minY = this.y;
-      this.bounds.maxX = this.x + this.w;
-      this.bounds.maxY = this.y + this.h;
-    }
-  }, {
-    key: "setVisible",
-    value: function setVisible(v) {
-      this.instance.setEndpointVisible(this.endpoint, v);
-    }
-  }]);
-
-  return EndpointRepresentation;
-}();
-
-var endpointMap = {};
-var EndpointFactory = {
-  get: function get(ep, name, params) {
-    var e = endpointMap[name];
-
-    if (!e) {
-      throw {
-        message: "jsPlumb: unknown endpoint type '" + name + "'"
-      };
-    } else {
-      return new e(ep, params);
-    }
-  },
-  register: function register(name, ep) {
-    endpointMap[name] = ep;
-  }
-};
-
 function findConnectionToUseForDynamicAnchor(ep, elementWithPrecedence) {
   var idx = 0;
 
@@ -4360,68 +7490,6 @@ function (_OverlayCapableCompon) {
 
   return Endpoint;
 }(OverlayCapableComponent);
-
-var DotEndpoint =
-/*#__PURE__*/
-function (_EndpointRepresentati) {
-  _inherits(DotEndpoint, _EndpointRepresentati);
-
-  function DotEndpoint(endpoint, params) {
-    var _this;
-
-    _classCallCheck(this, DotEndpoint);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DotEndpoint).call(this, endpoint));
-
-    _defineProperty(_assertThisInitialized(_this), "radius", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "defaultOffset", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "defaultInnerRadius", void 0);
-
-    params = params || {};
-    _this.radius = params.radius || 5;
-    _this.defaultOffset = 0.5 * _this.radius;
-    _this.defaultInnerRadius = _this.radius / 3;
-    return _this;
-  } // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-  // it would be much more lightweight as we'd not need to create a class for each one.
-
-
-  _createClass(DotEndpoint, [{
-    key: "_compute",
-    value: function _compute(anchorPoint, orientation, endpointStyle) {
-      //this.radius = endpointStyle.radius || this.radius
-      var x = anchorPoint[0] - this.radius,
-          y = anchorPoint[1] - this.radius,
-          w = this.radius * 2,
-          h = this.radius * 2;
-
-      if (endpointStyle && endpointStyle.stroke) {
-        var lw = endpointStyle.strokeWidth || 1;
-        x -= lw;
-        y -= lw;
-        w += lw * 2;
-        h += lw * 2;
-      }
-
-      this.x = x;
-      this.y = y;
-      this.w = w;
-      this.h = h;
-      return [x, y, w, h, this.radius];
-    }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return DotEndpoint.dotEndpointType;
-    }
-  }]);
-
-  return DotEndpoint;
-}(EndpointRepresentation);
-
-_defineProperty(DotEndpoint, "dotEndpointType", "Dot");
 
 var UINode = function UINode(instance, el) {
   _classCallCheck(this, UINode);
@@ -5532,235 +8600,6 @@ function () {
   }]);
 
   return GroupManager;
-}();
-
-/**
- * Various geometry functions
- *
- * Copyright (c) 2020 jsPlumb Pty Ltd
- * https://jsplumbtoolkit.com
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
-var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
-var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
-var TWO_PI = 2 * Math.PI;
-var jsPlumbGeometry =
-/*#__PURE__*/
-function () {
-  function jsPlumbGeometry() {
-    _classCallCheck(this, jsPlumbGeometry);
-  }
-
-  _createClass(jsPlumbGeometry, [{
-    key: "pointXYFromArray",
-    value: function pointXYFromArray(a) {
-      return {
-        x: a[0],
-        y: a[1]
-      };
-    }
-    /**
-     * @name gradient
-     * @function
-     * @desc Calculates the gradient of a line between the two points.
-     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-     * @return {number} The gradient of a line between the two points.
-     */
-
-  }, {
-    key: "gradient",
-    value: function gradient(p1, p2) {
-      if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
-    }
-    /**
-     * @name normal
-     * @function
-     * @desc Calculates the gradient of a normal to a line between the two points.
-     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-     * @return {number} The gradient of a normal to a line between the two points.
-     */
-
-  }, {
-    key: "normal",
-    value: function normal(p1, p2) {
-      return -1 / this.gradient(p1, p2);
-    }
-    /**
-     * @name lineLength
-     * @function
-     * @desc Calculates the length of a line between the two points.
-     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-     * @return {number} The length of a line between the two points.
-     */
-
-  }, {
-    key: "lineLength",
-    value: function lineLength(p1, p2) {
-      return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
-    }
-    /**
-     * @name quadrant
-     * @function
-     * @desc Calculates the quadrant in which the angle between the two points lies.
-     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-     * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
-     */
-
-  }, {
-    key: "quadrant",
-    value: function quadrant(p1, p2) {
-      if (p2.x > p1.x) {
-        return p2.y > p1.y ? 2 : 1;
-      } else if (p2.x == p1.x) {
-        return p2.y > p1.y ? 2 : 1;
-      } else {
-        return p2.y > p1.y ? 3 : 4;
-      }
-    }
-    /**
-     * @name theta
-     * @function
-     * @desc Calculates the angle between the two points.
-     * @param {PointXY} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {PointXY} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
-     * @return {number} The angle between the two points.
-     */
-
-  }, {
-    key: "theta",
-    value: function theta(p1, p2) {
-      var m = this.gradient(p1, p2),
-          t = Math.atan(m),
-          s = this.quadrant(p1, p2);
-      if (s == 4 || s == 3) t += Math.PI;
-      if (t < 0) t += 2 * Math.PI;
-      return t;
-    }
-    /**
-     * @name intersects
-     * @function
-     * @desc Calculates whether or not the two rectangles intersect.
-     * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-     * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-     * @return {boolean} True if the rectangles intersect, false otherwise.
-     */
-
-  }, {
-    key: "intersects",
-    value: function intersects(r1, r2) {
-      var x1 = r1.x,
-          x2 = r1.x + r1.w,
-          y1 = r1.y,
-          y2 = r1.y + r1.h,
-          a1 = r2.x,
-          a2 = r2.x + r2.w,
-          b1 = r2.y,
-          b2 = r2.y + r2.h;
-      return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
-    }
-    /**
-     * @name encloses
-     * @function
-     * @desc Calculates whether or not r2 is completely enclosed by r1.
-     * @param {RectangleXY} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-     * @param {RectangleXY} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
-     * @param {boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
-     * @return {boolean} True if r1 encloses r2, false otherwise.
-     */
-
-  }, {
-    key: "encloses",
-    value: function encloses(r1, r2, allowSharedEdges) {
-      var x1 = r1.x,
-          x2 = r1.x + r1.w,
-          y1 = r1.y,
-          y2 = r1.y + r1.h,
-          a1 = r2.x,
-          a2 = r2.x + r2.w,
-          b1 = r2.y,
-          b2 = r2.y + r2.h,
-          c = function c(v1, v2, v3, v4) {
-        return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
-      };
-
-      return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
-    }
-    /**
-     * @name pointOnLine
-     * @function
-     * @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
-     * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {number} distance Distance along the length that the point should be located.
-     * @return {PointXY} Point on the line, in the form `{ x:..., y:... }`.
-     */
-
-  }, {
-    key: "pointOnLine",
-    value: function pointOnLine(fromPoint, toPoint, distance) {
-      var m = this.gradient(fromPoint, toPoint),
-          s = this.quadrant(fromPoint, toPoint),
-          segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
-          theta = Math.atan(m),
-          y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-          x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-      return {
-        x: fromPoint.x + x,
-        y: fromPoint.y + y
-      };
-    }
-    /**
-     * @name perpendicularLineTo
-     * @function
-     * @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
-     * @param {PointXY} fromPoint First point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {PointXY} toPoint Second point, either as a 2 entry array or object with `left` and `top` properties.
-     * @param {number} length Length of the line to generate
-     * @return {LineXY} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
-     */
-
-  }, {
-    key: "perpendicularLineTo",
-    value: function perpendicularLineTo(fromPoint, toPoint, length) {
-      var m = this.gradient(fromPoint, toPoint),
-          theta2 = Math.atan(-1 / m),
-          y = length / 2 * Math.sin(theta2),
-          x = length / 2 * Math.cos(theta2);
-      return [{
-        x: toPoint.x + x,
-        y: toPoint.y + y
-      }, {
-        x: toPoint.x - x,
-        y: toPoint.y - y
-      }];
-    }
-  }]);
-
-  return jsPlumbGeometry;
 }();
 
 function placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, reverse) {
@@ -9548,1889 +12387,6 @@ function (_EventGenerator) {
   return JsPlumbInstance;
 }(EventGenerator);
 
-/**
- * jsBezier
- *
- * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
- *
- * licensed under the MIT license.
- *
- * a set of Bezier curve functions that deal with Beziers, used by jsPlumb, and perhaps useful for other people.  These functions work with Bezier
- * curves of arbitrary degree.
- *
- * - functions are all in the 'jsBezier' namespace.
- *
- * - all input points should be in the format {x:.., y:..}. all output points are in this format too.
- *
- * - all input curves should be in the format [ {x:.., y:..}, {x:.., y:..}, {x:.., y:..}, {x:.., y:..} ]
- *
- * - 'location' as used as an input here refers to a decimal in the range 0-1 inclusive, which indicates a point some proportion along the length
- * of the curve.  location as output has the same format and meaning.
- *
- *
- * Function List:
- * --------------
- *
- * distanceFromCurve(point, curve)
- *
- * 	Calculates the distance that the given point lies from the given Bezier.  Note that it is computed relative to the center of the Bezier,
- * so if you have stroked the curve with a wide pen you may wish to take that into account!  The distance returned is relative to the values
- * of the curve and the point - it will most likely be pixels.
- *
- * gradientAtPoint(curve, location)
- *
- * 	Calculates the gradient to the curve at the given location, as a decimal between 0 and 1 inclusive.
- *
- * gradientAtPointAlongCurveFrom (curve, location)
- *
- *	Calculates the gradient at the point on the given curve that is 'distance' units from location.
- *
- * nearestPointOnCurve(point, curve)
- *
- *	Calculates the nearest point to the given point on the given curve.  The return value of this is a JS object literal, containing both the
- *point's coordinates and also the 'location' of the point (see above), for example:  { point:{x:551,y:150}, location:0.263365 }.
- *
- * pointOnCurve(curve, location)
- *
- * 	Calculates the coordinates of the point on the given Bezier curve at the given location.
- *
- * pointAlongCurveFrom(curve, location, distance)
- *
- * 	Calculates the coordinates of the point on the given curve that is 'distance' units from location.  'distance' should be in the same coordinate
- * space as that used to construct the Bezier curve.  For an HTML Canvas usage, for example, distance would be a measure of pixels.
- *
- * locationAlongCurveFrom(curve, location, distance)
- *
- * 	Calculates the location on the given curve that is 'distance' units from location.  'distance' should be in the same coordinate
- * space as that used to construct the Bezier curve.  For an HTML Canvas usage, for example, distance would be a measure of pixels.
- *
- * perpendicularToCurveAt(curve, location, length, distance)
- *
- * 	Calculates the perpendicular to the given curve at the given location.  length is the length of the line you wish for (it will be centered
- * on the point at 'location'). distance is optional, and allows you to specify a point along the path from the given location as the center of
- * the perpendicular returned.  The return value of this is an array of two points: [ {x:...,y:...}, {x:...,y:...} ].
- *
- *
- */
-var Vectors = {
-  subtract: function subtract(v1, v2) {
-    return {
-      x: v1.x - v2.x,
-      y: v1.y - v2.y
-    };
-  },
-  dotProduct: function dotProduct(v1, v2) {
-    return v1.x * v2.x + v1.y * v2.y;
-  },
-  square: function square(v) {
-    return Math.sqrt(v.x * v.x + v.y * v.y);
-  },
-  scale: function scale(v, s) {
-    return {
-      x: v.x * s,
-      y: v.y * s
-    };
-  }
-};
-var maxRecursion = 64;
-var flatnessTolerance = Math.pow(2.0, -maxRecursion - 1);
-/**
- * Calculates the distance that the point lies from the curve.
- *
- * @param point a point in the form {x:567, y:3342}
- * @param curve a Bezier curve in the form [{x:..., y:...}, {x:..., y:...}, {x:..., y:...}, {x:..., y:...}].  note that this is currently
- * hardcoded to assume cubiz beziers, but would be better off supporting any degree.
- * @return a JS object literal containing location and distance, for example: {location:0.35, distance:10}.  Location is analogous to the location
- * argument you pass to the pointOnPath function: it is a ratio of distance travelled along the curve.  Distance is the distance in pixels from
- * the point to the curve.
- */
-
-function distanceFromCurve(point, curve) {
-  var candidates = [],
-      w = _convertToBezier(point, curve),
-      degree = curve.length - 1,
-      higherDegree = 2 * degree - 1,
-      numSolutions = _findRoots(w, higherDegree, candidates, 0),
-      v = Vectors.subtract(point, curve[0]),
-      dist = Vectors.square(v),
-      t = 0.0,
-      newDist;
-
-  for (var i = 0; i < numSolutions; i++) {
-    v = Vectors.subtract(point, _bezier(curve, degree, candidates[i], null, null));
-    newDist = Vectors.square(v);
-
-    if (newDist < dist) {
-      dist = newDist;
-      t = candidates[i];
-    }
-  }
-
-  v = Vectors.subtract(point, curve[degree]);
-  newDist = Vectors.square(v);
-
-  if (newDist < dist) {
-    dist = newDist;
-    t = 1.0;
-  }
-
-  return {
-    location: t,
-    distance: dist
-  };
-}
-/**
- * finds the nearest point on the curve to the given point.
- */
-
-function nearestPointOnCurve(point, curve) {
-  var td = distanceFromCurve(point, curve);
-  return {
-    point: _bezier(curve, curve.length - 1, td.location, null, null),
-    location: td.location
-  };
-}
-
-function _convertToBezier(point, curve) {
-  var degree = curve.length - 1,
-      higherDegree = 2 * degree - 1,
-      c = [],
-      d = [],
-      cdTable = [],
-      w = [],
-      z = [[1.0, 0.6, 0.3, 0.1], [0.4, 0.6, 0.6, 0.4], [0.1, 0.3, 0.6, 1.0]];
-
-  for (var i = 0; i <= degree; i++) {
-    c[i] = Vectors.subtract(curve[i], point);
-  }
-
-  for (var _i = 0; _i <= degree - 1; _i++) {
-    d[_i] = Vectors.subtract(curve[_i + 1], curve[_i]);
-    d[_i] = Vectors.scale(d[_i], 3.0);
-  }
-
-  for (var row = 0; row <= degree - 1; row++) {
-    for (var column = 0; column <= degree; column++) {
-      if (!cdTable[row]) cdTable[row] = [];
-      cdTable[row][column] = Vectors.dotProduct(d[row], c[column]);
-    }
-  }
-
-  for (var _i2 = 0; _i2 <= higherDegree; _i2++) {
-    if (!w[_i2]) {
-      w[_i2] = [];
-    }
-
-    w[_i2].y = 0.0;
-    w[_i2].x = parseFloat("" + _i2) / higherDegree;
-  }
-
-  var n = degree,
-      m = degree - 1;
-
-  for (var k = 0; k <= n + m; k++) {
-    var lb = Math.max(0, k - m),
-        ub = Math.min(k, n);
-
-    for (var _i3 = lb; _i3 <= ub; _i3++) {
-      var j = k - _i3;
-      w[_i3 + j].y += cdTable[j][_i3] * z[j][_i3];
-    }
-  }
-
-  return w;
-}
-/**
- * counts how many roots there are.
- */
-
-
-function _findRoots(w, degree, t, depth) {
-  var left = [],
-      right = [],
-      left_count,
-      right_count,
-      left_t = [],
-      right_t = [];
-
-  switch (_getCrossingCount(w, degree)) {
-    case 0:
-      {
-        return 0;
-      }
-
-    case 1:
-      {
-        if (depth >= maxRecursion) {
-          t[0] = (w[0].x + w[degree].x) / 2.0;
-          return 1;
-        }
-
-        if (_isFlatEnough(w, degree)) {
-          t[0] = _computeXIntercept(w, degree);
-          return 1;
-        }
-
-        break;
-      }
-  }
-
-  _bezier(w, degree, 0.5, left, right);
-
-  left_count = _findRoots(left, degree, left_t, depth + 1);
-  right_count = _findRoots(right, degree, right_t, depth + 1);
-
-  for (var i = 0; i < left_count; i++) {
-    t[i] = left_t[i];
-  }
-
-  for (var _i4 = 0; _i4 < right_count; _i4++) {
-    t[_i4 + left_count] = right_t[_i4];
-  }
-
-  return left_count + right_count;
-}
-
-function _getCrossingCount(curve, degree) {
-  var n_crossings = 0,
-      sign,
-      old_sign;
-  sign = old_sign = sgn(curve[0].y);
-
-  for (var i = 1; i <= degree; i++) {
-    sign = sgn(curve[i].y);
-    if (sign != old_sign) n_crossings++;
-    old_sign = sign;
-  }
-
-  return n_crossings;
-}
-
-function _isFlatEnough(curve, degree) {
-  var error, intercept_1, intercept_2, left_intercept, right_intercept, a, b, c, det, dInv, a1, b1, c1, a2, b2, c2;
-  a = curve[0].y - curve[degree].y;
-  b = curve[degree].x - curve[0].x;
-  c = curve[0].x * curve[degree].y - curve[degree].x * curve[0].y;
-  var max_distance_above, max_distance_below;
-  max_distance_above = max_distance_below = 0.0;
-
-  for (var i = 1; i < degree; i++) {
-    var value = a * curve[i].x + b * curve[i].y + c;
-
-    if (value > max_distance_above) {
-      max_distance_above = value;
-    } else if (value < max_distance_below) {
-      max_distance_below = value;
-    }
-  }
-
-  a1 = 0.0;
-  b1 = 1.0;
-  c1 = 0.0;
-  a2 = a;
-  b2 = b;
-  c2 = c - max_distance_above;
-  det = a1 * b2 - a2 * b1;
-  dInv = 1.0 / det;
-  intercept_1 = (b1 * c2 - b2 * c1) * dInv;
-  a2 = a;
-  b2 = b;
-  c2 = c - max_distance_below;
-  det = a1 * b2 - a2 * b1;
-  dInv = 1.0 / det;
-  intercept_2 = (b1 * c2 - b2 * c1) * dInv;
-  left_intercept = Math.min(intercept_1, intercept_2);
-  right_intercept = Math.max(intercept_1, intercept_2);
-  error = right_intercept - left_intercept;
-  return error < flatnessTolerance ? 1 : 0;
-}
-
-function _computeXIntercept(curve, degree) {
-  var XLK = 1.0,
-      YLK = 0.0,
-      XNM = curve[degree].x - curve[0].x,
-      YNM = curve[degree].y - curve[0].y,
-      XMK = curve[0].x - 0.0,
-      YMK = curve[0].y - 0.0,
-      det = XNM * YLK - YNM * XLK,
-      detInv = 1.0 / det,
-      S = (XNM * YMK - YNM * XMK) * detInv;
-  return 0.0 + XLK * S;
-}
-
-function _bezier(curve, degree, t, left, right) {
-  var temp = [[]];
-
-  for (var j = 0; j <= degree; j++) {
-    temp[0][j] = curve[j];
-  }
-
-  for (var i = 1; i <= degree; i++) {
-    for (var _j = 0; _j <= degree - i; _j++) {
-      if (!temp[i]) temp[i] = [];
-      if (!temp[i][_j]) temp[i][_j] = {};
-      temp[i][_j].x = (1.0 - t) * temp[i - 1][_j].x + t * temp[i - 1][_j + 1].x;
-      temp[i][_j].y = (1.0 - t) * temp[i - 1][_j].y + t * temp[i - 1][_j + 1].y;
-    }
-  }
-
-  if (left != null) {
-    for (var _j2 = 0; _j2 <= degree; _j2++) {
-      left[_j2] = temp[_j2][0];
-    }
-  }
-
-  if (right != null) {
-    for (var _j3 = 0; _j3 <= degree; _j3++) {
-      right[_j3] = temp[degree - _j3][_j3];
-    }
-  }
-
-  return temp[degree][0];
-}
-
-function _getLUT(steps, curve) {
-  var out = [];
-  steps--;
-
-  for (var n = 0; n <= steps; n++) {
-    out.push(_computeLookup(n / steps, curve));
-  }
-
-  return out;
-}
-
-function _computeLookup(e, curve) {
-  var EMPTY_POINT = {
-    x: 0,
-    y: 0
-  };
-
-  if (e === 0) {
-    return curve[0];
-  }
-
-  var degree = curve.length - 1;
-
-  if (e === 1) {
-    return curve[degree];
-  }
-
-  var o = curve;
-  var s = 1 - e;
-
-  if (degree === 0) {
-    return curve[0];
-  }
-
-  if (degree === 1) {
-    return {
-      x: s * o[0].x + e * o[1].x,
-      y: s * o[0].y + e * o[1].y
-    };
-  }
-
-  if (4 > degree) {
-    var l = s * s,
-        h = e * e,
-        u = 0,
-        m,
-        g,
-        f;
-
-    if (degree === 2) {
-      o = [o[0], o[1], o[2], EMPTY_POINT];
-      m = l;
-      g = 2 * (s * e);
-      f = h;
-    } else if (degree === 3) {
-      m = l * s;
-      g = 3 * (l * e);
-      f = 3 * (s * h);
-      u = e * h;
-    }
-
-    return {
-      x: m * o[0].x + g * o[1].x + f * o[2].x + u * o[3].x,
-      y: m * o[0].y + g * o[1].y + f * o[2].y + u * o[3].y
-    };
-  } else {
-    return EMPTY_POINT; // not supported.
-  }
-}
-
-function computeBezierLength(curve) {
-  var length = 0;
-
-  if (!isPoint(curve)) {
-    var steps = 16;
-
-    var lut = _getLUT(steps, curve);
-
-    for (var i = 0; i < steps - 1; i++) {
-      var a = lut[i],
-          b = lut[i + 1];
-      length += dist(a, b);
-    }
-  }
-
-  return length;
-}
-
-var _curveFunctionCache = new Map();
-
-function _getCurveFunctions(order) {
-  var fns = _curveFunctionCache.get(order);
-
-  if (!fns) {
-    fns = [];
-
-    var f_term = function f_term() {
-      return function (t) {
-        return Math.pow(t, order);
-      };
-    },
-        l_term = function l_term() {
-      return function (t) {
-        return Math.pow(1 - t, order);
-      };
-    },
-        c_term = function c_term(c) {
-      return function (t) {
-        return c;
-      };
-    },
-        t_term = function t_term() {
-      return function (t) {
-        return t;
-      };
-    },
-        one_minus_t_term = function one_minus_t_term() {
-      return function (t) {
-        return 1 - t;
-      };
-    },
-        _termFunc = function _termFunc(terms) {
-      return function (t) {
-        var p = 1;
-
-        for (var i = 0; i < terms.length; i++) {
-          p = p * terms[i](t);
-        }
-
-        return p;
-      };
-    };
-
-    fns.push(f_term()); // first is t to the power of the curve order
-
-    for (var i = 1; i < order; i++) {
-      var terms = [c_term(order)];
-
-      for (var j = 0; j < order - i; j++) {
-        terms.push(t_term());
-      }
-
-      for (var _j4 = 0; _j4 < i; _j4++) {
-        terms.push(one_minus_t_term());
-      }
-
-      fns.push(_termFunc(terms));
-    }
-
-    fns.push(l_term()); // last is (1-t) to the power of the curve order
-
-    _curveFunctionCache.set(order, fns);
-  }
-
-  return fns;
-}
-/**
- * calculates a point on the curve, for a Bezier of arbitrary order.
- * @param curve an array of control points, eg [{x:10,y:20}, {x:50,y:50}, {x:100,y:100}, {x:120,y:100}].  For a cubic bezier this should have four points.
- * @param location a decimal indicating the distance along the curve the point should be located at.  this is the distance along the curve as it travels, taking the way it bends into account.  should be a number from 0 to 1, inclusive.
- */
-
-
-function pointOnCurve(curve, location) {
-  var cc = _getCurveFunctions(curve.length - 1),
-      _x = 0,
-      _y = 0;
-
-  for (var i = 0; i < curve.length; i++) {
-    _x = _x + curve[i].x * cc[i](location);
-    _y = _y + curve[i].y * cc[i](location);
-  }
-
-  return {
-    x: _x,
-    y: _y
-  };
-}
-function dist(p1, p2) {
-  return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-}
-function isPoint(curve) {
-  return curve[0].x === curve[1].x && curve[0].y === curve[1].y;
-}
-/**
- * finds the point that is 'distance' along the path from 'location'.  this method returns both the x,y location of the point and also
- * its 'location' (proportion of travel along the path); the method below - _pointAlongPathFrom - calls this method and just returns the
- * point.
- *
- * TODO The compute length functionality was made much faster recently, using a lookup table. is it possible to use that lookup table find
- * a value for the point some distance along the curve from somewhere?
- */
-
-function pointAlongPath(curve, location, distance) {
-  if (isPoint(curve)) {
-    return {
-      point: curve[0],
-      location: location
-    };
-  }
-
-  var prev = pointOnCurve(curve, location),
-      tally = 0,
-      curLoc = location,
-      direction = distance > 0 ? 1 : -1,
-      cur = null;
-
-  while (tally < Math.abs(distance)) {
-    curLoc += 0.005 * direction;
-    cur = pointOnCurve(curve, curLoc);
-    tally += dist(cur, prev);
-    prev = cur;
-  }
-
-  return {
-    point: cur,
-    location: curLoc
-  };
-}
-/**
- * finds the point that is 'distance' along the path from 'location'.
- */
-
-function pointAlongCurveFrom(curve, location, distance) {
-  return pointAlongPath(curve, location, distance).point;
-}
-/**
- * finds the location that is 'distance' along the path from 'location'.
- */
-
-function locationAlongCurveFrom(curve, location, distance) {
-  return pointAlongPath(curve, location, distance).location;
-}
-/**
- * returns the gradient of the curve at the given location, which is a decimal between 0 and 1 inclusive.
- *
- * thanks // http://bimixual.org/AnimationLibrary/beziertangents.html
- */
-
-function gradientAtPoint(curve, location) {
-  var p1 = pointOnCurve(curve, location),
-      p2 = pointOnCurve(curve.slice(0, curve.length - 1), location),
-      dy = p2.y - p1.y,
-      dx = p2.x - p1.x;
-  return dy === 0 ? Infinity : Math.atan(dy / dx);
-}
-/**
- returns the gradient of the curve at the point which is 'distance' from the given location.
- if this point is greater than location 1, the gradient at location 1 is returned.
- if this point is less than location 0, the gradient at location 0 is returned.
- */
-
-function gradientAtPointAlongPathFrom(curve, location, distance) {
-  var p = pointAlongPath(curve, location, distance);
-  if (p.location > 1) p.location = 1;
-  if (p.location < 0) p.location = 0;
-  return gradientAtPoint(curve, p.location);
-}
-/**
- * calculates a line that is 'length' pixels long, perpendicular to, and centered on, the path at 'distance' pixels from the given location.
- * if distance is not supplied, the perpendicular for the given location is computed (ie. we set distance to zero).
- */
-
-function perpendicularToPathAt(curve, location, length, distance) {
-  distance = distance == null ? 0 : distance;
-
-  var p = pointAlongPath(curve, location, distance),
-      m = gradientAtPoint(curve, p.location),
-      _theta2 = Math.atan(-1 / m),
-      y = length / 2 * Math.sin(_theta2),
-      x = length / 2 * Math.cos(_theta2);
-
-  return [{
-    x: p.point.x + x,
-    y: p.point.y + y
-  }, {
-    x: p.point.x - x,
-    y: p.point.y - y
-  }];
-}
-/**
- * Calculates all intersections of the given line with the given curve.
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @param curve
- * @returns {Array}
- */
-
-function lineIntersection(x1, y1, x2, y2, curve) {
-  var a = y2 - y1,
-      b = x1 - x2,
-      c = x1 * (y1 - y2) + y1 * (x2 - x1),
-      coeffs = _computeCoefficients(curve),
-      p = [a * coeffs[0][0] + b * coeffs[1][0], a * coeffs[0][1] + b * coeffs[1][1], a * coeffs[0][2] + b * coeffs[1][2], a * coeffs[0][3] + b * coeffs[1][3] + c],
-      r = _cubicRoots.apply(null, p),
-      intersections = [];
-
-  if (r != null) {
-    for (var i = 0; i < 3; i++) {
-      var _t = r[i],
-          t2 = Math.pow(_t, 2),
-          t3 = Math.pow(_t, 3),
-          x = [coeffs[0][0] * t3 + coeffs[0][1] * t2 + coeffs[0][2] * _t + coeffs[0][3], coeffs[1][0] * t3 + coeffs[1][1] * t2 + coeffs[1][2] * _t + coeffs[1][3]]; // check bounds of the line
-
-      var s = void 0;
-
-      if (x2 - x1 !== 0) {
-        s = (x[0] - x1) / (x2 - x1);
-      } else {
-        s = (x[1] - y1) / (y2 - y1);
-      }
-
-      if (_t >= 0 && _t <= 1.0 && s >= 0 && s <= 1.0) {
-        intersections.push(x);
-      }
-    }
-  }
-
-  return intersections;
-}
-/**
- * Calculates all intersections of the given box with the given curve.
- * @param x X position of top left corner of box
- * @param y Y position of top left corner of box
- * @param w width of box
- * @param h height of box
- * @param curve
- * @returns {Array}
- */
-
-function boxIntersection(x, y, w, h, curve) {
-  var i = [];
-  i.push.apply(i, lineIntersection(x, y, x + w, y, curve));
-  i.push.apply(i, lineIntersection(x + w, y, x + w, y + h, curve));
-  i.push.apply(i, lineIntersection(x + w, y + h, x, y + h, curve));
-  i.push.apply(i, lineIntersection(x, y + h, x, y, curve));
-  return i;
-}
-/**
- * Calculates all intersections of the given bounding box with the given curve.
- * @param boundingBox Bounding box, in { x:.., y:..., w:..., h:... } format.
- * @param curve
- * @returns {Array}
- */
-
-function boundingBoxIntersection(boundingBox, curve) {
-  var i = [];
-  i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve));
-  i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve));
-  i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve));
-  i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y, curve));
-  return i;
-}
-
-function _computeCoefficientsForAxis(curve, axis) {
-  return [-curve[0][axis] + 3 * curve[1][axis] + -3 * curve[2][axis] + curve[3][axis], 3 * curve[0][axis] - 6 * curve[1][axis] + 3 * curve[2][axis], -3 * curve[0][axis] + 3 * curve[1][axis], curve[0][axis]];
-}
-
-function _computeCoefficients(curve) {
-  return [_computeCoefficientsForAxis(curve, "x"), _computeCoefficientsForAxis(curve, "y")];
-}
-
-function sgn(x) {
-  return x < 0 ? -1 : x > 0 ? 1 : 0;
-}
-
-function _cubicRoots(a, b, c, d) {
-  var A = b / a,
-      B = c / a,
-      C = d / a,
-      Q = (3 * B - Math.pow(A, 2)) / 9,
-      R = (9 * A * B - 27 * C - 2 * Math.pow(A, 3)) / 54,
-      D = Math.pow(Q, 3) + Math.pow(R, 2),
-      S,
-      T,
-      t = [0, 0, 0];
-
-  if (D >= 0) // complex or duplicate roots
-    {
-      S = sgn(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
-      T = sgn(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
-      t[0] = -A / 3 + (S + T);
-      t[1] = -A / 3 - (S + T) / 2;
-      t[2] = -A / 3 - (S + T) / 2;
-      /*discard complex roots*/
-
-      if (Math.abs(Math.sqrt(3) * (S - T) / 2) !== 0) {
-        t[1] = -1;
-        t[2] = -1;
-      }
-    } else // distinct real roots
-    {
-      var th = Math.acos(R / Math.sqrt(-Math.pow(Q, 3)));
-      t[0] = 2 * Math.sqrt(-Q) * Math.cos(th / 3) - A / 3;
-      t[1] = 2 * Math.sqrt(-Q) * Math.cos((th + 2 * Math.PI) / 3) - A / 3;
-      t[2] = 2 * Math.sqrt(-Q) * Math.cos((th + 4 * Math.PI) / 3) - A / 3;
-    } // discard out of spec roots
-
-
-  for (var i = 0; i < 3; i++) {
-    if (t[i] < 0 || t[i] > 1.0) {
-      t[i] = -1;
-    }
-  }
-
-  return t;
-}
-
-var AbstractConnector =
-/*#__PURE__*/
-function () {
-  function AbstractConnector(instance, connection, params) {
-    _classCallCheck(this, AbstractConnector);
-
-    this.instance = instance;
-    this.connection = connection;
-
-    _defineProperty(this, "type", void 0);
-
-    _defineProperty(this, "edited", false);
-
-    _defineProperty(this, "stub", void 0);
-
-    _defineProperty(this, "sourceStub", void 0);
-
-    _defineProperty(this, "targetStub", void 0);
-
-    _defineProperty(this, "maxStub", void 0);
-
-    _defineProperty(this, "typeId", void 0);
-
-    _defineProperty(this, "gap", void 0);
-
-    _defineProperty(this, "sourceGap", void 0);
-
-    _defineProperty(this, "targetGap", void 0);
-
-    _defineProperty(this, "segments", []);
-
-    _defineProperty(this, "totalLength", 0);
-
-    _defineProperty(this, "segmentProportions", []);
-
-    _defineProperty(this, "segmentProportionalLengths", []);
-
-    _defineProperty(this, "paintInfo", null);
-
-    _defineProperty(this, "strokeWidth", void 0);
-
-    _defineProperty(this, "x", void 0);
-
-    _defineProperty(this, "y", void 0);
-
-    _defineProperty(this, "w", void 0);
-
-    _defineProperty(this, "h", void 0);
-
-    _defineProperty(this, "segment", void 0);
-
-    _defineProperty(this, "bounds", EMPTY_BOUNDS());
-
-    _defineProperty(this, "cssClass", void 0);
-
-    _defineProperty(this, "geometry", void 0);
-
-    this.stub = params.stub || this.getDefaultStubs();
-    this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
-    this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
-    this.gap = params.gap || 0;
-    this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
-    this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
-    this.maxStub = Math.max(this.sourceStub, this.targetStub);
-    this.cssClass = params.cssClass || "";
-  }
-
-  _createClass(AbstractConnector, [{
-    key: "getTypeDescriptor",
-    value: function getTypeDescriptor() {
-      return "connector";
-    }
-  }, {
-    key: "getIdPrefix",
-    value: function getIdPrefix() {
-      return "_jsplumb_connector";
-    }
-  }, {
-    key: "setGeometry",
-    value: function setGeometry(g, internal) {
-      this.geometry = g;
-      this.edited = g != null && !internal;
-    }
-    /**
-     * Subclasses can override this. By default we just pass back the geometry we are using internally.
-     */
-
-  }, {
-    key: "exportGeometry",
-    value: function exportGeometry() {
-      return this.geometry;
-    }
-    /**
-     * Subclasses can override this. By default we just set the given geometry as our internal representation.
-     */
-
-  }, {
-    key: "importGeometry",
-    value: function importGeometry(g) {
-      this.geometry = g;
-      return true;
-    }
-  }, {
-    key: "resetGeometry",
-    value: function resetGeometry() {
-      this.geometry = null;
-      this.edited = false;
-    }
-  }, {
-    key: "resetBounds",
-    value: function resetBounds() {
-      this.bounds = EMPTY_BOUNDS();
-    }
-  }, {
-    key: "getPathData",
-    value: function getPathData() {
-      var p = "";
-
-      for (var i = 0; i < this.segments.length; i++) {
-        p += this.instance.getPath(this.segments[i], i === 0);
-        p += " ";
-      }
-
-      return p;
-    }
-    /**
-     * Function: findSegmentForPoint
-     * Returns the segment that is closest to the given [x,y],
-     * null if nothing found.  This function returns a JS
-     * object with:
-     *
-     *   d   -   distance from segment
-     *   l   -   proportional location in segment
-     *   x   -   x point on the segment
-     *   y   -   y point on the segment
-     *   s   -   the segment itself.
-     */
-
-  }, {
-    key: "findSegmentForPoint",
-    value: function findSegmentForPoint(x, y) {
-      var out = {
-        d: Infinity,
-        s: null,
-        x: null,
-        y: null,
-        l: null,
-        x1: null,
-        y1: null,
-        x2: null,
-        y2: null,
-        index: null,
-        connectorLocation: null
-      };
-
-      for (var i = 0; i < this.segments.length; i++) {
-        var _s = this.segments[i].findClosestPointOnPath(x, y);
-
-        if (_s.d < out.d) {
-          out.d = _s.d;
-          out.l = _s.l;
-          out.x = _s.x;
-          out.y = _s.y;
-          out.s = this.segments[i];
-          out.x1 = _s.x1;
-          out.x2 = _s.x2;
-          out.y1 = _s.y1;
-          out.y2 = _s.y2;
-          out.index = i;
-          out.connectorLocation = this.segmentProportions[i][0] + _s.l * (this.segmentProportions[i][1] - this.segmentProportions[i][0]);
-        }
-      }
-
-      return out;
-    }
-  }, {
-    key: "lineIntersection",
-    value: function lineIntersection(x1, y1, x2, y2) {
-      var out = [];
-
-      for (var i = 0; i < this.segments.length; i++) {
-        out.push.apply(out, this.segments[i].lineIntersection(x1, y1, x2, y2));
-      }
-
-      return out;
-    }
-  }, {
-    key: "boxIntersection",
-    value: function boxIntersection(x, y, w, h) {
-      var out = [];
-
-      for (var i = 0; i < this.segments.length; i++) {
-        out.push.apply(out, this.segments[i].boxIntersection(x, y, w, h));
-      }
-
-      return out;
-    }
-  }, {
-    key: "boundingBoxIntersection",
-    value: function boundingBoxIntersection(box) {
-      var out = [];
-
-      for (var i = 0; i < this.segments.length; i++) {
-        out.push.apply(out, this.segments[i].boundingBoxIntersection(box));
-      }
-
-      return out;
-    }
-  }, {
-    key: "_updateSegmentProportions",
-    value: function _updateSegmentProportions() {
-      var curLoc = 0;
-
-      for (var i = 0; i < this.segments.length; i++) {
-        var sl = this.segments[i].getLength();
-        this.segmentProportionalLengths[i] = sl / this.totalLength;
-        this.segmentProportions[i] = [curLoc, curLoc += sl / this.totalLength];
-      }
-    }
-    /**
-     * returns [segment, proportion of travel in segment, segment index] for the segment
-     * that contains the point which is 'location' distance along the entire path, where
-     * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths
-     * are made up of a list of segments, each of which contributes some fraction to
-     * the total length.
-     * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
-     * as the absolute distance in pixels, rather than a proportion of the total path.
-     */
-
-  }, {
-    key: "_findSegmentForLocation",
-    value: function _findSegmentForLocation(location, absolute) {
-      var idx, i, inSegmentProportion;
-
-      if (absolute) {
-        location = location > 0 ? location / this.totalLength : (this.totalLength + location) / this.totalLength;
-      } // if location 1 we know its the last segment
-
-
-      if (location === 1) {
-        idx = this.segments.length - 1;
-        inSegmentProportion = 1;
-      } else if (location === 0) {
-        // if location 0 we know its the first segment
-        inSegmentProportion = 0;
-        idx = 0;
-      } else {
-        // if location >= 0.5, traverse backwards (of course not exact, who knows the segment proportions. but
-        // an educated guess at least)
-        if (location >= 0.5) {
-          idx = 0;
-          inSegmentProportion = 0;
-
-          for (i = this.segmentProportions.length - 1; i > -1; i--) {
-            if (this.segmentProportions[i][1] >= location && this.segmentProportions[i][0] <= location) {
-              idx = i;
-              inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
-              break;
-            }
-          }
-        } else {
-          idx = this.segmentProportions.length - 1;
-          inSegmentProportion = 1;
-
-          for (i = 0; i < this.segmentProportions.length; i++) {
-            if (this.segmentProportions[i][1] >= location) {
-              idx = i;
-              inSegmentProportion = (location - this.segmentProportions[i][0]) / this.segmentProportionalLengths[i];
-              break;
-            }
-          }
-        }
-      }
-
-      return {
-        segment: this.segments[idx],
-        proportion: inSegmentProportion,
-        index: idx
-      };
-    }
-  }, {
-    key: "_addSegment",
-    value: function _addSegment(clazz, params) {
-      if (params.x1 === params.x2 && params.y1 === params.y2) {
-        return;
-      }
-
-      var s = new clazz(this.instance, params);
-      this.segments.push(s);
-      this.totalLength += s.getLength();
-      this.updateBounds(s);
-    }
-  }, {
-    key: "_clearSegments",
-    value: function _clearSegments() {
-      this.totalLength = 0;
-      this.segments.length = 0;
-      this.segmentProportions.length = 0;
-      this.segmentProportionalLengths.length = 0;
-    }
-  }, {
-    key: "getLength",
-    value: function getLength() {
-      return this.totalLength;
-    }
-  }, {
-    key: "_prepareCompute",
-    value: function _prepareCompute(params) {
-      this.strokeWidth = params.strokeWidth;
-      var segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
-          swapX = params.targetPos[0] < params.sourcePos[0],
-          swapY = params.targetPos[1] < params.sourcePos[1],
-          lw = params.strokeWidth || 1,
-          so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
-          to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
-          x = swapX ? params.targetPos[0] : params.sourcePos[0],
-          y = swapY ? params.targetPos[1] : params.sourcePos[1],
-          w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
-          h = Math.abs(params.targetPos[1] - params.sourcePos[1]); // if either anchor does not have an orientation set, we derive one from their relative
-      // positions.  we fix the axis to be the one in which the two elements are further apart, and
-      // point each anchor at the other element.  this is also used when dragging a new connection.
-
-      if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
-        var index = w > h ? 0 : 1,
-            oIndex = [1, 0][index];
-        so = [0, 0];
-        to = [0, 0];
-        so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
-        to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1;
-        so[oIndex] = 0;
-        to[oIndex] = 0;
-      }
-
-      var sx = swapX ? w + this.sourceGap * so[0] : this.sourceGap * so[0],
-          sy = swapY ? h + this.sourceGap * so[1] : this.sourceGap * so[1],
-          tx = swapX ? this.targetGap * to[0] : w + this.targetGap * to[0],
-          ty = swapY ? this.targetGap * to[1] : h + this.targetGap * to[1],
-          oProduct = so[0] * to[0] + so[1] * to[1];
-      var result = {
-        sx: sx,
-        sy: sy,
-        tx: tx,
-        ty: ty,
-        xSpan: Math.abs(tx - sx),
-        ySpan: Math.abs(ty - sy),
-        mx: (sx + tx) / 2,
-        my: (sy + ty) / 2,
-        so: so,
-        to: to,
-        x: x,
-        y: y,
-        w: w,
-        h: h,
-        segment: segment,
-        startStubX: sx + so[0] * this.sourceStub,
-        startStubY: sy + so[1] * this.sourceStub,
-        endStubX: tx + to[0] * this.targetStub,
-        endStubY: ty + to[1] * this.targetStub,
-        isXGreaterThanStubTimes2: Math.abs(sx - tx) > this.sourceStub + this.targetStub,
-        isYGreaterThanStubTimes2: Math.abs(sy - ty) > this.sourceStub + this.targetStub,
-        opposite: oProduct === -1,
-        perpendicular: oProduct === 0,
-        orthogonal: oProduct === 1,
-        sourceAxis: so[0] === 0 ? "y" : "x",
-        points: [x, y, w, h, sx, sy, tx, ty],
-        stubs: [this.sourceStub, this.targetStub]
-      };
-      result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
-      return result;
-    }
-  }, {
-    key: "getSegments",
-    value: function getSegments() {
-      return this.segments;
-    }
-  }, {
-    key: "updateBounds",
-    value: function updateBounds(segment) {
-      var segBounds = segment.getBounds();
-      this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
-      this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
-      this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
-      this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
-    }
-  }, {
-    key: "dumpSegmentsToConsole",
-    value: function dumpSegmentsToConsole() {
-      log("SEGMENTS:");
-
-      for (var i = 0; i < this.segments.length; i++) {
-        log(this.segments[i].type, "" + this.segments[i].getLength(), "" + this.segmentProportions[i]);
-      }
-    }
-  }, {
-    key: "pointOnPath",
-    value: function pointOnPath(location, absolute) {
-      var seg = this._findSegmentForLocation(location, absolute);
-
-      return seg.segment && seg.segment.pointOnPath(seg.proportion, false) || {
-        x: 0,
-        y: 0
-      };
-    }
-  }, {
-    key: "gradientAtPoint",
-    value: function gradientAtPoint(location, absolute) {
-      var seg = this._findSegmentForLocation(location, absolute);
-
-      return seg.segment && seg.segment.gradientAtPoint(seg.proportion, false) || 0;
-    }
-  }, {
-    key: "pointAlongPathFrom",
-    value: function pointAlongPathFrom(location, distance, absolute) {
-      var seg = this._findSegmentForLocation(location, absolute); // TODO what happens if this crosses to the next segment?
-
-
-      return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || {
-        x: 0,
-        y: 0
-      };
-    }
-  }, {
-    key: "compute",
-    value: function compute(params) {
-      this.paintInfo = this._prepareCompute(params);
-
-      this._clearSegments();
-
-      this._compute(this.paintInfo, params);
-
-      this.x = this.paintInfo.points[0];
-      this.y = this.paintInfo.points[1];
-      this.w = this.paintInfo.points[2];
-      this.h = this.paintInfo.points[3];
-      this.segment = this.paintInfo.segment;
-
-      this._updateSegmentProportions();
-    }
-  }, {
-    key: "applyType",
-    value: function applyType(t) {
-      this.instance.applyConnectorType(this, t);
-    } //
-    // a dummy implementation for subclasses to override if they want to.
-    //
-
-  }, {
-    key: "setAnchorOrientation",
-    value: function setAnchorOrientation(idx, orientation) {}
-  }]);
-
-  return AbstractConnector;
-}();
-
-var VERY_SMALL_VALUE = 0.0000000001;
-
-function gentleRound(n) {
-  var f = Math.floor(n),
-      r = Math.ceil(n);
-
-  if (n - f < VERY_SMALL_VALUE) {
-    return f;
-  } else if (r - n < VERY_SMALL_VALUE) {
-    return r;
-  }
-
-  return n;
-}
-
-var ArcSegment =
-/*#__PURE__*/
-function (_AbstractSegment) {
-  _inherits(ArcSegment, _AbstractSegment);
-
-  function ArcSegment(instance, params) {
-    var _this;
-
-    _classCallCheck(this, ArcSegment);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
-    _this.instance = instance;
-
-    _defineProperty(_assertThisInitialized(_this), "type", ArcSegment.segmentType);
-
-    _defineProperty(_assertThisInitialized(_this), "cx", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "cy", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "radius", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "anticlockwise", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "startAngle", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "endAngle", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "sweep", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "length", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "circumference", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "frac", void 0);
-
-    _this.cx = params.cx;
-    _this.cy = params.cy;
-    _this.radius = params.r;
-    _this.anticlockwise = params.ac;
-
-    if (params.startAngle && params.endAngle) {
-      _this.startAngle = params.startAngle;
-      _this.endAngle = params.endAngle;
-      _this.x1 = _this.cx + _this.radius * Math.cos(_this.startAngle);
-      _this.y1 = _this.cy + _this.radius * Math.sin(_this.startAngle);
-      _this.x2 = _this.cx + _this.radius * Math.cos(_this.endAngle);
-      _this.y2 = _this.cy + _this.radius * Math.sin(_this.endAngle);
-    } else {
-      _this.startAngle = _this._calcAngle(_this.x1, _this.y1);
-      _this.endAngle = _this._calcAngle(_this.x2, _this.y2);
-    }
-
-    if (_this.endAngle < 0) {
-      _this.endAngle += TWO_PI;
-    }
-
-    if (_this.startAngle < 0) {
-      _this.startAngle += TWO_PI;
-    }
-
-    var ea = _this.endAngle < _this.startAngle ? _this.endAngle + TWO_PI : _this.endAngle;
-    _this.sweep = Math.abs(ea - _this.startAngle);
-
-    if (_this.anticlockwise) {
-      _this.sweep = TWO_PI - _this.sweep;
-    }
-
-    _this.circumference = 2 * Math.PI * _this.radius;
-    _this.frac = _this.sweep / TWO_PI;
-    _this.length = _this.circumference * _this.frac;
-    _this.bounds = {
-      minX: _this.cx - _this.radius,
-      maxX: _this.cx + _this.radius,
-      minY: _this.cy - _this.radius,
-      maxY: _this.cy + _this.radius
-    };
-    return _this;
-  }
-
-  _createClass(ArcSegment, [{
-    key: "_calcAngle",
-    value: function _calcAngle(_x, _y) {
-      return this.instance.geometry.theta({
-        x: this.cx,
-        y: this.cy
-      }, {
-        x: _x,
-        y: _y
-      });
-    }
-  }, {
-    key: "_calcAngleForLocation",
-    value: function _calcAngleForLocation(segment, location) {
-      if (segment.anticlockwise) {
-        var sa = segment.startAngle < segment.endAngle ? segment.startAngle + TWO_PI : segment.startAngle,
-            s = Math.abs(sa - segment.endAngle);
-        return sa - s * location;
-      } else {
-        var ea = segment.endAngle < segment.startAngle ? segment.endAngle + TWO_PI : segment.endAngle,
-            ss = Math.abs(ea - segment.startAngle);
-        return segment.startAngle + ss * location;
-      }
-    }
-  }, {
-    key: "getLength",
-    value: function getLength() {
-      return this.length;
-    }
-    /**
-     * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
-     * 0 to 1 inclusive.
-     */
-
-  }, {
-    key: "pointOnPath",
-    value: function pointOnPath(location, absolute) {
-      if (location === 0) {
-        return {
-          x: this.x1,
-          y: this.y1,
-          theta: this.startAngle
-        };
-      } else if (location === 1) {
-        return {
-          x: this.x2,
-          y: this.y2,
-          theta: this.endAngle
-        };
-      }
-
-      if (absolute) {
-        location = location / length;
-      }
-
-      var angle = this._calcAngleForLocation(this, location),
-          _x = this.cx + this.radius * Math.cos(angle),
-          _y = this.cy + this.radius * Math.sin(angle);
-
-      return {
-        x: gentleRound(_x),
-        y: gentleRound(_y),
-        theta: angle
-      };
-    }
-    /**
-     * returns the gradient of the segment at the given point.
-     */
-
-  }, {
-    key: "gradientAtPoint",
-    value: function gradientAtPoint(location, absolute) {
-      var p = this.pointOnPath(location, absolute);
-      var m = this.instance.geometry.normal({
-        x: this.cx,
-        y: this.cy
-      }, p);
-
-      if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
-        m *= -1;
-      }
-
-      return m;
-    }
-  }, {
-    key: "pointAlongPathFrom",
-    value: function pointAlongPathFrom(location, distance, absolute) {
-      var p = this.pointOnPath(location, absolute),
-          arcSpan = distance / this.circumference * 2 * Math.PI,
-          dir = this.anticlockwise ? -1 : 1,
-          startAngle = p.theta + dir * arcSpan,
-          startX = this.cx + this.radius * Math.cos(startAngle),
-          startY = this.cy + this.radius * Math.sin(startAngle);
-      return {
-        x: startX,
-        y: startY
-      };
-    } // TODO: lineIntersection
-
-  }]);
-
-  return ArcSegment;
-}(AbstractSegment);
-
-_defineProperty(ArcSegment, "segmentType", "Arc");
-
-var BezierSegment =
-/*#__PURE__*/
-function (_AbstractSegment) {
-  _inherits(BezierSegment, _AbstractSegment);
-
-  function BezierSegment(instance, params) {
-    var _this;
-
-    _classCallCheck(this, BezierSegment);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierSegment).call(this, params));
-
-    _defineProperty(_assertThisInitialized(_this), "curve", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "cp1x", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "cp1y", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "cp2x", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "cp2y", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "bounds", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "x1", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "x2", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "y1", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "y2", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "length", 0);
-
-    _defineProperty(_assertThisInitialized(_this), "type", BezierSegment.segmentType);
-
-    _this.cp1x = params.cp1x;
-    _this.cp1y = params.cp1y;
-    _this.cp2x = params.cp2x;
-    _this.cp2y = params.cp2y;
-    _this.x1 = params.x1;
-    _this.x2 = params.x2;
-    _this.y1 = params.y1;
-    _this.y2 = params.y2;
-    _this.curve = [{
-      x: _this.x1,
-      y: _this.y1
-    }, {
-      x: _this.cp1x,
-      y: _this.cp1y
-    }, {
-      x: _this.cp2x,
-      y: _this.cp2y
-    }, {
-      x: _this.x2,
-      y: _this.y2
-    }]; // although this is not a strictly rigorous determination of bounds
-    // of a bezier curve, it works for the types of curves that this segment
-    // type produces.
-
-    _this.bounds = {
-      minX: Math.min(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
-      minY: Math.min(_this.y1, _this.y2, _this.cp1y, _this.cp2y),
-      maxX: Math.max(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
-      maxY: Math.max(_this.y1, _this.y2, _this.cp1y, _this.cp2y)
-    };
-    return _this;
-  }
-
-  _createClass(BezierSegment, [{
-    key: "pointOnPath",
-
-    /**
-     * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
-     * 0 to 1 inclusive.
-     */
-    value: function pointOnPath(location, absolute) {
-      location = BezierSegment._translateLocation(this.curve, location, absolute);
-      return pointOnCurve(this.curve, location);
-    }
-    /**
-     * returns the gradient of the segment at the given point.
-     */
-
-  }, {
-    key: "gradientAtPoint",
-    value: function gradientAtPoint$1(location, absolute) {
-      location = BezierSegment._translateLocation(this.curve, location, absolute);
-      return gradientAtPoint(this.curve, location);
-    }
-  }, {
-    key: "pointAlongPathFrom",
-    value: function pointAlongPathFrom(location, distance, absolute) {
-      location = BezierSegment._translateLocation(this.curve, location, absolute);
-      return pointAlongCurveFrom(this.curve, location, distance);
-    }
-  }, {
-    key: "getLength",
-    value: function getLength() {
-      if (this.length == null || this.length === 0) {
-        this.length = computeBezierLength(this.curve);
-      }
-
-      return this.length;
-    }
-  }, {
-    key: "getBounds",
-    value: function getBounds() {
-      return this.bounds;
-    }
-  }, {
-    key: "findClosestPointOnPath",
-    value: function findClosestPointOnPath(x, y) {
-      var p = nearestPointOnCurve({
-        x: x,
-        y: y
-      }, this.curve);
-      return {
-        d: Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
-        x: p.point.x,
-        y: p.point.y,
-        l: 1 - p.location,
-        s: this,
-        x1: null,
-        y1: null,
-        x2: null,
-        y2: null
-      };
-    }
-  }, {
-    key: "lineIntersection",
-    value: function lineIntersection$1(x1, y1, x2, y2) {
-      return lineIntersection(x1, y1, x2, y2, this.curve);
-    }
-  }], [{
-    key: "_translateLocation",
-    value: function _translateLocation(_curve, location, absolute) {
-      if (absolute) {
-        location = locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
-      }
-
-      return location;
-    }
-  }]);
-
-  return BezierSegment;
-}(AbstractSegment);
-
-_defineProperty(BezierSegment, "segmentType", "Bezier");
-
-var StraightSegment =
-/*#__PURE__*/
-function (_AbstractSegment) {
-  _inherits(StraightSegment, _AbstractSegment);
-
-  function StraightSegment(instance, params) {
-    var _this;
-
-    _classCallCheck(this, StraightSegment);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(StraightSegment).call(this, params));
-    _this.instance = instance;
-
-    _defineProperty(_assertThisInitialized(_this), "length", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "m", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "m2", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "x1", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "x2", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "y1", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "y2", void 0);
-
-    _defineProperty(_assertThisInitialized(_this), "type", StraightSegment.segmentType);
-
-    _this._setCoordinates({
-      x1: params.x1,
-      y1: params.y1,
-      x2: params.x2,
-      y2: params.y2
-    });
-
-    return _this;
-  }
-
-  _createClass(StraightSegment, [{
-    key: "_recalc",
-    value: function _recalc() {
-      this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
-      this.m = this.instance.geometry.gradient({
-        x: this.x1,
-        y: this.y1
-      }, {
-        x: this.x2,
-        y: this.y2
-      });
-      this.m2 = -1 / this.m;
-    }
-  }, {
-    key: "getLength",
-    value: function getLength() {
-      return this.length;
-    }
-  }, {
-    key: "getGradient",
-    value: function getGradient() {
-      return this.m;
-    }
-  }, {
-    key: "_setCoordinates",
-    value: function _setCoordinates(coords) {
-      this.x1 = coords.x1;
-      this.y1 = coords.y1;
-      this.x2 = coords.x2;
-      this.y2 = coords.y2;
-
-      this._recalc();
-    }
-  }, {
-    key: "getBounds",
-    value: function getBounds() {
-      return {
-        minX: Math.min(this.x1, this.x2),
-        minY: Math.min(this.y1, this.y2),
-        maxX: Math.max(this.x1, this.x2),
-        maxY: Math.max(this.y1, this.y2)
-      };
-    }
-    /**
-     * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
-     * 0 to 1 inclusive. for the straight line segment this is simple maths.
-     */
-
-  }, {
-    key: "pointOnPath",
-    value: function pointOnPath(location, absolute) {
-      if (location === 0 && !absolute) {
-        return {
-          x: this.x1,
-          y: this.y1
-        };
-      } else if (location === 1 && !absolute) {
-        return {
-          x: this.x2,
-          y: this.y2
-        };
-      } else {
-        var l = absolute ? location > 0 ? location : this.length + location : location * this.length;
-        return this.instance.geometry.pointOnLine({
-          x: this.x1,
-          y: this.y1
-        }, {
-          x: this.x2,
-          y: this.y2
-        }, l);
-      }
-    }
-    /**
-     * returns the gradient of the segment at the given point - which for us is constant.
-     */
-
-  }, {
-    key: "gradientAtPoint",
-    value: function gradientAtPoint(location, absolute) {
-      return this.m;
-    }
-    /**
-     * returns the point on the segment's path that is 'distance' along the length of the path from 'location', where
-     * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
-     * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
-     */
-
-  }, {
-    key: "pointAlongPathFrom",
-    value: function pointAlongPathFrom(location, distance, absolute) {
-      var p = this.pointOnPath(location, absolute),
-          farAwayPoint = distance <= 0 ? {
-        x: this.x1,
-        y: this.y1
-      } : {
-        x: this.x2,
-        y: this.y2
-        /*
-         location == 1 ? {
-         x:x1 + ((x2 - x1) * 10),
-         y:y1 + ((y1 - y2) * 10)
-         } :
-         */
-
-      };
-
-      if (distance <= 0 && Math.abs(distance) > 1) {
-        distance *= -1;
-      }
-
-      return this.instance.geometry.pointOnLine(p, farAwayPoint, distance);
-    } // is c between a and b?
-
-  }, {
-    key: "within",
-    value: function within(a, b, c) {
-      return c >= Math.min(a, b) && c <= Math.max(a, b);
-    } // find which of a and b is closest to c
-
-  }, {
-    key: "closest",
-    value: function closest(a, b, c) {
-      return Math.abs(c - a) < Math.abs(c - b) ? a : b;
-    }
-    /**
-     Function: findClosestPointOnPath
-     Finds the closest point on this segment to [x,y]. See
-     notes on this method in AbstractSegment.
-     */
-
-  }, {
-    key: "findClosestPointOnPath",
-    value: function findClosestPointOnPath(x, y) {
-      var out = {
-        d: Infinity,
-        x: null,
-        y: null,
-        l: null,
-        x1: this.x1,
-        x2: this.x2,
-        y1: this.y1,
-        y2: this.y2
-      };
-
-      if (this.m === 0) {
-        out.y = this.y1;
-        out.x = this.within(this.x1, this.x2, x) ? x : this.closest(this.x1, this.x2, x);
-      } else if (this.m === Infinity || this.m === -Infinity) {
-        out.x = this.x1;
-        out.y = this.within(this.y1, this.y2, y) ? y : this.closest(this.y1, this.y2, y);
-      } else {
-        // closest point lies on normal from given point to this line.
-        var b = this.y1 - this.m * this.x1,
-            b2 = y - this.m2 * x,
-            // y1 = m.x1 + b and y1 = m2.x1 + b2
-        // so m.x1 + b = m2.x1 + b2
-        // x1(m - m2) = b2 - b
-        // x1 = (b2 - b) / (m - m2)
-        _x1 = (b2 - b) / (this.m - this.m2),
-            _y1 = this.m * _x1 + b;
-
-        out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1); //_x1
-
-        out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1); //_y1
-      }
-
-      var fractionInSegment = this.instance.geometry.lineLength({
-        x: out.x,
-        y: out.y
-      }, {
-        x: this.x1,
-        y: this.y1
-      });
-      out.d = this.instance.geometry.lineLength({
-        x: x,
-        y: y
-      }, out);
-      out.l = fractionInSegment / length;
-      return out;
-    }
-  }, {
-    key: "_pointLiesBetween",
-    value: function _pointLiesBetween(q, p1, p2) {
-      return p2 > p1 ? p1 <= q && q <= p2 : p1 >= q && q >= p2;
-    }
-    /**
-     * Calculates all intersections of the given line with this segment.
-     * @param _x1
-     * @param _y1
-     * @param _x2
-     * @param _y2
-     * @returns {Array}
-     */
-
-  }, {
-    key: "lineIntersection",
-    value: function lineIntersection(_x1, _y1, _x2, _y2) {
-      var m2 = Math.abs(this.instance.geometry.gradient({
-        x: _x1,
-        y: _y1
-      }, {
-        x: _x2,
-        y: _y2
-      })),
-          m1 = Math.abs(this.m),
-          b = m1 === Infinity ? this.x1 : this.y1 - m1 * this.x1,
-          out = [],
-          b2 = m2 === Infinity ? _x1 : _y1 - m2 * _x1; // if lines parallel, no intersection
-
-      if (m2 !== m1) {
-        // perpendicular, segment horizontal
-        if (m2 === Infinity && m1 === 0) {
-          if (this._pointLiesBetween(_x1, this.x1, this.x2) && this._pointLiesBetween(this.y1, _y1, _y2)) {
-            out.push([_x1, this.y1]); // we return X on the incident line and Y from the segment
-          }
-        } else if (m2 === 0 && m1 === Infinity) {
-          // perpendicular, segment vertical
-          if (this._pointLiesBetween(_y1, this.y1, this.y2) && this._pointLiesBetween(this.x1, _x1, _x2)) {
-            out.push([this.x1, _y1]); // we return X on the segment and Y from the incident line
-          }
-        } else {
-          var X, Y;
-
-          if (m2 === Infinity) {
-            // test line is a vertical line. where does it cross the segment?
-            X = _x1;
-
-            if (this._pointLiesBetween(X, this.x1, this.x2)) {
-              Y = m1 * _x1 + b;
-
-              if (this._pointLiesBetween(Y, _y1, _y2)) {
-                out.push([X, Y]);
-              }
-            }
-          } else if (m2 === 0) {
-            Y = _y1; // test line is a horizontal line. where does it cross the segment?
-
-            if (this._pointLiesBetween(Y, this.y1, this.y2)) {
-              X = (_y1 - b) / m1;
-
-              if (this._pointLiesBetween(X, _x1, _x2)) {
-                out.push([X, Y]);
-              }
-            }
-          } else {
-            // mX + b = m2X + b2
-            // mX - m2X = b2 - b
-            // X(m - m2) = b2 - b
-            // X = (b2 - b) / (m - m2)
-            // Y = mX + b
-            X = (b2 - b) / (m1 - m2);
-            Y = m1 * X + b;
-
-            if (this._pointLiesBetween(X, this.x1, this.x2) && this._pointLiesBetween(Y, this.y1, this.y2)) {
-              out.push([X, Y]);
-            }
-          }
-        }
-      }
-
-      return out;
-    }
-    /**
-     * Calculates all intersections of the given box with this segment. By default this method simply calls `lineIntersection` with each of the four
-     * faces of the box; subclasses can override this if they think there's a faster way to compute the entire box at once.
-     * @param x X position of top left corner of box
-     * @param y Y position of top left corner of box
-     * @param w width of box
-     * @param h height of box
-     * @returns {Array}
-     */
-
-  }, {
-    key: "boxIntersection",
-    value: function boxIntersection(x, y, w, h) {
-      var a = [];
-      a.push.apply(a, this.lineIntersection(x, y, x + w, y));
-      a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
-      a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
-      a.push.apply(a, this.lineIntersection(x, y + h, x, y));
-      return a;
-    }
-  }]);
-
-  return StraightSegment;
-}(AbstractSegment);
-
-_defineProperty(StraightSegment, "segmentType", "Straight");
-
 var DEFAULT_WIDTH = 20;
 var DEFAULT_LENGTH = 20;
 var ArrowOverlay =
@@ -11644,6 +12600,14 @@ function isCustomOverlay(o) {
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
+register();
+register$1();
+register$2();
+register$5();
+register$3();
+register$4();
+register$6();
+
 exports.ABSOLUTE = ABSOLUTE;
 exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
 exports.ATTRIBUTE_GROUP = ATTRIBUTE_GROUP;
@@ -11681,6 +12645,7 @@ exports.ContinuousAnchor = ContinuousAnchor;
 exports.CustomOverlay = CustomOverlay;
 exports.DEFAULT = DEFAULT;
 exports.DiamondOverlay = DiamondOverlay;
+exports.DotEndpoint = DotEndpoint;
 exports.DynamicAnchor = DynamicAnchor;
 exports.EMPTY_BOUNDS = EMPTY_BOUNDS;
 exports.EVENT_CLICK = EVENT_CLICK;
@@ -11823,6 +12788,7 @@ exports.pointAlongCurveFrom = pointAlongCurveFrom;
 exports.pointAlongPath = pointAlongPath;
 exports.pointOnCurve = pointOnCurve;
 exports.populate = populate;
+exports.register = register;
 exports.remove = remove;
 exports.removeWithFunction = removeWithFunction;
 exports.replace = replace;
