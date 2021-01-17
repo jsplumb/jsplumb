@@ -42,9 +42,9 @@ var testSuite = function () {
             support.cleanup();
         },
         setup: function () {
-            _jsPlumb = jsPlumb.newInstance({container:document.getElementById("container")});
+            _jsPlumb = jsPlumbBrowserUI.newInstance({container:document.getElementById("container")});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = Object.assign({}, _jsPlumb.Defaults);
         }
     });
 
@@ -456,7 +456,7 @@ var testSuite = function () {
             d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150),
             d2 = support.addDiv("d2", canvas, null, 300,300,150,150);
 
-        var jpInstance = jsPlumb.newInstance({
+        var jpInstance = jsPlumbBrowserUI.newInstance({
             container: canvas,
             anchor: 'Continuous',
             endpoint: [
@@ -1256,7 +1256,7 @@ var testSuite = function () {
             d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150),
             d2 = support.addDiv("d2", canvas, null, 300,300,150,150);
 
-        var jpInstance = jsPlumb.newInstance({
+        var jpInstance = jsPlumbBrowserUI.newInstance({
             container: canvas,
             anchor: 'Continuous',
             endpoint: [

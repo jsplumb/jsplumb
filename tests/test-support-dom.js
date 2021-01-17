@@ -1,6 +1,6 @@
 ;(function() {
 
-    var mottle = new jsPlumb.EventManager();
+    var mottle = new jsPlumbBrowserUI.EventManager();
     var _t = function(el, evt, x, y) {
         mottle.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
     };

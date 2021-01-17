@@ -30,9 +30,9 @@ var testSuite = function () {
             support.cleanup();
         },
         setup: function () {
-            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = Object.assign({}, _jsPlumb.Defaults);
 
         }
     });
@@ -42,7 +42,7 @@ var testSuite = function () {
     });
 
     var _addGroup = function(j, name, container, members, params) {
-        var g = j.addGroup(jsPlumb.extend({
+        var g = j.addGroup(Object.assign({
             el:container,
             id:name,
             anchor:"Continuous",
@@ -1688,7 +1688,7 @@ var testSuite = function () {
     });
 
     test("nested groups, support allowNestedGroups flag on jsplumb constructor (defaults to true)", function() {
-        var j = jsPlumb.newInstance({
+        var j = jsPlumbBrowserUI.newInstance({
             container:container,
             allowNestedGroups:false
         });
@@ -1704,7 +1704,7 @@ var testSuite = function () {
     });
 
     test("nested groups, one group can't be dropped on another if allowNestedGroups is false", function() {
-        var j = jsPlumb.newInstance({
+        var j = jsPlumbBrowserUI.newInstance({
             container:container,
             allowNestedGroups:false
         });

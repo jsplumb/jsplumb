@@ -9,7 +9,7 @@ var testSuite = function () {
             support.cleanup();
         },
         setup: function () {
-            _jsPlumb = jsPlumb.newInstance({container:container});
+            _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
         }
     });

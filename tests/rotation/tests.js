@@ -38,9 +38,9 @@ var testSuite = function () {
             support.cleanup();
         },
         setup: function () {
-            _jsPlumb = jsPlumb.newInstance({container:document.getElementById("container")});
+            _jsPlumb = jsPlumbBrowserUI.newInstance({container:document.getElementById("container")});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = Object.assign({}, _jsPlumb.Defaults);
         }
     });
 

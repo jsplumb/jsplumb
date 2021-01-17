@@ -6,9 +6,9 @@ var reinit = function(defaults) {
     var d = Object.assign({container:container}, defaults || {});
     support.cleanup()
 
-    _jsPlumb = jsPlumb.newInstance((d));
+    _jsPlumb = jsPlumbBrowserUI.newInstance((d));
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
-    defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+    defaults = Object.assign({}, _jsPlumb.Defaults);
 }
 
 /**
@@ -54,9 +54,9 @@ var testSuite = function () {
             support.cleanup();
         },
         setup: function () {
-            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = Object.assign({}, _jsPlumb.Defaults);
 
             var epElCount = document.querySelectorAll(".jtk-endpoint").length,
                 connElCount = document.querySelectorAll(".jtk-connector").length;
