@@ -1,11 +1,5 @@
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Dictionary} from '../core/common'
-import { extend } from '../core/util'
-import { Anchor } from '../core/anchor/anchor'
-import { AnchorSpec } from '../core/factory/anchor-factory'
-import { Connection } from '../core/connector/connection-impl'
-import { Endpoint } from '../core/endpoint/endpoint-impl'
-import { EndpointSpec } from '../core/endpoint/endpoint'
+import { EndpointSpec, Endpoint, Connection, AnchorSpec, Anchor, extend, Dictionary} from '@jsplumb/community-core'
 
 export interface ListManagerOptions { }
 

@@ -10,22 +10,18 @@ import {
 
 import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance"
 
-import { Connection } from '../core/connector/connection-impl'
-import { PARENT_GROUP_KEY, GROUP_KEY } from '../core/constants'
-import { UIGroup } from '../core/group/group'
 
+import {Drag} from "./collicat"
 import {
     BoundingBox,
     Dictionary,
-    Offset,
+    GROUP_KEY, isString,
+    Offset, optional,
+    PARENT_GROUP_KEY,
     PointArray,
-
-} from '../core/common'
-
-import { isString, optional } from '../core/util'
-
-import {Drag} from "./collicat"
-import {RedrawResult} from '../core/anchor-manager'
+    RedrawResult,
+    UIGroup
+} from "@jsplumb/community-core"
 
 type IntersectingGroup = {
     group:UIGroup

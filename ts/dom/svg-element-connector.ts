@@ -1,10 +1,8 @@
-import {  extend } from '../core/util'
-import { AbstractConnector } from '../core/connector/abstract-connector'
-import { PaintStyle } from '../core/styles'
 
 import {SvgComponent} from "./svg-component"
 
 import {_appendAtIndex, _applyStyles, _attr, _node } from './svg-util'
+import {AbstractConnector, extend, PaintStyle} from "@jsplumb/community-core"
 
 /**
  * Renderer for a connector that uses an `svg` element in the DOM.

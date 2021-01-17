@@ -1,12 +1,9 @@
 
-import { PointArray } from '../core/common'
-import {UIGroup} from "../core/group/group"
-import { PARENT_GROUP_KEY } from '../core/constants'
-
 import {ElementDragHandler} from "./element-drag-handler"
 import {DragEventParams, EVT_REVERT, GhostProxyingDragHandler, DragStopEventParams} from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 import {Drag} from "./collicat"
+import {PARENT_GROUP_KEY, PointArray, UIGroup} from "@jsplumb/community-core"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {

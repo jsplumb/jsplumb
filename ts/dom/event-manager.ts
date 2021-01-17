@@ -1,18 +1,3 @@
-
-import {
-    ATTRIBUTE_TABINDEX,
-    EVENT_CLICK, EVENT_CONTEXTMENU,
-    EVENT_DBL_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN,
-    EVENT_MOUSEENTER,
-    EVENT_MOUSEEXIT,
-    EVENT_MOUSEOUT,
-    EVENT_MOUSEOVER, EVENT_MOUSEUP,
-    EVENT_TAP
-} from '../core/constants'
-
-import { PointArray } from '../core/common'
-import { uuid } from '../core/util'
-
 /**
  * Creates a Touch object.
  * @param target
@@ -25,6 +10,17 @@ import { uuid } from '../core/util'
  * @returns {Touch}
  * @private
  */
+import {
+    ATTRIBUTE_TABINDEX,
+    EVENT_CLICK, EVENT_CONTEXTMENU, EVENT_DBL_TAP,
+    EVENT_FOCUS,
+    EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
+    EVENT_MOUSEUP, EVENT_TAP,
+    PointArray,
+    uuid
+} from "@jsplumb/community-core"
+
+
 function _touch(target:any, pageX:number, pageY:number, screenX:number, screenY:number, clientX:number, clientY:number):Touch {
 
     return new Touch({

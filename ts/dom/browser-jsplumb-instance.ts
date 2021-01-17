@@ -1,26 +1,23 @@
 import {
     jsPlumbDefaults,
-    jsPlumbHelperFunctions
-} from '../core/defaults'
-
-import {
+    jsPlumbHelperFunctions,
     Dictionary,
     SourceDefinition, TargetDefinition, Offset,
     PointArray,
     Size,
     BoundingBox,
-    jsPlumbElement, TypeDescriptor
-} from '../core/common'
-
-import { JsPlumbInstance } from '../core/core'
-
-import {IS, isFunction, isString, uuid} from '../core/util'
-import { UIGroup } from '../core/group/group'
-import { AbstractConnector } from '../core/connector/abstract-connector'
-import { Endpoint } from '../core/endpoint/endpoint-impl'
-import { Overlay } from '../core/overlay/overlay'
-
-import {
+    jsPlumbElement,
+    TypeDescriptor,
+    JsPlumbInstance,
+    IS,
+    isFunction,
+    isString,
+    uuid,
+    UIGroup,
+    AbstractConnector,
+    Endpoint,
+    Overlay,
+    RedrawResult,
     EVENT_ELEMENT_MOUSE_MOVE,
     EVENT_ELEMENT_MOUSE_OUT,
     EVENT_ELEMENT_MOUSE_OVER,
@@ -54,9 +51,12 @@ import {
     FALSE,
     ABSOLUTE,
     FIXED,
-    STATIC, PROPERTY_POSITION, UNDEFINED
-} from '../core/constants'
-
+    STATIC, PROPERTY_POSITION, UNDEFINED,
+    PaintStyle, OverlayCapableComponent,
+    Segment, BezierSegment, ArcSegment, isArrowOverlay, isPlainArrowOverlay, LabelOverlay, isLabelOverlay, isDiamondOverlay, Connection, EndpointRepresentation,
+    Component, RepaintOptions,
+    CustomOverlay, isCustomOverlay
+} from '@jsplumb/community-core'
 
 import { _attr,
     _node,
@@ -78,25 +78,11 @@ import {
     toggleClass
 } from "./browser-util"
 import {EventManager} from "./event-manager"
-import { RedrawResult } from '../core/anchor-manager'
 
 import {CollicatOptions, Collicat, Drag, DragHandlerOptions} from './collicat'
 
 import {jsPlumbList, jsPlumbListManager, jsPlumbListOptions} from "./lists"
-import { Component, RepaintOptions } from '../core/component/component'
-import { Segment } from '../core/connector/abstract-segment'
-import { BezierSegment } from '../core/connector/bezier-segment'
-import { ArcSegment } from '../core/connector/arc-segment'
-import { isArrowOverlay } from '../core/overlay/arrow-overlay'
-import { isPlainArrowOverlay } from '../core/overlay/plain-arrow-overlay'
-import { LabelOverlay, isLabelOverlay } from '../core/overlay/label-overlay'
-import { isDiamondOverlay} from "../core/overlay/diamond-overlay"
-import { Connection } from '../core/connector/connection-impl'
-import { EndpointRepresentation } from '../core/endpoint/endpoints'
 
-import { OverlayCapableComponent } from '../core/component/overlay-capable-component'
-import { PaintStyle} from '../core/styles'
-import { CustomOverlay, isCustomOverlay } from '../core/overlay/custom-overlay'
 import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
 import {SvgElementConnector} from "./svg-element-connector"

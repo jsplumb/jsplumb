@@ -8,47 +8,32 @@ import {
 } from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
-import { Connection } from '../core/connector/connection-impl'
-import { Endpoint } from '../core/endpoint/endpoint-impl'
-import { addToList,
-    each,
-    findWithFunction,
-    functionChain,
-    IS,
-    isString,
-    extend
-} from '../core/util'
-
-import { Anchor } from '../core/anchor/anchor'
-import { PaintStyle } from '../core/styles'
-import { EndpointRepresentation } from '../core/endpoint/endpoints'
-
-import {
-    BoundingBox,
-    Dictionary, jsPlumbElement,
-    SourceDefinition, SourceOrTargetDefinition,
-    TargetDefinition
-} from '../core/common'
-
-import {makeAnchorFromSpec} from "../core/factory/anchor-factory"
-
-import { EVENT_CONNECTION_DRAG,
-    EVENT_MAX_CONNECTIONS,
-    IS_GROUP_KEY,
-    SOURCE,
-    TARGET,
-    CHECK_DROP_ALLOWED,
-    IS_DETACH_ALLOWED,
-    BEFORE_DETACH,
-    CHECK_CONDITION,
-    classList,
-    cls
-} from '../core/constants'
-
 import { FloatingAnchor  } from "./floating-anchor"
 import {consume, createElement, findParent} from "./browser-util"
 
 import {Drag} from "./collicat"
+import {
+    addToList,
+    Anchor, BEFORE_DETACH,
+    BoundingBox, CHECK_CONDITION,
+    CHECK_DROP_ALLOWED, classList,
+    cls,
+    Connection,
+    Dictionary,
+    each,
+    Endpoint,
+    EndpointRepresentation,
+    EVENT_CONNECTION_DRAG, EVENT_MAX_CONNECTIONS,
+    extend,
+    findWithFunction, functionChain, IS, IS_DETACH_ALLOWED,
+    IS_GROUP_KEY, isString,
+    jsPlumbElement,
+    makeAnchorFromSpec,
+    PaintStyle, SOURCE,
+    SourceDefinition,
+    SourceOrTargetDefinition, TARGET,
+    TargetDefinition
+} from "@jsplumb/community-core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint, referenceCanvas:HTMLElement, sourceElement:jsPlumbDOMElement, instance:BrowserJsPlumbInstance, scope?:string) {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas })

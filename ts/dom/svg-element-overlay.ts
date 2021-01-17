@@ -1,8 +1,6 @@
-import {Connection } from '../core/connector/connection-impl'
-import { Endpoint } from '../core/endpoint/endpoint-impl'
-import { Overlay } from '../core/overlay/overlay'
 
 import { _attr, _node, _appendAtIndex } from './svg-util'
+import {Connection, Endpoint, Overlay} from "@jsplumb/community-core"
 
 export abstract class SVGElementOverlay {
 

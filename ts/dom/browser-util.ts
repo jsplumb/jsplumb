@@ -1,6 +1,6 @@
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Dictionary, Offset} from '../core/common'
-import { fastTrim, isArray, log } from '../core/util'
+import {Dictionary, fastTrim, isArray, log, Offset} from "@jsplumb/community-core"
+
 
 // These are utility functions for use inside a Browser.
 

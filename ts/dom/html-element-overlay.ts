@@ -1,10 +1,7 @@
 
 import {createElement} from './browser-util'
-import { PointArray } from '../core/common'
-import { JsPlumbInstance } from "../core/core"
-import { Overlay } from '../core/overlay/overlay'
-import { Component } from '../core/component/component'
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {Component, JsPlumbInstance, Overlay, PointArray} from "@jsplumb/community-core"
 
 interface HTMLElementOverlayHolder extends Overlay {
     canvas:jsPlumbDOMElement

@@ -1,13 +1,8 @@
 
-import {
-    Dictionary
-} from '../core/common'
-
-import { Component } from '../core/component/component'
-import { NONE } from '../core/constants'
 
 import {createElementNS} from './browser-util'
 import { jsPlumbDOMElement } from './browser-jsplumb-instance'
+import {Component, Dictionary, NONE} from "@jsplumb/community-core"
 
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",

@@ -1,8 +1,9 @@
 import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 
-import { PaintStyle } from '../core/styles'
 import { _attr, _node } from './svg-util'
-import { RectangleEndpoint } from '../core/endpoint/rectangle-endpoint'
+
+import {PaintStyle} from "@jsplumb/community-core"
+import {RectangleEndpoint} from "@jsplumb/community-core/endpoint/rectangle-endpoint"
 
 export const register = () => {
 

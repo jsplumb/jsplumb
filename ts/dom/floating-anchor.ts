@@ -1,9 +1,12 @@
-import { Endpoint } from '../core/endpoint/endpoint-impl'
-import { AnchorPlacement } from '../core/anchor-manager'
-import { Anchor } from '../core/anchor/anchor'
-import { AnchorOrientationHint, AnchorComputeParams, AnchorOptions, Orientation } from '../core/factory/anchor-factory'
-import { JsPlumbInstance} from '../core/core'
-import { Size } from '../core/common'
+import {
+    Anchor,
+    AnchorComputeParams,
+    AnchorOptions, AnchorOrientationHint,
+    AnchorPlacement,
+    Endpoint,
+    JsPlumbInstance, Orientation,
+    Size
+} from "@jsplumb/community-core"
 
 export interface FloatingAnchorOptions extends AnchorOptions {
     reference:Anchor

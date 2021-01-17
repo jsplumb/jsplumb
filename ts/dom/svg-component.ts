@@ -1,8 +1,8 @@
 
-import { PaintStyle } from '../core/styles'
 
 import {sizeElement} from "./browser-util"
 import { _attr, _pos  } from './svg-util'
+import {PaintStyle} from "@jsplumb/community-core"
 
 export class SvgComponent {
 
