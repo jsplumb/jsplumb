@@ -1,21 +1,21 @@
 {
-  "name": "@jsplumb/community",
-  "version": "4.0.0-RC32",
+  "name": "@jsplumb/browser-ui",
+  "version": "4.0.0-RC33",
   "description": "Visual connectivity for webapps",
-  "main": "js/jsplumb.dom.cjs.js",
-  "module": "js/jsplumb.dom.es.js",
+  "main": "js/jsplumb.browser-ui.cjs.js",
+  "module": "js/jsplumb.browser-ui.es.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
   "files": [
     "**/*.d.ts",
-    "js/jsplumb.dom.umd.js",
-    "js/jsplumb.dom.cjs.js",
-    "js/jsplumb.dom.es.js",
+    "js/jsplumb.browser-ui.umd.js",
+    "js/jsplumb.browser-ui.cjs.js",
+    "js/jsplumb.browser-ui.es.js",
     "css/jsplumbtoolkit.css"
   ],
-  "types": "types/dom/index.d.ts",
+  "types": "types/browser-ui/index.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",
@@ -29,5 +29,8 @@
     "connectivity"
   ],
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
-  "license": "(MIT OR GPL-2.0)"
+  "license": "(MIT OR GPL-2.0)",
+  "dependencies": {
+    "@jsplumb/community-core": "4.0.0-RC33"
+  }
 }
