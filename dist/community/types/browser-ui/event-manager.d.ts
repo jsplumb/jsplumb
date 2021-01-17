@@ -1,4 +1,16 @@
-import { PointArray } from '../core/common';
+/**
+ * Creates a Touch object.
+ * @param target
+ * @param pageX
+ * @param pageY
+ * @param screenX
+ * @param screenY
+ * @param clientX
+ * @param clientY
+ * @returns {Touch}
+ * @private
+ */
+import { PointArray } from "@jsplumb/community-core";
 export declare function pageLocation(e: Event): PointArray;
 export interface EventManagerOptions {
     clickThreshold?: number;
