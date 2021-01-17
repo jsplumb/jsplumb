@@ -1,3 +1,11 @@
+import {register as DotEndpointRegister} from "./endpoint/dot-endpoint"
+import {register as BlankEndpointRegister} from "./endpoint/blank-endpoint"
+import {register as RectangleEndpointRegister} from "./endpoint/rectangle-endpoint"
+
+import {register as StraightConnectorRegister} from "./connector/straight-connector"
+import {register as FlowchartConnectorRegister} from "./connector/flowchart-connector"
+import {register as BezierConnectorRegister} from "./connector/bezier-connector"
+import {register as StateMachineConnectorRegister} from "./connector/statemachine-connector"
 
 export * from "./constants"
 export * from './common'
@@ -22,12 +30,14 @@ export * from "./connector/bezier-segment"
 export * from "./connector/connection-impl"
 export * from "./connector/connectors"
 export * from "./connector/straight-segment"
-// todo strictly speaking we probably should ensure Bezier connector is bundled here, as it is the default...
 
 export * from "./selection/connection-selection"
 
+export * from './endpoint/endpoint'
+export * from './factory/endpoint-factory'
 export * from "./endpoint/endpoint-impl"
-export * from "./endpoint/endpoints"
+export * from './endpoint/endpoints'
+export * from './endpoint/dot-endpoint'
 
 export * from "./selection/endpoint-selection"
 
@@ -47,9 +57,15 @@ export * from "./anchor-manager"
 
 export * from "./connection"
 
-export * from "./endpoint/endpoint"
-export * from "./factory/endpoint-factory"
-
 export * from "./styles"
 export * from "./util"
+
+DotEndpointRegister()
+BlankEndpointRegister()
+RectangleEndpointRegister()
+
+BezierConnectorRegister()
+StraightConnectorRegister()
+FlowchartConnectorRegister()
+StateMachineConnectorRegister()
 
