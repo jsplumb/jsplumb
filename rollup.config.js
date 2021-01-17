@@ -17,22 +17,26 @@ function ON_WARN(warning, rollupWarn) {
     }
 }
 
+const EXTERNALS = {
+    "@jsplumb/community-core":'@jsplumb/community-core'
+}
+
 export default [
     {
         input: './ts/core/index.ts',
         output: [
             {
-                name: 'jsplumb-core',
+                name: '@jsplumb/community-core',
                 file: 'dist/core/js/jsplumb.core.cjs.js',
                 format: 'cjs'
             },
             {
-                name: 'jsplumb-core',
+                name: '@jsplumb/community-core',
                 file: 'dist/core/js/jsplumb.core.es.js',
                 format: 'es'
             },
             {
-                name: 'jsplumb-core',
+                name: '@jsplumb/community-core',
                 file: 'dist/core/js/jsplumb.core.umd.js',
                 format: 'umd'
             }
@@ -46,20 +50,50 @@ export default [
     },
     {
         input: './ts/dom/index.ts',
+        external: ['@jsplumb/community-core'],
+        output: [
+            {
+                name: 'jsPlumbBrowserUI',
+                file: 'dist/browser-ui/js/jsplumb.browser-ui.cjs.js',
+                format: 'cjs'
+            },
+            {
+                name: 'jsPlumbBrowserUI',
+                file: 'dist/browser-ui/js/jsplumb.browser-ui.es.js',
+                format: 'es'
+            },
+            {
+                name: 'jsPlumbBrowserUI',
+                file: 'dist/browser-ui/js/jsplumb.browser-ui.umd.js',
+                format: 'umd',
+                globals:EXTERNALS
+            }
+        ],
+        plugins: [
+            resolve({ extensions }),
+            commonjs(),
+            babel({ extensions, include: ['ts/**/*'] })
+        ],
+        onwarn:ON_WARN
+    },
+    // deprecated. This is the original way the community edition was packaged, with core and the browser ui stuff.
+    // We make this available for users for the time being.
+    {
+        input: './ts/dom/index.ts',
         output: [
             {
                 name: 'jsPlumb',
-                file: 'dist/dom/js/jsplumb.dom.cjs.js',
+                file: 'dist/community/js/jsplumb.community.cjs.js',
                 format: 'cjs'
             },
             {
                 name: 'jsPlumb',
-                file: 'dist/dom/js/jsplumb.dom.es.js',
+                file: 'dist/community/js/jsplumb.community.es.js',
                 format: 'es'
             },
             {
                 name: 'jsPlumb',
-                file: 'dist/dom/js/jsplumb.dom.umd.js',
+                file: 'dist/community/js/jsplumb.community.umd.js',
                 format: 'umd'
             }
         ],
