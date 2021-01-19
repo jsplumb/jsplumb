@@ -1,0 +1,17 @@
+import { jsPlumbDOMElement } from './browser-jsplumb-instance';
+import { Component, Dictionary } from "@jsplumb/community-core";
+export declare const STROKE_DASHARRAY = "stroke-dasharray";
+export declare const DASHSTYLE = "dashstyle";
+export declare const DEFS = "defs";
+export declare const FILL = "fill";
+export declare const STOP = "stop";
+export declare const STROKE = "stroke";
+export declare const STROKE_WIDTH = "stroke-width";
+export declare const STYLE = "style";
+export declare const LINE_WIDTH = "strokeWidth";
+export declare type ElementAttributes = Dictionary<string | number>;
+export declare function _attr(node: SVGElement, attributes: ElementAttributes): void;
+export declare function _node(name: string, attributes?: ElementAttributes): jsPlumbDOMElement;
+export declare function _pos(d: [number, number]): string;
+export declare function _applyStyles(parent: any, node: SVGElement, style: any, dimensions: any, uiComponent: Component): void;
+export declare function _appendAtIndex(svg: SVGElement, path: jsPlumbDOMElement, idx: number): void;
