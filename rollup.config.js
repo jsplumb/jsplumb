@@ -18,7 +18,7 @@ function ON_WARN(warning, rollupWarn) {
 }
 
 const EXTERNALS = {
-    "@jsplumb/community-core":'@jsplumb/community-core'
+    "@jsplumb/community-core":'jsPlumb'
 }
 
 export default [
@@ -26,17 +26,17 @@ export default [
         input: './ts/core/index.ts',
         output: [
             {
-                name: '@jsplumb/community-core',
+                name: 'jsPlumb',
                 file: 'dist/core/js/jsplumb.core.cjs.js',
                 format: 'cjs'
             },
             {
-                name: '@jsplumb/community-core',
+                name: 'jsPlumb',
                 file: 'dist/core/js/jsplumb.core.es.js',
                 format: 'es'
             },
             {
-                name: '@jsplumb/community-core',
+                name: 'jsPlumb',
                 file: 'dist/core/js/jsplumb.core.umd.js',
                 format: 'umd'
             }
