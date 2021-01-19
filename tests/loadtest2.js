@@ -229,8 +229,8 @@
     };
 
 
-    jsPlumb.ready(function() {
-        instance = jsPlumb.newInstance({container:demo});
+    jsPlumbBrowserUI.ready(function() {
+        instance = jsPlumbBrowserUI.newInstance({container:demo});
 
         instance.on(document.getElementById("btnTest"), "click", jsPlumbLoadTest.reset);
 
