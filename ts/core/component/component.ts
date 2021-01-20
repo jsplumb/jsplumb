@@ -85,11 +85,6 @@ export function  _updateHoverStyle<E> (component:Component) {
     }
 }
 
-export type RepaintOptions = {
-    timestamp?:Timestamp
-    recalc?:boolean
-}
-
 export interface ComponentOptions extends Record<string, any> {
     _jsPlumb?:JsPlumbInstance
     parameters?:any
