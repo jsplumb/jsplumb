@@ -841,12 +841,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
         _one(el)
     }
 
-    rotate(elementId:string, rotation:number, doNotRepaint?:boolean):RedrawResult {
+    rotate(element:jsPlumbElement, rotation:number, doNotRepaint?:boolean):RedrawResult {
+        const elementId = this.getId(element)
         if (this._managedElements[elementId]) {
             this._managedElements[elementId].rotation = rotation
             this.viewport.rotateElement(elementId, rotation)
             if (doNotRepaint !== true) {
-                return this.revalidate(this._managedElements[elementId].el)
+                return this.revalidate(element)
             }
         }
 

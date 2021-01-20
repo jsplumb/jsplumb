@@ -813,11 +813,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return new Collicat(options)
     }
 
-    rotate(elementId: string, rotation: number, doNotRepaint?: boolean):RedrawResult {
+    rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean):RedrawResult {
+        const elementId = this.getId(element)
         if (this._managedElements[elementId]) {
             (this._managedElements[elementId].el as jsPlumbDOMElement).style.transform = "rotate(" + rotation + "deg)";
             (this._managedElements[elementId].el as jsPlumbDOMElement).style.transformOrigin = "center center"
-            return super.rotate(elementId, rotation, doNotRepaint)
+            return super.rotate(element, rotation, doNotRepaint)
         }
 
         return { c:new Set(), e:new Set() }
