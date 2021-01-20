@@ -36,8 +36,6 @@ import {
 
 import { EventGenerator } from "./event-generator"
 import * as Constants from "./constants"
-import {AnchorSpec, makeAnchorFromSpec} from "./factory/anchor-factory"
-import { Anchor } from "./anchor/anchor"
 import {EndpointOptions} from "./endpoint/endpoint"
 import {AddGroupOptions, GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
@@ -49,7 +47,7 @@ import {EndpointSelection} from "./selection/endpoint-selection"
 import {ConnectionSelection} from "./selection/connection-selection"
 import {Viewport, ViewportElement} from "./viewport"
 
-import { Component, RepaintOptions } from '../core/component/component'
+import { Component } from '../core/component/component'
 import { Segment } from '../core/connector/abstract-segment'
 import { Overlay } from '../core/overlay/overlay'
 import { LabelOverlay } from '../core/overlay/label-overlay'
@@ -70,17 +68,20 @@ function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     return false
 }
 
+export type ElementSelectionSpecifier = jsPlumbElement | Array<jsPlumbElement> | '*'
+export type SelectionList = '*' | Array<string>
+
 export interface AbstractSelectOptions {
-    scope?:string
-    source?:string | any | Array<string | any>
-    target?:string | any | Array<string | any>
+    scope?:SelectionList
+    source?:ElementSelectionSpecifier
+    target?:ElementSelectionSpecifier
 }
 export interface SelectOptions extends AbstractSelectOptions {
     connections?:Array<Connection>
 }
 
 export interface SelectEndpointOptions extends AbstractSelectOptions {
-    element?:string | any | Array<string | any>
+    element?:ElementSelectionSpecifier
 }
 
 /**
@@ -109,6 +110,14 @@ export type DeleteConnectionOptions = {
 
 function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):any {
     let r = []
+    const _resolveId = (i:any) => {
+        if (isString(i)) {
+            return i
+        } else {
+            return instance.getId(i)
+        }
+    };
+
     if (input) {
         if (typeof input === 'string') {
             if (input === "*") {
@@ -122,16 +131,15 @@ function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):
             }
             else {
                 if (input.length != null) {
-                    for (let i = 0, j = input.length; i < j; i++) {
-                        r.push(instance.info(input[i]).id)
-                    }
+                    r.push(...[...input].map(_resolveId))
                 }
                 else {
-                    r.push(instance.info(input).id)
+                    r.push(_resolveId(input))
                 }
             }
         }
     }
+
     return r
 }
 
@@ -142,6 +150,8 @@ export type ManagedElement = {
     connections?:Array<Connection>,
     rotation?:number
 }
+
+const ID_ATTRIBUTE = "jtk-id"
 
 export abstract class JsPlumbInstance extends EventGenerator {
 
@@ -270,20 +280,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this._zoom
     }
 
-    info (el:string | any):{el:jsPlumbElement, text?:boolean, id?:string} {
-        if (el == null) {
-            return null
-        }
-        // this is DOM specific, we dont want this in this class.
-        else if ((<any>el).nodeType === 3 || (<any>el).nodeType === 8) {
-            return { el:el, text:true }
-        }
-        else {
-            let _el = this.getElement(el)
-            return { el: _el, id: (isString(el) && _el == null) ? el as string : this.getId(_el) }
-        }
-    }
-
     _idstamp ():string {
         return "" + this._curIdStamp++
     }
@@ -318,14 +314,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     getId (element:jsPlumbElement, uuid?:string):string {
-        // if (isString(element)) {
-        //     return element as string
-        // }
+
         if (element == null) {
             return null
         }
 
-        let id:string = this.getAttribute(element, "id")
+        let id:string = this.getAttribute(element, ID_ATTRIBUTE)
         if (!id || id === "undefined") {
             // check if fixed uuid parameter is given
             if (arguments.length === 2 && arguments[1] !== undefined) {
@@ -335,70 +329,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 id = "jsplumb-" + this._instanceIndex + "-" + this._idstamp()
             }
 
-            this.setAttribute(element, "id", id)
+            this.setAttribute(element, ID_ATTRIBUTE, id)
         }
         return id
     }
 
-    /**
-     * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
-     * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
-     * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
-     * @param el
-     * @param newId
-     * @param doNotSetAttribute
-     */
-    setId (el:any, newId:string, doNotSetAttribute?:boolean):void {
-        //
-        let id:string, _el:any
-
-        if (isString(el)) {
-            id = el as string
-        }
-        else {
-            _el = this.getElement(el)
-            id = this.getId(_el)
-        }
-
-        let sConns = this.getConnections({source: id, scope: '*'}, true) as Array<Connection>,
-            tConns = this.getConnections({target: id, scope: '*'}, true) as Array<Connection>
-
-        newId = "" + newId
-
-        if (!doNotSetAttribute) {
-            _el = this.getElement(id)
-            this.setAttribute(_el, "id", newId)
-        }
-        else {
-            _el = this.getElement(newId)
-        }
-
-        this.endpointsByElement[newId] = this.endpointsByElement[id] || []
-        for (let i = 0, ii = this.endpointsByElement[newId].length; i < ii; i++) {
-            this.endpointsByElement[newId][i].setElementId(newId)
-            this.endpointsByElement[newId][i].setReferenceElement(_el)
-        }
-        delete this.endpointsByElement[id]
-        this._managedElements[newId] = this._managedElements[id]
-        delete this._managedElements[id]
-
-        const _conns = (list:Array<Connection>, epIdx:number, type:string) => {
-            for (let i = 0, ii = list.length; i < ii; i++) {
-                list[i].endpoints[epIdx].setElementId(newId)
-                list[i].endpoints[epIdx].setReferenceElement(_el)
-                list[i][type + "Id"] = newId
-                list[i][type] = _el
-            }
-        }
-        _conns(sConns, 0, Constants.SOURCE)
-        _conns(tConns, 1, Constants.TARGET)
-
-        this.repaint(_el)
-    }
-
-    setIdChanged(oldId:string, newId:string) {
-        this.setId(oldId, newId, true)
-    }
 
     getCachedData(elId:string):ViewportElement {
 
@@ -410,7 +345,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
             return o
         }
     }
-
 
 // ------------------  element selection ------------------------
 
@@ -458,12 +392,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     selectEndpoints(params?:SelectEndpointOptions):EndpointSelection {
         params = params || {}
-        params.scope = params.scope || "*"
+        params.scope = params.scope || Constants.WILDCARD
 
         let noElementFilters = !params.element && !params.source && !params.target,
-            elements = noElementFilters ? "*" : prepareList(this, params.element),
-            sources = noElementFilters ? "*" : prepareList(this, params.source),
-            targets = noElementFilters ? "*" : prepareList(this, params.target),
+            elements = noElementFilters ? Constants.WILDCARD : prepareList(this, params.element),
+            sources = noElementFilters ? Constants.WILDCARD : prepareList(this, params.source),
+            targets = noElementFilters ? Constants.WILDCARD : prepareList(this, params.target),
+
             scopes = prepareList(this, params.scope, true)
 
         let ep:Array<Endpoint> = []
@@ -505,7 +440,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 
-    private _set (c:Connection, el:any|Endpoint, idx:number, doNotRepaint?:boolean):any {
+    private _set (c:Connection, el:jsPlumbElement|Endpoint, idx:number, doNotRepaint?:boolean):any {
 
         const stTypes = [
             { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
@@ -517,6 +452,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         let evtParams = {
             index: idx,
+            originalSource:c.source,
+            originalTarget:c.target,
             originalSourceId: idx === 0 ? cId : c.sourceId,
             newSourceId: c.sourceId,
             originalTargetId: idx === 1 ? cId : c.targetId,
@@ -571,14 +508,16 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     }
 
-    setSource (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
+    setSource (connection:Connection, el:jsPlumbElement|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 0, doNotRepaint)
-        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0)
+        Connection.updateConnectedClass(this, connection, p.originalSource, true)
+        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0)
     }
 
-    setTarget (connection:Connection, el:any|Endpoint, doNotRepaint?:boolean):void {
+    setTarget (connection:Connection, el:jsPlumbElement|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 1, doNotRepaint)
-        connection.updateConnectedClass()
+        Connection.updateConnectedClass(this, connection, p.originalTarget, true)
+        connection.updateConnectedClass(false)
     }
 
     /**
